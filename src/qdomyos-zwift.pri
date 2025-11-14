@@ -887,6 +887,7 @@ DISTFILES += \
     $$PWD/android/src/BleAdvertiser.java \
    $$PWD/android/src/CSafeRowerUSBHID.java \
     $$PWD/android/src/ContentHelper.java \
+    $$PWD/android/src/CustomQtActivity.java \
     $$PWD/android/src/Garmin.java \
    $$PWD/android/src/HidBridge.java \
     $$PWD/android/src/IQMessageReceiverWrapper.java \
@@ -1011,4 +1012,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.20.11
+VERSION = 2.20.13

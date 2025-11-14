@@ -21,7 +21,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   window-build:
-    runs-on: windows-latest
+    runs-on: windows-2022
     strategy:
       matrix:
         config:
@@ -117,7 +117,7 @@ jobs:
 
       - name: Build qthttpserver
         run: |
-            cd src\qthttpserver 
+            cd src\qthttpserver
             qmake
             make -j8
             make install
@@ -1579,7 +1579,7 @@ jobs:
   nordictrack-build:
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
-    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     
     strategy:
       matrix:
@@ -1589,6 +1589,9 @@ jobs:
             setting_value: localhost
           - name: bike
             setting_key: tdf_10_ip
+            setting_value: localhost
+          - name: rower
+            setting_key: proform_rower_ip
             setting_value: localhost
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -1939,6 +1942,7 @@ jobs:
             - **fdroid-android-trial**: Android build
             - **nordictrack-treadmill-android-trial**: Nordictrack Treadmill build for iFIT2 Tablets
             - **nordictrack-bike-android-trial**: Nordictrack Bike build for iFIT2 Tablets
+            - **nordictrack-rower-android-trial**: Nordictrack Rower build for iFIT2 Tablets
             - **peloton-bike-plus-android-trial**: Peloton Bike Plus build with Grupetto backend
             - **peloton-bike-android-trial**: Peloton Bike build with Grupetto backend
             - **raspberry-pi-binary**: Raspberry Pi build
@@ -1955,6 +1959,7 @@ jobs:
             fdroid-android-trial/android-debug.apk
             nordictrack-treadmill-android-trial/android-debug-nordictrack-treadmill.apk
             nordictrack-bike-android-trial/android-debug-nordictrack-bike.apk
+            nordictrack-rower-android-trial/android-debug-nordictrack-rower.apk
             peloton-bike-plus-android-trial/android-debug-peloton-bike-plus.apk
             peloton-bike-android-trial/android-debug-peloton-bike.apk
             raspberry-pi-binary/qdomyos-zwift-32bit

@@ -1,6 +1,7 @@
 #include "homeform.h"
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
+#include "ios/ios_liveactivity.h"
 #endif
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
@@ -1339,6 +1340,13 @@ void homeform::aboutToQuit() {
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide", "()V");
 #endif
 
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    // End iOS Live Activity
+    ios_liveactivity::endLiveActivity();
+#endif
+#endif
+
     QSettings settings;
     if (settings.value(QZSettings::fit_file_saved_on_quit, QZSettings::default_fit_file_saved_on_quit).toBool()) {
         qDebug() << "fit_file_saved_on_quit true";
@@ -1480,7 +1488,13 @@ void homeform::trainProgramSignals() {
 }
 
 void homeform::onToastRequested(QString message) {
+    QSettings settings;
     setToastRequested(message);
+
+    // Use TTS if enabled
+    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
+        m_speech.say(message);
+    }
 }
 
 QStringList homeform::tile_order() {
@@ -4512,6 +4526,14 @@ void homeform::Plus(const QString &name) {
                     trainProgram->overridePowerForCurrentRow(
                         ((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
                 }
+            } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                m_overridePower = true;
+                ((rower *)bluetoothManager->device())
+                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                if (trainProgram) {
+                    trainProgram->overridePowerForCurrentRow(
+                        ((rower *)bluetoothManager->device())->lastRequestedPower().value());
+                }
             }
         }
     } else if (name.contains(QStringLiteral("fan"))) {
@@ -4802,6 +4824,14 @@ void homeform::Minus(const QString &name) {
                     trainProgram->overridePowerForCurrentRow(
                         ((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
                 }
+            } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                m_overridePower = true;
+                ((rower *)bluetoothManager->device())
+                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                if (trainProgram) {
+                    trainProgram->overridePowerForCurrentRow(
+                        ((rower *)bluetoothManager->device())->lastRequestedPower().value());
+                }
             }
         }
     } else if (name.contains(QStringLiteral("fan"))) {
@@ -4977,6 +5007,8 @@ void homeform::Stop() {
 #ifndef IO_UNDER_QT
     if(h && !h->appleWatchAppInstalled())
         h->stopWorkout();
+    // End iOS Live Activity when workout stops
+    ios_liveactivity::endLiveActivity();
 #endif
 #endif
 
@@ -9049,7 +9081,17 @@ extern "C" {
                 deviceType == ROWING || 
                 deviceType == ELLIPTICAL) {
                 
-                homeform::singleton()->bluetoothManager->device()->changeResistance(resistance);
+                bike* b = dynamic_cast<bike*>(homeform::singleton()->bluetoothManager->device());
+                if (b) {
+                    resistance_t maxRes = b->maxResistance();
+                    resistance_t scaledResistance = (resistance_t)((resistance / 100.0) * maxRes);
+                    if (scaledResistance < 1) scaledResistance = 1;
+                    if (scaledResistance > maxRes) scaledResistance = maxRes;
+
+                    qDebug() << "Native: ANT+ Max resistance:" << maxRes << "Scaled resistance:" << scaledResistance;
+
+                    b->changeResistance(scaledResistance);
+                }
                 qDebug() << "Applied ANT+ resistance change:" << resistance;
             } else {
                 qDebug() << "Device type does not support resistance change";
