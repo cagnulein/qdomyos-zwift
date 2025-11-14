@@ -858,6 +858,12 @@ class homeform : public QObject {
     QTcpSocket *iphone_socket = nullptr;
     QMdnsEngine::Service iphone_service;
     QHostAddress iphone_address;
+    
+    // Server for sharing metrics with other QZ instances (fakebike clients)
+    QTcpServer *metrics_server = nullptr;
+    QMdnsEngine::Provider *iphone_mdns_provider = nullptr;
+    QMdnsEngine::Hostname *iphone_mdns_hostname = nullptr;
+    QList<QTcpSocket*> metrics_clients;
 #endif
 
   public slots:
@@ -934,6 +940,13 @@ class homeform : public QObject {
     void onToastRequested(QString message);
     void strava_upload_file_prepare();
     void handleRestoreDefaultWheelDiameter();
+
+#ifndef Q_OS_IOS
+    void initMetricsServer();
+    void metricsClientConnected();
+    void metricsClientDisconnected();
+    void sendMetricsToClients();
+#endif
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
     void licenseReply(QNetworkReply *reply);
