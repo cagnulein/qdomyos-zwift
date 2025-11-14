@@ -782,6 +782,8 @@ const QString QZSettings::zwiftplay_swap = QStringLiteral("zwiftplay_swap");
 const QString QZSettings::gears_zwift_ratio = QStringLiteral("gears_zwift_ratio");
 const QString QZSettings::domyos_bike_500_profile_v2 = QStringLiteral("domyos_bike_500_profile_v2");
 const QString QZSettings::gears_offset = QStringLiteral("gears_offset");
+const QString QZSettings::gears_max = QStringLiteral("gears_max");
+const QString QZSettings::gears_min = QStringLiteral("gears_min");
 const QString QZSettings::peloton_accesstoken = QStringLiteral("peloton_accesstoken");
 const QString QZSettings::default_peloton_accesstoken = QStringLiteral("");
 const QString QZSettings::peloton_refreshtoken = QStringLiteral("peloton_refreshtoken");
@@ -991,7 +993,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 813;
+const uint32_t allSettingsCount = 815;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1658,6 +1660,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio},
     {QZSettings::domyos_bike_500_profile_v2, QZSettings::default_domyos_bike_500_profile_v2},
     {QZSettings::gears_offset, QZSettings::default_gears_offset},
+    {QZSettings::gears_max, QZSettings::default_gears_max},
+    {QZSettings::gears_min, QZSettings::default_gears_min},
     {QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken},
     {QZSettings::peloton_refreshtoken, QZSettings::default_peloton_refreshtoken},
     {QZSettings::peloton_lastrefresh, QZSettings::default_peloton_lastrefresh},
