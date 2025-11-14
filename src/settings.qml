@@ -1212,6 +1212,7 @@ import Qt.labs.platform 1.1
             property bool virtual_device_force_treadmill: false
             property bool proform_trainer_9_0: false
             property bool iconcept_ftms_treadmill_inclination_table: false
+            property bool skandika_wiri_x2000_protocol: true
         }
 
 
@@ -1347,12 +1348,12 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: {
                                 if (settings.miles_unit) {
-                                    var parts = text.match(/(\d+)'(\d+)"/);
+                                    var parts = text.match(/(\d+)[\s''\u2018\u2019]*(\d+)/);
                                     if (parts) {
                                         settings.height = parseInt(parts[1]) * 30.48 + parseInt(parts[2]) * 2.54;
                                     }
                                 } else {
-                                    settings.height = text;
+                                    settings.height = parseFloat(text);
                                 }
                             }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -1363,12 +1364,15 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 if (settings.miles_unit) {
-                                    var parts = heightTextField.text.match(/(\d+)'(\d+)"/);
+                                    var parts = heightTextField.text.match(/(\d+)[\s''\u2018\u2019]*(\d+)/);
                                     if (parts) {
                                         settings.height = parseInt(parts[1]) * 30.48 + parseInt(parts[2]) * 2.54;
+                                    } else {
+                                        toast.show("Invalid format! Use feet'inches (e.g., 6'2\")");
+                                        return;
                                     }
                                 } else {
-                                    settings.height = heightTextField.text;
+                                    settings.height = parseFloat(heightTextField.text);
                                 }
                                 toast.show("Setting saved!");
                             }
@@ -3720,6 +3724,42 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.snode_bike = checked; window.settings_restart_to_apply = true; }
+                        }
+                    }
+                    AccordionElement {
+                        id: skandikaBikeAccordion
+                        title: qsTr("Skandika Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                id: skandikaX2000ProtocolDelegate
+                                text: qsTr("Skandika X-2000 Protocol")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.skandika_wiri_x2000_protocol
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.skandika_wiri_x2000_protocol = checked; window.settings_restart_to_apply = true; }
+                            }
+                            Label {
+                                text: qsTr("Enable this for Skandika X-2000 bikes. Disable for other Skandika models (e.g., HT211212095)")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
                         }
                     }
                     AccordionElement {
