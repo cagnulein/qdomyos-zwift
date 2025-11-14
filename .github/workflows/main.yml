@@ -618,6 +618,14 @@ jobs:
           wget -q https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.0/qt5.15.0-android-page16.zip
           unzip -q qt5.15.0-android-page16.zip -d Qt-5.15.0-custom
 
+          echo "=== Checking Qt custom directory structure ==="
+          ls -la Qt-5.15.0-custom/ | head -20
+          echo "Searching for qmake..."
+          find Qt-5.15.0-custom -name qmake -type f 2>/dev/null | head -5
+          echo "Searching for Qt directories..."
+          find Qt-5.15.0-custom -maxdepth 3 -type d -name "Qt*" 2>/dev/null | head -10
+          echo "============================================"
+
       - name: Set Android NDK 21 && build
         run: |
           # Remove standard Qt from PATH to ensure custom Qt is used
