@@ -133,7 +133,7 @@ private:
     void handleNotification(const DirconPacket &packet);
 
 #ifdef Q_OS_IOS
-    lockscreen *h = nullptr;
+    lockscreen *h = 0;
 #endif
 
 signals:
