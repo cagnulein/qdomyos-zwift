@@ -207,9 +207,12 @@ devices/bowflextreadmill/bowflextreadmill.cpp \
 devices/chronobike/chronobike.cpp \
 devices/concept2skierg/concept2skierg.cpp \
 devices/cscbike/cscbike.cpp \
+devices/dircon/dircondiscovery.cpp \
 devices/dircon/dirconmanager.cpp \
 devices/dircon/dirconpacket.cpp \
 devices/dircon/dirconprocessor.cpp \
+devices/dircon/wahoodirconbike.cpp \
+devices/dircon/wahoodircontreadmill.cpp \
 devices/domyoselliptical/domyoselliptical.cpp \
 devices/domyosrower/domyosrower.cpp \
 devices/domyostreadmill/domyostreadmill.cpp \
@@ -520,9 +523,12 @@ devices/bowflextreadmill/bowflextreadmill.h \
 devices/chronobike/chronobike.h \
 devices/concept2skierg/concept2skierg.h \
 devices/cscbike/cscbike.h \
+devices/dircon/dircondiscovery.h \
 devices/dircon/dirconmanager.h \
 devices/dircon/dirconpacket.h \
 devices/dircon/dirconprocessor.h \
+devices/dircon/wahoodirconbike.h \
+devices/dircon/wahoodircontreadmill.h \
 devices/domyoselliptical/domyoselliptical.h \
 devices/domyosrower/domyosrower.h \
 devices/domyostreadmill/domyostreadmill.h \
