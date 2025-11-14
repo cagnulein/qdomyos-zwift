@@ -384,7 +384,7 @@ void kettlerracersbike::updateSlopeTargetPower(bool force) {
         return;
     }
 
-    double grade = currentSlopePercent;
+    double grade = currentSlopePercent + (gears() / 2.0);
 
     double speedKmh = Speed.value();
     if (!std::isfinite(speedKmh) || speedKmh < 0.0) {
@@ -1211,15 +1211,15 @@ void kettlerracersbike::update() {
         }
         if (requestInclination != -100) {
             emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-            forceInclination(requestInclination + (gears() / 2.0)); // Apply gears offset to inclination (scaled by 0.5)
+            forceInclination(requestInclination); // Apply gears offset to inclination (scaled by 0.5)
             requestInclination = -100;
         } else if ((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
             // In order to send the new gear value ASAP when FTMS is connected
             emit debug(QStringLiteral("applying gear change to inclination: ") + QString::number(lastRawRequestedInclinationValue) +
                       QStringLiteral(" + ") + QString::number(gears() / 2.0));
-            forceInclination(lastRawRequestedInclinationValue + (gears() / 2.0));
+            forceInclination(lastRawRequestedInclinationValue);
         } else if(lastGearValue != gears() && lastRawRequestedInclinationValue == -100 && requestInclination == -100) {
-            forceInclination((gears() / 2.0)); // Apply gears offset to inclination (scaled by 0.5)
+            forceInclination(0); // Apply gears offset to inclination (scaled by 0.5)
         }
 
         lastGearValue = gears();
