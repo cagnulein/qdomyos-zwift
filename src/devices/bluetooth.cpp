@@ -216,7 +216,11 @@ void bluetooth::finished() {
 
     // Check for generic devices with UUID 1818 (Cycling Power) or 1826 (FTMS)
     // Only if no known device was connected and filter is disabled and dialog not shown this session
-    if (!device() && homeformLoaded && !genericDeviceDialogShownThisSession &&
+    // Also skip if wizard is active (firstRun check via bluetooth_lastdevice_name)
+    QString lastDeviceName = settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString();
+    bool wizardActive = lastDeviceName.isEmpty();
+
+    if (!device() && homeformLoaded && !genericDeviceDialogShownThisSession && !wizardActive &&
         (filterDevice.isEmpty() || filterDevice.startsWith(QStringLiteral("Disabled")))) {
 
         QStringList genericDeviceNames;
