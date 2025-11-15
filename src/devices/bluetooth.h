@@ -343,6 +343,9 @@ class bluetooth : public QObject, public SignalHandler {
     bool sramDeviceAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
+    // Flag to prevent showing generic device dialog multiple times in same session
+    bool genericDeviceDialogShownThisSession = false;
+
 #ifdef Q_OS_WIN
     QTimer discoveryTimeout;
 #endif
@@ -365,11 +368,17 @@ class bluetooth : public QObject, public SignalHandler {
 
     void bluetoothDeviceConnected(bluetoothdevice *b);
     void bluetoothDeviceDisconnected();
+
+    // Signals for generic device fallback dialog
+    void genericDevicesFound(QStringList deviceNames, QStringList deviceAddresses, QStringList deviceServiceTypes);
   public slots:
     void restart();
     void debug(const QString &string);
     void heartRate(uint8_t heart);
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+
+    // Public slots for generic device configuration
+    void confirmGenericDevice(QString deviceName, QString deviceType, bool reportToTeam, QString deviceAddress, QString serviceType);
   private slots:
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
     void deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields);
