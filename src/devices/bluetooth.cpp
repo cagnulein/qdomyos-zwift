@@ -214,7 +214,7 @@ void bluetooth::finished() {
         forceHeartBeltOffForTimeout = true;
     }
 
-    // Check for generic devices with UUID 1818 (Cycling Power) or 1826 (FTMS)
+    // Check for generic devices with UUID 1816 (Cadence), 1818 (Cycling Power) or 1826 (FTMS)
     // Only if no known device was connected and filter is disabled and dialog not shown this session
     // Also skip if wizard is active (firstRun check via bluetooth_lastdevice_name)
     QString lastDeviceName = settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString();
@@ -227,12 +227,13 @@ void bluetooth::finished() {
         QStringList genericDeviceAddresses;
         QStringList genericDeviceServiceTypes;
 
-        // UUIDs for Cycling Power Service and FTMS
+        // UUIDs for Cycling Speed and Cadence, Cycling Power Service and FTMS
+        QBluetoothUuid cadenceUuid((quint16)0x1816);
         QBluetoothUuid cyclingPowerUuid((quint16)0x1818);
         QBluetoothUuid ftmsUuid((quint16)0x1826);
 
         // Scan all discovered devices for generic services
-        // Priority: 1826 (FTMS) first, then 1818 (Cycling Power)
+        // Priority: 1826 (FTMS) first, then 1818 (Cycling Power), then 1816 (Cadence)
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (b.name().isEmpty()) {
                 continue;  // Skip devices without names
@@ -260,9 +261,23 @@ void bluetooth::finished() {
             }
         }
 
+        // Finally add Cadence sensors
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (b.name().isEmpty()) {
+                continue;
+            }
+
+            // Check for Cycling Speed and Cadence Service (only if not already added)
+            if (deviceHasService(b, cadenceUuid) && !genericDeviceNames.contains(b.name())) {
+                genericDeviceNames.append(b.name());
+                genericDeviceAddresses.append(b.address().toString());
+                genericDeviceServiceTypes.append(QStringLiteral("cadence"));
+            }
+        }
+
         // If we found generic devices, emit signal to show dialog
         if (!genericDeviceNames.isEmpty()) {
-            debug(QStringLiteral("Found %1 generic device(s) with Cycling Power or FTMS service").arg(genericDeviceNames.size()));
+            debug(QStringLiteral("Found %1 generic device(s) with Cadence, Cycling Power or FTMS service").arg(genericDeviceNames.size()));
             emit genericDevicesFound(genericDeviceNames, genericDeviceAddresses, genericDeviceServiceTypes);
             return;  // Don't restart discovery yet, wait for user choice
         }
@@ -3934,6 +3949,11 @@ void bluetooth::confirmGenericDevice(QString deviceName, QString deviceType, boo
         settings.setValue(QZSettings::power_sensor_name, deviceName);
         settings.setValue(QZSettings::power_sensor_as_bike, true);
         debug(QStringLiteral("Configured %1 as Power Sensor Bike").arg(deviceName));
+    } else if (serviceType == QStringLiteral("cadence")) {
+        // Cycling Speed and Cadence Service (UUID 1816) - configure as cadence sensor bike
+        settings.setValue(QZSettings::cadence_sensor_name, deviceName);
+        settings.setValue(QZSettings::cadence_sensor_as_bike, true);
+        debug(QStringLiteral("Configured %1 as Cadence Sensor Bike").arg(deviceName));
     } else if (serviceType == QStringLiteral("ftms")) {
         // FTMS (UUID 1826) - configure based on user's device type selection
         if (deviceType == QStringLiteral("bike")) {
@@ -3968,6 +3988,27 @@ void bluetooth::confirmGenericDevice(QString deviceName, QString deviceType, boo
 
         // Build email content (without MAC address as requested)
         QString subject = QStringLiteral("New Device Report: %1").arg(deviceName);
+
+        // Determine service type description
+        QString serviceTypeDesc;
+        if (serviceType == QStringLiteral("power")) {
+            serviceTypeDesc = QStringLiteral("Cycling Power Service (0x1818)");
+        } else if (serviceType == QStringLiteral("cadence")) {
+            serviceTypeDesc = QStringLiteral("Cycling Speed and Cadence Service (0x1816)");
+        } else if (serviceType == QStringLiteral("ftms")) {
+            serviceTypeDesc = QStringLiteral("Fitness Machine Service (0x1826)");
+        }
+
+        // Determine configured type
+        QString configuredAs;
+        if (serviceType == QStringLiteral("power")) {
+            configuredAs = QStringLiteral("Power Sensor Bike");
+        } else if (serviceType == QStringLiteral("cadence")) {
+            configuredAs = QStringLiteral("Cadence Sensor Bike");
+        } else {
+            configuredAs = deviceType;
+        }
+
         QString body = QStringLiteral(
             "Hello QZ Team,\n\n"
             "I found a new device that might not be fully supported:\n\n"
@@ -3978,8 +4019,8 @@ void bluetooth::confirmGenericDevice(QString deviceName, QString deviceType, boo
             "Please consider adding native support for this device.\n\n"
             "Best regards"
         ).arg(deviceName,
-              serviceType == QStringLiteral("power") ? "Cycling Power Service (0x1818)" : "Fitness Machine Service (0x1826)",
-              deviceType.isEmpty() ? "Power Sensor Bike" : deviceType,
+              serviceTypeDesc,
+              configuredAs,
               servicesInfo.isEmpty() ? "N/A" : servicesInfo);
 
         // URL encode the email components

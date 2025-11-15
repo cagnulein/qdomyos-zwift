@@ -37,6 +37,8 @@ Dialog {
         var serviceType = getSelectedServiceType();
         if (serviceType === "power") {
             return "Cycling Power Service";
+        } else if (serviceType === "cadence") {
+            return "Cycling Speed and Cadence Service";
         } else if (serviceType === "ftms") {
             return "Fitness Machine Service (FTMS)";
         }
@@ -45,6 +47,16 @@ Dialog {
 
     function isFTMSDevice() {
         return getSelectedServiceType() === "ftms";
+    }
+
+    function getAutoConfigMessage() {
+        var serviceType = getSelectedServiceType();
+        if (serviceType === "power") {
+            return "This device will be configured as a Power Sensor Bike.";
+        } else if (serviceType === "cadence") {
+            return "This device will be configured as a Cadence Sensor Bike.";
+        }
+        return "";
     }
 
     contentItem: ColumnLayout {
@@ -130,9 +142,9 @@ Dialog {
             }
         }
 
-        // Info for Power Sensor
+        // Info for Power Sensor or Cadence Sensor
         Label {
-            text: "This device will be configured as a Power Sensor Bike."
+            text: getAutoConfigMessage()
             visible: !isFTMSDevice()
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
