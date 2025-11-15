@@ -1,16 +1,16 @@
 //#include "pch.h"
-#include "trixterxdreamv1client.h"
+#include "trixterxdreamclient.h"
 
 #include <string>
 #include <cmath>
 
 using namespace std;
 
-trixterxdreamv1client::trixterxdreamv1client() {
+trixterxdreamclient::trixterxdreamclient() {
     this->ConfigureResistanceMessages();
 }
 
-void trixterxdreamv1client::ResetBuffer() {
+void trixterxdreamclient::ResetBuffer() {
     // for the case of an invalid packet, if this was smart, it would store all the input
     // and backtrack to the first header bytes after the beginning.
 
@@ -18,11 +18,11 @@ void trixterxdreamv1client::ResetBuffer() {
     this->byteBuffer.clear();
 }
 
-void trixterxdreamv1client::set_GetTime(std::function<uint32_t()> get_time_ms) {
+void trixterxdreamclient::set_GetTime(std::function<uint32_t()> get_time_ms) {
     this->get_time_ms = get_time_ms;
 }
 
-trixterxdreamv1client::PacketState trixterxdreamv1client::ProcessChar(char c) {
+trixterxdreamclient::PacketState trixterxdreamclient::ProcessChar(char c) {
     /* Packet content
      *                            6A 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
      * (00) Header ---------------+  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
@@ -91,7 +91,7 @@ trixterxdreamv1client::PacketState trixterxdreamv1client::ProcessChar(char c) {
     return Incomplete;
 }
 
-void trixterxdreamv1client::ConfigureResistanceMessages() {
+void trixterxdreamclient::ConfigureResistanceMessages() {
     resistanceMessages = new uint8_t * [251];
 
     for (uint8_t level = 0; level <= 250; level++) {
@@ -106,7 +106,7 @@ void trixterxdreamv1client::ConfigureResistanceMessages() {
     }
 }
 
-bool trixterxdreamv1client::ReceiveChar(char c) {
+bool trixterxdreamclient::ReceiveChar(char c) {
     if (this->ProcessChar(c) != Complete)
         return false;
 
@@ -180,14 +180,14 @@ bool trixterxdreamv1client::ReceiveChar(char c) {
     return true;
 }
 
-trixterxdreamv1client::state trixterxdreamv1client::getLastState() {
+trixterxdreamclient::state trixterxdreamclient::getLastState() {
     this->stateMutex.lock();
     const state result = this->lastState;
     this->stateMutex.unlock();
     return result;
 }
 
-void trixterxdreamv1client::SendResistance(uint8_t level) {
+void trixterxdreamclient::SendResistance(uint8_t level) {
 
     // to maintain the resistance, this needs to be resent about every 10ms
     if (level != 0 && this->write_bytes)
@@ -203,7 +203,7 @@ void trixterxdreamv1client::SendResistance(uint8_t level) {
     }
 }
 
-void trixterxdreamv1client::Reset() {
+void trixterxdreamclient::Reset() {
     this->lastT = this->get_time_ms();
     this->flywheelRevolutions = 0.0;
     this->crankRevolutions = 0.0;

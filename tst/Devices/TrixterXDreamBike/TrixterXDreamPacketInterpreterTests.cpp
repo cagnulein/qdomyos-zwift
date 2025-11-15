@@ -1,22 +1,22 @@
-#include "TrixterXDreamV1PacketInterpreterTests.h"
+#include "TrixterXDreamPacketInterpreterTests.h"
 
-uint32_t TrixterXDreamV1PacketInterpreterTests::getTime()
+uint32_t TrixterXDreamPacketInterpreterTests::getTime()
 {
     std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
     return static_cast<uint32_t>(ms.count());
 }
 
-void TrixterXDreamV1PacketInterpreterTests::TestInput(std::string input, uint8_t expectedHR, uint8_t expectedSteering)
+void TrixterXDreamPacketInterpreterTests::TestInput(std::string input, uint8_t expectedHR, uint8_t expectedSteering)
 {
-    trixterxdreamv1client tx1;
+    trixterxdreamclient tx1;
 
     tx1.set_GetTime(getTime);
 
     for (char value : input)
         tx1.ReceiveChar(value);
 
-    trixterxdreamv1client::state state = tx1.getLastState();
+    trixterxdreamclient::state state = tx1.getLastState();
 
     EXPECT_EQ(state.HeartRate, expectedHR);
     EXPECT_EQ(state.Steering, expectedSteering);
@@ -24,7 +24,7 @@ void TrixterXDreamV1PacketInterpreterTests::TestInput(std::string input, uint8_t
 
 }
 
-void TrixterXDreamV1PacketInterpreterTests::TestResistance(trixterxdreamv1client *tx1, uint8_t resistanceLevel)
+void TrixterXDreamPacketInterpreterTests::TestResistance(trixterxdreamclient *tx1, uint8_t resistanceLevel)
 {
 
     this->packet = nullptr;
@@ -43,8 +43,8 @@ void TrixterXDreamV1PacketInterpreterTests::TestResistance(trixterxdreamv1client
     }
 
     // make sure the resistance is clipped
-    if (resistanceLevel > trixterxdreamv1client::MaxResistance)
-        resistanceLevel = trixterxdreamv1client::MaxResistance;
+    if (resistanceLevel > trixterxdreamclient::MaxResistance)
+        resistanceLevel = trixterxdreamclient::MaxResistance;
 
     EXPECT_EQ(6, this->packetLength);
     EXPECT_TRUE(p != nullptr);

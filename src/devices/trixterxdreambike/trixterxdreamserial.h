@@ -10,14 +10,14 @@
  * @brief A basic serial port monitoring thread.
  * Avoids using signals to prevent complications with objects, threads and timers.
  */
-class trixterxdreamv1serial : public QThread {
+class trixterxdreamserial : public QThread {
     Q_OBJECT
 
 public:
     static class std::function<class serialdatasource*(QObject *)> serialDataSourceFactory;
 
-    explicit trixterxdreamv1serial(QObject *parent = nullptr);
-    ~trixterxdreamv1serial();
+    explicit trixterxdreamserial(QObject *parent = nullptr);
+    ~trixterxdreamserial();
 
     /**
      * @brief Opens the port.

@@ -1,14 +1,14 @@
-#include "trixterxdreamv1biketestsuite.h"
-#include "trixterxdreamv1bikestub.h"
+#include "trixterxdreambiketestsuite.h"
+#include "trixterxdreambikestub.h"
 
 
-TrixterXDreamV1BikeTestSuite::TrixterXDreamV1BikeTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {
+TrixterXDreambikeTestSuite::TrixterXDreambikeTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {
     // use the test serial data source because the bike won't be there usually, during test runs.
-    trixterxdreamv1serial::serialDataSourceFactory = [](QObject*) { return new TrixterXDreamV1BikeStub(); };
+    trixterxdreamserial::serialDataSourceFactory = [](QObject*) { return new TrixterXDreamBikeStub(); };
 }
 
-void TrixterXDreamV1BikeTestSuite::test_power_calculations() {
-    std::shared_ptr<trixterxdreamv1bike> bike(new trixterxdreamv1bike(false, false, false));
+void TrixterXDreambikeTestSuite::test_power_calculations() {
+    std::shared_ptr<trixterxdreambike> bike(new trixterxdreambike(false, false, false));
 
     const uint32_t maxRPM = 120;
     const uint32_t minRPM = 30;
@@ -72,9 +72,9 @@ void TrixterXDreamV1BikeTestSuite::test_power_calculations() {
 }
 
 
-void TrixterXDreamV1BikeTestSuite::test_stub() {
+void TrixterXDreambikeTestSuite::test_stub() {
 
-    TrixterXDreamV1BikeStub serial;
+    TrixterXDreamBikeStub serial;
 
     EXPECT_TRUE(serial.open("stub")) << "failed to open";
 

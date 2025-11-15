@@ -7,7 +7,7 @@
 #include "bluetoothdevicetestdatabuilder.h"
 #include "devicediscoveryinfo.h"
 #include "qzsettings.h"
-#include "TrixterXDreamBike/trixterxdreamv1bikestub.h"
+#include "TrixterXDreamBike/trixterxdreambikestub.h"
 
 
 
@@ -1246,15 +1246,15 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("TRX ROUTE KEY", DeviceNameComparison::StartsWith)
         ->acceptDeviceNames({"BH DUALKIT TREAD", "BH-TR-", "MASTERT40-"}, DeviceNameComparison::StartsWithIgnoreCase);
 
-    // Trixter X-Dream V1 Bike
-    RegisterNewDeviceTestData(DeviceIndex::TrixterXDreamV1Bike)
-        ->expectDevice<trixterxdreamv1bike>()
+    // Trixter X-Dream Bike
+    RegisterNewDeviceTestData(DeviceIndex::TrixterXDreambike)
+        ->expectDevice<trixterxdreambike>()
         ->initializeWith([]() -> void {
             // use the test serial data source because the bike won't be there usually, during test runs.
-            trixterxdreamv1serial::serialDataSourceFactory = TrixterXDreamV1BikeStub::create;
+            trixterxdreamserial::serialDataSourceFactory = TrixterXDreamBikeStub::create;
         })
         ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
-        ->configureSettingsWith(QZSettings::trixter_xdream_v1_bike_enabled)
+        ->configureSettingsWith(QZSettings::trixter_xdream_bike_enabled)
         ->useNonBluetoothDiscovery();
 
     // True Treadmill

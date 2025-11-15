@@ -1,11 +1,11 @@
 
 #include "gtest/gtest.h"
 
-#include "devices/trixterxdreamv1bike/trixterxdreamv1client.h"
+#include "devices/trixterxdreambike/trixterxdreamclient.h"
 
 
 // The fixture for testing class Foo.
-class TrixterXDreamV1PacketInterpreterTests : public ::testing::Test {
+class TrixterXDreamPacketInterpreterTests : public ::testing::Test {
 protected:
     uint8_t* packet;
     int packetLength;
@@ -13,11 +13,11 @@ protected:
 	// You can remove any or all of the following functions if their bodies would
 	// be empty.
 
-	TrixterXDreamV1PacketInterpreterTests() {
+    TrixterXDreamPacketInterpreterTests() {
 		// You can do set-up work for each test here.
 	}
 
-	~TrixterXDreamV1PacketInterpreterTests() override {
+    ~TrixterXDreamPacketInterpreterTests() override {
 		// You can do clean-up work that doesn't throw exceptions here.
 	}
 
@@ -41,7 +41,7 @@ protected:
 
     void TestInput(std::string input, uint8_t expectedHR, uint8_t expectedSteering);
 
-    void TestResistance(trixterxdreamv1client * tx1, uint8_t resistanceLevel);
+    void TestResistance(trixterxdreamclient * tx1, uint8_t resistanceLevel);
 
 };
 
@@ -50,14 +50,14 @@ protected:
 //	return RUN_ALL_TESTS();
 //}
 
-TEST_F(TrixterXDreamV1PacketInterpreterTests, ValidPacket) {
+TEST_F(TrixterXDreamPacketInterpreterTests, ValidPacket) {
 
 	TestInput("56b6a00000000000000000000000000016b6a7f45000000000000000000000050006a", 0x50, 0x7f);
 }
 
-TEST_F(TrixterXDreamV1PacketInterpreterTests, SendResistance) {
+TEST_F(TrixterXDreamPacketInterpreterTests, SendResistance) {
 
-	trixterxdreamv1client tx1;
+    trixterxdreamclient tx1;
 
 	tx1.set_GetTime(getTime);
 	auto device = this;

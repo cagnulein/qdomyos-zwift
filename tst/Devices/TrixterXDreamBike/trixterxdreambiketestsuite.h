@@ -5,7 +5,7 @@
 #include "Tools/testsettings.h"
 
 
-class TrixterXDreamV1BikeTestSuite : public testing::Test {
+class TrixterXDreambikeTestSuite : public testing::Test {
 
 protected:
 
@@ -15,7 +15,7 @@ protected:
     TestSettings testSettings;
 
 public:
-    TrixterXDreamV1BikeTestSuite();
+    TrixterXDreambikeTestSuite();
 
     // Sets up the test fixture.
     //void SetUp() override;
@@ -35,11 +35,11 @@ public:
     void test_stub();
 };
 
-TEST_F(TrixterXDreamV1BikeTestSuite, TestPowerCalculations) {
+TEST_F(TrixterXDreambikeTestSuite, TestPowerCalculations) {
     this->test_power_calculations();
 }
 
-TEST_F(TrixterXDreamV1BikeTestSuite, TestStub) {
+TEST_F(TrixterXDreambikeTestSuite, TestStub) {
     this->test_stub();
 }
 

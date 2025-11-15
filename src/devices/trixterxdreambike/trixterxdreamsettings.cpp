@@ -1,20 +1,20 @@
-#include "trixterxdreamv1settings.h"
+#include "trixterxdreamsettings.h"
 
 #include "qzsettings.h"
 
-#define TrixterSettingsKeys_Enabled QZSettings::trixter_xdream_v1_bike_enabled
-#define TrixterSettingsKeys_HeartRateEnabled QZSettings::trixter_xdream_v1_bike_heartrate_enabled
-#define TrixterSettingsKeys_SteeringEnabled QZSettings::trixter_xdream_v1_bike_steering_enabled
-#define TrixterSettingsKeys_SteeringCalibrationLeft QZSettings::trixter_xdream_v1_bike_steering_l
-#define TrixterSettingsKeys_SteeringCalibrationCenterLeft QZSettings::trixter_xdream_v1_bike_steering_cl
-#define TrixterSettingsKeys_SteeringCalibrationCenterRight QZSettings::trixter_xdream_v1_bike_steering_cr
-#define TrixterSettingsKeys_SteeringCalibrationRight QZSettings::trixter_xdream_v1_bike_steering_r
-#define TrixterSettingsKeys_SteeringCalibrationMAX QZSettings::trixter_xdream_v1_bike_steering_max
-#define TrixterSettingsKeys_ConnectionTimeoutMilliseconds QZSettings::trixter_xdream_v1_bike_connection_timeout_ms
+#define TrixterSettingsKeys_Enabled QZSettings::trixter_xdream_bike_enabled
+#define TrixterSettingsKeys_HeartRateEnabled QZSettings::trixter_xdream_bike_heartrate_enabled
+#define TrixterSettingsKeys_SteeringEnabled QZSettings::trixter_xdream_bike_steering_enabled
+#define TrixterSettingsKeys_SteeringCalibrationLeft QZSettings::trixter_xdream_bike_steering_l
+#define TrixterSettingsKeys_SteeringCalibrationCenterLeft QZSettings::trixter_xdream_bike_steering_cl
+#define TrixterSettingsKeys_SteeringCalibrationCenterRight QZSettings::trixter_xdream_bike_steering_cr
+#define TrixterSettingsKeys_SteeringCalibrationRight QZSettings::trixter_xdream_bike_steering_r
+#define TrixterSettingsKeys_SteeringCalibrationMAX QZSettings::trixter_xdream_bike_steering_max
+#define TrixterSettingsKeys_ConnectionTimeoutMilliseconds QZSettings::trixter_xdream_bike_connection_timeout_ms
 
 
 template <typename T>
-T trixterxdreamv1settings::updateField(T& member, const T newValue) {
+T trixterxdreamsettings::updateField(T& member, const T newValue) {
     QMutexLocker locker(&this->mutex);
     if(member!=newValue) {
         member = newValue;
@@ -24,44 +24,44 @@ T trixterxdreamv1settings::updateField(T& member, const T newValue) {
 }
 
 
-uint32_t trixterxdreamv1settings::get_version() {
+uint32_t trixterxdreamsettings::get_version() {
     QMutexLocker locker(&this->mutex);
     return this->version;
 }
 
-bool trixterxdreamv1settings::get_enabled() {
+bool trixterxdreamsettings::get_enabled() {
     QMutexLocker locker(&this->mutex);
     return this->enabled;
 }
 
-bool trixterxdreamv1settings::set_enabled(bool value) {
+bool trixterxdreamsettings::set_enabled(bool value) {
     return this->updateField(this->enabled, value);
 }
 
-bool trixterxdreamv1settings::get_heartRateEnabled(){
+bool trixterxdreamsettings::get_heartRateEnabled(){
     QMutexLocker locker(&this->mutex);
     return this->heartRateEnabled;
 }
 
-bool trixterxdreamv1settings::set_heartRateEnabled(bool value) {
+bool trixterxdreamsettings::set_heartRateEnabled(bool value) {
     return this->updateField(this->heartRateEnabled, value);
 }
 
-bool trixterxdreamv1settings::get_steeringEnabled()  {
+bool trixterxdreamsettings::get_steeringEnabled()  {
     QMutexLocker locker(&this->mutex);
     return this->steeringEnabled;
 }
 
-bool trixterxdreamv1settings::set_steeringEnabled(bool value) {
+bool trixterxdreamsettings::set_steeringEnabled(bool value) {
     return this->updateField(this->steeringEnabled, value);
 }
 
-trixterxdreamv1settings::steeringCalibrationInfo trixterxdreamv1settings::get_steeringCalibration() {
+trixterxdreamsettings::steeringCalibrationInfo trixterxdreamsettings::get_steeringCalibration() {
     QMutexLocker locker(&this->mutex);
     return this->steeringCalibration;
 }
 
-void trixterxdreamv1settings::set_steeringCalibration(const trixterxdreamv1settings::steeringCalibrationInfo value) {
+void trixterxdreamsettings::set_steeringCalibration(const trixterxdreamsettings::steeringCalibrationInfo value) {
     if(!value.isValid())
         throw "Invalid argument.";
 
@@ -72,33 +72,33 @@ void trixterxdreamv1settings::set_steeringCalibration(const trixterxdreamv1setti
     }
 }
 
-uint16_t trixterxdreamv1settings::get_connectionTimeoutMilliseconds() {
+uint16_t trixterxdreamsettings::get_connectionTimeoutMilliseconds() {
     QMutexLocker locker(&this->mutex);
     return this->DefaultConnectionTimeoutMilliseconds;
 }
 
-void trixterxdreamv1settings::set_connectionTimeoutMilliseconds(uint16_t value) {
+void trixterxdreamsettings::set_connectionTimeoutMilliseconds(uint16_t value) {
     value = this->clip(MinConnectionTimeoutMilliseconds, MaxConnectionTimeoutMilliseconds, value);
     this->updateField(this->connectionTimeoutMilliseconds, value);
 }
 
-trixterxdreamv1settings::trixterxdreamv1settings() {
+trixterxdreamsettings::trixterxdreamsettings() {
     QSettings defaultSettings;
     this->Load(defaultSettings);
     this->version = 1;
 }
 
-trixterxdreamv1settings::trixterxdreamv1settings(const QSettings &settings) {
+trixterxdreamsettings::trixterxdreamsettings(const QSettings &settings) {
     this->Load(settings);
     this->version = 1;
 }
 
-void trixterxdreamv1settings::Load() {
+void trixterxdreamsettings::Load() {
     QSettings settings;
     this->Load(settings);
 }
 
-void trixterxdreamv1settings::Load(const QSettings &settings) {
+void trixterxdreamsettings::Load(const QSettings &settings) {
     QMutexLocker locker(&this->mutex);
     this->set_enabled(settings.value(TrixterSettingsKeys_Enabled, DefaultEnabled).toBool());
     this->set_heartRateEnabled(settings.value(TrixterSettingsKeys_HeartRateEnabled, DefaultHeartRateEnabled).toBool());
@@ -115,12 +115,12 @@ void trixterxdreamv1settings::Load(const QSettings &settings) {
 }
 
 /*
-void trixterxdreamv1bikesettings::Save() {
+void trixterxdreambikesettings::Save() {
     QSettings settings;
     this->Save(settings);
 }
 
-void trixterxdreamv1bikesettings::Save(const QSettings &settings) {
+void trixterxdreambikesettings::Save(const QSettings &settings) {
     QMutexLocker locker(&this->mutex);
     settings.value(keys::Enabled).setValue(this->enabled);
     settings.value(keys::HeartRateEnabled).setValue(this->heartRateEnabled);

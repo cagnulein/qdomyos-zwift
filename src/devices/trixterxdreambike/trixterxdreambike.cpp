@@ -1,6 +1,6 @@
-#include "trixterxdreamv1bike.h"
-#include "trixterxdreamv1serial.h"
-#include "trixterxdreamv1settings.h"
+#include "trixterxdreambike.h"
+#include "trixterxdreamserial.h"
+#include "trixterxdreamsettings.h"
 #include "qcoreevent.h"
 #include <algorithm>
 #include <cmath>
@@ -105,7 +105,7 @@ static std::vector<std::vector<uint16_t>> powerTable =
         /* 120 RPM */ { 12,13,13,14,15,15,16,16,17,17,18,19,19,20,20,21,22,22,23,23,24,24,25,26,26,27,27,28,28,29,30,30,31,31,32,33,33,34,34,35,35,36,37,37,38,38,39,39,40,41,41,44,46,49,52,54,57,59,62,64,67,70,72,75,77,80,83,85,88,90,93,96,98,101,103,106,108,111,114,116,119,121,124,127,129,132,134,137,140,142,145,147,150,152,155,158,160,163,165,168,171,175,180,184,189,194,198,203,208,212,217,221,226,231,235,240,244,249,254,258,263,268,272,277,281,286,291,295,300,305,309,314,318,323,328,332,337,341,346,351,355,360,365,369,374,378,383,388,392,397,401,407,412,418,423,429,434,439,445,450,456,461,466,472,477,483,488,494,499,504,510,515,521,526,531,537,542,548,553,559,564,569,575,580,586,591,596,602,607,613,618,624,629,634,640,645,651,656,661,667,672,675,679,682,685,688,691,694,698,701,704,707,710,713,717,720,723,726,729,732,736,739,742,745,748,751,754,758,761,764,767,770,773,777,780,783,786,789,792,796,799,802,805,808,811,815,818,821,824,827,830 }
 };
 
-trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
+trixterxdreambike::trixterxdreambike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
     // Initialize metrics
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -118,7 +118,7 @@ trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartSer
     this->set_wheelDiameter(DefaultWheelDiameter);
 
     // Create the settings object and load from QSettings.
-    this->appSettings = new trixterxdreamv1settings();
+    this->appSettings = new trixterxdreamsettings();
 
     // QZ things from expected constructor
     this->noWriteResistance = noWriteResistance;
@@ -144,7 +144,7 @@ trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartSer
     this->gearDownButton->setActivationCallback([this](bool active){ if(active) this->gearDown();});
 }
 
-bool trixterxdreamv1bike::connect(QString portName) {
+bool trixterxdreambike::connect(QString portName) {
     // In case already connected, disconnect.
     this->disconnectPort();
 
@@ -153,7 +153,7 @@ bool trixterxdreamv1bike::connect(QString portName) {
 
     // create the port object and connect it
     auto thisObject = this;
-    this->port = new trixterxdreamv1serial(this);
+    this->port = new trixterxdreamserial(this);
     this->port->set_receiveBytes([thisObject](const QByteArray& bytes)->void{thisObject->receiveBytes(bytes);});
     this->port->set_getTime(getTime);
 
@@ -203,7 +203,7 @@ bool trixterxdreamv1bike::connect(QString portName) {
     {
         // latch onto the port accessor's pulse to send the resistance signal
         this->port->set_pulse([thisObject]()->void{thisObject->updateResistance();},
-                              trixterxdreamv1client::ResistancePulseIntervalMilliseconds);
+                              trixterxdreamclient::ResistancePulseIntervalMilliseconds);
     }
 
     this->settingsUpdateTimerId = this->startTimer(SettingsUpdateTimerIntervalMilliseconds, Qt::VeryCoarseTimer);
@@ -217,7 +217,7 @@ bool trixterxdreamv1bike::connect(QString portName) {
     return true;
 }
 
-void trixterxdreamv1bike::disconnectPort() {
+void trixterxdreambike::disconnectPort() {
     if(this->port) {
         qDebug() << "Disconnecting from serial port";
         delete this->port;
@@ -235,7 +235,7 @@ void trixterxdreamv1bike::disconnectPort() {
     }
 }
 
-void trixterxdreamv1bike::configureVirtualBike(){
+void trixterxdreambike::configureVirtualBike(){
 // ******************************************* virtual bike init *************************************
 
     bool haveVirtualDevice = this->hasVirtualDevice();
@@ -268,7 +268,7 @@ void trixterxdreamv1bike::configureVirtualBike(){
             double bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
             double bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
             auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-            bike::connect(virtualBike, &virtualbike::changeInclination, this, &trixterxdreamv1bike::changeInclination);
+            bike::connect(virtualBike, &virtualbike::changeInclination, this, &trixterxdreambike::changeInclination);
 
             this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
@@ -276,11 +276,11 @@ void trixterxdreamv1bike::configureVirtualBike(){
     // ********************************************************************************************************
 }
 
-uint16_t trixterxdreamv1bike::powerFromResistanceRequest(resistance_t requestedResistance) {
+uint16_t trixterxdreambike::powerFromResistanceRequest(resistance_t requestedResistance) {
     return this->calculatePower((int)this->Cadence.value(), requestedResistance);
 }
 
-resistance_t trixterxdreamv1bike::resistanceFromPowerRequest(uint16_t power) {
+resistance_t trixterxdreambike::resistanceFromPowerRequest(uint16_t power) {
 
     if(power<=0)
         return 0;
@@ -299,7 +299,7 @@ resistance_t trixterxdreamv1bike::resistanceFromPowerRequest(uint16_t power) {
     return item;
 }
 
-double trixterxdreamv1bike::calculatePower(int cadenceRPM, int resistance) {
+double trixterxdreambike::calculatePower(int cadenceRPM, int resistance) {
     if(cadenceRPM==0.0)
         return 0.0;
 
@@ -311,7 +311,7 @@ double trixterxdreamv1bike::calculatePower(int cadenceRPM, int resistance) {
     return result;
 }
 
-uint16_t trixterxdreamv1bike::calculatePowerFromInclination(double inclination, double speedMetresPerSecond) {
+uint16_t trixterxdreambike::calculatePowerFromInclination(double inclination, double speedMetresPerSecond) {
     QSettings settings;
 
     double riderMass = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
@@ -329,7 +329,7 @@ uint16_t trixterxdreamv1bike::calculatePowerFromInclination(double inclination, 
     return power;
 }
 
-bool trixterxdreamv1bike::connected() {
+bool trixterxdreambike::connected() {
     // If this is called from the connect() method, the timer won't have called the update() method
     // so go directly to the queue of states.
     QMutexLocker lockerA(&this->statesMutex);
@@ -343,12 +343,12 @@ bool trixterxdreamv1bike::connected() {
 }
 
 
-uint32_t trixterxdreamv1bike::getTime() {
+uint32_t trixterxdreambike::getTime() {
     auto ms = QDateTime::currentMSecsSinceEpoch();
     return static_cast<uint32_t>(ms);
 }
 
-void trixterxdreamv1bike::timerEvent(QTimerEvent *event) {
+void trixterxdreambike::timerEvent(QTimerEvent *event) {
     int timerId = event->timerId();
 
     // check the options, most frequent to least frequent
@@ -361,11 +361,11 @@ void trixterxdreamv1bike::timerEvent(QTimerEvent *event) {
     }
 }
 
-void trixterxdreamv1bike::receiveBytes(const QByteArray &bytes) {
+void trixterxdreambike::receiveBytes(const QByteArray &bytes) {
 
     // send the bytes to the client and return if there's no change of state
     bool stateChanged = false;
-    queue<trixterxdreamv1client::state> * ups = &this->states;
+    queue<trixterxdreamclient::state> * ups = &this->states;
 
     for(int i=0; i<bytes.length();i++) {
         if(this->client.ReceiveChar(bytes[i])) {
@@ -385,7 +385,7 @@ void trixterxdreamv1bike::receiveBytes(const QByteArray &bytes) {
 
 }
 
-void trixterxdreamv1bike::update() {
+void trixterxdreambike::update() {
     QMutexLocker locker(&this->updateMutex);
 
     // check that the gears have been engaged, because when this was written, this defaulted to 0
@@ -397,7 +397,7 @@ void trixterxdreamv1bike::update() {
 
     // Lock the states mutex and grab a copy of the queue
     QMutexLocker statesLocker(&this->statesMutex);
-    queue<trixterxdreamv1client::state> ups = this->states;
+    queue<trixterxdreamclient::state> ups = this->states;
     statesLocker.unlock();
 
     // If there are no states waiting to be processed, clear the metrics and return.
@@ -417,7 +417,7 @@ void trixterxdreamv1bike::update() {
     double steering=0, cadence=0, flywheel=0, brakeLevel=0, heartRate = 0;
     int count = ups.size();
 
-    trixterxdreamv1client::state state{};
+    trixterxdreamclient::state state{};
 
     while(!ups.empty()) {
         this->lastPacketProcessedTime = currentTime;
@@ -425,9 +425,9 @@ void trixterxdreamv1bike::update() {
         state = ups.front();
         ups.pop();
 
-        constexpr double brakeScale = 125.0/(trixterxdreamv1client::MaxBrake-trixterxdreamv1client::MinBrake);
-        uint8_t b1 = 125 - (state.Brake1 - trixterxdreamv1client::MinBrake) * brakeScale;
-        uint8_t b2 = 125 - (state.Brake2 - trixterxdreamv1client::MinBrake) * brakeScale;
+        constexpr double brakeScale = 125.0/(trixterxdreamclient::MaxBrake-trixterxdreamclient::MinBrake);
+        uint8_t b1 = 125 - (state.Brake1 - trixterxdreamclient::MinBrake) * brakeScale;
+        uint8_t b2 = 125 - (state.Brake2 - trixterxdreamclient::MinBrake) * brakeScale;
         brakeLevel+= b1+b2;
 
         flywheel += state.FlywheelRPM;
@@ -442,8 +442,8 @@ void trixterxdreamv1bike::update() {
             heartRate += state.HeartRate;
         }
 
-        const auto gearUpButtons = trixterxdreamv1client::buttons::BackGearUp | trixterxdreamv1client::buttons::FrontGearUp;
-        const auto gearDownButtons = trixterxdreamv1client::buttons::BackGearDown | trixterxdreamv1client::buttons::FrontGearDown;
+        const auto gearUpButtons = trixterxdreamclient::buttons::BackGearUp | trixterxdreamclient::buttons::FrontGearUp;
+        const auto gearDownButtons = trixterxdreamclient::buttons::BackGearDown | trixterxdreamclient::buttons::FrontGearDown;
 
         bool gearUpPressed = (state.Buttons & gearUpButtons)!=0;
         bool gearDownPressed = (state.Buttons & gearDownButtons)!=0;
@@ -461,7 +461,7 @@ void trixterxdreamv1bike::update() {
     }
 
     // Determine if the user is pressing the button to stop.
-    this->stopping = (state.Buttons & trixterxdreamv1client::buttons::Red) != 0 && flywheel>0.0 ? 1:0;
+    this->stopping = (state.Buttons & trixterxdreamclient::buttons::Red) != 0 && flywheel>0.0 ? 1:0;
 
     // update the metrics
     if(!this->noHeartRate)
@@ -558,7 +558,7 @@ void trixterxdreamv1bike::update() {
                 steeringAngleChanged = true;
             }
         } else
-            QTimer::singleShot(10ms, this, &trixterxdreamv1bike::calculateSteeringMap);
+            QTimer::singleShot(10ms, this, &trixterxdreambike::calculateSteeringMap);
 
         this->lastAppSettingsVersion = this->appSettings->get_version();
     }
@@ -577,9 +577,9 @@ void trixterxdreamv1bike::update() {
         qDebug() << "WARNING: Update took too long: " << updateTime << "ms";
 }
 
-void trixterxdreamv1bike::calculateSteeringMap() {
+void trixterxdreambike::calculateSteeringMap() {
 
-    trixterxdreamv1settings::steeringCalibrationInfo info = this->appSettings->get_steeringCalibration();
+    trixterxdreamsettings::steeringCalibrationInfo info = this->appSettings->get_steeringCalibration();
 
     vector<double> newMap;
 
@@ -591,11 +591,11 @@ void trixterxdreamv1bike::calculateSteeringMap() {
     double cr = mid+info.centerRight;
     double r = mid+info.right;
 
-    double scale = max / trixterxdreamv1client::MaxSteering;
+    double scale = max / trixterxdreamclient::MaxSteering;
     double scaleLeft = mid / (cl-l);
     double scaleRight = mid / (r-cr);
 
-    for(int i=0; i<=trixterxdreamv1client::MaxSteering; i++) {
+    for(int i=0; i<=trixterxdreamclient::MaxSteering; i++) {
         double mappedValue = i *scale;
 
         if(mappedValue>=cl && mappedValue<=cr) {
@@ -617,7 +617,7 @@ void trixterxdreamv1bike::calculateSteeringMap() {
     this->steeringMap=newMap;
 }
 
-void trixterxdreamv1bike::set_resistance(resistance_t resistanceLevel) {
+void trixterxdreambike::set_resistance(resistance_t resistanceLevel) {
     qDebug() << "setting resistance: " << resistanceLevel << this->noWriteResistance;
 
     // ignore the resistance if this option was selected
@@ -634,7 +634,7 @@ void trixterxdreamv1bike::set_resistance(resistance_t resistanceLevel) {
         qDebug() << "clipped resistance of " << unclipped << " to " << resistanceLevel;
 
     // store the resistance level as a metric for the UI
-    constexpr double pelotonScaleFactor = 100.0 / trixterxdreamv1client::MaxResistance;
+    constexpr double pelotonScaleFactor = 100.0 / trixterxdreamclient::MaxResistance;
     bool resistanceChanged = false;
 
     if(resistanceLevel != (resistance_t)this->Resistance.value()) {
@@ -653,15 +653,15 @@ void trixterxdreamv1bike::set_resistance(resistance_t resistanceLevel) {
 
 }
 
-uint16_t trixterxdreamv1bike::watts() {
+uint16_t trixterxdreambike::watts() {
     if(this->Cadence.value()==0)
         return 0;
     return this->calculatePower(this->Cadence.value(), this->Resistance.value());
 }
 
-void trixterxdreamv1bike::updateResistance() {
+void trixterxdreambike::updateResistance() {
 
-    resistance_t actualResistance = this->stopping ?  (resistance_t)trixterxdreamv1client::MaxResistance : std::min((uint32_t)this->resistanceLevel,(uint32_t)trixterxdreamv1client::MaxResistance );
+    resistance_t actualResistance = this->stopping ?  (resistance_t)trixterxdreamclient::MaxResistance : std::min((uint32_t)this->resistanceLevel,(uint32_t)trixterxdreamclient::MaxResistance );
 
     // get the time the request is made
     uint32_t t = getTime();
@@ -669,7 +669,7 @@ void trixterxdreamv1bike::updateResistance() {
     this->client.SendResistance(actualResistance);
 
     // determine if the request was late
-    int32_t late = t - this->lastResistancePacketTime - trixterxdreamv1client::ResistancePulseIntervalMilliseconds;
+    int32_t late = t - this->lastResistancePacketTime - trixterxdreamclient::ResistancePulseIntervalMilliseconds;
     this->lastResistancePacketTime = t;
 
     if(late>0) {
@@ -677,7 +677,7 @@ void trixterxdreamv1bike::updateResistance() {
     }
 }
 
-trixterxdreamv1bike::~trixterxdreamv1bike() {
+trixterxdreambike::~trixterxdreambike() {
     if(this->port) delete this->port;
     if(this->appSettings) delete this->appSettings;
 
@@ -685,7 +685,7 @@ trixterxdreamv1bike::~trixterxdreamv1bike() {
     //if(this->virtualBike) delete this->virtualBike;
 }
 
-void trixterxdreamv1bike::set_wheelDiameter(double value) {
+void trixterxdreambike::set_wheelDiameter(double value) {
     QMutexLocker locker(&this->updateMutex);
 
     // clip the value
@@ -696,12 +696,12 @@ void trixterxdreamv1bike::set_wheelDiameter(double value) {
 }
 
 
-resistance_t trixterxdreamv1bike::pelotonToBikeResistance(int pelotonResistance) {
+resistance_t trixterxdreambike::pelotonToBikeResistance(int pelotonResistance) {
     pelotonResistance = std::max(0, std::min(100, pelotonResistance));
-    return round(0.01*pelotonResistance*trixterxdreamv1client::MaxResistance);
+    return round(0.01*pelotonResistance*trixterxdreamclient::MaxResistance);
 }
 
-trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, const QString &portName) {
+trixterxdreambike * trixterxdreambike::tryCreate(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, const QString &portName) {
 
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     // Not supported in iOS or Android
@@ -711,16 +711,16 @@ trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, boo
     // first check if there's a port specified
     if(portName!=nullptr && !portName.isEmpty())
     {
-        qDebug() << "Looking for Trixter X-Dream V1 device on port: " << portName;
-        trixterxdreamv1bike * result = new trixterxdreamv1bike(noWriteResistance, noHeartService, noVirtualDevice);
+        qDebug() << "Looking for Trixter X-Dream device on port: " << portName;
+        trixterxdreambike * result = new trixterxdreambike(noWriteResistance, noHeartService, noVirtualDevice);
         try {
             if(result->connect(portName)) {
-                qDebug() << "Found Trixter X-Dream V1 device on port: " << portName;
+                qDebug() << "Found Trixter X-Dream device on port: " << portName;
                 return result;
             }
             delete result;
         } catch(...) {
-            qDebug() << "Error thrown looking for Trixter X-Dream V1 device on port: " << portName;
+            qDebug() << "Error thrown looking for Trixter X-Dream device on port: " << portName;
 
             // make absolutely sure the object is delete otherwise the serial port it opened will remain blocked.
             if(result) {
@@ -729,18 +729,18 @@ trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, boo
             }
             throw;
         }
-        qDebug() << "No Trixter X-Dream V1 device found on port: " << portName;
+        qDebug() << "No Trixter X-Dream device found on port: " << portName;
         return nullptr;
     }
 
     // Find the available ports and return the first success
-    auto availablePorts = trixterxdreamv1serial::availablePorts();
+    auto availablePorts = trixterxdreamserial::availablePorts();
 
     for(int i=0; i<availablePorts.length(); i++)
     {
         auto portName = availablePorts[i];
 
-        trixterxdreamv1bike * result = tryCreate(noWriteResistance, noHeartService, noVirtualDevice, portName);
+        trixterxdreambike * result = tryCreate(noWriteResistance, noHeartService, noVirtualDevice, portName);
         if(result)
             return result;
     }
@@ -748,7 +748,7 @@ trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, boo
     return nullptr;
 }
 
-trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(const QString& portName) {
+trixterxdreambike * trixterxdreambike::tryCreate(const QString& portName) {
     return tryCreate(false, false, false, portName);
 }
 

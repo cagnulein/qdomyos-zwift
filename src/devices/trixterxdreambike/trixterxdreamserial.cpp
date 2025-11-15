@@ -1,4 +1,4 @@
-#include "trixterxdreamv1serial.h"
+#include "trixterxdreamserial.h"
 
 #include <QDebug>
 #include <QTime>
@@ -12,21 +12,21 @@
 #include "qserialdatasource.h"
 #endif
 
-std::function<serialdatasource*(QObject *)> trixterxdreamv1serial::serialDataSourceFactory =
+std::function<serialdatasource*(QObject *)> trixterxdreamserial::serialDataSourceFactory =
 #if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID)
         [](QObject * parent) { return new qserialdatasource(parent); };
 #else
         nullptr;
 #endif
 
-trixterxdreamv1serial::trixterxdreamv1serial(QObject * parent) : QThread(parent){}
+trixterxdreamserial::trixterxdreamserial(QObject * parent) : QThread(parent){}
 
-trixterxdreamv1serial::~trixterxdreamv1serial() {
+trixterxdreamserial::~trixterxdreamserial() {
     this->quitPending = true;
     this->wait();
 }
 
-QStringList trixterxdreamv1serial::availablePorts() {
+QStringList trixterxdreamserial::availablePorts() {
     QStringList result;
 
     if(serialDataSourceFactory==nullptr)
@@ -37,12 +37,12 @@ QStringList trixterxdreamv1serial::availablePorts() {
     return serialDataSource->get_availablePorts();
 }
 
-void trixterxdreamv1serial::receive(const QByteArray &bytes) {
+void trixterxdreamserial::receive(const QByteArray &bytes) {
     if(this->receiveBytes)
         this->receiveBytes(bytes);
 }
 
-bool trixterxdreamv1serial::open(const QString &portName) {
+bool trixterxdreamserial::open(const QString &portName) {
 
     QMutexLocker locker(&this->mutex);
 
@@ -69,23 +69,23 @@ bool trixterxdreamv1serial::open(const QString &portName) {
     return this->isRunning();
 }
 
-void trixterxdreamv1serial::write(const QByteArray& buffer) {
+void trixterxdreamserial::write(const QByteArray& buffer) {
     QMutexLocker locker(&this->writeBufferMutex);
 
     this->writeBuffer = buffer;
     this->writePending = 1;
 }
 
-void trixterxdreamv1serial::set_pulse(std::function<void ()> function, uint32_t pulseIntervalMilliseconds) {
+void trixterxdreamserial::set_pulse(std::function<void ()> function, uint32_t pulseIntervalMilliseconds) {
     this->pulse = function;
     this->pulseIntervalMilliseconds = pulseIntervalMilliseconds;
 }
 
-void trixterxdreamv1serial::set_getTime(std::function<uint32_t ()> get_time_ms) {
+void trixterxdreamserial::set_getTime(std::function<uint32_t ()> get_time_ms) {
     this->getTime = get_time_ms;
 }
 
-void trixterxdreamv1serial::run() {
+void trixterxdreamserial::run() {
 
     if(serialDataSourceFactory==nullptr)
         throw "No serial data source factory configured.";
@@ -125,14 +125,14 @@ void trixterxdreamv1serial::run() {
             // See if the timer is due
             auto t0 = this->getTime();
             if(t0 >= pulseDue) {
-                pulseDue = t0 + trixterxdreamv1serial::pulseIntervalMilliseconds;
+                pulseDue = t0 + trixterxdreamserial::pulseIntervalMilliseconds;
                 this->pulse();
 
                 if(logTimings) {
                     auto dt = this->getTime() - t0;
                     if(dt > pulseTolerance) {
                         qDebug() << QStringLiteral("WARNING: pulse function took %1ms exceeding tolerance of %2ms")
-                                     .arg(dt).arg(trixterxdreamv1serial::pulseTolerance);
+                                     .arg(dt).arg(trixterxdreamserial::pulseTolerance);
                     }
                 }
             }

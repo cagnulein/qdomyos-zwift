@@ -1,5 +1,5 @@
-#ifndef TRIXTERXDREAMV1SETTINGS_H
-#define TRIXTERXDREAMV1SETTINGS_H
+#ifndef TRIXTERXDREAMSETTINGS_H
+#define TRIXTERXDREAMSETTINGS_H
 
 
 #include <cstdint>
@@ -9,10 +9,10 @@
 
 
 /**
- * @brief The trixterxdreamv1bikesettings class encapsulates the application settings for the Trixter X-Dream V1 Bike.
+ * @brief The trixterxdreambikesettings class encapsulates the application settings for the Trixter X-Dream Bike.
  * Field accessors restrict values to defined limits.
  */
-class trixterxdreamv1settings {
+class trixterxdreamsettings {
 public:
     // these should match the corresponding values in settings.qml
     // - the default values where the properties are defined
@@ -189,15 +189,15 @@ public:
     void set_connectionTimeoutMilliseconds(uint16_t value);
 
     /**
-     * @brief trixterxdreamv1bikesettings Constructor, intializes from the default QSettings.
+     * @brief trixterxdreambikesettings Constructor, intializes from the default QSettings.
      */
-    trixterxdreamv1settings();
+    trixterxdreamsettings();
 
     /**
-     * @brief trixterxdreamv1bikesettings Constructor, initializes from the specified QSettings.
+     * @brief trixterxdreambikesettings Constructor, initializes from the specified QSettings.
      * @param settings
      */
-    trixterxdreamv1settings(const QSettings& settings);
+    trixterxdreamsettings(const QSettings& settings);
 
     /**
      * @brief Load Loads the values from the default settings.
@@ -223,4 +223,4 @@ public:
 };
 
 
-#endif // TRIXTERXDREAMV1SETTINGS_H
+#endif // TRIXTERXDREAMSETTINGS_H

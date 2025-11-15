@@ -164,11 +164,11 @@ bluetoothdevice * bluetooth::discoverNonBluetoothDevices() {
     */
 
 
-    // Try to connect to a Trixter X-Dream V1 bike if the setting is enabled.
-    this->trixterXDreamV1Bike = this->findTrixterXDreamV1Bike(settings);
-    if(this->trixterXDreamV1Bike)
+    // Try to connect to a Trixter X-Dream bike if the setting is enabled.
+    this->trixterXDreambike = this->findTrixterXDreambike(settings);
+    if(this->trixterXDreambike)
     {
-        return this->trixterXDreamV1Bike;
+        return this->trixterXDreambike;
     }
     if(!this->discovering) return nullptr;
 
@@ -331,17 +331,17 @@ void bluetooth::debug(const QString &text) {
 }
 
 
-trixterxdreamv1bike * bluetooth::findTrixterXDreamV1Bike(const QSettings& settings)
+trixterxdreambike * bluetooth::findTrixterXDreambike(const QSettings& settings)
 {
-    bool trixterxdreamv1bikeEnabled = settings.value(QZSettings::trixter_xdream_v1_bike_enabled, false).toBool();
-    trixterxdreamv1bike * result = nullptr;
-    if(trixterxdreamv1bikeEnabled) {
-        debug("Looking for Trixter X-Dream V1 Bike");
-        result = trixterxdreamv1bike::tryCreate(this->noWriteResistance, this->noHeartService, false);
+    bool trixterxdreambikeEnabled = settings.value(QZSettings::trixter_xdream_bike_enabled, false).toBool();
+    trixterxdreambike * result = nullptr;
+    if(trixterxdreambikeEnabled) {
+        debug("Looking for Trixter X-Dream Bike");
+        result = trixterxdreambike::tryCreate(this->noWriteResistance, this->noHeartService, false);
         if(!result)
-            debug("Failed to find a Trixter X-Dream V1 Bike");
+            debug("Failed to find a Trixter X-Dream Bike");
     } else {
-        debug("Not looking for Trixter X-Dream V1 Bike - disabled in settings");
+        debug("Not looking for Trixter X-Dream Bike - disabled in settings");
     }
 
     return result;
@@ -3947,9 +3947,9 @@ void bluetooth::restart() {
         delete eliteSterzoSmart;
         eliteSterzoSmart = nullptr;
     }
-    if (trixterXDreamV1Bike) {
-        delete trixterXDreamV1Bike;
-        trixterXDreamV1Bike = nullptr;
+    if (trixterXDreambike) {
+        delete trixterXDreambike;
+        trixterXDreambike = nullptr;
     }
     this->startDiscovery();
 }
@@ -4174,8 +4174,8 @@ bluetoothdevice *bluetooth::device() {
     } else if (csafeElliptical) {
         return csafeElliptical;
 #endif
-    } else if (trixterXDreamV1Bike){
-        return trixterXDreamV1Bike;
+    } else if (trixterXDreambike){
+        return trixterXDreambike;
     }
 
     return nullptr;

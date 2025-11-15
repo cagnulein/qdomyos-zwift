@@ -5,13 +5,13 @@
 #include <QMutex>
 #include <queue>
 
-#include "devices/trixterxdreamv1bike/serialdatasource.h"
+#include "devices/trixterxdreambike/serialdatasource.h"
 
 /**
- * @brief Implementation of serialdatasource "interface" for faking a Trixter X-Dream V1 bike for testing.
+ * @brief Implementation of serialdatasource "interface" for faking a Trixter X-Dream bike for testing.
  * Simulates a serial port that sends a single valid packet repeatedly.
  */
-class TrixterXDreamV1BikeStub : public serialdatasource {
+class TrixterXDreamBikeStub : public serialdatasource {
 
     QByteArray bytesWritten;
     std::queue<char> readBuffer;
@@ -34,7 +34,7 @@ public:
 
     static serialdatasource* create(QObject * parent);
 
-    TrixterXDreamV1BikeStub();
+    TrixterXDreamBikeStub();
 
     QStringList get_availablePorts() override;
 

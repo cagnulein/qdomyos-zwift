@@ -5,12 +5,12 @@
 #include <mutex>
 
 /**
- * @brief Basic functionality to interpret character data read from a Trixter X-Dream V1 bike via a serial port.
+ * @brief Basic functionality to interpret character data read from a Trixter X-Dream bike via a serial port.
  * Intended to be free from any non-standard C++ library code.
  * Requires a time source callback (set_getTime) to timestamp packets and optionally
  * a callback to write resistance packets to the serial port.
  */
-class trixterxdreamv1client {
+class trixterxdreamclient {
 public:
 
     /**
@@ -176,7 +176,7 @@ public:
      */
     constexpr static uint8_t ResistancePulseIntervalMilliseconds = 16;
 
-    trixterxdreamv1client();
+    trixterxdreamclient();
 
     /**
      * @brief Receives and processes a character of input from the device.

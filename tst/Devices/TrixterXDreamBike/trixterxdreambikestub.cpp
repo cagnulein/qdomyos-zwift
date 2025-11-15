@@ -1,4 +1,4 @@
-#include "trixterxdreamv1bikestub.h"
+#include "trixterxdreambikestub.h"
 #include <QDateTime>
 #include <QString>
 #include <QThread>
@@ -9,7 +9,7 @@ static uint32_t getTime() {
     return static_cast<uint32_t>(ms);
 }
 
-bool TrixterXDreamV1BikeStub::tryPopulate() {
+bool TrixterXDreamBikeStub::tryPopulate() {
     QMutexLocker locker(&this->mutex);
 
     uint32_t time = getTime();
@@ -36,37 +36,37 @@ bool TrixterXDreamV1BikeStub::tryPopulate() {
     return true;
 }
 
-serialdatasource *TrixterXDreamV1BikeStub::create(QObject * parent) { return new TrixterXDreamV1BikeStub(); }
+serialdatasource *TrixterXDreamBikeStub::create(QObject * parent) { return new TrixterXDreamBikeStub(); }
 
-TrixterXDreamV1BikeStub::TrixterXDreamV1BikeStub() : serialdatasource()
+TrixterXDreamBikeStub::TrixterXDreamBikeStub() : serialdatasource()
 {
 
 }
 
-QStringList TrixterXDreamV1BikeStub::get_availablePorts() {
+QStringList TrixterXDreamBikeStub::get_availablePorts() {
     return QStringList("stub");
 }
 
-bool TrixterXDreamV1BikeStub::open(const QString& portName) {
+bool TrixterXDreamBikeStub::open(const QString& portName) {
     this->lastAddedData = getTime()-readInterval;
     return true;
 }
 
-qint64 TrixterXDreamV1BikeStub::write(const QByteArray &data) {
+qint64 TrixterXDreamBikeStub::write(const QByteArray &data) {
     bytesWritten.append(data);
     return data.size();
 }
 
-void TrixterXDreamV1BikeStub::flush() {
+void TrixterXDreamBikeStub::flush() {
 
 }
 
-bool TrixterXDreamV1BikeStub::waitForReadyRead() {
+bool TrixterXDreamBikeStub::waitForReadyRead() {
     QThread::msleep(1);
     return this->readBufferSize()>0;
 }
 
-QByteArray TrixterXDreamV1BikeStub::readAll() {
+QByteArray TrixterXDreamBikeStub::readAll() {
     QByteArray result;
     QMutexLocker locker(&this->mutex);
     auto count = this->readBufferSize();
@@ -78,14 +78,14 @@ QByteArray TrixterXDreamV1BikeStub::readAll() {
     return result;
 }
 
-qint64 TrixterXDreamV1BikeStub::readBufferSize() {
+qint64 TrixterXDreamBikeStub::readBufferSize() {
     QMutexLocker locker(&this->mutex);
     this->tryPopulate();
     return this->readBuffer.size();
 }
 
-QString TrixterXDreamV1BikeStub::error() { return "NoError";}
+QString TrixterXDreamBikeStub::error() { return "NoError";}
 
-void TrixterXDreamV1BikeStub::close() {
+void TrixterXDreamBikeStub::close() {
 
 }

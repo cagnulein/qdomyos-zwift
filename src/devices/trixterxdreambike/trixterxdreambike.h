@@ -1,13 +1,13 @@
 #pragma once
 #include "bike.h"
-#include "trixterxdreamv1client.h"
-#include "trixterxdreamv1serial.h"
-#include "trixterxdreamv1settings.h"
+#include "trixterxdreamclient.h"
+#include "trixterxdreamserial.h"
+#include "trixterxdreamsettings.h"
 #include "activationmonitor.h"
 #include <optional>
 #include <queue>
 
-class trixterxdreamv1bike : public bike
+class trixterxdreambike : public bike
 {
     Q_OBJECT
 
@@ -20,7 +20,7 @@ private:
     /**
      * @brief A queue of states read from the client. Syncronized by statesMutex.
      */
-    std::queue<trixterxdreamv1client::state> states;
+    std::queue<trixterxdreamclient::state> states;
 
     /**
      * @brief Mutex for accessing the unprocessedStates queue.
@@ -30,13 +30,13 @@ private:
     /**
      * @brief An object that processes incoming data to CSCS, heart rate and steering data
      */
-    trixterxdreamv1client client;
+    trixterxdreamclient client;
 
     /**
      * @brief An object that monitors a serial port to read incoming data, and to write
      * resistance level requests.
      */
-    trixterxdreamv1serial * port = nullptr;
+    trixterxdreamserial * port = nullptr;
 
     /**
      * @brief Indicates if the device should be sent full resistance instead of the currently requested resistance.
@@ -137,7 +137,7 @@ private:
     /**
      * @brief The application settings.
      */
-    trixterxdreamv1settings * appSettings = nullptr;
+    trixterxdreamsettings * appSettings = nullptr;
 
     /**
      * @brief The last app settings version that was used to configure the object.
@@ -265,9 +265,9 @@ public:
      * @param noHeartService Option to avoid using the heart rate reading.
      * @param noVirtualDevice Option to avoid using a virtual device.
      */
-    trixterxdreamv1bike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
+    trixterxdreambike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
 
-    ~trixterxdreamv1bike();
+    ~trixterxdreambike();
 
     /**
      * @brief Calculate the power for the requested resistance at the current cadence.
@@ -313,22 +313,22 @@ public:
     /**
      * @brief Gets the settings object for this device type.
      */
-    const trixterxdreamv1settings * get_appSettings() { return this->appSettings; }
+    const trixterxdreamsettings * get_appSettings() { return this->appSettings; }
 
     /**
      * @brief The maximum resistance supported.
      */
-    resistance_t maxResistance() override { return trixterxdreamv1client::MaxResistance; }
+    resistance_t maxResistance() override { return trixterxdreamclient::MaxResistance; }
 
     /**
      * @brief Map Peloton 0 to 100% resistance to the bike's range.
      * @param pelotonResistance The Peloton resistance. Range: 0 to 100.
-     * @return The Trixter X-Dream V1 bike resistance. Range 0..250 if !this->useResistancePercentage.
+     * @return The Trixter X-Dream bike resistance. Range 0..250 if !this->useResistancePercentage.
      */
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
 
     /**
-     * @brief Attempt to create an object to interact with an existing Trixter X-Dream V1 bike on a specific serial port,
+     * @brief Attempt to create an object to interact with an existing Trixter X-Dream bike on a specific serial port,
      * or if the port is unspecified, any serial port.
      * @param noWriteResistance Option to avoid sending resistance to the device.
      * @param noHeartService Option to avoid using the heart rate reading.
@@ -336,14 +336,14 @@ public:
      * @param portName (Optional) The specific port to search.
      * @return nullptr if no device is found, an object if a device is found and connected.
      */
-    static trixterxdreamv1bike * tryCreate(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, const QString& portName = nullptr);
+    static trixterxdreambike * tryCreate(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, const QString& portName = nullptr);
 
     /**
-     * @brief Attempt to create an object to interact with an existing Trixter X-Dream V1 bike on a specific serial port,
+     * @brief Attempt to create an object to interact with an existing Trixter X-Dream bike on a specific serial port,
      * or if the port is unspecified, any serial port.
      * @param port (Optional) The specific port to search.
      * @return
      */
-    static trixterxdreamv1bike * tryCreate(const QString& portName = nullptr);
+    static trixterxdreambike * tryCreate(const QString& portName = nullptr);
 
 };

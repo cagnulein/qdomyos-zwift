@@ -140,7 +140,7 @@
 #include "devices/toorxtreadmill/toorxtreadmill.h"
 #include "devices/treadmill.h"
 #include "devices/truetreadmill/truetreadmill.h"
-#include "devices/trixterxdreamv1bike/trixterxdreamv1bike.h"
+#include "devices/trixterxdreambike/trixterxdreambike.h"
 #include "devices/trxappgateusbbike/trxappgateusbbike.h"
 #include "devices/trxappgateusbelliptical/trxappgateusbelliptical.h"
 #include "devices/trxappgateusbrower/trxappgateusbrower.h"
@@ -323,7 +323,7 @@ private:
     sramaxscontroller* sramAXSController = nullptr;
     elitesquarecontroller* eliteSquareController = nullptr;
     QString filterDevice = QLatin1String("");
-    trixterxdreamv1bike * trixterXDreamV1Bike = nullptr;
+    trixterxdreambike * trixterXDreambike = nullptr;
 
     bool testResistance = false;
     bool noWriteResistance = false;
@@ -361,11 +361,11 @@ private:
     bool fitmetria_fanfit_isconnected(QString name);
 
     /**
-     * @brief findTrixterXDreamV1Bike Searches serial ports for a Trixter X-Dream V1 Bike
+     * @brief findTrixterXDreambike Searches serial ports for a Trixter X-Dream Bike
      * @param settings The application settings.
-     * @return A trixterxdreamv1bike object if a bike has been found, nullptr otherwise.
+     * @return A trixterxdreambike object if a bike has been found, nullptr otherwise.
      */
-    class trixterxdreamv1bike * findTrixterXDreamV1Bike(const QSettings& settings);
+    class trixterxdreambike * findTrixterXDreambike(const QSettings& settings);
 
 #ifdef Q_OS_WIN
     QTimer discoveryTimeout;
