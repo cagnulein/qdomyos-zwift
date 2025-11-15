@@ -112,6 +112,21 @@ public:
      */
     BluetoothDeviceTestDataBuilder * configureSettingsWith(const QBluetoothUuid &uuid, bool addedIsEnabled=true);
 
+
+    /**
+     * @brief Specifies an action that should take place before the test data is used to detect the device.
+     * @param initializer A functor that performs intialization for a test for this device.
+     * @return
+     */
+    BluetoothDeviceTestDataBuilder * initializeWith(std::function<void()> initializer) {
+        if(this->initializer!=nullptr)
+            throw std::invalid_argument("Initializer already set.");
+
+        this->initializer = initializer;
+
+        return this;
+    }
+
     /**
      * @brief Indicates that if a device of the types with the specified type ids is already recognised,
      * this one should not be detected even if the other conditions are met.
@@ -142,4 +157,12 @@ public:
      * @return
      */
     BluetoothDeviceTestDataBuilder * skip(const QString& reason=nullptr);
+
+    /**
+     * @brief Specifies that detection should use non-blueooth discovery.
+     * @param use (Optional) indicates whether to use non-bluetooth discovery.
+     * @return
+     */
+    BluetoothDeviceTestDataBuilder * useNonBluetoothDiscovery(bool use=true);
+
 };

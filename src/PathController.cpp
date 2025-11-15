@@ -25,7 +25,7 @@ PathController::PathController(QObject *parent)
             this->setCenter(coordinate);
         } else {
             // This has been known to happen.
-            // The Trixter X-Dream V1 bike using a Prolific PL2303HXA Serial to USB converter
+            // The Trixter X-Dream bike using a Prolific PL2303HXA Serial to USB converter
             // is identified by QGeoPositionInfoSource in Qt 5.15.2 as a source, but it delivers
             // invalid data.
 
