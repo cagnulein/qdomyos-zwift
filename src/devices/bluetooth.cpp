@@ -2,8 +2,10 @@
 #include "homeform.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
+#include <QDesktopServices>
 #include <QFile>
 #include <QMetaEnum>
+#include <QUrl>
 
 #include <QtXml>
 #ifdef Q_OS_ANDROID
@@ -210,6 +212,56 @@ void bluetooth::finished() {
 
         // force heartRateBelt off
         forceHeartBeltOffForTimeout = true;
+    }
+
+    // Check for generic devices with UUID 1818 (Cycling Power) or 1826 (FTMS)
+    // Only if no known device was connected and filter is disabled and dialog not shown this session
+    if (!device() && homeformLoaded && !genericDeviceDialogShownThisSession &&
+        (filterDevice.isEmpty() || filterDevice.startsWith(QStringLiteral("Disabled")))) {
+
+        QStringList genericDeviceNames;
+        QStringList genericDeviceAddresses;
+        QStringList genericDeviceServiceTypes;
+
+        // UUIDs for Cycling Power Service and FTMS
+        QBluetoothUuid cyclingPowerUuid((quint16)0x1818);
+        QBluetoothUuid ftmsUuid((quint16)0x1826);
+
+        // Scan all discovered devices for generic services
+        // Priority: 1826 (FTMS) first, then 1818 (Cycling Power)
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (b.name().isEmpty()) {
+                continue;  // Skip devices without names
+            }
+
+            // Check for FTMS (priority)
+            if (deviceHasService(b, ftmsUuid)) {
+                genericDeviceNames.append(b.name());
+                genericDeviceAddresses.append(b.address().toString());
+                genericDeviceServiceTypes.append(QStringLiteral("ftms"));
+            }
+        }
+
+        // Then add Cycling Power devices
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (b.name().isEmpty()) {
+                continue;
+            }
+
+            // Check for Cycling Power Service (only if not already added as FTMS)
+            if (deviceHasService(b, cyclingPowerUuid) && !genericDeviceNames.contains(b.name())) {
+                genericDeviceNames.append(b.name());
+                genericDeviceAddresses.append(b.address().toString());
+                genericDeviceServiceTypes.append(QStringLiteral("power"));
+            }
+        }
+
+        // If we found generic devices, emit signal to show dialog
+        if (!genericDeviceNames.isEmpty()) {
+            debug(QStringLiteral("Found %1 generic device(s) with Cycling Power or FTMS service").arg(genericDeviceNames.size()));
+            emit genericDevicesFound(genericDeviceNames, genericDeviceAddresses, genericDeviceServiceTypes);
+            return;  // Don't restart discovery yet, wait for user choice
+        }
     }
 
     this->startDiscovery();
@@ -3861,6 +3913,82 @@ void bluetooth::restart() {
         delete eliteSterzoSmart;
         eliteSterzoSmart = nullptr;
     }
+    this->startDiscovery();
+}
+
+void bluetooth::confirmGenericDevice(QString deviceName, QString deviceType, bool reportToTeam, QString deviceAddress, QString serviceType) {
+    QSettings settings;
+
+    debug(QStringLiteral("User confirmed generic device: %1, type: %2, service: %3").arg(deviceName, deviceType, serviceType));
+
+    // Mark dialog as shown for this session
+    genericDeviceDialogShownThisSession = true;
+
+    // Configure device based on service type and user selection
+    if (serviceType == QStringLiteral("power")) {
+        // Cycling Power Service (UUID 1818) - configure as power sensor bike
+        settings.setValue(QZSettings::power_sensor_name, deviceName);
+        settings.setValue(QZSettings::power_sensor_as_bike, true);
+        debug(QStringLiteral("Configured %1 as Power Sensor Bike").arg(deviceName));
+    } else if (serviceType == QStringLiteral("ftms")) {
+        // FTMS (UUID 1826) - configure based on user's device type selection
+        if (deviceType == QStringLiteral("bike")) {
+            settings.setValue(QZSettings::ftms_bike, deviceName);
+            debug(QStringLiteral("Configured %1 as FTMS Bike").arg(deviceName));
+        } else if (deviceType == QStringLiteral("treadmill")) {
+            settings.setValue(QZSettings::ftms_treadmill, deviceName);
+            debug(QStringLiteral("Configured %1 as FTMS Treadmill").arg(deviceName));
+        } else if (deviceType == QStringLiteral("elliptical")) {
+            settings.setValue(QZSettings::ftms_elliptical, deviceName);
+            debug(QStringLiteral("Configured %1 as FTMS Elliptical").arg(deviceName));
+        } else if (deviceType == QStringLiteral("rower")) {
+            settings.setValue(QZSettings::ftms_rower, deviceName);
+            debug(QStringLiteral("Configured %1 as FTMS Rower").arg(deviceName));
+        }
+    }
+
+    // If user wants to report to team, open email client
+    if (reportToTeam) {
+        // Find the device info to get all service UUIDs
+        QString servicesInfo;
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (b.name() == deviceName) {
+                QStringList servicesList;
+                foreach(QBluetoothUuid uuid, b.serviceUuids()) {
+                    servicesList.append(uuid.toString());
+                }
+                servicesInfo = servicesList.join(", ");
+                break;
+            }
+        }
+
+        // Build email content (without MAC address as requested)
+        QString subject = QStringLiteral("New Device Report: %1").arg(deviceName);
+        QString body = QStringLiteral(
+            "Hello QZ Team,\n\n"
+            "I found a new device that might not be fully supported:\n\n"
+            "Device Name: %1\n"
+            "Service Type: %2\n"
+            "Configured As: %3\n"
+            "Bluetooth Services (UUIDs): %4\n\n"
+            "Please consider adding native support for this device.\n\n"
+            "Best regards"
+        ).arg(deviceName,
+              serviceType == QStringLiteral("power") ? "Cycling Power Service (0x1818)" : "Fitness Machine Service (0x1826)",
+              deviceType.isEmpty() ? "Power Sensor Bike" : deviceType,
+              servicesInfo.isEmpty() ? "N/A" : servicesInfo);
+
+        // URL encode the email components
+        QString mailtoUrl = QStringLiteral("mailto:roberto.viola83@gmail.com?subject=%1&body=%2")
+            .arg(QString(QUrl::toPercentEncoding(subject)),
+                 QString(QUrl::toPercentEncoding(body)));
+
+        // Open default email client
+        QDesktopServices::openUrl(QUrl(mailtoUrl));
+        debug(QStringLiteral("Opening email client to report device %1").arg(deviceName));
+    }
+
+    // Restart discovery to connect to the newly configured device
     this->startDiscovery();
 }
 
