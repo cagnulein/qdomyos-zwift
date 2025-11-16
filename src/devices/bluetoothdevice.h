@@ -771,11 +771,6 @@ class bluetoothdevice : public QObject {
     QDateTime _lastTimeUpdate;
 
     /**
-     * @brief _lastLiveActivityUpdate The time the iOS Live Activity was last updated (for throttling)
-     */
-    QDateTime _lastLiveActivityUpdate;
-
-    /**
      * @brief _firstUpdate Indicates if this is the first update.
      */
     bool _firstUpdate = true;

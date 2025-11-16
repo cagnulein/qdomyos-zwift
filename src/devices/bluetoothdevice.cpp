@@ -345,10 +345,11 @@ void bluetoothdevice::update_hr_from_external() {
 void bluetoothdevice::update_ios_live_activity() {
     #ifdef Q_OS_IOS
     #ifndef IO_UNDER_QT
+    static QDateTime lastUpdate;
     QDateTime current = QDateTime::currentDateTime();
 
     // Throttle updates: only update if at least 1 second has passed since last update
-    if (!_lastLiveActivityUpdate.isValid() || _lastLiveActivityUpdate.msecsTo(current) >= 1000) {
+    if (!lastUpdate.isValid() || lastUpdate.msecsTo(current) >= 1000) {
         QSettings settings;
         lockscreen h;
         double kcal = calories().value();
@@ -357,7 +358,7 @@ void bluetoothdevice::update_ios_live_activity() {
         bool useMiles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
         h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(), deviceType(), odometer() * 1000.0, totalCalories().value(), useMiles);
 
-        _lastLiveActivityUpdate = current;
+        lastUpdate = current;
     }
     #endif
     #endif
