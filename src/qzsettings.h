@@ -1636,6 +1636,9 @@ class QZSettings {
     static const QString computrainer_serialport;
     static const QString default_computrainer_serialport;
 
+    static const QString kettler_usb_serialport;
+    static const QString default_kettler_usb_serialport;
+
     static const QString strava_virtual_activity;
     static constexpr bool default_strava_virtual_activity = true;
 

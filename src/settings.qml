@@ -1213,6 +1213,7 @@ import Qt.labs.platform 1.1
             property bool proform_trainer_9_0: false
             property bool iconcept_ftms_treadmill_inclination_table: false
             property bool skandika_wiri_x2000_protocol: true
+            property string kettler_usb_serialport: ""
         }
 
 
