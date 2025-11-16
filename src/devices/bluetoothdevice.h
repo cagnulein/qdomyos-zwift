@@ -771,6 +771,11 @@ class bluetoothdevice : public QObject {
     QDateTime _lastTimeUpdate;
 
     /**
+     * @brief _lastLiveActivityUpdate The time the iOS Live Activity was last updated (for throttling)
+     */
+    QDateTime _lastLiveActivityUpdate;
+
+    /**
      * @brief _firstUpdate Indicates if this is the first update.
      */
     bool _firstUpdate = true;
@@ -786,6 +791,11 @@ class bluetoothdevice : public QObject {
      * @brief update_hr_from_external Updates heart rate from Garmin Companion App or Apple Watch
      */
     void update_hr_from_external();
+
+    /**
+     * @brief update_ios_live_activity Updates iOS Live Activity with throttling (max 1 update per second)
+     */
+    void update_ios_live_activity();
 
     /**
      * @brief calculateMETS Calculate the METS (Metabolic Equivalent of Tasks)
