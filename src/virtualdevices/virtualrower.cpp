@@ -13,7 +13,7 @@
 #ifdef Q_OS_ANDROID
 #include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
-#include <QAndroidJniObject>
+#include <QJniObject>
 #endif
 
 using namespace std::chrono_literals;
@@ -53,7 +53,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             services << ((QBluetoothUuid::ServiceClassUuid)0x1826);
         }
         if (!this->noHeartService || heart_only) {
-            services << QBluetoothUuid::HeartRate;
+            services << QBluetoothUuid::ServiceClassUuid::HeartRate;
         }
 
         services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
@@ -95,7 +95,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             QLowEnergyCharacteristicData charDataFIT3;
             charDataFIT3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
             charDataFIT3.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate);
-            const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+            const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                           QByteArray(2, 0));
             charDataFIT3.addDescriptor(cpClientConfig);
 
@@ -105,7 +105,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             QByteArray descriptor;
             descriptor.append((char)0x01);
             descriptor.append((char)0x00);
-            const QLowEnergyDescriptorData clientConfig4(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor);
+            const QLowEnergyDescriptorData clientConfig4(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration, descriptor);
             charDataFIT4.addDescriptor(clientConfig4);
 
             QLowEnergyCharacteristicData charDataFIT5;
@@ -114,7 +114,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             QByteArray descriptor5;
             descriptor5.append((char)0x01);
             descriptor5.append((char)0x00);
-            const QLowEnergyDescriptorData clientConfig5(QBluetoothUuid::ClientCharacteristicConfiguration,
+            const QLowEnergyDescriptorData clientConfig5(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                          descriptor5);
             charDataFIT5.addDescriptor(clientConfig5);
 
@@ -128,7 +128,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             QByteArray descriptor6;
             descriptor6.append((char)0x01);
             descriptor6.append((char)0x00);
-            const QLowEnergyDescriptorData clientConfig6(QBluetoothUuid::ClientCharacteristicConfiguration,
+            const QLowEnergyDescriptorData clientConfig6(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                          descriptor6);
             charDataFIT6.addDescriptor(clientConfig6);
             charDataFIT6.setProperties(QLowEnergyCharacteristic::Read);
@@ -145,15 +145,15 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         if (!this->noHeartService || heart_only) {
 
             QLowEnergyCharacteristicData charDataHR;
-            charDataHR.setUuid(QBluetoothUuid::HeartRateMeasurement);
+            charDataHR.setUuid(QBluetoothUuid::CharacteristicType::HeartRateMeasurement);
             charDataHR.setValue(QByteArray(2, 0));
             charDataHR.setProperties(QLowEnergyCharacteristic::Notify);
-            const QLowEnergyDescriptorData clientConfigHR(QBluetoothUuid::ClientCharacteristicConfiguration,
+            const QLowEnergyDescriptorData clientConfigHR(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                           QByteArray(2, 0));
             charDataHR.addDescriptor(clientConfigHR);
 
             serviceDataHR.setType(QLowEnergyServiceData::ServiceTypePrimary);
-            serviceDataHR.setUuid(QBluetoothUuid::HeartRate);
+            serviceDataHR.setUuid(QBluetoothUuid::ServiceClassUuid::HeartRate);
             serviceDataHR.addCharacteristic(charDataHR);
         }
 
@@ -179,8 +179,8 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         }
 
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
-                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
+                                                  "(Landroid/content/Context;)V", QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object());
 #else
         leController->startAdvertising(pars, advertisingData, advertisingData);
 #endif
@@ -199,7 +199,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
     QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualrower::reconnect);
     QObject::connect(
         leController,
-        static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), this,
+        &QLowEnergyController::errorOccurred, this,
         &virtualrower::error);
 }
 
@@ -317,8 +317,8 @@ void virtualrower::reconnect() {
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
-                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
+                                              "(Landroid/content/Context;)V", QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object());
 #else
     leController->startAdvertising(pars, advertisingData, advertisingData);
 #endif
@@ -463,7 +463,7 @@ void virtualrower::rowerProvider() {
         QByteArray valueHR;
         valueHR.append(char(0));                                   // Flags that specify the format of the value.
         valueHR.append(char(Rower->metrics_override_heartrate())); // Actual value.
-        QLowEnergyCharacteristic characteristicHR = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
+        QLowEnergyCharacteristic characteristicHR = serviceHR->characteristic(QBluetoothUuid::CharacteristicType::HeartRateMeasurement);
 
         Q_ASSERT(characteristicHR.isValid());
         if (leController->state() != QLowEnergyController::ConnectedState) {
