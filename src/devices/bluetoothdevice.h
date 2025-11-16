@@ -788,6 +788,11 @@ class bluetoothdevice : public QObject {
     void update_hr_from_external();
 
     /**
+     * @brief update_ios_live_activity Updates iOS Live Activity with throttling (max 1 update per second)
+     */
+    void update_ios_live_activity();
+
+    /**
      * @brief calculateMETS Calculate the METS (Metabolic Equivalent of Tasks)
      * Units: METs (1 MET is approximately 3.5mL of Oxygen consumed per kg of body weight per minute)
      */
