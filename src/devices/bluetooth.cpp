@@ -3739,6 +3739,11 @@ void bluetooth::restart() {
         delete computrainerBike;
         computrainerBike = nullptr;
     }
+    if (kettlerUsbBike) {
+
+        delete kettlerUsbBike;
+        kettlerUsbBike = nullptr;
+    }
     if (csafeRower) {
 
         delete csafeRower;
@@ -4094,6 +4099,8 @@ bluetoothdevice *bluetooth::device() {
 #ifndef Q_OS_IOS
     } else if (computrainerBike) {
         return computrainerBike;
+    } else if (kettlerUsbBike) {
+        return kettlerUsbBike;
     } else if (csafeRower) {
         return csafeRower;
     } else if (csafeElliptical) {
