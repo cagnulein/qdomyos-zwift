@@ -852,6 +852,14 @@ void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, doubl
 bool nordictrackifitadbtreadmill::connected() { return true; }
 
 bool nordictrackifitadbtreadmill::canStartStop() {
+#ifdef Q_OS_ANDROID
+    // Support gRPC-based workout control
+    if (grpcInitialized) {
+        return true;
+    }
+#endif
+
+    // Fallback to remote control for ProForm Trainer 9.0
     QSettings settings;
     bool nordictrack_ifit_adb_remote =
         settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)

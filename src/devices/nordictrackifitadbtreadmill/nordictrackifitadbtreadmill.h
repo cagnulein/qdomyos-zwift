@@ -68,11 +68,7 @@ class nordictrackifitadbtreadmill : public treadmill {
   public:
     nordictrackifitadbtreadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
-#ifdef Q_OS_ANDROID
-    bool canStartStop() override { return grpcInitialized; }
-#else
-    bool canStartStop() override { return false; }
-#endif
+    bool canStartStop() override;
     double minStepSpeed() override { return 0.1; }
     bool changeFanSpeed(uint8_t speed) override;
 
