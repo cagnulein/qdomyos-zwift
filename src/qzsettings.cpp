@@ -40,6 +40,8 @@ const QString QZSettings::strava_lastrefresh = QStringLiteral("strava_lastrefres
 const QString QZSettings::default_strava_lastrefresh = QStringLiteral("");
 const QString QZSettings::strava_expires = QStringLiteral("strava_expires");
 const QString QZSettings::default_strava_expires = QStringLiteral("");
+const QString QZSettings::strava_current_user_id = QStringLiteral("strava_current_user_id");
+const QString QZSettings::default_strava_current_user_id = QStringLiteral("");
 const QString QZSettings::code = QStringLiteral("code");
 const QString QZSettings::default_code = QStringLiteral("");
 //--------------------------------------------------------------------------------------------
@@ -994,7 +996,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 814;
+const uint32_t allSettingsCount = 815;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1018,6 +1020,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::strava_refreshtoken, QZSettings::default_strava_refreshtoken},
     {QZSettings::strava_lastrefresh, QZSettings::default_strava_lastrefresh},
     {QZSettings::strava_expires, QZSettings::default_strava_expires},
+    {QZSettings::strava_current_user_id, QZSettings::default_strava_current_user_id},
     {QZSettings::ui_zoom, QZSettings::default_ui_zoom},
     {QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service},
     {QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset},
