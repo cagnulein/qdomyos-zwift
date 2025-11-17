@@ -66,14 +66,16 @@ ColumnLayout {
     }
 
     SplitView {
-        anchors.top: parent.top
-        anchors.fill: parent
+        Layout.fillWidth: true
+        Layout.fillHeight: true
         orientation: Qt.Horizontal
 
         ColumnLayout {
             SplitView.preferredWidth: 300
             SplitView.minimumWidth: 200
+            SplitView.maximumWidth: 500
             spacing: 0
+            clip: true
 
             Row
             {
@@ -224,6 +226,7 @@ ColumnLayout {
             SplitView.fillWidth: true
             SplitView.minimumWidth: 300
             spacing: 5
+            clip: true
 
             property alias powerSeries: powerSeries
             property alias powerChart: powerChart

@@ -4,6 +4,7 @@
         device: 'bike',
         intervals: [],
         programs: [],
+        programFiles: {}, // Map of program name -> file object (with url, path, etc.)
         showAdvanced: false,
         lastSaved: '',
         loading: false
@@ -190,12 +191,23 @@
     function refreshProgramList() {
         if (window.QZ_OFFLINE) {
             state.programs = [];
+            state.programFiles = {}; // Map of name -> file object
             renderProgramOptions();
             updateControls();
             return Promise.resolve();
         }
         return sendMessage('loadtrainingprograms', '', 'R_loadtrainingprograms').then(content => {
-            state.programs = Array.isArray(content && content.list) ? content.list : [];
+            // Backend returns content.files (array of objects with name, url, isFolder, etc.)
+            const files = Array.isArray(content && content.files) ? content.files : [];
+            // Filter out folders
+            const workoutFiles = files.filter(f => !f.isFolder);
+            // Store file names for dropdown
+            state.programs = workoutFiles.map(f => f.name);
+            // Store file objects for URL lookup
+            state.programFiles = {};
+            workoutFiles.forEach(f => {
+                state.programFiles[f.name] = f;
+            });
             renderProgramOptions();
             updateControls();
         }).catch(err => {
@@ -224,19 +236,34 @@
 
     function loadProgram(name) {
         setWorking(true);
-        sendMessage('loadtrainingprograms', name, 'R_loadtrainingprograms').then(content => {
-            const rows = Array.isArray(content && content.list) ? content.list : [];
-            if (!rows.length) {
-                announce('Workout is empty or cannot be read', true);
-                return;
-            }
-            state.intervals = rows.map((row, idx) => convertRow(row, idx));
-            state.device = detectDevice(state.intervals) || state.device;
-            selectors.device.value = state.device;
-            selectors.name.value = name;
-            state.lastSaved = name;
-            renderIntervals();
-            updateChart();
+        // Get file URL from stored program files
+        const fileObj = state.programFiles[name];
+        if (!fileObj || !fileObj.url) {
+            announce('Cannot find workout file', true);
+            setWorking(false);
+            return;
+        }
+        const fileUrl = fileObj.url;
+
+        // First, open the training program file
+        sendMessage('trainprogram_open_clicked', { url: fileUrl }, 'R_trainprogram_open_clicked')
+            .then(() => {
+                // Then get the loaded program rows
+                return sendMessage('gettrainingprogram', '', 'R_gettrainingprogram');
+            })
+            .then(content => {
+                const rows = Array.isArray(content && content.list) ? content.list : [];
+                if (!rows.length) {
+                    announce('Workout is empty or cannot be read', true);
+                    return;
+                }
+                state.intervals = rows.map((row, idx) => convertRow(row, idx));
+                state.device = detectDevice(state.intervals) || state.device;
+                selectors.device.value = state.device;
+                selectors.name.value = name;
+                state.lastSaved = name;
+                renderIntervals();
+                updateChart();
             updateStatus();
             updateControls();
             announce(`Loaded ${name}`);
@@ -721,20 +748,14 @@
             return refreshProgramList().then(() => {
                 selectors.programSelect.value = payload.name;
                 if (startAfter) {
-                    // Verify file exists before starting by trying to load it
-                    return sendMessage('loadtrainingprograms', payload.name, 'R_loadtrainingprograms').then(verifyContent => {
-                        if (verifyContent && verifyContent.list) {
-                            // File exists and is readable, now start the workout
-                            console.log('File verified, starting workout');
-                            return startProgram(payload.name);
-                        } else {
-                            announce('Workout file not ready, please try again', true);
-                            console.error('File verification failed before start');
-                        }
-                    }).catch(err => {
-                        console.error('Error verifying saved file before start:', err);
-                        announce('Unable to verify workout file', true);
-                    });
+                    // Verify file exists in program list before starting
+                    if (state.programs.includes(payload.name)) {
+                        console.log('File verified in list, starting workout');
+                        return startProgram(payload.name);
+                    } else {
+                        announce('Workout file not ready, please try again', true);
+                        console.error('File not found in programs list after save');
+                    }
                 }
             });
         }).catch(err => {
