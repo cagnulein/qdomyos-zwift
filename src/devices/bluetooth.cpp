@@ -220,8 +220,18 @@ void bluetooth::finished() {
     QString lastDeviceName = settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString();
     bool wizardActive = lastDeviceName.isEmpty();
 
+    // Debug: log all conditions
+    debug(QStringLiteral("Generic device dialog check - device(): %1, homeformLoaded: %2, dialogShown: %3, wizardActive: %4, filterDevice: '%5'")
+        .arg(device() != nullptr ? "yes" : "no")
+        .arg(homeformLoaded ? "yes" : "no")
+        .arg(genericDeviceDialogShownThisSession ? "yes" : "no")
+        .arg(wizardActive ? "yes" : "no")
+        .arg(filterDevice));
+
     if (!device() && homeformLoaded && !genericDeviceDialogShownThisSession && !wizardActive &&
         (filterDevice.isEmpty() || filterDevice.startsWith(QStringLiteral("Disabled")))) {
+
+        debug(QStringLiteral("Checking for generic devices in %1 discovered devices").arg(devices.size()));
 
         QStringList genericDeviceNames;
         QStringList genericDeviceAddresses;
@@ -241,6 +251,7 @@ void bluetooth::finished() {
 
             // Check for FTMS (priority)
             if (deviceHasService(b, ftmsUuid)) {
+                debug(QStringLiteral("Found FTMS device: %1").arg(b.name()));
                 genericDeviceNames.append(b.name());
                 genericDeviceAddresses.append(b.address().toString());
                 genericDeviceServiceTypes.append(QStringLiteral("ftms"));
@@ -255,6 +266,7 @@ void bluetooth::finished() {
 
             // Check for Cycling Power Service (only if not already added as FTMS)
             if (deviceHasService(b, cyclingPowerUuid) && !genericDeviceNames.contains(b.name())) {
+                debug(QStringLiteral("Found Cycling Power device: %1").arg(b.name()));
                 genericDeviceNames.append(b.name());
                 genericDeviceAddresses.append(b.address().toString());
                 genericDeviceServiceTypes.append(QStringLiteral("power"));
@@ -269,6 +281,7 @@ void bluetooth::finished() {
 
             // Check for Cycling Speed and Cadence Service (only if not already added)
             if (deviceHasService(b, cadenceUuid) && !genericDeviceNames.contains(b.name())) {
+                debug(QStringLiteral("Found Cadence device: %1").arg(b.name()));
                 genericDeviceNames.append(b.name());
                 genericDeviceAddresses.append(b.address().toString());
                 genericDeviceServiceTypes.append(QStringLiteral("cadence"));
@@ -280,7 +293,11 @@ void bluetooth::finished() {
             debug(QStringLiteral("Found %1 generic device(s) with Cadence, Cycling Power or FTMS service").arg(genericDeviceNames.size()));
             emit genericDevicesFound(genericDeviceNames, genericDeviceAddresses, genericDeviceServiceTypes);
             return;  // Don't restart discovery yet, wait for user choice
+        } else {
+            debug(QStringLiteral("No generic devices found"));
         }
+    } else {
+        debug(QStringLiteral("Generic device dialog conditions not met, skipping scan"));
     }
 
     this->startDiscovery();
