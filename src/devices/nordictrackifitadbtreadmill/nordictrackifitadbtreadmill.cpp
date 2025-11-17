@@ -275,6 +275,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     initializeGrpcService();
     if (grpcInitialized) {
         startGrpcMetricsUpdates();
+        startGrpcWorkoutStateMonitoring();
     }
 #endif
 
@@ -753,6 +754,36 @@ void nordictrackifitadbtreadmill::update() {
             setGrpcSpeed(requestSpeed);
             requestSpeed = -1;
         }
+
+        // Monitor workout state changes from iFit app
+        int currentWorkoutState = getGrpcWorkoutState();
+        if (currentWorkoutState != previousWorkoutState) {
+            emit debug(QString("Workout state changed: %1 -> %2").arg(previousWorkoutState).arg(currentWorkoutState));
+
+            // WORKOUT_STATE_IDLE = 1
+            // WORKOUT_STATE_RUNNING = 3
+            // WORKOUT_STATE_PAUSED = 4
+
+            // If workout started (IDLE/PAUSED -> RUNNING)
+            if (currentWorkoutState == 3 && (previousWorkoutState == 1 || previousWorkoutState == 4)) {
+                emit debug("Workout started in iFit app - auto-starting QZ recording");
+                // Use requestStart for both start and resume
+                // The existing logic in update() will handle pause state correctly
+                requestStart = 1;
+            }
+            // If workout stopped (RUNNING -> IDLE)
+            else if (currentWorkoutState == 1 && previousWorkoutState == 3) {
+                emit debug("Workout stopped in iFit app - auto-stopping QZ recording");
+                requestStop = 1;
+            }
+            // If workout paused (RUNNING -> PAUSED)
+            else if (currentWorkoutState == 4 && previousWorkoutState == 3) {
+                emit debug("Workout paused in iFit app - auto-pausing QZ recording");
+                requestPause = 1;
+            }
+
+            previousWorkoutState = currentWorkoutState;
+        }
     } else {
         // Fallback to OCR if gRPC is not available
         QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
@@ -1049,6 +1080,32 @@ void nordictrackifitadbtreadmill::setGrpcIncline(double incline) {
         emit debug(QString("Set gRPC incline to: %1").arg(incline));
     }
 #endif
+}
+
+void nordictrackifitadbtreadmill::startGrpcWorkoutStateMonitoring() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "startWorkoutStateMonitoring",
+            "()V"
+        );
+        emit debug(QString("Started gRPC workout state monitoring"));
+    }
+#endif
+}
+
+int nordictrackifitadbtreadmill::getGrpcWorkoutState() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        return QAndroidJniObject::callStaticMethod<jint>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getWorkoutState",
+            "()I"
+        );
+    }
+#endif
+    return 1; // WORKOUT_STATE_IDLE
 }
 
 bool nordictrackifitadbtreadmill::changeFanSpeed(uint8_t speed) {

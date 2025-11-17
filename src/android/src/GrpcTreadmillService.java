@@ -53,6 +53,8 @@ import com.ifit.glassos.settings.FanStateServiceGrpc;
 import com.ifit.glassos.workout.WorkoutServiceGrpc;
 import com.ifit.glassos.workout.WorkoutResult;
 import com.ifit.glassos.workout.StartWorkoutResponse;
+import com.ifit.glassos.workout.WorkoutState;
+import com.ifit.glassos.workout.WorkoutStateMessage;
 import com.ifit.glassos.workout.StrokesMetric;
 import com.ifit.glassos.workout.StrokesServiceGrpc;
 import com.ifit.glassos.workout.PaceMetric;
@@ -92,6 +94,8 @@ public class GrpcTreadmillService {
 
     // Control flags and current values
     private volatile boolean isUpdating = false;
+    private volatile boolean isMonitoringWorkoutState = false;
+    private volatile int currentWorkoutState = 1; // WORKOUT_STATE_IDLE
     private volatile double currentSpeed = 0.0;
     private volatile double currentIncline = 0.0;
     private volatile double currentResistance = 0.0;
@@ -118,6 +122,7 @@ public class GrpcTreadmillService {
         void onFanSpeedUpdated(int fanSpeed);
         void onStrokesUpdated(double strokesCount, double strokesLength);
         void onPaceUpdated(int paceSeconds, int last500mPaceSeconds);
+        void onWorkoutStateChanged(int workoutState);
         void onError(String metric, String error);
     }
 
@@ -169,6 +174,56 @@ public class GrpcTreadmillService {
         }
 
         QLog.i(TAG, "Stopped periodic metrics updates");
+    }
+
+    private void startWorkoutStateMonitoringInstance() {
+        if (isMonitoringWorkoutState) return;
+
+        isMonitoringWorkoutState = true;
+
+        executorService.execute(() -> {
+            try {
+                QLog.i(TAG, "Starting WorkoutStateChanged stream monitoring");
+
+                Metadata headers = createHeaders();
+                WorkoutServiceGrpc.WorkoutServiceBlockingStub stubWithHeaders = workoutStub.withInterceptors(
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
+                );
+
+                Empty request = Empty.newBuilder().build();
+                java.util.Iterator<WorkoutStateMessage> stateStream = stubWithHeaders.workoutStateChanged(request);
+
+                while (isMonitoringWorkoutState && stateStream.hasNext()) {
+                    WorkoutStateMessage stateMsg = stateStream.next();
+                    int newState = stateMsg.getWorkoutState().getNumber();
+
+                    if (newState != currentWorkoutState) {
+                        int oldState = currentWorkoutState;
+                        currentWorkoutState = newState;
+
+                        QLog.i(TAG, String.format("Workout state changed: %d -> %d", oldState, newState));
+
+                        if (metricsListener != null) {
+                            mainHandler.post(() -> metricsListener.onWorkoutStateChanged(newState));
+                        }
+                    }
+                }
+
+                QLog.i(TAG, "WorkoutStateChanged stream monitoring stopped");
+
+            } catch (Exception e) {
+                QLog.e(TAG, "Error in WorkoutStateChanged stream", e);
+                isMonitoringWorkoutState = false;
+                if (metricsListener != null) {
+                    mainHandler.post(() -> metricsListener.onError("workout_state", e.getMessage()));
+                }
+            }
+        });
+    }
+
+    private void stopWorkoutStateMonitoringInstance() {
+        isMonitoringWorkoutState = false;
+        QLog.i(TAG, "Stopping WorkoutStateChanged stream monitoring");
     }
 
     private void adjustSpeedInstance(double delta) {
@@ -338,6 +393,7 @@ public class GrpcTreadmillService {
 
     private void shutdownInstance() {
         stopMetricsUpdates();
+        stopWorkoutStateMonitoringInstance();
 
         if (channel != null) {
             try {
@@ -1077,6 +1133,31 @@ public class GrpcTreadmillService {
             instance.resumeWorkoutInstance();
         } else {
             QLog.e(TAG, "Service not initialized. Call initialize() first.");
+        }
+    }
+
+    public static void startWorkoutStateMonitoring() {
+        if (instance != null) {
+            instance.startWorkoutStateMonitoringInstance();
+        } else {
+            QLog.e(TAG, "Service not initialized. Call initialize() first.");
+        }
+    }
+
+    public static void stopWorkoutStateMonitoring() {
+        if (instance != null) {
+            instance.stopWorkoutStateMonitoringInstance();
+        } else {
+            QLog.e(TAG, "Service not initialized. Call initialize() first.");
+        }
+    }
+
+    public static int getWorkoutState() {
+        if (instance != null) {
+            return instance.currentWorkoutState;
+        } else {
+            QLog.e(TAG, "Service not initialized. Call initialize() first.");
+            return 1; // WORKOUT_STATE_IDLE
         }
     }
 

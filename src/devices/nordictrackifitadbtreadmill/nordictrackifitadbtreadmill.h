@@ -100,6 +100,8 @@ class nordictrackifitadbtreadmill : public treadmill {
     void setGrpcFanSpeed(int fanSpeed);
     int getGrpcFanSpeed();
     void setGrpcIncline(double incline);
+    void startGrpcWorkoutStateMonitoring();
+    int getGrpcWorkoutState();
 
     QTimer *refresh;
 
@@ -117,6 +119,7 @@ class nordictrackifitadbtreadmill : public treadmill {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool grpcInitialized = false;
+    int previousWorkoutState = 1; // WORKOUT_STATE_IDLE
 
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
