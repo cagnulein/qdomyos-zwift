@@ -277,6 +277,26 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
     }
 }
 
+void ftmsbike::forceInclination(double requestInclination) {
+    // FTMS SET_INDOOR_BIKE_SIMULATION_PARAMS command
+    // Byte 0: OpCode
+    // Byte 1-2: Wind Speed (sint16, 0.001 m/s)
+    // Byte 3-4: Grade/Inclination (sint16, 0.01%)
+    // Byte 5-6: Coefficient of Rolling Resistance (uint8, 0.0001)
+
+    uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
+
+    // Convert inclination to FTMS format (multiply by 100 for 0.01% units)
+    int16_t inclination = (int16_t)(requestInclination * 100.0);
+
+    // Pack Grade in bytes 3-4 as little-endian sint16
+    write[3] = ((uint16_t)inclination) & 0xFF;
+    write[4] = ((uint16_t)inclination) >> 8;
+
+    writeCharacteristic(write, sizeof(write),
+                        QStringLiteral("forceInclination ") + QString::number(requestInclination));
+}
+
 void ftmsbike::update() {
 
     QSettings settings;
@@ -347,6 +367,20 @@ void ftmsbike::update() {
             requestResistance = -1;
         }
         
+        // gpx scenario for example
+        if(!virtualBike || !virtualBike->ftmsDeviceConnected()) {
+            if ((requestInclination != -100 || lastGearValue != gears())) {
+                emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
+                forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
+                                                                // i'm using the gears in the inclination
+                requestInclination = -100;
+            } else if(lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
+                // in order to send the new gear value ASAP
+                forceInclination(lastRawRequestedInclinationValue + gears());   // since this bike doesn't have the concept of resistance,
+                                                                // i'm using the gears in the inclination
+            }
+        }
+
         if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
             qDebug() << "injecting fake ftms frame in order to send the new gear value ASAP" << lastPacketFromFTMS.toHex(' ');
             ftmsCharacteristicChanged(QLowEnergyCharacteristic(), lastPacketFromFTMS);
@@ -657,18 +691,15 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             double cr = 97.62165482;
 
             if (Cadence.value() && m_watt.value()) {
-                if(YS_G1MPLUS) {
-                    m_pelotonResistance = Resistance.value();  // 1:1 ratio
-                } else {
-                    m_pelotonResistance =
-                        (((sqrt(pow(br, 2.0) - 4.0 * ar *
-                                                   (cr - (m_watt.value() * 132.0 /
-                                                          (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
-                           br) /
-                          (2.0 * ar)) *
-                         settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
-                            settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
-                }
+                m_pelotonResistance =
+                    (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                                (cr - (m_watt.value() * 132.0 /
+                                                        (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                        br) /
+                        (2.0 * ar)) *
+                        settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                        settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+                        
                 if (!resistance_received && !DU30_bike && !SL010) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
@@ -1724,6 +1755,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             ergModeSupported = false;
             max_resistance = 10;
             Resistance = 1; // Initialize resistance to 1 for SPORT01
+        } else if(device.name().toUpper().startsWith("FS-YK-")) {
+            qDebug() << QStringLiteral("FS-YK- found");
+            FS_YK = true;
+            ergModeSupported = false; // this bike doesn't have ERG mode natively
         }
 
 

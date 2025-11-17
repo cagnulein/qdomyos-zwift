@@ -120,6 +120,7 @@ class nordictrackifitadbtreadmill : public treadmill {
     bool noHeartService = false;
     bool grpcInitialized = false;
     int previousWorkoutState = 1; // WORKOUT_STATE_IDLE
+    bool proform_trainer_9_0 = false;
 
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
@@ -132,6 +133,8 @@ class nordictrackifitadbtreadmill : public treadmill {
     void processOCROutput(const QString& ocrText, int imageWidth);
 
     int x14i_inclination_lookuptable(double reqInclination);
+    int proform_trainer_9_0_speed_lookuptable(double reqSpeed);
+    int proform_trainer_9_0_inclination_lookuptable(double reqInclination);
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

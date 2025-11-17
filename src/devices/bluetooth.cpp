@@ -1536,7 +1536,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("ASSAULTRUNNER")) ||                    // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("CITYSPORTS-LINKER")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("TP1")) && b.name().length() == 3) ||  // FTMS
-                        (b.name().toUpper().startsWith(QStringLiteral("CTM")) && b.name().length() >= 15) || // FTMS
+                        (b.name().toUpper().startsWith(QStringLiteral("CTM")) && b.name().length() >= 15 && ftms_bike.contains(QZSettings::default_ftms_bike)) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("F85")) && !sole_inclination) ||       // FMTS
                         (b.name().toUpper().startsWith(QStringLiteral("S77")) && !sole_inclination) ||       // FMTS
                         (b.name().toUpper().startsWith(QStringLiteral("F89")) && !sole_inclination) ||       // FMTS
@@ -1784,6 +1784,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("ORLAUF_ARES")) ||
                         (b.name().toUpper().startsWith("SPEEDMAGPRO")) ||                        
                         (b.name().toUpper().startsWith("XCX-")) ||
+                        (b.name().toUpper().startsWith("SMARTBIKE-")) ||
                         (b.name().toUpper().startsWith("D500V2")) ||
                         (b.name().toUpper().startsWith("NEO BIKE PLUS ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) && !b.name().toUpper().endsWith(QStringLiteral("SKI")) && !b.name().toUpper().endsWith(QStringLiteral("ROW"))) || 
@@ -1793,6 +1794,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("VFSPINBIKE")) ||
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith("SPORT01-") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // Labgrey Magnetic Exercise Bike https://www.amazon.co.uk/dp/B0CXMF1NPY?_encoding=UTF8&psc=1&ref=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&ref_=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&social_share=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&skipTwisterOG=1
+                        (b.name().toUpper().startsWith("FS-YK-")) ||
                         (b.name().toUpper().startsWith("ZUMO")) || (b.name().toUpper().startsWith("XS08-")) ||
                         (b.name().toUpper().startsWith("B94")) || (b.name().toUpper().startsWith("STAGES BIKE")) ||
                         (b.name().toUpper().startsWith("SUITO")) || (b.name().toUpper().startsWith("D2RIDE")) ||
@@ -2097,6 +2099,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 apexBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(apexBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("BKOOLSMARTPRO")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("BKOOLFBIKE")) ||            
                         b.name().toUpper().startsWith(QStringLiteral("BKOOLFITNESSBIKE"))) && !bkoolBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();

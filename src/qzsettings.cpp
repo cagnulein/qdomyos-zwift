@@ -316,6 +316,7 @@ const QString QZSettings::virtual_device_echelon = QStringLiteral("virtual_devic
 const QString QZSettings::virtual_device_ifit = QStringLiteral("virtual_device_ifit");
 const QString QZSettings::virtual_device_rower = QStringLiteral("virtual_device_rower");
 const QString QZSettings::virtual_device_force_bike = QStringLiteral("virtual_device_force_bike");
+const QString QZSettings::virtual_device_force_treadmill = QStringLiteral("virtual_device_force_treadmill");
 const QString QZSettings::volume_change_gears = QStringLiteral("volume_change_gears");
 const QString QZSettings::applewatch_fakedevice = QStringLiteral("applewatch_fakedevice");
 const QString QZSettings::zwift_erg_resistance_down = QStringLiteral("zwift_erg_resistance_down");
@@ -579,6 +580,7 @@ const QString QZSettings::floating_transparency = QStringLiteral("floating_trans
 const QString QZSettings::floating_startup = QStringLiteral("floating_startup");
 const QString QZSettings::norditrack_s25i_treadmill = QStringLiteral("norditrack_s25i_treadmill");
 const QString QZSettings::toorx_ftms_treadmill = QStringLiteral("toorx_ftms_treadmill");
+const QString QZSettings::iconcept_ftms_treadmill_inclination_table = QStringLiteral("iconcept_ftms_treadmill_inclination_table");
 const QString QZSettings::nordictrack_t65s_83_treadmill = QStringLiteral("nordictrack_t65s_83_treadmill");
 const QString QZSettings::horizon_treadmill_suspend_stats_pause =
     QStringLiteral("horizon_treadmill_suspend_stats_pause");
@@ -844,6 +846,7 @@ const QString QZSettings::fit_file_garmin_device_training_effect = QStringLitera
 const QString QZSettings::fit_file_garmin_device_training_effect_device = QStringLiteral("fit_file_garmin_device_training_effect_device");
 const QString QZSettings::proform_treadmill_705_cst_V80_44 = QStringLiteral("proform_treadmill_705_cst_V80_44");
 const QString QZSettings::nordictrack_treadmill_1750_adb = QStringLiteral("nordictrack_treadmill_1750_adb");
+const QString QZSettings::proform_trainer_9_0 = QStringLiteral("proform_trainer_9_0");
 
 const QString QZSettings::tile_preset_powerzone_1_enabled = QStringLiteral("tile_preset_powerzone_1_enabled");
 const QString QZSettings::tile_preset_powerzone_1_order = QStringLiteral("tile_preset_powerzone_1_order");
@@ -987,8 +990,9 @@ const QString QZSettings::confirm_stop_workout = QStringLiteral("confirm_stop_wo
 const QString QZSettings::height = QStringLiteral("height");
 const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
+const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
-const uint32_t allSettingsCount = 811;
+const uint32_t allSettingsCount = 815;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1258,6 +1262,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit},
     {QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower},
     {QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike},
+    {QZSettings::virtual_device_force_treadmill, QZSettings::default_virtual_device_force_treadmill},
     {QZSettings::volume_change_gears, QZSettings::default_volume_change_gears},
     {QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice},
     {QZSettings::zwift_erg_resistance_down, QZSettings::default_zwift_erg_resistance_down},
@@ -1469,6 +1474,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::floating_startup, QZSettings::default_floating_startup},
     {QZSettings::norditrack_s25i_treadmill, QZSettings::default_norditrack_s25i_treadmill},
     {QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill},
+    {QZSettings::iconcept_ftms_treadmill_inclination_table, QZSettings::default_iconcept_ftms_treadmill_inclination_table},
     {QZSettings::nordictrack_t65s_83_treadmill, QZSettings::default_nordictrack_t65s_83_treadmill},
     {QZSettings::horizon_treadmill_suspend_stats_pause, QZSettings::default_horizon_treadmill_suspend_stats_pause},
     {QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600},
@@ -1704,7 +1710,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::fit_file_garmin_device_training_effect_device, QZSettings::default_fit_file_garmin_device_training_effect_device},
     {QZSettings::proform_treadmill_705_cst_V80_44, QZSettings::default_proform_treadmill_705_cst_V80_44},
     {QZSettings::nordictrack_treadmill_1750_adb, QZSettings::default_nordictrack_treadmill_1750_adb},
-    
+    {QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0},
+
     {QZSettings::tile_preset_powerzone_1_enabled, QZSettings::default_tile_preset_powerzone_1_enabled},
     {QZSettings::tile_preset_powerzone_1_order, QZSettings::default_tile_preset_powerzone_1_order},
     {QZSettings::tile_preset_powerzone_1_value, QZSettings::default_tile_preset_powerzone_1_value},
@@ -1820,6 +1827,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::height, QZSettings::default_height},
     {QZSettings::taurua_ic90, QZSettings::default_taurua_ic90},
     {QZSettings::proform_csx210, QZSettings::default_proform_csx210},
+    {QZSettings::skandika_wiri_x2000_protocol, QZSettings::default_skandika_wiri_x2000_protocol},
     {QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed},
 };
 

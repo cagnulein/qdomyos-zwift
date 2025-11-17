@@ -843,10 +843,14 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
                                                 "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), QtAndroid::androidContext().object());
 
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
-                                              "registerReceiver",
-                                              "(Landroid/content/Context;)V",
-                                              QtAndroid::androidContext().object());
+    // Only register MediaButtonReceiver if volume_change_gears is enabled
+    if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
+        qDebug() << "Registering MediaButtonReceiver for volume gear control";
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
+                                                  "registerReceiver",
+                                                  "(Landroid/content/Context;)V",
+                                                  QtAndroid::androidContext().object());
+    }
 #endif    
 
     bluetoothManager->homeformLoaded = true;
@@ -1491,7 +1495,13 @@ void homeform::trainProgramSignals() {
 }
 
 void homeform::onToastRequested(QString message) {
+    QSettings settings;
     setToastRequested(message);
+
+    // Use TTS if enabled
+    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
+        m_speech.say(message);
+    }
 }
 
 QStringList homeform::tile_order() {
@@ -4523,6 +4533,14 @@ void homeform::Plus(const QString &name) {
                     trainProgram->overridePowerForCurrentRow(
                         ((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
                 }
+            } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                m_overridePower = true;
+                ((rower *)bluetoothManager->device())
+                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                if (trainProgram) {
+                    trainProgram->overridePowerForCurrentRow(
+                        ((rower *)bluetoothManager->device())->lastRequestedPower().value());
+                }
             }
         }
     } else if (name.contains(QStringLiteral("fan"))) {
@@ -4812,6 +4830,14 @@ void homeform::Minus(const QString &name) {
                 if (trainProgram) {
                     trainProgram->overridePowerForCurrentRow(
                         ((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
+                }
+            } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                m_overridePower = true;
+                ((rower *)bluetoothManager->device())
+                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                if (trainProgram) {
+                    trainProgram->overridePowerForCurrentRow(
+                        ((rower *)bluetoothManager->device())->lastRequestedPower().value());
                 }
             }
         }
@@ -9062,7 +9088,17 @@ extern "C" {
                 deviceType == ROWING || 
                 deviceType == ELLIPTICAL) {
                 
-                homeform::singleton()->bluetoothManager->device()->changeResistance(resistance);
+                bike* b = dynamic_cast<bike*>(homeform::singleton()->bluetoothManager->device());
+                if (b) {
+                    resistance_t maxRes = b->maxResistance();
+                    resistance_t scaledResistance = (resistance_t)((resistance / 100.0) * maxRes);
+                    if (scaledResistance < 1) scaledResistance = 1;
+                    if (scaledResistance > maxRes) scaledResistance = maxRes;
+
+                    qDebug() << "Native: ANT+ Max resistance:" << maxRes << "Scaled resistance:" << scaledResistance;
+
+                    b->changeResistance(scaledResistance);
+                }
                 qDebug() << "Applied ANT+ resistance change:" << resistance;
             } else {
                 qDebug() << "Device type does not support resistance change";

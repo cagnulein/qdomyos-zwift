@@ -1212,6 +1212,10 @@ import Qt.labs.platform 1.1
             property bool proform_csx210: false
             property bool confirm_stop_workout: false
             property bool proform_rower_750r: false
+            property bool virtual_device_force_treadmill: false
+            property bool proform_trainer_9_0: false
+            property bool iconcept_ftms_treadmill_inclination_table: false
+            property bool skandika_wiri_x2000_protocol: true
         }
 
 
@@ -1347,12 +1351,12 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: {
                                 if (settings.miles_unit) {
-                                    var parts = text.match(/(\d+)'(\d+)"/);
+                                    var parts = text.match(/(\d+)[\s''\u2018\u2019]*(\d+)/);
                                     if (parts) {
                                         settings.height = parseInt(parts[1]) * 30.48 + parseInt(parts[2]) * 2.54;
                                     }
                                 } else {
-                                    settings.height = text;
+                                    settings.height = parseFloat(text);
                                 }
                             }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -1363,12 +1367,15 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 if (settings.miles_unit) {
-                                    var parts = heightTextField.text.match(/(\d+)'(\d+)"/);
+                                    var parts = heightTextField.text.match(/(\d+)[\s''\u2018\u2019]*(\d+)/);
                                     if (parts) {
                                         settings.height = parseInt(parts[1]) * 30.48 + parseInt(parts[2]) * 2.54;
+                                    } else {
+                                        toast.show("Invalid format! Use feet'inches (e.g., 6'2\")");
+                                        return;
                                     }
                                 } else {
-                                    settings.height = heightTextField.text;
+                                    settings.height = parseFloat(heightTextField.text);
                                 }
                                 toast.show("Setting saved!");
                             }
@@ -3720,6 +3727,42 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.snode_bike = checked; window.settings_restart_to_apply = true; }
+                        }
+                    }
+                    AccordionElement {
+                        id: skandikaBikeAccordion
+                        title: qsTr("Skandika Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                id: skandikaX2000ProtocolDelegate
+                                text: qsTr("Skandika X-2000 Protocol")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.skandika_wiri_x2000_protocol
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.skandika_wiri_x2000_protocol = checked; window.settings_restart_to_apply = true; }
+                            }
+                            Label {
+                                text: qsTr("Enable this for Skandika X-2000 bikes. Disable for other Skandika models (e.g., HT211212095)")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
                         }
                     }
                     AccordionElement {
@@ -7440,6 +7483,7 @@ import Qt.labs.platform 1.1
                                     "Nordictrack Ultra LE",
                                     "Proform Carbon TLS",
                                     "Proform 995i",
+                                    "Proform Trainer 9.0 (PFTL69921-INT.4)",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -7508,7 +7552,8 @@ import Qt.labs.platform 1.1
                                                     settings.nordictrack_elite_800 ? 49 :
                                                     settings.nordictrack_treadmill_ultra_le ? 50 :
                                                     settings.proform_treadmill_carbon_tls ? 51 :
-                                                    settings.proform_treadmill_995i ? 52 : 0;
+                                                    settings.proform_treadmill_995i ? 52 :
+                                                    settings.proform_trainer_9_0 ? 53 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -7575,6 +7620,7 @@ import Qt.labs.platform 1.1
                                     settings.nordictrack_treadmill_ultra_le = false;
                                     settings.proform_treadmill_carbon_tls = false;
                                     settings.proform_treadmill_995i = false;
+                                    settings.proform_trainer_9_0 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -7630,6 +7676,7 @@ import Qt.labs.platform 1.1
                                         case 50: settings.nordictrack_treadmill_ultra_le = true; break;
                                         case 51: settings.proform_treadmill_carbon_tls = true; break;
                                         case 52: settings.proform_treadmill_995i = true; break;
+                                        case 53: settings.proform_trainer_9_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -8581,8 +8628,8 @@ import Qt.labs.platform 1.1
                                 onClicked: { settings.horizon_treadmill_force_ftms = checked; window.settings_restart_to_apply = true; }
                             }
                         }
-                    }                
-                }             
+                    }
+                }
             }
 
             AccordionElement {
@@ -8810,6 +8857,21 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.toorx_ftms_treadmill = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: iconceptFTMSTreadmillInclinationTableDelegate
+                        text: qsTr("IConcept FTMS Treadmill")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.iconcept_ftms_treadmill_inclination_table
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.iconcept_ftms_treadmill_inclination_table = checked; window.settings_restart_to_apply = true; }
                     }
 
                     IndicatorOnlySwitch {
@@ -12162,6 +12224,34 @@ import Qt.labs.platform 1.1
 
                                     Label {
                                         text: qsTr("Enables QZ to send a rower Bluetooth profile instead of a bike profile to third party apps that support rowing (examples: Kinomap and BitGym). This should be off for Zwift. Default is off.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
+                                    IndicatorOnlySwitch {
+                                        id: virtualDeviceForceTreadmillDelegate
+                                        text: qsTr("Force Virtual Treadmill")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_force_treadmill
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: { settings.virtual_device_force_treadmill = checked; window.settings_restart_to_apply = true; }
+                                    }
+
+                                    Label {
+                                        text: qsTr("When enabled, forces QZ to impersonate a virtual treadmill regardless of the original device type. This allows any device (bike, rower, elliptical, etc.) to appear as a treadmill to third party apps. Default is off.")
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: Qt.application.font.pixelSize - 2
