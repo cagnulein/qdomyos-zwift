@@ -840,10 +840,14 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
                                                 "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), QtAndroid::androidContext().object());
 
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
-                                              "registerReceiver",
-                                              "(Landroid/content/Context;)V",
-                                              QtAndroid::androidContext().object());
+    // Only register MediaButtonReceiver if volume_change_gears is enabled
+    if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
+        qDebug() << "Registering MediaButtonReceiver for volume gear control";
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
+                                                  "registerReceiver",
+                                                  "(Landroid/content/Context;)V",
+                                                  QtAndroid::androidContext().object());
+    }
 #endif    
 
     bluetoothManager->homeformLoaded = true;

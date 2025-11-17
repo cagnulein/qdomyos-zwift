@@ -690,6 +690,8 @@ class QZSettings {
 
     static const QString proform_treadmill_995i;
     static constexpr bool default_proform_treadmill_995i = false;
+    static const QString nordictrack_series_7;
+    static constexpr bool default_nordictrack_series_7 = false;
 
     static const QString toorx_3_0;
     static constexpr bool default_toorx_3_0 = false;
