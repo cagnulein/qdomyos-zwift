@@ -1215,6 +1215,14 @@ import Qt.labs.platform 1.1
             property bool skandika_wiri_x2000_protocol: true
             property bool nordictrack_series_7: false
             property string kettler_usb_serialport: ""
+
+            // Intervals.icu settings
+            property bool intervalsicu_upload_enabled: false
+            property bool intervalsicu_use_oauth: true
+            property string intervalsicu_suffix: "#QZ"
+            property bool intervalsicu_date_prefix: false
+            property string intervalsicu_api_key: ""
+            property string intervalsicu_athlete_id: ""
         }
 
 

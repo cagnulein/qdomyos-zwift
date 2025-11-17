@@ -82,6 +82,18 @@ class QZSettings {
     static const QString strava_expires;
     static const QString default_strava_expires;
 
+    static const QString intervalsicu_accesstoken;
+    static const QString default_intervalsicu_accesstoken;
+
+    static const QString intervalsicu_refreshtoken;
+    static const QString default_intervalsicu_refreshtoken;
+
+    static const QString intervalsicu_athlete_id;
+    static const QString default_intervalsicu_athlete_id;
+
+    static const QString intervalsicu_api_key;
+    static const QString default_intervalsicu_api_key;
+
     static const QString code;
     static const QString default_code;
 
@@ -851,6 +863,18 @@ class QZSettings {
 
     static const QString strava_suffix;
     static const QString default_strava_suffix;
+
+    static const QString intervalsicu_upload_enabled;
+    static constexpr bool default_intervalsicu_upload_enabled = false;
+
+    static const QString intervalsicu_use_oauth;
+    static constexpr bool default_intervalsicu_use_oauth = true;
+
+    static const QString intervalsicu_suffix;
+    static const QString default_intervalsicu_suffix;
+
+    static const QString intervalsicu_date_prefix;
+    static constexpr bool default_intervalsicu_date_prefix = false;
 
     static const QString cadence_sensor_name;
     static const QString default_cadence_sensor_name;

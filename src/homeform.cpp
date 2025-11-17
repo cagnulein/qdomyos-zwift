@@ -159,6 +159,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
     stravaAuthWebVisible = false;
     stravaWebVisibleChanged(stravaAuthWebVisible);
+    intervalsicuAuthWebVisible = false;
+    intervalsicuWebVisibleChanged(intervalsicuAuthWebVisible);
 
     QString innerId = QStringLiteral("inner");
     QString sKey = QStringLiteral("template_") + innerId + QStringLiteral("_" TEMPLATE_PRIVATE_WEBSERVER_ID "_");
@@ -621,6 +623,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(floatingOpen()), this, SLOT(floatingOpen()));
     QObject::connect(stack, SIGNAL(openFloatingWindowBrowser()), this, SLOT(openFloatingWindowBrowser()));
     QObject::connect(stack, SIGNAL(strava_upload_file_prepare()), this, SLOT(strava_upload_file_prepare()));
+    QObject::connect(stack, SIGNAL(intervalsicu_connect_clicked()), this, SLOT(intervalsicu_connect_clicked()));
+    QObject::connect(stack, SIGNAL(intervalsicu_upload_file_prepare()), this, SLOT(intervalsicu_upload_file_prepare()));
 
     qDebug() << "homeform constructor events linked";
 
@@ -7755,6 +7759,25 @@ void homeform::fit_save_clicked() {
                 emit stravaUploadRequestedChanged(true);
             }
         }
+
+        // Intervals.icu upload
+        bool intervalsicu_enabled = settings.value(QZSettings::intervalsicu_upload_enabled, QZSettings::default_intervalsicu_upload_enabled).toBool();
+        bool intervalsicu_use_oauth = settings.value(QZSettings::intervalsicu_use_oauth, QZSettings::default_intervalsicu_use_oauth).toBool();
+
+        if (intervalsicu_enabled) {
+            if (intervalsicu_use_oauth) {
+                // OAuth mode: check for access token
+                if (!settings.value(QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken).toString().isEmpty()) {
+                    intervalsicu_upload_file_prepare();
+                }
+            } else {
+                // Manual API key mode: check for API key and athlete ID
+                if (!settings.value(QZSettings::intervalsicu_api_key, QZSettings::default_intervalsicu_api_key).toString().isEmpty() &&
+                    !settings.value(QZSettings::intervalsicu_athlete_id, QZSettings::default_intervalsicu_athlete_id).toString().isEmpty()) {
+                    intervalsicu_upload_file_prepare();
+                }
+            }
+        }
     }
 }
 
@@ -9071,6 +9094,432 @@ void homeform::videoSeekPosition(int ms) {
     auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
     videoPlaybackHalfPlayer->setPosition(ms);
 }
+
+// ========== Intervals.icu Implementation ==========
+
+#ifndef INTERVALSICU_CLIENT_ID
+#define INTERVALSICU_CLIENT_ID "YOUR_CLIENT_ID"
+#pragma message("DEFINE INTERVALSICU_CLIENT_ID!!!")
+#endif
+#define INTERVALSICU_CLIENT_ID_S STRINGIFY(INTERVALSICU_CLIENT_ID)
+
+#ifndef INTERVALSICU_CLIENT_SECRET
+#define INTERVALSICU_CLIENT_SECRET "YOUR_CLIENT_SECRET"
+#pragma message("DEFINE INTERVALSICU_CLIENT_SECRET!!!")
+#endif
+#define INTERVALSICU_CLIENT_SECRET_S STRINGIFY(INTERVALSICU_CLIENT_SECRET)
+
+void homeform::intervalsicu_connect_clicked() {
+    QSettings settings;
+    bool use_oauth = settings.value(QZSettings::intervalsicu_use_oauth, QZSettings::default_intervalsicu_use_oauth).toBool();
+
+    if (use_oauth) {
+        // Use OAuth flow
+        intervalsicu_connect();
+    } else {
+        // Manual API key mode - just show message
+        qDebug() << "Intervals.icu: Using manual API key mode";
+        setGeneralPopupVisible(true);
+    }
+}
+
+QOAuth2AuthorizationCodeFlow *homeform::intervalsicu_connect() {
+    QSettings settings;
+
+    if (!settings.value(QZSettings::intervalsicu_accesstoken).toString().isEmpty()) {
+        qDebug() << "Intervals.icu already authenticated";
+        return nullptr;
+    }
+
+    if (!intervalsicu) {
+        intervalsicu = new QOAuth2AuthorizationCodeFlow(this);
+
+        intervalsicu->setAuthorizationUrl(QUrl(QStringLiteral("https://intervals.icu/oauth/authorize")));
+        intervalsicu->setAccessTokenUrl(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
+
+        intervalsicu->setClientIdentifier(QStringLiteral(INTERVALSICU_CLIENT_ID_S));
+        intervalsicu->setClientIdentifierSharedKey(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S));
+
+        intervalsicu->setModifyParametersFunction(
+            buildModifyParametersFunction(
+                QUrl(QStringLiteral(INTERVALSICU_CLIENT_ID_S)),
+                QUrl(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S))
+            )
+        );
+
+        if (!intervalsicuReplyHandler) {
+            intervalsicuReplyHandler = new QOAuthHttpServerReplyHandler(8485, this);
+        }
+        intervalsicu->setReplyHandler(intervalsicuReplyHandler);
+
+        connect(intervalsicu, &QOAuth2AuthorizationCodeFlow::granted,
+                this, &homeform::onIntervalsICUGranted);
+        connect(intervalsicu, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser,
+                this, &homeform::onIntervalsICUAuthorizeWithBrowser);
+    }
+
+    intervalsicu->grant();
+    return intervalsicu;
+}
+
+void homeform::onIntervalsICUGranted() {
+    intervalsicuAuthWebVisible = false;
+    intervalsicuWebVisibleChanged(intervalsicuAuthWebVisible);
+
+    QSettings settings;
+    settings.setValue(QZSettings::intervalsicu_accesstoken, intervalsicu->token());
+    settings.setValue(QZSettings::intervalsicu_refreshtoken, intervalsicu->refreshToken());
+
+    qDebug() << "Intervals.icu authenticated successfully";
+
+    // Try to extract athlete ID from token response
+    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    if (reply) {
+        QByteArray data = reply->readAll();
+        QJsonDocument json = QJsonDocument::fromJson(data);
+        QJsonObject obj = json.object();
+
+        if (obj.contains("athlete")) {
+            QJsonObject athlete = obj["athlete"].toObject();
+            QString athleteId = athlete["id"].toString();
+            settings.setValue(QZSettings::intervalsicu_athlete_id, athleteId);
+            intervalsicuAthleteId = athleteId;
+            qDebug() << "Intervals.icu athlete ID:" << athleteId;
+        }
+    }
+
+    setGeneralPopupVisible(true);
+}
+
+void homeform::onIntervalsICUAuthorizeWithBrowser(const QUrl &url) {
+    QSettings settings;
+    intervalsicuAuthUrl = url.toString();
+    emit intervalsicuAuthUrlChanged(intervalsicuAuthUrl);
+
+    bool use_external_browser = true;
+#if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
+    use_external_browser = false;
+#endif
+
+    if (use_external_browser) {
+        QDesktopServices::openUrl(url);
+    } else {
+        intervalsicuAuthWebVisible = true;
+        intervalsicuWebVisibleChanged(intervalsicuAuthWebVisible);
+    }
+}
+
+void homeform::intervalsicu_refreshtoken() {
+    QSettings settings;
+
+    if (settings.value(QZSettings::intervalsicu_refreshtoken).toString().isEmpty()) {
+        qDebug() << "No Intervals.icu refresh token available";
+        return;
+    }
+
+    QNetworkRequest request(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
+    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    QString data;
+    data += QStringLiteral("client_id=" INTERVALSICU_CLIENT_ID_S);
+    data += QStringLiteral("&client_secret=" INTERVALSICU_CLIENT_SECRET_S);
+    data += QStringLiteral("&refresh_token=") + settings.value(QZSettings::intervalsicu_refreshtoken).toString();
+    data += QStringLiteral("&grant_type=refresh_token");
+
+    if (intervalsicuManager) {
+        delete intervalsicuManager;
+        intervalsicuManager = nullptr;
+    }
+    intervalsicuManager = new QNetworkAccessManager(this);
+    QNetworkReply *reply = intervalsicuManager->post(request, data.toLatin1());
+
+    QEventLoop loop;
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    QByteArray response = reply->readAll();
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(response);
+    QJsonObject obj = jsonResponse.object();
+
+    if (obj.contains("access_token")) {
+        settings.setValue(QZSettings::intervalsicu_accesstoken, obj["access_token"].toString());
+        if (obj.contains("refresh_token")) {
+            settings.setValue(QZSettings::intervalsicu_refreshtoken, obj["refresh_token"].toString());
+        }
+        qDebug() << "Intervals.icu token refreshed successfully";
+    } else {
+        qDebug() << "Intervals.icu token refresh failed:" << response;
+    }
+}
+
+void homeform::intervalsicu_upload_file_prepare() {
+    qDebug() << "Intervals.icu upload prepare:" << lastFitFileSaved;
+    QFile f(lastFitFileSaved);
+    if (!f.open(QFile::OpenModeFlag::ReadOnly)) {
+        qDebug() << "Failed to open FIT file for Intervals.icu upload";
+        return;
+    }
+
+    QByteArray fitfile = f.readAll();
+    f.close();
+
+    QSettings settings;
+    bool use_oauth = settings.value(QZSettings::intervalsicu_use_oauth, QZSettings::default_intervalsicu_use_oauth).toBool();
+
+    if (use_oauth) {
+        intervalsicu_upload_file(fitfile, lastFitFileSaved);
+    } else {
+        intervalsicu_upload_file_api_key(fitfile, lastFitFileSaved);
+    }
+}
+
+bool homeform::intervalsicu_upload_file(const QByteArray &data, const QString &remotename) {
+    intervalsicu_refreshtoken();
+
+    QSettings settings;
+    QString token = settings.value(QZSettings::intervalsicu_accesstoken).toString();
+    QString athleteId = settings.value(QZSettings::intervalsicu_athlete_id).toString();
+
+    if (token.isEmpty()) {
+        qDebug() << "Intervals.icu: No access token available";
+        setToastRequested("Intervals.icu: Not authenticated");
+        return false;
+    }
+
+    if (athleteId.isEmpty()) {
+        qDebug() << "Intervals.icu: No athlete ID available";
+        setToastRequested("Intervals.icu: No athlete ID configured");
+        return false;
+    }
+
+    QUrl url(QString("https://intervals.icu/api/v1/athlete/%1/activities").arg(athleteId));
+    QNetworkRequest request(url);
+    request.setRawHeader("Authorization", QString("Bearer %1").arg(token).toUtf8());
+
+    QString boundary = QVariant(QRandomGenerator::global()->generate()).toString() +
+                       QVariant(QRandomGenerator::global()->generate()).toString() +
+                       QVariant(QRandomGenerator::global()->generate()).toString();
+
+    QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+    multiPart->setBoundary(boundary.toLatin1());
+
+    // Build activity name
+    QString prefix = QStringLiteral("");
+    if (settings.value(QZSettings::intervalsicu_date_prefix, QZSettings::default_intervalsicu_date_prefix).toBool()) {
+        prefix = QDate::currentDate().toString(Qt::TextDate) + " ";
+    }
+
+    QString activityName;
+    if (!stravaPelotonActivityName.isEmpty()) {
+        activityName = stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName;
+    } else {
+        if (bluetoothManager->device()->deviceType() == TREADMILL) {
+            activityName = prefix + QStringLiteral("Run");
+        } else if (bluetoothManager->device()->deviceType() == ROWING) {
+            activityName = prefix + QStringLiteral("Row");
+        } else {
+            activityName = prefix + QStringLiteral("Ride");
+        }
+    }
+
+    QString suffix = settings.value(QZSettings::intervalsicu_suffix, QZSettings::default_intervalsicu_suffix).toString();
+    if (!suffix.isEmpty()) {
+        activityName += " " + suffix;
+    }
+
+    // Add activity name
+    if (!activityName.isEmpty()) {
+        QHttpPart namePart;
+        namePart.setHeader(QNetworkRequest::ContentDispositionHeader,
+                          QVariant(QStringLiteral("form-data; name=\"name\"")));
+        namePart.setBody(activityName.toUtf8());
+        multiPart->append(namePart);
+    }
+
+    // Add description if available
+    if (!activityDescription.isEmpty()) {
+        QHttpPart descPart;
+        descPart.setHeader(QNetworkRequest::ContentDispositionHeader,
+                          QVariant(QStringLiteral("form-data; name=\"description\"")));
+        descPart.setBody(activityDescription.toUtf8());
+        multiPart->append(descPart);
+    }
+
+    // Add file
+    QString filename = QFileInfo(remotename).fileName();
+    QHttpPart filePart;
+    filePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant(QStringLiteral("application/octet-stream")));
+    filePart.setHeader(QNetworkRequest::ContentDispositionHeader,
+                      QVariant(QStringLiteral("form-data; name=\"file\"; filename=\"") + filename + QStringLiteral("\"")));
+    filePart.setBody(data);
+    multiPart->append(filePart);
+
+    if (intervalsicuManager) {
+        delete intervalsicuManager;
+        intervalsicuManager = nullptr;
+    }
+    intervalsicuManager = new QNetworkAccessManager(this);
+    replyIntervalsICU = intervalsicuManager->post(request, multiPart);
+
+    connect(replyIntervalsICU, &QNetworkReply::uploadProgress,
+            [](qint64 bytesSent, qint64 bytesTotal) {
+                qDebug() << "Intervals.icu upload progress:" << bytesSent << "/" << bytesTotal;
+            });
+
+    connect(replyIntervalsICU, &QNetworkReply::finished,
+            this, &homeform::writeFileCompletedIntervalsICU);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+    connect(replyIntervalsICU, &QNetworkReply::errorOccurred,
+            this, &homeform::errorOccurredUploadIntervalsICU);
+#endif
+
+    qDebug() << "Intervals.icu upload started (OAuth)";
+    return true;
+}
+
+bool homeform::intervalsicu_upload_file_api_key(const QByteArray &data, const QString &remotename) {
+    QSettings settings;
+    QString apiKey = settings.value(QZSettings::intervalsicu_api_key).toString();
+    QString athleteId = settings.value(QZSettings::intervalsicu_athlete_id).toString();
+
+    if (apiKey.isEmpty() || athleteId.isEmpty()) {
+        qDebug() << "Intervals.icu: API key or athlete ID not configured";
+        setToastRequested("Intervals.icu: Configure API key and athlete ID in settings");
+        return false;
+    }
+
+    QUrl url(QString("https://intervals.icu/api/v1/athlete/%1/activities").arg(athleteId));
+    QNetworkRequest request(url);
+
+    // Basic authentication: username is "API_KEY", password is the actual API key
+    QString credentials = "API_KEY:" + apiKey;
+    QByteArray auth = credentials.toUtf8().toBase64();
+    request.setRawHeader("Authorization", "Basic " + auth);
+
+    QString boundary = QVariant(QRandomGenerator::global()->generate()).toString() +
+                       QVariant(QRandomGenerator::global()->generate()).toString() +
+                       QVariant(QRandomGenerator::global()->generate()).toString();
+
+    QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+    multiPart->setBoundary(boundary.toLatin1());
+
+    // Build activity name (same logic as OAuth)
+    QString prefix = QStringLiteral("");
+    if (settings.value(QZSettings::intervalsicu_date_prefix, QZSettings::default_intervalsicu_date_prefix).toBool()) {
+        prefix = QDate::currentDate().toString(Qt::TextDate) + " ";
+    }
+
+    QString activityName;
+    if (!stravaPelotonActivityName.isEmpty()) {
+        activityName = stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName;
+    } else {
+        if (bluetoothManager->device()->deviceType() == TREADMILL) {
+            activityName = prefix + QStringLiteral("Run");
+        } else if (bluetoothManager->device()->deviceType() == ROWING) {
+            activityName = prefix + QStringLiteral("Row");
+        } else {
+            activityName = prefix + QStringLiteral("Ride");
+        }
+    }
+
+    QString suffix = settings.value(QZSettings::intervalsicu_suffix, QZSettings::default_intervalsicu_suffix).toString();
+    if (!suffix.isEmpty()) {
+        activityName += " " + suffix;
+    }
+
+    // Add activity name
+    if (!activityName.isEmpty()) {
+        QHttpPart namePart;
+        namePart.setHeader(QNetworkRequest::ContentDispositionHeader,
+                          QVariant(QStringLiteral("form-data; name=\"name\"")));
+        namePart.setBody(activityName.toUtf8());
+        multiPart->append(namePart);
+    }
+
+    // Add description if available
+    if (!activityDescription.isEmpty()) {
+        QHttpPart descPart;
+        descPart.setHeader(QNetworkRequest::ContentDispositionHeader,
+                          QVariant(QStringLiteral("form-data; name=\"description\"")));
+        descPart.setBody(activityDescription.toUtf8());
+        multiPart->append(descPart);
+    }
+
+    // Add file
+    QString filename = QFileInfo(remotename).fileName();
+    QHttpPart filePart;
+    filePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant(QStringLiteral("application/octet-stream")));
+    filePart.setHeader(QNetworkRequest::ContentDispositionHeader,
+                      QVariant(QStringLiteral("form-data; name=\"file\"; filename=\"") + filename + QStringLiteral("\"")));
+    filePart.setBody(data);
+    multiPart->append(filePart);
+
+    if (intervalsicuManager) {
+        delete intervalsicuManager;
+        intervalsicuManager = nullptr;
+    }
+    intervalsicuManager = new QNetworkAccessManager(this);
+    replyIntervalsICU = intervalsicuManager->post(request, multiPart);
+
+    connect(replyIntervalsICU, &QNetworkReply::uploadProgress,
+            [](qint64 bytesSent, qint64 bytesTotal) {
+                qDebug() << "Intervals.icu upload progress:" << bytesSent << "/" << bytesTotal;
+            });
+
+    connect(replyIntervalsICU, &QNetworkReply::finished,
+            this, &homeform::writeFileCompletedIntervalsICU);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+    connect(replyIntervalsICU, &QNetworkReply::errorOccurred,
+            this, &homeform::errorOccurredUploadIntervalsICU);
+#endif
+
+    qDebug() << "Intervals.icu upload started (API key)";
+    return true;
+}
+
+void homeform::writeFileCompletedIntervalsICU() {
+    qDebug() << "Intervals.icu upload completed!";
+
+    QNetworkReply *reply = static_cast<QNetworkReply *>(QObject::sender());
+    QByteArray response = reply->readAll();
+
+    qDebug() << "Intervals.icu response:" << response;
+
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    if (statusCode >= 200 && statusCode < 300) {
+        setToastRequested("Intervals.icu upload successful!");
+    } else {
+        QString errorMsg = QString("Intervals.icu upload failed (HTTP %1)").arg(statusCode);
+        qDebug() << errorMsg << response;
+        setToastRequested(errorMsg);
+    }
+
+    reply->deleteLater();
+}
+
+void homeform::errorOccurredUploadIntervalsICU(QNetworkReply::NetworkError code) {
+    qDebug() << "Intervals.icu upload error details:";
+    qDebug() << "Error code:" << code;
+
+    if (replyIntervalsICU) {
+        qDebug() << "Error string:" << replyIntervalsICU->errorString();
+        qDebug() << "HTTP status code:" << replyIntervalsICU->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+        QByteArray errorData = replyIntervalsICU->readAll();
+        qDebug() << "Error response body:" << QString(errorData);
+
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(errorData);
+        if (!jsonResponse.isNull()) {
+            qDebug() << "JSON error message:" << jsonResponse.toJson();
+        }
+
+        setToastRequested("Intervals.icu upload failed: " + replyIntervalsICU->errorString());
+    } else {
+        setToastRequested("Intervals.icu upload failed");
+    }
+}
+
+// ========== End Intervals.icu Implementation ==========
 
 #ifdef Q_OS_ANDROID
 extern "C" {
