@@ -510,7 +510,7 @@ jobs:
   # This workflow contains a single job called "build"
   android-build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-22.04
+    runs-on: macos-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -528,21 +528,21 @@ jobs:
 #          path: '${{ github.workspace }}/output/android/'
 #          key: ${{ runner.os }}-QtCache-Android
 
-      - name: Xvfb install and run
-        run: |
-          sudo apt-get install -y xvfb
-          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
+#      - name: Xvfb install and run (Linux only - not needed on macOS)
+#        run: |
+#          sudo apt-get install -y xvfb
+#          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
 
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
-        
+
       - name: Checkout submodules with specific branches
         run: |
           git submodule init
-          git submodule update --init --recursive 
+          git submodule update --init --recursive
 
       - name: Fix qmdnsengine submodule
         run: |
@@ -550,8 +550,8 @@ jobs:
           git fetch
           git checkout 602da51dc43c55bd9aa8a83c47ea3594a9b01b98
 
-      - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+#      - name: Install packages required to run QZ inside workflow (Linux only - not needed on macOS)
+#        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
 
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
@@ -585,7 +585,7 @@ jobs:
         uses: jdpurcell/install-qt-action@v5
         with:
           version: '5.15.0'
-          host: 'linux'
+          host: 'mac'
           target: 'android'
           arch: 'android'
           modules: 'qtcharts qtnetworkauth'
@@ -615,7 +615,8 @@ jobs:
         run: |
           mkdir -p ${{ github.workspace }}/Qt-5.15.0-custom
           cd ${{ github.workspace }}
-          wget -q https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.0/qt5.15.0-android-page16.zip
+          # Use curl on macOS instead of wget
+          curl -L -o qt5.15.0-android-page16.zip https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.0/qt5.15.0-android-page16.zip
           unzip -q qt5.15.0-android-page16.zip -d Qt-5.15.0-custom
 
           echo "=== Checking Qt custom directory structure ==="
@@ -646,10 +647,10 @@ jobs:
           ls -la "$QT_ROOT/bin/" | head -20
           echo "===================================="
 
-          # Install NDK 21 after GitHub update
+          # Install NDK 21 on macOS
           # https://github.com/actions/virtual-environments/issues/5595
-          ANDROID_ROOT="/usr/local/lib/android"
-          ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
+          # On macOS, Android SDK is in $ANDROID_HOME
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.4.7075529"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
@@ -665,11 +666,14 @@ jobs:
           cd ..
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
-          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+          # Remove default NDK if present (macOS path)
+          rm -rf $ANDROID_SDK_ROOT/ndk/25.1.8937393 || true
 
           # Build Android app with custom Qt (16k page support)
-          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
-          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/21.4.7075529" && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          # Use sed with backup extension for macOS compatibility
+          sed -i.bak '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
+          rm -f src/android-qdomyos-zwift-deployment-settings.json.bak
           cat src/android-qdomyos-zwift-deployment-settings.json
 
       - name: Build APK (using Qt 5.15.0 with 16k page support)
@@ -686,8 +690,8 @@ jobs:
           APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
           APK_ALIGNED="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-aligned.apk"
 
-          # Find zipalign in Android SDK
-          ZIPALIGN=$(find /usr/local/lib/android/sdk/build-tools -name zipalign | head -n 1)
+          # Find zipalign in Android SDK (macOS path)
+          ZIPALIGN=$(find $ANDROID_HOME/build-tools -name zipalign | head -n 1)
 
           if [ -z "$ZIPALIGN" ]; then
             echo "ERROR: zipalign not found in Android SDK"
