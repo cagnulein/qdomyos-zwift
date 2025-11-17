@@ -341,8 +341,8 @@ ColumnLayout {
 
         // SplitView handle customization for better touch
         handle: Rectangle {
-            implicitWidth: 10
-            implicitHeight: 10
+            implicitWidth: 50
+            implicitHeight: 50
             color: SplitHandle.pressed ? Material.accent : (SplitHandle.hovered ? Material.color(Material.Grey, Material.Shade400) : "transparent")
 
             Rectangle {
