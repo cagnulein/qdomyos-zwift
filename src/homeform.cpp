@@ -625,6 +625,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(strava_upload_file_prepare()), this, SLOT(strava_upload_file_prepare()));
     QObject::connect(stack, SIGNAL(intervalsicu_connect_clicked()), this, SLOT(intervalsicu_connect_clicked()));
     QObject::connect(stack, SIGNAL(intervalsicu_upload_file_prepare()), this, SLOT(intervalsicu_upload_file_prepare()));
+    QObject::connect(stack, SIGNAL(intervalsicu_download_todays_workout_clicked()), this, SLOT(intervalsicu_download_todays_workout_clicked()));
 
     qDebug() << "homeform constructor events linked";
 
@@ -9517,6 +9518,197 @@ void homeform::errorOccurredUploadIntervalsICU(QNetworkReply::NetworkError code)
     } else {
         setToastRequested("Intervals.icu upload failed");
     }
+}
+
+void homeform::intervalsicu_download_todays_workout_clicked() {
+    qDebug() << "Intervals.icu: Download today's workout requested";
+    intervalsicu_download_todays_workout();
+}
+
+void homeform::intervalsicu_download_todays_workout() {
+    QSettings settings;
+    bool use_oauth = settings.value(QZSettings::intervalsicu_use_oauth, QZSettings::default_intervalsicu_use_oauth).toBool();
+    QString athleteId = settings.value(QZSettings::intervalsicu_athlete_id).toString();
+
+    if (athleteId.isEmpty()) {
+        qDebug() << "Intervals.icu: No athlete ID configured";
+        setToastRequested("Intervals.icu: Configure athlete ID first");
+        return;
+    }
+
+    // Get today's date in ISO format (YYYY-MM-DD)
+    QString today = QDate::currentDate().toString(Qt::ISODate);
+
+    // Build API URL to get today's events
+    // API: GET /api/v1/athlete/{id}/events?oldest={date}&newest={date}&category=WORKOUT
+    QString urlString = QString("https://intervals.icu/api/v1/athlete/%1/events?oldest=%2&newest=%2&category=WORKOUT")
+                        .arg(athleteId)
+                        .arg(today);
+
+    QUrl url(urlString);
+    QNetworkRequest request(url);
+
+    // Set authentication
+    if (use_oauth) {
+        intervalsicu_refreshtoken();
+        QString token = settings.value(QZSettings::intervalsicu_accesstoken).toString();
+        if (token.isEmpty()) {
+            qDebug() << "Intervals.icu: No access token available";
+            setToastRequested("Intervals.icu: Please authenticate first");
+            return;
+        }
+        request.setRawHeader("Authorization", QString("Bearer %1").arg(token).toUtf8());
+    } else {
+        QString apiKey = settings.value(QZSettings::intervalsicu_api_key).toString();
+        if (apiKey.isEmpty()) {
+            qDebug() << "Intervals.icu: No API key configured";
+            setToastRequested("Intervals.icu: Configure API key first");
+            return;
+        }
+        QString credentials = "API_KEY:" + apiKey;
+        QByteArray auth = credentials.toUtf8().toBase64();
+        request.setRawHeader("Authorization", "Basic " + auth);
+    }
+
+    if (intervalsicuManager) {
+        delete intervalsicuManager;
+        intervalsicuManager = nullptr;
+    }
+    intervalsicuManager = new QNetworkAccessManager(this);
+
+    QNetworkReply *reply = intervalsicuManager->get(request);
+    connect(reply, &QNetworkReply::finished, this, [this, reply, athleteId, use_oauth]() {
+        intervalsicu_download_workout_completed(reply);
+    });
+
+    qDebug() << "Intervals.icu: Requesting workouts for" << today;
+    setToastRequested("Downloading workout from Intervals.icu...");
+}
+
+void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
+    QByteArray response = reply->readAll();
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+    qDebug() << "Intervals.icu: Download response status:" << statusCode;
+    qDebug() << "Intervals.icu: Response:" << response;
+
+    if (statusCode != 200) {
+        QString errorMsg = QString("Failed to get workouts (HTTP %1)").arg(statusCode);
+        qDebug() << "Intervals.icu:" << errorMsg;
+        setToastRequested("Intervals.icu: " + errorMsg);
+        reply->deleteLater();
+        return;
+    }
+
+    // Parse JSON response
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+    if (!jsonDoc.isArray()) {
+        qDebug() << "Intervals.icu: Invalid response format";
+        setToastRequested("Intervals.icu: Invalid response");
+        reply->deleteLater();
+        return;
+    }
+
+    QJsonArray events = jsonDoc.array();
+    if (events.isEmpty()) {
+        qDebug() << "Intervals.icu: No workouts planned for today";
+        setToastRequested("No workouts planned for today on Intervals.icu");
+        reply->deleteLater();
+        return;
+    }
+
+    qDebug() << "Intervals.icu: Found" << events.size() << "workout(s) for today";
+
+    // Process each workout
+    QSettings settings;
+    bool use_oauth = settings.value(QZSettings::intervalsicu_use_oauth, QZSettings::default_intervalsicu_use_oauth).toBool();
+    QString athleteId = settings.value(QZSettings::intervalsicu_athlete_id).toString();
+
+    int downloadCount = 0;
+    for (const QJsonValue &eventValue : events) {
+        QJsonObject event = eventValue.toObject();
+
+        // Get event ID and name
+        int eventId = event["id"].toInt();
+        QString workoutName = event["name"].toString();
+
+        if (workoutName.isEmpty()) {
+            workoutName = QString("Workout_%1").arg(eventId);
+        }
+
+        qDebug() << "Intervals.icu: Downloading workout" << eventId << "-" << workoutName;
+
+        // Build download URL for ZWO format
+        QString downloadUrl = QString("https://intervals.icu/api/v1/athlete/%1/events/%2/download.zwo")
+                              .arg(athleteId)
+                              .arg(eventId);
+
+        QNetworkRequest downloadRequest(QUrl(downloadUrl));
+
+        // Set authentication
+        if (use_oauth) {
+            QString token = settings.value(QZSettings::intervalsicu_accesstoken).toString();
+            downloadRequest.setRawHeader("Authorization", QString("Bearer %1").arg(token).toUtf8());
+        } else {
+            QString apiKey = settings.value(QZSettings::intervalsicu_api_key).toString();
+            QString credentials = "API_KEY:" + apiKey;
+            QByteArray auth = credentials.toUtf8().toBase64();
+            downloadRequest.setRawHeader("Authorization", "Basic " + auth);
+        }
+
+        QNetworkAccessManager *downloadManager = new QNetworkAccessManager(this);
+        QNetworkReply *downloadReply = downloadManager->get(downloadRequest);
+
+        connect(downloadReply, &QNetworkReply::finished, this, [this, downloadReply, workoutName, eventId]() {
+            QByteArray zwoContent = downloadReply->readAll();
+            int statusCode = downloadReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+            if (statusCode == 200 && !zwoContent.isEmpty()) {
+                // Create intervals-icu subdirectory in training folder
+                QString trainingDir = homeform::getWritableAppDir() + QStringLiteral("training");
+                QString intervalsDir = trainingDir + QStringLiteral("/intervals-icu");
+
+                QDir dir;
+                if (!dir.exists(intervalsDir)) {
+                    dir.mkpath(intervalsDir);
+                    qDebug() << "Intervals.icu: Created directory" << intervalsDir;
+                }
+
+                // Sanitize filename
+                QString safeName = workoutName;
+                safeName.replace(QRegExp("[^a-zA-Z0-9_\\-]"), "_");
+
+                // Add date prefix
+                QString today = QDate::currentDate().toString("yyyy-MM-dd");
+                QString filename = QString("%1/%2_%3.zwo").arg(intervalsDir).arg(today).arg(safeName);
+
+                // Save ZWO file
+                QFile file(filename);
+                if (file.open(QIODevice::WriteOnly)) {
+                    file.write(zwoContent);
+                    file.close();
+                    qDebug() << "Intervals.icu: Workout saved to" << filename;
+                    setToastRequested(QString("Workout saved: %1").arg(safeName));
+                } else {
+                    qDebug() << "Intervals.icu: Failed to save workout to" << filename;
+                    setToastRequested("Failed to save workout file");
+                }
+            } else {
+                qDebug() << "Intervals.icu: Failed to download workout" << eventId << "- HTTP" << statusCode;
+            }
+
+            downloadReply->deleteLater();
+        });
+
+        downloadCount++;
+    }
+
+    if (downloadCount > 0) {
+        QString msg = QString("Downloading %1 workout(s)...").arg(downloadCount);
+        qDebug() << "Intervals.icu:" << msg;
+    }
+
+    reply->deleteLater();
 }
 
 // ========== End Intervals.icu Implementation ==========

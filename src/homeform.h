@@ -830,6 +830,8 @@ class homeform : public QObject {
     void intervalsicu_refreshtoken();
     bool intervalsicu_upload_file(const QByteArray &data, const QString &remotename);
     bool intervalsicu_upload_file_api_key(const QByteArray &data, const QString &remotename);
+    void intervalsicu_download_todays_workout();
+    void intervalsicu_download_workout_completed(QNetworkReply *reply);
     QString intervalsicuAuthUrl;
     bool intervalsicuAuthWebVisible;
 
@@ -935,6 +937,7 @@ class homeform : public QObject {
     // Intervals.icu slots
     void intervalsicu_connect_clicked();
     void intervalsicu_upload_file_prepare();
+    void intervalsicu_download_todays_workout_clicked();
     void onIntervalsICUGranted();
     void onIntervalsICUAuthorizeWithBrowser(const QUrl &url);
     void writeFileCompletedIntervalsICU();
