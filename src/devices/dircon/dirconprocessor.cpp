@@ -70,8 +70,9 @@ void DirconProcessor::initAdvertising() {
                 ble_uuids += ZWIFT_PLAY_UUID_STRING +
                 ((i++ < services.size() - 1) ? QStringLiteral(",") : QStringLiteral(""));
             } else {
-                ble_uuids += QString(QStringLiteral(DP_BASE_UUID))
-                    .replace("u", QString(QStringLiteral("%1")).arg(service->uuid, 4, 16, QLatin1Char('0'))) +
+                // Use short UUID format (0x1818) instead of full UUID format for Windows compatibility
+                ble_uuids += QString(QStringLiteral("0x%1"))
+                    .arg(service->uuid, 4, 16, QLatin1Char('0')) +
                 ((i++ < services.size() - 1) ? QStringLiteral(",") : QStringLiteral(""));
             }
         }
