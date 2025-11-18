@@ -215,15 +215,6 @@ ColumnLayout {
                     Item { Layout.fillWidth: true }
 
                     Button {
-                        text: "Load Only"
-                        Material.background: Material.Grey
-                        onClicked: {
-                            trainprogram_open_clicked(pendingWorkoutUrl)
-                            stackView.pop()
-                        }
-                    }
-
-                    Button {
                         text: "Start Workout"
                         highlighted: true
                         Material.background: Material.Green
