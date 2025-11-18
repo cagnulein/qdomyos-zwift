@@ -273,10 +273,15 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
 
     // Initialize gRPC service on Android
 #ifdef Q_OS_ANDROID
+    emit debug(QString("Initializing gRPC service..."));
     initializeGrpcService();
+    emit debug(QString("After initializeGrpcService(), grpcInitialized=%1").arg(grpcInitialized));
     if (grpcInitialized) {
+        emit debug(QString("Starting gRPC metrics updates and workout state monitoring..."));
         startGrpcMetricsUpdates();
         startGrpcWorkoutStateMonitoring();
+    } else {
+        emit debug(QString("gRPC not initialized, skipping metrics and workout state monitoring"));
     }
 #endif
 
@@ -1201,6 +1206,7 @@ void nordictrackifitadbtreadmill::setGrpcIncline(double incline) {
 
 void nordictrackifitadbtreadmill::startGrpcWorkoutStateMonitoring() {
 #ifdef Q_OS_ANDROID
+    emit debug(QString("startGrpcWorkoutStateMonitoring() called, grpcInitialized=%1").arg(grpcInitialized));
     if (grpcInitialized) {
         QAndroidJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
@@ -1208,6 +1214,8 @@ void nordictrackifitadbtreadmill::startGrpcWorkoutStateMonitoring() {
             "()V"
         );
         emit debug(QString("Started gRPC workout state monitoring"));
+    } else {
+        emit debug(QString("Cannot start workout state monitoring: gRPC not initialized"));
     }
 #endif
 }
