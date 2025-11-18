@@ -17,6 +17,8 @@ import Qt.labs.platform 1.1
         id: settingsPane        
 
         signal peloton_connect_clicked()
+        signal intervalsicu_connect_clicked()
+        signal intervalsicu_download_todays_workout_clicked()
 
         Settings {
             id: settings
