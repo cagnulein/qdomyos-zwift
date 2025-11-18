@@ -920,6 +920,7 @@ DISTFILES += \
 	android/src/SpeedChannelController.java \
    android/src/SDMChannelController.java \
     android/src/Usbserial.java \
+    android/src/UsbserialDebug.java \
    android/src/com/cgutman/adblib/AdbBase64.java \
    android/src/com/cgutman/adblib/AdbConnection.java \
    android/src/com/cgutman/adblib/AdbCrypto.java \
