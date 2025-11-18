@@ -48,9 +48,16 @@ public class Usbserial {
 
     public static void open(Context context, int baudRate) {
         QLog.d("QZ","UsbSerial open with baud rate: " + baudRate);
+
+        // DEBUG: List all USB devices detected by Android
+        UsbserialDebug.listAllUsbDevices(context);
+
         // Find all available drivers from attached devices.
         UsbManager manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         List<UsbSerialDriver> availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager);
+
+        QLog.d("QZ","UsbSerial drivers found by UsbSerialProber: " + availableDrivers.size());
+
         if (availableDrivers.isEmpty()) {
             QLog.d("QZ","UsbSerial no available drivers");
             return;
@@ -73,12 +80,20 @@ public class Usbserial {
             int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
             PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0, new Intent("org.cagnulen.qdomyoszwift.USB_PERMISSION"), flags);
             IntentFilter filter = new IntentFilter("org.cagnulen.qdomyoszwift.USB_PERMISSION");
-            ContextCompat.registerReceiver(
-                    context,
-                    usbReceiver,
-                    filter,
-                    ContextCompat.RECEIVER_EXPORTED
-                );
+
+            // Fix for Android 6 compatibility: RECEIVER_EXPORTED only available in Android 13+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                ContextCompat.registerReceiver(
+                        context,
+                        usbReceiver,
+                        filter,
+                        ContextCompat.RECEIVER_EXPORTED
+                    );
+            } else {
+                // Use old API for Android 6-12
+                context.registerReceiver(usbReceiver, filter);
+            }
+
             manager.requestPermission(driver.getDevice(), permissionIntent);
             for(int i=0; i<5000; i++) {
                 if(granted[0] != null) break;
