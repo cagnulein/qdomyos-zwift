@@ -1216,6 +1216,7 @@ import Qt.labs.platform 1.1
             property bool proform_trainer_9_0: false
             property bool iconcept_ftms_treadmill_inclination_table: false
             property bool skandika_wiri_x2000_protocol: true
+            property bool nordictrack_series_7: false
         }
 
 
@@ -7483,6 +7484,7 @@ import Qt.labs.platform 1.1
                                     "Nordictrack Ultra LE",
                                     "Proform Carbon TLS",
                                     "Proform 995i",
+                                    "NordicTrack Series 7",
                                     "Proform Trainer 9.0 (PFTL69921-INT.4)",
                                 ]
 
@@ -7553,7 +7555,8 @@ import Qt.labs.platform 1.1
                                                     settings.nordictrack_treadmill_ultra_le ? 50 :
                                                     settings.proform_treadmill_carbon_tls ? 51 :
                                                     settings.proform_treadmill_995i ? 52 :
-                                                    settings.proform_trainer_9_0 ? 53 : 0;
+                                                    settings.nordictrack_series_7 ? 53 :
+                                                    settings.proform_trainer_9_0 ? 54 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -7620,6 +7623,7 @@ import Qt.labs.platform 1.1
                                     settings.nordictrack_treadmill_ultra_le = false;
                                     settings.proform_treadmill_carbon_tls = false;
                                     settings.proform_treadmill_995i = false;
+                                    settings.nordictrack_series_7 = false;
                                     settings.proform_trainer_9_0 = false;
 
                                     // Set new setting based on selection
@@ -7676,7 +7680,8 @@ import Qt.labs.platform 1.1
                                         case 50: settings.nordictrack_treadmill_ultra_le = true; break;
                                         case 51: settings.proform_treadmill_carbon_tls = true; break;
                                         case 52: settings.proform_treadmill_995i = true; break;
-                                        case 53: settings.proform_trainer_9_0 = true; break;
+                                        case 53: settings.nordictrack_series_7 = true; break;
+                                        case 54: settings.proform_trainer_9_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
