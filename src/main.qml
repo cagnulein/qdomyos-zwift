@@ -943,76 +943,18 @@ ApplicationWindow {
                     }
                 }
 
-                ItemDelegate {
-                    id: intervalsicu_connect
-                    width: parent.width
-                    height: 50
-
-                    Rectangle {
-                        anchors.fill: parent
-                        color: "#1a1a1a"
-                        border.color: "#00D4AA"
-                        border.width: 2
-                        radius: 4
-
-                        Row {
-                            anchors.centerIn: parent
-                            spacing: 10
-
-                            Rectangle {
-                                width: 40
-                                height: 40
-                                color: "#00D4AA"
-                                radius: 4
-                                anchors.verticalCenter: parent.verticalCenter
-
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "i"
-                                    font.pixelSize: 28
-                                    font.bold: true
-                                    color: "#1a1a1a"
-                                }
-                            }
-
-                            Text {
-                                text: "Connect Intervals.icu"
-                                font.pixelSize: 16
-                                font.bold: true
-                                color: "#00D4AA"
-                                anchors.verticalCenter: parent.verticalCenter
-                            }
-                        }
+				ItemDelegate {
+                    Image {
+                        anchors.left: parent.left;
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "icons/icons/intervals-logo-with-name.png"
+                        fillMode: Image.PreserveAspectFit
+                        visible: true
+                        width: parent.width
                     }
-
+                    width: parent.width
                     onClicked: {
                         intervalsicu_connect_clicked()
-                        drawer.close()
-                    }
-                }
-
-                ItemDelegate {
-                    id: intervalsicu_download
-                    width: parent.width
-                    height: 45
-
-                    Rectangle {
-                        anchors.fill: parent
-                        color: "transparent"
-                        border.color: "#00D4AA"
-                        border.width: 1
-                        radius: 4
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "📥 Download Today's Workout"
-                            font.pixelSize: 14
-                            color: "#00D4AA"
-                        }
-                    }
-
-                    onClicked: {
-                        intervalsicu_download_todays_workout_clicked()
                         drawer.close()
                     }
                 }
