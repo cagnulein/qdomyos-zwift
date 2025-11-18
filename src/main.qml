@@ -954,6 +954,7 @@ ApplicationWindow {
                     }
                     width: parent.width
                     onClicked: {
+                        stackView.push("WebIntervalsICUAuth.qml")
                         intervalsicu_connect_clicked()
                         drawer.close()
                     }
