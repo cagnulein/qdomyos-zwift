@@ -853,7 +853,35 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                                   "(Landroid/content/Context;)V",
                                                   QtAndroid::androidContext().object());
     }
-#endif    
+#endif
+
+    // Auto-download today's workout from Intervals.icu on startup (after 10 seconds delay)
+    QTimer::singleShot(10000, this, [this]() {
+        QSettings settings;
+        bool intervalsicu_enabled = settings.value(QZSettings::intervalsicu_upload_enabled, QZSettings::default_intervalsicu_upload_enabled).toBool();
+        bool intervalsicu_use_oauth = settings.value(QZSettings::intervalsicu_use_oauth, QZSettings::default_intervalsicu_use_oauth).toBool();
+        QString athleteId = settings.value(QZSettings::intervalsicu_athlete_id).toString();
+
+        // Check if Intervals.icu is configured
+        bool isConfigured = false;
+        if (intervalsicu_use_oauth) {
+            QString token = settings.value(QZSettings::intervalsicu_accesstoken).toString();
+            isConfigured = !token.isEmpty() && !athleteId.isEmpty();
+        } else {
+            QString apiKey = settings.value(QZSettings::intervalsicu_api_key).toString();
+            isConfigured = !apiKey.isEmpty() && !athleteId.isEmpty();
+        }
+
+        if (intervalsicu_enabled && isConfigured) {
+            qDebug() << "Intervals.icu: Auto-downloading today's workout...";
+            // Run in separate thread to avoid blocking UI
+            QTimer::singleShot(0, this, [this]() {
+                intervalsicu_download_todays_workout();
+            });
+        } else {
+            qDebug() << "Intervals.icu: Auto-download skipped (not configured or not enabled)";
+        }
+    });
 
     bluetoothManager->homeformLoaded = true;
 }
