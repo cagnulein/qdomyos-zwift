@@ -107,6 +107,8 @@ void horizontreadmill::btinit() {
             .toString());
     bool horizon_paragon_x =
         settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
+    bool miles_unit =
+        settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
 
     uint8_t initData01_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x20, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
 
@@ -160,6 +162,28 @@ void horizontreadmill::btinit() {
             }
         }
     }
+
+    // Set km/miles unit in profile data
+    // miles_unit: false = km, true = miles
+    // Byte 2: 0x01 = km, 0x00 = miles
+    // Byte 10: 0x38 = km, 0x23 = miles
+    uint8_t unit_byte2 = miles_unit ? 0x00 : 0x01;
+    uint8_t unit_byte10 = miles_unit ? 0x23 : 0x38;
+
+    initData10[2] = unit_byte2;
+    initData10[10] = unit_byte10;
+    initData10_1[2] = unit_byte2;
+    initData10_1[10] = unit_byte10;
+    initData10_2[2] = unit_byte2;
+    initData10_2[10] = unit_byte10;
+    initData10_3[2] = unit_byte2;
+    initData10_3[10] = unit_byte10;
+    initData10_4[2] = unit_byte2;
+    initData10_4[10] = unit_byte10;
+    initData10_5[2] = unit_byte2;
+    initData10_5[10] = unit_byte10;
+    initData10_6[2] = unit_byte2;
+    initData10_6[10] = unit_byte10;
 
     updateProfileCRC();
 
