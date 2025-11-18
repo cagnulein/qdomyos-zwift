@@ -9643,7 +9643,8 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
                               .arg(athleteId)
                               .arg(eventId);
 
-        QNetworkRequest downloadRequest(QUrl(downloadUrl));
+        QUrl downloadUrlObj(downloadUrl);
+        QNetworkRequest downloadRequest(downloadUrlObj);
 
         // Set authentication
         if (use_oauth) {
