@@ -370,10 +370,16 @@ canvas {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .program-bar select {
     flex: 1;
+    min-width: 150px;
+}
+
+.program-bar button {
+    flex-shrink: 0;
 }
 
 .hidden {

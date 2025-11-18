@@ -245,32 +245,35 @@
         }
         const fileUrl = fileObj.url;
 
-        // First, open the training program file
-        sendMessage('trainprogram_open_clicked', { url: fileUrl }, 'R_trainprogram_open_clicked')
-            .then(() => {
-                // Then get the loaded program rows
-                return sendMessage('gettrainingprogram', '', 'R_gettrainingprogram');
-            })
-            .then(content => {
-                const rows = Array.isArray(content && content.list) ? content.list : [];
-                if (!rows.length) {
-                    announce('Workout is empty or cannot be read', true);
-                    return;
-                }
-                state.intervals = rows.map((row, idx) => convertRow(row, idx));
-                state.device = detectDevice(state.intervals) || state.device;
-                selectors.device.value = state.device;
-                selectors.name.value = name;
-                state.lastSaved = name;
-                renderIntervals();
-                updateChart();
-            updateStatus();
-            updateControls();
-            announce(`Loaded ${name}`);
-        }).catch(err => {
-            console.error(err);
-            announce('Unable to load workout', true);
-        }).finally(() => setWorking(false));
+        // Send message to open the training program file (no response expected)
+        sendMessage('trainprogram_open_clicked', { url: fileUrl });
+
+        // Wait a bit for the file to load, then get the program rows
+        setTimeout(() => {
+            sendMessage('gettrainingprogram', '', 'R_gettrainingprogram')
+                .then(content => {
+                    const rows = Array.isArray(content && content.list) ? content.list : [];
+                    if (!rows.length) {
+                        announce('Workout is empty or cannot be read', true);
+                        return;
+                    }
+                    state.intervals = rows.map((row, idx) => convertRow(row, idx));
+                    state.device = detectDevice(state.intervals) || state.device;
+                    selectors.device.value = state.device;
+                    selectors.name.value = name;
+                    state.lastSaved = name;
+                    renderIntervals();
+                    updateChart();
+                    updateStatus();
+                    updateControls();
+                    announce(`Loaded ${name}`);
+                })
+                .catch(err => {
+                    console.error(err);
+                    announce('Unable to load workout', true);
+                })
+                .finally(() => setWorking(false));
+        }, 300); // Give backend time to load the file
     }
 
     function convertRow(row, idx) {
