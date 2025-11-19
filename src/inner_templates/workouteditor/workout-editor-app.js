@@ -806,14 +806,12 @@
                     return;
                 }
 
-                // Handle linked fields: include them if their parent field is enabled
+                // Handle linked fields: forcespeed is automatically 1 if speed is enabled
                 if (field.linkedTo) {
                     const parentEnabled = interval['__enabled_' + field.linkedTo] !== false;
-                    if (parentEnabled) {
-                        const value = interval[field.key];
-                        if (value !== undefined && value !== null && value !== '') {
-                            row[field.key] = field.type === 'number' ? Number(value) : value;
-                        }
+                    if (field.key === 'forcespeed' && field.linkedTo === 'speed') {
+                        // Always include forcespeed: 1 if speed is enabled, 0 otherwise
+                        row[field.key] = parentEnabled ? 1 : 0;
                     }
                     return;
                 }
