@@ -867,6 +867,11 @@
                     return;
                 }
 
+                // Check if field is valid for current device type
+                if (!isFieldValidForDevice(field, state.device)) {
+                    return;
+                }
+
                 // Handle linked fields: forcespeed is automatically 1 if speed is enabled
                 if (field.linkedTo) {
                     const parentEnabled = interval['__enabled_' + field.linkedTo] !== false;
@@ -897,6 +902,22 @@
 
     function sanitizeName(name) {
         return name.replace(/\s+/g, '_').replace(/[^A-Za-z0-9_\-]/g, '_');
+    }
+
+    function isFieldValidForDevice(field, deviceType) {
+        // Always allow name and duration
+        if (field.key === 'name' || field.key === 'duration') {
+            return true;
+        }
+        // Check if field is valid for all devices
+        if (field.devices === 'all') {
+            return true;
+        }
+        // Check if field is valid for the current device
+        if (Array.isArray(field.devices)) {
+            return field.devices.includes(deviceType);
+        }
+        return false;
     }
 
     function updateChart() {
