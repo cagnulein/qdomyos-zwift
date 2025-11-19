@@ -53,6 +53,23 @@
         ]
     };
 
+    // Default values that indicate a field should not be enabled
+    const DEFAULT_DISABLED_VALUES = {
+        speed: -1,
+        cadence: -1,
+        resistance: -1,
+        power: -1,
+        inclination: -200,
+        requested_peloton_resistance: -1,
+        zoneHR: -1,
+        HRmin: -1,
+        HRmax: -1,
+        minSpeed: -1,
+        maxSpeed: -1,
+        maxResistance: -1,
+        mets: -1
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
         cacheDom();
         bindEvents();
@@ -294,15 +311,44 @@
                 return;
             }
             if (row[def.key] !== undefined && row[def.key] !== null) {
+                let value;
                 if (def.type === 'bool') {
-                    out[def.key] = row[def.key] === true || row[def.key] === 1;
+                    value = row[def.key] === true || row[def.key] === 1;
+                    out[def.key] = value;
+                    out['__enabled_' + def.key] = true;
                 } else if (def.type === 'number') {
-                    out[def.key] = Number(row[def.key]);
+                    value = Number(row[def.key]);
+                    // Check if value is the default disabled value
+                    const isDefaultValue = DEFAULT_DISABLED_VALUES[def.key] !== undefined &&
+                                          value === DEFAULT_DISABLED_VALUES[def.key];
+
+                    if (!isDefaultValue) {
+                        out[def.key] = value;
+                        // Mark field as enabled if it has a non-default value
+                        out['__enabled_' + def.key] = true;
+                        // Handle linked fields (like forcespeed)
+                        if (def.key === 'speed') {
+                            // Enable forcespeed when speed is enabled
+                            out['__enabled_forcespeed'] = true;
+                            // Set forcespeed value from row, or default to false
+                            if (row.forcespeed !== undefined && row.forcespeed !== null) {
+                                out['forcespeed'] = row.forcespeed === true || row.forcespeed === 1;
+                            } else {
+                                out['forcespeed'] = false;
+                            }
+                        }
+                    } else {
+                        // Value is default, mark as disabled
+                        out['__enabled_' + def.key] = false;
+                        // Disable linked fields too
+                        if (def.key === 'speed') {
+                            out['__enabled_forcespeed'] = false;
+                        }
+                    }
                 } else {
                     out[def.key] = row[def.key];
+                    out['__enabled_' + def.key] = true;
                 }
-                // Mark field as enabled if it has a value
-                out['__enabled_' + def.key] = true;
             } else {
                 // Field not present in saved workout, mark as disabled
                 out['__enabled_' + def.key] = false;
@@ -313,27 +359,42 @@
     }
 
     function detectDevice(rows) {
+        // Helper to check if a field has a valid (non-default) value
+        const hasValidValue = (row, key) => {
+            if (row[key] === undefined || row[key] === null) return false;
+            if (DEFAULT_DISABLED_VALUES[key] !== undefined) {
+                return row[key] !== DEFAULT_DISABLED_VALUES[key];
+            }
+            return true;
+        };
+
+        // Check for treadmill: has speed or inclination
         for (const row of rows) {
-            if (row.speed !== undefined || row.inclination !== undefined) {
+            if (hasValidValue(row, 'speed') || hasValidValue(row, 'inclination')) {
                 return 'treadmill';
             }
         }
+
+        // Check for bike/elliptical: has resistance
         for (const row of rows) {
-            if (row.resistance !== undefined || row.maxResistance !== undefined) {
-                if (row.inclination !== undefined) {
+            if (hasValidValue(row, 'resistance') || hasValidValue(row, 'maxResistance')) {
+                if (hasValidValue(row, 'inclination')) {
                     return 'elliptical';
                 }
                 return 'bike';
             }
         }
+
+        // Check for rower/bike: has power
         for (const row of rows) {
-            if (row.power !== undefined) {
-                if (row.cadence !== undefined && !rows.some(r => r.resistance !== undefined)) {
+            if (hasValidValue(row, 'power')) {
+                if (hasValidValue(row, 'cadence') && !rows.some(r => hasValidValue(r, 'resistance'))) {
                     return 'rower';
                 }
                 return 'bike';
             }
         }
+
         return null;
     }
 

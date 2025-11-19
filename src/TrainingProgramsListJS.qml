@@ -308,11 +308,19 @@ ColumnLayout {
                         }
 
                         // Determine device type based on available data
-                        var deviceType = 'bike';
-                        if (hasSpeed && !hasWatts) {
+                        var deviceType = 'bike'; // default
+
+                        // Priority 1: If has resistance, it's a bike (regardless of inclination)
+                        if (hasResistance) {
+                            deviceType = 'bike';
+                        }
+                        // Priority 2: If has speed or inclination (without resistance), it's a treadmill
+                        else if (hasSpeed || hasInclination) {
                             deviceType = 'treadmill';
-                        } else if (!hasWatts && hasResistance) {
-                            deviceType = 'elliptical';
+                        }
+                        // Priority 3: If has power or cadence (bike metrics), it's a bike
+                        else if (hasWatts || hasCadence) {
+                            deviceType = 'bike';
                         }
 
                         // Call JavaScript function in the WebView
