@@ -9176,6 +9176,7 @@ QOAuth2AuthorizationCodeFlow *homeform::intervalsicu_connect() {
 
         intervalsicu->setClientIdentifier(QStringLiteral(INTERVALSICU_CLIENT_ID_S));
         intervalsicu->setClientIdentifierSharedKey(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S));
+        intervalsicu->setScope(QStringLiteral("ACTIVITY:READ,CALENDAR:READ"));
 
         intervalsicu->setModifyParametersFunction(
             buildModifyParametersFunction(
