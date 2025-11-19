@@ -9144,7 +9144,14 @@ void homeform::intervalsicu_connect_clicked() {
 
     if (use_oauth) {
         // Use OAuth flow
-        intervalsicu_connect();
+        QOAuth2AuthorizationCodeFlow *oauth = intervalsicu_connect();
+        if (oauth) {
+            connect(oauth, &QOAuth2AuthorizationCodeFlow::granted,
+                    this, &homeform::onIntervalsICUGranted, Qt::UniqueConnection);
+            connect(oauth, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser,
+                    this, &homeform::onIntervalsICUAuthorizeWithBrowser, Qt::UniqueConnection);
+            oauth->grant();
+        }
     } else {
         // Manual API key mode - just show message
         qDebug() << "Intervals.icu: Using manual API key mode";
@@ -9157,6 +9164,7 @@ QOAuth2AuthorizationCodeFlow *homeform::intervalsicu_connect() {
 
     if (!settings.value(QZSettings::intervalsicu_accesstoken).toString().isEmpty()) {
         qDebug() << "Intervals.icu already authenticated";
+        setGeneralPopupVisible(true);
         return nullptr;
     }
 
@@ -9180,14 +9188,8 @@ QOAuth2AuthorizationCodeFlow *homeform::intervalsicu_connect() {
             intervalsicuReplyHandler = new QOAuthHttpServerReplyHandler(8485, this);
         }
         intervalsicu->setReplyHandler(intervalsicuReplyHandler);
-
-        connect(intervalsicu, &QOAuth2AuthorizationCodeFlow::granted,
-                this, &homeform::onIntervalsICUGranted);
-        connect(intervalsicu, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser,
-                this, &homeform::onIntervalsICUAuthorizeWithBrowser);
     }
 
-    intervalsicu->grant();
     return intervalsicu;
 }
 
