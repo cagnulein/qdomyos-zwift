@@ -23,14 +23,14 @@
 /* ----------------------------------------------------------------------
  * CONSTRUCTOR/DESTRUCTOR
  * ---------------------------------------------------------------------- */
-KettlerUSB::KettlerUSB(QObject *parent, QString devname, bool use57600Baud) : QThread(parent) {
+KettlerUSB::KettlerUSB(QObject *parent, QString devname, int baudrate) : QThread(parent) {
     devicePower = deviceHeartRate = deviceCadence = deviceSpeed = deviceDistance = 0.00;
     targetPower = DEFAULT_POWER;
     writePower = false;
     setDevice(devname);
     deviceStatus = 0;
     this->parent = parent;
-    this->use57600Baud = use57600Baud;
+    this->baudrate = baudrate;
 }
 
 KettlerUSB::~KettlerUSB() {}
@@ -278,11 +278,10 @@ int KettlerUSB::closePort() {
 int KettlerUSB::openPort() {
 #ifdef Q_OS_ANDROID
     // Call Java Usbserial with configured baud rate for Kettler
-    int baudRate = use57600Baud ? 57600 : 9600;
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "open",
                                               "(Landroid/content/Context;I)V",
                                               QtAndroid::androidContext().object(),
-                                              baudRate);
+                                              baudrate);
 #elif !defined(WIN32)
     // LINUX AND MAC USES TERMIO / IOCTL / STDIO
 
@@ -303,8 +302,14 @@ int KettlerUSB::openPort() {
     tcgetattr(devicePort, &deviceSettings);
 
     cfmakeraw(&deviceSettings);
-    speed_t baudRate = use57600Baud ? B57600 : B9600;
-    cfsetspeed(&deviceSettings, baudRate);
+    // Convert int baudrate to speed_t constant
+    speed_t speed;
+    switch (baudrate) {
+        case 57600: speed = B57600; break;
+        case 9600:
+        default: speed = B9600; break;
+    }
+    cfsetspeed(&deviceSettings, speed);
 
     deviceSettings.c_iflag &=
         ~(IGNBRK | BRKINT | ICRNL | INLCR | PARMRK | INPCK | ICANON | ISTRIP | IXON | IXOFF | IXANY);
@@ -350,7 +355,12 @@ int KettlerUSB::openPort() {
     if (GetCommState(devicePort, &deviceSettings) == false)
         return -1;
 
-    deviceSettings.BaudRate = use57600Baud ? CBR_57600 : CBR_9600;
+    // Convert int baudrate to Windows CBR constant
+    switch (baudrate) {
+        case 57600: deviceSettings.BaudRate = CBR_57600; break;
+        case 9600:
+        default: deviceSettings.BaudRate = CBR_9600; break;
+    }
     deviceSettings.fParity = NOPARITY;
     deviceSettings.ByteSize = 8;
     deviceSettings.StopBits = ONESTOPBIT;

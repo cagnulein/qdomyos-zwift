@@ -573,7 +573,7 @@ const QString QZSettings::computrainer_serialport = QStringLiteral("computrainer
 const QString QZSettings::default_computrainer_serialport = QStringLiteral("");
 const QString QZSettings::kettler_usb_serialport = QStringLiteral("kettler_usb_serialport");
 const QString QZSettings::default_kettler_usb_serialport = QStringLiteral("");
-const QString QZSettings::kettler_usb_baud_57600 = QStringLiteral("kettler_usb_baud_57600");
+const QString QZSettings::kettler_usb_baudrate = QStringLiteral("kettler_usb_baudrate");
 const QString QZSettings::strava_virtual_activity = QStringLiteral("strava_virtual_activity");
 const QString QZSettings::powr_sensor_running_cadence_half_on_strava =
     QStringLiteral("powr_sensor_running_cadence_half_on_strava");
@@ -1468,7 +1468,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton},
     {QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport},
     {QZSettings::kettler_usb_serialport, QZSettings::default_kettler_usb_serialport},
-    {QZSettings::kettler_usb_baud_57600, QZSettings::default_kettler_usb_baud_57600},
+    {QZSettings::kettler_usb_baudrate, QZSettings::default_kettler_usb_baudrate},
     {QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity},
     {QZSettings::powr_sensor_running_cadence_half_on_strava,
      QZSettings::default_powr_sensor_running_cadence_half_on_strava},

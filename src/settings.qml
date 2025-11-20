@@ -1215,7 +1215,7 @@ import Qt.labs.platform 1.1
             property bool skandika_wiri_x2000_protocol: true
             property bool nordictrack_series_7: false
             property string kettler_usb_serialport: ""
-            property bool kettler_usb_baud_57600: true
+            property int kettler_usb_baudrate: 9600
         }
 
 
@@ -4347,7 +4347,7 @@ import Qt.labs.platform 1.1
                             ComboBox {
                                 id: kettlerUsbBaudrateComboBox
                                 model: [ "9600", "57600" ]
-                                displayText: settings.kettler_usb_baud_57600 ? "57600" : "9600"
+                                displayText: settings.kettler_usb_baudrate.toString()
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onActivated: {
@@ -4360,7 +4360,7 @@ import Qt.labs.platform 1.1
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: {
-                                    settings.kettler_usb_baud_57600 = (kettlerUsbBaudrateComboBox.displayText === "57600");
+                                    settings.kettler_usb_baudrate = parseInt(kettlerUsbBaudrateComboBox.displayText);
                                     window.settings_restart_to_apply = true;
                                     toast.show("Setting saved!");
                                 }
