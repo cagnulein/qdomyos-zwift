@@ -22,6 +22,10 @@ proformelliptical::proformelliptical(bool noWriteResistance, bool noHeartService
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     initDone = false;
+
+    QSettings settings;
+    nordictrack_se7i = settings.value(QZSettings::nordictrack_se7i, QZSettings::default_nordictrack_se7i).toBool();
+
     connect(refresh, &QTimer::timeout, this, &proformelliptical::update);
     refresh->start(200ms);
 }
@@ -67,7 +71,74 @@ void proformelliptical::update() {
         QSettings settings;
         update_metrics(true, watts());
 
-        {
+        if (nordictrack_se7i) {
+            // NordicTrack Elliptical SE7i sendPoll cycle (6 packets)
+            uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13,
+                                   0x02, 0x00, 0x0d, 0x3e, 0x96, 0x33, 0x00, 0x10,
+                                   0x40, 0x50, 0x00, 0x80};
+            uint8_t noOpData3[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x05, 0x54, 0x00,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13,
+                                   0x02, 0x00, 0x0d, 0x80, 0x00, 0x40, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData6[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x90, 0x78, 0x00,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00};
+
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
+                if (requestInclination != -100) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= 15) {
+                        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -100;
+                }
+                if (requestResistance != -1) {
+                    if (requestResistance != currentResistance().value() && requestResistance >= 0 &&
+                        requestResistance <= 24) {
+                        emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+                        forceResistance(requestResistance);
+                    }
+                    requestResistance = -1;
+                }
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+                break;
+            case 4:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+                    requestStart = -1;
+                }
+                if (requestStop != -1) {
+                    emit debug(QStringLiteral("stopping..."));
+                    requestStop = -1;
+                }
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 5) {
+                counterPoll = 0;
+            }
+        } else {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
             uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x13, 0x13, 0x02, 0x00,
                                    0x0d, 0x3c, 0x9e, 0x31, 0x00, 0x00, 0x40, 0x40, 0x00, 0x80};
@@ -277,6 +348,7 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
 
 void proformelliptical::btinit() {
 
+    if(1)
     {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
         uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
@@ -368,6 +440,68 @@ void proformelliptical::btinit() {
             QThread::msleep(400);
             writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
             QThread::msleep(400);*/
+    } else if (nordictrack_se7i) {
+        // NordicTrack Elliptical SE7i initialization frames (19 packets: pkt944 to pkt1020)
+        uint8_t initData1[4] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData2[20] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData3[4] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData4[20] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x06, 0x04, 0x80, 0x8a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData5[4] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData6[20] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x06, 0x04, 0x88, 0x92, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData7[4] = {0xfe, 0x02, 0x0b, 0x02};
+        uint8_t initData8[20] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00, 0x00, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData9[4] = {0xfe, 0x02, 0x0a, 0x02};
+        uint8_t initData10[20] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00, 0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData11[4] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData12[20] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData13[4] = {0xfe, 0x02, 0x2c, 0x04};
+        uint8_t initData14[20] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x06, 0x28, 0x90, 0x04, 0x00, 0x0d, 0x68, 0xc9, 0x28, 0x95, 0xf0, 0x69, 0xc0, 0x3d};
+        uint8_t initData15[20] = {0x01, 0x12, 0xa8, 0x19, 0x88, 0xf5, 0x60, 0xf9, 0x70, 0xcd, 0x48, 0xc9, 0x48, 0xf5, 0x70, 0xe9, 0x60, 0x1d, 0x88, 0x39};
+        uint8_t initData16[20] = {0xff, 0x08, 0xa8, 0x55, 0xc0, 0x80, 0x02, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData17[4] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t initData18[20] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x06, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData19[20] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        int sleepms = 400;
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData13, sizeof(initData13), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData14, sizeof(initData14), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData15, sizeof(initData15), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData16, sizeof(initData16), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData17, sizeof(initData17), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData18, sizeof(initData18), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData19, sizeof(initData19), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
     }
 
     initDone = true;
@@ -522,6 +656,76 @@ void proformelliptical::controllerStateChanged(QLowEnergyController::ControllerS
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         m_control->connectToDevice();
+    }
+}
+
+void proformelliptical::forceIncline(double incline) {
+    if (nordictrack_se7i) {
+        // NordicTrack Elliptical SE7i incline control
+        // Based on packet analysis: incline is encoded as (incline% * 100) in bytes[11:12]
+        uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
+        uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                           0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        // Encode incline value in bytes[11:12] as little-endian 16-bit: incline% * 100
+        uint16_t incline_value = (uint16_t)(incline * 100);
+        write[11] = incline_value & 0xFF;           // Low byte
+        write[12] = (incline_value >> 8) & 0xFF;    // High byte
+
+        // Calculate checksum in byte[14]: sum of bytes[0:14]
+        uint8_t checksum = 0;
+        for (int i = 0; i < 14; i++) {
+            checksum += write[i];
+        }
+        write[14] = checksum;
+
+        writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("forceIncline"));
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
+    }
+}
+
+void proformelliptical::forceSpeed(double speed) {
+    // Not used for ellipticals - kept for compatibility
+    Q_UNUSED(speed);
+}
+
+void proformelliptical::forceResistance(double resistance) {
+    if (nordictrack_se7i) {
+        // NordicTrack Elliptical SE7i resistance control
+        // NOTE: Analysis of captured packets shows only 2 unique resistance patterns,
+        // insufficient to determine proper encoding for 21 resistance levels.
+        // This implementation provides a basic attempt based on limited data.
+
+        // Log warning about limitation
+        emit debug(QStringLiteral("forceResistance: Limited implementation - ") +
+                   QStringLiteral("only 2 patterns found in packet analysis"));
+
+        // Based on the 2 patterns found:
+        // Pattern 1 (313 packets): bytes[11:13] = 0x00 0x10 (LE=4096)
+        // Pattern 2 (2 packets): bytes[11:13] = 0x00 0x02 (LE=512)
+        // Attempting linear interpolation between these values
+
+        uint8_t noOpData7[] = {0xfe, 0x02, 0x0c, 0x02};
+        uint8_t write[] = {0xff, 0x0c, 0x02, 0x04, 0x02, 0x08, 0x06, 0x08, 0x02, 0x00,
+                           0x02, 0x00, 0x10, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        // Attempt to map resistance (1-21) to observed values (512-4096)
+        // This is speculative and may not work correctly
+        if (resistance >= 1 && resistance <= 21) {
+            uint16_t resistance_value = 512 + (uint16_t)((resistance - 1) * (4096 - 512) / 20.0);
+            write[11] = resistance_value & 0xFF;
+            write[12] = (resistance_value >> 8) & 0xFF;
+
+            // Calculate checksum in byte[13]
+            uint8_t checksum = 0;
+            for (int i = 0; i < 13; i++) {
+                checksum += write[i];
+            }
+            write[13] = checksum;
+        }
+
+        writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("forceResistance"));
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance"), false, true);
     }
 }
 

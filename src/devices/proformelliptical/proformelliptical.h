@@ -69,6 +69,7 @@ class proformelliptical : public elliptical {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool nordictrack_se7i = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
