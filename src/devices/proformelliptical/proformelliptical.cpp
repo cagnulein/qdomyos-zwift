@@ -662,12 +662,13 @@ void proformelliptical::controllerStateChanged(QLowEnergyController::ControllerS
 void proformelliptical::forceIncline(double incline) {
     if (nordictrack_se7i) {
         // NordicTrack Elliptical SE7i incline control
-        // Based on packet analysis: incline is encoded as (incline% * 100) in bytes[11:12]
+        // Incline uses ff 0d packet with byte[10]=0x02
+        // Formula: value = incline% * 100 (range 0-1000 for 0%-10%)
         uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
         uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
                            0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-        // Encode incline value in bytes[11:12] as little-endian 16-bit: incline% * 100
+        // Encode incline: bytes[11:12] = incline% * 100 (little-endian 16-bit)
         uint16_t incline_value = (uint16_t)(incline * 100);
         write[11] = incline_value & 0xFF;           // Low byte
         write[12] = (incline_value >> 8) & 0xFF;    // High byte
@@ -692,36 +693,24 @@ void proformelliptical::forceSpeed(double speed) {
 void proformelliptical::forceResistance(double resistance) {
     if (nordictrack_se7i) {
         // NordicTrack Elliptical SE7i resistance control
-        // NOTE: Analysis of captured packets shows only 2 unique resistance patterns,
-        // insufficient to determine proper encoding for 21 resistance levels.
-        // This implementation provides a basic attempt based on limited data.
+        // Resistance uses ff 0d packet with byte[10]=0x04
+        // Formula: value = resistance * 454 - 1 (range 453-9987 for resistance 1-21)
+        uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
+        uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                           0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-        // Log warning about limitation
-        emit debug(QStringLiteral("forceResistance: Limited implementation - ") +
-                   QStringLiteral("only 2 patterns found in packet analysis"));
-
-        // Based on the 2 patterns found:
-        // Pattern 1 (313 packets): bytes[11:13] = 0x00 0x10 (LE=4096)
-        // Pattern 2 (2 packets): bytes[11:13] = 0x00 0x02 (LE=512)
-        // Attempting linear interpolation between these values
-
-        uint8_t noOpData7[] = {0xfe, 0x02, 0x0c, 0x02};
-        uint8_t write[] = {0xff, 0x0c, 0x02, 0x04, 0x02, 0x08, 0x06, 0x08, 0x02, 0x00,
-                           0x02, 0x00, 0x10, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-
-        // Attempt to map resistance (1-21) to observed values (512-4096)
-        // This is speculative and may not work correctly
+        // Encode resistance: bytes[11:12] = resistance * 454 - 1 (little-endian 16-bit)
         if (resistance >= 1 && resistance <= 21) {
-            uint16_t resistance_value = 512 + (uint16_t)((resistance - 1) * (4096 - 512) / 20.0);
-            write[11] = resistance_value & 0xFF;
-            write[12] = (resistance_value >> 8) & 0xFF;
+            uint16_t resistance_value = (uint16_t)(resistance * 454 - 1);
+            write[11] = resistance_value & 0xFF;           // Low byte
+            write[12] = (resistance_value >> 8) & 0xFF;    // High byte
 
-            // Calculate checksum in byte[13]
+            // Calculate checksum in byte[14]: sum of bytes[0:14]
             uint8_t checksum = 0;
-            for (int i = 0; i < 13; i++) {
+            for (int i = 0; i < 14; i++) {
                 checksum += write[i];
             }
-            write[13] = checksum;
+            write[14] = checksum;
         }
 
         writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("forceResistance"));
