@@ -64,10 +64,11 @@
 class KettlerUSB : public QThread {
 
   public:
-    KettlerUSB(QObject *parent = 0, QString deviceFilename = 0);
+    KettlerUSB(QObject *parent = 0, QString deviceFilename = 0, bool use57600Baud = true);
     ~KettlerUSB();
 
     QObject *parent;
+    bool use57600Baud = true;
 
     // HIGH-LEVEL FUNCTIONS
     int start();                           // Calls QThread to start

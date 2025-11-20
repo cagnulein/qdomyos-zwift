@@ -23,13 +23,14 @@
 /* ----------------------------------------------------------------------
  * CONSTRUCTOR/DESTRUCTOR
  * ---------------------------------------------------------------------- */
-KettlerUSB::KettlerUSB(QObject *parent, QString devname) : QThread(parent) {
+KettlerUSB::KettlerUSB(QObject *parent, QString devname, bool use57600Baud) : QThread(parent) {
     devicePower = deviceHeartRate = deviceCadence = deviceSpeed = deviceDistance = 0.00;
     targetPower = DEFAULT_POWER;
     writePower = false;
     setDevice(devname);
     deviceStatus = 0;
     this->parent = parent;
+    this->use57600Baud = use57600Baud;
 }
 
 KettlerUSB::~KettlerUSB() {}
@@ -276,11 +277,12 @@ int KettlerUSB::closePort() {
 
 int KettlerUSB::openPort() {
 #ifdef Q_OS_ANDROID
-    // Call Java Usbserial with 57600 baud for Kettler
+    // Call Java Usbserial with configured baud rate for Kettler
+    int baudRate = use57600Baud ? 57600 : 9600;
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "open",
                                               "(Landroid/content/Context;I)V",
                                               QtAndroid::androidContext().object(),
-                                              57600);
+                                              baudRate);
 #elif !defined(WIN32)
     // LINUX AND MAC USES TERMIO / IOCTL / STDIO
 
@@ -301,7 +303,8 @@ int KettlerUSB::openPort() {
     tcgetattr(devicePort, &deviceSettings);
 
     cfmakeraw(&deviceSettings);
-    cfsetspeed(&deviceSettings, B57600); // Kettler uses 57600 baud
+    speed_t baudRate = use57600Baud ? B57600 : B9600;
+    cfsetspeed(&deviceSettings, baudRate);
 
     deviceSettings.c_iflag &=
         ~(IGNBRK | BRKINT | ICRNL | INLCR | PARMRK | INPCK | ICANON | ISTRIP | IXON | IXOFF | IXANY);
@@ -347,7 +350,7 @@ int KettlerUSB::openPort() {
     if (GetCommState(devicePort, &deviceSettings) == false)
         return -1;
 
-    deviceSettings.BaudRate = CBR_57600; // Kettler uses 57600 baud
+    deviceSettings.BaudRate = use57600Baud ? CBR_57600 : CBR_9600;
     deviceSettings.fParity = NOPARITY;
     deviceSettings.ByteSize = 8;
     deviceSettings.StopBits = ONESTOPBIT;

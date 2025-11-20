@@ -48,8 +48,10 @@ kettlerusbbike::kettlerusbbike(bool noWriteResistance, bool noHeartService, int8
 
     QString kettlerSerialPort =
         settings.value(QZSettings::kettler_usb_serialport, QZSettings::default_kettler_usb_serialport).toString();
+    bool kettlerBaud57600 =
+        settings.value(QZSettings::kettler_usb_baud_57600, QZSettings::default_kettler_usb_baud_57600).toBool();
 
-    myKettler = new KettlerUSB(this, kettlerSerialPort);
+    myKettler = new KettlerUSB(this, kettlerSerialPort, kettlerBaud57600);
     myKettler->start();
 
     ergModeSupported = true; // ERG mode supported
