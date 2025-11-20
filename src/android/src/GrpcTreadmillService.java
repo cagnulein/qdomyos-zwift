@@ -16,7 +16,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Base64;
+import android.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -484,7 +484,7 @@ public class GrpcTreadmillService {
                 .replace("-----END PRIVATE KEY-----", "")
                 .replaceAll("\\s", "");
 
-        byte[] keyBytes = Base64.getDecoder().decode(keyString);
+        byte[] keyBytes = Base64.decode(keyString, Base64.DEFAULT);
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
