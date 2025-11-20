@@ -218,8 +218,9 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
     uint8_t heart = 0;
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    static bool validCadenceFrom2ad2 = false;
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B)) {
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B) && !validCadenceFrom2ad2) {
         lastPacket = newValue;
 
         uint8_t index = 1;
@@ -599,6 +600,8 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index)))) /
                           2.0;
+                if(Cadence.value() > 0)
+                    validCadenceFrom2ad2 = true;
             }
             index += 2;
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
