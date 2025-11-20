@@ -865,7 +865,7 @@ class QZSettings {
     static const QString default_strava_suffix;
 
     static const QString intervalsicu_upload_enabled;
-    static constexpr bool default_intervalsicu_upload_enabled = false;
+    static constexpr bool default_intervalsicu_upload_enabled = true;
 
     static const QString intervalsicu_use_oauth;
     static constexpr bool default_intervalsicu_use_oauth = true;
