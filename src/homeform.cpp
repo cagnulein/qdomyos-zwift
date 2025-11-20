@@ -9186,7 +9186,11 @@ QOAuth2AuthorizationCodeFlow *homeform::intervalsicu_connect() {
         );
 
         if (!intervalsicuReplyHandler) {
-            intervalsicuReplyHandler = new QOAuthHttpServerReplyHandler(8485, this);
+            intervalsicuReplyHandler = new QOAuthHttpServerReplyHandler(QHostAddress(QStringLiteral("127.0.0.1")), 8485, this);
+            connect(intervalsicuReplyHandler, &QOAuthHttpServerReplyHandler::replyDataReceived,
+                    this, &homeform::replyDataReceivedIntervalsICU);
+            connect(intervalsicuReplyHandler, &QOAuthHttpServerReplyHandler::callbackReceived,
+                    this, &homeform::callbackReceivedIntervalsICU);
         }
         intervalsicu->setReplyHandler(intervalsicuReplyHandler);
     }
@@ -9238,6 +9242,49 @@ void homeform::onIntervalsICUAuthorizeWithBrowser(const QUrl &url) {
     } else {
         intervalsicuAuthWebVisible = true;
         intervalsicuWebVisibleChanged(intervalsicuAuthWebVisible);
+    }
+}
+
+void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
+    qDebug() << "Intervals.icu: callbackReceived" << values;
+
+    if (values.contains("code")) {
+        QString code = values.value("code").toString();
+        qDebug() << "Intervals.icu: Received authorization code:" << code;
+    }
+
+    if (values.contains("error")) {
+        QString error = values.value("error").toString();
+        QString errorDesc = values.value("error_description").toString();
+        qDebug() << "Intervals.icu: OAuth error:" << error << errorDesc;
+        setToastRequested("Intervals.icu error: " + error);
+    }
+}
+
+void homeform::replyDataReceivedIntervalsICU(const QByteArray &v) {
+    qDebug() << "Intervals.icu: replyDataReceived" << v;
+
+    QSettings settings;
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(v);
+    QJsonObject obj = jsonResponse.object();
+
+    if (obj.contains("access_token")) {
+        QString accessToken = obj["access_token"].toString();
+        settings.setValue(QZSettings::intervalsicu_accesstoken, accessToken);
+        qDebug() << "Intervals.icu: Access token saved";
+
+        if (obj.contains("refresh_token")) {
+            QString refreshToken = obj["refresh_token"].toString();
+            settings.setValue(QZSettings::intervalsicu_refreshtoken, refreshToken);
+            qDebug() << "Intervals.icu: Refresh token saved";
+        }
+
+        if (obj.contains("athlete")) {
+            QJsonObject athlete = obj["athlete"].toObject();
+            QString athleteId = athlete["id"].toString();
+            settings.setValue(QZSettings::intervalsicu_athlete_id, athleteId);
+            qDebug() << "Intervals.icu: Athlete ID saved:" << athleteId;
+        }
     }
 }
 

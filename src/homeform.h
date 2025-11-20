@@ -940,6 +940,8 @@ class homeform : public QObject {
     void intervalsicu_download_todays_workout_clicked();
     void onIntervalsICUGranted();
     void onIntervalsICUAuthorizeWithBrowser(const QUrl &url);
+    void replyDataReceivedIntervalsICU(const QByteArray &v);
+    void callbackReceivedIntervalsICU(const QVariantMap &values);
     void writeFileCompletedIntervalsICU();
     void errorOccurredUploadIntervalsICU(QNetworkReply::NetworkError code);
     void pelotonWorkoutStarted(const QString &name, const QString &instructor);
