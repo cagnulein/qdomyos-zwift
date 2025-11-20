@@ -1219,7 +1219,7 @@ import Qt.labs.platform 1.1
             property string kettler_usb_serialport: ""
 
             // Intervals.icu settings
-            property bool intervalsicu_upload_enabled: false
+            property bool intervalsicu_upload_enabled: true
             property bool intervalsicu_use_oauth: true
             property string intervalsicu_suffix: "#QZ"
             property bool intervalsicu_date_prefix: false
