@@ -1033,6 +1033,28 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
 
     lastPacket = newValue;
 
+    // SE7i Speed and Cadence parsing (Type 0x01 packets with byte[4]=0x46)
+    if (nordictrack_se7i && newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 &&
+        newValue.at(4) == 0x46 && initDone == true) {
+        // Parse speed from bytes 12-13 (little endian, divided by 100)
+        Speed = (double)(((uint16_t)((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) / 100.0;
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        lastSpeedChanged = QDateTime::currentDateTime();
+
+        // Parse cadence from byte 2
+        uint8_t c = newValue.at(2);
+        if (c > 0)
+            Cadence = (c * cadence_gain) + cadence_offset;
+        else
+            Cadence = 0;
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
+        return;
+    }
+
     if (!proform_hybrid_trainer_xt && !nordictrack_elliptical_c7_5 && newValue.length() == 20 &&
         newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(19) == 0x2C) {
         uint8_t c = newValue.at(2);
@@ -1048,7 +1070,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         return;
     }
 
-    if (!nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 &&
+    if (!nordictrack_elliptical_c7_5 && !nordictrack_se7i && newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 &&
         initDone == true) {
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -1060,7 +1082,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
             emit debug(QStringLiteral("Current Heart from machinery: ") + QString::number(heart));
         }
 
-    } else if (QDateTime::currentDateTime().secsTo(lastSpeedChanged) > 3) {
+    } else if (!nordictrack_se7i && QDateTime::currentDateTime().secsTo(lastSpeedChanged) > 3) {
         Speed = 0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
@@ -1096,13 +1118,15 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
 
-    if (newValue.length() != 20 || (newValue.at(0) != 0x00 && newValue.at(0) != 0x01) || newValue.at(1) != 0x12 ||
+    // Skip the strict packet validation for SE7i (it has different packet structures)
+    if (!nordictrack_se7i &&
+        (newValue.length() != 20 || (newValue.at(0) != 0x00 && newValue.at(0) != 0x01) || newValue.at(1) != 0x12 ||
         newValue.at(2) != 0x01 || newValue.at(3) != 0x04 || newValue.at(4) != 0x02 ||
         (newValue.at(5) != 0x2e && newValue.at(5) != 0x30 && newValue.at(5) != 0x31) ||
         (((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(13)) == 0xFF &&
          ((uint8_t)newValue.at(14)) == 0xFF && ((uint8_t)newValue.at(15)) == 0xFF &&
          ((uint8_t)newValue.at(16)) == 0xFF && ((uint8_t)newValue.at(17)) == 0xFF &&
-         ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF)) {
+         ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF))) {
         return;
     }
 
@@ -1121,7 +1145,20 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         }
     }
 
-    if (!nordictrack_elliptical_c7_5) {
+    if (nordictrack_se7i && newValue.length() == 20 && newValue.at(0) == 0x00 &&
+        newValue.at(1) == 0x12 && newValue.at(2) == 0x01 && newValue.at(3) == 0x04 && newValue.at(4) == 0x02 &&
+        (newValue.at(5) == 0x30 || newValue.at(5) == 0x31)) {
+        // SE7i Resistance and Inclination parsing (Type 0x00 packets)
+        // Inclination from bytes 10-11 (little endian, divided by 100)
+        uint16_t incValue = ((uint16_t)((uint8_t)newValue.at(10))) + ((uint16_t)((uint8_t)newValue.at(11)) << 8);
+        Inclination = ((double)incValue) / 100.0;
+        emit debug(QStringLiteral("Current Inclination from packet: ") + QString::number(Inclination.value()));
+
+        // Resistance from bytes 12-13 (little endian): resistance = (value + 1) / 454
+        uint16_t resValue = ((uint16_t)((uint8_t)newValue.at(12))) + ((uint16_t)((uint8_t)newValue.at(13)) << 8);
+        Resistance = ((double)(resValue + 1)) / 454.0;
+        emit debug(QStringLiteral("Current Resistance from packet: ") + QString::number(Resistance.value()));
+    } else if (!nordictrack_elliptical_c7_5 && !nordictrack_se7i) {
         Resistance = GetResistanceFromPacket(newValue);
     } else if (nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x00 &&
                newValue.at(1) == 0x12 && newValue.at(2) == 0x01 && newValue.at(3) == 0x04 && newValue.at(4) == 0x02 &&
@@ -1280,6 +1317,9 @@ void nordictrackelliptical::btinit() {
         QThread::msleep(400);
         if (nordictrack_se7i) {
             // NordicTrack Elliptical SE7i initialization (19 packets: pkt944 to pkt1020)
+            max_resistance = 22;
+            max_inclination = 20;
+
             uint8_t se7i_initData1[] = {0xfe, 0x02, 0x08, 0x02};
             uint8_t se7i_initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
             uint8_t se7i_initData3[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x06, 0x04, 0x80, 0x8a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
