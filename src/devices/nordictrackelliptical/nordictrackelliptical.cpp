@@ -687,48 +687,6 @@ void nordictrackelliptical::update() {
             if (counterPoll > 4) {
                 counterPoll = 0;
             }
-        } else {
-            uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
-            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x00,
-                                   0x0d, 0x3c, 0x9e, 0x31, 0x00, 0x00, 0x40, 0x40, 0x00, 0x80};
-            uint8_t noOpData3[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x81, 0xb4, 0x00, 0x00, 0x00,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t noOpData4[] = {0xfe, 0x02, 0x0d, 0x02};
-            uint8_t noOpData5[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x00,
-                                   0x03, 0x80, 0x00, 0x40, 0xd4, 0x00, 0x00, 0x00, 0x00, 0x00};
-
-            switch (counterPoll) {
-            case 0:
-                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
-                break;
-            case 1:
-                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
-                break;
-            case 2:
-                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
-                break;
-            case 3:
-                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
-                break;
-            case 4:
-                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"), false,
-                                    proform_hybrid_trainer_xt);
-                if (requestResistance != -1) {
-                    if (requestResistance < 0)
-                        requestResistance = 0;
-                    if (requestResistance != currentResistance().value() && requestResistance >= 0 &&
-                        requestResistance <= max_resistance) {
-                        emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-                        forceResistance(requestResistance);
-                    }
-                    requestResistance = -1;
-                }
-                break;
-            }
-            counterPoll++;
-            if (counterPoll > 4) {
-                counterPoll = 0;
-            }
         } else if (nordictrack_se7i) {
             // NordicTrack Elliptical SE7i - 6 packet sendPoll cycle
             uint8_t se7i_noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
@@ -784,6 +742,48 @@ void nordictrackelliptical::update() {
             }
             counterPoll++;
             if (counterPoll > 5) {
+                counterPoll = 0;
+            }
+        } else {
+            uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x00,
+                                   0x0d, 0x3c, 0x9e, 0x31, 0x00, 0x00, 0x40, 0x40, 0x00, 0x80};
+            uint8_t noOpData3[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x81, 0xb4, 0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0xfe, 0x02, 0x0d, 0x02};
+            uint8_t noOpData5[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x00,
+                                   0x03, 0x80, 0x00, 0x40, 0xd4, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+                break;
+            case 4:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"), false,
+                                    proform_hybrid_trainer_xt);
+                if (requestResistance != -1) {
+                    if (requestResistance < 0)
+                        requestResistance = 0;
+                    if (requestResistance != currentResistance().value() && requestResistance >= 0 &&
+                        requestResistance <= max_resistance) {
+                        emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+                        forceResistance(requestResistance);
+                    }
+                    requestResistance = -1;
+                }
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 4) {
                 counterPoll = 0;
             }
         }
