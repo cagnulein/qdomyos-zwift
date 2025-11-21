@@ -177,7 +177,8 @@ void cycplusbc2::stateChanged(QLowEnergyService::ServiceState state) {
 
             connect(gattService, &QLowEnergyService::characteristicChanged, this, &cycplusbc2::characteristicChanged);
             connect(gattService, &QLowEnergyService::characteristicWritten, this, &cycplusbc2::characteristicWritten);
-            connect(gattService, &QLowEnergyService::error, this, &cycplusbc2::errorService);
+            connect(gattService, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                    this, &cycplusbc2::errorService);
             connect(gattService, &QLowEnergyService::descriptorWritten, this, &cycplusbc2::descriptorWritten);
 
             // Enable notifications on TX characteristic
