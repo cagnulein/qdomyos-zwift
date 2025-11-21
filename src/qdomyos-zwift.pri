@@ -154,6 +154,7 @@ windows_zwift_workout_paddleocr_thread.cpp \
 devices/ypooelliptical/ypooelliptical.cpp \
 devices/ziprotreadmill/ziprotreadmill.cpp \
 zwift_play/zwiftclickremote.cpp \
+zwift_play/cycplusbc2.cpp \
 devices/computrainerbike/Computrainer.cpp \
 devices/kettlerusbbike/KettlerUSB.cpp \
 PathController.cpp \
@@ -442,6 +443,7 @@ zwift_play/zapBleUuids.h \
 zwift_play/zapConstants.h \
 zwift_play/zwiftPlayDevice.h \
 zwift_play/zwiftclickremote.h \
+zwift_play/cycplusbc2.h \
 virtualdevices/virtualdevice.h \
 androidactivityresultreceiver.h \
 androidadblog.h \

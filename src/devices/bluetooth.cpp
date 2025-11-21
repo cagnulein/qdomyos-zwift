@@ -3099,6 +3099,25 @@ void bluetooth::connectedAndDiscovered() {
     }
 
     if(settings.value(QZSettings::zwift_play, QZSettings::default_zwift_play).toBool()) {
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (((b.name().toUpper().startsWith("CYCPLUS BC2"))) && !cycplusbc2Device && this->device() &&
+                this->device()->deviceType() == BIKE) {
+
+                cycplusbc2Device = new cycplusbc2(this->device());
+                // connect(cycplusbc2Device, SIGNAL(disconnected()), this, SLOT(restart()));
+
+                connect(cycplusbc2Device, &cycplusbc2::debug, this, &bluetooth::debug);
+                connect(cycplusbc2Device, &cycplusbc2::plus, (bike*)this->device(), &bike::gearUp);
+                connect(cycplusbc2Device, &cycplusbc2::minus, (bike*)this->device(), &bike::gearDown);
+                cycplusbc2Device->deviceDiscovered(b);
+                if(homeform::singleton())
+                    homeform::singleton()->setToastRequested("CYCPLUS BC2 Connected!");
+                break;
+            }
+        }
+    }
+
+    if(settings.value(QZSettings::zwift_play, QZSettings::default_zwift_play).toBool()) {
         bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if ((((b.name().toUpper().startsWith("ZWIFT PLAY"))) || b.name().toUpper().startsWith("ZWIFT RIDE") || b.name().toUpper().startsWith("ZWIFT SF2")) && zwiftPlayDevice.size() < 2 && this->device() &&
