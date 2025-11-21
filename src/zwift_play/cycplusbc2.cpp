@@ -7,6 +7,9 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <QThread>
+#ifdef Q_OS_ANDROID
+#include <QLowEnergyConnectionParameters>
+#endif
 
 using namespace std::chrono_literals;
 
