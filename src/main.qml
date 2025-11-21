@@ -69,6 +69,8 @@ ApplicationWindow {
     signal refresh_bluetooth_devices_clicked()
     signal strava_connect_clicked()
     signal peloton_connect_clicked()
+    signal intervalsicu_connect_clicked()
+    signal intervalsicu_download_todays_workout_clicked()
     signal loadSettings(url name)
     signal saveSettings(url name)
     signal deleteSettings(url name)
@@ -937,6 +939,23 @@ ApplicationWindow {
                             stackView.pop();
                         })
                         peloton_connect_clicked()
+                        drawer.close()
+                    }
+                }
+
+				ItemDelegate {
+                    Image {
+                        anchors.left: parent.left;
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "icons/icons/intervals-logo-with-name.png"
+                        fillMode: Image.PreserveAspectFit
+                        visible: true
+                        width: parent.width
+                    }
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("WebIntervalsICUAuth.qml")
+                        intervalsicu_connect_clicked()
                         drawer.close()
                     }
                 }

@@ -130,5 +130,6 @@
         <file>PreviewChart.qml</file>
         <file>WebPelotonAuth.qml</file>
         <file>inner_templates/floating/hfloating.htm</file>
+        <file>WebIntervalsICUAuth.qml</file>
     </qresource>
 </RCC>
