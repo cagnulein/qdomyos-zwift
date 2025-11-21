@@ -9184,14 +9184,17 @@ QOAuth2AuthorizationCodeFlow *homeform::intervalsicu_connect() {
         intervalsicu->setAccessTokenUrl(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
 
         intervalsicu->setClientIdentifier(QStringLiteral(INTERVALSICU_CLIENT_ID_S));
-        intervalsicu->setClientIdentifierSharedKey(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S));
+#ifdef INTERVALSICU_CLIENT_SECRET_S
+#ifndef STRINGIFY
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+#endif
+        intervalsicu->setClientIdentifierSharedKey(STRINGIFY(INTERVALSICU_CLIENT_SECRET_S));
+#endif
         intervalsicu->setScope(QStringLiteral("ACTIVITY:READ,CALENDAR:READ"));
 
         intervalsicu->setModifyParametersFunction(
-            buildModifyParametersFunction(
-                QUrl(QStringLiteral(INTERVALSICU_CLIENT_ID_S)),
-                QUrl(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S))
-            )
+            buildModifyParametersFunction(QUrl(QLatin1String("")), QUrl(QLatin1String("")))
         );
 
         if (!intervalsicuReplyHandler) {
