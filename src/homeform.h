@@ -763,6 +763,7 @@ class homeform : public QObject {
     QOAuthHttpServerReplyHandler *intervalsicuReplyHandler = nullptr;
     QNetworkReply *replyIntervalsICU = nullptr;
     QString intervalsicuAthleteId;
+    QString intervalsicuAuthCode;
 
     bool paused = false;
     bool stopped = false;

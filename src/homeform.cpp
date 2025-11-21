@@ -9171,27 +9171,35 @@ QOAuth2AuthorizationCodeFlow *homeform::intervalsicu_connect() {
     }
 
     if (!intervalsicu) {
-        intervalsicu = new QOAuth2AuthorizationCodeFlow(this);
+        // Create QNetworkAccessManager like Strava does - needed for proper SSL/TLS initialization
+        if (intervalsicuManager) {
+            delete intervalsicuManager;
+            intervalsicuManager = nullptr;
+        }
+        intervalsicuManager = new QNetworkAccessManager(this);
+
+        intervalsicu = new QOAuth2AuthorizationCodeFlow(intervalsicuManager, this);
 
         intervalsicu->setAuthorizationUrl(QUrl(QStringLiteral("https://intervals.icu/oauth/authorize")));
         intervalsicu->setAccessTokenUrl(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
 
         intervalsicu->setClientIdentifier(QStringLiteral(INTERVALSICU_CLIENT_ID_S));
-#ifdef INTERVALSICU_CLIENT_SECRET_S
-#ifndef STRINGIFY
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
-#endif
-        intervalsicu->setClientIdentifierSharedKey(STRINGIFY(INTERVALSICU_CLIENT_SECRET_S));
-#endif
+        intervalsicu->setClientIdentifierSharedKey(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S));
         intervalsicu->setScope(QStringLiteral("ACTIVITY:READ,CALENDAR:READ"));
 
         intervalsicu->setModifyParametersFunction(
-            buildModifyParametersFunction(QUrl(QLatin1String("")), QUrl(QLatin1String("")))
+            buildModifyParametersFunction(
+                QUrl(QStringLiteral(INTERVALSICU_CLIENT_ID_S)),
+                QUrl(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S))
+            )
         );
 
         if (!intervalsicuReplyHandler) {
             intervalsicuReplyHandler = new QOAuthHttpServerReplyHandler(QHostAddress(QStringLiteral("127.0.0.1")), 8485, this);
+            connect(intervalsicuReplyHandler, &QOAuthHttpServerReplyHandler::replyDataReceived,
+                    this, &homeform::replyDataReceivedIntervalsICU);
+            connect(intervalsicuReplyHandler, &QOAuthHttpServerReplyHandler::callbackReceived,
+                    this, &homeform::callbackReceivedIntervalsICU);
         }
         intervalsicu->setReplyHandler(intervalsicuReplyHandler);
     }
@@ -9247,15 +9255,47 @@ void homeform::onIntervalsICUAuthorizeWithBrowser(const QUrl &url) {
 }
 
 void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
-    // This function is not connected anymore - Qt's automatic OAuth flow handles the token exchange
-    // Keeping it for potential future debugging
-    Q_UNUSED(values);
+    qDebug() << "Intervals.icu: callbackReceived";
+
+    // Just save the code like Strava does - Qt OAuth will handle the token exchange
+    if (values.contains("code")) {
+        intervalsicuAuthCode = values.value("code").toString();
+        qDebug() << "Intervals.icu: Authorization code saved";
+    }
+
+    if (values.contains("error")) {
+        QString error = values.value("error").toString();
+        QString errorDesc = values.value("error_description").toString();
+        qDebug() << "Intervals.icu: OAuth error:" << error << errorDesc;
+        setToastRequested("Intervals.icu error: " + error);
+    }
 }
 
 void homeform::replyDataReceivedIntervalsICU(const QByteArray &v) {
-    // This function is not connected anymore - Qt's automatic OAuth flow handles the response
-    // Keeping it for potential future debugging
-    Q_UNUSED(v);
+    qDebug() << "Intervals.icu: replyDataReceived";
+
+    QSettings settings;
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(v);
+    QJsonObject obj = jsonResponse.object();
+
+    if (obj.contains("access_token")) {
+        QString accessToken = obj["access_token"].toString();
+        settings.setValue(QZSettings::intervalsicu_accesstoken, accessToken);
+        qDebug() << "Intervals.icu: Access token saved";
+
+        if (obj.contains("refresh_token")) {
+            QString refreshToken = obj["refresh_token"].toString();
+            settings.setValue(QZSettings::intervalsicu_refreshtoken, refreshToken);
+            qDebug() << "Intervals.icu: Refresh token saved";
+        }
+
+        if (obj.contains("athlete")) {
+            QJsonObject athlete = obj["athlete"].toObject();
+            QString athleteId = athlete["id"].toString();
+            settings.setValue(QZSettings::intervalsicu_athlete_id, athleteId);
+            qDebug() << "Intervals.icu: Athlete ID saved:" << athleteId;
+        }
+    }
 }
 
 void homeform::intervalsicu_refreshtoken() {
