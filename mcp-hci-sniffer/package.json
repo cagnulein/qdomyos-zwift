@@ -1,0 +1,22 @@
+{
+  "name": "@qdomyos/mcp-hci-sniffer",
+  "version": "1.0.0",
+  "description": "MCP server for parsing Android HCI snoop logs and extracting BLE packets for QDomyos-Zwift device development",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "mcp-hci-sniffer": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": ["mcp", "bluetooth", "hci", "snoop", "ble", "proform"],
+  "author": "QDomyos-Zwift",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

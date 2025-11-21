@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "hci-sniffer": {
+      "command": "node",
+      "args": ["/home/user/qdomyos-zwift/mcp-hci-sniffer/index.js"]
+    }
+  }
+}
