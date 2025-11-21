@@ -9292,6 +9292,12 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
         // Use the existing manager (has SSL configured)
         QNetworkReply *reply = intervalsicuManager->post(request, data);
 
+        // Handle SSL errors - ignore them like Strava does
+        connect(reply, &QNetworkReply::sslErrors, this, [reply](const QList<QSslError> &errors) {
+            qDebug() << "Intervals.icu: SSL errors - ignoring:" << errors.size() << "error(s)";
+            reply->ignoreSslErrors();
+        });
+
         connect(reply, &QNetworkReply::finished, this, [this, reply]() {
             QByteArray response = reply->readAll();
 
