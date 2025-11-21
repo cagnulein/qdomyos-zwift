@@ -879,10 +879,10 @@ class homeform : public QObject {
     void Minus(const QString &);
     void Plus(const QString &);
     void trainprogram_open_clicked(const QUrl &fileName);
-
-  private slots:
     void Start();
     void Stop();
+
+  private slots:
     void StopFromTrainProgram(bool paused);
     void StartRequested();
     void StopRequested();
