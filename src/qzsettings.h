@@ -82,6 +82,9 @@ class QZSettings {
     static const QString strava_expires;
     static const QString default_strava_expires;
 
+    static const QString strava_current_user_id;
+    static const QString default_strava_current_user_id;
+
     static const QString code;
     static const QString default_code;
 
