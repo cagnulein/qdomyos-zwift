@@ -9256,9 +9256,14 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
 
         // Do token exchange manually like Strava does
         QString urlstr = QStringLiteral("https://intervals.icu/api/oauth/token");
+
+        // Remove quotes from STRINGIFY macros
+        QString clientId = QString(INTERVALSICU_CLIENT_ID_S).remove('"');
+        QString clientSecret = QString(INTERVALSICU_CLIENT_SECRET_S).remove('"');
+
         QUrlQuery params;
-        params.addQueryItem(QStringLiteral("client_id"), QStringLiteral(INTERVALSICU_CLIENT_ID_S));
-        params.addQueryItem(QStringLiteral("client_secret"), QStringLiteral(INTERVALSICU_CLIENT_SECRET_S));
+        params.addQueryItem(QStringLiteral("client_id"), clientId);
+        params.addQueryItem(QStringLiteral("client_secret"), clientSecret);
         params.addQueryItem(QStringLiteral("code"), code);
         params.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("authorization_code"));
         params.addQueryItem(QStringLiteral("redirect_uri"), QStringLiteral("http://127.0.0.1:8485"));
