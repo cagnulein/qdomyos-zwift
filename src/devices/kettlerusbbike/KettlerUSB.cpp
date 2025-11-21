@@ -85,21 +85,46 @@ void KettlerUSB::parseStatusResponse(const QString &response) {
     // HR RPM Speed Distance Power Energy Time CurrentPower
     // Example: 101\t047\t074\t002\t025\t0312\t01:12\t025
 
+    // Ignore non-status responses (ACK, ERROR, etc.)
+    if (response == "ACK" || response == "ERROR" || response.length() < 10) {
+        qDebug() << "  Skipping non-status response:" << response;
+        return;
+    }
+
     QStringList fields = response.split('\t');
     if (fields.size() >= 8) {
-        pvars.lock();
-        deviceHeartRate = fields[0].toDouble();
-        deviceCadence = fields[1].toDouble();
-        deviceSpeed = fields[2].toDouble() * 0.1; // Speed is in 0.1 km/h
-        deviceDistance = fields[3].toDouble() * 100; // Distance is in 100m units
-        devicePower = fields[7].toDouble(); // CurrentPower (last field)
-        pvars.unlock();
+        // Additional validation: check if fields contain numeric data
+        bool validData = true;
+        for (int i = 0; i < 8; i++) {
+            if (i != 6) { // Skip time field (format HH:MM)
+                bool ok;
+                fields[i].toDouble(&ok);
+                if (!ok && i != 3 && i != 5) { // Distance and Energy can be non-numeric sometimes
+                    validData = false;
+                    break;
+                }
+            }
+        }
 
-        qDebug() << "Kettler Status: HR=" << deviceHeartRate
-                 << " RPM=" << deviceCadence
-                 << " Speed=" << deviceSpeed
-                 << " Dist=" << deviceDistance
-                 << " Power=" << devicePower;
+        if (validData) {
+            pvars.lock();
+            deviceHeartRate = fields[0].toDouble();
+            deviceCadence = fields[1].toDouble();
+            deviceSpeed = fields[2].toDouble() * 0.1; // Speed is in 0.1 km/h
+            deviceDistance = fields[3].toDouble() * 100; // Distance is in 100m units
+            devicePower = fields[7].toDouble(); // CurrentPower (last field)
+            pvars.unlock();
+
+            qDebug() << "Kettler Status: HR=" << deviceHeartRate
+                     << " RPM=" << deviceCadence
+                     << " Speed=" << deviceSpeed
+                     << " Dist=" << deviceDistance
+                     << " Power=" << devicePower;
+        } else {
+            qDebug() << "  Invalid status data (non-numeric fields):" << response;
+        }
+    } else {
+        qDebug() << "  Invalid status format (expected 8 fields, got" << fields.size() << "):" << response;
     }
 }
 
@@ -188,6 +213,10 @@ void KettlerUSB::run() {
     // Send initialization sequence
     initSequence();
 
+    // Flush buffer after init to clear any leftover responses
+    KettlerSleeper::msleep(500);
+    flushSerialBuffer();
+
     // Wait 3 seconds before first poll (as per kettlerUSB2BLE)
     KettlerSleeper::msleep(3000);
 
@@ -200,13 +229,27 @@ void KettlerUSB::run() {
             pvars.unlock();
 
             if (curWritePower) {
-                // Send power command instead of status request
+                // Send power command
                 QString powerCmd = QString("PW%1").arg((int)curPower);
                 sendCommand(powerCmd);
 
                 pvars.lock();
                 this->writePower = false;
                 pvars.unlock();
+
+                // Read and discard response (usually ACK or a number)
+                KettlerSleeper::msleep(150);
+                QString pwResponse = readResponse();
+                if (!pwResponse.isEmpty()) {
+                    qDebug() << "  PW response (discarded):" << pwResponse;
+                }
+
+                // Immediately send ST to get fresh status
+                sendCommand("ST");
+                QString response = readResponse();
+                if (!response.isEmpty()) {
+                    parseStatusResponse(response);
+                }
             } else {
                 // Normal status poll
                 sendCommand("ST");
@@ -216,8 +259,8 @@ void KettlerUSB::run() {
                 }
             }
 
-            // Wait 2 seconds between polls (as per kettlerUSB2BLE)
-            KettlerSleeper::msleep(2000);
+            // Reduced polling interval from 2000ms to 500ms for faster response
+            KettlerSleeper::msleep(500);
         }
 
         // Check status
@@ -451,6 +494,20 @@ QString KettlerUSB::rawRead() {
     }
 
     return result;
+}
+
+void KettlerUSB::flushSerialBuffer() {
+    qDebug() << "Flushing serial buffer...";
+#ifdef Q_OS_ANDROID
+    // Clear Android buffer
+    rxBuffer.clear();
+    // Read and discard any pending data
+    QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
+#elif defined(WIN32)
+    PurgeComm(devicePort, PURGE_RXCLEAR | PURGE_TXCLEAR);
+#else
+    tcflush(devicePort, TCIOFLUSH);
+#endif
 }
 
 bool KettlerUSB::discover(QString filename) {

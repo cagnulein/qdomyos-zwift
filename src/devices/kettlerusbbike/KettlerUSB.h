@@ -126,6 +126,7 @@ class KettlerUSB : public QThread {
     // raw device utils
     int rawWrite(const char *bytes, int size);
     QString rawRead();
+    void flushSerialBuffer(); // Flush any pending data in serial buffer
 
 #ifdef Q_OS_ANDROID
     QByteArray rxBuffer;
