@@ -76,6 +76,7 @@ public class GrpcTreadmillService {
     // Threading components
     private Handler mainHandler;
     private ExecutorService executorService;
+    private ExecutorService workoutStateExecutor;
     private Runnable metricsUpdateRunnable;
 
     // gRPC components
@@ -132,6 +133,7 @@ public class GrpcTreadmillService {
         this.context = context;
         this.mainHandler = new Handler(Looper.getMainLooper());
         this.executorService = Executors.newSingleThreadExecutor();
+        this.workoutStateExecutor = Executors.newSingleThreadExecutor();
     }
 
     public void setMetricsListener(MetricsListener listener) {
@@ -181,7 +183,7 @@ public class GrpcTreadmillService {
 
         isMonitoringWorkoutState = true;
 
-        executorService.execute(() -> {
+        workoutStateExecutor.execute(() -> {
             try {
                 QLog.i(TAG, "Starting WorkoutStateChanged stream monitoring");
 
@@ -416,6 +418,18 @@ public class GrpcTreadmillService {
             } catch (InterruptedException e) {
                 QLog.e(TAG, "Error shutting down executor service", e);
                 executorService.shutdownNow();
+            }
+        }
+
+        if (workoutStateExecutor != null) {
+            workoutStateExecutor.shutdown();
+            try {
+                if (!workoutStateExecutor.awaitTermination(2, TimeUnit.SECONDS)) {
+                    workoutStateExecutor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                QLog.e(TAG, "Error shutting down workout state executor", e);
+                workoutStateExecutor.shutdownNow();
             }
         }
     }
