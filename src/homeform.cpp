@@ -9284,8 +9284,30 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
         qDebug() << "Intervals.icu: Request data:" << data;
 
         QNetworkReply *reply = intervalsicuManager->post(request, data);
+
+        // Connect error signal to see what's happening
+        connect(reply, &QNetworkReply::errorOccurred, this, [](QNetworkReply::NetworkError error) {
+            qDebug() << "Intervals.icu: Network error occurred:" << error;
+        });
+
+        connect(reply, &QNetworkReply::sslErrors, this, [reply](const QList<QSslError> &errors) {
+            qDebug() << "Intervals.icu: SSL errors:";
+            for (const QSslError &error : errors) {
+                qDebug() << "  -" << error.errorString();
+            }
+            // Ignore SSL errors like Strava does
+            reply->ignoreSslErrors();
+        });
+
         connect(reply, &QNetworkReply::finished, this, [this, reply]() {
             QByteArray response = reply->readAll();
+
+            // Check for network errors
+            if (reply->error() != QNetworkReply::NoError) {
+                qDebug() << "Intervals.icu: Network error:" << reply->error();
+                qDebug() << "Intervals.icu: Error string:" << reply->errorString();
+            }
+
             qDebug() << "Intervals.icu: Token exchange response:" << response;
 
             int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
