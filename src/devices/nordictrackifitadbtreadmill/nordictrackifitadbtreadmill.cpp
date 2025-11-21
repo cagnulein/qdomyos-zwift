@@ -1,4 +1,5 @@
 #include "nordictrackifitadbtreadmill.h"
+#include "homeform.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -807,19 +808,20 @@ void nordictrackifitadbtreadmill::update() {
             // If workout started (IDLE/PAUSED -> RUNNING)
             if (currentWorkoutState == 3 && (previousWorkoutState == 1 || previousWorkoutState == 4)) {
                 emit debug("Workout started in iFit app - auto-starting QZ recording");
-                // Use requestStart for both start and resume
-                // The existing logic in update() will handle pause state correctly
-                requestStart = 1;
+                if (homeform::singleton())
+                    homeform::singleton()->Start();
             }
             // If workout stopped (RUNNING -> IDLE)
             else if (currentWorkoutState == 1 && previousWorkoutState == 3) {
                 emit debug("Workout stopped in iFit app - auto-stopping QZ recording");
-                requestStop = 1;
+                if (homeform::singleton())
+                    homeform::singleton()->Stop();
             }
             // If workout paused (RUNNING -> PAUSED)
             else if (currentWorkoutState == 4 && previousWorkoutState == 3) {
                 emit debug("Workout paused in iFit app - auto-pausing QZ recording");
-                requestPause = 1;
+                if (homeform::singleton())
+                    homeform::singleton()->Start();
             }
 
             previousWorkoutState = currentWorkoutState;
