@@ -418,6 +418,13 @@ class homeform : public QObject {
 #endif
     }
 
+    Q_INVOKABLE void launchIFitApp() {
+#ifdef Q_OS_ANDROID
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/AppLauncher", "launchIFitApp",
+                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#endif
+    }
+
     homeform(QQmlApplicationEngine *engine, bluetooth *bl);
     ~homeform();
     int topBarHeight() { return m_topBarHeight; }
@@ -872,10 +879,10 @@ class homeform : public QObject {
     void Minus(const QString &);
     void Plus(const QString &);
     void trainprogram_open_clicked(const QUrl &fileName);
-
-  private slots:
     void Start();
     void Stop();
+
+  private slots:
     void StopFromTrainProgram(bool paused);
     void StartRequested();
     void StopRequested();
