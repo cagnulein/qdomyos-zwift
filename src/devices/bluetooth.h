@@ -154,6 +154,7 @@
 
 #include "zwift_play/zwiftPlayDevice.h"
 #include "zwift_play/zwiftclickremote.h"
+#include "zwift_play/cycplusbc2.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -308,6 +309,7 @@ class bluetooth : public QObject, public SignalHandler {
     zwiftclickremote* zwiftClickRemote = nullptr;
     sramaxscontroller* sramAXSController = nullptr;
     elitesquarecontroller* eliteSquareController = nullptr;
+    cycplusbc2* cycplusbc2Device = nullptr;
     QString filterDevice = QLatin1String("");
 
     bool testResistance = false;
