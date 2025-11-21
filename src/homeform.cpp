@@ -9260,10 +9260,93 @@ void homeform::onIntervalsICUAuthorizeWithBrowser(const QUrl &url) {
 void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
     qDebug() << "Intervals.icu: callbackReceived";
 
-    // Just save the code like Strava does - Qt OAuth will handle the token exchange
     if (values.contains("code")) {
         intervalsicuAuthCode = values.value("code").toString();
-        qDebug() << "Intervals.icu: Authorization code saved";
+        qDebug() << "Intervals.icu: Authorization code received";
+
+        // Do manual token exchange like Strava does in replyDataReceived
+        // Use the existing intervalsicuManager (already created with SSL configured)
+        QString urlstr = QStringLiteral("https://intervals.icu/api/oauth/token");
+
+#ifndef STRINGIFY
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+#endif
+
+        QUrlQuery params;
+        params.addQueryItem(QStringLiteral("client_id"), QStringLiteral(INTERVALSICU_CLIENT_ID_S));
+#ifdef INTERVALSICU_CLIENT_SECRET_S
+        params.addQueryItem(QStringLiteral("client_secret"), STRINGIFY(INTERVALSICU_CLIENT_SECRET_S));
+#endif
+        params.addQueryItem(QStringLiteral("code"), intervalsicuAuthCode);
+        params.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("authorization_code"));
+        params.addQueryItem(QStringLiteral("redirect_uri"), QStringLiteral("http://127.0.0.1:8485"));
+
+        QByteArray data = params.query(QUrl::FullyEncoded).toUtf8();
+        QUrl url(urlstr);
+        QNetworkRequest request(url);
+        request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
+
+        qDebug() << "Intervals.icu: Sending token exchange request";
+
+        // Use the existing manager (has SSL configured)
+        QNetworkReply *reply = intervalsicuManager->post(request, data);
+
+        connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+            QByteArray response = reply->readAll();
+
+            if (reply->error() != QNetworkReply::NoError) {
+                qDebug() << "Intervals.icu: Network error:" << reply->error();
+                qDebug() << "Intervals.icu: Error string:" << reply->errorString();
+                setToastRequested("Intervals.icu: Authentication failed");
+                reply->deleteLater();
+                return;
+            }
+
+            int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+            qDebug() << "Intervals.icu: Token exchange status code:" << statusCode;
+
+            if (statusCode == 200) {
+                QJsonDocument jsonResponse = QJsonDocument::fromJson(response);
+                QJsonObject obj = jsonResponse.object();
+
+                QSettings settings;
+                if (obj.contains("access_token")) {
+                    QString accessToken = obj["access_token"].toString();
+                    settings.setValue(QZSettings::intervalsicu_accesstoken, accessToken);
+                    qDebug() << "Intervals.icu: Access token saved";
+
+                    if (obj.contains("refresh_token")) {
+                        QString refreshToken = obj["refresh_token"].toString();
+                        settings.setValue(QZSettings::intervalsicu_refreshtoken, refreshToken);
+                        qDebug() << "Intervals.icu: Refresh token saved";
+                    }
+
+                    if (obj.contains("athlete")) {
+                        QJsonObject athlete = obj["athlete"].toObject();
+                        QString athleteId = athlete["id"].toString();
+                        settings.setValue(QZSettings::intervalsicu_athlete_id, athleteId);
+                        intervalsicuAthleteId = athleteId;
+                        qDebug() << "Intervals.icu: Athlete ID saved";
+                    }
+
+                    // Close WebView and show success popup
+                    intervalsicuAuthWebVisible = false;
+                    intervalsicuWebVisibleChanged(intervalsicuAuthWebVisible);
+                    setGeneralPopupVisible(true);
+
+                    qDebug() << "Intervals.icu: Authentication completed successfully";
+                } else {
+                    qDebug() << "Intervals.icu: No access_token in response";
+                    setToastRequested("Intervals.icu: Authentication failed");
+                }
+            } else {
+                qDebug() << "Intervals.icu: Token exchange failed with status" << statusCode;
+                setToastRequested(QString("Intervals.icu: Error %1").arg(statusCode));
+            }
+
+            reply->deleteLater();
+        });
     }
 
     if (values.contains("error")) {
