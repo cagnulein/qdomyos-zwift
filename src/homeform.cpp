@@ -9289,8 +9289,9 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
 
         qDebug() << "Intervals.icu: Sending token exchange request";
 
-        // Use the existing manager (has SSL configured)
-        QNetworkReply *reply = intervalsicuManager->post(request, data);
+        // Create a new QNetworkAccessManager for this request (like Strava does in replyDataReceived)
+        QNetworkAccessManager *tempManager = new QNetworkAccessManager(this);
+        QNetworkReply *reply = tempManager->post(request, data);
 
         // Handle SSL errors - ignore them like Strava does
         connect(reply, &QNetworkReply::sslErrors, this, [reply](const QList<QSslError> &errors) {
@@ -9298,7 +9299,7 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
             reply->ignoreSslErrors();
         });
 
-        connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        connect(reply, &QNetworkReply::finished, this, [this, reply, tempManager]() {
             QByteArray response = reply->readAll();
 
             if (reply->error() != QNetworkReply::NoError) {
@@ -9306,6 +9307,7 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
                 qDebug() << "Intervals.icu: Error string:" << reply->errorString();
                 setToastRequested("Intervals.icu: Authentication failed");
                 reply->deleteLater();
+                delete tempManager;
                 return;
             }
 
@@ -9352,6 +9354,7 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
             }
 
             reply->deleteLater();
+            delete tempManager;
         });
     }
 
