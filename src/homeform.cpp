@@ -9248,11 +9248,11 @@ void homeform::onIntervalsICUAuthorizeWithBrowser(const QUrl &url) {
 }
 
 void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
-    qDebug() << "Intervals.icu: callbackReceived" << values;
+    qDebug() << "Intervals.icu: callbackReceived";
 
     if (values.contains("code")) {
         QString code = values.value("code").toString();
-        qDebug() << "Intervals.icu: Received authorization code:" << code;
+        qDebug() << "Intervals.icu: Received authorization code";
 
         // Do token exchange manually like Strava does
         QString urlstr = QStringLiteral("https://intervals.icu/api/oauth/token");
@@ -9281,7 +9281,6 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
         intervalsicuManager = new QNetworkAccessManager(this);
 
         qDebug() << "Intervals.icu: Sending token exchange request to" << url;
-        qDebug() << "Intervals.icu: Request data:" << data;
 
         QNetworkReply *reply = intervalsicuManager->post(request, data);
 
@@ -9307,8 +9306,6 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
                 qDebug() << "Intervals.icu: Network error:" << reply->error();
                 qDebug() << "Intervals.icu: Error string:" << reply->errorString();
             }
-
-            qDebug() << "Intervals.icu: Token exchange response:" << response;
 
             int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
             qDebug() << "Intervals.icu: Token exchange status code:" << statusCode;
@@ -9430,7 +9427,7 @@ void homeform::intervalsicu_refreshtoken() {
         }
         qDebug() << "Intervals.icu token refreshed successfully";
     } else {
-        qDebug() << "Intervals.icu token refresh failed:" << response;
+        qDebug() << "Intervals.icu token refresh failed";
     }
 }
 
