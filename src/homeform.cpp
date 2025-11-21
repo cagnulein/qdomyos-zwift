@@ -9177,22 +9177,21 @@ QOAuth2AuthorizationCodeFlow *homeform::intervalsicu_connect() {
         intervalsicu->setAccessTokenUrl(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
 
         intervalsicu->setClientIdentifier(QStringLiteral(INTERVALSICU_CLIENT_ID_S));
-        intervalsicu->setClientIdentifierSharedKey(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S));
+#ifdef INTERVALSICU_CLIENT_SECRET_S
+#ifndef STRINGIFY
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+#endif
+        intervalsicu->setClientIdentifierSharedKey(STRINGIFY(INTERVALSICU_CLIENT_SECRET_S));
+#endif
         intervalsicu->setScope(QStringLiteral("ACTIVITY:READ,CALENDAR:READ"));
 
         intervalsicu->setModifyParametersFunction(
-            buildModifyParametersFunction(
-                QUrl(QStringLiteral(INTERVALSICU_CLIENT_ID_S)),
-                QUrl(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S))
-            )
+            buildModifyParametersFunction(QUrl(QLatin1String("")), QUrl(QLatin1String("")))
         );
 
         if (!intervalsicuReplyHandler) {
             intervalsicuReplyHandler = new QOAuthHttpServerReplyHandler(QHostAddress(QStringLiteral("127.0.0.1")), 8485, this);
-            connect(intervalsicuReplyHandler, &QOAuthHttpServerReplyHandler::replyDataReceived,
-                    this, &homeform::replyDataReceivedIntervalsICU);
-            connect(intervalsicuReplyHandler, &QOAuthHttpServerReplyHandler::callbackReceived,
-                    this, &homeform::callbackReceivedIntervalsICU);
         }
         intervalsicu->setReplyHandler(intervalsicuReplyHandler);
     }
@@ -9248,144 +9247,15 @@ void homeform::onIntervalsICUAuthorizeWithBrowser(const QUrl &url) {
 }
 
 void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
-    qDebug() << "Intervals.icu: callbackReceived";
-
-    if (values.contains("code")) {
-        QString code = values.value("code").toString();
-        qDebug() << "Intervals.icu: Received authorization code";
-
-        // Do token exchange manually like Strava does
-        QString urlstr = QStringLiteral("https://intervals.icu/api/oauth/token");
-
-        // Remove quotes from STRINGIFY macros
-        QString clientId = QString(INTERVALSICU_CLIENT_ID_S).remove('"');
-        QString clientSecret = QString(INTERVALSICU_CLIENT_SECRET_S).remove('"');
-
-        QUrlQuery params;
-        params.addQueryItem(QStringLiteral("client_id"), clientId);
-        params.addQueryItem(QStringLiteral("client_secret"), clientSecret);
-        params.addQueryItem(QStringLiteral("code"), code);
-        params.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("authorization_code"));
-        params.addQueryItem(QStringLiteral("redirect_uri"), QStringLiteral("http://127.0.0.1:8485"));
-
-        QByteArray data = params.query(QUrl::FullyEncoded).toUtf8();
-
-        QUrl url(urlstr);
-        QNetworkRequest request(url);
-        request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
-
-        if (intervalsicuManager) {
-            delete intervalsicuManager;
-            intervalsicuManager = nullptr;
-        }
-        intervalsicuManager = new QNetworkAccessManager(this);
-
-        qDebug() << "Intervals.icu: Sending token exchange request to" << url;
-
-        QNetworkReply *reply = intervalsicuManager->post(request, data);
-
-        // Connect error signal to see what's happening
-        connect(reply, &QNetworkReply::errorOccurred, this, [](QNetworkReply::NetworkError error) {
-            qDebug() << "Intervals.icu: Network error occurred:" << error;
-        });
-
-        connect(reply, &QNetworkReply::sslErrors, this, [reply](const QList<QSslError> &errors) {
-            qDebug() << "Intervals.icu: SSL errors:";
-            for (const QSslError &error : errors) {
-                qDebug() << "  -" << error.errorString();
-            }
-            // Ignore SSL errors like Strava does
-            reply->ignoreSslErrors();
-        });
-
-        connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-            QByteArray response = reply->readAll();
-
-            // Check for network errors
-            if (reply->error() != QNetworkReply::NoError) {
-                qDebug() << "Intervals.icu: Network error:" << reply->error();
-                qDebug() << "Intervals.icu: Error string:" << reply->errorString();
-            }
-
-            int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-            qDebug() << "Intervals.icu: Token exchange status code:" << statusCode;
-
-            if (statusCode == 200) {
-                QJsonDocument jsonResponse = QJsonDocument::fromJson(response);
-                QJsonObject obj = jsonResponse.object();
-
-                QSettings settings;
-                if (obj.contains("access_token")) {
-                    QString accessToken = obj["access_token"].toString();
-                    settings.setValue(QZSettings::intervalsicu_accesstoken, accessToken);
-                    qDebug() << "Intervals.icu: Access token saved";
-
-                    if (obj.contains("refresh_token")) {
-                        QString refreshToken = obj["refresh_token"].toString();
-                        settings.setValue(QZSettings::intervalsicu_refreshtoken, refreshToken);
-                        qDebug() << "Intervals.icu: Refresh token saved";
-                    }
-
-                    if (obj.contains("athlete")) {
-                        QJsonObject athlete = obj["athlete"].toObject();
-                        QString athleteId = athlete["id"].toString();
-                        settings.setValue(QZSettings::intervalsicu_athlete_id, athleteId);
-                        intervalsicuAthleteId = athleteId;
-                        qDebug() << "Intervals.icu: Athlete ID saved:" << athleteId;
-                    }
-
-                    // Close WebView and show success popup
-                    intervalsicuAuthWebVisible = false;
-                    intervalsicuWebVisibleChanged(intervalsicuAuthWebVisible);
-                    setGeneralPopupVisible(true);
-
-                    qDebug() << "Intervals.icu: Authentication completed successfully";
-                } else {
-                    qDebug() << "Intervals.icu: No access_token in response";
-                    setToastRequested("Intervals.icu: Authentication failed");
-                }
-            } else {
-                qDebug() << "Intervals.icu: Token exchange failed with status" << statusCode;
-                setToastRequested(QString("Intervals.icu: Error %1").arg(statusCode));
-            }
-
-            reply->deleteLater();
-        });
-    }
-
-    if (values.contains("error")) {
-        QString error = values.value("error").toString();
-        QString errorDesc = values.value("error_description").toString();
-        qDebug() << "Intervals.icu: OAuth error:" << error << errorDesc;
-        setToastRequested("Intervals.icu error: " + error);
-    }
+    // This function is not connected anymore - Qt's automatic OAuth flow handles the token exchange
+    // Keeping it for potential future debugging
+    Q_UNUSED(values);
 }
 
 void homeform::replyDataReceivedIntervalsICU(const QByteArray &v) {
-    qDebug() << "Intervals.icu: replyDataReceived" << v;
-
-    QSettings settings;
-    QJsonDocument jsonResponse = QJsonDocument::fromJson(v);
-    QJsonObject obj = jsonResponse.object();
-
-    if (obj.contains("access_token")) {
-        QString accessToken = obj["access_token"].toString();
-        settings.setValue(QZSettings::intervalsicu_accesstoken, accessToken);
-        qDebug() << "Intervals.icu: Access token saved";
-
-        if (obj.contains("refresh_token")) {
-            QString refreshToken = obj["refresh_token"].toString();
-            settings.setValue(QZSettings::intervalsicu_refreshtoken, refreshToken);
-            qDebug() << "Intervals.icu: Refresh token saved";
-        }
-
-        if (obj.contains("athlete")) {
-            QJsonObject athlete = obj["athlete"].toObject();
-            QString athleteId = athlete["id"].toString();
-            settings.setValue(QZSettings::intervalsicu_athlete_id, athleteId);
-            qDebug() << "Intervals.icu: Athlete ID saved:" << athleteId;
-        }
-    }
+    // This function is not connected anymore - Qt's automatic OAuth flow handles the response
+    // Keeping it for potential future debugging
+    Q_UNUSED(v);
 }
 
 void homeform::intervalsicu_refreshtoken() {
