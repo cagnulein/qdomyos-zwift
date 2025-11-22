@@ -31,6 +31,7 @@ fakerower::fakerower(bool noWriteResistance, bool noHeartService, bool noVirtual
 
 void fakerower::update() {
     QSettings settings;
+    QDateTime now = QDateTime::currentDateTime();
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
@@ -42,6 +43,9 @@ void fakerower::update() {
             Cadence = 50 + (static_cast<double>(rand()) / RAND_MAX) * 50;
         else
             Cadence = 0;
+        StrokesCount += (Cadence.value()) *
+                        ((double)lastRefreshCharacteristicChanged.msecsTo(now)) / 60000;
+
         emit debug(QStringLiteral("writing power ") + QString::number(RequestedPower.value()));
         //requestPower = -1;
         // bepo70: Disregard the current inclination for calculating speed. When the video
@@ -56,7 +60,7 @@ void fakerower::update() {
 
     Distance += ((Speed.value() / (double)3600.0) /
                  ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice() && !noVirtualDevice
