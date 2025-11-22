@@ -22,10 +22,10 @@ using namespace std::chrono_literals;
 #define ZWIFT_DISABLED_OP(OP, DESC, UUID, MACHINE, P1, P2, P3)
 
 #define DM_MACHINE_OP(OP, P1, P2, P3)                                                                                  \
-    OP(WAHOO_KICKR, "Wahoo KICKR $uuid_hex$", DM_MACHINE_TYPE_TREADMILL | DM_MACHINE_TYPE_BIKE, P1, P2, P3)            \
-    OP(WAHOO_BLUEHR, "Wahoo HRM", DM_MACHINE_TYPE_BIKE | DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)                        \
-    OP(WAHOO_RPM_SPEED, "Wahoo SPEED $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)                                    \
-    OP(WAHOO_TREADMILL, "Wahoo TREAD $uuid_hex$", DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)
+    OP(WAHOO_KICKR, "ELITE AVANTI $uuid_hex$ W", DM_MACHINE_TYPE_TREADMILL | DM_MACHINE_TYPE_BIKE, P1, P2, P3)            \
+    OP(WAHOO_BLUEHR, "ELITE HRM", DM_MACHINE_TYPE_BIKE | DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)                        \
+    OP(WAHOO_RPM_SPEED, "ELITE SPEED $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)                                    \
+    OP(WAHOO_TREADMILL, "ELITE TREAD $uuid_hex$ W", DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)
 
 #define DP_PROCESS_WRITE_0003() (zwift_play_emulator ? writeP0003 : 0)
 #define DP_PROCESS_WRITE_2AD9() writeP2AD9
