@@ -334,9 +334,12 @@ double lockscreen::virtualtreadmill_getRequestedSpeed()
 
 bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, unsigned short currentCalories, qint32 currentSteps,  unsigned short elapsedSeconds, UInt8 deviceType)
 {
-    if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:0];
-    
+    if(workoutTracking != nil && !appleWatchAppInstalled()) {
+        // Convert inclination from int16 (centesimal) to double percentage
+        double inclinationPercentage = currentInclination / 100.0;
+        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:0 inclination:inclinationPercentage];
+    }
+
     if(_virtualtreadmill_zwift != nil)
         return [_virtualtreadmill_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt currentInclination:currentInclination currentDistance:currentDistance elapsedTimeSeconds:elapsedSeconds];
     return 0;
