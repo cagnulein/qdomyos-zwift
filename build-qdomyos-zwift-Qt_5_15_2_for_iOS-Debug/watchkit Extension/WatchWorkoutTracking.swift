@@ -462,18 +462,6 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         }
         healthStore.execute(query)
     }
-
-    // Update metrics and calculate flights climbed from elevation gain
-    func updateMetrics(distance: Double, elevationGain: Double) {
-        // Only calculate for walking/running (sport == 1 or 2)
-        // elevationGain is already calculated by QZ in meters
-        if (sport == 1 || sport == 2) && elevationGain > 0 {
-            // One flight = 10 feet = 3.048 meters
-            WorkoutTracking.flightsClimbed = elevationGain / 3.048
-            print("WatchWorkoutTracking: Flights climbed: \(WorkoutTracking.flightsClimbed) from elevation: \(elevationGain)m")
-        }
-        WorkoutTracking.distance = distance
-    }
 }
 
 extension WorkoutTracking: HKLiveWorkoutBuilderDelegate {

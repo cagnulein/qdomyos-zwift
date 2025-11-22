@@ -165,6 +165,12 @@ void lockscreen::setPower(double power)
 {
     [h setPowerWithPower:power];
 }
+
+void lockscreen::setElevationGain(double elevationGain)
+{
+    [h setElevationGainWithElevationGain:elevationGain];
+}
+
 void lockscreen::setCadence(double cadence)
 {
     [h setCadenceWithCadence:cadence];
