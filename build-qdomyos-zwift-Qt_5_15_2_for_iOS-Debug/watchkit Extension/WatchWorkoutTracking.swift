@@ -38,8 +38,6 @@ class WorkoutTracking: NSObject {
     public static var cadence = Double()
     public static var lastDateMetric = Date()
     public static var flightsClimbed = Double()
-    public static var inclination = Double()
-    public static var previousDistance = Double()
     var sport: Int = 0
     let healthStore = HKHealthStore()
     let configuration = HKWorkoutConfiguration()
@@ -213,7 +211,6 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         WorkoutTracking.lastDateMetric = Date()
         // Reset flights climbed for new workout
         WorkoutTracking.flightsClimbed = 0
-        WorkoutTracking.previousDistance = 0
         print("Start workout")
         configWorkout()
         workoutSession.startActivity(with: Date())
@@ -466,25 +463,16 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         healthStore.execute(query)
     }
 
-    // Update metrics and calculate flights climbed based on inclination and distance
-    func updateMetrics(distance: Double, inclination: Double) {
+    // Update metrics and calculate flights climbed from elevation gain
+    func updateMetrics(distance: Double, elevationGain: Double) {
         // Only calculate for walking/running (sport == 1 or 2)
-        if (sport == 1 || sport == 2) && inclination > 0 {
-            let distanceDelta = max(0, distance - WorkoutTracking.previousDistance)
-            if distanceDelta > 0 {
-                // Calculate vertical elevation gain in meters
-                // inclination is in percentage (e.g., 5.0 for 5%)
-                let inclinationRadians = atan(inclination / 100.0)
-                let verticalGainMeters = distanceDelta * sin(inclinationRadians)
-                // One flight = 10 feet = 3.048 meters
-                let flightsDelta = verticalGainMeters / 3.048
-                WorkoutTracking.flightsClimbed += flightsDelta
-                print("WatchWorkoutTracking: Flights climbed delta: \(flightsDelta), total: \(WorkoutTracking.flightsClimbed)")
-            }
+        // elevationGain is already calculated by QZ in meters
+        if (sport == 1 || sport == 2) && elevationGain > 0 {
+            // One flight = 10 feet = 3.048 meters
+            WorkoutTracking.flightsClimbed = elevationGain / 3.048
+            print("WatchWorkoutTracking: Flights climbed: \(WorkoutTracking.flightsClimbed) from elevation: \(elevationGain)m")
         }
-        WorkoutTracking.previousDistance = distance
         WorkoutTracking.distance = distance
-        WorkoutTracking.inclination = inclination
     }
 }
 

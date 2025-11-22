@@ -574,6 +574,7 @@ void virtualtreadmill::treadmillProvider() {
             swiftWatt,
             swiftInclination,
             swiftDistance,
+            ((treadmill *)treadMill)->elevationGain().value(),  // Use QZ's calculated elevation gain
             swiftCalories,
             swiftSteps,
             swiftElapsedTimeSeconds,

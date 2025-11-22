@@ -54,8 +54,9 @@ class lockscreen {
     double virtualtreadmill_getRequestedSpeed();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                      unsigned short currentCadence, unsigned short currentWatt,
-                                     unsigned short currentInclination, unsigned long long currentDistance, unsigned short currentCalories, 
-                                     qint32 currentSteps, unsigned short elapsedSeconds, unsigned char deviceType);
+                                     unsigned short currentInclination, unsigned long long currentDistance, double elevationGain,
+                                     unsigned short currentCalories, qint32 currentSteps, unsigned short elapsedSeconds,
+                                     unsigned char deviceType);
 
     // volume
     double getVolume();

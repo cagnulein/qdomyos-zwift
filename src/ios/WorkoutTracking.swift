@@ -398,7 +398,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         WorkoutTracking.workoutInProgress = false;
     }
     
-    @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double, steps: Double, deviceType: UInt8, distance: Double, totalKcal: Double, inclination: Double = 0) {
+    @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double, steps: Double, deviceType: UInt8, distance: Double, totalKcal: Double, elevationGain: Double = 0) {
         SwiftDebug.qtDebug("WorkoutTracking: GET DATA: \(Date())")
 
         if(WorkoutTracking.workoutInProgress == false && power > 0 && WorkoutTracking.firstWorkout) {
@@ -410,26 +410,18 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
 
         let Speed = speed / 100
         let previousSteps = WorkoutTracking.steps
-        let previousDistance = WorkoutTracking.distance
 
         WorkoutTracking.kcal = kcal
         WorkoutTracking.totalKcal = totalKcal
         WorkoutTracking.steps = steps
         WorkoutTracking.distance = distance
 
-        // Calculate flights climbed from inclination and distance for treadmill (sport == 0 or 1)
-        if (WorkoutTracking.sport == 0 || WorkoutTracking.sport == 1) && inclination > 0 {
-            let distanceDelta = max(0, distance - previousDistance)
-            if distanceDelta > 0 {
-                // Calculate vertical elevation gain in meters
-                // inclination is in percentage (e.g., 5.0 for 5%)
-                let inclinationRadians = atan(inclination / 100.0)
-                let verticalGainMeters = distanceDelta * sin(inclinationRadians)
-                // One flight = 10 feet = 3.048 meters
-                let flightsDelta = verticalGainMeters / 3.048
-                WorkoutTracking.flightsClimbed += flightsDelta
-                SwiftDebug.qtDebug("WorkoutTracking: Flights climbed delta: \(flightsDelta), total: \(WorkoutTracking.flightsClimbed)")
-            }
+        // Calculate flights climbed from elevation gain for treadmill (sport == 0 or 1)
+        // elevationGain is already calculated by QZ in meters
+        if (WorkoutTracking.sport == 0 || WorkoutTracking.sport == 1) && elevationGain > 0 {
+            // One flight = 10 feet = 3.048 meters
+            WorkoutTracking.flightsClimbed = elevationGain / 3.048
+            SwiftDebug.qtDebug("WorkoutTracking: Flights climbed: \(WorkoutTracking.flightsClimbed) from elevation: \(elevationGain)m")
         }
 
         if(WorkoutTracking.sport == 2) {
