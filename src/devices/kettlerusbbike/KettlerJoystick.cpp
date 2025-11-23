@@ -19,6 +19,7 @@
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
+#include <QAndroidJniEnvironment>
 #endif
 
 KettlerJoystick::KettlerJoystick(QObject *parent, QString deviceFilename) {
