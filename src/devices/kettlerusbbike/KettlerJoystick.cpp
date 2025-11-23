@@ -17,12 +17,16 @@
 #include "KettlerJoystick.h"
 #include <QThread>
 
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#endif
+
 KettlerJoystick::KettlerJoystick(QObject *parent, QString deviceFilename) {
     this->parent = parent;
     this->deviceFilename = deviceFilename;
 #ifdef WIN32
     devicePort = INVALID_HANDLE_VALUE;
-#else
+#elif !defined(Q_OS_ANDROID)
     devicePort = -1;
 #endif
 
@@ -43,7 +47,12 @@ void KettlerJoystick::setDevice(QString deviceFilename) {
 }
 
 int KettlerJoystick::openPort() {
-#ifdef WIN32
+#ifdef Q_OS_ANDROID
+    // Android implementation - joystick is already opened by discover()
+    qDebug() << "KettlerJoystick: Port opened (Android)";
+    return 0;
+
+#elif defined(WIN32)
     // Windows implementation
     devicePort = CreateFileA(deviceFilename.toStdString().c_str(),
                             GENERIC_READ | GENERIC_WRITE,
@@ -134,7 +143,11 @@ int KettlerJoystick::openPort() {
 }
 
 int KettlerJoystick::closePort() {
-#ifdef WIN32
+#ifdef Q_OS_ANDROID
+    // Call Java method to close the joystick port
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/UsbserialJoystick", "close", "()V");
+    qDebug() << "KettlerJoystick: Port closed (Android)";
+#elif defined(WIN32)
     if (devicePort != INVALID_HANDLE_VALUE) {
         CloseHandle(devicePort);
         devicePort = INVALID_HANDLE_VALUE;
@@ -151,6 +164,26 @@ int KettlerJoystick::closePort() {
 bool KettlerJoystick::discover(QString deviceFilename) {
     this->deviceFilename = deviceFilename;
 
+#ifdef Q_OS_ANDROID
+    // On Android, use Java method to discover joystick
+    // The bike device is assumed to be at index 0 (first device)
+    // Try to find joystick at index 1 or higher
+    bool found = QAndroidJniObject::callStaticMethod<jboolean>(
+        "org/cagnulen/qdomyoszwift/UsbserialJoystick",
+        "discover",
+        "(Landroid/content/Context;I)Z",
+        QtAndroid::androidContext().object(),
+        0  // Skip device index 0 (bike device)
+    );
+
+    if (found) {
+        qDebug() << "KettlerJoystick: Device discovered successfully (Android)";
+    } else {
+        qDebug() << "KettlerJoystick: No joystick device found (Android)";
+    }
+    return found;
+
+#else
     if (openPort() != 0) {
         return false;
     }
@@ -175,17 +208,46 @@ bool KettlerJoystick::discover(QString deviceFilename) {
     closePort();
     qDebug() << "KettlerJoystick: Device discovered successfully:" << deviceFilename;
     return true;
+#endif
 }
 
 void KettlerJoystick::checkButtonStates() {
-#ifdef WIN32
+    bool currentStates[4];
+
+#ifdef Q_OS_ANDROID
+    // Call Java method to get control lines state
+    QAndroidJniObject linesArray = QAndroidJniObject::callStaticObjectMethod(
+        "org/cagnulen/qdomyoszwift/UsbserialJoystick",
+        "getControlLines",
+        "()[Z"
+    );
+
+    if (!linesArray.isValid()) {
+        return;
+    }
+
+    QAndroidJniEnvironment env;
+    jbooleanArray jArray = linesArray.object<jbooleanArray>();
+    jboolean* lines = env->GetBooleanArrayElements(jArray, nullptr);
+
+    if (lines != nullptr) {
+        currentStates[KETTLER_JOY_LEFT_ARROW] = lines[0];  // DCD
+        currentStates[KETTLER_JOY_RIGHT_ARROW] = lines[1]; // CTS
+        currentStates[KETTLER_JOY_DOWN_ARROW] = lines[2];  // DSR
+        currentStates[KETTLER_JOY_UP_ARROW] = lines[3];    // RI (RING)
+
+        env->ReleaseBooleanArrayElements(jArray, lines, JNI_ABORT);
+    } else {
+        return;
+    }
+
+#elif defined(WIN32)
     DWORD modemStatus;
     if (!GetCommModemStatus(devicePort, &modemStatus)) {
         return;
     }
 
     // Map Windows modem status bits to button states
-    bool currentStates[4];
     currentStates[KETTLER_JOY_LEFT_ARROW] = (modemStatus & MS_RLSD_ON) != 0;  // DCD (RLSD)
     currentStates[KETTLER_JOY_RIGHT_ARROW] = (modemStatus & MS_CTS_ON) != 0;  // CTS
     currentStates[KETTLER_JOY_DOWN_ARROW] = (modemStatus & MS_DSR_ON) != 0;   // DSR
@@ -198,7 +260,6 @@ void KettlerJoystick::checkButtonStates() {
     }
 
     // Map Linux modem control lines to button states
-    bool currentStates[4];
     currentStates[KETTLER_JOY_LEFT_ARROW] = (status & TIOCM_CD) != 0;   // DCD
     currentStates[KETTLER_JOY_RIGHT_ARROW] = (status & TIOCM_CTS) != 0; // CTS
     currentStates[KETTLER_JOY_DOWN_ARROW] = (status & TIOCM_DSR) != 0;  // DSR
