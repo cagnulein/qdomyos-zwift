@@ -56,6 +56,27 @@ kettlerusbbike::kettlerusbbike(bool noWriteResistance, bool noHeartService, int8
 
     ergModeSupported = true; // ERG mode supported
 
+    // Try to discover joystick on adjacent serial ports
+    QStringList possibleJoystickPorts = getAdjacentSerialPorts(kettlerSerialPort);
+    for (const QString &port : possibleJoystickPorts) {
+        qDebug() << "Trying to discover Kettler joystick on:" << port;
+        myJoystick = new KettlerJoystick(this, port);
+        if (myJoystick->discover(port)) {
+            qDebug() << "Kettler joystick found on:" << port;
+            // Connect joystick signals to gear functions
+            connect(myJoystick, &KettlerJoystick::buttonPressed, this, &kettlerusbbike::handleJoystickButton);
+            myJoystick->start();
+            break;
+        } else {
+            delete myJoystick;
+            myJoystick = nullptr;
+        }
+    }
+
+    if (!myJoystick) {
+        qDebug() << "Kettler joystick not found (this is optional)";
+    }
+
     initRequest = true;
 
     // ******************************************* virtual bike init *************************************
@@ -276,4 +297,119 @@ bool kettlerusbbike::connected() {
 
 uint16_t kettlerusbbike::watts() {
     return m_watt.value();
+}
+
+QStringList kettlerusbbike::getAdjacentSerialPorts(const QString &basePort) {
+    QStringList ports;
+
+    if (basePort.isEmpty()) {
+        return ports;
+    }
+
+#ifdef Q_OS_ANDROID
+    // On Android, USB serial devices are typically /dev/ttyUSBx
+    // Try adjacent ports (0-9)
+    if (basePort.startsWith("/dev/ttyUSB")) {
+        QString baseName = "/dev/ttyUSB";
+        for (int i = 0; i < 10; i++) {
+            QString port = baseName + QString::number(i);
+            if (port != basePort) {
+                ports.append(port);
+            }
+        }
+    }
+#elif defined(WIN32)
+    // On Windows, COM ports are COMx
+    if (basePort.startsWith("COM")) {
+        QString numStr = basePort.mid(3);
+        bool ok;
+        int baseNum = numStr.toInt(&ok);
+        if (ok) {
+            // Try adjacent COM ports (±5)
+            for (int offset = 1; offset <= 5; offset++) {
+                if (baseNum + offset <= 256) {
+                    ports.append("COM" + QString::number(baseNum + offset));
+                }
+                if (baseNum - offset >= 1) {
+                    ports.append("COM" + QString::number(baseNum - offset));
+                }
+            }
+        }
+    }
+#else
+    // On Linux/Mac, serial devices are typically /dev/ttyUSBx, /dev/ttyACMx, /dev/cu.*
+    if (basePort.startsWith("/dev/ttyUSB")) {
+        QString baseName = "/dev/ttyUSB";
+        QString numStr = basePort.mid(baseName.length());
+        bool ok;
+        int baseNum = numStr.toInt(&ok);
+        if (ok) {
+            // Try adjacent ttyUSB ports (±5)
+            for (int offset = 1; offset <= 5; offset++) {
+                if (baseNum + offset >= 0) {
+                    ports.append(baseName + QString::number(baseNum + offset));
+                }
+                if (baseNum - offset >= 0) {
+                    ports.append(baseName + QString::number(baseNum - offset));
+                }
+            }
+        }
+    } else if (basePort.startsWith("/dev/ttyACM")) {
+        QString baseName = "/dev/ttyACM";
+        QString numStr = basePort.mid(baseName.length());
+        bool ok;
+        int baseNum = numStr.toInt(&ok);
+        if (ok) {
+            // Try adjacent ttyACM ports (±5)
+            for (int offset = 1; offset <= 5; offset++) {
+                if (baseNum + offset >= 0) {
+                    ports.append(baseName + QString::number(baseNum + offset));
+                }
+                if (baseNum - offset >= 0) {
+                    ports.append(baseName + QString::number(baseNum - offset));
+                }
+            }
+        }
+    }
+#ifdef Q_OS_MACX
+    else if (basePort.startsWith("/dev/cu.")) {
+        // On macOS, try other cu.* devices
+        // This is a simplified approach - in production you'd enumerate /dev/
+        for (int i = 0; i < 10; i++) {
+            QString port = QString("/dev/cu.usbserial-%1").arg(i);
+            if (port != basePort) {
+                ports.append(port);
+            }
+        }
+    }
+#endif
+#endif
+
+    return ports;
+}
+
+void kettlerusbbike::handleJoystickButton(int button) {
+    qDebug() << "Kettler joystick button pressed:" << button;
+
+    switch (button) {
+        case KETTLER_JOY_UP_ARROW:
+            qDebug() << "Gear UP triggered by joystick";
+            gearUp();
+            break;
+        case KETTLER_JOY_DOWN_ARROW:
+            qDebug() << "Gear DOWN triggered by joystick";
+            gearDown();
+            break;
+        case KETTLER_JOY_LEFT_ARROW:
+            qDebug() << "Left arrow pressed (not mapped)";
+            // Future: could be used for other functions
+            break;
+        case KETTLER_JOY_RIGHT_ARROW:
+            qDebug() << "Right arrow pressed (not mapped)";
+            // Future: could be used for other functions
+            break;
+        default:
+            qDebug() << "Unknown joystick button:" << button;
+            break;
+    }
 }

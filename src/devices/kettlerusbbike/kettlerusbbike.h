@@ -37,6 +37,7 @@
 #include <QString>
 
 #include "KettlerUSB.h"
+#include "KettlerJoystick.h"
 #include "devices/bike.h"
 #include "virtualdevices/virtualbike.h"
 
@@ -62,6 +63,7 @@ class kettlerusbbike : public bike {
     uint16_t watts() override;
     void forceResistance(double requestResistance);
     void innerWriteResistance();
+    QStringList getAdjacentSerialPorts(const QString &basePort);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
@@ -80,6 +82,7 @@ class kettlerusbbike : public bike {
     bool noHeartService = false;
 
     KettlerUSB *myKettler = nullptr;
+    KettlerJoystick *myJoystick = nullptr;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
@@ -94,6 +97,7 @@ class kettlerusbbike : public bike {
 
   private slots:
     void update();
+    void handleJoystickButton(int button);
 };
 
 #endif // KETTLERUSBBIKE_H
