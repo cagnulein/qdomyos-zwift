@@ -2975,7 +2975,7 @@ void bluetooth::connectedAndDiscovered() {
 #else
                     settings.setValue(QZSettings::speed_sensor_address, b.deviceUuid().toString());
 #endif
-                    speedSensor = new cscbike(false, false, true);
+                    speedSensor = new cscbike(false, false, true, true); // isSpeedSensor = true
                     // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                     connect(speedSensor, &cscbike::debug, this, &bluetooth::debug);

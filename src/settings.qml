@@ -1219,6 +1219,7 @@ import Qt.labs.platform 1.1
             property bool nordictrack_se7i: false
             property string speed_sensor_name: "Disabled"
             property bool speed_sensor_as_bike: false
+            property double speed_sensor_wheel_circumference: 2000.0
         }
 
 
@@ -10813,6 +10814,28 @@ import Qt.labs.platform 1.1
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.speed_sensor_name = speedSensorNameTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Speed Sensor Wheel Circumference (mm):")
+                                Layout.fillWidth: true
+                            }
+                            RowLayout {
+                                spacing: 10
+                                TextField {
+                                    id: speedSensorWheelCircumferenceTextField
+                                    text: settings.speed_sensor_wheel_circumference
+                                    placeholderText: qsTr("2000")
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    Layout.fillHeight: false
+                                    Layout.fillWidth: true
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.speed_sensor_wheel_circumference = parseFloat(speedSensorWheelCircumferenceTextField.text); toast.show("Setting saved!"); }
                                 }
                             }
 

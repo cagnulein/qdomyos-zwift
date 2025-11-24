@@ -16,13 +16,14 @@
 
 using namespace std::chrono_literals;
 
-cscbike::cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
+cscbike::cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, bool isSpeedSensor) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     this->noVirtualDevice = noVirtualDevice;
+    this->isSpeedSensor = isSpeedSensor;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &cscbike::update);
     refresh->start(200ms);
@@ -205,6 +206,34 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         _LastCrankEventTime =
             (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
         emit debug(QStringLiteral("Current Crank Event Time: ") + QString::number(_LastCrankEventTime));
+    }
+
+    // Speed sensor mode: calculate speed from wheel revolutions
+    if (isSpeedSensor && WheelPresent && _WheelRevs > 0) {
+        int16_t deltaWheelTime = _LastWheelEventTime - oldLastWheelEventTime;
+        if (deltaWheelTime < 0) {
+            deltaWheelTime = _LastWheelEventTime + 65536 - oldLastWheelEventTime;
+        }
+
+        if (deltaWheelTime > 0 && _WheelRevs != oldWheelRevs) {
+            double wheelCircumference = settings.value(QZSettings::speed_sensor_wheel_circumference,
+                                                        QZSettings::default_speed_sensor_wheel_circumference).toDouble();
+            // Calculate speed: revs/time * time_unit * circumference
+            // deltaTime is in 1/1024 second units
+            // wheelCircumference is in millimeters
+            double revsDelta = _WheelRevs - oldWheelRevs;
+            double speed_m_s = (revsDelta / deltaWheelTime) * 1024.0 * (wheelCircumference / 1000.0);
+            double speed = speed_m_s * 3.6; // convert m/s to km/h
+
+            Speed = speed;
+            emit debug(QStringLiteral("Speed Sensor - Wheel Revs Delta: ") + QString::number(revsDelta) +
+                      QStringLiteral(" Time Delta: ") + QString::number(deltaWheelTime) +
+                      QStringLiteral(" Speed: ") + QString::number(speed));
+            emit speedChanged(Speed.value());
+        }
+
+        oldLastWheelEventTime = _LastWheelEventTime;
+        oldWheelRevs = _WheelRevs;
     }
 
     if ((!CrankPresent || _CrankRevs == 0) && WheelPresent) {

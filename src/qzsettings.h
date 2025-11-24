@@ -875,6 +875,9 @@ class QZSettings {
     static const QString speed_sensor_as_bike;
     static constexpr bool default_speed_sensor_as_bike = false;
 
+    static const QString speed_sensor_wheel_circumference;
+    static constexpr double default_speed_sensor_wheel_circumference = 2000.0; // mm
+
     static const QString power_hr_pwr1;
     static constexpr float default_power_hr_pwr1 = 200;
 
