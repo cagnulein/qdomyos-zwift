@@ -1217,6 +1217,9 @@ import Qt.labs.platform 1.1
             property bool iconcept_ftms_treadmill_inclination_table: false
             property bool skandika_wiri_x2000_protocol: true
             property bool nordictrack_series_7: false
+            property string kettler_usb_serialport: ""			
+            property int kettler_usb_baudrate: 9600
+            property bool nordictrack_se7i: false
         }
 
 
@@ -4333,6 +4336,67 @@ import Qt.labs.platform 1.1
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: { settings.computrainer_serialport = computrainerSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            }
+                        }
+                    }
+
+
+                    AccordionElement {
+                        id: kettlerUsbBikeAccordion
+                        title: qsTr("Kettler USB Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelKettlerUsbSerialPort
+                                text: qsTr("Serial Port:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: kettlerUsbSerialPortTextField
+                                text: settings.kettler_usb_serialport
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onAccepted: settings.kettler_usb_serialport = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okKettlerUsbSerialPortButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.kettler_usb_serialport = kettlerUsbSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelKettlerUsbBaudrate
+                                text: qsTr("Baudrate:")
+                                Layout.fillWidth: true
+                            }
+                            ComboBox {
+                                id: kettlerUsbBaudrateComboBox
+                                model: [ "9600", "57600" ]
+                                displayText: settings.kettler_usb_baudrate.toString()
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    console.log("kettler baudrate combobox activated" + kettlerUsbBaudrateComboBox.currentIndex)
+                                    displayText = kettlerUsbBaudrateComboBox.currentValue
+                                }
+                            }
+                            Button {
+                                id: okKettlerUsbBaudrateButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: {
+                                    settings.kettler_usb_baudrate = parseInt(kettlerUsbBaudrateComboBox.displayText);
+                                    window.settings_restart_to_apply = true;
+                                    toast.show("Setting saved!");
+                                }
                             }
                         }
                     }
@@ -9316,6 +9380,19 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.nordictrack_elliptical_c7_5 = checked; window.settings_restart_to_apply = true; }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("NordicTrack Elliptical SE7i")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.nordictrack_se7i
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.nordictrack_se7i = checked; window.settings_restart_to_apply = true; }
                             }
                             RowLayout {
                                 spacing: 10

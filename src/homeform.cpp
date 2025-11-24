@@ -6153,7 +6153,7 @@ void homeform::update() {
                 QString::number(((elliptical *)bluetoothManager->device())->lastRequestedResistance().value(), 'f', 0));
             this->target_peloton_resistance->setValue(QString::number(
                 ((elliptical *)bluetoothManager->device())->lastRequestedPelotonResistance().value(), 'f', 0));
-            this->resistance->setValue(QString::number(resistance));
+            this->resistance->setValue(QString::number(resistance, 'f', 0));
             this->peloton_resistance->setSecondLine(
                 QStringLiteral("AVG: ") +
                 QString::number(((elliptical *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
