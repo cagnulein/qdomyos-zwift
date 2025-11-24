@@ -113,6 +113,7 @@ class horizontreadmill : public treadmill {
     bool T3G_PRO = false;
     bool T3G_ELITE = false;
     bool TP1 = false;
+    bool T01 = false;
 
     void testProfileCRC();
     void updateProfileCRC();
