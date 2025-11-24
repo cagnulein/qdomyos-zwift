@@ -66,6 +66,12 @@ class nordictrackifitadbtreadmillLogcatAdbThread : public QThread {
 class nordictrackifitadbtreadmill : public treadmill {
     Q_OBJECT
   public:
+    enum RequestOrigin {
+        ORIGIN_USER,     // User initiated action
+        ORIGIN_GRPC,     // Action from gRPC/iFit app
+        ORIGIN_INTERNAL  // Internal app logic
+    };
+
     nordictrackifitadbtreadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
     bool canStartStop() override;
@@ -117,6 +123,11 @@ class nordictrackifitadbtreadmill : public treadmill {
     bool grpcInitialized = false;
     int previousWorkoutState = 1; // WORKOUT_STATE_IDLE
     bool proform_trainer_9_0 = false;
+
+    // Track origin of stop/pause/start requests to prevent echoing gRPC events
+    RequestOrigin requestStartOrigin = ORIGIN_USER;
+    RequestOrigin requestStopOrigin = ORIGIN_USER;
+    RequestOrigin requestPauseOrigin = ORIGIN_USER;
 
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;

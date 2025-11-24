@@ -665,8 +665,8 @@ void nordictrackifitadbtreadmill::update() {
         emit debug(QStringLiteral("starting..."));
 
 #ifdef Q_OS_ANDROID
-        // Start or Resume workout via gRPC WorkoutService
-        if (grpcInitialized) {
+        // Start or Resume workout via gRPC WorkoutService (only if not originated from gRPC)
+        if (grpcInitialized && requestStartOrigin != ORIGIN_GRPC) {
             if (isPaused()) {
                 // Resume from pause
                 QAndroidJniObject::callStaticMethod<void>(
@@ -684,6 +684,8 @@ void nordictrackifitadbtreadmill::update() {
                 );
                 emit debug("Started workout via gRPC WorkoutService");
             }
+        } else if (requestStartOrigin == ORIGIN_GRPC) {
+            emit debug("Skipping gRPC start/resumeWorkout (originated from gRPC event)");
         }
 #endif
 
@@ -711,42 +713,49 @@ void nordictrackifitadbtreadmill::update() {
         }
 
         requestStart = -1;
+        requestStartOrigin = ORIGIN_USER; // Reset to default
         emit tapeStarted();
     }
     if (requestStop != -1) {
         emit debug(QStringLiteral("stopping..."));
 
 #ifdef Q_OS_ANDROID
-        // Stop workout via gRPC WorkoutService
-        if (grpcInitialized) {
+        // Stop workout via gRPC WorkoutService (only if not originated from gRPC)
+        if (grpcInitialized && requestStopOrigin != ORIGIN_GRPC) {
             QAndroidJniObject::callStaticMethod<void>(
                 "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
                 "stopWorkout",
                 "()V"
             );
             emit debug("Stopped workout via gRPC WorkoutService");
+        } else if (requestStopOrigin == ORIGIN_GRPC) {
+            emit debug("Skipping gRPC stopWorkout (originated from gRPC event)");
         }
 #endif
 
         requestStop = -1;
+        requestStopOrigin = ORIGIN_USER; // Reset to default
     }
 
     if (requestPause != -1) {
         emit debug(QStringLiteral("pausing..."));
 
 #ifdef Q_OS_ANDROID
-        // Pause workout via gRPC WorkoutService
-        if (grpcInitialized) {
+        // Pause workout via gRPC WorkoutService (only if not originated from gRPC)
+        if (grpcInitialized && requestPauseOrigin != ORIGIN_GRPC) {
             QAndroidJniObject::callStaticMethod<void>(
                 "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
                 "pauseWorkout",
                 "()V"
             );
             emit debug("Paused workout via gRPC WorkoutService");
+        } else if (requestPauseOrigin == ORIGIN_GRPC) {
+            emit debug("Skipping gRPC pauseWorkout (originated from gRPC event)");
         }
 #endif
 
         requestPause = -1;
+        requestPauseOrigin = ORIGIN_USER; // Reset to default
     }
 
 #ifdef Q_OS_ANDROID
@@ -808,20 +817,29 @@ void nordictrackifitadbtreadmill::update() {
             // If workout started (IDLE/PAUSED -> RUNNING)
             if (currentWorkoutState == 3 && (previousWorkoutState == 1 || previousWorkoutState == 4)) {
                 emit debug("Workout started in iFit app - auto-starting QZ recording");
-                if (homeform::singleton())
+                if (homeform::singleton()) {
+                    requestStartOrigin = ORIGIN_GRPC;
+                    requestStopOrigin = ORIGIN_GRPC;
+                    requestPauseOrigin = ORIGIN_GRPC;
                     homeform::singleton()->Start();
+                }
             }
             // If workout stopped (RUNNING -> IDLE)
             else if (currentWorkoutState == 1 && previousWorkoutState == 3) {
                 emit debug("Workout stopped in iFit app - auto-stopping QZ recording");
-                if (homeform::singleton())
+                if (homeform::singleton()) {
+                    requestStopOrigin = ORIGIN_GRPC;
                     homeform::singleton()->Stop();
+                }
             }
             // If workout paused (RUNNING -> PAUSED)
             else if (currentWorkoutState == 4 && previousWorkoutState == 3) {
                 emit debug("Workout paused in iFit app - auto-pausing QZ recording");
-                if (homeform::singleton())
+                if (homeform::singleton()) {
+                    requestStopOrigin = ORIGIN_GRPC;
+                    requestPauseOrigin = ORIGIN_GRPC;
                     homeform::singleton()->Start();
+                }
             }
 
             previousWorkoutState = currentWorkoutState;
