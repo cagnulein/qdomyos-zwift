@@ -1214,9 +1214,11 @@ import Qt.labs.platform 1.1
             property bool iconcept_ftms_treadmill_inclination_table: false
             property bool skandika_wiri_x2000_protocol: true
             property bool nordictrack_series_7: false
-            property string kettler_usb_serialport: ""			
+            property string kettler_usb_serialport: ""
             property int kettler_usb_baudrate: 9600
             property bool nordictrack_se7i: false
+            property string speed_sensor_name: "Disabled"
+            property bool speed_sensor_as_bike: false
         }
 
 
@@ -5666,7 +5668,7 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }                    
+                    }
 
                     IndicatorOnlySwitch {
                         text: qsTr("Auto Start (with intro)")
@@ -10723,6 +10725,106 @@ import Qt.labs.platform 1.1
 
                             Label {
                                 text: qsTr("Enable special wattage calculation for Rogue Echo Bike: m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404. Default is off.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }
+
+                    AccordionElement {
+                        id: speedSensorOptionsAccordion
+                        title: qsTr("Speed Sensor Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+
+                            Label {
+                                id: speedSensorLabel
+                                text: qsTr("Don't touch these settings if your bike works properly!")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                color: Material.color(Material.Red)
+                                Layout.fillWidth: true
+                            }
+
+                            IndicatorOnlySwitch {
+                                id: speedSensorAsBikeDelegate
+                                text: qsTr("Speed Sensor as a Bike")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.speed_sensor_as_bike
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.speed_sensor_as_bike = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("If your bike doesn't have Bluetooth, this setting allows you to use a speed sensor so your bike will work with QZ. Default is off.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            Label {
+                                id: labelSpeedSensorName
+                                text: qsTr("Speed Sensor:")
+                                Layout.fillWidth: true
+                            }
+                            RowLayout {
+                                spacing: 10
+                                ComboBox {
+                                    id: speedSensorNameTextField
+                                    model: rootItem.bluetoothDevices
+                                    displayText: settings.speed_sensor_name
+                                    Layout.fillHeight: false
+                                    Layout.fillWidth: true
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onActivated: {
+                                        console.log("combomodel activated" + speedSensorNameTextField.currentIndex)
+                                        displayText = speedSensorNameTextField.currentValue
+                                    }
+
+                                }
+                                Button {
+                                    id: okSpeedSensorNameButton
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.speed_sensor_name = speedSensorNameTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Button {
+                                id: refreshSpeedSensorNameButton
+                                text: "Refresh Devices List"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: refresh_bluetooth_devices_clicked();
+                            }
+
+                            Label {
+                                text: qsTr("Use this setting to connect QZ to your speed sensor. Default is Disabled.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2

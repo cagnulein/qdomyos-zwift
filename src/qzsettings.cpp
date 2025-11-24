@@ -20,6 +20,10 @@ const QString QZSettings::csc_sensor_address = QStringLiteral("csc_sensor_addres
 const QString QZSettings::default_csc_sensor_address = QStringLiteral("");
 const QString QZSettings::csc_sensor_lastdevice_name = QStringLiteral("csc_sensor_lastdevice_name");
 const QString QZSettings::default_csc_sensor_lastdevice_name = QStringLiteral("");
+const QString QZSettings::speed_sensor_address = QStringLiteral("speed_sensor_address");
+const QString QZSettings::default_speed_sensor_address = QStringLiteral("");
+const QString QZSettings::speed_sensor_lastdevice_name = QStringLiteral("speed_sensor_lastdevice_name");
+const QString QZSettings::default_speed_sensor_lastdevice_name = QStringLiteral("");
 const QString QZSettings::power_sensor_lastdevice_name = QStringLiteral("power_sensor_lastdevice_name");
 const QString QZSettings::default_power_sensor_lastdevice_name = QStringLiteral("");
 const QString QZSettings::power_sensor_address = QStringLiteral("power_sensor_address");
@@ -282,6 +286,9 @@ const QString QZSettings::cadence_sensor_name = QStringLiteral("cadence_sensor_n
 const QString QZSettings::default_cadence_sensor_name = QStringLiteral("Disabled");
 const QString QZSettings::cadence_sensor_as_bike = QStringLiteral("cadence_sensor_as_bike");
 const QString QZSettings::cadence_sensor_speed_ratio = QStringLiteral("cadence_sensor_speed_ratio");
+const QString QZSettings::speed_sensor_name = QStringLiteral("speed_sensor_name");
+const QString QZSettings::default_speed_sensor_name = QStringLiteral("Disabled");
+const QString QZSettings::speed_sensor_as_bike = QStringLiteral("speed_sensor_as_bike");
 const QString QZSettings::power_hr_pwr1 = QStringLiteral("power_hr_pwr1");
 const QString QZSettings::power_hr_hr1 = QStringLiteral("power_hr_hr1");
 const QString QZSettings::power_hr_pwr2 = QStringLiteral("power_hr_pwr2");
@@ -996,7 +1003,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 815;
+const uint32_t allSettingsCount = 819;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1010,6 +1017,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ftms_accessory_lastdevice_name, QZSettings::default_ftms_accessory_lastdevice_name},
     {QZSettings::csc_sensor_address, QZSettings::default_csc_sensor_address},
     {QZSettings::csc_sensor_lastdevice_name, QZSettings::default_csc_sensor_lastdevice_name},
+    {QZSettings::speed_sensor_address, QZSettings::default_speed_sensor_address},
+    {QZSettings::speed_sensor_lastdevice_name, QZSettings::default_speed_sensor_lastdevice_name},
     {QZSettings::power_sensor_lastdevice_name, QZSettings::default_power_sensor_lastdevice_name},
     {QZSettings::power_sensor_address, QZSettings::default_power_sensor_address},
     {QZSettings::elite_rizer_lastdevice_name, QZSettings::default_elite_rizer_lastdevice_name},
@@ -1235,6 +1244,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name},
     {QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike},
     {QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio},
+    {QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name},
+    {QZSettings::speed_sensor_as_bike, QZSettings::default_speed_sensor_as_bike},
     {QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1},
     {QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1},
     {QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2},

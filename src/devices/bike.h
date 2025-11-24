@@ -62,6 +62,7 @@ class bike : public bluetoothdevice {
     virtual void changeRequestedPelotonResistance(int8_t resistance);
     void cadenceSensor(uint8_t cadence) override;
     void powerSensor(uint16_t power) override;
+    void speedSensor(double speed) override;
     void changeInclination(double grade, double percentage) override;
     virtual void changeSteeringAngle(double angle) { m_steeringAngle = angle; }
     virtual void resistanceFromFTMSAccessory(resistance_t res) { Q_UNUSED(res); }

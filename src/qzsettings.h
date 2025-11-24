@@ -52,6 +52,12 @@ class QZSettings {
     static const QString csc_sensor_lastdevice_name;
     static const QString default_csc_sensor_lastdevice_name;
 
+    static const QString speed_sensor_address;
+    static const QString default_speed_sensor_address;
+
+    static const QString speed_sensor_lastdevice_name;
+    static const QString default_speed_sensor_lastdevice_name;
+
     static const QString power_sensor_lastdevice_name;
     static const QString default_power_sensor_lastdevice_name;
 
@@ -862,6 +868,12 @@ class QZSettings {
 
     static const QString cadence_sensor_speed_ratio;
     static constexpr float default_cadence_sensor_speed_ratio = 0.33;
+
+    static const QString speed_sensor_name;
+    static const QString default_speed_sensor_name;
+
+    static const QString speed_sensor_as_bike;
+    static constexpr bool default_speed_sensor_as_bike = false;
 
     static const QString power_hr_pwr1;
     static constexpr float default_power_hr_pwr1 = 200;

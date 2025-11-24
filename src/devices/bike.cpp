@@ -210,6 +210,7 @@ resistance_t bike::pelotonToBikeResistance(int pelotonResistance) { return pelot
 resistance_t bike::resistanceFromPowerRequest(uint16_t power) { return power / 10; } // in order to have something
 void bike::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 void bike::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
+void bike::speedSensor(double speed) { Speed.setValue(speed); }
 
 BLUETOOTH_TYPE bike::deviceType() { return BIKE; }
 
