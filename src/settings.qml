@@ -4315,6 +4315,8 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+												accordionContent: ColumnLayout {
+                            spacing: 0
                         RowLayout {
                             spacing: 10
                             Label {
@@ -4368,6 +4370,7 @@ import Qt.labs.platform 1.1
                             }
                         }
                     }
+										}
 
 
                     AccordionElement {
