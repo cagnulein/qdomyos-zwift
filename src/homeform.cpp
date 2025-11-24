@@ -6143,8 +6143,8 @@ void homeform::update() {
                 QStringLiteral(" MAX: ") +
                 ((elliptical *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
-            resistance = ((elliptical *)bluetoothManager->device())->currentResistance().value();
-            peloton_resistance = ((elliptical *)bluetoothManager->device())->pelotonResistance().value();
+            resistance = QString::number(((elliptical *)bluetoothManager->device())->currentResistance().value(), 'f', 0);
+            peloton_resistance = QString::number(((elliptical *)bluetoothManager->device())->pelotonResistance().value(), 'f', 0);
             this->peloton_resistance->setValue(QString::number(peloton_resistance, 'f', 0));
             this->target_resistance->setValue(
                 QString::number(((elliptical *)bluetoothManager->device())->lastRequestedResistance().value(), 'f', 0));
