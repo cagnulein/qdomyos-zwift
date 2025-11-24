@@ -1214,8 +1214,9 @@ import Qt.labs.platform 1.1
             property bool iconcept_ftms_treadmill_inclination_table: false
             property bool skandika_wiri_x2000_protocol: true
             property bool nordictrack_series_7: false
-            property string kettler_usb_serialport: ""
-			property bool nordictrack_se7i: false
+            property string kettler_usb_serialport: ""			
+            property int kettler_usb_baudrate: 9600
+            property bool nordictrack_se7i: false
         }
 
 
@@ -4335,6 +4336,35 @@ import Qt.labs.platform 1.1
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: { settings.kettler_usb_serialport = kettlerUsbSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelKettlerUsbBaudrate
+                                text: qsTr("Baudrate:")
+                                Layout.fillWidth: true
+                            }
+                            ComboBox {
+                                id: kettlerUsbBaudrateComboBox
+                                model: [ "9600", "57600" ]
+                                displayText: settings.kettler_usb_baudrate.toString()
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    console.log("kettler baudrate combobox activated" + kettlerUsbBaudrateComboBox.currentIndex)
+                                    displayText = kettlerUsbBaudrateComboBox.currentValue
+                                }
+                            }
+                            Button {
+                                id: okKettlerUsbBaudrateButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: {
+                                    settings.kettler_usb_baudrate = parseInt(kettlerUsbBaudrateComboBox.displayText);
+                                    window.settings_restart_to_apply = true;
+                                    toast.show("Setting saved!");
+                                }
                             }
                         }
                     }

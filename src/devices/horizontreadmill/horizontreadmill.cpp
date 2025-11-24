@@ -2574,6 +2574,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("HORIZON_7.8AT workaround ON!");
         } else if(device.name().toUpper().startsWith("T01_")) {
             QSettings settings;
+            T01 = true;
             iconcept_ftms_treadmill_inclination_table = settings.value(QZSettings::iconcept_ftms_treadmill_inclination_table, QZSettings::default_iconcept_ftms_treadmill_inclination_table).toBool();
             if(iconcept_ftms_treadmill_inclination_table) {
                 ICONCEPT_FTMS_treadmill = true;
@@ -3333,7 +3334,7 @@ void horizontreadmill::testProfileCRC() {
 double horizontreadmill::minStepInclination() {
     QSettings settings;
     bool toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
-    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill || SW_TREADMILL || sole_s77_treadmill || FIT || T3G_PRO || T3G_ELITE)
+    if (kettler_treadmill || T01 || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill || SW_TREADMILL || sole_s77_treadmill || FIT || T3G_PRO || T3G_ELITE)
         return 1.0;
     else
         return 0.5;
