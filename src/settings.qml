@@ -1214,8 +1214,9 @@ import Qt.labs.platform 1.1
             property bool iconcept_ftms_treadmill_inclination_table: false
             property bool skandika_wiri_x2000_protocol: true
             property bool nordictrack_series_7: false
-            property string kettler_usb_serialport: ""
+            property string kettler_usb_serialport: ""			
             property int kettler_usb_baudrate: 9600
+            property bool nordictrack_se7i: false
         }
 
 
@@ -9347,6 +9348,19 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.nordictrack_elliptical_c7_5 = checked; window.settings_restart_to_apply = true; }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("NordicTrack Elliptical SE7i")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.nordictrack_se7i
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.nordictrack_se7i = checked; window.settings_restart_to_apply = true; }
                             }
                             RowLayout {
                                 spacing: 10
