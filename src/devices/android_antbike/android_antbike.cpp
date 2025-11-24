@@ -41,7 +41,9 @@ void android_antbike::update() {
         Speed = metric::calculateSpeedFromPower(
             m_watt.value(), 0, Speed.value(), fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
             speedLimit());
-    } else {
+    } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                   .toString()
+                   .startsWith(QStringLiteral("Disabled"))) {
         Speed = KeepAwakeHelper::antObject(true)->callMethod<double>("getBikeSpeed", "()D");
     }
     bool bikeConnected = KeepAwakeHelper::antObject(true)->callMethod<jboolean>("isBikeConnected", "()Z");

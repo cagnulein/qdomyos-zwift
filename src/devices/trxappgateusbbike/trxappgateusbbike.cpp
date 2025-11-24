@@ -339,12 +339,14 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
 
-    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-        Speed = speed;
-    } else {
+    if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
             fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+    } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                   .toString()
+                   .startsWith(QStringLiteral("Disabled"))) {
+        Speed = speed;
     }
     if (!firstCharChanged) {
         Distance += ((Speed.value() / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));

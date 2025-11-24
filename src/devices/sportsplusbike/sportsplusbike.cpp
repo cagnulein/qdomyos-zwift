@@ -189,12 +189,14 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
         double speed = 0.37497622 * ((double)Cadence.value());
 
-        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-            Speed = speed;
-        } else {
+        if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
                 fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                       .toString()
+                       .startsWith(QStringLiteral("Disabled"))) {
+            Speed = speed;
         }
         emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
 
@@ -230,13 +232,18 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
         emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
 
-        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-            Speed = speed;
-        } else {
-            Speed = metric::calculateSpeedFromPower(
+        if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+        Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
                 fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
-        }
+        
+    } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                   .toString()
+                   .startsWith(QStringLiteral("Disabled"))) {
+        
+            Speed = speed;
+        
+    }
         lastTimeCharChanged = now;
         kcal = GetKcalFromPacket(newValue);
     }

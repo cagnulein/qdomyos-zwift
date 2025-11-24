@@ -212,12 +212,14 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     if ((newValue.at(1) == 0x00 && X2000 == false) || (newValue.at(1) == 0x20 && X2000 == true)) {
         double speed = GetSpeedFromPacket(newValue);
         emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
-        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-            Speed = speed;
-        } else {
+        if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
                 fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                       .toString()
+                       .startsWith(QStringLiteral("Disabled"))) {
+            Speed = speed;
         }
     } else if ((newValue.at(1) == 0x10 && X2000 == false) || (newValue.at(1) == 0x30 && X2000 == true)) {
         if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)

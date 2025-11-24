@@ -215,10 +215,12 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
     if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && ((uint8_t)newValue.at(4)) != 0xFF) {
         double speed_from_machinery =
             (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
-        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-            Speed = speed_from_machinery;
-        } else {
+        if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = speedFromWatts();
+        } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                       .toString()
+                       .startsWith(QStringLiteral("Disabled"))) {
+            Speed = speed_from_machinery;
         }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         return;

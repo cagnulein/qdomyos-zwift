@@ -1320,13 +1320,15 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
         if (newValue.at(0) == 0x00) {
             m_watts = ((uint16_t)(((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
-            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                Speed = ((double)((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) /
-                         100.0);
-            } else {
+            if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = metric::calculateSpeedFromPower(
                     watts(), Inclination.value(), Speed.value(),
                     fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                           .toString()
+                           .startsWith(QStringLiteral("Disabled"))) {
+                Speed = ((double)((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) /
+                         100.0);
             }
 
             double incline =
@@ -1362,13 +1364,15 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                    newValue.at(8) == 0x02 && newValue.at(9) == 0x02 && newValue.at(10) != 0x00 &&
                    newValue.at(11) != 0x00 && newValue.at(14) == 0x5a) {
 
-            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                Speed = ((double)((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) /
-                         100.0);
-            } else {
+            if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = metric::calculateSpeedFromPower(
                     watts(), Inclination.value(), Speed.value(),
                     fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                           .toString()
+                           .startsWith(QStringLiteral("Disabled"))) {
+                Speed = ((double)((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) /
+                         100.0);
             }
 
             double incline =
@@ -1992,14 +1996,16 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                 Cadence = (((uint8_t)newValue.at(18)) * cadence_gain) + cadence_offset;
             }
 
-            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                Speed = (settings.value(QZSettings::proform_wheel_ratio, QZSettings::default_proform_wheel_ratio)
-                             .toDouble()) *
-                        ((double)Cadence.value());
-            } else {
+            if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = metric::calculateSpeedFromPower(
                     watts(), Inclination.value(), Speed.value(),
                     fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                           .toString()
+                           .startsWith(QStringLiteral("Disabled"))) {
+                Speed = (settings.value(QZSettings::proform_wheel_ratio, QZSettings::default_proform_wheel_ratio)
+                             .toDouble()) *
+                        ((double)Cadence.value());
             }
         }
     }

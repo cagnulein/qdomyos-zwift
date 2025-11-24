@@ -591,14 +591,16 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         index += 2;
 
         if (!Flags.moreData) {
-            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                  (uint16_t)((uint8_t)newValue.at(index)))) /
-                        100.0;
-            } else {
+            if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = metric::calculateSpeedFromPower(
                     watts(), Inclination.value(), Speed.value(),
                     fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                           .toString()
+                           .startsWith(QStringLiteral("Disabled"))) {
+                Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                  (uint16_t)((uint8_t)newValue.at(index)))) /
+                        100.0;
             }
             index += 2;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -613,7 +615,13 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
             // Use average speed if instant speed is not available (moreData flag set)
             if (Flags.moreData) {
-                if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                    Speed = metric::calculateSpeedFromPower(
+                        watts(), Inclination.value(), Speed.value(),
+                        fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                               .toString()
+                               .startsWith(QStringLiteral("Disabled"))) {
                     Speed = avgSpeed;
                     emit debug(QStringLiteral("Current Speed (from average): ") + QString::number(Speed.value()));
                 }
@@ -944,10 +952,6 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                                                   .value(QZSettings::cadence_sensor_speed_ratio,
                                                          QZSettings::default_cadence_sensor_speed_ratio)
                                                   .toDouble();
-                } else {
-                    Speed = metric::calculateSpeedFromPower(
-                        watts(), Inclination.value(), Speed.value(),
-                        fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
                 }
                 emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
@@ -1038,14 +1042,16 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         index += 3;
 
         if (!Flags.moreData) {
-            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                  (uint16_t)((uint8_t)newValue.at(index)))) /
-                        100.0;
-            } else {
+            if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = metric::calculateSpeedFromPower(
                     watts(), Inclination.value(), Speed.value(),
                     fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                           .toString()
+                           .startsWith(QStringLiteral("Disabled"))) {
+                Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                  (uint16_t)((uint8_t)newValue.at(index)))) /
+                        100.0;
             }
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
             index += 2;

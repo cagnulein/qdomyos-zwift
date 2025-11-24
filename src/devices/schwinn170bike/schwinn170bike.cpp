@@ -170,12 +170,14 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(7)) << 8) | (uint16_t)((uint8_t)newValue.at(6)))) / 100.0;
     emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
-    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-        Speed = ((double)(((uint16_t)((uint8_t)newValue.at(4)) << 8) | (uint16_t)((uint8_t)newValue.at(3)))) / 100.0;
-    } else {
+    if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
             fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+    } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                   .toString()
+                   .startsWith(QStringLiteral("Disabled"))) {
+        Speed = ((double)(((uint16_t)((uint8_t)newValue.at(4)) << 8) | (uint16_t)((uint8_t)newValue.at(3)))) / 100.0;
     }
     emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 

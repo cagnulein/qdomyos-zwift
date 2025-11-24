@@ -447,12 +447,14 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
     }
 
-    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-        Speed = speed;
-    } else {
+    if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
             fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+    } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                   .toString()
+                   .startsWith(QStringLiteral("Disabled"))) {
+        Speed = speed;
     }
     firstCharacteristicChanged = false;
 }

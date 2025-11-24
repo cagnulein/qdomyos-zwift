@@ -183,17 +183,19 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
     index += 2;
 
     if (!Flags.moreData) {
-        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+        if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0),
+                0 /* not useful for elliptical*/);
+        } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                       .toString()
+                       .startsWith(QStringLiteral("Disabled"))) {
             // this elliptical doesn't send speed so i have to calculate this based on cadence
             /*
             Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)newValue.at(index)))) /
                     100.0;*/
-        } else {
-            Speed = metric::calculateSpeedFromPower(
-                watts(), Inclination.value(), Speed.value(),
-                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0),
-                0 /* not useful for elliptical*/);
         }
         index += 2;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -217,7 +219,14 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
                       2.0;
 
             // this elliptical doesn't send speed so i have to calculate this based on cadence
-            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+            if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0),
+                    0 /* not useful for elliptical*/);
+            } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                           .toString()
+                           .startsWith(QStringLiteral("Disabled"))) {
                 Speed = Cadence.value() / 10.0;
             }
         }

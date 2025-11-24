@@ -298,12 +298,14 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(10));
     }
-    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-        Speed = 0.37497622 * ((double)Cadence.value());
-    } else {
+    if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
             fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+    } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                   .toString()
+                   .startsWith(QStringLiteral("Disabled"))) {
+        Speed = 0.37497622 * ((double)Cadence.value());
     }
     if (watts())
         KCal +=

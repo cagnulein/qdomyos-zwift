@@ -530,12 +530,14 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
         // Speed (if not moreData flag)
         if (!Flags2AD2.moreData) {
-            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                Speed = ((double)(((uint16_t)((uint8_t)newvalue.at(index + 1)) << 8) |
-                                 (uint16_t)((uint8_t)newvalue.at(index)))) / 100.0;
-            } else {
+            if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),
                                                        fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), 0/*this->speedLimit()*/);
+            } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                           .toString()
+                           .startsWith(QStringLiteral("Disabled"))) {
+                Speed = ((double)(((uint16_t)((uint8_t)newvalue.at(index + 1)) << 8) |
+                                 (uint16_t)((uint8_t)newvalue.at(index)))) / 100.0;
             }
             emit debug(QStringLiteral("Current Speed (2AD2): ") + QString::number(Speed.value()));
             index += 2;

@@ -135,12 +135,14 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
         Cadence = ((uint8_t)newValue.at(6));
     }
     m_watts = (((uint16_t)((uint8_t)newValue.at(7)) << 8) + (uint16_t)((uint8_t)newValue.at(8)));
-    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-        Speed = 0.37497622 * ((double)Cadence.value());
-    } else {
+    if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
             fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+    } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                   .toString()
+                   .startsWith(QStringLiteral("Disabled"))) {
+        Speed = 0.37497622 * ((double)Cadence.value());
     }
     if (watts())
         KCal +=

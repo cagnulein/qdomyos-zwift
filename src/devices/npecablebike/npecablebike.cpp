@@ -185,10 +185,12 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
         oldLastCrankEventTime = LastCrankEventTime;
         oldCrankRevs = CrankRevs;
 
-        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-            Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio).toDouble();
-        } else {
+        if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                       .toString()
+                       .startsWith(QStringLiteral("Disabled"))) {
+            Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio).toDouble();
         }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
@@ -254,13 +256,18 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
         index += 2;
 
         if (!Flags.moreData) {
-            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+            if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+        Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),fabs(now.msecsTo(Speed.lastChanged()) / 1000.0),  this->speedLimit());
+            
+    } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                   .toString()
+                   .startsWith(QStringLiteral("Disabled"))) {
+        
                 Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                   (uint16_t)((uint8_t)newValue.at(index)))) /
                         100.0;
-            } else {
-                Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),fabs(now.msecsTo(Speed.lastChanged()) / 1000.0),  this->speedLimit());
-            }
+            
+    }
             index += 2;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         }
