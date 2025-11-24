@@ -93,6 +93,7 @@ class nordictrackifitadbbike : public bike {
     double getGrpcWatts();
     double getGrpcCadence();
     double getGrpcResistance();
+    double getGrpcHeartRate();
     void setGrpcResistance(double resistance);
     void setGrpcIncline(double inclination);
     void setGrpcWatts(double watts);

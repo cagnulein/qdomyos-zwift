@@ -98,6 +98,7 @@ class nordictrackifitadbtreadmill : public treadmill {
     double getGrpcIncline();
     double getGrpcWatts();
     double getGrpcCadence();
+    double getGrpcHeartRate();
     void setGrpcSpeed(double speed);
     void setGrpcFanSpeed(int fanSpeed);
     int getGrpcFanSpeed();

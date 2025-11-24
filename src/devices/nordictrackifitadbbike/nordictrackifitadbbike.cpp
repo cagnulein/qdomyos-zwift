@@ -700,6 +700,18 @@ void nordictrackifitadbbike::update() {
             emit debug(QString("gRPC Fan Speed: %1").arg(currentFanSpeed));
         }
 
+        // Read heart rate from gRPC if heart rate belt is disabled
+        QString heartRateBeltName = settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+        bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
+            double currentHeartRate = getGrpcHeartRate();
+            if (currentHeartRate > 0 && currentHeartRate != Heart.value()) {
+                Heart = currentHeartRate;
+                emit debug(QString("gRPC Heart Rate: %1").arg(currentHeartRate));
+            }
+        }
+
         bool nordictrackadbbike_resistance = settings.value(QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance).toBool();
         auto virtualBike = this->VirtualBike();
 
@@ -1071,6 +1083,21 @@ double nordictrackifitadbbike::getGrpcResistance() {
         );
         qDebug() << "getGrpcResistance() returned:" << resistance;
         return resistance;
+    }
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbbike::getGrpcHeartRate() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        double heartRate = QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentHeartRate",
+            "()D"
+        );
+        qDebug() << "getGrpcHeartRate() returned:" << heartRate << "bpm";
+        return heartRate;
     }
 #endif
     return 0.0;

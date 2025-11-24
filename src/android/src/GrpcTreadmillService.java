@@ -59,6 +59,8 @@ import com.ifit.glassos.workout.StrokesMetric;
 import com.ifit.glassos.workout.StrokesServiceGrpc;
 import com.ifit.glassos.workout.PaceMetric;
 import com.ifit.glassos.workout.PaceServiceGrpc;
+import com.ifit.glassos.workout.HeartRateMetric;
+import com.ifit.glassos.workout.HeartRateServiceGrpc;
 
 import org.cagnulen.qdomyoszwift.QLog;
 
@@ -92,6 +94,7 @@ public class GrpcTreadmillService {
     private WorkoutServiceGrpc.WorkoutServiceBlockingStub workoutStub;
     private StrokesServiceGrpc.StrokesServiceBlockingStub strokesStub;
     private PaceServiceGrpc.PaceServiceBlockingStub paceStub;
+    private HeartRateServiceGrpc.HeartRateServiceBlockingStub heartRateStub;
 
     // Control flags and current values
     private volatile boolean isUpdating = false;
@@ -108,6 +111,7 @@ public class GrpcTreadmillService {
     private volatile double currentStrokesLength = 0.0;
     private volatile int currentPaceSeconds = 0;
     private volatile int currentLast500mPaceSeconds = 0;
+    private volatile double currentHeartRate = 0.0;
 
     // Context for accessing assets
     private Context context;
@@ -123,6 +127,7 @@ public class GrpcTreadmillService {
         void onFanSpeedUpdated(int fanSpeed);
         void onStrokesUpdated(double strokesCount, double strokesLength);
         void onPaceUpdated(int paceSeconds, int last500mPaceSeconds);
+        void onHeartRateUpdated(double heartRate);
         void onWorkoutStateChanged(int workoutState);
         void onError(String metric, String error);
     }
@@ -479,6 +484,7 @@ public class GrpcTreadmillService {
         workoutStub = WorkoutServiceGrpc.newBlockingStub(channel);
         strokesStub = StrokesServiceGrpc.newBlockingStub(channel);
         paceStub = PaceServiceGrpc.newBlockingStub(channel);
+        heartRateStub = HeartRateServiceGrpc.newBlockingStub(channel);
 
         QLog.i(TAG, "gRPC connection initialized with client certificates");
     }
@@ -784,6 +790,33 @@ public class GrpcTreadmillService {
                 }
             }
 
+            // Fetch heart rate
+            try {
+                long heartRateStartTime = System.currentTimeMillis();
+                HeartRateServiceGrpc.HeartRateServiceBlockingStub heartRateStubWithHeaders = heartRateStub.withInterceptors(
+                        MetadataUtils.newAttachHeadersInterceptor(headers)
+                );
+                long heartRateInterceptorTime = System.currentTimeMillis();
+                QLog.d(TAG, "HeartRate interceptor setup took: " + (heartRateInterceptorTime - heartRateStartTime) + "ms");
+
+                HeartRateMetric heartRateResponse = heartRateStubWithHeaders.getHeartRate(request);
+                long heartRateCallTime = System.currentTimeMillis();
+                QLog.d(TAG, "HeartRate gRPC call took: " + (heartRateCallTime - heartRateInterceptorTime) + "ms");
+
+                currentHeartRate = heartRateResponse.getLastBpm();
+
+                if (metricsListener != null) {
+                    mainHandler.post(() -> metricsListener.onHeartRateUpdated(currentHeartRate));
+                }
+                long heartRateEndTime = System.currentTimeMillis();
+                QLog.d(TAG, "HeartRate total processing took: " + (heartRateEndTime - heartRateStartTime) + "ms");
+            } catch (Exception e) {
+                QLog.w(TAG, "Failed to fetch heart rate", e);
+                if (metricsListener != null) {
+                    mainHandler.post(() -> metricsListener.onError("heart_rate", "Error"));
+                }
+            }
+
             // Fetch fan speed
             /*
             try {
@@ -977,6 +1010,13 @@ public class GrpcTreadmillService {
             return instance.currentLast500mPaceSeconds;
         }
         return 0;
+    }
+
+    public static double getCurrentHeartRate() {
+        if (instance != null) {
+            return instance.currentHeartRate;
+        }
+        return 0.0;
     }
 
     public static void adjustSpeed(double delta) {
