@@ -1213,7 +1213,7 @@ import Qt.labs.platform 1.1
             property bool proform_trainer_9_0: false
             property bool iconcept_ftms_treadmill_inclination_table: false
             property bool skandika_wiri_x2000_protocol: true
-            property bool nordictrack_series_7: false            
+            property bool nordictrack_series_7: false
             property string kettler_usb_serialport: ""
 			property bool nordictrack_se7i: false
         }
