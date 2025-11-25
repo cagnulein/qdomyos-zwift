@@ -225,6 +225,7 @@ const QString QZSettings::nordictrack_treadmill_ultra_le = QStringLiteral("nordi
 const QString QZSettings::proform_treadmill_carbon_tls = QStringLiteral("proform_treadmill_carbon_tls");
 const QString QZSettings::proform_treadmill_995i = QStringLiteral("proform_treadmill_995i");
 const QString QZSettings::nordictrack_series_7 = QStringLiteral("nordictrack_series_7");
+const QString QZSettings::nordictrack_se7i = QStringLiteral("nordictrack_se7i");
 const QString QZSettings::toorx_3_0 = QStringLiteral("toorx_3_0");
 const QString QZSettings::toorx_65s_evo = QStringLiteral("toorx_65s_evo");
 const QString QZSettings::jtx_fitness_sprint_treadmill = QStringLiteral("jtx_fitness_sprint_treadmill");
