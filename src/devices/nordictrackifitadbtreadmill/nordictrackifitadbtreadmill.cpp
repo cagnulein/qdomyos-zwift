@@ -825,6 +825,7 @@ void nordictrackifitadbtreadmill::update() {
             // WORKOUT_STATE_IDLE = 1
             // WORKOUT_STATE_RUNNING = 3
             // WORKOUT_STATE_PAUSED = 4
+            // WORKOUT_STATE_RESULTS = 5
 
             // If workout started (IDLE/PAUSED -> RUNNING)
             if (currentWorkoutState == 3 && (previousWorkoutState == 1 || previousWorkoutState == 4)) {
@@ -836,8 +837,9 @@ void nordictrackifitadbtreadmill::update() {
                     homeform::singleton()->Start();
                 }
             }
-            // If workout stopped (RUNNING -> IDLE)
-            else if (currentWorkoutState == 1 && previousWorkoutState == 3) {
+            // If workout stopped (RUNNING/PAUSED -> RESULTS or RUNNING -> IDLE)
+            else if ((currentWorkoutState == 5 && (previousWorkoutState == 3 || previousWorkoutState == 4)) ||
+                     (currentWorkoutState == 1 && previousWorkoutState == 3)) {
                 emit debug("Workout stopped in iFit app - auto-stopping QZ recording");
                 if (homeform::singleton()) {
                     requestStopOrigin = ORIGIN_GRPC;
@@ -1259,6 +1261,29 @@ void nordictrackifitadbtreadmill::startGrpcWorkoutStateMonitoring() {
             "()V"
         );
         emit debug(QString("Started gRPC workout state monitoring"));
+
+        // Synchronize QZ with current iFit workout state
+        int initialState = getGrpcWorkoutState();
+        emit debug(QString("Initial workout state at startup: %1").arg(initialState));
+
+        if (initialState == 3) { // RUNNING
+            emit debug("iFit workout already running - QZ already started by default, no action needed");
+        } else if (initialState == 4) { // PAUSED
+            emit debug("iFit workout paused - auto-pausing QZ recording");
+            if (homeform::singleton()) {
+                requestPauseOrigin = ORIGIN_GRPC;
+                homeform::singleton()->Start(); // This will pause since QZ is already running
+            }
+        } else if (initialState == 1 || initialState == 5) { // IDLE or RESULTS
+            emit debug("iFit workout stopped/idle - auto-stopping QZ recording");
+            if (homeform::singleton()) {
+                requestStopOrigin = ORIGIN_GRPC;
+                homeform::singleton()->Stop();
+            }
+        }
+
+        // Update previous state to avoid triggering false transitions
+        previousWorkoutState = initialState;
     } else {
         emit debug(QString("Cannot start workout state monitoring: gRPC not initialized"));
     }
