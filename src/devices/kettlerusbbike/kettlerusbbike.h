@@ -56,7 +56,7 @@ class kettlerusbbike : public bike {
 
     // Sim mode support: override inclination methods to use power-based simulation
     void changeInclination(double grade, double percentage) override;
-    void forceInclination(double inclination) override;
+    void forceInclination(double inclination);
 
   protected:
     // KettlerUSB doesn't support native inclination, use sim mode instead
