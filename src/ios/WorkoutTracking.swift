@@ -30,6 +30,7 @@ protocol WorkoutTrackingProtocol {
     static let shared = WorkoutTracking()
     public static var lastDateMetric = Date()
     public static var distance = Double()
+    public static var previousDistance = Double()
     public static var kcal = Double()
     public static var totalKcal = Double()
     public static var steps = Double()
@@ -224,8 +225,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         WorkoutTracking.authorizeHealthKit()
         WorkoutTracking.workoutInProgress = true;
         WorkoutTracking.lastDateMetric = Date()
-        // Reset flights climbed for new workout
+        // Reset flights climbed and previous distance for new workout
         WorkoutTracking.flightsClimbed = 0
+        WorkoutTracking.previousDistance = 0
         SwiftDebug.qtDebug("WorkoutTracking: Start workout")
         setSport(Int(deviceType))
         configWorkout()
@@ -684,6 +686,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             }
         }
 
+        WorkoutTracking.previousDistance = distance
         WorkoutTracking.lastDateMetric = Date()
     }
 
