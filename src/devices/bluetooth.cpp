@@ -2790,6 +2790,10 @@ void bluetooth::connectedAndDiscovered() {
         settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
     QString cscName =
         settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString();
+    bool speed_as_bike =
+        settings.value(QZSettings::speed_sensor_as_bike, QZSettings::default_speed_sensor_as_bike).toBool();
+    QString speedSensorName =
+        settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name).toString();
     bool power_as_bike =
         settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
     bool power_as_treadmill =
