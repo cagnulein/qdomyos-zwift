@@ -54,6 +54,14 @@ class kettlerusbbike : public bike {
     resistance_t maxResistance() override { return max_resistance; }
     bool connected() override;
 
+    // Sim mode support: override inclination methods to use power-based simulation
+    void changeInclination(double grade, double percentage) override;
+    void forceInclination(double inclination) override;
+
+  protected:
+    // KettlerUSB doesn't support native inclination, use sim mode instead
+    bool supportsNativeInclination() const override { return false; }
+
   private:
     resistance_t max_resistance = 250; // Max watts
     resistance_t min_resistance = 0;
