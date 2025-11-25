@@ -810,6 +810,24 @@ class homeform : public QObject {
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
+
+    // Strava per-user token management helper functions
+    QString getStravaSettingKey(const QString& baseKey, const QString& userId) {
+        if (userId.isEmpty()) {
+            qDebug() << "ERROR: Strava userid is empty!";
+            return baseKey; // If no user ID, use the default key
+        }
+        return baseKey + "_" + userId;
+    }
+    void saveStravaTokenForUser(const QString& baseKey, const QVariant& value, const QString& userId) {
+        QSettings settings;
+        settings.setValue(getStravaSettingKey(baseKey, userId), value);
+    }
+    QVariant getStravaTokenForUser(const QString& baseKey, const QString& userId, const QVariant& defaultValue = "") {
+        QSettings settings;
+        return settings.value(getStravaSettingKey(baseKey, userId), defaultValue).toString();
+    }
+
     QString stravaAuthUrl;
     bool stravaAuthWebVisible;
 
