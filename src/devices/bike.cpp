@@ -475,7 +475,7 @@ double bike::gearsZwiftRatio() {
 }
 
 // Sim mode support: Physics-based power calculation from slope gradient
-double bike::computeSlopeTargetPower(double gradePercent, double speedKmh) const {
+double bike::computeSlopeTargetPower(double gradePercent, double speedKmh) {
     QSettings settings;
     const double riderWeight = settings.value(QZSettings::weight, QZSettings::default_weight).toDouble();
     const double bikeWeight = settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toDouble();
@@ -532,7 +532,7 @@ double bike::computeSlopeTargetPower(double gradePercent, double speedKmh) const
 }
 
 // Helper: get current speed for slope calculations with fallback to cadence-based estimation
-double bike::getCurrentSpeedForSlope() const {
+double bike::getCurrentSpeedForSlope() {
     double speedKmh = Speed.value();
     if (!std::isfinite(speedKmh) || speedKmh < 0.0) {
         speedKmh = 0.0;

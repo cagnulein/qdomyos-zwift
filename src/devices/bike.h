@@ -120,7 +120,7 @@ class bike : public bluetoothdevice {
     QElapsedTimer m_slopePowerTimer;
 
     // Physics-based power calculation from slope
-    virtual double computeSlopeTargetPower(double gradePercent, double speedKmh) const;
+    virtual double computeSlopeTargetPower(double gradePercent, double speedKmh);
 
     // Update power based on current slope and speed (called periodically)
     virtual void updateSlopeTargetPower(bool force = false);
@@ -129,7 +129,7 @@ class bike : public bluetoothdevice {
     virtual bool supportsNativeInclination() const { return true; }
 
     // Helper: get current speed for slope calculations
-    double getCurrentSpeedForSlope() const;
+    double getCurrentSpeedForSlope();
 
     uint16_t wattFromHR(bool useSpeedAndCadence);
 };
