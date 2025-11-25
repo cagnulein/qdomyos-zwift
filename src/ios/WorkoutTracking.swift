@@ -621,7 +621,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     }
                 }
 
-                let distanceDelta = max(0, distance - previousDistance)
+                let distanceDelta = max(0, distance - WorkoutTracking.previousDistance)
                 if distanceDelta > 0,
                    let distanceType = HKQuantityType.quantityType(forIdentifier: .distanceCycling) {
                     let distanceQuantity = HKQuantity(unit: HKUnit.meter(), doubleValue: distanceDelta)
@@ -663,7 +663,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     // Fallback on earlier versions
                 }
                 
-                let distanceDelta = max(0, distance - previousDistance)
+                let distanceDelta = max(0, distance - WorkoutTracking.previousDistance)
                 if #available(iOS 18.0, *) {
                     if distanceDelta > 0,
                        let distanceType = HKQuantityType.quantityType(forIdentifier: .distanceRowing) {
