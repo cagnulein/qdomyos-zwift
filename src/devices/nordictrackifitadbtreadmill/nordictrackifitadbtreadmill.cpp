@@ -818,45 +818,61 @@ void nordictrackifitadbtreadmill::update() {
         }
 
         // Monitor workout state changes from iFit app
-        int currentWorkoutState = getGrpcWorkoutState();
-        if (currentWorkoutState != previousWorkoutState) {
-            emit debug(QString("Workout state changed: %1 -> %2").arg(previousWorkoutState).arg(currentWorkoutState));
+        // Get next state transition from queue (returns null if queue empty)
+        QAndroidJniEnvironment env;
+        QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod<jintArray>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getNextWorkoutStateChange",
+            "()[I"
+        );
 
-            // WORKOUT_STATE_IDLE = 1
-            // WORKOUT_STATE_RUNNING = 3
-            // WORKOUT_STATE_PAUSED = 4
-            // WORKOUT_STATE_RESULTS = 5
+        if (result.isValid() && result.object() != nullptr) {
+            jintArray javaArray = static_cast<jintArray>(result.object());
+            jint* states = env->GetIntArrayElements(javaArray, nullptr);
 
-            // If workout started (IDLE/PAUSED -> RUNNING)
-            if (currentWorkoutState == 3 && (previousWorkoutState == 1 || previousWorkoutState == 4)) {
-                emit debug("Workout started in iFit app - auto-starting QZ recording");
-                if (homeform::singleton()) {
-                    requestStartOrigin = ORIGIN_GRPC;
-                    requestStopOrigin = ORIGIN_GRPC;
-                    requestPauseOrigin = ORIGIN_GRPC;
-                    homeform::singleton()->Start();
-                }
-            }
-            // If workout stopped (RUNNING/PAUSED -> RESULTS or RUNNING -> IDLE)
-            else if ((currentWorkoutState == 5 && (previousWorkoutState == 3 || previousWorkoutState == 4)) ||
-                     (currentWorkoutState == 1 && previousWorkoutState == 3)) {
-                emit debug("Workout stopped in iFit app - auto-stopping QZ recording");
-                if (homeform::singleton()) {
-                    requestStopOrigin = ORIGIN_GRPC;
-                    homeform::singleton()->Stop();
-                }
-            }
-            // If workout paused (RUNNING -> PAUSED)
-            else if (currentWorkoutState == 4 && previousWorkoutState == 3) {
-                emit debug("Workout paused in iFit app - auto-pausing QZ recording");
-                if (homeform::singleton()) {
-                    requestStopOrigin = ORIGIN_GRPC;
-                    requestPauseOrigin = ORIGIN_GRPC;
-                    homeform::singleton()->Start();
-                }
-            }
+            if (states != nullptr) {
+                int previousState = states[0];
+                int currentWorkoutState = states[1];
+                env->ReleaseIntArrayElements(javaArray, states, JNI_ABORT);
 
-            previousWorkoutState = currentWorkoutState;
+                emit debug(QString("Workout state changed: %1 -> %2").arg(previousState).arg(currentWorkoutState));
+
+                // WORKOUT_STATE_IDLE = 1
+                // WORKOUT_STATE_RUNNING = 3
+                // WORKOUT_STATE_PAUSED = 4
+                // WORKOUT_STATE_RESULTS = 5
+
+                // If workout started (IDLE/PAUSED -> RUNNING)
+                if (currentWorkoutState == 3 && (previousState == 1 || previousState == 4)) {
+                    emit debug("Workout started in iFit app - auto-starting QZ recording");
+                    if (homeform::singleton()) {
+                        requestStartOrigin = ORIGIN_GRPC;
+                        requestStopOrigin = ORIGIN_GRPC;
+                        requestPauseOrigin = ORIGIN_GRPC;
+                        homeform::singleton()->Start();
+                    }
+                }
+                // If workout stopped/completed (any state -> RESULTS or PAUSED/RUNNING/RESULTS -> IDLE)
+                else if (currentWorkoutState == 5 ||
+                         (currentWorkoutState == 1 && (previousState == 3 || previousState == 4 || previousState == 5))) {
+                    emit debug("Workout completed in iFit app - showing workout complete screen");
+                    if (homeform::singleton()) {
+                        requestStopOrigin = ORIGIN_GRPC;
+                        homeform::singleton()->StopRequested();
+                    }
+                }
+                // If workout paused (RUNNING -> PAUSED)
+                else if (currentWorkoutState == 4 && previousState == 3) {
+                    emit debug("Workout paused in iFit app - auto-pausing QZ recording");
+                    if (homeform::singleton()) {
+                        requestStopOrigin = ORIGIN_GRPC;
+                        requestPauseOrigin = ORIGIN_GRPC;
+                        homeform::singleton()->Start();
+                    }
+                }
+
+                previousWorkoutState = currentWorkoutState;
+            }
         }
     } else {
         // Fallback to OCR if gRPC is not available

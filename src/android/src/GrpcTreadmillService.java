@@ -17,6 +17,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
 import android.util.Base64;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -67,7 +68,18 @@ import org.cagnulen.qdomyoszwift.QLog;
 public class GrpcTreadmillService {
 
     private static final String TAG = "GrpcTreadmillService";
-    
+
+    // Inner class to represent a workout state transition
+    private static class StateTransition {
+        final int fromState;
+        final int toState;
+
+        StateTransition(int from, int to) {
+            this.fromState = from;
+            this.toState = to;
+        }
+    }
+
     // Singleton instance for static access
     private static GrpcTreadmillService instance = null;
     private static Context staticContext = null;
@@ -100,6 +112,7 @@ public class GrpcTreadmillService {
     private volatile boolean isUpdating = false;
     private volatile boolean isMonitoringWorkoutState = false;
     private volatile int currentWorkoutState = 1; // WORKOUT_STATE_IDLE
+    private ConcurrentLinkedQueue<StateTransition> stateChangeQueue = new ConcurrentLinkedQueue<>();
     private volatile double currentSpeed = 0.0;
     private volatile double currentIncline = 0.0;
     private volatile double currentResistance = 0.0;
@@ -208,7 +221,10 @@ public class GrpcTreadmillService {
                         int oldState = currentWorkoutState;
                         currentWorkoutState = newState;
 
-                        QLog.i(TAG, String.format("Workout state changed: %d -> %d", oldState, newState));
+                        // Add transition to queue for C++ to process
+                        stateChangeQueue.add(new StateTransition(oldState, newState));
+
+                        QLog.i(TAG, String.format("Workout state changed: %d -> %d (queued)", oldState, newState));
 
                         if (metricsListener != null) {
                             mainHandler.post(() -> metricsListener.onWorkoutStateChanged(newState));
@@ -1213,6 +1229,16 @@ public class GrpcTreadmillService {
             QLog.e(TAG, "Service not initialized. Call initialize() first.");
             return 1; // WORKOUT_STATE_IDLE
         }
+    }
+
+    public static int[] getNextWorkoutStateChange() {
+        if (instance != null && !instance.stateChangeQueue.isEmpty()) {
+            StateTransition transition = instance.stateChangeQueue.poll();
+            if (transition != null) {
+                return new int[] {transition.fromState, transition.toState};
+            }
+        }
+        return null; // No pending state changes
     }
 
     public static void shutdown() {
