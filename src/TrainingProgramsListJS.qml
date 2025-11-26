@@ -30,11 +30,11 @@ ColumnLayout {
                 folder: shortcuts.home
                 visible: true
                 onAccepted: {
-                    console.log("You chose: " + fileUrl)
+                    console.log("You chose: " + fileDialogLoader.item.fileUrl)
                     if(OS_VERSION === "Android") {
-                        trainprogram_open_other_folder(fileUrl)
+                        trainprogram_open_other_folder(fileDialogLoader.item.fileUrl)
                     } else {
-                        trainprogram_open_clicked(fileUrl)
+                        trainprogram_open_clicked(fileDialogLoader.item.fileUrl)
                     }
                     close()
                     fileDialogLoader.active = false
