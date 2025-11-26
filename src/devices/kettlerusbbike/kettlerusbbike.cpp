@@ -174,11 +174,11 @@ void kettlerusbbike::innerWriteResistance() {
     }
 
     if (requestInclination != -100) {
-        // Kettler USB doesn't support inclination/gradient mode in the protocol
-        // We could simulate it by calculating power from gradient + speed
-        // For now, just log it
-        emit debug(QStringLiteral("inclination requested but not supported on Kettler USB: ") +
+        // Kettler USB doesn't support native inclination, but we use sim mode
+        // to convert inclination to power (handled by forceInclination)
+        emit debug(QStringLiteral("inclination change handled via sim mode: ") +
                    QString::number(requestInclination));
+        forceInclination(requestInclination);
         requestInclination = -100;
     }
 }
@@ -260,6 +260,11 @@ void kettlerusbbike::update() {
         // updating the bike console every second
         if (sec1Update++ == (1000 / refresh->interval())) {
             sec1Update = 0;
+        }
+
+        // Update slope-based power if sim mode is active
+        if (m_slopeControlEnabled && initDone) {
+            updateSlopeTargetPower();
         }
 
         innerWriteResistance();
@@ -404,4 +409,29 @@ void kettlerusbbike::handleJoystickButton(int button) {
             qDebug() << "Unknown joystick button:" << button;
             break;
     }
+void kettlerusbbike::changeInclination(double grade, double percentage) {
+    qDebug() << "kettlerusbbike::changeInclination" << grade << percentage;
+
+    // Call base class implementation to handle signals
+    bike::changeInclination(grade, percentage);
+
+    // Store current slope and enable sim mode
+    Inclination = grade;
+    m_currentSlopePercent = grade;
+    m_slopeControlEnabled = true;
+
+    // Force immediate power update
+    updateSlopeTargetPower(true);
+}
+
+void kettlerusbbike::forceInclination(double inclination) {
+    qDebug() << "kettlerusbbike::forceInclination" << inclination;
+
+    // Store current slope and enable sim mode
+    Inclination = inclination;
+    m_currentSlopePercent = inclination;
+    m_slopeControlEnabled = true;
+
+    // Force immediate power update
+    updateSlopeTargetPower(true);
 }
