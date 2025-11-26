@@ -307,17 +307,9 @@ QStringList kettlerusbbike::getAdjacentSerialPorts(const QString &basePort) {
     }
 
 #ifdef Q_OS_ANDROID
-    // On Android, USB serial devices are typically /dev/ttyUSBx
-    // Try adjacent ports (0-9)
-    if (basePort.startsWith("/dev/ttyUSB")) {
-        QString baseName = "/dev/ttyUSB";
-        for (int i = 0; i < 10; i++) {
-            QString port = baseName + QString::number(i);
-            if (port != basePort) {
-                ports.append(port);
-            }
-        }
-    }
+    // On Android, USB discovery is done via Java enumeration, not port names
+    // Just add a placeholder to trigger the discovery process
+    ports.append("usb-joystick"); // Placeholder - actual discovery happens in Java code
 #elif defined(WIN32)
     // On Windows, COM ports are COMx
     if (basePort.startsWith("COM")) {

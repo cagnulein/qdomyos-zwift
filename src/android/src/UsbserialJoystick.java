@@ -47,13 +47,8 @@ public class UsbserialJoystick {
 
         QLog.d("QZ", "UsbserialJoystick: Found " + availableDrivers.size() + " USB serial devices");
 
-        // Try each device except the one used by the bike
+        // Try each device and identify which is the joystick (doesn't respond to Kettler commands)
         for (int i = 0; i < availableDrivers.size(); i++) {
-            if (i == skipDeviceIndex) {
-                QLog.d("QZ", "UsbserialJoystick: Skipping device at index " + i + " (bike device)");
-                continue;
-            }
-
             UsbSerialDriver driver = availableDrivers.get(i);
             QLog.d("QZ", "UsbserialJoystick: Trying device at index " + i);
 
@@ -107,7 +102,7 @@ public class UsbserialJoystick {
                 testPort.open(connection);
                 testPort.setParameters(9600, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
 
-                // Test if we can read control lines (this identifies it as a joystick)
+                // Test if we can read control lines
                 boolean cd = testPort.getCD();
                 boolean cts = testPort.getCTS();
                 boolean dsr = testPort.getDSR();
@@ -116,7 +111,33 @@ public class UsbserialJoystick {
                 QLog.d("QZ", "UsbserialJoystick: Device " + i + " control lines: CD=" + cd +
                        " CTS=" + cts + " DSR=" + dsr + " RI=" + ri);
 
-                // This is our joystick device
+                // Test if this device responds to Kettler commands (then it's the bike, not joystick)
+                // Send a simple command and check for response
+                String testCommand = "VE\r\n";
+                testPort.write(testCommand.getBytes(java.nio.charset.StandardCharsets.US_ASCII), 500);
+
+                // Wait a bit for response
+                Thread.sleep(100);
+
+                byte[] buffer = new byte[256];
+                int bytesRead = 0;
+                try {
+                    bytesRead = testPort.read(buffer, 200);
+                } catch (Exception e) {
+                    // Timeout or no data - this is expected for joystick
+                }
+
+                if (bytesRead > 0) {
+                    // Device responded - this is likely the bike, not the joystick
+                    QLog.d("QZ", "UsbserialJoystick: Device " + i + " responded to command (" +
+                           bytesRead + " bytes), skipping (likely bike device)");
+                    testPort.close();
+                    continue;
+                }
+
+                QLog.d("QZ", "UsbserialJoystick: Device " + i + " did not respond - this is the joystick");
+
+                // This is our joystick device (supports control lines but doesn't respond to commands)
                 joystickPort = testPort;
                 deviceIndex = i;
                 QLog.d("QZ", "UsbserialJoystick: Successfully opened joystick on device " + i);

@@ -167,14 +167,13 @@ bool KettlerJoystick::discover(QString deviceFilename) {
 
 #ifdef Q_OS_ANDROID
     // On Android, use Java method to discover joystick
-    // The bike device is assumed to be at index 0 (first device)
-    // Try to find joystick at index 1 or higher
+    // The Java code tests each device to distinguish bike (responds to commands) from joystick (doesn't respond)
     bool found = QAndroidJniObject::callStaticMethod<jboolean>(
         "org/cagnulen/qdomyoszwift/UsbserialJoystick",
         "discover",
         "(Landroid/content/Context;I)Z",
         QtAndroid::androidContext().object(),
-        0  // Skip device index 0 (bike device)
+        0  // Parameter kept for API compatibility, but now unused
     );
 
     if (found) {
