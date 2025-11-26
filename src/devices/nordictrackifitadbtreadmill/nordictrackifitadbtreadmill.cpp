@@ -820,7 +820,7 @@ void nordictrackifitadbtreadmill::update() {
         // Monitor workout state changes from iFit app
         // Get next state transition from queue (returns null if queue empty)
         QAndroidJniEnvironment env;
-        QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod<jintArray>(
+        QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
             "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
             "getNextWorkoutStateChange",
             "()[I"
@@ -884,8 +884,6 @@ void nordictrackifitadbtreadmill::update() {
         QString tt = textExtended.toString();
         jint w = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
                                                            "getImageWidth", "()I");
-        jint h = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
-                                                           "getImageHeight", "()I");
         QString tExtended = textExtended.toString();
         QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
             "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");

@@ -881,11 +881,11 @@ class homeform : public QObject {
     void trainprogram_open_clicked(const QUrl &fileName);
     void Start();
     void Stop();
+    void StopRequested();
 
   private slots:
     void StopFromTrainProgram(bool paused);
     void StartRequested();
-    void StopRequested();
     void Lap();
     void LargeButton(const QString &);
     void volumeDown();
