@@ -9244,9 +9244,11 @@ void homeform::onIntervalsICUAuthorizeWithBrowser(const QUrl &url) {
     intervalsicuAuthUrl = url.toString();
     emit intervalsicuAuthUrlChanged(intervalsicuAuthUrl);
 
-    bool use_external_browser = true;
-#if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
-    use_external_browser = false;
+    bool use_external_browser =
+        settings.value(QZSettings::strava_auth_external_webbrowser, QZSettings::default_strava_auth_external_webbrowser)
+            .toBool();
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+    use_external_browser = true;
 #endif
 
     if (use_external_browser) {
