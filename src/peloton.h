@@ -79,6 +79,15 @@ class peloton : public QObject {
     }
     QString getPelotonWorkoutUrl();
 
+    // Helper function to determine if workout is walking-based
+    bool isWalkingWorkout() const {
+        // Check if it's a walking discipline or a walking bootcamp
+        return current_workout_type == "walking" ||
+               (current_workout_type == "circuit" &&
+                (current_workout_name.contains("Walk", Qt::CaseInsensitive) ||
+                 current_workout_name.contains("Walking", Qt::CaseInsensitive)));
+    }
+
   private:
     _PELOTON_API current_api = peloton_api;
     const int peloton_workout_second_resolution = 1;
@@ -175,15 +184,6 @@ class peloton : public QObject {
     _peloton_treadmill_pace_intensities walking_pace[5];
 
     int first_target_metrics_start_offset = 60;
-
-    // Helper function to determine if workout is walking-based
-    bool isWalkingWorkout() const {
-        // Check if it's a walking discipline or a walking bootcamp
-        return current_workout_type == "walking" ||
-               (current_workout_type == "circuit" &&
-                (current_workout_name.contains("Walk", Qt::CaseInsensitive) ||
-                 current_workout_name.contains("Walking", Qt::CaseInsensitive)));
-    }
 
   public slots:
     void peloton_connect_clicked();
