@@ -56,7 +56,9 @@ void DirconProcessor::initAdvertising() {
     if (!mdnsServer) {
         qDebug() << "Dircon Adv init for" << serverName;
         mdnsServer = new QMdnsEngine::Server(this);
-        mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, serverName.toUtf8() + QByteArrayLiteral("H"), this);
+        // Create hostname by replacing spaces with hyphens (Windows compatibility)
+        QString hostname = QString(serverName).replace(' ', '-');
+        mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, hostname.toUtf8(), this);
         mdnsProvider = new QMdnsEngine::Provider(mdnsServer, mdnsHostname, this);
         QMdnsEngine::Service mdnsService;
         mdnsService.setType("_wahoo-fitness-tnp._tcp.local.");
@@ -70,8 +72,9 @@ void DirconProcessor::initAdvertising() {
                 ble_uuids += ZWIFT_PLAY_UUID_STRING +
                 ((i++ < services.size() - 1) ? QStringLiteral(",") : QStringLiteral(""));
             } else {
-                ble_uuids += QString(QStringLiteral(DP_BASE_UUID))
-                    .replace("u", QString(QStringLiteral("%1")).arg(service->uuid, 4, 16, QLatin1Char('0'))) +
+                // Use short UUID format (0x1818) instead of full UUID format for Windows compatibility
+                ble_uuids += QString(QStringLiteral("0x%1"))
+                    .arg(service->uuid, 4, 16, QLatin1Char('0')) +
                 ((i++ < services.size() - 1) ? QStringLiteral(",") : QStringLiteral(""));
             }
         }
