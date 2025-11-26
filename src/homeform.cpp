@@ -1008,15 +1008,16 @@ void homeform::peloton_start_workout() {
     if (pelotonHandler) {
         if (pelotonHandler->current_workout_type.toLower().startsWith("meditation") ||
             pelotonHandler->current_workout_type.toLower().startsWith("cardio") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("circuit") ||
             pelotonHandler->current_workout_type.toLower().startsWith("strength") ||
             pelotonHandler->current_workout_type.toLower().startsWith("stretching") ||
             pelotonHandler->current_workout_type.toLower().startsWith("yoga"))
             stravaPelotonWorkoutType = FIT_SPORT_GENERIC;
-        else if (pelotonHandler->current_workout_type.toLower().startsWith("walking"))
+        else if (pelotonHandler->isWalkingWorkout())
             stravaPelotonWorkoutType = FIT_SPORT_WALKING;
         else if (pelotonHandler->current_workout_type.toLower().startsWith("running"))
             stravaPelotonWorkoutType = FIT_SPORT_RUNNING;
+        else if (pelotonHandler->current_workout_type.toLower().startsWith("circuit"))
+            stravaPelotonWorkoutType = FIT_SPORT_GENERIC;
         else
             stravaPelotonWorkoutType = FIT_SPORT_INVALID;
 
@@ -5684,8 +5685,8 @@ void homeform::update() {
             }
 
             // Use different zone names for walking vs running workouts
-            bool isWalkingWorkout = pelotonHandler && pelotonHandler->current_workout_type.toLower().startsWith("walking");
-            
+            bool isWalkingWorkout = pelotonHandler && pelotonHandler->isWalkingWorkout();
+
             switch (trainProgram->currentRow().pace_intensity) {
             case 0:
                 this->target_zone->setValue(tr("Rec."));
