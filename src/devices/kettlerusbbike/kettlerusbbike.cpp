@@ -409,6 +409,8 @@ void kettlerusbbike::handleJoystickButton(int button) {
             qDebug() << "Unknown joystick button:" << button;
             break;
     }
+}
+
 void kettlerusbbike::changeInclination(double grade, double percentage) {
     qDebug() << "kettlerusbbike::changeInclination" << grade << percentage;
 
