@@ -691,7 +691,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             double cr = 97.62165482;
 
             if (Cadence.value() && m_watt.value()) {
-                m_pelotonResistance =
+                double res =
                     (((sqrt(pow(br, 2.0) - 4.0 * ar *
                                                 (cr - (m_watt.value() * 132.0 /
                                                         (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
@@ -699,7 +699,17 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                         (2.0 * ar)) *
                         settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
                         settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
-                        
+
+                if (isnan(res)) {
+                    if (Cadence.value() > 0) {
+                        // let's keep the last good value
+                    } else {
+                        m_pelotonResistance = 0;
+                    }
+                } else {
+                    m_pelotonResistance = res;
+                }
+
                 if (!resistance_received && !DU30_bike && !SL010) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
@@ -1122,7 +1132,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             double cr = 97.62165482;
 
             if (Cadence.value() && m_watt.value()) {
-                m_pelotonResistance =
+                double res =
                     (((sqrt(pow(br, 2.0) - 4.0 * ar *
                                                (cr - (m_watt.value() * 132.0 /
                                                       (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
@@ -1130,6 +1140,17 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                       (2.0 * ar)) *
                      settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
                     settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+
+                if (isnan(res)) {
+                    if (Cadence.value() > 0) {
+                        // let's keep the last good value
+                    } else {
+                        m_pelotonResistance = 0;
+                    }
+                } else {
+                    m_pelotonResistance = res;
+                }
+
                 Resistance = m_pelotonResistance;
                 emit resistanceRead(Resistance.value());
             }
