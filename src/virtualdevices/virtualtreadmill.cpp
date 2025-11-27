@@ -574,13 +574,15 @@ void virtualtreadmill::treadmillProvider() {
             swiftWatt,
             swiftInclination,
             swiftDistance,
+            ((treadmill *)treadMill)->elevationGain().value(),  // Use QZ's calculated elevation gain
             swiftCalories,
             swiftSteps,
             swiftElapsedTimeSeconds,
             static_cast<uint8_t>(treadMill->deviceType())
             )) {
         h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
-                
+        h->setElevationGain(((treadmill *)treadMill)->elevationGain().value());
+
         lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
 
         if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)
