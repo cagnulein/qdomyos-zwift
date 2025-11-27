@@ -846,10 +846,21 @@ void nordictrackifitadbtreadmill::update() {
                 if (currentWorkoutState == 3 && (previousState == 1 || previousState == 4)) {
                     emit debug("Workout started in iFit app - auto-starting QZ recording");
                     if (homeform::singleton()) {
-                        requestStartOrigin = ORIGIN_GRPC;
-                        requestStopOrigin = ORIGIN_GRPC;
-                        requestPauseOrigin = ORIGIN_GRPC;
-                        homeform::singleton()->Start();
+                        // If starting from IDLE and QZ is on complete screen (stopped), close it first
+                        if (previousState == 1 && stopped) {
+                            emit debug("Closing complete screen before starting new workout");
+                            emit homeform::singleton()->closeCompleteScreenRequested();
+                        }
+
+                        // Only call Start() if QZ is not already running (to avoid toggling pause)
+                        if (paused || stopped) {
+                            requestStartOrigin = ORIGIN_GRPC;
+                            requestStopOrigin = ORIGIN_GRPC;
+                            requestPauseOrigin = ORIGIN_GRPC;
+                            homeform::singleton()->Start();
+                        } else {
+                            emit debug("QZ already running, not calling Start() again");
+                        }
                     }
                 }
                 // If workout stopped/completed (any state -> RESULTS or PAUSED/RUNNING/RESULTS -> IDLE)
