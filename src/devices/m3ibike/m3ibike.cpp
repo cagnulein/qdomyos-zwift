@@ -675,10 +675,12 @@ void m3ibike::processAdvertising(const QByteArray &data) {
                 .startsWith(QStringLiteral("Disabled")))
             m_watt = k3.watt;
         watts(); // to update avg and max
-        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-            Speed = k3.speed;
-        } else {
+        if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                       .toString()
+                       .startsWith(QStringLiteral("Disabled"))) {
+            Speed = k3.speed;
         }
         if (settings.value(QZSettings::m3i_bike_kcal, QZSettings::default_m3i_bike_kcal).toBool()) {
             KCal = k3.calorie;

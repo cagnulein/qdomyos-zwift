@@ -46,6 +46,7 @@ class rower : public bluetoothdevice {
     virtual void changeRequestedPelotonResistance(int8_t resistance);
     void cadenceSensor(uint8_t cadence) override;
     void powerSensor(uint16_t power) override;
+    void speedSensor(double speed) override;
     virtual void changeSpeed(double speed);
 
   signals:

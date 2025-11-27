@@ -258,12 +258,14 @@ void kineticinroadbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     // Set the parsed values to the bike metrics
     Resistance = pD.targetResistance;
-    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-        Speed = pD.speedKPH;
-    } else {
+    if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
             fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+    } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                   .toString()
+                   .startsWith(QStringLiteral("Disabled"))) {
+        Speed = pD.speedKPH;
     }
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()

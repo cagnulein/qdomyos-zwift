@@ -167,12 +167,16 @@ void bluetooth::finished() {
         settings.value(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name).toString();
     bool csc_as_bike =
         settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
+    bool speed_as_bike =
+        settings.value(QZSettings::speed_sensor_as_bike, QZSettings::default_speed_sensor_as_bike).toBool();
     bool power_as_bike =
         settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
     bool power_as_treadmill =
         settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
     QString cscName =
         settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString();
+    QString speedSensorName =
+        settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name).toString();
     QString powerSensorName =
         settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name).toString();
     QString eliteRizerName =
@@ -180,6 +184,7 @@ void bluetooth::finished() {
     QString eliteSterzoSmartName =
         settings.value(QZSettings::elite_sterzo_smart_name, QZSettings::default_elite_sterzo_smart_name).toString();
     bool cscFound = cscName.startsWith(QStringLiteral("Disabled")) && !csc_as_bike;
+    bool speedSensorFound = speedSensorName.startsWith(QStringLiteral("Disabled")) && !speed_as_bike;
     bool powerSensorFound =
         powerSensorName.startsWith(QStringLiteral("Disabled")) && !power_as_bike && !power_as_treadmill;
     bool eliteRizerFound = eliteRizerName.startsWith(QStringLiteral("Disabled"));
@@ -276,6 +281,27 @@ bool bluetooth::cscSensorAvaiable() {
 
     for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
         if (!cscName.compare(b.name())) {
+
+            return true;
+        }
+    }
+    return false;
+}
+
+bool bluetooth::speedSensorAvailable() {
+
+    QSettings settings;
+    bool speed_as_bike =
+        settings.value(QZSettings::speed_sensor_as_bike, QZSettings::default_speed_sensor_as_bike).toBool();
+    QString speedSensorName =
+        settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name).toString();
+
+    if (speed_as_bike) {
+        return false;
+    }
+
+    for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+        if (!speedSensorName.compare(b.name())) {
 
             return true;
         }
@@ -2765,6 +2791,10 @@ void bluetooth::connectedAndDiscovered() {
         settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
     QString cscName =
         settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString();
+    bool speed_as_bike =
+        settings.value(QZSettings::speed_sensor_as_bike, QZSettings::default_speed_sensor_as_bike).toBool();
+    QString speedSensorName =
+        settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name).toString();
     bool power_as_bike =
         settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
     bool power_as_treadmill =
@@ -2934,6 +2964,31 @@ void bluetooth::connectedAndDiscovered() {
                     cadenceSensor->deviceDiscovered(b);
                     if(homeform::singleton())
                         homeform::singleton()->setToastRequested(b.name() + " (cadence sensor) connected!");
+                    break;
+                }
+            }
+        }
+
+        if (!speed_as_bike) {
+            for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+                if (((b.name().startsWith(speedSensorName))) && !speedSensor &&
+                    !speedSensorName.startsWith(QStringLiteral("Disabled"))) {
+                    settings.setValue(QZSettings::speed_sensor_lastdevice_name, b.name());
+
+#ifndef Q_OS_IOS
+                    settings.setValue(QZSettings::speed_sensor_address, b.address().toString());
+#else
+                    settings.setValue(QZSettings::speed_sensor_address, b.deviceUuid().toString());
+#endif
+                    speedSensor = new cscbike(false, false, true, true); // isSpeedSensor = true
+                    // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+                    connect(speedSensor, &cscbike::debug, this, &bluetooth::debug);
+                    connect(speedSensor, &bluetoothdevice::speedChanged, this->device(),
+                            &bluetoothdevice::speedSensor);
+                    speedSensor->deviceDiscovered(b);
+                    if(homeform::singleton())
+                        homeform::singleton()->setToastRequested(b.name() + " (speed sensor) connected!");
                     break;
                 }
             }
@@ -3857,6 +3912,12 @@ void bluetooth::restart() {
         // heartRateBelt->disconnectBluetooth(); // to test
         delete cadenceSensor;
         cadenceSensor = nullptr;
+    }
+    if (speedSensor) {
+
+        // heartRateBelt->disconnectBluetooth(); // to test
+        delete speedSensor;
+        speedSensor = nullptr;
     }
     if (powerSensor) {
 

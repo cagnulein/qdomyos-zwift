@@ -206,12 +206,14 @@ void mcfbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         }
         qDebug() << QStringLiteral("Current Cadence: ") + QString::number(Cadence.value());
 
-        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-            Speed = (((uint16_t)newValue.at(11) << 8) | (uint16_t)((uint8_t)newValue.at(12))) / 10.0;
-        } else {
+        if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
                 fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                       .toString()
+                       .startsWith(QStringLiteral("Disabled"))) {
+            Speed = (((uint16_t)newValue.at(11) << 8) | (uint16_t)((uint8_t)newValue.at(12))) / 10.0;
         }
 
         Distance += ((Speed.value() / 3600000.0) *

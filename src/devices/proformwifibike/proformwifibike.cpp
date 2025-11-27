@@ -440,7 +440,16 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
         qDebug() << QStringLiteral("TDF2 mod enabled!");
     }
 
-    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+    if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+        Speed = metric::calculateSpeedFromPower(
+            watts(), Inclination.value(), Speed.value(),
+            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+
+        Distance += ((Speed.value() / 3600000.0) *
+                    ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+    } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                   .toString()
+                   .startsWith(QStringLiteral("Disabled"))) {
         if (!values[QStringLiteral("Current KPH")].isUndefined()) {
             double kph = values[QStringLiteral("Current KPH")].toString().toDouble();
             Speed = kph;
@@ -461,13 +470,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
             emit debug("Current Distance: " + QString::number(odometer));
         }
 
-    } else {
-        Speed = metric::calculateSpeedFromPower(
-            watts(), Inclination.value(), Speed.value(),
-            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
-
-        Distance += ((Speed.value() / 3600000.0) *
-                    ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+    
     }
 
     if (!values[QStringLiteral("RPM")].isUndefined()) {

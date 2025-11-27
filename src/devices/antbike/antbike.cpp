@@ -41,9 +41,11 @@ void antbike::update() {
     qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
     if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = metric::calculateSpeedFromPower(
-                                                m_watt.value(), 0, Speed.value(), fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
-                                                speedLimit());
-    } else {
+            m_watt.value(), 0, Speed.value(), fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
+            speedLimit());
+    } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                   .toString()
+                   .startsWith(QStringLiteral("Disabled"))) {
         Speed = hh.getSpeed();
     }
 #endif
@@ -56,7 +58,9 @@ void antbike::update() {
         Speed = metric::calculateSpeedFromPower(
             m_watt.value(), 0, Speed.value(), fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
             speedLimit());
-    } else {
+    } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                   .toString()
+                   .startsWith(QStringLiteral("Disabled"))) {
         Speed = QAndroidJniObject::callStaticMethod<jdouble>("org/cagnulen/qdomyoszwift/Garmin", "getSpeed", "()D");
     }
     qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());

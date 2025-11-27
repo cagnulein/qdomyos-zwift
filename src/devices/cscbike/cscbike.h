@@ -35,7 +35,7 @@
 class cscbike : public bike {
     Q_OBJECT
   public:
-    cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
+    cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, bool isSpeedSensor = false);
     bool connected() override;
 
   private:
@@ -65,11 +65,16 @@ class cscbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool noVirtualDevice = false;
+    bool isSpeedSensor = false;
 
     bool readMethod = false;
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;
+
+    // For speed sensor mode
+    uint16_t oldLastWheelEventTime = 0;
+    uint32_t oldWheelRevs = 0;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
