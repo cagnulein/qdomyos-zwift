@@ -1521,6 +1521,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     bool distanceEval = false;
+    bool cadenceAvailable = false;
     QSettings settings;
     // bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x,
     // QZSettings::default_horizon_paragon_x).toBool();
@@ -1711,6 +1712,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index)))) /
                           2.0;
+                cadenceAvailable = true;
             }
             index += 2;
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
@@ -2102,6 +2104,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     .startsWith(QStringLiteral("Disabled"))) {
                 Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index))));
+                cadenceAvailable = true;
             }
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
@@ -2235,6 +2238,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
         Cadence = cadence;
+        cadenceAvailable = true;
         emit cadenceChanged(cadence);
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(cadence));
     }
@@ -2246,6 +2250,21 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         } else {
 
             Heart = heart;
+        }
+    }
+
+    // Calculate cadence from speed if not available from FTMS and no external power sensor
+    if (!cadenceAvailable && Speed.value() > 0) {
+        bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                                  .toString()
+                                  .startsWith(QStringLiteral("Disabled"));
+        if (!hasPowerSensor) {
+            double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
+            if (calculatedCadence > 0) {
+                evaluateStepCount();
+                Cadence = calculatedCadence;
+                emit debug(QStringLiteral("Current Cadence (calculated from speed): ") + QString::number(Cadence.value()));
+            }
         }
     }
 
