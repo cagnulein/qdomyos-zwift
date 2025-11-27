@@ -56,6 +56,7 @@ QString nordictrackifitadbtreadmillLogcatAdbThread::runAdbCommand(QString comman
     emit debug("adb << OUT " + out);
     emit debug("adb << ERR" + err);
 #else
+    Q_UNUSED(command);
     QString out;
 #endif
     return out;
@@ -118,6 +119,8 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
     emit debug("adbLogCat >> " + command);
     process->start("adb/adb.exe", QStringList(command.split(' ')));
     process->waitForFinished(-1);
+#else
+    Q_UNUSED(command);
 #endif
 }
 
@@ -846,14 +849,15 @@ void nordictrackifitadbtreadmill::update() {
                 if (currentWorkoutState == 3 && (previousState == 1 || previousState == 4)) {
                     emit debug("Workout started in iFit app - auto-starting QZ recording");
                     if (homeform::singleton()) {
+                        const bool qzPausedOrStopped = isPaused();
                         // If starting from IDLE and QZ is on complete screen (stopped), close it first
-                        if (previousState == 1 && stopped) {
+                        if (previousState == 1 && qzPausedOrStopped) {
                             emit debug("Closing complete screen before starting new workout");
                             emit homeform::singleton()->closeCompleteScreenRequested();
                         }
 
                         // Only call Start() if QZ is not already running (to avoid toggling pause)
-                        if (paused || stopped) {
+                        if (qzPausedOrStopped) {
                             requestStartOrigin = ORIGIN_GRPC;
                             requestStopOrigin = ORIGIN_GRPC;
                             requestPauseOrigin = ORIGIN_GRPC;
