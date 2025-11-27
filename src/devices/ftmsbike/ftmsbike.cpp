@@ -194,7 +194,7 @@ void ftmsbike::zwiftPlayInit() {
 }
 
 void ftmsbike::forcePower(int16_t requestPower) {
-    if((resistance_lvl_mode || TITAN_7000) && !MAGNUS) {
+    if((resistance_lvl_mode || TITAN_7000) && !MAGNUS && !SS2K) {
         forceResistance(resistanceFromPowerRequest(requestPower));
     } else {
         uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
