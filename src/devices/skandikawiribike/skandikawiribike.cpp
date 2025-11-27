@@ -1,5 +1,6 @@
 #include "skandikawiribike.h"
 #include "qzsettings.h"
+#include "homeform.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -406,6 +407,13 @@ void skandikawiribike::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xfff0);
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    if (!gattCommunicationChannelService) {
+        QSettings settings;
+        settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
+        homeform::singleton()->setToastRequested(
+            "FTMS bike found, restart the app to apply the change!");
+        return;
+    }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &skandikawiribike::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
