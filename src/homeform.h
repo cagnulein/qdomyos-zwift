@@ -193,6 +193,10 @@ class homeform : public QObject {
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
     Q_PROPERTY(QList<double> preview_workout_watt READ preview_workout_watt)
+    Q_PROPERTY(QList<double> preview_workout_speed READ preview_workout_speed)
+    Q_PROPERTY(QList<double> preview_workout_inclination READ preview_workout_inclination)
+    Q_PROPERTY(QList<double> preview_workout_resistance READ preview_workout_resistance)
+    Q_PROPERTY(QList<double> preview_workout_cadence READ preview_workout_cadence)
     Q_PROPERTY(QString previewWorkoutDescription READ previewWorkoutDescription NOTIFY previewWorkoutDescriptionChanged)
     Q_PROPERTY(QString previewWorkoutTags READ previewWorkoutTags NOTIFY previewWorkoutTagsChanged)
 
@@ -533,6 +537,7 @@ class homeform : public QObject {
     Q_INVOKABLE static QString getWritableAppDir();
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
+    Q_INVOKABLE bool startTrainingProgramFromFile(const QString &filePath);
 
     double wattMaxChart() {
         QSettings settings;
@@ -601,6 +606,62 @@ class homeform : public QObject {
         foreach (trainrow r, previewTrainProgram->loadedRows) {
             for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
                 l.append(r.power);
+            }
+        }
+        return l;
+    }
+
+    QList<double> preview_workout_speed() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.speed);
+            }
+        }
+        return l;
+    }
+
+    QList<double> preview_workout_inclination() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.inclination);
+            }
+        }
+        return l;
+    }
+
+    QList<double> preview_workout_resistance() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.resistance);
+            }
+        }
+        return l;
+    }
+
+    QList<double> preview_workout_cadence() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.cadence);
             }
         }
         return l;
@@ -872,6 +933,7 @@ class homeform : public QObject {
     void Minus(const QString &);
     void Plus(const QString &);
     void trainprogram_open_clicked(const QUrl &fileName);
+    void trainprogram_autostart_requested();
 
   private slots:
     void Start();
