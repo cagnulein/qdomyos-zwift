@@ -92,11 +92,11 @@ class treadmill : public bluetoothdevice {
     void parseSpeed(double speed);
     void parseInclination(double speed);
     bool areInclinationSettingsDefault();
+    void evaluateStepCount();
 
   private:
     bool simulateInclinationWithSpeed();
     bool followPowerBySpeed();
-    void evaluateStepCount();
 };
 
 #endif // TREADMILL_H
