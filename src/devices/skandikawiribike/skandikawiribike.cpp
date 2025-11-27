@@ -408,10 +408,8 @@ void skandikawiribike::serviceScanDone(void) {
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     if (!gattCommunicationChannelService) {
-        QSettings settings;
-        settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
         homeform::singleton()->setToastRequested(
-            "FTMS bike found, restart the app to apply the change!");
+            "no service found, contact me to roberto.viola83@gmail.com!");
         return;
     }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &skandikawiribike::stateChanged);
