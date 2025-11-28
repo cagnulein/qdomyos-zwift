@@ -30,12 +30,12 @@ public class UsbserialJoystick {
 
     /**
      * Discover and open the joystick device
+     * Assumes device index 0 = bike, device index 1 = joystick
      * @param context Android context
-     * @param skipDeviceIndex Index of device to skip (the main bike device)
      * @return true if joystick found and opened
      */
-    public static boolean discover(Context context, int skipDeviceIndex) {
-        QLog.d("QZ", "UsbserialJoystick: Discovering joystick device, skipping index " + skipDeviceIndex);
+    public static boolean discover(Context context) {
+        QLog.d("QZ", "UsbserialJoystick: Discovering joystick device at index 1");
 
         UsbManager manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         List<UsbSerialDriver> availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager);
@@ -47,120 +47,98 @@ public class UsbserialJoystick {
 
         QLog.d("QZ", "UsbserialJoystick: Found " + availableDrivers.size() + " USB serial devices");
 
-        // Try each device and identify which is the joystick (doesn't respond to Kettler commands)
-        for (int i = 0; i < availableDrivers.size(); i++) {
-            UsbSerialDriver driver = availableDrivers.get(i);
-            QLog.d("QZ", "UsbserialJoystick: Trying device at index " + i);
+        // Device 0 is always the bike, device 1 is the joystick
+        if (availableDrivers.size() < 2) {
+            QLog.d("QZ", "UsbserialJoystick: Only one device found, assuming it's the bike. Joystick not connected yet.");
+            return false;
+        }
 
-            // Request permissions if needed
-            if (!manager.hasPermission(driver.getDevice())) {
-                QLog.d("QZ", "UsbserialJoystick: Requesting USB permission for device " + i);
-                final Boolean[] granted = {null};
-                BroadcastReceiver usbReceiver = new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(Context context, Intent intent) {
-                        granted[0] = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);
-                    }
-                };
-                int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
-                PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0,
-                    new Intent("org.cagnulen.qdomyoszwift.USB_PERMISSION_JOYSTICK"), flags);
-                IntentFilter filter = new IntentFilter("org.cagnulen.qdomyoszwift.USB_PERMISSION_JOYSTICK");
-                ContextCompat.registerReceiver(
-                    context,
-                    usbReceiver,
-                    filter,
-                    ContextCompat.RECEIVER_EXPORTED
-                );
-                manager.requestPermission(driver.getDevice(), permissionIntent);
+        // Try to open device at index 1 (joystick)
+        UsbSerialDriver driver = availableDrivers.get(1);
+        QLog.d("QZ", "UsbserialJoystick: Attempting to open device 1 (joystick)");
 
-                // Wait for permission (max 5 seconds)
-                for (int j = 0; j < 5000; j++) {
-                    if (granted[0] != null) break;
-                    try {
-                        Thread.sleep(1);
-                    } catch (InterruptedException e) {
-                        // Ignore
-                    }
+        // Request permissions if needed
+        if (!manager.hasPermission(driver.getDevice())) {
+            QLog.d("QZ", "UsbserialJoystick: Requesting USB permission for device 1");
+            final Boolean[] granted = {null};
+            BroadcastReceiver usbReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    granted[0] = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);
                 }
+            };
+            int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
+            PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0,
+                new Intent("org.cagnulen.qdomyoszwift.USB_PERMISSION_JOYSTICK"), flags);
+            IntentFilter filter = new IntentFilter("org.cagnulen.qdomyoszwift.USB_PERMISSION_JOYSTICK");
+            ContextCompat.registerReceiver(
+                context,
+                usbReceiver,
+                filter,
+                ContextCompat.RECEIVER_EXPORTED
+            );
+            manager.requestPermission(driver.getDevice(), permissionIntent);
 
-                QLog.d("QZ", "UsbserialJoystick: USB permission " + granted[0]);
-                if (granted[0] == null || !granted[0]) {
-                    continue; // Try next device
+            // Wait for permission (max 5 seconds)
+            for (int j = 0; j < 5000; j++) {
+                if (granted[0] != null) break;
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    // Ignore
                 }
             }
 
-            // Try to open this device
-            UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
-            if (connection == null) {
-                QLog.d("QZ", "UsbserialJoystick: Failed to open device " + i);
-                continue;
-            }
-
-            UsbSerialPort testPort = driver.getPorts().get(0);
-            try {
-                testPort.open(connection);
-                testPort.setParameters(9600, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
-
-                // Test if we can read control lines
-                boolean cd = testPort.getCD();
-                boolean cts = testPort.getCTS();
-                boolean dsr = testPort.getDSR();
-                boolean ri = testPort.getRI();
-
-                QLog.d("QZ", "UsbserialJoystick: Device " + i + " control lines: CD=" + cd +
-                       " CTS=" + cts + " DSR=" + dsr + " RI=" + ri);
-
-                // Test if this device responds to Kettler commands (then it's the bike, not joystick)
-                // Send a simple command and check for response
-                String testCommand = "VE\r\n";
-                testPort.write(testCommand.getBytes(java.nio.charset.StandardCharsets.US_ASCII), 500);
-
-                // Wait a bit for response
-                Thread.sleep(100);
-
-                byte[] buffer = new byte[256];
-                int bytesRead = 0;
-                try {
-                    bytesRead = testPort.read(buffer, 200);
-                } catch (Exception e) {
-                    // Timeout or no data - this is expected for joystick
-                }
-
-                if (bytesRead > 0) {
-                    // Device responded - this is likely the bike, not the joystick
-                    QLog.d("QZ", "UsbserialJoystick: Device " + i + " responded to command (" +
-                           bytesRead + " bytes), skipping (likely bike device)");
-                    testPort.close();
-                    continue;
-                }
-
-                QLog.d("QZ", "UsbserialJoystick: Device " + i + " did not respond - this is the joystick");
-
-                // This is our joystick device (supports control lines but doesn't respond to commands)
-                joystickPort = testPort;
-                deviceIndex = i;
-                QLog.d("QZ", "UsbserialJoystick: Successfully opened joystick on device " + i);
-                return true;
-
-            } catch (IOException e) {
-                QLog.d("QZ", "UsbserialJoystick: Failed to configure device " + i + ": " + e.getMessage());
-                try {
-                    testPort.close();
-                } catch (IOException e2) {
-                    // Ignore
-                }
-            } catch (UnsupportedOperationException e) {
-                QLog.d("QZ", "UsbserialJoystick: Device " + i + " doesn't support control lines");
-                try {
-                    testPort.close();
-                } catch (IOException e2) {
-                    // Ignore
-                }
+            QLog.d("QZ", "UsbserialJoystick: USB permission " + granted[0]);
+            if (granted[0] == null || !granted[0]) {
+                return false;
             }
         }
 
-        QLog.d("QZ", "UsbserialJoystick: No suitable joystick device found");
+        // Try to open device 1
+        UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
+        if (connection == null) {
+            QLog.d("QZ", "UsbserialJoystick: Failed to open device 1");
+            return false;
+        }
+
+        UsbSerialPort testPort = driver.getPorts().get(0);
+        try {
+            testPort.open(connection);
+            testPort.setParameters(9600, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
+
+            // Test if we can read control lines
+            boolean cd = testPort.getCD();
+            boolean cts = testPort.getCTS();
+            boolean dsr = testPort.getDSR();
+            boolean ri = testPort.getRI();
+
+            QLog.d("QZ", "UsbserialJoystick: Device 1 control lines: CD=" + cd +
+                   " CTS=" + cts + " DSR=" + dsr + " RI=" + ri);
+
+            // Device 1 is our joystick
+            joystickPort = testPort;
+            deviceIndex = 1;
+            QLog.d("QZ", "UsbserialJoystick: Successfully opened joystick on device 1");
+            return true;
+
+        } catch (IOException e) {
+            QLog.d("QZ", "UsbserialJoystick: Failed to configure device 1: " + e.getMessage());
+            try {
+                testPort.close();
+            } catch (IOException e2) {
+                // Ignore
+            }
+        } catch (UnsupportedOperationException e) {
+            QLog.d("QZ", "UsbserialJoystick: Device 1 doesn't support control lines");
+            try {
+                testPort.close();
+            } catch (IOException e2) {
+                // Ignore
+            }
+        }
+
+        QLog.d("QZ", "UsbserialJoystick: Failed to open joystick device");
         return false;
     }
 

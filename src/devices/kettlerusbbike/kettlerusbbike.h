@@ -79,6 +79,7 @@ class kettlerusbbike : public bike {
     double bikeResistanceGain = 1.0;
 
     uint8_t sec1Update = 0;
+    uint8_t joystickDiscoveryCounter = 0; // Counter for periodic joystick discovery
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     metric target_watts;

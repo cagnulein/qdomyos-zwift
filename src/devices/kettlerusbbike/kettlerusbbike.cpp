@@ -262,6 +262,31 @@ void kettlerusbbike::update() {
             sec1Update = 0;
         }
 
+        // Periodic joystick discovery (every 5 seconds)
+        if (joystickDiscoveryCounter++ >= 25) { // 25 * 200ms = 5 seconds
+            joystickDiscoveryCounter = 0;
+
+            if (!myJoystick) {
+                qDebug() << "Attempting periodic joystick discovery...";
+                QStringList possibleJoystickPorts = getAdjacentSerialPorts(
+                    settings.value(QZSettings::kettler_usb_serialport, QZSettings::default_kettler_usb_serialport).toString()
+                );
+
+                for (const QString &port : possibleJoystickPorts) {
+                    myJoystick = new KettlerJoystick(this, port);
+                    if (myJoystick->discover(port)) {
+                        qDebug() << "Kettler joystick found on:" << port;
+                        connect(myJoystick, &KettlerJoystick::buttonPressed, this, &kettlerusbbike::handleJoystickButton);
+                        myJoystick->start();
+                        break;
+                    } else {
+                        delete myJoystick;
+                        myJoystick = nullptr;
+                    }
+                }
+            }
+        }
+
         // Update slope-based power if sim mode is active
         if (m_slopeControlEnabled && initDone) {
             updateSlopeTargetPower();
