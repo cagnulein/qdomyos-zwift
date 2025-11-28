@@ -372,6 +372,24 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
         return;
 
+    // ZR8: Speed data is only in packets starting with a5 2[0123] 06
+    // Other packets containing 02 23 signature do not have valid speed data
+    if (ZR8) {
+        if (newValue.length() < 18)
+            return;
+
+        // Check for valid speed packet header: a5 20 06, a5 21 06, or a5 23 06
+        bool isValidSpeedPacket = ((uint8_t)newValue[0] == 0xa5 &&
+                                   ((uint8_t)newValue[1] == 0x20 || (uint8_t)newValue[1] == 0x21 || (uint8_t)newValue[1] == 0x23) &&
+                                   (uint8_t)newValue[2] == 0x06);
+        if (!isValidSpeedPacket) {
+            if (newValue.contains(actualPaceSign) || newValue.contains(actualPace2Sign)) {
+                emit debug(QStringLiteral("ZR8: Ignoring non-speed packet with pace signature"));
+            }
+            return;  // Not a speed packet, ignore
+        }
+    }
+
     if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
         return;
 
