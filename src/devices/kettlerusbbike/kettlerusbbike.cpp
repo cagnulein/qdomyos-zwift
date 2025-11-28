@@ -147,12 +147,16 @@ void kettlerusbbike::innerWriteResistance() {
         requestResistance = -1;
     }
 
+    // ERG mode takes priority: if requestPower is active, use it and disable slope control
     if (requestPower > 0) {
         myKettler->setPower(requestPower);
-        qDebug() << "setting power = " << requestPower;
-    }
-
-    if (requestInclination != -100) {
+        qDebug() << "setting power (ERG mode) = " << requestPower;
+        // Disable slope control to prevent interference from SIM mode
+        m_slopeControlEnabled = false;
+        requestInclination = -100;
+        requestPower = -1;  // Reset after use to allow switching back to SIM mode
+    } else if (requestInclination != -100) {
+        // SIM mode: only apply inclination when NOT in ERG mode
         // Kettler USB doesn't support native inclination, but we use sim mode
         // to convert inclination to power (handled by forceInclination)
         emit debug(QStringLiteral("inclination change handled via sim mode: ") +
