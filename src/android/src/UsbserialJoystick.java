@@ -117,11 +117,7 @@ public class UsbserialJoystick {
                 testPort.write(testCommand.getBytes(java.nio.charset.StandardCharsets.US_ASCII), 500);
 
                 // Wait a bit for response
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    // Ignore
-                }
+                Thread.sleep(100);
 
                 byte[] buffer = new byte[256];
                 int bytesRead = 0;
