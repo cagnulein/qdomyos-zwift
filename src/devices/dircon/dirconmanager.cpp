@@ -15,7 +15,7 @@ using namespace std::chrono_literals;
     OP(CYCLING_POWER, 0x1818, WAHOO_KICKR, P1, P2, P3)                                                                 \
     OP(CYCLING_SPEED_AND_CADENCE, 0x1816, WAHOO_KICKR, P1, P2, P3)                                                     \
     OP(RUNNING_SPEED_AND_CADENCE, 0x1814, WAHOO_TREADMILL, P1, P2, P3)                                                 \
-    OP(HEART_RATE, 0x180D, WAHOO_BLUEHR, P1, P2, P3)                                                                   \
+    /* OP(HEART_RATE, 0x180D, WAHOO_BLUEHR, P1, P2, P3) */                                                             \
     ZWIFT_ENABLED(OP, ZWIFT_PLAY_EMULATOR, ZWIFT_PLAY_ENUM_VALUE, WAHOO_KICKR, P1, P2, P3)
 
 #define ZWIFT_ENABLED_OP(OP, DESC, UUID, MACHINE, P1, P2, P3) OP(DESC, UUID, MACHINE, P1, P2, P3)
@@ -23,7 +23,7 @@ using namespace std::chrono_literals;
 
 #define DM_MACHINE_OP(OP, P1, P2, P3)                                                                                  \
     OP(WAHOO_KICKR, "Wahoo KICKR $uuid_hex$", DM_MACHINE_TYPE_TREADMILL | DM_MACHINE_TYPE_BIKE, P1, P2, P3)            \
-    OP(WAHOO_BLUEHR, "Wahoo HRM", DM_MACHINE_TYPE_BIKE | DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)                        \
+    /* OP(WAHOO_BLUEHR, "Wahoo HRM", DM_MACHINE_TYPE_BIKE | DM_MACHINE_TYPE_TREADMILL, P1, P2, P3) */                  \
     OP(WAHOO_RPM_SPEED, "Wahoo SPEED $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)                                    \
     OP(WAHOO_TREADMILL, "Wahoo TREAD $uuid_hex$", DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)
 
@@ -77,7 +77,7 @@ using namespace std::chrono_literals;
        P3)                                                                                                             \
     OP(RUNNING_SPEED_AND_CADENCE, 0x2A53, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2,    \
        P3)                                                                                                             \
-    OP(HEART_RATE, 0x2A37, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)               \
+    /* OP(HEART_RATE, 0x2A37, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3) */         \
     ZWIFT_ENABLED(OP, ZWIFT_PLAY_EMULATOR, 0x0003, DPKT_CHAR_PROP_FLAG_WRITE, DM_BT("\x00"), DP_PROCESS_WRITE_0003, P1, P2, P3) \
     ZWIFT_ENABLED(OP, ZWIFT_PLAY_EMULATOR, 0x0002, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3) \
     ZWIFT_ENABLED(OP, ZWIFT_PLAY_EMULATOR, 0x0004, DPKT_CHAR_PROP_FLAG_INDICATE, DM_BT("\x02\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)
