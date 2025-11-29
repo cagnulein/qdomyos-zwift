@@ -112,11 +112,7 @@
 
 				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
 
-                                <receiver android:name=".MediaButtonReceiver" android:exported="true" android:permission="android.permission.MODIFY_AUDIO_SETTINGS">
-                                    <intent-filter>
-                                        <action android:name="android.media.VOLUME_CHANGED_ACTION" />
-                                    </intent-filter>
-                                </receiver>
+                                
 		  <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
 		</application>
 
