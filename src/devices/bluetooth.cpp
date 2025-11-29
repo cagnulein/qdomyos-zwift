@@ -1011,7 +1011,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->signalBluetoothDeviceConnected(powerTreadmill);
             } else if (b.name().toUpper().startsWith(QStringLiteral("DOMYOS-ROW")) &&
-                       !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosRower && filter) {
+                       !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosRower && ftms_rower.contains(QZSettings::default_ftms_rower) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 domyosRower = new domyosrower(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset,
