@@ -816,9 +816,8 @@ const QString QZSettings::restore_specific_gear = QStringLiteral("restore_specif
 const QString QZSettings::skipLocationServicesDialog = QStringLiteral("skipLocationServicesDialog");
 const QString QZSettings::trainprogram_pid_pushy = QStringLiteral("trainprogram_pid_pushy");
 const QString QZSettings::min_inclination = QStringLiteral("min_inclination");
-const QString QZSettings::max_inclination = QStringLiteral("max_inclination");
-const QString QZSettings::min_speed = QStringLiteral("min_speed");
-const QString QZSettings::max_speed = QStringLiteral("max_speed");
+const QString QZSettings::treadmill_speed_min = QStringLiteral("treadmill_speed_min");
+const QString QZSettings::treadmill_speed_max = QStringLiteral("treadmill_speed_max");
 const QString QZSettings::proform_performance_300i = QStringLiteral("proform_performance_300i");
 const QString QZSettings::proform_performance_400i = QStringLiteral("proform_performance_400i");
 const QString QZSettings::proform_treadmill_c700 = QStringLiteral("proform_treadmill_c700");
@@ -999,7 +998,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 818;
+const uint32_t allSettingsCount = 816;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1689,9 +1688,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::skipLocationServicesDialog, QZSettings::default_skipLocationServicesDialog},
     {QZSettings::trainprogram_pid_pushy, QZSettings::default_trainprogram_pid_pushy},
     {QZSettings::min_inclination, QZSettings::default_min_inclination},
-    {QZSettings::max_inclination, QZSettings::default_max_inclination},
-    {QZSettings::min_speed, QZSettings::default_min_speed},
-    {QZSettings::max_speed, QZSettings::default_max_speed},
+    {QZSettings::treadmill_speed_min, QZSettings::default_treadmill_speed_min},
+    {QZSettings::treadmill_speed_max, QZSettings::default_treadmill_speed_max},
     {QZSettings::proform_performance_300i, QZSettings::default_proform_performance_300i},
     {QZSettings::proform_performance_400i, QZSettings::default_proform_performance_400i},
     {QZSettings::proform_treadmill_c700, QZSettings::default_proform_treadmill_c700},

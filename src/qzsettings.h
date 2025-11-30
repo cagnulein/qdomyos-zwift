@@ -2264,14 +2264,11 @@ class QZSettings {
     static const QString min_inclination;
     static constexpr double default_min_inclination = -999.0;
 
-    static const QString max_inclination;
-    static constexpr double default_max_inclination = 999.0;
+    static const QString treadmill_speed_min;
+    static constexpr double default_treadmill_speed_min = -999.0;
 
-    static const QString min_speed;
-    static constexpr double default_min_speed = -999.0;
-
-    static const QString max_speed;
-    static constexpr double default_max_speed = 999.0;
+    static const QString treadmill_speed_max;
+    static constexpr double default_treadmill_speed_max = 999.0;
 
     static const QString proform_performance_300i;
     static constexpr bool default_proform_performance_300i = false;

@@ -18,8 +18,8 @@ void treadmill::changeSpeed(double speed) {
 
     QSettings settings;
     bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
-    double min_speed = settings.value(QZSettings::min_speed, QZSettings::default_min_speed).toDouble();
-    double max_speed = settings.value(QZSettings::max_speed, QZSettings::default_max_speed).toDouble();
+    double treadmill_speed_min = settings.value(QZSettings::treadmill_speed_min, QZSettings::default_treadmill_speed_min).toDouble();
+    double treadmill_speed_max = settings.value(QZSettings::treadmill_speed_max, QZSettings::default_treadmill_speed_max).toDouble();
 
     m_lastRawSpeedRequested = speed;
     speed /= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
@@ -36,13 +36,13 @@ void treadmill::changeSpeed(double speed) {
         }
     }
 
-    if(min_speed > speed) {
-        speed = min_speed;
-        qDebug() << "speed override due to min_speed" << min_speed;
+    if(treadmill_speed_min > speed) {
+        speed = treadmill_speed_min;
+        qDebug() << "speed override due to treadmill_speed_min" << treadmill_speed_min;
     }
-    if(max_speed < speed) {
-        speed = max_speed;
-        qDebug() << "speed override due to max_speed" << max_speed;
+    if(treadmill_speed_max < speed) {
+        speed = treadmill_speed_max;
+        qDebug() << "speed override due to treadmill_speed_max" << treadmill_speed_max;
     }
 
     qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult << m_difficult_offset << m_lastRawSpeedRequested;
