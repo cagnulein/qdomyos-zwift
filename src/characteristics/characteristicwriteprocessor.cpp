@@ -27,6 +27,7 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
     double CWGain = settings.value(QZSettings::CWGain, QZSettings::default_CWGain).toDouble();
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
     double min_inclination = settings.value(QZSettings::min_inclination, QZSettings::default_min_inclination).toDouble();
+    double max_inclination = settings.value(QZSettings::max_inclination, QZSettings::default_max_inclination).toDouble();
 
     qDebug() << QStringLiteral("new requested resistance zwift erg grade ") + QString::number(iresistance) +
                     QStringLiteral(" enabled ") + force_resistance;
@@ -43,6 +44,10 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
     if(min_inclination > grade) {
         grade = min_inclination;
         qDebug() << "grade override due to min_inclination " << min_inclination;
+    }
+    if(max_inclination < grade) {
+        grade = max_inclination;
+        qDebug() << "grade override due to max_inclination " << max_inclination;
     }
 
     /*

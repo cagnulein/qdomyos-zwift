@@ -15,12 +15,15 @@ void treadmill::changeSpeed(double speed) {
         targetWatts = -1;
         qDebug() << "External speed change - resetting power following mode";
     }
-    
+
     QSettings settings;
     bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
+    double min_speed = settings.value(QZSettings::min_speed, QZSettings::default_min_speed).toDouble();
+    double max_speed = settings.value(QZSettings::max_speed, QZSettings::default_max_speed).toDouble();
+
     m_lastRawSpeedRequested = speed;
     speed /= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
-    speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();    
+    speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();
     if(stryd_speed_instead_treadmill && Speed.value() > 0) {
         double delta = (Speed.value() - rawSpeed.value());
         double maxAllowedDelta = speed * 0.20; // 20% of the speed request
@@ -32,6 +35,16 @@ void treadmill::changeSpeed(double speed) {
             qDebug() << "Delta" << delta << "exceeds 20% threshold of" << maxAllowedDelta << "- not applying correction";
         }
     }
+
+    if(min_speed > speed) {
+        speed = min_speed;
+        qDebug() << "speed override due to min_speed" << min_speed;
+    }
+    if(max_speed < speed) {
+        speed = max_speed;
+        qDebug() << "speed override due to max_speed" << max_speed;
+    }
+
     qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult << m_difficult_offset << m_lastRawSpeedRequested;
     RequestedSpeed = (speed * m_difficult) + m_difficult_offset;
     if (autoResistanceEnable)
