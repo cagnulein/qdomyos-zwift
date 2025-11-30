@@ -1,0 +1,16 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console.keypress";
+option java_outer_classname = "KeyPressServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+import "console/keypress/KeyPress.proto";
+import "util/Util.proto";
+
+service KeyPressService {
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+  rpc CanWriteVirtual(Empty) returns (AvailabilityResponse) {}
+  rpc GetKeyPress(Empty) returns (KeyPressResult) {}
+  rpc KeyPressSubscription(Empty) returns (stream KeyPress) {}
+  rpc SetVirtualKeyPress(KeyPress) returns (KeyPressResult) {}
+}
