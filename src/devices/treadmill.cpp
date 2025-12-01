@@ -15,12 +15,19 @@ void treadmill::changeSpeed(double speed) {
         targetWatts = -1;
         qDebug() << "External speed change - resetting power following mode";
     }
-    
+
     QSettings settings;
+    double treadmill_speed_max = settings.value(QZSettings::treadmill_speed_max, QZSettings::default_treadmill_speed_max).toDouble();
     bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
     m_lastRawSpeedRequested = speed;
     speed /= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
-    speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();    
+    speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();
+
+    if(speed > treadmill_speed_max) {
+        speed = treadmill_speed_max;
+        qDebug() << "speed override due to treadmill_speed_max" << speed;
+    }
+
     if(stryd_speed_instead_treadmill && Speed.value() > 0) {
         double delta = (Speed.value() - rawSpeed.value());
         double maxAllowedDelta = speed * 0.20; // 20% of the speed request

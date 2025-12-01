@@ -360,7 +360,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 
     if (Flags.totDistance) {
-        if (ICONSOLE_PLUS) {
+        if (ICONSOLE_PLUS || FITSHOW) {
             // For ICONSOLE+, always calculate distance from speed instead of using characteristic data
             Distance += ((Speed.value() / 3600000.0) *
                          ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
@@ -800,6 +800,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+"))) {
             ICONSOLE_PLUS = true;
             qDebug() << "ICONSOLE+ found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("FS-"))) {
+            FITSHOW = true;
+            qDebug() << "FITSHOW found!";
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

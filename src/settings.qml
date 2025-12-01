@@ -1209,22 +1209,25 @@ import Qt.labs.platform 1.1
             property bool toorxtreadmill_discovery_completed: false
             property bool taurua_ic90: false
             property bool proform_csx210: false
-            property bool confirm_stop_workout: false
-            property bool proform_rower_750r: false
+            property bool confirm_stop_workout: false                       
+            property bool proform_rower_750r: false             
             property bool virtual_device_force_treadmill: false
             property bool proform_trainer_9_0: false
             property bool iconcept_ftms_treadmill_inclination_table: false
             property bool skandika_wiri_x2000_protocol: true
             property bool nordictrack_series_7: false
-            property string kettler_usb_serialport: ""
-
+            property string kettler_usb_serialport: ""			
+            property int kettler_usb_baudrate: 9600
+            property bool nordictrack_se7i: false
+            property real treadmill_speed_max: 100
+            
             // Intervals.icu settings
             property bool intervalsicu_upload_enabled: true
             property bool intervalsicu_use_oauth: true
             property string intervalsicu_suffix: "#QZ"
             property bool intervalsicu_date_prefix: false
             property string intervalsicu_api_key: ""
-            property string intervalsicu_athlete_id: ""
+            property string intervalsicu_athlete_id: ""            
         }
 
 
@@ -4323,6 +4326,8 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+												accordionContent: ColumnLayout {
+                            spacing: 0
                         RowLayout {
                             spacing: 10
                             Label {
@@ -4346,7 +4351,37 @@ import Qt.labs.platform 1.1
                                 onClicked: { settings.kettler_usb_serialport = kettlerUsbSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                             }
                         }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelKettlerUsbBaudrate
+                                text: qsTr("Baudrate:")
+                                Layout.fillWidth: true
+                            }
+                            ComboBox {
+                                id: kettlerUsbBaudrateComboBox
+                                model: [ "9600", "57600" ]
+                                displayText: settings.kettler_usb_baudrate.toString()
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    console.log("kettler baudrate combobox activated" + kettlerUsbBaudrateComboBox.currentIndex)
+                                    displayText = kettlerUsbBaudrateComboBox.currentValue
+                                }
+                            }
+                            Button {
+                                id: okKettlerUsbBaudrateButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: {
+                                    settings.kettler_usb_baudrate = parseInt(kettlerUsbBaudrateComboBox.displayText);
+                                    window.settings_restart_to_apply = true;
+                                    toast.show("Setting saved!");
+                                }
+                            }
+                        }
                     }
+										}
 
 
                     AccordionElement {
@@ -7321,7 +7356,43 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }            
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Max. Speed:") + "(" + (settings.miles_unit?"mph":"km/h") + ")"
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: treadmillSpeedMaxTextField
+                            text: (settings.miles_unit?settings.treadmill_speed_max * 0.621371:settings.treadmill_speed_max).toFixed(1)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.treadmill_speed_max = (settings.miles_unit?text * 1.60934:text)
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.treadmill_speed_max = (settings.miles_unit?treadmillSpeedMaxTextField.text * 1.60934:treadmillSpeedMaxTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
 
                     NewPageElement {
                         title: qsTr("Inclination Overrides")
@@ -9327,6 +9398,19 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.nordictrack_elliptical_c7_5 = checked; window.settings_restart_to_apply = true; }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("NordicTrack Elliptical SE7i")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.nordictrack_se7i
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.nordictrack_se7i = checked; window.settings_restart_to_apply = true; }
                             }
                             RowLayout {
                                 spacing: 10

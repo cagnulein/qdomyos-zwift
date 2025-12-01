@@ -48,8 +48,10 @@ kettlerusbbike::kettlerusbbike(bool noWriteResistance, bool noHeartService, int8
 
     QString kettlerSerialPort =
         settings.value(QZSettings::kettler_usb_serialport, QZSettings::default_kettler_usb_serialport).toString();
+    int kettlerBaudrate =
+        settings.value(QZSettings::kettler_usb_baudrate, QZSettings::default_kettler_usb_baudrate).toInt();
 
-    myKettler = new KettlerUSB(this, kettlerSerialPort);
+    myKettler = new KettlerUSB(this, kettlerSerialPort, kettlerBaudrate);
     myKettler->start();
 
     ergModeSupported = true; // ERG mode supported
@@ -85,6 +87,7 @@ kettlerusbbike::kettlerusbbike(bool noWriteResistance, bool noHeartService, int8
             auto virtualBike =
                 new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             connect(virtualBike, &virtualbike::changeInclination, this, &kettlerusbbike::changeInclination);
+            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &kettlerusbbike::ftmsCharacteristicChanged);
             this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
@@ -151,11 +154,11 @@ void kettlerusbbike::innerWriteResistance() {
     }
 
     if (requestInclination != -100) {
-        // Kettler USB doesn't support inclination/gradient mode in the protocol
-        // We could simulate it by calculating power from gradient + speed
-        // For now, just log it
-        emit debug(QStringLiteral("inclination requested but not supported on Kettler USB: ") +
+        // Kettler USB doesn't support native inclination, but we use sim mode
+        // to convert inclination to power (handled by forceInclination)
+        emit debug(QStringLiteral("inclination change handled via sim mode: ") +
                    QString::number(requestInclination));
+        forceInclination(requestInclination);
         requestInclination = -100;
     }
 }
@@ -239,6 +242,17 @@ void kettlerusbbike::update() {
             sec1Update = 0;
         }
 
+        // Update slope-based power if sim mode is active
+        // Only allow slope control if the last FTMS command was FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS
+        if (m_slopeControlEnabled && initDone) {
+            if (m_lastFtmsCommand == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
+                updateSlopeTargetPower();
+            } else {
+                m_slopeControlEnabled = false;
+                qDebug() << "kettlerusbbike: disabling slope control, last FTMS command was not FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS";
+            }
+        }
+
         innerWriteResistance();
 
         if (requestStart != -1) {
@@ -274,4 +288,42 @@ bool kettlerusbbike::connected() {
 
 uint16_t kettlerusbbike::watts() {
     return m_watt.value();
+}
+
+void kettlerusbbike::changeInclination(double grade, double percentage) {
+    qDebug() << "kettlerusbbike::changeInclination" << grade << percentage;
+
+    // Call base class implementation to handle signals
+    bike::changeInclination(grade, percentage);
+
+    // Store current slope and enable sim mode
+    Inclination = grade;
+    m_currentSlopePercent = grade;
+    m_slopeControlEnabled = true;
+
+    // Force immediate power update
+    updateSlopeTargetPower(true);
+}
+
+void kettlerusbbike::forceInclination(double inclination) {
+    qDebug() << "kettlerusbbike::forceInclination" << inclination;
+
+    // Store current slope and enable sim mode
+    Inclination = inclination;
+    m_currentSlopePercent = inclination;
+    m_slopeControlEnabled = true;
+
+    // Force immediate power update
+    updateSlopeTargetPower(true);
+}
+
+void kettlerusbbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                                const QByteArray &newValue) {
+    Q_UNUSED(characteristic)
+
+    // Parse the first byte as the FTMS command
+    if (newValue.length() > 0) {
+        m_lastFtmsCommand = static_cast<FtmsControlPointCommand>(newValue.at(0));
+        qDebug() << "kettlerusbbike::ftmsCharacteristicChanged - received command:" << m_lastFtmsCommand;
+    }
 }
