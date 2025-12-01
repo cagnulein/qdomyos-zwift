@@ -350,11 +350,6 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         emit debug(QStringLiteral("resetting speed"));
         Speed = 0;
         Cadence = 0;
-    } else if (ZR8 == true && Speed.lastChanged().secsTo(QDateTime::currentDateTime()) > 15 &&
-               Cadence.lastChanged().secsTo(QDateTime::currentDateTime()) > 15) {
-        emit debug(QStringLiteral("resetting speed"));
-        Speed = 0;
-        Cadence = 0;
     }
 
     if ((newValue.length() != 20))
