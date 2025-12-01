@@ -690,6 +690,10 @@ class QZSettings {
 
     static const QString proform_treadmill_995i;
     static constexpr bool default_proform_treadmill_995i = false;
+    static const QString nordictrack_series_7;
+    static constexpr bool default_nordictrack_series_7 = false;
+    static const QString nordictrack_se7i;
+    static constexpr bool default_nordictrack_se7i = false;
 
     static const QString toorx_3_0;
     static constexpr bool default_toorx_3_0 = false;
@@ -1636,6 +1640,11 @@ class QZSettings {
     static const QString computrainer_serialport;
     static const QString default_computrainer_serialport;
 
+    static const QString kettler_usb_serialport;
+    static const QString default_kettler_usb_serialport;
+    static const QString kettler_usb_baudrate;
+    static constexpr int default_kettler_usb_baudrate = 9600;
+
     static const QString strava_virtual_activity;
     static constexpr bool default_strava_virtual_activity = true;
 
@@ -2002,6 +2011,9 @@ class QZSettings {
 
     static const QString treadmill_incline_max;
     static constexpr float default_treadmill_incline_max = 100.0;
+
+    static const QString treadmill_speed_max;
+    static constexpr float default_treadmill_speed_max = 100.0;
 
     static const QString proform_2000_treadmill;
     static constexpr bool default_proform_2000_treadmill = false;
@@ -2717,6 +2729,12 @@ class QZSettings {
 
     static const QString proform_csx210;
     static constexpr bool default_proform_csx210 = false;
+
+    /**
+     * @brief Enable X-2000 protocol for Skandika Wiri bike (true for X-2000, false for standard protocol)
+     */
+    static const QString skandika_wiri_x2000_protocol;
+    static constexpr bool default_skandika_wiri_x2000_protocol = true;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

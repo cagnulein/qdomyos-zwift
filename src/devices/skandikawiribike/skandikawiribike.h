@@ -39,8 +39,13 @@ class skandikawiribike : public bike {
                      double bikeResistanceGain);
     ~skandikawiribike();
     bool connected() override;
+    resistance_t maxResistance() override { return max_resistance; }
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override { return (pelotonResistance * max_resistance) / 100; }
 
   private:
+    resistance_t max_resistance = 32;
+    resistance_t min_resistance = 1;
+
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(const QByteArray &packet);

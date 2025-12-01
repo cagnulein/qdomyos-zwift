@@ -23,6 +23,7 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QDirIterator>
+#include <QFile>
 #include <QFileInfo>
 #include <QGeoCoordinate>
 #include <QHttpMultiPart>
@@ -41,6 +42,7 @@
 #include <QStandardPaths>
 #include <QTime>
 #include <QUrlQuery>
+#include <QRegularExpression>
 #include <chrono>
 
 homeform *homeform::m_singleton = 0;
@@ -598,6 +600,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(gpxpreview_open_clicked(QUrl)), this, SLOT(gpxpreview_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(fitfile_preview_clicked(QUrl)), this, SLOT(fitfile_preview_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_zwo_loaded(QString)), this, SLOT(trainprogram_zwo_loaded(QString)));
+    QObject::connect(stack, SIGNAL(trainprogram_autostart_requested()), this, SLOT(trainprogram_autostart_requested()));
     QObject::connect(stack, SIGNAL(gpx_open_clicked(QUrl)), this, SLOT(gpx_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(gpx_save_clicked()), this, SLOT(gpx_save_clicked()));
     QObject::connect(stack, SIGNAL(fit_save_clicked()), this, SLOT(fit_save_clicked()));
@@ -840,10 +843,14 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
                                                 "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), QtAndroid::androidContext().object());
 
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
-                                              "registerReceiver",
-                                              "(Landroid/content/Context;)V",
-                                              QtAndroid::androidContext().object());
+    // Only register MediaButtonReceiver if volume_change_gears is enabled
+    if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
+        qDebug() << "Registering MediaButtonReceiver for volume gear control";
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
+                                                  "registerReceiver",
+                                                  "(Landroid/content/Context;)V",
+                                                  QtAndroid::androidContext().object());
+    }
 #endif    
 
     bluetoothManager->homeformLoaded = true;
@@ -1004,15 +1011,16 @@ void homeform::peloton_start_workout() {
     if (pelotonHandler) {
         if (pelotonHandler->current_workout_type.toLower().startsWith("meditation") ||
             pelotonHandler->current_workout_type.toLower().startsWith("cardio") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("circuit") ||
             pelotonHandler->current_workout_type.toLower().startsWith("strength") ||
             pelotonHandler->current_workout_type.toLower().startsWith("stretching") ||
             pelotonHandler->current_workout_type.toLower().startsWith("yoga"))
             stravaPelotonWorkoutType = FIT_SPORT_GENERIC;
-        else if (pelotonHandler->current_workout_type.toLower().startsWith("walking"))
+        else if (pelotonHandler->isWalkingWorkout())
             stravaPelotonWorkoutType = FIT_SPORT_WALKING;
         else if (pelotonHandler->current_workout_type.toLower().startsWith("running"))
             stravaPelotonWorkoutType = FIT_SPORT_RUNNING;
+        else if (pelotonHandler->current_workout_type.toLower().startsWith("circuit"))
+            stravaPelotonWorkoutType = FIT_SPORT_GENERIC;
         else
             stravaPelotonWorkoutType = FIT_SPORT_INVALID;
 
@@ -4526,6 +4534,14 @@ void homeform::Plus(const QString &name) {
                     trainProgram->overridePowerForCurrentRow(
                         ((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
                 }
+            } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                m_overridePower = true;
+                ((rower *)bluetoothManager->device())
+                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                if (trainProgram) {
+                    trainProgram->overridePowerForCurrentRow(
+                        ((rower *)bluetoothManager->device())->lastRequestedPower().value());
+                }
             }
         }
     } else if (name.contains(QStringLiteral("fan"))) {
@@ -4815,6 +4831,14 @@ void homeform::Minus(const QString &name) {
                 if (trainProgram) {
                     trainProgram->overridePowerForCurrentRow(
                         ((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
+                }
+            } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                m_overridePower = true;
+                ((rower *)bluetoothManager->device())
+                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                if (trainProgram) {
+                    trainProgram->overridePowerForCurrentRow(
+                        ((rower *)bluetoothManager->device())->lastRequestedPower().value());
                 }
             }
         }
@@ -5664,8 +5688,8 @@ void homeform::update() {
             }
 
             // Use different zone names for walking vs running workouts
-            bool isWalkingWorkout = pelotonHandler && pelotonHandler->current_workout_type.toLower().startsWith("walking");
-            
+            bool isWalkingWorkout = pelotonHandler && pelotonHandler->isWalkingWorkout();
+
             switch (trainProgram->currentRow().pace_intensity) {
             case 0:
                 this->target_zone->setValue(tr("Rec."));
@@ -6130,7 +6154,7 @@ void homeform::update() {
                 QString::number(((elliptical *)bluetoothManager->device())->lastRequestedResistance().value(), 'f', 0));
             this->target_peloton_resistance->setValue(QString::number(
                 ((elliptical *)bluetoothManager->device())->lastRequestedPelotonResistance().value(), 'f', 0));
-            this->resistance->setValue(QString::number(resistance));
+            this->resistance->setValue(QString::number(resistance, 'f', 0));
             this->peloton_resistance->setSecondLine(
                 QStringLiteral("AVG: ") +
                 QString::number(((elliptical *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
@@ -7500,6 +7524,22 @@ void homeform::gpx_open_other_folder(const QUrl &fileName) {
     copyAndroidContentsURI(fileName, "gpx");
 }
 
+bool homeform::startTrainingProgramFromFile(const QString &filePath) {
+    if (filePath.isEmpty()) {
+        return false;
+    }
+    QUrl url(filePath);
+    if (!url.isValid() || (!url.isLocalFile() && url.scheme().isEmpty())) {
+        url = QUrl::fromLocalFile(filePath);
+    }
+    QString localPath = QQmlFile::urlToLocalFileOrQrc(url);
+    if (localPath.isEmpty() || !QFile::exists(localPath)) {
+        return false;
+    }
+    trainprogram_open_clicked(QUrl::fromLocalFile(localPath));
+    return true;
+}
+
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
 
@@ -7545,6 +7585,25 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
         }
 
         trainProgramSignals();
+    }
+}
+
+void homeform::trainprogram_autostart_requested() {
+    qDebug() << QStringLiteral("trainprogram_autostart_requested");
+
+    bluetoothdevice *dev = nullptr;
+    if (bluetoothManager) {
+        dev = bluetoothManager->device();
+    }
+
+    if (dev && !dev->isPaused()) {
+        // Device is running, call Start() twice (pause then start)
+        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
+        QThread::msleep(200);
+        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
+    } else {
+        // Device is paused/stopped, call Start() once
+        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
     }
 }
 

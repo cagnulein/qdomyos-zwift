@@ -40,6 +40,9 @@ void elliptical::update_metrics(bool watt_calc, const double watts) {
 
     _lastTimeUpdate = current;
     _firstUpdate = false;
+
+    // Update iOS Live Activity with throttling
+    update_ios_live_activity();
 }
 
 resistance_t elliptical::resistanceFromPowerRequest(uint16_t power) { return power / 10; } // in order to have something

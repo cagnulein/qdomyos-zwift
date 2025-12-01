@@ -351,10 +351,18 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     }
 
     func calculateTreadmillData() -> Data {
-        let flags0:UInt8 = 0x0C
-        let flagsMSO:UInt8 = 0x05 // HR (bit 0 of MSO) | ElapsedTime (bit 2 of MSO)      
+        let flags0:UInt8 = 0x0E // include average speed
+        let flagsMSO:UInt8 = 0x05 // HR (bit 0 of MSO) | ElapsedTime (bit 2 of MSO)
+
+        var avgSpeed: UInt16 = 0
+        if self.ElapsedTimeSeconds > 0 {
+            let distanceMeters = Double(self.CurrentDistance)
+            let kmh = (distanceMeters * 3.6) / Double(self.ElapsedTimeSeconds)
+            avgSpeed = UInt16(min(max(kmh * 100.0, 0), Double(UInt16.max)))
+        }
 
         var treadmillData: [UInt8] = [flags0, flagsMSO, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
+                                      (UInt8)(avgSpeed & 0xFF), (UInt8)((avgSpeed >> 8) & 0xFF),
                                       (UInt8)(self.CurrentDistance & 0xFF), (UInt8)((self.CurrentDistance >> 8) & 0xFF), (UInt8)((self.CurrentDistance >> 16) & 0xFF),
                                       (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
                                       (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),

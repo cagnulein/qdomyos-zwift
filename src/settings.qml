@@ -1207,11 +1207,17 @@ import Qt.labs.platform 1.1
             property bool toorxtreadmill_discovery_completed: false
             property bool taurua_ic90: false
             property bool proform_csx210: false
-            property bool confirm_stop_workout: false
-            property bool proform_rower_750r: false
+            property bool confirm_stop_workout: false                       
+            property bool proform_rower_750r: false             
             property bool virtual_device_force_treadmill: false
             property bool proform_trainer_9_0: false
             property bool iconcept_ftms_treadmill_inclination_table: false
+            property bool skandika_wiri_x2000_protocol: true
+            property bool nordictrack_series_7: false
+            property string kettler_usb_serialport: ""			
+            property int kettler_usb_baudrate: 9600
+            property bool nordictrack_se7i: false
+            property real treadmill_speed_max: 100
         }
 
 
@@ -1347,12 +1353,12 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: {
                                 if (settings.miles_unit) {
-                                    var parts = text.match(/(\d+)'(\d+)"/);
+                                    var parts = text.match(/(\d+)[\s''\u2018\u2019]*(\d+)/);
                                     if (parts) {
                                         settings.height = parseInt(parts[1]) * 30.48 + parseInt(parts[2]) * 2.54;
                                     }
                                 } else {
-                                    settings.height = text;
+                                    settings.height = parseFloat(text);
                                 }
                             }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -1363,12 +1369,15 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 if (settings.miles_unit) {
-                                    var parts = heightTextField.text.match(/(\d+)'(\d+)"/);
+                                    var parts = heightTextField.text.match(/(\d+)[\s''\u2018\u2019]*(\d+)/);
                                     if (parts) {
                                         settings.height = parseInt(parts[1]) * 30.48 + parseInt(parts[2]) * 2.54;
+                                    } else {
+                                        toast.show("Invalid format! Use feet'inches (e.g., 6'2\")");
+                                        return;
                                     }
                                 } else {
-                                    settings.height = heightTextField.text;
+                                    settings.height = parseFloat(heightTextField.text);
                                 }
                                 toast.show("Setting saved!");
                             }
@@ -3723,6 +3732,42 @@ import Qt.labs.platform 1.1
                         }
                     }
                     AccordionElement {
+                        id: skandikaBikeAccordion
+                        title: qsTr("Skandika Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                id: skandikaX2000ProtocolDelegate
+                                text: qsTr("Skandika X-2000 Protocol")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.skandika_wiri_x2000_protocol
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.skandika_wiri_x2000_protocol = checked; window.settings_restart_to_apply = true; }
+                            }
+                            Label {
+                                text: qsTr("Enable this for Skandika X-2000 bikes. Disable for other Skandika models (e.g., HT211212095)")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }
+                    AccordionElement {
                         id: fitplusBikeAccordion
                         title: qsTr("Fitplus Bike Options")
                         indicatRectColor: Material.color(Material.Grey)
@@ -4263,6 +4308,70 @@ import Qt.labs.platform 1.1
                             }
                         }
                     }
+
+
+                    AccordionElement {
+                        id: kettlerUsbBikeAccordion
+                        title: qsTr("Kettler USB Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+												accordionContent: ColumnLayout {
+                            spacing: 0
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelKettlerUsbSerialPort
+                                text: qsTr("Serial Port:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: kettlerUsbSerialPortTextField
+                                text: settings.kettler_usb_serialport
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onAccepted: settings.kettler_usb_serialport = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okKettlerUsbSerialPortButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.kettler_usb_serialport = kettlerUsbSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelKettlerUsbBaudrate
+                                text: qsTr("Baudrate:")
+                                Layout.fillWidth: true
+                            }
+                            ComboBox {
+                                id: kettlerUsbBaudrateComboBox
+                                model: [ "9600", "57600" ]
+                                displayText: settings.kettler_usb_baudrate.toString()
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    console.log("kettler baudrate combobox activated" + kettlerUsbBaudrateComboBox.currentIndex)
+                                    displayText = kettlerUsbBaudrateComboBox.currentValue
+                                }
+                            }
+                            Button {
+                                id: okKettlerUsbBaudrateButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: {
+                                    settings.kettler_usb_baudrate = parseInt(kettlerUsbBaudrateComboBox.displayText);
+                                    window.settings_restart_to_apply = true;
+                                    toast.show("Setting saved!");
+                                }
+                            }
+                        }
+                    }
+										}
 
 
                     AccordionElement {
@@ -7237,7 +7346,43 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }            
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Max. Speed:") + "(" + (settings.miles_unit?"mph":"km/h") + ")"
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: treadmillSpeedMaxTextField
+                            text: (settings.miles_unit?settings.treadmill_speed_max * 0.621371:settings.treadmill_speed_max).toFixed(1)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.treadmill_speed_max = (settings.miles_unit?text * 1.60934:text)
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.treadmill_speed_max = (settings.miles_unit?treadmillSpeedMaxTextField.text * 1.60934:treadmillSpeedMaxTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
 
                     NewPageElement {
                         title: qsTr("Inclination Overrides")
@@ -7411,6 +7556,7 @@ import Qt.labs.platform 1.1
                                     "Nordictrack Ultra LE",
                                     "Proform Carbon TLS",
                                     "Proform 995i",
+                                    "NordicTrack Series 7",
                                     "Proform Trainer 9.0 (PFTL69921-INT.4)",
                                 ]
 
@@ -7481,7 +7627,8 @@ import Qt.labs.platform 1.1
                                                     settings.nordictrack_treadmill_ultra_le ? 50 :
                                                     settings.proform_treadmill_carbon_tls ? 51 :
                                                     settings.proform_treadmill_995i ? 52 :
-                                                    settings.proform_trainer_9_0 ? 53 : 0;
+                                                    settings.nordictrack_series_7 ? 53 :
+                                                    settings.proform_trainer_9_0 ? 54 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -7548,6 +7695,7 @@ import Qt.labs.platform 1.1
                                     settings.nordictrack_treadmill_ultra_le = false;
                                     settings.proform_treadmill_carbon_tls = false;
                                     settings.proform_treadmill_995i = false;
+                                    settings.nordictrack_series_7 = false;
                                     settings.proform_trainer_9_0 = false;
 
                                     // Set new setting based on selection
@@ -7604,7 +7752,8 @@ import Qt.labs.platform 1.1
                                         case 50: settings.nordictrack_treadmill_ultra_le = true; break;
                                         case 51: settings.proform_treadmill_carbon_tls = true; break;
                                         case 52: settings.proform_treadmill_995i = true; break;
-                                        case 53: settings.proform_trainer_9_0 = true; break;
+                                        case 53: settings.nordictrack_series_7 = true; break;
+                                        case 54: settings.proform_trainer_9_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -9239,6 +9388,19 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.nordictrack_elliptical_c7_5 = checked; window.settings_restart_to_apply = true; }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("NordicTrack Elliptical SE7i")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.nordictrack_se7i
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.nordictrack_se7i = checked; window.settings_restart_to_apply = true; }
                             }
                             RowLayout {
                                 spacing: 10

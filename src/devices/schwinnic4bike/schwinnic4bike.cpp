@@ -10,6 +10,7 @@
 
 #include <QThread>
 #include <math.h>
+#include <limits>
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
@@ -349,6 +350,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         emit resistanceRead(Resistance.value());
     } else {
         Resistance = ResistanceFromFTMSAccessory.value();
+        m_pelotonResistance = bikeResistanceToPeloton(ResistanceFromFTMSAccessory.value());
     }
 
     lastRefreshCharacteristicChanged = now;
@@ -626,6 +628,21 @@ uint16_t schwinnic4bike::wattsFromResistance(double resistance) {
 void schwinnic4bike::resistanceFromFTMSAccessory(resistance_t res) {
     ResistanceFromFTMSAccessory = res;
     qDebug() << QStringLiteral("resistanceFromFTMSAccessory") << res;
+}
+
+double schwinnic4bike::bikeResistanceToPeloton(double bikeResistance) {
+    // brute-force inverse of pelotonToBikeResistance with current settings
+    double bestPeloton = 0;
+    double bestDiff = std::numeric_limits<double>::max();
+    for (int peloton = 0; peloton <= 100; peloton++) {
+        resistance_t converted = pelotonToBikeResistance(peloton);
+        double diff = qFabs((double)converted - bikeResistance);
+        if (diff < bestDiff) {
+            bestDiff = diff;
+            bestPeloton = peloton;
+        }
+    }
+    return bestPeloton;
 }
 
 /*
