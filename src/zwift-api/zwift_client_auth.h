@@ -31,9 +31,6 @@ public:
     AuthToken(const QString& username, const QString& password, QObject* parent = nullptr)
         : QObject(parent), username(username), password(password) {}
 
-signals:
-    void tokenReceived(bool success, const QString& message);
-
     bool haveValidAccessToken() const {
         return !access_token.isEmpty() && QDateTime::currentMSecsSinceEpoch() < access_token_expiration;
     }
@@ -50,6 +47,9 @@ signals:
             return access_token;
         }
     }
+
+signals:
+    void tokenReceived(bool success, const QString& message);
 
 public slots:
     void updateTokenData() {
