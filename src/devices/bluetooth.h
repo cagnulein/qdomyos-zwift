@@ -286,6 +286,7 @@ class bluetooth : public QObject, public SignalHandler {
     heartratebelt *heartRateBelt = nullptr;
     smartspin2k *ftmsAccessory = nullptr;
     cscbike *cadenceSensor = nullptr;
+    cscbike *speedSensor = nullptr;
     stagesbike *powerSensor = nullptr;
     strydrunpowersensor *powerSensorRun = nullptr;
     stagesbike *powerBike = nullptr;
@@ -337,6 +338,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool heartRateBeltAvaiable();
     bool ftmsAccessoryAvaiable();
     bool cscSensorAvaiable();
+    bool speedSensorAvailable();
     bool powerSensorAvaiable();
     bool eliteRizerAvaiable();
     bool eliteSterzoSmartAvaiable();

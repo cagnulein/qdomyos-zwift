@@ -315,14 +315,16 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
             LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
         }
     } else if (newValue.contains("Cur KPH")) {
-        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-            double kph = packet[3].toDouble() / 10.0;
-            Speed = kph;
-            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-        } else {
+        if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
                 fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                       .toString()
+                       .startsWith(QStringLiteral("Disabled"))) {
+            double kph = packet[3].toDouble() / 10.0;
+            Speed = kph;
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         }
     }
 

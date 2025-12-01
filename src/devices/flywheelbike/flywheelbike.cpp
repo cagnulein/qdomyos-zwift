@@ -289,12 +289,14 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
                     Cadence = parsedData->cadence;
                 }
                 m_watts = power;
-                if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                    Speed = ((double)speed) / 10.0;
-                } else {
+                if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                     Speed = metric::calculateSpeedFromPower(
                         watts(), Inclination.value(), Speed.value(),
                         fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                               .toString()
+                               .startsWith(QStringLiteral("Disabled"))) {
+                    Speed = ((double)speed) / 10.0;
                 }
 
                 // https://www.facebook.com/groups/149984563348738/permalink/174268944253633/?comment_id=174366620910532&reply_comment_id=174666314213896

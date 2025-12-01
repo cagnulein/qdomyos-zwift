@@ -268,12 +268,14 @@ void iconceptbike::readSocket() {
             KCal = GetCaloriesFromPacket(line);
             if (bh_spada_2_watt) {
                 m_watt = GetWattFromPacket(line);
-                if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                    Speed = GetSpeedFromPacket(line) / 2.0;
-                } else {
+                if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                     Speed = metric::calculateSpeedFromPower(
                         watts(), Inclination.value(), Speed.value(),
                         fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                               .toString()
+                               .startsWith(QStringLiteral("Disabled"))) {
+                    Speed = GetSpeedFromPacket(line) / 2.0;
                 }
                 if (watts())
                     KCal +=

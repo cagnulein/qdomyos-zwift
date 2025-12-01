@@ -220,14 +220,17 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
     index += 2;
 
     if (!Flags.moreData) {
-        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool())
-            Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                              (uint16_t)((uint8_t)newValue.at(index)))) /
-                    100.0;
-        else
+        if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
                 fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                       .toString()
+                       .startsWith(QStringLiteral("Disabled"))) {
+            Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                              (uint16_t)((uint8_t)newValue.at(index)))) /
+                    100.0;
+        }
         index += 2;
         debug("Current Speed: " + QString::number(Speed.value()));
     }

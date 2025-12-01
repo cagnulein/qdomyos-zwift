@@ -149,12 +149,14 @@ void chronobike::characteristicChanged(const QLowEnergyCharacteristic &character
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(8)) / 2;
     }
-    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-        Speed = ((double)((uint16_t)((uint8_t)newValue.at(6)) + ((uint16_t)((uint8_t)newValue.at(7)) << 8))) / 100.0;
-    } else {
+    if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
             fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+    } else if (settings.value(QZSettings::speed_sensor_name, QZSettings::default_speed_sensor_name)
+                   .toString()
+                   .startsWith(QStringLiteral("Disabled"))) {
+        Speed = ((double)((uint16_t)((uint8_t)newValue.at(6)) + ((uint16_t)((uint8_t)newValue.at(7)) << 8))) / 100.0;
     }
     if (watts())
         KCal +=
