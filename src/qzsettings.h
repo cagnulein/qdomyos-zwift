@@ -2027,6 +2027,9 @@ class QZSettings {
     static const QString treadmill_incline_max;
     static constexpr float default_treadmill_incline_max = 100.0;
 
+    static const QString treadmill_speed_max;
+    static constexpr float default_treadmill_speed_max = 100.0;
+
     static const QString proform_2000_treadmill;
     static constexpr bool default_proform_2000_treadmill = false;
 

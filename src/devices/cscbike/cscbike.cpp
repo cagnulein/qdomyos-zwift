@@ -235,7 +235,6 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         oldLastWheelEventTime = _LastWheelEventTime;
         oldWheelRevs = _WheelRevs;
     }
-
     // CSC Combo Sensor Fallback Logic
     //
     // Some combo sensors (e.g., Giant Combo) advertise both speed and cadence capabilities
