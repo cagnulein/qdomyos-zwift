@@ -191,6 +191,35 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
 
     lastPacket = newValue;
 
+    // Freeze detection: check if we're receiving identical packets
+    if (!previousPacket.isEmpty() && previousPacket == newValue) {
+        identicalPacketCount++;
+        qint64 msSinceLastChange = lastPacketChange.msecsTo(QDateTime::currentDateTime());
+
+        // If we've been receiving identical packets for more than 5 seconds, reinitialize
+        if (msSinceLastChange > 5000) {
+            emit debug(QStringLiteral("FREEZE DETECTED! Identical packets for ") +
+                      QString::number(msSinceLastChange / 1000.0) +
+                      QStringLiteral(" seconds. Reinitializing connection..."));
+
+            // Reset counters
+            identicalPacketCount = 0;
+            lastPacketChange = QDateTime::currentDateTime();
+            previousPacket.clear();
+
+            // Reinitialize the device communication
+            initRequest = true;
+            return;
+        }
+    } else {
+        // Packet changed, reset detection
+        if (!previousPacket.isEmpty() && previousPacket != newValue) {
+            identicalPacketCount = 0;
+            lastPacketChange = QDateTime::currentDateTime();
+        }
+        previousPacket = newValue;
+    }
+
     if(newValue.length() != 21) {
         return;
     }

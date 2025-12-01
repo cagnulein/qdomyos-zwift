@@ -59,6 +59,9 @@ class trxappgateusbelliptical : public elliptical {
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
+    QByteArray previousPacket;
+    QDateTime lastPacketChange = QDateTime::currentDateTime();
+    int identicalPacketCount = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     int8_t bikeResistanceOffset = 4;
