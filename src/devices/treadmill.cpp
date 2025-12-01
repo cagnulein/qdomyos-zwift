@@ -147,6 +147,9 @@ void treadmill::update_metrics(bool watt_calc, const double watts, const bool fr
 
     _lastTimeUpdate = current;
     _firstUpdate = false;
+
+    // Update iOS Live Activity with throttling
+    update_ios_live_activity();
 }
 
 uint16_t treadmill::wattsCalc(double weight, double speed, double inclination) {

@@ -1,4 +1,6 @@
 #include "skandikawiribike.h"
+#include "qzsettings.h"
+#include "homeform.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -405,6 +407,11 @@ void skandikawiribike::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xfff0);
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    if (!gattCommunicationChannelService) {
+        homeform::singleton()->setToastRequested(
+            "no service found, contact me to roberto.viola83@gmail.com!");
+        return;
+    }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &skandikawiribike::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
@@ -427,13 +434,21 @@ void skandikawiribike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         bluetoothDevice = device;
 
         if (device.name().toUpper().startsWith(QLatin1String("HT"))) {
-            if (device.name().length() == 11) { // Bikes like the Skandika X-2000 Foldaway Bike
-                X2000 = true; 
-                qDebug() << "X-2000 WORKAROUND!";
+            QSettings settings;
+            bool x2000_protocol_enabled = settings.value(QZSettings::skandika_wiri_x2000_protocol,
+                                                         QZSettings::default_skandika_wiri_x2000_protocol).toBool();
+
+            if (device.name().length() == 11) { // Bikes like the Skandika X-2000 Foldaway Bike or HT211212095
+                X2000 = x2000_protocol_enabled;
+                if (X2000) {
+                    qDebug() << "X-2000 PROTOCOL ENABLED!";
+                } else {
+                    qDebug() << "STANDARD PROTOCOL (X-2000 protocol disabled in settings)";
+                }
             } else if (device.name().length() == 12) // Bikes compatible with delightech app/protocol, for example Skandika Morpheus
             {
                 qDebug() << "deligthechbike WORKAROUND!";
-                delightechBike = true; 
+                delightechBike = true;
             }
         }
 

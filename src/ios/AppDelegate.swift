@@ -138,6 +138,18 @@ var pedometer = CMPedometer()
         WatchKitConnection.power = power;
         Server.server?.send(createString(sender: sender))
     }
+
+    @objc public func setElevationGain(elevationGain: Double) -> Void
+    {
+        WatchKitConnection.elevationGain = elevationGain;
+    }
+
+    @objc public func setHeartRate(heartRate: Int) -> Void
+    {
+        if #available(iOS 17.0, *) {
+            WorkoutTracking.shared.setBluetoothHeartRate(heartRate: Double(heartRate))
+        }
+    }
     
     func createString(sender: String) -> String {
         return "SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(WatchKitConnection.kcal)#TOTALKCAL=\(WatchKitConnection.totalKcal)#BCAD=\(WatchKitConnection.cadence)#SPD=\(WatchKitConnection.speed)#PWR=\(WatchKitConnection.power)#CAD=\(WatchKitConnection.stepCadence)#ODO=\(WatchKitConnection.distance)#";

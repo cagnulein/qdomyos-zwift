@@ -1,6 +1,7 @@
 #include "virtualdevices/virtualrower.h"
 #include "qsettings.h"
 #include "rower.h"
+#include "ftmsbike/ftmsbike.h"
 
 #include <QDataStream>
 #include <QMetaEnum>
@@ -212,8 +213,6 @@ void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
 
     switch (characteristic.uuid().toUInt16()) {
-        // TODO
-        /*
 
     case 0x2AD9: // Fitness Machine Control Point
 
@@ -222,24 +221,24 @@ void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &charact
             // Set Target Resistance
             resistance_t uresistance = newValue.at(1);
             uresistance = uresistance / 10;
+            /*
             if (force_resistance && !erg_mode) {
                 rower->changeResistance(uresistance);
-            }
-            qDebug() << QStringLiteral("new requested resistance ") + QString::number(uresistance) +
-                            QStringLiteral(" enabled ") + force_resistance;
+            }*/
+            qDebug() << QStringLiteral("new requested resistance ") + QString::number(uresistance);
             reply.append((quint8)FTMS_RESPONSE_CODE);
             reply.append((quint8)FTMS_SET_TARGET_RESISTANCE_LEVEL);
             reply.append((quint8)FTMS_SUCCESS);
-        } else if ((char)newValue.at(0) == FTMS_SET_INDOOR_rower_SIMULATION_PARAMS) // simulation parameter
+        } else if ((char)newValue.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) // simulation parameter
 
         {
             qDebug() << QStringLiteral("indoor rower simulation parameters");
             reply.append((quint8)FTMS_RESPONSE_CODE);
-            reply.append((quint8)FTMS_SET_INDOOR_rower_SIMULATION_PARAMS);
+            reply.append((quint8)FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS);
             reply.append((quint8)FTMS_SUCCESS);
 
             int16_t iresistance = (((uint8_t)newValue.at(3)) + (newValue.at(4) << 8));
-            slopeChanged(iresistance);
+            //slopeChanged(iresistance);
         } else if ((char)newValue.at(0) == FTMS_SET_TARGET_POWER) // erg mode
 
         {
@@ -249,7 +248,7 @@ void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &charact
             reply.append((quint8)FTMS_SUCCESS);
 
             uint16_t power = (((uint8_t)newValue.at(1)) + (newValue.at(2) << 8));
-            powerChanged(power);
+            //powerChanged(power);
         } else if ((char)newValue.at(0) == FTMS_START_RESUME) {
             qDebug() << QStringLiteral("start simulation!");
 
@@ -280,7 +279,6 @@ void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &charact
         }
         writeCharacteristic(serviceFIT, characteristic, reply);
         break;
-        */
     }
 }
 
@@ -347,7 +345,7 @@ void virtualrower::rowerProvider() {
                 normalizeSpeed, (char)Rower->currentResistance().value(), (uint16_t)Rower->currentCadence().value() * 2,
                 (uint16_t)normalizeWattage, Rower->currentCrankRevolutions(), Rower->lastCrankEventTime(),
                 ((rower *)Rower)->currentStrokesCount().value(), Rower->odometer() * 1000, Rower->calories().value(),
-                QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace()))) {
+                QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace()), static_cast<uint8_t>(Rower->deviceType()))) {
             h->virtualrower_setHeartRate(Rower->currentHeart().value());
 
             uint8_t ftms_message[255];

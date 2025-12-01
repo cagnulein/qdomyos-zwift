@@ -66,19 +66,28 @@ void bkoolbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
 
 void bkoolbike::changePower(int32_t power) {
     RequestedPower = power;
-    /*
-        if (power < 0)
-            power = 0;
-        uint8_t p[] = {0xa4, 0x09, 0x4e, 0x05, 0x31, 0xff, 0xff, 0xff, 0xff, 0xff, 0x14, 0x02, 0x00};
-        p[10] = (uint8_t)((power * 4) & 0xFF);
-        p[11] = (uint8_t)((power * 4) >> 8);
-        for (uint8_t i = 0; i < sizeof(p) - 1; i++) {
-            p[12] ^= p[i]; // the last byte is a sort of a checksum
-        }
 
-        writeCharacteristic(p, sizeof(p), QStringLiteral("changePower"), false, false);*/
+    if (power < 0) {
+        power = 0;
+    }
 
-    qDebug() << QStringLiteral("Changepower not implemented");
+    forcePower(power);
+}
+
+void bkoolbike::forcePower(int32_t power) {
+    // FE-C "Set Target Power" command (page 0x31)
+    // Power is sent in 1/4 watt units (0.25W resolution)
+    // Bytes: [0x31][0x25][0xFF][0xFF][0xFF][0xFF][power_low][power_high]
+
+    uint16_t power_quarter_watts = (uint16_t)(power * 4);
+
+    uint8_t power_cmd[] = {0x31, 0x25, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00};
+    power_cmd[6] = (uint8_t)(power_quarter_watts & 0xFF);        // Low byte
+    power_cmd[7] = (uint8_t)((power_quarter_watts >> 8) & 0xFF); // High byte
+
+    writeCharacteristic(power_cmd, sizeof(power_cmd),
+                       QStringLiteral("forcePower ") + QString::number(power) + QStringLiteral("W"),
+                       false, false);
 }
 
 void bkoolbike::forceInclination(double inclination) {
@@ -120,13 +129,27 @@ void bkoolbike::update() {
         uint8_t init1[] = {0x30, 0x25, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
         uint8_t init2[] = {0x32, 0x25, 0xff, 0xff, 0xff, 0x1e, 0x7f, 0x00};
         uint8_t init3[] = {0x33, 0x25, 0xff, 0xff, 0xff, 0x20, 0x4e, 0x00};
-        uint8_t init4[] = {0x37, 0x4c, 0x1d, 0xff, 0x80, 0x0c, 0x46, 0x21};
-        uint8_t init5[] = {0x37, 0xee, 0x16, 0xff, 0x80, 0x0c, 0x46, 0x21};
         writeCharacteristic(init1, sizeof(init1), QStringLiteral("init1"), false, false);
         writeCharacteristic(init2, sizeof(init2), QStringLiteral("init2"), false, false);
         writeCharacteristic(init3, sizeof(init3), QStringLiteral("init3"), false, false);
-        writeCharacteristic(init4, sizeof(init4), QStringLiteral("init4"), false, true);
-        writeCharacteristic(init5, sizeof(init5), QStringLiteral("init5"), false, true);
+
+        if (bkool_fitness_bike) {
+            // BKOOLFITNESSBIKE specific init packets
+            uint8_t init4[] = {0x37, 0x4c, 0x1d, 0xff, 0x80, 0x0c, 0x46, 0x21};
+            uint8_t init5[] = {0x37, 0xc8, 0x19, 0xff, 0xe0, 0x0a, 0x46, 0x21};
+            uint8_t init6[] = {0x37, 0xc8, 0x19, 0xff, 0xe0, 0x0a, 0x46, 0x21};
+            uint8_t init7[] = {0x32, 0x25, 0xff, 0xff, 0xff, 0x25, 0x7f, 0x00};
+            writeCharacteristic(init4, sizeof(init4), QStringLiteral("init4"), false, true);
+            writeCharacteristic(init5, sizeof(init5), QStringLiteral("init5"), false, true);
+            writeCharacteristic(init6, sizeof(init6), QStringLiteral("init6"), false, true);
+            writeCharacteristic(init7, sizeof(init7), QStringLiteral("init7"), false, false);
+        } else {
+            // BKOOLSMARTPRO init packets
+            uint8_t init4[] = {0x37, 0x4c, 0x1d, 0xff, 0x80, 0x0c, 0x46, 0x21};
+            uint8_t init5[] = {0x37, 0xee, 0x16, 0xff, 0x80, 0x0c, 0x46, 0x21};
+            writeCharacteristic(init4, sizeof(init4), QStringLiteral("init4"), false, true);
+            writeCharacteristic(init5, sizeof(init5), QStringLiteral("init5"), false, true);
+        }
 
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
@@ -142,6 +165,13 @@ void bkoolbike::update() {
             // updateDisplay(elapsed);
         }
 
+        // Send poll command for BKOOLFITNESSBIKE
+        /*
+        if (bkool_fitness_bike) {
+            uint8_t poll[] = {0x37, 0xc8, 0x19, 0xff, 0xe0, 0x0a, 0x46, 0x21};
+            writeCharacteristic(poll, sizeof(poll), QStringLiteral("poll"), false, false);
+        }*/
+
         if (requestResistance != -1) {
             if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
@@ -151,16 +181,23 @@ void bkoolbike::update() {
                     requestInclination = requestResistance / 10.0;
                 }
                 // forceResistance(requestResistance);;
-            }
-            lastGearValue = gears();
+            }            
             requestResistance = -1;
         }
+
+        if(lastGearValue != gears() && requestInclination == -100) {
+            // if only gears changed, we need to update the inclination to match the gears
+            requestInclination = lastRawRequestedInclinationValue;
+        }
+
         if (requestInclination != -100) {
             emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
             forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
             requestInclination = -100;
         }
+
+        lastGearValue = gears();
 
         if (requestPower != -1) {
             changePower(requestPower);
@@ -681,6 +718,12 @@ void bkoolbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+        // Check if this is BKOOLFITNESSBIKE model
+        if (device.name().toUpper().startsWith(QStringLiteral("BKOOLFITNESSBIKE"))) {
+            bkool_fitness_bike = true;
+            emit debug(QStringLiteral("BKOOLFITNESSBIKE model detected"));
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &bkoolbike::serviceDiscovered);

@@ -840,10 +840,14 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
                                                 "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), QtAndroid::androidContext().object());
 
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
-                                              "registerReceiver",
-                                              "(Landroid/content/Context;)V",
-                                              QtAndroid::androidContext().object());
+    // Only register MediaButtonReceiver if volume_change_gears is enabled
+    if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
+        qDebug() << "Registering MediaButtonReceiver for volume gear control";
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaButtonReceiver",
+                                                  "registerReceiver",
+                                                  "(Landroid/content/Context;)V",
+                                                  QtAndroid::androidContext().object());
+    }
 #endif    
 
     bluetoothManager->homeformLoaded = true;
@@ -1004,15 +1008,16 @@ void homeform::peloton_start_workout() {
     if (pelotonHandler) {
         if (pelotonHandler->current_workout_type.toLower().startsWith("meditation") ||
             pelotonHandler->current_workout_type.toLower().startsWith("cardio") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("circuit") ||
             pelotonHandler->current_workout_type.toLower().startsWith("strength") ||
             pelotonHandler->current_workout_type.toLower().startsWith("stretching") ||
             pelotonHandler->current_workout_type.toLower().startsWith("yoga"))
             stravaPelotonWorkoutType = FIT_SPORT_GENERIC;
-        else if (pelotonHandler->current_workout_type.toLower().startsWith("walking"))
+        else if (pelotonHandler->isWalkingWorkout())
             stravaPelotonWorkoutType = FIT_SPORT_WALKING;
         else if (pelotonHandler->current_workout_type.toLower().startsWith("running"))
             stravaPelotonWorkoutType = FIT_SPORT_RUNNING;
+        else if (pelotonHandler->current_workout_type.toLower().startsWith("circuit"))
+            stravaPelotonWorkoutType = FIT_SPORT_GENERIC;
         else
             stravaPelotonWorkoutType = FIT_SPORT_INVALID;
 
@@ -1341,8 +1346,10 @@ void homeform::aboutToQuit() {
 #endif
 
 #ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
     // End iOS Live Activity
     ios_liveactivity::endLiveActivity();
+#endif
 #endif
 
     QSettings settings;
@@ -1486,7 +1493,13 @@ void homeform::trainProgramSignals() {
 }
 
 void homeform::onToastRequested(QString message) {
+    QSettings settings;
     setToastRequested(message);
+
+    // Use TTS if enabled
+    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
+        m_speech.say(message);
+    }
 }
 
 QStringList homeform::tile_order() {
@@ -4518,6 +4531,14 @@ void homeform::Plus(const QString &name) {
                     trainProgram->overridePowerForCurrentRow(
                         ((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
                 }
+            } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                m_overridePower = true;
+                ((rower *)bluetoothManager->device())
+                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                if (trainProgram) {
+                    trainProgram->overridePowerForCurrentRow(
+                        ((rower *)bluetoothManager->device())->lastRequestedPower().value());
+                }
             }
         }
     } else if (name.contains(QStringLiteral("fan"))) {
@@ -4808,6 +4829,14 @@ void homeform::Minus(const QString &name) {
                     trainProgram->overridePowerForCurrentRow(
                         ((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
                 }
+            } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                m_overridePower = true;
+                ((rower *)bluetoothManager->device())
+                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                if (trainProgram) {
+                    trainProgram->overridePowerForCurrentRow(
+                        ((rower *)bluetoothManager->device())->lastRequestedPower().value());
+                }
             }
         }
     } else if (name.contains(QStringLiteral("fan"))) {
@@ -4983,9 +5012,9 @@ void homeform::Stop() {
 #ifndef IO_UNDER_QT
     if(h && !h->appleWatchAppInstalled())
         h->stopWorkout();
-#endif
     // End iOS Live Activity when workout stops
     ios_liveactivity::endLiveActivity();
+#endif
 #endif
 
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
@@ -5656,8 +5685,8 @@ void homeform::update() {
             }
 
             // Use different zone names for walking vs running workouts
-            bool isWalkingWorkout = pelotonHandler && pelotonHandler->current_workout_type.toLower().startsWith("walking");
-            
+            bool isWalkingWorkout = pelotonHandler && pelotonHandler->isWalkingWorkout();
+
             switch (trainProgram->currentRow().pace_intensity) {
             case 0:
                 this->target_zone->setValue(tr("Rec."));
@@ -6122,7 +6151,7 @@ void homeform::update() {
                 QString::number(((elliptical *)bluetoothManager->device())->lastRequestedResistance().value(), 'f', 0));
             this->target_peloton_resistance->setValue(QString::number(
                 ((elliptical *)bluetoothManager->device())->lastRequestedPelotonResistance().value(), 'f', 0));
-            this->resistance->setValue(QString::number(resistance));
+            this->resistance->setValue(QString::number(resistance, 'f', 0));
             this->peloton_resistance->setSecondLine(
                 QStringLiteral("AVG: ") +
                 QString::number(((elliptical *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
@@ -9057,7 +9086,17 @@ extern "C" {
                 deviceType == ROWING || 
                 deviceType == ELLIPTICAL) {
                 
-                homeform::singleton()->bluetoothManager->device()->changeResistance(resistance);
+                bike* b = dynamic_cast<bike*>(homeform::singleton()->bluetoothManager->device());
+                if (b) {
+                    resistance_t maxRes = b->maxResistance();
+                    resistance_t scaledResistance = (resistance_t)((resistance / 100.0) * maxRes);
+                    if (scaledResistance < 1) scaledResistance = 1;
+                    if (scaledResistance > maxRes) scaledResistance = maxRes;
+
+                    qDebug() << "Native: ANT+ Max resistance:" << maxRes << "Scaled resistance:" << scaledResistance;
+
+                    b->changeResistance(scaledResistance);
+                }
                 qDebug() << "Applied ANT+ resistance change:" << resistance;
             } else {
                 qDebug() << "Device type does not support resistance change";

@@ -16,6 +16,8 @@ class lockscreen {
     void setSpeed(double speed);
     void setPower(double power);
     void setCadence(double cadence);
+    void setElevationGain(double elevationGain);
+    void setHeartRate(unsigned char heartRate);
     void startWorkout(unsigned short deviceType);
     void stopWorkout();
     void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance, double totalKcal, bool useMiles);
@@ -31,7 +33,7 @@ class lockscreen {
     double virtualbike_getCurrentCRR();
     double virtualbike_getCurrentCW();
     double virtualbike_getPowerRequested();
-    bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt, unsigned short CrankRevolutions, unsigned short LastCrankEventTime, signed short Gears, unsigned short currentCalories, unsigned int Distance);
+    bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt, unsigned short CrankRevolutions, unsigned short LastCrankEventTime, signed short Gears, unsigned short currentCalories, unsigned int Distance, unsigned char deviceType);
     int virtualbike_getLastFTMSMessage(unsigned char *message);
 
     // virtualrower
@@ -41,7 +43,7 @@ class lockscreen {
                                  unsigned short currentCadence, unsigned short currentWatt,
                                  unsigned short CrankRevolutions, unsigned short LastCrankEventTime,
                                  unsigned short StrokesCount, unsigned int Distance, unsigned short KCal,
-                                 unsigned short Pace);
+                                 unsigned short Pace, unsigned char deviceType);
     int virtualrower_getLastFTMSMessage(unsigned char *message);
 
     // virtualtreadmill
@@ -53,8 +55,9 @@ class lockscreen {
     double virtualtreadmill_getRequestedSpeed();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                      unsigned short currentCadence, unsigned short currentWatt,
-                                     unsigned short currentInclination, unsigned long long currentDistance, unsigned short currentCalories, 
-                                     qint32 currentSteps, unsigned short elapsedSeconds);
+                                     unsigned short currentInclination, unsigned long long currentDistance, double elevationGain,
+                                     unsigned short currentCalories, qint32 currentSteps, unsigned short elapsedSeconds,
+                                     unsigned char deviceType);
 
     // volume
     double getVolume();
