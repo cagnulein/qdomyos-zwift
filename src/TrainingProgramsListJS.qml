@@ -21,20 +21,25 @@ ColumnLayout {
         property real ftp: 200.0
     }
 
+    property var selectedFileUrl: ""
+
     Loader {
         id: fileDialogLoader
         active: false
         sourceComponent: Component {
             FileDialog {
+                id: fileDialog
                 title: "Please choose a file"
                 folder: shortcuts.home
                 visible: true
                 onAccepted: {
-                    console.log("You chose: " + fileDialogLoader.item.fileUrl)
+                    var chosenFile = fileDialog.fileUrl || fileDialog.file || (fileDialog.fileUrls && fileDialog.fileUrls.length > 0 ? fileDialog.fileUrls[0] : "")
+                    console.log("You chose: " + chosenFile)
+                    selectedFileUrl = chosenFile
                     if(OS_VERSION === "Android") {
-                        trainprogram_open_other_folder(fileDialogLoader.item.fileUrl)
+                        trainprogram_open_other_folder(chosenFile)
                     } else {
-                        trainprogram_open_clicked(fileDialogLoader.item.fileUrl)
+                        trainprogram_open_clicked(chosenFile)
                     }
                     close()
                     fileDialogLoader.active = false
