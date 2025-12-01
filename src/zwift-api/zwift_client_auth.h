@@ -31,6 +31,9 @@ public:
     AuthToken(const QString& username, const QString& password, QObject* parent = nullptr)
         : QObject(parent), username(username), password(password) {}
 
+signals:
+    void tokenReceived(bool success, const QString& message);
+
     bool haveValidAccessToken() const {
         return !access_token.isEmpty() && QDateTime::currentMSecsSinceEpoch() < access_token_expiration;
     }
@@ -101,8 +104,10 @@ private slots:
             refresh_token_expiration = now.toMSecsSinceEpoch() + (refresh_expires_in - 5) * 1000;
 
             qDebug() << "Access Token received successfully";
+            emit tokenReceived(true, "Zwift Login OK!");
         } else {
             qDebug() << "Error fetching token: " << reply->errorString();
+            emit tokenReceived(false, "Zwift Auth Failed!");
         }
 
         reply->deleteLater();

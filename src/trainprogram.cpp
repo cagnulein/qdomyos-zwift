@@ -38,16 +38,18 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
         static bool zwift_auth_toast_shown = false;
 
         zwift_auth_token = new AuthToken(settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString(), settings.value(QZSettings::zwift_password, QZSettings::default_zwift_password).toString());
-        zwift_auth_token->getAccessToken();
 
+        // Connect signal to show toast when token response arrives
         if(!zwift_auth_toast_shown && homeform::singleton()) {
-            if(zwift_auth_token->access_token.length() > 0) {
-                homeform::singleton()->setToastRequested("Zwift Login OK!");
-            } else {
-                homeform::singleton()->setToastRequested("Zwift Auth Failed!");
-            }
-            zwift_auth_toast_shown = true;
+            connect(zwift_auth_token, &AuthToken::tokenReceived, [&zwift_auth_toast_shown](bool success, const QString& message) {
+                if(!zwift_auth_toast_shown && homeform::singleton()) {
+                    homeform::singleton()->setToastRequested(message);
+                    zwift_auth_toast_shown = true;
+                }
+            });
         }
+
+        zwift_auth_token->getAccessToken();
     }
 
     /*
