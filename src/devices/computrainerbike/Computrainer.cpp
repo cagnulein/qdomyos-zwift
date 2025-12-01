@@ -902,6 +902,7 @@ int Computrainer::rawWrite(uint8_t *bytes, int size) // unix!!
         b[i] = bytes[i];
     env->SetByteArrayRegion(d, 0, size, b);
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", d);
+    env->DeleteLocalRef(d);
 #elif defined(WIN32)
     DWORD cBytes;
     rc = WriteFile(devicePort, bytes, size, &cBytes, NULL);
@@ -962,6 +963,7 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
         if (len <= 0) {
             // No data available, release memory and retry after a short sleep
             env->ReleaseByteArrayElements(d, b, 0);
+            env->DeleteLocalRef(d);
             qDebug() << "No data available, retry" << retryCount + 1 << "of" << maxRetries;
             CTsleeper::msleep(50); // Sleep for 50ms before retrying
             retryCount++;
@@ -991,6 +993,7 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
 
             // Release JNI memory before returning
             env->ReleaseByteArrayElements(d, b, 0);
+            env->DeleteLocalRef(d);
             return size;
         }
         for (int i = fullLen; i < len + fullLen; i++) {
@@ -1001,6 +1004,7 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
 
         // Release JNI memory after processing
         env->ReleaseByteArrayElements(d, b, 0);
+        env->DeleteLocalRef(d);
     }
 
     // Check if we timed out
