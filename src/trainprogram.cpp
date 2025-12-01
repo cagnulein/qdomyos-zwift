@@ -35,16 +35,15 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
         this->tags = *tags;
     
     if(settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0) {
-        static bool zwift_auth_toast_shown = false;
-
         zwift_auth_token = new AuthToken(settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString(), settings.value(QZSettings::zwift_password, QZSettings::default_zwift_password).toString());
 
         // Connect signal to show toast when token response arrives
-        if(!zwift_auth_toast_shown && homeform::singleton()) {
-            connect(zwift_auth_token, &AuthToken::tokenReceived, [&zwift_auth_toast_shown](bool success, const QString& message) {
-                if(!zwift_auth_toast_shown && homeform::singleton()) {
+        if(homeform::singleton()) {
+            connect(zwift_auth_token, &AuthToken::tokenReceived, [](bool success, const QString& message) {
+                static bool toast_shown = false;
+                if(!toast_shown && homeform::singleton()) {
                     homeform::singleton()->setToastRequested(message);
-                    zwift_auth_toast_shown = true;
+                    toast_shown = true;
                 }
             });
         }
