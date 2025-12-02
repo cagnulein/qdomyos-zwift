@@ -9248,8 +9248,6 @@ void homeform::onIntervalsICUAuthorizeWithBrowser(const QUrl &url) {
 }
 
 void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
-    qDebug() << "Intervals.icu: callbackReceived" << values;
-
     if (values.contains("code")) {
         intervalsicuAuthCode = values.value("code").toString();
         qDebug() << "Intervals.icu: Authorization code received";
@@ -9282,10 +9280,6 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
         request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
 
         qDebug() << "Intervals.icu: Sending token exchange request";
-        qDebug() << "Intervals.icu: URL:" << urlstr;
-        qDebug() << "Intervals.icu: Method: POST";
-        qDebug() << "Intervals.icu: Content-Type:" << request.header(QNetworkRequest::ContentTypeHeader);
-        qDebug() << "Intervals.icu: POST data:" << data;
 
         // Use existing intervalsicuManager which is already configured with SSL/TLS
         if (!intervalsicuManager) {
@@ -9306,11 +9300,6 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
                 qDebug() << "Intervals.icu: Network error:" << reply->error();
                 qDebug() << "Intervals.icu: Error string:" << reply->errorString();
                 qDebug() << "Intervals.icu: HTTP status:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-                qDebug() << "Intervals.icu: Response body:" << response;
-                qDebug() << "Intervals.icu: All headers:";
-                for (const auto &header : reply->rawHeaderPairs()) {
-                    qDebug() << "  " << header.first << ":" << header.second;
-                }
                 setToastRequested("Intervals.icu: Authentication failed");
                 reply->deleteLater();
                 return;
@@ -9318,7 +9307,6 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
 
             int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
             qDebug() << "Intervals.icu: Token exchange status code:" << statusCode;
-            qDebug() << "Intervals.icu: Response body:" << response;
 
             if (statusCode == 200) {
                 QJsonDocument jsonResponse = QJsonDocument::fromJson(response);
@@ -9366,7 +9354,7 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
     if (values.contains("error")) {
         QString error = values.value("error").toString();
         QString errorDesc = values.value("error_description").toString();
-        qDebug() << "Intervals.icu: OAuth error:" << error << errorDesc;
+        qDebug() << "Intervals.icu: OAuth error occurred";
         setToastRequested("Intervals.icu error: " + error);
     }
 }
@@ -9672,8 +9660,6 @@ void homeform::writeFileCompletedIntervalsICU() {
     QNetworkReply *reply = static_cast<QNetworkReply *>(QObject::sender());
     QByteArray response = reply->readAll();
 
-    qDebug() << "Intervals.icu response:" << response;
-
     int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     if (statusCode >= 200 && statusCode < 300) {
         setToastRequested("Intervals.icu upload successful!");
@@ -9693,14 +9679,6 @@ void homeform::errorOccurredUploadIntervalsICU(QNetworkReply::NetworkError code)
     if (replyIntervalsICU) {
         qDebug() << "Error string:" << replyIntervalsICU->errorString();
         qDebug() << "HTTP status code:" << replyIntervalsICU->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-
-        QByteArray errorData = replyIntervalsICU->readAll();
-        qDebug() << "Error response body:" << QString(errorData);
-
-        QJsonDocument jsonResponse = QJsonDocument::fromJson(errorData);
-        if (!jsonResponse.isNull()) {
-            qDebug() << "JSON error message:" << jsonResponse.toJson();
-        }
 
         setToastRequested("Intervals.icu upload failed: " + replyIntervalsICU->errorString());
     } else {
@@ -9778,7 +9756,6 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
     int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
     qDebug() << "Intervals.icu: Download response status:" << statusCode;
-    qDebug() << "Intervals.icu: Response:" << response;
 
     if (statusCode != 200) {
         QString errorMsg = QString("Failed to get workouts (HTTP %1)").arg(statusCode);
