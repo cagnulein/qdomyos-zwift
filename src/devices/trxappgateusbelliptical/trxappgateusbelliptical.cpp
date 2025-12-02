@@ -191,38 +191,38 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
 
     lastPacket = newValue;
 
-    // Freeze detection: check if we're receiving identical packets
-    if (!previousPacket.isEmpty() && previousPacket == newValue) {
-        identicalPacketCount++;
-        qint64 msSinceLastChange = lastPacketChange.msecsTo(QDateTime::currentDateTime());
+    // Check for connection errors or invalid packet length
+    bool hasError = (m_control->error() != QLowEnergyController::NoError);
+    bool isValidPacket = (newValue.length() == 21);
 
-        // If we've been receiving identical packets for more than 5 seconds, reinitialize
-        if (msSinceLastChange > 5000) {
-            emit debug(QStringLiteral("FREEZE DETECTED! Identical packets for ") +
-                      QString::number(msSinceLastChange / 1000.0) +
-                      QStringLiteral(" seconds. Reinitializing connection..."));
+    // Calculate time since last valid packet
+    qint64 msSinceLastValidPacket = lastValidPacketTime.msecsTo(QDateTime::currentDateTime());
 
-            // Reset counters
-            identicalPacketCount = 0;
-            lastPacketChange = QDateTime::currentDateTime();
-            previousPacket.clear();
+    if (hasError || !isValidPacket) {
+        // We have an error or invalid packet
+        if (hasError) {
+            qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
+        }
+        if (!isValidPacket) {
+            qDebug() << QStringLiteral("Invalid packet length:") << newValue.length();
+        }
+
+        // If we haven't received a valid packet for more than 5 seconds, reinitialize
+        if (msSinceLastValidPacket > 5000) {
+            qDebug() << QStringLiteral("NO VALID PACKETS for") << (msSinceLastValidPacket / 1000.0)
+                     << QStringLiteral("seconds. Reinitializing connection...");
+
+            // Reset timer
+            lastValidPacketTime = QDateTime::currentDateTime();
 
             // Reinitialize the device communication
             initRequest = true;
-            return;
         }
-    } else {
-        // Packet changed, reset detection
-        if (!previousPacket.isEmpty() && previousPacket != newValue) {
-            identicalPacketCount = 0;
-            lastPacketChange = QDateTime::currentDateTime();
-        }
-        previousPacket = newValue;
-    }
-
-    if(newValue.length() != 21) {
         return;
     }
+
+    // We have a valid packet - update the timestamp
+    lastValidPacketTime = QDateTime::currentDateTime();
 
     Resistance = newValue.at(18) - 1;
     Speed = GetSpeedFromPacket(newValue);
@@ -256,10 +256,6 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
     emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
     // debug("Current Distance: " + QString::number(distance));
     emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
-
-    if (m_control->error() != QLowEnergyController::NoError) {
-        qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
-    }
 }
 
 void trxappgateusbelliptical::btinit() {
