@@ -9,9 +9,6 @@ import android.view.WindowManager;
 import android.view.DisplayCutout;
 import org.qtproject.qt5.android.bindings.QtActivity;
 
-import android.webkit.WebView;
-import android.webkit.WebSettings;
-
 public class CustomQtActivity extends QtActivity {
     private static final String TAG = "CustomQtActivity";
 
@@ -22,7 +19,6 @@ public class CustomQtActivity extends QtActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: CustomQtActivity initialized");
-        WebView.setWebContentsDebuggingEnabled(true);
 
         // This tells the OS that we want to handle the display cutout area ourselves
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -88,18 +84,6 @@ public class CustomQtActivity extends QtActivity {
         });
     }
 
-    @Override
-    public void setContentView(View view) {
-        super.setContentView(view);
-        if (view instanceof WebView) {
-            WebView webView = (WebView) view;
-            WebSettings settings = webView.getSettings();
-            settings.setJavaScriptEnabled(true);
-            settings.setDomStorageEnabled(true);
-            Log.d(TAG, "WebView settings configured for JavaScript and DOM Storage.");
-        }
-    }
-	
     // This method is still needed for the QML check
     public static int getApiLevel() {
         return Build.VERSION.SDK_INT;
