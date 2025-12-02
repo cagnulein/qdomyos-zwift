@@ -859,18 +859,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QTimer::singleShot(10000, this, [this]() {
         QSettings settings;
         bool intervalsicu_enabled = settings.value(QZSettings::intervalsicu_upload_enabled, QZSettings::default_intervalsicu_upload_enabled).toBool();
-        bool intervalsicu_use_oauth = settings.value(QZSettings::intervalsicu_use_oauth, QZSettings::default_intervalsicu_use_oauth).toBool();
         QString athleteId = settings.value(QZSettings::intervalsicu_athlete_id).toString();
+        QString token = settings.value(QZSettings::intervalsicu_accesstoken).toString();
 
-        // Check if Intervals.icu is configured
-        bool isConfigured = false;
-        if (intervalsicu_use_oauth) {
-            QString token = settings.value(QZSettings::intervalsicu_accesstoken).toString();
-            isConfigured = !token.isEmpty() && !athleteId.isEmpty();
-        } else {
-            QString apiKey = settings.value(QZSettings::intervalsicu_api_key).toString();
-            isConfigured = !apiKey.isEmpty() && !athleteId.isEmpty();
-        }
+        // Check if Intervals.icu is configured (OAuth)
+        bool isConfigured = !token.isEmpty() && !athleteId.isEmpty();
 
         if (intervalsicu_enabled && isConfigured) {
             qDebug() << "Intervals.icu: Auto-downloading today's workout...";
@@ -7790,22 +7783,13 @@ void homeform::fit_save_clicked() {
             }
         }
 
-        // Intervals.icu upload
+        // Intervals.icu upload (OAuth)
         bool intervalsicu_enabled = settings.value(QZSettings::intervalsicu_upload_enabled, QZSettings::default_intervalsicu_upload_enabled).toBool();
-        bool intervalsicu_use_oauth = settings.value(QZSettings::intervalsicu_use_oauth, QZSettings::default_intervalsicu_use_oauth).toBool();
 
         if (intervalsicu_enabled) {
-            if (intervalsicu_use_oauth) {
-                // OAuth mode: check for access token
-                if (!settings.value(QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken).toString().isEmpty()) {
-                    intervalsicu_upload_file_prepare();
-                }
-            } else {
-                // Manual API key mode: check for API key and athlete ID
-                if (!settings.value(QZSettings::intervalsicu_api_key, QZSettings::default_intervalsicu_api_key).toString().isEmpty() &&
-                    !settings.value(QZSettings::intervalsicu_athlete_id, QZSettings::default_intervalsicu_athlete_id).toString().isEmpty()) {
-                    intervalsicu_upload_file_prepare();
-                }
+            // Check for access token
+            if (!settings.value(QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken).toString().isEmpty()) {
+                intervalsicu_upload_file_prepare();
             }
         }
     }
@@ -9142,23 +9126,14 @@ void homeform::videoSeekPosition(int ms) {
 void homeform::intervalsicu_connect_clicked() {
     QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
 
-    QSettings settings;
-    bool use_oauth = settings.value(QZSettings::intervalsicu_use_oauth, QZSettings::default_intervalsicu_use_oauth).toBool();
-
-    if (use_oauth) {
-        // Use OAuth flow
-        QOAuth2AuthorizationCodeFlow *oauth = intervalsicu_connect();
-        if (oauth) {
-            connect(oauth, &QOAuth2AuthorizationCodeFlow::granted,
-                    this, &homeform::onIntervalsICUGranted, Qt::UniqueConnection);
-            connect(oauth, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser,
-                    this, &homeform::onIntervalsICUAuthorizeWithBrowser, Qt::UniqueConnection);
-            oauth->grant();
-        }
-    } else {
-        // Manual API key mode - just show message
-        qDebug() << "Intervals.icu: Using manual API key mode";
-        setGeneralPopupVisible(true);
+    // Use OAuth flow
+    QOAuth2AuthorizationCodeFlow *oauth = intervalsicu_connect();
+    if (oauth) {
+        connect(oauth, &QOAuth2AuthorizationCodeFlow::granted,
+                this, &homeform::onIntervalsICUGranted, Qt::UniqueConnection);
+        connect(oauth, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser,
+                this, &homeform::onIntervalsICUAuthorizeWithBrowser, Qt::UniqueConnection);
+        oauth->grant();
     }
 }
 
@@ -9440,14 +9415,7 @@ void homeform::intervalsicu_upload_file_prepare() {
     QByteArray fitfile = f.readAll();
     f.close();
 
-    QSettings settings;
-    bool use_oauth = settings.value(QZSettings::intervalsicu_use_oauth, QZSettings::default_intervalsicu_use_oauth).toBool();
-
-    if (use_oauth) {
-        intervalsicu_upload_file(fitfile, lastFitFileSaved);
-    } else {
-        intervalsicu_upload_file_api_key(fitfile, lastFitFileSaved);
-    }
+    intervalsicu_upload_file(fitfile, lastFitFileSaved);
 }
 
 bool homeform::intervalsicu_upload_file(const QByteArray &data, const QString &remotename) {
@@ -9554,106 +9522,6 @@ bool homeform::intervalsicu_upload_file(const QByteArray &data, const QString &r
     return true;
 }
 
-bool homeform::intervalsicu_upload_file_api_key(const QByteArray &data, const QString &remotename) {
-    QSettings settings;
-    QString apiKey = settings.value(QZSettings::intervalsicu_api_key).toString();
-    QString athleteId = settings.value(QZSettings::intervalsicu_athlete_id).toString();
-
-    if (apiKey.isEmpty() || athleteId.isEmpty()) {
-        qDebug() << "Intervals.icu: API key or athlete ID not configured";
-        setToastRequested("Intervals.icu: Configure API key and athlete ID in settings");
-        return false;
-    }
-
-    QUrl url(QString("https://intervals.icu/api/v1/athlete/%1/activities").arg(athleteId));
-    QNetworkRequest request(url);
-
-    // Basic authentication: username is "API_KEY", password is the actual API key
-    QString credentials = "API_KEY:" + apiKey;
-    QByteArray auth = credentials.toUtf8().toBase64();
-    request.setRawHeader("Authorization", "Basic " + auth);
-
-    QString boundary = QVariant(QRandomGenerator::global()->generate()).toString() +
-                       QVariant(QRandomGenerator::global()->generate()).toString() +
-                       QVariant(QRandomGenerator::global()->generate()).toString();
-
-    QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-    multiPart->setBoundary(boundary.toLatin1());
-
-    // Build activity name (same logic as OAuth)
-    QString prefix = QStringLiteral("");
-    if (settings.value(QZSettings::intervalsicu_date_prefix, QZSettings::default_intervalsicu_date_prefix).toBool()) {
-        prefix = QDate::currentDate().toString(Qt::TextDate) + " ";
-    }
-
-    QString activityName;
-    if (!stravaPelotonActivityName.isEmpty()) {
-        activityName = stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName;
-    } else {
-        if (bluetoothManager->device()->deviceType() == TREADMILL) {
-            activityName = prefix + QStringLiteral("Run");
-        } else if (bluetoothManager->device()->deviceType() == ROWING) {
-            activityName = prefix + QStringLiteral("Row");
-        } else {
-            activityName = prefix + QStringLiteral("Ride");
-        }
-    }
-
-    QString suffix = settings.value(QZSettings::intervalsicu_suffix, QZSettings::default_intervalsicu_suffix).toString();
-    if (!suffix.isEmpty()) {
-        activityName += " " + suffix;
-    }
-
-    // Add activity name
-    if (!activityName.isEmpty()) {
-        QHttpPart namePart;
-        namePart.setHeader(QNetworkRequest::ContentDispositionHeader,
-                          QVariant(QStringLiteral("form-data; name=\"name\"")));
-        namePart.setBody(activityName.toUtf8());
-        multiPart->append(namePart);
-    }
-
-    // Add description if available
-    if (!activityDescription.isEmpty()) {
-        QHttpPart descPart;
-        descPart.setHeader(QNetworkRequest::ContentDispositionHeader,
-                          QVariant(QStringLiteral("form-data; name=\"description\"")));
-        descPart.setBody(activityDescription.toUtf8());
-        multiPart->append(descPart);
-    }
-
-    // Add file
-    QString filename = QFileInfo(remotename).fileName();
-    QHttpPart filePart;
-    filePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant(QStringLiteral("application/octet-stream")));
-    filePart.setHeader(QNetworkRequest::ContentDispositionHeader,
-                      QVariant(QStringLiteral("form-data; name=\"file\"; filename=\"") + filename + QStringLiteral("\"")));
-    filePart.setBody(data);
-    multiPart->append(filePart);
-
-    if (intervalsicuManager) {
-        delete intervalsicuManager;
-        intervalsicuManager = nullptr;
-    }
-    intervalsicuManager = new QNetworkAccessManager(this);
-    replyIntervalsICU = intervalsicuManager->post(request, multiPart);
-
-    connect(replyIntervalsICU, &QNetworkReply::uploadProgress,
-            [](qint64 bytesSent, qint64 bytesTotal) {
-                qDebug() << "Intervals.icu upload progress:" << bytesSent << "/" << bytesTotal;
-            });
-
-    connect(replyIntervalsICU, &QNetworkReply::finished,
-            this, &homeform::writeFileCompletedIntervalsICU);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
-    connect(replyIntervalsICU, &QNetworkReply::errorOccurred,
-            this, &homeform::errorOccurredUploadIntervalsICU);
-#endif
-
-    qDebug() << "Intervals.icu upload started (API key)";
-    return true;
-}
-
 void homeform::writeFileCompletedIntervalsICU() {
     qDebug() << "Intervals.icu upload completed!";
 
@@ -9693,7 +9561,6 @@ void homeform::intervalsicu_download_todays_workout_clicked() {
 
 void homeform::intervalsicu_download_todays_workout() {
     QSettings settings;
-    bool use_oauth = settings.value(QZSettings::intervalsicu_use_oauth, QZSettings::default_intervalsicu_use_oauth).toBool();
     QString athleteId = settings.value(QZSettings::intervalsicu_athlete_id).toString();
 
     if (athleteId.isEmpty()) {
@@ -9714,27 +9581,15 @@ void homeform::intervalsicu_download_todays_workout() {
     QUrl url(urlString);
     QNetworkRequest request(url);
 
-    // Set authentication
-    if (use_oauth) {
-        intervalsicu_refreshtoken();
-        QString token = settings.value(QZSettings::intervalsicu_accesstoken).toString();
-        if (token.isEmpty()) {
-            qDebug() << "Intervals.icu: No access token available";
-            setToastRequested("Intervals.icu: Please authenticate first");
-            return;
-        }
-        request.setRawHeader("Authorization", QString("Bearer %1").arg(token).toUtf8());
-    } else {
-        QString apiKey = settings.value(QZSettings::intervalsicu_api_key).toString();
-        if (apiKey.isEmpty()) {
-            qDebug() << "Intervals.icu: No API key configured";
-            setToastRequested("Intervals.icu: Configure API key first");
-            return;
-        }
-        QString credentials = "API_KEY:" + apiKey;
-        QByteArray auth = credentials.toUtf8().toBase64();
-        request.setRawHeader("Authorization", "Basic " + auth);
+    // Set OAuth authentication
+    intervalsicu_refreshtoken();
+    QString token = settings.value(QZSettings::intervalsicu_accesstoken).toString();
+    if (token.isEmpty()) {
+        qDebug() << "Intervals.icu: No access token available";
+        setToastRequested("Intervals.icu: Please authenticate first");
+        return;
     }
+    request.setRawHeader("Authorization", QString("Bearer %1").arg(token).toUtf8());
 
     if (intervalsicuManager) {
         delete intervalsicuManager;
@@ -9743,7 +9598,7 @@ void homeform::intervalsicu_download_todays_workout() {
     intervalsicuManager = new QNetworkAccessManager(this);
 
     QNetworkReply *reply = intervalsicuManager->get(request);
-    connect(reply, &QNetworkReply::finished, this, [this, reply, athleteId, use_oauth]() {
+    connect(reply, &QNetworkReply::finished, this, [this, reply, athleteId]() {
         intervalsicu_download_workout_completed(reply);
     });
 
@@ -9786,8 +9641,8 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
 
     // Process each workout
     QSettings settings;
-    bool use_oauth = settings.value(QZSettings::intervalsicu_use_oauth, QZSettings::default_intervalsicu_use_oauth).toBool();
     QString athleteId = settings.value(QZSettings::intervalsicu_athlete_id).toString();
+    QString token = settings.value(QZSettings::intervalsicu_accesstoken).toString();
 
     int downloadCount = 0;
     for (const QJsonValue &eventValue : events) {
@@ -9811,16 +9666,8 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
         QUrl downloadUrlObj(downloadUrl);
         QNetworkRequest downloadRequest(downloadUrlObj);
 
-        // Set authentication
-        if (use_oauth) {
-            QString token = settings.value(QZSettings::intervalsicu_accesstoken).toString();
-            downloadRequest.setRawHeader("Authorization", QString("Bearer %1").arg(token).toUtf8());
-        } else {
-            QString apiKey = settings.value(QZSettings::intervalsicu_api_key).toString();
-            QString credentials = "API_KEY:" + apiKey;
-            QByteArray auth = credentials.toUtf8().toBase64();
-            downloadRequest.setRawHeader("Authorization", "Basic " + auth);
-        }
+        // Set OAuth authentication
+        downloadRequest.setRawHeader("Authorization", QString("Bearer %1").arg(token).toUtf8());
 
         QNetworkAccessManager *downloadManager = new QNetworkAccessManager(this);
         QNetworkReply *downloadReply = downloadManager->get(downloadRequest);

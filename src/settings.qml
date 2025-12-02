@@ -1223,10 +1223,8 @@ import Qt.labs.platform 1.1
             
             // Intervals.icu settings
             property bool intervalsicu_upload_enabled: true
-            property bool intervalsicu_use_oauth: true
             property string intervalsicu_suffix: "#QZ"
             property bool intervalsicu_date_prefix: false
-            property string intervalsicu_api_key: ""
             property string intervalsicu_athlete_id: ""            
         }
 

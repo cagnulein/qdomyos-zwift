@@ -91,9 +91,6 @@ class QZSettings {
     static const QString intervalsicu_athlete_id;
     static const QString default_intervalsicu_athlete_id;
 
-    static const QString intervalsicu_api_key;
-    static const QString default_intervalsicu_api_key;
-
     static const QString code;
     static const QString default_code;
 
@@ -868,9 +865,6 @@ class QZSettings {
 
     static const QString intervalsicu_upload_enabled;
     static constexpr bool default_intervalsicu_upload_enabled = true;
-
-    static const QString intervalsicu_use_oauth;
-    static constexpr bool default_intervalsicu_use_oauth = true;
 
     static const QString intervalsicu_suffix;
     static const QString default_intervalsicu_suffix;

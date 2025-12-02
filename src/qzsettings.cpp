@@ -46,8 +46,6 @@ const QString QZSettings::intervalsicu_refreshtoken = QStringLiteral("intervalsi
 const QString QZSettings::default_intervalsicu_refreshtoken = QStringLiteral("");
 const QString QZSettings::intervalsicu_athlete_id = QStringLiteral("intervalsicu_athlete_id");
 const QString QZSettings::default_intervalsicu_athlete_id = QStringLiteral("");
-const QString QZSettings::intervalsicu_api_key = QStringLiteral("intervalsicu_api_key");
-const QString QZSettings::default_intervalsicu_api_key = QStringLiteral("");
 const QString QZSettings::code = QStringLiteral("code");
 const QString QZSettings::default_code = QStringLiteral("");
 //--------------------------------------------------------------------------------------------
@@ -287,7 +285,6 @@ const QString QZSettings::default_filter_device = QStringLiteral("Disabled");
 const QString QZSettings::strava_suffix = QStringLiteral("strava_suffix");
 const QString QZSettings::default_strava_suffix = QStringLiteral("#QZ");
 const QString QZSettings::intervalsicu_upload_enabled = QStringLiteral("intervalsicu_upload_enabled");
-const QString QZSettings::intervalsicu_use_oauth = QStringLiteral("intervalsicu_use_oauth");
 const QString QZSettings::intervalsicu_suffix = QStringLiteral("intervalsicu_suffix");
 const QString QZSettings::default_intervalsicu_suffix = QStringLiteral("#QZ");
 const QString QZSettings::intervalsicu_date_prefix = QStringLiteral("intervalsicu_date_prefix");
@@ -1010,7 +1007,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 824;
+const uint32_t allSettingsCount = 822;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1037,9 +1034,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken},
     {QZSettings::intervalsicu_refreshtoken, QZSettings::default_intervalsicu_refreshtoken},
     {QZSettings::intervalsicu_athlete_id, QZSettings::default_intervalsicu_athlete_id},
-    {QZSettings::intervalsicu_api_key, QZSettings::default_intervalsicu_api_key},
     {QZSettings::intervalsicu_upload_enabled, QZSettings::default_intervalsicu_upload_enabled},
-    {QZSettings::intervalsicu_use_oauth, QZSettings::default_intervalsicu_use_oauth},
     {QZSettings::intervalsicu_suffix, QZSettings::default_intervalsicu_suffix},
     {QZSettings::intervalsicu_date_prefix, QZSettings::default_intervalsicu_date_prefix},
     {QZSettings::ui_zoom, QZSettings::default_ui_zoom},
