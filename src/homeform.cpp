@@ -9182,7 +9182,7 @@ QOAuth2AuthorizationCodeFlow *homeform::intervalsicu_connect() {
         intervalsicu = new QOAuth2AuthorizationCodeFlow(intervalsicuManager, this);
 
         intervalsicu->setAuthorizationUrl(QUrl(QStringLiteral("https://intervals.icu/oauth/authorize")));
-        intervalsicu->setAccessTokenUrl(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
+        intervalsicu->setAccessTokenUrl(QUrl(QStringLiteral("https://intervals.icu/oauth/token")));
 
         intervalsicu->setClientIdentifier(QStringLiteral(INTERVALSICU_CLIENT_ID_S));
 #ifdef INTERVALSICU_CLIENT_SECRET_S
@@ -9269,7 +9269,7 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
 
         // Do manual token exchange like Strava does in replyDataReceived
         // Use the existing intervalsicuManager (already created with SSL configured)
-        QString urlstr = QStringLiteral("https://intervals.icu/api/oauth/token");
+        QString urlstr = QStringLiteral("https://intervals.icu/oauth/token");
 
 #ifndef STRINGIFY
 #define _STR(x) #x
@@ -9404,7 +9404,7 @@ void homeform::intervalsicu_refreshtoken() {
         return;
     }
 
-    QNetworkRequest request(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
+    QNetworkRequest request(QUrl(QStringLiteral("https://intervals.icu/oauth/token")));
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
 
     QString data;
