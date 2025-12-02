@@ -9188,11 +9188,7 @@ QOAuth2AuthorizationCodeFlow *homeform::intervalsicu_connect() {
 
         intervalsicu->setClientIdentifier(QStringLiteral(INTERVALSICU_CLIENT_ID_S));
 #ifdef INTERVALSICU_CLIENT_SECRET_S
-#ifndef STRINGIFY
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
-#endif
-        intervalsicu->setClientIdentifierSharedKey(STRINGIFY(INTERVALSICU_CLIENT_SECRET_S));
+        intervalsicu->setClientIdentifierSharedKey(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S));
 #endif
         intervalsicu->setScope(QStringLiteral("ACTIVITY:READ,CALENDAR:READ"));
 
@@ -9270,9 +9266,15 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
         QUrlQuery params;
         params.addQueryItem(QStringLiteral("client_id"), QStringLiteral(INTERVALSICU_CLIENT_ID_S));
 #ifdef INTERVALSICU_CLIENT_SECRET_S
-        params.addQueryItem(QStringLiteral("client_secret"), STRINGIFY(INTERVALSICU_CLIENT_SECRET_S));
+        params.addQueryItem(QStringLiteral("client_secret"), QStringLiteral(INTERVALSICU_CLIENT_SECRET_S));
 #endif
         params.addQueryItem(QStringLiteral("code"), intervalsicuAuthCode);
+        params.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("authorization_code"));
+
+        // Explicit redirect_uri required by Intervals.icu token endpoint
+        const QUrl redirectUri = intervalsicuReplyHandler ? intervalsicuReplyHandler->callback()
+                                                          : QUrl(QStringLiteral("http://127.0.0.1:8485/"));
+        params.addQueryItem(QStringLiteral("redirect_uri"), redirectUri.toString());
 
         QByteArray data = params.query(QUrl::FullyEncoded).toUtf8();
         QUrl url(urlstr);
