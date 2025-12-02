@@ -9182,7 +9182,7 @@ QOAuth2AuthorizationCodeFlow *homeform::intervalsicu_connect() {
         intervalsicu = new QOAuth2AuthorizationCodeFlow(intervalsicuManager, this);
 
         intervalsicu->setAuthorizationUrl(QUrl(QStringLiteral("https://intervals.icu/oauth/authorize")));
-        intervalsicu->setAccessTokenUrl(QUrl(QStringLiteral("https://intervals.icu/oauth/token")));
+        intervalsicu->setAccessTokenUrl(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
 
         intervalsicu->setClientIdentifier(QStringLiteral(INTERVALSICU_CLIENT_ID_S));
 #ifdef INTERVALSICU_CLIENT_SECRET_S
@@ -9241,23 +9241,12 @@ void homeform::onIntervalsICUGranted() {
 }
 
 void homeform::onIntervalsICUAuthorizeWithBrowser(const QUrl &url) {
-    QSettings settings;
     intervalsicuAuthUrl = url.toString();
     emit intervalsicuAuthUrlChanged(intervalsicuAuthUrl);
 
-    bool use_external_browser =
-        settings.value(QZSettings::strava_auth_external_webbrowser, QZSettings::default_strava_auth_external_webbrowser)
-            .toBool();
-#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
-    use_external_browser = true;
-#endif
-
-    if (use_external_browser) {
-        QDesktopServices::openUrl(url);
-    } else {
-        intervalsicuAuthWebVisible = true;
-        intervalsicuWebVisibleChanged(intervalsicuAuthWebVisible);
-    }
+    // Intervals.icu MUST always use external browser due to internal page variables
+    // that don't work correctly in embedded WebView (even on iOS/Android)
+    QDesktopServices::openUrl(url);
 }
 
 void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
@@ -9269,7 +9258,7 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
 
         // Do manual token exchange like Strava does in replyDataReceived
         // Use the existing intervalsicuManager (already created with SSL configured)
-        QString urlstr = QStringLiteral("https://intervals.icu/oauth/token");
+        QString urlstr = QStringLiteral("https://intervals.icu/api/oauth/token");
 
 #ifndef STRINGIFY
 #define _STR(x) #x
@@ -9282,8 +9271,6 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
         params.addQueryItem(QStringLiteral("client_secret"), STRINGIFY(INTERVALSICU_CLIENT_SECRET_S));
 #endif
         params.addQueryItem(QStringLiteral("code"), intervalsicuAuthCode);
-        params.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("authorization_code"));
-        params.addQueryItem(QStringLiteral("redirect_uri"), QStringLiteral("http://127.0.0.1:8485"));
 
         QByteArray data = params.query(QUrl::FullyEncoded).toUtf8();
         QUrl url(urlstr);
@@ -9404,7 +9391,7 @@ void homeform::intervalsicu_refreshtoken() {
         return;
     }
 
-    QNetworkRequest request(QUrl(QStringLiteral("https://intervals.icu/oauth/token")));
+    QNetworkRequest request(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
 
     QString data;
