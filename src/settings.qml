@@ -1222,10 +1222,12 @@ import Qt.labs.platform 1.1
             property real treadmill_speed_max: 100
             
             // Intervals.icu settings
+            property string intervalsicu_accesstoken: ""
+            property string intervalsicu_refreshtoken: ""
+            property string intervalsicu_athlete_id: ""
             property bool intervalsicu_upload_enabled: true
             property string intervalsicu_suffix: "#QZ"
-            property bool intervalsicu_date_prefix: false
-            property string intervalsicu_athlete_id: ""            
+            property bool intervalsicu_date_prefix: false            
         }
 
 
