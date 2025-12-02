@@ -367,6 +367,11 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
         return;
 
+    // Filter out invalid packets: valid speed packets must have 0xa5 at byte[1]
+    // This prevents spurious speed readings from packets like "20 02 23" or "20 00 00 00"
+    if ((uint8_t)newValue[1] != 0xa5)
+        return;
+
     if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
         return;
 
