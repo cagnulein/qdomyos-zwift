@@ -20,9 +20,6 @@ Item {
         width: parent.width
         visible: !rootItem.generalPopupVisible
         url: rootItem.getIntervalsICUAuthUrl
-        profile: WebEngineProfile {
-            offTheRecord: true
-        }
     }
 
     Popup {
