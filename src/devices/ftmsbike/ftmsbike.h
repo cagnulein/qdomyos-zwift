@@ -29,6 +29,7 @@
 #include "wheelcircumference.h"
 #include "devices/bike.h"
 #include "inclinationresistancetable.h"
+#include "inclinationpowertable.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -134,6 +135,7 @@ class ftmsbike : public bike {
     bool resistance_lvl_mode = false;
     bool resistance_received = false;
     inclinationResistanceTable _inclinationResistanceTable;
+    inclinationPowerTable _inclinationPowerTable;
 
     bool DU30_bike = false;
     bool ICSE = false;

@@ -298,6 +298,10 @@ public:
         return dataPoints;
     }
 
+    bool hasData() const {
+        return !dataPoints.isEmpty();
+    }
+
 private:
     QList<inclinationResistanceDataPoint> dataPoints;
     double lastInclinationValue = -999.0;

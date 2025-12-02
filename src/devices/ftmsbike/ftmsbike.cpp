@@ -194,6 +194,12 @@ void ftmsbike::zwiftPlayInit() {
 }
 
 void ftmsbike::forcePower(int16_t requestPower) {
+    if(D2RIDE && !ergModeSupported) {
+        qDebug() << "D2RIDE: redirecting power request to inclination estimator" << requestPower;
+        forceResistance(1);
+        return;
+    }
+
     if((resistance_lvl_mode || TITAN_7000) && !MAGNUS && !SS2K) {
         forceResistance(resistanceFromPowerRequest(requestPower));
     } else {
@@ -236,7 +242,23 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
                 qDebug() << "Negative resistance detected:" << requestResistance << "using fallback value 1";
                 requestResistance = 1;
             }
-            requestResistance = _inclinationResistanceTable.estimateInclination(requestResistance) * 10.0;
+
+            double targetInclination = fr;
+            bool inclinationFound = false;
+
+            if(D2RIDE && _inclinationPowerTable.hasData()) {
+                uint16_t targetPower = requestPower > 0 ? requestPower : m_watt.value();
+                targetInclination = _inclinationPowerTable.estimateInclinationForPower(Cadence.value(), targetPower);
+                inclinationFound = true;
+                qDebug() << "D2RIDE ERGless target inclination from power" << targetInclination << "power" << targetPower;
+            }
+
+            if(!inclinationFound && !D2RIDE && _inclinationResistanceTable.hasData()) {
+                targetInclination = _inclinationResistanceTable.estimateInclination(requestResistance);
+                inclinationFound = true;
+            }
+
+            requestResistance = targetInclination * 10.0;
             qDebug() << "ergMode Not Supported so the resistance will be" << requestResistance;
         } else {
             requestResistance = fr;
@@ -1252,6 +1274,14 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         _inclinationResistanceTable.collectData(gears_modified_inclination, Resistance.value(), m_watt.value());
     }
 
+    if(D2RIDE && requestPower == -1) {
+        double gears_modified_inclination = Inclination.value();
+        if (gears() != 0) {
+            gears_modified_inclination += (gears() * GEARS_SLOPE_MULTIPLIER / 100.0);
+        }
+        _inclinationPowerTable.collectData(Cadence.value(), m_watt.value(), gears_modified_inclination);
+    }
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
@@ -1686,6 +1716,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(bluetoothDevice.name().toUpper().startsWith("D2RIDE")) {
             qDebug() << QStringLiteral("D2RIDE found");
             D2RIDE = true;
+            ergModeSupported = false;
         } else if(bluetoothDevice.name().toUpper().startsWith("VFSPINBIKE")) {
             qDebug() << QStringLiteral("VFSPINBIKE found");
             VFSPINBIKE = true;
