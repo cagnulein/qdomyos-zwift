@@ -83,6 +83,7 @@ class nordictrackelliptical : public elliptical {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool nordictrack_elliptical_c7_5 = false;
     bool nordictrack_se7i = false;
 
 #ifdef Q_OS_IOS
