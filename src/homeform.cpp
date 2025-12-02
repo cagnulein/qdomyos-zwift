@@ -9182,7 +9182,9 @@ QOAuth2AuthorizationCodeFlow *homeform::intervalsicu_connect() {
         intervalsicu = new QOAuth2AuthorizationCodeFlow(intervalsicuManager, this);
 
         intervalsicu->setAuthorizationUrl(QUrl(QStringLiteral("https://intervals.icu/oauth/authorize")));
-        intervalsicu->setAccessTokenUrl(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
+        // Don't set token URL - we handle token exchange manually in callbackReceivedIntervalsICU
+        // because Qt's automatic flow doesn't work correctly with Intervals.icu API
+        // intervalsicu->setAccessTokenUrl(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
 
         intervalsicu->setClientIdentifier(QStringLiteral(INTERVALSICU_CLIENT_ID_S));
 #ifdef INTERVALSICU_CLIENT_SECRET_S
@@ -9250,7 +9252,7 @@ void homeform::onIntervalsICUAuthorizeWithBrowser(const QUrl &url) {
 }
 
 void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
-    qDebug() << "Intervals.icu: callbackReceived";
+    qDebug() << "Intervals.icu: callbackReceived" << values;
 
     if (values.contains("code")) {
         intervalsicuAuthCode = values.value("code").toString();
