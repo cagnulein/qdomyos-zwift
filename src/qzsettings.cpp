@@ -962,6 +962,8 @@ const QString QZSettings::ios_btdevice_native = QStringLiteral("ios_btdevice_nat
 
 const QString QZSettings::inclinationResistancePoints = QStringLiteral("inclinationResistancePoints");
 const QString QZSettings::default_inclinationResistancePoints = QStringLiteral("");
+const QString QZSettings::inclinationPowerDataPoints = QStringLiteral("inclinationPowerDataPoints");
+const QString QZSettings::default_inclinationPowerDataPoints = QStringLiteral("");
 
 const QString QZSettings::automatic_virtual_shifting_enabled = QStringLiteral("automatic_virtual_shifting_enabled");
 const QString QZSettings::automatic_virtual_shifting_profile = QStringLiteral("automatic_virtual_shifting_profile");
@@ -997,7 +999,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 816;
+const uint32_t allSettingsCount = 817;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1803,6 +1805,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_t65s_treadmill_81_miles, QZSettings::default_nordictrack_t65s_treadmill_81_miles},
     {QZSettings::nordictrack_elite_800, QZSettings::default_nordictrack_elite_800},
     {QZSettings::inclinationResistancePoints, QZSettings::default_inclinationResistancePoints},
+    {QZSettings::inclinationPowerDataPoints, QZSettings::default_inclinationPowerDataPoints},
     {QZSettings::automatic_virtual_shifting_enabled, QZSettings::default_automatic_virtual_shifting_enabled},
     {QZSettings::automatic_virtual_shifting_profile, QZSettings::default_automatic_virtual_shifting_profile},
     {QZSettings::automatic_virtual_shifting_gear_up_cadence, QZSettings::default_automatic_virtual_shifting_gear_up_cadence},

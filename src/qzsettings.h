@@ -2562,6 +2562,8 @@ class QZSettings {
 
     static const QString inclinationResistancePoints;
     static const QString default_inclinationResistancePoints;
+    static const QString inclinationPowerDataPoints;
+    static const QString default_inclinationPowerDataPoints;
 
     /**
      * @brief Enable automatic virtual shifting based on cadence thresholds
