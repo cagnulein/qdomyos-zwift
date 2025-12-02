@@ -9184,7 +9184,7 @@ QOAuth2AuthorizationCodeFlow *homeform::intervalsicu_connect() {
         intervalsicu->setAuthorizationUrl(QUrl(QStringLiteral("https://intervals.icu/oauth/authorize")));
         // Don't set token URL - we handle token exchange manually in callbackReceivedIntervalsICU
         // because Qt's automatic flow doesn't work correctly with Intervals.icu API
-        // intervalsicu->setAccessTokenUrl(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
+        intervalsicu->setAccessTokenUrl(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
 
         intervalsicu->setClientIdentifier(QStringLiteral(INTERVALSICU_CLIENT_ID_S));
 #ifdef INTERVALSICU_CLIENT_SECRET_S
@@ -9280,10 +9280,16 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
         request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
 
         qDebug() << "Intervals.icu: Sending token exchange request";
+        qDebug() << "Intervals.icu: URL:" << urlstr;
+        qDebug() << "Intervals.icu: Method: POST";
+        qDebug() << "Intervals.icu: Content-Type:" << request.header(QNetworkRequest::ContentTypeHeader);
+        qDebug() << "Intervals.icu: POST data:" << data;
 
-        // Create a new QNetworkAccessManager for this request (like Strava does in replyDataReceived)
-        QNetworkAccessManager *tempManager = new QNetworkAccessManager(this);
-        QNetworkReply *reply = tempManager->post(request, data);
+        // Use existing intervalsicuManager which is already configured with SSL/TLS
+        if (!intervalsicuManager) {
+            intervalsicuManager = new QNetworkAccessManager(this);
+        }
+        QNetworkReply *reply = intervalsicuManager->post(request, data);
 
         // Handle SSL errors - ignore them like Strava does
         connect(reply, &QNetworkReply::sslErrors, this, [reply](const QList<QSslError> &errors) {
@@ -9291,20 +9297,26 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
             reply->ignoreSslErrors();
         });
 
-        connect(reply, &QNetworkReply::finished, this, [this, reply, tempManager]() {
+        connect(reply, &QNetworkReply::finished, this, [this, reply]() {
             QByteArray response = reply->readAll();
 
             if (reply->error() != QNetworkReply::NoError) {
                 qDebug() << "Intervals.icu: Network error:" << reply->error();
                 qDebug() << "Intervals.icu: Error string:" << reply->errorString();
+                qDebug() << "Intervals.icu: HTTP status:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+                qDebug() << "Intervals.icu: Response body:" << response;
+                qDebug() << "Intervals.icu: All headers:";
+                for (const auto &header : reply->rawHeaderPairs()) {
+                    qDebug() << "  " << header.first << ":" << header.second;
+                }
                 setToastRequested("Intervals.icu: Authentication failed");
                 reply->deleteLater();
-                delete tempManager;
                 return;
             }
 
             int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
             qDebug() << "Intervals.icu: Token exchange status code:" << statusCode;
+            qDebug() << "Intervals.icu: Response body:" << response;
 
             if (statusCode == 200) {
                 QJsonDocument jsonResponse = QJsonDocument::fromJson(response);
@@ -9346,7 +9358,6 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
             }
 
             reply->deleteLater();
-            delete tempManager;
         });
     }
 
