@@ -948,6 +948,9 @@ import Qt.labs.platform 1.1
 
             // from version 2.16.58
             property string strava_upload_mode: "Always"
+            property string garmin_email: ""
+            property string garmin_password: ""
+            property bool garmin_upload_enabled: false
 
             // from version 2.16.59
             property bool proform_treadmill_705_cst_V78_239: false
@@ -9866,6 +9869,105 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("QZ can open an external browser to authorize Strava. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    Label {
+                        id: garminConnectLabel
+                        text: qsTr("Garmin Connect")
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Enable Garmin Upload")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.garmin_upload_enabled
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.garmin_upload_enabled = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("Enable automatic upload of FIT files to Garmin Connect after workouts.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Garmin Email:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: garminEmailTextField
+                            text: settings.garmin_email
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.garmin_email = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.garmin_email = garminEmailTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Garmin Password:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: garminPasswordTextField
+                            text: settings.garmin_password
+                            echoMode: TextInput.Password
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.garmin_password = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.garmin_password = garminPasswordTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Button {
+                        text: "Test Garmin Login"
+                        Layout.alignment: Qt.AlignHCenter
+                        onClicked: { rootItem.garmin_connect_login(); }
+                    }
+
+                    Label {
+                        text: qsTr("Enter your Garmin Connect credentials to enable automatic upload. Your password is stored locally and securely.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

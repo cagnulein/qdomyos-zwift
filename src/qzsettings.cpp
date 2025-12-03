@@ -40,6 +40,11 @@ const QString QZSettings::strava_lastrefresh = QStringLiteral("strava_lastrefres
 const QString QZSettings::default_strava_lastrefresh = QStringLiteral("");
 const QString QZSettings::strava_expires = QStringLiteral("strava_expires");
 const QString QZSettings::default_strava_expires = QStringLiteral("");
+const QString QZSettings::garmin_email = QStringLiteral("garmin_email");
+const QString QZSettings::default_garmin_email = QStringLiteral("");
+const QString QZSettings::garmin_password = QStringLiteral("garmin_password");
+const QString QZSettings::default_garmin_password = QStringLiteral("");
+const QString QZSettings::garmin_upload_enabled = QStringLiteral("garmin_upload_enabled");
 const QString QZSettings::code = QStringLiteral("code");
 const QString QZSettings::default_code = QStringLiteral("");
 //--------------------------------------------------------------------------------------------
@@ -996,7 +1001,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 815;
+const uint32_t allSettingsCount = 818;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1020,6 +1025,9 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::strava_refreshtoken, QZSettings::default_strava_refreshtoken},
     {QZSettings::strava_lastrefresh, QZSettings::default_strava_lastrefresh},
     {QZSettings::strava_expires, QZSettings::default_strava_expires},
+    {QZSettings::garmin_email, QZSettings::default_garmin_email},
+    {QZSettings::garmin_password, QZSettings::default_garmin_password},
+    {QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled},
     {QZSettings::ui_zoom, QZSettings::default_ui_zoom},
     {QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service},
     {QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset},

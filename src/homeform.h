@@ -8,6 +8,7 @@
 #include "gpx.h"
 #include "OAuth2.h"
 #include "peloton.h"
+#include "garminconnect.h"
 #include "qmdnsengine/browser.h"
 #include "qmdnsengine/cache.h"
 #include "qmdnsengine/resolver.h"
@@ -751,6 +752,7 @@ class homeform : public QObject {
     QOAuth2AuthorizationCodeFlow *strava = nullptr;
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
+    GarminConnect *garminConnect = nullptr;
 
     bool paused = false;
     bool stopped = false;
@@ -933,6 +935,8 @@ class homeform : public QObject {
     void bluetoothDeviceDisconnected();
     void onToastRequested(QString message);
     void strava_upload_file_prepare();
+    void garmin_connect_login();
+    void garmin_upload_file_prepare();
     void handleRestoreDefaultWheelDiameter();
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
