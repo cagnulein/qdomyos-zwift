@@ -215,6 +215,22 @@ bool GarminConnect::performLogin(const QString &email, const QString &password)
 
     QString response = QString::fromUtf8(reply->readAll());
 
+    // Debug: log response details
+    qDebug() << "GarminConnect: Login response length:" << response.length();
+    qDebug() << "GarminConnect: Response snippet:" << response.left(300);
+
+    // Check redirect URL
+    QUrl responseUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+    qDebug() << "GarminConnect: Redirect URL:" << responseUrl.toString();
+
+    // Check all headers for ticket
+    QList<QNetworkReply::RawHeaderPair> headers = reply->rawHeaderPairs();
+    for (const auto &header : headers) {
+        if (QString(header.first).contains("location", Qt::CaseInsensitive)) {
+            qDebug() << "GarminConnect: Location header:" << QString(header.second);
+        }
+    }
+
     // Check if MFA is required
     if (response.contains("MFA", Qt::CaseInsensitive) ||
         response.contains("Enter MFA Code", Qt::CaseInsensitive)) {
