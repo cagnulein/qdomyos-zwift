@@ -211,6 +211,8 @@ bool GarminConnect::performLogin(const QString &email, const QString &password)
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", USER_AGENT);
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+    request.setRawHeader("Referer", url.toString().toUtf8());  // Add Referer header for security check
+    request.setRawHeader("Origin", ssoUrl().toUtf8());  // Add Origin header
 
     // Add cookies
     for (const QNetworkCookie &cookie : m_cookies) {
@@ -361,6 +363,7 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
     // Prepare POST data
     QUrlQuery postData;
     postData.addQueryItem("mfa-code", mfaCode);
+    postData.addQueryItem("embed", "true");
     postData.addQueryItem("fromPage", "setupEnterMfaCode");
     postData.addQueryItem("_csrf", m_csrfToken);
 
@@ -369,6 +372,8 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", USER_AGENT);
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+    request.setRawHeader("Referer", url.toString().toUtf8());  // Add Referer header
+    request.setRawHeader("Origin", ssoUrl().toUtf8());  // Add Origin header
 
     // Add cookies
     for (const QNetworkCookie &cookie : m_cookies) {
