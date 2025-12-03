@@ -1029,7 +1029,7 @@ class homeform : public QObject {
     void bluetoothDeviceDisconnected();
     void onToastRequested(QString message);
     void strava_upload_file_prepare();
-    void garmin_connect_login();
+    Q_INVOKABLE void garmin_connect_login();
     void garmin_upload_file_prepare();
     void handleRestoreDefaultWheelDiameter();
 
