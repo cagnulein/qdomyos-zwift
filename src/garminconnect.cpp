@@ -284,10 +284,61 @@ bool GarminConnect::performLogin(const QString &email, const QString &password)
         }
     }
 
-    // Check if MFA is required
+    // Check if redirect URL indicates MFA is required
+    if (!responseUrl.isEmpty() && responseUrl.toString().contains("verifyMFA", Qt::CaseInsensitive)) {
+        m_lastError = "MFA Required";
+        qDebug() << "GarminConnect: MFA redirect detected - fetching MFA page for CSRF token";
+
+        reply->deleteLater();
+
+        // Follow redirect to get MFA page and extract new CSRF token
+        QNetworkRequest mfaRequest(responseUrl);
+        mfaRequest.setRawHeader("User-Agent", USER_AGENT);
+        mfaRequest.setRawHeader("Referer", url.toString().toUtf8());
+
+        // Update cookies from login response
+        m_cookies = m_manager->cookieJar()->cookiesForUrl(url);
+        for (const QNetworkCookie &cookie : m_cookies) {
+            m_manager->cookieJar()->insertCookie(cookie);
+        }
+
+        QNetworkReply *mfaReply = m_manager->get(mfaRequest);
+        QEventLoop mfaLoop;
+        connect(mfaReply, &QNetworkReply::finished, &mfaLoop, &QEventLoop::quit);
+        mfaLoop.exec();
+
+        if (mfaReply->error() == QNetworkReply::NoError) {
+            QString mfaHtml = QString::fromUtf8(mfaReply->readAll());
+
+            // Extract new CSRF token from MFA page
+            QRegularExpression csrfRegex1("name=\"_csrf\"[^>]*value=\"([^\"]+)\"");
+            QRegularExpression csrfRegex2("value=\"([^\"]+)\"[^>]*name=\"_csrf\"");
+
+            QRegularExpressionMatch match = csrfRegex1.match(mfaHtml);
+            if (!match.hasMatch()) {
+                match = csrfRegex2.match(mfaHtml);
+            }
+            if (match.hasMatch()) {
+                m_csrfToken = match.captured(1);
+                qDebug() << "GarminConnect: New CSRF token from MFA page:" << m_csrfToken.left(20) << "...";
+            }
+
+            // Update cookies from MFA page
+            m_cookies = m_manager->cookieJar()->cookiesForUrl(responseUrl);
+        }
+
+        mfaReply->deleteLater();
+
+        qDebug() << "GarminConnect: Emitting mfaRequired signal";
+        emit mfaRequired();
+        return false;
+    }
+
+    // Check if MFA is required (legacy check for non-redirect MFA)
     if (response.contains("MFA", Qt::CaseInsensitive) ||
         response.contains("Enter MFA Code", Qt::CaseInsensitive)) {
         m_lastError = "MFA Required";
+        qDebug() << "GarminConnect: MFA content detected in response";
 
         // Extract new CSRF token from MFA page - try multiple patterns
         QRegularExpression csrfRegex1("name=\"_csrf\"[^>]*value=\"([^\"]+)\"");
@@ -304,6 +355,7 @@ bool GarminConnect::performLogin(const QString &email, const QString &password)
         // Update cookies
         m_cookies = m_manager->cookieJar()->cookiesForUrl(url);
 
+        emit mfaRequired();
         reply->deleteLater();
         return false;
     }
