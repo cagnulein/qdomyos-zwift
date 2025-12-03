@@ -255,8 +255,7 @@ bool GarminConnect::performLogin(const QString &email, const QString &password)
         return false;
     }
 
-    // Extract ticket from response URL
-    QUrl responseUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+    // Extract ticket from response URL (already declared above)
     if (responseUrl.isEmpty()) {
         responseUrl = reply->url();
     }
