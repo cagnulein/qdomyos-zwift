@@ -1200,6 +1200,7 @@ import Qt.labs.platform 1.1
             property int tile_auto_virtual_shifting_sprint_order: 57
             property string proform_rower_ip: ""
             property string ftms_elliptical: "Disabled"
+            
             property bool calories_active_only: false
             property real height: 175.0
             property bool calories_from_hr: false
@@ -1228,6 +1229,8 @@ import Qt.labs.platform 1.1
             property bool intervalsicu_upload_enabled: true
             property string intervalsicu_suffix: "#QZ"
             property bool intervalsicu_date_prefix: false            
+            
+            property bool waterrower_usb: false
         }
 
 
@@ -9136,7 +9139,7 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ftms_rower = ftmsRowerTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
-                    }
+                    }                   
 
                     Button {
                         text: "Refresh Devices List"
@@ -9155,6 +9158,21 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    CheckBox {
+                        id: waterrowerUSBCheckBox
+                        text: qsTr("WaterRower USB")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.waterrower_usb
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.waterrower_usb = checked; window.settings_restart_to_apply = true; }
                     }
 
                     AccordionElement {

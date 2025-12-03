@@ -683,6 +683,7 @@ const QString QZSettings::csafe_rower = QStringLiteral("csafe_rower");
 const QString QZSettings::default_csafe_rower = QStringLiteral("");
 const QString QZSettings::csafe_elliptical_port = QStringLiteral("csafe_elliptical_port");
 const QString QZSettings::default_csafe_elliptical_port = QStringLiteral("");
+const QString QZSettings::waterrower_usb = QStringLiteral("waterrower_usb");
 const QString QZSettings::ftms_rower = QStringLiteral("ftms_rower");
 const QString QZSettings::default_ftms_rower = QStringLiteral("Disabled");
 const QString QZSettings::ftms_elliptical = QStringLiteral("ftms_elliptical");
@@ -1007,7 +1008,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 822;
+const uint32_t allSettingsCount = 823;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1581,6 +1582,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tts_act_target_pace, QZSettings::default_tts_act_target_pace},
     {QZSettings::csafe_rower, QZSettings::default_csafe_rower},
     {QZSettings::csafe_elliptical_port, QZSettings::default_csafe_elliptical_port},
+    {QZSettings::waterrower_usb, QZSettings::default_waterrower_usb},
     {QZSettings::ftms_rower, QZSettings::default_ftms_rower},
     {QZSettings::ftms_elliptical, QZSettings::default_ftms_elliptical},
     {QZSettings::zwift_workout_ocr, QZSettings::default_zwift_workout_ocr},

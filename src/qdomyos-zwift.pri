@@ -292,6 +292,7 @@ simplecrypt.cpp \
 devices/skandikawiribike/skandikawiribike.cpp \
 devices/smartrowrower/smartrowrower.cpp \
 devices/smartspin2k/smartspin2k.cpp \
+devices/waterrowerusb/waterrowerusb.cpp \
 smtpclient/src/emailaddress.cpp \
 smtpclient/src/mimeattachment.cpp \
 smtpclient/src/mimecontentformatter.cpp \
@@ -805,6 +806,7 @@ simplecrypt.h \
 devices/skandikawiribike/skandikawiribike.h \
 devices/smartrowrower/smartrowrower.h \
 devices/smartspin2k/smartspin2k.h \
+devices/waterrowerusb/waterrowerusb.h \
 smtpclient/src/SmtpMime \
 smtpclient/src/emailaddress.h \
 smtpclient/src/mimeattachment.h \
