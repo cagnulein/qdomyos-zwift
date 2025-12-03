@@ -167,6 +167,28 @@ private:
     QNetworkReply* makeRequest(const QString &url, const QByteArray &data,
                                const QString &contentType, const QList<QNetworkCookie> &cookies = QList<QNetworkCookie>());
     QJsonObject extractJsonFromResponse(QNetworkReply *reply);
+
+    // OAuth1 signature generation
+    QString generateOAuth1AuthorizationHeader(
+        const QString &httpMethod,
+        const QString &url,
+        const QString &consumerKey,
+        const QString &consumerSecret,
+        const QString &oauth_token = "",
+        const QString &oauth_token_secret = ""
+    );
+
+    QString generateOAuth1Signature(
+        const QString &httpMethod,
+        const QString &baseUrl,
+        const QString &parameterString,
+        const QString &consumerSecret,
+        const QString &oauth_token_secret = ""
+    );
+
+    QString percentEncode(const QString &str);
+    QString generateNonce();
+    QString generateTimestamp();
 };
 
 #endif // GARMINCONNECT_H

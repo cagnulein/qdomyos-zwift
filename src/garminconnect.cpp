@@ -5,6 +5,10 @@
 #include <QHttpPart>
 #include <QNetworkCookieJar>
 #include <QUrl>
+#include <QCryptographicHash>
+#include <QMessageAuthenticationCode>
+#include <QUuid>
+#include <QDateTime>
 
 GarminConnect::GarminConnect(QObject *parent)
     : QObject(parent)
@@ -193,7 +197,7 @@ bool GarminConnect::performLogin(const QString &email, const QString &password)
     query.addQueryItem("id", "gauth-widget");
     query.addQueryItem("embedWidget", "true");
     query.addQueryItem("gauthHost", ssoEmbedUrl);
-    query.addQueryItem("service", connectApiUrl());  // POST uses connectApiUrl, not ssoEmbedUrl!
+    query.addQueryItem("service", ssoEmbedUrl);  // Python uses SSO_EMBED for both GET and POST!
     query.addQueryItem("source", ssoEmbedUrl);
     query.addQueryItem("redirectAfterAccountLoginUrl", ssoEmbedUrl);
     query.addQueryItem("redirectAfterAccountCreationUrl", ssoEmbedUrl);
@@ -358,7 +362,19 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
 {
     qDebug() << "GarminConnect: Performing MFA verification...";
 
+    QString ssoEmbedUrl = ssoUrl() + SSO_EMBED_PATH;
+
     QUrl url(ssoUrl() + "/sso/verifyMFA/loginEnterMfaCode");
+    // MFA endpoint requires same query parameters as signin!
+    QUrlQuery query;
+    query.addQueryItem("id", "gauth-widget");
+    query.addQueryItem("embedWidget", "true");
+    query.addQueryItem("gauthHost", ssoEmbedUrl);
+    query.addQueryItem("service", ssoEmbedUrl);
+    query.addQueryItem("source", ssoEmbedUrl);
+    query.addQueryItem("redirectAfterAccountLoginUrl", ssoEmbedUrl);
+    query.addQueryItem("redirectAfterAccountCreationUrl", ssoEmbedUrl);
+    url.setQuery(query);
 
     // Prepare POST data
     QUrlQuery postData;
@@ -463,16 +479,26 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     QUrl url(connectApiUrl() + "/oauth-service/oauth/preauthorized");
     QUrlQuery query;
     query.addQueryItem("ticket", ticket);
+    query.addQueryItem("login-url", ssoUrl() + SSO_EMBED_PATH);  // Required by Python garth
     query.addQueryItem("accepts-mfa-tokens", "true");
     url.setQuery(query);
 
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", USER_AGENT);
-    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+    // Note: Content-Type not needed for GET requests
 
-    // OAuth1 requires consumer key/secret in the request
-    QString authHeader = QString("OAuth oauth_consumer_key=\"%1\"").arg(consumerKey);
+    // Generate OAuth1 signature for GET request
+    QString authHeader = generateOAuth1AuthorizationHeader(
+        "GET",
+        url.toString(),
+        consumerKey,
+        consumerSecret,
+        "",  // No token yet
+        ""   // No token secret yet
+    );
     request.setRawHeader("Authorization", authHeader.toUtf8());
+
+    qDebug() << "GarminConnect: OAuth1 Authorization:" << authHeader.left(80) << "...";
 
     QNetworkReply *reply = m_manager->get(request);
     QEventLoop loop;
@@ -486,13 +512,20 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
         return false;
     }
 
-    QJsonObject jsonResponse = extractJsonFromResponse(reply);
+    // Parse URL-encoded response (NOT JSON!)
+    // Format: oauth_token=abc&oauth_token_secret=xyz&mfa_token=...
+    QString responseText = QString::fromUtf8(reply->readAll());
     reply->deleteLater();
 
-    m_oauth1Token.oauth_token = jsonResponse["oauth_token"].toString();
-    m_oauth1Token.oauth_token_secret = jsonResponse["oauth_token_secret"].toString();
-    m_oauth1Token.mfa_token = jsonResponse["mfa_token"].toString();
-    m_oauth1Token.mfa_expiration_timestamp = jsonResponse["mfa_expiration_timestamp"].toVariant().toLongLong();
+    qDebug() << "GarminConnect: OAuth1 response:" << responseText.left(100) << "...";
+
+    QUrlQuery responseQuery(responseText);
+    m_oauth1Token.oauth_token = responseQuery.queryItemValue("oauth_token");
+    m_oauth1Token.oauth_token_secret = responseQuery.queryItemValue("oauth_token_secret");
+    m_oauth1Token.mfa_token = responseQuery.queryItemValue("mfa_token");
+
+    bool ok;
+    m_oauth1Token.mfa_expiration_timestamp = responseQuery.queryItemValue("mfa_expiration_timestamp").toLongLong(&ok);
 
     if (m_oauth1Token.oauth_token.isEmpty()) {
         m_lastError = "Failed to get OAuth1 token";
@@ -509,16 +542,61 @@ bool GarminConnect::exchangeForOAuth2Token()
 
     QUrl url(connectApiUrl() + "/oauth-service/oauth/exchange/user/2.0");
 
-    // Prepare POST data
+    // Prepare POST data - only include mfa_token if present
+    // oauth_token and oauth_token_secret go in OAuth1 signature, NOT in POST body!
     QUrlQuery postData;
-    postData.addQueryItem("oauth_token", m_oauth1Token.oauth_token);
-    postData.addQueryItem("oauth_token_secret", m_oauth1Token.oauth_token_secret);
+    if (!m_oauth1Token.mfa_token.isEmpty()) {
+        postData.addQueryItem("mfa_token", m_oauth1Token.mfa_token);
+    }
 
     QByteArray data = postData.query(QUrl::FullyEncoded).toUtf8();
+
+    // Need consumer key/secret from settings or fetch again
+    // For simplicity, fetch consumer credentials again (cached by Garmin)
+    QUrl consumerUrl(OAUTH_CONSUMER_URL);
+    QNetworkRequest consumerRequest(consumerUrl);
+    consumerRequest.setRawHeader("User-Agent", USER_AGENT);
+
+    QNetworkReply *consumerReply = m_manager->get(consumerRequest);
+    QEventLoop consumerLoop;
+    connect(consumerReply, &QNetworkReply::finished, &consumerLoop, &QEventLoop::quit);
+    consumerLoop.exec();
+
+    if (consumerReply->error() != QNetworkReply::NoError) {
+        m_lastError = "Failed to fetch OAuth consumer: " + consumerReply->errorString();
+        qDebug() << "GarminConnect:" << m_lastError;
+        consumerReply->deleteLater();
+        return false;
+    }
+
+    QJsonDocument consumerDoc = QJsonDocument::fromJson(consumerReply->readAll());
+    consumerReply->deleteLater();
+
+    if (!consumerDoc.isObject()) {
+        m_lastError = "Invalid OAuth consumer response";
+        return false;
+    }
+
+    QJsonObject consumerObj = consumerDoc.object();
+    QString consumerKey = consumerObj["consumer_key"].toString();
+    QString consumerSecret = consumerObj["consumer_secret"].toString();
 
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", USER_AGENT);
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    // Generate OAuth1 signature for POST request with OAuth1 credentials
+    QString authHeader = generateOAuth1AuthorizationHeader(
+        "POST",
+        url.toString(),
+        consumerKey,
+        consumerSecret,
+        m_oauth1Token.oauth_token,
+        m_oauth1Token.oauth_token_secret
+    );
+    request.setRawHeader("Authorization", authHeader.toUtf8());
+
+    qDebug() << "GarminConnect: OAuth2 exchange with OAuth1 signature";
 
     QNetworkReply *reply = m_manager->post(request, data);
     QEventLoop loop;
@@ -740,4 +818,130 @@ QJsonObject GarminConnect::extractJsonFromResponse(QNetworkReply *reply)
     }
 
     return doc.object();
+}
+
+// OAuth1 Signature Implementation
+QString GarminConnect::generateOAuth1AuthorizationHeader(
+    const QString &httpMethod,
+    const QString &url,
+    const QString &consumerKey,
+    const QString &consumerSecret,
+    const QString &oauth_token,
+    const QString &oauth_token_secret)
+{
+    // 1. Generate OAuth parameters
+    QString nonce = generateNonce();
+    QString timestamp = generateTimestamp();
+
+    // 2. Build parameter map
+    QMap<QString, QString> params;
+    params["oauth_consumer_key"] = consumerKey;
+    params["oauth_nonce"] = nonce;
+    params["oauth_signature_method"] = "HMAC-SHA1";
+    params["oauth_timestamp"] = timestamp;
+    params["oauth_version"] = "1.0";
+
+    if (!oauth_token.isEmpty()) {
+        params["oauth_token"] = oauth_token;
+    }
+
+    // Parse URL query parameters and add them to params map
+    QUrl qurl(url);
+    QUrlQuery urlQuery(qurl.query());
+    QList<QPair<QString, QString>> queryItems = urlQuery.queryItems(QUrl::FullyDecoded);
+    for (const auto &pair : queryItems) {
+        params[pair.first] = pair.second;
+    }
+
+    // 3. Create parameter string (sorted by key)
+    QString parameterString;
+    for (auto it = params.constBegin(); it != params.constEnd(); ++it) {
+        if (it != params.constBegin()) parameterString += "&";
+        parameterString += percentEncode(it.key()) + "=" + percentEncode(it.value());
+    }
+
+    // 4. Create base URL (without query string)
+    QUrl baseUrl(url);
+    baseUrl.setQuery(QString()); // Remove query from URL
+    QString baseUrlStr = baseUrl.scheme() + "://" + baseUrl.host() + baseUrl.path();
+
+    // 5. Generate signature
+    QString signature = generateOAuth1Signature(
+        httpMethod,
+        baseUrlStr,
+        parameterString,
+        consumerSecret,
+        oauth_token_secret
+    );
+
+    // 6. Build authorization header
+    QString authHeader = "OAuth ";
+    authHeader += "oauth_consumer_key=\"" + percentEncode(consumerKey) + "\", ";
+    authHeader += "oauth_nonce=\"" + percentEncode(nonce) + "\", ";
+    authHeader += "oauth_signature=\"" + percentEncode(signature) + "\", ";
+    authHeader += "oauth_signature_method=\"HMAC-SHA1\", ";
+    authHeader += "oauth_timestamp=\"" + percentEncode(timestamp) + "\", ";
+    authHeader += "oauth_version=\"1.0\"";
+
+    if (!oauth_token.isEmpty()) {
+        authHeader += ", oauth_token=\"" + percentEncode(oauth_token) + "\"";
+    }
+
+    return authHeader;
+}
+
+QString GarminConnect::generateOAuth1Signature(
+    const QString &httpMethod,
+    const QString &baseUrl,
+    const QString &parameterString,
+    const QString &consumerSecret,
+    const QString &oauth_token_secret)
+{
+    // Build signing key: consumer_secret&token_secret
+    QString key = percentEncode(consumerSecret) + "&";
+    if (!oauth_token_secret.isEmpty()) {
+        key += percentEncode(oauth_token_secret);
+    }
+
+    // Build base string: METHOD&baseUrl&params
+    QString baseString = httpMethod.toUpper() + "&" + percentEncode(baseUrl) +
+                         "&" + percentEncode(parameterString);
+
+    // HMAC-SHA1
+    QByteArray signature = QMessageAuthenticationCode::hash(
+        baseString.toUtf8(),
+        key.toUtf8(),
+        QCryptographicHash::Sha1
+    );
+
+    return QString::fromLatin1(signature.toBase64());
+}
+
+QString GarminConnect::percentEncode(const QString &str)
+{
+    QString encoded;
+    for (QChar c : str) {
+        if ((c >= 'A' && c <= 'Z') ||
+            (c >= 'a' && c <= 'z') ||
+            (c >= '0' && c <= '9') ||
+            c == '-' || c == '.' || c == '_' || c == '~') {
+            encoded += c;
+        } else {
+            QByteArray utf8 = QString(c).toUtf8();
+            for (char byte : utf8) {
+                encoded += QString("%%%1").arg((unsigned char)byte, 2, 16, QChar('0')).toUpper();
+            }
+        }
+    }
+    return encoded;
+}
+
+QString GarminConnect::generateNonce()
+{
+    return QUuid::createUuid().toString(QUuid::WithoutBraces).replace("-", "");
+}
+
+QString GarminConnect::generateTimestamp()
+{
+    return QString::number(QDateTime::currentSecsSinceEpoch());
 }
