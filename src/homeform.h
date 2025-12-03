@@ -537,6 +537,9 @@ class homeform : public QObject {
         m_garminMfaRequested = value;
         emit garminMfaRequestedChanged(value);
     }
+    Q_INVOKABLE void garmin_connect_login();
+    Q_INVOKABLE void garmin_submit_mfa_code(const QString &mfaCode);
+
     void setGeneralPopupVisible(bool value);
     void setPelotonPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
@@ -1036,8 +1039,6 @@ class homeform : public QObject {
     void bluetoothDeviceDisconnected();
     void onToastRequested(QString message);
     void strava_upload_file_prepare();
-    Q_INVOKABLE void garmin_connect_login();
-    Q_INVOKABLE void garmin_submit_mfa_code(const QString &mfaCode);
     void garmin_upload_file_prepare();
     void handleRestoreDefaultWheelDiameter();
 
