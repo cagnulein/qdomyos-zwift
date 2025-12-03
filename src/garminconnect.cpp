@@ -116,9 +116,17 @@ bool GarminConnect::fetchCsrfToken()
 {
     qDebug() << "GarminConnect: Fetching CSRF token...";
 
+    QString ssoEmbedUrl = ssoUrl() + SSO_EMBED_PATH;
+
     QUrl url(ssoUrl() + SSO_URL_PATH);
     QUrlQuery query;
-    query.addQueryItem("service", connectApiUrl());
+    query.addQueryItem("id", "gauth-widget");
+    query.addQueryItem("embedWidget", "true");
+    query.addQueryItem("gauthHost", ssoUrl() + "/sso");
+    query.addQueryItem("service", ssoEmbedUrl);
+    query.addQueryItem("source", ssoEmbedUrl);
+    query.addQueryItem("redirectAfterAccountLoginUrl", ssoEmbedUrl);
+    query.addQueryItem("redirectAfterAccountCreationUrl", ssoEmbedUrl);
     url.setQuery(query);
 
     QNetworkRequest request(url);
@@ -178,9 +186,17 @@ bool GarminConnect::performLogin(const QString &email, const QString &password)
 {
     qDebug() << "GarminConnect: Performing login...";
 
+    QString ssoEmbedUrl = ssoUrl() + SSO_EMBED_PATH;
+
     QUrl url(ssoUrl() + SSO_URL_PATH);
     QUrlQuery query;
-    query.addQueryItem("service", connectApiUrl());
+    query.addQueryItem("id", "gauth-widget");
+    query.addQueryItem("embedWidget", "true");
+    query.addQueryItem("gauthHost", ssoUrl() + "/sso");
+    query.addQueryItem("service", ssoEmbedUrl);
+    query.addQueryItem("source", ssoEmbedUrl);
+    query.addQueryItem("redirectAfterAccountLoginUrl", ssoEmbedUrl);
+    query.addQueryItem("redirectAfterAccountCreationUrl", ssoEmbedUrl);
     url.setQuery(query);
 
     // Prepare POST data
@@ -218,6 +234,17 @@ bool GarminConnect::performLogin(const QString &email, const QString &password)
     // Debug: log response details
     qDebug() << "GarminConnect: Login response length:" << response.length();
     qDebug() << "GarminConnect: Response snippet:" << response.left(300);
+
+    // Check for success title (like Python garth library)
+    QRegularExpression titleRegex("<title>(.+?)</title>");
+    QRegularExpressionMatch titleMatch = titleRegex.match(response);
+    if (titleMatch.hasMatch()) {
+        QString title = titleMatch.captured(1);
+        qDebug() << "GarminConnect: Page title:" << title;
+        if (title == "Success") {
+            qDebug() << "GarminConnect: Login successful (Success page detected)";
+        }
+    }
 
     // Check for error messages in response
     if (response.contains("error", Qt::CaseInsensitive)) {
@@ -284,11 +311,20 @@ bool GarminConnect::performLogin(const QString &email, const QString &password)
     QString ticket = responseQuery.queryItemValue("ticket");
 
     if (ticket.isEmpty()) {
-        // Try to extract from response body
-        QRegularExpression ticketRegex("ticket=([^&\"']+)");
+        // Try to extract from response body using Python garth pattern
+        QRegularExpression ticketRegex("embed\\?ticket=([^\"]+)\"");
         QRegularExpressionMatch match = ticketRegex.match(response);
         if (match.hasMatch()) {
             ticket = match.captured(1);
+            qDebug() << "GarminConnect: Found ticket in response body:" << ticket.left(20) << "...";
+        } else {
+            // Fallback to generic ticket extraction
+            QRegularExpression fallbackRegex("ticket=([^&\"']+)");
+            match = fallbackRegex.match(response);
+            if (match.hasMatch()) {
+                ticket = match.captured(1);
+                qDebug() << "GarminConnect: Found ticket with fallback pattern:" << ticket.left(20) << "...";
+            }
         }
     }
 
@@ -422,7 +458,6 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     QUrl url(connectApiUrl() + "/oauth-service/oauth/preauthorized");
     QUrlQuery query;
     query.addQueryItem("ticket", ticket);
-    query.addQueryItem("login-url", ssoUrl() + SSO_EMBED_PATH);
     query.addQueryItem("accepts-mfa-tokens", "true");
     url.setQuery(query);
 
