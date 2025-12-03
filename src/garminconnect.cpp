@@ -142,9 +142,21 @@ bool GarminConnect::fetchCsrfToken()
 
     QString html = QString::fromUtf8(reply->readAll());
 
-    // Extract CSRF token from HTML
-    QRegularExpression csrfRegex("<input\\s+type=\"hidden\"\\s+name=\"_csrf\"\\s+value=\"([^\"]+)\">");
-    QRegularExpressionMatch match = csrfRegex.match(html);
+    // Debug: log part of the HTML to see structure
+    qDebug() << "GarminConnect: HTML snippet:" << html.left(500);
+
+    // Extract CSRF token from HTML - try multiple patterns
+    QRegularExpression csrfRegex1("name=\"_csrf\"[^>]*value=\"([^\"]+)\"");
+    QRegularExpression csrfRegex2("value=\"([^\"]+)\"[^>]*name=\"_csrf\"");
+    QRegularExpression csrfRegex3("<input[^>]*name=\"csrf\"[^>]*value=\"([^\"]+)\"");
+
+    QRegularExpressionMatch match = csrfRegex1.match(html);
+    if (!match.hasMatch()) {
+        match = csrfRegex2.match(html);
+    }
+    if (!match.hasMatch()) {
+        match = csrfRegex3.match(html);
+    }
 
     if (match.hasMatch()) {
         m_csrfToken = match.captured(1);
@@ -208,9 +220,14 @@ bool GarminConnect::performLogin(const QString &email, const QString &password)
         response.contains("Enter MFA Code", Qt::CaseInsensitive)) {
         m_lastError = "MFA Required";
 
-        // Extract new CSRF token from MFA page
-        QRegularExpression csrfRegex("<input\\s+type=\"hidden\"\\s+name=\"_csrf\"\\s+value=\"([^\"]+)\">");
-        QRegularExpressionMatch match = csrfRegex.match(response);
+        // Extract new CSRF token from MFA page - try multiple patterns
+        QRegularExpression csrfRegex1("name=\"_csrf\"[^>]*value=\"([^\"]+)\"");
+        QRegularExpression csrfRegex2("value=\"([^\"]+)\"[^>]*name=\"_csrf\"");
+
+        QRegularExpressionMatch match = csrfRegex1.match(response);
+        if (!match.hasMatch()) {
+            match = csrfRegex2.match(response);
+        }
         if (match.hasMatch()) {
             m_csrfToken = match.captured(1);
         }
