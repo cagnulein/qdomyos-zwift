@@ -34,13 +34,8 @@ public class MediaButtonReceiver extends BroadcastReceiver {
                 return;
             }
 
-            // Process the gear change (guard against missing native lib)
-            try {
-                nativeOnMediaButtonEvent(previousVolume, currentVolume, maxVolume);
-            } catch (UnsatisfiedLinkError e) {
-                QLog.w("MediaButtonReceiver", "Native not ready: " + e.getMessage());
-                return;
-            }
+            // Process the gear change
+            nativeOnMediaButtonEvent(previousVolume, currentVolume, maxVolume);
 
             // Auto-restore volume to middle value after a short delay to enable infinite gear changes
             if (currentVolume != TARGET_VOLUME) {
