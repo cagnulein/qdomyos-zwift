@@ -61,27 +61,48 @@ void waterrowerusbThread::initializeWaterRower() {
     // Call the Java WaterRower initialization
     QAndroidJniEnvironment env;
     
+    // Get the device path
+    QAndroidJniObject devicePathObject = QAndroidJniObject::callStaticObjectMethod(
+        "org/cagnulen/qdomyoszwift/WaterRowerBridge",
+        "getDevicePath",
+        "(Landroid/content/Context;)Ljava/lang/String;",
+        QtAndroid::androidContext().object());
+
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+        emit onError(QStringLiteral("Failed to get WaterRower device path"));
+        return;
+    }
+
+    QString devicePath = devicePathObject.toString();
+    if (devicePath.isEmpty()) {
+        emit onDebug(QStringLiteral("WaterRower device not found."));
+        return;
+    }
+
+    emit onDebug(QStringLiteral("WaterRower device found at: ") + devicePath);
+
     // Create WaterRower instance through JNI
     QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
         "org/cagnulen/qdomyoszwift/WaterRowerBridge", 
-        "initialize", 
-        "(Landroid/content/Context;)Ljava/lang/String;",
-        QtAndroid::androidContext().object());
+        "connect", 
+        "(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;",
+        QtAndroid::androidContext().object(), QAndroidJniObject::fromString(devicePath).object<jstring>());
     
     if (env->ExceptionCheck()) {
         env->ExceptionClear();
-        emit onError(QStringLiteral("Failed to initialize WaterRower"));
+        emit onError(QStringLiteral("Failed to connect to WaterRower"));
         return;
     }
     
     QString initResult = result.toString();
-    emit onDebug(QStringLiteral("WaterRower initialization: ") + initResult);
+    emit onDebug(QStringLiteral("WaterRower connection result: ") + initResult);
     
     if (initResult == "SUCCESS") {
-        emit onDebug(QStringLiteral("WaterRower initialization successful - waiting for device connection..."));
+        emit onDebug(QStringLiteral("WaterRower connection successful - waiting for data..."));
         // Don't emit onConnected() here - wait for actual device connection from processWaterRowerData()
     } else {
-        emit onError(QStringLiteral("WaterRower initialization failed: ") + initResult);
+        emit onError(QStringLiteral("WaterRower connection failed: ") + initResult);
     }
 }
 

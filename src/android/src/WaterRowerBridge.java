@@ -1,6 +1,11 @@
 package org.cagnulen.qdomyoszwift;
 
 import android.content.Context;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
+
+import java.util.HashMap;
+import java.util.Iterator;
 
 import de.tbressler.waterrower.WaterRower;
 import de.tbressler.waterrower.IWaterRowerConnectionListener;
@@ -99,44 +104,43 @@ public class WaterRowerBridge {
         }
     };
     
-    public static String initialize(Context context) {
-        QLog.d(TAG, "Initializing WaterRower USB connection");
+    public static String getDevicePath(Context context) {
+        QLog.d(TAG, "getDevicePath: searching for WaterRower device");
+        UsbManager manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
+        HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
+        Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
+        while(deviceIterator.hasNext()){
+            UsbDevice device = deviceIterator.next();
+            QLog.d(TAG, "getDevicePath: found device " + device.getDeviceName() + " " + device.getVendorId() + " " + device.getProductId());
+            if (device.getVendorId() == 1240 && device.getProductId() == 10) {
+                QLog.d(TAG, "getDevicePath: found WaterRower device at " + device.getDeviceName());
+                return device.getDeviceName();
+            }
+        }
+        QLog.d(TAG, "getDevicePath: WaterRower device not found");
+        return "";
+    }
+
+    public static String connect(Context context, String devicePath) {
+        QLog.d(TAG, "Connecting to WaterRower at " + devicePath);
         
         if (waterRower != null) {
             shutdown();
         }
         
         try {
-            // Create WaterRower instance and set up auto-discovery
             waterRower = new WaterRower();
             waterRower.addConnectionListener(connectionListener);
             
-            // Set up auto-discovery
-            WaterRowerAutoDiscovery discovery = new WaterRowerAutoDiscovery(waterRower);
+            SerialDeviceAddress address = new SerialDeviceAddress(devicePath);
+            waterRower.connect(address);
             
-            QLog.d(TAG, "Starting WaterRower auto-discovery...");
-            
-            // Start auto-discovery (this will automatically connect when a device is found)
-            discovery.start();
-            
-            QLog.d(TAG, "WaterRower auto-discovery started");
-            
-            // Wait briefly to see if auto-discovery finds anything
-            try {
-                Thread.sleep(2000);
-                QLog.d(TAG, "Auto-discovery status after 2s - Connected: " + isConnected);
-                if (!isConnected) {
-                    QLog.w(TAG, "No WaterRower device found during initial auto-discovery");
-                }
-            } catch (InterruptedException e) {
-                QLog.w(TAG, "Auto-discovery wait interrupted: " + e.getMessage());
-            }
-            
+            QLog.d(TAG, "Connection attempt returned SUCCESS");
             return "SUCCESS";
             
         } catch (Exception e) {
-            QLog.e(TAG, "Failed to initialize WaterRower", e);
-            return "INITIALIZATION_FAILED: " + e.getMessage();
+            QLog.e(TAG, "Failed to connect to WaterRower", e);
+            return "CONNECTION_FAILED: " + e.getMessage();
         }
     }
     
