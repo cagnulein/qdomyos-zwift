@@ -9935,3 +9935,4 @@ extern "C" {
     }
 }
 #endif
+// Force rebuild for Q_INVOKABLE changes
