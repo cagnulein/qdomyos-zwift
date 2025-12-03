@@ -7827,6 +7827,8 @@ void homeform::fit_save_clicked() {
         bool garmin_enabled = settings.value(QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled).toBool();
         if (garmin_enabled && !settings.value(QZSettings::garmin_email, QZSettings::default_garmin_email).toString().isEmpty()) {
             garmin_upload_file_prepare();
+        }
+
         // Intervals.icu upload (OAuth)
         bool intervalsicu_enabled = settings.value(QZSettings::intervalsicu_upload_enabled, QZSettings::default_intervalsicu_upload_enabled).toBool();
 
