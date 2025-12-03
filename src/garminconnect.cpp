@@ -122,7 +122,7 @@ bool GarminConnect::fetchCsrfToken()
     QUrlQuery query;
     query.addQueryItem("id", "gauth-widget");
     query.addQueryItem("embedWidget", "true");
-    query.addQueryItem("gauthHost", ssoUrl() + "/sso");
+    query.addQueryItem("gauthHost", ssoEmbedUrl);  // Should be ssoEmbedUrl for GET signin
     query.addQueryItem("service", ssoEmbedUrl);
     query.addQueryItem("source", ssoEmbedUrl);
     query.addQueryItem("redirectAfterAccountLoginUrl", ssoEmbedUrl);
@@ -192,8 +192,8 @@ bool GarminConnect::performLogin(const QString &email, const QString &password)
     QUrlQuery query;
     query.addQueryItem("id", "gauth-widget");
     query.addQueryItem("embedWidget", "true");
-    query.addQueryItem("gauthHost", ssoUrl() + "/sso");
-    query.addQueryItem("service", ssoEmbedUrl);
+    query.addQueryItem("gauthHost", ssoEmbedUrl);
+    query.addQueryItem("service", connectApiUrl());  // POST uses connectApiUrl, not ssoEmbedUrl!
     query.addQueryItem("source", ssoEmbedUrl);
     query.addQueryItem("redirectAfterAccountLoginUrl", ssoEmbedUrl);
     query.addQueryItem("redirectAfterAccountCreationUrl", ssoEmbedUrl);
