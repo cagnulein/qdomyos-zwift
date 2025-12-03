@@ -28,6 +28,7 @@ nordictrackelliptical::nordictrackelliptical(bool noWriteResistance, bool noHear
     this->bikeResistanceOffset = bikeResistanceOffset;
 
     QSettings settings;
+    nordictrack_elliptical_c7_5 = settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5).toBool();
     nordictrack_se7i = settings.value(QZSettings::nordictrack_se7i, QZSettings::default_nordictrack_se7i).toBool();
 
     initDone = false;
@@ -64,10 +65,6 @@ void nordictrackelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len,
 
 void nordictrackelliptical::forceIncline(double requestIncline) {
 
-    QSettings settings;
-    bool nordictrack_elliptical_c7_5 =
-        settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5)
-            .toBool();
     const uint8_t res[] = {0xfe, 0x02, 0x0d, 0x02};
     writeCharacteristic((uint8_t *)res, sizeof(res), QStringLiteral("incline"), false, false);
 
@@ -296,9 +293,6 @@ void nordictrackelliptical::forceResistance(resistance_t requestResistance) {
     QSettings settings;
     bool proform_hybrid_trainer_xt =
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
-    bool nordictrack_elliptical_c7_5 =
-        settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5)
-            .toBool();
     const uint8_t res[] = {0xfe, 0x02, 0x0d, 0x02};
     writeCharacteristic((uint8_t *)res, sizeof(res), QStringLiteral("resistance"), false, false);
 
@@ -630,9 +624,6 @@ void nordictrackelliptical::update() {
         bool proform_hybrid_trainer_xt =
             settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt)
                 .toBool();
-        bool nordictrack_elliptical_c7_5 =
-            settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5)
-                .toBool();
 
         update_metrics(true, watts());
 
@@ -827,9 +818,6 @@ double nordictrackelliptical::GetInclinationFromPacket(QByteArray packet) {
 
 double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
     QSettings settings;
-    bool nordictrack_elliptical_c7_5 =
-        settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5)
-            .toBool();
     bool proform_hybrid_trainer_xt =
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
 
@@ -1024,9 +1012,6 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
-    bool nordictrack_elliptical_c7_5 =
-        settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5)
-            .toBool();
     uint8_t heart = 0;
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
@@ -1213,9 +1198,6 @@ void nordictrackelliptical::btinit() {
     QSettings settings;
     bool proform_hybrid_trainer_xt =
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
-    bool nordictrack_elliptical_c7_5 =
-        settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5)
-            .toBool();
 
     {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};

@@ -555,7 +555,7 @@ void virtualtreadmill::treadmillProvider() {
     uint8_t swiftResistance = 0;
     uint16_t swiftWatt = (uint16_t)((treadmill *)treadMill)->wattsMetric().value();
     uint16_t swiftInclination = (uint16_t)(inclination * 10.0);
-    uint64_t swiftDistance = (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0);
+    uint64_t swiftDistance = (uint64_t)(((treadmill *)treadMill)->odometerFromStartup() * 1000.0);
     uint16_t swiftCalories = ((treadmill *)treadMill)->calories().value();
     qint32 swiftSteps = ((treadmill *)treadMill)->currentStepCount().value();
 

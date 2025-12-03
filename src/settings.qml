@@ -17,6 +17,8 @@ import Qt.labs.platform 1.1
         id: settingsPane        
 
         signal peloton_connect_clicked()
+        signal intervalsicu_connect_clicked()
+        signal intervalsicu_download_todays_workout_clicked()
 
         Settings {
             id: settings
@@ -1210,8 +1212,8 @@ import Qt.labs.platform 1.1
             property bool toorxtreadmill_discovery_completed: false
             property bool taurua_ic90: false
             property bool proform_csx210: false
-            property bool confirm_stop_workout: false
-            property bool proform_rower_750r: false
+            property bool confirm_stop_workout: false                       
+            property bool proform_rower_750r: false             
             property bool virtual_device_force_treadmill: false
             property bool proform_trainer_9_0: false
             property bool iconcept_ftms_treadmill_inclination_table: false
@@ -1220,6 +1222,15 @@ import Qt.labs.platform 1.1
             property string kettler_usb_serialport: ""			
             property int kettler_usb_baudrate: 9600
             property bool nordictrack_se7i: false
+            property real treadmill_speed_max: 100
+            
+            // Intervals.icu settings
+            property string intervalsicu_accesstoken: ""
+            property string intervalsicu_refreshtoken: ""
+            property string intervalsicu_athlete_id: ""
+            property bool intervalsicu_upload_enabled: true
+            property string intervalsicu_suffix: "#QZ"
+            property bool intervalsicu_date_prefix: false            
         }
 
 
@@ -7348,7 +7359,43 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }            
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Max. Speed:") + "(" + (settings.miles_unit?"mph":"km/h") + ")"
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: treadmillSpeedMaxTextField
+                            text: (settings.miles_unit?settings.treadmill_speed_max * 0.621371:settings.treadmill_speed_max).toFixed(1)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.treadmill_speed_max = (settings.miles_unit?text * 1.60934:text)
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.treadmill_speed_max = (settings.miles_unit?treadmillSpeedMaxTextField.text * 1.60934:treadmillSpeedMaxTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
 
                     NewPageElement {
                         title: qsTr("Inclination Overrides")

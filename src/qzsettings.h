@@ -90,6 +90,14 @@ class QZSettings {
 
     static const QString garmin_upload_enabled;
     static constexpr bool default_garmin_upload_enabled = false;
+    static const QString intervalsicu_accesstoken;
+    static const QString default_intervalsicu_accesstoken;
+
+    static const QString intervalsicu_refreshtoken;
+    static const QString default_intervalsicu_refreshtoken;
+
+    static const QString intervalsicu_athlete_id;
+    static const QString default_intervalsicu_athlete_id;
 
     static const QString code;
     static const QString default_code;
@@ -862,6 +870,15 @@ class QZSettings {
 
     static const QString strava_suffix;
     static const QString default_strava_suffix;
+
+    static const QString intervalsicu_upload_enabled;
+    static constexpr bool default_intervalsicu_upload_enabled = true;
+
+    static const QString intervalsicu_suffix;
+    static const QString default_intervalsicu_suffix;
+
+    static const QString intervalsicu_date_prefix;
+    static constexpr bool default_intervalsicu_date_prefix = false;
 
     static const QString cadence_sensor_name;
     static const QString default_cadence_sensor_name;
@@ -2020,6 +2037,9 @@ class QZSettings {
 
     static const QString treadmill_incline_max;
     static constexpr float default_treadmill_incline_max = 100.0;
+
+    static const QString treadmill_speed_max;
+    static constexpr float default_treadmill_speed_max = 100.0;
 
     static const QString proform_2000_treadmill;
     static constexpr bool default_proform_2000_treadmill = false;
