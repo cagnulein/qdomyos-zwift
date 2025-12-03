@@ -132,6 +132,8 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..  
 
@@ -622,9 +624,11 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
-          cd ..          
+          cd ..
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
@@ -899,6 +903,8 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
           qmake CONFIG+=debug CONFIG+=iphonesimulator && make -j4
@@ -1010,6 +1016,8 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..        
 
@@ -1197,9 +1205,11 @@ jobs:
           echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h          
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          cd ..                    
+          cd ..
 
       - name: Clone vcpkg
         run: git clone https://github.com/microsoft/vcpkg.git
@@ -1293,6 +1303,8 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           cd ..
@@ -1352,6 +1364,8 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           cd ..
@@ -1459,6 +1473,8 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..        
 
@@ -1656,6 +1672,8 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           # Set variant-specific IP setting
@@ -1761,9 +1779,11 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
-          cd ..          
+          cd ..
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
@@ -1864,9 +1884,11 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
-          cd ..          
+          cd ..
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393

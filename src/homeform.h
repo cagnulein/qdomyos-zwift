@@ -211,6 +211,11 @@ class homeform : public QObject {
     Q_PROPERTY(QString getPelotonAuthUrl READ getPelotonAuthUrl NOTIFY pelotonAuthUrlChanged)
     Q_PROPERTY(bool pelotonWebVisible READ pelotonWebVisible NOTIFY pelotonWebVisibleChanged)
 
+    QString getIntervalsICUAuthUrl() { return intervalsicuAuthUrl; }
+    bool intervalsicuWebVisible() { return intervalsicuAuthWebVisible; }
+    Q_PROPERTY(QString getIntervalsICUAuthUrl READ getIntervalsICUAuthUrl NOTIFY intervalsicuAuthUrlChanged)
+    Q_PROPERTY(bool intervalsicuWebVisible READ intervalsicuWebVisible NOTIFY intervalsicuWebVisibleChanged)
+
   public:
     static homeform *singleton() { return m_singleton; }
     bluetooth *bluetoothManager;
@@ -813,6 +818,14 @@ class homeform : public QObject {
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
 
+    // Intervals.icu OAuth and upload
+    QOAuth2AuthorizationCodeFlow *intervalsicu = nullptr;
+    QNetworkAccessManager *intervalsicuManager = nullptr;
+    QOAuthHttpServerReplyHandler *intervalsicuReplyHandler = nullptr;
+    QNetworkReply *replyIntervalsICU = nullptr;
+    QString intervalsicuAthleteId;
+    QString intervalsicuAuthCode;
+
     bool paused = false;
     bool stopped = false;
     bool lapTrigger = false;
@@ -873,6 +886,15 @@ class homeform : public QObject {
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
     QString stravaAuthUrl;
     bool stravaAuthWebVisible;
+
+    // Intervals.icu methods
+    QOAuth2AuthorizationCodeFlow *intervalsicu_connect();
+    void intervalsicu_refreshtoken();
+    bool intervalsicu_upload_file(const QByteArray &data, const QString &remotename);
+    void intervalsicu_download_todays_workout();
+    void intervalsicu_download_workout_completed(QNetworkReply *reply);
+    QString intervalsicuAuthUrl;
+    bool intervalsicuAuthWebVisible;
 
     static quint64 cryptoKeySettingsProfiles();
 
@@ -974,6 +996,16 @@ class homeform : public QObject {
     void callbackReceived(const QVariantMap &values);
     void writeFileCompleted();
     void errorOccurredUploadStrava(QNetworkReply::NetworkError code);
+    // Intervals.icu slots
+    void intervalsicu_connect_clicked();
+    void intervalsicu_upload_file_prepare();
+    void intervalsicu_download_todays_workout_clicked();
+    void onIntervalsICUGranted();
+    void onIntervalsICUAuthorizeWithBrowser(const QUrl &url);
+    void replyDataReceivedIntervalsICU(const QByteArray &v);
+    void callbackReceivedIntervalsICU(const QVariantMap &values);
+    void writeFileCompletedIntervalsICU();
+    void errorOccurredUploadIntervalsICU(QNetworkReply::NetworkError code);
     void pelotonWorkoutStarted(const QString &name, const QString &instructor);
     void pelotonWorkoutChanged(const QString &name, const QString &instructor);
     void pelotonLoginState(bool ok);
@@ -1057,6 +1089,8 @@ class homeform : public QObject {
     void stravaWebVisibleChanged(bool value);
     void pelotonAuthUrlChanged(QString value);
     void pelotonWebVisibleChanged(bool value);
+    void intervalsicuAuthUrlChanged(QString value);
+    void intervalsicuWebVisibleChanged(bool value);
 
     void restoreDefaultWheelDiameter();
 
