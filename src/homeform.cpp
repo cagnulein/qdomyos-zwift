@@ -41,6 +41,8 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QTime>
+#include <QTimer>
+#include <QFile>
 #include <QUrlQuery>
 #include <QRegularExpression>
 #include <chrono>

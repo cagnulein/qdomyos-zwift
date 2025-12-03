@@ -3,6 +3,8 @@
 #include <QRegularExpression>
 #include <QRandomGenerator>
 #include <QHttpPart>
+#include <QNetworkCookieJar>
+#include <QUrl>
 
 GarminConnect::GarminConnect(QObject *parent)
     : QObject(parent)
