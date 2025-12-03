@@ -352,6 +352,11 @@ void zwiftclickremote::controllerStateChanged(QLowEnergyController::ControllerSt
 
 void zwiftclickremote::vibrate(uint8_t pattern) {
     if(!initDone) return;
+    
+    QSettings settings;
+    bool zwift_play_vibration = settings.value(QZSettings::zwift_play_vibration, QZSettings::default_zwift_play_vibration).toBool();
+    if(!zwift_play_vibration) return;
+    
     QByteArray s = QByteArray::fromHex("1212080A060802100018");
     s.append(pattern);
     writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "vibrate", false, false);

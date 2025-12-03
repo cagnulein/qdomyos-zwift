@@ -14,7 +14,7 @@ using namespace std::chrono_literals;
 
 apexbike::apexbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -152,7 +152,15 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         emit resistanceRead(Resistance.value());
         m_pelotonResistance = Resistance.value();
 
-        qDebug() << QStringLiteral("Raw resistance: ") + QString::number(rawResistance) + QStringLiteral(", Inverted resistance: ") + QString::number(Resistance.value());
+        // Parse cadence from 5th byte (index 4) and multiply by 2
+        uint8_t rawCadence = newValue.at(4);
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
+            Cadence = rawCadence * 2;
+        }
+
+        qDebug() << QStringLiteral("Raw resistance: ") + QString::number(rawResistance) + QStringLiteral(", Inverted resistance: ") + QString::number(Resistance.value()) + QStringLiteral(", Raw cadence: ") + QString::number(rawCadence) + QStringLiteral(", Final cadence: ") + QString::number(Cadence.value());
     }
 
     if (newValue.length() != 10 || newValue.at(2) != 0x31) {
@@ -162,41 +170,13 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     uint16_t distanceData = (newValue.at(7) << 8) | ((uint8_t)newValue.at(8));
     double distance = ((double)distanceData);
 
-    if(distance != lastDistance) {
-        if(lastDistance != 0) {
-            double deltaDistance = distance - lastDistance;
-            double deltaTime = fabs(now.msecsTo(lastTS));
-            double timeHours = deltaTime / (1000.0 * 60.0 * 60.0);
-            double k = 0.005333;
-            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                Speed = (deltaDistance *k) / timeHours; // Speed in distance units per hour
-            } else {
-                Speed = metric::calculateSpeedFromPower(
-                    watts(), Inclination.value(), Speed.value(),
-                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
-            }
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled"))) {
-                Cadence = Speed.value() / 0.37497622;
-            }
-        }
-        lastDistance = distance;
-        lastTS = now;
-        qDebug() << "lastDistance" << lastDistance << "lastTS" << lastTS;
+    // Calculate speed using the same method as echelon bike
+    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+        Speed = 0.37497622 * ((double)Cadence.value());
     } else {
-        // Check if speed and cadence should be reset due to timeout (2 seconds)
-        if (lastTS.msecsTo(now) > 2000) {
-            if (Speed.value() > 0) {
-                Speed = 0;
-                qDebug() << "Speed reset to 0 due to timeout";
-            }
-            if (Cadence.value() > 0) {
-                Cadence = 0;
-                qDebug() << "Cadence reset to 0 due to timeout";
-            }
-            lastTS = now;
-        }
+        Speed = metric::calculateSpeedFromPower(
+            watts(), Inclination.value(), Speed.value(),
+            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
 
     if (watts())

@@ -16,6 +16,7 @@
 #include "smtpclient/src/SmtpMime"
 #include "trainprogram.h"
 #include "workoutmodel.h"
+#include "fitbackupwriter.h"
 #include <QChart>
 #include <QColor>
 #include <QGraphicsScene>
@@ -26,6 +27,7 @@
 #include <QQuickItem>
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
+#include <QThread>
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -191,6 +193,10 @@ class homeform : public QObject {
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
     Q_PROPERTY(QList<double> preview_workout_watt READ preview_workout_watt)
+    Q_PROPERTY(QList<double> preview_workout_speed READ preview_workout_speed)
+    Q_PROPERTY(QList<double> preview_workout_inclination READ preview_workout_inclination)
+    Q_PROPERTY(QList<double> preview_workout_resistance READ preview_workout_resistance)
+    Q_PROPERTY(QList<double> preview_workout_cadence READ preview_workout_cadence)
     Q_PROPERTY(QString previewWorkoutDescription READ previewWorkoutDescription NOTIFY previewWorkoutDescriptionChanged)
     Q_PROPERTY(QString previewWorkoutTags READ previewWorkoutTags NOTIFY previewWorkoutTagsChanged)
 
@@ -204,6 +210,11 @@ class homeform : public QObject {
     bool pelotonWebVisible() { if(!pelotonHandler) return false; return pelotonHandler->pelotonAuthWebVisible; }
     Q_PROPERTY(QString getPelotonAuthUrl READ getPelotonAuthUrl NOTIFY pelotonAuthUrlChanged)
     Q_PROPERTY(bool pelotonWebVisible READ pelotonWebVisible NOTIFY pelotonWebVisibleChanged)
+
+    QString getIntervalsICUAuthUrl() { return intervalsicuAuthUrl; }
+    bool intervalsicuWebVisible() { return intervalsicuAuthWebVisible; }
+    Q_PROPERTY(QString getIntervalsICUAuthUrl READ getIntervalsICUAuthUrl NOTIFY intervalsicuAuthUrlChanged)
+    Q_PROPERTY(bool intervalsicuWebVisible READ intervalsicuWebVisible NOTIFY intervalsicuWebVisibleChanged)
 
   public:
     static homeform *singleton() { return m_singleton; }
@@ -395,9 +406,14 @@ class homeform : public QObject {
             settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
                 .toBool();
         return bluetoothManager && bluetoothManager->device() &&
-               bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL && !virtual_bike &&
+               bluetoothManager->device()->deviceType() == TREADMILL && !virtual_bike &&
                bluetoothManager->device()->VirtualDevice() &&
                ((virtualtreadmill *)bluetoothManager->device()->VirtualDevice())->autoInclinationEnabled();
+    }
+
+    Q_INVOKABLE bool confirmStopEnabled() {
+        QSettings settings;
+        return settings.value(QZSettings::confirm_stop_workout, QZSettings::default_confirm_stop_workout).toBool();
     }
 
     Q_INVOKABLE bool locationServices() {
@@ -432,9 +448,9 @@ class homeform : public QObject {
         }
     }
     QString workoutNameBasedOnBluetoothDevice() {
-        if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+        if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == BIKE) {
             return QStringLiteral("Ride");
-        } else if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+        } else if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == ROWING) {
             return QStringLiteral("Row");
         } else {
             return QStringLiteral("Run");
@@ -526,6 +542,7 @@ class homeform : public QObject {
     Q_INVOKABLE static QString getWritableAppDir();
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
+    Q_INVOKABLE bool startTrainingProgramFromFile(const QString &filePath);
 
     double wattMaxChart() {
         QSettings settings;
@@ -594,6 +611,62 @@ class homeform : public QObject {
         foreach (trainrow r, previewTrainProgram->loadedRows) {
             for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
                 l.append(r.power);
+            }
+        }
+        return l;
+    }
+
+    QList<double> preview_workout_speed() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.speed);
+            }
+        }
+        return l;
+    }
+
+    QList<double> preview_workout_inclination() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.inclination);
+            }
+        }
+        return l;
+    }
+
+    QList<double> preview_workout_resistance() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.resistance);
+            }
+        }
+        return l;
+    }
+
+    QList<double> preview_workout_cadence() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.cadence);
             }
         }
         return l;
@@ -745,6 +818,14 @@ class homeform : public QObject {
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
 
+    // Intervals.icu OAuth and upload
+    QOAuth2AuthorizationCodeFlow *intervalsicu = nullptr;
+    QNetworkAccessManager *intervalsicuManager = nullptr;
+    QOAuthHttpServerReplyHandler *intervalsicuReplyHandler = nullptr;
+    QNetworkReply *replyIntervalsICU = nullptr;
+    QString intervalsicuAthleteId;
+    QString intervalsicuAuthCode;
+
     bool paused = false;
     bool stopped = false;
     bool lapTrigger = false;
@@ -752,6 +833,10 @@ class homeform : public QObject {
     // Automatic Virtual Shifting variables
     QDateTime automaticShiftingGearUpStartTime = QDateTime::currentDateTime();
     QDateTime automaticShiftingGearDownStartTime = QDateTime::currentDateTime();
+
+    // Timer jitter detection variables (same logic as trainprogram::scheduler)
+    QDateTime lastUpdateCall = QDateTime::currentDateTime();
+    qint64 currentUpdateJitter = 0;
 
     peloton *pelotonHandler = nullptr;
     bool m_pelotonAskStart = false;
@@ -788,6 +873,10 @@ class homeform : public QObject {
     QTimer *backupTimer;
     QTimer *automaticShiftingTimer;
 
+    // FIT backup threading
+    QThread *fitBackupThread;
+    FitBackupWriter *fitBackupWriter;
+
     QString strava_code;
     QOAuth2AuthorizationCodeFlow *strava_connect();
     void strava_refreshtoken();
@@ -797,6 +886,15 @@ class homeform : public QObject {
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
     QString stravaAuthUrl;
     bool stravaAuthWebVisible;
+
+    // Intervals.icu methods
+    QOAuth2AuthorizationCodeFlow *intervalsicu_connect();
+    void intervalsicu_refreshtoken();
+    bool intervalsicu_upload_file(const QByteArray &data, const QString &remotename);
+    void intervalsicu_download_todays_workout();
+    void intervalsicu_download_workout_completed(QNetworkReply *reply);
+    QString intervalsicuAuthUrl;
+    bool intervalsicuAuthWebVisible;
 
     static quint64 cryptoKeySettingsProfiles();
 
@@ -857,6 +955,7 @@ class homeform : public QObject {
     void Minus(const QString &);
     void Plus(const QString &);
     void trainprogram_open_clicked(const QUrl &fileName);
+    void trainprogram_autostart_requested();
 
   private slots:
     void Start();
@@ -897,6 +996,16 @@ class homeform : public QObject {
     void callbackReceived(const QVariantMap &values);
     void writeFileCompleted();
     void errorOccurredUploadStrava(QNetworkReply::NetworkError code);
+    // Intervals.icu slots
+    void intervalsicu_connect_clicked();
+    void intervalsicu_upload_file_prepare();
+    void intervalsicu_download_todays_workout_clicked();
+    void onIntervalsICUGranted();
+    void onIntervalsICUAuthorizeWithBrowser(const QUrl &url);
+    void replyDataReceivedIntervalsICU(const QByteArray &v);
+    void callbackReceivedIntervalsICU(const QVariantMap &values);
+    void writeFileCompletedIntervalsICU();
+    void errorOccurredUploadIntervalsICU(QNetworkReply::NetworkError code);
     void pelotonWorkoutStarted(const QString &name, const QString &instructor);
     void pelotonWorkoutChanged(const QString &name, const QString &instructor);
     void pelotonLoginState(bool ok);
@@ -980,6 +1089,8 @@ class homeform : public QObject {
     void stravaWebVisibleChanged(bool value);
     void pelotonAuthUrlChanged(QString value);
     void pelotonWebVisibleChanged(bool value);
+    void intervalsicuAuthUrlChanged(QString value);
+    void intervalsicuWebVisibleChanged(bool value);
 
     void restoreDefaultWheelDiameter();
 

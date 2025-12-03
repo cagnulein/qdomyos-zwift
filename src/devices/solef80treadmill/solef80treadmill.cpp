@@ -31,7 +31,7 @@ solef80treadmill::solef80treadmill(bool noWriteResistance, bool noHeartService) 
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
 
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;

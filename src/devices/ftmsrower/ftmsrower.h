@@ -46,6 +46,7 @@ class ftmsrower : public rower {
     void startDiscover();
     uint16_t watts() override;
     void forceResistance(resistance_t requestResistance);
+    void parseConcept2Data(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 
     QTimer *refresh;
 
@@ -69,6 +70,9 @@ class ftmsrower : public rower {
     bool WHIPR = false;
     bool KINGSMITH = false;
     bool PM5 = false;
+    bool NORDLYS = false;
+    bool ICONSOLE_PLUS = false;
+    bool FITSHOW = false;
 
     bool WATER_ROWER = false;
     bool DFIT_L_R = false;
@@ -76,6 +80,9 @@ class ftmsrower : public rower {
     bool ROWER = false;
     QDateTime lastStroke = QDateTime::currentDateTime();
     double lastStrokesCount = 0;
+    
+    // PM5 specific variables
+    uint8_t pm5RowState = 0;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

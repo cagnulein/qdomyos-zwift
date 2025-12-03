@@ -65,6 +65,14 @@ class trainrow {
     double longitude = NAN;
     double altitude = NAN;
     double azimuth = NAN;
+
+    // Text events with time offsets
+    struct TextEvent {
+        uint32_t timeoffset = 0;  // Time offset in seconds from the start of this row
+        QString message;
+    };
+    QList<TextEvent> textEvents;
+
     QString toString() const;
 };
 
@@ -76,7 +84,7 @@ class trainprogram : public QObject {
                  bool videoAvailable = false);
     void save(const QString &filename);
     static trainprogram *load(const QString &filename, bluetooth *b, QString Extension);
-    static QList<trainrow> loadXML(const QString &filename, bluetoothdevice::BLUETOOTH_TYPE device_type);
+    static QList<trainrow> loadXML(const QString &filename, BLUETOOTH_TYPE device_type);
     static bool saveXML(const QString &filename, const QList<trainrow> &rows);
     static bool hasTargetPower(const QString &filename);
     QTime totalElapsedTime();
@@ -179,7 +187,10 @@ private slots:
     AuthToken* zwift_auth_token = nullptr;
     World* zwift_world = nullptr;
     int zwift_player_id = -1;
-    
+
+    // Track which text events have been shown for each row
+    QSet<QString> shownTextEvents;  // Format: "row_index:timeoffset"
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

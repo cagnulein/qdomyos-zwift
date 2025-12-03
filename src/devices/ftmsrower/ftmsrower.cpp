@@ -1,6 +1,7 @@
 #include "devices/ftmsrower/ftmsrower.h"
 #include "devices/ftmsbike/ftmsbike.h"
 #include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -19,7 +20,7 @@
 using namespace std::chrono_literals;
 
 ftmsrower::ftmsrower(bool noWriteResistance, bool noHeartService) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -62,12 +63,11 @@ void ftmsrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
 
 void ftmsrower::forceResistance(resistance_t requestResistance) {
 
-    uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-
-    write[3] = ((uint16_t)requestResistance * 100) & 0xFF;
-    write[4] = ((uint16_t)requestResistance * 100) >> 8;
-
+    uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
+    write[1] = ((uint8_t)(requestResistance * 10));
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
+    if(NORDLYS)
+        Resistance = requestResistance; // Nordlys does not report back the resistance so we set it here
 }
 
 void ftmsrower::update() {
@@ -143,6 +143,123 @@ void ftmsrower::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
+void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
+    QSettings settings;
+    
+    QString charUuid = characteristic.uuid().toString();
+    
+    if (charUuid == QStringLiteral("{ce060031-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060031 - Based on go-row implementation
+        if (newValue.length() >= 10) {
+            // Extract RowState from byte 9 - this indicates if user is actively rowing
+            pm5RowState = (uint8_t)newValue.at(9);
+            
+            emit debug(QStringLiteral("PM5 CE060031 RAW: ") + newValue.toHex(' ') + 
+                      QStringLiteral(" RowState: ") + QString::number(pm5RowState));
+        }
+    }
+    else if (charUuid == QStringLiteral("{ce060032-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060032 - Based on go-row implementation
+        if (newValue.length() >= 7) {
+            // Extract cadence (SPM) from byte 5
+            uint8_t spm = (uint8_t)newValue.at(5);
+            if (spm > 0) {
+                Cadence = spm;
+                lastStroke = now;
+            }
+            
+            // Extract speed from bytes 3-4 (little endian) in 0.001m/s  
+            uint16_t speedRaw = ((uint8_t)newValue.at(4) << 8) | (uint8_t)newValue.at(3);
+            if (speedRaw > 0) {
+                Speed = (speedRaw * 0.001) * 3.6; // Convert m/s to km/h
+            }
+            
+            emit debug(QStringLiteral("PM5 CE060032 RAW: ") + newValue.toHex(' ') + 
+                      QStringLiteral(" Cadence: ") + QString::number(Cadence.value()) + 
+                      QStringLiteral(" Speed: ") + QString::number(Speed.value()) + 
+                      QStringLiteral(" RowState: ") + QString::number(pm5RowState));
+        }
+    }
+    else if (charUuid == QStringLiteral("{ce060033-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060033 - Additional data
+        if (newValue.length() >= 20) {
+            emit debug(QStringLiteral("PM5 CE060033 RAW: ") + newValue.toHex(' '));
+        }
+    }
+    else if (charUuid == QStringLiteral("{ce060036-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060036 - Power and stroke count (based on go-row implementation)
+        if (newValue.length() >= 9) {
+            // Extract stroke count from bytes 7-8 (little endian)
+            uint16_t strokeCount = ((uint8_t)newValue.at(8) << 8) | (uint8_t)newValue.at(7);
+            if (strokeCount != StrokesCount.value()) {
+                StrokesCount = strokeCount;
+                lastStroke = now;
+            }
+            
+            // Extract power from bytes 3-4 (little endian)
+            uint16_t power = ((uint8_t)newValue.at(4) << 8) | (uint8_t)newValue.at(3);
+            if (power > 0) {
+                m_watt = power;
+            }
+            
+            emit debug(QStringLiteral("PM5 CE060036 RAW: ") + newValue.toHex(' ') + 
+                      QStringLiteral(" Power: ") + QString::number(m_watt.value()) + 
+                      QStringLiteral(" Stroke Count: ") + QString::number(StrokesCount.value()) + 
+                      QStringLiteral(" RowState: ") + QString::number(pm5RowState));
+        }
+    }
+    else if (charUuid == QStringLiteral("{ce060035-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060035 - Stroke data including drive length (stroke length)
+        if (newValue.length() >= 7) {
+            // Extract drive length (stroke length) from byte 6 - 0.01 meters LSB, max 2.55m
+            uint8_t driveLengthRaw = (uint8_t)newValue.at(6);
+            if (driveLengthRaw > 0) {
+                // Convert from 0.01m units to meters
+                double strokeLengthMeters = driveLengthRaw * 0.01;
+                StrokesLength = strokeLengthMeters;
+            }
+            
+            emit debug(QStringLiteral("PM5 CE060035 RAW: ") + newValue.toHex(' ') +
+                      QStringLiteral(" Stroke Length: ") + QString::number(StrokesLength.value()) +
+                      QStringLiteral("m RowState: ") + QString::number(pm5RowState));
+        }
+    }
+    
+    // Update calories based on power if available
+    if (m_watt.value() > 0) {
+        KCal += ((((0.048 * ((double)m_watt.value()) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(now))));
+    }
+    
+    // Update crank revolutions for virtual device compatibility
+    if (Cadence.value() > 0) {
+        CrankRevs++;
+        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+    }
+    
+    lastRefreshCharacteristicChanged = now;
+    
+    // Apply RowState logic after all characteristics processing
+    if (PM5 && pm5RowState == 0) {
+        m_watt = 0;
+        Cadence = 0;
+        Speed = 0;
+    }
+    
+    // Update metrics for virtual device
+    update_metrics(false, m_watt.value());
+    
+    emit debug(QStringLiteral("PM5 Metrics - Cadence: ") + QString::number(Cadence.value()) +
+              QStringLiteral(" Speed: ") + QString::number(Speed.value()) +
+              QStringLiteral(" Power: ") + QString::number(m_watt.value()) +
+              QStringLiteral(" Distance: ") + QString::number(Distance.value()) +
+              QStringLiteral(" Calories: ") + QString::number(KCal.value()) +
+              QStringLiteral(" RowState: ") + QString::number(pm5RowState));
+}
+
 void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
 
@@ -155,6 +272,17 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     qDebug() << QStringLiteral(" << ") << characteristic.uuid() << " " << newValue.toHex(' ');
+
+    // Handle Concept2 PM5 characteristics as fallback when FTMS is not available
+    if (PM5 && (characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060031-43e5-11e4-916c-0800200c9a66")) ||
+                characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060032-43e5-11e4-916c-0800200c9a66")) ||
+                characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060033-43e5-11e4-916c-0800200c9a66")) ||
+                characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060035-43e5-11e4-916c-0800200c9a66")) ||
+                characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060036-43e5-11e4-916c-0800200c9a66")))) {
+        
+        parseConcept2Data(characteristic, newValue);
+        return;
+    }
 
     if (characteristic.uuid() != QBluetoothUuid((quint16)0x2AD1)) {
         return;
@@ -232,10 +360,17 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 
     if (Flags.totDistance) {
-        Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                              (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint32_t)((uint8_t)newValue.at(index)))) /
-                   1000.0;
+        if (ICONSOLE_PLUS || FITSHOW) {
+            // For ICONSOLE+, always calculate distance from speed instead of using characteristic data
+            Distance += ((Speed.value() / 3600000.0) *
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+        } else {
+            // For other devices, use the distance from characteristic data
+            Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                  (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint32_t)((uint8_t)newValue.at(index)))) /
+                       1000.0;
+        }
         index += 3;
     } else {
         Distance += ((Speed.value() / 3600000.0) *
@@ -253,8 +388,10 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
 
         if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R) {
-            Speed = (60.0 / instantPace) *
-                30.0; // translating pace (min/500m) to km/h in order to match the pace function in the rower.cpp
+            if(instantPace == 0)
+                Speed = 0;
+            else
+                Speed = (60.0 / instantPace) * 30.0; // translating pace (min/500m) to km/h in order to match the pace function in the rower.cpp
         }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
@@ -493,6 +630,8 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         bool virtual_device_rower =
             settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
+        bool virtual_device_force_treadmill =
+            settings.value(QZSettings::virtual_device_force_treadmill, QZSettings::default_virtual_device_force_treadmill).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         bool cadence =
@@ -510,7 +649,13 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         {
             if (virtual_device_enabled) {
-                if (!virtual_device_rower) {
+                if (virtual_device_force_treadmill) {
+                    emit debug(QStringLiteral("creating virtual treadmill interface..."));
+
+                    auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    connect(virtualTreadmill, &virtualtreadmill::debug, this, &ftmsrower::debug);
+                    this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
+                } else if (!virtual_device_rower) {
                     emit debug(QStringLiteral("creating virtual bike interface..."));
 
                     auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
@@ -569,6 +714,36 @@ void ftmsrower::serviceScanDone(void) {
 #endif
 
     auto services_list = m_control->services();
+    bool hasFTMSService = false;
+    bool hasConcept2Services = false;
+    
+    // Check if FTMS service (0x1826) is available
+    QBluetoothUuid ftmsService((quint16)0x1826);
+    for (const QBluetoothUuid &s : qAsConst(services_list)) {
+        if (s == ftmsService) {
+            hasFTMSService = true;
+            break;
+        }
+    }
+    
+    // If no FTMS service, check for Concept2 PM5 services
+    if (!hasFTMSService && PM5) {
+        QBluetoothUuid concept2InfoService(QStringLiteral("ce060010-43e5-11e4-916c-0800200c9a66"));
+        QBluetoothUuid concept2ControlService(QStringLiteral("ce060020-43e5-11e4-916c-0800200c9a66"));
+        QBluetoothUuid concept2RowingService(QStringLiteral("ce060030-43e5-11e4-916c-0800200c9a66"));
+        
+        for (const QBluetoothUuid &s : qAsConst(services_list)) {
+            if (s == concept2InfoService || s == concept2ControlService || s == concept2RowingService) {
+                hasConcept2Services = true;
+                break;
+            }
+        }
+        
+        if (hasConcept2Services) {
+            emit debug(QStringLiteral("PM5 without FTMS service detected, using Concept2 protocol"));
+        }
+    }
+    
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
@@ -619,6 +794,15 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
             PM5 = true;
             qDebug() << "PM5 found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("NORDLYS"))) {
+            NORDLYS = true;
+            qDebug() << "NORDLYS found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+"))) {
+            ICONSOLE_PLUS = true;
+            qDebug() << "ICONSOLE+ found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("FS-"))) {
+            FITSHOW = true;
+            qDebug() << "FITSHOW found!";
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

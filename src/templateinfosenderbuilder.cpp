@@ -5,9 +5,11 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
 #include <QNetworkInterface>
 #include <QStandardPaths>
 #include <QTime>
+#include <QQmlFile>
 #include <limits>
 #ifdef Q_HTTPSERVER
 #include "webserverinfosender.h"
@@ -15,6 +17,8 @@
 #include "homeform.h"
 #include "tcpclientinfosender.h"
 #include "trainprogram.h"
+#include "zwiftworkout.h"
+#include "qzsettings.h"
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -51,6 +55,34 @@ using namespace std::chrono_literals;
     item[QStringLiteral("longitude")] = row.longitude;                                                      \
     item[QStringLiteral("altitude")] = row.altitude;                                                        \
     item[QStringLiteral("azimuth")] = row.azimuth;
+
+namespace {
+QString sanitizeTrainingProgramName(const QString &input) {
+    QString trimmed = input.trimmed();
+    if (trimmed.isEmpty()) {
+        trimmed = QStringLiteral("Workout");
+    }
+    QRegularExpression invalid(QStringLiteral("[^A-Za-z0-9_\\- ]"));
+    trimmed.replace(invalid, QStringLiteral("_"));
+    trimmed.replace(QRegularExpression(QStringLiteral("\\s+")), QStringLiteral("_"));
+    return trimmed;
+}
+
+QString deviceTypeToKey(BLUETOOTH_TYPE type) {
+    switch (type) {
+    case TREADMILL:
+        return QStringLiteral("treadmill");
+    case BIKE:
+        return QStringLiteral("bike");
+    case ELLIPTICAL:
+        return QStringLiteral("elliptical");
+    case ROWING:
+        return QStringLiteral("rower");
+    default:
+        return QStringLiteral("treadmill");
+    }
+}
+} // namespace
 
 
 QHash<QString, TemplateInfoSenderBuilder *> TemplateInfoSenderBuilder::instanceMap;
@@ -299,8 +331,8 @@ void TemplateInfoSenderBuilder::onSetResistance(const QJsonValue &msgContent, Te
     outObj[QStringLiteral("value")] = QJsonValue(QJsonValue::Null);
     if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains(QStringLiteral("value")) &&
         (resVal = msgContent[QStringLiteral("value")]).isDouble()) {
-        bluetoothdevice::BLUETOOTH_TYPE tp = device->deviceType();
-        if (tp == bluetoothdevice::BIKE || tp == bluetoothdevice::ROWING) {
+        BLUETOOTH_TYPE tp = device->deviceType();
+        if (tp == BIKE || tp == ROWING) {
             int res;
             if ((res = resVal.toInt()) >= 0 && res < std::numeric_limits<resistance_t>::max()) {
                 ((bike *)device)->changeResistance((resistance_t)res);
@@ -342,7 +374,7 @@ void TemplateInfoSenderBuilder::onSetPower(const QJsonValue &msgContent, Templat
     outObj[QStringLiteral("value")] = QJsonValue(QJsonValue::Null);
     if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains(QStringLiteral("value")) &&
         (resVal = msgContent[QStringLiteral("value")]).isDouble() &&
-        (device->deviceType() == bluetoothdevice::BIKE || device->deviceType() == bluetoothdevice::ROWING)) {
+        (device->deviceType() == BIKE || device->deviceType() == ROWING)) {
         int val;
         if ((val = resVal.toInt()) > 0) {
             ((bike *)device)->changePower((uint32_t)val);
@@ -362,7 +394,7 @@ void TemplateInfoSenderBuilder::onSetCadence(const QJsonValue &msgContent, Templ
     outObj[QStringLiteral("value")] = QJsonValue(QJsonValue::Null);
     if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains(QStringLiteral("value")) &&
         (resVal = msgContent[QStringLiteral("value")]).isDouble() &&
-        (device->deviceType() == bluetoothdevice::BIKE || device->deviceType() == bluetoothdevice::ROWING)) {
+        (device->deviceType() == BIKE || device->deviceType() == ROWING)) {
         int val;
         if ((val = resVal.toInt()) > 0) {
             ((bike *)device)->changeCadence((uint16_t)val);
@@ -383,7 +415,7 @@ void TemplateInfoSenderBuilder::onSetSpeed(const QJsonValue &msgContent, Templat
     outObj[QStringLiteral("value")] = QJsonValue(QJsonValue::Null);
     if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains(QStringLiteral("value")) &&
         (resVal = msgContent[QStringLiteral("value")]).isDouble() &&
-        device->deviceType() == bluetoothdevice::TREADMILL && (vald = resVal.toDouble()) >= 0) {
+        device->deviceType() == TREADMILL && (vald = resVal.toDouble()) >= 0) {
         ((treadmill *)device)->changeSpeed(vald);
         outObj[QStringLiteral("value")] = vald;
     }
@@ -451,32 +483,39 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgCont
     QJsonObject main;
     QJsonArray outArr;
     QJsonObject outObj;
-    QString fileXml;
-    if ((fileXml = msgContent.toString()).isEmpty()) {
-        QDirIterator it(homeform::getWritableAppDir() + QStringLiteral("training"));
-        QString fileName, filePath;
-        QFileInfo fileInfo;
-        while (it.hasNext()) {
-            filePath = it.next();
-            fileInfo = it.fileInfo();
-            if (fileInfo.isFile() && fileInfo.completeSuffix() == QStringLiteral("xml") &&
-                (fileName = it.fileName()).length() > 4) {
-                outArr.append(fileName.mid(0, fileName.length() - 4));
-            }
-        }
-    } else {
-        QList<trainrow> lst = trainprogram::loadXML(homeform::getWritableAppDir() + QStringLiteral("training/") +
-                                                        fileXml + QStringLiteral(".xml"), (device ? device->deviceType() : bluetoothdevice::BIKE ));
-        for (auto &row : lst) {
-            QJsonObject item;
-            TRAINPROGRAM_FIELD_TO_STRING();
-            outArr.append(item);
-        }
+
+    // Get path from content
+    QString path;
+    QJsonObject content = msgContent.toObject();
+    if (content.contains(QStringLiteral("path"))) {
+        path = content.value(QStringLiteral("path")).toString();
     }
-    outObj[QStringLiteral("list")] = outArr;
-    outObj[QStringLiteral("name")] = fileXml;
+
+    // Build full directory path
+    QString basePath = homeform::getWritableAppDir() + QStringLiteral("training");
+    QString fullPath = path.isEmpty() ? basePath : (basePath + QStringLiteral("/") + path);
+
+    // Iterate through directory
+    QDir dir(fullPath);
+    dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+    dir.setSorting(QDir::DirsFirst | QDir::Name);
+    dir.setNameFilters(QStringList() << "*.xml" << "*.zwo");
+
+    QFileInfoList list = dir.entryInfoList();
+    for (const QFileInfo &fileInfo : list) {
+        QJsonObject item;
+        item[QStringLiteral("name")] = fileInfo.fileName();
+        item[QStringLiteral("isFolder")] = fileInfo.isDir();
+        item[QStringLiteral("path")] = fileInfo.absoluteFilePath();
+        item[QStringLiteral("url")] = QUrl::fromLocalFile(fileInfo.absoluteFilePath()).toString();
+        outArr.append(item);
+    }
+
+    outObj[QStringLiteral("files")] = outArr;
+    outObj[QStringLiteral("path")] = path;
     main[QStringLiteral("content")] = outObj;
     main[QStringLiteral("msg")] = QStringLiteral("R_loadtrainingprograms");
+    main[QStringLiteral("type")] = QStringLiteral("trainingfiles");
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -498,6 +537,216 @@ void TemplateInfoSenderBuilder::onGetTrainingProgram(const QJsonValue &msgConten
     outObj[QStringLiteral("name")] = fileXml;
     main[QStringLiteral("content")] = outObj;
     main[QStringLiteral("msg")] = QStringLiteral("R_gettrainingprogram");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    QJsonObject content = msgContent.toObject();
+    QString urlString = content.value(QStringLiteral("url")).toString();
+
+    if (urlString.isEmpty()) {
+        return;
+    }
+
+    QUrl url(urlString);
+    QString filePath = QQmlFile::urlToLocalFileOrQrc(url);
+    QString extension = QFileInfo(filePath).suffix().toUpper();
+
+    // Load the training program - use zwiftworkout::load for ZWO files
+    QList<trainrow> rows;
+    QString description, tags;
+
+    if (extension == QStringLiteral("ZWO")) {
+        rows = zwiftworkout::load(filePath, &description, &tags);
+    } else {
+        rows = trainprogram::loadXML(filePath, (device ? device->deviceType() : BIKE));
+    }
+
+    // Build workout preview data
+    QJsonObject main;
+    QJsonObject outObj;
+    QJsonArray watts, speed, inclination, resistance, cadence;
+
+    if (!rows.isEmpty()) {
+        // Calculate total duration
+        int totalSeconds = 0;
+        for (const trainrow &r : rows) {
+            totalSeconds += (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second();
+        }
+
+        outObj[QStringLiteral("points")] = totalSeconds;
+        outObj[QStringLiteral("description")] = description.isEmpty() ? QFileInfo(filePath).baseName() : description;
+        outObj[QStringLiteral("tags")] = tags;
+
+        // Build data arrays
+        for (const trainrow &r : rows) {
+            int duration = (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second();
+
+            for (int i = 0; i < duration; i++) {
+                int currentSecond = watts.size();
+
+                // Watts
+                QJsonObject wattPoint;
+                wattPoint[QStringLiteral("x")] = currentSecond;
+                wattPoint[QStringLiteral("y")] = r.power;
+                watts.append(wattPoint);
+
+                // Speed
+                if (r.speed >= 0) {
+                    QJsonObject speedPoint;
+                    speedPoint[QStringLiteral("x")] = currentSecond;
+                    speedPoint[QStringLiteral("y")] = r.speed;
+                    speed.append(speedPoint);
+                }
+
+                // Inclination
+                if (r.inclination > -200) {
+                    QJsonObject incPoint;
+                    incPoint[QStringLiteral("x")] = currentSecond;
+                    incPoint[QStringLiteral("y")] = r.inclination;
+                    inclination.append(incPoint);
+                }
+
+                // Resistance
+                if (r.resistance >= 0) {
+                    QJsonObject resPoint;
+                    resPoint[QStringLiteral("x")] = currentSecond;
+                    resPoint[QStringLiteral("y")] = r.resistance;
+                    resistance.append(resPoint);
+                }
+
+                // Cadence
+                if (r.cadence >= 0) {
+                    QJsonObject cadPoint;
+                    cadPoint[QStringLiteral("x")] = currentSecond;
+                    cadPoint[QStringLiteral("y")] = r.cadence;
+                    cadence.append(cadPoint);
+                }
+            }
+        }
+
+        // Determine device type
+        QString deviceType = QStringLiteral("bike");
+        if (speed.size() > 0 && watts.size() == 0) {
+            deviceType = QStringLiteral("treadmill");
+        } else if (watts.size() == 0 && resistance.size() > 0) {
+            deviceType = QStringLiteral("elliptical");
+        }
+
+        outObj[QStringLiteral("watts")] = watts;
+        outObj[QStringLiteral("speed")] = speed;
+        outObj[QStringLiteral("inclination")] = inclination;
+        outObj[QStringLiteral("resistance")] = resistance;
+        outObj[QStringLiteral("cadence")] = cadence;
+        outObj[QStringLiteral("deviceType")] = deviceType;
+    }
+
+    main[QStringLiteral("content")] = outObj;
+    main[QStringLiteral("msg")] = QStringLiteral("R_trainprogram_preview");
+    main[QStringLiteral("type")] = QStringLiteral("workoutpreview");
+    QJsonDocument response(main);
+    tempSender->send(response.toJson());
+}
+
+void TemplateInfoSenderBuilder::onTrainingProgramOpen(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    QJsonObject content = msgContent.toObject();
+    QString urlString = content.value(QStringLiteral("url")).toString();
+
+    if (urlString.isEmpty() || !homeform::singleton()) {
+        return;
+    }
+
+    QUrl url(urlString);
+    QMetaObject::invokeMethod(homeform::singleton(), "trainprogram_open_clicked", Qt::QueuedConnection, Q_ARG(QUrl, url));
+}
+
+void TemplateInfoSenderBuilder::onTrainingProgramAutostart(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    if (!homeform::singleton()) {
+        return;
+    }
+
+    QMetaObject::invokeMethod(homeform::singleton(), "trainprogram_autostart_requested", Qt::QueuedConnection);
+}
+
+void TemplateInfoSenderBuilder::onWorkoutEditorEnv(TemplateInfoSender *tempSender) {
+    QJsonObject outObj;
+    QSettings settings;
+    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    outObj[QStringLiteral("miles")] = miles;
+    if (device) {
+        outObj[QStringLiteral("device")] = deviceTypeToKey(device->deviceType());
+    } else {
+        outObj[QStringLiteral("device")] = QStringLiteral("treadmill");
+    }
+    QJsonObject main;
+    main[QStringLiteral("content")] = outObj;
+    main[QStringLiteral("msg")] = QStringLiteral("R_workouteditor_env");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onWorkoutEditorStart(const QJsonValue &msgContent,
+                                                     TemplateInfoSender *tempSender) {
+    QString programName;
+    if (msgContent.isObject()) {
+        programName = msgContent.toObject().value(QStringLiteral("name")).toString();
+    } else if (msgContent.isString()) {
+        programName = msgContent.toString();
+    }
+    if (programName.endsWith(QStringLiteral(".xml"), Qt::CaseInsensitive)) {
+        programName.chop(4);
+    }
+    programName = sanitizeTrainingProgramName(programName);
+
+    QString filename = programName + QStringLiteral(".xml");
+    QString fullPath = homeform::getWritableAppDir() + QStringLiteral("training/") + filename;
+
+    bool ok = false;
+    if (homeform::singleton()) {
+        // Check if file exists
+        if (QFile::exists(fullPath)) {
+            // Use the same approach as workoutmodel.cpp - create QUrl from local file
+            QUrl fileUrl = QUrl::fromLocalFile(fullPath);
+            homeform::singleton()->trainprogram_open_clicked(fileUrl);
+
+            // Automatically start the workout
+            // Check if device is currently paused
+            bluetoothdevice *dev = nullptr;
+            if (homeform::singleton()->bluetoothManager) {
+                dev = homeform::singleton()->bluetoothManager->device();
+            }
+
+            if (dev && !dev->isPaused()) {
+                // Device is running (not paused), need to pause first then start
+                qDebug() << "Device is running, calling Start() twice (pause then start)";
+                QMetaObject::invokeMethod(homeform::singleton(), "Start", Qt::QueuedConnection);
+                QThread::msleep(200); // Small delay between calls
+                QMetaObject::invokeMethod(homeform::singleton(), "Start", Qt::QueuedConnection);
+            } else {
+                // Device is paused or stopped, just start
+                qDebug() << "Device is paused/stopped, calling Start() once";
+                QMetaObject::invokeMethod(homeform::singleton(), "Start", Qt::QueuedConnection);
+            }
+
+            ok = true;
+        } else {
+            qDebug() << "Training program file not found:" << fullPath;
+            ok = false;
+        }
+    }
+
+    QJsonObject outObj;
+    outObj[QStringLiteral("ok")] = ok;
+    outObj[QStringLiteral("name")] = programName;
+    outObj[QStringLiteral("path")] = fullPath;
+    if (!ok) {
+        outObj[QStringLiteral("message")] = QStringLiteral("Unable to start training program");
+    }
+
+    QJsonObject main;
+    main[QStringLiteral("content")] = outObj;
+    main[QStringLiteral("msg")] = QStringLiteral("R_workouteditor_start");
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -611,6 +860,10 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
         (rows = content.value(QStringLiteral("list")).toArray()).isEmpty()) {
         return;
     }
+    if (fileName.endsWith(QStringLiteral(".xml"), Qt::CaseInsensitive)) {
+        fileName.chop(4);
+    }
+    fileName = sanitizeTrainingProgramName(fileName);
     QList<trainrow> trainRows;
     trainRows.reserve(rows.size() + 1);
     for (const auto &r : qAsConst(rows)) {
@@ -618,8 +871,17 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
         trainrow tR;
         if (row.contains(QStringLiteral("duration"))) {
             tR.duration = QTime::fromString(row[QStringLiteral("duration")].toString(), QStringLiteral("hh:mm:ss"));
+            if (row.contains(QStringLiteral("distance"))) {
+                tR.distance = row[QStringLiteral("distance")].toDouble();
+            }
             if (row.contains(QStringLiteral("speed"))) {
                 tR.speed = row[QStringLiteral("speed")].toDouble();
+            }
+            if (row.contains(QStringLiteral("minSpeed"))) {
+                tR.minSpeed = row[QStringLiteral("minSpeed")].toDouble();
+            }
+            if (row.contains(QStringLiteral("maxSpeed"))) {
+                tR.maxSpeed = row[QStringLiteral("maxSpeed")].toDouble();
             }
             if (row.contains(QStringLiteral("fanspeed"))) {
                 tR.fanspeed = row[QStringLiteral("fanspeed")].toInt();
@@ -630,14 +892,23 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             if (row.contains(QStringLiteral("resistance"))) {
                 tR.resistance = row[QStringLiteral("resistance")].toInt();
             }
+            if (row.contains(QStringLiteral("maxResistance"))) {
+                tR.maxResistance = row[QStringLiteral("maxResistance")].toInt();
+            }
             if (row.contains(QStringLiteral("requested_peloton_resistance"))) {
                 tR.requested_peloton_resistance = row[QStringLiteral("requested_peloton_resistance")].toInt();
+            }
+            if (row.contains(QStringLiteral("power"))) {
+                tR.power = row[QStringLiteral("power")].toInt();
             }
             if (row.contains(QStringLiteral("cadence"))) {
                 tR.cadence = row[QStringLiteral("cadence")].toInt();
             }
+            if (row.contains(QStringLiteral("mets"))) {
+                tR.mets = row[QStringLiteral("mets")].toInt();
+            }
             if (row.contains(QStringLiteral("forcespeed"))) {
-                tR.forcespeed = (bool)row[QStringLiteral("forcespeed")].toInt();
+                tR.forcespeed = row.value(QStringLiteral("forcespeed")).toVariant().toBool();
             }
             if (row.contains(QStringLiteral("loopTimeHR"))) {
                 tR.loopTimeHR = row[QStringLiteral("loopTimeHR")].toInt();
@@ -651,14 +922,17 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             if (row.contains(QStringLiteral("HRmax"))) {
                 tR.HRmax = row[QStringLiteral("HRmax")].toInt();
             }
-            if (row.contains(QStringLiteral("maxSpeed"))) {
-                tR.maxSpeed = row[QStringLiteral("maxSpeed")].toInt();
-            }
             if (row.contains(QStringLiteral("latitude"))) {
                 tR.latitude = row[QStringLiteral("latitude")].toDouble();
             }
             if (row.contains(QStringLiteral("longitude"))) {
                 tR.longitude = row[QStringLiteral("longitude")].toDouble();
+            }
+            if (row.contains(QStringLiteral("altitude"))) {
+                tR.altitude = row[QStringLiteral("altitude")].toDouble();
+            }
+            if (row.contains(QStringLiteral("azimuth"))) {
+                tR.azimuth = row[QStringLiteral("azimuth")].toDouble();
             }
             trainRows.append(tR);
         }
@@ -849,9 +1123,24 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("loadtrainingprograms")) {
                     onLoadTrainingPrograms(jsonObject[QStringLiteral("content")], sender);
                     return;
+                } else if (msg == QStringLiteral("trainprogram_preview")) {
+                    onTrainingProgramPreview(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("trainprogram_open_clicked")) {
+                    onTrainingProgramOpen(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("trainprogram_autostart_requested")) {
+                    onTrainingProgramAutostart(jsonObject[QStringLiteral("content")], sender);
+                    return;
                 } else if (msg == QStringLiteral("gettrainingprogram")) {
                     onGetTrainingProgram(jsonObject[QStringLiteral("content")], sender);
                     return;                    
+                } else if (msg == QStringLiteral("workouteditor_env")) {
+                    onWorkoutEditorEnv(sender);
+                    return;
+                } else if (msg == QStringLiteral("workouteditor_start")) {
+                    onWorkoutEditorStart(jsonObject[QStringLiteral("content")], sender);
+                    return;
                 } else if (msg == QStringLiteral("appendactivitydescription")) {
                     onAppendActivityDescription(jsonObject[QStringLiteral("content")], sender);
                     return;
@@ -962,11 +1251,11 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
                 sett.setProperty(key, settLJ);
             }
         }
-        obj.setProperty(QStringLiteral("BIKE_TYPE"), (int)bluetoothdevice::BIKE);
-        obj.setProperty(QStringLiteral("ELLIPTICAL_TYPE"), (int)bluetoothdevice::ELLIPTICAL);
-        obj.setProperty(QStringLiteral("ROWING_TYPE"), (int)bluetoothdevice::ROWING);
-        obj.setProperty(QStringLiteral("TREADMILL_TYPE"), (int)bluetoothdevice::TREADMILL);
-        obj.setProperty(QStringLiteral("UNKNOWN_TYPE"), (int)bluetoothdevice::UNKNOWN);
+        obj.setProperty(QStringLiteral("BIKE_TYPE"), (int)BIKE);
+        obj.setProperty(QStringLiteral("ELLIPTICAL_TYPE"), (int)ELLIPTICAL);
+        obj.setProperty(QStringLiteral("ROWING_TYPE"), (int)ROWING);
+        obj.setProperty(QStringLiteral("TREADMILL_TYPE"), (int)TREADMILL);
+        obj.setProperty(QStringLiteral("UNKNOWN_TYPE"), (int)UNKNOWN);
     }
     if (!device) {
         obj.setProperty(QStringLiteral("deviceId"), QJSValue());
@@ -975,7 +1264,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         QTime elLap = device->lapElapsedTime();
         QString name;
         QString nickName;
-        bluetoothdevice::BLUETOOTH_TYPE tp = device->deviceType();
+        BLUETOOTH_TYPE tp = device->deviceType();
 
         metric dep;
 #ifdef Q_OS_IOS
@@ -1074,7 +1363,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
                     .isEmpty()
                 ? QString(QStringLiteral("N/A"))
                 : nickName);
-        if (tp == bluetoothdevice::BIKE) {
+        if (tp == BIKE) {
             obj.setProperty(QStringLiteral("gears"), ((bike *)device)->gears());
             obj.setProperty(QStringLiteral("target_resistance"), ((bike *)device)->lastRequestedResistance().value());
             obj.setProperty(QStringLiteral("target_peloton_resistance"),
@@ -1113,7 +1402,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("inclination"),
                             (dep = ((bike *)device)->currentInclination()).value());
             obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
-        } else if (tp == bluetoothdevice::ROWING) {
+        } else if (tp == ROWING) {
             obj.setProperty(QStringLiteral("gears"), ((rower *)device)->gears());
             el = ((rower *)device)->lastRequestedPace();
             obj.setProperty(QStringLiteral("target_speed"), ((rower *)device)->lastRequestedSpeed().value());
@@ -1139,7 +1428,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("cranktime"), ((rower *)device)->lastCrankEventTime());
             obj.setProperty(QStringLiteral("strokescount"), ((rower *)device)->currentStrokesCount().value());
             obj.setProperty(QStringLiteral("strokeslength"), ((rower *)device)->currentStrokesLength().value());
-        } else if (tp == bluetoothdevice::TREADMILL) {
+        } else if (tp == TREADMILL) {
             obj.setProperty(QStringLiteral("target_speed"), ((treadmill *)device)->lastRequestedSpeed().value());
             el = ((treadmill *)device)->lastRequestedPace();
             obj.setProperty(QStringLiteral("target_pace_s"), el.second());
@@ -1162,7 +1451,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
                             (dep = ((treadmill *)device)->currentGroundContact()).value());
             obj.setProperty(QStringLiteral("verticaloscillation"),
                             (dep = ((treadmill *)device)->currentVerticalOscillation()).value());
-        } else if (tp == bluetoothdevice::ELLIPTICAL) {
+        } else if (tp == ELLIPTICAL) {
             obj.setProperty(QStringLiteral("resistance"), (dep = ((elliptical *)device)->currentResistance()).value());
             obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
             obj.setProperty(QStringLiteral("cadence"), (dep = ((elliptical *)device)->currentCadence()).value());
@@ -1294,6 +1583,8 @@ void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *sessio
             item[QStringLiteral("groundcontact")] = s.groundContactMS;
             item[QStringLiteral("verticaloscillation")] = s.verticalOscillationMM;
         } else if (sport == FIT_SUB_SPORT_ELLIPTICAL) {
+            item[QStringLiteral("cadence")] = s.cadence;
+            item[QStringLiteral("resistance")] = s.resistance;
             item[QStringLiteral("inclination")] = s.inclination;
         }
         
