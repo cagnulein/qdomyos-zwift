@@ -219,6 +219,26 @@ bool GarminConnect::performLogin(const QString &email, const QString &password)
     qDebug() << "GarminConnect: Login response length:" << response.length();
     qDebug() << "GarminConnect: Response snippet:" << response.left(300);
 
+    // Check for error messages in response
+    if (response.contains("error", Qt::CaseInsensitive)) {
+        QRegularExpression errorRegex("error[^>]*>([^<]+)<");
+        QRegularExpressionMatch errorMatch = errorRegex.match(response);
+        if (errorMatch.hasMatch()) {
+            qDebug() << "GarminConnect: Error in response:" << errorMatch.captured(1);
+        }
+    }
+
+    // Check if we're still on login page (failed login)
+    if (response.contains("GARMIN Authentication Application")) {
+        qDebug() << "GarminConnect: Still on login page - credentials may be incorrect";
+        // Look for validation error
+        QRegularExpression validationRegex("validation[^>]*>([^<]+)<");
+        QRegularExpressionMatch validationMatch = validationRegex.match(response);
+        if (validationMatch.hasMatch()) {
+            qDebug() << "GarminConnect: Validation error:" << validationMatch.captured(1);
+        }
+    }
+
     // Check redirect URL
     QUrl responseUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
     qDebug() << "GarminConnect: Redirect URL:" << responseUrl.toString();
