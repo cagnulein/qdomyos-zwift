@@ -10013,6 +10013,85 @@ import Qt.labs.platform 1.1
                         onClicked: { rootItem.garmin_connect_login(); }
                     }
 
+                    // MFA Dialog
+                    Popup {
+                        id: garminMfaDialog
+                        modal: true
+                        focus: true
+                        closePolicy: Popup.CloseOnEscape
+                        anchors.centerIn: Overlay.overlay
+                        width: Math.min(parent.width * 0.9, 400)
+
+                        visible: rootItem.garminMfaRequested
+
+                        ColumnLayout {
+                            anchors.fill: parent
+                            spacing: 20
+
+                            Label {
+                                text: "Garmin MFA Required"
+                                font.pixelSize: 18
+                                font.bold: true
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignHCenter
+                            }
+
+                            Label {
+                                text: "Garmin has sent a verification code to your email.\nPlease enter it below:"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignHCenter
+                            }
+
+                            TextField {
+                                id: mfaCodeTextField
+                                placeholderText: "Enter MFA code"
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 40
+                                font.pixelSize: 16
+
+                                onAccepted: {
+                                    if (text.length > 0) {
+                                        rootItem.garmin_submit_mfa_code(text);
+                                        text = "";
+                                    }
+                                }
+                            }
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 10
+
+                                Button {
+                                    text: "Cancel"
+                                    Layout.fillWidth: true
+                                    onClicked: {
+                                        mfaCodeTextField.text = "";
+                                        rootItem.garminMfaRequested = false;
+                                    }
+                                }
+
+                                Button {
+                                    text: "Submit"
+                                    Layout.fillWidth: true
+                                    highlighted: true
+                                    enabled: mfaCodeTextField.text.length > 0
+                                    onClicked: {
+                                        rootItem.garmin_submit_mfa_code(mfaCodeTextField.text);
+                                        mfaCodeTextField.text = "";
+                                    }
+                                }
+                            }
+                        }
+
+                        onVisibleChanged: {
+                            if (visible) {
+                                mfaCodeTextField.forceActiveFocus();
+                            }
+                        }
+                    }
+
                     Label {
                         text: qsTr("Enter your Garmin Connect credentials to enable automatic upload. Your password is stored locally and securely.")
                         font.bold: true

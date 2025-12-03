@@ -8450,7 +8450,8 @@ void homeform::garmin_connect_login() {
         });
 
         connect(garminConnect, &GarminConnect::mfaRequired, this, [this]() {
-            setToastRequested("Garmin Connect: MFA code required. This feature is not yet fully implemented in the UI.");
+            qDebug() << "Garmin Connect: MFA code required - showing dialog";
+            setGarminMfaRequested(true);
         });
     }
 
@@ -8458,6 +8459,35 @@ void homeform::garmin_connect_login() {
     bool success = garminConnect->login(email, password);
     if (!success) {
         qDebug() << "Garmin login failed:" << garminConnect->lastError();
+    }
+}
+
+void homeform::garmin_submit_mfa_code(const QString &mfaCode) {
+    qDebug() << "Garmin MFA code submission requested";
+
+    if (!garminConnect) {
+        setToastRequested("Garmin Connect not initialized");
+        return;
+    }
+
+    if (mfaCode.isEmpty()) {
+        setToastRequested("Please enter a valid MFA code");
+        return;
+    }
+
+    // Close the MFA dialog
+    setGarminMfaRequested(false);
+
+    // Get credentials from settings
+    QSettings settings;
+    QString email = settings.value(QZSettings::garmin_email, QZSettings::default_garmin_email).toString();
+    QString password = settings.value(QZSettings::garmin_password, QZSettings::default_garmin_password).toString();
+
+    // Retry login with MFA code
+    setToastRequested("Submitting MFA code...");
+    bool success = garminConnect->login(email, password, mfaCode);
+    if (!success) {
+        qDebug() << "Garmin MFA login failed:" << garminConnect->lastError();
     }
 }
 
