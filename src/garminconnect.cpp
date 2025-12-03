@@ -468,16 +468,77 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
 
     // Try to extract ticket from redirect URL first
     QString ticket;
+    bool replyDeleted = false;
     if (!responseUrl.isEmpty()) {
         QUrlQuery responseQuery(responseUrl);
         ticket = responseQuery.queryItemValue("ticket");
         if (!ticket.isEmpty()) {
             qDebug() << "GarminConnect: Found ticket in redirect URL:" << ticket.left(20) << "...";
+        } else {
+            // Check for logintoken - need to follow redirect to get actual ticket
+            QString loginToken = responseQuery.queryItemValue("logintoken");
+            if (!loginToken.isEmpty()) {
+                qDebug() << "GarminConnect: Found logintoken in redirect, following to get ticket:" << loginToken;
+
+                reply->deleteLater();
+                replyDeleted = true;
+
+                // Follow the logintoken redirect to get the actual ticket
+                QNetworkRequest tokenRequest(responseUrl);
+                tokenRequest.setRawHeader("User-Agent", USER_AGENT);
+                tokenRequest.setRawHeader("Referer", url.toString().toUtf8());
+
+                // Update cookies
+                m_cookies = m_manager->cookieJar()->cookiesForUrl(url);
+                for (const QNetworkCookie &cookie : m_cookies) {
+                    m_manager->cookieJar()->insertCookie(cookie);
+                }
+
+                QNetworkReply *tokenReply = m_manager->get(tokenRequest);
+                QEventLoop tokenLoop;
+                connect(tokenReply, &QNetworkReply::finished, &tokenLoop, &QEventLoop::quit);
+                tokenLoop.exec();
+
+                if (tokenReply->error() == QNetworkReply::NoError) {
+                    // Check for another redirect with the ticket
+                    QUrl ticketUrl = tokenReply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+                    qDebug() << "GarminConnect: Logintoken redirect result:" << ticketUrl.toString();
+
+                    if (!ticketUrl.isEmpty()) {
+                        QUrlQuery ticketQuery(ticketUrl);
+                        ticket = ticketQuery.queryItemValue("ticket");
+                        if (!ticket.isEmpty()) {
+                            qDebug() << "GarminConnect: Found ticket after logintoken redirect:" << ticket.left(20) << "...";
+                        }
+                    }
+
+                    // If still no ticket, try response body
+                    if (ticket.isEmpty()) {
+                        QString tokenResponse = QString::fromUtf8(tokenReply->readAll());
+                        QRegularExpression ticketRegex1("embed\\?ticket=([^\"]+)\"");
+                        QRegularExpression ticketRegex2("ticket=([^&\"']+)");
+
+                        QRegularExpressionMatch match = ticketRegex1.match(tokenResponse);
+                        if (match.hasMatch()) {
+                            ticket = match.captured(1);
+                            qDebug() << "GarminConnect: Found ticket in logintoken response body (pattern 1)";
+                        } else {
+                            match = ticketRegex2.match(tokenResponse);
+                            if (match.hasMatch()) {
+                                ticket = match.captured(1);
+                                qDebug() << "GarminConnect: Found ticket in logintoken response body (pattern 2)";
+                            }
+                        }
+                    }
+                }
+
+                tokenReply->deleteLater();
+            }
         }
     }
 
     // If not found in redirect URL, try response body
-    if (ticket.isEmpty()) {
+    if (ticket.isEmpty() && !response.isEmpty()) {
         // Try multiple patterns for ticket extraction
         QRegularExpression ticketRegex1("embed\\?ticket=([^\"]+)\"");
         QRegularExpression ticketRegex2("ticket=([^&\"']+)");
@@ -495,7 +556,10 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
         }
     }
 
-    reply->deleteLater();
+    // Only delete reply if not already deleted
+    if (!replyDeleted) {
+        reply->deleteLater();
+    }
 
     if (ticket.isEmpty()) {
         m_lastError = "Failed to extract ticket after MFA";
