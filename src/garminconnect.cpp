@@ -462,12 +462,37 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
 
     QString response = QString::fromUtf8(reply->readAll());
 
-    // Extract ticket
-    QRegularExpression ticketRegex("ticket=([^&\"']+)");
-    QRegularExpressionMatch match = ticketRegex.match(response);
+    // Check redirect URL for ticket (MFA response might also be a redirect)
+    QUrl responseUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+    qDebug() << "GarminConnect: MFA response redirect URL:" << responseUrl.toString();
+
+    // Try to extract ticket from redirect URL first
     QString ticket;
-    if (match.hasMatch()) {
-        ticket = match.captured(1);
+    if (!responseUrl.isEmpty()) {
+        QUrlQuery responseQuery(responseUrl);
+        ticket = responseQuery.queryItemValue("ticket");
+        if (!ticket.isEmpty()) {
+            qDebug() << "GarminConnect: Found ticket in redirect URL:" << ticket.left(20) << "...";
+        }
+    }
+
+    // If not found in redirect URL, try response body
+    if (ticket.isEmpty()) {
+        // Try multiple patterns for ticket extraction
+        QRegularExpression ticketRegex1("embed\\?ticket=([^\"]+)\"");
+        QRegularExpression ticketRegex2("ticket=([^&\"']+)");
+
+        QRegularExpressionMatch match = ticketRegex1.match(response);
+        if (match.hasMatch()) {
+            ticket = match.captured(1);
+            qDebug() << "GarminConnect: Found ticket in response body (pattern 1):" << ticket.left(20) << "...";
+        } else {
+            match = ticketRegex2.match(response);
+            if (match.hasMatch()) {
+                ticket = match.captured(1);
+                qDebug() << "GarminConnect: Found ticket in response body (pattern 2):" << ticket.left(20) << "...";
+            }
+        }
     }
 
     reply->deleteLater();
