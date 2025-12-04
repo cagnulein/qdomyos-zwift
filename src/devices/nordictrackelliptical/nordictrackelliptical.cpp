@@ -625,7 +625,7 @@ void nordictrackelliptical::update() {
             settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt)
                 .toBool();
 
-        update_metrics(true, watts());
+        update_metrics(false, watts());
 
         if (nordictrack_elliptical_c7_5) {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
