@@ -641,6 +641,12 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
 
     qDebug() << "GarminConnect: OAuth1 Authorization:" << authHeader.left(80) << "...";
 
+    // CRITICAL: Add cookies from SSO login session
+    // Garmin requires session continuity to validate the ticket
+    for (const QNetworkCookie &cookie : m_cookies) {
+        m_manager->cookieJar()->insertCookie(cookie);
+    }
+
     QNetworkReply *reply = m_manager->get(request);
     QEventLoop loop;
     connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
@@ -738,6 +744,12 @@ bool GarminConnect::exchangeForOAuth2Token()
     request.setRawHeader("Authorization", authHeader.toUtf8());
 
     qDebug() << "GarminConnect: OAuth2 exchange with OAuth1 signature";
+
+    // CRITICAL: Add cookies from SSO login session
+    // Garmin requires session continuity for OAuth2 exchange
+    for (const QNetworkCookie &cookie : m_cookies) {
+        m_manager->cookieJar()->insertCookie(cookie);
+    }
 
     QNetworkReply *reply = m_manager->post(request, data);
     QEventLoop loop;
