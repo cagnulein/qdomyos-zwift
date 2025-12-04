@@ -654,9 +654,21 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     // CRITICAL: Add cookies from SSO login session
     // Garmin requires session continuity to validate the ticket
     qDebug() << "GarminConnect: Adding" << m_cookies.size() << "cookies to OAuth1 request";
+
+    // Build Cookie header manually to ensure cookies are sent
+    QStringList cookieValues;
     for (const QNetworkCookie &cookie : m_cookies) {
         qDebug() << "  Cookie:" << cookie.name() << "for domain:" << cookie.domain();
         m_manager->cookieJar()->insertCookie(cookie);
+        // Also add to manual Cookie header
+        cookieValues.append(QString::fromLatin1(cookie.name()) + "=" + QString::fromLatin1(cookie.value()));
+    }
+
+    // Set Cookie header explicitly
+    if (!cookieValues.isEmpty()) {
+        QString cookieHeader = cookieValues.join("; ");
+        request.setRawHeader("Cookie", cookieHeader.toUtf8());
+        qDebug() << "GarminConnect: Cookie header length:" << cookieHeader.length();
     }
 
     QNetworkReply *reply = m_manager->get(request);
@@ -762,8 +774,18 @@ bool GarminConnect::exchangeForOAuth2Token()
 
     // CRITICAL: Add cookies from SSO login session
     // Garmin requires session continuity for OAuth2 exchange
+    QStringList cookieValues;
     for (const QNetworkCookie &cookie : m_cookies) {
         m_manager->cookieJar()->insertCookie(cookie);
+        // Also add to manual Cookie header
+        cookieValues.append(QString::fromLatin1(cookie.name()) + "=" + QString::fromLatin1(cookie.value()));
+    }
+
+    // Set Cookie header explicitly
+    if (!cookieValues.isEmpty()) {
+        QString cookieHeader = cookieValues.join("; ");
+        request.setRawHeader("Cookie", cookieHeader.toUtf8());
+        qDebug() << "GarminConnect: Cookie header set for OAuth2, length:" << cookieHeader.length();
     }
 
     QNetworkReply *reply = m_manager->post(request, data);
