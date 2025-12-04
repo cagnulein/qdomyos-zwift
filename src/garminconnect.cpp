@@ -1049,6 +1049,9 @@ QString GarminConnect::generateOAuth1AuthorizationHeader(
     QList<QPair<QString, QString>> queryItems = urlQuery.queryItems(QUrl::PrettyDecoded);
 
     qDebug() << "GarminConnect: === OAuth1 Parameter Debug ===";
+    qDebug() << "GarminConnect: URL being parsed:" << url;
+    qDebug() << "GarminConnect: Query string:" << qurl.query();
+    qDebug() << "GarminConnect: Number of query items:" << queryItems.size();
     qDebug() << "Query parameters extracted:";
     for (const auto &pair : queryItems) {
         qDebug() << "  " << pair.first << "=" << pair.second.left(50);
