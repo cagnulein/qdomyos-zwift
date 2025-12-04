@@ -95,8 +95,7 @@ void trxappgateusbelliptical::update() {
             // Reset timer
             lastValidPacketTime = QDateTime::currentDateTime();
 
-            // Reinitialize the device communication
-            initRequest = true;
+            m_control->disconnectFromDevice();
         }
 
 
