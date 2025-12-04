@@ -1047,16 +1047,23 @@ QString GarminConnect::generateOAuth1AuthorizationHeader(
     QUrl qurl(url);
     QUrlQuery urlQuery(qurl.query());
     QList<QPair<QString, QString>> queryItems = urlQuery.queryItems(QUrl::PrettyDecoded);
+
+    qDebug() << "GarminConnect: === OAuth1 Parameter Debug ===";
+    qDebug() << "Query parameters extracted:";
     for (const auto &pair : queryItems) {
+        qDebug() << "  " << pair.first << "=" << pair.second.left(50);
         params[pair.first] = pair.second;
     }
 
     // 3. Create parameter string (sorted by key)
+    qDebug() << "All parameters (sorted):";
     QString parameterString;
     for (auto it = params.constBegin(); it != params.constEnd(); ++it) {
+        qDebug() << "  " << it.key() << "=" << it.value().left(50);
         if (it != params.constBegin()) parameterString += "&";
         parameterString += percentEncode(it.key()) + "=" + percentEncode(it.value());
     }
+    qDebug() << "Parameter string (encoded):" << parameterString.left(200);
 
     // 4. Create base URL (without query string)
     QUrl baseUrl(url);
