@@ -638,9 +638,10 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     // Note: Content-Type not needed for GET requests
 
     // Generate OAuth1 signature for GET request
+    // CRITICAL: Use FullyEncoded URL to match HTTP request encoding
     QString authHeader = generateOAuth1AuthorizationHeader(
         "GET",
-        url.toString(),
+        url.toString(QUrl::FullyEncoded),
         consumerKey,
         consumerSecret,
         "",  // No token yet
@@ -746,9 +747,10 @@ bool GarminConnect::exchangeForOAuth2Token()
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
 
     // Generate OAuth1 signature for POST request with OAuth1 credentials
+    // CRITICAL: Use FullyEncoded URL to match HTTP request encoding
     QString authHeader = generateOAuth1AuthorizationHeader(
         "POST",
-        url.toString(),
+        url.toString(QUrl::FullyEncoded),
         consumerKey,
         consumerSecret,
         m_oauth1Token.oauth_token,
@@ -1012,9 +1014,10 @@ QString GarminConnect::generateOAuth1AuthorizationHeader(
     }
 
     // Parse URL query parameters and add them to params map
+    // CRITICAL: Use component encoding to match what Qt sends in the HTTP request
     QUrl qurl(url);
     QUrlQuery urlQuery(qurl.query());
-    QList<QPair<QString, QString>> queryItems = urlQuery.queryItems(QUrl::FullyDecoded);
+    QList<QPair<QString, QString>> queryItems = urlQuery.queryItems(QUrl::PrettyDecoded);
     for (const auto &pair : queryItems) {
         params[pair.first] = pair.second;
     }
