@@ -84,6 +84,21 @@ void trxappgateusbelliptical::update() {
         QSettings settings;
         update_metrics(true, watts());
 
+        // Calculate time since last valid packet
+        qint64 msSinceLastValidPacket = lastValidPacketTime.msecsTo(QDateTime::currentDateTime());
+
+        // If we haven't received a valid packet for more than 5 seconds, reinitialize
+        if (msSinceLastValidPacket > 5000) {
+            qDebug() << QStringLiteral("NO VALID PACKETS for") << (msSinceLastValidPacket / 1000.0)
+                     << QStringLiteral("seconds. Reinitializing connection...");
+
+            // Reset timer
+            lastValidPacketTime = QDateTime::currentDateTime();
+
+            m_control->disconnectFromDevice();
+        }
+
+
         {
             if (requestResistance != -1) {
                 if (requestResistance < 1)
@@ -191,9 +206,23 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
 
     lastPacket = newValue;
 
-    if(newValue.length() != 21) {
+    // Check for connection errors or invalid packet length
+    bool hasError = (m_control->error() != QLowEnergyController::NoError);
+    bool isValidPacket = (newValue.length() == 21);    
+
+    if (hasError || !isValidPacket) {
+        // We have an error or invalid packet
+        if (hasError) {
+            qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
+        }
+        if (!isValidPacket) {
+            qDebug() << QStringLiteral("Invalid packet length:") << newValue.length();
+        }
         return;
     }
+
+    // We have a valid packet - update the timestamp
+    lastValidPacketTime = QDateTime::currentDateTime();
 
     Resistance = newValue.at(18) - 1;
     Speed = GetSpeedFromPacket(newValue);
@@ -227,10 +256,6 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
     emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
     // debug("Current Distance: " + QString::number(distance));
     emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
-
-    if (m_control->error() != QLowEnergyController::NoError) {
-        qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
-    }
 }
 
 void trxappgateusbelliptical::btinit() {
