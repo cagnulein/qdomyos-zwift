@@ -604,24 +604,38 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     QUrl consumerUrl(OAUTH_CONSUMER_URL);
     qDebug() << "GarminConnect: Fetching OAuth consumer from:" << OAUTH_CONSUMER_URL;
     QNetworkRequest consumerRequest(consumerUrl);
+
+    // Set headers to match what S3 expects
     consumerRequest.setRawHeader("User-Agent", USER_AGENT);
+    consumerRequest.setRawHeader("Accept", "application/json, */*");
+    consumerRequest.setRawHeader("Accept-Encoding", "gzip, deflate");
 
     QNetworkReply *consumerReply = m_manager->get(consumerRequest);
     QEventLoop consumerLoop;
     connect(consumerReply, &QNetworkReply::finished, &consumerLoop, &QEventLoop::quit);
     consumerLoop.exec();
 
-    if (consumerReply->error() != QNetworkReply::NoError) {
-        m_lastError = "Failed to fetch OAuth consumer: " + consumerReply->errorString();
+    // Check HTTP status code first (403/404 might not trigger Qt network error)
+    int statusCode = consumerReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qDebug() << "GarminConnect: OAuth consumer HTTP status code:" << statusCode;
+
+    if (consumerReply->error() != QNetworkReply::NoError || statusCode >= 400) {
+        QByteArray errorBody = consumerReply->readAll();
+        m_lastError = QString("Failed to fetch OAuth consumer (HTTP %1): %2")
+                          .arg(statusCode)
+                          .arg(consumerReply->errorString());
         qDebug() << "GarminConnect:" << m_lastError;
-        qDebug() << "GarminConnect: HTTP status code:" << consumerReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qDebug() << "GarminConnect: Error response body:" << QString::fromUtf8(errorBody);
+        qDebug() << "GarminConnect: This S3 URL may be restricted or no longer accessible.";
+        qDebug() << "GarminConnect: Try running a Python garth test to verify S3 access still works.";
         consumerReply->deleteLater();
         return false;
     }
 
     QByteArray consumerData = consumerReply->readAll();
     qDebug() << "GarminConnect: OAuth consumer response received, length:" << consumerData.length();
-    qDebug() << "GarminConnect: Consumer response body:" << QString::fromUtf8(consumerData);
+    qDebug() << "GarminConnect: Consumer response body (first 200 chars):"
+             << QString::fromUtf8(consumerData.left(200));
 
     QJsonDocument consumerDoc = QJsonDocument::fromJson(consumerData);
     consumerReply->deleteLater();
@@ -629,7 +643,9 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     if (!consumerDoc.isObject()) {
         m_lastError = "Invalid OAuth consumer response - not a JSON object";
         qDebug() << "GarminConnect:" << m_lastError;
-        qDebug() << "GarminConnect: JSON isNull:" << consumerDoc.isNull() << "isArray:" << consumerDoc.isArray();
+        qDebug() << "GarminConnect: JSON isNull:" << consumerDoc.isNull()
+                 << "isArray:" << consumerDoc.isArray();
+        qDebug() << "GarminConnect: Full response body:" << QString::fromUtf8(consumerData);
         return false;
     }
 
