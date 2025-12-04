@@ -630,6 +630,9 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     query.addQueryItem("accepts-mfa-tokens", "true");
     url.setQuery(query);
 
+    qDebug() << "GarminConnect: OAuth1 request URL:" << url.toString();
+    qDebug() << "GarminConnect: Ticket value:" << ticket.left(30) << "...";
+
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", USER_AGENT);
     // Note: Content-Type not needed for GET requests
@@ -1069,6 +1072,8 @@ QString GarminConnect::generateOAuth1Signature(
     // Build base string: METHOD&baseUrl&params
     QString baseString = httpMethod.toUpper() + "&" + percentEncode(baseUrl) +
                          "&" + percentEncode(parameterString);
+
+    qDebug() << "GarminConnect: OAuth1 base string:" << baseString.left(200) << "...";
 
     // HMAC-SHA1
     QByteArray signature = QMessageAuthenticationCode::hash(
