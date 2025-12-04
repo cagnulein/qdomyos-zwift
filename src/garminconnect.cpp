@@ -464,7 +464,14 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
 
     // Check redirect URL for ticket (MFA response might also be a redirect)
     QUrl responseUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qDebug() << "GarminConnect: MFA response status code:" << statusCode;
     qDebug() << "GarminConnect: MFA response redirect URL:" << responseUrl.toString();
+
+    // If no redirect, log response body to understand what happened
+    if (responseUrl.isEmpty()) {
+        qDebug() << "GarminConnect: MFA response body (first 500 chars):" << response.left(500);
+    }
 
     // Try to extract ticket from redirect URL first
     QString ticket;
