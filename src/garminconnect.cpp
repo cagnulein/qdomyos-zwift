@@ -602,6 +602,7 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
 
     // First, fetch OAuth consumer credentials
     QUrl consumerUrl(OAUTH_CONSUMER_URL);
+    qDebug() << "GarminConnect: Fetching OAuth consumer from:" << OAUTH_CONSUMER_URL;
     QNetworkRequest consumerRequest(consumerUrl);
     consumerRequest.setRawHeader("User-Agent", USER_AGENT);
 
@@ -613,15 +614,22 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     if (consumerReply->error() != QNetworkReply::NoError) {
         m_lastError = "Failed to fetch OAuth consumer: " + consumerReply->errorString();
         qDebug() << "GarminConnect:" << m_lastError;
+        qDebug() << "GarminConnect: HTTP status code:" << consumerReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         consumerReply->deleteLater();
         return false;
     }
 
-    QJsonDocument consumerDoc = QJsonDocument::fromJson(consumerReply->readAll());
+    QByteArray consumerData = consumerReply->readAll();
+    qDebug() << "GarminConnect: OAuth consumer response received, length:" << consumerData.length();
+    qDebug() << "GarminConnect: Consumer response body:" << QString::fromUtf8(consumerData);
+
+    QJsonDocument consumerDoc = QJsonDocument::fromJson(consumerData);
     consumerReply->deleteLater();
 
     if (!consumerDoc.isObject()) {
-        m_lastError = "Invalid OAuth consumer response";
+        m_lastError = "Invalid OAuth consumer response - not a JSON object";
+        qDebug() << "GarminConnect:" << m_lastError;
+        qDebug() << "GarminConnect: JSON isNull:" << consumerDoc.isNull() << "isArray:" << consumerDoc.isArray();
         return false;
     }
 
