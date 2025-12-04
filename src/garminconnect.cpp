@@ -1048,32 +1048,41 @@ QString GarminConnect::generateOAuth1AuthorizationHeader(
     QUrlQuery urlQuery(qurl.query());
     QList<QPair<QString, QString>> queryItems = urlQuery.queryItems(QUrl::PrettyDecoded);
 
-    qDebug() << "GarminConnect: === OAuth1 Parameter Debug ===";
+    qDebug() << "GarminConnect: ========== OAuth1 SIGNATURE DEBUG ==========";
     qDebug() << "GarminConnect: URL being parsed:" << url;
-    qDebug() << "GarminConnect: Query string:" << qurl.query();
-    qDebug() << "GarminConnect: Number of query items:" << queryItems.size();
-    qDebug() << "Query parameters extracted:";
+    qDebug() << "GarminConnect: Query string from URL:" << qurl.query();
+    qDebug() << "GarminConnect: Number of query items extracted:" << queryItems.size();
+    qDebug() << "GarminConnect: Query parameters (FULL VALUES):";
     for (const auto &pair : queryItems) {
-        qDebug() << "  " << pair.first << "=" << pair.second.left(50);
+        qDebug() << "  KEY:" << pair.first;
+        qDebug() << "  VALUE:" << pair.second;  // FULL value, no truncation
         params[pair.first] = pair.second;
     }
 
     // 3. Create parameter string (sorted by key)
-    qDebug() << "All parameters (sorted):";
+    qDebug() << "GarminConnect: ALL parameters in signature (OAuth + Query):";
     QString parameterString;
     for (auto it = params.constBegin(); it != params.constEnd(); ++it) {
-        qDebug() << "  " << it.key() << "=" << it.value().left(50);
+        qDebug() << "  KEY:" << it.key();
+        qDebug() << "  VALUE:" << it.value();  // FULL values
         if (it != params.constBegin()) parameterString += "&";
         parameterString += percentEncode(it.key()) + "=" + percentEncode(it.value());
     }
-    qDebug() << "Parameter string (encoded):" << parameterString.left(200);
+    qDebug() << "GarminConnect: ===== COMPLETE Parameter String (Encoded) =====";
+    qDebug() << parameterString;  // FULL parameter string, no truncation
 
     // 4. Create base URL (without query string)
     QUrl baseUrl(url);
     baseUrl.setQuery(QString()); // Remove query from URL
     QString baseUrlStr = baseUrl.scheme() + "://" + baseUrl.host() + baseUrl.path();
+    qDebug() << "GarminConnect: Base URL (no query):" << baseUrlStr;
+    qDebug() << "GarminConnect: Base URL (encoded):" << percentEncode(baseUrlStr);
 
     // 5. Generate signature
+    qDebug() << "GarminConnect: Generating signature with:";
+    qDebug() << "  HTTP Method:" << httpMethod;
+    qDebug() << "  Consumer Secret length:" << consumerSecret.length();
+    qDebug() << "  Token Secret length:" << oauth_token_secret.length();
     QString signature = generateOAuth1Signature(
         httpMethod,
         baseUrlStr,
@@ -1081,6 +1090,7 @@ QString GarminConnect::generateOAuth1AuthorizationHeader(
         consumerSecret,
         oauth_token_secret
     );
+    qDebug() << "GarminConnect: Final signature:" << signature;
 
     // 6. Build authorization header
     QString authHeader = "OAuth ";
@@ -1111,11 +1121,19 @@ QString GarminConnect::generateOAuth1Signature(
         key += percentEncode(oauth_token_secret);
     }
 
+    qDebug() << "GarminConnect: ========== SIGNATURE GENERATION ==========";
+    qDebug() << "GarminConnect: Signing key (consumer_secret&token_secret):";
+    qDebug() << "  Consumer secret (encoded):" << percentEncode(consumerSecret);
+    qDebug() << "  Token secret (encoded):" << (oauth_token_secret.isEmpty() ? "(empty)" : percentEncode(oauth_token_secret));
+    qDebug() << "  Full key length:" << key.length();
+
     // Build base string: METHOD&baseUrl&params
     QString baseString = httpMethod.toUpper() + "&" + percentEncode(baseUrl) +
                          "&" + percentEncode(parameterString);
 
-    qDebug() << "GarminConnect: OAuth1 base string:" << baseString.left(200) << "...";
+    qDebug() << "GarminConnect: ===== COMPLETE Base String =====";
+    qDebug() << baseString;  // FULL base string
+    qDebug() << "GarminConnect: Base string length:" << baseString.length();
 
     // HMAC-SHA1
     QByteArray signature = QMessageAuthenticationCode::hash(
@@ -1124,7 +1142,11 @@ QString GarminConnect::generateOAuth1Signature(
         QCryptographicHash::Sha1
     );
 
-    return QString::fromLatin1(signature.toBase64());
+    QString signatureBase64 = QString::fromLatin1(signature.toBase64());
+    qDebug() << "GarminConnect: HMAC-SHA1 signature (base64):" << signatureBase64;
+    qDebug() << "GarminConnect: Signature length:" << signatureBase64.length();
+
+    return signatureBase64;
 }
 
 QString GarminConnect::percentEncode(const QString &str)
