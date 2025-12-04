@@ -78,7 +78,7 @@ void ftmsrower::update() {
     }
 
     if (initRequest) {
-        if(I_ROWER || ROWER) {
+        if(I_ROWER || ROWER || DOMYOS_ROW) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(write, sizeof(write), "start", false, true);
 
@@ -803,6 +803,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("FS-"))) {
             FITSHOW = true;
             qDebug() << "FITSHOW found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("DOMYOS-ROW-"))) {
+            DOMYOS_ROW = true;
+            qDebug() << "DOMYOS-ROW found!";
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
