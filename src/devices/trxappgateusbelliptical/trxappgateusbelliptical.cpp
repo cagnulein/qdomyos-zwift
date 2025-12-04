@@ -84,6 +84,22 @@ void trxappgateusbelliptical::update() {
         QSettings settings;
         update_metrics(true, watts());
 
+        // Calculate time since last valid packet
+        qint64 msSinceLastValidPacket = lastValidPacketTime.msecsTo(QDateTime::currentDateTime());
+
+        // If we haven't received a valid packet for more than 5 seconds, reinitialize
+        if (msSinceLastValidPacket > 5000) {
+            qDebug() << QStringLiteral("NO VALID PACKETS for") << (msSinceLastValidPacket / 1000.0)
+                     << QStringLiteral("seconds. Reinitializing connection...");
+
+            // Reset timer
+            lastValidPacketTime = QDateTime::currentDateTime();
+
+            // Reinitialize the device communication
+            initRequest = true;
+        }
+
+
         {
             if (requestResistance != -1) {
                 if (requestResistance < 1)
@@ -193,10 +209,7 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
 
     // Check for connection errors or invalid packet length
     bool hasError = (m_control->error() != QLowEnergyController::NoError);
-    bool isValidPacket = (newValue.length() == 21);
-
-    // Calculate time since last valid packet
-    qint64 msSinceLastValidPacket = lastValidPacketTime.msecsTo(QDateTime::currentDateTime());
+    bool isValidPacket = (newValue.length() == 21);    
 
     if (hasError || !isValidPacket) {
         // We have an error or invalid packet
@@ -205,18 +218,6 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
         }
         if (!isValidPacket) {
             qDebug() << QStringLiteral("Invalid packet length:") << newValue.length();
-        }
-
-        // If we haven't received a valid packet for more than 5 seconds, reinitialize
-        if (msSinceLastValidPacket > 5000) {
-            qDebug() << QStringLiteral("NO VALID PACKETS for") << (msSinceLastValidPacket / 1000.0)
-                     << QStringLiteral("seconds. Reinitializing connection...");
-
-            // Reset timer
-            lastValidPacketTime = QDateTime::currentDateTime();
-
-            // Reinitialize the device communication
-            initRequest = true;
         }
         return;
     }
