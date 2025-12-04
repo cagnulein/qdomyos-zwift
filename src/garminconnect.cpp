@@ -532,6 +532,12 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
                     }
                 }
 
+                // CRITICAL: Update cookies after logintoken redirect
+                // Garmin may set new session cookies during this redirect
+                QUrl loginTokenUrl = tokenRequest.url();
+                m_cookies = m_manager->cookieJar()->cookiesForUrl(loginTokenUrl);
+                qDebug() << "GarminConnect: Updated cookies after logintoken redirect, count:" << m_cookies.size();
+
                 tokenReply->deleteLater();
             }
         }
@@ -643,7 +649,9 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
 
     // CRITICAL: Add cookies from SSO login session
     // Garmin requires session continuity to validate the ticket
+    qDebug() << "GarminConnect: Adding" << m_cookies.size() << "cookies to OAuth1 request";
     for (const QNetworkCookie &cookie : m_cookies) {
+        qDebug() << "  Cookie:" << cookie.name() << "for domain:" << cookie.domain();
         m_manager->cookieJar()->insertCookie(cookie);
     }
 
@@ -655,6 +663,8 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     if (reply->error() != QNetworkReply::NoError) {
         m_lastError = "OAuth1 exchange failed: " + reply->errorString();
         qDebug() << "GarminConnect:" << m_lastError;
+        qDebug() << "GarminConnect: OAuth1 response code:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qDebug() << "GarminConnect: OAuth1 response body:" << QString::fromUtf8(reply->readAll()).left(500);
         reply->deleteLater();
         return false;
     }
