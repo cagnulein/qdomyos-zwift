@@ -650,23 +650,23 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     QString consumerSecret = consumerObj["consumer_secret"].toString();
 
     // Exchange ticket for OAuth1 token
-    // CRITICAL: Build URL manually to control encoding exactly
-    QUrl url(connectApiUrl() + "/oauth-service/oauth/preauthorized");
+    // CRITICAL: Build URL manually with proper percent-encoding
+    QString baseUrl = connectApiUrl() + "/oauth-service/oauth/preauthorized";
+
     QUrlQuery query;
     query.addQueryItem("ticket", ticket);
     query.addQueryItem("login-url", ssoUrl() + SSO_EMBED_PATH);  // Required by Python garth
     query.addQueryItem("accepts-mfa-tokens", "true");
-    url.setQuery(query);
 
-    qDebug() << "GarminConnect: OAuth1 request URL:" << url.toString();
+    // Build fully encoded URL manually
+    QString encodedUrlString = baseUrl + "?" + query.toString(QUrl::FullyEncoded);
+
+    qDebug() << "GarminConnect: OAuth1 request URL (encoded):" << encodedUrlString;
     qDebug() << "GarminConnect: Ticket value:" << ticket.left(30) << "...";
 
-    // CRITICAL: Use the encoded URL string directly to prevent Qt from re-encoding
-    // This ensures the URL sent matches the URL used for signature
-    QString encodedUrlString = url.toString(QUrl::FullyEncoded);
-    qDebug() << "GarminConnect: Encoded URL for request:" << encodedUrlString;
-
-    QNetworkRequest request(QUrl::fromEncoded(encodedUrlString.toUtf8()));
+    // CRITICAL: Use fromEncoded to tell Qt this URL is already percent-encoded
+    QNetworkRequest request;
+    request.setUrl(QUrl::fromEncoded(encodedUrlString.toUtf8()));
     request.setRawHeader("User-Agent", USER_AGENT);
     // Note: Content-Type not needed for GET requests
 
