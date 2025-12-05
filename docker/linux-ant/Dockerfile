@@ -62,8 +62,11 @@ RUN python3 -m venv /opt/ant_venv && \
 WORKDIR /app
 COPY . .
 
-# Initialize git submodules
-RUN git submodule update --init --recursive
+# Initialize only the needed submodules (avoid full recursive fetch)
+RUN git submodule update --init src/smtpclient/ && \
+    git submodule update --init src/qmdnsengine/ && \
+    git submodule update --init src/qthttpserver/ && \
+    git submodule update --init tst/googletest/
 
 # Instead of compiling qthttpserver, we copy the pre-built headers,
 # exactly like the original linux-x86-build CI job.
@@ -86,5 +89,38 @@ RUN cd src && \
 # Use a valid, non-empty base image to solve the "no command specified" error.
 FROM debian:bookworm
 
+# Install runtime dependencies (minimal set needed to run the application)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libqt5core5a \
+    libqt5gui5 \
+    libqt5widgets5 \
+    libqt5network5 \
+    libqt5positioning5 \
+    libqt5bluetooth5 \
+    libqt5qml5 \
+    libqt5quick5 \
+    libqt5quickcontrols2-5 \
+    libqt5charts5 \
+    libqt5websockets5 \
+    libqt5serialport5 \
+    libqt5sql5-sqlite \
+    libqt5multimedia5 \
+    libqt5location5 \
+    libqt5texttospeech5 \
+    libqt5networkauth5 \
+    libusb-1.0-0 \
+    libudev1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create the application directory structure
+RUN mkdir -p /qdomyos-zwift-x86-64-ant/lib /qdomyos-zwift-x86-64-ant/plugins
+
 # Copy the compiled binary from the builder stage
-COPY --from=builder /app/src/qdomyos-zwift /qdomyos-zwift-x86-64-ant
+COPY --from=builder /app/src/qdomyos-zwift /qdomyos-zwift-x86-64-ant/
+
+# Copy Qt plugins from builder stage
+RUN mkdir -p /qdomyos-zwift-x86-64-ant/plugins && \
+    cp -r /usr/lib/x86_64-linux-gnu/qt5/plugins/* /qdomyos-zwift-x86-64-ant/plugins/ 2>/dev/null || true
+
+# Set a no-op command (required for Docker image)
+CMD ["/bin/bash"]

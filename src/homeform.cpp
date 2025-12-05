@@ -44,9 +44,17 @@
 #include <QUrlQuery>
 #include <QRegularExpression>
 #include <chrono>
+#include <atomic>
+
+#if defined(Q_OS_UNIX)
+#include <pwd.h>
+#include <unistd.h>
+#endif
 
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
+static std::atomic<bool> g_trainingCopyDone{false};
+static std::atomic<bool> g_gpxCopyDone{false};
 
 #ifndef STRAVA_CLIENT_ID
 #define STRAVA_CLIENT_ID 7976
@@ -651,22 +659,26 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(pelotonHandler, &peloton::pelotonWebVisibleChanged, this, &homeform::pelotonWebVisibleChanged);
     connect(stack, SIGNAL(peloton_connect_clicked()), pelotonHandler, SLOT(peloton_connect_clicked()));
 
-    // copying bundles zwo files in the right path if necessary
-    QDirIterator itZwo(":/zwo/");
-    QDir().mkdir(getWritableAppDir() + "training/");
-    while (itZwo.hasNext()) {
-        qDebug() << itZwo.next() << itZwo.fileName();
-        if (!QFile(getWritableAppDir() + "training/" + itZwo.fileName()).exists()) {
-            QFile::copy(":/zwo/" + itZwo.fileName(), getWritableAppDir() + "training/" + itZwo.fileName());
+    // Copying bundled zwo files once per process (guarded by atomic)
+    if (!g_trainingCopyDone.exchange(true)) {
+        QDirIterator itZwo(":/zwo/");
+        QDir().mkdir(getWritableAppDir() + "training/");
+        while (itZwo.hasNext()) {
+            qDebug() << itZwo.next() << itZwo.fileName();
+            if (!QFile(getWritableAppDir() + "training/" + itZwo.fileName()).exists()) {
+                QFile::copy(":/zwo/" + itZwo.fileName(), getWritableAppDir() + "training/" + itZwo.fileName());
+            }
         }
     }
 
-    QDirIterator itGpx(":/gpx/");
-    QDir().mkdir(getWritableAppDir() + "gpx/");
-    while (itGpx.hasNext()) {
-        qDebug() << itGpx.next() << itGpx.fileName();
-        if (!QFile(getWritableAppDir() + "gpx/" + itGpx.fileName()).exists()) {
-            QFile::copy(":/gpx/" + itGpx.fileName(), getWritableAppDir() + "gpx/" + itGpx.fileName());
+    if (!g_gpxCopyDone.exchange(true)) {
+        QDirIterator itGpx(":/gpx/");
+        QDir().mkdir(getWritableAppDir() + "gpx/");
+        while (itGpx.hasNext()) {
+            qDebug() << itGpx.next() << itGpx.fileName();
+            if (!QFile(getWritableAppDir() + "gpx/" + itGpx.fileName()).exists()) {
+                QFile::copy(":/gpx/" + itGpx.fileName(), getWritableAppDir() + "gpx/" + itGpx.fileName());
+            }
         }
     }
 
@@ -1180,8 +1192,6 @@ QString homeform::getWritableAppDir() {
     path = QDir::currentPath() + "/";
 #endif
     return path;
-}
-
 void homeform::backup() {
 
     static uint8_t index = 0;
