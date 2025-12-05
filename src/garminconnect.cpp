@@ -686,11 +686,16 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     // KEY DIFFERENCE: request(url) instead of request(QUrl::fromEncoded(...))
     //
     QUrl url(connectApiUrl() + "/oauth-service/oauth/preauthorized");
-    QUrlQuery query;
-    query.addQueryItem("ticket", ticket);
-    query.addQueryItem("login-url", ssoUrl() + SSO_EMBED_PATH);
-    query.addQueryItem("accepts-mfa-tokens", "true");
-    url.setQuery(query);
+
+    // CRITICAL: Qt NEVER encodes ':' and '/' in parameter values (considers them "unreserved")
+    // But OAuth1 and Garmin REQUIRE them to be encoded
+    // Solution: Build query string manually with QUrl::toPercentEncoding(), set as raw string
+    QString queryString = "ticket=" + QString::fromUtf8(QUrl::toPercentEncoding(ticket)) +
+                          "&login-url=" + QString::fromUtf8(QUrl::toPercentEncoding(ssoUrl() + SSO_EMBED_PATH)) +
+                          "&accepts-mfa-tokens=true";
+
+    // Set query as raw encoded string with DecodedMode (Qt treats it as already-encoded)
+    url.setQuery(queryString, QUrl::DecodedMode);
 
     // Get the fully encoded URL that Qt will actually send
     QString fullUrl = url.toString(QUrl::FullyEncoded);
