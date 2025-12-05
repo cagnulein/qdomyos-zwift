@@ -704,7 +704,7 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     loop.exec();
 
     // Check HTTP status code first
-    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     qDebug() << "GarminConnect: OAuth1 HTTP status code:" << statusCode;
 
     // Check for redirects
