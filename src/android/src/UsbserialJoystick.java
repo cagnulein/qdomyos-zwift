@@ -158,6 +158,7 @@ public class UsbserialJoystick {
             lines[1] = joystickPort.getCTS(); // CTS - Right arrow
             lines[2] = joystickPort.getDSR(); // DSR - Down arrow
             lines[3] = joystickPort.getRI();  // RI (RING) - Up arrow
+            QLog.d("QZ", "UsbSerial: Control lines: CD=" + lines[0] + ", CTS=" + lines[1] + ", DSR=" + lines[2] + ", RI=" + lines[3]);
         } catch (IOException e) {
             QLog.d("QZ", "UsbserialJoystick: Error reading control lines: " + e.getMessage());
         } catch (UnsupportedOperationException e) {
