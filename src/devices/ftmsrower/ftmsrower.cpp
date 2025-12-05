@@ -78,12 +78,19 @@ void ftmsrower::update() {
     }
 
     if (initRequest) {
-        if(I_ROWER || ROWER || DOMYOS_ROW) {
+        if(I_ROWER || ROWER) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(write, sizeof(write), "start", false, true);
 
             uint8_t write1[] = {FTMS_START_RESUME};
             writeCharacteristic(write1, sizeof(write1), "start simulation", false, true);
+        } else if(DOMYOS_ROW) {
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(write, sizeof(write), "start", false, true);
+
+            uint8_t writeDomyos[] = {FTMS_RESET};
+            writeCharacteristic(writeDomyos, sizeof(writeDomyos), "FTMS_RESET", false, true);
+
         } else {
             uint8_t write[] = {FTMS_START_RESUME};
             writeCharacteristic(write, sizeof(write), "start simulation", false, true);
