@@ -723,21 +723,39 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
 
-    if (reply->error() != QNetworkReply::NoError) {
-        m_lastError = "OAuth1 exchange failed: " + reply->errorString();
+    // Check HTTP status code first
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qDebug() << "GarminConnect: OAuth1 HTTP status code:" << statusCode;
+
+    // Check for redirects
+    QUrl redirectUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+    if (!redirectUrl.isEmpty()) {
+        qDebug() << "GarminConnect: OAuth1 response is a redirect to:" << redirectUrl.toString();
+    }
+
+    // Read response body
+    QString responseText = QString::fromUtf8(reply->readAll());
+    qDebug() << "GarminConnect: OAuth1 response body (full):" << responseText;
+    qDebug() << "GarminConnect: OAuth1 response length:" << responseText.length();
+
+    if (reply->error() != QNetworkReply::NoError || statusCode >= 400) {
+        m_lastError = QString("OAuth1 exchange failed (HTTP %1): %2").arg(statusCode).arg(reply->errorString());
         qDebug() << "GarminConnect:" << m_lastError;
-        qDebug() << "GarminConnect: OAuth1 response code:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        qDebug() << "GarminConnect: OAuth1 response body:" << QString::fromUtf8(reply->readAll()).left(500);
         reply->deleteLater();
         return false;
     }
 
-    // Parse URL-encoded response (NOT JSON!)
-    // Format: oauth_token=abc&oauth_token_secret=xyz&mfa_token=...
-    QString responseText = QString::fromUtf8(reply->readAll());
     reply->deleteLater();
 
-    qDebug() << "GarminConnect: OAuth1 response:" << responseText.left(100) << "...";
+    // Check if response is empty
+    if (responseText.isEmpty()) {
+        m_lastError = "OAuth1 response is empty - possible redirect or authentication failure";
+        qDebug() << "GarminConnect:" << m_lastError;
+        qDebug() << "GarminConnect: This usually means cookies or signature are incorrect";
+        return false;
+    }
+
+    qDebug() << "GarminConnect: Parsing OAuth1 response...";
 
     QUrlQuery responseQuery(responseText);
     m_oauth1Token.oauth_token = responseQuery.queryItemValue("oauth_token");
