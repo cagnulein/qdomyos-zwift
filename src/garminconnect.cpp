@@ -600,24 +600,10 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
 {
     qDebug() << "GarminConnect: Exchanging ticket for OAuth1 token...";
 
-    QString consumerKey;
-    QString consumerSecret;
-
-    // Try environment variables first (allows user to provide credentials without hardcoding)
-    QByteArray envKey = qgetenv("GARMIN_OAUTH_CONSUMER_KEY");
-    QByteArray envSecret = qgetenv("GARMIN_OAUTH_CONSUMER_SECRET");
-
-    if (!envKey.isEmpty() && !envSecret.isEmpty()) {
-        qDebug() << "GarminConnect: Using OAuth consumer credentials from environment variables";
-        consumerKey = QString::fromUtf8(envKey);
-        consumerSecret = QString::fromUtf8(envSecret);
-    } else {
-        // Fetch from S3 if environment variables not set
-        QUrl consumerUrl(OAUTH_CONSUMER_URL);
-        qDebug() << "GarminConnect: Fetching OAuth consumer from:" << OAUTH_CONSUMER_URL;
-        QNetworkRequest consumerRequest(consumerUrl);
-
-    // Set headers to match what S3 expects
+    // Fetch OAuth consumer credentials from S3
+    QUrl consumerUrl(OAUTH_CONSUMER_URL);
+    qDebug() << "GarminConnect: Fetching OAuth consumer from:" << OAUTH_CONSUMER_URL;
+    QNetworkRequest consumerRequest(consumerUrl);
     consumerRequest.setRawHeader("User-Agent", USER_AGENT);
     consumerRequest.setRawHeader("Accept", "application/json, */*");
     consumerRequest.setRawHeader("Accept-Encoding", "gzip, deflate");
@@ -627,7 +613,7 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     connect(consumerReply, &QNetworkReply::finished, &consumerLoop, &QEventLoop::quit);
     consumerLoop.exec();
 
-    // Check HTTP status code first (403/404 might not trigger Qt network error)
+    // Check HTTP status code
     int statusCode = consumerReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     qDebug() << "GarminConnect: OAuth consumer HTTP status code:" << statusCode;
 
@@ -638,11 +624,6 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
                           .arg(consumerReply->errorString());
         qDebug() << "GarminConnect:" << m_lastError;
         qDebug() << "GarminConnect: Error response body:" << QString::fromUtf8(errorBody);
-        qDebug() << "GarminConnect: This S3 URL may be restricted or no longer accessible.";
-        qDebug() << "GarminConnect: WORKAROUND: Set environment variables:";
-        qDebug() << "GarminConnect:   GARMIN_OAUTH_CONSUMER_KEY=<your key>";
-        qDebug() << "GarminConnect:   GARMIN_OAUTH_CONSUMER_SECRET=<your secret>";
-        qDebug() << "GarminConnect: You can get these from a Python garth installation or by intercepting the request.";
         consumerReply->deleteLater();
         return false;
     }
@@ -665,9 +646,8 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     }
 
     QJsonObject consumerObj = consumerDoc.object();
-    consumerKey = consumerObj["consumer_key"].toString();
-    consumerSecret = consumerObj["consumer_secret"].toString();
-    }  // End of S3 fetch else block
+    QString consumerKey = consumerObj["consumer_key"].toString();
+    QString consumerSecret = consumerObj["consumer_secret"].toString();
 
     // Exchange ticket for OAuth1 token
     QUrl url(connectApiUrl() + "/oauth-service/oauth/preauthorized");
