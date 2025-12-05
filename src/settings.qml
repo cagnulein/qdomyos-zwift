@@ -17,6 +17,8 @@ import Qt.labs.platform 1.1
         id: settingsPane        
 
         signal peloton_connect_clicked()
+        signal intervalsicu_connect_clicked()
+        signal intervalsicu_download_todays_workout_clicked()
 
         Settings {
             id: settings
@@ -1218,6 +1220,14 @@ import Qt.labs.platform 1.1
             property int kettler_usb_baudrate: 9600
             property bool nordictrack_se7i: false
             property real treadmill_speed_max: 100
+            
+            // Intervals.icu settings
+            property string intervalsicu_accesstoken: ""
+            property string intervalsicu_refreshtoken: ""
+            property string intervalsicu_athlete_id: ""
+            property bool intervalsicu_upload_enabled: true
+            property string intervalsicu_suffix: "#QZ"
+            property bool intervalsicu_date_prefix: false            
         }
 
 
