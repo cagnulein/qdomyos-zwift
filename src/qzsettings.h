@@ -82,6 +82,14 @@ class QZSettings {
     static const QString strava_expires;
     static const QString default_strava_expires;
 
+    static const QString garmin_email;
+    static const QString default_garmin_email;
+
+    static const QString garmin_password;
+    static const QString default_garmin_password;
+
+    static const QString garmin_upload_enabled;
+    static constexpr bool default_garmin_upload_enabled = false;
     static const QString intervalsicu_accesstoken;
     static const QString default_intervalsicu_accesstoken;
 
