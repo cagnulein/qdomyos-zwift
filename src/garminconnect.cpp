@@ -650,7 +650,31 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     QString consumerSecret = consumerObj["consumer_secret"].toString();
 
     // Exchange ticket for OAuth1 token
-    // CRITICAL: Let Qt handle URL encoding naturally to avoid double-encoding
+    //
+    // ===== URL ENCODING - HISTORY OF FAILED ATTEMPTS =====
+    //
+    // ATTEMPT 1: Use url.toString(QUrl::FullyEncoded) directly
+    // RESULT: FAILED - Qt didn't encode ':', '/' in parameter values
+    // ERROR: "Invalid URL encoding: not a valid digit (radix 16): 37"
+    // REASON: Garmin received "login-url=https://..." instead of "login-url=https%3A%2F%2F..."
+    //
+    // ATTEMPT 2: Use query.toString(QUrl::FullyEncoded) to get encoded query string
+    // RESULT: FAILED - Still no encoding of ':', '/' in values
+    // ERROR: Same 401 error, URL still had "https://..." unencoded
+    // REASON: QUrlQuery::toString(FullyEncoded) doesn't encode these characters
+    //
+    // ATTEMPT 3: Manual encoding with percentEncode() + QUrl::fromEncoded()
+    // RESULT: FAILED - Multiple encoding (double/triple)
+    // ERROR: Same 401, but now "https%%3A%%2F%%2F..." or "https%25%253A..."
+    // REASON: percentEncode() encoded correctly, but QUrl::fromEncoded() decoded then Qt re-encoded
+    //         Flow: https:// → https%3A%2F%2F (manual) → https:// (fromEncoded decodes) → https%25%3A... (Qt re-encodes)
+    //
+    // CURRENT SOLUTION: Let Qt handle everything naturally
+    // - Use QUrl + QUrlQuery normally
+    // - Let Qt encode once when sending HTTP request
+    // - Use url.toString(QUrl::FullyEncoded) for OAuth signature to match what Qt sends
+    // - Pass QUrl directly to QNetworkRequest (no fromEncoded, no manual encoding)
+    //
     QUrl url(connectApiUrl() + "/oauth-service/oauth/preauthorized");
     QUrlQuery query;
     query.addQueryItem("ticket", ticket);
