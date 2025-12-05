@@ -31,19 +31,56 @@ ftmsrower::ftmsrower(bool noWriteResistance, bool noHeartService) {
 }
 
 void ftmsrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                    bool wait_for_response) {
-    if (!gattFTMSService || !gattWriteCharControlPointId.isValid()) {
-        qDebug() << QStringLiteral("gattWriteCharControlPointId or gattFTMSService not valid!!");
-        return;
+                                    bool wait_for_response, const QBluetoothUuid &serviceUuid, 
+                                    const QBluetoothUuid &characteristicUuid) {
+    QLowEnergyService *service = nullptr;
+    QLowEnergyCharacteristic characteristic;
+
+    // If custom service/characteristic UUIDs are provided, find them
+    if (!serviceUuid.isNull() && !characteristicUuid.isNull()) {
+        // Find the service
+        for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+            if (s->serviceUuid() == serviceUuid) {
+                service = s;
+                break;
+            }
+        }
+
+        if (!service) {
+            qDebug() << QStringLiteral("Service not found: ") << serviceUuid.toString();
+            return;
+        }
+
+        // Find the characteristic
+        auto characteristics = service->characteristics();
+        for (const QLowEnergyCharacteristic &c : qAsConst(characteristics)) {
+            if (c.uuid() == characteristicUuid) {
+                characteristic = c;
+                break;
+            }
+        }
+
+        if (!characteristic.isValid()) {
+            qDebug() << QStringLiteral("Characteristic not found: ") << characteristicUuid.toString();
+            return;
+        }
+    } else {
+        // Use default FTMS service and control point
+        if (!gattFTMSService || !gattWriteCharControlPointId.isValid()) {
+            qDebug() << QStringLiteral("gattWriteCharControlPointId or gattFTMSService not valid!!");
+            return;
+        }
+        service = gattFTMSService;
+        characteristic = gattWriteCharControlPointId;
     }
 
     QEventLoop loop;
     QTimer timeout;
     if (wait_for_response) {
-        connect(gattFTMSService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+        connect(service, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     } else {
-        connect(gattFTMSService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+        connect(service, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
@@ -52,7 +89,7 @@ void ftmsrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
+    service->writeCharacteristic(characteristic, *writeBuffer);
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
@@ -90,6 +127,18 @@ void ftmsrower::update() {
 
             uint8_t writeDomyos[] = {FTMS_RESET};
             writeCharacteristic(writeDomyos, sizeof(writeDomyos), "FTMS_RESET", false, true);
+
+            // Write to User Data Service (0x181c) - User Control Point (0x2a9f)
+            uint8_t writeUserControlPoint[] = {0x01, 0x00, 0x00};
+            writeCharacteristic(writeUserControlPoint, sizeof(writeUserControlPoint), "User Control Point", false, true,
+                              QBluetoothUuid((quint16)0x181c), QBluetoothUuid((quint16)0x2a9f));
+            writeCharacteristic(writeUserControlPoint, sizeof(writeUserControlPoint), "User Control Point", false, true,
+                              QBluetoothUuid((quint16)0x181c), QBluetoothUuid((quint16)0x2a9f));                              
+
+            // Write to User Data Service (0x181c) - Height (0x2a8e)
+            uint8_t writeHeight[] = {0xaa, 0x00};
+            writeCharacteristic(writeHeight, sizeof(writeHeight), "Height", false, true,
+                              QBluetoothUuid((quint16)0x181c), QBluetoothUuid((quint16)0x2a8e));
 
         } else {
             uint8_t write[] = {FTMS_START_RESUME};
