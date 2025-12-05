@@ -37,6 +37,7 @@
 #include <QString>
 
 #include "KettlerUSB.h"
+#include "KettlerJoystick.h"
 #include "devices/bike.h"
 #include "devices/ftmsbike/ftmsbike.h"
 #include "virtualdevices/virtualbike.h"
@@ -71,6 +72,7 @@ class kettlerusbbike : public bike {
     uint16_t watts() override;
     void forceResistance(double requestResistance);
     void innerWriteResistance();
+    QStringList getAdjacentSerialPorts(const QString &basePort);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
@@ -78,6 +80,7 @@ class kettlerusbbike : public bike {
     double bikeResistanceGain = 1.0;
 
     uint8_t sec1Update = 0;
+    uint8_t joystickDiscoveryCounter = 0; // Counter for periodic joystick discovery
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     metric target_watts;
@@ -89,6 +92,7 @@ class kettlerusbbike : public bike {
     bool noHeartService = false;
 
     KettlerUSB *myKettler = nullptr;
+    KettlerJoystick *myJoystick = nullptr;
 
     // Store last FTMS command received
     FtmsControlPointCommand m_lastFtmsCommand = FTMS_REQUEST_CONTROL;
@@ -106,6 +110,7 @@ class kettlerusbbike : public bike {
 
   private slots:
     void update();
+    void handleJoystickButton(int button);
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };
 

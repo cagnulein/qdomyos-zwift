@@ -39,6 +39,7 @@ import java.nio.charset.StandardCharsets;
 public class Usbserial {
 
     static UsbSerialPort port = null;
+    static UsbDevice bikeDevice = null; // Save reference to bike device to identify it even if order changes
     static byte[] receiveData = new byte[4096];
     static int lastReadLen = 0;
 
@@ -48,6 +49,21 @@ public class Usbserial {
 
     public static void open(Context context, int baudRate) {
         QLog.d("QZ","UsbSerial open with baud rate: " + baudRate);
+
+        // If port is already open, don't reopen (prevents issues when joystick is connected)
+        if (port != null) {
+            try {
+                // Test if port is still valid by checking if we can get parameters
+                port.isOpen();
+                QLog.d("QZ","UsbSerial port already open, skipping reopen");
+                return;
+            } catch (Exception e) {
+                // Port is invalid, need to reopen
+                QLog.d("QZ","UsbSerial existing port is invalid, will reopen: " + e.getMessage());
+                port = null;
+            }
+        }
+
         // Find all available drivers from attached devices.
         UsbManager manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         List<UsbSerialDriver> availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager);
@@ -56,8 +72,30 @@ public class Usbserial {
             return;
         }
 
-        // Open a connection to the first available driver.
-        UsbSerialDriver driver = availableDrivers.get(0);
+        // Find the correct driver for the bike
+        UsbSerialDriver driver = null;
+
+        if (bikeDevice != null) {
+            // We already know which device is the bike, find it in the current list
+            QLog.d("QZ","UsbSerial looking for saved bike device");
+            for (UsbSerialDriver d : availableDrivers) {
+                if (d.getDevice().equals(bikeDevice)) {
+                    driver = d;
+                    QLog.d("QZ","UsbSerial found bike device at current position");
+                    break;
+                }
+            }
+
+            if (driver == null) {
+                QLog.d("QZ","UsbSerial saved bike device not found, bike may be disconnected");
+                return;
+            }
+        } else {
+            // First time opening, assume first device is the bike and save it
+            driver = availableDrivers.get(0);
+            bikeDevice = driver.getDevice();
+            QLog.d("QZ","UsbSerial first open, saving bike device (index 0)");
+        }
         if (!manager.hasPermission(driver.getDevice())) {
             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             RingtoneManager.getRingtone(context, notification).play();
