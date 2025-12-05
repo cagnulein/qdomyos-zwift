@@ -650,6 +650,7 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     QString consumerSecret = consumerObj["consumer_secret"].toString();
 
     // Exchange ticket for OAuth1 token
+    // CRITICAL: Build URL manually to control encoding exactly
     QUrl url(connectApiUrl() + "/oauth-service/oauth/preauthorized");
     QUrlQuery query;
     query.addQueryItem("ticket", ticket);
@@ -660,15 +661,20 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     qDebug() << "GarminConnect: OAuth1 request URL:" << url.toString();
     qDebug() << "GarminConnect: Ticket value:" << ticket.left(30) << "...";
 
-    QNetworkRequest request(url);
+    // CRITICAL: Use the encoded URL string directly to prevent Qt from re-encoding
+    // This ensures the URL sent matches the URL used for signature
+    QString encodedUrlString = url.toString(QUrl::FullyEncoded);
+    qDebug() << "GarminConnect: Encoded URL for request:" << encodedUrlString;
+
+    QNetworkRequest request(QUrl::fromEncoded(encodedUrlString.toUtf8()));
     request.setRawHeader("User-Agent", USER_AGENT);
     // Note: Content-Type not needed for GET requests
 
     // Generate OAuth1 signature for GET request
-    // CRITICAL: Use FullyEncoded URL to match HTTP request encoding
+    // CRITICAL: Use the same encoded URL string for signature and request
     QString authHeader = generateOAuth1AuthorizationHeader(
         "GET",
-        url.toString(QUrl::FullyEncoded),
+        encodedUrlString,
         consumerKey,
         consumerSecret,
         "",  // No token yet
