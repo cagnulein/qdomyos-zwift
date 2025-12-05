@@ -653,27 +653,37 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     //
     // ===== URL ENCODING - HISTORY OF FAILED ATTEMPTS =====
     //
-    // ATTEMPT 1: Use url.toString(QUrl::FullyEncoded) directly
+    // ATTEMPT 1: url.toString(FullyEncoded) + QUrl::fromEncoded()
+    //   Code: encodedStr = url.toString(QUrl::FullyEncoded);
+    //         request(QUrl::fromEncoded(encodedStr.toUtf8()));
     // RESULT: FAILED - Qt didn't encode ':', '/' in parameter values
     // ERROR: "Invalid URL encoding: not a valid digit (radix 16): 37"
-    // REASON: Garmin received "login-url=https://..." instead of "login-url=https%3A%2F%2F..."
+    // REASON: url.toString(FullyEncoded) returned "login-url=https://..." (no encoding)
+    //         Then fromEncoded() interpreted it but Qt still didn't encode on HTTP send
     //
-    // ATTEMPT 2: Use query.toString(QUrl::FullyEncoded) to get encoded query string
+    // ATTEMPT 2: query.toString(FullyEncoded) + manual concatenation + fromEncoded()
+    //   Code: encodedStr = baseUrl + "?" + query.toString(QUrl::FullyEncoded);
+    //         request.setUrl(QUrl::fromEncoded(encodedStr.toUtf8()));
     // RESULT: FAILED - Still no encoding of ':', '/' in values
     // ERROR: Same 401 error, URL still had "https://..." unencoded
-    // REASON: QUrlQuery::toString(FullyEncoded) doesn't encode these characters
+    // REASON: query.toString(FullyEncoded) doesn't encode these characters either
     //
-    // ATTEMPT 3: Manual encoding with percentEncode() + QUrl::fromEncoded()
+    // ATTEMPT 3: Manual percentEncode() for everything + fromEncoded()
+    //   Code: queryStr = "ticket=" + percentEncode(ticket) + "&login-url=" + percentEncode(url);
+    //         encodedStr = baseUrl + "?" + queryStr;
+    //         request.setUrl(QUrl::fromEncoded(encodedStr.toUtf8()));
     // RESULT: FAILED - Multiple encoding (double/triple)
     // ERROR: Same 401, but now "https%%3A%%2F%%2F..." or "https%25%253A..."
-    // REASON: percentEncode() encoded correctly, but QUrl::fromEncoded() decoded then Qt re-encoded
-    //         Flow: https:// → https%3A%2F%2F (manual) → https:// (fromEncoded decodes) → https%25%3A... (Qt re-encodes)
+    // REASON: percentEncode() correctly made "https%3A%2F%2F..."
+    //         But QUrl::fromEncoded() decoded it back to "https://..."
+    //         Then Qt re-encoded on HTTP send: "https%25%3A..." (double encoded)
     //
-    // CURRENT SOLUTION: Let Qt handle everything naturally
+    // CURRENT SOLUTION: Pass QUrl object directly (no string conversions!)
     // - Use QUrl + QUrlQuery normally
     // - Let Qt encode once when sending HTTP request
-    // - Use url.toString(QUrl::FullyEncoded) for OAuth signature to match what Qt sends
-    // - Pass QUrl directly to QNetworkRequest (no fromEncoded, no manual encoding)
+    // - Pass QUrl DIRECTLY to QNetworkRequest (NOT through fromEncoded!)
+    // - Use url.toString(FullyEncoded) ONLY for OAuth signature
+    // KEY DIFFERENCE: request(url) instead of request(QUrl::fromEncoded(...))
     //
     QUrl url(connectApiUrl() + "/oauth-service/oauth/preauthorized");
     QUrlQuery query;
