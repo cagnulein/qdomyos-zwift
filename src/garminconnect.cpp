@@ -660,9 +660,26 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
 
     // Get the fully encoded URL that Qt will actually send
     QString fullUrl = url.toString(QUrl::FullyEncoded);
+    QString prettyUrl = url.toString(QUrl::PrettyDecoded);
 
-    qDebug() << "GarminConnect: OAuth1 request URL:" << fullUrl;
+    qDebug() << "GarminConnect: ===== URL ENCODING DEBUG =====";
+    qDebug() << "GarminConnect: URL (PrettyDecoded):" << prettyUrl;
+    qDebug() << "GarminConnect: URL (FullyEncoded):" << fullUrl;
     qDebug() << "GarminConnect: Ticket value:" << ticket.left(30) << "...";
+
+    // Check for double encoding markers
+    if (fullUrl.contains("%%") || fullUrl.contains("%25%25")) {
+        qDebug() << "GarminConnect: WARNING - Double encoding detected in URL!";
+    }
+    if (fullUrl.contains("%253A") || fullUrl.contains("%252F")) {
+        qDebug() << "GarminConnect: WARNING - Triple encoding detected in URL!";
+    }
+
+    // Show what login-url parameter looks like
+    QUrlQuery debugQuery(url);
+    QString loginUrl = debugQuery.queryItemValue("login-url", QUrl::FullyEncoded);
+    qDebug() << "GarminConnect: login-url parameter (encoded):" << loginUrl;
+    qDebug() << "GarminConnect: Expected: https%3A%2F%2Fsso.garmin.com%2Fsso%2Fembed";
 
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", USER_AGENT);
