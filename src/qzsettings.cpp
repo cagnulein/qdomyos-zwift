@@ -781,6 +781,8 @@ const QString QZSettings::atletica_lightspeed_treadmill = QStringLiteral("atleti
 const QString QZSettings::peloton_treadmill_level = QStringLiteral("peloton_treadmill_level");
 const QString QZSettings::peloton_treadmill_walk_level = QStringLiteral("peloton_treadmill_walk_level");
 const QString QZSettings::nordictrackadbbike_resistance = QStringLiteral("nordictrackadbbike_resistance");
+const QString QZSettings::nordictrackadbbike_gear_resistance_mode = QStringLiteral("nordictrackadbbike_gear_resistance_mode");
+const QString QZSettings::nordictrackadbbike_gear_debounce_ms = QStringLiteral("nordictrackadbbike_gear_debounce_ms");
 const QString QZSettings::proform_treadmill_carbon_t7 = QStringLiteral("proform_treadmill_carbon_t7");
 const QString QZSettings::nordictrack_treadmill_exp_5i = QStringLiteral("nordictrack_treadmill_exp_5i");
 const QString QZSettings::dircon_id = QStringLiteral("dircon_id");
@@ -1002,12 +1004,13 @@ const QString QZSettings::calories_active_only = QStringLiteral("calories_active
 const QString QZSettings::calories_from_hr = QStringLiteral("calories_from_hr");
 const QString QZSettings::confirm_stop_workout = QStringLiteral("confirm_stop_workout");
 const QString QZSettings::height = QStringLiteral("height");
+const QString QZSettings::grupetto_disclaimer_shown = QStringLiteral("grupetto_disclaimer_shown");
 const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 822;
+const uint32_t allSettingsCount = 826;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1668,6 +1671,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::peloton_treadmill_level, QZSettings::default_peloton_treadmill_level},
     {QZSettings::peloton_treadmill_walk_level, QZSettings::default_peloton_treadmill_walk_level},
     {QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance},
+    {QZSettings::nordictrackadbbike_gear_resistance_mode, QZSettings::default_nordictrackadbbike_gear_resistance_mode},
+    {QZSettings::nordictrackadbbike_gear_debounce_ms, QZSettings::default_nordictrackadbbike_gear_debounce_ms},
     {QZSettings::proform_treadmill_carbon_t7, QZSettings::default_proform_treadmill_carbon_t7},
     {QZSettings::nordictrack_treadmill_exp_5i, QZSettings::default_nordictrack_treadmill_exp_5i},
     {QZSettings::dircon_id, QZSettings::default_dircon_id},
@@ -1847,6 +1852,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::calories_from_hr, QZSettings::default_calories_from_hr},
     {QZSettings::confirm_stop_workout, QZSettings::default_confirm_stop_workout},
     {QZSettings::height, QZSettings::default_height},
+    {QZSettings::grupetto_disclaimer_shown, QZSettings::default_grupetto_disclaimer_shown},
     {QZSettings::taurua_ic90, QZSettings::default_taurua_ic90},
     {QZSettings::proform_csx210, QZSettings::default_proform_csx210},
     {QZSettings::skandika_wiri_x2000_protocol, QZSettings::default_skandika_wiri_x2000_protocol},
