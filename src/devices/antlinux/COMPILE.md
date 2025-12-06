@@ -61,6 +61,9 @@ cd ~/qdomyos-zwift-x86-64-ant
 # Verify setup
 ./setup.sh --quick
 
+# Test ANT+ hardware
+sudo ./setup.sh --test
+
 # Run application
 ./qdomyos-zwift
 ```

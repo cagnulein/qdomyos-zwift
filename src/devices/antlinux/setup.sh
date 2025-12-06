@@ -14,6 +14,7 @@
 #
 # Usage:
 #   ./setup.sh --quick              # Fast validation check
+#   sudo ./setup.sh --test          # Validate + run ANT+ hardware test
 #   sudo ./setup.sh --interactive   # Guided setup with prompts
 #   sudo ./setup.sh --fix           # Auto-install what's possible
 #
@@ -37,6 +38,7 @@ MODE_QUICK=0
 MODE_INTERACTIVE=0
 MODE_FIX=0
 MODE_JSON=0
+MODE_TEST=0
 
 # Test counters
 PASS=0
@@ -79,6 +81,10 @@ for arg in "$@"; do
             MODE_JSON=1
             shift
             ;;
+        --test)
+            MODE_TEST=1
+            shift
+            ;;
         --help)
             grep '^#' "$0" | sed 's/^# //' | sed 's/^#//'
             exit 0
@@ -102,10 +108,20 @@ if [ $MODE_QUICK -eq 1 ] && [ $MODE_FIX -eq 1 ]; then
     exit 1
 fi
 
-# Check sudo requirement for interactive/fix modes
-if [ $MODE_INTERACTIVE -eq 1 ] || [ $MODE_FIX -eq 1 ]; then
+if [ $MODE_TEST -eq 1 ] && [ $MODE_INTERACTIVE -eq 1 ]; then
+    echo "Error: Cannot use --test and --interactive together"
+    exit 1
+fi
+
+if [ $MODE_TEST -eq 1 ] && [ $MODE_FIX -eq 1 ]; then
+    echo "Error: Cannot use --test and --fix together"
+    exit 1
+fi
+
+# Check sudo requirement for interactive/fix/test modes
+if [ $MODE_INTERACTIVE -eq 1 ] || [ $MODE_FIX -eq 1 ] || [ $MODE_TEST -eq 1 ]; then
     if [ $EUID -ne 0 ]; then
-        echo -e "${RED}ERROR: --interactive and --fix modes require sudo${NC}"
+        echo -e "${RED}ERROR: --interactive, --fix, and --test modes require sudo${NC}"
         echo "Please run: sudo $0 $@"
         exit 1
     fi
@@ -160,10 +176,12 @@ prompt_yes_no() {
 }
 
 # ============================================================================
-# QUICK MODE - Fast validation showing all issues
+# QUICK MODE - Fast validation only
 # ============================================================================
 
 run_quick_mode() {
+    local return_to_caller="${1:-false}"  # Allow test mode to continue after validation
+    
     if [ $MODE_JSON -eq 0 ]; then
         echo -e "${BLUE}=== QDomyos-Zwift ANT+ Quick Validation ===${NC}"
         echo ""
@@ -316,15 +334,15 @@ run_quick_mode() {
             echo -e "${RED}System Status: FAILED${NC}"
             echo "To fix issues, run: ${YELLOW}sudo ./setup.sh --interactive${NC} (guided)"
             echo "            or run: ${YELLOW}sudo ./setup.sh --fix${NC} (automatic)"
-            exit 1
+            [ "$return_to_caller" = "false" ] && exit 1
         elif [ $WARN -gt 0 ]; then
             echo -e "${YELLOW}System Status: WARNING${NC}"
             echo "Non-critical warnings present - some functionality may be limited"
-            exit 2
+            [ "$return_to_caller" = "false" ] && exit 2
         else
             echo -e "${GREEN}System Status: READY${NC}"
             echo "All tests passed - system is ready for ANT+ operation"
-            exit 0
+            [ "$return_to_caller" = "false" ] && exit 0
         fi
     fi
 }
@@ -645,6 +663,60 @@ EOF
 }
 
 # ============================================================================
+# TEST MODE - Run validation + ANT+ hardware test
+# ============================================================================
+
+run_test_mode() {
+    echo -e "${CYAN}=== QDomyos-Zwift ANT+ Validation and Test ===${NC}"
+    echo ""
+    
+    # Run quick validation first (pass true to prevent exit)
+    run_quick_mode true
+    
+    # Check if all tests passed
+    if [ $FAIL -gt 0 ]; then
+        echo ""
+        echo -e "${RED}Cannot run ANT+ test - validation failures detected${NC}"
+        echo "Fix issues with: ${YELLOW}sudo ./setup.sh --fix${NC} or ${YELLOW}sudo ./setup.sh --interactive${NC}"
+        exit 1
+    fi
+    
+    # Check if test_ant.py exists
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    TEST_SCRIPT="$SCRIPT_DIR/test_ant.py"
+    
+    if [ ! -f "$TEST_SCRIPT" ]; then
+        echo ""
+        echo -e "${RED}Error: test_ant.py not found in $SCRIPT_DIR${NC}"
+        echo "This script should be included in the binary distribution."
+        exit 1
+    fi
+    
+    # Run the ANT+ test
+    echo ""
+    echo -e "${CYAN}========================================${NC}"
+    echo -e "${CYAN}Starting ANT+ Hardware Test${NC}"
+    echo -e "${CYAN}========================================${NC}"
+    echo ""
+    echo "This will simulate a running treadmill broadcasting ANT+ data."
+    echo "Your watch should pair within 5-10 seconds and display:"
+    echo "  - Pace: ~7:00 min/km (varying)"
+    echo "  - Cadence: ~166 SPM"
+    echo "  - Distance: accumulating"
+    echo ""
+    echo -e "${YELLOW}Press Ctrl+C to stop the test${NC}"
+    echo ""
+    
+    # Run the test with the venv Python
+    if [ -d "$TARGET_HOME/ant_venv" ]; then
+        "$TARGET_HOME/ant_venv/bin/python3" "$TEST_SCRIPT"
+    else
+        echo -e "${RED}Error: Virtual environment not found at $TARGET_HOME/ant_venv${NC}"
+        exit 1
+    fi
+}
+
+# ============================================================================
 # MAIN - Route to appropriate mode
 # ============================================================================
 
@@ -654,6 +726,8 @@ elif [ $MODE_FIX -eq 1 ]; then
     run_fix_mode
 elif [ $MODE_INTERACTIVE -eq 1 ]; then
     run_interactive_mode
+elif [ $MODE_TEST -eq 1 ]; then
+    run_test_mode
 else
     echo "Error: No valid mode selected"
     exit 1

@@ -41,19 +41,101 @@ This guide covers installation using **pre-compiled binaries** from GitHub Relea
 
 ## Installation Overview
 
-**Step 1:** System Preparation - Install dependencies and configure environment
+**Step 1:** Download Binary - Get the correct pre-compiled binary for your platform
 
-**Step 2:** Download Binary - Get the correct pre-compiled binary for your platform
+**Step 2:** Verify Setup - Use the included validation tool to check your system
 
-**Step 3:** Run and Automate - Test and configure automatic startup
+**Step 3:** Install Dependencies - Set up required libraries and Python environment
+
+**Step 4:** Run and Automate - Test and configure automatic startup
 
 ---
 
-## Step 1: System Preparation
+## Step 1: Download and Extract Binary
 
-### 1.1 Install System Dependencies
+### 1.1 Download from GitHub Releases
 
-This command installs all necessary Qt runtime libraries, USB libraries, and Python packages.
+1. Navigate to the **[Releases page](https://github.com/cagnulein/qdomyos-zwift/releases)**
+2. Download the correct pre-compiled package for your platform:
+   - **Raspberry Pi (ARM64):** `linux-binary-arm64-ant.zip` (contains `qdomyos-zwift-arm64-ant/`)
+   - **Desktop Linux (x86-64):** `linux-binary-x86-64-ant.zip` (contains `qdomyos-zwift-x86-64-ant/`)
+
+### 1.2 Extract Binary
+
+Extract the downloaded package to your home directory:
+
+**For Raspberry Pi:**
+```bash
+cd ~
+unzip linux-binary-arm64-ant.zip
+cd qdomyos-zwift-arm64-ant
+```
+
+**For Desktop Linux:**
+```bash
+cd ~
+unzip linux-binary-x86-64-ant.zip
+cd qdomyos-zwift-x86-64-ant
+```
+
+**Package Contents:**
+- `qdomyos-zwift` - Intelligent wrapper script that checks runtime dependencies
+- `qdomyos-zwift-bin` - The actual application binary
+- `setup.sh` - Setup and validation tool
+- `test_ant.py` - Standalone ANT+ test script (for troubleshooting)
+- `ant_broadcaster.py` - ANT+ broadcasting module (required by test_ant.py)
+
+The wrapper script automatically detects your environment and provides helpful guidance. You should always run `./qdomyos-zwift` (the wrapper), not the binary directly.
+
+---
+
+## Step 2: Verify Your System
+
+Before installing dependencies, check what's needed using the included validation tool:
+
+```bash
+./setup.sh --quick
+```
+
+This performs all prerequisite checks and shows results immediately:
+- Python 3.11 library detection (system and pyenv)
+- Virtual environment validation
+- Python packages (openant, pyusb, pybind11)
+- Qt5 library availability
+- USB permissions (plugdev group, udev rules)
+- ANT+ dongle detection
+- Bluetooth service status
+
+**If all tests pass**, you're ready to use ANT+ and can skip to Step 4!
+
+**If issues are found**, continue to Step 3 to install dependencies.
+
+---
+
+## Step 3: Install Dependencies
+
+### Choose Your Installation Method
+
+**Option A: Automatic Fix (Fastest)**
+```bash
+sudo ./setup.sh --fix
+```
+Automatically installs/configures fixable components (Qt5, libusb, USB permissions, etc.).
+
+**Option B: Interactive Guided Setup (Recommended for first-time users)**
+```bash
+sudo ./setup.sh --interactive
+```
+Step-by-step wizard that explains each requirement and prompts before making changes. Best for learning what's needed and why.
+
+**Option C: Manual Installation (Full Control)**
+Follow the detailed manual steps below if you prefer to install each component yourself.
+
+---
+
+### 3.1 Manual Installation Steps
+
+#### 3.1.1 Install System Dependencies
 
 ```bash
 sudo apt-get update
@@ -72,7 +154,7 @@ sudo apt-get install -y \
 	python3-pip
 ```
 
-### 1.2 Install Python 3.11
+#### 3.1.2 Install Python 3.11
 
 The pre-compiled binaries require Python 3.11. Check if it's available:
 
@@ -129,7 +211,7 @@ pyenv global 3.11.9
 python --version  # Should show Python 3.11.9
 ```
 
-### 1.3 Create Python Virtual Environment
+#### 3.1.3 Create Python Virtual Environment
 
 The QZ application looks for an environment named `ant_venv` in your home directory.
 
@@ -142,7 +224,7 @@ python3.11 -m venv ~/ant_venv
 ~/ant_venv/bin/pip install openant pyusb pybind11
 ```
 
-### 1.4 Configure USB Permissions
+#### 3.1.4 Configure USB Permissions
 
 ```bash
 # Create udev rule for ANT+ dongles
@@ -160,86 +242,22 @@ sudo usermod -aG plugdev $USER
 sudo reboot
 ```
 
-### 1.5 Verify Setup
+### 3.2 Verify Installation
 
-After rebooting, verify your environment is ready using the included setup tool:
-
-**Quick Validation (No sudo required)**
+After completing installation (automatic or manual), verify everything is ready:
 
 ```bash
 cd ~/qdomyos-zwift-x86-64-ant  # or qdomyos-zwift-arm64-ant
 ./setup.sh --quick
 ```
 
-This performs all prerequisite checks and shows results immediately. If all tests pass, you're ready to use ANT+!
-
-**If Issues Found - Choose Your Approach:**
-
-**Option A: Automatic Fix (Fastest)**
-
-```bash
-sudo ./setup.sh --fix
-```
-
-Automatically installs/configures fixable components (Qt5, libusb, USB permissions, etc.).
-
-**Option B: Interactive Guided Setup (Recommended for first-time users)**
-
-```bash
-sudo ./setup.sh --interactive
-```
-
-Step-by-step wizard that explains each requirement and prompts before making changes. Best for learning what's needed and why.
+All tests should now pass. If issues remain, the validation tool will provide specific guidance.
 
 ---
 
-## Step 2: Download and Install Binary
+## Step 4: Run and Automate
 
-### 2.1 Download from GitHub Releases
-
-1. Navigate to the **[Releases page](https://github.com/cagnulein/qdomyos-zwift/releases)**
-2. Download the correct pre-compiled package for your platform:
-   - **Raspberry Pi (ARM64):** `linux-binary-arm64-ant.zip` (contains `qdomyos-zwift-arm64-ant/`)
-   - **Desktop Linux (x86-64):** `linux-binary-x86-64-ant.zip` (contains `qdomyos-zwift-x86-64-ant/`)
-
-### 2.2 Install Binary
-
-1. Extract the downloaded package to your home directory:
-
-**For Raspberry Pi:**
-```bash
-cd ~
-unzip linux-binary-arm64-ant.zip
-cd qdomyos-zwift-arm64-ant
-```
-
-**For Desktop Linux:**
-```bash
-cd ~
-unzip linux-binary-x86-64-ant.zip
-cd qdomyos-zwift-x86-64-ant
-```
-
-**Note:** The package includes five files:
-- `qdomyos-zwift` - Intelligent wrapper script that checks runtime dependencies
-- `qdomyos-zwift-bin` - The actual application binary
-- `setup.sh` - Setup and validation tool (use `./setup.sh --quick` to verify installation)
-- `test_ant.py` - Standalone ANT+ test script (for troubleshooting)
-- `ant_broadcaster.py` - ANT+ broadcasting module (required by test_ant.py)
-
-The wrapper script automatically:
-- Detects Python 3.11 library location (pyenv or system)
-- Checks for ANT+ virtual environment and required packages
-- Verifies USB permissions (plugdev group and udev rules)
-- Provides helpful error messages with fix instructions
-
-You should always run `./qdomyos-zwift` (the wrapper), not the binary directly.
-
----
-
-## Step 3: Run and Automate
-
-### 3.1 Pairing Your Device
+### 4.1 Understanding Device Pairing
 
 Before running the application, understand how to pair your device:
 
@@ -257,7 +275,7 @@ The system switches between walking and running cadence at 7.0 km/h (based on bi
 
 See "Further reading" section for research details.
 
-### 3.2 Test the Application
+### 4.2 Test the Application
 
 Connect your ANT+ dongle and start your treadmill. Your watch should pair as a Foot Pod.
 
@@ -273,14 +291,9 @@ sudo ./qdomyos-zwift -no-gui -ant-footpod -ant-device 12345
 sudo ./qdomyos-zwift -no-gui -ant-footpod -ant-verbose
 ```
 
-**If you see warnings about missing dependencies**, the wrapper script will provide specific instructions on how to fix them. Common warnings:
-- Python 3.11 library not found → Install via apt or pyenv (see Step 1.2)
-- ANT+ virtual environment not found → Create ~/ant_venv (see Step 1.3)
-- USB permissions issues → Check plugdev group and udev rules (see Step 1.4)
+**If you see warnings about missing dependencies**, the wrapper script will provide specific instructions on how to fix them. The application will still attempt to run with warnings, but ANT+ functionality may not work until dependencies are resolved.
 
-The application will still attempt to run with warnings, but ANT+ functionality may not work until dependencies are resolved.
-
-### 3.3 Configure Automatic Startup (Optional)
+### 4.3 Configure Automatic Startup (Optional)
 
 Create a systemd service to start QZ automatically on boot:
 
@@ -337,7 +350,7 @@ sudo systemctl start qz
 sudo systemctl status qz
 ```
 
-### 3.4 Configuration File for Headless Systems (Optional)
+### 4.4 Configuration File for Headless Systems (Optional)
 
 When running headless with `-no-gui`, QZ creates a default configuration file at `/root/.config/Roberto Viola/qDomyos-Zwift.conf` on first run. However, this is unlikely to work with your setup. The best way to configure for your specific treadmill and to set other options is as follows:
 
@@ -378,6 +391,11 @@ Run the validation tool to check your setup:
 ./setup.sh --quick
 ```
 
+Or validate and test ANT+ hardware in one command:
+```bash
+sudo ./setup.sh --test
+```
+
 ### Test ANT+ Independently
 
 To test ANT+ functionality **without the QDomyos-Zwift binary**, use the included test script:
@@ -407,11 +425,11 @@ Press `Ctrl+C` to stop the test.
 
 | Issue | Solution |
 | --- | --- |
-| `error while loading shared libraries: libpython3.11.so.1.0` | Python 3.11 not installed - run `./setup.sh --quick` to diagnose. Install via apt or pyenv (Step 1.2) |
+| `error while loading shared libraries: libpython3.11.so.1.0` | Python 3.11 not installed - run `./setup.sh --quick` to diagnose. Install via apt or pyenv (Step 3.1.2) |
 | Wrapper shows missing dependency warnings | Follow the specific instructions provided. Run `./setup.sh --quick` for full diagnosis or `sudo ./setup.sh --fix` to auto-fix |
-| Test fails or watch won't connect | Run with sudo, reboot after Step 1.4, or unplug/replug dongle |
+| Test fails or watch won't connect | Run with sudo, reboot after Step 3.1.4, or unplug/replug dongle |
 | Watch connects but pace shows --:-- | Treadmill model not set: `sudo nano /root/.config/Roberto\ Viola/qDomyos-Zwift.conf` add your model flag (e.g., `proform_treadmill_705_cst=true`) |
-| App works but watch won't connect | Unplug/replug dongle, verify Step 1.4 + reboot, check device ID (default 54321), ensure running as root, check logs |
+| App works but watch won't connect | Unplug/replug dongle, verify Step 3.1.4 + reboot, check device ID (default 54321), ensure running as root, check logs |
 | `systemctl stop qz` hangs | Add `KillSignal=SIGINT` to [Service] section in qz.service |
 | Binary won't run: "cannot execute binary file" | Wrong architecture - ensure you downloaded the correct package for your platform (arm64 vs x86-64) |
 | `pyenv: command not found` | Reload shell: `source ~/.bashrc` or start new terminal session |

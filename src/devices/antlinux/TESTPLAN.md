@@ -28,12 +28,12 @@ cd ~/qdomyos-zwift-x86-64-ant  # or wherever you extracted the binary
 - ✓ Python 3.11 library detection (system and pyenv)
 - ✓ Virtual environment validation
 - ✓ Python packages (openant, pyusb, pybind11)
-- ✓ Qt5 library availability
-- ✓ USB permissions (plugdev group, udev rules)
+- ✓ Qt5 library availability (Bluetooth, Charts, Multimedia)
+- ✓ USB permissions (plugdev group membership)
+- ✓ udev rules configuration
 - ✓ ANT+ dongle detection
 - ✓ Bluetooth service status
-- ✓ Binary execution permissions
-- ✓ Wrapper script validation
+- ✓ libusb-1.0 library availability
 
 **If tests fail:**
 
@@ -41,22 +41,60 @@ For quick automatic fixes, run: `sudo ./setup.sh --fix`
 
 For interactive guided setup with explanations, run: `sudo ./setup.sh --interactive`
 
-See README.md section 1.5 for details.
+**To validate and test ANT+ hardware in one command:**
 
-**Expected output:**
+```bash
+sudo ./setup.sh --test
 ```
-=== QDomyos-Zwift ANT+ Automated Test Suite ===
-[PASS] Python 3.11 library found
-[PASS] Virtual environment exists
-[PASS] Required Python packages installed
-[PASS] Qt5 libraries available
-[WARN] ANT+ USB dongle not detected
-[PASS] USB permissions configured
-[PASS] Bluetooth service running
-[PASS] Binary is executable
 
-Test Summary: 7 passed, 1 warning, 0 failed
-System Status: READY (ANT+ will work when dongle plugged in)
+This runs validation checks and automatically launches the ANT+ hardware test if all checks pass.
+
+See README.md Step 2 for details.
+
+**Expected output (all tests passing):**
+```
+=== QDomyos-Zwift ANT+ Quick Validation ===
+
+[PASS] Python 3.11 library found
+[PASS] Virtual environment exists at ~/ant_venv
+[PASS] Python package 'openant' installed
+[PASS] Python package 'pyusb' installed
+[PASS] Python package 'pybind11' installed
+[PASS] Qt5 Bluetooth library available
+[PASS] Qt5 Charts library available
+[PASS] Qt5 Multimedia library available
+[PASS] User 'username' is in 'plugdev' group
+[PASS] ANT+ udev rules configured
+[WARN] ANT+ USB dongle not detected (plug in Garmin/Suunto ANT+ stick)
+[PASS] Bluetooth service running
+[PASS] libusb-1.0 library available
+
+Test Summary: 12 passed, 1 warning, 0 failed
+
+System Status: READY
+All tests passed - system is ready for ANT+ operation
+```
+
+**Expected output (with issues):**
+```
+=== QDomyos-Zwift ANT+ Quick Validation ===
+
+[FAIL] Python 3.11 library not found (run: sudo ./setup.sh --interactive)
+[FAIL] Virtual environment not found (run: sudo ./setup.sh --interactive)
+[FAIL] Qt5 Bluetooth missing (run: sudo ./setup.sh --fix)
+[FAIL] Qt5 Charts missing (run: sudo ./setup.sh --fix)
+[FAIL] Qt5 Multimedia missing (run: sudo ./setup.sh --fix)
+[FAIL] User not in 'plugdev' group (run: sudo ./setup.sh --fix)
+[FAIL] ANT+ udev rules not found (run: sudo ./setup.sh --fix)
+[WARN] ANT+ USB dongle not detected (plug in Garmin/Suunto ANT+ stick)
+[FAIL] Bluetooth service not running (run: sudo ./setup.sh --fix)
+[FAIL] libusb-1.0 missing (run: sudo ./setup.sh --fix)
+
+Test Summary: 0 passed, 1 warning, 9 failed
+
+System Status: FAILED
+To fix issues, run: sudo ./setup.sh --interactive (guided)
+            or run: sudo ./setup.sh --fix (automatic)
 ```
 
 ---
@@ -69,18 +107,14 @@ System Status: READY (ANT+ will work when dongle plugged in)
 **Purpose:** Verify error messages are clear and helpful
 
 **Steps:**
-1. Fresh OS installation (or use cleanup script)
-2. Download binary
-3. Run: `./qdomyos-zwift-wrapper.sh -no-gui -ant-footpod`
+1. Fresh OS installation
+2. Download and extract binary (README Step 1)
+3. Run: `./setup.sh --quick`
 
 **Expected:**
-```
-WARNING: ANT+ functionality may not work:
-  Python 3.11 library (libpython3.11.so) not found!
-    Install via: sudo apt install libpython3.11
-  ANT+ virtual environment not found at: /home/user/ant_venv
-    Create with: python3.11 -m venv ~/ant_venv
-```
+- Multiple `[FAIL]` messages with clear instructions
+- Each failure shows how to fix it
+- Suggested commands: `sudo ./setup.sh --interactive` or `sudo ./setup.sh --fix`
 
 **Pass:** Clear, actionable error messages shown
 
@@ -93,14 +127,12 @@ WARNING: ANT+ functionality may not work:
 
 **Prerequisites:**
 ```bash
-# Install dependencies
-sudo apt-get install -y libqt5bluetooth5 libqt5charts5 libqt5multimedia5 \
-  libqt5networkauth5 libqt5positioning5 libqt5sql5 libqt5texttospeech5 \
-  libqt5websockets5 libqt5xml5 libusb-1.0-0 bluez python3.11
+# Install dependencies using automated tool
+cd ~/qdomyos-zwift-x86-64-ant
+sudo ./setup.sh --fix
 
-# Setup Python environment
-python3.11 -m venv ~/ant_venv
-~/ant_venv/bin/pip install openant pyusb pybind11
+# Verify installation and test hardware
+sudo ./setup.sh --test
 ```
 
 **Steps:**
@@ -126,10 +158,10 @@ python3.11 -m venv ~/ant_venv
 **Time:** 10 minutes  
 **Purpose:** Verify ANT+ works without GUI
 
-**Prerequisites:** Same as T2
+**Prerequisites:** T2 successful
 
 **Steps:**
-1. Configure for headless: Create config file (see README 3.4)
+1. Configure for headless: Create config file (see README 4.4)
 2. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
 3. On Garmin watch: Add Foot Pod sensor
 4. Start treadmill
@@ -161,7 +193,7 @@ Cadence: 166 SPM (running)
 **Prerequisites:** T3 successful
 
 **Steps:**
-1. Create systemd service (see README 3.3)
+1. Create systemd service (see README 4.3)
 2. `sudo systemctl enable qz && sudo systemctl start qz`
 3. Check: `sudo systemctl status qz`
 4. Pair watch
