@@ -7,6 +7,7 @@
 
 import Foundation
 import ActivityKit
+import UIKit
 
 @available(iOS 16.1, *)
 @objc public class LiveActivityBridge: NSObject {
@@ -64,7 +65,17 @@ import ActivityKit
         )
 
         Task {
-            await activity.update(using: updatedState)
+            // Set stale date to 60 seconds in the future
+            // If app stops updating (because it was force-killed), the Live Activity will auto-dismiss after 60 seconds
+            // This is the ONLY reliable way to handle force-kill scenarios, as iOS doesn't send any notifications
+            // when an app is terminated from the app switcher
+            let staleDate = Date().addingTimeInterval(60)
+            await activity.update(
+                ActivityContent<QZWorkoutAttributes.ContentState>(
+                    state: updatedState,
+                    staleDate: staleDate
+                )
+            )
         }
     }
 
@@ -74,6 +85,7 @@ import ActivityKit
         }
 
         Task {
+            // Use .immediate to dismiss from both Dynamic Island and Lock Screen immediately
             await activity.end(using: nil, dismissalPolicy: .immediate)
             currentActivity = nil
             print("Live Activity ended")
