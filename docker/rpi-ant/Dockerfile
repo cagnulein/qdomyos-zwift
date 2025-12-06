@@ -82,11 +82,25 @@ RUN echo 'include(devices/antlinux/antlinux.pri)' >> src/qdomyos-zwift.pro && \
 RUN cd src && \
     qmake "CONFIG+=release" "QMAKE_CXXFLAGS+=-ffile-prefix-map=/app=." qdomyos-zwift.pro && \
     make -j$(nproc) && \
-    strip qdomyos-zwift
+    strip qdomyos-zwift && \
+    mv qdomyos-zwift qdomyos-zwift-bin
 
-# --- Stage 2: The Final Artifact ---
-# Use a minimal but valid base image to avoid issues with `docker create`.
-FROM debian:bookworm-slim
+# --- Stage 2: Minimal Artifact Container ---
+# Using busybox for minimal image size since files are only extracted, not run here.
+# Users will run the binary on their host with system-installed dependencies.
+FROM busybox:latest
 
-# Copy the compiled binary from the builder stage
-COPY --from=builder /app/src/qdomyos-zwift /qdomyos-zwift-arm64-ant
+# Create the application directory structure
+RUN mkdir -p /qdomyos-zwift-arm64-ant
+
+# Copy the compiled binary and wrapper script from the build context
+COPY --from=builder /app/src/qdomyos-zwift-bin /qdomyos-zwift-arm64-ant/
+COPY docker/rpi-ant/qdomyos-zwift-wrapper.sh /qdomyos-zwift-arm64-ant/qdomyos-zwift
+COPY src/devices/antlinux/setup.sh /qdomyos-zwift-arm64-ant/
+COPY src/devices/antlinux/test_ant.py /qdomyos-zwift-arm64-ant/
+COPY src/devices/antlinux/ant_broadcaster.py /qdomyos-zwift-arm64-ant/
+RUN chmod +x /qdomyos-zwift-arm64-ant/qdomyos-zwift && \
+    chmod +x /qdomyos-zwift-arm64-ant/setup.sh
+
+# Set a no-op command (required for Docker image)
+CMD ["/bin/bash"]

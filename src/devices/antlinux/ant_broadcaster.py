@@ -64,6 +64,9 @@ def _reset_ant_dongle_once() -> bool:
     SUPPORTED_DONGLES = [
         (0x0fcf, 0x1009),  # Garmin USB-m
         (0x0fcf, 0x1008),  # Garmin USB2
+        (0x0fcf, 0x100c),  # Garmin USB3
+        (0x0fcf, 0x100e),  # Garmin mini
+        (0x0fcf, 0x88a4),  # Garmin development stick
         (0x0fcf, 0x1004),  # Generic
         (0x11fd, 0x0001)   # Suunto
     ]

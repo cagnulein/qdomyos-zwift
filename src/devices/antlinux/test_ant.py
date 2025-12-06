@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 # -----------------------------------------------------------------------------
 # QDomyos-Zwift: ANT+ Virtual Footpod Feature
-# Test Script for ant_broadcaster.py (C++ Architecture Simulation)
+# Standalone ANT+ Test Script
 #
 # Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
 # Contributor(s): bassai-sho
-# AI analysis tools (Claude, Gemini) were used to assist coding and debugging
+# Development assisted by AI analysis tools
 # Licensed under GPL-3.0 - see project repository for full license
 #
-# This script resets the ANT+ USB dongle and tests the ant_broadcaster.py
-# module by simulating the behavior of the C++ host application. It is used
-# for standalone validation of the Python and ANT+ hardware functionality.
+# This script tests ANT+ functionality independently of the QDomyos-Zwift binary.
+# It simulates a running treadmill broadcasting data to help troubleshoot ANT+
+# hardware, Python environment, and watch pairing issues.
 #
-# Command to run:
-# sudo $HOME/ant_venv/bin/python3 $HOME/qdomyos-zwift/src/devices/antlinux/ant_test_broadcaster.py
+# Usage:
+#   cd ~/qdomyos-zwift-x86-64-ant  # or qdomyos-zwift-arm64-ant
+#   sudo ~/ant_venv/bin/python3 ./test_ant.py
 # -----------------------------------------------------------------------------
 
 import time
@@ -117,8 +118,11 @@ def calculate_and_format_pace_range(speed_kmh: float) -> (str, str):
 def reset_ant_dongle():
     """Finds and resets the first available ANT+ USB dongle."""
     SUPPORTED_DONGLES = [
-        (0x0fcf, 0x1009),  # Garmin USB-m Stick (Modern)
-        (0x0fcf, 0x1008),  # Garmin USB2 Stick (Older)
+        (0x0fcf, 0x1009),  # Garmin USB-m Stick
+        (0x0fcf, 0x1008),  # Garmin USB2 Stick
+        (0x0fcf, 0x100c),  # Garmin USB3 Stick
+        (0x0fcf, 0x100e),  # Garmin mini Stick
+        (0x0fcf, 0x88a4),  # Garmin development stick
         (0x0fcf, 0x1004),  # Dynastream/Generic ANTUSB2 Stick (Cycplus, Anself, etc.)
         (0x11fd, 0x0001)   # Suunto ANT+ Dongle
     ]

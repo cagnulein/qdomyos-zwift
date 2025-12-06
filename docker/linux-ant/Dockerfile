@@ -6,13 +6,17 @@
 # =============================================================================
 
 # --- Stage 1: The Builder ---
-FROM debian:bookworm AS builder
+FROM ubuntu:latest AS builder
 
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install all necessary build dependencies.
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Add deadsnakes PPA for Python 3.11 and install all necessary build dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa -y && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
     build-essential \
     git \
     cmake \
@@ -45,16 +49,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libqt5sql5-sqlite \
     libqt5sql5-mysql \
     libqt5sql5-psql \
-    # --- Start of Pinned Python Version ---
-    python3=3.11.2-1+b1 \
-    python3-dev=3.11.2-1+b1 \
-    python3-venv=3.11.2-1+b1 \
-    # --- End of Pinned Python Version ---
+    # Python 3.11 for ANT+ support (from deadsnakes PPA)
+    python3.11 \
+    python3.11-dev \
+    python3.11-venv \
     libusb-1.0-0-dev \
-    libudev-dev
+    libudev-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set up the Python virtual environment for ANT+ support
-RUN python3 -m venv /opt/ant_venv && \
+RUN python3.11 -m venv /opt/ant_venv && \
     /opt/ant_venv/bin/pip install --upgrade pip --quiet && \
     /opt/ant_venv/bin/pip install openant pyusb pybind11 --quiet
 
@@ -83,44 +87,25 @@ RUN echo 'include(devices/antlinux/antlinux.pri)' >> src/qdomyos-zwift.pro && \
 RUN cd src && \
     qmake "CONFIG+=release" "QMAKE_CXXFLAGS+=-ffile-prefix-map=/app=." qdomyos-zwift.pro && \
     make -j$(nproc) && \
-    strip qdomyos-zwift
+    strip qdomyos-zwift && \
+    mv qdomyos-zwift qdomyos-zwift-bin
 
-# --- Stage 2: The Final Artifact ---
-# Use a valid, non-empty base image to solve the "no command specified" error.
-FROM debian:bookworm
-
-# Install runtime dependencies (minimal set needed to run the application)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libqt5core5a \
-    libqt5gui5 \
-    libqt5widgets5 \
-    libqt5network5 \
-    libqt5positioning5 \
-    libqt5bluetooth5 \
-    libqt5qml5 \
-    libqt5quick5 \
-    libqt5quickcontrols2-5 \
-    libqt5charts5 \
-    libqt5websockets5 \
-    libqt5serialport5 \
-    libqt5sql5-sqlite \
-    libqt5multimedia5 \
-    libqt5location5 \
-    libqt5texttospeech5 \
-    libqt5networkauth5 \
-    libusb-1.0-0 \
-    libudev1 \
-    && rm -rf /var/lib/apt/lists/*
+# --- Stage 2: Minimal Artifact Container ---
+# Using busybox for minimal image size since files are only extracted, not run here.
+# Users will run the binary on their host with system-installed dependencies.
+FROM busybox:latest
 
 # Create the application directory structure
-RUN mkdir -p /qdomyos-zwift-x86-64-ant/lib /qdomyos-zwift-x86-64-ant/plugins
+RUN mkdir -p /qdomyos-zwift-x86-64-ant
 
-# Copy the compiled binary from the builder stage
-COPY --from=builder /app/src/qdomyos-zwift /qdomyos-zwift-x86-64-ant/
-
-# Copy Qt plugins from builder stage
-RUN mkdir -p /qdomyos-zwift-x86-64-ant/plugins && \
-    cp -r /usr/lib/x86_64-linux-gnu/qt5/plugins/* /qdomyos-zwift-x86-64-ant/plugins/ 2>/dev/null || true
+# Copy the compiled binary and wrapper script from the build context
+COPY --from=builder /app/src/qdomyos-zwift-bin /qdomyos-zwift-x86-64-ant/
+COPY docker/linux-ant/qdomyos-zwift-wrapper.sh /qdomyos-zwift-x86-64-ant/qdomyos-zwift
+COPY src/devices/antlinux/setup.sh /qdomyos-zwift-x86-64-ant/
+COPY src/devices/antlinux/test_ant.py /qdomyos-zwift-x86-64-ant/
+COPY src/devices/antlinux/ant_broadcaster.py /qdomyos-zwift-x86-64-ant/
+RUN chmod +x /qdomyos-zwift-x86-64-ant/qdomyos-zwift && \
+    chmod +x /qdomyos-zwift-x86-64-ant/setup.sh
 
 # Set a no-op command (required for Docker image)
 CMD ["/bin/bash"]
