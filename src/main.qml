@@ -966,11 +966,8 @@ ApplicationWindow {
                     }
                     width: parent.width
                     onClicked: {
-                        // On iOS, intervals.icu MUST use external browser only
-                        // Don't push WebView page as it opens both browser and QML page
-                        if (Qt.platform.os !== "ios") {
-                            stackView.push("WebIntervalsICUAuth.qml")
-                        }
+                        // intervals.icu MUST use external browser only on all platforms
+                        // Don't push WebView page as OAuth requires external browser
                         intervalsicu_connect_clicked()
                         drawer.close()
                     }
