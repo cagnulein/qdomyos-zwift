@@ -1218,6 +1218,8 @@ QString homeform::getWritableAppDir() {
     path = QDir::currentPath() + "/";
 #endif
     return path;
+}
+
 void homeform::backup() {
 
     static uint8_t index = 0;
