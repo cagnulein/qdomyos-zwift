@@ -45,6 +45,11 @@
 #include <QRegularExpression>
 #include <chrono>
 
+#if defined(Q_OS_UNIX)
+#include <pwd.h>
+#include <unistd.h>
+#endif
+
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
@@ -660,7 +665,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QDirIterator itZwo(":/zwo/");
     QDir().mkdir(getWritableAppDir() + "training/");
     while (itZwo.hasNext()) {
-        qDebug() << itZwo.next() << itZwo.fileName();
+        itZwo.next();
+        qDebug() << itZwo.fileName();
         if (!QFile(getWritableAppDir() + "training/" + itZwo.fileName()).exists()) {
             QFile::copy(":/zwo/" + itZwo.fileName(), getWritableAppDir() + "training/" + itZwo.fileName());
         }
@@ -669,7 +675,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QDirIterator itGpx(":/gpx/");
     QDir().mkdir(getWritableAppDir() + "gpx/");
     while (itGpx.hasNext()) {
-        qDebug() << itGpx.next() << itGpx.fileName();
+        itGpx.next();
+        qDebug() << itGpx.fileName();
         if (!QFile(getWritableAppDir() + "gpx/" + itGpx.fileName()).exists()) {
             QFile::copy(":/gpx/" + itGpx.fileName(), getWritableAppDir() + "gpx/" + itGpx.fileName());
         }
