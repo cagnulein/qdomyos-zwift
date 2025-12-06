@@ -116,6 +116,8 @@ class nordictrackifitadbtreadmill : public treadmill {
 
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
+    
+    bool proform_trainer_9_0 = false;
 
 #ifdef Q_OS_WIN32
     nordictrackifitadbtreadmillLogcatAdbThread *logcatAdbThread = nullptr;
