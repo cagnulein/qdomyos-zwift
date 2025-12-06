@@ -84,6 +84,7 @@ cd qdomyos-zwift-x86-64-ant
 - `setup.sh` - Setup and validation tool
 - `test_ant.py` - Standalone ANT+ test script (for troubleshooting)
 - `ant_broadcaster.py` - ANT+ broadcasting module (required by test_ant.py)
+- `README.md` - Complete documentation and setup guide
 
 The wrapper script automatically detects your environment and provides helpful guidance. You should always run `./qdomyos-zwift` (the wrapper), not the binary directly.
 

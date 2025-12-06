@@ -104,6 +104,7 @@ COPY docker/linux-ant/qdomyos-zwift-wrapper.sh /qdomyos-zwift-x86-64-ant/qdomyos
 COPY src/devices/antlinux/setup.sh /qdomyos-zwift-x86-64-ant/
 COPY src/devices/antlinux/test_ant.py /qdomyos-zwift-x86-64-ant/
 COPY src/devices/antlinux/ant_broadcaster.py /qdomyos-zwift-x86-64-ant/
+COPY src/devices/antlinux/README.md /qdomyos-zwift-x86-64-ant/
 RUN chmod +x /qdomyos-zwift-x86-64-ant/qdomyos-zwift && \
     chmod +x /qdomyos-zwift-x86-64-ant/setup.sh
 

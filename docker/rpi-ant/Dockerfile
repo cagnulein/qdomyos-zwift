@@ -99,6 +99,7 @@ COPY docker/rpi-ant/qdomyos-zwift-wrapper.sh /qdomyos-zwift-arm64-ant/qdomyos-zw
 COPY src/devices/antlinux/setup.sh /qdomyos-zwift-arm64-ant/
 COPY src/devices/antlinux/test_ant.py /qdomyos-zwift-arm64-ant/
 COPY src/devices/antlinux/ant_broadcaster.py /qdomyos-zwift-arm64-ant/
+COPY src/devices/antlinux/README.md /qdomyos-zwift-arm64-ant/
 RUN chmod +x /qdomyos-zwift-arm64-ant/qdomyos-zwift && \
     chmod +x /qdomyos-zwift-arm64-ant/setup.sh
 
