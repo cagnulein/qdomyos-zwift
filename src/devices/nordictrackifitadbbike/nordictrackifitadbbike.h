@@ -106,6 +106,7 @@ class nordictrackifitadbbike : public bike {
     QTimer *refresh;
 
     uint8_t sec1Update = 0;
+    QDateTime lastResistanceChanged;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     QDateTime lastInclinationChanged = QDateTime::currentDateTime();
     QDateTime lastGrpcInclinationChanged = QDateTime::currentDateTime();
