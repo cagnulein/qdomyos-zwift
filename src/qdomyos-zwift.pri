@@ -155,6 +155,7 @@ devices/ypooelliptical/ypooelliptical.cpp \
 devices/ziprotreadmill/ziprotreadmill.cpp \
 zwift_play/zwiftclickremote.cpp \
 devices/computrainerbike/Computrainer.cpp \
+devices/kettlerusbbike/KettlerUSB.cpp \
 PathController.cpp \
 characteristics/characteristicnotifier2a53.cpp \
 characteristics/characteristicnotifier2a5b.cpp \
@@ -164,6 +165,7 @@ characteristics/characteristicnotifier2ad9.cpp \
 characteristics/characteristicwriteprocessor.cpp \
 characteristics/characteristicwriteprocessore005.cpp \
 devices/computrainerbike/computrainerbike.cpp \
+devices/kettlerusbbike/kettlerusbbike.cpp \
 devices/fakeelliptical/fakeelliptical.cpp \
 devices/faketreadmill/faketreadmill.cpp \
 devices/lifefitnesstreadmill/lifefitnesstreadmill.cpp \
@@ -454,6 +456,7 @@ devices/wahookickrheadwind/wahookickrheadwind.h \
 devices/ypooelliptical/ypooelliptical.h \
 devices/ziprotreadmill/ziprotreadmill.h \
 devices/computrainerbike/Computrainer.h \
+devices/kettlerusbbike/KettlerUSB.h \
 PathController.h \
 characteristics/characteristicnotifier2a53.h \
 characteristics/characteristicnotifier2a5b.h \
@@ -462,6 +465,7 @@ characteristics/characteristicnotifier2acd.h \
 characteristics/characteristicnotifier2ad9.h \
 characteristics/characteristicwriteprocessore005.h \
 devices/computrainerbike/computrainerbike.h \
+devices/kettlerusbbike/kettlerusbbike.h \
 definitions.h \
 devices/fakeelliptical/fakeelliptical.h \
 devices/faketreadmill/faketreadmill.h \
@@ -1046,6 +1050,7 @@ DISTFILES += \
     $$PWD/android/src/BleAdvertiser.java \
    $$PWD/android/src/CSafeRowerUSBHID.java \
     $$PWD/android/src/ContentHelper.java \
+    $$PWD/android/src/CustomQtActivity.java \
     $$PWD/android/src/Garmin.java \
     $$PWD/android/src/GrpcTreadmillService.java \
    $$PWD/android/src/HidBridge.java \
@@ -1172,4 +1177,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.20.11
+VERSION = 2.20.15

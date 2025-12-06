@@ -66,19 +66,28 @@ void bkoolbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
 
 void bkoolbike::changePower(int32_t power) {
     RequestedPower = power;
-    /*
-        if (power < 0)
-            power = 0;
-        uint8_t p[] = {0xa4, 0x09, 0x4e, 0x05, 0x31, 0xff, 0xff, 0xff, 0xff, 0xff, 0x14, 0x02, 0x00};
-        p[10] = (uint8_t)((power * 4) & 0xFF);
-        p[11] = (uint8_t)((power * 4) >> 8);
-        for (uint8_t i = 0; i < sizeof(p) - 1; i++) {
-            p[12] ^= p[i]; // the last byte is a sort of a checksum
-        }
 
-        writeCharacteristic(p, sizeof(p), QStringLiteral("changePower"), false, false);*/
+    if (power < 0) {
+        power = 0;
+    }
 
-    qDebug() << QStringLiteral("Changepower not implemented");
+    forcePower(power);
+}
+
+void bkoolbike::forcePower(int32_t power) {
+    // FE-C "Set Target Power" command (page 0x31)
+    // Power is sent in 1/4 watt units (0.25W resolution)
+    // Bytes: [0x31][0x25][0xFF][0xFF][0xFF][0xFF][power_low][power_high]
+
+    uint16_t power_quarter_watts = (uint16_t)(power * 4);
+
+    uint8_t power_cmd[] = {0x31, 0x25, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00};
+    power_cmd[6] = (uint8_t)(power_quarter_watts & 0xFF);        // Low byte
+    power_cmd[7] = (uint8_t)((power_quarter_watts >> 8) & 0xFF); // High byte
+
+    writeCharacteristic(power_cmd, sizeof(power_cmd),
+                       QStringLiteral("forcePower ") + QString::number(power) + QStringLiteral("W"),
+                       false, false);
 }
 
 void bkoolbike::forceInclination(double inclination) {
@@ -157,10 +166,11 @@ void bkoolbike::update() {
         }
 
         // Send poll command for BKOOLFITNESSBIKE
+        /*
         if (bkool_fitness_bike) {
             uint8_t poll[] = {0x37, 0xc8, 0x19, 0xff, 0xe0, 0x0a, 0x46, 0x21};
             writeCharacteristic(poll, sizeof(poll), QStringLiteral("poll"), false, false);
-        }
+        }*/
 
         if (requestResistance != -1) {
             if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
@@ -171,16 +181,23 @@ void bkoolbike::update() {
                     requestInclination = requestResistance / 10.0;
                 }
                 // forceResistance(requestResistance);;
-            }
-            lastGearValue = gears();
+            }            
             requestResistance = -1;
         }
+
+        if(lastGearValue != gears() && requestInclination == -100) {
+            // if only gears changed, we need to update the inclination to match the gears
+            requestInclination = lastRawRequestedInclinationValue;
+        }
+
         if (requestInclination != -100) {
             emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
             forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
             requestInclination = -100;
         }
+
+        lastGearValue = gears();
 
         if (requestPower != -1) {
             changePower(requestPower);

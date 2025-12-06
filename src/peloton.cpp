@@ -1114,6 +1114,9 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
 
     if (log_request) {
         qDebug() << QStringLiteral("peloton::workout_onfinish") << workout;
+        if (isWalkingWorkout()) {
+            qDebug() << "Detected walking-based workout:" << current_workout_name << "Type:" << current_workout_type;
+        }
     } else {
         qDebug() << QStringLiteral("peloton::workout_onfinish");
     }
@@ -1438,11 +1441,21 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     if (!target_metrics_data_list.isEmpty()) {
         QJsonArray target_metrics = target_metrics_data_list["target_metrics"].toArray();
         if (!target_metrics.isEmpty()) {
-            QJsonObject first_metric = target_metrics[0].toObject();
-            QJsonObject offsets = first_metric["offsets"].toObject();
-            if (!offsets.isEmpty()) {
-                first_target_metrics_start_offset = offsets["start"].toInt();
-                qDebug() << "First target metrics start offset:" << first_target_metrics_start_offset;
+            // Find the minimum start offset instead of assuming first element is chronologically first
+            int min_start_offset = INT_MAX;
+            for (const QJsonValue &metric : target_metrics) {
+                QJsonObject metric_obj = metric.toObject();
+                QJsonObject offsets = metric_obj["offsets"].toObject();
+                if (!offsets.isEmpty()) {
+                    int start = offsets["start"].toInt();
+                    if (start < min_start_offset) {
+                        min_start_offset = start;
+                    }
+                }
+            }
+            if (min_start_offset != INT_MAX) {
+                first_target_metrics_start_offset = min_start_offset;
+                qDebug() << "First target metrics start offset (minimum found):" << first_target_metrics_start_offset;
             }
         }
     }
@@ -1691,15 +1704,15 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                     if (metricName == "pace_intensity") {
                         pace_intensity_lower = metricObj["lower"].toInt();
                         pace_intensity_upper = metricObj["upper"].toInt();
-                        
-                        if (current_workout_type == "walking") {
+
+                        if (isWalkingWorkout()) {
                             speed_lower = walking_pace[pace_intensity_lower].levels[peloton_treadmill_walk_level].slow_pace;
                             speed_upper = walking_pace[pace_intensity_upper].levels[peloton_treadmill_walk_level].fast_pace;
                         } else {
                             speed_lower = treadmill_pace[pace_intensity_lower].levels[peloton_treadmill_level].slow_pace;
                             speed_upper = treadmill_pace[pace_intensity_upper].levels[peloton_treadmill_level].fast_pace;
                         }
-                        
+
                         miles = 1; // the pace intensity are always in km/h
                     }
                     else if (metricName == "speed") {
@@ -2075,7 +2088,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                         paceintensity_upper = oo[QStringLiteral("upper")].toInt();
                         paceintensity_avg = ((paceintensity_upper - paceintensity_lower) / 2.0) + paceintensity_lower;
                         if(paceintensity_lower < 7) {
-                            if (current_workout_type == "walking") {
+                            if (isWalkingWorkout()) {
                                 speed_lower = walking_pace[paceintensity_lower].levels[peloton_treadmill_walk_level].slow_pace;
                                 speed_upper = walking_pace[paceintensity_upper].levels[peloton_treadmill_walk_level].fast_pace;
                             } else {

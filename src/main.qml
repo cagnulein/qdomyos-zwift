@@ -63,12 +63,15 @@ ApplicationWindow {
     signal gpx_open_other_folder(url name)
     signal trainprogram_preview(url name)
     signal trainprogram_zwo_loaded(string s)
+    signal trainprogram_autostart_requested()
     signal fitfile_preview(string s)
     signal gpx_save_clicked()
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
     signal strava_connect_clicked()
     signal peloton_connect_clicked()
+    signal intervalsicu_connect_clicked()
+    signal intervalsicu_download_todays_workout_clicked()
     signal loadSettings(url name)
     signal saveSettings(url name)
     signal deleteSettings(url name)
@@ -801,14 +804,25 @@ ApplicationWindow {
                     text: qsTr("Open Train Program")
                     width: parent.width
                     onClicked: {
-                        stackView.push("TrainingProgramsList.qml")
+                        if(CHARTJS)
+                            stackView.push("TrainingProgramsListJS.qml")
+                        else
+                            stackView.push("TrainingProgramsList.qml")
                         stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
                         stackView.currentItem.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
                         stackView.currentItem.trainprogram_preview.connect(trainprogram_preview)
+                        stackView.currentItem.trainprogram_autostart_requested.connect(trainprogram_autostart_requested)
                         stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
                             stackView.pop();
-                            popup.open();
                          });
+                        drawer.close()
+                    }
+                }
+                ItemDelegate {
+                    text: qsTr("Workout Editor")
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("WorkoutEditor.qml")
                         drawer.close()
                     }
                 }
@@ -886,7 +900,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.20.11"
+                    text: "version 2.20.15"
                     width: parent.width
                 }
 
@@ -924,6 +938,23 @@ ApplicationWindow {
                             stackView.pop();
                         })
                         peloton_connect_clicked()
+                        drawer.close()
+                    }
+                }
+
+				ItemDelegate {
+                    Image {
+                        anchors.left: parent.left;
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "icons/icons/intervals-logo-with-name.png"
+                        fillMode: Image.PreserveAspectFit
+                        visible: true
+                        width: parent.width
+                    }
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("WebIntervalsICUAuth.qml")
+                        intervalsicu_connect_clicked()
                         drawer.close()
                     }
                 }

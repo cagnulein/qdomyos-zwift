@@ -82,6 +82,15 @@ class QZSettings {
     static const QString strava_expires;
     static const QString default_strava_expires;
 
+    static const QString intervalsicu_accesstoken;
+    static const QString default_intervalsicu_accesstoken;
+
+    static const QString intervalsicu_refreshtoken;
+    static const QString default_intervalsicu_refreshtoken;
+
+    static const QString intervalsicu_athlete_id;
+    static const QString default_intervalsicu_athlete_id;
+
     static const QString code;
     static const QString default_code;
 
@@ -690,6 +699,10 @@ class QZSettings {
 
     static const QString proform_treadmill_995i;
     static constexpr bool default_proform_treadmill_995i = false;
+    static const QString nordictrack_series_7;
+    static constexpr bool default_nordictrack_series_7 = false;
+    static const QString nordictrack_se7i;
+    static constexpr bool default_nordictrack_se7i = false;
 
     static const QString toorx_3_0;
     static constexpr bool default_toorx_3_0 = false;
@@ -850,6 +863,15 @@ class QZSettings {
     static const QString strava_suffix;
     static const QString default_strava_suffix;
 
+    static const QString intervalsicu_upload_enabled;
+    static constexpr bool default_intervalsicu_upload_enabled = true;
+
+    static const QString intervalsicu_suffix;
+    static const QString default_intervalsicu_suffix;
+
+    static const QString intervalsicu_date_prefix;
+    static constexpr bool default_intervalsicu_date_prefix = false;
+
     static const QString cadence_sensor_name;
     static const QString default_cadence_sensor_name;
 
@@ -979,6 +1001,11 @@ class QZSettings {
      */
     static const QString virtual_device_force_bike;
     static constexpr bool default_virtual_device_force_bike = false;
+    /**
+     *@brief Used to force a rower device to be presented to client apps as a treadmill.
+     */
+    static const QString virtual_device_force_treadmill;
+    static constexpr bool default_virtual_device_force_treadmill = false;
 
     static const QString volume_change_gears;
     static constexpr bool default_volume_change_gears = false;
@@ -1631,6 +1658,11 @@ class QZSettings {
     static const QString computrainer_serialport;
     static const QString default_computrainer_serialport;
 
+    static const QString kettler_usb_serialport;
+    static const QString default_kettler_usb_serialport;
+    static const QString kettler_usb_baudrate;
+    static constexpr int default_kettler_usb_baudrate = 9600;
+
     static const QString strava_virtual_activity;
     static constexpr bool default_strava_virtual_activity = true;
 
@@ -1657,6 +1689,9 @@ class QZSettings {
 
     static const QString toorx_ftms_treadmill;
     static constexpr bool default_toorx_ftms_treadmill = false;
+
+    static const QString iconcept_ftms_treadmill_inclination_table;
+    static constexpr bool default_iconcept_ftms_treadmill_inclination_table = false;
 
     static const QString nordictrack_t65s_83_treadmill;
     static constexpr bool default_nordictrack_t65s_83_treadmill = false;
@@ -1994,6 +2029,9 @@ class QZSettings {
 
     static const QString treadmill_incline_max;
     static constexpr float default_treadmill_incline_max = 100.0;
+
+    static const QString treadmill_speed_max;
+    static constexpr float default_treadmill_speed_max = 100.0;
 
     static const QString proform_2000_treadmill;
     static constexpr bool default_proform_2000_treadmill = false;
@@ -2336,6 +2374,9 @@ class QZSettings {
 
     static const QString nordictrack_treadmill_1750_adb;
     static constexpr bool default_nordictrack_treadmill_1750_adb = false;
+
+    static const QString proform_trainer_9_0;
+    static constexpr bool default_proform_trainer_9_0 = false;
 
     static const QString tile_preset_powerzone_1_enabled;
     static constexpr bool default_tile_preset_powerzone_1_enabled = false;
@@ -2718,6 +2759,10 @@ class QZSettings {
      */
     static const QString grupetto_disclaimer_shown;
     static constexpr bool default_grupetto_disclaimer_shown = false;
+     * @brief Enable X-2000 protocol for Skandika Wiri bike (true for X-2000, false for standard protocol)
+     */
+    static const QString skandika_wiri_x2000_protocol;
+    static constexpr bool default_skandika_wiri_x2000_protocol = true;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
