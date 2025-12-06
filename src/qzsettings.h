@@ -2759,7 +2759,7 @@ class QZSettings {
      */
     static const QString grupetto_disclaimer_shown;
     static constexpr bool default_grupetto_disclaimer_shown = false;
-     * @brief Enable X-2000 protocol for Skandika Wiri bike (true for X-2000, false for standard protocol)
+    /* * @brief Enable X-2000 protocol for Skandika Wiri bike (true for X-2000, false for standard protocol)
      */
     static const QString skandika_wiri_x2000_protocol;
     static constexpr bool default_skandika_wiri_x2000_protocol = true;
