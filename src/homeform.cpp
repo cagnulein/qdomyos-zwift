@@ -9252,12 +9252,22 @@ void homeform::onIntervalsICUGranted() {
 }
 
 void homeform::onIntervalsICUAuthorizeWithBrowser(const QUrl &url) {
+    QSettings settings;
+    bool strava_auth_external_webbrowser =
+        settings.value(QZSettings::strava_auth_external_webbrowser, QZSettings::default_strava_auth_external_webbrowser)
+            .toBool();
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+    strava_auth_external_webbrowser = true;
+#endif
     intervalsicuAuthUrl = url.toString();
     emit intervalsicuAuthUrlChanged(intervalsicuAuthUrl);
 
-    // Intervals.icu MUST always use external browser due to internal page variables
-    // that don't work correctly in embedded WebView (even on iOS/Android)
-    QDesktopServices::openUrl(url);
+    if (strava_auth_external_webbrowser)
+        QDesktopServices::openUrl(url);
+    else {
+        intervalsicuAuthWebVisible = true;
+        emit intervalsicuWebVisibleChanged(intervalsicuAuthWebVisible);
+    }
 }
 
 void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
