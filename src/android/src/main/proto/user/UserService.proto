@@ -1,0 +1,49 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.user";
+option java_outer_classname = "UserServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "console/useractivity/UserActivity.proto";
+import "settings/SystemUnitsService.proto";
+import "user/Birthday.proto";
+import "user/EmailAddress.proto";
+import "user/Gender.proto";
+import "user/Height.proto";
+import "user/LatestAcceptedTermsVersion.proto";
+import "user/RequiredTermsVersion.proto";
+import "user/Name.proto";
+import "user/User.proto";
+import "user/UserInvitedList.proto";
+import "user/UserList.proto";
+import "user/WarningAcceptance.proto";
+import "user/Weight.proto";
+import "util/Util.proto";
+
+
+message GetUserRequest {
+  bool forceRefresh = 1;
+}
+
+service UserService {
+  rpc GetCurrentUser(GetUserRequest) returns (UserResult) {}
+  rpc GetCurrentUserWithResult(GetUserRequest) returns (UserResult) {}
+  rpc CurrentUserChanged(Empty) returns (stream User) {}
+  rpc GetSecondaryUsers(Empty) returns (UserListResult) {}
+  rpc GetPrimaryUser(Empty) returns (UserResult) {}
+  rpc InviteSecondaryUser(EmailAddress) returns (EmailAddressResult) {}
+  rpc GetSecondaryInvitedUsers(Empty) returns (UserInvitedListResult) {}
+  rpc GetAllLinkedUsers(Empty) returns (UserListResult) {}
+  rpc GetRequiredTermsVersion(Empty) returns (RequiredTermsVersionResult) {}
+  rpc SetName(Name) returns (NameResult) {}
+  rpc SetGender(Gender) returns (GenderResult) {}
+  rpc SetBirthday(Birthday) returns (BirthdayResult) {}
+  rpc SetWeight(Weight) returns (WeightResult) {}
+  rpc SetHeight(Height) returns (HeightResult) {}
+  rpc SetSystemUnits(SystemUnitsMessage) returns (SystemUnitsResult) {}
+  rpc SetWarningAcceptance(WarningAcceptance) returns (WarningAcceptanceResult) {}
+  rpc SetPrivateMode(BooleanRequest) returns (UserActivityServiceResult) {}
+  rpc SetLatestAcceptedTermsVersion(IntRequest) returns (UserActivityServiceResult) {}
+  rpc SetSkipFSBWarning(BooleanRequest) returns (UserActivityServiceResult) {}
+}

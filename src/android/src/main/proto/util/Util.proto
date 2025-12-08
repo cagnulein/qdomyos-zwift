@@ -1,0 +1,42 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.util";
+option java_outer_classname = "UtilProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message Empty {
+}
+
+message BooleanResponse {
+  bool value = 1;
+}
+
+message BooleanRequest {
+  bool value = 1;
+}
+
+message StringResponse {
+  string value = 1;
+}
+
+message FloatResponse {
+  float value = 1;
+}
+
+message WorkoutID {
+  string workoutID = 1;
+}
+
+message AvailabilityResponse {
+  bool isAvailable = 1;
+}
+
+message ListStringResponse {
+  repeated string value = 1;
+}
+
+message IntRequest {
+  int32 value = 1;
+}
+

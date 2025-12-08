@@ -1,0 +1,17 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.auth";
+option java_outer_classname = "AuthErrorCodeProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum AuthErrorCode {
+  AUTH_FAILURE = 0;
+  AUTH_LOGIN_REQUIRED = 1;
+  AUTH_NETWORK_ERROR = 2;
+}
+
+message AuthError {
+  AuthErrorCode errorCode = 1;
+  string message = 2;
+}

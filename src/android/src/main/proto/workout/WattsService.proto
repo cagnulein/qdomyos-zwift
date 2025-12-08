@@ -1,0 +1,34 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "WattsServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message WattsMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  double lastWatts = 3;
+  double maxWatts = 4;
+  double avgWatts = 5;
+  double minWatts = 6;
+}
+
+message WattsMetricList {
+  repeated WattsMetric metrics = 1;
+}
+
+service WattsService {
+  // check whether Watts is Readable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+
+  // get the current Watts relative to the current workout
+  rpc GetWatts(Empty) returns (WattsMetric) {}
+
+  // subscribe to Watts updates relative to the current workout
+  rpc WattsSubscription(Empty) returns (stream WattsMetric) {}
+
+  // gets a list of all of the Watts changes for the given workout ID
+  rpc GetWattsHistory(WorkoutID) returns (WattsMetricList) {}
+}
