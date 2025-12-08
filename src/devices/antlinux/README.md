@@ -84,7 +84,6 @@ cd qdomyos-zwift-x86-64-ant
 - `setup.sh` - Setup and validation tool
 - `test_ant.py` - Standalone ANT+ test script (for troubleshooting)
 - `ant_broadcaster.py` - ANT+ broadcasting module (required by test_ant.py)
-- `README.md` - Complete documentation and setup guide
 
 The wrapper script automatically detects your environment and provides helpful guidance. You should always run `./qdomyos-zwift` (the wrapper), not the binary directly.
 
@@ -115,22 +114,36 @@ This performs all prerequisite checks and shows results immediately:
 
 ## Step 3: Install Dependencies
 
-### Choose Your Installation Method
+### Guided Setup (Recommended)
 
-**Option A: Automatic Fix (Fastest)**
 ```bash
-sudo ./setup.sh --fix
+sudo ./setup.sh --guided
 ```
-Automatically installs/configures fixable components (Qt5, libusb, USB permissions, etc.).
 
-**Option B: Interactive Guided Setup (Recommended for first-time users)**
+Step-by-step wizard that explains each requirement and prompts before making changes. This is the recommended method for all users.
+
+**For unattended installation** (automation/scripting):
 ```bash
-sudo ./setup.sh --interactive
+yes | sudo ./setup.sh --guided
 ```
-Step-by-step wizard that explains each requirement and prompts before making changes. Best for learning what's needed and why.
 
-**Option C: Manual Installation (Full Control)**
-Follow the detailed manual steps below if you prefer to install each component yourself.
+### Manual Installation (Optional)
+
+If you prefer full control, follow the detailed manual steps below to install each component yourself.
+
+### Additional Setup Tool Options
+
+**Test ANT+ independently:**
+```bash
+sudo ./setup.sh --test
+```
+Runs a standalone ANT+ broadcasting test that simulates treadmill data. Use this to verify your ANT+ dongle and watch pairing work before testing the full application. Your watch should pair within 5-10 seconds and show pace (~7:00 min/km) and cadence (~166 SPM).
+
+**Reset to clean state:**
+```bash
+sudo ./setup.sh --reset
+```
+Removes QDomyos-Zwift configurations (undoes `--guided` setup). Useful for testing or troubleshooting. This removes the user from plugdev group and removes udev rules. Optionally removes Python virtual environment and packages (with confirmation prompt). Does NOT uninstall system packages (Qt5, libusb, bluez).
 
 ---
 
@@ -392,21 +405,23 @@ Run the validation tool to check your setup:
 ./setup.sh --quick
 ```
 
-Or validate and test ANT+ hardware in one command:
+### Test ANT+ Independently
+
+To test ANT+ functionality **without the QDomyos-Zwift binary**, you have two options:
+
+**Option 1: Use the setup tool (recommended):**
 ```bash
+cd ~/qdomyos-zwift-x86-64-ant  # or qdomyos-zwift-arm64-ant
 sudo ./setup.sh --test
 ```
 
-### Test ANT+ Independently
-
-To test ANT+ functionality **without the QDomyos-Zwift binary**, use the included test script:
-
+**Option 2: Run the test script directly:**
 ```bash
 cd ~/qdomyos-zwift-x86-64-ant  # or qdomyos-zwift-arm64-ant
 sudo ~/ant_venv/bin/python3 ./test_ant.py
 ```
 
-This simulates a running treadmill broadcasting data. Your watch should pair within 5-10 seconds and show:
+Both methods simulate a running treadmill broadcasting data. Your watch should pair within 5-10 seconds and show:
 - Pace: ~7:00 min/km (varying)
 - Cadence: ~166 SPM
 - Distance accumulating
@@ -427,14 +442,14 @@ Press `Ctrl+C` to stop the test.
 | Issue | Solution |
 | --- | --- |
 | `error while loading shared libraries: libpython3.11.so.1.0` | Python 3.11 not installed - run `./setup.sh --quick` to diagnose. Install via apt or pyenv (Step 3.1.2) |
-| Wrapper shows missing dependency warnings | Follow the specific instructions provided. Run `./setup.sh --quick` for full diagnosis or `sudo ./setup.sh --fix` to auto-fix |
+| Wrapper shows missing dependency warnings | Follow the specific instructions provided. Run `./setup.sh --quick` for full diagnosis or `sudo ./setup.sh --guided` to fix |
 | Test fails or watch won't connect | Run with sudo, reboot after Step 3.1.4, or unplug/replug dongle |
 | Watch connects but pace shows --:-- | Treadmill model not set: `sudo nano /root/.config/Roberto\ Viola/qDomyos-Zwift.conf` add your model flag (e.g., `proform_treadmill_705_cst=true`) |
 | App works but watch won't connect | Unplug/replug dongle, verify Step 3.1.4 + reboot, check device ID (default 54321), ensure running as root, check logs |
 | `systemctl stop qz` hangs | Add `KillSignal=SIGINT` to [Service] section in qz.service |
 | Binary won't run: "cannot execute binary file" | Wrong architecture - ensure you downloaded the correct package for your platform (arm64 vs x86-64) |
 | `pyenv: command not found` | Reload shell: `source ~/.bashrc` or start new terminal session |
-| Setup validation fails | Use interactive setup: `sudo ./setup.sh --interactive` for step-by-step guidance |
+| Setup validation fails | Use guided setup: `sudo ./setup.sh --guided` for step-by-step guidance |
 | Test script works but app doesn't | Treadmill Bluetooth pairing issue - check treadmill is on and discoverable |
 
 ---

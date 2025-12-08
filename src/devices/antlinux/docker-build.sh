@@ -15,7 +15,7 @@
 #
 #   ARCH can be:
 #     - arm64   (for Raspberry Pi)
-#     - x86_64  (for Desktop Linux)
+#     - x86-64  (for Desktop Linux)
 #
 # Contributor(s): bassai-sho
 # Development assisted by AI analysis tools
@@ -45,7 +45,7 @@ success() {
 }
 
 show_usage() {
-    echo "Usage: $0 --arch <ARCHITECTURE> (arm64 or x86_64)"
+    echo "Usage: $0 --arch <ARCHITECTURE> (arm64 or x86-64)"
 }
 
 # Find project root directory
@@ -138,7 +138,7 @@ main() {
     local ARTIFACT_NAME=""
     
     case "$ARCH" in
-        "x86_64")
+        "x86-64")
             DOCKERFILE_PATH="docker/linux-ant/Dockerfile"
             PLATFORM_FLAG="--platform linux/amd64"
             INTERNAL_APPDIR_PATH="/qdomyos-zwift-x86-64-ant"

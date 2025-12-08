@@ -2,7 +2,7 @@
 
 This guide explains how to compile QDomyos-Zwift from source using Docker. **For most users, [pre-compiled binaries](README.md) are recommended.**
 
-**📌 TL;DR:** Use `./docker-build.sh --arch x86_64` (or `arm64`) to build from source.
+**📌 TL;DR:** Use `./docker-build.sh --arch x86-64` (or `arm64`) to build from source.
 
 **Return to main guide:** [README.md](README.md)
 
@@ -37,7 +37,7 @@ cd qdomyos-zwift
 
 ```bash
 cd src/devices/antlinux
-./docker-build.sh --arch x86_64
+./docker-build.sh --arch x86-64
 ```
 
 Output: `linux-binary-x86-64-ant.zip` in project root
@@ -87,7 +87,7 @@ sudo ./setup.sh --test
 |-------|----------|
 | Docker permission denied | Run `newgrp docker` or logout/login after adding user to docker group |
 | Build fails with OOM | Increase Docker memory limit in Docker Desktop settings |
-| Invalid architecture specified | Use `x86_64` or `arm64` only |
+| Invalid architecture specified | Use `x86-64` or `arm64` only |
 | Binary won't run on target | Ensure architecture matches (x86-64 vs ARM64) |
 
 See [main README troubleshooting](README.md#troubleshooting) for runtime issues.

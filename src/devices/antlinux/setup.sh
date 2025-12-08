@@ -1,27 +1,23 @@
 #!/bin/bash
+################################################################################
 # setup.sh - QDomyos-Zwift ANT+ Setup and Validation Tool
-# 
+#
 # Purpose:
 #   Unified tool for validating and setting up ANT+ prerequisites.
-#   Combines quick validation, detailed diagnostics, and automated fixes.
-#
-# Features:
-#   --quick       Quick validation (no sudo, shows all issues)
-#   --interactive Interactive guided setup (with sudo, step-by-step)
-#   --fix         Automated installation of fixable components
-#   --json        JSON output for CI/CD integration
-#   --help        Show usage information
+#   Provides quick validation, guided setup, testing, and reset capabilities.
 #
 # Usage:
-#   ./setup.sh --quick              # Fast validation check
-#   sudo ./setup.sh --test          # Validate + run ANT+ hardware test
-#   sudo ./setup.sh --interactive   # Guided setup with prompts
-#   sudo ./setup.sh --fix           # Auto-install what's possible
+#   ./setup.sh --quick              # Fast validation check (no sudo)
+#   sudo ./setup.sh --guided        # Guided setup with prompts
+#   sudo ./setup.sh --reset         # Remove configurations
+#   sudo ./setup.sh --test          # Test ANT+ broadcasting
+#   ./setup.sh --help               # Show this help
 #
 # Platform: Linux x86-64 and ARM64
 # Dependencies: bash, ldconfig, systemctl, lsusb
 # Author: bassai-sho
 # Development assisted by AI analysis tools
+################################################################################
 
 set -uo pipefail
 
@@ -35,9 +31,8 @@ NC='\033[0m' # No Color
 
 # Mode flags
 MODE_QUICK=0
-MODE_INTERACTIVE=0
-MODE_FIX=0
-MODE_JSON=0
+MODE_GUIDED=0
+MODE_RESET=0
 MODE_TEST=0
 
 # Test counters
@@ -57,9 +52,84 @@ else
     TARGET_HOME="$HOME"
 fi
 
+# Function to show help
+show_help() {
+    cat << 'EOF'
+QDomyos-Zwift ANT+ Setup and Validation Tool
+
+DESCRIPTION:
+    Validates and configures your system for ANT+ footpod broadcasting.
+    Checks Python 3.11, virtual environment, Qt5 libraries, USB permissions,
+    and more. Provides guided setup with explanations.
+
+USAGE:
+    ./setup.sh --quick              # Fast validation (no sudo required)
+    sudo ./setup.sh --guided        # Interactive guided setup
+    sudo ./setup.sh --reset         # Remove configurations (undo setup)
+    sudo ./setup.sh --test          # Test ANT+ broadcasting
+    ./setup.sh --help               # Show this help
+
+MODES:
+    --quick        Quick validation showing all issues at once
+                   - No sudo required
+                   - Fast execution (~10 seconds)
+                   - Exit codes: 0 (ready), 1 (failed), 2 (warnings)
+
+    --guided       Interactive guided setup with explanations
+                   - Requires sudo
+                   - Step-by-step with prompts
+                   - Explains each requirement before installation
+                   - Recommended for all users
+
+    --reset        Remove QDomyos-Zwift configurations (complete undo)
+                   - Requires sudo
+                   - Removes user from plugdev group
+                   - Removes udev rules
+                   - Optionally removes Python venv and packages
+                   - Does NOT uninstall system packages (Qt5, libusb)
+                   - Useful for testing or returning to clean state
+
+    --test         Test ANT+ broadcasting without QDomyos-Zwift
+                   - Requires sudo
+                   - Simulates treadmill data
+                   - Verifies ANT+ dongle and watch pairing
+                   - Useful for isolating ANT+ issues
+
+    --help         Show this help message
+
+EXAMPLES:
+    # Check what's needed
+    ./setup.sh --quick
+
+    # Guided setup (recommended)
+    sudo ./setup.sh --guided
+
+    # Test ANT+ broadcasting
+    sudo ./setup.sh --test
+
+    # Reset to clean state (for testing)
+    sudo ./setup.sh --reset
+
+EXIT CODES (--quick mode):
+    0 - All tests passed, system ready
+    1 - Critical failures detected
+    2 - Non-critical warnings present
+EOF
+}
+
 # Parse arguments
 if [ $# -eq 0 ]; then
-    echo "Error: No mode specified. Use --help for usage information."
+    echo "Error: No mode specified."
+    echo ""
+    echo "Usage: ./setup.sh [MODE]"
+    echo ""
+    echo "Available modes:"
+    echo "  --quick        Quick validation check"
+    echo "  --guided       Interactive guided setup"
+    echo "  --reset        Remove configurations"
+    echo "  --test         Test ANT+ broadcasting"
+    echo "  --help         Show detailed help"
+    echo ""
     exit 1
 fi
 
@@ -69,16 +139,12 @@ for arg in "$@"; do
             MODE_QUICK=1
             shift
             ;;
-        --interactive)
-            MODE_INTERACTIVE=1
+        --guided)
+            MODE_GUIDED=1
             shift
             ;;
-        --fix)
-            MODE_FIX=1
-            shift
-            ;;
-        --json)
-            MODE_JSON=1
+        --reset)
+            MODE_RESET=1
             shift
             ;;
         --test)
@@ -86,7 +152,7 @@ for arg in "$@"; do
             shift
             ;;
         --help)
-            grep '^#' "$0" | sed 's/^# //' | sed 's/^#//'
+            show_help
             exit 0
             ;;
         *)
@@ -98,30 +164,25 @@ for arg in "$@"; do
 done
 
 # Validate mode combination
-if [ $MODE_QUICK -eq 1 ] && [ $MODE_INTERACTIVE -eq 1 ]; then
-    echo "Error: Cannot use --quick and --interactive together"
+if [ $MODE_QUICK -eq 1 ] && [ $MODE_GUIDED -eq 1 ]; then
+    echo "Error: Cannot use --quick and --guided together"
     exit 1
 fi
 
-if [ $MODE_QUICK -eq 1 ] && [ $MODE_FIX -eq 1 ]; then
-    echo "Error: Cannot use --quick and --fix together (--fix requires sudo)"
+if [ $MODE_TEST -eq 1 ] && [ $MODE_QUICK -eq 1 ]; then
+    echo "Error: Cannot use --test and --quick together"
     exit 1
 fi
 
-if [ $MODE_TEST -eq 1 ] && [ $MODE_INTERACTIVE -eq 1 ]; then
-    echo "Error: Cannot use --test and --interactive together"
+if [ $MODE_RESET -eq 1 ] && [ $MODE_GUIDED -eq 1 ]; then
+    echo "Error: Cannot use --reset and --guided together"
     exit 1
 fi
 
-if [ $MODE_TEST -eq 1 ] && [ $MODE_FIX -eq 1 ]; then
-    echo "Error: Cannot use --test and --fix together"
-    exit 1
-fi
-
-# Check sudo requirement for interactive/fix/test modes
-if [ $MODE_INTERACTIVE -eq 1 ] || [ $MODE_FIX -eq 1 ] || [ $MODE_TEST -eq 1 ]; then
+# Check sudo requirement for guided/reset/test modes
+if [ $MODE_GUIDED -eq 1 ] || [ $MODE_RESET -eq 1 ] || [ $MODE_TEST -eq 1 ]; then
     if [ $EUID -ne 0 ]; then
-        echo -e "${RED}ERROR: --interactive, --fix, and --test modes require sudo${NC}"
+        echo -e "${RED}ERROR: --guided, --reset, and --test modes require sudo${NC}"
         echo "Please run: sudo $0 $@"
         exit 1
     fi
@@ -136,23 +197,17 @@ test_check() {
     local is_critical="${5:-true}"
     
     if eval "$test_command" > /dev/null 2>&1; then
-        if [ $MODE_JSON -eq 0 ]; then
-            echo -e "${GREEN}[PASS]${NC} $success_msg"
-        fi
+        echo -e "${GREEN}[PASS]${NC} $success_msg"
         ((PASS++))
         TEST_RESULTS+=("{\"test\":\"$test_name\",\"status\":\"pass\",\"message\":\"$success_msg\"}")
         return 0
     else
         if [ "$is_critical" = "true" ]; then
-            if [ $MODE_JSON -eq 0 ]; then
-                echo -e "${RED}[FAIL]${NC} $failure_msg"
-            fi
+            echo -e "${RED}[FAIL]${NC} $failure_msg"
             ((FAIL++))
             TEST_RESULTS+=("{\"test\":\"$test_name\",\"status\":\"fail\",\"message\":\"$failure_msg\"}")
         else
-            if [ $MODE_JSON -eq 0 ]; then
-                echo -e "${YELLOW}[WARN]${NC} $failure_msg"
-            fi
+            echo -e "${YELLOW}[WARN]${NC} $failure_msg"
             ((WARN++))
             TEST_RESULTS+=("{\"test\":\"$test_name\",\"status\":\"warn\",\"message\":\"$failure_msg\"}")
         fi
@@ -176,23 +231,21 @@ prompt_yes_no() {
 }
 
 # ============================================================================
-# QUICK MODE - Fast validation only
+# QUICK MODE - Fast validation showing all issues
 # ============================================================================
 
 run_quick_mode() {
-    local return_to_caller="${1:-false}"  # Allow test mode to continue after validation
-    
-    if [ $MODE_JSON -eq 0 ]; then
-        echo -e "${BLUE}=== QDomyos-Zwift ANT+ Quick Validation ===${NC}"
-        echo ""
-    fi
+    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}QDomyos-Zwift ANT+ Quick Validation${NC}"
+    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
+    echo ""
     
     # Test 1: Python 3.11 library (check system and pyenv)
     test_check \
         "python311_library" \
-        "ldconfig -p | grep 'libusb-1.0.so' || ls ~/.pyenv/versions/3.11.*/lib/libpython3.11.so* &>/dev/null" \
+        "ldconfig -p | grep 'libpython3.11.so' || ls ~/.pyenv/versions/3.11.*/lib/libpython3.11.so* &>/dev/null" \
         "Python 3.11 library found" \
-        "Python 3.11 library not found (run: sudo ./setup.sh --interactive)" \
+        "Python 3.11 library not found (run: sudo ./setup.sh --guided)" \
         "true"
     
     # Test 2: Virtual environment
@@ -200,7 +253,7 @@ run_quick_mode() {
         "ant_venv" \
         "[ -d \"$TARGET_HOME/ant_venv\" ]" \
         "Virtual environment exists at ~/ant_venv" \
-        "Virtual environment not found (run: sudo ./setup.sh --interactive)" \
+        "Virtual environment not found (run: sudo ./setup.sh --guided)" \
         "false"
     
     # Test 3-5: Python packages (only if venv exists)
@@ -209,21 +262,21 @@ run_quick_mode() {
             "python_package_openant" \
             "$TARGET_HOME/ant_venv/bin/python -c 'import openant' 2>/dev/null" \
             "Python package 'openant' installed" \
-            "Python package 'openant' missing (run: sudo ./setup.sh --fix)" \
+            "Python package 'openant' missing (run: sudo ./setup.sh --guided)" \
             "true"
         
         test_check \
             "python_package_pyusb" \
             "$TARGET_HOME/ant_venv/bin/python -c 'import usb' 2>/dev/null" \
             "Python package 'pyusb' installed" \
-            "Python package 'pyusb' missing (run: sudo ./setup.sh --fix)" \
+            "Python package 'pyusb' missing (run: sudo ./setup.sh --guided)" \
             "true"
         
         test_check \
             "python_package_pybind11" \
             "$TARGET_HOME/ant_venv/bin/python -c 'import pybind11' 2>/dev/null" \
             "Python package 'pybind11' installed" \
-            "Python package 'pybind11' missing (run: sudo ./setup.sh --fix)" \
+            "Python package 'pybind11' missing (run: sudo ./setup.sh --guided)" \
             "true"
     fi
     
@@ -232,21 +285,21 @@ run_quick_mode() {
         "qt5_bluetooth" \
         "ldconfig -p | grep 'libQt5Bluetooth.so'" \
         "Qt5 Bluetooth library available" \
-        "Qt5 Bluetooth missing (run: sudo ./setup.sh --fix)" \
+        "Qt5 Bluetooth missing (run: sudo ./setup.sh --guided)" \
         "true"
     
     test_check \
         "qt5_charts" \
         "ldconfig -p | grep 'libQt5Charts.so'" \
         "Qt5 Charts library available" \
-        "Qt5 Charts missing (run: sudo ./setup.sh --fix)" \
+        "Qt5 Charts missing (run: sudo ./setup.sh --guided)" \
         "true"
     
     test_check \
         "qt5_multimedia" \
         "ldconfig -p | grep 'libQt5Multimedia.so'" \
         "Qt5 Multimedia library available" \
-        "Qt5 Multimedia missing (run: sudo ./setup.sh --fix)" \
+        "Qt5 Multimedia missing (run: sudo ./setup.sh --guided)" \
         "true"
     
     # Test 9: plugdev group
@@ -254,7 +307,7 @@ run_quick_mode() {
         "plugdev_group" \
         "groups $TARGET_USER | grep plugdev" \
         "User '$TARGET_USER' is in 'plugdev' group" \
-        "User not in 'plugdev' group (run: sudo ./setup.sh --fix)" \
+        "User not in 'plugdev' group (run: sudo ./setup.sh --guided)" \
         "true"
     
     # Test 10: udev rules
@@ -262,7 +315,7 @@ run_quick_mode() {
         "udev_rules" \
         "[ -f /etc/udev/rules.d/99-garmin-ant.rules ] || [ -f /etc/udev/rules.d/51-garmin-ant.rules ] || [ -f /etc/udev/rules.d/99-ant-usb.rules ]" \
         "ANT+ udev rules configured" \
-        "ANT+ udev rules not found (run: sudo ./setup.sh --fix)" \
+        "ANT+ udev rules not found (run: sudo ./setup.sh --guided)" \
         "true"
     
     # Test 11: ANT+ dongle (non-critical)
@@ -278,7 +331,7 @@ run_quick_mode() {
         "bluetooth_service" \
         "systemctl is-active --quiet bluetooth" \
         "Bluetooth service running" \
-        "Bluetooth service not running (run: sudo ./setup.sh --fix)" \
+        "Bluetooth service not running (run: sudo ./setup.sh --guided)" \
         "true"
     
     # Test 13: libusb
@@ -286,206 +339,156 @@ run_quick_mode() {
         "libusb" \
         "ldconfig -p | grep 'libusb-1.0.so'" \
         "libusb-1.0 library available" \
-        "libusb-1.0 missing (run: sudo ./setup.sh --fix)" \
+        "libusb-1.0 missing (run: sudo ./setup.sh --guided)" \
         "true"
     
     # Output results
     echo ""
+    echo -e "${BLUE}───────────────────────────────────────────────────────────${NC}"
+    echo -e "${BLUE}Test Summary:${NC} ${GREEN}$PASS passed${NC}, ${YELLOW}$WARN warnings${NC}, ${RED}$FAIL failed${NC}"
+    echo -e "${BLUE}───────────────────────────────────────────────────────────${NC}"
+    echo ""
     
-    if [ $MODE_JSON -eq 1 ]; then
-        # JSON output
-        echo "{"
-        echo "  \"total_tests\": $((PASS + FAIL + WARN)),"
-        echo "  \"passed\": $PASS,"
-        echo "  \"failed\": $FAIL,"
-        echo "  \"warnings\": $WARN,"
-        echo "  \"results\": ["
-        
-        first=1
-        for result in "${TEST_RESULTS[@]}"; do
-            if [ $first -eq 0 ]; then
-                echo ","
-            fi
-            echo "    $result"
-            first=0
-        done
-        
+    if [ $FAIL -gt 0 ]; then
+        echo -e "${RED}System Status: FAILED${NC}"
         echo ""
-        echo "  ],"
-        
-        if [ $FAIL -gt 0 ]; then
-            echo "  \"status\": \"FAILED\","
-            echo "  \"message\": \"Run 'sudo ./setup.sh --interactive' or 'sudo ./setup.sh --fix' to resolve issues\""
-        elif [ $WARN -gt 0 ]; then
-            echo "  \"status\": \"WARNING\","
-            echo "  \"message\": \"Non-critical warnings present - functionality may be limited\""
-        else
-            echo "  \"status\": \"READY\","
-            echo "  \"message\": \"All tests passed - system ready for ANT+ operation\""
-        fi
-        
-        echo "}"
+        echo -e "${CYAN}To fix issues, run:${NC}"
+        echo -e "  ${YELLOW}sudo ./setup.sh --guided${NC}"
+        exit 1
+    elif [ $WARN -gt 0 ]; then
+        echo -e "${YELLOW}System Status: WARNING${NC}"
+        echo "Non-critical warnings present - some functionality may be limited"
+        exit 2
     else
-        # Human-readable output
-        echo -e "${BLUE}Test Summary:${NC} ${GREEN}$PASS passed${NC}, ${YELLOW}$WARN warnings${NC}, ${RED}$FAIL failed${NC}"
-        echo ""
-        
-        if [ $FAIL -gt 0 ]; then
-            echo -e "${RED}System Status: FAILED${NC}"
-            echo "To fix issues, run: ${YELLOW}sudo ./setup.sh --interactive${NC} (guided)"
-            echo "            or run: ${YELLOW}sudo ./setup.sh --fix${NC} (automatic)"
-            [ "$return_to_caller" = "false" ] && exit 1
-        elif [ $WARN -gt 0 ]; then
-            echo -e "${YELLOW}System Status: WARNING${NC}"
-            echo "Non-critical warnings present - some functionality may be limited"
-            [ "$return_to_caller" = "false" ] && exit 2
-        else
-            echo -e "${GREEN}System Status: READY${NC}"
-            echo "All tests passed - system is ready for ANT+ operation"
-            [ "$return_to_caller" = "false" ] && exit 0
-        fi
+        echo -e "${GREEN}System Status: READY${NC}"
+        echo "All tests passed - system is ready for ANT+ operation"
+        exit 0
     fi
 }
 
 # ============================================================================
-# FIX MODE - Automated installation
+# RESET MODE - Remove configurations (undo --guided)
 # ============================================================================
 
-run_fix_mode() {
-    echo -e "${BLUE}=== QDomyos-Zwift ANT+ Automated Fix ===${NC}"
+run_reset_mode() {
+    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}QDomyos-Zwift ANT+ Configuration Reset${NC}"
     echo -e "${CYAN}Running for user: $TARGET_USER${NC}"
+    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
+    echo ""
+    echo -e "${YELLOW}WARNING: This will remove QDomyos-Zwift configurations${NC}"
+    echo ""
+    echo "This will:"
+    echo "  - Remove user from 'plugdev' group"
+    echo "  - Remove ANT+ udev rules"
+    echo ""
+    echo "This will NOT:"
+    echo "  - Uninstall system packages (Qt5, libusb, bluez)"
+    echo ""
+    echo -e "${CYAN}Use this to return to a clean state for testing${NC}"
     echo ""
     
-    local fixed=0
-    local failed=0
+    read -p "Continue with reset? [y/N]: " response
+    case "$response" in
+        [Yy]* ) ;;
+        * ) 
+            echo "Reset cancelled"
+            exit 0
+            ;;
+    esac
     
-    # Fix 1: Install Qt5 libraries
-    if ! ldconfig -p | grep 'libQt5Bluetooth.so' >/dev/null 2>&1; then
-        echo -e "${YELLOW}Installing Qt5 libraries...${NC}"
-        if apt-get update && apt-get install -y \
-            libqt5bluetooth5 libqt5charts5 libqt5multimedia5 \
-            libqt5networkauth5 libqt5positioning5 libqt5sql5 \
-            libqt5texttospeech5 libqt5websockets5 libqt5xml5; then
-            echo -e "${GREEN}✓ Qt5 libraries installed${NC}"
-            ((fixed++))
+    echo ""
+    local reset_count=0
+    local failed_count=0
+    
+    # Reset 1: Remove user from plugdev group
+    if groups "$TARGET_USER" | grep -q plugdev; then
+        echo -e "${YELLOW}Removing $TARGET_USER from plugdev group...${NC}"
+        if gpasswd -d "$TARGET_USER" plugdev 2>/dev/null; then
+            echo -e "${GREEN}✓ User removed from plugdev group${NC}"
+            echo -e "${YELLOW}⚠ You must logout and login for changes to take effect${NC}"
+            ((reset_count++))
         else
-            echo -e "${RED}✗ Failed to install Qt5 libraries${NC}"
-            ((failed++))
+            echo -e "${RED}✗ Failed to remove user from plugdev group${NC}"
+            ((failed_count++))
         fi
         echo ""
     fi
     
-    # Fix 2: Install libusb
-    if ! ldconfig -p | grep 'libusb-1.0.so' >/dev/null 2>&1; then
-        echo -e "${YELLOW}Installing libusb-1.0...${NC}"
-        if apt-get install -y libusb-1.0-0; then
-            echo -e "${GREEN}✓ libusb-1.0 installed${NC}"
-            ((fixed++))
-        else
-            echo -e "${RED}✗ Failed to install libusb-1.0${NC}"
-            ((failed++))
-        fi
-        echo ""
-    fi
-    
-    # Fix 3: Add user to plugdev group
-    if ! groups "$TARGET_USER" | grep -q plugdev; then
-        echo -e "${YELLOW}Adding $TARGET_USER to plugdev group...${NC}"
-        if usermod -aG plugdev "$TARGET_USER"; then
-            echo -e "${GREEN}✓ User added to plugdev group${NC}"
-            echo -e "${YELLOW}⚠ You must logout and login for group changes to take effect${NC}"
-            ((fixed++))
-        else
-            echo -e "${RED}✗ Failed to add user to plugdev group${NC}"
-            ((failed++))
-        fi
-        echo ""
-    fi
-    
-    # Fix 4: Create udev rules
-    if [ ! -f /etc/udev/rules.d/99-ant-usb.rules ]; then
-        echo -e "${YELLOW}Creating ANT+ udev rules...${NC}"
-        cat > /etc/udev/rules.d/99-ant-usb.rules <<'EOF'
-SUBSYSTEM=="usb", ATTRS{idVendor}=="0fcf", ATTRS{idProduct}=="100?", MODE="0666", GROUP="plugdev"
-SUBSYSTEM=="usb", ATTRS{idVendor}=="0fcf", ATTRS{idProduct}=="88a4", MODE="0666", GROUP="plugdev"
-SUBSYSTEM=="usb", ATTRS{idVendor}=="11fd", ATTRS{idProduct}=="0001", MODE="0666", GROUP="plugdev"
-EOF
-        if [ -f /etc/udev/rules.d/99-ant-usb.rules ]; then
-            udevadm control --reload-rules
-            udevadm trigger
-            echo -e "${GREEN}✓ ANT+ udev rules created${NC}"
-            ((fixed++))
-        else
-            echo -e "${RED}✗ Failed to create udev rules${NC}"
-            ((failed++))
-        fi
-        echo ""
-    fi
-    
-    # Fix 5: Start Bluetooth service
-    if ! systemctl is-active --quiet bluetooth; then
-        echo -e "${YELLOW}Starting Bluetooth service...${NC}"
-        if systemctl start bluetooth && systemctl enable bluetooth; then
-            echo -e "${GREEN}✓ Bluetooth service started and enabled${NC}"
-            ((fixed++))
-        else
-            echo -e "${RED}✗ Failed to start Bluetooth service${NC}"
-            ((failed++))
-        fi
-        echo ""
-    fi
-    
-    # Fix 6: Install Python packages in venv (if venv exists)
-    if [ -d "$TARGET_HOME/ant_venv" ]; then
-        local packages_missing=0
+    # Reset 2: Remove udev rules
+    local rules_removed=0
+    for rules_file in \
+        /etc/udev/rules.d/99-ant-usb.rules \
+        /etc/udev/rules.d/99-garmin-ant.rules \
+        /etc/udev/rules.d/51-garmin-ant.rules; do
         
-        if ! sudo -u "$TARGET_USER" "$TARGET_HOME/ant_venv/bin/python" -c 'import openant' 2>/dev/null; then
-            ((packages_missing++))
-        fi
-        if ! sudo -u "$TARGET_USER" "$TARGET_HOME/ant_venv/bin/python" -c 'import usb' 2>/dev/null; then
-            ((packages_missing++))
-        fi
-        if ! sudo -u "$TARGET_USER" "$TARGET_HOME/ant_venv/bin/python" -c 'import pybind11' 2>/dev/null; then
-            ((packages_missing++))
-        fi
-        
-        if [ $packages_missing -gt 0 ]; then
-            echo -e "${YELLOW}Installing Python packages in virtual environment...${NC}"
-            if sudo -u "$TARGET_USER" "$TARGET_HOME/ant_venv/bin/pip" install openant pyusb pybind11; then
-                echo -e "${GREEN}✓ Python packages installed${NC}"
-                ((fixed++))
+        if [ -f "$rules_file" ]; then
+            echo -e "${YELLOW}Removing udev rules: $rules_file${NC}"
+            if rm -f "$rules_file"; then
+                ((rules_removed++))
             else
-                echo -e "${RED}✗ Failed to install Python packages${NC}"
-                ((failed++))
+                echo -e "${RED}✗ Failed to remove $rules_file${NC}"
+                ((failed_count++))
             fi
-            echo ""
         fi
+    done
+    
+    if [ $rules_removed -gt 0 ]; then
+        udevadm control --reload-rules
+        udevadm trigger
+        echo -e "${GREEN}✓ Removed $rules_removed udev rule(s)${NC}"
+        ((reset_count++))
+        echo ""
+    fi
+    
+    # Reset 3: Optionally remove Python virtual environment
+    if [ -d "$TARGET_HOME/ant_venv" ]; then
+        echo -e "${YELLOW}Python virtual environment found at: $TARGET_HOME/ant_venv${NC}"
+        echo ""
+        read -p "Remove Python virtual environment and packages? [y/N]: " venv_response
+        case "$venv_response" in
+            [Yy]* )
+                echo -e "${YELLOW}Removing virtual environment...${NC}"
+                if rm -rf "$TARGET_HOME/ant_venv"; then
+                    echo -e "${GREEN}✓ Virtual environment removed${NC}"
+                    ((reset_count++))
+                else
+                    echo -e "${RED}✗ Failed to remove virtual environment${NC}"
+                    ((failed_count++))
+                fi
+                ;;
+            * )
+                echo "Keeping virtual environment"
+                ;;
+        esac
+        echo ""
     fi
     
     # Summary
-    echo -e "${BLUE}========================================${NC}"
-    if [ $fixed -gt 0 ]; then
-        echo -e "${GREEN}✓ Fixed $fixed issue(s)${NC}"
+    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
+    if [ $reset_count -gt 0 ]; then
+        echo -e "${GREEN}✓ Reset complete - removed $reset_count configuration(s)${NC}"
     fi
-    if [ $failed -gt 0 ]; then
-        echo -e "${RED}✗ Failed to fix $failed issue(s)${NC}"
+    if [ $failed_count -gt 0 ]; then
+        echo -e "${RED}✗ Failed to reset $failed_count item(s)${NC}"
     fi
-    if [ $fixed -eq 0 ] && [ $failed -eq 0 ]; then
-        echo -e "${GREEN}✓ No fixes needed - system already configured${NC}"
+    if [ $reset_count -eq 0 ] && [ $failed_count -eq 0 ]; then
+        echo -e "${GREEN}✓ No configurations to reset - system already clean${NC}"
     fi
     echo ""
-    echo -e "Run '${YELLOW}./setup.sh --quick${NC}' to verify all issues are resolved"
+    echo -e "Note: System packages (Qt5, libusb, bluez) remain installed"
+    echo -e "Run '${YELLOW}./setup.sh --quick${NC}' to verify clean state"
 }
 
 # ============================================================================
-# INTERACTIVE MODE - Guided step-by-step setup
+# GUIDED MODE - Interactive step-by-step setup
 # ============================================================================
 
-run_interactive_mode() {
-    echo -e "${CYAN}========================================${NC}"
+run_guided_mode() {
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
     echo -e "${CYAN}QDomyos-Zwift ANT+ Setup Wizard${NC}"
     echo -e "${CYAN}Running for user: $TARGET_USER${NC}"
-    echo -e "${CYAN}========================================${NC}"
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
     echo ""
     echo "This wizard will guide you through setting up ANT+ prerequisites."
     echo "Each step will be explained before execution."
@@ -522,7 +525,7 @@ run_interactive_mode() {
             echo "  4. Logout and login"
             echo "  5. Install Python: pyenv install 3.11.9"
             echo ""
-            echo "For detailed instructions, see: README.md section 1.2"
+            echo "For detailed instructions, see: README.md section 3.1.2"
             echo -e "${YELLOW}⚠ Skipping Python installation - please install manually${NC}"
         fi
     fi
@@ -584,7 +587,7 @@ run_interactive_mode() {
     # Step 4: Install system libraries
     echo -e "${BLUE}[Step 4/6] Installing system libraries...${NC}"
     
-    # Check critical libraries (match quick mode logic exactly)
+    # Check critical libraries
     local libs_missing=0
     ldconfig -p | grep 'libQt5Bluetooth.so' >/dev/null 2>&1 || ((libs_missing++))
     ldconfig -p | grep 'libQt5Charts.so' >/dev/null 2>&1 || ((libs_missing++))
@@ -651,9 +654,9 @@ EOF
     echo ""
     
     # Final summary
-    echo -e "${CYAN}========================================${NC}"
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
     echo -e "${GREEN}✓ Setup wizard complete!${NC}"
-    echo -e "${CYAN}========================================${NC}"
+    echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
     echo ""
     echo "Next steps:"
     echo "  1. If you were added to 'plugdev' group, logout and login"
@@ -663,55 +666,55 @@ EOF
 }
 
 # ============================================================================
-# TEST MODE - Run validation + ANT+ hardware test
+# TEST MODE - Run standalone ANT+ test
 # ============================================================================
 
 run_test_mode() {
-    echo -e "${CYAN}=== QDomyos-Zwift ANT+ Validation and Test ===${NC}"
+    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}QDomyos-Zwift ANT+ Broadcasting Test${NC}"
+    echo -e "${CYAN}Running for user: $TARGET_USER${NC}"
+    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
     echo ""
     
-    # Run quick validation first (pass true to prevent exit)
-    run_quick_mode true
-    
-    # Check if all tests passed
-    if [ $FAIL -gt 0 ]; then
+    # Check if test script exists
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    if [ ! -f "$SCRIPT_DIR/test_ant.py" ]; then
+        echo -e "${RED}✗ Test script not found: $SCRIPT_DIR/test_ant.py${NC}"
         echo ""
-        echo -e "${RED}Cannot run ANT+ test - validation failures detected${NC}"
-        echo "Fix issues with: ${YELLOW}sudo ./setup.sh --fix${NC} or ${YELLOW}sudo ./setup.sh --interactive${NC}"
+        echo "The test script should be in the same directory as setup.sh"
         exit 1
     fi
     
-    # Check if test_ant.py exists
-    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    TEST_SCRIPT="$SCRIPT_DIR/test_ant.py"
-    
-    if [ ! -f "$TEST_SCRIPT" ]; then
+    # Check if virtual environment exists
+    if [ ! -d "$TARGET_HOME/ant_venv" ]; then
+        echo -e "${RED}✗ Virtual environment not found at: $TARGET_HOME/ant_venv${NC}"
         echo ""
-        echo -e "${RED}Error: test_ant.py not found in $SCRIPT_DIR${NC}"
-        echo "This script should be included in the binary distribution."
+        echo "Run setup first: sudo ./setup.sh --guided"
         exit 1
     fi
     
-    # Run the ANT+ test
+    echo "This test simulates treadmill data broadcasting via ANT+."
+    echo "Your Garmin watch should pair as a Foot Pod within 5-10 seconds."
     echo ""
-    echo -e "${CYAN}========================================${NC}"
-    echo -e "${CYAN}Starting ANT+ Hardware Test${NC}"
-    echo -e "${CYAN}========================================${NC}"
-    echo ""
-    echo "This will simulate a running treadmill broadcasting ANT+ data."
-    echo "Your watch should pair within 5-10 seconds and display:"
+    echo "Expected readings:"
     echo "  - Pace: ~7:00 min/km (varying)"
     echo "  - Cadence: ~166 SPM"
     echo "  - Distance: accumulating"
     echo ""
-    echo -e "${YELLOW}Press Ctrl+C to stop the test${NC}"
+    echo "Press Ctrl+C to stop the test"
+    echo ""
+    echo -e "${CYAN}Starting ANT+ test...${NC}"
     echo ""
     
-    # Run the test with the venv Python
-    if [ -d "$TARGET_HOME/ant_venv" ]; then
-        "$TARGET_HOME/ant_venv/bin/python3" "$TEST_SCRIPT"
-    else
-        echo -e "${RED}Error: Virtual environment not found at $TARGET_HOME/ant_venv${NC}"
+    # Run test as target user (not root) to use their venv
+    if ! sudo -u "$TARGET_USER" "$TARGET_HOME/ant_venv/bin/python3" "$SCRIPT_DIR/test_ant.py"; then
+        echo ""
+        echo -e "${RED}✗ Test failed${NC}"
+        echo ""
+        echo "Troubleshooting:"
+        echo "  1. Ensure ANT+ dongle is plugged in"
+        echo "  2. Check USB permissions: ./setup.sh --quick"
+        echo "  3. Verify Python packages: ./setup.sh --quick"
         exit 1
     fi
 }
@@ -722,10 +725,10 @@ run_test_mode() {
 
 if [ $MODE_QUICK -eq 1 ]; then
     run_quick_mode
-elif [ $MODE_FIX -eq 1 ]; then
-    run_fix_mode
-elif [ $MODE_INTERACTIVE -eq 1 ]; then
-    run_interactive_mode
+elif [ $MODE_RESET -eq 1 ]; then
+    run_reset_mode
+elif [ $MODE_GUIDED -eq 1 ]; then
+    run_guided_mode
 elif [ $MODE_TEST -eq 1 ]; then
     run_test_mode
 else

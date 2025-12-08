@@ -2,12 +2,11 @@
 
 ## Quick Test Strategy
 
-Focus on the **4 critical scenarios** that cover all major functionality:
+Focus on the **3 critical scenarios** that cover all major functionality:
 
 1. **Fresh Install** - Missing dependencies detection
 2. **GUI Mode** - Visual feedback and device pairing
 3. **Headless Mode** - ANT+ broadcasting with no GUI
-4. **Automated Tests** - Rapid regression checking
 
 ---
 
@@ -37,23 +36,15 @@ cd ~/qdomyos-zwift-x86-64-ant  # or wherever you extracted the binary
 
 **If tests fail:**
 
-For quick automatic fixes, run: `sudo ./setup.sh --fix`
-
-For interactive guided setup with explanations, run: `sudo ./setup.sh --interactive`
-
-**To validate and test ANT+ hardware in one command:**
-
-```bash
-sudo ./setup.sh --test
-```
-
-This runs validation checks and automatically launches the ANT+ hardware test if all checks pass.
+Run guided setup: `sudo ./setup.sh --guided`
 
 See README.md Step 2 for details.
 
 **Expected output (all tests passing):**
 ```
-=== QDomyos-Zwift ANT+ Quick Validation ===
+═══════════════════════════════════════════════════════════
+QDomyos-Zwift ANT+ Quick Validation
+═══════════════════════════════════════════════════════════
 
 [PASS] Python 3.11 library found
 [PASS] Virtual environment exists at ~/ant_venv
@@ -69,7 +60,9 @@ See README.md Step 2 for details.
 [PASS] Bluetooth service running
 [PASS] libusb-1.0 library available
 
+───────────────────────────────────────────────────────────
 Test Summary: 12 passed, 1 warning, 0 failed
+───────────────────────────────────────────────────────────
 
 System Status: READY
 All tests passed - system is ready for ANT+ operation
@@ -77,7 +70,9 @@ All tests passed - system is ready for ANT+ operation
 
 **Expected output (with issues):**
 ```
-=== QDomyos-Zwift ANT+ Quick Validation ===
+═══════════════════════════════════════════════════════════
+QDomyos-Zwift ANT+ Quick Validation
+═══════════════════════════════════════════════════════════
 
 [FAIL] Python 3.11 library not found (run: sudo ./setup.sh --interactive)
 [FAIL] Virtual environment not found (run: sudo ./setup.sh --interactive)
@@ -90,12 +85,57 @@ All tests passed - system is ready for ANT+ operation
 [FAIL] Bluetooth service not running (run: sudo ./setup.sh --fix)
 [FAIL] libusb-1.0 missing (run: sudo ./setup.sh --fix)
 
+───────────────────────────────────────────────────────────
 Test Summary: 0 passed, 1 warning, 9 failed
+───────────────────────────────────────────────────────────
 
 System Status: FAILED
-To fix issues, run: sudo ./setup.sh --interactive (guided)
-            or run: sudo ./setup.sh --fix (automatic)
+To fix issues, run:
+  sudo ./setup.sh --guided
 ```
+
+---
+
+## Setup Tool Modes
+
+The `setup.sh` script provides multiple modes for different use cases:
+
+### **Testing and Development Modes:**
+
+```bash
+# Reset to clean state (useful before each test run)
+sudo ./setup.sh --reset
+
+# Test ANT+ broadcasting independently
+sudo ./setup.sh --test
+```
+
+### **Setup and Validation Modes:**
+
+```bash
+# Quick validation (no changes made)
+./setup.sh --quick
+
+# Guided setup (recommended - explains everything)
+sudo ./setup.sh --guided
+```
+
+### **What `--reset` does:**
+- ✓ Removes user from plugdev group
+- ✓ Removes ANT+ udev rules
+- ✓ Optionally removes Python venv and packages (with confirmation)
+- ✓ Returns system to pre-setup state
+- ✗ Does NOT uninstall packages (Qt5, libusb, bluez remain)
+
+**Use case:** Complete clean slate before running test scenarios
+
+### **What `--test` does:**
+- ✓ Runs standalone ANT+ broadcasting test
+- ✓ Simulates treadmill data (pace, cadence, distance)
+- ✓ Verifies dongle and watch pairing
+- ✓ Isolates ANT+ issues from QDomyos-Zwift app
+
+**Use case:** Verify ANT+ works before testing full application
 
 ---
 
@@ -106,15 +146,20 @@ To fix issues, run: sudo ./setup.sh --interactive (guided)
 **Time:** 5 minutes  
 **Purpose:** Verify error messages are clear and helpful
 
+**Setup:**
+```bash
+# Start with clean state
+sudo ./setup.sh --reset
+```
+
 **Steps:**
-1. Fresh OS installation
-2. Download and extract binary (README Step 1)
-3. Run: `./setup.sh --quick`
+1. Download and extract binary (README Step 1)
+2. Run: `./setup.sh --quick`
 
 **Expected:**
 - Multiple `[FAIL]` messages with clear instructions
 - Each failure shows how to fix it
-- Suggested commands: `sudo ./setup.sh --interactive` or `sudo ./setup.sh --fix`
+- Suggested command: `sudo ./setup.sh --guided`
 
 **Pass:** Clear, actionable error messages shown
 
@@ -127,12 +172,12 @@ To fix issues, run: sudo ./setup.sh --interactive (guided)
 
 **Prerequisites:**
 ```bash
-# Install dependencies using automated tool
+# Install dependencies using guided setup
 cd ~/qdomyos-zwift-x86-64-ant
-sudo ./setup.sh --fix
+sudo ./setup.sh --guided
 
-# Verify installation and test hardware
-sudo ./setup.sh --test
+# Verify installation
+./setup.sh --quick
 ```
 
 **Steps:**
@@ -161,13 +206,31 @@ sudo ./setup.sh --test
 **Prerequisites:** T2 successful
 
 **Steps:**
-1. Configure for headless: Create config file (see README 4.4)
-2. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
-3. On Garmin watch: Add Foot Pod sensor
-4. Start treadmill
-5. Control speed and observe watch for 5 minutes
+1. Test ANT+ independently: `sudo ./setup.sh --test`
+2. Verify watch pairs and shows data
+3. Stop test (Ctrl+C)
+4. Configure for headless: Create config file (see README 4.4)
+5. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
+6. On Garmin watch: Add Foot Pod sensor
+7. Start treadmill
+8. Control speed and observe watch for 5 minutes
 
-**Expected:**
+**Expected from `--test`:**
+```
+═══════════════════════════════════════════════════════════
+QDomyos-Zwift ANT+ Broadcasting Test
+═══════════════════════════════════════════════════════════
+
+This test simulates treadmill data broadcasting via ANT+.
+Your Garmin watch should pair as a Foot Pod within 5-10 seconds.
+
+Expected readings:
+  - Pace: ~7:00 min/km (varying)
+  - Cadence: ~166 SPM
+  - Distance: accumulating
+```
+
+**Expected from main app:**
 ```
 QDomyos-Zwift starting in no-gui mode...
 ANT+ Footpod broadcaster initialized
@@ -178,7 +241,8 @@ Cadence: 166 SPM (running)
 ```
 
 **Pass:** 
-- Watch pairs successfully
+- Test mode works and watch pairs
+- Watch pairs successfully in headless mode
 - Pace updates smoothly
 - Cadence shows 90-140 SPM (walking) or 160-200 SPM (running)
 - No disconnections or errors
@@ -221,6 +285,8 @@ Before release, verify:
 - [ ] **T3 (Headless)** broadcasts ANT+ for 5+ minutes
 - [ ] **T4 (Systemd)** starts reliably after reboot
 - [ ] **Wrapper script** detects missing dependencies
+- [ ] **`--reset` mode** successfully cleans configurations
+- [ ] **`--test` mode** works independently of main app
 - [ ] **Documentation** matches actual behavior
 - [ ] **No crashes** in any scenario
 
@@ -228,31 +294,50 @@ Before release, verify:
 
 ---
 
-## Automated Test Script Implementation
+## Test Workflow Best Practices
 
-The setup script (`setup.sh`) is included in the binary distribution and provides three modes:
+### **Between Test Runs:**
+```bash
+# Clean state for fresh test
+sudo ./setup.sh --reset
+./setup.sh --quick  # Verify clean
+```
 
-**1. Quick Validation Mode (`--quick`)**
-- No sudo required
-- Shows all issues at once
-- Fast execution (~10 seconds)
-- Exit codes: 0 (ready), 1 (failed), 2 (warnings)
-- JSON output available for CI/CD
+### **Before Testing Main App:**
+```bash
+# Verify ANT+ works independently
+sudo ./setup.sh --test
+# If test passes, ANT+ stack is working
+# If main app fails but test passes → app issue, not ANT+
+```
 
-**2. Automatic Fix Mode (`--fix`)**
-- Requires sudo
-- Automatically installs fixable components
-- Installs: Qt5, libusb, configures USB permissions, udev rules, Bluetooth
-- Cannot install Python 3.11 (requires pyenv if unavailable via apt)
+### **CI/CD Integration:**
+```bash
+# Automated validation
+./setup.sh --quick --json > validation.json
+# Parse JSON for pass/fail status
+```
 
-**3. Interactive Mode (`--interactive`)**
-- Requires sudo
-- Step-by-step guided setup
-- Explains each requirement before installation
-- Prompts for confirmation at each step
-- Best for first-time users or learning
+---
 
-The script is included in your binary distribution ZIP file.
+## Troubleshooting Test Failures
+
+### **Test Mode Issues:**
+
+| Issue | Solution |
+|-------|----------|
+| `test_ant.py` not found | Ensure script is in same directory as setup.sh |
+| Virtual environment missing | Run `sudo ./setup.sh --fix` first |
+| Watch won't pair | Check dongle is plugged in, verify with `lsusb` |
+| Test runs but no data | USB permissions issue - run `./setup.sh --quick` |
+
+### **Reset Mode Issues:**
+
+| Issue | Solution |
+|-------|----------|
+| Still shows as in plugdev group | Logout and login required |
+| Quick check still shows configured | Some manual configs remain - expected behavior |
+| System packages still installed | Reset only removes configs, not packages (by design) |
 
 ---
 
