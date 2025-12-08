@@ -45,11 +45,6 @@
 #include <QRegularExpression>
 #include <chrono>
 
-#if defined(Q_OS_UNIX)
-#include <pwd.h>
-#include <unistd.h>
-#endif
-
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
