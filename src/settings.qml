@@ -667,7 +667,7 @@ import Qt.labs.platform 1.1
 
             // from version 2.12.59
             property bool peloton_workout_ocr: false
-            property bool peloton_bike_ocr: false
+            property bool peloton_bike_ocr: true
 
             // from version 2.12.60
             property double treadmill_inclination_override_0: 0.0
