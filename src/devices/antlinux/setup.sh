@@ -81,13 +81,15 @@ MODES:
                    - Explains each requirement before installation
                    - Recommended for all users
 
-    --reset        Remove QDomyos-Zwift configurations (complete undo)
+    --reset        Complete removal of ANT+ setup
                    - Requires sudo
+                   - Removes Python 3.11 (system and pyenv)
+                   - Removes Python virtual environment
+                   - Removes Qt5 libraries
+                   - Removes libusb-1.0
                    - Removes user from plugdev group
                    - Removes udev rules
-                   - Optionally removes Python venv and packages
-                   - Does NOT uninstall system packages (Qt5, libusb)
-                   - Useful for testing or returning to clean state
+                   - Keeps bluez (Bluetooth service)
 
     --test         Test ANT+ broadcasting without QDomyos-Zwift
                    - Requires sudo
@@ -221,7 +223,20 @@ prompt_yes_no() {
     local response
     
     while true; do
-        read -p "$prompt [y/n]: " response
+        # Try to read from stdin first (for automation), fall back to /dev/tty if stdin is not a terminal
+        if [ -t 0 ]; then
+            # stdin is a terminal, read from it directly
+            read -p "$prompt [y/n]: " response
+        else
+            # stdin is piped, try to read from it
+            if read -t 0.1 response; then
+                echo "$prompt [y/n]: $response"
+            else
+                # stdin exhausted, read from /dev/tty for interactive prompt
+                read -p "$prompt [y/n]: " response </dev/tty
+            fi
+        fi
+        
         case "$response" in
             [Yy]* ) return 0;;
             [Nn]* ) return 1;;
@@ -243,7 +258,7 @@ run_quick_mode() {
     # Test 1: Python 3.11 library (check system and pyenv)
     test_check \
         "python311_library" \
-        "ldconfig -p | grep 'libpython3.11.so' || ls ~/.pyenv/versions/3.11.*/lib/libpython3.11.so* &>/dev/null" \
+        "ldconfig -p | grep 'libpython3.11.so' || ls $TARGET_HOME/.pyenv/versions/3.11.*/lib/libpython3.11.so* &>/dev/null" \
         "Python 3.11 library found" \
         "Python 3.11 library not found (run: sudo ./setup.sh --guided)" \
         "true"
@@ -258,23 +273,30 @@ run_quick_mode() {
     
     # Test 3-5: Python packages (only if venv exists)
     if [ -d "$TARGET_HOME/ant_venv" ]; then
+        # Determine how to run python checks (with or without sudo -u)
+        if [ -n "${SUDO_USER:-}" ]; then
+            PYTHON_CMD="sudo -u $TARGET_USER $TARGET_HOME/ant_venv/bin/python"
+        else
+            PYTHON_CMD="$TARGET_HOME/ant_venv/bin/python"
+        fi
+        
         test_check \
             "python_package_openant" \
-            "$TARGET_HOME/ant_venv/bin/python -c 'import openant' 2>/dev/null" \
+            "$PYTHON_CMD -c 'import openant' 2>/dev/null" \
             "Python package 'openant' installed" \
             "Python package 'openant' missing (run: sudo ./setup.sh --guided)" \
             "true"
         
         test_check \
             "python_package_pyusb" \
-            "$TARGET_HOME/ant_venv/bin/python -c 'import usb' 2>/dev/null" \
+            "$PYTHON_CMD -c 'import usb' 2>/dev/null" \
             "Python package 'pyusb' installed" \
             "Python package 'pyusb' missing (run: sudo ./setup.sh --guided)" \
             "true"
         
         test_check \
             "python_package_pybind11" \
-            "$TARGET_HOME/ant_venv/bin/python -c 'import pybind11' 2>/dev/null" \
+            "$PYTHON_CMD -c 'import pybind11' 2>/dev/null" \
             "Python package 'pybind11' installed" \
             "Python package 'pybind11' missing (run: sudo ./setup.sh --guided)" \
             "true"
@@ -376,16 +398,21 @@ run_reset_mode() {
     echo -e "${CYAN}Running for user: $TARGET_USER${NC}"
     echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
     echo ""
-    echo -e "${YELLOW}WARNING: This will remove QDomyos-Zwift configurations${NC}"
+    echo -e "${YELLOW}WARNING: This will completely remove ANT+ setup${NC}"
     echo ""
-    echo "This will:"
-    echo "  - Remove user from 'plugdev' group"
-    echo "  - Remove ANT+ udev rules"
+    echo "This will remove:"
+    echo "  - Python 3.11 (system and pyenv installations)"
+    echo "  - Python virtual environment (~/ant_venv)"
+    echo "  - Python packages (openant, pyusb, pybind11)"
+    echo "  - Qt5 libraries (libqt5bluetooth5, libqt5charts5, etc.)"
+    echo "  - libusb-1.0"
+    echo "  - User from 'plugdev' group"
+    echo "  - ANT+ udev rules"
     echo ""
-    echo "This will NOT:"
-    echo "  - Uninstall system packages (Qt5, libusb, bluez)"
+    echo "This will NOT remove:"
+    echo "  - bluez (Bluetooth service - may be used by other apps)"
     echo ""
-    echo -e "${CYAN}Use this to return to a clean state for testing${NC}"
+    echo -e "${CYAN}Completely removes what was installed by --guided mode${NC}"
     echo ""
     
     read -p "Continue with reset? [y/N]: " response
@@ -402,8 +429,8 @@ run_reset_mode() {
     local failed_count=0
     
     # Reset 1: Remove user from plugdev group
+    echo -e "${YELLOW}[1/6] Removing $TARGET_USER from plugdev group...${NC}"
     if groups "$TARGET_USER" | grep -q plugdev; then
-        echo -e "${YELLOW}Removing $TARGET_USER from plugdev group...${NC}"
         if gpasswd -d "$TARGET_USER" plugdev 2>/dev/null; then
             echo -e "${GREEN}✓ User removed from plugdev group${NC}"
             echo -e "${YELLOW}⚠ You must logout and login for changes to take effect${NC}"
@@ -412,10 +439,13 @@ run_reset_mode() {
             echo -e "${RED}✗ Failed to remove user from plugdev group${NC}"
             ((failed_count++))
         fi
-        echo ""
+    else
+        echo -e "${GREEN}✓ User not in plugdev group${NC}"
     fi
+    echo ""
     
     # Reset 2: Remove udev rules
+    echo -e "${YELLOW}[2/6] Removing ANT+ udev rules...${NC}"
     local rules_removed=0
     for rules_file in \
         /etc/udev/rules.d/99-ant-usb.rules \
@@ -423,7 +453,6 @@ run_reset_mode() {
         /etc/udev/rules.d/51-garmin-ant.rules; do
         
         if [ -f "$rules_file" ]; then
-            echo -e "${YELLOW}Removing udev rules: $rules_file${NC}"
             if rm -f "$rules_file"; then
                 ((rules_removed++))
             else
@@ -438,31 +467,141 @@ run_reset_mode() {
         udevadm trigger
         echo -e "${GREEN}✓ Removed $rules_removed udev rule(s)${NC}"
         ((reset_count++))
-        echo ""
+    else
+        echo -e "${GREEN}✓ No udev rules to remove${NC}"
+    fi
+    echo ""
+    
+    # Reset 3: Remove Python virtual environment
+    echo -e "${YELLOW}[3/6] Removing Python virtual environment...${NC}"
+    if [ -d "$TARGET_HOME/ant_venv" ]; then
+        if rm -rf "$TARGET_HOME/ant_venv"; then
+            echo -e "${GREEN}✓ Virtual environment removed${NC}"
+            ((reset_count++))
+        else
+            echo -e "${RED}✗ Failed to remove virtual environment${NC}"
+            ((failed_count++))
+        fi
+    else
+        echo -e "${GREEN}✓ No virtual environment found${NC}"
+    fi
+    echo ""
+    
+    # Reset 4: Remove Python 3.11
+    echo -e "${YELLOW}[4/6] Removing Python 3.11...${NC}"
+    local python_removed=0
+    
+    # Check if Python 3.11 is installed via apt
+    if dpkg -l python3.11 2>/dev/null | grep -q "^ii"; then
+        echo "Removing system Python 3.11 packages..."
+        if apt-get remove -y python3.11 python3.11-venv python3.11-dev 2>/dev/null; then
+            apt-get autoremove -y 2>/dev/null
+            echo -e "${GREEN}✓ System Python 3.11 removed${NC}"
+            ((reset_count++))
+            ((python_removed++))
+        else
+            echo -e "${RED}✗ Failed to remove system Python 3.11${NC}"
+            ((failed_count++))
+        fi
     fi
     
-    # Reset 3: Optionally remove Python virtual environment
-    if [ -d "$TARGET_HOME/ant_venv" ]; then
-        echo -e "${YELLOW}Python virtual environment found at: $TARGET_HOME/ant_venv${NC}"
-        echo ""
-        read -p "Remove Python virtual environment and packages? [y/N]: " venv_response
-        case "$venv_response" in
-            [Yy]* )
-                echo -e "${YELLOW}Removing virtual environment...${NC}"
-                if rm -rf "$TARGET_HOME/ant_venv"; then
-                    echo -e "${GREEN}✓ Virtual environment removed${NC}"
-                    ((reset_count++))
+    # Remove pyenv Python 3.11 installations
+    if [ -d "$TARGET_HOME/.pyenv/versions" ]; then
+        local pyenv_versions=$(ls -d "$TARGET_HOME/.pyenv/versions/3.11"* 2>/dev/null)
+        if [ -n "$pyenv_versions" ]; then
+            echo "Removing pyenv Python 3.11 installation(s)..."
+            for version_dir in $pyenv_versions; do
+                if rm -rf "$version_dir"; then
+                    echo -e "${GREEN}✓ Removed pyenv version: $(basename $version_dir)${NC}"
+                    ((python_removed++))
                 else
-                    echo -e "${RED}✗ Failed to remove virtual environment${NC}"
+                    echo -e "${RED}✗ Failed to remove: $(basename $version_dir)${NC}"
                     ((failed_count++))
                 fi
-                ;;
-            * )
-                echo "Keeping virtual environment"
-                ;;
-        esac
-        echo ""
+            done
+            ((reset_count++))
+        fi
     fi
+    
+    if [ $python_removed -eq 0 ]; then
+        echo -e "${GREEN}✓ No Python 3.11 installations found${NC}"
+    fi
+    echo ""
+    
+    # Check if running on a desktop environment
+    local is_desktop=false
+    if dpkg -l ubuntu-desktop 2>/dev/null | grep -q "^ii" || \
+       dpkg -l ubuntu-desktop-minimal 2>/dev/null | grep -q "^ii" || \
+       dpkg -l gnome-shell 2>/dev/null | grep -q "^ii" || \
+       dpkg -l kde-plasma-desktop 2>/dev/null | grep -q "^ii"; then
+        is_desktop=true
+    fi
+    
+    # Reset 5: Remove Qt5 libraries
+    echo -e "${YELLOW}[5/6] Removing Qt5 libraries...${NC}"
+    
+    if [ "$is_desktop" = true ]; then
+        echo -e "${YELLOW}⚠ Desktop environment detected - skipping Qt5 removal to prevent system breakage${NC}"
+        echo -e "${YELLOW}  Qt5 is a core dependency of your desktop environment${NC}"
+        echo -e "${GREEN}✓ Skipped (desktop protection)${NC}"
+    else
+        local qt_packages=(
+            "libqt5bluetooth5"
+            "libqt5charts5"
+            "libqt5multimedia5"
+            "libqt5networkauth5"
+            "libqt5positioning5"
+            "libqt5sql5"
+            "libqt5texttospeech5"
+            "libqt5websockets5"
+            "libqt5xml5"
+        )
+        
+        local qt_found=0
+        for pkg in "${qt_packages[@]}"; do
+            if dpkg -l "$pkg" 2>/dev/null | grep -q "^ii"; then
+                ((qt_found++))
+            fi
+        done
+        
+        if [ $qt_found -gt 0 ]; then
+            echo "Removing $qt_found Qt5 package(s)..."
+            if apt-get remove -y "${qt_packages[@]}" 2>/dev/null; then
+                apt-get autoremove -y 2>/dev/null
+                echo -e "${GREEN}✓ Qt5 libraries removed${NC}"
+                ((reset_count++))
+            else
+                echo -e "${RED}✗ Failed to remove some Qt5 packages${NC}"
+                ((failed_count++))
+            fi
+        else
+            echo -e "${GREEN}✓ No Qt5 packages found${NC}"
+        fi
+    fi
+    echo ""
+    
+    # Reset 6: Remove libusb
+    echo -e "${YELLOW}[6/6] Removing libusb-1.0...${NC}"
+    
+    if [ "$is_desktop" = true ]; then
+        echo -e "${YELLOW}⚠ Desktop environment detected - skipping libusb removal to prevent system breakage${NC}"
+        echo -e "${YELLOW}  libusb is a core dependency of your desktop environment${NC}"
+        echo -e "${GREEN}✓ Skipped (desktop protection)${NC}"
+    else
+        if dpkg -l libusb-1.0-0 2>/dev/null | grep -q "^ii"; then
+            if apt-get remove -y libusb-1.0-0 2>/dev/null; then
+                apt-get autoremove -y 2>/dev/null
+                echo -e "${GREEN}✓ libusb-1.0 removed${NC}"
+                ((reset_count++))
+            else
+                echo -e "${RED}✗ Failed to remove libusb-1.0${NC}"
+                ((failed_count++))
+            fi
+        else
+            echo -e "${GREEN}✓ No libusb-1.0 package found${NC}"
+        fi
+    fi
+    echo ""
     
     # Summary
     echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
@@ -476,7 +615,7 @@ run_reset_mode() {
         echo -e "${GREEN}✓ No configurations to reset - system already clean${NC}"
     fi
     echo ""
-    echo -e "Note: System packages (Qt5, libusb, bluez) remain installed"
+    echo -e "Note: bluez (Bluetooth) remains installed as it may be used by other apps"
     echo -e "Run '${YELLOW}./setup.sh --quick${NC}' to verify clean state"
 }
 
@@ -497,7 +636,7 @@ run_guided_mode() {
     # Step 1: Check Python 3.11
     echo -e "${BLUE}[Step 1/6] Checking Python 3.11...${NC}"
     
-    if ldconfig -p | grep -q 'libpython3.11.so' || ls "$TARGET_HOME/.pyenv/versions/3.11".*/lib/libpython3.11.so* &>/dev/null; then
+    if ldconfig -p | grep -q 'libpython3.11.so' || ls "$TARGET_HOME"/.pyenv/versions/3.11.*/lib/libpython3.11.so* &>/dev/null; then
         echo -e "${GREEN}✓ Python 3.11 is already installed${NC}"
     else
         echo -e "${YELLOW}✗ Python 3.11 not found${NC}"
@@ -516,17 +655,58 @@ run_guided_mode() {
             fi
         else
             echo "Your system doesn't provide Python 3.11 via apt."
-            echo "You'll need to install it via pyenv manually (requires logout/login)."
             echo ""
-            echo "Steps:"
-            echo "  1. Install prerequisites: sudo apt-get install -y build-essential libssl-dev zlib1g-dev..."
-            echo "  2. Install pyenv: curl https://pyenv.run | bash"
-            echo "  3. Configure shell (.bashrc)"
-            echo "  4. Logout and login"
-            echo "  5. Install Python: pyenv install 3.11.9"
+            echo -e "${YELLOW}Option 1: Install via pyenv (automatic but requires restart)${NC}"
+            echo -e "${YELLOW}Option 2: Continue and install manually later${NC}"
             echo ""
-            echo "For detailed instructions, see: README.md section 3.1.2"
-            echo -e "${YELLOW}⚠ Skipping Python installation - please install manually${NC}"
+            
+            if prompt_yes_no "Would you like to install pyenv and Python 3.11 now?"; then
+                echo ""
+                echo "Installing pyenv prerequisites..."
+                apt-get update
+                apt-get install -y \
+                    git curl build-essential libssl-dev zlib1g-dev \
+                    libbz2-dev libreadline-dev libsqlite3-dev wget \
+                    llvm libncurses-dev xz-utils tk-dev libffi-dev liblzma-dev
+                
+                echo ""
+                echo "Installing pyenv for user $TARGET_USER..."
+                if [ ! -d "$TARGET_HOME/.pyenv" ]; then
+                    # Install pyenv as the target user
+                    sudo -u "$TARGET_USER" bash -c 'curl https://pyenv.run | bash'
+                    
+                    # Add to shell configuration if not already there
+                    if ! grep -q 'PYENV_ROOT' "$TARGET_HOME/.bashrc" 2>/dev/null; then
+                        sudo -u "$TARGET_USER" bash -c 'cat >> ~/.bashrc << '\''EOF'\''
+
+# Pyenv configuration
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+EOF'
+                    fi
+                fi
+                
+                echo ""
+                echo "Installing Python 3.11.9..."
+                # Source the pyenv configuration and install Python
+                sudo -u "$TARGET_USER" bash -c 'export PYENV_ROOT="$HOME/.pyenv"; export PATH="$PYENV_ROOT/bin:$PATH"; eval "$(pyenv init -)"; pyenv install -s 3.11.9 && pyenv global 3.11.9'
+                
+                if [ $? -eq 0 ]; then
+                    echo -e "${GREEN}✓ Python 3.11 installed via pyenv${NC}"
+                    echo -e "${YELLOW}⚠ Important: Open a new terminal or run 'source ~/.bashrc' to use the new Python${NC}"
+                else
+                    echo -e "${RED}✗ Failed to install Python 3.11 via pyenv${NC}"
+                    echo "You may need to logout/login and run this setup again."
+                fi
+            else
+                echo ""
+                echo -e "${YELLOW}Skipping Python installation.${NC}"
+                echo ""
+                echo "To install manually later:"
+                echo "  1. See README.md section 'Install Python 3.11'"
+                echo "  2. Run this guided setup again after installation"
+            fi
         fi
     fi
     echo ""
@@ -538,9 +718,20 @@ run_guided_mode() {
         echo -e "${GREEN}✓ Virtual environment already exists${NC}"
     else
         echo "A Python virtual environment isolates ANT+ dependencies."
+        
+        # Try to find python3.11 in multiple locations
+        PYTHON311=""
         if command -v python3.11 >/dev/null 2>&1; then
+            PYTHON311="python3.11"
+        elif [ -f /usr/bin/python3.11 ]; then
+            PYTHON311="/usr/bin/python3.11"
+        elif ls "$TARGET_HOME"/.pyenv/versions/3.11.*/bin/python3.11 &>/dev/null; then
+            PYTHON311=$(ls "$TARGET_HOME"/.pyenv/versions/3.11.*/bin/python3.11 2>/dev/null | head -1)
+        fi
+        
+        if [ -n "$PYTHON311" ]; then
             if prompt_yes_no "Create virtual environment at ~/ant_venv?"; then
-                sudo -u "$TARGET_USER" python3.11 -m venv "$TARGET_HOME/ant_venv"
+                sudo -u "$TARGET_USER" "$PYTHON311" -m venv "$TARGET_HOME/ant_venv"
                 echo -e "${GREEN}✓ Virtual environment created${NC}"
             fi
         else
@@ -575,6 +766,8 @@ run_guided_mode() {
         else
             echo -e "${YELLOW}Missing packages:${missing_names}${NC}"
             if prompt_yes_no "Install missing Python packages?"; then
+                # Run pip as target user, ensuring proper ownership
+                sudo -u "$TARGET_USER" "$TARGET_HOME/ant_venv/bin/pip" install --upgrade pip
                 sudo -u "$TARGET_USER" "$TARGET_HOME/ant_venv/bin/pip" install openant pyusb pybind11
                 echo -e "${GREEN}✓ Python packages installed${NC}"
             fi

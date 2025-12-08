@@ -1,97 +1,138 @@
 # Compiling QDomyos-Zwift with ANT+ Support
 
-This guide explains how to compile QDomyos-Zwift from source using Docker. **For most users, [pre-compiled binaries](README.md) are recommended.**
+**For most users:** [Pre-compiled binaries](README.md) are the easiest option. This guide is for developers or users who need to build from source.
 
-**📌 TL;DR:** Use `./docker-build.sh --arch x86-64` (or `arm64`) to build from source.
+## 🚀 Quick Start
 
-**Return to main guide:** [README.md](README.md)
+```bash
+cd src/devices/antlinux
+./docker-build.sh --arch x86-64  # or --arch arm64 for Raspberry Pi
+```
+
+That's it! The script handles everything automatically.
+
+**📖 Need the main guide?** [README.md](README.md)
 
 ---
 
-## Docker Build Method
+## Why Docker Build?
 
-**This is the primary build method** used to create GitHub releases and provides the most reliable compilation experience.
+The Docker method is **the recommended way** to compile QDomyos-Zwift:
 
-The Docker build method:
-- ✅ Works on any Linux system with Docker installed
-- ✅ Zero build tools needed on host system  
-- ✅ Produces identical binaries to GitHub releases
-- ✅ Handles all dependencies automatically
-- ✅ Supports both x86-64 and ARM64 (Raspberry Pi)
+- ✅ **Works anywhere** - Any Linux system with Docker installed
+- ✅ **Zero host dependencies** - No build tools needed on your system
+- ✅ **Reproducible builds** - Same binaries as GitHub releases
+- ✅ **Automatic dependencies** - Qt, Python, and libraries handled for you
+- ✅ **Cross-platform** - Build x86-64 and ARM64 from the same machine
 
-### Prerequisites
+---
+
+## Prerequisites
+
+### Install Docker
 
 ```bash
-# Install Docker
 sudo apt-get update
 sudo apt-get install -y docker.io docker-buildx
-sudo usermod -aG docker $USER
-newgrp docker  # Or logout/login
 
-# Clone repository
+# Add your user to docker group
+sudo usermod -aG docker $USER
+
+# Activate group (or logout/login)
+newgrp docker
+```
+
+### Clone Repository
+
+```bash
 git clone https://github.com/cagnulein/qdomyos-zwift.git
 cd qdomyos-zwift
 ```
 
-### Build for Desktop Linux (x86-64)
+---
+
+## Building
+
+### 💻 Desktop Linux (x86-64)
 
 ```bash
 cd src/devices/antlinux
 ./docker-build.sh --arch x86-64
 ```
 
-Output: `linux-binary-x86-64-ant.zip` in project root
+**Output:** `linux-binary-x86-64-ant.zip` in project root
 
-### Build for Raspberry Pi (ARM64)
+### 📱 Raspberry Pi (ARM64)
 
 ```bash
 cd src/devices/antlinux
 ./docker-build.sh --arch arm64
 ```
 
-Output: `linux-binary-arm64-ant.zip` in project root
+**Output:** `linux-binary-arm64-ant.zip` in project root
 
-### Extract and Test
+> **💡 Tip:** You can build ARM64 binaries on an x86-64 machine! Docker handles cross-compilation automatically.
+
+---
+
+## Testing Your Build
+
+### Extract and Run
 
 ```bash
-cd ../../..  # Back to project root
+# Return to project root
+cd ../../..
+
+# Extract the package
 unzip linux-binary-x86-64-ant.zip -d ~/
 cd ~/qdomyos-zwift-x86-64-ant
-
-# Verify setup
-./setup.sh --quick
-
-# Test ANT+ hardware
-sudo ./setup.sh --test
-
-# Run application
-./qdomyos-zwift
 ```
 
-**That's it!** The Docker build handles all Qt, Python, and dependency complexities.
+### Verify Everything Works
+
+```bash
+# Check system requirements
+./setup.sh --quick
+
+# Test ANT+ hardware independently
+sudo ./setup.sh --test
+
+# Launch the application
+sudo ./qdomyos-zwift -no-gui -ant-footpod
+```
 
 ---
 
-## Build Verification
+## ✅ Build Verification
 
-### Success Indicators
-
-✓ Build completes without errors  
-✓ `setup.sh --quick` shows all tests passing  
-✓ Application starts and detects ANT+ dongle  
-✓ Watch connects and displays stable pace/cadence
-
-### Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Docker permission denied | Run `newgrp docker` or logout/login after adding user to docker group |
-| Build fails with OOM | Increase Docker memory limit in Docker Desktop settings |
-| Invalid architecture specified | Use `x86-64` or `arm64` only |
-| Binary won't run on target | Ensure architecture matches (x86-64 vs ARM64) |
-
-See [main README troubleshooting](README.md#troubleshooting) for runtime issues.
+**Your build is successful when:**
+- ✅ Build completes without errors
+- ✅ `./setup.sh --quick` passes all tests
+- ✅ Application detects your ANT+ dongle
+- ✅ Watch connects and shows stable pace/cadence
 
 ---
 
-**Return to [main README](README.md)**
+## 🔧 Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| `Docker permission denied` | Run `newgrp docker` or logout/login after adding user to docker group |
+| Build fails with out-of-memory error | Increase Docker memory in Docker Desktop settings (4GB+ recommended) |
+| `Invalid architecture specified` | Use `--arch x86-64` or `--arch arm64` only |
+| Binary won't run on target system | Verify architecture matches your hardware (use `uname -m` to check) |
+| Build succeeds but runtime issues | See [main README troubleshooting section](README.md#-troubleshooting) for setup and runtime problems |
+
+---
+
+## 🎯 Next Steps
+
+Now that you have a compiled binary:
+
+1. **Follow the main guide:** [README.md](README.md) for complete setup instructions
+2. **Install dependencies:** Run `sudo ./setup.sh --guided` for automatic setup
+3. **Configure and run:** See Step 4 in the main README
+
+---
+
+**📖 Return to [main README](README.md)**
