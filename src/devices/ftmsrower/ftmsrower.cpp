@@ -504,6 +504,8 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else
                 emit debug(QStringLiteral("Error on parsing heart"));
+        } else if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+           update_hr_from_external();
         }
     }
 
@@ -529,10 +531,6 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 
     lastRefreshCharacteristicChanged = now;
-
-    if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-        update_hr_from_external();
-    }
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
