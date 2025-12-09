@@ -7628,9 +7628,6 @@ void proformtreadmill::btinit() {
         writeCharacteristic(initData25, sizeof(initData25), QStringLiteral("init"), false, false);
         QThread::msleep(sleepms);
     } else if (proform_treadmill_sport_3_0) {
-        // ProForm Sport 3.0 Treadmill (pkt8162 to pkt10753)
-        max_inclination = 20;
-
         // Init sequence (39 packets)
         uint8_t sport30_init_001[] = {0xfe, 0x02, 0x08, 0x02};
         uint8_t sport30_init_002[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
