@@ -1008,6 +1008,18 @@ run_test_mode() {
     echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
     echo ""
     
+    # Check if qdomyos-zwift is already running
+    if pgrep -f "qdomyos-zwift-bin" >/dev/null 2>&1; then
+        echo -e "${RED}✗ qdomyos-zwift is already running!${NC}"
+        echo ""
+        echo "The ANT+ USB dongle can only be used by one process at a time."
+        echo ""
+        echo "Please stop qdomyos-zwift first:"
+        echo -e "  ${YELLOW}sudo pkill -f qdomyos-zwift-bin${NC}"
+        echo ""
+        exit 1
+    fi
+    
     # Check if test script exists
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     if [ ! -f "$SCRIPT_DIR/test_ant.py" ]; then
