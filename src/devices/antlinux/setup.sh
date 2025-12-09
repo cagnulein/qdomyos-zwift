@@ -721,26 +721,17 @@ run_guided_mode() {
     else
         echo -e "${YELLOW}✗ Python 3.11 not found${NC}"
         echo ""
-        echo "Python 3.11 can be installed via:"
-        echo "  A) System package manager (apt) - Simpler, if available"
-        echo "  B) pyenv - More flexible, works on any distribution"
-        echo ""
         
         if apt-cache show python3.11 >/dev/null 2>&1; then
-            echo "Your system provides Python 3.11 via apt (recommended)."
-            if prompt_yes_no "Install Python 3.11 via apt?"; then
+            if prompt_yes_no "Install Python 3.11?"; then
                 apt-get update
                 apt-get install -y python3.11 python3.11-venv
                 echo -e "${GREEN}✓ Python 3.11 installed${NC}"
             fi
         else
-            echo "Your system doesn't provide Python 3.11 via apt."
+            echo "Python 3.11 needs to be installed via pyenv."
             echo ""
-            echo -e "${YELLOW}Option 1: Install via pyenv (automatic but requires restart)${NC}"
-            echo -e "${YELLOW}Option 2: Continue and install manually later${NC}"
-            echo ""
-            
-            if prompt_yes_no "Would you like to install pyenv and Python 3.11 now?"; then
+            if prompt_yes_no "Install Python 3.11 via pyenv?"; then
                 echo ""
                 echo "Installing pyenv prerequisites..."
                 apt-get update
@@ -797,8 +788,6 @@ EOF'
     if [ -d "$TARGET_HOME/ant_venv" ]; then
         echo -e "${GREEN}✓ Virtual environment already exists${NC}"
     else
-        echo "A Python virtual environment isolates ANT+ dependencies."
-        
         # Try to find python3.11 in multiple locations
         PYTHON311=""
         if command -v python3.11 >/dev/null 2>&1; then
@@ -810,7 +799,7 @@ EOF'
         fi
         
         if [ -n "$PYTHON311" ]; then
-            if prompt_yes_no "Create virtual environment at ~/ant_venv?"; then
+            if prompt_yes_no "Create Python virtual environment?"; then
                 sudo -u "$TARGET_USER" "$PYTHON311" -m venv "$TARGET_HOME/ant_venv"
                 echo -e "${GREEN}✓ Virtual environment created${NC}"
             fi
@@ -845,7 +834,7 @@ EOF'
             echo -e "${GREEN}✓ All Python packages already installed${NC}"
         else
             echo -e "${YELLOW}Missing packages:${missing_names}${NC}"
-            if prompt_yes_no "Install missing Python packages?"; then
+            if prompt_yes_no "Install Python packages?"; then
                 # Run pip as target user, ensuring proper ownership
                 sudo -u "$TARGET_USER" "$TARGET_HOME/ant_venv/bin/pip" install --upgrade pip
                 sudo -u "$TARGET_USER" "$TARGET_HOME/ant_venv/bin/pip" install openant pyusb pybind11
@@ -923,7 +912,7 @@ EOF'
         if [ ${#missing_qml[@]} -gt 0 ]; then
             echo -e "${YELLOW}Missing QML modules: ${missing_qml[*]}${NC}"
         fi
-        if prompt_yes_no "Install Qt5 runtime libraries, QML modules, and system packages?"; then
+        if prompt_yes_no "Install system libraries and QML modules?"; then
             apt-get update
             apt-get install -y \
                 libqt5bluetooth5 libqt5charts5 libqt5multimedia5 \
@@ -946,7 +935,7 @@ EOF'
     echo -e "${BLUE}[Step 5/6] Configuring USB permissions...${NC}"
     
     if ! groups "$TARGET_USER" | grep >/dev/null 2>&1 plugdev; then
-        if prompt_yes_no "Add $TARGET_USER to 'plugdev' group?"; then
+        if prompt_yes_no "Configure USB permissions?"; then
             usermod -aG plugdev "$TARGET_USER"
             echo -e "${GREEN}✓ User added to plugdev group${NC}"
             echo -e "${YELLOW}⚠ You must logout and login for changes to take effect${NC}"
@@ -956,7 +945,7 @@ EOF'
     fi
     
     if [ ! -f /etc/udev/rules.d/99-ant-usb.rules ]; then
-        if prompt_yes_no "Create ANT+ USB udev rules?"; then
+        if prompt_yes_no "Configure ANT+ USB access?"; then
             cat > /etc/udev/rules.d/99-ant-usb.rules <<'EOF'
 SUBSYSTEM=="usb", ATTRS{idVendor}=="0fcf", ATTRS{idProduct}=="100?", MODE="0666", GROUP="plugdev"
 SUBSYSTEM=="usb", ATTRS{idVendor}=="0fcf", ATTRS{idProduct}=="88a4", MODE="0666", GROUP="plugdev"
@@ -975,7 +964,7 @@ EOF
     echo -e "${BLUE}[Step 6/6] Enabling Bluetooth service...${NC}"
     
     if ! systemctl is-active --quiet bluetooth; then
-        if prompt_yes_no "Start and enable Bluetooth service?"; then
+        if prompt_yes_no "Enable Bluetooth service?"; then
             systemctl start bluetooth
             systemctl enable bluetooth
             echo -e "${GREEN}✓ Bluetooth service started${NC}"
