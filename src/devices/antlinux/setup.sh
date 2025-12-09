@@ -321,7 +321,7 @@ run_quick_mode() {
     )
     
     for lib in "${required_libs[@]}"; do
-        if ! ldconfig -p | grep -q "$lib"; then
+        if ! ldconfig -p 2>/dev/null | grep >/dev/null 2>&1 "$lib"; then
             missing_libs+=("$lib")
         fi
     done
@@ -492,7 +492,7 @@ run_reset_mode() {
     
     # Reset 1: Remove user from plugdev group
     echo -e "${YELLOW}[1/6] Removing $TARGET_USER from plugdev group...${NC}"
-    if groups "$TARGET_USER" | grep -q plugdev; then
+    if groups "$TARGET_USER" | grep >/dev/null 2>&1 plugdev; then
         if gpasswd -d "$TARGET_USER" plugdev 2>/dev/null; then
             echo -e "${GREEN}✓ User removed from plugdev group${NC}"
             echo -e "${YELLOW}⚠ You must logout and login for changes to take effect${NC}"
@@ -554,7 +554,7 @@ run_reset_mode() {
     local python_removed=0
     
     # Check if Python 3.11 is installed via apt
-    if dpkg -l python3.11 2>/dev/null | grep -q "^ii"; then
+    if dpkg -l python3.11 2>/dev/null | grep >/dev/null 2>&1 "^ii"; then
         echo "Removing system Python 3.11 packages..."
         if apt-get remove -y python3.11 python3.11-venv python3.11-dev 2>/dev/null; then
             apt-get autoremove -y 2>/dev/null
@@ -592,10 +592,10 @@ run_reset_mode() {
     
     # Check if running on a desktop environment
     local is_desktop=false
-    if dpkg -l ubuntu-desktop 2>/dev/null | grep -q "^ii" || \
-       dpkg -l ubuntu-desktop-minimal 2>/dev/null | grep -q "^ii" || \
-       dpkg -l gnome-shell 2>/dev/null | grep -q "^ii" || \
-       dpkg -l kde-plasma-desktop 2>/dev/null | grep -q "^ii"; then
+    if dpkg -l ubuntu-desktop 2>/dev/null | grep >/dev/null 2>&1 "^ii" || \
+       dpkg -l ubuntu-desktop-minimal 2>/dev/null | grep >/dev/null 2>&1 "^ii" || \
+       dpkg -l gnome-shell 2>/dev/null | grep >/dev/null 2>&1 "^ii" || \
+       dpkg -l kde-plasma-desktop 2>/dev/null | grep >/dev/null 2>&1 "^ii"; then
         is_desktop=true
     fi
     
@@ -621,7 +621,7 @@ run_reset_mode() {
         
         local qt_found=0
         for pkg in "${qt_packages[@]}"; do
-            if dpkg -l "$pkg" 2>/dev/null | grep -q "^ii"; then
+            if dpkg -l "$pkg" 2>/dev/null | grep >/dev/null 2>&1 "^ii"; then
                 ((qt_found++))
             fi
         done
@@ -650,7 +650,7 @@ run_reset_mode() {
         echo -e "${YELLOW}  libusb is a core dependency of your desktop environment${NC}"
         echo -e "${GREEN}✓ Skipped (desktop protection)${NC}"
     else
-        if dpkg -l libusb-1.0-0 2>/dev/null | grep -q "^ii"; then
+        if dpkg -l libusb-1.0-0 2>/dev/null | grep >/dev/null 2>&1 "^ii"; then
             if apt-get remove -y libusb-1.0-0 2>/dev/null; then
                 apt-get autoremove -y 2>/dev/null
                 echo -e "${GREEN}✓ libusb-1.0 removed${NC}"
@@ -698,7 +698,7 @@ run_guided_mode() {
     # Step 1: Check Python 3.11
     echo -e "${BLUE}[Step 1/6] Checking Python 3.11...${NC}"
     
-    if ldconfig -p | grep -q 'libpython3.11.so' || ls "$TARGET_HOME"/.pyenv/versions/3.11.*/lib/libpython3.11.so* &>/dev/null; then
+    if ldconfig -p | grep >/dev/null 2>&1 'libpython3.11.so' || ls "$TARGET_HOME"/.pyenv/versions/3.11.*/lib/libpython3.11.so* &>/dev/null; then
         echo -e "${GREEN}✓ Python 3.11 is already installed${NC}"
     else
         echo -e "${YELLOW}✗ Python 3.11 not found${NC}"
@@ -738,7 +738,7 @@ run_guided_mode() {
                     sudo -u "$TARGET_USER" bash -c 'curl https://pyenv.run | bash'
                     
                     # Add to shell configuration if not already there
-                    if ! grep -q 'PYENV_ROOT' "$TARGET_HOME/.bashrc" 2>/dev/null; then
+                    if ! grep >/dev/null 2>&1 'PYENV_ROOT' "$TARGET_HOME/.bashrc" 2>/dev/null; then
                         sudo -u "$TARGET_USER" bash -c 'cat >> ~/.bashrc << '\''EOF'\''
 
 # Pyenv configuration
@@ -842,18 +842,69 @@ EOF'
     # Step 4: Install system libraries
     echo -e "${BLUE}[Step 4/6] Installing system libraries...${NC}"
     
-    # Check critical libraries
-    local libs_missing=0
-    ldconfig -p | grep 'libQt5Bluetooth.so' >/dev/null 2>&1 || ((libs_missing++))
-    ldconfig -p | grep 'libQt5Charts.so' >/dev/null 2>&1 || ((libs_missing++))
-    ldconfig -p | grep 'libQt5Widgets.so' >/dev/null 2>&1 || ((libs_missing++))
-    ldconfig -p | grep 'libusb-1.0.so' >/dev/null 2>&1 || ((libs_missing++))
-    systemctl list-unit-files | grep '^bluetooth.service' >/dev/null 2>&1 || ((libs_missing++))
+    # Use the same comprehensive check as validation
+    missing_libs=()
+    required_libs=(
+        "libQt5Bluetooth.so"
+        "libQt5Charts.so"
+        "libQt5Multimedia.so"
+        "libQt5MultimediaWidgets.so"
+        "libQt5NetworkAuth.so"
+        "libQt5Positioning.so"
+        "libQt5Sql.so"
+        "libQt5TextToSpeech.so"
+        "libQt5WebSockets.so"
+        "libQt5Widgets.so"
+        "libQt5Xml.so"
+        "libusb-1.0.so.0"
+    )
     
-    if [ $libs_missing -eq 0 ]; then
+    for lib in "${required_libs[@]}"; do
+        if ! ldconfig -p | grep >/dev/null 2>&1 "$lib"; then
+            missing_libs+=("$lib")
+        fi
+    done
+    
+    # Check QML modules
+    missing_qml=()
+    required_qml_dirs=(
+        "QtLocation"
+        "QtPositioning"
+        "QtQuick.2"
+        "QtQuick/Controls"
+        "QtQuick/Controls.2"
+        "QtQuick/Dialogs"
+        "QtQuick/Layouts"
+        "QtQuick/Window.2"
+    )
+    
+    for qml_dir in "${required_qml_dirs[@]}"; do
+        found=0
+        for qml_path in /usr/lib/*/qt5/qml /usr/lib/qt5/qml /usr/lib/aarch64-linux-gnu/qt5/qml /usr/lib/x86_64-linux-gnu/qt5/qml; do
+            if [ -d "$qml_path/$qml_dir" ]; then
+                found=1
+                break
+            fi
+        done
+        if [ $found -eq 0 ]; then
+            missing_qml+=("$qml_dir")
+        fi
+    done
+    
+    # Check Bluetooth service
+    if ! systemctl list-unit-files | grep >/dev/null 2>&1 '^bluetooth.service'; then
+        missing_libs+=("bluetooth")
+    fi
+    
+    if [ ${#missing_libs[@]} -eq 0 ] && [ ${#missing_qml[@]} -eq 0 ]; then
         echo -e "${GREEN}✓ All system libraries already installed${NC}"
     else
-        echo -e "${YELLOW}Some system libraries are missing${NC}"
+        if [ ${#missing_libs[@]} -gt 0 ]; then
+            echo -e "${YELLOW}Missing libraries: ${missing_libs[*]}${NC}"
+        fi
+        if [ ${#missing_qml[@]} -gt 0 ]; then
+            echo -e "${YELLOW}Missing QML modules: ${missing_qml[*]}${NC}"
+        fi
         if prompt_yes_no "Install Qt5 runtime libraries, QML modules, and system packages?"; then
             apt-get update
             apt-get install -y \
@@ -875,7 +926,7 @@ EOF'
     # Step 5: Configure USB permissions
     echo -e "${BLUE}[Step 5/6] Configuring USB permissions...${NC}"
     
-    if ! groups "$TARGET_USER" | grep -q plugdev; then
+    if ! groups "$TARGET_USER" | grep >/dev/null 2>&1 plugdev; then
         if prompt_yes_no "Add $TARGET_USER to 'plugdev' group?"; then
             usermod -aG plugdev "$TARGET_USER"
             echo -e "${GREEN}✓ User added to plugdev group${NC}"
