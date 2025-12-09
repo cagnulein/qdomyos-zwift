@@ -15,6 +15,8 @@ void bike::changeResistance(resistance_t resistance) {
         settings.value(QZSettings::zwift_erg_resistance_up, QZSettings::default_zwift_erg_resistance_up).toDouble();
     double zwift_erg_resistance_down =
         settings.value(QZSettings::zwift_erg_resistance_down, QZSettings::default_zwift_erg_resistance_down).toDouble();
+    int max_resistance_change =
+        settings.value(QZSettings::zwift_erg_max_resistance_change, QZSettings::default_zwift_erg_max_resistance_change).toInt();
 
     qDebug() << QStringLiteral("bike::changeResistance") << autoResistanceEnable << resistance;
 
@@ -28,6 +30,20 @@ void bike::changeResistance(resistance_t resistance) {
             qDebug() << "zwift_erg_resistance_down filter enabled!";
             v = (resistance_t)zwift_erg_resistance_down;
         }
+
+        // Apply max resistance change limiter
+        if (max_resistance_change > 0) {
+            double current_resistance = Resistance.value();
+            double delta = v - current_resistance;
+            if (delta > max_resistance_change) {
+                qDebug() << "zwift_erg_max_resistance_change limiter: clamping" << v << "to" << (current_resistance + max_resistance_change);
+                v = current_resistance + max_resistance_change;
+            } else if (delta < -max_resistance_change) {
+                qDebug() << "zwift_erg_max_resistance_change limiter: clamping" << v << "to" << (current_resistance - max_resistance_change);
+                v = current_resistance - max_resistance_change;
+            }
+        }
+
         requestResistance = v;
         emit resistanceChanged(requestResistance);
     }

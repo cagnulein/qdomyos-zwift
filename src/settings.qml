@@ -1227,7 +1227,11 @@ import Qt.labs.platform 1.1
             property string intervalsicu_athlete_id: ""
             property bool intervalsicu_upload_enabled: true
             property string intervalsicu_suffix: "#QZ"
-            property bool intervalsicu_date_prefix: false            
+            property bool intervalsicu_date_prefix: false
+
+            // ERG Table and Resistance Change Settings
+            property bool ergtable_lock: false
+            property int zwift_erg_max_resistance_change: 0
         }
 
 
@@ -2780,6 +2784,72 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Similar to the above, but sets a maximum target resistance. Default is 999.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelErgTableLock
+                            text: qsTr("Lock ERG Table:")
+                            Layout.fillWidth: true
+                        }
+                        CheckBox {
+                            id: ergTableLockCheckBox
+                            checked: settings.ergtable_lock
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.ergtable_lock = checked
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Enable this to prevent automatic updates to the ERG table, preserving manually entered ergDataPoints values. Useful when you've manually calibrated your resistance/power/cadence data.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelZwiftErgMaxResistanceChange
+                            text: qsTr("Max. ERG Resistance Change:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: zwiftErgMaxResistanceChangeTextField
+                            text: settings.zwift_erg_max_resistance_change
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.zwift_erg_max_resistance_change = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okzwiftErgMaxResistanceChangeButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.zwift_erg_max_resistance_change = zwiftErgMaxResistanceChangeTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Limits the resistance change per step in ERG mode. Set to 0 for unlimited. Use values like 1-5 to smooth out abrupt resistance changes and prevent cadence destabilization. Default is 0 (unlimited).")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
