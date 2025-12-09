@@ -188,6 +188,7 @@ class homeform : public QObject {
     Q_PROPERTY(bool stopRequested READ stopRequested NOTIFY stopRequestedChanged WRITE setStopRequestedChanged)
     Q_PROPERTY(bool startRequested READ startRequested NOTIFY startRequestedChanged WRITE setStartRequestedChanged)
     Q_PROPERTY(QString toastRequested READ toastRequested NOTIFY toastRequestedChanged WRITE setToastRequested)
+    Q_PROPERTY(bool wahooVirtualGearingPopupRequested READ wahooVirtualGearingPopupRequested NOTIFY wahooVirtualGearingPopupRequestedChanged WRITE setWahooVirtualGearingPopupRequested)
     Q_PROPERTY(bool stravaUploadRequested READ stravaUploadRequested NOTIFY stravaUploadRequestedChanged WRITE setStravaUploadRequested)
 
     // workout preview
@@ -472,6 +473,7 @@ class homeform : public QObject {
     void setPelotonAskStart(bool value) { m_pelotonAskStart = value; }
     QString pelotonProvider() { return m_pelotonProvider; }
     QString toastRequested() { return m_toastRequested; }
+    bool wahooVirtualGearingPopupRequested() { return m_wahooVirtualGearingPopupRequested; }
     bool stravaUploadRequested() { return m_stravaUploadRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
@@ -527,6 +529,7 @@ class homeform : public QObject {
     void setVideoRate(double rate);
     void setMapsVisible(bool value);
     void setToastRequested(QString value) { m_toastRequested = value; emit toastRequestedChanged(value); }
+    void setWahooVirtualGearingPopupRequested(bool value) { m_wahooVirtualGearingPopupRequested = value; emit wahooVirtualGearingPopupRequestedChanged(value); }
     void setStravaUploadRequested(bool value) {
         m_stravaUploadRequested = value;
     }
@@ -842,6 +845,7 @@ class homeform : public QObject {
     bool m_pelotonAskStart = false;
     QString m_pelotonProvider = "";
     QString m_toastRequested = "";
+    bool m_wahooVirtualGearingPopupRequested = false;
     bool m_stravaUploadRequested = false;
     FitDatabaseProcessor *fitProcessor = nullptr;
     WorkoutModel *workoutModel = nullptr;
@@ -1055,6 +1059,7 @@ class homeform : public QObject {
     void changePelotonAskStart(bool value);
     void changePelotonProvider(QString value);
     void toastRequestedChanged(QString value);
+    void wahooVirtualGearingPopupRequestedChanged(bool value);
     void stravaUploadRequestedChanged(bool value);
     void generalPopupVisibleChanged(bool value);
     void pelotonPopupVisibleChanged(bool value);

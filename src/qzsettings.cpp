@@ -460,6 +460,7 @@ const QString QZSettings::nordictrack_gx_2_7 = QStringLiteral("nordictrack_gx_2_
 const QString QZSettings::rolling_resistance = QStringLiteral("rolling_resistance");
 const QString QZSettings::wahoo_rgt_dircon = QStringLiteral("wahoo_rgt_dircon");
 const QString QZSettings::wahoo_without_wheel_diameter = QStringLiteral("wahoo_without_wheel_diameter");
+const QString QZSettings::wahoo_virtual_gearing_popup_accepted = QStringLiteral("wahoo_virtual_gearing_popup_accepted");
 const QString QZSettings::tts_description_enabled = QStringLiteral("tts_description_enabled");
 const QString QZSettings::tile_preset_resistance_1_enabled = QStringLiteral("tile_preset_resistance_1_enabled");
 const QString QZSettings::tile_preset_resistance_1_order = QStringLiteral("tile_preset_resistance_1_order");
@@ -1007,7 +1008,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 822;
+const uint32_t allSettingsCount = 824;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1394,6 +1395,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7},
     {QZSettings::rolling_resistance, QZSettings::default_rolling_resistance},
     {QZSettings::wahoo_rgt_dircon, QZSettings::default_wahoo_rgt_dircon},
+    {QZSettings::wahoo_without_wheel_diameter, QZSettings::default_wahoo_without_wheel_diameter},
+    {QZSettings::wahoo_virtual_gearing_popup_accepted, QZSettings::default_wahoo_virtual_gearing_popup_accepted},
     {QZSettings::tts_description_enabled, QZSettings::default_tts_description_enabled},
     {QZSettings::tile_preset_resistance_1_enabled, QZSettings::default_tile_preset_resistance_1_enabled},
     {QZSettings::tile_preset_resistance_1_order, QZSettings::default_tile_preset_resistance_1_order},

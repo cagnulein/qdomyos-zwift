@@ -510,6 +510,18 @@ ApplicationWindow {
         visible: rootItem.stravaUploadRequested
     }
 
+    MessageDialog {
+        id: popupWahooVirtualGearing
+        text: "Wahoo Virtual Gearing"
+        informativeText: "QZ is handling virtual gearing for your wahoo device! In order to do so, QZ is changing the wheel diameter dinamically. If you would like to use the trainer outside QZ, click on the button 'Reset Diameter' under the QZ settings, bike options, wahoo options."
+        buttons: MessageDialog.Ok
+        onOkClicked: {
+            settings.wahoo_virtual_gearing_popup_accepted = true;
+            rootItem.wahooVirtualGearingPopupRequested = false;
+        }
+        visible: rootItem.wahooVirtualGearingPopupRequested
+    }
+
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
         Material.primary: settings.theme_status_bar_background_color

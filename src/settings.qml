@@ -1169,6 +1169,7 @@ import Qt.labs.platform 1.1
             // 2.19.2
             property bool tile_hr_time_in_zone_individual_mode: false
             property bool wahoo_without_wheel_diameter: false
+            property bool wahoo_virtual_gearing_popup_accepted: false
 
             // 2.20.3
             property bool technogym_group_cycle: false

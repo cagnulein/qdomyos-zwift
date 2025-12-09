@@ -1385,6 +1385,9 @@ class QZSettings {
     static const QString wahoo_without_wheel_diameter;
     static constexpr bool default_wahoo_without_wheel_diameter = false;
 
+    static const QString wahoo_virtual_gearing_popup_accepted;
+    static constexpr bool default_wahoo_virtual_gearing_popup_accepted = false;
+
     static const QString tts_description_enabled;
     static constexpr bool default_tts_description_enabled = true;
 

@@ -231,6 +231,15 @@ void wahookickrsnapbike::update() {
         Resistance = 0;
         emit resistanceRead(Resistance.value());
         initRequest = false;
+
+        // Show virtual gearing popup if not using wheel diameter mode and user hasn't seen it yet
+        if (!wahooWithoutWheelDiameter) {
+            bool popupAccepted = settings.value(QZSettings::wahoo_virtual_gearing_popup_accepted,
+                                               QZSettings::default_wahoo_virtual_gearing_popup_accepted).toBool();
+            if (!popupAccepted && homeform::singleton()) {
+                homeform::singleton()->setWahooVirtualGearingPopupRequested(true);
+            }
+        }
     } else if (
 #ifndef Q_OS_IOS
                bluetoothDevice.isValid() &&
