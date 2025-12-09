@@ -466,13 +466,17 @@ run_reset_mode() {
     echo "  - Python 3.11 (system and pyenv installations)"
     echo "  - Python virtual environment (~/ant_venv)"
     echo "  - Python packages (openant, pyusb, pybind11)"
-    echo "  - Qt5 libraries (libqt5bluetooth5, libqt5charts5, etc.)"
+    echo "  - Qt5 libraries (9 packages: charts, multimedia, networkauth, etc.)"
+    echo "  - QML modules (8 packages: QtLocation, QtQuick, etc.)"
     echo "  - libusb-1.0"
     echo "  - User from 'plugdev' group"
     echo "  - ANT+ udev rules"
     echo ""
     echo "This will NOT remove:"
-    echo "  - bluez (Bluetooth service - may be used by other apps)"
+    echo "  - bluez (system Bluetooth service)"
+    echo "  - libqt5bluetooth5, libqt5positioning5, libqt5sql5 (system packages)"
+    echo ""
+    echo -e "${YELLOW}Note: Qt5/libusb removal skipped on desktop systems to prevent breakage${NC}"
     echo ""
     echo -e "${CYAN}Completely removes what was installed by --guided mode${NC}"
     echo ""
@@ -600,7 +604,7 @@ run_reset_mode() {
     fi
     
     # Reset 5: Remove Qt5 libraries
-    echo -e "${YELLOW}[5/6] Removing Qt5 libraries...${NC}"
+    echo -e "${YELLOW}[5/6] Removing Qt5 libraries and QML modules...${NC}"
     
     if [ "$is_desktop" = true ]; then
         echo -e "${YELLOW}⚠ Desktop environment detected - skipping Qt5 removal to prevent system breakage${NC}"
@@ -608,16 +612,28 @@ run_reset_mode() {
         echo -e "${GREEN}✓ Skipped (desktop protection)${NC}"
     else
         local qt_packages=(
-            "libqt5bluetooth5"
             "libqt5charts5"
             "libqt5multimedia5"
+            "libqt5multimediawidgets5"
+            "libqt5multimedia5-plugins"
             "libqt5networkauth5"
-            "libqt5positioning5"
-            "libqt5sql5"
             "libqt5texttospeech5"
             "libqt5websockets5"
+            "libqt5widgets5"
             "libqt5xml5"
+            "qtlocation5-dev"
+            "qml-module-qtlocation"
+            "qml-module-qtpositioning"
+            "qml-module-qtquick2"
+            "qml-module-qtquick-controls"
+            "qml-module-qtquick-controls2"
+            "qml-module-qtquick-dialogs"
+            "qml-module-qtquick-layouts"
+            "qml-module-qtquick-window2"
         )
+        
+        # Note: Excluding system packages that may be auto-installed:
+        # - libqt5bluetooth5, libqt5positioning5, libqt5sql5 (often system deps)
         
         local qt_found=0
         for pkg in "${qt_packages[@]}"; do
@@ -627,17 +643,17 @@ run_reset_mode() {
         done
         
         if [ $qt_found -gt 0 ]; then
-            echo "Removing $qt_found Qt5 package(s)..."
+            echo "Removing $qt_found Qt5/QML/Bluetooth package(s)..."
             if apt-get remove -y "${qt_packages[@]}" 2>/dev/null; then
                 apt-get autoremove -y 2>/dev/null
-                echo -e "${GREEN}✓ Qt5 libraries removed${NC}"
+                echo -e "${GREEN}✓ Qt5 libraries and QML modules removed${NC}"
                 ((reset_count++))
             else
-                echo -e "${RED}✗ Failed to remove some Qt5 packages${NC}"
+                echo -e "${RED}✗ Failed to remove some Qt5/QML packages${NC}"
                 ((failed_count++))
             fi
         else
-            echo -e "${GREEN}✓ No Qt5 packages found${NC}"
+            echo -e "${GREEN}✓ No Qt5/QML packages found${NC}"
         fi
     fi
     echo ""
