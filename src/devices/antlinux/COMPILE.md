@@ -2,7 +2,7 @@
 
 **For most users:** [Pre-compiled binaries](README.md) are the easiest option. This guide is for developers or users who need to build from source.
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 cd src/devices/antlinux
@@ -11,7 +11,7 @@ cd src/devices/antlinux
 
 That's it! The script handles everything automatically.
 
-**📖 Need the main guide?** [README.md](README.md)
+**Need the main guide?** [README.md](README.md)
 
 ---
 
@@ -19,11 +19,11 @@ That's it! The script handles everything automatically.
 
 The Docker method is **the recommended way** to compile QDomyos-Zwift:
 
-- ✅ **Works anywhere** - Any Linux system with Docker installed
-- ✅ **Zero host dependencies** - No build tools needed on your system
-- ✅ **Reproducible builds** - Same binaries as GitHub releases
-- ✅ **Automatic dependencies** - Qt, Python, and libraries handled for you
-- ✅ **Cross-platform** - Build x86-64 and ARM64 from the same machine
+- **Works anywhere** - Any Linux system with Docker installed
+- **Zero host dependencies** - No build tools needed on your system
+- **Reproducible builds** - Same binaries as GitHub releases
+- **Automatic dependencies** - Qt, Python, and libraries handled for you
+- **Cross-platform** - Build x86-64 and ARM64 from the same machine
 
 ---
 
@@ -53,7 +53,7 @@ cd qdomyos-zwift
 
 ## Building
 
-### 💻 Desktop Linux (x86-64)
+### Desktop Linux (x86-64)
 
 ```bash
 cd src/devices/antlinux
@@ -62,7 +62,7 @@ cd src/devices/antlinux
 
 **Output:** `linux-binary-x86-64-ant.zip` in project root
 
-### 📱 Raspberry Pi (ARM64)
+### Raspberry Pi (ARM64)
 
 ```bash
 cd src/devices/antlinux
@@ -71,7 +71,7 @@ cd src/devices/antlinux
 
 **Output:** `linux-binary-arm64-ant.zip` in project root
 
-> **💡 Tip:** You can build ARM64 binaries on an x86-64 machine! Docker handles cross-compilation automatically.
+> **Tip:** You can build ARM64 binaries on an x86-64 machine! Docker handles cross-compilation automatically.
 
 ---
 
@@ -103,17 +103,17 @@ sudo ./qdomyos-zwift -no-gui -ant-footpod
 
 ---
 
-## ✅ Build Verification
+## Build Verification
 
 **Your build is successful when:**
-- ✅ Build completes without errors
-- ✅ `./setup.sh --quick` passes all tests
-- ✅ Application detects your ANT+ dongle
-- ✅ Watch connects and shows stable pace/cadence
+- Build completes without errors
+- `./setup.sh --quick` passes all tests
+- Application detects your ANT+ dongle
+- Watch connects and shows stable pace/cadence
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
@@ -125,7 +125,7 @@ sudo ./qdomyos-zwift -no-gui -ant-footpod
 
 ---
 
-## 🎯 Next Steps
+## Next Steps
 
 Now that you have a compiled binary:
 
@@ -135,4 +135,4 @@ Now that you have a compiled binary:
 
 ---
 
-**📖 Return to [main README](README.md)**
+**Return to [main README](README.md)**

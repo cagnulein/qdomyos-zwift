@@ -3,9 +3,9 @@
 Transform your Linux system into an ANT+ bridge that broadcasts treadmill data as a virtual footpod. Your Garmin watch or other ANT+ device will display real-time pace, distance, and cadence—just like running outdoors.
 
 ## What You'll Achieve
-- ✅ Broadcast treadmill pace, distance, and cadence in real-time
-- ✅ Pair your Garmin watch as a Foot Pod for accurate indoor run tracking
-- ✅ Automatically log runs to your fitness ecosystem
+- Broadcast treadmill pace, distance, and cadence in real-time
+- Pair your Garmin watch as a Foot Pod for accurate indoor run tracking
+- Automatically log runs to your fitness ecosystem
 
 ## Prerequisites
 
@@ -19,12 +19,12 @@ Transform your Linux system into an ANT+ bridge that broadcasts treadmill data a
 - Basic Linux terminal skills (navigating directories, editing files)
 
 **Tested Configurations:**
-- 📱 **Raspberry Pi:** Zero 2 W (Raspberry Pi OS Bookworm)
-- 💻 **Desktop Linux:** Ubuntu 24.04 LTS (x86-64)
-- 🏃 **Treadmill:** Proform 705 CST
-- ⌚ **Watch:** Garmin Forerunner 245
+- **Raspberry Pi:** Zero 2 W (Raspberry Pi OS Bookworm)
+- **Desktop Linux:** Ubuntu 24.04 LTS (x86-64)
+- **Treadmill:** Proform 705 CST
+- **Watch:** Garmin Forerunner 245
 
-> **💡 Tip:** Consider backing up your system before proceeding.
+> **Note:** Consider backing up your system before proceeding.
 
 ---
 
@@ -32,14 +32,14 @@ Transform your Linux system into an ANT+ bridge that broadcasts treadmill data a
 
 This guide uses **pre-compiled binaries** from GitHub Releases—the easiest method for most users.
 
-> **🔧 Developers:** Need to compile from source? See the [Compilation Guide](COMPILE.md).
+> **Developers:** Need to compile from source? See the [Compilation Guide](COMPILE.md).
 
 ### Installation Steps
 
-1. **📦 Download Binary** - Get the pre-compiled package for your platform
-2. **✅ Check System** - Verify what dependencies you need
-3. **⚙️ Install Dependencies** - Set up required libraries automatically
-4. **🚀 Run & Automate** - Test and configure automatic startup
+1. **Download Binary** - Get the pre-compiled package for your platform
+2. **Check System** - Verify what dependencies you need
+3. **Install Dependencies** - Set up required libraries automatically
+4. **Run & Automate** - Test and configure automatic startup
 
 ---
 
@@ -49,8 +49,8 @@ This guide uses **pre-compiled binaries** from GitHub Releases—the easiest met
 
 1. Visit the **[Releases page](https://github.com/cagnulein/qdomyos-zwift/releases)**
 2. Download the package for your platform:
-   - 📱 **Raspberry Pi (ARM64):** `linux-binary-arm64-ant.zip`
-   - 💻 **Desktop Linux (x86-64):** `linux-binary-x86-64-ant.zip`
+   - **Raspberry Pi (ARM64):** `linux-binary-arm64-ant.zip`
+   - **Desktop Linux (x86-64):** `linux-binary-x86-64-ant.zip`
 
 ### Extract to Your Home Directory
 
@@ -68,7 +68,7 @@ unzip linux-binary-x86-64-ant.zip
 cd qdomyos-zwift-x86-64-ant
 ```
 
-**📂 What's inside:**
+**Package Contents:**
 - `qdomyos-zwift` - Smart wrapper script (use this, not the binary directly)
 - `qdomyos-zwift-bin` - Application binary
 - `setup.sh` - Automated setup and validation tool
@@ -86,15 +86,15 @@ Before installing anything, see what's needed:
 ```
 
 This validates your entire setup in seconds:
-- ✅ Python 3.11 availability
-- ✅ Virtual environment
-- ✅ Python packages (openant, pyusb, pybind11)
-- ✅ Qt5 libraries
-- ✅ USB permissions (plugdev group, udev rules)
-- ✅ ANT+ dongle detection
-- ✅ Bluetooth service
+- Python 3.11 availability
+- Virtual environment
+- Python packages (openant, pyusb, pybind11)
+- Qt5 libraries
+- USB permissions (plugdev group, udev rules)
+- ANT+ dongle detection
+- Bluetooth service
 
-**All green?** Skip to Step 4! 🎉
+**All tests pass?** Skip to Step 4!
 
 **Issues found?** Continue to Step 3 for automatic fixes.
 
@@ -176,12 +176,12 @@ The pre-compiled binaries require Python 3.11. Check availability:
 python3.11 --version
 ```
 
-**✅ If Python 3.11 is available:**
+**If Python 3.11 is available:**
 ```bash
 sudo apt-get install -y python3.11 python3.11-venv
 ```
 
-**❌ If Python 3.11 is NOT available**, install via pyenv:
+**If Python 3.11 is NOT available**, install via pyenv:
 
 <details>
 <summary>Click to expand pyenv installation steps</summary>
@@ -271,7 +271,7 @@ All tests should pass. If issues remain, the tool will provide specific guidance
 3. Start "Treadmill" or "Run Indoor" activity
 4. **Add Cadence field:** Settings → Activities & Apps → [Activity] → Data Screens → customize
 
-**📊 Cadence Calculation:**
+**Cadence Calculation:**
 
 The system uses biomechanics research to switch between walking and running cadence at **7.0 km/h** (the walk-run transition zone):
 
@@ -280,7 +280,7 @@ The system uses biomechanics research to switch between walking and running cade
 | < 7.0 km/h | Walking | 90-140 SPM | 6.0 km/h ≈ 128 SPM |
 | ≥ 7.0 km/h | Running | 160-200 SPM | 8.5 km/h ≈ 166 SPM |
 
-> 📚 See "Further Reading" section for research references.
+> See "Further Reading" section for research references.
 
 ### Test the Application
 
@@ -297,7 +297,7 @@ sudo ./qdomyos-zwift -no-gui -ant-footpod -ant-device 12345
 sudo ./qdomyos-zwift -no-gui -ant-footpod -ant-verbose
 ```
 
-**⚠️ See dependency warnings?** The wrapper provides specific fix instructions. The app may still run but ANT+ won't work until resolved.
+**Note:** See dependency warnings? The wrapper provides specific fix instructions. The app may still run but ANT+ won't work until resolved.
 
 ### Configure Automatic Startup
 
@@ -343,7 +343,7 @@ KillSignal=SIGINT
 WantedBy=multi-user.target
 ```
 
-> **⚠️ Important:** Replace `YOUR_USERNAME` with your actual username.
+> **Important:** Replace `YOUR_USERNAME` with your actual username.
 
 **Enable and start the service:**
 
@@ -379,16 +379,16 @@ This ensures your headless system has the exact GUI-configured settings.
 
 ---
 
-## ✅ Success Indicators
+## Success Indicators
 
-- ✅ Watch displays stable pace and cadence
-- ✅ QZ receives and broadcasts treadmill data  
-- ✅ Distance accumulates accurately
-- ✅ Service starts automatically on boot (if configured)
+- Watch displays stable pace and cadence
+- QZ receives and broadcasts treadmill data  
+- Distance accumulates accurately
+- Service starts automatically on boot (if configured)
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Quick System Check
 
@@ -416,9 +416,9 @@ Both simulate a running treadmill. Your watch should show:
 - Cadence: ~166 SPM
 - Distance accumulating
 
-**✅ Test works but app doesn't?** Issue is with treadmill Bluetooth pairing/configuration, not ANT+.
+**Test works but app doesn't?** Issue is with treadmill Bluetooth pairing/configuration, not ANT+.
 
-**❌ Test fails?** Check USB permissions, dongle connection, or Python environment.
+**Test fails?** Check USB permissions, dongle connection, or Python environment.
 
 Press `Ctrl+C` to stop.
 
@@ -441,7 +441,7 @@ Press `Ctrl+C` to stop.
 
 ---
 
-## 📚 Credits & Further Reading
+## Credits & Further Reading
 
 **Project & Development:**
 - Main project: https://github.com/cagnulein/qdomyos-zwift
