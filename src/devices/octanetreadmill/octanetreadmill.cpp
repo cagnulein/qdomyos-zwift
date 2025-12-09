@@ -175,8 +175,6 @@ octanetreadmill::octanetreadmill(uint32_t pollDeviceTime, bool noConsole, bool n
     actualPace2Sign.append(0x03);
     actualPace2Sign.append(0x01);
     actualPace2Sign.append(0x23);
-    cadenceSign.append(0x2c);
-    cadenceSign.append(0x01);
     cadenceSign.append(0x3A);
 
     m_watt.setType(metric::METRIC_WATT, deviceType());
@@ -355,15 +353,6 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if ((newValue.length() != 20))
         return;
 
-    if (ZR8 && newValue.contains(cadenceSign)) {
-        int16_t i = newValue.indexOf(cadenceSign) + 3;
-
-        if (i >= newValue.length())
-            return;
-
-        Cadence = ((uint8_t)newValue.at(i));
-    }
-
     if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
         return;
 
@@ -383,6 +372,15 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
             }
             return;  // Not a speed packet, ignore
         }
+    }
+
+    if (ZR8 && newValue.contains(cadenceSign)) {
+        int16_t i = newValue.indexOf(cadenceSign) + 1;
+
+        if (i >= newValue.length() || ((uint8_t)newValue.at(i)) < 30)
+            return;
+
+        Cadence = ((uint8_t)newValue.at(i));
     }
 
     if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
