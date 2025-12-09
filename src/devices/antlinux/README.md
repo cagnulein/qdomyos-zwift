@@ -145,12 +145,24 @@ sudo apt-get install -y \
 	libqt5bluetooth5 \
 	libqt5charts5 \
 	libqt5multimedia5 \
+	libqt5multimediawidgets5 \
+	libqt5multimedia5-plugins \
 	libqt5networkauth5 \
 	libqt5positioning5 \
 	libqt5sql5 \
 	libqt5texttospeech5 \
 	libqt5websockets5 \
+	libqt5widgets5 \
 	libqt5xml5 \
+	qtlocation5-dev \
+	qml-module-qtlocation \
+	qml-module-qtpositioning \
+	qml-module-qtquick2 \
+	qml-module-qtquick-controls \
+	qml-module-qtquick-controls2 \
+	qml-module-qtquick-dialogs \
+	qml-module-qtquick-layouts \
+	qml-module-qtquick-window2 \
 	libusb-1.0-0 \
 	bluez \
 	python3-pip
