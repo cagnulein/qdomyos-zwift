@@ -522,9 +522,18 @@ bool trxappgateusbelliptical::connected() {
 void trxappgateusbelliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
-        qDebug() << QStringLiteral("trying to connect back again...");
+        qDebug() << QStringLiteral("trying to connect back again in 3 seconds...");
         initDone = false;
-        m_control->connectToDevice();
+
+        // Schedule reconnection after 3 seconds
+        QTimer::singleShot(3000, this, [this]() {
+            if (m_control && m_control->state() == QLowEnergyController::UnconnectedState) {
+                qDebug() << QStringLiteral("Reconnection timer fired, attempting to reconnect...");
+                // Reset the last valid packet timer
+                lastValidPacketTime = QDateTime::currentDateTime();
+                m_control->connectToDevice();
+            }
+        });
     }
 }
 
