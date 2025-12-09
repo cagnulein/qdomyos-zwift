@@ -219,7 +219,8 @@ main() {
     
     info "Creating zip artifact (matching GitHub runner behavior)..."
     rm -f "$ARTIFACT_NAME"
-    zip -r "$ARTIFACT_NAME" "$OUTPUT_DIR"
+    # Change to output directory parent and zip with directory structure
+    (cd "$(dirname "$OUTPUT_DIR")" && zip -r "$PROJECT_ROOT/$ARTIFACT_NAME" "$(basename "$OUTPUT_DIR")")
     
     # Clean up the extracted directory
     rm -rf "$OUTPUT_DIR"
@@ -229,8 +230,9 @@ main() {
     success "Build complete! Output artifact: $PROJECT_ROOT/$ARTIFACT_NAME"
     
     echo -e "\n${C_YELLOW}To use the application:${C_RESET}"
-    echo -e "  1. Extract: ${C_YELLOW}unzip $PROJECT_ROOT/$ARTIFACT_NAME -d $PROJECT_ROOT/${C_RESET}"
-    echo -e "  2. Execute: ${C_YELLOW}$PROJECT_ROOT/$OUTPUT_DIR/qdomyos-zwift${C_RESET}"
+    echo -e "  1. Extract: ${C_YELLOW}unzip $ARTIFACT_NAME${C_RESET}"
+    echo -e "  2. Navigate: ${C_YELLOW}cd $OUTPUT_DIR${C_RESET}"
+    echo -e "  3. Execute: ${C_YELLOW}./qdomyos-zwift${C_RESET}"
     echo -e "\n${C_BLUE}Note:${C_RESET} The wrapper script automatically finds libpython3.11 in:"
     echo -e "  - ~/.pyenv/versions/3.11.*/lib"
     echo -e "  - System library paths"
