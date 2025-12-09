@@ -16,6 +16,7 @@
         { key: 'name', label: 'Label', type: 'text', group: 'basic', devices: 'all' },
         { key: 'duration', label: 'Duration', type: 'duration', group: 'basic', devices: 'all' },
         { key: 'speed', label: 'Speed', type: 'number', unitKey: 'speed', step: 0.1, min: 0, group: 'basic', devices: ['treadmill'], defaultValue: () => state.miles ? 6.0 : 9.5 },
+        { key: 'pace', label: 'Pace', type: 'pace', unitKey: 'pace', group: 'basic', devices: ['treadmill'], syncWith: 'speed' },
         { key: 'inclination', label: 'Incline', type: 'number', unitSuffix: '%', step: 0.5, min: -10, max: 30, group: 'basic', devices: ['treadmill', 'elliptical'], defaultValue: 1.0 },
         { key: 'resistance', label: 'Resistance', type: 'number', step: 1, min: 0, max: 100, group: 'basic', devices: ['bike', 'elliptical'], defaultValue: 20 },
         { key: 'cadence', label: 'Cadence', type: 'number', unitSuffix: 'rpm', min: 0, max: 240, group: 'basic', devices: ['bike', 'elliptical', 'rower'], defaultValue: 80 },
@@ -529,18 +530,19 @@
                     return;
                 }
                 const value = row[field.key];
-                const isEnabled = row['__enabled_' + field.key] !== false; // enabled by default
+                // For pace field, use speed's enabled state
+                const isEnabled = field.syncWith ? (row['__enabled_' + field.syncWith] !== false) : (row['__enabled_' + field.key] !== false);
                 const fieldWrap = document.createElement('div');
                 fieldWrap.className = 'field';
                 if (!isEnabled) {
                     fieldWrap.classList.add('disabled');
                 }
 
-                // Create label with enable/disable checkbox (except for name, duration, and linked fields)
+                // Create label with enable/disable checkbox (except for name, duration, linked fields, and synced fields like pace)
                 const labelWrap = document.createElement('label');
                 labelWrap.className = 'field-label';
 
-                if (field.key !== 'name' && field.key !== 'duration' && !field.linkedTo) {
+                if (field.key !== 'name' && field.key !== 'duration' && !field.linkedTo && !field.syncWith) {
                     const enableCheckbox = document.createElement('input');
                     enableCheckbox.type = 'checkbox';
                     enableCheckbox.checked = isEnabled;
@@ -604,6 +606,12 @@
                         input.type = 'text';
                         input.value = value || '00:05:00';
                         input.placeholder = 'hh:mm:ss';
+                    } else if (field.type === 'pace') {
+                        input.type = 'text';
+                        // Calculate pace from speed
+                        const speedValue = field.syncWith ? row[field.syncWith] : null;
+                        input.value = speedValue ? speedToPace(speedValue) : '';
+                        input.placeholder = 'mm:ss';
                     } else if (field.type === 'text') {
                         input.type = 'text';
                         input.value = value || '';
@@ -614,10 +622,10 @@
                         if (field.max !== undefined) input.max = field.max;
                         input.value = value !== undefined ? value : '';
                     }
-                    input.addEventListener(field.type === 'duration' ? 'change' : 'input', handleFieldChange);
+                    input.addEventListener(field.type === 'duration' || field.type === 'pace' ? 'change' : 'input', handleFieldChange);
 
-                    // Add +/- buttons for duration and number fields
-                    if (field.type === 'duration' || field.type === 'number') {
+                    // Add +/- buttons for duration, number, and pace fields
+                    if (field.type === 'duration' || field.type === 'number' || field.type === 'pace') {
                         const decreaseBtn = document.createElement('button');
                         decreaseBtn.textContent = '-';
                         decreaseBtn.type = 'button';
@@ -666,6 +674,9 @@
         if (field.unitKey === 'speed') {
             return `${field.label} (${state.miles ? 'mph' : 'km/h'})`;
         }
+        if (field.unitKey === 'pace') {
+            return `${field.label} (${state.miles ? 'min/mi' : 'min/km'})`;
+        }
         if (field.unitSuffix) {
             return `${field.label} (${field.unitSuffix})`;
         }
@@ -698,9 +709,34 @@
             const normalized = formatDuration(seconds);
             state.intervals[index][key] = normalized;
             target.value = normalized;
-        } else {
+        } else if (type === 'pace') {
+            // Format pace input as mm:ss
+            const formatted = formatPaceInput(target.value);
+            target.value = formatted;
+            // Convert pace to speed and update speed field
+            const speed = paceToSpeed(formatted);
+            if (speed > 0) {
+                // Find the syncWith field (should be 'speed')
+                const field = FIELD_DEFS.find(f => f.key === key);
+                if (field && field.syncWith) {
+                    state.intervals[index][field.syncWith] = speed;
+                }
+            }
+            // Re-render to update both fields
+            renderIntervals();
+            updateChart();
+            updateStatus();
+            return;
+        } else if (type === 'number') {
             const raw = target.value;
             state.intervals[index][key] = raw === '' ? undefined : Number(raw);
+            // If this is a speed field, re-render to update pace
+            if (key === 'speed') {
+                renderIntervals();
+            }
+        } else {
+            const raw = target.value;
+            state.intervals[index][key] = raw;
         }
         if (key === 'name') {
             const label = target.closest('.interval-card').querySelector('.card-header-name');
@@ -728,6 +764,25 @@
             const normalized = formatDuration(newSeconds);
             state.intervals[index][key] = normalized;
             input.value = normalized;
+        } else if (type === 'pace') {
+            // Increment/decrement pace by 5 seconds
+            // Note: increasing pace value means slower (more time per distance unit)
+            const currentPace = input.value || '6:00';
+            const parts = currentPace.split(':').map(p => parseInt(p, 10) || 0);
+            const currentSeconds = (parts[0] || 0) * 60 + (parts[1] || 0);
+            const newSeconds = Math.max(60, currentSeconds + (direction * 5)); // minimum 1:00
+            const minutes = Math.floor(newSeconds / 60);
+            const seconds = newSeconds % 60;
+            const newPace = minutes + ':' + seconds.toString().padStart(2, '0');
+            input.value = newPace;
+
+            // Convert to speed and update
+            const speed = paceToSpeed(newPace);
+            if (speed > 0 && field.syncWith) {
+                state.intervals[index][field.syncWith] = speed;
+            }
+            // Re-render to update speed field
+            renderIntervals();
         } else if (type === 'number') {
             // Increment/decrement number by step or 1
             const step = field.step !== undefined ? field.step : 1;
@@ -750,6 +805,11 @@
 
             state.intervals[index][key] = newValue;
             input.value = newValue;
+
+            // If this is speed, re-render to update pace
+            if (key === 'speed') {
+                renderIntervals();
+            }
         }
 
         updateChart();
@@ -869,6 +929,11 @@
 
                 // Check if field is valid for current device type
                 if (!isFieldValidForDevice(field, state.device)) {
+                    return;
+                }
+
+                // Skip synced fields (like pace) - don't save them, only save the primary field (speed)
+                if (field.syncWith) {
                     return;
                 }
 
@@ -1015,6 +1080,54 @@
             return parts[0];
         }
         return 0;
+    }
+
+    // Pace conversion functions
+    function speedToPace(speed) {
+        // speed in km/h or mph -> pace in min/km or min/mi
+        if (!speed || speed <= 0) {
+            return '';
+        }
+        const minutesPerUnit = 60 / speed; // minutes per km or mile
+        const minutes = Math.floor(minutesPerUnit);
+        const seconds = Math.round((minutesPerUnit - minutes) * 60);
+        return minutes + ':' + seconds.toString().padStart(2, '0');
+    }
+
+    function paceToSpeed(paceStr) {
+        // pace in mm:ss format -> speed in km/h or mph
+        if (!paceStr) {
+            return 0;
+        }
+        const parts = paceStr.split(':').map(p => parseInt(p, 10));
+        if (parts.length !== 2 || parts.some(num => isNaN(num))) {
+            return 0;
+        }
+        const totalMinutes = parts[0] + parts[1] / 60;
+        if (totalMinutes <= 0) {
+            return 0;
+        }
+        const speed = 60 / totalMinutes;
+        return Math.round(speed * 10) / 10; // round to 1 decimal
+    }
+
+    function formatPaceInput(text) {
+        // Force mm:ss format as user types
+        if (!text) {
+            return '';
+        }
+        // Remove all non-digits
+        const digits = text.replace(/\D/g, '');
+        if (!digits) {
+            return '';
+        }
+        // Format as mm:ss
+        if (digits.length <= 2) {
+            return digits;
+        }
+        const minutes = digits.slice(0, -2);
+        const seconds = digits.slice(-2);
+        return minutes + ':' + seconds;
     }
 
     function devicePrettyName(key) {
