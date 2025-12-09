@@ -92,8 +92,6 @@ fi
 
 if [[ -z "$PYTHON_LIB" ]]; then
     ERRORS+=("Python 3.11 library (libpython3.11.so) not found!")
-    ERRORS+=("  Install via: sudo apt install libpython3.11")
-    ERRORS+=("  Or via pyenv: pyenv install 3.11.9 && pyenv global 3.11.9")
 else
     # Clean LD_LIBRARY_PATH to remove snap paths that cause glibc conflicts
     CLEAN_LD_PATH=""
@@ -109,38 +107,7 @@ else
     export LD_LIBRARY_PATH="${PYTHON_LIB}:${CLEAN_LD_PATH}"
 fi
 
-# === CHECK 2: Virtual Environment ===
-VENV_PATH="${USER_HOME}/ant_venv"
-if [[ ! -d "$VENV_PATH" ]]; then
-    WARNINGS+=("ANT+ virtual environment not found at: ${VENV_PATH}")
-    WARNINGS+=("  Create with: python3.11 -m venv ${VENV_PATH}")
-    WARNINGS+=("  Install packages: ${VENV_PATH}/bin/pip install openant pyusb pybind11")
-elif [[ -x "$VENV_PATH/bin/python3" ]]; then
-    # Check for required packages
-    for pkg_import in "openant" "usb.core" "pybind11"; do
-        if ! "$VENV_PATH/bin/python3" -c "import $pkg_import" &>/dev/null; then
-            WARNINGS+=("Missing Python package in venv: ${pkg_import}")
-            WARNINGS+=("  Install with: ${VENV_PATH}/bin/pip install openant pyusb pybind11")
-            break
-        fi
-    done
-fi
-
-# === CHECK 3: USB Permissions ===
-if [[ -n "$TARGET_USER" ]]; then
-    if ! groups "$TARGET_USER" 2>/dev/null | grep -q '\bplugdev\b'; then
-        WARNINGS+=("User '$TARGET_USER' not in 'plugdev' group (needed for ANT+ USB access)")
-        WARNINGS+=("  Add with: sudo usermod -aG plugdev $TARGET_USER")
-        WARNINGS+=("  Then logout/login or reboot")
-    fi
-fi
-
-if [[ ! -f "/etc/udev/rules.d/99-ant-usb.rules" ]]; then
-    WARNINGS+=("ANT+ udev rules not found (needed for USB dongle access)")
-    WARNINGS+=("  See: https://github.com/cagnulein/qdomyos-zwift/blob/master/src/devices/antlinux/README.md")
-fi
-
-# === CHECK 4: Qt5 Runtime Libraries ===
+# === CHECK 2: Qt5 Runtime Libraries ===
 MISSING_QT5=()
 QT5_LIBS=(
     "libQt5Bluetooth.so.5"
@@ -157,15 +124,16 @@ QT5_LIBS=(
 )
 
 for lib in "${QT5_LIBS[@]}"; do
-    if ! ldconfig -p 2>/dev/null | grep -q "$lib"; then
+    if ldconfig -p 2>/dev/null | grep "$lib" >/dev/null 2>&1; then
+        : # Library found
+    else
         MISSING_QT5+=("$lib")
     fi
 done
 
 if [[ ${#MISSING_QT5[@]} -gt 0 ]]; then
     WARNINGS+=("Missing Qt5 libraries: ${MISSING_QT5[*]}")
-    WARNINGS+=("  Install with: sudo ./setup.sh --guided")
-    WARNINGS+=("  Or run: ./setup.sh --quick to diagnose all issues")
+    WARNINGS+=("  Run: sudo ./setup.sh --guided")
 fi
 
 # === CHECK 5: QML Modules ===
@@ -191,18 +159,65 @@ done
 
 if [[ ${#MISSING_QML[@]} -gt 0 ]]; then
     WARNINGS+=("Missing QML modules: ${MISSING_QML[*]}")
-    WARNINGS+=("  Install with: sudo ./setup.sh --guided")
-    WARNINGS+=("  Or run: ./setup.sh --quick to diagnose all issues")
+    WARNINGS+=("  Run: sudo ./setup.sh --guided")
 fi
 
-# === CHECK 6: ANT+ USB Dongle ===
-if ! lsusb 2>/dev/null | grep -qE '(0fcf:1008|0fcf:1009|0fcf:100c|0fcf:100e|0fcf:88a4|11fd:0001)'; then
-    WARNINGS+=("ANT+ USB dongle not detected")
-    WARNINGS+=("  Supported devices: Garmin USB2 (0fcf:1008), USB-m (0fcf:1009), or compatible")
-    WARNINGS+=("  Plug in your ANT+ dongle and ensure USB permissions are correct")
+# === CHECK 4: ANT+ Dependencies (only when using -ant-footpod) ===
+# Check for -ant-footpod flag in arguments
+USING_ANT_FOOTPOD=false
+for arg in "$@"; do
+    if [[ "$arg" == "-ant-footpod" ]]; then
+        USING_ANT_FOOTPOD=true
+        break
+    fi
+done
+
+# Only check ANT+ dependencies if using ANT+ footpod
+if [[ "$USING_ANT_FOOTPOD" == true ]]; then
+    # CHECK 4a: Virtual Environment
+    VENV_PATH="${USER_HOME}/ant_venv"
+    if [[ ! -d "$VENV_PATH" ]]; then
+        WARNINGS+=("ANT+ virtual environment not found at: ${VENV_PATH}")
+        WARNINGS+=("  Run: sudo ./setup.sh --guided")
+    elif [[ -x "$VENV_PATH/bin/python3" ]]; then
+        # Check for required packages
+        for pkg_import in "openant" "usb.core" "pybind11"; do
+            if ! "$VENV_PATH/bin/python3" -c "import $pkg_import" &>/dev/null; then
+                WARNINGS+=("Missing Python package in venv: ${pkg_import}")
+                WARNINGS+=("  Run: sudo ./setup.sh --guided")
+                break
+            fi
+        done
+    fi
+
+    # CHECK 4b: USB Permissions
+    if [[ -n "$TARGET_USER" ]]; then
+        if groups "$TARGET_USER" 2>/dev/null | grep '\bplugdev\b' >/dev/null 2>&1; then
+            : # User is in plugdev group
+        else
+            WARNINGS+=("User '$TARGET_USER' not in 'plugdev' group (needed for ANT+ USB access)")
+            WARNINGS+=("  Run: sudo ./setup.sh --guided")
+        fi
+    fi
+
+    if [[ ! -f "/etc/udev/rules.d/99-ant-usb.rules" ]]; then
+        WARNINGS+=("ANT+ udev rules not found (needed for USB dongle access)")
+        WARNINGS+=("  Run: sudo ./setup.sh --guided")
+    fi
+
+    # CHECK 4c: lsusb and USB Dongle
+    if ! command -v lsusb >/dev/null 2>&1; then
+        ERRORS+=("lsusb command not found (usbutils package needed for ANT+ footpod)")
+    else
+        # Check for ANT+ dongle (grep returns non-zero if not found, so capture result)
+        if ! lsusb 2>/dev/null | grep -E '(0fcf:1008|0fcf:1009|0fcf:100c|0fcf:100e|0fcf:88a4|11fd:0001)' >/dev/null 2>&1; then
+            WARNINGS+=("ANT+ USB dongle not detected")
+            WARNINGS+=("  Run: sudo ./setup.sh --quick")
+        fi
+    fi
 fi
 
-# === CHECK 7: Binary Exists ===
+# === CHECK 5: Binary Exists ===
 if [[ ! -f "$DIR/qdomyos-zwift-bin" ]]; then
     ERRORS+=("Binary not found at: $DIR/qdomyos-zwift-bin")
 fi
@@ -214,6 +229,8 @@ if [[ ${#ERRORS[@]} -gt 0 ]]; then
     for err in "${ERRORS[@]}"; do
         echo -e "${C_RED}  $err${C_RESET}" >&2
     done
+    echo "" >&2
+    echo -e "${C_RED}Run: sudo ./setup.sh --guided${C_RESET}" >&2
     echo "" >&2
     exit 1
 fi

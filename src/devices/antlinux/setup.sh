@@ -411,15 +411,25 @@ run_quick_mode() {
         "ANT+ udev rules not found" \
         "true"
     
-    # Test 11: ANT+ dongle (non-critical)
+    # Test 11: lsusb availability (required for dongle detection)
     test_check \
-        "ant_dongle" \
-        "lsusb | grep -E '0fcf:1009|0fcf:1008|0fcf:100c|0fcf:100e|0fcf:88a4|0fcf:1004|11fd:0001'" \
-        "ANT+ USB dongle detected" \
-        "ANT+ USB dongle not detected (plug in Garmin/Suunto ANT+ stick)" \
-        "false"
+        "lsusb_available" \
+        "command -v lsusb" \
+        "lsusb command available" \
+        "lsusb not found (usbutils package needed)" \
+        "true"
     
-    # Test 12: Bluetooth service status
+    # Test 12: ANT+ dongle (only check if lsusb is available)
+    if command -v lsusb >/dev/null 2>&1; then
+        test_check \
+            "ant_dongle" \
+            "lsusb | grep -E '0fcf:1009|0fcf:1008|0fcf:100c|0fcf:100e|0fcf:88a4|0fcf:1004|11fd:0001'" \
+            "ANT+ USB dongle detected" \
+            "ANT+ USB dongle not detected (plug in Garmin/Suunto ANT+ stick)" \
+            "false"
+    fi
+    
+    # Test 13: Bluetooth service status
     test_check \
         "bluetooth_running" \
         "systemctl is-active --quiet bluetooth" \
@@ -592,11 +602,17 @@ run_reset_mode() {
     echo ""
     
     # Check if running on a desktop environment
+    # Use multiple detection methods to catch all desktop variants
     local is_desktop=false
-    if dpkg -l ubuntu-desktop 2>/dev/null | grep >/dev/null 2>&1 "^ii" || \
-       dpkg -l ubuntu-desktop-minimal 2>/dev/null | grep >/dev/null 2>&1 "^ii" || \
-       dpkg -l gnome-shell 2>/dev/null | grep >/dev/null 2>&1 "^ii" || \
-       dpkg -l kde-plasma-desktop 2>/dev/null | grep >/dev/null 2>&1 "^ii"; then
+    
+    # Method 1: Check if X11 or Wayland display server is available
+    if [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]; then
+        is_desktop=true
+    # Method 2: Check systemd default target (graphical.target indicates desktop)
+    elif systemctl get-default 2>/dev/null | grep -q "graphical.target"; then
+        is_desktop=true
+    # Method 3: Check for common desktop packages (fallback)
+    elif dpkg -l 2>/dev/null | grep -qE "^ii  (ubuntu-desktop|lubuntu-desktop|kubuntu-desktop|xubuntu-desktop|ubuntu-mate-desktop|ubuntu-budgie-desktop|gnome-shell|kde-plasma-desktop|xfce4|lxde|mate-desktop)"; then
         is_desktop=true
     fi
     
@@ -761,7 +777,8 @@ EOF'
                 
                 if [ $? -eq 0 ]; then
                     echo -e "${GREEN}✓ Python 3.11 installed via pyenv${NC}"
-                    echo -e "${YELLOW}⚠ Important: Open a new terminal or run 'source ~/.bashrc' to use the new Python${NC}"
+                    # Reload shell configuration to make Python available
+                    sudo -u "$TARGET_USER" bash -c 'source ~/.bashrc'
                 else
                     echo -e "${RED}✗ Failed to install Python 3.11 via pyenv${NC}"
                     echo "You may need to logout/login and run this setup again."
@@ -899,6 +916,11 @@ EOF'
         missing_libs+=("bluetooth")
     fi
     
+    # Check for lsusb command (usbutils package)
+    if ! command -v lsusb >/dev/null 2>&1; then
+        missing_libs+=("lsusb")
+    fi
+    
     if [ ${#missing_libs[@]} -eq 0 ] && [ ${#missing_qml[@]} -eq 0 ]; then
         echo -e "${GREEN}✓ All system libraries already installed${NC}"
     else
@@ -921,7 +943,7 @@ EOF'
                 qml-module-qtquick-controls2 qml-module-qtquick-dialogs \
                 qml-module-qtquick-layouts qml-module-qtquick-window2 \
                 qml-module-qtmultimedia \
-                libusb-1.0-0 bluez
+                libusb-1.0-0 bluez usbutils
             echo -e "${GREEN}✓ System libraries installed${NC}"
         fi
     fi
@@ -934,7 +956,6 @@ EOF'
         if prompt_yes_no "Configure USB permissions?"; then
             usermod -aG plugdev "$TARGET_USER"
             echo -e "${GREEN}✓ User added to plugdev group${NC}"
-            echo -e "${YELLOW}⚠ You must logout and login for changes to take effect${NC}"
         fi
     else
         echo -e "${GREEN}✓ User already in plugdev group${NC}"
@@ -976,9 +997,8 @@ EOF
     echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
     echo ""
     echo "Next steps:"
-    echo "  1. If you were added to 'plugdev' group, logout and login"
-    echo -e "  2. Run validation: ${YELLOW}./setup.sh --quick${NC}"
-    echo "  3. If all tests pass, you're ready to use ANT+!"
+    echo -e "  1. Run validation: ${YELLOW}./setup.sh --quick${NC}"
+    echo "  2. If all tests pass, you're ready to use ANT+!"
     echo ""
 }
 
