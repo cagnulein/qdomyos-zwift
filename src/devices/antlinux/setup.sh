@@ -306,12 +306,18 @@ run_quick_mode() {
     # Comprehensive check prevents runtime failures from missing dependencies
     missing_libs=()
     required_libs=(
+        "libQt5Core.so"
+        "libQt5Qml.so"
+        "libQt5Quick.so"
+        "libQt5QuickWidgets.so"
+        "libQt5Concurrent.so"
         "libQt5Bluetooth.so"
         "libQt5Charts.so"
         "libQt5Multimedia.so"
         "libQt5MultimediaWidgets.so"
         "libQt5NetworkAuth.so"
         "libQt5Positioning.so"
+        "libQt5Location.so"
         "libQt5Sql.so"
         "libQt5TextToSpeech.so"
         "libQt5WebSockets.so"
@@ -933,11 +939,12 @@ EOF'
         if prompt_yes_no "Install system libraries and QML modules?"; then
             apt-get update
             apt-get install -y \
+                libqt5core5a libqt5qml5 libqt5quick5 libqt5quickwidgets5 libqt5concurrent5 \
                 libqt5bluetooth5 libqt5charts5 libqt5multimedia5 \
                 libqt5multimediawidgets5 libqt5multimedia5-plugins \
                 libqt5networkauth5 libqt5positioning5 libqt5sql5 \
                 libqt5texttospeech5 libqt5websockets5 libqt5widgets5 \
-                libqt5xml5 qtlocation5-dev \
+                libqt5xml5 libqt5location5 qtlocation5-dev \
                 qml-module-qtlocation qml-module-qtpositioning \
                 qml-module-qtquick2 qml-module-qtquick-controls \
                 qml-module-qtquick-controls2 qml-module-qtquick-dialogs \

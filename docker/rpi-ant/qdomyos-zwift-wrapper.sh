@@ -36,6 +36,7 @@ C_RESET="\033[0m"
 
 WARNINGS=()
 ERRORS=()
+ANT_WARNINGS=()
 
 # Determine the actual user's home (even when running with sudo)
 if [[ "$EUID" -eq 0 && -n "${SUDO_USER}" ]]; then
@@ -107,10 +108,29 @@ else
     export LD_LIBRARY_PATH="${PYTHON_LIB}:${CLEAN_LD_PATH}"
 fi
 
+# Check for -no-gui flag in arguments
+USING_NO_GUI=false
+for arg in "$@"; do
+    if [[ "$arg" == "-no-gui" ]]; then
+        USING_NO_GUI=true
+        break
+    fi
+done
+
 # === CHECK 2: Qt5 Runtime Libraries ===
+# Qt5 Bluetooth is always required
+if ! ldconfig -p 2>/dev/null | grep "libQt5Bluetooth.so.5" >/dev/null 2>&1; then
+    ERRORS+=("libQt5Bluetooth.so.5 not found (required for Bluetooth connectivity)")
+fi
+
+# Other Qt5 libraries only needed for GUI
 MISSING_QT5=()
 QT5_LIBS=(
-    "libQt5Bluetooth.so.5"
+    "libQt5Core.so.5"
+    "libQt5Qml.so.5"
+    "libQt5Quick.so.5"
+    "libQt5QuickWidgets.so.5"
+    "libQt5Concurrent.so.5"
     "libQt5Charts.so.5"
     "libQt5Multimedia.so.5"
     "libQt5MultimediaWidgets.so.5"
@@ -121,6 +141,7 @@ QT5_LIBS=(
     "libQt5WebSockets.so.5"
     "libQt5Widgets.so.5"
     "libQt5Xml.so.5"
+    "libQt5Location.so.5"
 )
 
 for lib in "${QT5_LIBS[@]}"; do
@@ -132,8 +153,7 @@ for lib in "${QT5_LIBS[@]}"; do
 done
 
 if [[ ${#MISSING_QT5[@]} -gt 0 ]]; then
-    WARNINGS+=("Missing Qt5 libraries: ${MISSING_QT5[*]}")
-    WARNINGS+=("  Run: sudo ./setup.sh --guided")
+    ERRORS+=("Missing Qt5 libraries: ${MISSING_QT5[*]}")
 fi
 
 # === CHECK 5: QML Modules ===
@@ -158,8 +178,7 @@ for qml_path in "${QML_MODULES[@]}"; do
 done
 
 if [[ ${#MISSING_QML[@]} -gt 0 ]]; then
-    WARNINGS+=("Missing QML modules: ${MISSING_QML[*]}")
-    WARNINGS+=("  Run: sudo ./setup.sh --guided")
+    ERRORS+=("Missing QML modules: ${MISSING_QML[*]}")
 fi
 
 # === CHECK 4: ANT+ Dependencies (only when using -ant-footpod) ===
@@ -177,14 +196,12 @@ if [[ "$USING_ANT_FOOTPOD" == true ]]; then
     # CHECK 4a: Virtual Environment
     VENV_PATH="${USER_HOME}/ant_venv"
     if [[ ! -d "$VENV_PATH" ]]; then
-        WARNINGS+=("ANT+ virtual environment not found at: ${VENV_PATH}")
-        WARNINGS+=("  Run: sudo ./setup.sh --guided")
+        ANT_WARNINGS+=("ANT+ virtual environment not found at: ${VENV_PATH}")
     elif [[ -x "$VENV_PATH/bin/python3" ]]; then
         # Check for required packages
         for pkg_import in "openant" "usb.core" "pybind11"; do
             if ! "$VENV_PATH/bin/python3" -c "import $pkg_import" &>/dev/null; then
-                WARNINGS+=("Missing Python package in venv: ${pkg_import}")
-                WARNINGS+=("  Run: sudo ./setup.sh --guided")
+                ANT_WARNINGS+=("Missing Python package in venv: ${pkg_import}")
                 break
             fi
         done
@@ -195,14 +212,12 @@ if [[ "$USING_ANT_FOOTPOD" == true ]]; then
         if groups "$TARGET_USER" 2>/dev/null | grep '\bplugdev\b' >/dev/null 2>&1; then
             : # User is in plugdev group
         else
-            WARNINGS+=("User '$TARGET_USER' not in 'plugdev' group (needed for ANT+ USB access)")
-            WARNINGS+=("  Run: sudo ./setup.sh --guided")
+            ANT_WARNINGS+=("User '$TARGET_USER' not in 'plugdev' group (needed for ANT+ USB access)")
         fi
     fi
 
     if [[ ! -f "/etc/udev/rules.d/99-ant-usb.rules" ]]; then
-        WARNINGS+=("ANT+ udev rules not found (needed for USB dongle access)")
-        WARNINGS+=("  Run: sudo ./setup.sh --guided")
+        ANT_WARNINGS+=("ANT+ udev rules not found (needed for USB dongle access)")
     fi
 
     # CHECK 4c: lsusb and USB Dongle
@@ -211,9 +226,22 @@ if [[ "$USING_ANT_FOOTPOD" == true ]]; then
     else
         # Check for ANT+ dongle (grep returns non-zero if not found, so capture result)
         if ! lsusb 2>/dev/null | grep -E '(0fcf:1008|0fcf:1009|0fcf:100c|0fcf:100e|0fcf:88a4|11fd:0001)' >/dev/null 2>&1; then
-            WARNINGS+=("ANT+ USB dongle not detected")
-            WARNINGS+=("  Run: sudo ./setup.sh --quick")
+            ANT_WARNINGS+=("ANT+ USB dongle not detected")
         fi
+    fi
+fi
+
+# Promote ANT-specific warnings to ERRORS when ANT+ footpod mode requested,
+# otherwise treat them as general WARNINGS. Centralizes guidance messaging.
+if [[ ${#ANT_WARNINGS[@]} -gt 0 ]]; then
+    if [[ "$USING_ANT_FOOTPOD" == true ]]; then
+        for w in "${ANT_WARNINGS[@]}"; do
+            ERRORS+=("$w")
+        done
+    else
+        for w in "${ANT_WARNINGS[@]}"; do
+            WARNINGS+=("$w")
+        done
     fi
 fi
 
@@ -242,8 +270,7 @@ if [[ ${#WARNINGS[@]} -gt 0 ]]; then
         echo -e "${C_YELLOW}  $warn${C_RESET}" >&2
     done
     echo "" >&2
-    echo -e "${C_YELLOW}For comprehensive setup help, see:${C_RESET}" >&2
-    echo -e "${C_YELLOW}  https://github.com/cagnulein/qdomyos-zwift/blob/master/src/devices/antlinux/README.md${C_RESET}" >&2
+    echo -e "${C_YELLOW}Run: sudo ./setup.sh --guided${C_RESET}" >&2
     echo "" >&2
 fi
 
