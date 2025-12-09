@@ -1025,6 +1025,18 @@ class QZSettings {
     static const QString zwift_erg_resistance_up;
     static constexpr float default_zwift_erg_resistance_up = 999.0;
 
+    /**
+     *@brief Lock ergTable from automatic updates to preserve manually entered values.
+     */
+    static const QString ergtable_lock;
+    static constexpr bool default_ergtable_lock = false;
+
+    /**
+     *@brief Maximum resistance change per step in ERG mode (0 = unlimited).
+     */
+    static const QString zwift_erg_max_resistance_change;
+    static constexpr int default_zwift_erg_max_resistance_change = 0;
+
     static const QString horizon_paragon_x;
     static constexpr bool default_horizon_paragon_x = false;
 

@@ -247,8 +247,12 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts, const b
         !power_as_bike && !power_as_treadmill)
         watt_calc = false;
 
-    if(deviceType() == BIKE && !from_accessory)  // append only if it's coming from the bike, not from the power sensor
-        _ergTable.collectData(Cadence.value(), m_watt.value(), Resistance.value());
+    if(deviceType() == BIKE && !from_accessory) {  // append only if it's coming from the bike, not from the power sensor
+        bool ergtable_locked = settings.value(QZSettings::ergtable_lock, QZSettings::default_ergtable_lock).toBool();
+        if(!ergtable_locked) {
+            _ergTable.collectData(Cadence.value(), m_watt.value(), Resistance.value());
+        }
+    }
 
     if (!_firstUpdate && !paused) {
         if (currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving, true).toBool()) {

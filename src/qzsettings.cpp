@@ -333,6 +333,8 @@ const QString QZSettings::volume_change_gears = QStringLiteral("volume_change_ge
 const QString QZSettings::applewatch_fakedevice = QStringLiteral("applewatch_fakedevice");
 const QString QZSettings::zwift_erg_resistance_down = QStringLiteral("zwift_erg_resistance_down");
 const QString QZSettings::zwift_erg_resistance_up = QStringLiteral("zwift_erg_resistance_up");
+const QString QZSettings::ergtable_lock = QStringLiteral("ergtable_lock");
+const QString QZSettings::zwift_erg_max_resistance_change = QStringLiteral("zwift_erg_max_resistance_change");
 const QString QZSettings::horizon_paragon_x = QStringLiteral("horizon_paragon_x");
 const QString QZSettings::treadmill_step_speed = QStringLiteral("treadmill_step_speed");
 const QString QZSettings::treadmill_step_incline = QStringLiteral("treadmill_step_incline");
@@ -1007,7 +1009,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 822;
+const uint32_t allSettingsCount = 824;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1288,6 +1290,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice},
     {QZSettings::zwift_erg_resistance_down, QZSettings::default_zwift_erg_resistance_down},
     {QZSettings::zwift_erg_resistance_up, QZSettings::default_zwift_erg_resistance_up},
+    {QZSettings::ergtable_lock, QZSettings::default_ergtable_lock},
+    {QZSettings::zwift_erg_max_resistance_change, QZSettings::default_zwift_erg_max_resistance_change},
     {QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x},
     {QZSettings::treadmill_step_speed, QZSettings::default_treadmill_step_speed},
     {QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline},
