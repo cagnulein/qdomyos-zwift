@@ -302,26 +302,12 @@ run_quick_mode() {
             "true"
     fi
     
-    # Test 6-8: Qt5 libraries
+    # Test 6: Qt5 runtime libraries (check critical ones)
     test_check \
-        "qt5_bluetooth" \
-        "ldconfig -p | grep 'libQt5Bluetooth.so'" \
-        "Qt5 Bluetooth library available" \
-        "Qt5 Bluetooth missing (run: sudo ./setup.sh --guided)" \
-        "true"
-    
-    test_check \
-        "qt5_charts" \
-        "ldconfig -p | grep 'libQt5Charts.so'" \
-        "Qt5 Charts library available" \
-        "Qt5 Charts missing (run: sudo ./setup.sh --guided)" \
-        "true"
-    
-    test_check \
-        "qt5_multimedia" \
-        "ldconfig -p | grep 'libQt5Multimedia.so'" \
-        "Qt5 Multimedia library available" \
-        "Qt5 Multimedia missing (run: sudo ./setup.sh --guided)" \
+        "qt5_libraries" \
+        "ldconfig -p | grep -q 'libQt5Bluetooth.so' && ldconfig -p | grep -q 'libQt5Charts.so' && ldconfig -p | grep -q 'libQt5Multimedia.so' && ldconfig -p | grep -q 'libQt5Widgets.so'" \
+        "Qt5 runtime libraries available" \
+        "Qt5 libraries missing (run: sudo ./setup.sh --guided)" \
         "true"
     
     # Test 9: plugdev group
@@ -784,6 +770,7 @@ EOF'
     local libs_missing=0
     ldconfig -p | grep 'libQt5Bluetooth.so' >/dev/null 2>&1 || ((libs_missing++))
     ldconfig -p | grep 'libQt5Charts.so' >/dev/null 2>&1 || ((libs_missing++))
+    ldconfig -p | grep 'libQt5Widgets.so' >/dev/null 2>&1 || ((libs_missing++))
     ldconfig -p | grep 'libusb-1.0.so' >/dev/null 2>&1 || ((libs_missing++))
     systemctl list-unit-files | grep '^bluetooth.service' >/dev/null 2>&1 || ((libs_missing++))
     
@@ -791,7 +778,7 @@ EOF'
         echo -e "${GREEN}✓ All system libraries already installed${NC}"
     else
         echo -e "${YELLOW}Some system libraries are missing${NC}"
-        if prompt_yes_no "Install Qt5 and USB libraries?"; then
+        if prompt_yes_no "Install Qt5 runtime libraries, QML modules, and system packages?"; then
             apt-get update
             apt-get install -y \
                 libqt5bluetooth5 libqt5charts5 libqt5multimedia5 \
