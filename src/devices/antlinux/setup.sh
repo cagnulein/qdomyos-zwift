@@ -630,6 +630,7 @@ run_reset_mode() {
             "qml-module-qtquick-dialogs"
             "qml-module-qtquick-layouts"
             "qml-module-qtquick-window2"
+            "qml-module-qtmultimedia"
         )
         
         # Note: Excluding system packages that may be auto-installed:
@@ -933,6 +934,7 @@ EOF'
                 qml-module-qtquick2 qml-module-qtquick-controls \
                 qml-module-qtquick-controls2 qml-module-qtquick-dialogs \
                 qml-module-qtquick-layouts qml-module-qtquick-window2 \
+                qml-module-qtmultimedia \
                 libusb-1.0-0 bluez
             echo -e "${GREEN}✓ System libraries installed${NC}"
         fi
