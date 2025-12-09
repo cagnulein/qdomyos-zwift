@@ -69,6 +69,7 @@ bool noHeartService = true;
 bool noConsole = false;
 bool onlyVirtualBike = false;
 bool onlyVirtualTreadmill = false;
+bool allowNonRoot = false;
 bool testPeloton = false;
 bool testHomeFitnessBudy = false;
 bool testPowerZonePack = false;
@@ -130,6 +131,7 @@ void displayHelp() {
     printf("  -noqml                        Disable QML mode\n");
     printf("  -miles                        Use miles instead of kilometers\n");
     printf("  -no-console                   Disable console output\n");
+    printf("  --allow-non-root              Skip root check (development only, ANT+ won't work)\n");
     printf("  -no-log                       Disable logging\n");
     printf("  -profile <name>               Load specific profile\n");
 
@@ -291,6 +293,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             miles = true;
         if (!qstrcmp(argv[i], "-no-console"))
             noConsole = true;
+        if (!qstrcmp(argv[i], "--allow-non-root"))
+            allowNonRoot = true;
         if (!qstrcmp(argv[i], "-test-resistance"))
             testResistance = true;
         if (!qstrcmp(argv[i], "-no-virtual-device-bluetooth"))
@@ -569,12 +573,16 @@ int main(int argc, char *argv[]) {
 
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
-    if (getuid() && !testPeloton && !testHomeFitnessBudy && !testPowerZonePack) {
+    if (getuid() && !testPeloton && !testHomeFitnessBudy && !testPowerZonePack && !allowNonRoot) {
 
         printf("Runme as root!\n");
+        printf("Or use --allow-non-root for development (ANT+ will not work)\n");
         return -1;
-    } else
+    } else if (getuid() == 0) {
         printf("%s", "OK, you are root.\n");
+    } else {
+        printf("Running without root (--allow-non-root). ANT+ features disabled.\n");
+    }
 #endif
 #endif
 
@@ -934,21 +942,30 @@ int main(int argc, char *argv[]) {
     if (forceQml)
 #endif
     {
+        fprintf(stderr, "[DEBUG] Starting QML interface...\n"); fflush(stderr);
         AndroidStatusBar::registerQmlType();
         
 #ifdef Q_OS_ANDROID
         FontManager fontManager;
         fontManager.initializeEmojiFont();
 #endif
+        fprintf(stderr, "[DEBUG] Creating QML engine...\n"); fflush(stderr);
         QQmlApplicationEngine engine;
+        fprintf(stderr, "[DEBUG] QML engine created, loading main.qml...\n"); fflush(stderr);
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(
             &engine, &QQmlApplicationEngine::objectCreated, qobject_cast<QGuiApplication *>(app.data()),
             [url](QObject *obj, const QUrl &objUrl) {
-                if (!obj && url == objUrl)
+                if (!obj && url == objUrl) {
+                    fprintf(stderr, "[ERROR] Failed to load QML file: %s\n", objUrl.toString().toUtf8().constData());
+                    fprintf(stderr, "[ERROR] This often happens when running as root without proper X11 access.\n");
+                    fprintf(stderr, "[ERROR] Try: xhost +local:root  OR  run with -no-gui flag\n");
+                    fflush(stderr);
                     QCoreApplication::exit(-1);
+                }
             },
             Qt::QueuedConnection);
+        fprintf(stderr, "[DEBUG] About to call engine.load()...\n"); fflush(stderr);
 
 #ifdef Q_OS_ANDROID
         engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Android"));
@@ -965,8 +982,11 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_ANDROID
         engine.rootContext()->setContextProperty("fontManager", &fontManager);
 #endif
+        fprintf(stderr, "[DEBUG] About to call engine.load()...\n"); fflush(stderr);
         engine.load(url);
+        fprintf(stderr, "[DEBUG] engine.load() returned, creating homeform...\n"); fflush(stderr);
         homeform *h = new homeform(&engine, &bl);
+        fprintf(stderr, "[DEBUG] homeform created, connecting signals...\n"); fflush(stderr);
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,
                          &homeform::aboutToQuit); // NOTE: clazy-unneeded-cast
 
