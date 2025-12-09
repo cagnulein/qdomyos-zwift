@@ -260,7 +260,7 @@ run_quick_mode() {
         "python311_library" \
         "ldconfig -p | grep 'libpython3.11.so' || ls $TARGET_HOME/.pyenv/versions/3.11.*/lib/libpython3.11.so* &>/dev/null" \
         "Python 3.11 library found" \
-        "Python 3.11 library not found (run: sudo ./setup.sh --guided)" \
+        "Python 3.11 library not found" \
         "true"
     
     # Test 2: Virtual environment
@@ -268,7 +268,7 @@ run_quick_mode() {
         "ant_venv" \
         "[ -d \"$TARGET_HOME/ant_venv\" ]" \
         "Virtual environment exists at ~/ant_venv" \
-        "Virtual environment not found (run: sudo ./setup.sh --guided)" \
+        "Virtual environment not found" \
         "false"
     
     # Test 3-5: Python packages (only if venv exists)
@@ -284,21 +284,21 @@ run_quick_mode() {
             "python_package_openant" \
             "$PYTHON_CMD -c 'import openant' 2>/dev/null" \
             "Python package 'openant' installed" \
-            "Python package 'openant' missing (run: sudo ./setup.sh --guided)" \
+            "Python package 'openant' missing" \
             "true"
         
         test_check \
             "python_package_pyusb" \
             "$PYTHON_CMD -c 'import usb' 2>/dev/null" \
             "Python package 'pyusb' installed" \
-            "Python package 'pyusb' missing (run: sudo ./setup.sh --guided)" \
+            "Python package 'pyusb' missing" \
             "true"
         
         test_check \
             "python_package_pybind11" \
             "$PYTHON_CMD -c 'import pybind11' 2>/dev/null" \
             "Python package 'pybind11' installed" \
-            "Python package 'pybind11' missing (run: sudo ./setup.sh --guided)" \
+            "Python package 'pybind11' missing" \
             "true"
     fi
     
@@ -338,7 +338,7 @@ run_quick_mode() {
             "qt5_libraries" \
             "false" \
             "Qt5 runtime libraries available" \
-            "Missing libraries: ${missing_libs[*]} (run: sudo ./setup.sh --guided)" \
+            "Qt5 runtime libraries missing (${#missing_libs[@]} libraries)" \
             "true"
     fi
     
@@ -383,7 +383,7 @@ run_quick_mode() {
             "qml_modules" \
             "false" \
             "QML modules available" \
-            "Missing modules: ${missing_qml[*]} (run: sudo ./setup.sh --guided)" \
+            "QML modules missing (${#missing_qml[@]} modules)" \
             "true"
     fi
     
@@ -392,7 +392,7 @@ run_quick_mode() {
         "bluetooth_service" \
         "systemctl list-unit-files | grep '^bluetooth.service'" \
         "Bluetooth service available" \
-        "Bluetooth service not installed (run: sudo ./setup.sh --guided)" \
+        "Bluetooth service not installed" \
         "true"
     
     # Test 9: plugdev group
@@ -400,7 +400,7 @@ run_quick_mode() {
         "plugdev_group" \
         "groups $TARGET_USER | grep plugdev" \
         "User '$TARGET_USER' is in 'plugdev' group" \
-        "User not in 'plugdev' group (run: sudo ./setup.sh --guided)" \
+        "User not in 'plugdev' group" \
         "true"
     
     # Test 10: udev rules
@@ -408,7 +408,7 @@ run_quick_mode() {
         "udev_rules" \
         "[ -f /etc/udev/rules.d/99-garmin-ant.rules ] || [ -f /etc/udev/rules.d/51-garmin-ant.rules ] || [ -f /etc/udev/rules.d/99-ant-usb.rules ]" \
         "ANT+ udev rules configured" \
-        "ANT+ udev rules not found (run: sudo ./setup.sh --guided)" \
+        "ANT+ udev rules not found" \
         "true"
     
     # Test 11: ANT+ dongle (non-critical)
@@ -424,14 +424,10 @@ run_quick_mode() {
         "bluetooth_running" \
         "systemctl is-active --quiet bluetooth" \
         "Bluetooth service running" \
-        "Bluetooth service not running (run: sudo ./setup.sh --guided)" \
+        "Bluetooth service not running" \
         "true"
     
     # Output results
-    echo ""
-    echo -e "${BLUE}───────────────────────────────────────────────────────────${NC}"
-    echo -e "${BLUE}Test Summary:${NC} ${GREEN}$PASS passed${NC}, ${YELLOW}$WARN warnings${NC}, ${RED}$FAIL failed${NC}"
-    echo -e "${BLUE}───────────────────────────────────────────────────────────${NC}"
     echo ""
     
     if [ $FAIL -gt 0 ]; then
@@ -442,11 +438,11 @@ run_quick_mode() {
         exit 1
     elif [ $WARN -gt 0 ]; then
         echo -e "${YELLOW}System Status: WARNING${NC}"
-        echo "Non-critical warnings present - some functionality may be limited"
+        echo ""
         exit 2
     else
         echo -e "${GREEN}System Status: READY${NC}"
-        echo "All tests passed - system is ready for ANT+ operation"
+        echo ""
         exit 0
     fi
 }
