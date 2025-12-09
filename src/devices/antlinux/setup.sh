@@ -302,12 +302,96 @@ run_quick_mode() {
             "true"
     fi
     
-    # Test 6: Qt5 runtime libraries (check critical ones)
+    # Test 6: Qt5 runtime libraries (check all required ones)
+    # Comprehensive check prevents runtime failures from missing dependencies
+    missing_libs=()
+    required_libs=(
+        "libQt5Bluetooth.so"
+        "libQt5Charts.so"
+        "libQt5Multimedia.so"
+        "libQt5MultimediaWidgets.so"
+        "libQt5NetworkAuth.so"
+        "libQt5Positioning.so"
+        "libQt5Sql.so"
+        "libQt5TextToSpeech.so"
+        "libQt5WebSockets.so"
+        "libQt5Widgets.so"
+        "libQt5Xml.so"
+        "libusb-1.0.so.0"
+    )
+    
+    for lib in "${required_libs[@]}"; do
+        if ! ldconfig -p | grep -q "$lib"; then
+            missing_libs+=("$lib")
+        fi
+    done
+    
+    if [ ${#missing_libs[@]} -eq 0 ]; then
+        test_check \
+            "qt5_libraries" \
+            "true" \
+            "Qt5 runtime libraries available (${#required_libs[@]} libraries checked)" \
+            "" \
+            "true"
+    else
+        test_check \
+            "qt5_libraries" \
+            "false" \
+            "Qt5 runtime libraries available" \
+            "Missing libraries: ${missing_libs[*]} (run: sudo ./setup.sh --guided)" \
+            "true"
+    fi
+    
+    # Test 7: QML modules (check all required ones)
+    # Ensures all QML imports are available to prevent UI failures
+    missing_qml=()
+    required_qml_dirs=(
+        "QtLocation"
+        "QtPositioning"
+        "QtQuick.2"
+        "QtQuick/Controls"
+        "QtQuick/Controls.2"
+        "QtQuick/Dialogs"
+        "QtQuick/Layouts"
+        "QtQuick/Window.2"
+    )
+    
+    for qml_dir in "${required_qml_dirs[@]}"; do
+        # Check common QML paths
+        found=0
+        for qml_path in /usr/lib/*/qt5/qml /usr/lib/qt5/qml /usr/lib/aarch64-linux-gnu/qt5/qml /usr/lib/x86_64-linux-gnu/qt5/qml; do
+            if [ -d "$qml_path/$qml_dir" ]; then
+                found=1
+                break
+            fi
+        done
+        if [ $found -eq 0 ]; then
+            missing_qml+=("$qml_dir")
+        fi
+    done
+    
+    if [ ${#missing_qml[@]} -eq 0 ]; then
+        test_check \
+            "qml_modules" \
+            "true" \
+            "QML modules available (${#required_qml_dirs[@]} modules checked)" \
+            "" \
+            "true"
+    else
+        test_check \
+            "qml_modules" \
+            "false" \
+            "QML modules available" \
+            "Missing modules: ${missing_qml[*]} (run: sudo ./setup.sh --guided)" \
+            "true"
+    fi
+    
+    # Test 8: Bluetooth service
     test_check \
-        "qt5_libraries" \
-        "ldconfig -p | grep -q 'libQt5Bluetooth.so' && ldconfig -p | grep -q 'libQt5Charts.so' && ldconfig -p | grep -q 'libQt5Multimedia.so' && ldconfig -p | grep -q 'libQt5Widgets.so'" \
-        "Qt5 runtime libraries available" \
-        "Qt5 libraries missing (run: sudo ./setup.sh --guided)" \
+        "bluetooth_service" \
+        "systemctl list-unit-files | grep '^bluetooth.service'" \
+        "Bluetooth service available" \
+        "Bluetooth service not installed (run: sudo ./setup.sh --guided)" \
         "true"
     
     # Test 9: plugdev group
@@ -334,20 +418,12 @@ run_quick_mode() {
         "ANT+ USB dongle not detected (plug in Garmin/Suunto ANT+ stick)" \
         "false"
     
-    # Test 12: Bluetooth service
+    # Test 12: Bluetooth service status
     test_check \
-        "bluetooth_service" \
+        "bluetooth_running" \
         "systemctl is-active --quiet bluetooth" \
         "Bluetooth service running" \
         "Bluetooth service not running (run: sudo ./setup.sh --guided)" \
-        "true"
-    
-    # Test 13: libusb
-    test_check \
-        "libusb" \
-        "ldconfig -p | grep 'libusb-1.0.so'" \
-        "libusb-1.0 library available" \
-        "libusb-1.0 missing (run: sudo ./setup.sh --guided)" \
         "true"
     
     # Output results
