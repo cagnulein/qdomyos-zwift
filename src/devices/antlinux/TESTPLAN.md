@@ -1,347 +1,288 @@
-# ANT+ Streamlined Test Plan
+# ANT+ Feature Test Plan
 
-## Quick Test Strategy
-
-Focus on the **3 critical scenarios** that cover all major functionality:
-
-1. **Fresh Install** - Missing dependencies detection
-2. **GUI Mode** - Visual feedback and device pairing
-3. **Headless Mode** - ANT+ broadcasting with no GUI
+Validation guide to verify ANT+ functionality before submitting for review.
 
 ---
 
-## Automated Test Scripts
+## Prerequisites
 
-Run automated tests to quickly validate core functionality:
+**Hardware Requirements:**
+- ANT+ USB dongle (Garmin USB2/USB-m/USB3/mini, or Suunto)
+- Garmin watch or compatible ANT+ device
+- Raspberry Pi (Zero 2 W, 3, 4, or 5) OR x86-64 PC/Laptop
 
+**Software Requirements:**
+- Linux distribution: Debian/Ubuntu-based (Bookworm or newer recommended)
+- Pre-compiled binary package from GitHub Releases
+
+**Time Required:** 15-20 minutes for complete testing
+
+---
+
+## Test Flow
+
+### 1. Quick Validation (2 minutes)
+
+Verify all dependencies are installed and configured.
+
+**Raspberry Pi:**
 ```bash
-# Run validation from your installation directory
-cd ~/qdomyos-zwift-x86-64-ant  # or wherever you extracted the binary
+cd ~/qdomyos-zwift-arm64-ant
 ./setup.sh --quick
-
-# Or with JSON output for CI/CD integration
-./setup.sh --quick --json
 ```
 
-**What gets tested automatically:**
-- ✓ Python 3.11 library detection (system and pyenv)
-- ✓ Virtual environment validation
-- ✓ Python packages (openant, pyusb, pybind11)
-- ✓ Qt5 library availability (Bluetooth, Charts, Multimedia)
-- ✓ USB permissions (plugdev group membership)
-- ✓ udev rules configuration
-- ✓ ANT+ dongle detection
-- ✓ Bluetooth service status
-- ✓ libusb-1.0 library availability
-
-**If tests fail:**
-
-Run guided setup: `sudo ./setup.sh --guided`
-
-See README.md Step 2 for details.
-
-**Expected output (all tests passing):**
+**Desktop Linux:**
+```bash
+cd ~/qdomyos-zwift-x86-64-ant
+./setup.sh --quick
 ```
-═══════════════════════════════════════════════════════════
-QDomyos-Zwift ANT+ Quick Validation
-═══════════════════════════════════════════════════════════
 
+**Expected Output:**
+```
 [PASS] Python 3.11 library found
-[PASS] Virtual environment exists at ~/ant_venv
-[PASS] Python package 'openant' installed
-[PASS] Python package 'pyusb' installed
-[PASS] Python package 'pybind11' installed
-[PASS] Qt5 Bluetooth library available
-[PASS] Qt5 Charts library available
-[PASS] Qt5 Multimedia library available
-[PASS] User 'username' is in 'plugdev' group
+[PASS] Virtual environment exists
+[PASS] Python packages installed (openant, pyusb, pybind11)
+[PASS] Qt5 runtime libraries available (12 libraries checked)
+[PASS] QML modules available (9 modules checked)
+[PASS] Bluetooth service available
+[PASS] User in 'plugdev' group
 [PASS] ANT+ udev rules configured
-[WARN] ANT+ USB dongle not detected (plug in Garmin/Suunto ANT+ stick)
+[PASS] ANT+ USB dongle detected
 [PASS] Bluetooth service running
-[PASS] libusb-1.0 library available
 
-───────────────────────────────────────────────────────────
-Test Summary: 12 passed, 1 warning, 0 failed
-───────────────────────────────────────────────────────────
-
+Test Summary: 12 passed, 0 warnings, 0 failed
 System Status: READY
-All tests passed - system is ready for ANT+ operation
 ```
 
-**Expected output (with issues):**
-```
-═══════════════════════════════════════════════════════════
-QDomyos-Zwift ANT+ Quick Validation
-═══════════════════════════════════════════════════════════
-
-[FAIL] Python 3.11 library not found (run: sudo ./setup.sh --interactive)
-[FAIL] Virtual environment not found (run: sudo ./setup.sh --interactive)
-[FAIL] Qt5 Bluetooth missing (run: sudo ./setup.sh --fix)
-[FAIL] Qt5 Charts missing (run: sudo ./setup.sh --fix)
-[FAIL] Qt5 Multimedia missing (run: sudo ./setup.sh --fix)
-[FAIL] User not in 'plugdev' group (run: sudo ./setup.sh --fix)
-[FAIL] ANT+ udev rules not found (run: sudo ./setup.sh --fix)
-[WARN] ANT+ USB dongle not detected (plug in Garmin/Suunto ANT+ stick)
-[FAIL] Bluetooth service not running (run: sudo ./setup.sh --fix)
-[FAIL] libusb-1.0 missing (run: sudo ./setup.sh --fix)
-
-───────────────────────────────────────────────────────────
-Test Summary: 0 passed, 1 warning, 9 failed
-───────────────────────────────────────────────────────────
-
-System Status: FAILED
-To fix issues, run:
-  sudo ./setup.sh --guided
-```
+**If tests fail:** Run `sudo ./setup.sh --guided` to install missing dependencies.
 
 ---
 
-## Setup Tool Modes
+### 2. Standalone ANT+ Test (3 minutes)
 
-The `setup.sh` script provides multiple modes for different use cases:
-
-### **Testing and Development Modes:**
+Test ANT+ broadcasting independently from the main application.
 
 ```bash
-# Reset to clean state (useful before each test run)
-sudo ./setup.sh --reset
-
-# Test ANT+ broadcasting independently
 sudo ./setup.sh --test
 ```
 
-### **Setup and Validation Modes:**
+**What to verify:**
+1. Test starts without errors
+2. On your Garmin watch: Menu > Sensors > Add > Foot Pod
+3. Watch pairs within 10 seconds
+4. Watch displays:
+   - Pace: ~7:00 min/km (varies through test stages)
+   - Cadence: 114-183 SPM
+   - Distance: accumulating
 
-```bash
-# Quick validation (no changes made)
-./setup.sh --quick
+**Expected Output:**
+```
+Starting ANT+ broadcaster with device ID 54321...
+Broadcaster started successfully.
 
-# Guided setup (recommended - explains everything)
-sudo ./setup.sh --guided
+==================================================
+ STAGE 1/6: Warm-up Walk
+--------------------------------------------------
+  TARGET SPEED:   5.0 km/h
+  EXPECTED PACE:  ~12:00-12:05
+  EXPECTED CADENCE: 114 SPM
+==================================================
 ```
 
-### **What `--reset` does:**
-- ✓ Removes user from plugdev group
-- ✓ Removes ANT+ udev rules
-- ✓ Optionally removes Python venv and packages (with confirmation)
-- ✓ Returns system to pre-setup state
-- ✗ Does NOT uninstall packages (Qt5, libusb, bluez remain)
+**Pass Criteria:**
+- [ ] Watch pairs successfully
+- [ ] Pace updates in real-time
+- [ ] Cadence shows correctly
+- [ ] Distance increments
+- [ ] No USB errors
 
-**Use case:** Complete clean slate before running test scenarios
-
-### **What `--test` does:**
-- ✓ Runs standalone ANT+ broadcasting test
-- ✓ Simulates treadmill data (pace, cadence, distance)
-- ✓ Verifies dongle and watch pairing
-- ✓ Isolates ANT+ issues from QDomyos-Zwift app
-
-**Use case:** Verify ANT+ works before testing full application
+**Stop test:** Press Ctrl+C
 
 ---
 
-## Manual Test Cases (4 Core Scenarios)
+### 3. GUI Mode with Treadmill (5 minutes)
 
-### T1: Fresh Install - Dependency Detection
-
-**Time:** 5 minutes  
-**Purpose:** Verify error messages are clear and helpful
-
-**Setup:**
-```bash
-# Start with clean state
-sudo ./setup.sh --reset
-```
-
-**Steps:**
-1. Download and extract binary (README Step 1)
-2. Run: `./setup.sh --quick`
-
-**Expected:**
-- Multiple `[FAIL]` messages with clear instructions
-- Each failure shows how to fix it
-- Suggested command: `sudo ./setup.sh --guided`
-
-**Pass:** Clear, actionable error messages shown
-
----
-
-### T2: GUI Mode - Visual Feedback
-
-**Time:** 10 minutes  
-**Purpose:** Verify GUI launches and shows device status
+Test full application with real treadmill.
 
 **Prerequisites:**
+- Bluetooth treadmill paired and connected
+- ANT+ dongle plugged in
+
+**Steps:**
 ```bash
-# Install dependencies using guided setup
-cd ~/qdomyos-zwift-x86-64-ant
+sudo ./qdomyos-zwift -ant-footpod
+```
+
+1. Application launches and connects to treadmill
+2. On Garmin watch: Add Foot Pod sensor
+3. Watch pairs (shows "Searching" then "Connected")
+4. Walk/run on treadmill for 3 minutes
+5. Verify watch data matches treadmill display
+
+**Pass Criteria:**
+- [ ] GUI launches without errors
+- [ ] Treadmill connects via Bluetooth
+- [ ] Watch pairs within 10 seconds
+- [ ] Pace matches treadmill speed (±0:05 min/km tolerance)
+- [ ] Cadence shows realistic values (90-200 SPM range)
+- [ ] No disconnections during test
+- [ ] No crashes or freezes
+
+---
+
+### 4. Headless Mode (5 minutes)
+
+Test ANT+ without GUI (server/headless deployment).
+
+```bash
+sudo ./qdomyos-zwift -no-gui -ant-footpod
+```
+
+**What to verify:**
+1. Application starts in console mode
+2. Treadmill connects (check console output)
+3. Watch pairs
+4. Run for 3 minutes
+5. Data flows correctly
+
+**Expected Console Output:**
+```
+OK, you are root.
+Bluetooth: Scanning for devices...
+Bluetooth: Connected to <TREADMILL_NAME>
+[ANT+] Broadcaster started (Device ID 54321)
+Speed: 8.5 km/h → Pace: 7:04 min/km, Cadence: 166 SPM
+```
+
+**Pass Criteria:**
+- [ ] No GUI displayed
+- [ ] Treadmill connects via Bluetooth
+- [ ] Watch receives ANT+ data
+- [ ] Runs stably for 5+ minutes
+- [ ] Can stop cleanly with Ctrl+C
+
+---
+
+### 5. Reset and Reinstall (Optional - 5 minutes)
+
+Verify cleanup and reinstall works correctly.
+
+```bash
+# Clean everything
+sudo ./setup.sh --reset
+
+# Verify cleaned
+./setup.sh --quick
+# Should show: "Virtual environment not found", "User not in plugdev", etc.
+
+# Reinstall
 sudo ./setup.sh --guided
 
-# Verify installation
+# Verify fixed
 ./setup.sh --quick
+# Should show: All tests passing
 ```
 
-**Steps:**
-1. Connect ANT+ dongle
-2. Run: `sudo ./qdomyos-zwift` (GUI mode)
-3. Enable "ANT+ Footpod" option in settings
-4. Pair Garmin watch (Menu > Sensors > Add > Foot Pod)
-5. Start treadmill
-6. Observe GUI for 2 minutes
+**Pass Criteria:**
+- [ ] Reset removes configurations
+- [ ] Quick check detects missing items
+- [ ] Guided setup reinstalls successfully
+- [ ] All tests pass after reinstall
 
-**Expected:**
-- GUI launches without errors
-- Settings show ANT+ option
-- Device status shows treadmill connected
-- No crashes or freezes
-
-**Pass:** GUI functional, no crashes, device connects
+**Note:** On desktop systems with graphical environments (e.g., ubuntu-desktop installed), system packages like Qt5 and libusb are protected from removal during reset. Only ANT+ specific configurations (udev rules, plugdev group membership, Python virtual environment) are removed.
 
 ---
 
-### T3: Headless Mode - ANT+ Broadcasting
+## Pre-Review Checklist
 
-**Time:** 10 minutes  
-**Purpose:** Verify ANT+ works without GUI
+Before submitting PR, verify:
 
-**Prerequisites:** T2 successful
+- [ ] `./setup.sh --quick` passes all 12 tests
+- [ ] `sudo ./setup.sh --test` pairs with watch and broadcasts data
+- [ ] GUI mode (`sudo ./qdomyos-zwift -ant-footpod`) works with treadmill
+- [ ] Headless mode (`-no-gui -ant-footpod`) runs stably
+- [ ] Watch data matches treadmill (pace ±0:05 min/km, cadence realistic)
+- [ ] No crashes during 5+ minute runs
+- [ ] Setup/reset/reinstall cycle works
+- [ ] README.md instructions are accurate
+- [ ] No `qml-module-qtmultimedia` missing error
 
-**Steps:**
-1. Test ANT+ independently: `sudo ./setup.sh --test`
-2. Verify watch pairs and shows data
-3. Stop test (Ctrl+C)
-4. Configure for headless: Create config file (see README 4.4)
-5. Run: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
-6. On Garmin watch: Add Foot Pod sensor
-7. Start treadmill
-8. Control speed and observe watch for 5 minutes
-
-**Expected from `--test`:**
-```
-═══════════════════════════════════════════════════════════
-QDomyos-Zwift ANT+ Broadcasting Test
-═══════════════════════════════════════════════════════════
-
-This test simulates treadmill data broadcasting via ANT+.
-Your Garmin watch should pair as a Foot Pod within 5-10 seconds.
-
-Expected readings:
-  - Pace: ~7:00 min/km (varying)
-  - Cadence: ~166 SPM
-  - Distance: accumulating
-```
-
-**Expected from main app:**
-```
-QDomyos-Zwift starting in no-gui mode...
-ANT+ Footpod broadcaster initialized
-Device ID: 54321
-Treadmill connected: <YOUR_TREADMILL>
-Speed: 8.5 km/h → Pace: 7:04 min/km
-Cadence: 166 SPM (running)
-```
-
-**Pass:** 
-- Test mode works and watch pairs
-- Watch pairs successfully in headless mode
-- Pace updates smoothly
-- Cadence shows 90-140 SPM (walking) or 160-200 SPM (running)
-- No disconnections or errors
+**Estimated total testing time:** 15-20 minutes
 
 ---
 
-### T4: Systemd Service - Auto-start
+## Common Issues
 
-**Time:** 10 minutes  
-**Purpose:** Verify reliable automatic startup
+### Test Mode Fails
 
-**Prerequisites:** T3 successful
+**Symptom:** `./setup.sh --test` shows USB errors or "Resource busy"
 
-**Steps:**
-1. Create systemd service (see README 4.3)
-2. `sudo systemctl enable qz && sudo systemctl start qz`
-3. Check: `sudo systemctl status qz`
-4. Pair watch
-5. Reboot system
-6. After boot, verify: `sudo systemctl status qz`
-7. Re-pair watch and test for 2 minutes
+**Solutions:**
+1. Check if qdomyos-zwift is already running: `sudo pkill -f qdomyos-zwift`
+2. Verify dongle detected: `lsusb | grep -i dynastream`
+3. Check permissions and configuration: `./setup.sh --quick`
+4. Reboot system after USB permissions setup
+5. Try unplugging and replugging the dongle
 
-**Expected:**
-- Service starts successfully
-- Status shows "active (running)"
-- Watch pairs after reboot
-- Data flows correctly
+### GUI Won't Start
 
-**Pass:** Reliable auto-start, no issues after reboot
+**Symptom:** Application exits immediately with no error message
 
----
+**Solutions:**
+1. Check for missing QML module: `./setup.sh --quick` (validates 9 QML modules)
+2. Install missing package if needed: `sudo apt install qml-module-qtmultimedia`
+3. Verify Qt5 libraries: `./setup.sh --quick` (validates 12 Qt5 libraries)
+4. Check binary architecture matches system:
+   - Raspberry Pi requires ARM64 binary (`linux-binary-arm64-ant.zip`)
+   - Desktop Linux requires x86-64 binary (`linux-binary-x86-64-ant.zip`)
 
-## Quick Acceptance Checklist
+### Watch Won't Pair
 
-Before release, verify:
+**Symptom:** Watch shows "Searching..." but never connects to foot pod
 
-- [ ] **Automated tests** pass on both x86-64 and ARM64
-- [ ] **T1 (Fresh Install)** shows helpful error messages
-- [ ] **T2 (GUI)** launches and connects to devices
-- [ ] **T3 (Headless)** broadcasts ANT+ for 5+ minutes
-- [ ] **T4 (Systemd)** starts reliably after reboot
-- [ ] **Wrapper script** detects missing dependencies
-- [ ] **`--reset` mode** successfully cleans configurations
-- [ ] **`--test` mode** works independently of main app
-- [ ] **Documentation** matches actual behavior
-- [ ] **No crashes** in any scenario
+**Solutions:**
+1. Verify ANT+ test works independently: `sudo ./setup.sh --test`
+2. Remove old foot pod pairing from watch memory
+3. Restart watch completely
+4. Ensure dongle is plugged directly into USB port (not USB hub)
+5. Check dongle is detected: `lsusb | grep -i dynastream`
 
-**Total manual testing time:** ~35 minutes per platform
+### Data Doesn't Match Treadmill
 
----
+**Symptom:** Watch pace is significantly different from treadmill speed
 
-## Test Workflow Best Practices
+**Solutions:**
+1. Verify treadmill calibration is correct
+2. Check ANT+ test shows correct data progression through stages
+3. Watch stride length may need manual calibration
+4. ANT+ broadcasts actual speed - watch calculates pace from speed
+5. Allow 5-10 seconds for watch to stabilize initial reading
 
-### **Between Test Runs:**
-```bash
-# Clean state for fresh test
-sudo ./setup.sh --reset
-./setup.sh --quick  # Verify clean
-```
+### Python Library Error
 
-### **Before Testing Main App:**
-```bash
-# Verify ANT+ works independently
-sudo ./setup.sh --test
-# If test passes, ANT+ stack is working
-# If main app fails but test passes → app issue, not ANT+
-```
+**Symptom:** `error while loading shared libraries: libpython3.11.so.1.0`
 
-### **CI/CD Integration:**
-```bash
-# Automated validation
-./setup.sh --quick --json > validation.json
-# Parse JSON for pass/fail status
-```
+**Solutions:**
+1. Run quick validation: `./setup.sh --quick`
+2. If Python 3.11 missing, install via apt: `sudo apt install python3.11`
+3. If not available in apt, install via pyenv: `sudo ./setup.sh --guided`
+4. After pyenv installation, reload shell: `source ~/.bashrc`
 
----
+### Treadmill Not Configured
 
-## Troubleshooting Test Failures
+**Symptom:** Watch pairs but pace shows `--:--` or no treadmill connection
 
-### **Test Mode Issues:**
-
-| Issue | Solution |
-|-------|----------|
-| `test_ant.py` not found | Ensure script is in same directory as setup.sh |
-| Virtual environment missing | Run `sudo ./setup.sh --fix` first |
-| Watch won't pair | Check dongle is plugged in, verify with `lsusb` |
-| Test runs but no data | USB permissions issue - run `./setup.sh --quick` |
-
-### **Reset Mode Issues:**
-
-| Issue | Solution |
-|-------|----------|
-| Still shows as in plugdev group | Logout and login required |
-| Quick check still shows configured | Some manual configs remain - expected behavior |
-| System packages still installed | Reset only removes configs, not packages (by design) |
+**Solutions:**
+1. Ensure treadmill is powered on and in Bluetooth pairing mode
+2. Check treadmill configuration in settings file
+3. Edit configuration: `/root/.config/Roberto\ Viola/qDomyos-Zwift.conf`
+4. Add your treadmill model (e.g., `proform_treadmill_705_cst=true`)
+5. Verify treadmill is supported: check README.md or main project documentation
 
 ---
 
 ## Related Documentation
 
-- **Installation Guide:** [README.md](README.md) - User installation instructions
-- **Compilation Guide:** [COMPILE.md](COMPILE.md) - Building from source with Docker
+- **User Setup:** [README.md](README.md)
+- **Build Instructions:** [COMPILE.md](COMPILE.md)
+- **Architecture:** See source comments in `AntManager.cpp` and `AntWorker.cpp`
