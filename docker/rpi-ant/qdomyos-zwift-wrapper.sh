@@ -140,14 +140,69 @@ if [[ ! -f "/etc/udev/rules.d/99-ant-usb.rules" ]]; then
     WARNINGS+=("  See: https://github.com/cagnulein/qdomyos-zwift/blob/master/src/devices/antlinux/README.md")
 fi
 
-# === CHECK 4: ANT+ USB Dongle ===
+# === CHECK 4: Qt5 Runtime Libraries ===
+MISSING_QT5=()
+QT5_LIBS=(
+    "libQt5Bluetooth.so.5"
+    "libQt5Charts.so.5"
+    "libQt5Multimedia.so.5"
+    "libQt5MultimediaWidgets.so.5"
+    "libQt5NetworkAuth.so.5"
+    "libQt5Positioning.so.5"
+    "libQt5Sql.so.5"
+    "libQt5TextToSpeech.so.5"
+    "libQt5WebSockets.so.5"
+    "libQt5Widgets.so.5"
+    "libQt5Xml.so.5"
+)
+
+for lib in "${QT5_LIBS[@]}"; do
+    if ! ldconfig -p 2>/dev/null | grep -q "$lib"; then
+        MISSING_QT5+=("$lib")
+    fi
+done
+
+if [[ ${#MISSING_QT5[@]} -gt 0 ]]; then
+    WARNINGS+=("Missing Qt5 libraries: ${MISSING_QT5[*]}")
+    WARNINGS+=("  Install with: sudo ./setup.sh --guided")
+    WARNINGS+=("  Or run: ./setup.sh --quick to diagnose all issues")
+fi
+
+# === CHECK 5: QML Modules ===
+MISSING_QML=()
+QML_MODULES=(
+    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtLocation"
+    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtPositioning"
+    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtQuick.2"
+    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtQuick/Controls"
+    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtQuick/Controls.2"
+    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtQuick/Dialogs"
+    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtQuick/Layouts"
+    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtQuick/Window.2"
+    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtMultimedia"
+)
+
+for qml_path in "${QML_MODULES[@]}"; do
+    if [[ ! -d "$qml_path" ]]; then
+        qml_name=$(basename "$qml_path")
+        MISSING_QML+=("$qml_name")
+    fi
+done
+
+if [[ ${#MISSING_QML[@]} -gt 0 ]]; then
+    WARNINGS+=("Missing QML modules: ${MISSING_QML[*]}")
+    WARNINGS+=("  Install with: sudo ./setup.sh --guided")
+    WARNINGS+=("  Or run: ./setup.sh --quick to diagnose all issues")
+fi
+
+# === CHECK 6: ANT+ USB Dongle ===
 if ! lsusb 2>/dev/null | grep -qE '(0fcf:1008|0fcf:1009|0fcf:100c|0fcf:100e|0fcf:88a4|11fd:0001)'; then
     WARNINGS+=("ANT+ USB dongle not detected")
     WARNINGS+=("  Supported devices: Garmin USB2 (0fcf:1008), USB-m (0fcf:1009), or compatible")
     WARNINGS+=("  Plug in your ANT+ dongle and ensure USB permissions are correct")
 fi
 
-# === CHECK 5: Binary Exists ===
+# === CHECK 7: Binary Exists ===
 if [[ ! -f "$DIR/qdomyos-zwift-bin" ]]; then
     ERRORS+=("Binary not found at: $DIR/qdomyos-zwift-bin")
 fi

@@ -205,7 +205,7 @@ Before submitting PR, verify:
 - [ ] No crashes during 5+ minute runs
 - [ ] Setup/reset/reinstall cycle works
 - [ ] README.md instructions are accurate
-- [ ] No `qml-module-qtmultimedia` missing error
+- [ ] Wrapper script validates all dependencies at startup
 
 **Estimated total testing time:** 15-20 minutes
 
