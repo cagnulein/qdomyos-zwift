@@ -347,6 +347,7 @@ run_quick_mode() {
     missing_qml=()
     required_qml_dirs=(
         "QtLocation"
+        "QtMultimedia"
         "QtPositioning"
         "QtQuick.2"
         "QtQuick/Controls"

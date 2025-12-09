@@ -163,6 +163,7 @@ sudo apt-get install -y \
 	qml-module-qtquick-dialogs \
 	qml-module-qtquick-layouts \
 	qml-module-qtquick-window2 \
+	qml-module-qtmultimedia \
 	libusb-1.0-0 \
 	bluez \
 	python3-pip
