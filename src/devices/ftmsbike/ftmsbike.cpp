@@ -1534,7 +1534,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 #endif
             writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
             return;
-        } else if(b.at(0) == FTMS_SET_TARGET_POWER && ((zwiftPlayService != nullptr && gears_zwift_ratio) || !ergModeSupported)) {
+        } else if(b.at(0) == FTMS_SET_TARGET_POWER && !ergModeSupported) {
             qDebug() << "discarding";
             return;
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
