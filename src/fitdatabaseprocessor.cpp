@@ -35,78 +35,81 @@ FitDatabaseProcessor::~FitDatabaseProcessor() {
 }
 
 bool FitDatabaseProcessor::initializeDatabase() {
-    QMutexLocker locker(&mutex);
+    // Limit the scope of the mutex locker to avoid deadlock with migrateOldPaths()
+    {
+        QMutexLocker locker(&mutex);
 
-    if (QSqlDatabase::contains(DB_CONNECTION_NAME)) {
-        db = QSqlDatabase::database(DB_CONNECTION_NAME);
-    } else {
-        db = QSqlDatabase::addDatabase("QSQLITE", DB_CONNECTION_NAME);
-        db.setDatabaseName(dbPath);
-    }
+        if (QSqlDatabase::contains(DB_CONNECTION_NAME)) {
+            db = QSqlDatabase::database(DB_CONNECTION_NAME);
+        } else {
+            db = QSqlDatabase::addDatabase("QSQLITE", DB_CONNECTION_NAME);
+            db.setDatabaseName(dbPath);
+        }
 
-    if (!db.open()) {
-        emit error("Failed to open database: " + db.lastError().text());
-        return false;
-    }
+        if (!db.open()) {
+            emit error("Failed to open database: " + db.lastError().text());
+            return false;
+        }
 
-    // Start transaction for table creation
-    db.transaction();
+        // Start transaction for table creation
+        db.transaction();
 
-    QSqlQuery query(db);
+        QSqlQuery query(db);
 
-    // Create workouts table - Only storing summary data
-    if (!query.exec("CREATE TABLE IF NOT EXISTS workouts ("
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    "file_hash TEXT UNIQUE,"
-                    "file_path TEXT,"
-                    "workout_name TEXT,"
-                    "sport_type INTEGER,"
-                    "start_time DATETIME,"
-                    "end_time DATETIME,"
-                    "total_time INTEGER,"  // in seconds
-                    "total_distance REAL,"  // in km
-                    "total_calories INTEGER,"
-                    "avg_heart_rate INTEGER,"
-                    "max_heart_rate INTEGER,"
-                    "avg_cadence INTEGER,"
-                    "max_cadence INTEGER,"
-                    "avg_speed REAL,"
-                    "max_speed REAL,"
-                    "avg_power INTEGER,"
-                    "max_power INTEGER,"
-                    "total_ascent REAL,"
-                    "total_descent REAL,"
-                    "avg_stride_length REAL,"
-                    "total_strides INTEGER,"
-                    "workout_source TEXT DEFAULT 'QZ',"
-                    "peloton_workout_id TEXT,"
-                    "peloton_url TEXT,"
-                    "training_program_file TEXT,"
-                    "processed_at DATETIME DEFAULT CURRENT_TIMESTAMP"
-                    ")")) {
-        db.rollback();
-        emit error("Failed to create workouts table: " + query.lastError().text());
-        return false;
-    }
+        // Create workouts table - Only storing summary data
+        if (!query.exec("CREATE TABLE IF NOT EXISTS workouts ("
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                        "file_hash TEXT UNIQUE,"
+                        "file_path TEXT,"
+                        "workout_name TEXT,"
+                        "sport_type INTEGER,"
+                        "start_time DATETIME,"
+                        "end_time DATETIME,"
+                        "total_time INTEGER,"  // in seconds
+                        "total_distance REAL,"  // in km
+                        "total_calories INTEGER,"
+                        "avg_heart_rate INTEGER,"
+                        "max_heart_rate INTEGER,"
+                        "avg_cadence INTEGER,"
+                        "max_cadence INTEGER,"
+                        "avg_speed REAL,"
+                        "max_speed REAL,"
+                        "avg_power INTEGER,"
+                        "max_power INTEGER,"
+                        "total_ascent REAL,"
+                        "total_descent REAL,"
+                        "avg_stride_length REAL,"
+                        "total_strides INTEGER,"
+                        "workout_source TEXT DEFAULT 'QZ',"
+                        "peloton_workout_id TEXT,"
+                        "peloton_url TEXT,"
+                        "training_program_file TEXT,"
+                        "processed_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+                        ")")) {
+            db.rollback();
+            emit error("Failed to create workouts table: " + query.lastError().text());
+            return false;
+        }
 
-    // Create index for better performance
-    query.exec("CREATE INDEX IF NOT EXISTS idx_workout_start_time ON workouts(start_time)");
+        // Create index for better performance
+        query.exec("CREATE INDEX IF NOT EXISTS idx_workout_start_time ON workouts(start_time)");
 
-    // Add workout_name column if it doesn't exist (for existing databases)
-    query.exec("ALTER TABLE workouts ADD COLUMN workout_name TEXT");
-    
-    // Add new Peloton-related columns if they don't exist (for existing databases)
-    query.exec("ALTER TABLE workouts ADD COLUMN workout_source TEXT DEFAULT 'QZ'");
-    query.exec("ALTER TABLE workouts ADD COLUMN peloton_workout_id TEXT");
-    query.exec("ALTER TABLE workouts ADD COLUMN peloton_url TEXT");
-    query.exec("ALTER TABLE workouts ADD COLUMN training_program_file TEXT");
+        // Add workout_name column if it doesn't exist (for existing databases)
+        query.exec("ALTER TABLE workouts ADD COLUMN workout_name TEXT");
 
-    if (!db.commit()) {
-        emit error("Failed to commit database initialization: " + db.lastError().text());
-        return false;
-    }
+        // Add new Peloton-related columns if they don't exist (for existing databases)
+        query.exec("ALTER TABLE workouts ADD COLUMN workout_source TEXT DEFAULT 'QZ'");
+        query.exec("ALTER TABLE workouts ADD COLUMN peloton_workout_id TEXT");
+        query.exec("ALTER TABLE workouts ADD COLUMN peloton_url TEXT");
+        query.exec("ALTER TABLE workouts ADD COLUMN training_program_file TEXT");
 
-    // Migrate old absolute paths to relative paths
+        if (!db.commit()) {
+            emit error("Failed to commit database initialization: " + db.lastError().text());
+            return false;
+        }
+    } // Mutex is released here
+
+    // Migrate old absolute paths to relative paths (after mutex is released)
     qDebug() << "Checking for old absolute paths to migrate...";
     migrateOldPaths();
 
