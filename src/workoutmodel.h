@@ -74,7 +74,8 @@ class WorkoutModel : public QAbstractListModel {
     void calculateStreaks();
     QString getStreakMessage(int streak) const;
     void applyDateFilter();
-    
+    QString makeAbsolutePath(const QString& relativePath) const;
+
     QList<QVariantMap> m_workouts;
     QList<QVariantMap> m_allWorkouts;
     QSqlDatabase m_db;
