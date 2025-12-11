@@ -15,6 +15,7 @@
     const FIELD_DEFS = [
         { key: 'name', label: 'Label', type: 'text', group: 'basic', devices: 'all' },
         { key: 'duration', label: 'Duration', type: 'duration', group: 'basic', devices: 'all' },
+        { key: 'distance', label: 'Distance', type: 'number', unitKey: 'distance', step: 0.1, min: 0, group: 'basic', devices: 'all', defaultValue: -1 },
         { key: 'speed', label: 'Speed', type: 'number', unitKey: 'speed', step: 0.1, min: 0, group: 'basic', devices: ['treadmill'], defaultValue: () => state.miles ? 6.0 : 9.5 },
         { key: 'pace', label: 'Pace', type: 'pace', unitKey: 'pace', group: 'basic', devices: ['treadmill'], syncWith: 'speed' },
         { key: 'inclination', label: 'Incline', type: 'number', unitSuffix: '%', step: 0.5, min: -10, max: 30, group: 'basic', devices: ['treadmill', 'elliptical'], defaultValue: 1.0 },
@@ -56,6 +57,7 @@
 
     // Default values that indicate a field should not be enabled
     const DEFAULT_DISABLED_VALUES = {
+        distance: -1,
         speed: -1,
         cadence: -1,
         resistance: -1,
@@ -320,8 +322,8 @@
                 } else if (def.type === 'number') {
                     value = Number(row[def.key]);
 
-                    // Convert speed from km/h to mph if needed (XML always stores km/h)
-                    if (def.unitKey === 'speed' && state.miles) {
+                    // Convert distance/speed from km to miles if needed (XML always stores in km)
+                    if ((def.unitKey === 'distance' || def.unitKey === 'speed') && state.miles) {
                         value = value / 1.60934;
                     }
 
@@ -677,6 +679,9 @@
         if (typeof field.label === 'function') {
             return field.label();
         }
+        if (field.unitKey === 'distance') {
+            return `${field.label} (${state.miles ? 'mi' : 'km'})`;
+        }
         if (field.unitKey === 'speed') {
             return `${field.label} (${state.miles ? 'mph' : 'km/h'})`;
         }
@@ -962,8 +967,8 @@
                 if (value !== undefined && value !== null && value !== '') {
                     let finalValue = field.type === 'number' ? Number(value) : value;
 
-                    // Convert speed from mph to km/h if needed (XML always stores km/h)
-                    if (field.type === 'number' && field.unitKey === 'speed' && state.miles) {
+                    // Convert distance/speed from miles to km if needed (XML always stores in km)
+                    if (field.type === 'number' && (field.unitKey === 'distance' || field.unitKey === 'speed') && state.miles) {
                         finalValue = finalValue * 1.60934;
                     }
 
