@@ -180,9 +180,9 @@ void domyosbike::update() {
     if (initRequest) {
         initRequest = false;
         // if(bike_type == CHANG_YOW)
-        //btinit_changyow(false);
+        btinit_changyow(false);
         // else
-        btinit_telink(false);
+        //    btinit_telink(false);
     } else if (/*bluetoothDevice.isValid() &&*/
                m_control->state() == QLowEnergyController::DiscoveredState && gattCommunicationChannelService &&
                gattWriteCharacteristic.isValid() && gattNotifyCharacteristic.isValid() && initDone) {
