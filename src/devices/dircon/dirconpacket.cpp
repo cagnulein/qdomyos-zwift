@@ -156,6 +156,8 @@ QByteArray DirconPacket::encode(int last_seq_number) {
         return QByteArray();
     else if (this->isRequest)
         this->SequenceNumber = last_seq_number & 0xFF;
+    else if (this->Identifier == DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION)
+            this->SequenceNumber = 0;
     else
         this->SequenceNumber = last_seq_number;
     this->MessageVersion = 1;

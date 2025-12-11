@@ -230,8 +230,7 @@ bool DirconProcessor::sendCharacteristicNotification(quint16 uuid, const QByteAr
         client = i.value();
         if (client->char_notify.indexOf(uuid) >= 0 || !settings.value(QZSettings::wahoo_rgt_dircon, QZSettings::default_wahoo_rgt_dircon).toBool()) {
             socket = i.key();
-            rvs = socket->write(pkt.encode(client->notification_seq)) < 0;
-            client->notification_seq++;
+            rvs = socket->write(pkt.encode(0)) < 0;
             if (rvs)
                 rv = false;
             qDebug() << serverName << "sending to" << socket->peerAddress().toString() << ":" << socket->peerPort()
