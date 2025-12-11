@@ -22,7 +22,7 @@ using namespace std::chrono_literals;
 #define ZWIFT_DISABLED_OP(OP, DESC, UUID, MACHINE, P1, P2, P3)
 
 #define DM_MACHINE_OP(OP, P1, P2, P3)                                                                                  \
-    OP(WAHOO_KICKR, "Wahoo KICKR $uuid_hex$", DM_MACHINE_TYPE_TREADMILL | DM_MACHINE_TYPE_BIKE, P1, P2, P3)            \
+    OP(WAHOO_KICKR, "ELITE AVANTI $uuid_hex$ W", DM_MACHINE_TYPE_TREADMILL | DM_MACHINE_TYPE_BIKE, P1, P2, P3)            \
     OP(WAHOO_BLUEHR, "Wahoo HRM", DM_MACHINE_TYPE_BIKE | DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)                        \
     OP(WAHOO_RPM_SPEED, "Wahoo SPEED $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)                                    \
     OP(WAHOO_TREADMILL, "Wahoo TREAD $uuid_hex$", DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)
@@ -127,13 +127,12 @@ enum {
             }                                                                                                          \
         }                                                                                                              \
         if (P2.size()) {                                                                                               \
-            QString dircon_id = QString("%1").arg(settings.value(QZSettings::dircon_id,                                \
-            QZSettings::default_dircon_id).toInt(), 4, 10, QChar('0'));                                                \
+            QString dircon_id = QString("04500");                                                \
             DirconProcessor *processor = new DirconProcessor(                                                          \
                 P2,                                                                                                    \
                 QString(QStringLiteral(NAME))                                                                          \
                     .replace(QStringLiteral("$uuid_hex$"), dircon_id),                                                 \
-                server_base_port + DM_MACHINE_##DESC, QString(QStringLiteral("%1")).arg(DM_MACHINE_##DESC), mac,       \
+                server_base_port + DM_MACHINE_##DESC, dircon_id, mac,       \
                 this);                                                                                                 \
             QString servdesc;                                                                                          \
             foreach (DirconProcessorService *s, P2) { servdesc += *s + QStringLiteral(","); }                          \
@@ -146,21 +145,8 @@ enum {
     }
 
 QString DirconManager::getMacAddress() {
-    QString addr;
-    foreach (QNetworkInterface netInterface, QNetworkInterface::allInterfaces()) {
-        // Return only the first non-loopback MAC Address
-        addr = netInterface.hardwareAddress();
-        if (!(netInterface.flags() & QNetworkInterface::IsLoopBack) && !addr.isEmpty()) {
-            const auto entries = netInterface.addressEntries();
-            for (const QNetworkAddressEntry &newEntry : entries) {
-                QHostAddress address = newEntry.ip();
-                if ((address.protocol() == QAbstractSocket::IPv4Protocol)) {
-                    return addr;
-                }
-            }
-        }
-    }
-    return QString(QStringLiteral("00:11:22:33:44"));
+    // Use exact Elite Avanti MAC for Apple TV compatibility testing
+    return QString(QStringLiteral("24:DC:C3:E3:B5:28"));
 }
 
 #define DM_CHAR_NOTIF_BUILD_OP(UUID, P1, P2, P3) notif##UUID = new CharacteristicNotifier##UUID(P1, this);

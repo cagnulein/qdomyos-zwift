@@ -33,7 +33,8 @@ bool DirconProcessor::initServer() {
     }
     if (!server->isListening()) {
         qDebug() << "Dircon TCP Server trying to listen" << serverPort;
-        return server->listen(QHostAddress::Any, serverPort);
+        // Listen only on IPv4 for Apple TV/Windows compatibility (like Elite Avanti)
+        return server->listen(QHostAddress::AnyIPv4, serverPort);
     } else
         return true;
 }
@@ -59,22 +60,27 @@ void DirconProcessor::initAdvertising() {
         mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, serverName.toUtf8() + QByteArrayLiteral("H"), this);
         mdnsProvider = new QMdnsEngine::Provider(mdnsServer, mdnsHostname, this);
         QMdnsEngine::Service mdnsService;
-        mdnsService.setType("_wahoo-fitness-tnp._tcp.local.");
+        mdnsService.setType("_wahoo-fitness-tnp._tcp.local");
         mdnsService.setName(serverName.toUtf8());
         mdnsService.addAttribute(QByteArrayLiteral("mac-address"), mac.toUtf8());
         mdnsService.addAttribute(QByteArrayLiteral("serial-number"), serialN.toUtf8());
         QString ble_uuids;
-        int i = 0;
+        QStringList uuid_list;
         foreach (DirconProcessorService *service, services) {
+            // Filter: only advertise 0x1826 for KICKR (skip 0x1818, 0x1816)
+            if(service->uuid == 0x1818 || service->uuid == 0x1816) {
+                continue;
+            }
+
             if(service->uuid == ZWIFT_PLAY_ENUM_VALUE) {
-                ble_uuids += ZWIFT_PLAY_UUID_STRING +
-                ((i++ < services.size() - 1) ? QStringLiteral(",") : QStringLiteral(""));
+                uuid_list.append(ZWIFT_PLAY_UUID_STRING);
             } else {
-                ble_uuids += QString(QStringLiteral(DP_BASE_UUID))
-                    .replace("u", QString(QStringLiteral("%1")).arg(service->uuid, 4, 16, QLatin1Char('0'))) +
-                ((i++ < services.size() - 1) ? QStringLiteral(",") : QStringLiteral(""));
+                // Use short format with 0x prefix (Apple TV/Windows compatibility)
+                uuid_list.append(QString(QStringLiteral("0x%1"))
+                    .arg(service->uuid, 4, 16, QLatin1Char('0')));
             }
         }
+        ble_uuids = uuid_list.join(",");
         mdnsService.addAttribute(QByteArrayLiteral("ble-service-uuids"), ble_uuids.toUtf8());
         mdnsService.setPort(serverPort);
         mdnsProvider->update(mdnsService);
@@ -101,6 +107,19 @@ void DirconProcessor::tcpNewConnection() {
     connect(socket, SIGNAL(readyRead()), this, SLOT(tcpDataAvailable()));
     DirconProcessorClient *client = new DirconProcessorClient(socket);
     clientsMap.insert(socket, client);
+
+    // Send initial notification for 0x2AD2 (Indoor Bike Data) - Apple TV/Windows compatibility
+    // Elite Avanti sends this immediately after connection
+    DirconPacket initPkt;
+    initPkt.isRequest = false;
+    initPkt.Identifier = DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION;
+    initPkt.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
+    initPkt.uuid = 0x2AD2;
+    initPkt.additional_data = QByteArray(29, 0x00); // Empty data for now
+    QByteArray initData = initPkt.encode(0);
+    socket->write(initData);
+    socket->flush();
+    qDebug() << "Sent initial notification for 0x2AD2 to" << socket->peerAddress().toString();
 }
 
 void DirconProcessor::tcpDisconnected() {
