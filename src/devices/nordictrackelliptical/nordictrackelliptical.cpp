@@ -14,6 +14,7 @@
 #include <chrono>
 #include <math.h>
 #include <qmath.h>
+#include "homeform.h"
 
 using namespace std::chrono_literals;
 
@@ -1298,54 +1299,38 @@ void nordictrackelliptical::btinit() {
         writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
         QThread::msleep(400);
         if (nordictrack_se7i) {
-            // NordicTrack Elliptical SE7i initialization (19 packets: pkt944 to pkt1020)
             max_resistance = 22;
             max_inclination = 20;
-
-            uint8_t se7i_initData1[] = {0xfe, 0x02, 0x08, 0x02};
-            uint8_t se7i_initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t se7i_initData3[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x06, 0x04, 0x80, 0x8a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t se7i_initData4[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x06, 0x04, 0x88, 0x92, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t se7i_initData5[] = {0xfe, 0x02, 0x0b, 0x02}; // pkt972
-            uint8_t se7i_initData6[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00, 0x00, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt975
-            uint8_t se7i_initData7[] = {0xfe, 0x02, 0x0a, 0x02}; // pkt982
-            uint8_t se7i_initData8[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00, 0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt985
-            uint8_t se7i_initData9[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt994
-            uint8_t se7i_initData10[] = {0xfe, 0x02, 0x2c, 0x04}; // pkt1000
+            
             uint8_t se7i_initData11[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x06, 0x28, 0x90, 0x04, 0x00, 0x0d, 0x68, 0xc9, 0x28, 0x95, 0xf0, 0x69, 0xc0, 0x3d}; // pkt1003
             uint8_t se7i_initData12[] = {0x01, 0x12, 0xa8, 0x19, 0x88, 0xf5, 0x60, 0xf9, 0x70, 0xcd, 0x48, 0xc9, 0x48, 0xf5, 0x70, 0xe9, 0x60, 0x1d, 0x88, 0x39}; // pkt1006
             uint8_t se7i_initData13[] = {0xff, 0x08, 0xa8, 0x55, 0xc0, 0x80, 0x02, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt1009
             uint8_t se7i_initData14[] = {0xfe, 0x02, 0x19, 0x03}; // pkt1014
             uint8_t se7i_initData15[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x06, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt1017
             uint8_t se7i_initData16[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt1020
+            
+            uint8_t se7i_init_020[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t se7i_init_021[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t se7i_init_022[] = {0xff, 0x05, 0x00, 0x80, 0x01, 0x00, 0xa8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t se7i_init_023[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t se7i_init_024[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x00, 0x0d, 0x00, 0x10, 0x00, 0xd8, 0x1c, 0x4c, 0x00, 0x00, 0xe0};
+            uint8_t se7i_init_025[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x10, 0x68, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t se7i_init_026[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t se7i_init_027[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x00, 0x0d, 0x3e, 0x96, 0x33, 0x00, 0x10, 0x40, 0x50, 0x00, 0x80};
+            uint8_t se7i_init_028[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x05, 0x54, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t se7i_init_029[] = {0xfe, 0x02, 0x11, 0x02};
+            uint8_t se7i_init_030[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x06, 0x0d, 0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x08, 0x58, 0x02, 0x00, 0x7c, 0x00};
+            uint8_t se7i_init_031[] = {0xfe, 0x02, 0x19, 0x03};
+            uint8_t se7i_init_032[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x06, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t se7i_init_033[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t se7i_init_034[] = {0xfe, 0x02, 0x11, 0x02};
+            uint8_t se7i_init_035[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x06, 0x0d, 0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x08, 0x58, 0x02, 0x00, 0x7c, 0x00};
+            uint8_t se7i_init_036[] = {0xfe, 0x02, 0x0c, 0x02};
+            uint8_t se7i_init_037[] = {0xff, 0x0c, 0x02, 0x04, 0x02, 0x08, 0x06, 0x08, 0x02, 0x00, 0x02, 0x00, 0x10, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t se7i_init_038[] = {0xfe, 0x02, 0x10, 0x02};
+            uint8_t se7i_init_039[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x06, 0x0c, 0x02, 0x04, 0x00, 0x00, 0x00, 0x02, 0x18, 0x15, 0x00, 0x47, 0x00, 0x00};
 
             int sleepms = 400;
-            writeCharacteristic(se7i_initData1, sizeof(se7i_initData1), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData2, sizeof(se7i_initData2), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData1, sizeof(se7i_initData1), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData3, sizeof(se7i_initData3), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData1, sizeof(se7i_initData1), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData4, sizeof(se7i_initData4), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData5, sizeof(se7i_initData5), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData6, sizeof(se7i_initData6), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData7, sizeof(se7i_initData7), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData8, sizeof(se7i_initData8), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData1, sizeof(se7i_initData1), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData9, sizeof(se7i_initData9), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData10, sizeof(se7i_initData10), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
             writeCharacteristic(se7i_initData11, sizeof(se7i_initData11), QStringLiteral("init"), false, true);
             QThread::msleep(sleepms);
             writeCharacteristic(se7i_initData12, sizeof(se7i_initData12), QStringLiteral("init"), false, true);
@@ -1358,6 +1343,49 @@ void nordictrackelliptical::btinit() {
             QThread::msleep(sleepms);
             writeCharacteristic(se7i_initData16, sizeof(se7i_initData16), QStringLiteral("init"), false, true);
             QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_020, sizeof(se7i_init_020), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_021, sizeof(se7i_init_021), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_022, sizeof(se7i_init_022), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_023, sizeof(se7i_init_023), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_024, sizeof(se7i_init_024), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_025, sizeof(se7i_init_025), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_026, sizeof(se7i_init_026), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_027, sizeof(se7i_init_027), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_028, sizeof(se7i_init_028), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_029, sizeof(se7i_init_029), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_030, sizeof(se7i_init_030), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_031, sizeof(se7i_init_031), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_032, sizeof(se7i_init_032), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_033, sizeof(se7i_init_033), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_034, sizeof(se7i_init_034), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_035, sizeof(se7i_init_035), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_036, sizeof(se7i_init_036), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_037, sizeof(se7i_init_037), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_038, sizeof(se7i_init_038), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_init_039, sizeof(se7i_init_039), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested("init completed!");
         } else if (nordictrack_elliptical_c7_5) {
             max_resistance = 22;
             max_inclination = 20;
