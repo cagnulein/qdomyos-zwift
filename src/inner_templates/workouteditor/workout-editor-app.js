@@ -319,6 +319,12 @@
                     out['__enabled_' + def.key] = true;
                 } else if (def.type === 'number') {
                     value = Number(row[def.key]);
+
+                    // Convert speed from km/h to mph if needed (XML always stores km/h)
+                    if (def.unitKey === 'speed' && state.miles) {
+                        value = value / 1.60934;
+                    }
+
                     // Check if value is the default disabled value
                     const isDefaultValue = DEFAULT_DISABLED_VALUES[def.key] !== undefined &&
                                           value === DEFAULT_DISABLED_VALUES[def.key];
@@ -954,7 +960,14 @@
                 }
                 const value = interval[field.key];
                 if (value !== undefined && value !== null && value !== '') {
-                    row[field.key] = field.type === 'number' ? Number(value) : value;
+                    let finalValue = field.type === 'number' ? Number(value) : value;
+
+                    // Convert speed from mph to km/h if needed (XML always stores km/h)
+                    if (field.type === 'number' && field.unitKey === 'speed' && state.miles) {
+                        finalValue = finalValue * 1.60934;
+                    }
+
+                    row[field.key] = finalValue;
                 }
             });
             list.push(row);
