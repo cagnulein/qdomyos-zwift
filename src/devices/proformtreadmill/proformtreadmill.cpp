@@ -78,7 +78,7 @@ void proformtreadmill::forceIncline(double incline) {
                 proform_treadmill_sport_8_5 || proform_treadmill_505_cst || proform_505_cst_80_44 || proform_carbon_tl || proform_proshox2 || nordictrack_s20i_treadmill || proform_595i_proshox2 ||
                proform_treadmill_8_7 || proform_carbon_tl_PFTL59720 || proform_treadmill_sport_70 || proform_treadmill_575i || proform_performance_300i || proform_performance_400i || proform_treadmill_c700 ||
                proform_treadmill_c960i || nordictrack_tseries5_treadmill || proform_carbon_tl_PFTL59722c || proform_treadmill_1500_pro || proform_trainer_8_0 || proform_treadmill_705_cst_V80_44 ||
-               nordictrack_treadmill_ultra_le || proform_treadmill_carbon_tls || proform_treadmill_995i || nordictrack_series_7
+               nordictrack_treadmill_ultra_le || proform_treadmill_carbon_tls || proform_treadmill_sport_3_0 || proform_treadmill_995i || nordictrack_series_7
                ) {
         write[14] = write[11] + write[12] + 0x12;
     } else if (!nordictrack_t65s_treadmill && !nordictrack_elite_800 && !nordictrack_t65s_treadmill_81_miles && !nordictrack_s30_treadmill && !nordictrack_s20_treadmill && !nordictrack_t65s_83_treadmill) {
@@ -108,7 +108,7 @@ void proformtreadmill::forceSpeed(double speed) {
                proform_treadmill_sport_8_5 || proform_treadmill_505_cst || proform_505_cst_80_44 || proform_treadmill_705_cst || proform_treadmill_705_cst_V78_239 || proform_carbon_tl || proform_proshox2 || nordictrack_s20i_treadmill || proform_595i_proshox2 ||
                proform_treadmill_8_7 || proform_carbon_tl_PFTL59720 || proform_treadmill_sport_70 || proform_treadmill_575i || proform_performance_300i || proform_performance_400i || proform_treadmill_c700 ||
                proform_treadmill_c960i || nordictrack_tseries5_treadmill || proform_carbon_tl_PFTL59722c || proform_treadmill_1500_pro || proform_trainer_8_0 || proform_treadmill_705_cst_V80_44 ||
-               nordictrack_treadmill_ultra_le || proform_treadmill_carbon_tls || proform_treadmill_995i || nordictrack_series_7) {
+               nordictrack_treadmill_ultra_le || proform_treadmill_carbon_tls || proform_treadmill_sport_3_0 || proform_treadmill_995i || nordictrack_series_7) {
         write[14] = write[11] + write[12] + 0x11;
     } else if (!nordictrack_t65s_treadmill && !nordictrack_elite_800 && !nordictrack_t65s_treadmill_81_miles && !nordictrack_s30_treadmill && !nordictrack_s20_treadmill && !nordictrack_t65s_83_treadmill) {
         for (uint8_t i = 0; i < 7; i++) {
@@ -765,6 +765,66 @@ void proformtreadmill::update() {
                 break;
             case 5:
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1 || requestPause != -1) {
+                    forceSpeed(0);
+                    emit debug(QStringLiteral("stopping..."));
+                    requestStop = -1;
+                    requestPause = -1;
+                }
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 5) {
+                counterPoll = 0;
+            }
+        } else if (proform_treadmill_sport_3_0) {
+            uint8_t noOpData1[] = {0xfe, 0x02, 0x14, 0x03};
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10, 0x40, 0x10, 0x00, 0x80};
+            uint8_t noOpData3[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0xfe, 0x02, 0x19, 0x03};
+            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x80, 0x02, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData6[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x81, 0x00, 0x10, 0x7d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"), false, true);
+                if (requestInclination != -100) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= 20) {
+                        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -100;
+                }
+                if (requestSpeed != -1) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                        emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                        forceSpeed(requestSpeed);
+                    }
+                    requestSpeed = -1;
+                }
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+                break;
+            case 4:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));                
                 if (requestStart != -1) {
                     emit debug(QStringLiteral("starting..."));
                     requestStart = -1;
@@ -3382,6 +3442,7 @@ void proformtreadmill::btinit() {
     proform_treadmill_carbon_tls = settings.value(QZSettings::proform_treadmill_carbon_tls, QZSettings::default_proform_treadmill_carbon_tls).toBool();
     proform_treadmill_995i = settings.value(QZSettings::proform_treadmill_995i, QZSettings::default_proform_treadmill_995i).toBool();
     nordictrack_series_7 = settings.value(QZSettings::nordictrack_series_7, QZSettings::default_nordictrack_series_7).toBool();
+    proform_treadmill_sport_3_0 = settings.value(QZSettings::proform_treadmill_sport_3_0, QZSettings::default_proform_treadmill_sport_3_0).toBool();
 
     if (proform_treadmill_995i) {
         // ProForm 995i initialization frames from pkt4658 to pkt4756 (all 25 frames)
@@ -7565,6 +7626,130 @@ void proformtreadmill::btinit() {
 
         uint8_t initData25[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x10, 0x62, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         writeCharacteristic(initData25, sizeof(initData25), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+    } else if (proform_treadmill_sport_3_0) {
+        // Init sequence (39 packets)
+        uint8_t sport30_init_001[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t sport30_init_002[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_003[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t sport30_init_004[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x80, 0x88, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_005[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t sport30_init_006[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x88, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_007[] = {0xfe, 0x02, 0x0b, 0x02};
+        uint8_t sport30_init_008[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00, 0x00, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_009[] = {0xfe, 0x02, 0x0a, 0x02};
+        uint8_t sport30_init_010[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00, 0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_011[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t sport30_init_012[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_013[] = {0xfe, 0x02, 0x2c, 0x04};
+        uint8_t sport30_init_014[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x07, 0x01, 0x56, 0x24, 0xe8, 0xba, 0x8a, 0x68, 0x3c, 0x06, 0xee};
+        uint8_t sport30_init_015[] = {0x01, 0x12, 0xcc, 0x90, 0x72, 0x52, 0x50, 0x34, 0x1e, 0xe6, 0xf4, 0xd8, 0xaa, 0xba, 0xb8, 0x8c, 0x96, 0x9e, 0x9c, 0x60};
+        uint8_t sport30_init_016[] = {0xff, 0x08, 0x62, 0x62, 0xa0, 0x98, 0x02, 0x00, 0x00, 0x4c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_017[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t sport30_init_018[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_019[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_020[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t sport30_init_021[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_022[] = {0xff, 0x05, 0x00, 0x80, 0x00, 0x00, 0xa5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_023[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t sport30_init_024[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x00, 0x10, 0x00, 0xd8, 0x1c, 0x48, 0x00, 0x00, 0xe0};
+        uint8_t sport30_init_025[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x00, 0x08, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_026[] = {0xfe, 0x02, 0x14, 0x03};
+        uint8_t sport30_init_027[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10, 0x40, 0x10, 0x00, 0x80};
+        uint8_t sport30_init_028[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_029[] = {0xfe, 0x02, 0x11, 0x02};
+        uint8_t sport30_init_030[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x08, 0x58, 0x02, 0x00, 0x7a, 0x00};
+        uint8_t sport30_init_031[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t sport30_init_032[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_033[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_034[] = {0xfe, 0x02, 0x10, 0x02};
+        uint8_t sport30_init_035[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x04, 0x0c, 0x02, 0x04, 0x00, 0x00, 0x00, 0x02, 0xe4, 0x1f, 0x00, 0x1b, 0x00, 0x00};
+        uint8_t sport30_init_036[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t sport30_init_037[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x80, 0x02, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_037a[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x81, 0x00, 0x10, 0x7d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_038[] = {0xfe, 0x02, 0x10, 0x02};
+        uint8_t sport30_init_039[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x04, 0x0c, 0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x28, 0x00, 0x00};
+
+        int sleepms = 400;
+        writeCharacteristic(sport30_init_001, sizeof(sport30_init_001), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_002, sizeof(sport30_init_002), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_003, sizeof(sport30_init_003), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_004, sizeof(sport30_init_004), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_005, sizeof(sport30_init_005), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_006, sizeof(sport30_init_006), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_007, sizeof(sport30_init_007), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_008, sizeof(sport30_init_008), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_009, sizeof(sport30_init_009), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_010, sizeof(sport30_init_010), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_011, sizeof(sport30_init_011), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_012, sizeof(sport30_init_012), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_013, sizeof(sport30_init_013), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_014, sizeof(sport30_init_014), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_015, sizeof(sport30_init_015), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_016, sizeof(sport30_init_016), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_017, sizeof(sport30_init_017), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_018, sizeof(sport30_init_018), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_019, sizeof(sport30_init_019), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_020, sizeof(sport30_init_020), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_021, sizeof(sport30_init_021), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_022, sizeof(sport30_init_022), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_023, sizeof(sport30_init_023), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_024, sizeof(sport30_init_024), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_025, sizeof(sport30_init_025), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_026, sizeof(sport30_init_026), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_027, sizeof(sport30_init_027), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_028, sizeof(sport30_init_028), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_029, sizeof(sport30_init_029), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_030, sizeof(sport30_init_030), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_031, sizeof(sport30_init_031), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_032, sizeof(sport30_init_032), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_033, sizeof(sport30_init_033), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_034, sizeof(sport30_init_034), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_035, sizeof(sport30_init_035), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_036, sizeof(sport30_init_036), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_037, sizeof(sport30_init_037), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_037a, sizeof(sport30_init_037a), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);        
+        writeCharacteristic(sport30_init_038, sizeof(sport30_init_038), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_039, sizeof(sport30_init_039), QStringLiteral("init"), false, true);
         QThread::msleep(sleepms);
     } else {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
