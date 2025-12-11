@@ -15,6 +15,7 @@
     const FIELD_DEFS = [
         { key: 'name', label: 'Label', type: 'text', group: 'basic', devices: 'all' },
         { key: 'duration', label: 'Duration', type: 'duration', group: 'basic', devices: 'all' },
+        { key: 'distance', label: 'Distance', type: 'number', unitKey: 'distance', step: 0.1, min: 0, group: 'basic', devices: 'all', defaultValue: -1 },
         { key: 'speed', label: 'Speed', type: 'number', unitKey: 'speed', step: 0.1, min: 0, group: 'basic', devices: ['treadmill'], defaultValue: () => state.miles ? 6.0 : 9.5 },
         { key: 'pace', label: 'Pace', type: 'pace', unitKey: 'pace', group: 'basic', devices: ['treadmill'], syncWith: 'speed' },
         { key: 'inclination', label: 'Incline', type: 'number', unitSuffix: '%', step: 0.5, min: -10, max: 30, group: 'basic', devices: ['treadmill', 'elliptical'], defaultValue: 1.0 },
@@ -36,26 +37,27 @@
 
     const SERIES_DEFS = {
         treadmill: [
-            { key: 'speed', label: () => `Speed (${state.miles ? 'mph' : 'km/h'})`, color: '#42a5f5', unit: () => state.miles ? 'mph' : 'km/h', axis: 'speedAxis', axisLabel: () => state.miles ? 'Speed (mph)' : 'Speed (km/h)', axisPosition: 'left' },
-            { key: 'inclination', label: () => 'Incline (%)', color: '#26c6da', unit: () => '%', axis: 'inclineAxis', axisLabel: () => 'Incline (%)', axisPosition: 'right' }
+            { key: 'speed', label: () => 'Speed', color: '#42a5f5', unit: () => state.miles ? 'mph' : 'km/h', axis: 'speedAxis', axisLabel: () => state.miles ? 'Speed (mph)' : 'Speed (km/h)', axisPosition: 'left' },
+            { key: 'inclination', label: () => 'Incline', color: '#26c6da', unit: () => '%', axis: 'inclineAxis', axisLabel: () => 'Incline (%)', axisPosition: 'right' }
         ],
         bike: [
             { key: 'resistance', label: () => 'Resistance', color: '#ab47bc', unit: () => 'lvl', axis: 'resistanceAxis', axisLabel: () => 'Resistance', axisPosition: 'left' },
-            { key: 'cadence', label: () => 'Cadence (rpm)', color: '#29b6f6', unit: () => 'rpm', axis: 'cadenceAxis', axisLabel: () => 'Cadence (rpm)', axisPosition: 'right' },
-            { key: 'power', label: () => 'Power (W)', color: '#ef6c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => 'Power (W)', axisPosition: 'left' }
+            { key: 'cadence', label: () => 'Cadence', color: '#29b6f6', unit: () => 'rpm', axis: 'cadenceAxis', axisLabel: () => 'Cadence (rpm)', axisPosition: 'right' },
+            { key: 'power', label: () => 'Power', color: '#ef6c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => 'Power (W)', axisPosition: 'left' }
         ],
         elliptical: [
             { key: 'resistance', label: () => 'Resistance', color: '#7e57c2', unit: () => 'lvl', axis: 'resistanceAxis', axisLabel: () => 'Resistance', axisPosition: 'left' },
-            { key: 'inclination', label: () => 'Ramp (%)', color: '#66bb6a', unit: () => '%', axis: 'inclineAxis', axisLabel: () => 'Ramp (%)', axisPosition: 'right' }
+            { key: 'inclination', label: () => 'Ramp', color: '#66bb6a', unit: () => '%', axis: 'inclineAxis', axisLabel: () => 'Ramp (%)', axisPosition: 'right' }
         ],
         rower: [
-            { key: 'power', label: () => 'Power (W)', color: '#fb8c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => 'Power (W)', axisPosition: 'left' },
+            { key: 'power', label: () => 'Power', color: '#fb8c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => 'Power (W)', axisPosition: 'left' },
             { key: 'cadence', label: () => 'Stroke Rate', color: '#26a69a', unit: () => 'spm', axis: 'cadenceAxis', axisLabel: () => 'Strokes/min', axisPosition: 'right' }
         ]
     };
 
     // Default values that indicate a field should not be enabled
     const DEFAULT_DISABLED_VALUES = {
+        distance: -1,
         speed: -1,
         cadence: -1,
         resistance: -1,
@@ -319,9 +321,16 @@
                     out['__enabled_' + def.key] = true;
                 } else if (def.type === 'number') {
                     value = Number(row[def.key]);
-                    // Check if value is the default disabled value
+
+                    // Check if value is the default disabled value BEFORE conversion
                     const isDefaultValue = DEFAULT_DISABLED_VALUES[def.key] !== undefined &&
                                           value === DEFAULT_DISABLED_VALUES[def.key];
+
+                    // Convert distance/speed from km to miles if needed (XML always stores in km)
+                    // Only convert if NOT a disabled value
+                    if ((def.unitKey === 'distance' || def.unitKey === 'speed') && state.miles && !isDefaultValue) {
+                        value = value / 1.60934;
+                    }
 
                     if (!isDefaultValue) {
                         out[def.key] = value;
@@ -671,6 +680,9 @@
         if (typeof field.label === 'function') {
             return field.label();
         }
+        if (field.unitKey === 'distance') {
+            return `${field.label} (${state.miles ? 'mi' : 'km'})`;
+        }
         if (field.unitKey === 'speed') {
             return `${field.label} (${state.miles ? 'mph' : 'km/h'})`;
         }
@@ -954,7 +966,14 @@
                 }
                 const value = interval[field.key];
                 if (value !== undefined && value !== null && value !== '') {
-                    row[field.key] = field.type === 'number' ? Number(value) : value;
+                    let finalValue = field.type === 'number' ? Number(value) : value;
+
+                    // Convert distance/speed from miles to km if needed (XML always stores in km)
+                    if (field.type === 'number' && (field.unitKey === 'distance' || field.unitKey === 'speed') && state.miles) {
+                        finalValue = finalValue * 1.60934;
+                    }
+
+                    row[field.key] = finalValue;
                 }
             });
             list.push(row);
