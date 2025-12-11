@@ -34,5 +34,6 @@
         <file>icons/mini-display.png</file>
         <file>icons/btn_strava_connectwith_orange.png</file>
         <file>icons/Button_Connect_Rect_DarkMode.png</file>
+        <file>icons/intervals-logo-with-name.png</file>
     </qresource>
 </RCC>

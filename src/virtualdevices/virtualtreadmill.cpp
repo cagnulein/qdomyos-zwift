@@ -555,7 +555,7 @@ void virtualtreadmill::treadmillProvider() {
     uint8_t swiftResistance = 0;
     uint16_t swiftWatt = (uint16_t)((treadmill *)treadMill)->wattsMetric().value();
     uint16_t swiftInclination = (uint16_t)(inclination * 10.0);
-    uint64_t swiftDistance = (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0);
+    uint64_t swiftDistance = (uint64_t)(((treadmill *)treadMill)->odometerFromStartup() * 1000.0);
     uint16_t swiftCalories = ((treadmill *)treadMill)->calories().value();
     qint32 swiftSteps = ((treadmill *)treadMill)->currentStepCount().value();
 
@@ -574,13 +574,15 @@ void virtualtreadmill::treadmillProvider() {
             swiftWatt,
             swiftInclination,
             swiftDistance,
+            ((treadmill *)treadMill)->elevationGain().value(),  // Use QZ's calculated elevation gain
             swiftCalories,
             swiftSteps,
             swiftElapsedTimeSeconds,
             static_cast<uint8_t>(treadMill->deviceType())
             )) {
         h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
-                
+        h->setElevationGain(((treadmill *)treadMill)->elevationGain().value());
+
         lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
 
         if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)
