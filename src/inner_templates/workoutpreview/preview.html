@@ -41,6 +41,7 @@
 
     <script>
         let chart = null;
+        let miles = 1; // 1 = km, 0.621371 = miles
 
         // Function to create/update the workout chart
         function updateWorkoutChart(workoutData, deviceType) {
@@ -212,8 +213,8 @@
             // For treadmills: show speed
             if (deviceType === 'treadmill' && speed && speed.length > 0) {
                 return {
-                    label: 'Speed (km/h)',
-                    data: speed
+                    label: 'Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
+                    data: speed.map(point => ({ x: point.x, y: point.y * miles }))
                 };
             }
 
@@ -242,8 +243,8 @@
             }
             if (speed && speed.length > 0) {
                 return {
-                    label: 'Speed (km/h)',
-                    data: speed
+                    label: 'Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
+                    data: speed.map(point => ({ x: point.x, y: point.y * miles }))
                 };
             }
             if (resistance && resistance.length > 0) {
@@ -271,6 +272,11 @@
         // Update chart from rootItem data
         function updateFromRootItem() {
             if (!window.rootItem) return;
+
+            // Get miles_unit setting if available
+            if (window.rootItem.miles_unit !== undefined) {
+                miles = window.rootItem.miles_unit ? 0.621371 : 1;
+            }
 
             const points = window.rootItem.preview_workout_points;
             if (!points || points === 0) return;
@@ -322,7 +328,12 @@
 
         // External API for QML to call directly
         window.setWorkoutData = function(data) {
-            const { points, watts, speed, inclination, resistance, cadence, deviceType } = data;
+            const { points, watts, speed, inclination, resistance, cadence, deviceType, miles_unit } = data;
+
+            // Update miles setting if provided
+            if (miles_unit !== undefined) {
+                miles = miles_unit ? 0.621371 : 1;
+            }
 
             const workoutData = {
                 watts: watts || [],
