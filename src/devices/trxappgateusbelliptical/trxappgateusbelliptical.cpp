@@ -206,23 +206,26 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
 
     lastPacket = newValue;
 
-    // Check for connection errors or invalid packet length
-    bool hasError = (m_control->error() != QLowEnergyController::NoError);
-    bool isValidPacket = (newValue.length() == 21);    
+    // Check for invalid packet length first
+    bool isValidPacket = (newValue.length() == 21);
 
-    if (hasError || !isValidPacket) {
-        // We have an error or invalid packet
-        if (hasError) {
-            qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
-        }
-        if (!isValidPacket) {
-            qDebug() << QStringLiteral("Invalid packet length:") << newValue.length();
-        }
+    if (!isValidPacket) {
+        // Invalid packet length - log and return
+        qDebug() << QStringLiteral("Invalid packet length:") << newValue.length();
         return;
     }
 
-    // We have a valid packet - update the timestamp
+    // We have a valid packet (correct length) - update the timestamp
+    // This MUST happen even if controller reports errors, because receiving
+    // valid data proves the connection is working
     lastValidPacketTime = QDateTime::currentDateTime();
+
+    // Log controller errors but don't block processing of valid packets
+    bool hasError = (m_control->error() != QLowEnergyController::NoError);
+    if (hasError) {
+        qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
+        // Continue processing - the packet is still valid
+    }
 
     Resistance = newValue.at(18) - 1;
     Speed = GetSpeedFromPacket(newValue);
