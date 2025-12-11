@@ -154,8 +154,9 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
         if (newValue.length() >= 10) {
             // Extract RowState from byte 9 - this indicates if user is actively rowing
             pm5RowState = (uint8_t)newValue.at(9);
-            
-            emit debug(QStringLiteral("PM5 CE060031 RAW: ") + newValue.toHex(' ') + 
+            pm5RowStateReceived = true; // Mark that we've received RowState at least once
+
+            emit debug(QStringLiteral("PM5 CE060031 RAW: ") + newValue.toHex(' ') +
                       QStringLiteral(" RowState: ") + QString::number(pm5RowState));
         }
     }
@@ -165,19 +166,33 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
             // Extract cadence (SPM) from byte 5
             uint8_t spm = (uint8_t)newValue.at(5);
             if (spm > 0) {
-                Cadence = spm;
-                lastStroke = now;
+                // Only check RowState if we've received it at least once
+                if (!pm5RowStateReceived || pm5RowState != 0) {
+                    Cadence = spm;
+                    lastStroke = now;
+                }
             }
-            
-            // Extract speed from bytes 3-4 (little endian) in 0.001m/s  
+            // Zero cadence if RowState indicates not rowing (and we've received RowState)
+            if (pm5RowStateReceived && pm5RowState == 0) {
+                Cadence = 0;
+            }
+
+            // Extract speed from bytes 3-4 (little endian) in 0.001m/s
             uint16_t speedRaw = ((uint8_t)newValue.at(4) << 8) | (uint8_t)newValue.at(3);
             if (speedRaw > 0) {
-                Speed = (speedRaw * 0.001) * 3.6; // Convert m/s to km/h
+                // Only check RowState if we've received it at least once
+                if (!pm5RowStateReceived || pm5RowState != 0) {
+                    Speed = (speedRaw * 0.001) * 3.6; // Convert m/s to km/h
+                }
             }
-            
-            emit debug(QStringLiteral("PM5 CE060032 RAW: ") + newValue.toHex(' ') + 
-                      QStringLiteral(" Cadence: ") + QString::number(Cadence.value()) + 
-                      QStringLiteral(" Speed: ") + QString::number(Speed.value()) + 
+            // Zero speed if RowState indicates not rowing (and we've received RowState)
+            if (pm5RowStateReceived && pm5RowState == 0) {
+                Speed = 0;
+            }
+
+            emit debug(QStringLiteral("PM5 CE060032 RAW: ") + newValue.toHex(' ') +
+                      QStringLiteral(" Cadence: ") + QString::number(Cadence.value()) +
+                      QStringLiteral(" Speed: ") + QString::number(Speed.value()) +
                       QStringLiteral(" RowState: ") + QString::number(pm5RowState));
         }
     }
@@ -193,19 +208,29 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
             // Extract stroke count from bytes 7-8 (little endian)
             uint16_t strokeCount = ((uint8_t)newValue.at(8) << 8) | (uint8_t)newValue.at(7);
             if (strokeCount != StrokesCount.value()) {
-                StrokesCount = strokeCount;
-                lastStroke = now;
+                // Only check RowState if we've received it at least once
+                if (!pm5RowStateReceived || pm5RowState != 0) {
+                    StrokesCount = strokeCount;
+                    lastStroke = now;
+                }
             }
-            
+
             // Extract power from bytes 3-4 (little endian)
             uint16_t power = ((uint8_t)newValue.at(4) << 8) | (uint8_t)newValue.at(3);
             if (power > 0) {
-                m_watt = power;
+                // Only check RowState if we've received it at least once
+                if (!pm5RowStateReceived || pm5RowState != 0) {
+                    m_watt = power;
+                }
             }
-            
-            emit debug(QStringLiteral("PM5 CE060036 RAW: ") + newValue.toHex(' ') + 
-                      QStringLiteral(" Power: ") + QString::number(m_watt.value()) + 
-                      QStringLiteral(" Stroke Count: ") + QString::number(StrokesCount.value()) + 
+            // Zero power if RowState indicates not rowing (and we've received RowState)
+            if (pm5RowStateReceived && pm5RowState == 0) {
+                m_watt = 0;
+            }
+
+            emit debug(QStringLiteral("PM5 CE060036 RAW: ") + newValue.toHex(' ') +
+                      QStringLiteral(" Power: ") + QString::number(m_watt.value()) +
+                      QStringLiteral(" Stroke Count: ") + QString::number(StrokesCount.value()) +
                       QStringLiteral(" RowState: ") + QString::number(pm5RowState));
         }
     }
@@ -241,9 +266,10 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
     }
     
     lastRefreshCharacteristicChanged = now;
-    
-    // Apply RowState logic after all characteristics processing
-    if (PM5 && pm5RowState == 0) {
+
+    // Apply RowState logic after all characteristics processing (fallback safety check)
+    // Only apply if we've received RowState at least once to avoid zeroing values at startup
+    if (PM5 && pm5RowStateReceived && pm5RowState == 0) {
         m_watt = 0;
         Cadence = 0;
         Speed = 0;
@@ -285,6 +311,16 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 
     if (characteristic.uuid() != QBluetoothUuid((quint16)0x2AD1)) {
+        return;
+    }
+
+    if(PM5 && pm5RowStateReceived && pm5RowState == 0) {
+        // If using PM5 and RowState indicates not rowing, ignore data to avoid bogus values
+        qDebug() << "PM5 RowState indicates not rowing, ignoring FTMS data.";
+        Cadence = 0;
+        m_watt = 0;
+        Speed = 0;
+        lastRefreshCharacteristicChanged = now;
         return;
     }
 
@@ -388,7 +424,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
 
         if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R) {
-            if(instantPace == 0)
+            if(instantPace == 0 || instantPace == 65535)
                 Speed = 0;
             else
                 Speed = (60.0 / instantPace) * 30.0; // translating pace (min/500m) to km/h in order to match the pace function in the rower.cpp
@@ -468,6 +504,8 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else
                 emit debug(QStringLiteral("Error on parsing heart"));
+        } else if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+           update_hr_from_external();
         }
     }
 
@@ -493,10 +531,6 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 
     lastRefreshCharacteristicChanged = now;
-
-    if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-        update_hr_from_external();
-    }
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT

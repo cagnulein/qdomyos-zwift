@@ -761,13 +761,14 @@ void domyostreadmill::btinit(bool startTape) {
     writeCharacteristic(initDataStart4, sizeof(initDataStart4), QStringLiteral("init"), false, true);
     writeCharacteristic(initDataStart5, sizeof(initDataStart5), QStringLiteral("init"), false, true);
 
-    // writeCharacteristic(initDataStart6, sizeof(initDataStart6), "init", false, false);
-    // writeCharacteristic(initDataStart7, sizeof(initDataStart7), "init", false, true);
-    forceSpeedOrIncline(lastSpeed, lastInclination);
-
-    writeCharacteristic(initDataStart8, sizeof(initDataStart8), QStringLiteral("init"), false, false);
-    writeCharacteristic(initDataStart9, sizeof(initDataStart9), QStringLiteral("init"), false, true);
     if (startTape) {
+        // writeCharacteristic(initDataStart6, sizeof(initDataStart6), "init", false, false);
+        // writeCharacteristic(initDataStart7, sizeof(initDataStart7), "init", false, true);
+        forceSpeedOrIncline(lastSpeed, lastInclination);
+
+        writeCharacteristic(initDataStart8, sizeof(initDataStart8), QStringLiteral("init"), false, false);
+        writeCharacteristic(initDataStart9, sizeof(initDataStart9), QStringLiteral("init"), false, true);
+
         writeCharacteristic(initDataStart10, sizeof(initDataStart10), QStringLiteral("init"), false, false);
         writeCharacteristic(initDataStart11, sizeof(initDataStart11), QStringLiteral("init"), false, true);
         writeCharacteristic(initDataStart12, sizeof(initDataStart12), QStringLiteral("init"), false, false);

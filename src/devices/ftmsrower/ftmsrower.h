@@ -83,6 +83,7 @@ class ftmsrower : public rower {
     
     // PM5 specific variables
     uint8_t pm5RowState = 0;
+    bool pm5RowStateReceived = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

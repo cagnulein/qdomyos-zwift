@@ -17,6 +17,8 @@ import Qt.labs.platform 1.1
         id: settingsPane        
 
         signal peloton_connect_clicked()
+        signal intervalsicu_connect_clicked()
+        signal intervalsicu_download_todays_workout_clicked()
 
         Settings {
             id: settings
@@ -1218,6 +1220,15 @@ import Qt.labs.platform 1.1
             property int kettler_usb_baudrate: 9600
             property bool nordictrack_se7i: false
             property real treadmill_speed_max: 100
+            
+            // Intervals.icu settings
+            property string intervalsicu_accesstoken: ""
+            property string intervalsicu_refreshtoken: ""
+            property string intervalsicu_athlete_id: ""
+            property bool intervalsicu_upload_enabled: true
+            property string intervalsicu_suffix: "#QZ"
+            property bool intervalsicu_date_prefix: false
+            property bool proform_treadmill_sport_3_0: false
         }
 
 
@@ -7558,6 +7569,7 @@ import Qt.labs.platform 1.1
                                     "Proform 995i",
                                     "NordicTrack Series 7",
                                     "Proform Trainer 9.0 (PFTL69921-INT.4)",
+                                    "Proform Sport 3.0",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -7628,7 +7640,8 @@ import Qt.labs.platform 1.1
                                                     settings.proform_treadmill_carbon_tls ? 51 :
                                                     settings.proform_treadmill_995i ? 52 :
                                                     settings.nordictrack_series_7 ? 53 :
-                                                    settings.proform_trainer_9_0 ? 54 : 0;
+                                                    settings.proform_trainer_9_0 ? 54 :
+                                                    settings.proform_treadmill_sport_3_0 ? 55 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -7697,6 +7710,7 @@ import Qt.labs.platform 1.1
                                     settings.proform_treadmill_995i = false;
                                     settings.nordictrack_series_7 = false;
                                     settings.proform_trainer_9_0 = false;
+                                    settings.proform_treadmill_sport_3_0 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -7754,6 +7768,7 @@ import Qt.labs.platform 1.1
                                         case 52: settings.proform_treadmill_995i = true; break;
                                         case 53: settings.nordictrack_series_7 = true; break;
                                         case 54: settings.proform_trainer_9_0 = true; break;
+                                        case 55: settings.proform_treadmill_sport_3_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
