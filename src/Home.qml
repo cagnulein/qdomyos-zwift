@@ -193,6 +193,12 @@ HomeForm {
             visible: visibleItem
             Component.onCompleted: console.log("completed " + objectName)
 
+            // VoiceOver accessibility support
+            Accessible.role: largeButton ? Accessible.Button : (writable ? Accessible.Pane : Accessible.StaticText)
+            Accessible.name: name + (largeButton ? "" : (": " + value))
+            Accessible.description: largeButton ? largeButtonLabel : (secondLine !== "" ? secondLine : (writable ? qsTr("Adjustable. Current value: ") + value : qsTr("Current value: ") + value))
+            Accessible.focusable: true
+
             Behavior on x {
                 enabled: id1.state != "active"
                 NumberAnimation { duration: 400; easing.type: Easing.OutBack }
@@ -311,6 +317,13 @@ HomeForm {
                 anchors.leftMargin: 2
                 width: 48 * settings.ui_zoom / 100
                 height: 48 * settings.ui_zoom / 100
+
+                // VoiceOver accessibility
+                Accessible.role: Accessible.Button
+                Accessible.name: qsTr("Decrease ") + name
+                Accessible.description: qsTr("Decrease the value of ") + name
+                Accessible.focusable: true
+                Accessible.onPressAction: { minus_clicked(objectName) }
             }
             RoundButton {
                 autoRepeat: true
@@ -323,6 +336,13 @@ HomeForm {
                 anchors.rightMargin: 2
                 width: 48 * settings.ui_zoom / 100
                 height: 48 * settings.ui_zoom / 100
+
+                // VoiceOver accessibility
+                Accessible.role: Accessible.Button
+                Accessible.name: qsTr("Increase ") + name
+                Accessible.description: qsTr("Increase the value of ") + name
+                Accessible.focusable: true
+                Accessible.onPressAction: { plus_clicked(objectName) }
             }
             RoundButton {
                 autoRepeat: true
@@ -336,6 +356,13 @@ HomeForm {
                             radius: 20
                             }
                 font.pointSize: 20 * settings.ui_zoom / 100
+
+                // VoiceOver accessibility
+                Accessible.role: Accessible.Button
+                Accessible.name: largeButtonLabel
+                Accessible.description: name + ": " + largeButtonLabel
+                Accessible.focusable: true
+                Accessible.onPressAction: { largeButton_clicked(objectName) }
             }
         }
     }
