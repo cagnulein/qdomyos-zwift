@@ -1370,7 +1370,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
 
                 QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
+                if ((c.properties() & QLowEnergyCharacteristic::Write || c.properties() & QLowEnergyCharacteristic::WriteNoResponse) && c.uuid() == _gattWriteCharControlPointId) {
                     qDebug() << QStringLiteral("FTMS service and Control Point found");
                     gattWriteCharControlPointId = c;
                     gattFTMSService = s;
