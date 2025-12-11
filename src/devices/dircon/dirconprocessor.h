@@ -64,6 +64,7 @@ class DirconProcessorClient : public QObject {
   public:
     DirconProcessorClient(QTcpSocket *sock) : QObject(sock), sock(sock) {}
     quint8 seq = 0;
+    quint8 notification_seq = 0;
     QList<quint16> char_notify;
     QTcpSocket *sock;
     QByteArray buffer;
