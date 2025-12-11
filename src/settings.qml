@@ -6334,6 +6334,44 @@ import Qt.labs.platform 1.1
             }
 
             AccordionElement {
+                title: qsTr("Mywhoosh Options") + "\uD83E\uDD47"
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 0
+
+                    IndicatorOnlySwitch {
+                        id: mywhooshCompatibilityDelegate
+                        text: qsTr("MyWhoosh Compatibility")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.wahoo_rgt_dircon
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.wahoo_rgt_dircon = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Enables the compatibility of the Wahoo KICKR protocol to Wahoo RGT app. Leave the RGT compatibility disabled in order to use Zwift.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+                }
+            }
+
+            AccordionElement {
                 title: qsTr("Garmin Options") + "\uD83E\uDD47"
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
@@ -12461,34 +12499,6 @@ import Qt.labs.platform 1.1
                                 settings: settings
                                 accordionContent: ColumnLayout {
                                     spacing: 0
-                                    /*
-                                    IndicatorOnlySwitch {
-                                        id: wahooRGTDirconDelegate
-                                        text: qsTr("MyWhoosh Compatibility")
-                                        spacing: 0
-                                        bottomPadding: 0
-                                        topPadding: 0
-                                        rightPadding: 0
-                                        leftPadding: 0
-                                        clip: false
-                                        checked: settings.wahoo_rgt_dircon
-                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                                        Layout.fillWidth: true
-                                        onClicked: { settings.wahoo_rgt_dircon = checked; window.settings_restart_to_apply = true; }
-                                    }*/
-
-                                    Label {
-                                        text: qsTr("Enables the compatibility of the Wahoo KICKR protocol to Wahoo RGT app. Leave the RGT compatibility disabled in order to use Zwift.")
-                                        font.bold: true
-                                        font.italic: true
-                                        font.pixelSize: Qt.application.font.pixelSize - 2
-                                        textFormat: Text.PlainText
-                                        wrapMode: Text.WordWrap
-                                        verticalAlignment: Text.AlignVCenter
-                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                                        Layout.fillWidth: true
-                                        color: Material.color(Material.Lime)
-                                    }
 
                                     RowLayout {
                                         spacing: 10
