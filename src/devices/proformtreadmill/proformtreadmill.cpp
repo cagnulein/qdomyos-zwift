@@ -3263,6 +3263,11 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
+    
+    if(!initDone) {
+        qDebug() << "discarding, init in progress...";
+        return;
+    }
 
     if (proform_treadmill_705_cst && currentSpeed().value() == 0)
     {
