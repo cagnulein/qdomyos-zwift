@@ -282,33 +282,36 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
             crank_rev_present = true;
         }
 
-        if (cadence_present) {
-            if (wheel_revs && !crank_rev_present) {
-                time_division = 2048;
-                CrankRevs =
-                    (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) |
-                     ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                     ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)));
-                index += 4;
+        // Execute this block if bike sends cadence data OR if external cadence sensor is configured
+        if (cadence_present || !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString().startsWith(QStringLiteral("Disabled"))) {
+            if (cadence_present) {
+                if (wheel_revs && !crank_rev_present) {
+                    time_division = 2048;
+                    CrankRevs =
+                        (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) |
+                         ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                         ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)));
+                    index += 4;
 
-                LastCrankEventTime =
-                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+                    LastCrankEventTime =
+                        (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
 
-                index += 2; // wheel event time
+                    index += 2; // wheel event time
 
-            } else if (wheel_revs && crank_rev_present) {
-                index += 4; // wheel revs
-                index += 2; // wheel event time
-            }
+                } else if (wheel_revs && crank_rev_present) {
+                    index += 4; // wheel revs
+                    index += 2; // wheel event time
+                }
 
-            if (crank_rev_present) {
-                CrankRevs =
-                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-                index += 2;
+                if (crank_rev_present) {
+                    CrankRevs =
+                        (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+                    index += 2;
 
-                LastCrankEventTime =
-                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-                index += 2;
+                    LastCrankEventTime =
+                        (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+                    index += 2;
+                }
             }
 
             int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
@@ -336,11 +339,13 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
             emit cadenceChanged(Cadence.value());
 
-            qDebug() << QStringLiteral("Current Cadence: ") << Cadence.value() << CrankRevs << oldCrankRevs << deltaT
-                     << time_division << LastCrankEventTime << oldLastCrankEventTime;
+            if (cadence_present) {
+                qDebug() << QStringLiteral("Current Cadence: ") << Cadence.value() << CrankRevs << oldCrankRevs << deltaT
+                         << time_division << LastCrankEventTime << oldLastCrankEventTime;
 
-            oldLastCrankEventTime = LastCrankEventTime;
-            oldCrankRevs = CrankRevs;
+                oldLastCrankEventTime = LastCrankEventTime;
+                oldCrankRevs = CrankRevs;
+            }
 
             if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = Cadence.value() * settings
