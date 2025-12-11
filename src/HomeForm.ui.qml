@@ -60,6 +60,12 @@ Page {
                             source: "icons/icons/bluetooth-icon.png"
                             enabled: rootItem.device
                             smooth: true
+
+                            // VoiceOver accessibility
+                            Accessible.role: Accessible.Indicator
+                            Accessible.name: qsTr("Bluetooth connection")
+                            Accessible.description: rootItem.device ? qsTr("Device connected") : qsTr("Device not connected")
+                            Accessible.focusable: true
                         }
                         ColorOverlay {
                             anchors.fill: treadmill_connection
@@ -91,6 +97,12 @@ Page {
                     id: start
                     width: 120
                     height: row.height - 4
+
+                    // VoiceOver accessibility
+                    Accessible.role: Accessible.Button
+                    Accessible.name: rootItem.startText
+                    Accessible.description: qsTr("Start workout")
+                    Accessible.focusable: true
                 }
                 ColorOverlay {
                     anchors.fill: start
@@ -114,6 +126,12 @@ Page {
                     id: stop
                     width: 120
                     height: row.height - 4
+
+                    // VoiceOver accessibility
+                    Accessible.role: Accessible.Button
+                    Accessible.name: rootItem.stopText
+                    Accessible.description: qsTr("Stop workout")
+                    Accessible.focusable: true
                 }
                 ColorOverlay {
                     anchors.fill: stop
@@ -138,6 +156,12 @@ Page {
                     icon.height: 48
                     enabled: rootItem.lap
                     smooth: true
+
+                    // VoiceOver accessibility
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Lap")
+                    Accessible.description: qsTr("Record a new lap")
+                    Accessible.focusable: true
                 }
                 ColorOverlay {
                     anchors.fill: lap
