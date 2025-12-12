@@ -14,6 +14,10 @@ HomeForm {
         width: parent.fill
         height: parent.fill
         color: settings.theme_background_color
+
+        // VoiceOver accessibility - ignore decorative background
+        Accessible.role: Accessible.Pane
+        Accessible.ignored: true
     }
     signal start_clicked;
     signal stop_clicked;
