@@ -9,6 +9,11 @@ Page {
     title: qsTr("QZ Fitness")
     id: page
 
+    // VoiceOver accessibility - allow navigation to children
+    Accessible.role: Accessible.Pane
+    Accessible.name: title
+    Accessible.ignored: false
+
     property alias start: start
     property alias stop: stop
     property alias lap: lap
@@ -27,6 +32,9 @@ Page {
         id: topBar
         visible: !window.lockTiles
 
+        // VoiceOver - container, ignore it and focus on children
+        Accessible.ignored: true
+
         Row {
             id: row
             anchors.horizontalCenter: parent.horizontalCenter
@@ -34,6 +42,9 @@ Page {
             height: topBar.height - 20
             spacing: 5
             padding: 5
+
+            // VoiceOver - container, ignore it and focus on children
+            Accessible.ignored: true
 
             Rectangle {
                 width: 50
