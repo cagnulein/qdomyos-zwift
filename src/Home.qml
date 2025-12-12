@@ -343,6 +343,7 @@ HomeForm {
                 Accessible.name: qsTr("Decrease ") + name
                 Accessible.description: qsTr("Decrease the value of ") + name
                 Accessible.focusable: true
+                Accessible.onPressAction: { minus_clicked(objectName) }
             }
             RoundButton {
                 autoRepeat: true
@@ -361,6 +362,7 @@ HomeForm {
                 Accessible.name: qsTr("Increase ") + name
                 Accessible.description: qsTr("Increase the value of ") + name
                 Accessible.focusable: true
+                Accessible.onPressAction: { plus_clicked(objectName) }
             }
             RoundButton {
                 autoRepeat: true
@@ -380,6 +382,7 @@ HomeForm {
                 Accessible.name: largeButtonLabel
                 Accessible.description: name + ": " + largeButtonLabel
                 Accessible.focusable: true
+                Accessible.onPressAction: { largeButton_clicked(objectName) }
             }
         }
     }
