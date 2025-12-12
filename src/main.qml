@@ -990,22 +990,17 @@ ApplicationWindow {
                         }
             }
         }
-    }
+    }    
 
-    // Wrapper Item to prevent ApplicationWindow from capturing all VoiceOver focus
-    Item {
+    StackView {
+        id: stackView
+        initialItem: "Home.qml"
         anchors.fill: parent
-        Accessible.ignored: true
-
-        StackView {
-            id: stackView
-            initialItem: "Home.qml"
-            anchors.fill: parent
-            anchors.bottomMargin: (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0
-            anchors.rightMargin: getRightPadding()
-            anchors.leftMargin: getLeftPadding()
-            focus: true
-            Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
+        anchors.bottomMargin: (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0
+        anchors.rightMargin: getRightPadding()
+        anchors.leftMargin: getLeftPadding()
+        focus: true
+        Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
         Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
         Keys.onPressed: (event)=> {
             if (event.key === Qt.Key_MediaPrevious)
@@ -1018,7 +1013,6 @@ ApplicationWindow {
                 volumeUp();
 
             event.accepted = settings.volume_change_gears;
-        }
         }
     }
 }
