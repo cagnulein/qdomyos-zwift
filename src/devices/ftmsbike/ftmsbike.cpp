@@ -1781,6 +1781,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("FS-YK- found");
             FS_YK = true;
             ergModeSupported = false; // this bike doesn't have ERG mode natively
+        } else if(device.name().toUpper().startsWith("S18")) {
+            qDebug() << QStringLiteral("S18 found");
+            S18 = true;
+            max_resistance = 24;
         }
 
 
