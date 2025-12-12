@@ -22,6 +22,11 @@ ColumnLayout {
         Layout.fillWidth: true;
         height: 48
 
+        Accessible.role: Accessible.Button 
+        Accessible.name: title 
+        Accessible.description: expanded ? "Expanded" : "Collapsed"
+        Accessible.onPressAction: toggle()
+
         Rectangle{
            id:indicatRect
            x: 16; y: 20

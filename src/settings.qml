@@ -1229,6 +1229,7 @@ import Qt.labs.platform 1.1
             property string intervalsicu_suffix: "#QZ"
             property bool intervalsicu_date_prefix: false
             property bool proform_treadmill_sport_3_0: false
+            property bool rouvy_compatibility: false
         }
 
 
@@ -6334,6 +6335,43 @@ import Qt.labs.platform 1.1
             }
 
             AccordionElement {
+                title: qsTr("Rouvy Options") + "\uD83E\uDD47"
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 0
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Rouvy Compatibility")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.rouvy_compatibility
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.rouvy_compatibility = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Wifi Compatibility for Rouvy")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+                }
+            }
+
+            AccordionElement {
                 title: qsTr("Mywhoosh Options") + "\uD83E\uDD47"
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
@@ -6357,7 +6395,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Enables the compatibility of the Wahoo KICKR protocol to Wahoo RGT app. Leave the RGT compatibility disabled in order to use Zwift.")
+                        text: qsTr("Wifi compatibility for Mywhoosh")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
