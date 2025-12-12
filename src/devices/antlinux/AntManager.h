@@ -21,7 +21,7 @@
 class AntWorker; // Forward declaration
 class QThread;
 
-class AntManager : public QObject {
+class __attribute__((visibility("hidden"))) AntManager : public QObject {
     Q_OBJECT
 public:
     static AntManager& instance();

@@ -32,7 +32,7 @@
 
 namespace py = pybind11;
 
-class AntWorker : public QObject
+class __attribute__((visibility("hidden"))) AntWorker : public QObject
 {
     Q_OBJECT
 
