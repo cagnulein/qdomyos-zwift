@@ -6134,7 +6134,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure Zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. Default: disabled.")
+                        text: qsTr("This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure Zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. MUST be disabled for Mywhoosh app. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -12499,34 +12499,6 @@ import Qt.labs.platform 1.1
                                 settings: settings
                                 accordionContent: ColumnLayout {
                                     spacing: 0
-                                    /*
-                                    IndicatorOnlySwitch {
-                                        id: wahooRGTDirconDelegate
-                                        text: qsTr("MyWhoosh Compatibility")
-                                        spacing: 0
-                                        bottomPadding: 0
-                                        topPadding: 0
-                                        rightPadding: 0
-                                        leftPadding: 0
-                                        clip: false
-                                        checked: settings.wahoo_rgt_dircon
-                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                                        Layout.fillWidth: true
-                                        onClicked: { settings.wahoo_rgt_dircon = checked; window.settings_restart_to_apply = true; }
-                                    }*/
-
-                                    Label {
-                                        text: qsTr("Enables the compatibility of the Wahoo KICKR protocol to Wahoo RGT app. Leave the RGT compatibility disabled in order to use Zwift.")
-                                        font.bold: true
-                                        font.italic: true
-                                        font.pixelSize: Qt.application.font.pixelSize - 2
-                                        textFormat: Text.PlainText
-                                        wrapMode: Text.WordWrap
-                                        verticalAlignment: Text.AlignVCenter
-                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                                        Layout.fillWidth: true
-                                        color: Material.color(Material.Lime)
-                                    }
 
                                     RowLayout {
                                         spacing: 10
