@@ -189,10 +189,7 @@ HomeForm {
                 gridView.leftMargin = (parent.width % cellWidth) / 2;
         }
 
-        // VoiceOver accessibility for the grid
-        Accessible.role: Accessible.List
-        Accessible.name: qsTr("Workout metrics tiles")
-        Accessible.description: qsTr("Swipe to navigate through workout metrics")
+        Accessible.ignored: true
 
         delegate: Item {
             id: id1
