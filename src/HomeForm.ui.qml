@@ -9,10 +9,8 @@ Page {
     title: qsTr("QZ Fitness")
     id: page
 
-    // VoiceOver accessibility - allow navigation to children
-    Accessible.role: Accessible.Pane
-    Accessible.name: title
-    Accessible.ignored: false
+    // VoiceOver accessibility - ignore Page itself, only children are accessible
+    Accessible.ignored: true
 
     property alias start: start
     property alias stop: stop
@@ -32,9 +30,6 @@ Page {
         id: topBar
         visible: !window.lockTiles
 
-        // VoiceOver - container, ignore it and focus on children
-        Accessible.ignored: true
-
         Row {
             id: row
             anchors.horizontalCenter: parent.horizontalCenter
@@ -43,13 +38,12 @@ Page {
             spacing: 5
             padding: 5
 
-            // VoiceOver - container, ignore it and focus on children
-            Accessible.ignored: true
-
             Rectangle {
                 width: 50
                 height: row.height
 					 color: settings.theme_background_color
+                Accessible.ignored: true
+
                 Column {
                     id: column
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -58,10 +52,13 @@ Page {
                     height: row.height
                     spacing: 0
                     padding: 0
+                    Accessible.ignored: true
+
                     Rectangle {
                         width: 50
                         height: row.height
                         color: settings.theme_background_color
+                        Accessible.ignored: true
 
                         Image {
                             anchors.verticalCenter: parent.verticalCenter
@@ -91,6 +88,7 @@ Page {
                         height: row.height - 76
                         source: rootItem.signal
                         smooth: true
+                        Accessible.ignored: true
                     }
                 }
             }
@@ -99,6 +97,8 @@ Page {
                 width: 120
                 height: row.height
 					 color: settings.theme_background_color
+                Accessible.ignored: true
+
                 RoundButton {
                     icon.source: rootItem.startIcon
                     icon.height: row.height - 54
@@ -127,6 +127,7 @@ Page {
                 width: 120
                 height: row.height
 					 color: settings.theme_background_color
+                Accessible.ignored: true
 
                 RoundButton {
                     icon.source: rootItem.stopIcon
@@ -157,6 +158,8 @@ Page {
                 width: 50
                 height: row.height
 					 color: settings.theme_background_color
+                Accessible.ignored: true
+
                 RoundButton {
                     anchors.verticalCenter: parent.verticalCenter
                     id: lap
