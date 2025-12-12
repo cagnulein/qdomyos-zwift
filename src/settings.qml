@@ -6353,7 +6353,14 @@ import Qt.labs.platform 1.1
                         checked: settings.rouvy_compatibility
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.rouvy_compatibility = checked; window.settings_restart_to_apply = true; }
+                        onClicked: {
+                            settings.rouvy_compatibility = checked;
+                            if (checked) {
+                                settings.wahoo_rgt_dircon = false;
+                                settings.dircon_yes = true;
+                            }
+                            window.settings_restart_to_apply = true;
+                        }
                     }
 
                     Label {
@@ -6391,7 +6398,14 @@ import Qt.labs.platform 1.1
                         checked: settings.wahoo_rgt_dircon
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.wahoo_rgt_dircon = checked; window.settings_restart_to_apply = true; }
+                        onClicked: {
+                            settings.wahoo_rgt_dircon = checked;
+                            if (checked) {
+                                settings.rouvy_compatibility = false;
+                                settings.dircon_yes = true;
+                            }
+                            window.settings_restart_to_apply = true;
+                        }
                     }
 
                     Label {
