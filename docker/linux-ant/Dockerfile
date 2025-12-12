@@ -86,18 +86,20 @@ ARG ENABLE_DEBUG_LOGS=0
 
 # 1. Run qmake with release or debug flags based on ENABLE_DEBUG_LOGS.
 # 2. Run make to compile the application.
-# 3. Run strip on the final binary to remove debug symbols and reduce size.
+# 3. Run strip on the final binary ONLY for release builds.
 RUN cd src && \
     if [ "$ENABLE_DEBUG_LOGS" = "1" ]; then \
         echo "Building with DEBUG LOGS ENABLED (qDebug output visible)"; \
-        qmake "CONFIG+=debug" "CONFIG+=optimize_full" "DEFINES-=QT_NO_DEBUG_OUTPUT" \
+        qmake "CONFIG+=debug" "CONFIG+=optimize_full" \
+              "DEFINES-=QT_NO_DEBUG" "DEFINES-=QT_NO_DEBUG_OUTPUT" \
               "QMAKE_CXXFLAGS+=-ffile-prefix-map=/app=." qdomyos-zwift.pro; \
+        make -j$(nproc); \
     else \
         echo "Building RELEASE mode (qDebug suppressed for smaller binary)"; \
         qmake "CONFIG+=release" "QMAKE_CXXFLAGS+=-ffile-prefix-map=/app=." qdomyos-zwift.pro; \
+        make -j$(nproc); \
+        strip qdomyos-zwift; \
     fi && \
-    make -j$(nproc) && \
-    strip qdomyos-zwift && \
     mv qdomyos-zwift qdomyos-zwift-bin
 
 # --- Stage 2: Minimal Artifact Container ---

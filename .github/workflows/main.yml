@@ -2046,17 +2046,6 @@ jobs:
         
       - name: Download artifacts
         uses: actions/download-artifact@v4
-      
-      # Create zips for ANT+ binaries before release upload
-      - name: Create release zips for ANT+ binaries
-        run: |
-          cd linux-binary-x86-64-ant
-          zip -r linux-binary-x86-64-ant.zip qdomyos-zwift-x86-64-ant
-          cd ..
-          
-          cd raspberry-pi-binary-64bit-ant
-          zip -r linux-binary-arm64-ant.zip qdomyos-zwift-arm64-ant
-          cd ..
                   
       - name: Update nightly release
         uses: andelf/nightly-release@main
@@ -2108,5 +2097,5 @@ jobs:
             peloton-bike-android-trial/android-debug-peloton-bike.apk
             raspberry-pi-binary/qdomyos-zwift-32bit
             raspberry-pi-binary/qdomyos-zwift-64bit
-            raspberry-pi-binary-64bit-ant/linux-binary-arm64-ant.zip
-            linux-binary-x86-64-ant/linux-binary-x86-64-ant.zip
+            raspberry-pi-binary-64bit-ant/*
+            linux-binary-x86-64-ant/*
