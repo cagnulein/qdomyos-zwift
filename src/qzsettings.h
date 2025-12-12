@@ -2187,6 +2187,9 @@ class QZSettings {
     static const QString dircon_id;
     static constexpr int default_dircon_id = 0;
 
+    static const QString rouvy_compatibility;
+    static constexpr bool default_rouvy_compatibility = false;
+
     static const QString proform_elliptical_ip;
     static const QString default_proform_elliptical_ip;
 
