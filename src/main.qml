@@ -17,7 +17,7 @@ ApplicationWindow {
     visibility: Qt.WindowFullScreen
     visible: true
 	 objectName: "stack"
-    title: qsTr("qDomyos-Zwift")
+    title: Qt.platform.os === "ios" ? "" : qsTr("qDomyos-Zwift")
 
     // Force update on orientation change
     property int currentOrientation: Screen.orientation
