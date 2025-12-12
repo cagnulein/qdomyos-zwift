@@ -6353,14 +6353,7 @@ import Qt.labs.platform 1.1
                         checked: settings.rouvy_compatibility
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: {
-                            settings.rouvy_compatibility = checked;
-                            if (checked) {
-                                settings.wahoo_rgt_dircon = false;
-                                settings.dircon_yes = true;
-                            }
-                            window.settings_restart_to_apply = true;
-                        }
+                        onClicked: { settings.rouvy_compatibility = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -6376,52 +6369,7 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
                 }
-            }
-
-            AccordionElement {
-                title: qsTr("Mywhoosh Options") + "\uD83E\uDD47"
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Grey)
-                color: Material.backgroundColor
-                accordionContent: ColumnLayout {
-                    spacing: 0
-
-                    IndicatorOnlySwitch {
-                        id: mywhooshCompatibilityDelegate
-                        text: qsTr("MyWhoosh Compatibility")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.wahoo_rgt_dircon
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: {
-                            settings.wahoo_rgt_dircon = checked;
-                            if (checked) {
-                                settings.rouvy_compatibility = false;
-                                settings.dircon_yes = true;
-                            }
-                            window.settings_restart_to_apply = true;
-                        }
-                    }
-
-                    Label {
-                        text: qsTr("Wifi compatibility for Mywhoosh")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-                }
-            }
+            }            
 
             AccordionElement {
                 title: qsTr("Garmin Options") + "\uD83E\uDD47"
