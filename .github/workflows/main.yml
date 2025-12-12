@@ -1960,7 +1960,7 @@ jobs:
           echo "Build complete. Extracting binary..."
           
           docker create --name qz-container $IMAGE_TAG
-          docker cp qz-container:/qdomyos-zwift-x86-64-ant ./src/qdomyos-zwift-x86-64-ant
+          docker cp qz-container:/qdomyos-zwift-x86-64-ant ./qdomyos-zwift-x86-64-ant
           docker rm qz-container
 
       # Step 6: Upload the directory as artifact (GitHub will zip it)
@@ -1968,7 +1968,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-binary-x86-64-ant
-          path: src/qdomyos-zwift-x86-64-ant
+          path: qdomyos-zwift-x86-64-ant
 
   # Build the raspberry pi 64 bit variant with ant+ support
   raspberry-pi-build-64bit-ant:
@@ -2019,7 +2019,7 @@ jobs:
           docker create --name qz-container $IMAGE_TAG
           
           # Copy the final compiled binary from the container to the runner's workspace
-          docker cp qz-container:/qdomyos-zwift-arm64-ant ./src/qdomyos-zwift-arm64-ant
+          docker cp qz-container:/qdomyos-zwift-arm64-ant ./qdomyos-zwift-arm64-ant
           
           # Clean up by removing the temporary container
           docker rm qz-container
@@ -2029,7 +2029,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: raspberry-pi-binary-64bit-ant
-          path: src/qdomyos-zwift-arm64-ant
+          path: qdomyos-zwift-arm64-ant
 
   upload_to_release:
     permissions: write-all
