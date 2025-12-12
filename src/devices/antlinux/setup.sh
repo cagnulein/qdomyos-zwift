@@ -9,6 +9,7 @@
 # Usage:
 #   ./setup.sh --quick              # Fast validation check (no sudo)
 #   sudo ./setup.sh --guided        # Guided setup with prompts
+#   sudo ./setup.sh --headless      # Generate systemd service file only
 #   sudo ./setup.sh --reset         # Remove configurations
 #   sudo ./setup.sh --test          # Test ANT+ broadcasting
 #   ./setup.sh --help               # Show this help
@@ -30,10 +31,13 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Mode flags
-MODE_QUICK=0
+MODE_CHECK=0
 MODE_GUIDED=0
 MODE_RESET=0
 MODE_TEST=0
+
+# Guided mode option
+GUIDED_WITH_SERVICE=0  # 1 for --headless, 0 for --gui
 
 # Test counters
 PASS=0
@@ -63,22 +67,30 @@ DESCRIPTION:
     and more. Provides guided setup with explanations.
 
 USAGE:
-    ./setup.sh --quick              # Fast validation (no sudo required)
-    sudo ./setup.sh --guided        # Interactive guided setup
+    ./setup.sh --check              # Validate prerequisites (no sudo required)
+    sudo ./setup.sh --gui           # Interactive guided setup for GUI systems
+    sudo ./setup.sh --headless      # Interactive guided setup for headless systems
     sudo ./setup.sh --reset         # Remove configurations (undo setup)
     sudo ./setup.sh --test          # Test ANT+ broadcasting
     ./setup.sh --help               # Show this help
 
 MODES:
-    --quick        Quick validation showing all issues at once
+    --check        Validate all prerequisites showing issues at once
                    - No sudo required
                    - Fast execution (~10 seconds)
                    - Exit codes: 0 (ready), 1 (failed), 2 (warnings)
 
-    --guided       Interactive guided setup with explanations
+    --gui          Interactive guided setup for GUI systems
                    - Requires sudo
                    - Step-by-step with prompts
-                   - Explains each requirement before installation
+                   - Installs dependencies and configures system
+                   - No systemd service file generated
+    
+    --headless     Interactive guided setup for headless systems
+                   - Requires sudo
+                   - Step-by-step with prompts
+                   - Installs dependencies and configures system
+                   - Generates systemd service file for automatic startup
                    - Recommended for all users
 
     --reset        Complete removal of ANT+ setup
@@ -112,7 +124,7 @@ EXAMPLES:
     # Reset to clean state (for testing)
     sudo ./setup.sh --reset
 
-EXIT CODES (--quick mode):
+EXIT CODES (--check mode):
     0 - All tests passed, system ready
     1 - Critical failures detected
     2 - Non-critical warnings present
@@ -137,12 +149,18 @@ fi
 
 for arg in "$@"; do
     case $arg in
-        --quick)
-            MODE_QUICK=1
+        --check)
+            MODE_CHECK=1
             shift
             ;;
-        --guided)
+        --gui)
             MODE_GUIDED=1
+            GUIDED_WITH_SERVICE=0
+            shift
+            ;;
+        --headless)
+            MODE_GUIDED=1
+            GUIDED_WITH_SERVICE=1
             shift
             ;;
         --reset)
@@ -166,31 +184,32 @@ for arg in "$@"; do
 done
 
 # Validate mode combination
-if [ $MODE_QUICK -eq 1 ] && [ $MODE_GUIDED -eq 1 ]; then
-    echo "Error: Cannot use --quick and --guided together"
+active_modes=0\nfor mode in $MODE_QUICK $MODE_RESET $MODE_GUIDED $MODE_TEST; do
+    active_modes=$((active_modes + mode))
+done
+
+if [ $active_modes -gt 1 ]; then
+    echo "Error: Only one mode can be selected at a time"
+    echo "Use --help for usage information"
     exit 1
 fi
 
-if [ $MODE_TEST -eq 1 ] && [ $MODE_QUICK -eq 1 ]; then
-    echo "Error: Cannot use --test and --quick together"
-    exit 1
-fi
-
-if [ $MODE_RESET -eq 1 ] && [ $MODE_GUIDED -eq 1 ]; then
-    echo "Error: Cannot use --reset and --guided together"
-    exit 1
+# Default to guided mode (GUI) if no mode selected
+if [ $active_modes -eq 0 ]; then
+    MODE_GUIDED=1
+    GUIDED_WITH_SERVICE=0
 fi
 
 # Check sudo requirement for guided/reset/test modes
 if [ $MODE_GUIDED -eq 1 ] || [ $MODE_RESET -eq 1 ] || [ $MODE_TEST -eq 1 ]; then
     if [ $EUID -ne 0 ]; then
-        echo -e "${RED}ERROR: --guided, --reset, and --test modes require sudo${NC}"
+        echo -e "${RED}ERROR: --gui, --headless, --reset, and --test modes require sudo${NC}"
         echo "Please run: sudo $0 $@"
         exit 1
     fi
 fi
 
-# Helper function for quick mode
+# Helper function for check mode
 test_check() {
     local test_name="$1"
     local test_command="$2"
@@ -246,14 +265,20 @@ prompt_yes_no() {
 }
 
 # ============================================================================
-# QUICK MODE - Fast validation showing all issues
+# CHECK MODE - Validate all prerequisites
 # ============================================================================
 
-run_quick_mode() {
+run_check_mode() {
     echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
-    echo -e "${BLUE}QDomyos-Zwift ANT+ Quick Validation${NC}"
+    echo -e "${BLUE}QDomyos-Zwift ANT+ Prerequisites Check${NC}"
     echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
     echo ""
+
+    # Detect headless (no X11/Wayland) and skip GUI/QML checks if true
+    SKIP_GUI_CHECKS=false
+    if [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
+        SKIP_GUI_CHECKS=true
+    fi
     
     # Test 1: Python 3.11 library (check system and pyenv)
     test_check \
@@ -442,6 +467,56 @@ run_quick_mode() {
         "Bluetooth service running" \
         "Bluetooth service not running" \
         "true"
+    
+    # Test 14: Configuration file exists
+    CONFIG_FILE="${TARGET_HOME}/.config/Roberto Viola/qDomyos-Zwift.conf"
+    if [ -f "$CONFIG_FILE" ]; then
+        echo -e "  ${GREEN}✓${NC} Configuration file exists"
+    else
+        echo -e "  ${YELLOW}ℹ${NC} Configuration file not found at:"
+        echo -e "    ${YELLOW}${CONFIG_FILE}${NC}"
+        echo -e "    ${YELLOW}(Optional - app will use defaults)${NC}"
+    fi
+    
+    # Test 15: Systemd service file exists
+    SERVICE_FILE_SYSTEM="/etc/systemd/system/qz.service"
+    SERVICE_FILE_LIB="/lib/systemd/system/qz.service"
+    SERVICE_EXISTS=false
+    SERVICE_LOCATION=""
+    
+    if [ -f "$SERVICE_FILE_SYSTEM" ]; then
+        SERVICE_EXISTS=true
+        SERVICE_LOCATION="$SERVICE_FILE_SYSTEM"
+    elif [ -f "$SERVICE_FILE_LIB" ]; then
+        SERVICE_EXISTS=true
+        SERVICE_LOCATION="$SERVICE_FILE_LIB"
+    fi
+    
+    if [ "$SERVICE_EXISTS" = true ]; then
+        echo -e "  ${GREEN}✓${NC} Systemd service file exists: ${SERVICE_LOCATION}"
+        
+        # Check if service is enabled
+        if systemctl is-enabled qz.service >/dev/null 2>&1; then
+            echo -e "  ${GREEN}✓${NC} Service is enabled"
+        else
+            echo -e "  ${YELLOW}ℹ${NC} Service exists but is not enabled. To enable:"
+            echo -e "    ${CYAN}sudo systemctl enable qz.service${NC}"
+        fi
+        
+        # Check if service is running
+        if systemctl is-active --quiet qz.service; then
+            echo -e "  ${GREEN}✓${NC} Service is running"
+        else
+            echo -e "  ${YELLOW}ℹ${NC} Service is not running. To start:"
+            echo -e "    ${CYAN}sudo systemctl start qz.service${NC}"
+            echo -e "  ${YELLOW}ℹ${NC} To view service status:"
+            echo -e "    ${CYAN}sudo systemctl status qz.service${NC}"
+        fi
+    else
+        echo -e "  ${YELLOW}ℹ${NC} Systemd service file not found"
+        echo -e "    ${YELLOW}(Optional - for automatic startup on boot)${NC}"
+        echo -e "    ${YELLOW}Run guided setup to generate service file${NC}"
+    fi
     
     # Output results
     echo ""
@@ -985,7 +1060,7 @@ EOF
     echo ""
     
     # Step 6: Enable Bluetooth
-    echo -e "${BLUE}[Step 6/6] Enabling Bluetooth service...${NC}"
+    echo -e "${BLUE}[Step 6/7] Enabling Bluetooth service...${NC}"
     
     if ! systemctl is-active --quiet bluetooth; then
         if prompt_yes_no "Enable Bluetooth service?"; then
@@ -998,15 +1073,124 @@ EOF
     fi
     echo ""
     
+    # Step 7: Conditional service file generation based on mode
+    if [ $GUIDED_WITH_SERVICE -eq 1 ]; then
+        # Headless mode - generate systemd service file
+        echo -e "${BLUE}[Step 7/7] Generate systemd service file for automatic startup${NC}"
+        echo ""
+        echo "This will create a systemd service that starts qdomyos-zwift automatically"
+        echo "on boot in headless mode with ANT+ footpod support."
+        echo ""
+        
+        # Determine service file location based on system
+        if [ -d "/lib/systemd/system" ] && ! [ -f "/etc/systemd/system/qz.service" ]; then
+            # Raspberry Pi - prefer /lib/systemd/system
+            SERVICE_FILE="/lib/systemd/system/qz.service"
+        else
+            # Desktop Linux or already exists in /etc
+            SERVICE_FILE="/etc/systemd/system/qz.service"
+        fi
+        
+        if [ -f "$SERVICE_FILE" ]; then
+            echo -e "${YELLOW}Service file already exists at: ${SERVICE_FILE}${NC}"
+            if ! prompt_yes_no "Overwrite existing service file?"; then
+                echo -e "${YELLOW}Skipping service file generation${NC}"
+                echo ""
+                GENERATE_SERVICE=false
+            else
+                GENERATE_SERVICE=true
+            fi
+        else
+            GENERATE_SERVICE=true
+        fi
+        
+        if [ "$GENERATE_SERVICE" = true ]; then
+            # Get installation directory
+            SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+            INSTALL_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+            
+            # Detect architecture
+            ARCH=$(uname -m)
+            if [ "$ARCH" = "aarch64" ]; then
+                BIN_DIR="$INSTALL_DIR/qdomyos-zwift-arm64-ant"
+            else
+                BIN_DIR="$INSTALL_DIR/qdomyos-zwift-x86-64-ant"
+            fi
+            
+            # Create service file
+            cat > "$SERVICE_FILE" <<EOF
+[Unit]
+Description=qdomyos-zwift service
+After=bluetooth.target
+Wants=bluetooth.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=${BIN_DIR}
+Environment="QZ_USER=${TARGET_USER}"
+ExecStart=${BIN_DIR}/qdomyos-zwift -no-gui -ant-footpod
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+            
+            echo -e "${GREEN}✓ Service file created: ${SERVICE_FILE}${NC}"
+            echo ""
+            echo -e "${CYAN}Service configuration:${NC}"
+            echo -e "  Working Directory: ${BIN_DIR}"
+            echo -e "  User: root (runs as ${TARGET_USER} via QZ_USER)"
+            echo -e "  Startup: Automatic on boot"
+            echo ""
+            
+            if prompt_yes_no "Enable service to start on boot?"; then
+                systemctl daemon-reload
+                systemctl enable qz.service
+                echo -e "${GREEN}✓ Service enabled${NC}"
+                echo ""
+                
+                if prompt_yes_no "Start service now?"; then
+                    systemctl start qz.service
+                    echo -e "${GREEN}✓ Service started${NC}"
+                    echo ""
+                    echo -e "${CYAN}To check service status:${NC}"
+                    echo -e "  ${YELLOW}sudo systemctl status qz.service${NC}"
+                else
+                    echo -e "${YELLOW}To start service manually:${NC}"
+                    echo -e "  ${YELLOW}sudo systemctl start qz.service${NC}"
+                fi
+            else
+                echo -e "${YELLOW}Service created but not enabled.${NC}"
+                echo -e "${YELLOW}To enable and start:${NC}"
+                echo -e "  ${YELLOW}sudo systemctl enable qz.service${NC}"
+                echo -e "  ${YELLOW}sudo systemctl start qz.service${NC}"
+            fi
+        fi
+    else
+        # GUI mode - skip service file generation
+        echo -e "${BLUE}[Step 7/7] System Integration${NC}"
+        echo ""
+        echo -e "${GREEN}✓ Setup complete!${NC}"
+        echo ""
+        echo -e "${CYAN}To run qdomyos-zwift with ANT+ support:${NC}"
+        echo ""
+        echo -e "  ${YELLOW}./qdomyos-zwift -no-gui -ant-footpod${NC}"
+        echo ""
+        echo -e "${CYAN}For automatic startup on headless systems:${NC}"
+        echo -e "  Run: ${YELLOW}sudo ./setup.sh --headless${NC}"
+        echo ""
+    fi
+    echo ""
+    
     # Final summary
     echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
     echo -e "${GREEN}✓ Setup wizard complete!${NC}"
     echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
-    echo ""
-    echo "Next steps:"
-    echo -e "  1. Run validation: ${YELLOW}./setup.sh --quick${NC}"
-    echo "  2. If all tests pass, you're ready to use ANT+!"
-    echo ""
+    sleep 3
+    clear
+    run_check_mode
 }
 
 # ============================================================================
@@ -1079,8 +1263,8 @@ run_test_mode() {
 # MAIN - Route to appropriate mode
 # ============================================================================
 
-if [ $MODE_QUICK -eq 1 ]; then
-    run_quick_mode
+if [ $MODE_CHECK -eq 1 ]; then
+    run_check_mode
 elif [ $MODE_RESET -eq 1 ]; then
     run_reset_mode
 elif [ $MODE_GUIDED -eq 1 ]; then

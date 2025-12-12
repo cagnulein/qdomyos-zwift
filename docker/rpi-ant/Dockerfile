@@ -65,8 +65,11 @@ RUN python3 -m venv /opt/ant_venv && \
 WORKDIR /app
 COPY . .
 
-# Initialize git submodules
-RUN git submodule update --init --recursive
+# Initialize only the needed submodules (avoid full recursive fetch)
+RUN git submodule update --init src/smtpclient/ && \
+    git submodule update --init src/qmdnsengine/ && \
+    git submodule update --init src/qthttpserver/ && \
+    git submodule update --init tst/googletest/
 
 # Configure the project for an ANT+ build
 RUN echo 'include(devices/antlinux/antlinux.pri)' >> src/qdomyos-zwift.pro && \
@@ -76,11 +79,21 @@ RUN echo 'include(devices/antlinux/antlinux.pri)' >> src/qdomyos-zwift.pro && \
     find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} +
 
 # --- OPTIMIZED BUILD STEP ---
-# 1. Run qmake with explicit release and path-mapping flags.
+# Accept build argument to enable debug logging (optional, defaults to release)
+ARG ENABLE_DEBUG_LOGS=0
+
+# 1. Run qmake with release or debug flags based on ENABLE_DEBUG_LOGS.
 # 2. Run make to compile the application.
 # 3. Run strip on the final binary to remove debug symbols and reduce size.
 RUN cd src && \
-    qmake "CONFIG+=release" "QMAKE_CXXFLAGS+=-ffile-prefix-map=/app=." qdomyos-zwift.pro && \
+    if [ "$ENABLE_DEBUG_LOGS" = "1" ]; then \
+        echo "Building with DEBUG LOGS ENABLED (qDebug output visible)"; \
+        qmake "CONFIG+=debug" "CONFIG+=optimize_full" "DEFINES-=QT_NO_DEBUG_OUTPUT" \
+              "QMAKE_CXXFLAGS+=-ffile-prefix-map=/app=." qdomyos-zwift.pro; \
+    else \
+        echo "Building RELEASE mode (qDebug suppressed for smaller binary)"; \
+        qmake "CONFIG+=release" "QMAKE_CXXFLAGS+=-ffile-prefix-map=/app=." qdomyos-zwift.pro; \
+    fi && \
     make -j$(nproc) && \
     strip qdomyos-zwift && \
     mv qdomyos-zwift qdomyos-zwift-bin

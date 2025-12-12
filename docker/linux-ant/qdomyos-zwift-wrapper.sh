@@ -38,25 +38,72 @@ WARNINGS=()
 ERRORS=()
 ANT_WARNINGS=()
 
-# Determine the actual user's home (even when running with sudo)
-if [[ "$EUID" -eq 0 && -n "${SUDO_USER}" ]]; then
-    USER_HOME=$(getent passwd "${SUDO_USER}" | cut -d: -f6)
+# Determine the actual user's home (mirror setup.sh logic for systemd compatibility)
+# Priority:
+#  1) SUDO_USER (when run via sudo)
+#  2) QZ_USER env var (recommended for systemd: Environment=QZ_USER=pi)
+#  3) owner of the script/repo dir (non-root)
+#  4) any /home/*/ant_venv found
+#  5) fallback to current $USER/$HOME
+if [[ -n "${SUDO_USER:-}" ]]; then
     TARGET_USER="$SUDO_USER"
-    # Preserve the actual user's XDG_RUNTIME_DIR if it was passed through sudo
-    # Otherwise, try to determine it from the user's UID
+    USER_HOME=$(getent passwd "${SUDO_USER}" | cut -d: -f6)
+elif [[ -n "${QZ_USER:-}" ]]; then
+    TARGET_USER="$QZ_USER"
+    USER_HOME=$(getent passwd "${QZ_USER}" | cut -d: -f6 2>/dev/null || eval echo "~$QZ_USER")
+else
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    REPO_OWNER=$(stat -c '%U' "$SCRIPT_DIR" 2>/dev/null || echo "")
+    if [[ -n "$REPO_OWNER" && "$REPO_OWNER" != "root" ]]; then
+        TARGET_USER="$REPO_OWNER"
+        USER_HOME=$(getent passwd "${REPO_OWNER}" | cut -d: -f6)
+    else
+        # look for an existing ant_venv under /home/* and pick that user
+        FOUND=false
+        for d in /home/*/ant_venv; do
+            if [[ -d "$d" ]]; then
+                USER_HOME="$(dirname "$d")"
+                TARGET_USER=$(stat -c '%U' "$USER_HOME" 2>/dev/null || echo "")
+                FOUND=true
+                break
+            fi
+        done
+        if [[ "$FOUND" != "true" ]]; then
+            TARGET_USER="${USER:-root}"
+            USER_HOME="${HOME:-/root}"
+        fi
+    fi
+fi
+
+# Ensure variables are set
+TARGET_USER="${TARGET_USER:-root}"
+USER_HOME="${USER_HOME:-/root}"
+
+# Check for configuration file
+CONFIG_FILE="${USER_HOME}/.config/Roberto Viola/qDomyos-Zwift.conf"
+if [[ ! -f "$CONFIG_FILE" ]]; then
+    echo -e "${C_YELLOW}WARNING: Configuration file not found at:${C_RESET}" >&2
+    echo -e "${C_YELLOW}  ${CONFIG_FILE}${C_RESET}" >&2
+    echo -e "${C_YELLOW}" >&2
+    echo -e "${C_YELLOW}  The application will use default settings.${C_RESET}" >&2
+    echo -e "${C_YELLOW}  For headless operation, you may need to create this file with your device settings.${C_RESET}" >&2
+    echo -e "${C_YELLOW}  See README.md for configuration instructions.${C_RESET}" >&2
+    echo -e "${C_YELLOW}${C_RESET}" >&2
+fi
+
+# Preserve the actual user's XDG_RUNTIME_DIR if running as root
+if [[ "$EUID" -eq 0 && -n "$TARGET_USER" && "$TARGET_USER" != "root" ]]; then
+    # Try to determine it from the user's UID
     if [[ -z "${XDG_RUNTIME_DIR}" ]]; then
-        SUDO_UID=$(id -u "${SUDO_USER}")
-        if [[ -d "/run/user/${SUDO_UID}" ]]; then
-            XDG_RUNTIME_DIR="/run/user/${SUDO_UID}"
+        TARGET_UID=$(id -u "${TARGET_USER}" 2>/dev/null || echo "")
+        if [[ -n "$TARGET_UID" && -d "/run/user/${TARGET_UID}" ]]; then
+            XDG_RUNTIME_DIR="/run/user/${TARGET_UID}"
         fi
     fi
     # Preserve XAUTHORITY if not set
     if [[ -z "${XAUTHORITY}" ]]; then
         XAUTHORITY="${USER_HOME}/.Xauthority"
     fi
-else
-    USER_HOME="${HOME}"
-    TARGET_USER="$USER"
 fi
 
 # Function to check if libpython3.11 exists in a directory
@@ -259,7 +306,7 @@ if [[ ${#ERRORS[@]} -gt 0 ]]; then
         echo -e "${C_RED}  $err${C_RESET}" >&2
     done
     echo "" >&2
-    echo -e "${C_RED}Run: sudo ./setup.sh --guided${C_RESET}" >&2
+    echo -e "${C_RED}Run: sudo ./setup.sh --gui (or --headless)${C_RESET}" >&2
     echo "" >&2
     exit 1
 fi
@@ -271,7 +318,7 @@ if [[ ${#WARNINGS[@]} -gt 0 ]]; then
         echo -e "${C_YELLOW}  $warn${C_RESET}" >&2
     done
     echo "" >&2
-    echo -e "${C_YELLOW}Run: sudo ./setup.sh --quick${C_RESET}" >&2
+    echo -e "${C_YELLOW}Run: ./setup.sh --check${C_RESET}" >&2
     echo "" >&2
 fi
 

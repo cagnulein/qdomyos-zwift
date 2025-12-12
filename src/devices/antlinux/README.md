@@ -82,7 +82,7 @@ cd qdomyos-zwift-x86-64-ant
 Before installing anything, see what's needed:
 
 ```bash
-./setup.sh --quick
+./setup.sh --check
 ```
 
 This validates your entire setup in seconds:
@@ -106,15 +106,21 @@ This validates your entire setup in seconds:
 
 Let the wizard guide you through installation:
 
+**For GUI/Desktop systems** (no systemd service):
 ```bash
-sudo ./setup.sh --guided
+sudo ./setup.sh --gui
+```
+
+**For headless/server systems** (with systemd service):
+```bash
+sudo ./setup.sh --headless
 ```
 
 The guided setup explains each step and asks for confirmation before making changes.
 
 **For automation/scripting** (unattended installation):
 ```bash
-yes | sudo ./setup.sh --guided
+yes | sudo ./setup.sh --gui      # or --headless
 ```
 
 ### Other Useful Commands
@@ -255,7 +261,7 @@ After installation, verify everything works:
 
 ```bash
 cd ~/qdomyos-zwift-x86-64-ant  # or qdomyos-zwift-arm64-ant
-./setup.sh --quick
+./setup.sh --check
 ```
 
 All tests should pass. If issues remain, the tool will provide specific guidance.
@@ -304,11 +310,10 @@ sudo ./qdomyos-zwift -no-gui -ant-footpod -ant-verbose
 
 Create a systemd service for automatic startup on boot:
 
-```bash
-sudo nano /etc/systemd/system/qz.service
-```
-
 **Raspberry Pi configuration:**
+```bash
+sudo nano /lib/systemd/system/qz.service
+```
 ```ini
 [Unit]
 Description=qdomyos-zwift service
@@ -327,6 +332,9 @@ WantedBy=multi-user.target
 ```
 
 **Desktop Linux configuration:**
+```bash
+sudo nano /etc/systemd/system/qz.service
+```
 ```ini
 [Unit]
 Description=qdomyos-zwift service
@@ -361,19 +369,30 @@ Running without a GUI? You'll need to create a configuration file with your trea
 
 **Best approach - configure via GUI first:**
 
+Running the app for the first time will automatically create the configuration file under the effective user's home:
+- If the app is started as root (eg. using sudo or run directly as root) the config is created at:
+  /root/.config/Roberto Viola/qDomyos-Zwift.conf
+- If the app is started via the systemd service and you set Environment="QZ_USER=YOUR_USER" in the service file, the wrapper looks for and uses:
+/home/YOUR_USER/.config/Roberto Viola/qDomyos-Zwift.conf
+
 1. **On a system with display** (can be different hardware):
-   - Extract and run: `sudo ./qdomyos-zwift`
+   - Run: `sudo ./qdomyos-zwift`
    - Configure your treadmill model and preferences
    - Settings save to `/root/.config/Roberto Viola/qDomyos-Zwift.conf`
 
 2. **Copy to your headless system:**
    ```bash
-   # On GUI system, copy config
+   # On the GUI system, export the config to a transfer file
    sudo cp "/root/.config/Roberto Viola/qDomyos-Zwift.conf" ~/qz-config.conf
-   
-   # Transfer file to headless system, then:
-   sudo mkdir -p "/root/.config/Roberto Viola"
-   sudo cp ~/qz-config.conf "/root/.config/Roberto Viola/qDomyos-Zwift.conf"
+
+   # Transfer qz-config.conf to the headless system (scp/sftp/usb)
+   # On the headless system, copy into the intended service user's config.
+   # Replace TARGET_USER with the username used by the service (QZ_USER in systemd).
+   TARGET_USER=pi
+
+   sudo mkdir -p "/home/$TARGET_USER/.config/Roberto Viola"
+   sudo cp ~/qz-config.conf "/home/$TARGET_USER/.config/Roberto Viola/qDomyos-Zwift.conf"
+   sudo chown -R "$TARGET_USER:$TARGET_USER" "/home/$TARGET_USER/.config/Roberto Viola"
    ```
 
 This ensures your headless system has the exact GUI-configured settings.
@@ -395,7 +414,7 @@ This ensures your headless system has the exact GUI-configured settings.
 
 Run the diagnostic tool anytime:
 ```bash
-./setup.sh --quick
+./setup.sh --check
 ```
 
 ### Test ANT+ Without the Main App
@@ -429,15 +448,15 @@ Press `Ctrl+C` to stop.
 
 | Problem | Solution |
 |---------|----------|
-| `error while loading shared libraries: libpython3.11.so.1.0` | Python 3.11 missing. Run `./setup.sh --quick` to diagnose, then install via apt or pyenv |
-| Wrapper shows dependency warnings | Follow provided instructions. Run `./setup.sh --quick` for diagnosis or `sudo ./setup.sh --guided` for automatic fix |
+| `error while loading shared libraries: libpython3.11.so.1.0` | Python 3.11 missing. Run `./setup.sh --check` to diagnose, then install via apt or pyenv |
+| Wrapper shows dependency warnings | Follow provided instructions. Run `./setup.sh --check` for diagnosis or `sudo ./setup.sh --gui` for automatic fix |
 | Test fails / watch won't pair | Ensure running with `sudo`. Reboot after USB permissions setup. Try unplug/replug dongle |
 | Watch pairs but pace shows `--:--` | Treadmill not configured. Edit `/root/.config/Roberto\ Viola/qDomyos-Zwift.conf` and add your model (e.g., `proform_treadmill_705_cst=true`) |
 | App works but no watch connection | Unplug/replug dongle. Verify USB permissions + reboot. Check device ID (default 54321). Ensure running as root. Check logs |
 | `systemctl stop qz` hangs | Add `KillSignal=SIGINT` to service file `[Service]` section |
 | Binary won't run: "cannot execute binary file" | Wrong architecture downloaded. Get correct package: arm64 for Pi, x86-64 for desktop |
 | `pyenv: command not found` | Reload shell: `source ~/.bashrc` or open new terminal |
-| Setup validation fails multiple checks | Use guided setup: `sudo ./setup.sh --guided` for step-by-step fixes |
+| Setup validation fails multiple checks | Use guided setup: `sudo ./setup.sh --gui` (or `--headless`) for step-by-step fixes |
 | Test script works but app doesn't connect to treadmill | Treadmill Bluetooth issue. Ensure treadmill is powered on and discoverable |
 
 ---

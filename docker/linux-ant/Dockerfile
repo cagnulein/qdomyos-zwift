@@ -81,11 +81,21 @@ RUN echo 'include(devices/antlinux/antlinux.pri)' >> src/qdomyos-zwift.pro && \
     echo '/opt/ant_venv/bin/python3' > src/.ant_venv_path
 
 # --- OPTIMIZED BUILD STEP ---
-# 1. Run qmake with explicit release and path-mapping flags.
+# Accept build argument to enable debug logging (optional, defaults to release)
+ARG ENABLE_DEBUG_LOGS=0
+
+# 1. Run qmake with release or debug flags based on ENABLE_DEBUG_LOGS.
 # 2. Run make to compile the application.
 # 3. Run strip on the final binary to remove debug symbols and reduce size.
 RUN cd src && \
-    qmake "CONFIG+=release" "QMAKE_CXXFLAGS+=-ffile-prefix-map=/app=." qdomyos-zwift.pro && \
+    if [ "$ENABLE_DEBUG_LOGS" = "1" ]; then \
+        echo "Building with DEBUG LOGS ENABLED (qDebug output visible)"; \
+        qmake "CONFIG+=debug" "CONFIG+=optimize_full" "DEFINES-=QT_NO_DEBUG_OUTPUT" \
+              "QMAKE_CXXFLAGS+=-ffile-prefix-map=/app=." qdomyos-zwift.pro; \
+    else \
+        echo "Building RELEASE mode (qDebug suppressed for smaller binary)"; \
+        qmake "CONFIG+=release" "QMAKE_CXXFLAGS+=-ffile-prefix-map=/app=." qdomyos-zwift.pro; \
+    fi && \
     make -j$(nproc) && \
     strip qdomyos-zwift && \
     mv qdomyos-zwift qdomyos-zwift-bin

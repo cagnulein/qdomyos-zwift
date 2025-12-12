@@ -11,17 +11,24 @@
 #
 # USAGE:
 #   From the 'src' directory, run:
-#   ./docker-build.sh --arch <ARCH>
+#   ./docker-build.sh --arch <ARCH> [--enable-debug-logs]
 #
 #   ARCH can be:
 #     - arm64   (for Raspberry Pi)
 #     - x86-64  (for Desktop Linux)
+#
+#   OPTIONS:
+#     --enable-debug-logs  Enable qDebug() output for troubleshooting
+#                          (Without this, qDebug() is suppressed for smaller binaries)
 #
 # Contributor(s): bassai-sho
 # Development assisted by AI analysis tools
 # =============================================================================
 
 set -euo pipefail
+
+# Build configuration flags
+ENABLE_DEBUG_LOGS=false
 
 # Color codes
 C_GREEN="\033[0;32m"
@@ -82,10 +89,24 @@ setup_and_verify_docker() {
 }
 
 setup_qemu_if_needed() {
+    # Only run if building for arm64 on a non-arm64 machine
     if [[ "$1" == "arm64" ]] && [[ "$(uname -m)" != "aarch64" ]]; then
-        if ! ls /proc/sys/fs/binfmt_misc/ | grep -q 'qemu-aarch64'; then
-            info "Registering QEMU..."
-            docker run --rm --privileged multiarch/qemu-user-static --reset -p yes >/dev/null 2>&1 || true
+        
+        # Check if the STABLE emulator is already registered.
+        # We specifically look for the tonistiigi behavior or just ensure aarch64 exists.
+        if ! ls /proc/sys/fs/binfmt_misc/ | grep -q 'aarch64'; then
+            info "Configuring QEMU environment..."
+            
+            # 1. Clean up any potential old/unstable QEMU handlers
+            docker run --privileged --rm tonistiigi/binfmt --uninstall qemu-* >/dev/null 2>&1 || true
+            
+            # 2. Install the stable handlers (matches GitHub Actions behavior)
+            info "Registering stable QEMU handlers (tonistiigi/binfmt)..."
+            docker run --privileged --rm tonistiigi/binfmt --install all >/dev/null 2>&1 || true
+            
+            success "QEMU registered successfully."
+        else
+            info "QEMU is already registered."
         fi
     fi
 }
@@ -110,6 +131,11 @@ main() {
             --arch)
                 ARCH="$2"
                 shift 2
+                ;;
+            --enable-debug-logs)
+                ENABLE_DEBUG_LOGS=true
+                info "Debug logging ENABLED - qDebug() output will be visible"
+                shift
                 ;;
             *)
                 show_usage
@@ -179,9 +205,15 @@ main() {
         info "Buildx driver is 'docker'; skipping cache export/import (not supported)."
     fi
 
+    # Pass debug flag to Docker build as a build argument
+    local DEBUG_ARG=""
+    if [[ "$ENABLE_DEBUG_LOGS" == "true" ]]; then
+        DEBUG_ARG="--build-arg ENABLE_DEBUG_LOGS=1"
+    fi
+
     # Add --no-cache after buildx to force a clean build if ever needed.
     if ! docker buildx build --progress=plain $PLATFORM_FLAG \
-         "${CACHE_ARGS[@]}" \
+         "${CACHE_ARGS[@]}" $DEBUG_ARG \
          -t "$IMAGE_TAG" -f "$DOCKERFILE_PATH" --load .; then
         err "Docker build failed."
     fi

@@ -107,7 +107,7 @@ sudo ./qdomyos-zwift -no-gui -ant-footpod
 
 **Your build is successful when:**
 - Build completes without errors
-- `./setup.sh --quick` passes all tests
+- `./setup.sh --check` passes all tests
 - Application detects your ANT+ dongle
 - Watch connects and shows stable pace/cadence
 
@@ -130,7 +130,7 @@ sudo ./qdomyos-zwift -no-gui -ant-footpod
 Now that you have a compiled binary:
 
 1. **Follow the main guide:** [README.md](README.md) for complete setup instructions
-2. **Install dependencies:** Run `sudo ./setup.sh --guided` for automatic setup
+2. **Install dependencies:** Run `sudo ./setup.sh --gui` for automatic setup
 3. **Configure and run:** See Step 4 in the main README
 
 ---

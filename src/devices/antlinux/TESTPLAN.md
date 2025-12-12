@@ -28,13 +28,13 @@ Verify all dependencies are installed and configured.
 **Raspberry Pi:**
 ```bash
 cd ~/qdomyos-zwift-arm64-ant
-./setup.sh --quick
+./setup.sh --check
 ```
 
 **Desktop Linux:**
 ```bash
 cd ~/qdomyos-zwift-x86-64-ant
-./setup.sh --quick
+./setup.sh --check
 ```
 
 **Expected Output:**
@@ -54,7 +54,7 @@ Test Summary: 12 passed, 0 warnings, 0 failed
 System Status: READY
 ```
 
-**If tests fail:** Run `sudo ./setup.sh --guided` to install missing dependencies.
+**If tests fail:** Run `sudo ./setup.sh --gui` (or `--headless`) to install missing dependencies.
 
 ---
 
@@ -172,14 +172,14 @@ Verify cleanup and reinstall works correctly.
 sudo ./setup.sh --reset
 
 # Verify cleaned
-./setup.sh --quick
+./setup.sh --check
 # Should show: "Virtual environment not found", "User not in plugdev", etc.
 
 # Reinstall
-sudo ./setup.sh --guided
+sudo ./setup.sh --gui
 
 # Verify fixed
-./setup.sh --quick
+./setup.sh --check
 # Should show: All tests passing
 ```
 
@@ -197,7 +197,7 @@ sudo ./setup.sh --guided
 
 Before submitting PR, verify:
 
-- [ ] `./setup.sh --quick` passes all 12 tests
+- [ ] `./setup.sh --check` passes all 12 tests
 - [ ] `sudo ./setup.sh --test` pairs with watch and broadcasts data
 - [ ] GUI mode (`sudo ./qdomyos-zwift -ant-footpod`) works with treadmill
 - [ ] Headless mode (`-no-gui -ant-footpod`) runs stably
@@ -220,7 +220,7 @@ Before submitting PR, verify:
 **Solutions:**
 1. Check if qdomyos-zwift is already running: `sudo pkill -f qdomyos-zwift`
 2. Verify dongle detected: `lsusb | grep -i dynastream`
-3. Check permissions and configuration: `./setup.sh --quick`
+3. Check permissions and configuration: `./setup.sh --check`
 4. Reboot system after USB permissions setup
 5. Try unplugging and replugging the dongle
 
