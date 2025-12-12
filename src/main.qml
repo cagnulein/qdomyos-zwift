@@ -18,6 +18,11 @@ ApplicationWindow {
     visible: true
 	 objectName: "stack"
     title: qsTr("qDomyos-Zwift")
+
+    // VoiceOver accessibility - allow navigation to children
+    Accessible.role: Accessible.Window
+    Accessible.name: qsTr("qDomyos-Zwift")
+    Accessible.ignored: false
     
     // Force update on orientation change
     property int currentOrientation: Screen.orientation
@@ -999,6 +1004,10 @@ ApplicationWindow {
         anchors.rightMargin: getRightPadding()
         anchors.leftMargin: getLeftPadding()
         focus: true
+
+        // VoiceOver accessibility - allow navigation to children, not the StackView itself
+        Accessible.role: Accessible.Pane
+        Accessible.ignored: true
         Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
         Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
         Keys.onPressed: (event)=> {

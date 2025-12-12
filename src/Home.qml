@@ -185,6 +185,11 @@ HomeForm {
                 gridView.leftMargin = (parent.width % cellWidth) / 2;
         }
 
+        // VoiceOver accessibility for the grid
+        Accessible.role: Accessible.List
+        Accessible.name: qsTr("Workout metrics tiles")
+        Accessible.description: qsTr("Swipe to navigate through workout metrics")
+
         delegate: Item {
             id: id1
             width: 170 * settings.ui_zoom / 100
@@ -232,6 +237,9 @@ HomeForm {
                 border.color: (settings.theme_tile_shadow_enabled ? settings.theme_tile_shadow_color : settings.theme_tile_background_color)
                 color: settings.theme_tile_background_color
                 id: rect
+
+                // Ignore for VoiceOver - decorative background only
+                Accessible.ignored: true
             }
 
             DropShadow {
@@ -262,6 +270,9 @@ HomeForm {
                 height: 48 * settings.ui_zoom / 100
                 source: icon
                 visible: settings.theme_tile_icon_enabled && !largeButton
+
+                // Ignore for VoiceOver - decorative only
+                Accessible.ignored: true
             }
             Text {
                 objectName: "value"
@@ -276,6 +287,9 @@ HomeForm {
                 font.pointSize: valueFontSize * settings.ui_zoom / 100
                 font.bold: true
                 visible: !largeButton
+
+                // Ignore for VoiceOver - parent Item handles accessibility
+                Accessible.ignored: true
             }
             Text {
                 objectName: "secondLine"
@@ -291,6 +305,9 @@ HomeForm {
                 font.pointSize: settings.theme_tile_secondline_textsize * settings.ui_zoom / 100
                 font.bold: false
                 visible: !largeButton
+
+                // Ignore for VoiceOver - parent Item handles accessibility
+                Accessible.ignored: true
             }
             Text {
                 id: myText
@@ -305,6 +322,9 @@ HomeForm {
                 anchors.leftMargin: 55 * settings.ui_zoom / 100
                 anchors.topMargin: 20 * settings.ui_zoom / 100
                 visible: !largeButton
+
+                // Ignore for VoiceOver - parent Item handles accessibility
+                Accessible.ignored: true
             }
             RoundButton {
                 objectName: minusName
