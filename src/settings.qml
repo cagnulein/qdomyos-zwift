@@ -6369,7 +6369,7 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
                 }
-            }            
+            }
 
             AccordionElement {
                 title: qsTr("Garmin Options") + "\uD83E\uDD47"
