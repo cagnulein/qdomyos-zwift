@@ -7,7 +7,7 @@
 #   Provides quick validation, guided setup, testing, and reset capabilities.
 #
 # Usage:
-#   ./setup.sh --quick              # Fast validation check (no sudo)
+#   ./setup.sh --check              # Fast validation check (no sudo)
 #   sudo ./setup.sh --guided        # Guided setup with prompts
 #   sudo ./setup.sh --headless      # Generate systemd service file only
 #   sudo ./setup.sh --reset         # Remove configurations
@@ -113,7 +113,7 @@ MODES:
 
 EXAMPLES:
     # Check what's needed
-    ./setup.sh --quick
+    ./setup.sh --check
 
     # Guided setup (recommended)
     sudo ./setup.sh --guided
@@ -138,7 +138,7 @@ if [ $# -eq 0 ]; then
     echo "Usage: ./setup.sh [MODE]"
     echo ""
     echo "Available modes:"
-    echo "  --quick        Quick validation check"
+    echo "  --check        Quick validation check"
     echo "  --guided       Interactive guided setup"
     echo "  --reset        Remove configurations"
     echo "  --test         Test ANT+ broadcasting"
@@ -184,7 +184,8 @@ for arg in "$@"; do
 done
 
 # Validate mode combination
-active_modes=0\nfor mode in $MODE_QUICK $MODE_RESET $MODE_GUIDED $MODE_TEST; do
+active_modes=0
+for mode in $MODE_CHECK $MODE_RESET $MODE_GUIDED $MODE_TEST; do
     active_modes=$((active_modes + mode))
 done
 
@@ -471,9 +472,9 @@ run_check_mode() {
     # Test 14: Configuration file exists
     CONFIG_FILE="${TARGET_HOME}/.config/Roberto Viola/qDomyos-Zwift.conf"
     if [ -f "$CONFIG_FILE" ]; then
-        echo -e "  ${GREEN}✓${NC} Configuration file exists"
+        echo -e "${GREEN}[PASS]${NC} Configuration file exists"
     else
-        echo -e "  ${YELLOW}ℹ${NC} Configuration file not found at:"
+        echo -e "${YELLOW}[INFO]${NC} Configuration file not found at:"
         echo -e "    ${YELLOW}${CONFIG_FILE}${NC}"
         echo -e "    ${YELLOW}(Optional - app will use defaults)${NC}"
     fi
@@ -493,29 +494,29 @@ run_check_mode() {
     fi
     
     if [ "$SERVICE_EXISTS" = true ]; then
-        echo -e "  ${GREEN}✓${NC} Systemd service file exists: ${SERVICE_LOCATION}"
+        echo -e "${GREEN}[PASS]${NC} Systemd service file exists: ${SERVICE_LOCATION}"
         
         # Check if service is enabled
         if systemctl is-enabled qz.service >/dev/null 2>&1; then
-            echo -e "  ${GREEN}✓${NC} Service is enabled"
+            echo -e "${GREEN}[PASS]${NC} Service is enabled"
         else
-            echo -e "  ${YELLOW}ℹ${NC} Service exists but is not enabled. To enable:"
+            echo -e "${YELLOW}[INFO]${NC} Service exists but is not enabled. To enable:"
             echo -e "    ${CYAN}sudo systemctl enable qz.service${NC}"
         fi
         
         # Check if service is running
         if systemctl is-active --quiet qz.service; then
-            echo -e "  ${GREEN}✓${NC} Service is running"
+            echo -e "${GREEN}[PASS]${NC} Service is running"
         else
-            echo -e "  ${YELLOW}ℹ${NC} Service is not running. To start:"
+            echo -e "${YELLOW}[INFO]${NC} Service is not running. To start:"
             echo -e "    ${CYAN}sudo systemctl start qz.service${NC}"
-            echo -e "  ${YELLOW}ℹ${NC} To view service status:"
+            echo -e "${YELLOW}[INFO]${NC} To view service status:"
             echo -e "    ${CYAN}sudo systemctl status qz.service${NC}"
         fi
     else
-        echo -e "  ${YELLOW}ℹ${NC} Systemd service file not found"
-        echo -e "    ${YELLOW}(Optional - for automatic startup on boot)${NC}"
-        echo -e "    ${YELLOW}Run guided setup to generate service file${NC}"
+        # Service file is optional - only relevant for headless systems
+        # Don't display message in check mode to avoid confusion
+        :
     fi
     
     # Output results
@@ -533,6 +534,12 @@ run_check_mode() {
         exit 2
     else
         echo -e "${GREEN}System Status: READY${NC}"
+        echo ""
+        echo -e "${CYAN}To run qdomyos-zwift with ANT+ support:${NC}"
+        echo -e "  ${YELLOW}./qdomyos-zwift -no-gui -ant-footpod${NC}"
+        echo ""
+        echo -e "${CYAN}For automatic startup on headless systems:${NC}"
+        echo -e "  Run: ${YELLOW}sudo ./setup.sh --headless${NC}"
         echo ""
         exit 0
     fi
@@ -789,7 +796,7 @@ run_reset_mode() {
     fi
     echo ""
     echo -e "Note: bluez (Bluetooth) remains installed as it may be used by other apps"
-    echo -e "Run '${YELLOW}./setup.sh --quick${NC}' to verify clean state"
+    echo -e "Run '${YELLOW}./setup.sh --check${NC}' to verify clean state"
 }
 
 # ============================================================================
@@ -1025,7 +1032,7 @@ EOF'
                 qml-module-qtquick-controls2 qml-module-qtquick-dialogs \
                 qml-module-qtquick-layouts qml-module-qtquick-window2 \
                 qml-module-qtmultimedia \
-                libusb-1.0-0 bluez usbutils
+                libusb-1.0-0 bluez usbutils python3-pip
             echo -e "${GREEN}✓ System libraries installed${NC}"
         fi
     fi
@@ -1121,17 +1128,15 @@ EOF
             cat > "$SERVICE_FILE" <<EOF
 [Unit]
 Description=qdomyos-zwift service
-After=bluetooth.target
-Wants=bluetooth.target
+After=multi-user.target
 
 [Service]
-Type=simple
 User=root
-WorkingDirectory=${BIN_DIR}
+Group=plugdev
 Environment="QZ_USER=${TARGET_USER}"
-ExecStart=${BIN_DIR}/qdomyos-zwift -no-gui -ant-footpod
-Restart=always
-RestartSec=5
+WorkingDirectory=${BIN_DIR}
+ExecStart=${BIN_DIR}/qdomyos-zwift -no-gui -log -ant-footpod
+KillSignal=SIGINT
 
 [Install]
 WantedBy=multi-user.target
@@ -1171,25 +1176,11 @@ EOF
     else
         # GUI mode - skip service file generation
         echo -e "${BLUE}[Step 7/7] System Integration${NC}"
-        echo ""
         echo -e "${GREEN}✓ Setup complete!${NC}"
-        echo ""
-        echo -e "${CYAN}To run qdomyos-zwift with ANT+ support:${NC}"
-        echo ""
-        echo -e "  ${YELLOW}./qdomyos-zwift -no-gui -ant-footpod${NC}"
-        echo ""
-        echo -e "${CYAN}For automatic startup on headless systems:${NC}"
-        echo -e "  Run: ${YELLOW}sudo ./setup.sh --headless${NC}"
         echo ""
     fi
     echo ""
-    
-    # Final summary
-    echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
-    echo -e "${GREEN}✓ Setup wizard complete!${NC}"
-    echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
     sleep 3
-    clear
     run_check_mode
 }
 
@@ -1253,8 +1244,8 @@ run_test_mode() {
         echo ""
         echo "Troubleshooting:"
         echo "  1. Ensure ANT+ dongle is plugged in"
-        echo "  2. Check USB permissions: ./setup.sh --quick"
-        echo "  3. Verify Python packages: ./setup.sh --quick"
+        echo "  2. Check USB permissions: ./setup.sh --check"
+        echo "  3. Verify Python packages: ./setup.sh --check"
         exit 1
     fi
 }

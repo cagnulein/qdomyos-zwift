@@ -148,6 +148,11 @@ Prefer full control? Follow these steps to install each component yourself.
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
+	libqt5core5a \
+	libqt5qml5 \
+	libqt5quick5 \
+	libqt5quickwidgets5 \
+	libqt5concurrent5 \
 	libqt5bluetooth5 \
 	libqt5charts5 \
 	libqt5multimedia5 \
@@ -160,6 +165,7 @@ sudo apt-get install -y \
 	libqt5websockets5 \
 	libqt5widgets5 \
 	libqt5xml5 \
+	libqt5location5 \
 	qtlocation5-dev \
 	qml-module-qtlocation \
 	qml-module-qtpositioning \
@@ -172,6 +178,7 @@ sudo apt-get install -y \
 	qml-module-qtmultimedia \
 	libusb-1.0-0 \
 	bluez \
+	usbutils \
 	python3-pip
 ```
 
@@ -253,6 +260,14 @@ sudo usermod -aG plugdev $USER
 
 # Reboot to apply group membership
 sudo reboot
+```
+
+#### Enable Bluetooth Service
+
+```bash
+# Ensure Bluetooth is running (required for treadmill connection)
+sudo systemctl start bluetooth
+sudo systemctl enable bluetooth
 ```
 
 #### Verify Manual Installation
