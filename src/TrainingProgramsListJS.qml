@@ -336,7 +336,8 @@ ColumnLayout {
                             inclination: inclination,
                             resistance: resistance,
                             cadence: cadence,
-                            deviceType: deviceType
+                            deviceType: deviceType,
+                            miles_unit: settings.value("miles_unit", false)
                         };
 
                         runJavaScript("if(window.setWorkoutData) window.setWorkoutData(" + JSON.stringify(data) + ");");

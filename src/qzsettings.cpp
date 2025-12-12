@@ -232,6 +232,7 @@ const QString QZSettings::proform_treadmill_carbon_tls = QStringLiteral("proform
 const QString QZSettings::proform_treadmill_995i = QStringLiteral("proform_treadmill_995i");
 const QString QZSettings::nordictrack_series_7 = QStringLiteral("nordictrack_series_7");
 const QString QZSettings::nordictrack_se7i = QStringLiteral("nordictrack_se7i");
+const QString QZSettings::proform_treadmill_sport_3_0 = QStringLiteral("proform_treadmill_sport_3_0");
 const QString QZSettings::toorx_3_0 = QStringLiteral("toorx_3_0");
 const QString QZSettings::toorx_65s_evo = QStringLiteral("toorx_65s_evo");
 const QString QZSettings::jtx_fitness_sprint_treadmill = QStringLiteral("jtx_fitness_sprint_treadmill");
@@ -784,6 +785,7 @@ const QString QZSettings::nordictrackadbbike_resistance = QStringLiteral("nordic
 const QString QZSettings::proform_treadmill_carbon_t7 = QStringLiteral("proform_treadmill_carbon_t7");
 const QString QZSettings::nordictrack_treadmill_exp_5i = QStringLiteral("nordictrack_treadmill_exp_5i");
 const QString QZSettings::dircon_id = QStringLiteral("dircon_id");
+const QString QZSettings::rouvy_compatibility = QStringLiteral("rouvy_compatibility");
 const QString QZSettings::proform_elliptical_ip = QStringLiteral("proform_elliptical_ip");
 const QString QZSettings::default_proform_elliptical_ip = QStringLiteral("");
 const QString QZSettings::proform_rower_ip = QStringLiteral("proform_rower_ip");
@@ -1007,7 +1009,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 822;
+const uint32_t allSettingsCount = 824;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1671,6 +1673,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_carbon_t7, QZSettings::default_proform_treadmill_carbon_t7},
     {QZSettings::nordictrack_treadmill_exp_5i, QZSettings::default_nordictrack_treadmill_exp_5i},
     {QZSettings::dircon_id, QZSettings::default_dircon_id},
+    {QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility},
     {QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip},
     {QZSettings::proform_rower_ip, QZSettings::default_proform_rower_ip},
     {QZSettings::antbike, QZSettings::default_antbike},
@@ -1851,6 +1854,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_csx210, QZSettings::default_proform_csx210},
     {QZSettings::skandika_wiri_x2000_protocol, QZSettings::default_skandika_wiri_x2000_protocol},
     {QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed},
+    {QZSettings::proform_treadmill_sport_3_0, QZSettings::default_proform_treadmill_sport_3_0},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

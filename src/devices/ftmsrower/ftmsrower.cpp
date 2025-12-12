@@ -424,7 +424,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
 
         if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R) {
-            if(instantPace == 0)
+            if(instantPace == 0 || instantPace == 65535)
                 Speed = 0;
             else
                 Speed = (60.0 / instantPace) * 30.0; // translating pace (min/500m) to km/h in order to match the pace function in the rower.cpp

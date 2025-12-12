@@ -331,7 +331,7 @@ void virtualrower::rowerProvider() {
     bool heart_only =
         settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
 
-    double normalizeWattage = Rower->wattsMetric().value();
+    double normalizeWattage = Rower->wattsMetricforUI();
     if (normalizeWattage < 0)
         normalizeWattage = 0;
 
@@ -416,8 +416,8 @@ void virtualrower::rowerProvider() {
         value.append((char)(((uint16_t)QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace())) & 0xFF));      // pace
         value.append((char)(((uint16_t)QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace())) >> 8) & 0xFF); // pace
 
-        value.append((char)(((uint16_t)Rower->wattsMetric().value()) & 0xFF));      // watts
-        value.append((char)(((uint16_t)Rower->wattsMetric().value()) >> 8) & 0xFF); // watts
+        value.append((char)(((uint16_t)Rower->wattsMetricforUI()) & 0xFF));      // watts
+        value.append((char)(((uint16_t)Rower->wattsMetricforUI()) >> 8) & 0xFF); // watts
 
         value.append((char)((uint16_t)(Rower->calories().value()) & 0xFF));        // calories
         value.append((char)(((uint16_t)(Rower->calories().value()) >> 8) & 0xFF)); // calories

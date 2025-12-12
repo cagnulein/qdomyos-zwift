@@ -703,6 +703,8 @@ class QZSettings {
     static constexpr bool default_nordictrack_series_7 = false;
     static const QString nordictrack_se7i;
     static constexpr bool default_nordictrack_se7i = false;
+    static const QString proform_treadmill_sport_3_0;
+    static constexpr bool default_proform_treadmill_sport_3_0 = false;
 
     static const QString toorx_3_0;
     static constexpr bool default_toorx_3_0 = false;
@@ -2184,6 +2186,9 @@ class QZSettings {
 
     static const QString dircon_id;
     static constexpr int default_dircon_id = 0;
+
+    static const QString rouvy_compatibility;
+    static constexpr bool default_rouvy_compatibility = false;
 
     static const QString proform_elliptical_ip;
     static const QString default_proform_elliptical_ip;

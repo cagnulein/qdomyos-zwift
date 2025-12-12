@@ -199,6 +199,7 @@ class homeform : public QObject {
     Q_PROPERTY(QList<double> preview_workout_cadence READ preview_workout_cadence)
     Q_PROPERTY(QString previewWorkoutDescription READ previewWorkoutDescription NOTIFY previewWorkoutDescriptionChanged)
     Q_PROPERTY(QString previewWorkoutTags READ previewWorkoutTags NOTIFY previewWorkoutTagsChanged)
+    Q_PROPERTY(bool miles_unit READ miles_unit)
 
     Q_PROPERTY(bool currentCoordinateValid READ currentCoordinateValid)
     Q_PROPERTY(bool trainProgramLoadedWithVideo READ trainProgramLoadedWithVideo)
@@ -684,6 +685,11 @@ class homeform : public QObject {
             return previewTrainProgram->tags;
         }
         return "";
+    }
+
+    bool miles_unit() {
+        QSettings settings;
+        return settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     }
 
     bool currentCoordinateValid() {
