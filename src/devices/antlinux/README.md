@@ -2,6 +2,19 @@
 
 Transform your Linux system into an ANT+ bridge that broadcasts treadmill data as a virtual footpod. Your Garmin watch or other ANT+ device will display real-time pace, distance, and cadence—just like running outdoors.
 
+## Device Type Guidance
+
+This guide provides instructions for different device types. Select the correct flag for your equipment:
+
+- **Treadmills:** Use the `-ant-footpod` flag as shown in the examples below.
+- **Bikes, Rowers, or Other Devices:** Omit the `-ant-footpod` flag. Use the standard commands without it.
+
+Using the appropriate flag ensures your device works as expected. If you are unsure, refer to the Interactive Setup for further guidance. 
+
+**Summary:**
+- For **treadmills**, always add the `-ant-footpod` flag to your command.
+- For **bikes, rowers, or other devices**, do **not** use the `-ant-footpod` flag.
+
 ## What You'll Achieve
 - Broadcast treadmill pace, distance, and cadence in real-time
 - Pair your Garmin watch as a Foot Pod for accurate indoor run tracking
@@ -24,9 +37,30 @@ Transform your Linux system into an ANT+ bridge that broadcasts treadmill data a
 - **Treadmill:** Proform 705 CST
 - **Watch:** Garmin Forerunner 245
 
-> **Note:** Consider backing up your system before proceeding.
+> **Tip:** It's a good idea to back up your system before making changes, but this is optional for most users.
 
 ---
+
+
+## Table of Contents
+
+
+If you are new to this guide, start with the [Quick Start Guide](#quick-start-guide).
+If you encounter issues, see [Troubleshooting](#troubleshooting).
+
+### Main Guide
+1. [What You'll Achieve](#what-youll-achieve)
+2. [Prerequisites](#prerequisites)
+3. [Quick Start Guide](#quick-start-guide)
+	- Download & Extract
+	- System Check
+	- Interactive Setup
+	- Configuration & Testing
+4. [Automatic Startup](#automatic-startup)
+5. [Troubleshooting](#troubleshooting)
+
+### Appendices
+- [Compilation Guide](COMPILE.md)
 
 ## Quick Start Guide
 
@@ -34,12 +68,38 @@ This guide uses **pre-compiled binaries** from GitHub Releases—the easiest met
 
 > **Developers:** Need to compile from source? See the [Compilation Guide](COMPILE.md).
 
+
+
+### Verifying Your System Architecture
+
+Before proceeding, you can check your system architecture to ensure you have downloaded the correct binary:
+
+```bash
+uname -m
+```
+
+- If the output is `x86_64`, use the x86-64 binary.
+- If the output is `aarch64`, use the arm64 binary.
+
+If you have the wrong binary, please download the appropriate version from the releases page.
+
+
 ### Installation Steps
 
 1. **Download Binary** - Get the pre-compiled package for your platform
-2. **Check System** - Verify what dependencies you need
-3. **Install Dependencies** - Set up required libraries automatically
+2. **Run the System Check** - See what (if anything) you actually need:
+
+	```bash
+	./setup.sh --check
+	```
+
+	- If all tests pass, you can proceed directly to running and configuring the application.
+	- If there are warnings or failures, follow the guidance provided by the System Check or continue with the Interactive Setup.
+
+3. **Install Dependencies** - Only if the System Check indicates they are needed
 4. **Run & Automate** - Test and configure automatic startup
+
+**Note:** For safety, reset/uninstall functionality is not provided. If you need to remove QDomyos-Zwift or its components, please do so manually.
 
 ---
 
@@ -96,7 +156,7 @@ This validates your entire setup in seconds:
 
 **All tests pass?** Skip to Step 4!
 
-**Issues found?** Continue to Step 3 for automatic fixes.
+**Issues found?** Continue to Step 3 for automatic fixes. Most issues can be resolved with the Interactive Setup or by following the provided instructions.
 
 ---
 
@@ -104,7 +164,7 @@ This validates your entire setup in seconds:
 
 ### Automatic Setup (Recommended)
 
-Let the wizard guide you through installation:
+Let the Interactive Setup guide you through installation:
 
 **For GUI/Desktop systems** (no systemd service):
 ```bash
@@ -116,12 +176,7 @@ sudo ./setup.sh --gui
 sudo ./setup.sh --headless
 ```
 
-The guided setup explains each step and asks for confirmation before making changes.
-
-**For automation/scripting** (unattended installation):
-```bash
-yes | sudo ./setup.sh --gui      # or --headless
-```
+The Interactive Setup explains each step and asks for confirmation before making changes.
 
 ### Other Useful Commands
 
@@ -131,11 +186,6 @@ sudo ./setup.sh --test
 ```
 Simulates treadmill data to verify ANT+ works before testing the full app. Your watch should pair within 5-10 seconds showing pace (~7:00 min/km) and cadence (~166 SPM).
 
-**Reset configuration:**
-```bash
-sudo ./setup.sh --reset
-```
-Removes user from plugdev group and clears udev rules. On desktop systems, system packages (Qt5, libusb) are protected from removal. On headless systems, you'll be prompted to remove Python packages.
 
 ---
 
@@ -196,10 +246,6 @@ sudo apt-get install -y python3.11 python3.11-venv
 ```
 
 **If Python 3.11 is NOT available**, install via pyenv:
-
-<details>
-<summary>Click to expand pyenv installation steps</summary>
-
 ```bash
 # Install pyenv dependencies
 sudo apt-get install -y \
@@ -229,7 +275,6 @@ pyenv global 3.11.9
 # Verify installation
 python --version  # Should show Python 3.11.9
 ```
-</details>
 
 #### Create Python Virtual Environment
 
@@ -378,39 +423,51 @@ sudo systemctl start qz
 sudo systemctl status qz  # Check it's running
 ```
 
-### Headless Configuration (Optional)
 
-Running without a GUI? You'll need to create a configuration file with your treadmill settings.
+## Configuration
 
-**Best approach - configure via GUI first:**
+### For GUI Systems (Desktop/Laptop)
+1. Run the application: `sudo ./qdomyos-zwift -ant-footpod` (for treadmills) or `sudo ./qdomyos-zwift` (for bikes/rowers/other)
+2. The graphical interface will open—select your device type and configure preferences.
+3. Settings are saved automatically to: `~/.config/Roberto Viola/qDomyos-Zwift.conf`
+4. You can run the application anytime with the same command.
 
-Running the app for the first time will automatically create the configuration file under the effective user's home:
-- If the app is started as root (eg. using sudo or run directly as root) the config is created at:
-  /root/.config/Roberto Viola/qDomyos-Zwift.conf
-- If the app is started via the systemd service and you set Environment="QZ_USER=YOUR_USER" in the service file, the wrapper looks for and uses:
-/home/YOUR_USER/.config/Roberto Viola/qDomyos-Zwift.conf
+### For Headless Systems (Raspberry Pi/Server)
 
-1. **On a system with display** (can be different hardware):
-   - Run: `sudo ./qdomyos-zwift`
-   - Configure your treadmill model and preferences
-   - Settings save to `/root/.config/Roberto Viola/qDomyos-Zwift.conf`
+There are two main options:
 
-2. **Copy to your headless system:**
-   ```bash
-   # On the GUI system, export the config to a transfer file
-   sudo cp "/root/.config/Roberto Viola/qDomyos-Zwift.conf" ~/qz-config.conf
+**Option 1: Configure on a System with a Display (Recommended)**
+1. On any system with a display:
+	- For treadmills: run `sudo ./qdomyos-zwift -ant-footpod`
+	- For bikes, rowers, or other devices: run `sudo ./qdomyos-zwift`
+	- Configure your device and preferences
 
-   # Transfer qz-config.conf to the headless system (scp/sftp/usb)
-   # On the headless system, copy into the intended service user's config.
-   # Replace TARGET_USER with the username used by the service (QZ_USER in systemd).
-   TARGET_USER=pi
+2. Transfer the configuration file to your headless system:
+   
+	The configuration file could be located at either of the following paths, depending on how you ran the application:
+	- `/root/.config/Roberto Viola/qDomyos-Zwift.conf`
+	- `~/.config/Roberto Viola/qDomyos-Zwift.conf`
 
-   sudo mkdir -p "/home/$TARGET_USER/.config/Roberto Viola"
-   sudo cp ~/qz-config.conf "/home/$TARGET_USER/.config/Roberto Viola/qDomyos-Zwift.conf"
-   sudo chown -R "$TARGET_USER:$TARGET_USER" "/home/$TARGET_USER/.config/Roberto Viola"
-   ```
+	```bash
+	# On the GUI system
+	# Copy from the location where your configuration was saved
+	sudo cp "/root/.config/Roberto Viola/qDomyos-Zwift.conf" ~/qz-config.conf
+	# or
+	cp ~/.config/Roberto\ Viola/qDomyos-Zwift.conf ~/qz-config.conf
 
-This ensures your headless system has the exact GUI-configured settings.
+	# Transfer qz-config.conf to the headless system (scp/sftp/usb)
+	# On the headless system, copy into the intended service user's config directory
+	TARGET_USER=pi  # or your service username
+	sudo mkdir -p "/home/$TARGET_USER/.config/Roberto Viola"
+	sudo cp ~/qz-config.conf "/home/$TARGET_USER/.config/Roberto Viola/qDomyos-Zwift.conf"
+	sudo chown -R "$TARGET_USER:$TARGET_USER" "/home/$TARGET_USER/.config/Roberto Viola"
+	```
+
+
+**Option 2: Manual Configuration File Creation**
+- Advanced users can create or edit the configuration file directly.
+
+This approach ensures your headless system uses the same settings as a GUI-configured system.
 
 ---
 
@@ -423,7 +480,25 @@ This ensures your headless system has the exact GUI-configured settings.
 
 ---
 
+
 ## Troubleshooting
+
+### Quick Reference Checklist (First-Time Users)
+
+If you run into problems, check these common issues first:
+
+- **Is your ANT+ dongle plugged in and detected?**
+	- Run `lsusb` and look for Garmin, Suunto, or Dynastream device.
+- **Are you running commands with `sudo` when required?**
+- **Did you run `./setup.sh --check` and follow all recommendations?**
+- **Is your configuration file present and correct?**
+	- See above for possible locations and transfer instructions.
+- **Is your treadmill powered on and in Bluetooth pairing mode?**
+- **Have you rebooted after changing USB permissions or user groups?**
+- **Are you using the correct device flag for your equipment?**
+	- Treadmills: add `-ant-footpod` flag. Bikes/rowers: omit this flag.
+
+If you are still stuck, review the detailed troubleshooting table below or open an issue on GitHub with your log output.
 
 ### Quick System Check
 
@@ -451,9 +526,9 @@ Both simulate a running treadmill. Your watch should show:
 - Cadence: ~166 SPM
 - Distance accumulating
 
-**Test works but app doesn't?** Issue is with treadmill Bluetooth pairing/configuration, not ANT+.
+**Test works but app doesn't?** This usually means the treadmill Bluetooth pairing or configuration needs adjustment, not the ANT+ setup.
 
-**Test fails?** Check USB permissions, dongle connection, or Python environment.
+**Test fails?** Check USB permissions, dongle connection, or Python environment. Most problems can be resolved by reviewing the troubleshooting table below.
 
 Press `Ctrl+C` to stop.
 
@@ -466,12 +541,12 @@ Press `Ctrl+C` to stop.
 | `error while loading shared libraries: libpython3.11.so.1.0` | Python 3.11 missing. Run `./setup.sh --check` to diagnose, then install via apt or pyenv |
 | Wrapper shows dependency warnings | Follow provided instructions. Run `./setup.sh --check` for diagnosis or `sudo ./setup.sh --gui` for automatic fix |
 | Test fails / watch won't pair | Ensure running with `sudo`. Reboot after USB permissions setup. Try unplug/replug dongle |
-| Watch pairs but pace shows `--:--` | Treadmill not configured. Edit `/root/.config/Roberto\ Viola/qDomyos-Zwift.conf` and add your model (e.g., `proform_treadmill_705_cst=true`) |
+| Watch pairs but pace shows `--:--` | Treadmill not configured. Edit your configuration file (see above for possible locations) and add your model (e.g., `proform_treadmill_705_cst=true`) |
 | App works but no watch connection | Unplug/replug dongle. Verify USB permissions + reboot. Check device ID (default 54321). Ensure running as root. Check logs |
 | `systemctl stop qz` hangs | Add `KillSignal=SIGINT` to service file `[Service]` section |
 | Binary won't run: "cannot execute binary file" | Wrong architecture downloaded. Get correct package: arm64 for Pi, x86-64 for desktop |
 | `pyenv: command not found` | Reload shell: `source ~/.bashrc` or open new terminal |
-| Setup validation fails multiple checks | Use guided setup: `sudo ./setup.sh --gui` (or `--headless`) for step-by-step fixes |
+| Setup validation fails multiple checks | Use the Interactive Setup: `sudo ./setup.sh --gui` (or `--headless`) for step-by-step fixes |
 | Test script works but app doesn't connect to treadmill | Treadmill Bluetooth issue. Ensure treadmill is powered on and discoverable |
 
 ---

@@ -4,13 +4,12 @@
 #
 # Purpose:
 #   Unified tool for validating and setting up ANT+ prerequisites.
-#   Provides quick validation, guided setup, testing, and reset capabilities.
+#   Provides quick validation, guided setup, and testing capabilities.
 #
 # Usage:
 #   ./setup.sh --check              # Fast validation check (no sudo)
 #   sudo ./setup.sh --guided        # Guided setup with prompts
 #   sudo ./setup.sh --headless      # Generate systemd service file only
-#   sudo ./setup.sh --reset         # Remove configurations
 #   sudo ./setup.sh --test          # Test ANT+ broadcasting
 #   ./setup.sh --help               # Show this help
 #
@@ -33,7 +32,6 @@ NC='\033[0m' # No Color
 # Mode flags
 MODE_CHECK=0
 MODE_GUIDED=0
-MODE_RESET=0
 MODE_TEST=0
 
 # Guided mode option
@@ -62,16 +60,21 @@ show_help() {
 QDomyos-Zwift ANT+ Setup and Validation Tool
 
 DESCRIPTION:
-    Validates and configures your system for ANT+ footpod broadcasting.
-    Checks Python 3.11, virtual environment, Qt5 libraries, USB permissions,
-    and more. Provides guided setup with explanations.
+        Validates and configures your system for ANT+ device broadcasting.
+        Checks Python 3.11, virtual environment, Qt5 libraries, USB permissions,
+        and more. Provides guided setup with explanations.
+    
+        Note:
+            - The flag '-ant-footpod' is for treadmill/footpod mode only.
+            - For bikes, rowers, or other devices, do NOT use '-ant-footpod'.
+            - This setup script can be used for all supported devices; just adjust the flags as needed.
 
 USAGE:
     ./setup.sh --check              # Validate prerequisites (no sudo required)
-    sudo ./setup.sh --gui           # Interactive guided setup for GUI systems
-    sudo ./setup.sh --headless      # Interactive guided setup for headless systems
+    sudo ./setup.sh --gui           # Interactive Setup for GUI systems
+    sudo ./setup.sh --headless      # Interactive Setup for headless systems
     sudo ./setup.sh --reset         # Remove configurations (undo setup)
-    sudo ./setup.sh --test          # Test ANT+ broadcasting
+    sudo ./setup.sh --test          # Test ANT+ broadcasting (treadmill/footpod only)
     ./setup.sh --help               # Show this help
 
 MODES:
@@ -80,18 +83,21 @@ MODES:
                    - Fast execution (~10 seconds)
                    - Exit codes: 0 (ready), 1 (failed), 2 (warnings)
 
-    --gui          Interactive guided setup for GUI systems
+    --gui          Interactive setup for GUI systems
                    - Requires sudo
                    - Step-by-step with prompts
                    - Installs dependencies and configures system
                    - No systemd service file generated
+                   - For all device types (treadmill, bike, rower, etc.)
     
-    --headless     Interactive guided setup for headless systems
+    --headless     Interactive setup for headless systems
                    - Requires sudo
                    - Step-by-step with prompts
                    - Installs dependencies and configures system
                    - Generates systemd service file for automatic startup
                    - Recommended for all users
+                   - Service file defaults to treadmill/footpod mode (-ant-footpod)
+                   - For bikes/rowers, edit the service file to remove -ant-footpod
 
     --reset        Complete removal of ANT+ setup
                    - Requires sudo
@@ -105,7 +111,7 @@ MODES:
 
     --test         Test ANT+ broadcasting without QDomyos-Zwift
                    - Requires sudo
-                   - Simulates treadmill data
+                   - Simulates treadmill/footpod data (not for bikes/rowers)
                    - Verifies ANT+ dongle and watch pairing
                    - Useful for isolating ANT+ issues
 
@@ -115,8 +121,12 @@ EXAMPLES:
     # Check what's needed
     ./setup.sh --check
 
-    # Guided setup (recommended)
-    sudo ./setup.sh --guided
+
+    # Interactive setup for GUI systems
+    sudo ./setup.sh --gui
+
+    # Interactive setup for headless systems
+    sudo ./setup.sh --headless
 
     # Test ANT+ broadcasting
     sudo ./setup.sh --test
@@ -140,7 +150,6 @@ if [ $# -eq 0 ]; then
     echo "Available modes:"
     echo "  --check        Quick validation check"
     echo "  --guided       Interactive guided setup"
-    echo "  --reset        Remove configurations"
     echo "  --test         Test ANT+ broadcasting"
     echo "  --help         Show detailed help"
     echo ""
@@ -163,10 +172,6 @@ for arg in "$@"; do
             GUIDED_WITH_SERVICE=1
             shift
             ;;
-        --reset)
-            MODE_RESET=1
-            shift
-            ;;
         --test)
             MODE_TEST=1
             shift
@@ -184,27 +189,25 @@ for arg in "$@"; do
 done
 
 # Validate mode combination
+# Only allow one mode at a time
 active_modes=0
-for mode in $MODE_CHECK $MODE_RESET $MODE_GUIDED $MODE_TEST; do
+for mode in $MODE_CHECK $MODE_GUIDED $MODE_TEST; do
     active_modes=$((active_modes + mode))
 done
-
 if [ $active_modes -gt 1 ]; then
     echo "Error: Only one mode can be selected at a time"
     echo "Use --help for usage information"
     exit 1
 fi
-
 # Default to guided mode (GUI) if no mode selected
 if [ $active_modes -eq 0 ]; then
     MODE_GUIDED=1
     GUIDED_WITH_SERVICE=0
 fi
-
-# Check sudo requirement for guided/reset/test modes
-if [ $MODE_GUIDED -eq 1 ] || [ $MODE_RESET -eq 1 ] || [ $MODE_TEST -eq 1 ]; then
+# Check sudo requirement for guided/test modes
+if [ $MODE_GUIDED -eq 1 ] || [ $MODE_TEST -eq 1 ]; then
     if [ $EUID -ne 0 ]; then
-        echo -e "${RED}ERROR: --gui, --headless, --reset, and --test modes require sudo${NC}"
+        echo -e "${RED}ERROR: --gui, --headless, and --test modes require sudo${NC}"
         echo "Please run: sudo $0 $@"
         exit 1
     fi
@@ -538,10 +541,12 @@ run_check_mode() {
         echo -e "${GREEN}System Status: READY${NC}"
         echo ""
         echo -e "${CYAN}To run qdomyos-zwift with ANT+ support:${NC}"
-        echo -e "  ${YELLOW}./qdomyos-zwift -no-gui -ant-footpod${NC}"
+        echo -e "  ${YELLOW}./qdomyos-zwift -no-gui -ant-footpod${NC}  # For treadmill/footpod mode"
+        echo -e "  ${YELLOW}./qdomyos-zwift -no-gui${NC}               # For bike, rower, or other devices (omit -ant-footpod)"
         echo ""
         echo -e "${CYAN}For automatic startup on headless systems:${NC}"
         echo -e "  Run: ${YELLOW}sudo ./setup.sh --headless${NC}"
+        echo -e "  (Service file defaults to treadmill/footpod mode. Edit to remove -ant-footpod for bikes/rowers.)"
         echo ""
         exit 0
     fi
@@ -807,7 +812,7 @@ run_reset_mode() {
 
 run_guided_mode() {
     echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
-    echo -e "${CYAN}QDomyos-Zwift ANT+ Setup Wizard${NC}"
+    echo -e "${CYAN}QDomyos-Zwift Interactive Setup${NC}"
     echo -e "${CYAN}Running for user: $TARGET_USER${NC}"
     echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
     echo ""
@@ -1088,7 +1093,11 @@ EOF
         echo -e "${BLUE}[Step 7/7] Generate systemd service file for automatic startup${NC}"
         echo ""
         echo "This will create a systemd service that starts qdomyos-zwift automatically"
-        echo "on boot in headless mode with ANT+ footpod support."
+        echo "on boot in headless mode."
+        echo ""
+        echo "By default, the service uses '-ant-footpod' (treadmill/footpod mode)."
+        echo "If you are using a bike, rower, or other device, edit the service file to remove '-ant-footpod'."
+        echo "See README.md for details."
         echo ""
         
         # Determine service file location based on system
@@ -1137,6 +1146,7 @@ User=root
 Group=plugdev
 Environment="QZ_USER=${TARGET_USER}"
 WorkingDirectory=${BIN_DIR}
+# Default: treadmill/footpod mode. For bikes/rowers, remove -ant-footpod below.
 ExecStart=${BIN_DIR}/qdomyos-zwift -no-gui -log -ant-footpod
 KillSignal=SIGINT
 
@@ -1149,7 +1159,7 @@ EOF
             echo -e "${CYAN}Service configuration:${NC}"
             echo -e "  Working Directory: ${BIN_DIR}"
             echo -e "  User: root (runs as ${TARGET_USER} via QZ_USER)"
-            echo -e "  Command: qdomyos-zwift -no-gui -log -ant-footpod"
+            echo -e "  Command: qdomyos-zwift -no-gui -log -ant-footpod (treadmill/footpod mode)"
             echo -e "  Debug log: /home/${TARGET_USER}/debug-*.log (timestamped)"
             echo ""
             echo -e "${YELLOW}⚠ IMPORTANT: Configure before starting the service${NC}"
@@ -1157,7 +1167,9 @@ EOF
             echo -e "${CYAN}1. Review and modify the service file for your system:${NC}"
             echo -e "   ${YELLOW}sudo nano ${SERVICE_FILE}${NC}"
             echo -e "   - Update QZ_USER to your username if needed"
-            echo -e "   - Adjust ExecStart flags if needed"
+            echo -e "   - Adjust ExecStart flags as needed:"
+            echo -e "     - For treadmill/footpod: keep '-ant-footpod'"
+            echo -e "     - For bike/rower/other: REMOVE '-ant-footpod'"
             echo -e "   - After setup is working, change -log to -no-log for better performance"
             echo -e "   ${YELLOW}If you modify the service file later, reload and restart:${NC}"
             echo -e "   ${YELLOW}sudo systemctl daemon-reload${NC}"
@@ -1192,7 +1204,9 @@ EOF
         echo -e "${GREEN}✓ Setup complete!${NC}"
         echo ""
         echo -e "${CYAN}Configure your device:${NC}"
-        echo -e "  1. Run qdomyos-zwift: ${YELLOW}./qdomyos-zwift -ant-footpod${NC}"
+        echo -e "  1. Run qdomyos-zwift:"
+        echo -e "     ${YELLOW}./qdomyos-zwift -ant-footpod${NC}   # For treadmill/footpod mode"
+        echo -e "     ${YELLOW}./qdomyos-zwift${NC}                 # For bike, rower, or other devices (omit -ant-footpod)"
         echo -e "  2. Select your device type (treadmill, bike, rower, etc.)"
         echo -e "  3. Configure device-specific settings"
         echo -e "  4. Test the connection with your device"
