@@ -500,18 +500,20 @@ run_check_mode() {
         if systemctl is-enabled qz.service >/dev/null 2>&1; then
             echo -e "${GREEN}[PASS]${NC} Service is enabled"
         else
-            echo -e "${YELLOW}[INFO]${NC} Service exists but is not enabled. To enable:"
-            echo -e "    ${CYAN}sudo systemctl enable qz.service${NC}"
+            echo -e "${YELLOW}[INFO]${NC} Service exists but is not enabled"
+            echo -e "    ${YELLOW}Before enabling, ensure:${NC}"
+            echo -e "    ${YELLOW}1. Configuration file is set up for your treadmill${NC}"
+            echo -e "    ${YELLOW}2. Service file matches your system (user, paths)${NC}"
+            echo -e "    ${YELLOW}Then enable: sudo systemctl enable qz.service${NC}"
         fi
         
         # Check if service is running
         if systemctl is-active --quiet qz.service; then
             echo -e "${GREEN}[PASS]${NC} Service is running"
         else
-            echo -e "${YELLOW}[INFO]${NC} Service is not running. To start:"
-            echo -e "    ${CYAN}sudo systemctl start qz.service${NC}"
-            echo -e "${YELLOW}[INFO]${NC} To view service status:"
-            echo -e "    ${CYAN}sudo systemctl status qz.service${NC}"
+            echo -e "${YELLOW}[INFO]${NC} Service is not running"
+            echo -e "    ${YELLOW}To start: sudo systemctl start qz.service${NC}"
+            echo -e "    ${YELLOW}To view status: sudo systemctl status qz.service${NC}"
         fi
     else
         # Service file is optional - only relevant for headless systems
@@ -1147,41 +1149,68 @@ EOF
             echo -e "${CYAN}Service configuration:${NC}"
             echo -e "  Working Directory: ${BIN_DIR}"
             echo -e "  User: root (runs as ${TARGET_USER} via QZ_USER)"
-            echo -e "  Startup: Automatic on boot"
+            echo -e "  Command: qdomyos-zwift -no-gui -log -ant-footpod"
+            echo -e "  Debug log: /home/${TARGET_USER}/debug-*.log (timestamped)"
             echo ""
-            
-            if prompt_yes_no "Enable service to start on boot?"; then
-                systemctl daemon-reload
-                systemctl enable qz.service
-                echo -e "${GREEN}✓ Service enabled${NC}"
-                echo ""
-                
-                if prompt_yes_no "Start service now?"; then
-                    systemctl start qz.service
-                    echo -e "${GREEN}✓ Service started${NC}"
-                    echo ""
-                    echo -e "${CYAN}To check service status:${NC}"
-                    echo -e "  ${YELLOW}sudo systemctl status qz.service${NC}"
-                else
-                    echo -e "${YELLOW}To start service manually:${NC}"
-                    echo -e "  ${YELLOW}sudo systemctl start qz.service${NC}"
-                fi
-            else
-                echo -e "${YELLOW}Service created but not enabled.${NC}"
-                echo -e "${YELLOW}To enable and start:${NC}"
-                echo -e "  ${YELLOW}sudo systemctl enable qz.service${NC}"
-                echo -e "  ${YELLOW}sudo systemctl start qz.service${NC}"
-            fi
+            echo -e "${YELLOW}⚠ IMPORTANT: Configure before starting the service${NC}"
+            echo ""
+            echo -e "${CYAN}1. Review and modify the service file for your system:${NC}"
+            echo -e "   ${YELLOW}sudo nano ${SERVICE_FILE}${NC}"
+            echo -e "   - Update QZ_USER to your username if needed"
+            echo -e "   - Adjust ExecStart flags if needed"
+            echo -e "   - After setup is working, change -log to -no-log for better performance"
+            echo -e "   ${YELLOW}If you modify the service file later, reload and restart:${NC}"
+            echo -e "   ${YELLOW}sudo systemctl daemon-reload${NC}"
+            echo -e "   ${YELLOW}sudo systemctl restart qz.service${NC}"
+            echo ""
+            echo -e "${CYAN}2. Create configuration file for your device:${NC}"
+            echo -e "   ${YELLOW}/home/${TARGET_USER}/.config/Roberto Viola/qDomyos-Zwift.conf${NC}"
+            echo ""
+            echo -e "   ${CYAN}Option A - Configure via GUI (recommended):${NC}"
+            echo -e "   - On this system (if it has a display): ${YELLOW}sudo ./qdomyos-zwift${NC}"
+            echo -e "   - Or on another system with display, then copy the config file"
+            echo -e "   - Select your device type (treadmill, bike, rower, etc.)"
+            echo -e "   - Configure device-specific settings"
+            echo ""
+            echo -e "   ${CYAN}Option B - Copy from another system:${NC}"
+            echo -e "   - See README.md section 'Headless Configuration'"
+            echo ""
+            echo -e "${CYAN}3. When ready, enable and start the service:${NC}"
+            echo -e "   ${YELLOW}sudo systemctl daemon-reload${NC}"
+            echo -e "   ${YELLOW}sudo systemctl enable qz.service${NC}"
+            echo -e "   ${YELLOW}sudo systemctl start qz.service${NC}"
+            echo ""
+            echo -e "${CYAN}4. Monitor service status and debug log:${NC}"
+            echo -e "   ${YELLOW}sudo systemctl status qz.service${NC}"
+            echo -e "   ${YELLOW}# Find and tail the latest debug log:${NC}"
+            echo -e "   ${YELLOW}tail -f \$(ls -t /home/${TARGET_USER}/debug-*.log 2>/dev/null | head -1)${NC}"
+            echo ""
         fi
     else
-        # GUI mode - skip service file generation
-        echo -e "${BLUE}[Step 7/7] System Integration${NC}"
+        # GUI mode - provide instructions for device configuration
+        echo -e "${BLUE}[Step 7/7] Next Steps${NC}"
         echo -e "${GREEN}✓ Setup complete!${NC}"
         echo ""
+        echo -e "${CYAN}Configure your device:${NC}"
+        echo -e "  1. Run qdomyos-zwift: ${YELLOW}./qdomyos-zwift -ant-footpod${NC}"
+        echo -e "  2. Select your device type (treadmill, bike, rower, etc.)"
+        echo -e "  3. Configure device-specific settings"
+        echo -e "  4. Test the connection with your device"
+        echo ""
+        echo -e "${CYAN}Configuration will be saved to:${NC}"
+        echo -e "  ${YELLOW}/home/${TARGET_USER}/.config/Roberto Viola/qDomyos-Zwift.conf${NC}"
+        echo ""
     fi
+    
+    # Final summary
     echo ""
-    sleep 3
-    run_check_mode
+    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
+    echo -e "${GREEN}✓ ANT+ Prerequisites Installed${NC}"
+    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
+    echo ""
+    echo -e "${CYAN}To verify your system status:${NC}"
+    echo -e "  ${YELLOW}./setup.sh --check${NC}"
+    echo ""
 }
 
 # ============================================================================
