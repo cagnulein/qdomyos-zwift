@@ -2361,7 +2361,10 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify &&
                     // if it's a FTMS treadmill and has FTMS and/or RSC service too
-                    ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid())
+                    ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid() &&
+                       (c.uuid() == QBluetoothUuid((quint16)0x2ACD) ||  // Treadmill Data
+                        c.uuid() == QBluetoothUuid((quint16)0x2ACE) ||  // Cross Trainer Data
+                        c.uuid() == QBluetoothUuid((quint16)0x2AD2)))   // Indoor Bike Data
                        || (s->serviceUuid() == QBluetoothUuid::RunningSpeedAndCadence))
                       && !gattCustomService) ||
                      (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()))) {
@@ -2381,7 +2384,8 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
                 } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate &&
                                                                                                                       // if it's a FTMS treadmill and has FTMS and/or RSC service too
-                           ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid()))
+                           ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid() &&
+                               c.uuid() == QBluetoothUuid((quint16)0x2AD9)))  // Fitness Machine Control Point
                              && !gattCustomService))) {
                     QByteArray descriptor;
                     descriptor.append((char)0x02);
