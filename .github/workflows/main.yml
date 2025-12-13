@@ -1963,12 +1963,14 @@ jobs:
           docker cp qz-container:/qdomyos-zwift-x86-64-ant ./qdomyos-zwift-x86-64-ant
           docker rm qz-container
 
-      # Step 6: Upload the directory as artifact (GitHub will zip it)
+      - name: Zip artifact for deployment
+        run: zip -r linux-binary-x86-64-ant.zip qdomyos-zwift-x86-64-ant
+
       - name: Archive Linux x86-64 ANT+ binary
         uses: actions/upload-artifact@v4
         with:
           name: linux-binary-x86-64-ant
-          path: qdomyos-zwift-x86-64-ant
+          path: linux-binary-x86-64-ant.zip
 
   # Build the raspberry pi 64 bit variant with ant+ support
   raspberry-pi-build-64bit-ant:
@@ -2024,12 +2026,14 @@ jobs:
           # Clean up by removing the temporary container
           docker rm qz-container
 
-      # Step 6: Upload the directory as artifact (GitHub will zip it)
+      - name: Zip artifact for deployment
+        run: zip -r raspberry-pi-binary-64bit-ant.zip qdomyos-zwift-arm64-ant
+
       - name: Archive Raspberry Pi 64bit ANT+ binary
         uses: actions/upload-artifact@v4
         with:
           name: raspberry-pi-binary-64bit-ant
-          path: qdomyos-zwift-arm64-ant
+          path: raspberry-pi-binary-64bit-ant.zip
 
   upload_to_release:
     permissions: write-all
