@@ -40,6 +40,12 @@ const QString QZSettings::strava_lastrefresh = QStringLiteral("strava_lastrefres
 const QString QZSettings::default_strava_lastrefresh = QStringLiteral("");
 const QString QZSettings::strava_expires = QStringLiteral("strava_expires");
 const QString QZSettings::default_strava_expires = QStringLiteral("");
+const QString QZSettings::intervalsicu_accesstoken = QStringLiteral("intervalsicu_accesstoken");
+const QString QZSettings::default_intervalsicu_accesstoken = QStringLiteral("");
+const QString QZSettings::intervalsicu_refreshtoken = QStringLiteral("intervalsicu_refreshtoken");
+const QString QZSettings::default_intervalsicu_refreshtoken = QStringLiteral("");
+const QString QZSettings::intervalsicu_athlete_id = QStringLiteral("intervalsicu_athlete_id");
+const QString QZSettings::default_intervalsicu_athlete_id = QStringLiteral("");
 const QString QZSettings::code = QStringLiteral("code");
 const QString QZSettings::default_code = QStringLiteral("");
 //--------------------------------------------------------------------------------------------
@@ -226,6 +232,7 @@ const QString QZSettings::proform_treadmill_carbon_tls = QStringLiteral("proform
 const QString QZSettings::proform_treadmill_995i = QStringLiteral("proform_treadmill_995i");
 const QString QZSettings::nordictrack_series_7 = QStringLiteral("nordictrack_series_7");
 const QString QZSettings::nordictrack_se7i = QStringLiteral("nordictrack_se7i");
+const QString QZSettings::proform_treadmill_sport_3_0 = QStringLiteral("proform_treadmill_sport_3_0");
 const QString QZSettings::toorx_3_0 = QStringLiteral("toorx_3_0");
 const QString QZSettings::toorx_65s_evo = QStringLiteral("toorx_65s_evo");
 const QString QZSettings::jtx_fitness_sprint_treadmill = QStringLiteral("jtx_fitness_sprint_treadmill");
@@ -278,6 +285,10 @@ const QString QZSettings::filter_device = QStringLiteral("filter_device");
 const QString QZSettings::default_filter_device = QStringLiteral("Disabled");
 const QString QZSettings::strava_suffix = QStringLiteral("strava_suffix");
 const QString QZSettings::default_strava_suffix = QStringLiteral("#QZ");
+const QString QZSettings::intervalsicu_upload_enabled = QStringLiteral("intervalsicu_upload_enabled");
+const QString QZSettings::intervalsicu_suffix = QStringLiteral("intervalsicu_suffix");
+const QString QZSettings::default_intervalsicu_suffix = QStringLiteral("#QZ");
+const QString QZSettings::intervalsicu_date_prefix = QStringLiteral("intervalsicu_date_prefix");
 const QString QZSettings::cadence_sensor_name = QStringLiteral("cadence_sensor_name");
 const QString QZSettings::default_cadence_sensor_name = QStringLiteral("Disabled");
 const QString QZSettings::cadence_sensor_as_bike = QStringLiteral("cadence_sensor_as_bike");
@@ -719,6 +730,7 @@ const QString QZSettings::norditrack_s25_treadmill = QStringLiteral("norditrack_
 const QString QZSettings::proform_8_5_treadmill = QStringLiteral("proform_8_5_treadmill");
 const QString QZSettings::treadmill_incline_min = QStringLiteral("treadmill_incline_min");
 const QString QZSettings::treadmill_incline_max = QStringLiteral("treadmill_incline_max");
+const QString QZSettings::treadmill_speed_max = QStringLiteral("treadmill_speed_max");
 const QString QZSettings::proform_2000_treadmill = QStringLiteral("proform_2000_treadmill");
 const QString QZSettings::android_documents_folder = QStringLiteral("android_documents_folder");
 const QString QZSettings::zwift_api_autoinclination = QStringLiteral("zwift_api_autoinclination");
@@ -775,6 +787,7 @@ const QString QZSettings::nordictrackadbbike_gear_debounce_ms = QStringLiteral("
 const QString QZSettings::proform_treadmill_carbon_t7 = QStringLiteral("proform_treadmill_carbon_t7");
 const QString QZSettings::nordictrack_treadmill_exp_5i = QStringLiteral("nordictrack_treadmill_exp_5i");
 const QString QZSettings::dircon_id = QStringLiteral("dircon_id");
+const QString QZSettings::rouvy_compatibility = QStringLiteral("rouvy_compatibility");
 const QString QZSettings::proform_elliptical_ip = QStringLiteral("proform_elliptical_ip");
 const QString QZSettings::default_proform_elliptical_ip = QStringLiteral("");
 const QString QZSettings::proform_rower_ip = QStringLiteral("proform_rower_ip");
@@ -997,7 +1010,8 @@ const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
-const uint32_t allSettingsCount = 817;
+
+const uint32_t allSettingsCount = 826;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1021,6 +1035,12 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::strava_refreshtoken, QZSettings::default_strava_refreshtoken},
     {QZSettings::strava_lastrefresh, QZSettings::default_strava_lastrefresh},
     {QZSettings::strava_expires, QZSettings::default_strava_expires},
+    {QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken},
+    {QZSettings::intervalsicu_refreshtoken, QZSettings::default_intervalsicu_refreshtoken},
+    {QZSettings::intervalsicu_athlete_id, QZSettings::default_intervalsicu_athlete_id},
+    {QZSettings::intervalsicu_upload_enabled, QZSettings::default_intervalsicu_upload_enabled},
+    {QZSettings::intervalsicu_suffix, QZSettings::default_intervalsicu_suffix},
+    {QZSettings::intervalsicu_date_prefix, QZSettings::default_intervalsicu_date_prefix},
     {QZSettings::ui_zoom, QZSettings::default_ui_zoom},
     {QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service},
     {QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset},
@@ -1604,6 +1624,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_8_5_treadmill, QZSettings::default_proform_8_5_treadmill},
     {QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min},
     {QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max},
+    {QZSettings::treadmill_speed_max, QZSettings::default_treadmill_speed_max},
     {QZSettings::proform_2000_treadmill, QZSettings::default_proform_2000_treadmill},
     {QZSettings::android_documents_folder, QZSettings::default_android_documents_folder},
     {QZSettings::zwift_api_autoinclination, QZSettings::default_zwift_api_autoinclination},
@@ -1656,6 +1677,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_carbon_t7, QZSettings::default_proform_treadmill_carbon_t7},
     {QZSettings::nordictrack_treadmill_exp_5i, QZSettings::default_nordictrack_treadmill_exp_5i},
     {QZSettings::dircon_id, QZSettings::default_dircon_id},
+    {QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility},
     {QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip},
     {QZSettings::proform_rower_ip, QZSettings::default_proform_rower_ip},
     {QZSettings::antbike, QZSettings::default_antbike},
@@ -1836,6 +1858,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_csx210, QZSettings::default_proform_csx210},
     {QZSettings::skandika_wiri_x2000_protocol, QZSettings::default_skandika_wiri_x2000_protocol},
     {QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed},
+    {QZSettings::proform_treadmill_sport_3_0, QZSettings::default_proform_treadmill_sport_3_0},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
