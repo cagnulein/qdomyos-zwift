@@ -212,6 +212,64 @@ resistance_t bike::resistanceFromPowerRequest(uint16_t power) { return power / 1
 void bike::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 void bike::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 
+double bike::wattsMetricforUI() {
+    QSettings settings;
+    bool power5sHold = settings.value(QZSettings::power_avg_5_sec_hold, QZSettings::default_power_avg_5_sec_hold).toBool();
+    bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
+
+    if (power5sHold) {
+        // Get current power value
+        double currentPower = wattsMetric().value();
+
+        // Initialize last update time on first call
+        if (!m_powerHoldLastUpdate.isValid()) {
+            m_powerHoldLastUpdate = QDateTime::currentDateTime();
+        }
+
+        // Check if at least 1 second has passed since last update
+        qint64 msSinceLastUpdate = m_powerHoldLastUpdate.msecsTo(QDateTime::currentDateTime());
+        if (msSinceLastUpdate >= 1000) {
+            // Add current power to buffer
+            m_powerHoldBuffer.append(currentPower);
+
+            // If any value in buffer is 0, return 0 immediately
+            if (currentPower == 0.0) {
+                m_powerHoldValue = 0.0;
+                m_powerHoldBuffer.clear();
+                m_powerHoldCounter = 0;
+                m_powerHoldLastUpdate = QDateTime::currentDateTime();
+                return 0.0;
+            }
+
+            // Increment counter
+            m_powerHoldCounter++;
+
+            // If we've collected 5 readings (5 seconds), calculate average and hold
+            if (m_powerHoldCounter >= 5) {
+                // Calculate average
+                double sum = 0.0;
+                for (double val : m_powerHoldBuffer) {
+                    sum += val;
+                }
+                m_powerHoldValue = sum / m_powerHoldBuffer.size();
+
+                // Reset buffer and counter for next cycle
+                m_powerHoldBuffer.clear();
+                m_powerHoldCounter = 0;
+            }
+
+            m_powerHoldLastUpdate = QDateTime::currentDateTime();
+        }
+
+        // Return the held value (or 0 if not initialized yet)
+        return m_powerHoldValue;
+    } else if (power5s) {
+        return wattsMetric().average5s();
+    } else {
+        return wattsMetric().value();
+    }
+}
+
 BLUETOOTH_TYPE bike::deviceType() { return BIKE; }
 
 void bike::clearStats() {
@@ -239,7 +297,13 @@ void bike::clearStats() {
     WattKg.clear(false);
     for(int i=0; i<maxHeartZone(); i++) {
         hrZonesSeconds[i].clear(false);
-    }    
+    }
+
+    // Clear power hold buffers
+    m_powerHoldBuffer.clear();
+    m_powerHoldCounter = 0;
+    m_powerHoldValue = 0.0;
+    m_powerHoldLastUpdate = QDateTime();
 }
 
 void bike::setPaused(bool p) {

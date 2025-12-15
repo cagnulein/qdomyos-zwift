@@ -1230,6 +1230,7 @@ import Qt.labs.platform 1.1
             property bool intervalsicu_date_prefix: false
             property bool proform_treadmill_sport_3_0: false
             property bool rouvy_compatibility: false
+            property bool power_avg_5_sec_hold: false
         }
 
 
@@ -10277,11 +10278,39 @@ import Qt.labs.platform 1.1
                         checked: settings.power_avg_5s
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.power_avg_5s = checked
+                        onClicked: { settings.power_avg_5s = checked; settings.power_avg_5_sec_hold = false; }
                     }
 
                     Label {
-                        text: qsTr("If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Default is off.")
+                        text: qsTr("If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. This provides a rolling average that updates every second. Mutually exclusive with Power Average 5 sec Hold. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: powerAvg5SecHold
+                        text: qsTr("Power Average 5 sec Hold")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.power_avg_5_sec_hold
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.power_avg_5_sec_hold = checked; settings.power_avg_5s = false; }
+                    }
+
+                    Label {
+                        text: qsTr("Similar to Power Average 5 sec, but instead of a rolling average, this averages power over 5 seconds and holds that value fixed for the entire 5 second period before calculating the next average. If any reading in the 5 second window is 0, the displayed power immediately becomes 0. Mutually exclusive with Power Average 5 sec. Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

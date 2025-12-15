@@ -278,6 +278,7 @@ const QString QZSettings::trainprogram_resistance_max = QStringLiteral("trainpro
 const QString QZSettings::watt_offset = QStringLiteral("watt_offset");
 const QString QZSettings::watt_gain = QStringLiteral("watt_gain");
 const QString QZSettings::power_avg_5s = QStringLiteral("power_avg_5s");
+const QString QZSettings::power_avg_5_sec_hold = QStringLiteral("power_avg_5_sec_hold");
 const QString QZSettings::instant_power_on_pause = QStringLiteral("instant_power_on_pause");
 const QString QZSettings::speed_offset = QStringLiteral("speed_offset");
 const QString QZSettings::speed_gain = QStringLiteral("speed_gain");
@@ -1009,7 +1010,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 824;
+const uint32_t allSettingsCount = 825;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1246,6 +1247,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::watt_offset, QZSettings::default_watt_offset},
     {QZSettings::watt_gain, QZSettings::default_watt_gain},
     {QZSettings::power_avg_5s, QZSettings::default_power_avg_5s},
+    {QZSettings::power_avg_5_sec_hold, QZSettings::default_power_avg_5_sec_hold},
     {QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause},
     {QZSettings::speed_offset, QZSettings::default_speed_offset},
     {QZSettings::speed_gain, QZSettings::default_speed_gain},
