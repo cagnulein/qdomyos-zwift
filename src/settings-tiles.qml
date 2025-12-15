@@ -269,7 +269,9 @@ ScrollView {
         property bool tile_auto_virtual_shifting_climb_enabled: false
         property int  tile_auto_virtual_shifting_climb_order: 73
         property bool tile_auto_virtual_shifting_sprint_enabled: false
-        property int  tile_auto_virtual_shifting_sprint_order: 74               
+        property int  tile_auto_virtual_shifting_sprint_order: 74
+        property bool tile_negative_inclination_enabled: false
+        property int  tile_negative_inclination_order: 75
     }
 
 

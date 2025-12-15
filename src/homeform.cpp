@@ -182,6 +182,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                            QStringLiteral("speed"), 48, labelFontSize);
     inclination = new DataObject(QStringLiteral("Inclination (%)"), QStringLiteral("icons/icons/inclination.png"),
                                  QStringLiteral("0.0"), true, QStringLiteral("inclination"), 48, labelFontSize);
+    negative_inclination = new DataObject(QStringLiteral("Neg. Incline (%)"), QStringLiteral("icons/icons/inclination.png"),
+                                 QStringLiteral("0.0"), false, QStringLiteral("negative_inclination"), 48, labelFontSize);
     cadence = new DataObject(QStringLiteral("Cadence (rpm)"), QStringLiteral("icons/icons/cadence.png"),
                              QStringLiteral("0"), false, QStringLiteral("cadence"), 48, labelFontSize);
     elevation = new DataObject(QStringLiteral("Elev. Gain (") + meters + QStringLiteral(")"),
@@ -1592,6 +1594,12 @@ void homeform::sortTiles() {
                 dataList.append(inclination);
             }
 
+            if (settings.value(QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled).toBool() &&
+                settings.value(QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order).toInt() == i) {
+                negative_inclination->setGridId(i);
+                dataList.append(negative_inclination);
+            }
+
             if (settings.value(QZSettings::tile_elevation_enabled, true).toBool() &&
                 settings.value(QZSettings::tile_elevation_order, 0).toInt() == i) {
                 elevation->setGridId(i);
@@ -1967,6 +1975,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_inclination_order, 0).toInt() == i) {
                 inclination->setGridId(i);
                 dataList.append(inclination);
+            }
+
+            if (settings.value(QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled).toBool() &&
+                settings.value(QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order).toInt() == i) {
+                negative_inclination->setGridId(i);
+                dataList.append(negative_inclination);
             }
 
             if (settings.value(QZSettings::tile_elevation_enabled, true).toBool() &&
@@ -3528,6 +3542,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_inclination_order, 0).toInt() == i) {
                 inclination->setGridId(i);
                 dataList.append(inclination);
+            }
+
+            if (settings.value(QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled).toBool() &&
+                settings.value(QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order).toInt() == i) {
+                negative_inclination->setGridId(i);
+                dataList.append(negative_inclination);
             }
 
             if (settings.value(QZSettings::tile_elevation_enabled, true).toBool() &&
@@ -5631,6 +5651,11 @@ void homeform::update() {
                 QString::number(((treadmill *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
+            if (inclination < 0) {
+                this->negative_inclination->setValue(QString::number(inclination, 'f', 1));
+            } else {
+                this->negative_inclination->setValue(QStringLiteral("0.0"));
+            }
             elevation->setValue(QString::number(((treadmill *)bluetoothManager->device())->elevationGain().value() *
                                                     meter_feet_conversion,
                                                 'f', (miles ? 0 : 1)));
@@ -5812,6 +5837,11 @@ void homeform::update() {
                 QString::number(((stairclimber *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((stairclimber *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
+            if (inclination < 0) {
+                this->negative_inclination->setValue(QString::number(inclination, 'f', 1));
+            } else {
+                this->negative_inclination->setValue(QStringLiteral("0.0"));
+            }
             elevation->setValue(QString::number(((stairclimber *)bluetoothManager->device())->elevationGain().value() *
                                                     meter_feet_conversion,
                                                 'f', (miles ? 0 : 1)));
@@ -5910,6 +5940,11 @@ void homeform::update() {
                     QString::number(((bike *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                     QStringLiteral(" MAX: ") +
                     QString::number(((bike *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
+                if (inclination < 0) {
+                    this->negative_inclination->setValue(QString::number(inclination, 'f', 1));
+                } else {
+                    this->negative_inclination->setValue(QStringLiteral("0.0"));
+                }
             }
             if (bluetoothManager->externalInclination())
                 extIncline->setValue(
@@ -6154,6 +6189,11 @@ void homeform::update() {
                     ((jumprope *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
                 this->inclination->setValue(QString::number(inclination, 'f', 0));
                 this->inclination->setSecondLine("");
+                if (inclination < 0) {
+                    this->negative_inclination->setValue(QString::number(inclination, 'f', 0));
+                } else {
+                    this->negative_inclination->setValue(QStringLiteral("0.0"));
+                }
                 this->stepCount->setValue(QString::number(stepCount, 'f', 0));
 
                 // Sequence of jumps resetted and number of jumps > 0, so i have to start a new lap
@@ -6202,6 +6242,11 @@ void homeform::update() {
                 QString::number(((elliptical *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((elliptical *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
+            if (inclination < 0) {
+                this->negative_inclination->setValue(QString::number(inclination, 'f', 1));
+            } else {
+                this->negative_inclination->setValue(QStringLiteral("0.0"));
+            }
             elevation->setValue(QString::number(((elliptical *)bluetoothManager->device())->elevationGain().value() *
                                                     meter_feet_conversion,
                                                 'f', (miles ? 0 : 1)));

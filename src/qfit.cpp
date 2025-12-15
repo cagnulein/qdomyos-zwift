@@ -562,6 +562,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         newRecord.SetCadence(cad);
         newRecord.SetDistance((sl.distance - startingDistanceOffset) * 1000.0); // meters
         newRecord.SetSpeed(sl.speed / 3.6);                                     // meter per second
+        newRecord.SetGrade(sl.inclination);                                     // grade/inclination in %
         newRecord.SetPower(sl.watt);
         newRecord.SetResistance(sl.resistance);
         newRecord.SetCalories(sl.calories);

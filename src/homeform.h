@@ -708,6 +708,7 @@ class homeform : public QObject {
     
     DataObject *speed;
     DataObject *inclination;
+    DataObject *negative_inclination;
     DataObject *cadence;
     DataObject *elevation;
     DataObject *calories;
