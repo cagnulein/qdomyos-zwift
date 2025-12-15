@@ -1331,29 +1331,32 @@ void nordictrackelliptical::btinit() {
             uint8_t se7i_init_039[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x06, 0x0c, 0x02, 0x04, 0x00, 0x00, 0x00, 0x02, 0x18, 0x15, 0x00, 0x47, 0x00, 0x00};*/
 
             int sleepms = 400;
-            writeCharacteristic(se7i_initData11, sizeof(se7i_initData11), QStringLiteral("init"), false, true);
+
+            // in case if it still doesn't work, wait a frame with FF at the start to understand if we can send another block of frames
+
+            writeCharacteristic(se7i_initData11, sizeof(se7i_initData11), QStringLiteral("init"), false, false);
             QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData12, sizeof(se7i_initData12), QStringLiteral("init"), false, true);
+            writeCharacteristic(se7i_initData12, sizeof(se7i_initData12), QStringLiteral("init"), false, false);
             QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData13, sizeof(se7i_initData13), QStringLiteral("init"), false, true);
+            writeCharacteristic(se7i_initData13, sizeof(se7i_initData13), QStringLiteral("init"), false, false);
             QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData14, sizeof(se7i_initData14), QStringLiteral("init"), false, true);
+            writeCharacteristic(se7i_initData14, sizeof(se7i_initData14), QStringLiteral("init"), false, false);
             QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData15, sizeof(se7i_initData15), QStringLiteral("init"), false, true);
+            writeCharacteristic(se7i_initData15, sizeof(se7i_initData15), QStringLiteral("init"), false, false);
             QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData16, sizeof(se7i_initData16), QStringLiteral("init"), false, true);
+            writeCharacteristic(se7i_initData16, sizeof(se7i_initData16), QStringLiteral("init"), false, false);
             QThread::msleep(sleepms);
-            writeCharacteristic(se7i_init_020, sizeof(se7i_init_020), QStringLiteral("init"), false, true);
+            writeCharacteristic(se7i_init_020, sizeof(se7i_init_020), QStringLiteral("init"), false, false);
             QThread::msleep(sleepms);
-            writeCharacteristic(se7i_init_021, sizeof(se7i_init_021), QStringLiteral("init"), false, true);
+            writeCharacteristic(se7i_init_021, sizeof(se7i_init_021), QStringLiteral("init"), false, false);
             QThread::msleep(sleepms);
-            writeCharacteristic(se7i_init_022, sizeof(se7i_init_022), QStringLiteral("init"), false, true);
+            writeCharacteristic(se7i_init_022, sizeof(se7i_init_022), QStringLiteral("init"), false, false);
             QThread::msleep(sleepms);
-            writeCharacteristic(se7i_init_023, sizeof(se7i_init_023), QStringLiteral("init"), false, true);
+            writeCharacteristic(se7i_init_023, sizeof(se7i_init_023), QStringLiteral("init"), false, false);
             QThread::msleep(sleepms);
-            writeCharacteristic(se7i_init_024, sizeof(se7i_init_024), QStringLiteral("init"), false, true);
+            writeCharacteristic(se7i_init_024, sizeof(se7i_init_024), QStringLiteral("init"), false, false);
             QThread::msleep(sleepms);
-            writeCharacteristic(se7i_init_025, sizeof(se7i_init_025), QStringLiteral("init"), false, true);
+            writeCharacteristic(se7i_init_025, sizeof(se7i_init_025), QStringLiteral("init"), false, false);
             QThread::msleep(sleepms);
             /*writeCharacteristic(se7i_init_026, sizeof(se7i_init_026), QStringLiteral("init"), false, true);
             QThread::msleep(sleepms);
