@@ -182,7 +182,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                            QStringLiteral("speed"), 48, labelFontSize);
     inclination = new DataObject(QStringLiteral("Inclination (%)"), QStringLiteral("icons/icons/inclination.png"),
                                  QStringLiteral("0.0"), true, QStringLiteral("inclination"), 48, labelFontSize);
-    negative_inclination = new DataObject(QStringLiteral("Neg. Incline (%)"), QStringLiteral("icons/icons/inclination.png"),
+    negative_inclination = new DataObject(QStringLiteral("Descent (") + meters + QStringLiteral(")"), QStringLiteral("icons/icons/inclination.png"),
                                  QStringLiteral("0.0"), false, QStringLiteral("negative_inclination"), 48, labelFontSize);
     cadence = new DataObject(QStringLiteral("Cadence (rpm)"), QStringLiteral("icons/icons/cadence.png"),
                              QStringLiteral("0"), false, QStringLiteral("cadence"), 48, labelFontSize);
@@ -5651,11 +5651,9 @@ void homeform::update() {
                 QString::number(((treadmill *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
-            if (inclination < 0) {
-                this->negative_inclination->setValue(QString::number(inclination, 'f', 1));
-            } else {
-                this->negative_inclination->setValue(QStringLiteral("0.0"));
-            }
+            this->negative_inclination->setValue(
+                QString::number(((treadmill *)bluetoothManager->device())->negativeElevationGain().value() *
+                                meter_feet_conversion, 'f', (miles ? 0 : 1)));
             elevation->setValue(QString::number(((treadmill *)bluetoothManager->device())->elevationGain().value() *
                                                     meter_feet_conversion,
                                                 'f', (miles ? 0 : 1)));
@@ -5837,11 +5835,9 @@ void homeform::update() {
                 QString::number(((stairclimber *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((stairclimber *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
-            if (inclination < 0) {
-                this->negative_inclination->setValue(QString::number(inclination, 'f', 1));
-            } else {
-                this->negative_inclination->setValue(QStringLiteral("0.0"));
-            }
+            this->negative_inclination->setValue(
+                QString::number(((stairclimber *)bluetoothManager->device())->negativeElevationGain().value() *
+                                meter_feet_conversion, 'f', (miles ? 0 : 1)));
             elevation->setValue(QString::number(((stairclimber *)bluetoothManager->device())->elevationGain().value() *
                                                     meter_feet_conversion,
                                                 'f', (miles ? 0 : 1)));
@@ -5940,11 +5936,9 @@ void homeform::update() {
                     QString::number(((bike *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                     QStringLiteral(" MAX: ") +
                     QString::number(((bike *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
-                if (inclination < 0) {
-                    this->negative_inclination->setValue(QString::number(inclination, 'f', 1));
-                } else {
-                    this->negative_inclination->setValue(QStringLiteral("0.0"));
-                }
+                this->negative_inclination->setValue(
+                    QString::number(((bike *)bluetoothManager->device())->negativeElevationGain().value() *
+                                    meter_feet_conversion, 'f', (miles ? 0 : 1)));
             }
             if (bluetoothManager->externalInclination())
                 extIncline->setValue(
@@ -6189,11 +6183,9 @@ void homeform::update() {
                     ((jumprope *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
                 this->inclination->setValue(QString::number(inclination, 'f', 0));
                 this->inclination->setSecondLine("");
-                if (inclination < 0) {
-                    this->negative_inclination->setValue(QString::number(inclination, 'f', 0));
-                } else {
-                    this->negative_inclination->setValue(QStringLiteral("0.0"));
-                }
+                this->negative_inclination->setValue(
+                    QString::number(((jumprope *)bluetoothManager->device())->negativeElevationGain().value() *
+                                    meter_feet_conversion, 'f', (miles ? 0 : 1)));
                 this->stepCount->setValue(QString::number(stepCount, 'f', 0));
 
                 // Sequence of jumps resetted and number of jumps > 0, so i have to start a new lap
@@ -6242,11 +6234,9 @@ void homeform::update() {
                 QString::number(((elliptical *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((elliptical *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
-            if (inclination < 0) {
-                this->negative_inclination->setValue(QString::number(inclination, 'f', 1));
-            } else {
-                this->negative_inclination->setValue(QStringLiteral("0.0"));
-            }
+            this->negative_inclination->setValue(
+                QString::number(((elliptical *)bluetoothManager->device())->negativeElevationGain().value() *
+                                meter_feet_conversion, 'f', (miles ? 0 : 1)));
             elevation->setValue(QString::number(((elliptical *)bluetoothManager->device())->elevationGain().value() *
                                                     meter_feet_conversion,
                                                 'f', (miles ? 0 : 1)));
