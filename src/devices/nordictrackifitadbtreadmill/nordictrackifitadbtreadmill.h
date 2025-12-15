@@ -125,6 +125,9 @@ class nordictrackifitadbtreadmill : public treadmill {
     int previousWorkoutState = 1; // WORKOUT_STATE_IDLE
     bool proform_trainer_9_0 = false;
 
+    QDateTime lastTimeDataReceived;
+    bool firstDataReceived = true;
+
     // Track origin of stop/pause/start requests to prevent echoing gRPC events
     RequestOrigin requestStartOrigin = ORIGIN_USER;
     RequestOrigin requestStopOrigin = ORIGIN_USER;

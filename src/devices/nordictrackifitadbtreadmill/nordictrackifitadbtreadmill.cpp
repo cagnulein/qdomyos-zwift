@@ -223,6 +223,7 @@ double nordictrackifitadbtreadmill::getDouble(QString v) {
 }
 
 nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance, bool noHeartService) {
+    lastTimeDataReceived = QDateTime::currentDateTime();
     QSettings settings;
     bool nordictrack_ifit_adb_remote =
         settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
@@ -529,8 +530,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
         // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
-        Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+        
 
         lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
@@ -619,8 +619,7 @@ void nordictrackifitadbtreadmill::onSpeedInclination(double speed, double inclin
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
     // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
-    Distance += ((Speed.value() / 3600000.0) *
-                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+    
 
     
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
@@ -797,6 +796,13 @@ void nordictrackifitadbtreadmill::update() {
             FanSpeed = currentFanSpeed;
             emit debug(QString("gRPC Fan Speed: %1").arg(currentFanSpeed));
         }
+
+        if (!firstDataReceived) {
+            Distance += ((Speed.value() / (double)3600.0) /
+                        ((double)1000.0 / (double)(lastTimeDataReceived.msecsTo(QDateTime::currentDateTime()))));
+        }
+        lastTimeDataReceived = QDateTime::currentDateTime();
+        firstDataReceived = false;
 
         // Read heart rate from gRPC if heart rate belt is disabled
         QString heartRateBeltName = settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
