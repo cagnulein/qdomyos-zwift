@@ -206,6 +206,8 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
 
     lastPacket = newValue;
 
+    lastValidPacketTime = QDateTime::currentDateTime();
+  
     // Check for invalid packet length first
     bool isValidPacket = (newValue.length() == 21);
 
@@ -214,11 +216,6 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
         qDebug() << QStringLiteral("Invalid packet length:") << newValue.length();
         return;
     }
-
-    // We have a valid packet (correct length) - update the timestamp
-    // This MUST happen even if controller reports errors, because receiving
-    // valid data proves the connection is working
-    lastValidPacketTime = QDateTime::currentDateTime();
 
     // Log controller errors but don't block processing of valid packets
     bool hasError = (m_control->error() != QLowEnergyController::NoError);
