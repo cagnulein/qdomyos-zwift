@@ -246,6 +246,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     sessionMesg.SetTotalDistance((session.last().distance - startingDistanceOffset) * 1000.0); // meters
     sessionMesg.SetTotalCalories(session.last().calories);
     sessionMesg.SetTotalMovingTime(session.last().elapsedTime);
+    sessionMesg.SetTotalAscent(session.last().elevationGain);  // Total elevation gain (meters)
+    sessionMesg.SetTotalDescent(session.last().negativeElevationGain);  // Total elevation loss/descent (meters)
     sessionMesg.SetMinAltitude(min_alt);
     sessionMesg.SetMaxAltitude(max_alt);
     sessionMesg.SetEvent(FIT_EVENT_SESSION);
@@ -562,7 +564,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         newRecord.SetCadence(cad);
         newRecord.SetDistance((sl.distance - startingDistanceOffset) * 1000.0); // meters
         newRecord.SetSpeed(sl.speed / 3.6);                                     // meter per second
-        newRecord.SetGrade(sl.inclination);                                     // grade/inclination in %
         newRecord.SetPower(sl.watt);
         newRecord.SetResistance(sl.resistance);
         newRecord.SetCalories(sl.calories);
