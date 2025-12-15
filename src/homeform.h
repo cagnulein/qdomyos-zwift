@@ -970,7 +970,6 @@ class homeform : public QObject {
     void trainprogram_open_clicked(const QUrl &fileName);
     void trainprogram_autostart_requested();
 
-  private slots:
     void Start();
     void Stop();
     void StopRequested();
