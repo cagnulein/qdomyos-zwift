@@ -1594,12 +1594,6 @@ void homeform::sortTiles() {
                 dataList.append(inclination);
             }
 
-            if (settings.value(QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled).toBool() &&
-                settings.value(QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order).toInt() == i) {
-                negative_inclination->setGridId(i);
-                dataList.append(negative_inclination);
-            }
-
             if (settings.value(QZSettings::tile_elevation_enabled, true).toBool() &&
                 settings.value(QZSettings::tile_elevation_order, 0).toInt() == i) {
                 elevation->setGridId(i);
@@ -1961,6 +1955,12 @@ void homeform::sortTiles() {
                 coreTemperature->setGridId(i);
                 dataList.append(coreTemperature);
             }
+
+            if (settings.value(QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled).toBool() &&
+                settings.value(QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order).toInt() == i) {
+                negative_inclination->setGridId(i);
+                dataList.append(negative_inclination);
+            }
         }
     } else     if (bluetoothManager->device()->deviceType() == STAIRCLIMBER) {
         for (int i = 0; i < 100; i++) {
@@ -1975,12 +1975,6 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_inclination_order, 0).toInt() == i) {
                 inclination->setGridId(i);
                 dataList.append(inclination);
-            }
-
-            if (settings.value(QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled).toBool() &&
-                settings.value(QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order).toInt() == i) {
-                negative_inclination->setGridId(i);
-                dataList.append(negative_inclination);
             }
 
             if (settings.value(QZSettings::tile_elevation_enabled, true).toBool() &&
@@ -2343,6 +2337,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_coretemperature_order, QZSettings::default_tile_coretemperature_order).toInt() == i) {
                 coreTemperature->setGridId(i);
                 dataList.append(coreTemperature);
+            }
+
+            if (settings.value(QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled).toBool() &&
+                settings.value(QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order).toInt() == i) {
+                negative_inclination->setGridId(i);
+                dataList.append(negative_inclination);
             }
         }
     } else if (bluetoothManager->device()->deviceType() == BIKE) {
@@ -3544,12 +3544,6 @@ void homeform::sortTiles() {
                 dataList.append(inclination);
             }
 
-            if (settings.value(QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled).toBool() &&
-                settings.value(QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order).toInt() == i) {
-                negative_inclination->setGridId(i);
-                dataList.append(negative_inclination);
-            }
-
             if (settings.value(QZSettings::tile_elevation_enabled, true).toBool() &&
                 settings.value(QZSettings::tile_elevation_order, 0).toInt() == i) {
                 elevation->setGridId(i);
@@ -3896,6 +3890,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_coretemperature_order, QZSettings::default_tile_coretemperature_order).toInt() == i) {
                 coreTemperature->setGridId(i);
                 dataList.append(coreTemperature);
+            }
+
+            if (settings.value(QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled).toBool() &&
+                settings.value(QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order).toInt() == i) {
+                negative_inclination->setGridId(i);
+                dataList.append(negative_inclination);
             }
         }
     }
