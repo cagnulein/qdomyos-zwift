@@ -84,6 +84,21 @@ void trxappgateusbelliptical::update() {
         QSettings settings;
         update_metrics(true, watts());
 
+        // Calculate time since last valid packet
+        qint64 msSinceLastValidPacket = lastValidPacketTime.msecsTo(QDateTime::currentDateTime());
+
+        // If we haven't received a valid packet for more than 5 seconds, reinitialize
+        if (msSinceLastValidPacket > 5000) {
+            qDebug() << QStringLiteral("NO VALID PACKETS for") << (msSinceLastValidPacket / 1000.0)
+                     << QStringLiteral("seconds. Reinitializing connection...");
+
+            // Reset timer
+            lastValidPacketTime = QDateTime::currentDateTime();
+
+            m_control->disconnectFromDevice();
+        }
+
+
         {
             if (requestResistance != -1) {
                 if (requestResistance < 1)
@@ -191,8 +206,22 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
 
     lastPacket = newValue;
 
-    if(newValue.length() != 21) {
+    lastValidPacketTime = QDateTime::currentDateTime();
+  
+    // Check for invalid packet length first
+    bool isValidPacket = (newValue.length() == 21);
+
+    if (!isValidPacket) {
+        // Invalid packet length - log and return
+        qDebug() << QStringLiteral("Invalid packet length:") << newValue.length();
         return;
+    }
+
+    // Log controller errors but don't block processing of valid packets
+    bool hasError = (m_control->error() != QLowEnergyController::NoError);
+    if (hasError) {
+        qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
+        // Continue processing - the packet is still valid
     }
 
     Resistance = newValue.at(18) - 1;
@@ -227,10 +256,6 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
     emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
     // debug("Current Distance: " + QString::number(distance));
     emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
-
-    if (m_control->error() != QLowEnergyController::NoError) {
-        qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
-    }
 }
 
 void trxappgateusbelliptical::btinit() {
@@ -497,9 +522,18 @@ bool trxappgateusbelliptical::connected() {
 void trxappgateusbelliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
-        qDebug() << QStringLiteral("trying to connect back again...");
+        qDebug() << QStringLiteral("trying to connect back again in 3 seconds...");
         initDone = false;
-        m_control->connectToDevice();
+
+        // Schedule reconnection after 3 seconds
+        QTimer::singleShot(3000, this, [this]() {
+            if (m_control && m_control->state() == QLowEnergyController::UnconnectedState) {
+                qDebug() << QStringLiteral("Reconnection timer fired, attempting to reconnect...");
+                // Reset the last valid packet timer
+                lastValidPacketTime = QDateTime::currentDateTime();
+                m_control->connectToDevice();
+            }
+        });
     }
 }
 
