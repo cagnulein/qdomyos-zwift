@@ -380,7 +380,7 @@ int KettlerUSB::openPort() {
     // WINDOWS IMPLEMENTATION
     COMMTIMEOUTS timeouts;
     QString portSpec;
-    int portnum = deviceFilename.midRef(3).toString().toInt();
+    int portnum = deviceFilename.mid(3).toInt();
     if (portnum < 10)
         portSpec = deviceFilename;
     else
