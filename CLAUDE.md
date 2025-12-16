@@ -238,7 +238,7 @@ const QString QZSettings::proform_treadmill_newmodel = QStringLiteral("proform_t
 ```qml
 property bool proform_treadmill_newmodel: false
 ```
-
+ 
 2. Update ComboBox model array:
 ```qml
 model: ["Disabled", "Proform New Model", ...]
