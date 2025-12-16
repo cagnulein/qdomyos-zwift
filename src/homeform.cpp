@@ -5651,34 +5651,6 @@ void homeform::update() {
                 QString::number(((treadmill *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
-            this->negative_inclination->setValue(
-                QString::number(((treadmill *)bluetoothManager->device())->negativeElevationGain().value() *
-                                meter_feet_conversion, 'f', (miles ? 0 : 1)));
-            // Check if speed and inclination are not zero before showing rate
-            if (((treadmill *)bluetoothManager->device())->currentSpeed().value() > 0 &&
-                ((treadmill *)bluetoothManager->device())->currentInclination().value() < 0) {
-                this->negative_inclination->setSecondLine(
-                    QString::number(((treadmill *)bluetoothManager->device())->negativeElevationGain().rate1s() * 60.0 *
-                                        meter_feet_conversion,
-                                    'f', (miles ? 0 : 1)) +
-                    " /min");
-            } else {
-                this->negative_inclination->setSecondLine("");
-            }
-            elevation->setValue(QString::number(((treadmill *)bluetoothManager->device())->elevationGain().value() *
-                                                    meter_feet_conversion,
-                                                'f', (miles ? 0 : 1)));
-            // Check if speed and inclination are not zero before showing rate
-            if (((treadmill *)bluetoothManager->device())->currentSpeed().value() > 0 &&
-                ((treadmill *)bluetoothManager->device())->currentInclination().value() > 0) {
-                elevation->setSecondLine(
-                    QString::number(((treadmill *)bluetoothManager->device())->elevationGain().rate1s() * 60.0 *
-                                        meter_feet_conversion,
-                                    'f', (miles ? 0 : 1)) +
-                    " /min");
-            } else {
-                elevation->setSecondLine("");
-            }
 
             this->stepCount->setValue(QString::number(
                 ((treadmill *)bluetoothManager->device())->currentStepCount().value(), 'f', 0));
@@ -5852,34 +5824,6 @@ void homeform::update() {
                 QString::number(((stairclimber *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((stairclimber *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
-            this->negative_inclination->setValue(
-                QString::number(((stairclimber *)bluetoothManager->device())->negativeElevationGain().value() *
-                                meter_feet_conversion, 'f', (miles ? 0 : 1)));
-            // Check if speed and inclination are not zero before showing rate
-            if (((stairclimber *)bluetoothManager->device())->currentSpeed().value() > 0 &&
-                ((stairclimber *)bluetoothManager->device())->currentInclination().value() < 0) {
-                this->negative_inclination->setSecondLine(
-                    QString::number(((stairclimber *)bluetoothManager->device())->negativeElevationGain().rate1s() * 60.0 *
-                                        meter_feet_conversion,
-                                    'f', (miles ? 0 : 1)) +
-                    " /min");
-            } else {
-                this->negative_inclination->setSecondLine("");
-            }
-            elevation->setValue(QString::number(((stairclimber *)bluetoothManager->device())->elevationGain().value() *
-                                                    meter_feet_conversion,
-                                                'f', (miles ? 0 : 1)));
-            // Check if speed and inclination are not zero before showing rate
-            if (((stairclimber *)bluetoothManager->device())->currentSpeed().value() > 0 &&
-                ((stairclimber *)bluetoothManager->device())->currentInclination().value() > 0) {
-                elevation->setSecondLine(
-                    QString::number(((stairclimber *)bluetoothManager->device())->elevationGain().rate1s() * 60.0 *
-                                        meter_feet_conversion,
-                                    'f', (miles ? 0 : 1)) +
-                    " /min");
-            } else {
-                elevation->setSecondLine("");
-            }
 
             this->stepCount->setValue(QString::number(
                 ((stairclimber *)bluetoothManager->device())->currentStepCount().value(), 'f', 0));
@@ -6021,34 +5965,6 @@ void homeform::update() {
                         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
                             .toDouble(),
                     'f', 0));
-
-            this->negative_inclination->setValue(
-                QString::number(((bike *)bluetoothManager->device())->negativeElevationGain().value() *
-                                meter_feet_conversion, 'f', (miles ? 0 : 1)));
-            // Check if speed and inclination are not zero before showing rate
-            if (((bike *)bluetoothManager->device())->currentSpeed().value() > 0 &&
-                ((bike *)bluetoothManager->device())->currentInclination().value() < 0) {
-                this->negative_inclination->setSecondLine(
-                    QString::number(((bike *)bluetoothManager->device())->negativeElevationGain().rate1s() * 60.0 *
-                                        meter_feet_conversion,
-                                    'f', (miles ? 0 : 1)) +
-                    " /min");
-            } else {
-                this->negative_inclination->setSecondLine("");
-            }
-            elevation->setValue(
-                QString::number(((bike *)bluetoothManager->device())->elevationGain().value() * meter_feet_conversion,
-                                'f', (miles ? 0 : 1)));
-            // Check if speed and inclination are not zero before showing rate
-            if (((bike *)bluetoothManager->device())->currentSpeed().value() > 0 &&
-                ((bike *)bluetoothManager->device())->currentInclination().value() > 0) {
-                elevation->setSecondLine(QString::number(((bike *)bluetoothManager->device())->elevationGain().rate1s() *
-                                                             60.0 * meter_feet_conversion,
-                                                         'f', (miles ? 0 : 1)) +
-                                         " /min");
-            } else {
-                elevation->setSecondLine("");
-            }
 
             this->steeringAngle->setValue(
                 QString::number(((bike *)bluetoothManager->device())->currentSteeringAngle().value(), 'f', 1));
@@ -6288,34 +6204,7 @@ void homeform::update() {
                 QString::number(((elliptical *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((elliptical *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
-            this->negative_inclination->setValue(
-                QString::number(((elliptical *)bluetoothManager->device())->negativeElevationGain().value() *
-                                meter_feet_conversion, 'f', (miles ? 0 : 1)));
-            // Check if speed and inclination are not zero before showing rate
-            if (((elliptical *)bluetoothManager->device())->currentSpeed().value() > 0 &&
-                ((elliptical *)bluetoothManager->device())->currentInclination().value() < 0) {
-                this->negative_inclination->setSecondLine(
-                    QString::number(((elliptical *)bluetoothManager->device())->negativeElevationGain().rate1s() * 60.0 *
-                                        meter_feet_conversion,
-                                    'f', (miles ? 0 : 1)) +
-                    " /min");
-            } else {
-                this->negative_inclination->setSecondLine("");
-            }
-            elevation->setValue(QString::number(((elliptical *)bluetoothManager->device())->elevationGain().value() *
-                                                    meter_feet_conversion,
-                                                'f', (miles ? 0 : 1)));
-            // Check if speed and inclination are not zero before showing rate
-            if (((elliptical *)bluetoothManager->device())->currentSpeed().value() > 0 &&
-                ((elliptical *)bluetoothManager->device())->currentInclination().value() > 0) {
-                elevation->setSecondLine(
-                    QString::number(((elliptical *)bluetoothManager->device())->elevationGain().rate1s() * 60.0 *
-                                        meter_feet_conversion,
-                                    'f', (miles ? 0 : 1)) +
-                    " /min");
-            } else {
-                elevation->setSecondLine("");
-            }
+
             this->gears->setValue(QString::number(((elliptical *)bluetoothManager->device())->gears()));
             this->target_speed->setValue(QString::number(
                 ((elliptical *)bluetoothManager->device())->lastRequestedSpeed().value() * unit_conversion, 'f', 1));
@@ -6323,6 +6212,46 @@ void homeform::update() {
             this->target_cadence->setValue(
                 QString::number(((elliptical *)bluetoothManager->device())->lastRequestedCadence().value(), 'f', 0));
         }
+
+        // Common elevation and negative elevation handling for all device types that support it
+        if (bluetoothManager->device()->deviceType() == TREADMILL ||
+            bluetoothManager->device()->deviceType() == STAIRCLIMBER ||
+            bluetoothManager->device()->deviceType() == BIKE ||
+            bluetoothManager->device()->deviceType() == ELLIPTICAL) {
+
+            // Negative elevation gain (descent)
+            this->negative_inclination->setValue(
+                QString::number(bluetoothManager->device()->negativeElevationGain().value() *
+                                meter_feet_conversion, 'f', (miles ? 0 : 1)));
+            // Check if speed and inclination are not zero before showing rate
+            if (bluetoothManager->device()->currentSpeed().value() > 0 &&
+                bluetoothManager->device()->currentInclination().value() < 0) {
+                this->negative_inclination->setSecondLine(
+                    QString::number(bluetoothManager->device()->negativeElevationGain().rate1s() * 60.0 *
+                                        meter_feet_conversion,
+                                    'f', (miles ? 0 : 1)) +
+                    " /min");
+            } else {
+                this->negative_inclination->setSecondLine("");
+            }
+
+            // Elevation gain (ascent)
+            elevation->setValue(
+                QString::number(bluetoothManager->device()->elevationGain().value() * meter_feet_conversion,
+                                'f', (miles ? 0 : 1)));
+            // Check if speed and inclination are not zero before showing rate
+            if (bluetoothManager->device()->currentSpeed().value() > 0 &&
+                bluetoothManager->device()->currentInclination().value() > 0) {
+                elevation->setSecondLine(
+                    QString::number(bluetoothManager->device()->elevationGain().rate1s() * 60.0 *
+                                        meter_feet_conversion,
+                                    'f', (miles ? 0 : 1)) +
+                    " /min");
+            } else {
+                elevation->setSecondLine("");
+            }
+        }
+
         watt->setSecondLine(
             QStringLiteral("AVG: ") + QString::number((bluetoothManager->device())->wattsMetric().average(), 'f', 0) +
             QStringLiteral(" MAX: ") + QString::number((bluetoothManager->device())->wattsMetric().max(), 'f', 0));
