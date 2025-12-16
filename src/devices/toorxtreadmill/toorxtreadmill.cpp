@@ -68,7 +68,7 @@ void toorxtreadmill::serviceFinished(void) {
         emit debug(QStringLiteral("Create socket"));
         if(!found) {
             qDebug() << QStringLiteral("toorxtreadmill::serviceFinished, no service found, trying workaround");
-            socket->connectToService(bluetoothDevice.address(), QBluetoothUuid(QBluetoothUuid::SerialPort));
+            socket->connectToService(bluetoothDevice.address(), QBluetoothUuid(QStringLiteral("00001101-0000-1000-8000-00805f9b34fb")));
         } else {
             socket->connectToService(serialPortService);
         }
