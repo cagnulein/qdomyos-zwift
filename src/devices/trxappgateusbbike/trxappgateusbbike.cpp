@@ -97,6 +97,8 @@ void trxappgateusbbike::forceResistance(resistance_t requestResistance) {
 void trxappgateusbbike::update() {
     // qDebug() << bike.isValid() << m_control->state() << gattCommunicationChannelService <<
     // gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
+    if (!m_control)
+        return;
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
