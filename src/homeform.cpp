@@ -9753,7 +9753,7 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
 
                 // Sanitize filename
                 QString safeName = workoutName;
-                safeName.replace(QRegExp("[^a-zA-Z0-9_\\-]"), "_");
+                safeName.replace(QRegularExpression("[^a-zA-Z0-9_\\-]"), "_");
 
                 // Add date prefix
                 QString today = QDate::currentDate().toString("yyyy-MM-dd");
