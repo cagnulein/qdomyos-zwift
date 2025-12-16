@@ -7001,12 +7001,21 @@ void homeform::update() {
 
                 if (!stopped && !paused && bluetoothManager->device()->currentHeart().value() &&
                     bluetoothManager->device()->currentSpeed().value() > 0.0f) {
+                    qDebug() << QStringLiteral("PID HR Control - HR:") << bluetoothManager->device()->currentHeart().average20s()
+                             << QStringLiteral("HRmin:") << hrmin << QStringLiteral("HRmax:") << hrmax
+                             << QStringLiteral("fromTrainProgram:") << fromTrainProgram;
+
                     if (bluetoothManager->device()->deviceType() == TREADMILL) {
 
                         const double step = 0.2;
                         double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
+                        qDebug() << QStringLiteral("TREADMILL PID HR - currentSpeed:") << currentSpeed
+                                 << QStringLiteral("minSpeed:") << minSpeed << QStringLiteral("maxSpeed:") << maxSpeed;
+
                         if (hrmax < bluetoothManager->device()->currentHeart().average20s() &&
                             minSpeed <= currentSpeed - step) {
+                            qDebug() << QStringLiteral("TREADMILL PID HR - HR > HRmax, DECREASING speed from")
+                                     << currentSpeed << QStringLiteral("to") << (currentSpeed - step);
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
                                     currentSpeed - step,
@@ -7014,6 +7023,8 @@ void homeform::update() {
                             pid_heart_zone_small_inc_counter = 0;
                         } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
                                    maxSpeed >= currentSpeed + step) {
+                            qDebug() << QStringLiteral("TREADMILL PID HR - HR < HRmin, INCREASING speed from")
+                                     << currentSpeed << QStringLiteral("to") << (currentSpeed + step);
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
 
@@ -7021,40 +7032,59 @@ void homeform::update() {
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
                         } else if (maxSpeed >= currentSpeed + step &&
-                                   hrmax < bluetoothManager->device()->currentHeart().average20s() && trainprogram_pid_pushy) {
+                                   hrmax >= bluetoothManager->device()->currentHeart().average20s() && trainprogram_pid_pushy) {
+                            qDebug() << QStringLiteral("TREADMILL PID HR - PUSHY mode, counter:") << pid_heart_zone_small_inc_counter
+                                     << QStringLiteral("threshold:") << (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average20s()));
                             pid_heart_zone_small_inc_counter++;
                             if (pid_heart_zone_small_inc_counter > (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average20s()))) {
+                                qDebug() << QStringLiteral("TREADMILL PID HR - PUSHY triggered, INCREASING speed from")
+                                         << currentSpeed << QStringLiteral("to") << (currentSpeed + step);
                                 ((treadmill *)bluetoothManager->device())
                                     ->changeSpeedAndInclination(
                                         currentSpeed + step,
                                         ((treadmill *)bluetoothManager->device())->currentInclination().value());
                                 pid_heart_zone_small_inc_counter = 0;
                             }
+                        } else {
+                            qDebug() << QStringLiteral("TREADMILL PID HR - No action taken (in zone or at limits)");
                         }
                     } else if (bluetoothManager->device()->deviceType() == BIKE) {
 
                         const int step = 1;
                         resistance_t currentResistance =
                             ((bike *)bluetoothManager->device())->currentResistance().value();
-                        if (hrmax < bluetoothManager->device()->currentHeart().average20s()) {
+                        qDebug() << QStringLiteral("BIKE PID HR - currentResistance:") << currentResistance
+                                 << QStringLiteral("maxResistance:") << maxResistance;
 
+                        if (hrmax < bluetoothManager->device()->currentHeart().average20s()) {
+                            qDebug() << QStringLiteral("BIKE PID HR - HR > HRmax, DECREASING resistance from")
+                                     << currentResistance << QStringLiteral("to") << (currentResistance - step);
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
                         } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
                                    maxResistance >= currentResistance + step) {
-
+                            qDebug() << QStringLiteral("BIKE PID HR - HR < HRmin, INCREASING resistance from")
+                                     << currentResistance << QStringLiteral("to") << (currentResistance + step);
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
+                        } else {
+                            qDebug() << QStringLiteral("BIKE PID HR - No action taken (in zone or at limits)");
                         }
                     } else if (bluetoothManager->device()->deviceType() == ROWING) {
 
                         const int step = 1;
                         resistance_t currentResistance =
                             ((rower *)bluetoothManager->device())->currentResistance().value();
-                        if (hrmax < bluetoothManager->device()->currentHeart().average20s()) {
+                        qDebug() << QStringLiteral("ROWING PID HR - currentResistance:") << currentResistance;
 
+                        if (hrmax < bluetoothManager->device()->currentHeart().average20s()) {
+                            qDebug() << QStringLiteral("ROWING PID HR - HR > HRmax, DECREASING resistance from")
+                                     << currentResistance << QStringLiteral("to") << (currentResistance - step);
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance - step);
                         } else if (hrmin > bluetoothManager->device()->currentHeart().average20s()) {
-
+                            qDebug() << QStringLiteral("ROWING PID HR - HR < HRmin, INCREASING resistance from")
+                                     << currentResistance << QStringLiteral("to") << (currentResistance + step);
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance + step);
+                        } else {
+                            qDebug() << QStringLiteral("ROWING PID HR - No action taken (in zone or at limits)");
                         }
                     }
                 }
