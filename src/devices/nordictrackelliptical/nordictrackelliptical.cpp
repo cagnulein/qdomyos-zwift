@@ -26,6 +26,11 @@ nordictrackelliptical::nordictrackelliptical(bool noWriteResistance, bool noHear
     this->noHeartService = noHeartService;
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
+
+    QSettings settings;
+    nordictrack_elliptical_c7_5 = settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5).toBool();
+    nordictrack_se7i = settings.value(QZSettings::nordictrack_se7i, QZSettings::default_nordictrack_se7i).toBool();
+
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackelliptical::update);
     refresh->start(200ms);
@@ -60,10 +65,6 @@ void nordictrackelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len,
 
 void nordictrackelliptical::forceIncline(double requestIncline) {
 
-    QSettings settings;
-    bool nordictrack_elliptical_c7_5 =
-        settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5)
-            .toBool();
     const uint8_t res[] = {0xfe, 0x02, 0x0d, 0x02};
     writeCharacteristic((uint8_t *)res, sizeof(res), QStringLiteral("incline"), false, false);
 
@@ -277,6 +278,13 @@ void nordictrackelliptical::forceIncline(double requestIncline) {
             writeCharacteristic((uint8_t *)inc200, sizeof(inc200), QStringLiteral("inc200"), false, true);
             break;
         }
+    } else if (nordictrack_se7i) {
+        // SE7i uses ff 0d packet with byte[10]=0x02 for incline
+        // Incline encoding: value = incline% * 100
+        uint16_t incValue = (uint16_t)(requestIncline * 100);
+        uint8_t incCmd[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                            0x02, (uint8_t)(incValue & 0xFF), (uint8_t)((incValue >> 8) & 0xFF), 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        writeCharacteristic(incCmd, sizeof(incCmd), QStringLiteral("incline_se7i"), false, true);
     }
 }
 
@@ -285,9 +293,6 @@ void nordictrackelliptical::forceResistance(resistance_t requestResistance) {
     QSettings settings;
     bool proform_hybrid_trainer_xt =
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
-    bool nordictrack_elliptical_c7_5 =
-        settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5)
-            .toBool();
     const uint8_t res[] = {0xfe, 0x02, 0x0d, 0x02};
     writeCharacteristic((uint8_t *)res, sizeof(res), QStringLiteral("resistance"), false, false);
 
@@ -405,6 +410,13 @@ void nordictrackelliptical::forceResistance(resistance_t requestResistance) {
             writeCharacteristic((uint8_t *)res22, sizeof(res22), QStringLiteral("resistance22"), false, true);
             break;
         }
+    } else if (nordictrack_se7i) {
+        // SE7i uses ff 0d packet with byte[10]=0x04 for resistance
+        // Resistance encoding: value = resistance * 454 - 1
+        uint16_t resValue = (requestResistance * 454) - 1;
+        uint8_t resCmd[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                            0x04, (uint8_t)(resValue & 0xFF), (uint8_t)((resValue >> 8) & 0xFF), 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        writeCharacteristic(resCmd, sizeof(resCmd), QStringLiteral("resistance_se7i"), false, true);
     } else if (proform_hybrid_trainer_xt) {
         const uint8_t res1[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
                                 0x04, 0x32, 0x02, 0x00, 0x4a, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -612,11 +624,8 @@ void nordictrackelliptical::update() {
         bool proform_hybrid_trainer_xt =
             settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt)
                 .toBool();
-        bool nordictrack_elliptical_c7_5 =
-            settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5)
-                .toBool();
 
-        update_metrics(true, watts());
+        update_metrics(false, watts());
 
         if (nordictrack_elliptical_c7_5) {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
@@ -667,6 +676,63 @@ void nordictrackelliptical::update() {
             }
             counterPoll++;
             if (counterPoll > 4) {
+                counterPoll = 0;
+            }
+        } else if (nordictrack_se7i) {
+            // NordicTrack Elliptical SE7i - 6 packet sendPoll cycle
+            uint8_t se7i_noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t se7i_noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x00,
+                                        0x0d, 0x3e, 0x96, 0x33, 0x00, 0x10, 0x40, 0x50, 0x00, 0x80};
+            uint8_t se7i_noOpData3[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x05, 0x54, 0x00, 0x00, 0x00,
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t se7i_noOpData4[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t se7i_noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x00,
+                                        0x0d, 0x80, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t se7i_noOpData6[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x90, 0x78, 0x00, 0x00, 0x00,
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(se7i_noOpData1, sizeof(se7i_noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(se7i_noOpData2, sizeof(se7i_noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(se7i_noOpData3, sizeof(se7i_noOpData3), QStringLiteral("noOp"));
+                if (requestResistance != -1) {
+                    if (requestResistance < 0)
+                        requestResistance = 0;
+                    if (requestResistance != currentResistance().value() && requestResistance >= 0 &&
+                        requestResistance <= max_resistance) {
+                        emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+                        forceResistance(requestResistance);
+                    }
+                    requestResistance = -1;
+                }
+                if (requestInclination != -1) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= max_inclination) {
+                        emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -1;
+                }
+                break;
+            case 3:
+                writeCharacteristic(se7i_noOpData4, sizeof(se7i_noOpData4), QStringLiteral("noOp"));
+                break;
+            case 4:
+                writeCharacteristic(se7i_noOpData5, sizeof(se7i_noOpData5), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(se7i_noOpData6, sizeof(se7i_noOpData6), QStringLiteral("noOp"));
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 5) {
                 counterPoll = 0;
             }
         } else {
@@ -752,9 +818,6 @@ double nordictrackelliptical::GetInclinationFromPacket(QByteArray packet) {
 
 double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
     QSettings settings;
-    bool nordictrack_elliptical_c7_5 =
-        settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5)
-            .toBool();
     bool proform_hybrid_trainer_xt =
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
 
@@ -949,14 +1012,33 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
-    bool nordictrack_elliptical_c7_5 =
-        settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5)
-            .toBool();
     uint8_t heart = 0;
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
+
+    // SE7i Speed and Cadence parsing (Type 0x01 packets with byte[4]=0x46)
+    if (nordictrack_se7i && newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 &&
+        newValue.at(4) == 0x46 && initDone == true) {
+        // Parse speed from bytes 12-13 (little endian, divided by 100)
+        Speed = (double)(((uint16_t)((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) / 100.0;
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        lastSpeedChanged = QDateTime::currentDateTime();
+
+        // Parse cadence from byte 2
+        uint8_t c = newValue.at(2);
+        if (c > 0)
+            Cadence = (c * cadence_gain) + cadence_offset;
+        else
+            Cadence = 0;
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
+        return;
+    }
 
     if (!proform_hybrid_trainer_xt && !nordictrack_elliptical_c7_5 && newValue.length() == 20 &&
         newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(19) == 0x2C) {
@@ -973,7 +1055,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         return;
     }
 
-    if (!nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 &&
+    if (!nordictrack_elliptical_c7_5 && !nordictrack_se7i && newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 &&
         initDone == true) {
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -985,7 +1067,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
             emit debug(QStringLiteral("Current Heart from machinery: ") + QString::number(heart));
         }
 
-    } else if (QDateTime::currentDateTime().secsTo(lastSpeedChanged) > 3) {
+    } else if (!nordictrack_se7i && QDateTime::currentDateTime().secsTo(lastSpeedChanged) > 3) {
         Speed = 0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
@@ -1021,13 +1103,15 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
 
-    if (newValue.length() != 20 || (newValue.at(0) != 0x00 && newValue.at(0) != 0x01) || newValue.at(1) != 0x12 ||
+    // Skip the strict packet validation for SE7i (it has different packet structures)
+    if (!nordictrack_se7i &&
+        (newValue.length() != 20 || (newValue.at(0) != 0x00 && newValue.at(0) != 0x01) || newValue.at(1) != 0x12 ||
         newValue.at(2) != 0x01 || newValue.at(3) != 0x04 || newValue.at(4) != 0x02 ||
         (newValue.at(5) != 0x2e && newValue.at(5) != 0x30 && newValue.at(5) != 0x31) ||
         (((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(13)) == 0xFF &&
          ((uint8_t)newValue.at(14)) == 0xFF && ((uint8_t)newValue.at(15)) == 0xFF &&
          ((uint8_t)newValue.at(16)) == 0xFF && ((uint8_t)newValue.at(17)) == 0xFF &&
-         ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF)) {
+         ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF))) {
         return;
     }
 
@@ -1046,7 +1130,20 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         }
     }
 
-    if (!nordictrack_elliptical_c7_5) {
+    if (nordictrack_se7i && newValue.length() == 20 && newValue.at(0) == 0x00 &&
+        newValue.at(1) == 0x12 && newValue.at(2) == 0x01 && newValue.at(3) == 0x04 && newValue.at(4) == 0x02 &&
+        (newValue.at(5) == 0x30 || newValue.at(5) == 0x31)) {
+        // SE7i Resistance and Inclination parsing (Type 0x00 packets)
+        // Inclination from bytes 10-11 (little endian, divided by 100)
+        uint16_t incValue = ((uint16_t)((uint8_t)newValue.at(10))) + ((uint16_t)((uint8_t)newValue.at(11)) << 8);
+        Inclination = ((double)incValue) / 100.0;
+        emit debug(QStringLiteral("Current Inclination from packet: ") + QString::number(Inclination.value()));
+
+        // Resistance from bytes 12-13 (little endian): resistance = (value + 1) / 454
+        uint16_t resValue = ((uint16_t)((uint8_t)newValue.at(12))) + ((uint16_t)((uint8_t)newValue.at(13)) << 8);
+        Resistance = ((double)(resValue + 1)) / 454.0;
+        emit debug(QStringLiteral("Current Resistance from packet: ") + QString::number(Resistance.value()));
+    } else if (!nordictrack_elliptical_c7_5 && !nordictrack_se7i) {
         Resistance = GetResistanceFromPacket(newValue);
     } else if (nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x00 &&
                newValue.at(1) == 0x12 && newValue.at(2) == 0x01 && newValue.at(3) == 0x04 && newValue.at(4) == 0x02 &&
@@ -1101,9 +1198,6 @@ void nordictrackelliptical::btinit() {
     QSettings settings;
     bool proform_hybrid_trainer_xt =
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
-    bool nordictrack_elliptical_c7_5 =
-        settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5)
-            .toBool();
 
     {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
@@ -1203,7 +1297,68 @@ void nordictrackelliptical::btinit() {
         QThread::msleep(400);
         writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
         QThread::msleep(400);
-        if (nordictrack_elliptical_c7_5) {
+        if (nordictrack_se7i) {
+            // NordicTrack Elliptical SE7i initialization (19 packets: pkt944 to pkt1020)
+            max_resistance = 22;
+            max_inclination = 20;
+
+            uint8_t se7i_initData1[] = {0xfe, 0x02, 0x08, 0x02};
+            uint8_t se7i_initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t se7i_initData3[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x06, 0x04, 0x80, 0x8a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t se7i_initData4[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x06, 0x04, 0x88, 0x92, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t se7i_initData5[] = {0xfe, 0x02, 0x0b, 0x02}; // pkt972
+            uint8_t se7i_initData6[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00, 0x00, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt975
+            uint8_t se7i_initData7[] = {0xfe, 0x02, 0x0a, 0x02}; // pkt982
+            uint8_t se7i_initData8[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00, 0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt985
+            uint8_t se7i_initData9[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt994
+            uint8_t se7i_initData10[] = {0xfe, 0x02, 0x2c, 0x04}; // pkt1000
+            uint8_t se7i_initData11[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x06, 0x28, 0x90, 0x04, 0x00, 0x0d, 0x68, 0xc9, 0x28, 0x95, 0xf0, 0x69, 0xc0, 0x3d}; // pkt1003
+            uint8_t se7i_initData12[] = {0x01, 0x12, 0xa8, 0x19, 0x88, 0xf5, 0x60, 0xf9, 0x70, 0xcd, 0x48, 0xc9, 0x48, 0xf5, 0x70, 0xe9, 0x60, 0x1d, 0x88, 0x39}; // pkt1006
+            uint8_t se7i_initData13[] = {0xff, 0x08, 0xa8, 0x55, 0xc0, 0x80, 0x02, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt1009
+            uint8_t se7i_initData14[] = {0xfe, 0x02, 0x19, 0x03}; // pkt1014
+            uint8_t se7i_initData15[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x06, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt1017
+            uint8_t se7i_initData16[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt1020
+
+            int sleepms = 400;
+            writeCharacteristic(se7i_initData1, sizeof(se7i_initData1), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData2, sizeof(se7i_initData2), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData1, sizeof(se7i_initData1), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData3, sizeof(se7i_initData3), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData1, sizeof(se7i_initData1), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData4, sizeof(se7i_initData4), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData5, sizeof(se7i_initData5), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData6, sizeof(se7i_initData6), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData7, sizeof(se7i_initData7), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData8, sizeof(se7i_initData8), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData1, sizeof(se7i_initData1), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData9, sizeof(se7i_initData9), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData10, sizeof(se7i_initData10), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData11, sizeof(se7i_initData11), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData12, sizeof(se7i_initData12), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData13, sizeof(se7i_initData13), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData14, sizeof(se7i_initData14), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData15, sizeof(se7i_initData15), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+            writeCharacteristic(se7i_initData16, sizeof(se7i_initData16), QStringLiteral("init"), false, true);
+            QThread::msleep(sleepms);
+        } else if (nordictrack_elliptical_c7_5) {
             max_resistance = 22;
             max_inclination = 20;
 

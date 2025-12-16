@@ -156,3 +156,21 @@ function main_ws_connect() {
 
 // Initialize WebSocket connection
 main_ws_connect();
+
+if (typeof window !== 'undefined' && window.QZ_OFFLINE) {
+    main_ws_connect = function() {};
+    main_ws_enqueue = function(el) {
+        if (el && typeof el.resolve === 'function') {
+            el.resolve(null);
+        }
+    };
+    main_ws_queue_process = function(msg) {
+        if (msg) {
+            for (const el of main_ws_queue.splice(0, main_ws_queue.length)) {
+                if (el && typeof el.resolve === 'function') {
+                    el.resolve(null);
+                }
+            }
+        }
+    };
+}

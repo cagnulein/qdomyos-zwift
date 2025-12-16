@@ -7,6 +7,9 @@ Page {
     title: qsTr("QZ Fitness")
     id: page
 
+    // VoiceOver accessibility - ignore Page itself, only children are accessible
+    Accessible.ignored: true
+
     property alias start: start
     property alias stop: stop
     property alias lap: lap
@@ -36,7 +39,9 @@ Page {
             Rectangle {
                 width: 50
                 height: row.height
-                color: settings.theme_background_color
+					 color: settings.theme_background_color
+                Accessible.ignored: true
+
                 Column {
                     id: column
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -45,10 +50,13 @@ Page {
                     height: row.height
                     spacing: 0
                     padding: 0
+                    Accessible.ignored: true
+
                     Rectangle {
                         width: 50
                         height: row.height
                         color: settings.theme_background_color
+                        Accessible.ignored: true
 
                         Image {
                             anchors.verticalCenter: parent.verticalCenter
@@ -58,7 +66,13 @@ Page {
                             source: "icons/icons/bluetooth-icon.png"
                             enabled: rootItem.device
                             smooth: true
-                            opacity: rootItem.device ? 1.0 : 0.3 // Riduce l'opacità quando disabilitato
+                            opacity: rootItem.device ? 1.0 : 0.3
+                            
+                            // VoiceOver accessibility
+                            Accessible.role: Accessible.Indicator
+                            Accessible.name: qsTr("Bluetooth connection")
+                            Accessible.description: rootItem.device ? qsTr("Device connected") : qsTr("Device not connected")
+                            Accessible.focusable: true                            
                         }
                     }
                     Image {
@@ -68,6 +82,7 @@ Page {
                         height: row.height - 76
                         source: rootItem.signal
                         smooth: true
+                        Accessible.ignored: true
                     }
                 }
             }
@@ -75,7 +90,9 @@ Page {
             Rectangle {
                 width: 120
                 height: row.height
-                color: settings.theme_background_color
+					 color: settings.theme_background_color
+                Accessible.ignored: true
+
                 RoundButton {
                     icon.source: rootItem.startIcon
                     icon.height: row.height - 54
@@ -86,13 +103,20 @@ Page {
                     width: 120
                     height: row.height - 4
                     Material.foreground: rootItem.startColor === "red" ? "red" : Material.foreground
+                    
+                    // VoiceOver accessibility
+                    Accessible.role: Accessible.Button
+                    Accessible.name: rootItem.startText
+                    Accessible.description: qsTr("Start workout")
+                    Accessible.focusable: true                    
                 }
             }
 
             Rectangle {
                 width: 120
                 height: row.height
-                color: settings.theme_background_color
+					 color: settings.theme_background_color
+                Accessible.ignored: true
 
                 RoundButton {
                     icon.source: rootItem.stopIcon
@@ -104,6 +128,12 @@ Page {
                     width: 120
                     height: row.height - 4
                     Material.foreground: rootItem.stopColor === "red" ? "red" : Material.foreground
+                    
+                    // VoiceOver accessibility
+                    Accessible.role: Accessible.Button
+                    Accessible.name: rootItem.stopText
+                    Accessible.description: qsTr("Stop workout")
+                    Accessible.focusable: true                    
                 }
             }
 
@@ -111,7 +141,9 @@ Page {
                 id: item2
                 width: 50
                 height: row.height
-                color: settings.theme_background_color
+					 color: settings.theme_background_color
+                Accessible.ignored: true
+
                 RoundButton {
                     anchors.verticalCenter: parent.verticalCenter
                     id: lap
@@ -122,7 +154,13 @@ Page {
                     icon.height: 48
                     enabled: rootItem.lap
                     smooth: true
-                    opacity: rootItem.lap ? 1.0 : 0.3 // Riduce l'opacità quando disabilitato
+                    opacity: rootItem.lap ? 1.0 : 0.3 
+                    
+                    // VoiceOver accessibility
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Lap")
+                    Accessible.description: qsTr("Record a new lap")
+                    Accessible.focusable: true                    
                 }
             }
         }

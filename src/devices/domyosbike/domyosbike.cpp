@@ -304,6 +304,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     // so this simply condition will match all the cases, excluding the 20byte packet of the T900.
     if (newValue.length() != 20) {
         qDebug() << QStringLiteral("packetReceived!");
+        initPacketRecv = true;
         emit packetReceived();
     }
 
@@ -500,22 +501,98 @@ void domyosbike::btinit_changyow(bool startTape) {
                                  0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x14, 0x01, 0xff, 0xff};
     uint8_t initDataStart13[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xbd};
 
+init_reset:
+    initPacketRecv = false;
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    if (!initPacketRecv) {
+        qDebug() << "init 1 not received, retrying...";
+        goto init_reset;
+    }
+
+init_data2:
+    initPacketRecv = false;
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+    if (!initPacketRecv) {
+        qDebug() << "init 2 not received, retrying...";
+        goto init_data2;
+    }
+
+init_start:
+    initPacketRecv = false;
     writeCharacteristic(initDataStart, sizeof(initDataStart), QStringLiteral("init"), false, true);
+    if (!initPacketRecv) {
+        qDebug() << "initDataStart not received, retrying...";
+        goto init_start;
+    }
+
+init_start2:
+    initPacketRecv = false;
     writeCharacteristic(initDataStart2, sizeof(initDataStart2), QStringLiteral("init"), false, true);
+    if (!initPacketRecv) {
+        qDebug() << "initDataStart2 not received, retrying...";
+        goto init_start2;
+    }
+
+init_start3:
+    initPacketRecv = false;
     writeCharacteristic(initDataStart3, sizeof(initDataStart3), QStringLiteral("init"), false, true);
+    if (!initPacketRecv) {
+        qDebug() << "initDataStart3 not received, retrying...";
+        goto init_start3;
+    }
+
+init_start4:
+    initPacketRecv = false;
     writeCharacteristic(initDataStart4, sizeof(initDataStart4), QStringLiteral("init"), false, true);
+    if (!initPacketRecv) {
+        qDebug() << "initDataStart4 not received, retrying...";
+        goto init_start4;
+    }
+
+init_start5:
+    initPacketRecv = false;
     writeCharacteristic(initDataStart5, sizeof(initDataStart5), QStringLiteral("init"), false, true);
+    if (!initPacketRecv) {
+        qDebug() << "initDataStart5 not received, retrying...";
+        goto init_start5;
+    }
+
+init_start6_7:
+    initPacketRecv = false;
     writeCharacteristic(initDataStart6, sizeof(initDataStart6), QStringLiteral("init"), false, false);
     writeCharacteristic(initDataStart7, sizeof(initDataStart7), QStringLiteral("init"), false, true);
+    if (!initPacketRecv) {
+        qDebug() << "initDataStart6/7 not received, retrying...";
+        goto init_start6_7;
+    }
+
+init_start8_9:
+    initPacketRecv = false;
     writeCharacteristic(initDataStart8, sizeof(initDataStart8), QStringLiteral("init"), false, false);
     writeCharacteristic(initDataStart9, sizeof(initDataStart9), QStringLiteral("init"), false, true);
+    if (!initPacketRecv) {
+        qDebug() << "initDataStart8/9 not received, retrying...";
+        goto init_start8_9;
+    }
+
+init_start10_11:
+    initPacketRecv = false;
     writeCharacteristic(initDataStart10, sizeof(initDataStart10), QStringLiteral("init"), false, false);
     writeCharacteristic(initDataStart11, sizeof(initDataStart11), QStringLiteral("init"), false, true);
+    if (!initPacketRecv) {
+        qDebug() << "initDataStart10/11 not received, retrying...";
+        goto init_start10_11;
+    }
+
     if (startTape) {
+init_start12_13:
+        initPacketRecv = false;
         writeCharacteristic(initDataStart12, sizeof(initDataStart12), QStringLiteral("init"), false, false);
         writeCharacteristic(initDataStart13, sizeof(initDataStart13), QStringLiteral("init"), false, true);
+        if (!initPacketRecv) {
+            qDebug() << "initDataStart12/13 not received, retrying...";
+            goto init_start12_13;
+        }
     }
 
     initDone = true;

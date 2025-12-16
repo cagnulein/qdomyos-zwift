@@ -13,6 +13,10 @@ HomeForm {
         width: parent.fill
         height: parent.fill
         color: settings.theme_background_color
+
+        // VoiceOver accessibility - ignore decorative background
+        Accessible.role: Accessible.Pane
+        Accessible.ignored: true
     }
     signal start_clicked;
     signal stop_clicked;
@@ -184,6 +188,8 @@ HomeForm {
                 gridView.leftMargin = (parent.width % cellWidth) / 2;
         }
 
+        Accessible.ignored: true
+
         delegate: Item {
             id: id1
             width: 170 * settings.ui_zoom / 100
@@ -191,6 +197,12 @@ HomeForm {
 
             visible: visibleItem
             Component.onCompleted: console.log("completed " + objectName)
+
+            // VoiceOver accessibility support
+            Accessible.role: largeButton ? Accessible.Button : (writable ? Accessible.Pane : Accessible.StaticText)
+            Accessible.name: name + (largeButton ? "" : (": " + value))
+            Accessible.description: largeButton ? largeButtonLabel : (secondLine !== "" ? secondLine : (writable ? qsTr("Adjustable. Current value: ") + value : qsTr("Current value: ") + value))
+            Accessible.focusable: true
 
             Behavior on x {
                 enabled: id1.state != "active"
@@ -225,6 +237,9 @@ HomeForm {
                 border.color: (settings.theme_tile_shadow_enabled ? settings.theme_tile_shadow_color : settings.theme_tile_background_color)
                 color: settings.theme_tile_background_color
                 id: rect
+
+                // Ignore for VoiceOver - decorative background only
+                Accessible.ignored: true
             }
 /*
             DropShadow {
@@ -255,6 +270,9 @@ HomeForm {
                 height: 48 * settings.ui_zoom / 100
                 source: icon
                 visible: settings.theme_tile_icon_enabled && !largeButton
+
+                // Ignore for VoiceOver - decorative only
+                Accessible.ignored: true
             }
             Text {
                 objectName: "value"
@@ -269,6 +287,9 @@ HomeForm {
                 font.pointSize: valueFontSize * settings.ui_zoom / 100
                 font.bold: true
                 visible: !largeButton
+
+                // Ignore for VoiceOver - parent Item handles accessibility
+                Accessible.ignored: true
             }
             Text {
                 objectName: "secondLine"
@@ -284,6 +305,9 @@ HomeForm {
                 font.pointSize: settings.theme_tile_secondline_textsize * settings.ui_zoom / 100
                 font.bold: false
                 visible: !largeButton
+
+                // Ignore for VoiceOver - parent Item handles accessibility
+                Accessible.ignored: true
             }
             Text {
                 id: myText
@@ -298,6 +322,9 @@ HomeForm {
                 anchors.leftMargin: 55 * settings.ui_zoom / 100
                 anchors.topMargin: 20 * settings.ui_zoom / 100
                 visible: !largeButton
+
+                // Ignore for VoiceOver - parent Item handles accessibility
+                Accessible.ignored: true
             }
             RoundButton {
                 objectName: minusName
@@ -310,6 +337,13 @@ HomeForm {
                 anchors.leftMargin: 2
                 width: 48 * settings.ui_zoom / 100
                 height: 48 * settings.ui_zoom / 100
+
+                // VoiceOver accessibility
+                Accessible.role: Accessible.Button
+                Accessible.name: qsTr("Decrease ") + name
+                Accessible.description: qsTr("Decrease the value of ") + name
+                Accessible.focusable: true
+                Accessible.onPressAction: { minus_clicked(objectName) }
             }
             RoundButton {
                 autoRepeat: true
@@ -322,6 +356,13 @@ HomeForm {
                 anchors.rightMargin: 2
                 width: 48 * settings.ui_zoom / 100
                 height: 48 * settings.ui_zoom / 100
+
+                // VoiceOver accessibility
+                Accessible.role: Accessible.Button
+                Accessible.name: qsTr("Increase ") + name
+                Accessible.description: qsTr("Increase the value of ") + name
+                Accessible.focusable: true
+                Accessible.onPressAction: { plus_clicked(objectName) }
             }
             RoundButton {
                 autoRepeat: true
@@ -335,6 +376,13 @@ HomeForm {
                             radius: 20
                             }
                 font.pointSize: 20 * settings.ui_zoom / 100
+
+                // VoiceOver accessibility
+                Accessible.role: Accessible.Button
+                Accessible.name: largeButtonLabel
+                Accessible.description: name + ": " + largeButtonLabel
+                Accessible.focusable: true
+                Accessible.onPressAction: { largeButton_clicked(objectName) }
             }
         }
     }
