@@ -247,6 +247,13 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B)) {
+        // If external cadence sensor is configured, ignore internal CSC data completely
+        if (!settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
+            return;
+        }
+
         lastPacket = newValue;
 
         uint8_t index = 1;
@@ -291,18 +298,14 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
             deltaT = LastCrankEventTimeRead + 65535 - oldLastCrankEventTime;
         }
 
-        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                .toString()
-                .startsWith(QStringLiteral("Disabled"))) {
-            if (CrankRevsRead != oldCrankRevs && deltaT) {
-                double cadence = (((double)CrankRevsRead - (double)oldCrankRevs) / (double)deltaT) * 1024.0 * 60.0;
-                if (cadence >= 0 && cadence < 255) {
-                    Cadence = cadence;
-                }
-                lastGoodCadence = now;
-            } else if (lastGoodCadence.msecsTo(now) > 2000) {
-                Cadence = 0;
+        if (CrankRevsRead != oldCrankRevs && deltaT) {
+            double cadence = (((double)CrankRevsRead - (double)oldCrankRevs) / (double)deltaT) * 1024.0 * 60.0;
+            if (cadence >= 0 && cadence < 255) {
+                Cadence = cadence;
             }
+            lastGoodCadence = now;
+        } else if (lastGoodCadence.msecsTo(now) > 2000) {
+            Cadence = 0;
         }
 
         oldLastCrankEventTime = LastCrankEventTimeRead;
