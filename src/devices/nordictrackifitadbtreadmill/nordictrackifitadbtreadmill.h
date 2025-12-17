@@ -18,8 +18,14 @@
 #include <QString>
 #include <QThread>
 #include <QUdpSocket>
-
+#include <QRect>
+#include <QRegularExpression>
 #include "treadmill.h"
+
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -60,16 +66,45 @@ class nordictrackifitadbtreadmillLogcatAdbThread : public QThread {
 class nordictrackifitadbtreadmill : public treadmill {
     Q_OBJECT
   public:
+    enum RequestOrigin {
+        ORIGIN_USER,     // User initiated action
+        ORIGIN_GRPC,     // Action from gRPC/iFit app
+        ORIGIN_INTERNAL  // Internal app logic
+    };
+
     nordictrackifitadbtreadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
     bool canStartStop() override;
     double minStepSpeed() override { return 0.1; }
+    bool changeFanSpeed(uint8_t speed) override;
 
   private:
+    struct DisplayValue {
+        QString value;
+        QString label;
+        QRect rect;
+    };
+
     void forceIncline(double incline);
     void forceSpeed(double speed);
     double getDouble(QString v);
     void initiateThreadStop();
+    
+    // gRPC integration methods
+    void initializeGrpcService();
+    void startGrpcMetricsUpdates();
+    void stopGrpcMetricsUpdates();
+    double getGrpcSpeed();
+    double getGrpcIncline();
+    double getGrpcWatts();
+    double getGrpcCadence();
+    double getGrpcHeartRate();
+    void setGrpcSpeed(double speed);
+    void setGrpcFanSpeed(int fanSpeed);
+    int getGrpcFanSpeed();
+    void setGrpcIncline(double incline);
+    void startGrpcWorkoutStateMonitoring();
+    int getGrpcWorkoutState();
 
     QTimer *refresh;
 
@@ -86,7 +121,17 @@ class nordictrackifitadbtreadmill : public treadmill {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool grpcInitialized = false;
+    int previousWorkoutState = 1; // WORKOUT_STATE_IDLE
     bool proform_trainer_9_0 = false;
+
+    QDateTime lastTimeDataReceived;
+    bool firstDataReceived = true;
+
+    // Track origin of stop/pause/start requests to prevent echoing gRPC events
+    RequestOrigin requestStartOrigin = ORIGIN_USER;
+    RequestOrigin requestStopOrigin = ORIGIN_USER;
+    RequestOrigin requestPauseOrigin = ORIGIN_USER;
 
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
@@ -94,6 +139,9 @@ class nordictrackifitadbtreadmill : public treadmill {
 #ifdef Q_OS_WIN32
     nordictrackifitadbtreadmillLogcatAdbThread *logcatAdbThread = nullptr;
 #endif
+
+    DisplayValue extractValue(const QString& ocrText, int imageWidth, bool isLeftSide);
+    void processOCROutput(const QString& ocrText, int imageWidth);
 
     int x14i_inclination_lookuptable(double reqInclination);
     int proform_trainer_9_0_speed_lookuptable(double reqSpeed);
