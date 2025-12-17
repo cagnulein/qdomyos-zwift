@@ -235,11 +235,55 @@ class bluetoothdevice : public QObject {
      */
     double wattsMetricforUI() {
         QSettings settings;
+        bool power5sHold = settings.value(QZSettings::power_avg_5_sec_hold, QZSettings::default_power_avg_5_sec_hold).toBool();
         bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
-        if (power5s)
+
+        if (power5sHold) {
+            // Get current power value
+            double currentPower = wattsMetric().value();
+
+            // Initialize last update time on first call
+            if (!m_powerHoldLastUpdate.isValid()) {
+                m_powerHoldLastUpdate = QDateTime::currentDateTime();
+            }
+
+            // Check if at least 1 second has passed since last update
+            qint64 msSinceLastUpdate = m_powerHoldLastUpdate.msecsTo(QDateTime::currentDateTime());
+            if (msSinceLastUpdate >= 1000) {
+                // Add current power to buffer
+                m_powerHoldBuffer.append(currentPower);
+
+                       // If any value in buffer is 0, return 0 immediately
+                if (currentPower == 0.0) {
+                    m_powerHoldValue = 0.0;
+                    m_powerHoldBuffer.clear();
+                    m_powerHoldLastUpdate = QDateTime::currentDateTime();
+                    return 0.0;
+                }
+
+                // If we've collected 5 readings (5 seconds), calculate average and hold
+                if (m_powerHoldBuffer.size() >= 5) {
+                    // Calculate average
+                    double sum = 0.0;
+                    for (double val : m_powerHoldBuffer) {
+                        sum += val;
+                    }
+                    m_powerHoldValue = sum / m_powerHoldBuffer.size();
+
+                           // Reset buffer and counter for next cycle
+                    m_powerHoldBuffer.clear();
+                }
+
+                m_powerHoldLastUpdate = QDateTime::currentDateTime();
+            }
+
+                   // Return the held value (or 0 if not initialized yet)
+            return m_powerHoldValue;
+        } else if (power5s) {
             return wattsMetric().average5s();
-        else
+        } else {
             return wattsMetric().value();
+        }
     }
 
     /**
@@ -818,6 +862,11 @@ class bluetoothdevice : public QObject {
      */
     VIRTUAL_DEVICE_MODE virtualDeviceMode = VIRTUAL_DEVICE_MODE::NONE;
     virtualdevice *virtualDevice = nullptr;
+
+    // Power averaging hold support
+    QList<double> m_powerHoldBuffer;
+    double m_powerHoldValue = 0.0;
+    QDateTime m_powerHoldLastUpdate;
 
   protected:
     // useful to understand if a power sensor device for treadmill, it's a real one like the stryd or it's a dumb one like the runpod from Zwift

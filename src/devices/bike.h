@@ -44,7 +44,6 @@ class bike : public bluetoothdevice {
     void setSpeedLimit(double speed) { m_speedLimit = speed; }
     double speedLimit() { return m_speedLimit; }
     virtual bool ifitCompatible() {return false;}
-    double wattsMetricforUI();
 
     /**
      * @brief currentSteeringAngle Gets a metric object to get or set the current steering angle
@@ -112,12 +111,6 @@ class bike : public bluetoothdevice {
     metric m_steeringAngle;
 
     double m_speedLimit = 0;
-
-    // Power averaging hold support
-    QList<double> m_powerHoldBuffer;
-    int m_powerHoldCounter = 0;
-    double m_powerHoldValue = 0.0;
-    QDateTime m_powerHoldLastUpdate;
 
     // Sim mode support: convert inclination to power for devices without native inclination
     bool m_slopeControlEnabled = false;
