@@ -512,7 +512,7 @@ jobs:
   # This workflow contains a single job called "build"
   android-build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-22.04
+    runs-on: macos-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -530,21 +530,21 @@ jobs:
 #          path: '${{ github.workspace }}/output/android/'
 #          key: ${{ runner.os }}-QtCache-Android
 
-      - name: Xvfb install and run
-        run: |
-          sudo apt-get install -y xvfb
-          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
+#      - name: Xvfb install and run (Linux only - not needed on macOS)
+#        run: |
+#          sudo apt-get install -y xvfb
+#          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
 
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
-        
+
       - name: Checkout submodules with specific branches
         run: |
           git submodule init
-          git submodule update --init --recursive 
+          git submodule update --init --recursive
 
       - name: Fix qmdnsengine submodule
         run: |
@@ -552,8 +552,8 @@ jobs:
           git fetch
           git checkout 602da51dc43c55bd9aa8a83c47ea3594a9b01b98
 
-      - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+#      - name: Install packages required to run QZ inside workflow (Linux only - not needed on macOS)
+#        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
 
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
@@ -583,37 +583,76 @@ jobs:
 #        with:
 #          ndk-version: r21d
 
-# waiting github.com/jurplel/install-qt-action/issues/63
-      - name: Install Qt Android
+      - name: Install Qt 5.15.0 standard (for qthttpserver)
         uses: jdpurcell/install-qt-action@v5
         with:
           version: '5.15.0'
-          host: 'linux'
+          host: 'mac'
           target: 'android'
           arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
-          dir: '${{ github.workspace }}/output/android/'
+          modules: 'qtcharts qtnetworkauth'
+          dir: '${{ github.workspace }}/output/qt-standard/'
           cache: 'true'
-          cache-key-prefix: 'install-qt-action-android'                    
+          cache-key-prefix: 'install-qt-action-standard'
 
       - name: Install Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
-          
-      - name: patching qt for bluetooth
-        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
+          java-version: '17'
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
+      - name: Build qthttpserver with standard Qt
+        run: |
+          # QTHTTPSERVER uses standard Qt 5.15.0 (has all required modules including websockets-private)
+          cd src/qthttpserver
+          qmake
+          make -j8
+          make install
+          cd ../..
+
+      - name: Install Qt Android (custom build with 16k page support)
+        run: |
+          mkdir -p ${{ github.workspace }}/Qt-5.15.0-custom
+          cd ${{ github.workspace }}
+          # Use curl on macOS instead of wget
+          curl -L -o qt5.15.0-android-page16.zip https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.0/qt5.15.0-android-page16.zip
+          unzip -q qt5.15.0-android-page16.zip -d Qt-5.15.0-custom
+
+          echo "=== Checking Qt custom directory structure ==="
+          ls -la Qt-5.15.0-custom/ | head -20
+          echo "Searching for qmake..."
+          find Qt-5.15.0-custom -name qmake -type f 2>/dev/null | head -5
+          echo "Searching for Qt directories..."
+          find Qt-5.15.0-custom -maxdepth 3 -type d -name "Qt*" 2>/dev/null | head -10
+          echo "============================================"
+
       - name: Set Android NDK 21 && build
         run: |
-          # Install NDK 21 after GitHub update
+          # Remove standard Qt from PATH to ensure custom Qt is used
+          export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "output/qt-standard" | tr '\n' ':' | sed 's/:$//')
+
+          # Setup custom Qt installation for Android build (with 16k page support)
+          export QT_ROOT="${{ github.workspace }}/Qt-5.15.0-custom/qt5.15.0-android-page16/usr/local/Qt-5.15.0"
+          export PATH="${QT_ROOT}/bin:$PATH"
+          export Qt5_DIR="${QT_ROOT}"
+
+          # Verify we're using the correct Qt installation
+          echo "=== Qt Installation Verification ==="
+          echo "QT_ROOT: $QT_ROOT"
+          echo "PATH (after custom Qt): $PATH"
+          echo "qmake location: $(which qmake)"
+          echo "qmake version: $(qmake -version)"
+          echo "androiddeployqt location: $(which androiddeployqt)"
+          ls -la "$QT_ROOT/bin/" | head -20
+          echo "===================================="
+
+          # Install NDK 21 on macOS
           # https://github.com/actions/virtual-environments/issues/5595
-          ANDROID_ROOT="/usr/local/lib/android"
-          ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
+          # On macOS, Android SDK is in $ANDROID_HOME
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.4.7075529"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
@@ -631,21 +670,87 @@ jobs:
           cd ..
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
-          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+          # Remove default NDK if present (macOS path)
+          rm -rf $ANDROID_SDK_ROOT/ndk/25.1.8937393 || true
 
-          # QTHTTPSERVER must use the same NDK
-          cd src/qthttpserver 
-          qmake
-          make -j8
-          make install
-          cd ../..          
-          
-          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
-          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
+          # Build Android app with custom Qt (16k page support)
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/21.4.7075529" && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          # Use sed with backup extension for macOS compatibility
+          sed -i.bak '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
+          rm -f src/android-qdomyos-zwift-deployment-settings.json.bak
           cat src/android-qdomyos-zwift-deployment-settings.json
 
-      - name: Build APK (not usable for production due to unpatched QT library)
-        run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+      - name: Build APK (using Qt 5.15.0 with 16k page support)
+        run: |
+          # Remove standard Qt from PATH again (for androiddeployqt)
+          export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "output/qt-standard" | tr '\n' ':' | sed 's/:$//')
+          export QT_ROOT="${{ github.workspace }}/Qt-5.15.0-custom/qt5.15.0-android-page16/usr/local/Qt-5.15.0"
+          export PATH="${QT_ROOT}/bin:$PATH"
+          cd src
+          androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+
+      - name: Realign APK to 16k page size
+        run: |
+          APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
+          APK_ALIGNED="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-aligned.apk"
+
+          # Find zipalign in Android SDK (macOS path)
+          ZIPALIGN=$(find $ANDROID_HOME/build-tools -name zipalign | head -n 1)
+
+          if [ -z "$ZIPALIGN" ]; then
+            echo "ERROR: zipalign not found in Android SDK"
+            exit 1
+          fi
+
+          echo "Using zipalign: $ZIPALIGN"
+          echo "Realigning APK to 16k (16384 bytes)..."
+
+          # Realign the APK to 16384 bytes
+          $ZIPALIGN -f 16384 "$APK_PATH" "$APK_ALIGNED"
+
+          # Replace original APK with aligned version
+          mv "$APK_ALIGNED" "$APK_PATH"
+
+          echo "APK realigned successfully!"
+
+      - name: Verify APK 16k alignment
+        run: |
+          APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
+
+          # Find zipalign in Android SDK
+          ZIPALIGN=$(find $ANDROID_SDK_ROOT/build-tools -name zipalign | head -n 1)
+
+          if [ -z "$ZIPALIGN" ]; then
+            echo "ERROR: zipalign not found in Android SDK"
+            exit 1
+          fi
+
+          echo "Using zipalign: $ZIPALIGN"
+          echo "APK path: $APK_PATH"
+          echo ""
+          echo "=== Checking APK alignment to 16k (16384 bytes) ==="
+          echo ""
+
+          # Check alignment with verbose output to see which files fail
+          if $ZIPALIGN -c -v 16384 "$APK_PATH" 2>&1 | tee alignment_check.log; then
+            echo ""
+            echo "✓ SUCCESS: APK is correctly aligned to 16k (16384 bytes)"
+            echo "All files in the APK are properly aligned for 16k page devices"
+          else
+            echo ""
+            echo "✗ FAILURE: APK is NOT aligned to 16k (16384 bytes)"
+            echo ""
+            echo "=== Files NOT aligned to 16384 bytes: ==="
+            grep -E "would not be" alignment_check.log || grep -E "Verification FAILED" alignment_check.log || cat alignment_check.log
+            echo ""
+            echo "=== Analyzing unaligned files ==="
+            # Extract and show .so files that are not aligned
+            unzip -l "$APK_PATH" | grep "\.so$" | head -20
+            echo ""
+            echo "This APK will not work on devices with 16k page size!"
+            echo "The Qt libraries or other native libraries may not be correctly built with 16k page alignment."
+            exit 1
+          fi
 
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
@@ -1648,7 +1753,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
+          java-version: '17'
           
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
@@ -1755,7 +1860,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
+          java-version: '17'
           
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
@@ -1860,7 +1965,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
+          java-version: '17'
           
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
