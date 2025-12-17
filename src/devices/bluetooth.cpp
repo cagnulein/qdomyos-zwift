@@ -2051,7 +2051,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(ziproTreadmill, &ziprotreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
                 ziproTreadmill->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(ziproTreadmill);
-            } else if ((b.name().toUpper().startsWith(QLatin1String("LIFESPAN-TM"))) && !lifespanTreadmill && filter) {
+            } else if ((b.name().toUpper().startsWith(QLatin1String("LIFESPAN"))) && !lifespanTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 lifespanTreadmill = new lifespantreadmill(this->pollDeviceTime, noConsole, noHeartService);

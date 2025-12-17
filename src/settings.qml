@@ -1229,7 +1229,9 @@ import Qt.labs.platform 1.1
             property string intervalsicu_suffix: "#QZ"
             property bool intervalsicu_date_prefix: false
             property bool proform_treadmill_sport_3_0: false
-            property bool rouvy_compatibility: false
+            property bool rouvy_compatibility: false            
+            property bool tile_negative_inclination_enabled: false
+            property int tile_negative_inclination_order: 75
             property bool power_avg_5_sec_hold: false
         }
 
