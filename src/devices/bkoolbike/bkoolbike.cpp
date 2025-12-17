@@ -291,14 +291,18 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
             deltaT = LastCrankEventTimeRead + 65535 - oldLastCrankEventTime;
         }
 
-        if (CrankRevsRead != oldCrankRevs && deltaT) {
-            double cadence = (((double)CrankRevsRead - (double)oldCrankRevs) / (double)deltaT) * 1024.0 * 60.0;
-            if (cadence >= 0 && cadence < 255) {
-                Cadence = cadence;
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
+            if (CrankRevsRead != oldCrankRevs && deltaT) {
+                double cadence = (((double)CrankRevsRead - (double)oldCrankRevs) / (double)deltaT) * 1024.0 * 60.0;
+                if (cadence >= 0 && cadence < 255) {
+                    Cadence = cadence;
+                }
+                lastGoodCadence = now;
+            } else if (lastGoodCadence.msecsTo(now) > 2000) {
+                Cadence = 0;
             }
-            lastGoodCadence = now;
-        } else if (lastGoodCadence.msecsTo(now) > 2000) {
-            Cadence = 0;
         }
 
         oldLastCrankEventTime = LastCrankEventTimeRead;
