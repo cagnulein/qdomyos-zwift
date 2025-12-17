@@ -247,69 +247,67 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B)) {
-        // If external cadence sensor is configured, ignore internal CSC data completely
-        if (!settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                .toString()
-                .startsWith(QStringLiteral("Disabled"))) {
-            return;
-        }
-
         lastPacket = newValue;
 
-        uint8_t index = 1;
+        // Only parse and update cadence from internal CSC if no external cadence sensor configured
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
+            uint8_t index = 1;
 
-        if (newValue.at(0) == 0x02 && newValue.length() < 4) {
-            emit debug(QStringLiteral("Crank revolution data present with wrong bytes ") +
-                       QString::number(newValue.length()));
-            return;
-        } else if (newValue.at(0) == 0x01 && newValue.length() < 6) {
-            emit debug(QStringLiteral("Wheel revolution data present with wrong bytes ") +
-                       QString::number(newValue.length()));
-            return;
-        } else if (newValue.at(0) == 0x00) {
-            emit debug(QStringLiteral("Cadence sensor notification without datas ") +
-                       QString::number(newValue.length()));
-            return;
-        }
-
-        if (newValue.at(0) == 0x02) {
-            CrankRevsRead =
-                (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-        } else if (newValue.at(0) == 0x03) {
-            index += 6;
-            CrankRevsRead =
-                (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-        } else {
-            return;
-            // CrankRevsRead = (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) |
-            // ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) | ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8)
-            // | (uint32_t)((uint8_t)newValue.at(index)));
-        }
-        if (newValue.at(0) == 0x01) {
-            index += 4;
-        } else {
-            index += 2;
-        }
-        uint16_t LastCrankEventTimeRead =
-            (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-
-        int16_t deltaT = LastCrankEventTimeRead - oldLastCrankEventTime;
-        if (deltaT < 0) {
-            deltaT = LastCrankEventTimeRead + 65535 - oldLastCrankEventTime;
-        }
-
-        if (CrankRevsRead != oldCrankRevs && deltaT) {
-            double cadence = (((double)CrankRevsRead - (double)oldCrankRevs) / (double)deltaT) * 1024.0 * 60.0;
-            if (cadence >= 0 && cadence < 255) {
-                Cadence = cadence;
+            if (newValue.at(0) == 0x02 && newValue.length() < 4) {
+                emit debug(QStringLiteral("Crank revolution data present with wrong bytes ") +
+                           QString::number(newValue.length()));
+                return;
+            } else if (newValue.at(0) == 0x01 && newValue.length() < 6) {
+                emit debug(QStringLiteral("Wheel revolution data present with wrong bytes ") +
+                           QString::number(newValue.length()));
+                return;
+            } else if (newValue.at(0) == 0x00) {
+                emit debug(QStringLiteral("Cadence sensor notification without datas ") +
+                           QString::number(newValue.length()));
+                return;
             }
-            lastGoodCadence = now;
-        } else if (lastGoodCadence.msecsTo(now) > 2000) {
-            Cadence = 0;
-        }
 
-        oldLastCrankEventTime = LastCrankEventTimeRead;
-        oldCrankRevs = CrankRevsRead;
+            if (newValue.at(0) == 0x02) {
+                CrankRevsRead =
+                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+            } else if (newValue.at(0) == 0x03) {
+                index += 6;
+                CrankRevsRead =
+                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+            } else {
+                return;
+                // CrankRevsRead = (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) |
+                // ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) | ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8)
+                // | (uint32_t)((uint8_t)newValue.at(index)));
+            }
+            if (newValue.at(0) == 0x01) {
+                index += 4;
+            } else {
+                index += 2;
+            }
+            uint16_t LastCrankEventTimeRead =
+                (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+
+            int16_t deltaT = LastCrankEventTimeRead - oldLastCrankEventTime;
+            if (deltaT < 0) {
+                deltaT = LastCrankEventTimeRead + 65535 - oldLastCrankEventTime;
+            }
+
+            if (CrankRevsRead != oldCrankRevs && deltaT) {
+                double cadence = (((double)CrankRevsRead - (double)oldCrankRevs) / (double)deltaT) * 1024.0 * 60.0;
+                if (cadence >= 0 && cadence < 255) {
+                    Cadence = cadence;
+                }
+                lastGoodCadence = now;
+            } else if (lastGoodCadence.msecsTo(now) > 2000) {
+                Cadence = 0;
+            }
+
+            oldLastCrankEventTime = LastCrankEventTimeRead;
+            oldCrankRevs = CrankRevsRead;
+        }
 
         Speed = Cadence.value() *
                 settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio)
