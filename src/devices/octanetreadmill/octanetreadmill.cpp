@@ -377,10 +377,37 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if (ZR8 && newValue.contains(cadenceSign)) {
         int16_t i = newValue.indexOf(cadenceSign) + 1;
 
-        if (i >= newValue.length() || ((uint8_t)newValue.at(i)) < 30)
+        if (i >= newValue.length())
             return;
 
-        Cadence = ((uint8_t)newValue.at(i));
+        uint8_t currentCadence = (uint8_t)newValue.at(i);
+
+        // Update Cadence only if >= 30 to filter noise
+        if (currentCadence >= 30) {
+            Cadence = currentCadence;
+        }
+
+        // Track cadence = 0 to detect when user actually stops (after 5 seconds)
+        if (currentCadence == 0) {
+            if (lastCadenceZeroTime.isNull()) {
+                lastCadenceZeroTime = QDateTime::currentDateTime();
+                emit debug(QStringLiteral("ZR8: Cadence dropped to 0, starting 5-second timer"));
+            } else {
+                qint64 secondsSinceCadenceZero = lastCadenceZeroTime.secsTo(QDateTime::currentDateTime());
+                if (secondsSinceCadenceZero >= 5 && Speed.value() > 0) {
+                    emit debug(QStringLiteral("ZR8: Cadence = 0 for 5+ seconds, resetting speed to 0"));
+                    Speed = 0;
+                    emit speedChanged(0);
+                }
+            }
+        } else {
+            // Cadence is non-zero - reset the timer
+            if (!lastCadenceZeroTime.isNull()) {
+                emit debug(QStringLiteral("ZR8: Cadence resumed (") + QString::number(currentCadence) +
+                           QStringLiteral("), canceling speed reset"));
+                lastCadenceZeroTime = QDateTime();
+            }
+        }
     }
 
     if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
