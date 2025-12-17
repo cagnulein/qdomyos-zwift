@@ -1001,6 +1001,8 @@ const QString QZSettings::tile_auto_virtual_shifting_climb_enabled = QStringLite
 const QString QZSettings::tile_auto_virtual_shifting_climb_order = QStringLiteral("tile_auto_virtual_shifting_climb_order");
 const QString QZSettings::tile_auto_virtual_shifting_sprint_enabled = QStringLiteral("tile_auto_virtual_shifting_sprint_enabled");
 const QString QZSettings::tile_auto_virtual_shifting_sprint_order = QStringLiteral("tile_auto_virtual_shifting_sprint_order");
+const QString QZSettings::tile_negative_inclination_enabled = QStringLiteral("tile_negative_inclination_enabled");
+const QString QZSettings::tile_negative_inclination_order = QStringLiteral("tile_negative_inclination_order");
 const QString QZSettings::chart_display_mode = QStringLiteral("chart_display_mode");
 const QString QZSettings::calories_active_only = QStringLiteral("calories_active_only");
 const QString QZSettings::calories_from_hr = QStringLiteral("calories_from_hr");
@@ -1848,6 +1850,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_auto_virtual_shifting_climb_order, QZSettings::default_tile_auto_virtual_shifting_climb_order},
     {QZSettings::tile_auto_virtual_shifting_sprint_enabled, QZSettings::default_tile_auto_virtual_shifting_sprint_enabled},
     {QZSettings::tile_auto_virtual_shifting_sprint_order, QZSettings::default_tile_auto_virtual_shifting_sprint_order},
+    {QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled},
+    {QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order},
     {QZSettings::chart_display_mode, QZSettings::default_chart_display_mode},
     {QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike},
     {QZSettings::calories_active_only, QZSettings::default_calories_active_only},

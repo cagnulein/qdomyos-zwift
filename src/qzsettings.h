@@ -2724,6 +2724,18 @@ class QZSettings {
     static constexpr int default_tile_auto_virtual_shifting_sprint_order = 57;
 
     /**
+     * @brief Enable negative inclination tile
+     */
+    static const QString tile_negative_inclination_enabled;
+    static constexpr bool default_tile_negative_inclination_enabled = false;
+
+    /**
+     * @brief Order of negative inclination tile
+     */
+    static const QString tile_negative_inclination_order;
+    static constexpr int default_tile_negative_inclination_order = 75;
+
+    /**
      * @brief Chart display mode: 0 = both charts, 1 = heart rate only, 2 = power only
      */
     static const QString chart_display_mode;

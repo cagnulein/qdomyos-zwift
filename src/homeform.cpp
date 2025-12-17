@@ -185,6 +185,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                            QStringLiteral("speed"), 48, labelFontSize);
     inclination = new DataObject(QStringLiteral("Inclination (%)"), QStringLiteral("icons/icons/inclination.png"),
                                  QStringLiteral("0.0"), true, QStringLiteral("inclination"), 48, labelFontSize);
+    negative_inclination = new DataObject(QStringLiteral("Descent (") + meters + QStringLiteral(")"), QStringLiteral("icons/icons/inclination.png"),
+                                 QStringLiteral("0.0"), false, QStringLiteral("negative_inclination"), 48, labelFontSize);
     cadence = new DataObject(QStringLiteral("Cadence (rpm)"), QStringLiteral("icons/icons/cadence.png"),
                              QStringLiteral("0"), false, QStringLiteral("cadence"), 48, labelFontSize);
     elevation = new DataObject(QStringLiteral("Elev. Gain (") + meters + QStringLiteral(")"),
@@ -1956,6 +1958,12 @@ void homeform::sortTiles() {
                 coreTemperature->setGridId(i);
                 dataList.append(coreTemperature);
             }
+
+            if (settings.value(QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled).toBool() &&
+                settings.value(QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order).toInt() == i) {
+                negative_inclination->setGridId(i);
+                dataList.append(negative_inclination);
+            }
         }
     } else     if (bluetoothManager->device()->deviceType() == STAIRCLIMBER) {
         for (int i = 0; i < 100; i++) {
@@ -2332,6 +2340,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_coretemperature_order, QZSettings::default_tile_coretemperature_order).toInt() == i) {
                 coreTemperature->setGridId(i);
                 dataList.append(coreTemperature);
+            }
+
+            if (settings.value(QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled).toBool() &&
+                settings.value(QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order).toInt() == i) {
+                negative_inclination->setGridId(i);
+                dataList.append(negative_inclination);
             }
         }
     } else if (bluetoothManager->device()->deviceType() == BIKE) {
@@ -3879,6 +3893,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_coretemperature_order, QZSettings::default_tile_coretemperature_order).toInt() == i) {
                 coreTemperature->setGridId(i);
                 dataList.append(coreTemperature);
+            }
+
+            if (settings.value(QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled).toBool() &&
+                settings.value(QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order).toInt() == i) {
+                negative_inclination->setGridId(i);
+                dataList.append(negative_inclination);
             }
         }
     }
@@ -5634,14 +5654,6 @@ void homeform::update() {
                 QString::number(((treadmill *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
-            elevation->setValue(QString::number(((treadmill *)bluetoothManager->device())->elevationGain().value() *
-                                                    meter_feet_conversion,
-                                                'f', (miles ? 0 : 1)));
-            elevation->setSecondLine(
-                QString::number(((treadmill *)bluetoothManager->device())->elevationGain().rate1s() * 60.0 *
-                                    meter_feet_conversion,
-                                'f', (miles ? 0 : 1)) +
-                " /min");
 
             this->stepCount->setValue(QString::number(
                 ((treadmill *)bluetoothManager->device())->currentStepCount().value(), 'f', 0));
@@ -5815,14 +5827,6 @@ void homeform::update() {
                 QString::number(((stairclimber *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((stairclimber *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
-            elevation->setValue(QString::number(((stairclimber *)bluetoothManager->device())->elevationGain().value() *
-                                                    meter_feet_conversion,
-                                                'f', (miles ? 0 : 1)));
-            elevation->setSecondLine(
-                QString::number(((stairclimber *)bluetoothManager->device())->elevationGain().rate1s() * 60.0 *
-                                    meter_feet_conversion,
-                                'f', (miles ? 0 : 1)) +
-                " /min");
 
             this->stepCount->setValue(QString::number(
                 ((stairclimber *)bluetoothManager->device())->currentStepCount().value(), 'f', 0));
@@ -5961,14 +5965,6 @@ void homeform::update() {
                         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
                             .toDouble(),
                     'f', 0));
-
-            elevation->setValue(
-                QString::number(((bike *)bluetoothManager->device())->elevationGain().value() * meter_feet_conversion,
-                                'f', (miles ? 0 : 1)));
-            elevation->setSecondLine(QString::number(((bike *)bluetoothManager->device())->elevationGain().rate1s() *
-                                                         60.0 * meter_feet_conversion,
-                                                     'f', (miles ? 0 : 1)) +
-                                     " /min");
 
             this->steeringAngle->setValue(
                 QString::number(((bike *)bluetoothManager->device())->currentSteeringAngle().value(), 'f', 1));
@@ -6205,14 +6201,7 @@ void homeform::update() {
                 QString::number(((elliptical *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((elliptical *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
-            elevation->setValue(QString::number(((elliptical *)bluetoothManager->device())->elevationGain().value() *
-                                                    meter_feet_conversion,
-                                                'f', (miles ? 0 : 1)));
-            elevation->setSecondLine(
-                QString::number(((elliptical *)bluetoothManager->device())->elevationGain().rate1s() * 60.0 *
-                                    meter_feet_conversion,
-                                'f', (miles ? 0 : 1)) +
-                " /min");
+
             this->gears->setValue(QString::number(((elliptical *)bluetoothManager->device())->gears()));
             this->target_speed->setValue(QString::number(
                 ((elliptical *)bluetoothManager->device())->lastRequestedSpeed().value() * unit_conversion, 'f', 1));
@@ -6220,6 +6209,40 @@ void homeform::update() {
             this->target_cadence->setValue(
                 QString::number(((elliptical *)bluetoothManager->device())->lastRequestedCadence().value(), 'f', 0));
         }
+
+        // Common elevation and negative elevation handling for all device types
+        // Negative elevation gain (descent)
+        this->negative_inclination->setValue(
+            QString::number(bluetoothManager->device()->negativeElevationGain().value() *
+                            meter_feet_conversion, 'f', (miles ? 0 : 1)));
+        // Check if speed and inclination are not zero before showing rate
+        if (bluetoothManager->device()->currentSpeed().value() > 0 &&
+            bluetoothManager->device()->currentInclination().value() < 0) {
+            this->negative_inclination->setSecondLine(
+                QString::number(bluetoothManager->device()->negativeElevationGain().rate1s() * 60.0 *
+                                    meter_feet_conversion,
+                                'f', (miles ? 0 : 1)) +
+                " /min");
+        } else {
+            this->negative_inclination->setSecondLine("");
+        }
+
+        // Elevation gain (ascent)
+        elevation->setValue(
+            QString::number(bluetoothManager->device()->elevationGain().value() * meter_feet_conversion,
+                            'f', (miles ? 0 : 1)));
+        // Check if speed and inclination are not zero before showing rate
+        if (bluetoothManager->device()->currentSpeed().value() > 0 &&
+            bluetoothManager->device()->currentInclination().value() > 0) {
+            elevation->setSecondLine(
+                QString::number(bluetoothManager->device()->elevationGain().rate1s() * 60.0 *
+                                    meter_feet_conversion,
+                                'f', (miles ? 0 : 1)) +
+                " /min");
+        } else {
+            elevation->setSecondLine("");
+        }
+
         watt->setSecondLine(
             QStringLiteral("AVG: ") + QString::number((bluetoothManager->device())->wattsMetric().average(), 'f', 0) +
             QStringLiteral(" MAX: ") + QString::number((bluetoothManager->device())->wattsMetric().max(), 'f', 0));
@@ -7004,12 +7027,21 @@ void homeform::update() {
 
                 if (!stopped && !paused && bluetoothManager->device()->currentHeart().value() &&
                     bluetoothManager->device()->currentSpeed().value() > 0.0f) {
+                    qDebug() << QStringLiteral("PID HR Control - HR:") << bluetoothManager->device()->currentHeart().average20s()
+                             << QStringLiteral("HRmin:") << hrmin << QStringLiteral("HRmax:") << hrmax
+                             << QStringLiteral("fromTrainProgram:") << fromTrainProgram;
+
                     if (bluetoothManager->device()->deviceType() == TREADMILL) {
 
                         const double step = 0.2;
                         double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
+                        qDebug() << QStringLiteral("TREADMILL PID HR - currentSpeed:") << currentSpeed
+                                 << QStringLiteral("minSpeed:") << minSpeed << QStringLiteral("maxSpeed:") << maxSpeed;
+
                         if (hrmax < bluetoothManager->device()->currentHeart().average20s() &&
                             minSpeed <= currentSpeed - step) {
+                            qDebug() << QStringLiteral("TREADMILL PID HR - HR > HRmax, DECREASING speed from")
+                                     << currentSpeed << QStringLiteral("to") << (currentSpeed - step);
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
                                     currentSpeed - step,
@@ -7017,6 +7049,8 @@ void homeform::update() {
                             pid_heart_zone_small_inc_counter = 0;
                         } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
                                    maxSpeed >= currentSpeed + step) {
+                            qDebug() << QStringLiteral("TREADMILL PID HR - HR < HRmin, INCREASING speed from")
+                                     << currentSpeed << QStringLiteral("to") << (currentSpeed + step);
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
 
@@ -7024,40 +7058,59 @@ void homeform::update() {
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
                         } else if (maxSpeed >= currentSpeed + step &&
-                                   hrmax < bluetoothManager->device()->currentHeart().average20s() && trainprogram_pid_pushy) {
+                                   hrmax >= bluetoothManager->device()->currentHeart().average20s() && trainprogram_pid_pushy) {
+                            qDebug() << QStringLiteral("TREADMILL PID HR - PUSHY mode, counter:") << pid_heart_zone_small_inc_counter
+                                     << QStringLiteral("threshold:") << (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average20s()));
                             pid_heart_zone_small_inc_counter++;
                             if (pid_heart_zone_small_inc_counter > (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average20s()))) {
+                                qDebug() << QStringLiteral("TREADMILL PID HR - PUSHY triggered, INCREASING speed from")
+                                         << currentSpeed << QStringLiteral("to") << (currentSpeed + step);
                                 ((treadmill *)bluetoothManager->device())
                                     ->changeSpeedAndInclination(
                                         currentSpeed + step,
                                         ((treadmill *)bluetoothManager->device())->currentInclination().value());
                                 pid_heart_zone_small_inc_counter = 0;
                             }
+                        } else {
+                            qDebug() << QStringLiteral("TREADMILL PID HR - No action taken (in zone or at limits)");
                         }
                     } else if (bluetoothManager->device()->deviceType() == BIKE) {
 
                         const int step = 1;
                         resistance_t currentResistance =
                             ((bike *)bluetoothManager->device())->currentResistance().value();
-                        if (hrmax < bluetoothManager->device()->currentHeart().average20s()) {
+                        qDebug() << QStringLiteral("BIKE PID HR - currentResistance:") << currentResistance
+                                 << QStringLiteral("maxResistance:") << maxResistance;
 
+                        if (hrmax < bluetoothManager->device()->currentHeart().average20s()) {
+                            qDebug() << QStringLiteral("BIKE PID HR - HR > HRmax, DECREASING resistance from")
+                                     << currentResistance << QStringLiteral("to") << (currentResistance - step);
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
                         } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
                                    maxResistance >= currentResistance + step) {
-
+                            qDebug() << QStringLiteral("BIKE PID HR - HR < HRmin, INCREASING resistance from")
+                                     << currentResistance << QStringLiteral("to") << (currentResistance + step);
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
+                        } else {
+                            qDebug() << QStringLiteral("BIKE PID HR - No action taken (in zone or at limits)");
                         }
                     } else if (bluetoothManager->device()->deviceType() == ROWING) {
 
                         const int step = 1;
                         resistance_t currentResistance =
                             ((rower *)bluetoothManager->device())->currentResistance().value();
-                        if (hrmax < bluetoothManager->device()->currentHeart().average20s()) {
+                        qDebug() << QStringLiteral("ROWING PID HR - currentResistance:") << currentResistance;
 
+                        if (hrmax < bluetoothManager->device()->currentHeart().average20s()) {
+                            qDebug() << QStringLiteral("ROWING PID HR - HR > HRmax, DECREASING resistance from")
+                                     << currentResistance << QStringLiteral("to") << (currentResistance - step);
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance - step);
                         } else if (hrmin > bluetoothManager->device()->currentHeart().average20s()) {
-
+                            qDebug() << QStringLiteral("ROWING PID HR - HR < HRmin, INCREASING resistance from")
+                                     << currentResistance << QStringLiteral("to") << (currentResistance + step);
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance + step);
+                        } else {
+                            qDebug() << QStringLiteral("ROWING PID HR - No action taken (in zone or at limits)");
                         }
                     }
                 }
@@ -7386,9 +7439,10 @@ void homeform::update() {
                             watts, resistance, peloton_resistance, (uint8_t)bluetoothManager->device()->currentHeart().value(),
                             pace, cadence, bluetoothManager->device()->calories().value(),
                             bluetoothManager->device()->elevationGain().value(),
+                            bluetoothManager->device()->negativeElevationGain().value(),
                             lastRecordedTime + i,  // Fill each missing second
                             lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
-                            bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount, 
+                            bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount,
                             target_cadence->value().toDouble(), target_power->value().toDouble(), target_resistance->value().toDouble(),
                             target_incline->value().toDouble(), target_speed->value().toDouble(),
                             bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(), bluetoothManager->device()->HeatStrainIndex.value());
@@ -7420,10 +7474,11 @@ void homeform::update() {
                 watts, resistance, peloton_resistance, (uint8_t)bluetoothManager->device()->currentHeart().value(),
                 pace, cadence, bluetoothManager->device()->calories().value(),
                 bluetoothManager->device()->elevationGain().value(),
+                bluetoothManager->device()->negativeElevationGain().value(),
                 currentElapsedSeconds,
 
                 lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
-                bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount, 
+                bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount,
                 target_cadence->value().toDouble(), target_power->value().toDouble(), target_resistance->value().toDouble(),
                 target_incline->value().toDouble(), target_speed->value().toDouble(),
                 bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(), bluetoothManager->device()->HeatStrainIndex.value());
