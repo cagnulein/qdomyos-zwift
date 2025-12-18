@@ -193,6 +193,13 @@ void ftmsbike::zwiftPlayInit() {
     }
 }
 
+void ftmsbike::resetFTMSTime() {
+    qDebug() << "ftmsbike::resetFTMSTime() - Resetting FTMS time tracking for training program";
+    lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChangedPower = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged2ACE = QDateTime::currentDateTime();
+}
+
 void ftmsbike::forcePower(int16_t requestPower) {
     if((resistance_lvl_mode || TITAN_7000) && !MAGNUS && !SS2K) {
         forceResistance(resistanceFromPowerRequest(requestPower));

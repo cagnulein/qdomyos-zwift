@@ -83,6 +83,8 @@ class ftmsbike : public bike {
     bool ergModeSupportedAvailableBySoftware() override { return true; }
     bool inclinationAvailableBySoftware() override { return !resistance_lvl_mode; }
 
+    void resetFTMSTime();
+
   private:
     bool writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);

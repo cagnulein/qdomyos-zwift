@@ -2,6 +2,7 @@
 #include "charts.h"
 #include "gpx.h"
 #include "ui_mainwindow.h"
+#include "devices/ftmsbike/ftmsbike.h"
 #include <QFileDialog>
 #include <chrono>
 
@@ -475,6 +476,15 @@ void MainWindow::on_stop_clicked() {
 void MainWindow::on_start_clicked() {
 
     trainProgram->restart();
+
+    // Reset FTMS time tracking when training program starts to avoid ERG mode conflicts
+    if (bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->deviceType() == BIKE) {
+        ftmsbike *ftms = qobject_cast<ftmsbike*>(bluetoothManager->device());
+        if (ftms) {
+            ftms->resetFTMSTime();
+        }
+    }
+
     if (bluetoothManager->device()) {
         bluetoothManager->device()->start();
     }

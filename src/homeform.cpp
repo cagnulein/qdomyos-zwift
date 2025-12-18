@@ -16,6 +16,7 @@
 #include "templateinfosenderbuilder.h"
 #include "workoutmodel.h"
 #include "zwiftworkout.h"
+#include "devices/ftmsbike/ftmsbike.h"
 
 #include <QAbstractOAuth2>
 #include <QApplication>
@@ -1086,6 +1087,14 @@ void homeform::peloton_start_workout() {
         }
         trainProgramSignals();
         trainProgram->restart();
+
+        // Reset FTMS time tracking when training program starts to avoid ERG mode conflicts
+        if (bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->deviceType() == BIKE) {
+            ftmsbike *ftms = qobject_cast<ftmsbike*>(bluetoothManager->device());
+            if (ftms) {
+                ftms->resetFTMSTime();
+            }
+        }
     }
 }
 
@@ -4970,6 +4979,15 @@ void homeform::Start_inner(bool send_event_to_device) {
 
         if (stopped) {
             trainProgram->restart();
+
+            // Reset FTMS time tracking when training program starts to avoid ERG mode conflicts
+            if (bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->deviceType() == BIKE) {
+                ftmsbike *ftms = qobject_cast<ftmsbike*>(bluetoothManager->device());
+                if (ftms) {
+                    ftms->resetFTMSTime();
+                }
+            }
+
             if (bluetoothManager->device()) {
 
                 bluetoothManager->device()->clearStats();
@@ -5002,6 +5020,14 @@ void homeform::Start_inner(bool send_event_to_device) {
             if (!trainProgram->isStarted()) {
                 qDebug() << QStringLiteral("starting training program from a resume");
                 trainProgram->restart();
+
+                // Reset FTMS time tracking when training program starts to avoid ERG mode conflicts
+                if (bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->deviceType() == BIKE) {
+                    ftmsbike *ftms = qobject_cast<ftmsbike*>(bluetoothManager->device());
+                    if (ftms) {
+                        ftms->resetFTMSTime();
+                    }
+                }
             }
             emit workoutEventStateChanged(bluetoothdevice::RESUMED);
             // Resume Video if visible
