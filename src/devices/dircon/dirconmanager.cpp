@@ -151,7 +151,16 @@ enum {
         }                                                                                                              \
     }
 
-QString DirconManager::getMacAddress() {
+QString DirconManager::getMacAddress(bool rouvy_compatibility, int dircon_id) {
+    // When Rouvy compatibility is enabled, use a specific MAC address with the last byte set to dircon_id
+    if (rouvy_compatibility) {
+        // Use base MAC address "24:DC:C3:E3:B5:XX" where XX is the dircon_id
+        // Ensure dircon_id is in the valid range 0-255
+        int last_byte = dircon_id & 0xFF;
+        return QString("24:DC:C3:E3:B5:%1").arg(last_byte, 2, 16, QChar('0')).toUpper();
+    }
+
+    // Default behavior: get MAC address from network interfaces
     QString addr;
     foreach (QNetworkInterface netInterface, QNetworkInterface::allInterfaces()) {
         // Return only the first non-loopback MAC Address
@@ -215,7 +224,8 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
     }
     
     QObject::connect(&bikeTimer, &QTimer::timeout, this, &DirconManager::bikeProvider);
-    QString mac = getMacAddress();
+    int dircon_id_value = settings.value(QZSettings::dircon_id, QZSettings::default_dircon_id).toInt();
+    QString mac = getMacAddress(rouvy_compatibility, dircon_id_value);
     if (rouvy_compatibility) {
         DM_MACHINE_OP_ROUVY(DM_MACHINE_INIT_OP, services, proc_services, type)
     } else {

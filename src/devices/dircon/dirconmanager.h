@@ -34,7 +34,7 @@ class DirconManager : public QObject {
     CharacteristicWriteProcessorE005 *writePE005 = 0;
     DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_DEFINE_OP, 0, 0, 0)
     QList<DirconProcessor *> processors;
-    static QString getMacAddress();
+    static QString getMacAddress(bool rouvy_compatibility = false, int dircon_id = 0);
     bluetoothdevice* bt = 0;
 
   public:
