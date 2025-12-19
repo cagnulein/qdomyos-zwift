@@ -1496,6 +1496,17 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows,
             if (row.loopTimeHR >= 0) {
                 stream.writeAttribute(QStringLiteral("looptimehr"), QString::number(row.loopTimeHR));
             }
+
+            // Write text events as child elements
+            if (!row.textEvents.isEmpty()) {
+                for (const trainrow::TextEvent &evt : row.textEvents) {
+                    stream.writeStartElement(QStringLiteral("textevent"));
+                    stream.writeAttribute(QStringLiteral("timeoffset"), QString::number(evt.timeoffset));
+                    stream.writeAttribute(QStringLiteral("message"), evt.message);
+                    stream.writeEndElement();
+                }
+            }
+
             stream.writeEndElement();
         }
         stream.writeEndElement();
@@ -1828,6 +1839,23 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
             }
 
             if(!ramp) {
+                // Read child text events for this row
+                while (stream.readNextStartElement()) {
+                    if (stream.name() == "textevent") {
+                        QXmlStreamAttributes eventAtts = stream.attributes();
+                        if (eventAtts.hasAttribute("timeoffset") && eventAtts.hasAttribute("message")) {
+                            trainrow::TextEvent evt;
+                            evt.timeoffset = eventAtts.value("timeoffset").toUInt();
+                            evt.message = eventAtts.value("message").toString();
+                            row.textEvents.append(evt);
+                            qDebug() << "Loaded textevent: timeoffset=" << evt.timeoffset << " message=" << evt.message;
+                        }
+                        stream.skipCurrentElement();
+                    } else {
+                        stream.skipCurrentElement();
+                    }
+                }
+
                 if (insideRepeat) {
                     repeatRows.append(row);
                 } else {

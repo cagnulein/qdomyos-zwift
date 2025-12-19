@@ -1,26 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rows ftp_test="1" cooldown_cadence="85">
     <!-- Warmup Phase - 5 minutes easy -->
-    <row duration="00:05:00" power="100" cadence="85"/>
+    <row duration="00:05:00" power="100" cadence="85">
+        <textevent timeoffset="0" message="Welcome to the FTP Ramp Test! Start with an easy warmup."/>
+        <textevent timeoffset="180" message="Keep your cadence steady above 85 rpm throughout the test."/>
+    </row>
 
     <!-- Ramp Test - Power increases every minute until failure -->
     <!-- Maintain cadence above 85 rpm - test ends when you can't sustain it -->
-    <row duration="00:01:00" power="120" cadence="90"/>
-    <row duration="00:01:00" power="140" cadence="90"/>
+    <row duration="00:01:00" power="120" cadence="90">
+        <textevent timeoffset="0" message="Starting the ramp test! Keep your cadence above 85 rpm."/>
+    </row>
+    <row duration="00:01:00" power="140" cadence="90">
+        <textevent timeoffset="0" message="Feeling good! Maintain that rhythm."/>
+    </row>
     <row duration="00:01:00" power="160" cadence="90"/>
-    <row duration="00:01:00" power="180" cadence="90"/>
+    <row duration="00:01:00" power="180" cadence="90">
+        <textevent timeoffset="0" message="Power increasing - stay focused on your breathing."/>
+    </row>
     <row duration="00:01:00" power="200" cadence="90"/>
-    <row duration="00:01:00" power="220" cadence="90"/>
+    <row duration="00:01:00" power="220" cadence="90">
+        <textevent timeoffset="0" message="You're doing great! Keep pushing."/>
+    </row>
     <row duration="00:01:00" power="240" cadence="90"/>
-    <row duration="00:01:00" power="260" cadence="90"/>
+    <row duration="00:01:00" power="260" cadence="90">
+        <textevent timeoffset="0" message="Halfway there! Don't let your cadence drop."/>
+    </row>
     <row duration="00:01:00" power="280" cadence="90"/>
-    <row duration="00:01:00" power="300" cadence="90"/>
-    <row duration="00:01:00" power="320" cadence="90"/>
-    <row duration="00:01:00" power="340" cadence="90"/>
-    <row duration="00:01:00" power="360" cadence="90"/>
-    <row duration="00:01:00" power="380" cadence="90"/>
-    <row duration="00:01:00" power="400" cadence="90"/>
+    <row duration="00:01:00" power="300" cadence="90">
+        <textevent timeoffset="0" message="Getting tough now - stay strong!"/>
+    </row>
+    <row duration="00:01:00" power="320" cadence="90">
+        <textevent timeoffset="0" message="Keep that cadence up! You can do this!"/>
+    </row>
+    <row duration="00:01:00" power="340" cadence="90">
+        <textevent timeoffset="0" message="Almost at your limit - give it everything!"/>
+    </row>
+    <row duration="00:01:00" power="360" cadence="90">
+        <textevent timeoffset="0" message="Deep breaths! Keep those legs moving!"/>
+    </row>
+    <row duration="00:01:00" power="380" cadence="90">
+        <textevent timeoffset="0" message="Final push! Don't give up now!"/>
+    </row>
+    <row duration="00:01:00" power="400" cadence="90">
+        <textevent timeoffset="0" message="Maximum effort! Hold on as long as you can!"/>
+    </row>
 
     <!-- Cooldown - 5 minutes easy recovery -->
-    <row duration="00:05:00" power="80" cadence="70"/>
+    <row duration="00:05:00" power="80" cadence="70">
+        <textevent timeoffset="0" message="Great job! Time to recover. Easy spin for 5 minutes."/>
+        <textevent timeoffset="120" message="Well done on completing the test! Your FTP will be calculated."/>
+    </row>
 </rows>
