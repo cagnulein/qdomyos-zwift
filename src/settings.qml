@@ -6703,7 +6703,13 @@ import Qt.labs.platform 1.1
                             id: okTrainProgramPace1Mile
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pacef_1mile = (((parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace1mileTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[2]))) / 1.60934; toast.show("Setting saved!"); }
+                            onClicked: {
+                                var totalSeconds = (parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace1mileTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[2]);
+                                var pacefValue = totalSeconds / 1.60934;
+                                console.log("DEBUG pacef_1mile: input=" + trainProgramPace1mileTextField.text + " totalSeconds=" + totalSeconds + " pacefValue=" + pacefValue);
+                                settings.pacef_1mile = pacefValue;
+                                toast.show("Setting saved!");
+                            }
                         }
                     }
 
@@ -6740,7 +6746,13 @@ import Qt.labs.platform 1.1
                             id: okTrainProgramPace5km
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pacef_5km = (((parseInt(trainProgramPace5kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace5kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace5kmTextField.text.split(":")[2]))) / 5; toast.show("Setting saved!"); }
+                            onClicked: {
+                                var totalSeconds = (parseInt(trainProgramPace5kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace5kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace5kmTextField.text.split(":")[2]);
+                                var pacefValue = totalSeconds / 5;
+                                console.log("DEBUG pacef_5km: input=" + trainProgramPace5kmTextField.text + " totalSeconds=" + totalSeconds + " pacefValue=" + pacefValue);
+                                settings.pacef_5km = pacefValue;
+                                toast.show("Setting saved!");
+                            }
                         }
                     }
 
@@ -6777,7 +6789,13 @@ import Qt.labs.platform 1.1
                             id: okTrainProgramPace10KM
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pacef_10km = (((parseInt(trainProgramPace10kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace10kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace10kmTextField.text.split(":")[2]))) / 10; toast.show("Setting saved!"); }
+                            onClicked: {
+                                var totalSeconds = (parseInt(trainProgramPace10kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace10kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace10kmTextField.text.split(":")[2]);
+                                var pacefValue = totalSeconds / 10;
+                                console.log("DEBUG pacef_10km: input=" + trainProgramPace10kmTextField.text + " totalSeconds=" + totalSeconds + " pacefValue=" + pacefValue);
+                                settings.pacef_10km = pacefValue;
+                                toast.show("Setting saved!");
+                            }
                         }
                     }
 
@@ -6814,7 +6832,13 @@ import Qt.labs.platform 1.1
                             id: okTrainProgramPaceHalfMarathon
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pacef_halfmarathon = (((parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[2]))) / 21; toast.show("Setting saved!"); }
+                            onClicked: {
+                                var totalSeconds = (parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[2]);
+                                var pacefValue = totalSeconds / 21;
+                                console.log("DEBUG pacef_halfmarathon: input=" + trainProgramPaceHalfMarathonTextField.text + " totalSeconds=" + totalSeconds + " pacefValue=" + pacefValue);
+                                settings.pacef_halfmarathon = pacefValue;
+                                toast.show("Setting saved!");
+                            }
                         }
                     }
 
@@ -6851,7 +6875,13 @@ import Qt.labs.platform 1.1
                             id: okTrainProgramPaceMarathon
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pacef_marathon = (((parseInt(trainProgramPaceMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceMarathonTextField.text.split(":")[2]))) / 42; toast.show("Setting saved!"); }
+                            onClicked: {
+                                var totalSeconds = (parseInt(trainProgramPaceMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceMarathonTextField.text.split(":")[2]);
+                                var pacefValue = totalSeconds / 42;
+                                console.log("DEBUG pacef_marathon: input=" + trainProgramPaceMarathonTextField.text + " totalSeconds=" + totalSeconds + " pacefValue=" + pacefValue);
+                                settings.pacef_marathon = pacefValue;
+                                toast.show("Setting saved!");
+                            }
                         }
                     }
 
