@@ -1257,6 +1257,12 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         if(BOWFLEX_T9) {
             requestSpeed *= miles_conversion;   // this treadmill wants the speed in miles, at least seems so!!
         }
+        if(TM4800) {
+            bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+            if(miles) {
+                requestSpeed *= miles_conversion;   // this treadmill wants the speed in miles when miles_unit is enabled
+            }
+        }
         uint16_t speed_int = round(requestSpeed * 100);
         writeS[1] = speed_int & 0xFF;
         writeS[2] = speed_int >> 8;
@@ -2629,6 +2635,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("TP1")) && device.name().length() == 3) {
             qDebug() << QStringLiteral("TP1 treadmill found");
             TP1 = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TM4800-"))) {
+            qDebug() << QStringLiteral("TM4800 treadmill found");
+            TM4800 = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
