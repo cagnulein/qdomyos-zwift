@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rows ftp_test="1" cooldown_cadence="75">
+    <!-- Warmup Phase - 10 minutes progressive -->
+    <row duration="00:05:00" power="100" cadence="85"/>
+    <row duration="00:05:00" power="150" cadence="90"/>
+
+    <!-- First 8-Minute Effort - ALL OUT -->
+    <!-- Maintain cadence above 75 rpm or test ends -->
+    <row duration="00:08:00" power="260" cadence="95"/>
+
+    <!-- Recovery between efforts - 10 minutes easy spin -->
+    <row duration="00:10:00" power="100" cadence="75"/>
+
+    <!-- Second 8-Minute Effort - ALL OUT (should be slightly higher than first) -->
+    <row duration="00:08:00" power="270" cadence="95"/>
+
+    <!-- Cooldown - 10 minutes easy recovery -->
+    <row duration="00:05:00" power="100" cadence="70"/>
+    <row duration="00:05:00" power="70" cadence="65"/>
+</rows>

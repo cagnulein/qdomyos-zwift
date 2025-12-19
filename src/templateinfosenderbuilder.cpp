@@ -532,6 +532,13 @@ void TemplateInfoSenderBuilder::onGetTrainingProgram(const QJsonValue &msgConten
             TRAINPROGRAM_FIELD_TO_STRING();
             outArr.append(item);
         }
+
+        // Include FTP test parameters
+        trainprogram* tp = homeform::singleton()->trainingProgram();
+        if (tp->ftp_test) {
+            outObj[QStringLiteral("ftp_test")] = true;
+            outObj[QStringLiteral("cooldown_cadence")] = tp->cooldown_cadence;
+        }
     }
     outObj[QStringLiteral("list")] = outArr;
     outObj[QStringLiteral("name")] = fileXml;
@@ -937,6 +944,16 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             trainRows.append(tR);
         }
     }
+    // Read FTP test parameters from content
+    bool ftp_test = false;
+    int cooldown_cadence = -1;
+    if (content.contains(QStringLiteral("ftp_test"))) {
+        ftp_test = content.value(QStringLiteral("ftp_test")).toBool();
+    }
+    if (content.contains(QStringLiteral("cooldown_cadence"))) {
+        cooldown_cadence = content.value(QStringLiteral("cooldown_cadence")).toInt();
+    }
+
     QJsonObject main, outObj;
     QString trainingDir(homeform::getWritableAppDir() + QStringLiteral("training/"));
     QDir dir(trainingDir);
@@ -944,7 +961,7 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
         dir.mkpath(QStringLiteral("."));
     }
     outObj[QStringLiteral("name")] = fileName;
-    if (trainprogram::saveXML(trainingDir + fileName + QStringLiteral(".xml"), trainRows)) {
+    if (trainprogram::saveXML(trainingDir + fileName + QStringLiteral(".xml"), trainRows, ftp_test, cooldown_cadence)) {
         outObj[QStringLiteral("list")] = trainRows.size();
     } else {
         outObj[QStringLiteral("list")] = 0;

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rows ftp_test="1" cooldown_cadence="85">
+    <!-- Warmup Phase - 5 minutes easy -->
+    <row duration="00:05:00" power="100" cadence="85"/>
+
+    <!-- Ramp Test - Power increases every minute until failure -->
+    <!-- Maintain cadence above 85 rpm - test ends when you can't sustain it -->
+    <row duration="00:01:00" power="120" cadence="90"/>
+    <row duration="00:01:00" power="140" cadence="90"/>
+    <row duration="00:01:00" power="160" cadence="90"/>
+    <row duration="00:01:00" power="180" cadence="90"/>
+    <row duration="00:01:00" power="200" cadence="90"/>
+    <row duration="00:01:00" power="220" cadence="90"/>
+    <row duration="00:01:00" power="240" cadence="90"/>
+    <row duration="00:01:00" power="260" cadence="90"/>
+    <row duration="00:01:00" power="280" cadence="90"/>
+    <row duration="00:01:00" power="300" cadence="90"/>
+    <row duration="00:01:00" power="320" cadence="90"/>
+    <row duration="00:01:00" power="340" cadence="90"/>
+    <row duration="00:01:00" power="360" cadence="90"/>
+    <row duration="00:01:00" power="380" cadence="90"/>
+    <row duration="00:01:00" power="400" cadence="90"/>
+
+    <!-- Cooldown - 5 minutes easy recovery -->
+    <row duration="00:05:00" power="80" cadence="70"/>
+</rows>

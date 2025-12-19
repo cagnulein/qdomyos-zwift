@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rows ftp_test="1" cooldown_cadence="80">
+    <!-- Warmup Phase - 10 minutes progressive -->
+    <row duration="00:03:00" power="100" cadence="85"/>
+    <row duration="00:03:00" power="140" cadence="85"/>
+    <row duration="00:04:00" power="180" cadence="90"/>
+
+    <!-- Pre-test effort - 5 minutes at moderate intensity -->
+    <row duration="00:05:00" power="230" cadence="90"/>
+
+    <!-- Recovery - 5 minutes easy spin -->
+    <row duration="00:05:00" power="100" cadence="80"/>
+
+    <!-- Main FTP Test - 20 minutes ALL OUT (maintain 90+ rpm) -->
+    <!-- This is where the FTP test happens - go as hard as you can sustain -->
+    <!-- If cadence drops below 80 rpm for 3 seconds, test automatically ends -->
+    <row duration="00:20:00" power="250" cadence="95"/>
+
+    <!-- Cooldown - 10 minutes easy recovery -->
+    <row duration="00:05:00" power="100" cadence="75"/>
+    <row duration="00:05:00" power="80" cadence="70"/>
+</rows>

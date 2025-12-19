@@ -1291,6 +1291,34 @@ void trainprogram::scheduler() {
             }
         }
 
+        // FTP Test mode logic (only for bikes)
+        if (ftp_test && cooldown_cadence >= 0 && !ftp_triggered &&
+            bluetoothManager && bluetoothManager->device() &&
+            bluetoothManager->device()->deviceType() == BIKE) {
+
+            uint16_t current_cadence = bluetoothManager->device()->currentCadence().value();
+
+            // Check warmup: need at least 1 minute (60 seconds) above cadence threshold
+            if (current_cadence >= cooldown_cadence) {
+                ftp_warmup_seconds++;
+                ftp_cooldown_seconds = 0; // Reset cooldown counter
+            } else {
+                // Only start counting cooldown after warmup is complete
+                if (ftp_warmup_seconds >= 60) {
+                    ftp_cooldown_seconds++;
+                }
+            }
+
+            // Trigger FTP test termination after 3 consecutive seconds below threshold
+            if (ftp_cooldown_seconds >= 3) {
+                ftp_triggered = true;
+                enabled = false;
+                emit changePower(10);
+                emit toastRequest("FTP Test terminated - cadence below threshold");
+                qDebug() << "FTP Test terminated: cadence dropped below" << cooldown_cadence << "rpm for 3 seconds";
+            }
+        }
+
         sameIteration++;
     } while (distanceEvaluation);
 }
@@ -1355,16 +1383,30 @@ void trainprogram::restart() {
     currentStep = 0;
     currentTimerJitter = 0;
     shownTextEvents.clear();  // Reset shown text events when restarting
+
+    // Reset FTP test tracking
+    ftp_warmup_seconds = 0;
+    ftp_cooldown_seconds = 0;
+    ftp_triggered = false;
+
     started = true;
 }
 
-bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows) {
+bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows, bool ftp_test, int cooldown_cadence) {
     QFile output(filename);
     if (!rows.isEmpty() && output.open(QIODevice::WriteOnly)) {
         QXmlStreamWriter stream(&output);
         stream.setAutoFormatting(true);
         stream.writeStartDocument();
         stream.writeStartElement(QStringLiteral("rows"));
+
+        // Save FTP test attributes if enabled
+        if (ftp_test) {
+            stream.writeAttribute(QStringLiteral("ftp_test"), QStringLiteral("1"));
+            if (cooldown_cadence >= 0) {
+                stream.writeAttribute(QStringLiteral("cooldown_cadence"), QString::number(cooldown_cadence));
+            }
+        }
         for (const trainrow &row : qAsConst(rows)) {
             stream.writeStartElement(QStringLiteral("row"));
             stream.writeAttribute(QStringLiteral("duration"), row.duration.toString());
@@ -1498,7 +1540,7 @@ bool trainprogram::hasTargetPower(const QString &filename) {
     return false;
 }
 
-void trainprogram::save(const QString &filename) { saveXML(filename, rows); }
+void trainprogram::save(const QString &filename) { saveXML(filename, rows, ftp_test, cooldown_cadence); }
 
 trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString Extension) {
     if (!Extension.toUpper().compare(QStringLiteral("ZWO"))
@@ -1515,11 +1557,17 @@ trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString 
         BLUETOOTH_TYPE dtype = BLUETOOTH_TYPE::BIKE;
         if(b && b->device())
             dtype = b->device()->deviceType();
-        return new trainprogram(loadXML(filename, dtype), b);
+
+        bool ftp_test = false;
+        int cooldown_cadence = -1;
+        trainprogram* tp = new trainprogram(loadXML(filename, dtype, &ftp_test, &cooldown_cadence), b);
+        tp->ftp_test = ftp_test;
+        tp->cooldown_cadence = cooldown_cadence;
+        return tp;
     }
 }
 
-QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE device_type) {
+QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE device_type, bool *ftp_test, int *cooldown_cadence) {
     QList<trainrow> list;
     QFile input(filename);
     input.open(QIODevice::ReadOnly);
@@ -1531,6 +1579,18 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
 
     while (!stream.atEnd()) {
         stream.readNext();
+
+        // Handle FTP test attributes in <rows> element
+        if (stream.isStartElement() && stream.name() == "rows") {
+            QXmlStreamAttributes attrs = stream.attributes();
+            if (ftp_test && attrs.hasAttribute("ftp_test")) {
+                *ftp_test = (attrs.value("ftp_test").toInt() == 1);
+            }
+            if (cooldown_cadence && attrs.hasAttribute("cooldown_cadence")) {
+                *cooldown_cadence = attrs.value("cooldown_cadence").toInt();
+            }
+            continue;
+        }
 
         // Handle repeat tag start
         if (stream.isStartElement() && stream.name() == "repeat") {

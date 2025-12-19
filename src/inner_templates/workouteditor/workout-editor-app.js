@@ -7,7 +7,10 @@
         programFiles: {}, // Map of program name -> file object (with url, path, etc.)
         showAdvanced: false,
         lastSaved: '',
-        loading: false
+        loading: false,
+        // FTP Test settings
+        ftp_test: false,
+        cooldown_cadence: 80
     };
 
     const selectors = {};
@@ -101,6 +104,10 @@
         selectors.statusIntervals = document.getElementById('statusIntervals');
         selectors.statusMessage = document.getElementById('statusMessage');
         selectors.offlineBanner = document.getElementById('offlineBanner');
+        selectors.ftpTest = document.getElementById('ftpTestToggle');
+        selectors.ftpTestLabel = document.getElementById('ftpTestLabel');
+        selectors.cooldownCadence = document.getElementById('cooldownCadence');
+        selectors.cooldownCadenceLabel = document.getElementById('cooldownCadenceLabel');
     }
 
     function bindEvents() {
@@ -109,6 +116,7 @@
                 state.device = selectors.device.value;
                 renderIntervals();
                 updateChart();
+                updateControls();
                 return;
             }
             setDevice(selectors.device.value);
@@ -117,6 +125,13 @@
             state.showAdvanced = selectors.advanced.checked;
             renderIntervals();
             updateChart();
+        });
+        selectors.ftpTest.addEventListener('change', () => {
+            state.ftp_test = selectors.ftpTest.checked;
+            updateControls();
+        });
+        selectors.cooldownCadence.addEventListener('change', () => {
+            state.cooldown_cadence = parseInt(selectors.cooldownCadence.value, 10) || 80;
         });
         selectors.addInterval.addEventListener('click', () => {
             addInterval();
@@ -138,6 +153,8 @@
             state.lastSaved = '';
             selectors.name.value = '';
             state.intervals = [];
+            state.ftp_test = false;
+            state.cooldown_cadence = 80;
             addInterval();
             renderIntervals();
             updateChart();
@@ -282,6 +299,11 @@
                     selectors.device.value = state.device;
                     selectors.name.value = name;
                     state.lastSaved = name;
+
+                    // Load FTP test parameters if present
+                    state.ftp_test = content.ftp_test === true;
+                    state.cooldown_cadence = content.cooldown_cadence || 80;
+
                     renderIntervals();
                     updateChart();
                     updateStatus();
@@ -978,10 +1000,18 @@
             });
             list.push(row);
         }
-        return {
+        const payload = {
             name: sanitized,
             list: list
         };
+
+        // Add FTP test parameters if enabled (only for bike device)
+        if (state.device === 'bike' && state.ftp_test) {
+            payload.ftp_test = true;
+            payload.cooldown_cadence = state.cooldown_cadence || 80;
+        }
+
+        return payload;
     }
 
     function sanitizeName(name) {
@@ -1268,6 +1298,21 @@
         }
         if (selectors.offlineBanner) {
             selectors.offlineBanner.classList.toggle('hidden', !offline);
+        }
+
+        // FTP Test controls (only for bike device)
+        const isBike = state.device === 'bike';
+        if (selectors.ftpTestLabel) {
+            selectors.ftpTestLabel.style.display = isBike ? '' : 'none';
+        }
+        if (selectors.ftpTest) {
+            selectors.ftpTest.checked = state.ftp_test;
+        }
+        if (selectors.cooldownCadenceLabel) {
+            selectors.cooldownCadenceLabel.style.display = (isBike && state.ftp_test) ? '' : 'none';
+        }
+        if (selectors.cooldownCadence) {
+            selectors.cooldownCadence.value = state.cooldown_cadence;
         }
     }
 

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rows ftp_test="1" cooldown_cadence="70">
+    <!-- Beginner FTP Test - 10 minutes instead of 20 -->
+    <!-- Warmup Phase - 8 minutes progressive -->
+    <row duration="00:04:00" power="80" cadence="80"/>
+    <row duration="00:04:00" power="120" cadence="85"/>
+
+    <!-- Pre-test effort - 3 minutes at moderate intensity -->
+    <row duration="00:03:00" power="160" cadence="85"/>
+
+    <!-- Recovery - 3 minutes easy spin -->
+    <row duration="00:03:00" power="90" cadence="75"/>
+
+    <!-- Main FTP Test - 10 minutes ALL OUT -->
+    <!-- Maintain cadence above 70 rpm or test ends automatically -->
+    <!-- For beginners: FTP = 95% of average power from this 10-minute effort -->
+    <row duration="00:10:00" power="200" cadence="90"/>
+
+    <!-- Cooldown - 5 minutes easy recovery -->
+    <row duration="00:05:00" power="80" cadence="70"/>
+</rows>
