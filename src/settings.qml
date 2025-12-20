@@ -236,7 +236,7 @@ import Qt.labs.platform 1.1
             property bool sole_treadmill_tt8: false
 
             property bool schwinn_bike_resistance: false
-            property bool schwinn_bike_resistance_v2: value
+            property bool schwinn_bike_resistance_v2: false
 
             property bool technogym_myrun_treadmill_experimental: false
 
