@@ -662,10 +662,13 @@ void TemplateInfoSenderBuilder::onTrainingProgramOpen(const QJsonValue &msgConte
 }
 
 void TemplateInfoSenderBuilder::onTrainingProgramAutostart(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    qDebug() << "[TemplateInfoSenderBuilder] onTrainingProgramAutostart called";
     if (!homeform::singleton()) {
+        qDebug() << "[TemplateInfoSenderBuilder] homeform singleton is null!";
         return;
     }
 
+    qDebug() << "[TemplateInfoSenderBuilder] Invoking trainprogram_autostart_requested signal";
     QMetaObject::invokeMethod(homeform::singleton(), "trainprogram_autostart_requested", Qt::QueuedConnection);
 }
 

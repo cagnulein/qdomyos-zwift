@@ -875,16 +875,20 @@
     }
 
     function saveWorkflow(startAfter) {
+        console.log('[saveWorkflow] Called with startAfter:', startAfter);
         if (window.QZ_OFFLINE) {
             announce('Offline: cannot save workouts', true);
             return;
         }
         const payload = buildPayload();
         if (!payload) {
+            console.error('[saveWorkflow] No payload generated');
             return;
         }
+        console.log('[saveWorkflow] Payload name:', payload.name);
         setWorking(true);
         sendMessage('savetrainingprogram', payload, 'R_savetrainingprogram').then(content => {
+            console.log('[saveWorkflow] Save response:', content);
             if (!content) {
                 announce('Save failed', true);
                 return;
@@ -893,37 +897,46 @@
             selectors.name.value = payload.name;
             announce(`Saved ${payload.name}`);
 
+            console.log('[saveWorkflow] Refreshing program list...');
             return refreshProgramList().then(() => {
+                console.log('[saveWorkflow] Program list refreshed. programFiles:', Object.keys(state.programFiles));
                 selectors.programSelect.value = payload.name;
                 if (startAfter) {
+                    console.log('[saveWorkflow] startAfter is true, checking for file:', payload.name);
                     // Verify file exists in program files map before starting
                     if (state.programFiles[payload.name]) {
-                        console.log('File verified in list, starting workout');
+                        console.log('[saveWorkflow] File verified in list, starting workout');
                         return startProgram(payload.name);
                     } else {
                         // If not found immediately, wait a bit and try again
-                        console.log('File not immediately available, retrying...');
+                        console.log('[saveWorkflow] File not immediately available, retrying...');
                         return new Promise(resolve => setTimeout(resolve, 300)).then(() => {
+                            console.log('[saveWorkflow] Retry: refreshing program list again...');
                             return refreshProgramList();
                         }).then(() => {
+                            console.log('[saveWorkflow] Retry: programFiles:', Object.keys(state.programFiles));
                             if (state.programFiles[payload.name]) {
-                                console.log('File found after retry, starting workout');
+                                console.log('[saveWorkflow] File found after retry, starting workout');
                                 return startProgram(payload.name);
                             } else {
                                 announce('Workout file not ready, please try again', true);
-                                console.error('File not found in programs list after save and retry');
+                                console.error('[saveWorkflow] File not found in programs list after save and retry');
+                                console.error('[saveWorkflow] Available files:', Object.keys(state.programFiles));
                             }
                         });
                     }
+                } else {
+                    console.log('[saveWorkflow] startAfter is false, not starting workout');
                 }
             });
         }).catch(err => {
-            console.error(err);
+            console.error('[saveWorkflow] Error:', err);
             announce('Unable to save workout', true);
         }).finally(() => setWorking(false));
     }
 
     function startProgram(name) {
+        console.log('[startProgram] Called with name:', name);
         if (window.QZ_OFFLINE) {
             announce('Offline: cannot start workouts', true);
             return Promise.resolve();
@@ -931,15 +944,19 @@
 
         // Get the file object for the saved workout
         const fileObj = state.programFiles[name];
+        console.log('[startProgram] fileObj:', fileObj);
         if (!fileObj || !fileObj.url) {
+            console.error('[startProgram] Cannot find workout file for:', name);
             announce('Cannot find workout file', true);
             return Promise.resolve();
         }
 
         // Use the same pattern as training browser: open then autostart
+        console.log('[startProgram] Sending trainprogram_open_clicked with url:', fileObj.url);
         sendMessage('trainprogram_open_clicked', { url: fileObj.url });
 
         setTimeout(() => {
+            console.log('[startProgram] Sending trainprogram_autostart_requested');
             sendMessage('trainprogram_autostart_requested', {});
             announce('Workout started');
         }, 100);
