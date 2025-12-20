@@ -3338,31 +3338,18 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         return;
     }
 
-    // For ProForm Sport 3.0, don't use wattage from Bluetooth - use base class calculation
-    if (!proform_treadmill_sport_3_0) {
-        // filter some strange values from proform
-        m_watts = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
+    // filter some strange values from proform
+    m_watts = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
 
-        // for the proform_treadmill_se this field is the distance in meters ;)
-        if (m_watts > 3000 && !proform_treadmill_se && !nordictrack_s20i_treadmill && !nordictrack_tseries5_treadmill) {
-            m_watts = 0;
-        }
-    }
-
-    {
+    // for the proform_treadmill_se this field is the distance in meters ;)
+    if (m_watts > 3000 && !proform_treadmill_se && !nordictrack_s20i_treadmill && !nordictrack_tseries5_treadmill && !proform_treadmill_sport_3_0) {
+        m_watts = 0;
+    } else {
         if (!proform_cadence_lt) {
             Inclination =
                 (double)(((int16_t)((int8_t)newValue.at(13)) << 8) + (int16_t)((uint8_t)newValue.at(12))) / 100.0;
         }
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(11)) << 8) + (uint16_t)((uint8_t)newValue.at(10))) / 100.0;
-
-        // For ProForm Sport 3.0, calculate watts using base class formula
-        if (proform_treadmill_sport_3_0) {
-            m_watts = wattsCalc(weight, Speed.value(), Inclination.value());
-        }
-
-        // Set the watt metric for all models
-        m_watt = m_watts;
 
         if (watts(weight))
             KCal +=
