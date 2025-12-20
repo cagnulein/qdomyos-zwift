@@ -433,8 +433,7 @@
     function createInterval(count) {
         const base = {
             name: `Interval ${count}`,
-            duration: '00:05:00',
-            __lastModified: {}
+            duration: '00:05:00'
         };
 
         // Initialize all fields as disabled by default
@@ -722,13 +721,6 @@
             const normalized = formatDuration(seconds);
             state.intervals[index][key] = normalized;
             target.value = normalized;
-            // Auto-calculate other fields if applicable
-            if (autoCalculateFields(state.intervals[index], key)) {
-                renderIntervals();
-                updateChart();
-                updateStatus();
-                return;
-            }
         } else if (type === 'pace') {
             // Format pace input as mm:ss
             const formatted = formatPaceInput(target.value);
@@ -742,13 +734,6 @@
                     state.intervals[index][field.syncWith] = speed;
                 }
             }
-            // Auto-calculate other fields if applicable
-            if (autoCalculateFields(state.intervals[index], 'speed')) {
-                renderIntervals();
-                updateChart();
-                updateStatus();
-                return;
-            }
             // Re-render to update both fields
             renderIntervals();
             updateChart();
@@ -757,15 +742,6 @@
         } else if (type === 'number') {
             const raw = target.value;
             state.intervals[index][key] = raw === '' ? undefined : Number(raw);
-            // Auto-calculate other fields if applicable (for distance and speed)
-            if (key === 'distance' || key === 'speed') {
-                if (autoCalculateFields(state.intervals[index], key)) {
-                    renderIntervals();
-                    updateChart();
-                    updateStatus();
-                    return;
-                }
-            }
             // If this is a speed field, re-render to update pace
             if (key === 'speed') {
                 renderIntervals();
@@ -929,16 +905,23 @@
             announce('Offline: cannot start workouts', true);
             return Promise.resolve();
         }
-        return sendMessage('workouteditor_start', { name }, 'R_workouteditor_start').then(resp => {
-            if (!resp || !resp.ok) {
-                announce('Unable to start workout', true);
-                return;
-            }
+
+        // Get the file object for the saved workout
+        const fileObj = state.programFiles[name];
+        if (!fileObj || !fileObj.url) {
+            announce('Cannot find workout file', true);
+            return Promise.resolve();
+        }
+
+        // Use the same pattern as training browser: open then autostart
+        sendMessage('trainprogram_open_clicked', { url: fileObj.url });
+
+        setTimeout(() => {
+            sendMessage('trainprogram_autostart_requested', {});
             announce('Workout started');
-        }).catch(err => {
-            console.error(err);
-            announce('Unable to start workout', true);
-        });
+        }, 100);
+
+        return Promise.resolve();
     }
 
     function buildPayload() {
@@ -1049,7 +1032,19 @@
         }));
 
         state.intervals.forEach(interval => {
-            const duration = parseDuration(interval.duration);
+            // For treadmill: if distance is used instead of duration, calculate duration from speed
+            let duration;
+            const hasDistance = interval.__enabled_distance !== false && interval.distance > 0;
+            const hasSpeed = interval.__enabled_speed !== false && interval.speed > 0;
+
+            if (state.device === 'treadmill' && hasDistance && hasSpeed) {
+                // Calculate duration from distance and speed: duration (sec) = distance (km) / speed (km/h) * 3600
+                duration = (parseFloat(interval.distance) / parseFloat(interval.speed)) * 3600;
+            } else {
+                // Use duration field
+                duration = parseDuration(interval.duration);
+            }
+
             if (!duration) {
                 return;
             }
@@ -1171,58 +1166,6 @@
         const minutes = digits.slice(0, -2);
         const seconds = digits.slice(-2);
         return minutes + ':' + seconds;
-    }
-
-    function autoCalculateFields(interval, changedField) {
-        // Only for treadmill with speed/pace/distance/duration
-        if (state.device !== 'treadmill') {
-            return false;
-        }
-
-        // Initialize __lastModified if not present
-        if (!interval.__lastModified) {
-            interval.__lastModified = {};
-        }
-
-        // Mark this field as modified
-        interval.__lastModified[changedField] = Date.now();
-
-        const durationSec = parseDuration(interval.duration);
-        const distance = parseFloat(interval.distance) || 0;
-        const speed = parseFloat(interval.speed) || 0;
-        const distanceEnabled = interval.__enabled_distance !== false;
-        const speedEnabled = interval.__enabled_speed !== false;
-
-        let recalculated = false;
-
-        // Auto-calculate based on what changed and what's available
-        if (changedField === 'duration') {
-            // Duration changed - recalculate distance if we have speed
-            if (speedEnabled && speed > 0 && distanceEnabled) {
-                const newDistance = (speed * durationSec) / 3600;
-                interval.distance = newDistance.toFixed(2);
-                interval.__lastModified.distance = Date.now();
-                recalculated = true;
-            }
-        } else if (changedField === 'distance') {
-            // Distance changed - recalculate duration if we have speed
-            if (speedEnabled && speed > 0 && durationSec > 0) {
-                const newDurationSec = (distance / speed) * 3600;
-                interval.duration = formatDuration(newDurationSec);
-                interval.__lastModified.duration = Date.now();
-                recalculated = true;
-            }
-        } else if (changedField === 'speed' || changedField === 'pace') {
-            // Speed/pace changed - recalculate duration if we have distance
-            if (distanceEnabled && distance > 0 && speed > 0) {
-                const newDurationSec = (distance / speed) * 3600;
-                interval.duration = formatDuration(newDurationSec);
-                interval.__lastModified.duration = Date.now();
-                recalculated = true;
-            }
-        }
-
-        return recalculated;
     }
 
     function devicePrettyName(key) {

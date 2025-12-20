@@ -51,8 +51,8 @@ Item {
     }
 
     Connections {
-        target: homeform
-        onWorkoutStartedFromEditor: {
+        target: stackView
+        onTrainprogram_autostart_requested: {
             root.closeRequested()
         }
     }

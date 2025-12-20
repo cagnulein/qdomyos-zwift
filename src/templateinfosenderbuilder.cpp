@@ -730,9 +730,6 @@ void TemplateInfoSenderBuilder::onWorkoutEditorStart(const QJsonValue &msgConten
             }
 
             ok = true;
-
-            // Emit signal to close workout editor
-            emit homeform::singleton()->workoutStartedFromEditor();
         } else {
             qDebug() << "Training program file not found:" << fullPath;
             ok = false;

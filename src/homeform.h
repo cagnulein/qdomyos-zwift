@@ -1050,7 +1050,6 @@ class homeform : public QObject {
     void changeOflap();
     void signalChanged(QString value);
     void startTextChanged(QString value);
-    void workoutStartedFromEditor();
     void startIconChanged(QString value);
     void startColorChanged(QString value);
     void stopTextChanged(QString value);
