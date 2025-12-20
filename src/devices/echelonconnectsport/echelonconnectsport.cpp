@@ -639,9 +639,11 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
     (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );*/
 
     QSettings settings;
-    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+    bool power_sensor_disabled = settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
             .toString()
-            .startsWith(QStringLiteral("Disabled"))) {
+            .startsWith(QStringLiteral("Disabled"));
+
+    if (power_sensor_disabled) {
         const double Epsilon = 4.94065645841247E-324;
         const int wattTableFirstDimension = 33;
         const int wattTableSecondDimension = 11;
@@ -738,7 +740,8 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
         return (((watts_of_level[watt_setp + 1] - watt_base) / 10.0) * ((double)(((int)(Cadence.value())) % 10))) +
                watt_base;
     } else {
-        return _ergTable.estimateWattage(Cadence.value(), resistance);
+        // Power sensor is enabled, use the actual power value from the power pedal
+        return m_watt.value();
     }
 }
 
