@@ -3338,18 +3338,34 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         return;
     }
 
-    // filter some strange values from proform
-    m_watts = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
+    // For ProForm Sport 3.0, don't use wattage from Bluetooth - use base class calculation
+    if (!proform_treadmill_sport_3_0) {
+        // filter some strange values from proform
+        m_watts = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
 
-    // for the proform_treadmill_se this field is the distance in meters ;)
-    if (m_watts > 3000 && !proform_treadmill_se && !nordictrack_s20i_treadmill && !nordictrack_tseries5_treadmill && !proform_treadmill_sport_3_0) {
-        m_watts = 0;
-    } else {
+        // for the proform_treadmill_se this field is the distance in meters ;)
+        if (m_watts > 3000 && !proform_treadmill_se && !nordictrack_s20i_treadmill && !nordictrack_tseries5_treadmill) {
+            m_watts = 0;
+        }
+
+        // Set the watt metric with Bluetooth value for non-Sport 3.0 models
+        m_watt.setValue(m_watts);
+    }
+    // For Sport 3.0, m_watt will be calculated by base class in watts(weight) call
+
+    {
         if (!proform_cadence_lt) {
             Inclination =
                 (double)(((int16_t)((int8_t)newValue.at(13)) << 8) + (int16_t)((uint8_t)newValue.at(12))) / 100.0;
         }
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(11)) << 8) + (uint16_t)((uint8_t)newValue.at(10))) / 100.0;
+
+        // For ProForm Sport 3.0, calculate watts using base class formula
+        if (proform_treadmill_sport_3_0) {
+            uint16_t calculatedWatts = wattsCalc(weight, Speed.value(), Inclination.value());
+            m_watt.setValue(calculatedWatts);
+        }
+
         if (watts(weight))
             KCal +=
                 ((((0.048 * ((double)watts(weight)) + 1.19) * weight * 3.5) / 200.0) /
@@ -3373,6 +3389,24 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             }
         }
 
+        // Calculate cadence from speed if not available from external sensors
+        // This applies to all ProForm treadmill models
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled")) && Speed.value() > 0) {
+            bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                                      .toString()
+                                      .startsWith(QStringLiteral("Disabled"));
+            if (!hasPowerSensor) {
+                double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
+                if (calculatedCadence > 0) {
+                    Cadence = calculatedCadence;
+                    emit debug(QStringLiteral("Current Cadence (calculated from speed): ") + QString::number(Cadence.value()));
+                }
+            }
+        }
+
+        // Apple Watch/Garmin have priority and will overwrite calculated cadence if enabled
         cadenceFromAppleWatch();
 
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
