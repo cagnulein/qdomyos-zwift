@@ -1375,7 +1375,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(shuaA5Treadmill);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("TRUE")) ||
+            } else if (((b.name().toUpper().startsWith(QStringLiteral("TRUE")) &&
+                         !(b.name().toUpper().startsWith(QStringLiteral("TRUE TREADMILL ")) && b.name().length() == 19)) ||
                         b.name().toUpper().startsWith(QStringLiteral("ASSAULT TREADMILL ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("WDWAY")) && b.name().length() == 8) || // WdWay179
                         (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && !gem_module_inclination && !deviceHasService(b, QBluetoothUuid((quint16)0x1814)) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)))) &&
@@ -1517,6 +1518,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("3G ELITE ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AB300S-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("TF04-")) ||                           // Sport Synology Z5 Treadmill #2415
+                        (b.name().toUpper().startsWith(QStringLiteral("TRUE TREADMILL ")) &&
+                         b.name().length() == 19) ||  // TRUE TREADMILL followed by 4 digits (e.g. TRUE TREADMILL 0000)
                         (b.name().toUpper().startsWith(QStringLiteral("FIT-")) && !b.name().toUpper().startsWith(QStringLiteral("FIT-BK-"))) ||                            // FIT-1596 and sports tech f37s treadmill #2412
                         b.name().toUpper().startsWith(QStringLiteral("FIT-TM-")) ||                             // FIT-TM- treadmill with real inclination
                         b.name().toUpper().startsWith(QStringLiteral("LJJ-")) ||                            // LJJ-02351A
