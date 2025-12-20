@@ -557,8 +557,9 @@ void treadmill::cadenceFromAppleWatch() {
             Cadence = appleWatchCadence;
             qDebug() << QStringLiteral("Current Apple Watch Cadence: ") << QString::number(Cadence.value());
         } else {
-            // Calculate cadence from speed if no external sensors available
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+            // Calculate cadence from speed if no external sensors available and cadence not already set
+            if (Cadence.value() == 0 &&
+                settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled")) && Speed.value() > 0) {
                 bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
@@ -583,8 +584,9 @@ void treadmill::cadenceFromAppleWatch() {
         Cadence = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
         qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
     } else {
-        // Calculate cadence from speed if no external sensors available
-        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+        // Calculate cadence from speed if no external sensors available and cadence not already set
+        if (Cadence.value() == 0 &&
+            settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")) && Speed.value() > 0) {
             bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)

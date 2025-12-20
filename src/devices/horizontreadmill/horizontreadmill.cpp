@@ -2259,21 +2259,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
-    // Calculate cadence from speed if not available from FTMS and no external power sensor
-    if (!cadenceAvailable && Speed.value() > 0) {
-        bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                                  .toString()
-                                  .startsWith(QStringLiteral("Disabled"));
-        if (!hasPowerSensor) {
-            double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
-            if (calculatedCadence > 0) {
-                evaluateStepCount();
-                Cadence = calculatedCadence;
-                emit debug(QStringLiteral("Current Cadence (calculated from speed): ") + QString::number(Cadence.value()));
-            }
-        }
-    }
-
+    // Cadence is handled in base class cadenceFromAppleWatch() which includes:
+    // 1. Garmin companion (highest priority)
+    // 2. Apple Watch (if paired and app installed)
+    // 3. Calculated from speed (fallback if cadence not already set by FTMS)
     cadenceFromAppleWatch();
 
     if (Speed.value() > 0)
