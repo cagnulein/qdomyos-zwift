@@ -714,6 +714,7 @@ class homeform : public QObject {
     DataObject *calories;
     DataObject *odometer;
     DataObject *pace;
+    DataObject *avg_pace;
     DataObject *datetime;
     DataObject *resistance;
     DataObject *watt;

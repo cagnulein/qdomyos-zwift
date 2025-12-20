@@ -835,7 +835,12 @@ ApplicationWindow {
                     text: qsTr("Workout Editor")
                     width: parent.width
                     onClicked: {
-                        stackView.push("WorkoutEditor.qml")
+                        var editorPage = stackView.push("WorkoutEditor.qml")
+                        if (editorPage) {
+                            editorPage.closeRequested.connect(function() {
+                                stackView.pop()
+                            })
+                        }
                         drawer.close()
                     }
                 }
