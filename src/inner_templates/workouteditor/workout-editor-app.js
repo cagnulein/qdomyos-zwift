@@ -937,9 +937,7 @@
             announce('Workout started');
 
             // Close the workout editor and return to main screen
-            setTimeout(() => {
-                window.location.href = 'qdomyos://close-workout-editor';
-            }, 800); // Small delay to show the "Workout started" message
+            window.location.href = 'qdomyos://close-workout-editor';
         }).catch(err => {
             console.error(err);
             announce('Unable to start workout', true);
