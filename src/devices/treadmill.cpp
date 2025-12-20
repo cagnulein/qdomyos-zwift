@@ -556,23 +556,6 @@ void treadmill::cadenceFromAppleWatch() {
             long appleWatchCadence = h.stepCadence();
             Cadence = appleWatchCadence;
             qDebug() << QStringLiteral("Current Apple Watch Cadence: ") << QString::number(Cadence.value());
-        } else {
-            // Calculate cadence from speed if no external sensors available and cadence not already set
-            if (Cadence.value() == 0 &&
-                settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled")) && Speed.value() > 0) {
-                bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                                          .toString()
-                                          .startsWith(QStringLiteral("Disabled"));
-                if (!hasPowerSensor) {
-                    double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
-                    if (calculatedCadence > 0) {
-                        Cadence = calculatedCadence;
-                        qDebug() << QStringLiteral("Current Cadence (calculated from speed): ") << QString::number(Cadence.value());
-                    }
-                }
-            }
         }
     }
 #endif
@@ -583,25 +566,26 @@ void treadmill::cadenceFromAppleWatch() {
         evaluateStepCount();
         Cadence = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
         qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
-    } else {
-        // Calculate cadence from speed if no external sensors available and cadence not already set
-        if (Cadence.value() == 0 &&
-            settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                .toString()
-                .startsWith(QStringLiteral("Disabled")) && Speed.value() > 0) {
-            bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                                      .toString()
-                                      .startsWith(QStringLiteral("Disabled"));
-            if (!hasPowerSensor) {
-                double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
-                if (calculatedCadence > 0) {
-                    Cadence = calculatedCadence;
-                    qDebug() << QStringLiteral("Current Cadence (calculated from speed): ") << QString::number(Cadence.value());
-                }
+    }
+#endif
+
+    // Calculate cadence from speed if no external sensors available and cadence not already set
+    // This applies to all platforms as a final fallback
+    if (Cadence.value() == 0 &&
+        settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+            .toString()
+            .startsWith(QStringLiteral("Disabled")) && Speed.value() > 0) {
+        bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                                  .toString()
+                                  .startsWith(QStringLiteral("Disabled"));
+        if (!hasPowerSensor) {
+            double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
+            if (calculatedCadence > 0) {
+                Cadence = calculatedCadence;
+                qDebug() << QStringLiteral("Current Cadence (calculated from speed): ") << QString::number(Cadence.value());
             }
         }
     }
-#endif
 }
 
 double treadmill::calculateCadenceFromSpeed(double speed) {
