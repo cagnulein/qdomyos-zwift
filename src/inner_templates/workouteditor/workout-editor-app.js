@@ -935,9 +935,6 @@
                 return;
             }
             announce('Workout started');
-
-            // Close the workout editor and return to main screen
-            window.location.href = 'qdomyos://close-workout-editor';
         }).catch(err => {
             console.error(err);
             announce('Unable to start workout', true);

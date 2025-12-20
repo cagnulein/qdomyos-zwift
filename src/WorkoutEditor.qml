@@ -35,14 +35,6 @@ Item {
         id: webView
         anchors.fill: parent
         visible: root.pageLoaded
-        onNavigationRequested: {
-            if (request.url.toString().indexOf("qdomyos://close-workout-editor") === 0) {
-                request.action = WebView.IgnoreRequest
-                root.closeRequested()
-            } else {
-                request.action = WebView.AcceptRequest
-            }
-        }
         onLoadingChanged: {
             if (loadRequest.status === WebView.LoadSucceededStatus) {
                 root.pageLoaded = true
@@ -55,6 +47,13 @@ Item {
                 busy.running = true
                 portPoller.start()
             }
+        }
+    }
+
+    Connections {
+        target: homeform
+        onWorkoutStartedFromEditor: {
+            root.closeRequested()
         }
     }
 
