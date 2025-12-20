@@ -467,11 +467,13 @@
             base.__enabled_cadence = true;
             break;
         default:
-            // treadmill
+            // treadmill - duration is enabled by default, distance is disabled (mutually exclusive)
             base.speed = state.miles ? 6.0 : 9.5;
             base.__enabled_speed = true;
             base.inclination = 1.0;
             base.__enabled_inclination = true;
+            base.__enabled_duration = true;
+            base.__enabled_distance = false;
             break;
         }
         base.__selected = false;
@@ -547,11 +549,13 @@
                     fieldWrap.classList.add('disabled');
                 }
 
-                // Create label with enable/disable checkbox (except for name, duration, linked fields, and synced fields like pace)
+                // Create label with enable/disable checkbox (except for name, linked fields, and synced fields like pace)
+                // Duration can be disabled for treadmill (mutually exclusive with distance)
                 const labelWrap = document.createElement('label');
                 labelWrap.className = 'field-label';
 
-                if (field.key !== 'name' && field.key !== 'duration' && !field.linkedTo && !field.syncWith) {
+                const allowToggle = field.key !== 'name' && !field.linkedTo && !field.syncWith;
+                if (allowToggle) {
                     const enableCheckbox = document.createElement('input');
                     enableCheckbox.type = 'checkbox';
                     enableCheckbox.checked = isEnabled;
@@ -573,6 +577,14 @@
                             if (field.key === 'speed') {
                                 row['__enabled_forcespeed'] = true;
                                 row['forcespeed'] = false; // default to false
+                            }
+                            // For treadmill: duration and distance are mutually exclusive
+                            if (state.device === 'treadmill') {
+                                if (field.key === 'distance') {
+                                    row['__enabled_duration'] = false;
+                                } else if (field.key === 'duration') {
+                                    row['__enabled_distance'] = false;
+                                }
                             }
                         } else {
                             fieldWrap.classList.add('disabled');
@@ -884,13 +896,24 @@
             return refreshProgramList().then(() => {
                 selectors.programSelect.value = payload.name;
                 if (startAfter) {
-                    // Verify file exists in program list before starting
-                    if (state.programs.includes(payload.name)) {
+                    // Verify file exists in program files map before starting
+                    if (state.programFiles[payload.name]) {
                         console.log('File verified in list, starting workout');
                         return startProgram(payload.name);
                     } else {
-                        announce('Workout file not ready, please try again', true);
-                        console.error('File not found in programs list after save');
+                        // If not found immediately, wait a bit and try again
+                        console.log('File not immediately available, retrying...');
+                        return new Promise(resolve => setTimeout(resolve, 300)).then(() => {
+                            return refreshProgramList();
+                        }).then(() => {
+                            if (state.programFiles[payload.name]) {
+                                console.log('File found after retry, starting workout');
+                                return startProgram(payload.name);
+                            } else {
+                                announce('Workout file not ready, please try again', true);
+                                console.error('File not found in programs list after save and retry');
+                            }
+                        });
                     }
                 }
             });
