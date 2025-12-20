@@ -3389,24 +3389,10 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             }
         }
 
-        // Calculate cadence from speed if not available from external sensors
-        // This applies to all ProForm treadmill models
-        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                .toString()
-                .startsWith(QStringLiteral("Disabled")) && Speed.value() > 0) {
-            bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                                      .toString()
-                                      .startsWith(QStringLiteral("Disabled"));
-            if (!hasPowerSensor) {
-                double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
-                if (calculatedCadence > 0) {
-                    Cadence = calculatedCadence;
-                    emit debug(QStringLiteral("Current Cadence (calculated from speed): ") + QString::number(Cadence.value()));
-                }
-            }
-        }
-
-        // Apple Watch/Garmin have priority and will overwrite calculated cadence if enabled
+        // Cadence is handled in base class cadenceFromAppleWatch() which includes:
+        // 1. Garmin companion (highest priority)
+        // 2. Apple Watch (if paired and app installed)
+        // 3. Calculated from speed (fallback for all treadmills)
         cadenceFromAppleWatch();
 
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
