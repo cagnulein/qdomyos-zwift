@@ -763,12 +763,43 @@ strip_ansi_cached() {
     printf '%s' "$stripped"
 }
 
-# Helper: Get visual width (ignores ANSI, counts Unicode as 1)
+# Helper: Get visual width (ignores ANSI; counts Unicode display columns)
+# Uses Python's unicodedata.east_asian_width() when available to count
+# fullwidth/wide characters as 2 columns. Falls back to wc -m if Python
+# is not present. Always strips ANSI sequences before measuring.
 get_vis_width() {
-    local stripped
-    # Pipe to sed using @ as delimiter to avoid path slash errors
-    stripped=$(printf '%b' "${1:-}" | sed 's@\x1b\[[0-9;]*[a-zA-Z]@@g' | tr -d '\n\r')
-    echo -n "$stripped" | wc -m
+    local raw="${1:-}"
+    # Expand escape sequences then strip common CSI/OSC sequences robustly
+    local expanded stripped
+    expanded=$(printf '%b' "$raw" 2>/dev/null || printf '%s' "$raw")
+    # Use a conservative ANSI/C0 strip that covers CSI and many terminals
+    stripped=$(printf '%s' "$expanded" | sed -r 's/\x1B\[[0-9;?]*[ -/]*[@-~]//g' | tr -d '\r\n')
+
+    # Empty -> width 0
+    if [[ -z "$stripped" ]]; then
+        echo -n 0
+        return 0
+    fi
+
+    # Prefer Python for accurate column widths (handles East Asian width)
+    if command -v python3 >/dev/null 2>&1; then
+        local w
+        w=$(printf '%s' "$stripped" | python3 - <<'PY'
+import sys,unicodedata
+text=sys.stdin.read()
+width=0
+for ch in text:
+    ea=unicodedata.east_asian_width(ch)
+    width += 2 if ea in 'WF' else 1
+print(width)
+PY
+)
+        echo -n "$w"
+        return 0
+    fi
+
+    # Fallback: character count (may be incorrect for some CJK glyphs)
+    echo -n "$(printf '%s' "$stripped" | wc -m)"
 }
 
 get_width()     { get_display_width "$1"; }
@@ -904,9 +935,11 @@ draw_hr() {
         for ((i=0; i<inner_w; i++)); do fill="${fill}═"; done
         printf "${BLUE}${left_c}${fill}${right_c}${NC}" >&${UI_FD:-2}
     else
-        # 2. Calculate widths
-        local t_vis=${#text} # text is passed naked
-        local l_vis=$(get_vis_width "$legend")
+        # 2. Calculate visible widths (strip ANSI and count display columns)
+        local t_vis
+        t_vis=$(get_vis_width "$text")
+        local l_vis
+        l_vis=$(get_vis_width "$legend")
 
         # consumed = 3(bars) + 2(spaces) + t_vis + 2(spaces) + l_vis + 2(right bars)
         local fill_len=$(( inner_w - 3 - 2 - t_vis - 2 - l_vis - 2 ))
