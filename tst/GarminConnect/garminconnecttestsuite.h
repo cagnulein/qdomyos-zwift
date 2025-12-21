@@ -63,6 +63,17 @@ public:
      * 4. Re-encode values for signature
      */
     void test_manualQueryParsing_decodesCorrectly();
+
+    /**
+     * @brief Test that fromEncoded() + toEncoded() round-trip preserves encoding
+     *
+     * Verifies that when we:
+     * 1. Build URL string with correct encoding
+     * 2. Parse with fromEncoded(StrictMode)
+     * 3. Extract with toEncoded(FullyEncoded)
+     * We get back the EXACT same string (Qt doesn't modify encoding)
+     */
+    void test_fromEncodedToEncoded_roundTrip();
 };
 
 // Register individual tests with Google Test
@@ -84,6 +95,10 @@ TEST_F(GarminConnectTestSuite, CompletePatternCorrectEncoding) {
 
 TEST_F(GarminConnectTestSuite, ManualQueryParsingDecodesCorrectly) {
     this->test_manualQueryParsing_decodesCorrectly();
+}
+
+TEST_F(GarminConnectTestSuite, FromEncodedToEncodedRoundTrip) {
+    this->test_fromEncodedToEncoded_roundTrip();
 }
 
 #endif // GARMINCONNECTTESTSUITE_H

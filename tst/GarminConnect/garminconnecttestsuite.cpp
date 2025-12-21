@@ -166,3 +166,40 @@ void GarminConnectTestSuite::test_manualQueryParsing_decodesCorrectly()
     EXPECT_EQ(reEncoded.toStdString(), loginUrlEncoded.toStdString())
         << "Re-encoding should produce the same encoded value";
 }
+
+void GarminConnectTestSuite::test_fromEncodedToEncoded_roundTrip()
+{
+    // This is the CRITICAL test that verifies url.toEncoded() returns
+    // the same string we used to create the QUrl with fromEncoded()
+
+    // Build a URL string with proper encoding (like we do in the real code)
+    QString baseUrl = "https://connectapi.garmin.com/oauth-service/oauth/preauthorized";
+    QString ticket = "ST-0761225-ISyC0ElcBHwUkDEhFZGT-cas";
+    QString loginUrl = "https://sso.garmin.com/sso/embed";
+
+    // Encode login-url parameter manually
+    QString encodedLoginUrl = QString::fromUtf8(QUrl::toPercentEncoding(loginUrl));
+    QString fullUrl = baseUrl + "?ticket=" + ticket + "&login-url=" + encodedLoginUrl + "&accepts-mfa-tokens=true";
+
+    // Create QUrl with fromEncoded(StrictMode) - this is what we do in exchangeForOAuth1Token()
+    QUrl url = QUrl::fromEncoded(fullUrl.toUtf8(), QUrl::StrictMode);
+
+    // Extract the URL Qt will actually send using toEncoded()
+    QString urlFromQt = QString::fromUtf8(url.toEncoded(QUrl::FullyEncoded));
+
+    // CRITICAL: These MUST match for OAuth1 signature to work
+    EXPECT_EQ(urlFromQt.toStdString(), fullUrl.toStdString())
+        << "Qt's toEncoded() should return the exact same URL we put in with fromEncoded()";
+
+    // Verify the login-url parameter is still correctly encoded
+    EXPECT_TRUE(urlFromQt.contains("login-url=https%3A%2F%2Fsso.garmin.com"))
+        << "login-url parameter should preserve %3A and %2F encoding";
+
+    // Verify NO double encoding
+    EXPECT_FALSE(urlFromQt.contains("%253A")) << "Should not have double encoding %253A";
+    EXPECT_FALSE(urlFromQt.contains("%252F")) << "Should not have double encoding %252F";
+
+    // Verify NO unencoded characters
+    EXPECT_FALSE(urlFromQt.contains("login-url=https://"))
+        << "login-url should not have unencoded :// characters";
+}
