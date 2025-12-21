@@ -1427,8 +1427,6 @@ run_all_checks() {
 # Global process management variables (placeholders so traps with set -u don't fail)
 # These are assigned inside perform_bluetooth_scan() when the scan runs.
 BT_SCAN_PID=""
-BT_LOG_FILE=""
-BT_PIPE_IN=""
 
 # ============================================================================
 # ROBUST CLEANUP HANDLER (set -u safe & prevents freezes)
@@ -1444,15 +1442,12 @@ cleanup_bt_engine() {
         pkill -P "${BT_SCAN_PID}" 2>/dev/null
         kill "${BT_SCAN_PID}" 2>/dev/null
     fi
-    # 2b. (no background cache writer configured)
-    
-    # 3. Force Bluetooth controller to stop scanning
+    # 3. Stop any provider if active
+    stop_bt_provider || true
+
+    # 4. Force Bluetooth controller to stop scanning
     bluetoothctl scan off >/dev/null 2>&1
-    
-    # 4. Remove temp files
-    [[ -n "${BT_LOG_FILE:-}" && -f "$BT_LOG_FILE" ]] && rm -f "$BT_LOG_FILE"
-    [[ -n "${BT_PIPE_IN:-}" && -p "$BT_PIPE_IN" ]] && rm -f "$BT_PIPE_IN"
-    
+
     # 5. Move cursor below dashboard
     printf "\033[23;1H\n"
 }
@@ -1464,53 +1459,25 @@ cleanup_bt_engine() {
 # Start the Bluetooth scanner engine: create fifo/log, start the background
 # tail|script pipeline, set BT_SCAN_PID and enable scanning on controller.
 start_bt_engine() {
-    # If engine already running, no-op (idempotent)
-    if [[ -n "${BT_SCAN_PID:-}" ]]; then
-        if kill -0 "$BT_SCAN_PID" 2>/dev/null; then
-            bt_debug "start_bt_engine: already running pid=$BT_SCAN_PID"
-            return 0
-        else
-            bt_debug "start_bt_engine: clearing stale pid=$BT_SCAN_PID"
-            BT_SCAN_PID=""
-        fi
+    # Provider-only start: prefer Python provider when enabled
+    if [[ "${USE_PY_BTPROVIDER:-0}" -eq 1 ]]; then
+        start_bt_provider
+        BT_SCAN_PID=${BT_PROVIDER_PID:-}
+        return $?
     fi
 
-    # Verify required commands are present
-    if ! require_command tail || ! require_command script || ! require_command stdbuf || ! require_command bluetoothctl; then
-        bt_debug "start_bt_engine: missing required utility"
-        return 1
-    fi
-
-    [[ -n "${BT_LOG_FILE:-}" ]] || BT_LOG_FILE="/tmp/bt_radar_$$.log"
-    [[ -n "${BT_PIPE_IN:-}" ]] || BT_PIPE_IN="/tmp/bt_pipe_$$.in"
-
-    # Ensure previous engine is stopped and temp files are in a clean state
-    [[ -p "$BT_PIPE_IN" ]] || mkfifo "$BT_PIPE_IN"
-    : > "$BT_LOG_FILE"
-
-    # Start the background reader/writer pipeline. Use a subshell so $BT_SCAN_PID
-    # references the pipeline's parent PID (the script process we start).
-    ( tail -f "$BT_PIPE_IN" | stdbuf -oL script -q -c "bluetoothctl" /dev/null ) > "$BT_LOG_FILE" 2>&1 &
-    BT_SCAN_PID=$!
-
-    # Send initial power/scan commands into the pipe; don't block if no reader.
-    { echo "power on"; echo "scan on"; } > "$BT_PIPE_IN" || true
-    bt_debug "start_bt_engine: started pid=$BT_SCAN_PID pipe=$BT_PIPE_IN log=$BT_LOG_FILE"
-    return 0
+    bt_debug "start_bt_engine: legacy FIFO engine removed; set USE_PY_BTPROVIDER=1 to enable provider"
+    return 1
 }
 
 # Stop the Bluetooth scanner engine: kill background processes and remove
 # temp files (does NOT modify terminal settings).
 stop_bt_engine() {
     bt_debug "stop_bt_engine: stopping pid=${BT_SCAN_PID:-}"
-    if [[ -n "${BT_SCAN_PID:-}" ]]; then
-        pkill -P "${BT_SCAN_PID}" 2>/dev/null || true
-        kill "${BT_SCAN_PID}" 2>/dev/null || true
-        BT_SCAN_PID=""
-    fi
+    # Prefer stopping provider if active
+    stop_bt_provider || true
+    BT_SCAN_PID=""
     bluetoothctl scan off >/dev/null 2>&1 || true
-    if [[ -n "${BT_LOG_FILE:-}" && -f "$BT_LOG_FILE" ]]; then rm -f "$BT_LOG_FILE"; fi
-    if [[ -n "${BT_PIPE_IN:-}" && -p "$BT_PIPE_IN" ]]; then rm -f "$BT_PIPE_IN"; fi
     bt_debug "stop_bt_engine: stopped"
 }
 
