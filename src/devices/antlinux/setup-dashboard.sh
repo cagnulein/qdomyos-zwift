@@ -924,18 +924,10 @@ draw_top_title() {
     local padded
     padded=$(pad_display "$naked_inner" $inner_w)
 
-    # Now insert color around the visible text only (preserve paddings)
-    # Deterministically slice the padded naked string: left decoration, text, right remainder
-    local left_decoration="═══  "
-    local left_len
-    left_len=$(printf '%s' "$left_decoration" | wc -m)
-    local text_chars
-    text_chars=$(printf '%s' "$text" | wc -m)
-    local left_part right_part colored_inner
-    # Extract left_part (first left_len chars) and right_part (remaining after left+text)
-    left_part=$(printf '%s' "$padded" | cut -c1-$left_len)
-    right_part=$(printf '%s' "$padded" | cut -c$((left_len + text_chars + 1))-)
-    colored_inner="${left_part}${t_color}${text}${NC}${right_part}"
+    # Simpler: build colored inner including ANSI and let pad_display account for it
+    local inner_content colored_inner
+    inner_content="═══  ${t_color}${text}${NC}  "
+    colored_inner=$(pad_display "$inner_content" $inner_w)
 
     # Print the framed line (corner + inner + corner) atomically
     printf "%s%s%s" "${BLUE}${left_c}" "$colored_inner" "${right_c}${NC}" >&${UI_FD:-2}
