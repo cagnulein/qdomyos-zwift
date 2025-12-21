@@ -1712,7 +1712,25 @@ fetch_name_from_info() {
     enter_ui_mode
     while true; do
         ((loop_count++))
-        if [[ -f "$BT_LOG_FILE" ]]; then
+        if [[ "${USE_PY_BTPROVIDER:-0}" -eq 1 && -f "$BT_PROVIDER_STREAM" ]]; then
+            # Read the Python provider stream (format: MAC|RSSI|LABEL)
+            while IFS='|' read -r m r l; do
+                [[ -z "$m" ]] && continue
+                local idx=-1
+                for i in "${!macs[@]}"; do [[ "${macs[$i]}" == "$m" ]] && idx=$i && break; done
+                if [[ $idx -ge 0 ]]; then
+                    rssis[$idx]=$r
+                    # Lock in a real label preference
+                    if [[ ! "$l" =~ ^(Searching|~) ]]; then
+                        devices[$idx]="$l"
+                    elif [[ "${devices[$idx]}" == "Searching..." && "$l" =~ ^~ ]]; then
+                        devices[$idx]="$l"
+                    fi
+                else
+                    macs+=("$m"); rssis+=("$r"); devices+=("$l")
+                fi
+            done < <(tail -n 50 "$BT_PROVIDER_STREAM" 2>/dev/null)
+        elif [[ -f "$BT_LOG_FILE" ]]; then
             while read -r raw_line; do
                 # Parse the raw line using centralized helper
                 parse_bt_line "$raw_line"
@@ -1734,67 +1752,67 @@ fetch_name_from_info() {
                 # Name caching removed: we do not persist learned names.
                 bt_debug "PARSE mac=$mac cand='${found_name:-}'"
 
-                    # C. Update arrays with the verified Priority Logic
-                    local idx=-1
-                    for i in "${!macs[@]}"; do [[ "${macs[$i]}" == "$mac" ]] && idx=$i && break; done
-                    
-                    if [[ $idx -ge 0 ]]; then
-                        [[ -n "$clean_rssi" ]] && rssis[$idx]=$clean_rssi
-                        local cur_n="${devices[$idx]}"
+                # C. Update arrays with the verified Priority Logic
+                local idx=-1
+                for i in "${!macs[@]}"; do [[ "${macs[$i]}" == "$mac" ]] && idx=$i && break; done
 
-                        if [[ -n "$found_name" ]]; then
-                            # Priority 1: Real Broadcast Name overwrites placeholders or Guesses (~)
-                            local _lbl
-                            _lbl=$(sanitize_device_label "$found_name" 2>/dev/null || true)
-                            if [[ -n "$_lbl" ]]; then
-                                devices[$idx]="$_lbl"
-                            fi
-                        else
-                            # No broadcast name in the stream — try a one-shot query to bluetoothctl
-                            local _probe_name
-                            _probe_name=$(fetch_name_from_info "$mac" 2>/dev/null || true)
-                            if [[ -n "$_probe_name" ]]; then
-                                local _lbl
-                                _lbl=$(sanitize_device_label "$_probe_name" 2>/dev/null || true)
-                                if [[ -n "$_lbl" ]]; then
-                                    devices[$idx]="$_lbl"
-                                    bt_debug "PROBE_SET_FROM_INFO mac=$mac name='$_lbl'"
-                                fi
-                            elif [[ "$cur_n" =~ ^(Searching|Privacy) ]]; then
-                                # Priority 2: Use a neutral placeholder when no broadcast name is available
-                                devices[$idx]="Searching..."
-                            fi
+                if [[ $idx -ge 0 ]]; then
+                    [[ -n "$clean_rssi" ]] && rssis[$idx]=$clean_rssi
+                    local cur_n="${devices[$idx]}"
+
+                    if [[ -n "$found_name" ]]; then
+                        # Priority 1: Real Broadcast Name overwrites placeholders or Guesses (~)
+                        local _lbl
+                        _lbl=$(sanitize_device_label "$found_name" 2>/dev/null || true)
+                        if [[ -n "$_lbl" ]]; then
+                            devices[$idx]="$_lbl"
                         fi
                     else
-                        # New Device Discovery
-                        macs+=("$mac"); rssis+=("${clean_rssi:--100}"); is_paired+=("false")
-                        local label="Searching..."
-                        if [[ -n "$found_name" ]]; then
-                            label="$found_name"
-                        elif [[ "${mac:1:1}" =~ [26AaEe] ]]; then
-                            label="Privacy Device"
-                        fi
-                        # Final guard: if label looks like metadata, fallback to Searching...
-                        if [[ "$label" =~ ^(RSSI:|ManufacturerData:|ServiceData:|TxPower:|Attributes:|Pairable:|Class:|Icon:|Connected:|UUIDs:|Device) ]]; then
-                            label="Searching..."
-                        fi
-                        # If we didn't get a name from the stream, try a one-shot query
-                        if [[ "$label" == "Searching..." ]]; then
-                            local _probe
-                            _probe=$(fetch_name_from_info "$mac" 2>/dev/null || true)
-                            if [[ -n "$_probe" ]]; then
-                                label="$_probe"
-                                bt_debug "PROBE_SET_FROM_INFO new_mac=$mac name='$_probe'"
+                        # No broadcast name in the stream — try a one-shot query to bluetoothctl
+                        local _probe_name
+                        _probe_name=$(fetch_name_from_info "$mac" 2>/dev/null || true)
+                        if [[ -n "$_probe_name" ]]; then
+                            local _lbl
+                            _lbl=$(sanitize_device_label "$_probe_name" 2>/dev/null || true)
+                            if [[ -n "$_lbl" ]]; then
+                                devices[$idx]="$_lbl"
+                                bt_debug "PROBE_SET_FROM_INFO mac=$mac name='$_lbl'"
                             fi
+                        elif [[ "$cur_n" =~ ^(Searching|Privacy) ]]; then
+                            # Priority 2: Use a neutral placeholder when no broadcast name is available
+                            devices[$idx]="Searching..."
                         fi
-                        # Sanitize label one final time before adding
-                        local _final_label
-                        _final_label=$(sanitize_device_label "$label" 2>/dev/null || true)
-                        if [[ -z "$_final_label" ]]; then
-                            _final_label="Searching..."
-                        fi
-                        devices+=("$_final_label")
                     fi
+                else
+                    # New Device Discovery
+                    macs+=("$mac"); rssis+=("${clean_rssi:--100}"); is_paired+=("false")
+                    local label="Searching..."
+                    if [[ -n "$found_name" ]]; then
+                        label="$found_name"
+                    elif [[ "${mac:1:1}" =~ [26AaEe] ]]; then
+                        label="Privacy Device"
+                    fi
+                    # Final guard: if label looks like metadata, fallback to Searching...
+                    if [[ "$label" =~ ^(RSSI:|ManufacturerData:|ServiceData:|TxPower:|Attributes:|Pairable:|Class:|Icon:|Connected:|UUIDs:|Device) ]]; then
+                        label="Searching..."
+                    fi
+                    # If we didn't get a name from the stream, try a one-shot query
+                    if [[ "$label" == "Searching..." ]]; then
+                        local _probe
+                        _probe=$(fetch_name_from_info "$mac" 2>/dev/null || true)
+                        if [[ -n "$_probe" ]]; then
+                            label="$_probe"
+                            bt_debug "PROBE_SET_FROM_INFO new_mac=$mac name='$_probe'"
+                        fi
+                    fi
+                    # Sanitize label one final time before adding
+                    local _final_label
+                    _final_label=$(sanitize_device_label "$label" 2>/dev/null || true)
+                    if [[ -z "$_final_label" ]]; then
+                        _final_label="Searching..."
+                    fi
+                    devices+=("$_final_label")
+                fi
             done < <(tail -n +$last_processed_line "$BT_LOG_FILE" 2>/dev/null)
             last_processed_line=$(($(wc -l < "$BT_LOG_FILE" 2>/dev/null || echo "0") + 1))
         fi
