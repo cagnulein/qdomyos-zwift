@@ -754,10 +754,17 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     // Note: Content-Type not needed for GET requests
 
     // Generate OAuth1 signature for GET request
-    // CRITICAL: Use the same fully encoded URL for signature as Qt will send
+    // CRITICAL: Must use the EXACT URL that Qt will send in the HTTP request
+    // Use url.toEncoded() to get the actual bytes Qt will send
+    QString urlForSignature = QString::fromUtf8(url.toEncoded(QUrl::FullyEncoded));
+
+    qDebug() << "GarminConnect: URL for signature:" << urlForSignature;
+    qDebug() << "GarminConnect: Original fullUrl:  " << fullUrl;
+    qDebug() << "GarminConnect: URLs match:" << (urlForSignature == fullUrl);
+
     QString authHeader = generateOAuth1AuthorizationHeader(
         "GET",
-        fullUrl,
+        urlForSignature,  // Use the URL Qt will actually send
         consumerKey,
         consumerSecret,
         "",  // No token yet
