@@ -963,9 +963,8 @@ draw_bottom_border() {
     local help_text="${1:-}"
     local b_row=$((LOG_BOTTOM + 1))
     # Footer uses BOLD_BLUE for the text, No Legend
-    # We pass BOLD_BLUE via the color code directly into the 'text' argument 
-    # but we must ensure we use the 'text' slot only.
-    draw_hr "$b_row" "╚" "╝" "${BOLD_BLUE}${help_text}${NC}" ""
+    # Pass naked help text and color separately so width math ignores ANSI
+    draw_hr "$b_row" "╚" "╝" "$help_text" "$BOLD_BLUE" ""
 }
 
 # Clear the info/interactive area between LOG_TOP and LOG_BOTTOM
