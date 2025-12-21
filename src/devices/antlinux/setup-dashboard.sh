@@ -1041,6 +1041,9 @@ draw_hr() {
         _fill=$(printf '%s' "$fill" | wc -m)
         printf 'DEBUG row=%d inner_w=%d t_vis=%s l_vis=%s fill_len=%d t_len=%d l_len=%d fill_chars=%d\n' \
             "$row" "$inner_w" "$t_vis" "$l_vis" "$fill_len" "$_tlen" "$_llen" "$_fill" >> "$diag_log"
+        # Log stripped text and legend snippets for debugging (safe truncated)
+        printf 'DEBUG_TEXT:"%s"\n' "$(printf '%s' "$stripped_text" | cut -c1-80)" >> "$diag_log"
+        printf 'DEBUG_LEGEND:"%s"\n' "$(printf '%s' "$stripped_legend" | cut -c1-160)" >> "$diag_log"
 
         # 3b. Build and Print as one atomic operation to prevent flickering
         # [Corner] + [  ] + [COLOR+TEXT+NC] + [  ] + [FILL] + [LEGEND] + [══] + [Corner]
