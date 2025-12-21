@@ -892,8 +892,8 @@ draw_header_service_line() {
 
 draw_top_panel() {
     local inner_w=78
-    # Top Border
-    draw_hr 0 "╔" "╗" "QZ ANT+ BRIDGE SETUP & DIAGNOSTICS UTILITY" ""
+    # Top Border (use a dedicated routine that pads naked text first)
+    draw_top_title 0 "╔" "╗" "QZ ANT+ BRIDGE SETUP & DIAGNOSTICS UTILITY" "$BOLD_WHITE"
 
     # User/Environment/Paths (Standard rows)
     local env_str=$([[ "$HAS_GUI" == true ]] && echo "GUI (X11/Wayland)" || echo "Headless")
@@ -912,6 +912,28 @@ draw_top_panel() {
     # Arguments: Row, LeftCorner, RightCorner, Text, TextColor, Legend
     draw_hr 4 "╠" "╣" "STATUS" "$BOLD_WHITE" "$full_legend"
     render_status_grid 5
+}
+
+# Draw the top title row using naked text for width math, then apply color.
+# Usage: draw_top_title <row> <left_corner> <right_corner> <text> <text_color>
+draw_top_title() {
+    local row=$1 left_c=$2 right_c=$3 text=${4:-} t_color=${5:-}
+    local inner_w=78
+    # Build naked inner content (no ANSI) that will be padded to inner_w
+    local naked_inner="═══  ${text}  "
+    local padded
+    padded=$(pad_display "$naked_inner" $inner_w)
+
+    # Now insert color around the visible text only (preserve paddings)
+    # We locate the text inside the padded string and replace it with colored text.
+    # Simple approach: build colored_inner by replacing the naked text occurrence.
+    local escaped_text
+    escaped_text=$(printf '%s' "$naked_inner" | sed -e 's/[]\\[]/\\&/g')
+    local colored_inner
+    colored_inner=$(printf '%s' "$padded" | sed "s/${escaped_text}/${t_color}${text}${NC}/")
+
+    # Print the framed line (corner + inner + corner) atomically
+    printf "%s%s%s" "${BLUE}${left_c}" "$colored_inner" "${right_c}${NC}" >&${UI_FD:-2}
 }
 
 # Usage: draw_hr <row> <left_corner> <right_corner> <text> <text_color> [legend_text]
