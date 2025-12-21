@@ -948,7 +948,26 @@ draw_hr() {
         local fill=""
         for ((i=0; i<fill_len; i++)); do fill="${fill}═"; done
 
-        # 3. Build and Print as one atomic operation to prevent flickering
+        # 3a. Build stripped (no-ANSI) version for logging/measurement
+        local expanded stripped_text stripped_legend left_piece right_piece
+        expanded=$(printf '%b' "${text:-}" 2>/dev/null || printf '%s' "${text:-}")
+        stripped_text=$(printf '%s' "$expanded" | sed -r 's/\x1B\[[0-9;?]*[ -/]*[@-~]//g' | tr -d '\r\n')
+        expanded=$(printf '%b' "${legend:-}" 2>/dev/null || printf '%s' "${legend:-}")
+        stripped_legend=$(printf '%s' "$expanded" | sed -r 's/\x1B\[[0-9;?]*[ -/]*[@-~]//g' | tr -d '\r\n')
+        left_piece="${left_c}═══  "
+        right_piece="══${right_c}"
+        local nocolor_line
+        nocolor_line="${left_piece}${stripped_text}  ${fill}${stripped_legend}${right_piece}"
+
+        # Log the stripped horizontal line to a temp file for inspection if enabled
+        # Default file: /tmp/qz_drawn_lines.log (append)
+        if [[ -n "${QZ_HR_LOG:-}" ]]; then
+            printf '%s\n' "$nocolor_line" >> "$QZ_HR_LOG"
+        else
+            printf '%s\n' "$nocolor_line" >> /tmp/qz_drawn_lines.log
+        fi
+
+        # 3b. Build and Print as one atomic operation to prevent flickering
         # [Corner] + [═══] + [  ] + [COLOR+TEXT+NC] + [  ] + [FILL] + [LEGEND] + [══] + [Corner]
         printf "${BLUE}${left_c}═══  ${NC}${t_color}${text}${NC}${BLUE}  ${fill}${NC}${legend}${BLUE}══${right_c}${NC}" >&${UI_FD:-2}
     fi
