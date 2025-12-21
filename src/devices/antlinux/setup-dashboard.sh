@@ -953,12 +953,10 @@ draw_hr() {
         printf "${BLUE}${left_c}═══  ${NC}${t_color}${text}${NC}${BLUE}  ${fill}${NC}${legend}${BLUE}══${right_c}${NC}" >&${UI_FD:-2}
     fi
 
-    # 4. CRITICAL: For the bottom border (Row 22), move cursor up 
-    # to avoid triggering a terminal scroll/new line.
-    if [[ "$row" -ge 22 ]]; then
-        printf "\033[%d;1H" "$((LOG_TOP + 1))" >&${UI_FD:-2}
-        hide_cursor
-    fi
+    # 4. CRITICAL: Always restore cursor to the top of the log area to
+    # prevent terminal scrolling/push-up after drawing a horizontal rule.
+    printf "\033[%d;1H" "$((LOG_TOP + 1))" >&${UI_FD:-2}
+    hide_cursor
 }
 
 draw_bottom_border() {
