@@ -390,26 +390,16 @@ FINISH_DONE=0
 # shellcheck disable=SC2034
 CAN_INSTALL=0
 SETUP_MODE=""
-# Temporary debug toggle for Bluetooth scan (set env DEBUG_BT=1 to enable)
-DEBUG_BT=${DEBUG_BT:-0}
-# Default debug log (includes PID to avoid collisions). Can be overridden with env var.
-BT_DEBUG_LOG=${BT_DEBUG_LOG:-/tmp/qz_bt_scan_debug.log}
-
 bt_debug() {
-    # Usage: bt_debug "message"
-    [ "${DEBUG_BT:-0}" -eq 1 ] || return 0
-    local ts
-    ts=$(date +"%Y-%m-%dT%H:%M:%S%z")
-    printf "%s %s\n" "$ts" "$*" >> "$BT_DEBUG_LOG"
+    # Debug disabled in production: no-op
+    return 0
 }
 
 # Optional Python provider integration (minimal, safe wrappers).
-# Enable by exporting USE_PY_BTPROVIDER=1 in the environment.
 BT_PROVIDER_PID=0
 BT_PROVIDER_STREAM=${BT_PROVIDER_STREAM:-/tmp/qz_bt_stream.log}
 
 start_bt_provider() {
-    [ "${USE_PY_BTPROVIDER:-0}" -eq 1 ] || return 0
     # choose a python binary inside venv if available
     local pybin="$TARGET_HOME/ant_venv/bin/python3"
     if [ ! -x "$pybin" ]; then
@@ -1460,13 +1450,12 @@ cleanup_bt_engine() {
 # tail|script pipeline, set BT_SCAN_PID and enable scanning on controller.
 start_bt_engine() {
     # Provider-only start: prefer Python provider when enabled
-    if [[ "${USE_PY_BTPROVIDER:-0}" -eq 1 ]]; then
-        start_bt_provider
-        BT_SCAN_PID=${BT_PROVIDER_PID:-}
-        return $?
+    # Start the Python provider by default
+    start_bt_provider
+    BT_SCAN_PID=${BT_PROVIDER_PID:-}
+    if [ -n "$BT_SCAN_PID" ]; then
+        return 0
     fi
-
-    bt_debug "start_bt_engine: legacy FIFO engine removed; set USE_PY_BTPROVIDER=1 to enable provider"
     return 1
 }
 
