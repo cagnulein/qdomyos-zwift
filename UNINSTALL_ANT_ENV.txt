@@ -1,0 +1,37 @@
+# UNINSTALL_ANT_ENV.txt
+# Commands to remove pyenv Python, virtualenv, plugdev membership, udev rules, and service
+# Edit variables below as needed (PYENV_PY may be your installed version)
+
+PYENV_PY="3.11.9"   # adjust to the pyenv python version you installed
+TARGET_USER="${SUDO_USER:-$(whoami)}"
+TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
+
+# 1) Remove virtualenv (non-destructive to system)
+[ -d "$TARGET_HOME/ant_venv" ] && rm -rf "$TARGET_HOME/ant_venv"
+
+# 2) Uninstall pyenv-installed Python
+if command -v pyenv >/dev/null 2>&1; then
+  pyenv uninstall -f "$PYENV_PY" || true
+fi
+
+# 3) (Optional) Remove pyenv entirely for the user
+rm -rf "$TARGET_HOME/.pyenv"
+
+# 4) Remove user from plugdev group
+sudo gpasswd -d "$TARGET_USER" plugdev || sudo deluser "$TARGET_USER" plugdev || true
+
+# 5) Remove udev rules for ANT dongle (example filename)
+sudo rm -f /etc/udev/rules.d/99-ant.rules || true
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+
+# 6) Disable/remove systemd service (if installed)
+sudo systemctl disable --now qz.service || true
+sudo rm -f /etc/systemd/system/qz.service || true
+sudo systemctl daemon-reload || true
+
+# 7) (Optional) Remove global python packages installed with sudo pip
+# sudo pip3 uninstall -y openant pyusb pybind11 || true
+
+# 8) Final: re-login or reboot to apply group changes
+echo "Re-login or reboot to apply group membership changes"

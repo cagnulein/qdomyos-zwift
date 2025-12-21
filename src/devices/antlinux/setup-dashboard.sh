@@ -38,9 +38,14 @@ while [ "$#" -gt 0 ]; do
             exit 0
             ;;
         --help|-h)
-            printf 'Usage: %s [--version]\n' "${0##*/}"
+                printf 'Usage: %s [--version|--scan-now]\n' "${0##*/}"
             exit 0
             ;;
+            --scan-now)
+                SCAN_NOW=1
+                NONINTERACTIVE_SHOW_CURSOR=1
+                shift
+                ;;
         *)
             # ignore unknown flags; the dashboard will continue normally
             shift
@@ -55,14 +60,32 @@ trap 'echo "SCRIPT CRASHED on line $LINENO! (Check for unbound variables if set 
 
 # Restore terminal to a usable state
 restore_terminal() {
-    # Restore terminal state and make cursor visible
-    exit_ui_mode
-    # Now show the cursor for the user session
-    show_cursor
-    # Move cursor to the very bottom so the prompt doesn't overwrite the UI
-    move_cursor $((TERM_HEIGHT + 1)) 0
-    printf "\n"
+    # Best-effort restore: some helper functions/vars may not be defined if
+    # the script is terminated early. Guard all calls so the restore handler
+    # never fails with 'command not found' or unbound variable errors.
+    if command -v exit_ui_mode >/dev/null 2>&1; then
+        exit_ui_mode || true
+    else
+        # Fall back to a sane stty restore
+        stty echo 2>/dev/null || true
+    fi
+    if command -v show_cursor >/dev/null 2>&1; then
+        show_cursor || true
+    else
+        printf '\033[?25h' >&${UI_FD:-2} 2>/dev/null || true
+    fi
+    # If TERM_HEIGHT is not yet set, default to 24
+    local _th=${TERM_HEIGHT:-24}
+    if command -v move_cursor >/dev/null 2>&1; then
+        move_cursor $(( _th + 1 )) 0 2>/dev/null || true
+    else
+        printf "\n"
+    fi
 }
+
+# Always attempt to restore the terminal on normal exit as well. immediate_exit
+# will clear traps as needed to avoid recursion during forced interrupts.
+trap restore_terminal EXIT
 
 # Unified exit function
 finish_and_exit() {
@@ -73,12 +96,26 @@ finish_and_exit() {
 # This function does NOTHING but fix the terminal and exit immediately.
 # No prompts, no messages.
 immediate_exit() {
-    # Restore terminal state and ensure cursor visible
-    exit_ui_mode
-    show_cursor
-    # Move cursor to the very bottom of the dashboard area
-    move_cursor $((LOG_BOTTOM + 1)) 0
-    printf "\n"
+    # Best-effort restore (guard helpers that may not exist yet)
+    if command -v exit_ui_mode >/dev/null 2>&1; then
+        exit_ui_mode || true
+    else
+        stty echo 2>/dev/null || true
+    fi
+    if command -v show_cursor >/dev/null 2>&1; then
+        show_cursor || true
+    else
+        printf '\033[?25h' >&${UI_FD:-2} 2>/dev/null || true
+    fi
+    if [[ -n "${LOG_BOTTOM:-}" ]]; then
+        if command -v move_cursor >/dev/null 2>&1; then
+            move_cursor $((LOG_BOTTOM + 1)) 0 2>/dev/null || true
+        else
+            printf "\n"
+        fi
+    else
+        printf "\n"
+    fi
     
     # Exit with the standard 'Interrupted' exit code
     # We un-trap first to prevent a loop if exit itself triggers EXIT
@@ -114,26 +151,24 @@ if [ "$USE_COLOR" = true ]; then
     NC='\033[0m'
     BOLD='\033[1m'
     BOLD_RED='\033[1;31m'
-    BOLD_GREEN='\033[1;32m'
     BOLD_BLUE='\033[1;34m'
     BOLD_CYAN='\033[1;36m'   # Added for high-visibility selection
     BOLD_WHITE='\033[1;37m'
     ORANGE='\033[38;5;214m' # 256-color mode orange
+    MAGENTA='\033[0;35m'
+    BOLD_MAGENTA='\033[1;35m'
 else
     RED=''; GREEN=''; YELLOW=''; BLUE=''; CYAN=''; WHITE=''; GRAY=''; NC=''
-    BOLD=''; BOLD_RED=''; BOLD_GREEN=''; BOLD_BLUE=''; BOLD_CYAN=''; BOLD_WHITE=''
+    BOLD=''; BOLD_RED=''; BOLD_BLUE=''; BOLD_CYAN=''; BOLD_WHITE=''
 fi
 
-# Reference color vars to avoid accidental 'unused var' ShellCheck warnings
-: "${BOLD_RED:-}${BOLD_GREEN:-}${BOLD_BLUE:-}${BOLD_CYAN:-}${BOLD_WHITE:-}"
 
 SYMBOL_PASS="✓"
 SYMBOL_FAIL="✗"
-SYMBOL_WARN="⚠"
+SYMBOL_WARN="!"
 SYMBOL_PENDING="●"
 SYMBOL_WORKING="⟳"
-SYMBOL_LOCKED="⚿"  # Unicode U+26BF (Single-width lock/key)
-# Items specified in the README to be preserved on GUI systems
+SYMBOL_LOCKED="⛊"
 PROTECTED_ITEMS=("python311" "qt5_libs" "qml_modules" "bluetooth" "lsusb")
 
 # ============================================================================
@@ -142,6 +177,17 @@ PROTECTED_ITEMS=("python311" "qt5_libs" "qml_modules" "bluetooth" "lsusb")
 
 TARGET_USER="${SUDO_USER:-$USER}"
 TARGET_HOME=$(getent passwd "$TARGET_USER" | cut -d: -f6)
+
+# Attempt to open the controlling terminal early so the TUI can write
+# directly to the user's terminal even when stdout/stderr are redirected.
+# We open fd 3 to /dev/tty and prefer it as the UI output FD.
+if [ -c /dev/tty ]; then
+    # Safe non-fatal open
+    exec 3>/dev/tty 2>/dev/null || true
+    if [ -w /dev/tty ] 2>/dev/null; then
+        UI_FD=3
+    fi
+fi
 
 # Detect GUI environment
 HAS_GUI=false
@@ -184,13 +230,13 @@ PREV_MILES=""
 move_cursor() {
     local r=$(( ${1:-0} + 1 ))
     local c=$(( ${2:-0} + 1 ))
-    printf "\033[%d;%dH" "$r" "$c"
+    printf "\033[%d;%dH" "$r" "$c" >&${UI_FD:-2}
 }
 
-clear_line() { printf "\033[0K"; }
-clear_screen() { printf "\033[2J\033[H"; }
-hide_cursor() { printf "\033[?25l"; }
-show_cursor() { printf "\033[?25h"; }
+clear_line() { printf "\033[0K" >&${UI_FD:-2}; }
+clear_screen() { printf "\033[2J\033[H" >&${UI_FD:-2}; }
+hide_cursor() { printf "\033[?25l" >&${UI_FD:-2}; }
+show_cursor() { printf "\033[?25h" >&${UI_FD:-2}; }
 
 # UI mode helpers: centralize terminal state changes for interactive UI sections.
 # Use a simple reference count so nested callers are safe.
@@ -209,8 +255,18 @@ enter_ui_mode() {
         _QZ_OLD_STTY=""
     fi
     # Disable local echo and hide the cursor for the UI
-    stty -echo 2>/dev/null || true
-    hide_cursor
+    # If requested (non-interactive scan), keep cursor visible and enable echo
+    if [ "${NONINTERACTIVE_SHOW_CURSOR:-0}" -eq 1 ]; then
+        stty echo 2>/dev/null || true
+        if command -v show_cursor >/dev/null 2>&1; then
+            show_cursor || true
+        else
+            printf '\033[?25h' 2>/dev/null || true
+        fi
+    else
+        stty -echo 2>/dev/null || true
+        hide_cursor
+    fi
 
     # Ensure exit_ui_mode runs on unexpected RETURN/SIGINT/SIGTERM within this UI
     trap 'exit_ui_mode; trap - RETURN SIGINT SIGTERM' RETURN SIGINT SIGTERM
@@ -250,94 +306,13 @@ require_command() {
     return 0
 }
 
-# Lightweight bluetoothctl output parser.
-# Sets globals: PARSE_LINE, PARSE_MAC, PARSE_RSSI_RAW, PARSE_CLEAN_RSSI, PARSE_CAND, PARSE_FOUND_NAME
-parse_bt_line() {
-    local raw="${1:-}"
-    PARSE_LINE=""
-    PARSE_MAC=""; PARSE_RSSI_RAW=""; PARSE_CLEAN_RSSI=""; PARSE_CAND=""; PARSE_FOUND_NAME=""
-
-    # Normalize the line: remove CR, quotes and ANSI escapes
-    PARSE_LINE=$(printf '%s' "$raw" | tr -d '\r"' | sed 's@\x1b\[[0-9;]*[a-zA-Z]@@g')
-    local line="$PARSE_LINE"
-
-    # 1) Extract MAC once if present (accept colon or hyphen separators)
-    if [[ "$line" =~ ([0-9A-Fa-f]{2}([:\-][0-9A-Fa-f]{2}){5}) ]]; then
-        PARSE_MAC="${BASH_REMATCH[1]}"
-        PARSE_MAC="${PARSE_MAC//-/:}"
-    else
-        # Accept Address: or LE Address: prefixes as an alternative
-        if [[ "$line" =~ (Address|LE[[:space:]]Address):[[:space:]]*([0-9A-Fa-f]{2}([:\-][0-9A-Fa-f]{2}){5}) ]]; then
-            PARSE_MAC="${BASH_REMATCH[2]}"
-            PARSE_MAC="${PARSE_MAC//-/:}"
-        fi
-    fi
-
-    # 2) Extract RSSI once (hex or decimal)
-    if [[ "$line" =~ RSSI:[[:space:]]*(0x[0-9a-fA-F]+|-?[0-9]+) ]]; then
-        PARSE_RSSI_RAW="${BASH_REMATCH[1]}"
-        if [[ "${PARSE_RSSI_RAW}" == 0x* ]]; then
-            local hb=$((0x${PARSE_RSSI_RAW: -2}))
-            PARSE_CLEAN_RSSI=$((hb > 127 ? hb - 256 : hb))
-        else
-            PARSE_CLEAN_RSSI="${PARSE_RSSI_RAW}"
-        fi
-    fi
-
-    # 3) Candidate/name extraction — prefer explicit Name/Alias tokens
-    if [[ "$line" =~ Name:[[:space:]]*(.+) ]]; then
-        PARSE_CAND="${BASH_REMATCH[1]}"
-    elif [[ "$line" =~ Alias:[[:space:]]*(.+) ]]; then
-        PARSE_CAND="${BASH_REMATCH[1]}"
-    else
-        # If the line looks like a 'Device <MAC> <name>' row, capture the tail as candidate
-        if [[ "$line" =~ Device[[:space:]]+([0-9A-Fa-f]{2}([:\-][0-9A-Fa-f]{2}){5})[[:space:]]+(.+) ]]; then
-            # If MAC wasn't captured earlier, use this one
-            [[ -z "${PARSE_MAC}" ]] && PARSE_MAC="${BASH_REMATCH[1]}" && PARSE_MAC="${PARSE_MAC//-/:}"
-            PARSE_CAND="${BASH_REMATCH[3]}"
-        else
-            # Avoid treating metadata-only lines as names
-            if ! [[ "$line" =~ (RSSI:|ManufacturerData:|ServiceData:|TxPower:|Attributes:|Pairable:|Class:|Icon:|Connected:|UUIDs:) ]]; then
-                # Heuristic: if there's non-metadata text after a MAC, use it as candidate
-                if [[ -n "${PARSE_MAC}" && "$line" =~ ${PARSE_MAC//:/[:][:]}[[:space:]]+(.+) ]]; then
-                    PARSE_CAND="${BASH_REMATCH[1]}"
-                else
-                    # As a last-ditch attempt, if the line contains trailing text, capture it
-                    if [[ "$line" =~ ^[[:space:]]*[^[:space:]]+[[:space:]]+(.+)$ ]]; then
-                        PARSE_CAND="${BASH_REMATCH[1]}"
-                    fi
-                fi
-            fi
-        fi
-    fi
-
-    # Normalize and trim candidate, remove address-type annotations
-    PARSE_CAND=$(printf '%s' "${PARSE_CAND:-}" | sed -E 's/\((random|public|addr type)\)//g' | xargs || true)
-
-    if [[ -n "${PARSE_CAND:-}" ]] && is_real_name "${PARSE_CAND}"; then
-        PARSE_FOUND_NAME="${PARSE_CAND}"
-    fi
-
-    # Also accept standalone 'Name:' or 'Alias:' lines (e.g. output of `bluetoothctl info`)
-    if [[ -z "${PARSE_CAND:-}" ]]; then
-        if [[ "$line" =~ ^[[:space:]]*Name:[[:space:]]*(.+)$ ]]; then
-            PARSE_CAND="${BASH_REMATCH[1]}"
-        elif [[ "$line" =~ ^[[:space:]]*Alias:[[:space:]]*(.+)$ ]]; then
-            PARSE_CAND="${BASH_REMATCH[1]}"
-        fi
-        PARSE_CAND=$(printf '%s' "${PARSE_CAND:-}" | sed -E 's/\((random|public|addr type)\)//g' | xargs || true)
-        if [[ -n "${PARSE_CAND:-}" ]] && is_real_name "${PARSE_CAND}"; then
-            PARSE_FOUND_NAME="${PARSE_CAND}"
-        fi
-    fi
-}
 
 # ============================================================================
 # LAYOUT CONFIGURATION
 # ============================================================================ 
     
 # Standard 24-line terminal geometry
-LOG_TOP=13
+LOG_TOP=12
 LOG_BOTTOM=21
 INFO_WIDTH=78
 
@@ -348,29 +323,27 @@ INFO_WIDTH=78
 declare -A STATUS_MAP=(
     ["python311"]="pending"
     ["venv"]="pending"
-    ["pkg_openant"]="pending"
-    ["pkg_pyusb"]="pending"
-    ["pkg_pybind11"]="pending"
+    ["pkg_pips"]="pending"
     ["qt5_libs"]="pending"
     ["qml_modules"]="pending"
     ["bluetooth"]="pending"
+    ["lsusb"]="pending"
     ["plugdev"]="pending"
     ["udev_rules"]="pending"
-    ["lsusb"]="pending"
-    ["ant_dongle"]="pending"
     ["config_file"]="pending"
     ["qz_service"]="pending"
+    ["ant_dongle"]="pending"
 )
+
 
 # Status grid definition: each entry is "Left Label|Left Key|Right Label|Right Key"
 declare -a STATUS_GRID=(
-    "Python 3.11 Library|python311|Bluetooth Service|bluetooth"
-    "Virtual Environment|venv|User in plugdev Group|plugdev"
-    "Package: openant|pkg_openant|USB udev Rules|udev_rules"
-    "Package: pyusb|pkg_pyusb|lsusb Command|lsusb"
-    "Package: pybind11|pkg_pybind11|Configuration File|config_file"
-    "Qt5 Runtime Libraries|qt5_libs|ANT+ USB Dongle|ant_dongle"
+    "Python 3.11 Library|python311|lsusb Command|lsusb"
+    "Python Virtual Environment|venv|User in plugdev Group|plugdev"
+    "Python PIPs|pkg_pips|USB udev Rules|udev_rules"
+    "Qt5 Runtime Libraries|qt5_libs|Configuration File|config_file"
     "QML Modules|qml_modules|QZ Service|qz_service"
+    "Bluetooth Service|bluetooth|ANT+ USB Dongle|ant_dongle"
 )
 
 # Render the status grid starting at given row (default 5)
@@ -390,17 +363,93 @@ FINISH_DONE=0
 # shellcheck disable=SC2034
 CAN_INSTALL=0
 SETUP_MODE=""
+
+# Debug logging: use an in-memory ring buffer by default to avoid disk I/O.
+# Enable disk-backed debug by setting DEBUG_BT=1 in the environment.
 BT_DEBUG_LOG=${BT_DEBUG_LOG:-/tmp/qz_bt_scan_debug.log}
+DEBUG_BT=${DEBUG_BT:-0}
+declare -a DEBUG_RING_BUFFER
+DEBUG_RING_SIZE=${DEBUG_RING_SIZE:-100}
 bt_debug() {
-    # Temporarily enabled debug logger for troubleshooting
+    # Early return if debugging disabled
+    if [[ "${DEBUG_BT}" -eq 0 ]]; then
+        return 0
+    fi
     local ts
-    ts=$(date +"%Y-%m-%dT%H:%M:%S%z")
-    printf "%s %s\n" "$ts" "$*" >> "$BT_DEBUG_LOG" 2>/dev/null || true
+    ts=$(date +"%H:%M:%S")
+    local msg="[$ts] $*"
+    DEBUG_RING_BUFFER+=("$msg")
+    # Keep only the last N entries
+    if [[ ${#DEBUG_RING_BUFFER[@]} -gt $DEBUG_RING_SIZE ]]; then
+        DEBUG_RING_BUFFER=("${DEBUG_RING_BUFFER[@]: -$DEBUG_RING_SIZE}")
+    fi
+}
+
+bt_debug_dump() {
+    # Dump ring buffer to a RAM-backed file for post-mortem analysis
+    local dump_file="/dev/shm/qz_debug_dump_$$.log"
+    mkdir -p "$(dirname "$dump_file")" 2>/dev/null || true
+    printf "%s\n" "${DEBUG_RING_BUFFER[@]:-}" > "$dump_file" 2>/dev/null || true
+    echo "Debug log dumped to: $dump_file" >&2
 }
 
 # Optional Python provider integration (minimal, safe wrappers).
-BT_PROVIDER_PID=0
-BT_PROVIDER_STREAM=${BT_PROVIDER_STREAM:-/tmp/qz_bt_stream.log}
+# Prefer FIFO in shared memory to avoid SD card writes; fall back to file
+BT_PROVIDER_FIFO="${BT_PROVIDER_FIFO:-/dev/shm/qz_bt_fifo_$$}"
+BT_PROVIDER_SUPERVISOR_PID=0
+BT_PROVIDER_PIDFILE=${BT_PROVIDER_PIDFILE:-/dev/shm/qz_bt_provider_$$.pid}
+BT_PROVIDER_STOP_FILE=${BT_PROVIDER_STOP_FILE:-/dev/shm/qz_bt_provider.stop}
+BT_PROVIDER_HEARTBEAT=${BT_PROVIDER_HEARTBEAT:-/dev/shm/qz_bt_heartbeat_$$}
+
+# Ensure BT file paths are writable by this user. If /tmp files are owned by
+# root (sticky /tmp prevents non-owners truncating them), fall back to per-user
+# cache files under the user's home directory so non-root runs won't hit
+# 'Permission denied' when truncating or appending.
+resolve_bt_paths() {
+    # Resolve provider stream
+    BT_PROVIDER_STREAM=${BT_PROVIDER_STREAM:-/tmp/qz_bt_stream.log}
+    local stream="$BT_PROVIDER_STREAM"
+    # If the file exists but isn't writable by us, pick a per-user fallback
+    if [ -e "$stream" ] && [ ! -w "$stream" ]; then
+        local fallback="$TARGET_HOME/.cache/qz_bt_stream.log"
+        mkdir -p "$(dirname "$fallback")" 2>/dev/null || true
+        : > "$fallback" 2>/dev/null || true
+        chmod 0666 "$fallback" 2>/dev/null || true
+        BT_PROVIDER_STREAM="$fallback"
+    else
+        # Try to create it; if creation fails or it's not writable, use fallback
+        mkdir -p "$(dirname "$stream")" 2>/dev/null || true
+        : > "$stream" 2>/dev/null || true
+        if [ ! -w "$stream" ]; then
+            local fallback="$TARGET_HOME/.cache/qz_bt_stream.log"
+            mkdir -p "$(dirname "$fallback")" 2>/dev/null || true
+            : > "$fallback" 2>/dev/null || true
+            chmod 0666 "$fallback" 2>/dev/null || true
+            BT_PROVIDER_STREAM="$fallback"
+        fi
+    fi
+
+    # Resolve debug log path similarly (kept for explicit disk dumps)
+    BT_DEBUG_LOG=${BT_DEBUG_LOG:-/tmp/qz_bt_scan_debug.log}
+    local dbg="$BT_DEBUG_LOG"
+    if [ -e "$dbg" ] && [ ! -w "$dbg" ]; then
+        local dfallback="$TARGET_HOME/.cache/qz_bt_scan_debug.log"
+        mkdir -p "$(dirname "$dfallback")" 2>/dev/null || true
+        : > "$dfallback" 2>/dev/null || true
+        chmod 0666 "$dfallback" 2>/dev/null || true
+        BT_DEBUG_LOG="$dfallback"
+    else
+        mkdir -p "$(dirname "$dbg")" 2>/dev/null || true
+        : > "$dbg" 2>/dev/null || true
+        if [ ! -w "$dbg" ]; then
+            local dfallback="$TARGET_HOME/.cache/qz_bt_scan_debug.log"
+            mkdir -p "$(dirname "$dfallback")" 2>/dev/null || true
+            : > "$dfallback" 2>/dev/null || true
+            chmod 0666 "$dfallback" 2>/dev/null || true
+            BT_DEBUG_LOG="$dfallback"
+        fi
+    fi
+}
 
 start_bt_provider() {
     # choose a python binary inside venv if available
@@ -419,10 +468,31 @@ start_bt_provider() {
         bt_debug "PY_PROVIDER_MISSING prov=$prov"
         return 1
     fi
-    # Ensure stream exists and is writable by the provider process.
-    mkdir -p "$(dirname "$BT_PROVIDER_STREAM")" 2>/dev/null || true
-    : > "$BT_PROVIDER_STREAM" 2>/dev/null || true
-    chmod 0666 "$BT_PROVIDER_STREAM" 2>/dev/null || true
+    # Record an absolute provider path so stop logic can safely target it.
+    BT_PROVIDER_PROV_PATH=$(readlink -f "$prov" 2>/dev/null || echo "$prov")
+    # Pick writable paths for stream/debug before attempting truncation
+    resolve_bt_paths
+
+    # Prepare IPC in RAM: create FIFO and heartbeat file paths under /dev/shm
+    if [[ -d /dev/shm ]]; then
+        BT_PROVIDER_FIFO="/dev/shm/qz_bt_fifo_$$"
+        BT_PROVIDER_PIDFILE="/dev/shm/qz_bt_provider_$$.pid"
+        BT_PROVIDER_HEARTBEAT="/dev/shm/qz_bt_heartbeat_$$"
+    else
+        # Fallback to per-user cache directory
+        BT_PROVIDER_FIFO="$TARGET_HOME/.cache/qz_bt_fifo_$$"
+        BT_PROVIDER_PIDFILE="$TARGET_HOME/.cache/qz_bt_provider_$$.pid"
+        BT_PROVIDER_HEARTBEAT="$TARGET_HOME/.cache/qz_bt_heartbeat_$$"
+        mkdir -p "$(dirname "$BT_PROVIDER_FIFO")" 2>/dev/null || true
+    fi
+
+    # Ensure old IPC artifacts removed
+    rm -f "$BT_PROVIDER_FIFO" "$BT_PROVIDER_HEARTBEAT" 2>/dev/null || true
+    # Create FIFO (if creation fails, fall back to a regular file stream)
+    if ! mkfifo "$BT_PROVIDER_FIFO" 2>/dev/null; then
+        : > "$BT_PROVIDER_FIFO" 2>/dev/null || true
+    fi
+    chmod 0666 "$BT_PROVIDER_FIFO" 2>/dev/null || true
     # If running as root, try to chown the stream to the target user so
     # non-root provider processes can write without permission issues.
     if [ "$(id -u)" -eq 0 ] && [ -n "${TARGET_USER:-}" ]; then
@@ -435,39 +505,129 @@ start_bt_provider() {
     if [ "$(id -u)" -eq 0 ] && [ -n "${TARGET_USER:-}" ]; then
         chown "$TARGET_USER":"$TARGET_USER" "$BT_DEBUG_LOG" 2>/dev/null || true
     fi
-    "$pybin" "$prov" >"$BT_PROVIDER_STREAM" 2>&1 &
-    BT_PROVIDER_PID=$!
-    bt_debug "PY_PROVIDER_STARTED pid=$BT_PROVIDER_PID stream=$BT_PROVIDER_STREAM"
-    sleep 10
+    # If a supervisor is already running, nothing to do
+    if [ -n "${BT_PROVIDER_SUPERVISOR_PID:-}" ] && ps -p "${BT_PROVIDER_SUPERVISOR_PID}" >/dev/null 2>&1; then
+        bt_debug "PY_PROVIDER_SUPERVISOR_ALREADY_RUNNING pid=${BT_PROVIDER_SUPERVISOR_PID}"
+        return 0
+    fi
+
+    # Ensure old stop file removed
+    rm -f "$BT_PROVIDER_STOP_FILE" 2>/dev/null || true
+    rm -f "$BT_PROVIDER_PIDFILE" 2>/dev/null || true
+
+    # Start provider once and run a lightweight watchdog that checks heartbeat
+    (
+        # Launch provider and pass heartbeat path; provider writes heartbeat periodically
+        "$pybin" "$prov" --heartbeat="$BT_PROVIDER_HEARTBEAT" >"$BT_PROVIDER_FIFO" 2>/dev/null &
+        local pp=$!
+        echo "$pp" > "$BT_PROVIDER_PIDFILE" 2>/dev/null || true
+        bt_debug "PY_PROVIDER_STARTED pid=$pp fifo=$BT_PROVIDER_FIFO hb=$BT_PROVIDER_HEARTBEAT"
+
+        # Watchdog: check every 5s for heartbeat freshness and process liveness
+        while true; do
+            sleep 5
+            # Stop requested?
+            [ -f "$BT_PROVIDER_STOP_FILE" ] && break
+
+            # If process died, break and allow supervisor to exit
+            if ! ps -p "$pp" >/dev/null 2>&1; then
+                bt_debug "PY_PROVIDER_EXITED pid=$pp"
+                break
+            fi
+
+            # Check heartbeat timestamp (age in seconds)
+            if [ -f "$BT_PROVIDER_HEARTBEAT" ]; then
+                local age
+                age=$(( $(date +%s) - $(stat -c %Y "$BT_PROVIDER_HEARTBEAT" 2>/dev/null || echo 0) ))
+                if [ "$age" -gt 10 ]; then
+                    bt_debug "PROVIDER_STALLED age=${age}s pid=$pp"
+                    kill "$pp" 2>/dev/null || true
+                    break
+                fi
+            else
+                # Missing heartbeat file may indicate provider failed to initialize
+                bt_debug "PROVIDER_NO_HEARTBEAT pid=$pp"
+            fi
+        done
+
+        # Cleanup provider if still running
+        if ps -p "$pp" >/dev/null 2>&1; then
+            kill "$pp" 2>/dev/null || true
+        fi
+        rm -f "$BT_PROVIDER_PIDFILE" "$BT_PROVIDER_HEARTBEAT" "$BT_PROVIDER_FIFO" 2>/dev/null || true
+    ) &
+    BT_PROVIDER_SUPERVISOR_PID=$!
+    bt_debug "PY_PROVIDER_SUPERVISOR_STARTED pid=$BT_PROVIDER_SUPERVISOR_PID"
     return 0
 }
 
 stop_bt_provider() {
-    if [ -n "${BT_PROVIDER_PID:-}" ] && [ "${BT_PROVIDER_PID}" -ne 0 ]; then
-        kill "$BT_PROVIDER_PID" 2>/dev/null || true
-        BT_PROVIDER_PID=0
+    # Signal supervisor to stop
+    touch "$BT_PROVIDER_STOP_FILE" 2>/dev/null || true
+
+    # Kill provider if pidfile exists
+    if [ -f "$BT_PROVIDER_PIDFILE" ]; then
+        local ppid
+        ppid=$(cat "$BT_PROVIDER_PIDFILE" 2>/dev/null || true)
+        if [ -n "$ppid" ]; then
+            kill "$ppid" 2>/dev/null || true
+            for i in {1..10}; do
+                if ps -p "$ppid" >/dev/null 2>&1; then sleep 0.05; else break; fi
+            done
+        fi
+        rm -f "$BT_PROVIDER_PIDFILE" 2>/dev/null || true
+    else
+        # No pidfile; try a conservative kill that only targets processes
+        # whose command line contains the exact provider path and are owned
+        # by the target user. This avoids killing unrelated apps with
+        # similar names.
+        local owner_user="${TARGET_USER:-$(id -un)}"
+        if [ -n "${BT_PROVIDER_PROV_PATH:-}" ]; then
+            # pgrep for processes matching the full path owned by owner_user
+            local pids
+            pids=$(pgrep -u "$owner_user" -f "${BT_PROVIDER_PROV_PATH}" || true)
+            if [ -n "$pids" ]; then
+                kill $pids 2>/dev/null || true
+                for pid in $pids; do
+                    for i in {1..10}; do
+                        if ps -p "$pid" >/dev/null 2>&1; then sleep 0.05; else break; fi
+                    done
+                done
+            else
+                # As a last-resort conservative fallback, look for python processes
+                # that reference a bt_provider.py basename and are owned by owner_user.
+                local basename
+                basename=$(basename "${BT_PROVIDER_PROV_PATH}" || true)
+                if [ -n "$basename" ]; then
+                    pids=$(pgrep -u "$owner_user" -f "[p]ython.*${basename}" || true)
+                    if [ -n "$pids" ]; then
+                        kill $pids 2>/dev/null || true
+                    fi
+                fi
+            fi
+        else
+            # No prov path known; do nothing rather than risk killing unrelated processes
+            bt_debug "PY_PROVIDER_NO_PROV_PATH_SKIP_KILL"
+        fi
     fi
-    rm -f "$BT_PROVIDER_STREAM" 2>/dev/null || true
+
+    # Kill supervisor if present
+    if [ -n "${BT_PROVIDER_SUPERVISOR_PID:-}" ]; then
+        kill "$BT_PROVIDER_SUPERVISOR_PID" 2>/dev/null || true
+        for i in {1..10}; do
+            if ps -p "$BT_PROVIDER_SUPERVISOR_PID" >/dev/null 2>&1; then sleep 0.05; else break; fi
+        done
+        BT_PROVIDER_SUPERVISOR_PID=0
+    fi
+
+    # Clean up stop file and any RAM IPC artifacts
+    rm -f "$BT_PROVIDER_STOP_FILE" "$BT_PROVIDER_PIDFILE" "$BT_PROVIDER_FIFO" "$BT_PROVIDER_HEARTBEAT" 2>/dev/null || true
     bt_debug "PY_PROVIDER_STOPPED"
 }
 
-# Ensure an external command is available before attempting to use it.
-# Usage: require_command <cmd>
-# Returns 0 if command exists, 1 otherwise.
-require_command() {
-    local cmd="$1"
-    if command -v "$cmd" >/dev/null 2>&1; then
-        return 0
-    fi
-    bt_debug "MISSING_CMD $cmd"
-    return 1
-}
 
 # Optional delay between status/UI checks (seconds). Set via env var `CHECK_DELAY`.
 # Default is 0 (no artificial delays). Use fractional values like 0.1 if desired.
-## NOTE: short sleeps were removed in favor of non-blocking checks.
-## If you need to re-introduce configurable pacing, set CHECK_DELAY
-## and re-add a maybe_sleep helper.
 
 # ============================================================================
 # DISPLAY WIDTH CALCULATION
@@ -478,6 +638,14 @@ require_command() {
 declare -gA WIDTH_CACHE
 # Cache for ANSI-stripped strings to avoid repeated sed work in UI rendering
 declare -gA STRIPPED_CACHE
+# Cache for pre-computed ANSI cursor position sequences (row -> escape seq)
+declare -gA ANSI_CACHE
+
+# Eagerly pre-compute common cursor sequences to avoid arithmetic in hot path
+# Precompute rows 0..100 which covers typical dashboard sizes
+for ((_r=0; _r<=100; _r++)); do
+    ANSI_CACHE[$_r]="\033[$(( _r + 1 ));1H"
+done
 
 display_width() {
     local s="$1"
@@ -506,25 +674,48 @@ print_at() {
     local row=$1
     shift
     # Ensure the cursor is hidden while we position/print the line
-    hide_cursor >&2
-    # Move cursor to Row (1-based), Column 1 and print to stderr (>&2)
-    printf "\033[%d;1H" "$((row + 1))" >&2
-    [ "$#" -gt 0 ] && printf "%b" "$@" >&2
+    if command -v hide_cursor >/dev/null 2>&1; then
+        hide_cursor || true
+    fi
+    # Move cursor to Row, Column 1 using centralized helper and print to UI fd
+    move_cursor "$row" 0
+    [ "$#" -gt 0 ] && printf "%b" "$@" >&${UI_FD:-2}
+}
+
+# Determine the best output file descriptor for UI rendering.
+# Prefer the controlling terminal (/dev/tty) when available so the UI
+# appears even if stdout/stderr are redirected. Falls back to stderr.
+set_ui_output() {
+    UI_FD=2
+    # If /dev/tty exists and is a character device, open fd 3 to it
+    if [ -c /dev/tty ] && [ -w /dev/tty ] 2>/dev/null; then
+        # Try to open fd 3 for writing to /dev/tty
+        exec 3>/dev/tty 2>/dev/null || true
+        if [ -w /dev/tty ] 2>/dev/null; then
+            UI_FD=3
+            return 0
+        fi
+    fi
+    # If stderr is a tty, use it
+    if [ -t 2 ]; then UI_FD=2; return 0; fi
+    # If stdout is a tty, use it
+    if [ -t 1 ]; then UI_FD=1; return 0; fi
+    # Default to stderr
+    UI_FD=2
 }
 
 draw_sealed_row() {
     local row=$1
     local text="${2:-}"
-    local w
-    w=$(get_vis_width "$text")
-    
+    local w=$(get_vis_width "$text")
     local pad=$(( 78 - w ))
     [[ $pad -lt 0 ]] && pad=0
     
-    # Send the whole sealed line to stderr to bypass buffering
-    local spacer
-    spacer=$(printf '%*s' "$pad" "")
-    print_at "$row" "${BLUE}║${NC}${text}${spacer}${BLUE}║${NC}"
+    local spacer=""
+    for ((i=0; i<pad; i++)); do spacer="${spacer} "; done
+    
+    # Unbuffered print to stderr
+    printf "\033[%d;1H${BLUE}║${NC}${text}${spacer}${BLUE}║${NC}" "$((row + 1))" >&${UI_FD:-2}
 }
 
 # Canonical display width function: strips ANSI sequences and counts characters
@@ -572,35 +763,33 @@ strip_ansi_cached() {
     printf '%s' "$stripped"
 }
 
-# Backwards-compatible thin wrappers
-get_vis_width() { get_display_width "$1"; }
+# Helper: Get visual width (ignores ANSI, counts Unicode as 1)
+get_vis_width() {
+    local stripped
+    # Pipe to sed using @ as delimiter to avoid path slash errors
+    stripped=$(printf '%b' "${1:-}" | sed 's@\x1b\[[0-9;]*[a-zA-Z]@@g' | tr -d '\n\r')
+    echo -n "$stripped" | wc -m
+}
+
 get_width()     { get_display_width "$1"; }
 
 get_symbol() {
     local key="$1"
     local status="${STATUS_MAP[$key]:-pending}"
 
-    # Padlock Logic
-    if [ "$HAS_GUI" = true ] && [ "$status" == "pass" ]; then
-        # If it's Python 3.11, only lock it if it's NOT a pyenv install
-        if [[ "$key" == "python311" ]]; then
-            if [ "$IS_PYENV_INSTALL" = false ]; then
-                printf '%b' "${CYAN}${SYMBOL_LOCKED}${NC}"
-                return
-            fi
-        # For other protected items (Qt5, Bluetooth, lsusb), always lock on GUI
-        elif [[ " ${PROTECTED_ITEMS[*]} " == *" $key "* ]]; then
-            printf '%b' "${CYAN}${SYMBOL_LOCKED}${NC}"
-            return
-        fi
+    # Padlock Logic for GUI environments
+    if [ "$HAS_GUI" = true ] && [[ " ${PROTECTED_ITEMS[*]} " == *" $key "* ]] && [ "$status" == "pass" ]; then
+        # We use BOLD_MAGENTA to make the lock distinctive
+        printf "${BOLD_MAGENTA}${SYMBOL_LOCKED}${NC}"
+        return
     fi
 
     case "$status" in
-        pass)    printf '%b' "${GREEN}${SYMBOL_PASS}${NC}" ;;
-        fail)    printf '%b' "${RED}${SYMBOL_FAIL}${NC}" ;;
-        warn)    printf '%b' "${YELLOW}${SYMBOL_WARN}${NC}" ;;
-        working) printf '%b' "${CYAN}${SYMBOL_WORKING}${NC}" ;;
-        *)       printf '%b' "${GRAY}${SYMBOL_PENDING}${NC}" ;;
+        pass)    printf "${GREEN}${SYMBOL_PASS}${NC}" ;;
+        fail)    printf "${RED}${SYMBOL_FAIL}${NC}" ;;
+        warn)    printf "${YELLOW}${SYMBOL_WARN}${NC}" ;;
+        working) printf "${CYAN}${SYMBOL_WORKING}${NC}" ;;
+        *)       printf "${GRAY}${SYMBOL_PENDING}${NC}" ;;
     esac
 }
 
@@ -672,91 +861,80 @@ draw_header_service_line() {
 
 draw_top_panel() {
     local inner_w=78
-    
-    # Row 0: Top Border Title Tab
-    draw_hr 0 "╔" "╗" "QZ ANT+ BRIDGE SETUP & DIAGNOSTICS UTILITY" "$BOLD_WHITE"
-    
-    # Row 1: System Context (includes compact version)
-    local env_str
-    env_str=$([[ "$HAS_GUI" == true ]] && echo "GUI (X11/Wayland)" || echo "Headless")
-    local ver_short="${SCRIPT_VERSION_SHORT:-${SCRIPT_VERSION:-unknown}}"
-    print_at 1 "${BLUE}║${CYAN}$(pad_display "  User: $TARGET_USER | Environment: $env_str | Ver: $ver_short" $inner_w)${BLUE}║${NC}"
-    
-    # Row 2 & 3: Config and Service paths
+    # Top Border
+    draw_hr 0 "╔" "╗" "QZ ANT+ BRIDGE SETUP & DIAGNOSTICS UTILITY" ""
+
+    # User/Environment/Paths (Standard rows)
+    local env_str=$([[ "$HAS_GUI" == true ]] && echo "GUI (X11/Wayland)" || echo "Headless")
+    print_at 1 "${BLUE}║${CYAN}$(pad_display "  User: $TARGET_USER | Environment: $env_str" $inner_w)${BLUE}║${NC}"
     draw_header_config_line
     draw_header_service_line
-    
-    # Row 4: Status Tab (Now fixed-position left-aligned)
-    draw_hr 4 "╠" "╣" "STATUS"
-    
-    # Rows 5-11: Populating the Grid via centralized renderer
+
+    # Status Header with Legend
+    local l_pass="${GREEN}${SYMBOL_PASS}${BLUE} Ready"
+    local l_lock="${BOLD_MAGENTA}${SYMBOL_LOCKED}${BLUE} Protected"
+    local l_warn="${YELLOW}${SYMBOL_WARN}${BLUE} Warning"
+    local l_serv="${GRAY}${SYMBOL_PENDING}${BLUE} Service"
+    local l_fail="${RED}${SYMBOL_FAIL}${BLUE} Missing"
+    local full_legend="${l_pass}  ${l_lock}  ${l_warn}  ${l_serv}  ${l_fail} "
+
+    # Arguments: Row, LeftCorner, RightCorner, Text, TextColor, Legend
+    draw_hr 4 "╠" "╣" "STATUS" "$BOLD_WHITE" "$full_legend"
+
+    draw_hr 4 "╠" "╣" "STATUS" "$full_legend"
     render_status_grid 5
 }
 
-# Update draw_hr to use stderr
+# Usage: draw_hr <row> <left_corner> <right_corner> <text> <text_color> [legend_text]
 draw_hr() {
     local row=$1
     local left_c=$2
     local right_c=$3
     local text="${4:-}"
     local t_color="${5:-$BOLD_WHITE}"
+    local legend="${6:-}"
     local inner_w=78
-    if [[ -z "$text" ]]; then
-        local fill
-        fill=$(printf '═%.0s' {1..78})
-        hide_cursor >&2
-        printf '\033[%d;1H%b' "$((row + 1))" "${BLUE}${left_c}${fill}${right_c}${NC}" >&2
-    else
-        local left_bars="═══"
-        local h_fmt="  $text  "
-        local text_vis
-        text_vis=$(get_vis_width "$h_fmt")
-        local right_fill_len=$(( inner_w - 3 - text_vis ))
-        [[ $right_fill_len -lt 0 ]] && right_fill_len=0
-        local r_fill
-        r_fill=$(printf '═%.0s' $(seq 1 $right_fill_len))
 
-        hide_cursor >&2
-        printf '\033[%d;1H%b' "$((row + 1))" "${BLUE}${left_c}${left_bars}${NC}${t_color}${BOLD}${h_fmt}${BLUE}${r_fill}${right_c}${NC}" >&2
+    # 1. Position cursor at the start of the line
+    printf "\033[%d;1H" "$((row + 1))" >&${UI_FD:-2}
+
+    if [[ -z "$text" && -z "$legend" ]]; then
+        # Solid Blue border
+        local fill=""
+        for ((i=0; i<inner_w; i++)); do fill="${fill}═"; done
+        printf "${BLUE}${left_c}${fill}${right_c}${NC}" >&${UI_FD:-2}
+    else
+        # 2. Calculate widths
+        local t_vis=${#text} # text is passed naked
+        local l_vis=$(get_vis_width "$legend")
+
+        # consumed = 3(bars) + 2(spaces) + t_vis + 2(spaces) + l_vis + 2(right bars)
+        local fill_len=$(( inner_w - 3 - 2 - t_vis - 2 - l_vis - 2 ))
+        [[ $fill_len -lt 0 ]] && fill_len=0
+        
+        local fill=""
+        for ((i=0; i<fill_len; i++)); do fill="${fill}═"; done
+
+        # 3. Build and Print as one atomic operation to prevent flickering
+        # [Corner] + [═══] + [  ] + [COLOR+TEXT+NC] + [  ] + [FILL] + [LEGEND] + [══] + [Corner]
+        printf "${BLUE}${left_c}═══  ${NC}${t_color}${text}${NC}${BLUE}  ${fill}${NC}${legend}${BLUE}══${right_c}${NC}" >&${UI_FD:-2}
+    fi
+
+    # 4. CRITICAL: For the bottom border (Row 22), move cursor up 
+    # to avoid triggering a terminal scroll/new line.
+    if [[ "$row" -ge 22 ]]; then
+        printf "\033[%d;1H" "$((LOG_TOP + 1))" >&${UI_FD:-2}
+        hide_cursor
     fi
 }
 
 draw_bottom_border() {
     local help_text="${1:-}"
-    local b_row=$((LOG_BOTTOM + 1)) # Row 22
-    local inner_w=78
-
-    # Ensure the cursor is hidden while rendering the footer
-    enter_ui_mode
-
-    # Move cursor to Row 23 (index 22), Col 1
-    printf '\033[%d;1H' "$((b_row + 1))"
-
-    if [[ -z "$help_text" ]]; then
-        local fill
-        fill=$(printf '═%.0s' {1..78})
-        hide_cursor >&2
-        printf '%b' "${BLUE}╚${fill}╝${NC}"
-    else
-        local h_fmt="  $help_text  "
-        local text_vis
-        text_vis=$(get_vis_width "$h_fmt")
-
-        local left_bars="═══"
-        local right_fill_len=$(( inner_w - 3 - text_vis ))
-        [[ $right_fill_len -lt 0 ]] && right_fill_len=0
-
-        local r_fill
-        r_fill=$(printf '═%.0s' $(seq 1 $right_fill_len))
-
-        # Consistent Left-Tab style for footer help
-        hide_cursor >&2
-        printf '%b' "${BLUE}╚${left_bars}${NC}${BOLD_BLUE}${h_fmt}${BLUE}${r_fill}╝${NC}"
-    fi
-    # Ensure the cursor remains hidden after rendering the footer (no trailing newline)
-    # Move the cursor up into the interactive area (LOG_TOP + 1) so subsequent
-    # reads or draws don't leave the visible cursor at the end of the footer line.
-    printf "\033[%d;1H" "$((LOG_TOP + 1))"
+    local b_row=$((LOG_BOTTOM + 1))
+    # Footer uses BOLD_BLUE for the text, No Legend
+    # We pass BOLD_BLUE via the color code directly into the 'text' argument 
+    # but we must ensure we use the 'text' slot only.
+    draw_hr "$b_row" "╚" "╝" "${BOLD_BLUE}${help_text}${NC}" ""
 }
 
 # Clear the info/interactive area between LOG_TOP and LOG_BOTTOM
@@ -797,7 +975,7 @@ draw_error_screen() {
         # Restore cursor for typing and wait for ENTER
         exit_ui_mode
         show_cursor
-        printf "\033[%d;1H" "$((LOG_BOTTOM + 2))"
+        move_cursor $((LOG_BOTTOM + 1)) 0
         local k
         IFS= read -rsn1 k
         # Re-enter UI mode for subsequent redraws
@@ -811,10 +989,9 @@ draw_error_screen() {
 
 draw_bottom_panel_header() {
     local raw_title="${1:-INFORMATION}"
-    local title
-    title=$(echo "$raw_title" | tr '[:lower:]' '[:upper:]')
-    # Fixed at Row 12, acting as the bridge between Status and Info
-    draw_hr 12 "╠" "╣" "$title"
+    local title=$(echo "$raw_title" | tr '[:lower:]' '[:upper:]')
+    # Row 11, Tab Style, No Legend
+    draw_hr 11 "╠" "╣" "$title" ""
 }
 
 draw_instructions_bottom() {
@@ -894,8 +1071,27 @@ load_current_profile_values() {
         m=$(extract_val "miles_unit")
 
         # Only update if the value found is not empty
-        [[ -n "$w" ]] && PREV_WEIGHT="$w"
-        [[ -n "$a" ]] && PREV_AGE="$a"
+        # Sanitize numeric inputs and validate ranges to avoid corrupted values
+        if [[ -n "$w" ]]; then
+            local _w_sanitized
+            _w_sanitized="${w//[^0-9.]/}"
+            # Accept weights between 20 and 300; otherwise ignore
+            if [[ -n "$_w_sanitized" ]]; then
+                if (( ${_w_sanitized%%.*} >= 20 && ${_w_sanitized%%.*} <= 300 )); then
+                    PREV_WEIGHT="$_w_sanitized"
+                fi
+            fi
+        fi
+        if [[ -n "$a" ]]; then
+            local _a_sanitized
+            _a_sanitized="${a//[^0-9]/}"
+            # Accept ages between 1 and 120; otherwise ignore
+            if [[ -n "$_a_sanitized" ]]; then
+                if (( _a_sanitized >= 1 && _a_sanitized <= 120 )); then
+                    PREV_AGE="$_a_sanitized"
+                fi
+            fi
+        fi
         [[ -n "$s" ]] && PREV_SEX="$s"
         [[ -n "$m" ]] && PREV_MILES="$m"
     fi
@@ -984,8 +1180,8 @@ prompt_numeric_input() {
         [[ -z "$buffer" ]] && cursor_col=$(( cursor_col + 1 ))
 
         # Move cursor and ensure it is visible
-        printf "\033[%d;%dH" "$((row + 1))" "$((cursor_col + 1))" >&2
-        show_cursor >&2
+        printf "\033[%d;%dH" "$((row + 1))" "$((cursor_col + 1))" >&${UI_FD:-2}
+        show_cursor
 
         # 5. CAPTURE RAW BYTE
         local char
@@ -1009,7 +1205,7 @@ prompt_numeric_input() {
 
     # 6. RESTORE TERMINAL & LOCK IN CYAN
     stty "$old_stty" 2>/dev/null
-    printf "\033[?25l" >&2 # Hide cursor
+    hide_cursor # Hide cursor
     draw_sealed_row "$row" "${label_str}${CYAN}${buffer}${NC}"
 
     echo "${buffer}"
@@ -1017,6 +1213,9 @@ prompt_numeric_input() {
 
 configure_user_profile() {
     load_current_profile_values
+    # Clear ANSI position and width caches to avoid stale mappings from previous UI
+    declare -gA ANSI_CACHE=()
+    declare -gA WIDTH_CACHE=()
 
     # Selection Menus (Units/Gender)
     # shellcheck disable=SC2034
@@ -1263,39 +1462,28 @@ check_venv() {
 }
 
 check_python_packages() {
-    local venv_py="$TARGET_HOME/ant_venv/bin/python"
+    local venv_py="$TARGET_HOME/ant_venv/bin/python3"
+    update_status "pkg_pips" "working"
     
     if [ ! -f "$venv_py" ]; then
-        update_status "pkg_openant" "fail"
-        update_status "pkg_pyusb" "fail"
-        update_status "pkg_pybind11" "fail"
+        update_status "pkg_pips" "fail"
         return 1
     fi
 
-    # Helper for silent package check
-    check_pkg() {
-        sudo -u "$TARGET_USER" "$venv_py" -c "import $1" 2>/dev/null
-    }
+    # Check all 4 required packages
+    local missing=0
+    for pkg in openant usb pybind11 bleak; do
+        if ! sudo -u "$TARGET_USER" "$venv_py" -c "import $pkg" 2>/dev/null; then
+            ((missing++))
+        fi
+    done
 
-    update_status "pkg_openant" "working"
-    if check_pkg "openant"; then
-        update_status "pkg_openant" "pass"
+    if [ "$missing" -eq 0 ]; then
+        update_status "pkg_pips" "pass"
+        return 0
     else
-        update_status "pkg_openant" "fail"
-    fi
-
-    update_status "pkg_pyusb" "working"
-    if check_pkg "usb"; then
-        update_status "pkg_pyusb" "pass"
-    else
-        update_status "pkg_pyusb" "fail"
-    fi
-
-    update_status "pkg_pybind11" "working"
-    if check_pkg "pybind11"; then
-        update_status "pkg_pybind11" "pass"
-    else
-        update_status "pkg_pybind11" "fail"
+        update_status "pkg_pips" "fail"
+        return 1
     fi
 }
 
@@ -1383,15 +1571,10 @@ check_ant_dongle() {
 
 check_config_file() {
     local status="fail"
-    if [[ -f "$CONFIG_FILE" ]]; then status="pass"; fi
+    [[ -f "$CONFIG_FILE" ]] && status="pass"
     STATUS_MAP["config_file"]="$status"
-    
-    # Update Path line at top (Cyan labels/paths)
     draw_header_config_line
-    
-    # Refresh the status grid
     render_status_grid 5
-    
     [[ "$status" == "pass" ]] && return 0 || return 1
 }
 
@@ -1403,13 +1586,8 @@ check_qz_service() {
         status="pending"
     fi
     STATUS_MAP["qz_service"]="$status"
-    
-    # Update Service line at top (Cyan labels/paths)
     draw_header_service_line
-    
-    # Refresh the status grid
     render_status_grid 5
-    
     [[ "$status" != "fail" ]] && return 0 || return 1
 }
 
@@ -1420,12 +1598,12 @@ run_all_checks() {
     check_qt5_libs
     check_qml_modules
     check_bluetooth
-    check_plugdev
-    check_udev_rules
     check_lsusb
-    check_ant_dongle
+    check_plugdev
+    check_udev_rules 
     check_config_file
     check_qz_service
+    check_ant_dongle
 }
 
 # Initialize these globally to prevent "unbound variable" errors in the trap
@@ -1441,37 +1619,20 @@ BT_SCAN_PID=""
 # ROBUST CLEANUP HANDLER (set -u safe & prevents freezes)
 # ============================================================================
 cleanup_bt_engine() {
-    # 1. Immediately restore terminal echo
+    # Prefer the provider stop logic for consistent cleanup
+    stop_bt_provider 2>/dev/null || true
     [[ -t 0 ]] && stty echo 2>/dev/null
-    # Leave cursor visibility to the centralized UI handlers; avoid
-    # showing the cursor here to prevent visible flicker during redraws.
-    
-    # 2. Kill the scan process group
-    if [[ -n "${BT_SCAN_PID:-}" ]]; then
-        pkill -P "${BT_SCAN_PID}" 2>/dev/null
-        kill "${BT_SCAN_PID}" 2>/dev/null
-    fi
-    # 3. Stop any provider if active
-    stop_bt_provider || true
-
-    # 4. Force Bluetooth controller to stop scanning
-    bluetoothctl scan off >/dev/null 2>&1
-
-    # 5. Move cursor below dashboard
-    printf "\033[23;1H\n"
+    printf "\033[?25h" >&${UI_FD:-2}
+    printf "\033[23;1H\n" >&${UI_FD:-2}
 }
-
-# NOTE: `pause_bt_engine()` has been removed. We now treat a Refresh as a
-# full stop/start cycle. Use `stop_bt_engine()` when wanting to stop the
-# background scanner but keep terminal state unchanged.
-
+ 
 # Start the Bluetooth scanner engine: create fifo/log, start the background
 # tail|script pipeline, set BT_SCAN_PID and enable scanning on controller.
 start_bt_engine() {
     # Provider-only start: prefer Python provider when enabled
     # Start the Python provider by default
     start_bt_provider
-    BT_SCAN_PID=${BT_PROVIDER_PID:-}
+    BT_SCAN_PID=${BT_PROVIDER_SUPERVISOR_PID:-}
     if [ -n "$BT_SCAN_PID" ]; then
         return 0
     fi
@@ -1496,423 +1657,217 @@ trap 'cleanup_bt_engine; exit 130' SIGINT SIGTERM
 is_real_name() {
     local n="${1:-}"
     [[ -z "$n" ]] && return 1
-    # Whitelist specific IDs
+    # Fast whitelist
     [[ "$n" == "I_TL" || "$n" == "N025E" ]] && return 0
-    # Reject internal markers and tech noise
+    # Reject internal markers and common noise strings using pure bash
     [[ "$n" =~ ^~ ]] && return 1
-    # Explicitly reject RSSI-like tokens (various controller output formats)
-    if echo "$n" | grep -qiE '^\s*RSSI[:\s-]*-?[0-9]+'; then return 1; fi
-    if echo "$n" | grep -qi 'RSSI'; then return 1; fi
-    [[ "$n" =~ ^(ManufacturerData:|ServiceData:|TxPower:|Alias:|Attributes:|Pairable:|Class:|Icon:|Connected:|UUIDs:) ]] && return 1
-    [[ "$n" =~ (ManufacturerData|ServiceData|Attributes|Pairable|available|Connected|not\ available|Device|Searching|Privacy) ]] && return 1
-    # Reject MAC address patterns (colon or hyphen separated) and other MAC-like tokens
+    [[ "$n" == *RSSI* ]] && return 1
+    [[ "$n" == *Manufacturer* ]] && return 1
+    [[ "$n" == *ServiceData* ]] && return 1
+    [[ "$n" == *TxPower* ]] && return 1
+    [[ "$n" == *Alias* ]] && return 1
+    [[ "$n" == *Attributes* ]] && return 1
+    [[ "$n" == *Pairable* ]] && return 1
+    [[ "$n" == *Connected* ]] && return 1
+    [[ "$n" == *Searching* ]] && return 1
+    [[ "$n" == *Privacy* ]] && return 1
+    [[ "$n" == *Device* ]] && return 1
+    # MAC address pattern check (no external grep)
     if [[ "$n" =~ ^([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}$ ]]; then
         return 1
     fi
-    # Reject any token that is mostly hex groups separated by - or : (e.g. 44-EA-4A-68-59-B3)
-    if echo "$n" | grep -qiE '^([0-9A-Fa-f]{2}[:\-]){2,}[0-9A-Fa-f]{2}$'; then
-        return 1
-    fi
-    # Fallback: count separators (colon or dash) and reject if it's likely a MAC-like string
-    local sep_count
-    sep_count=$(echo "$n" | tr -cd ':-' | wc -c)
-    [[ $sep_count -ge 4 ]] && return 1
+    # Separator count heuristic (reject MAC-like strings)
+    local sep_count="${n//[^:-]}"
+    [[ ${#sep_count} -ge 4 ]] && return 1
     return 0
 }
 
-# Sanitize a candidate label before displaying or caching.
-# Echoes the cleaned label and returns 0 if valid, non-zero if it should be rejected.
-sanitize_label() {
-    local lbl="${1:-}"
-    lbl=$(printf '%s' "$lbl" | xargs)
-    [[ -z "$lbl" ]] && return 1
-    # Reject obvious metadata and control tokens
-    if echo "$lbl" | grep -qiE '^(RSSI:|ManufacturerData:|ServiceData:|TxPower:|Attributes:|Pairable:|Class:|Icon:|Connected:|UUIDs:|Device)'; then
-        return 1
-    fi
-    # Reject MAC-like tokens (colon or hyphen separated hex groups)
-    if echo "$lbl" | grep -qiE '^([0-9A-Fa-f]{2}[:\-]){2,}[0-9A-Fa-f]{2}$'; then
-        return 1
-    fi
-    printf '%s' "$lbl"
-    return 0
-}
+ 
 
-# A thin wrapper that consolidates common device-label sanitization steps
-# and removes address-type annotations (e.g. "(random)"). It returns the
-# cleaned label on stdout and a zero exit code for valid labels; returns
-# non-zero and prints nothing for invalid labels.
-sanitize_device_label() {
-    local lbl="${1:-}"
-    lbl=$(printf '%s' "$lbl" | sed -E 's/\((random|public|addr type)\)//g' | xargs || true)
-    [[ -z "$lbl" ]] && return 1
-    # Delegate to existing sanitize_label for core checks; capture its
-    # output so we can echo the cleaned label uniformly from here.
-    local out
-    out=$(sanitize_label "$lbl" 2>/dev/null || true)
-    if [[ -n "$out" ]]; then
-        printf '%s' "$out"
-        return 0
-    fi
-    return 1
-}
-
-# Helper: Assigns sorting weight (Treadmill=5000, Named=1000, Noise=0)
-get_sort_weight() {
-    # Arguments: name, mac, paired
-    local n="${1:-}"
-    local m="${2:-}"
-    local paired="${3:-}"
-    # Treadmill fixed priority
-    if [[ "${m^^}" == "E0:E3:E1:EA:35:2C" ]]; then
-        echo 5000
-    # Treat obviously noisy names as lowest priority
-    elif [[ "$n" =~ ^(Searching|Privacy|Unknown) ]]; then
-        echo 0
-    # Paired devices should rank above other named devices
-    elif [[ "${paired}" == "true" ]]; then
-        echo 2000
-    # Database guesses (~) and validated names count as named
-    else
-        echo 1000
-    fi
-}
+# ============================================================================
+# FINAL STABLE BLUETOOTH RADAR (PYTHON-POWERED + REAL-TIME FIFO)
+# ============================================================================
 
 perform_bluetooth_scan() {
-    local devices=() macs=() rssis=() is_paired=()
-    local last_processed_line=1 loop_count=0 
-    local spin_chars=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
+    # 1. PREP ENVIRONMENT
+    local script_dir
+    script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+    local py_script="${script_dir}/bt_provider.py"
+    local venv_py="${TARGET_HOME}/ant_venv/bin/python3"
+    [[ ! -f "$venv_py" ]] && venv_py=$(command -v python3)
     
-    # Assign to global variables for the trap handler
-    BT_LOG_FILE="/tmp/bt_radar_$$.log"
-    BT_PIPE_IN="/tmp/bt_pipe_$$.in"
+    # Use RAM-backed FIFO for zero latency
+    local bt_fifo="/dev/shm/qz_bt_fifo_$$"
+    if [[ ! -d /dev/shm ]]; then bt_fifo="/tmp/qz_bt_fifo_$$"; fi
 
-    # Render the scanning page immediately so UI transitions feel responsive.
-    # The long-running scanner backend is started after we show this screen.
-    enter_ui_mode
-    draw_bottom_panel_header "RADAR: Starting scan..."
-    clear_info_area
-    draw_bottom_border "Initializing Bluetooth..."
-    
-    [[ -t 0 ]] && stty -echo 2>/dev/null
-    rfkill unblock bluetooth >/dev/null 2>&1
-    # Ensure required external utilities are present
-    if ! require_command bluetoothctl; then
-        draw_error_screen "BLUETOOTH MISSING" "Error: 'bluetoothctl' not found on PATH.\nPlease install BlueZ (contains bluetoothctl) and retry." 1
-        return 1
-    fi
-    bluetoothctl power on >/dev/null 2>&1
+    # Ensure Bluetooth hardware is awake
+    sudo rfkill unblock bluetooth >/dev/null 2>&1
+    echo "power on" | bluetoothctl >/dev/null 2>&1
 
-    # Device labels are resolved from live scan only.
-# One-shot fetch: query `bluetoothctl info <MAC>` with a short timeout to try
-# and obtain the Name/Alias when the scan output doesn't announce it.
-fetch_name_from_info() {
-    local _mac="$1"
-    [[ -z "$_mac" ]] && return 1
-    local _out=""
-    # Use timeout to avoid blocking the dashboard loop if bluetoothctl hangs
-    if command -v timeout >/dev/null 2>&1; then
-        _out=$(timeout 2s bluetoothctl info "$_mac" 2>/dev/null || true)
-    else
-        _out=$(bluetoothctl info "$_mac" 2>/dev/null || true)
-    fi
-    bt_debug "PROBE_ATTEMPT mac=$_mac out_len=${#_out}"
-    # Extract 'Name:' or 'Alias:' lines robustly (handles leading whitespace)
-    local _name=""
-    # Use centralized parser over each output line to prefer consistent heuristics
-    while IFS= read -r _l; do
-        parse_bt_line "$_l"
-        if [[ -n "${PARSE_FOUND_NAME:-}" ]]; then
-            _name="${PARSE_FOUND_NAME}"
-            break
-        elif [[ -n "${PARSE_CAND:-}" ]]; then
-            _name="${PARSE_CAND}"
-            break
-        fi
-    done <<< "$_out"
-    _name=$(printf '%s' "$_name" | xargs || true)
-    if [[ -n "$_name" ]]; then
-        bt_debug "PROBE_RESULT mac=$_mac raw_name='$_name'"
-    else
-        bt_debug "PROBE_RESULT mac=$_mac no_name_found"
-    fi
-    if [[ -n "$_name" ]] && is_real_name "$_name"; then
-        printf '%s' "$_name"
-        return 0
-    fi
-    return 1
-}
-
-    # 1. Engine Setup (The known working FIFO/Script method)
-    # Verify helper commands used by the scanner
-    if ! require_command script || ! require_command tail; then
-        draw_error_screen "ENV MISSING" "Error: required utilities 'script' or 'tail' not found.\nInstall the 'bsdutils'/'util-linux' packages and retry." 1
-        return 1
-    fi
-    # Start the scanner engine (consolidated helper)
-    start_bt_engine || {
-        draw_error_screen "BLUETOOTH START FAILED" "Error: failed to start Bluetooth scan engine." 1
-        return 1
-    }
-
-    # Initialize debug log (if enabled) so user can easily find it
-    if [ "${DEBUG_BT:-0}" -eq 1 ]; then
-        : > "$BT_DEBUG_LOG"
-        bt_debug "BT DEBUG START pid=$$ bt_log=$BT_LOG_FILE bt_pipe=$BT_PIPE_IN bt_scan_pid=$BT_SCAN_PID"
-        bt_debug "COMMAND: bluetoothctl (via script -q -c 'bluetoothctl')"
-    fi
-
-    # Redraw throttling: ms
-    local LAST_REDRAW_MS=0
-    local REDRAW_INTERVAL_MS=${BT_REDRAW_INTERVAL_MS:-300}
-    local prev_count=0
-
-    # Pre-load paired
-    # Pre-load paired
-    while read -r raw_line; do
-        # Use centralized parser to extract mac and candidate
-        parse_bt_line "$raw_line"
-        local p_mac="${PARSE_MAC:-}" p_cand="${PARSE_CAND:-}"
-        if [[ -n "$p_mac" ]]; then
-            macs+=("$p_mac"); rssis+=("-70")
-            # sanitize alias/name from paired-devices output
-            local _pname
-            _pname=$(sanitize_device_label "$p_cand" 2>/dev/null || true)
-            if [[ -z "$_pname" ]]; then _pname="Searching..."; fi
-            devices+=("$_pname")
-            is_paired+=("true")
-        fi
-    done < <(bluetoothctl paired-devices)
-
-    enter_ui_mode
+    # OUTER LOOP: Handles "Refresh" without crashing or recursion
     while true; do
-        ((loop_count++))
-        if [[ "${USE_PY_BTPROVIDER:-0}" -eq 1 && -f "$BT_PROVIDER_STREAM" ]]; then
-            # Read the Python provider stream (format: MAC|RSSI|LABEL)
-            while IFS='|' read -r m r l; do
-                [[ -z "$m" ]] && continue
+        local devices=() macs=() rssis=()
+        local loop_count=0
+        local py_status="STARTING"
+        local last_raw="NONE"
+        local spin_chars=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
+
+        # Setup FIFO Pipe
+        rm -f "$bt_fifo" && mkfifo "$bt_fifo"
+        
+        # Start Python Provider (Unbuffered)
+        # We use 'exec' to ensure the PID is the Python process itself
+        sudo "$venv_py" -u "$py_script" > "$bt_fifo" 2>&1 &
+        local py_pid=$!
+        BT_SCAN_PID=$py_pid
+        
+        # Open FIFO for reading on FD 4 to keep it persistent
+        exec 4<"$bt_fifo"
+
+        stop_bt_engine() {
+            if [[ -n "${BT_SCAN_PID:-}" ]]; then
+                # Shielded Kill: Verify process name before sending signal
+                if ps -p "$BT_SCAN_PID" -o cmd= 2>/dev/null | grep -q "bt_provider"; then
+                    sudo kill -9 "$BT_SCAN_PID" 2>/dev/null || true
+                fi
+            fi
+            exec 4<&-
+            rm -f "$bt_fifo"
+            BT_SCAN_PID=""
+        }
+
+        # --- PHASE 1: THE RADAR (Rows 12-21) ---
+        enter_ui_mode
+        while true; do
+            ((loop_count++))
+            
+            # Verify Python process health
+            if ! ps -p "$py_pid" >/dev/null 2>&1; then py_status="STOPPED"; fi
+
+            # Non-blocking read from FIFO
+            while read -u 4 -t 0.02 -r raw_data; do
+                # Handle STATUS messages robustly
+                if [[ "$raw_data" == STATUS\|* ]]; then
+                    IFS='|' read -r _ status_code status_msg <<< "${raw_data%%$'\r'}"
+                    [[ -n "$status_msg" ]] && py_status="$status_msg"
+                    continue
+                fi
+                [[ "$raw_data" == "HEARTBEAT|"* ]] && { py_status="ACTIVE"; continue; }
+
+                # Split data: MAC|RSSI|LABEL
+                IFS='|' read -r m r l <<< "$(echo "$raw_data" | tr -d '\r')"
+                # Defensive filters: ignore obvious non-device lines
+                [[ -z "$m" || "$m" == "ERROR" || "$m" == "HEARTBEAT" || "$m" == "STATUS" ]] && continue
+                # Trim label and skip status-like names (CONNECTING, STATUS)
+                local ltrim
+                ltrim=$(printf '%s' "$l" | xargs)
+                if [[ -z "$ltrim" || "${ltrim^^}" == "CONNECTING" || "${ltrim^^}" == "STATUS" ]]; then
+                    continue
+                fi
+                # Ignore suspicious RSSI values (non-negative dBm) which likely indicate placeholders
+                if [[ "$r" =~ ^-?[0-9]+$ ]]; then
+                    if (( r >= 0 )); then
+                        continue
+                    fi
+                fi
+                
+                # Update existing device or add new discovery
                 local idx=-1
                 for i in "${!macs[@]}"; do [[ "${macs[$i]}" == "$m" ]] && idx=$i && break; done
                 if [[ $idx -ge 0 ]]; then
-                    rssis[$idx]=$r
-                    # Lock in a real label preference
-                    if [[ ! "$l" =~ ^(Searching|~) ]]; then
-                        devices[$idx]="$l"
-                    elif [[ "${devices[$idx]}" == "Searching..." && "$l" =~ ^~ ]]; then
-                        devices[$idx]="$l"
-                    fi
+                    rssis[$idx]=$r; devices[$idx]=$l
                 else
                     macs+=("$m"); rssis+=("$r"); devices+=("$l")
                 fi
-            done < <(tail -n 50 "$BT_PROVIDER_STREAM" 2>/dev/null)
-        elif [[ -f "$BT_LOG_FILE" ]]; then
-            while read -r raw_line; do
-                # Parse the raw line using centralized helper
-                parse_bt_line "$raw_line"
-                # Export parsed values into locals for existing logic
-                local mac="${PARSE_MAC:-}" found_name="${PARSE_FOUND_NAME:-}" clean_rssi="${PARSE_CLEAN_RSSI:-}"
-                local raw_rssi="${PARSE_RSSI_RAW:-}" cand="${PARSE_CAND:-}" line="${PARSE_LINE:-}"
-
-                # Skip if we didn't detect a MAC in this line
-                if [[ -z "$mac" ]]; then
-                    continue
-                fi
-
-                # Defensive RSSI threshold check (same behavior as before)
-                [[ -n "$clean_rssi" && "$clean_rssi" -lt -95 ]] && continue
-
-                # Debug output for parsing decisions
-                bt_debug "PARSE mac=$mac raw_line='${line}' cand='${cand}' found_name='${found_name}' raw_rssi='${raw_rssi:-}' clean_rssi='${clean_rssi:-}'"
-
-                # Name caching removed: we do not persist learned names.
-                bt_debug "PARSE mac=$mac cand='${found_name:-}'"
-
-                # C. Update arrays with the verified Priority Logic
-                local idx=-1
-                for i in "${!macs[@]}"; do [[ "${macs[$i]}" == "$mac" ]] && idx=$i && break; done
-
-                if [[ $idx -ge 0 ]]; then
-                    [[ -n "$clean_rssi" ]] && rssis[$idx]=$clean_rssi
-                    local cur_n="${devices[$idx]}"
-
-                    if [[ -n "$found_name" ]]; then
-                        # Priority 1: Real Broadcast Name overwrites placeholders or Guesses (~)
-                        local _lbl
-                        _lbl=$(sanitize_device_label "$found_name" 2>/dev/null || true)
-                        if [[ -n "$_lbl" ]]; then
-                            devices[$idx]="$_lbl"
-                        fi
-                    else
-                        # No broadcast name in the stream — try a one-shot query to bluetoothctl
-                        local _probe_name
-                        _probe_name=$(fetch_name_from_info "$mac" 2>/dev/null || true)
-                        if [[ -n "$_probe_name" ]]; then
-                            local _lbl
-                            _lbl=$(sanitize_device_label "$_probe_name" 2>/dev/null || true)
-                            if [[ -n "$_lbl" ]]; then
-                                devices[$idx]="$_lbl"
-                                bt_debug "PROBE_SET_FROM_INFO mac=$mac name='$_lbl'"
-                            fi
-                        elif [[ "$cur_n" =~ ^(Searching|Privacy) ]]; then
-                            # Priority 2: Use a neutral placeholder when no broadcast name is available
-                            devices[$idx]="Searching..."
-                        fi
-                    fi
-                else
-                    # New Device Discovery
-                    macs+=("$mac"); rssis+=("${clean_rssi:--100}"); is_paired+=("false")
-                    local label="Searching..."
-                    if [[ -n "$found_name" ]]; then
-                        label="$found_name"
-                    elif [[ "${mac:1:1}" =~ [26AaEe] ]]; then
-                        label="Privacy Device"
-                    fi
-                    # Final guard: if label looks like metadata, fallback to Searching...
-                    if [[ "$label" =~ ^(RSSI:|ManufacturerData:|ServiceData:|TxPower:|Attributes:|Pairable:|Class:|Icon:|Connected:|UUIDs:|Device) ]]; then
-                        label="Searching..."
-                    fi
-                    # If we didn't get a name from the stream, try a one-shot query
-                    if [[ "$label" == "Searching..." ]]; then
-                        local _probe
-                        _probe=$(fetch_name_from_info "$mac" 2>/dev/null || true)
-                        if [[ -n "$_probe" ]]; then
-                            label="$_probe"
-                            bt_debug "PROBE_SET_FROM_INFO new_mac=$mac name='$_probe'"
-                        fi
-                    fi
-                    # Sanitize label one final time before adding
-                    local _final_label
-                    _final_label=$(sanitize_device_label "$label" 2>/dev/null || true)
-                    if [[ -z "$_final_label" ]]; then
-                        _final_label="Searching..."
-                    fi
-                    devices+=("$_final_label")
-                fi
-            done < <(tail -n +$last_processed_line "$BT_LOG_FILE" 2>/dev/null)
-            last_processed_line=$(($(wc -l < "$BT_LOG_FILE" 2>/dev/null || echo "0") + 1))
-        fi
-
-        # Sorting: Treadmill -> Named -> Signal
-        for ((i=0; i<${#macs[@]}-1; i++)); do
-            for ((j=i+1; j<${#macs[@]}; j++)); do
-                local wi
-                local wj
-                wi=$(get_sort_weight "${devices[i]}" "${macs[i]}" "${is_paired[i]:-}")
-                wj=$(get_sort_weight "${devices[j]}" "${macs[j]}" "${is_paired[j]:-}")
-                if [[ $((wi + 200 + rssis[i])) -lt $((wj + 200 + rssis[j])) ]]; then
-                    local tr=${rssis[i]}; rssis[i]=${rssis[j]}; rssis[j]=$tr
-                    local tm=${macs[i]}; macs[i]=${macs[j]}; macs[j]=$tm
-                    local td=${devices[i]}; devices[i]=${devices[j]}; devices[j]=$td
-                    local tp=${is_paired[i]}; is_paired[i]=${is_paired[j]}; is_paired[j]=$tp
-                fi
             done
-        done
 
-        # UI render: throttled to reduce CPU while scanning
-        local now_ns
-        now_ns=$(date +%s%N 2>/dev/null || echo 0)
-        local now_ms=$(( now_ns / 1000000 ))
-        if (( now_ms - LAST_REDRAW_MS >= REDRAW_INTERVAL_MS )) || [[ ${#devices[@]} -ne prev_count ]]; then
-            draw_bottom_panel_header "RADAR: ${#devices[@]} DEVICES FOUND"
-            for ((r=LOG_TOP; r<=LOG_BOTTOM; r++)); do
-                local idx=$((r - LOG_TOP))
-                if [ $idx -lt ${#devices[@]} ]; then
-                    local s=${rssis[$idx]}; local bar="${RED}[#   ]${NC}"
+            # Sort by Signal Strength (Closest devices at top)
+            for ((i=0; i<${#macs[@]}-1; i++)); do
+                for ((j=i+1; j<${#macs[@]}; j++)); do
+                    if [[ ${rssis[i]} -lt ${rssis[j]} ]]; then
+                        local tr=${rssis[i]}; rssis[i]=${rssis[j]}; rssis[j]=$tr
+                        local tm=${macs[i]}; macs[i]=${macs[j]}; macs[j]=$tm
+                        local td=${devices[i]}; devices[i]=${devices[j]}; devices[j]=$td
+                    fi
+                done
+            done
+
+            # UI Rendering
+            draw_bottom_panel_header "RADAR: ${#devices[@]} NAMED DEVICES"
+            
+            # Row 12: Consistent Spacer
+            draw_sealed_row 12 ""
+            
+            # Rows 13-20: Device slots (8 rows)
+            for ((i=0; i<8; i++)); do
+                local row=$((13 + i))
+                if [ $i -lt ${#devices[@]} ]; then
+                    local s=${rssis[$i]}
+                    local bar="${RED}[#   ]${NC}"
                     if (( s >= -60 )); then bar="${GREEN}[####]${NC}"
                     elif (( s >= -75 )); then bar="${YELLOW}[### ]${NC}"
                     elif (( s >= -85 )); then bar="${ORANGE}[##  ]${NC}"; fi
-
-                    local name="${devices[$idx]}"
+                    
+                    local name="${devices[$i]}"
                     local color="$CYAN"
-                    if [[ "${macs[$idx]}" == "E0:E3:E1:EA:35:2C" ]]; then color="$BOLD_WHITE"
-                    elif [[ "$name" =~ ^~ ]]; then color="$GRAY"; name="${name#~}" 
-                    elif [[ "$name" =~ ^(Searching|Privacy) ]]; then color="$GRAY"; fi
-
-                    draw_sealed_row "$r" " $bar $color$(printf '%-40.40s' "$name")$NC ${macs[$idx]} $(printf '%8s' "($s dBm)")"
-                else draw_sealed_row "$r" ""; fi
+                    # Highlight specific targets
+                    [[ "$name" =~ (I_TL|N025E|Forerunner) ]] && color="$BOLD_WHITE"
+                    
+                    local n_fmt=$(printf '%-30.30s' "$name")
+                    draw_sealed_row "$row" " $bar $color$n_fmt$NC ${macs[$i]} ($s dBm)"
+                else draw_sealed_row "$row" ""; fi
             done
+
+            # Row 21: High-Density Diagnostics
+            draw_sealed_row 21 "${GRAY}Engine: $py_status | PID: $py_pid | Active Discovery${NC}"
+            
+            # Border Footer
             draw_bottom_border "Scanning... ${spin_chars[$((loop_count % 10))]} | Any key to stop"
-            LAST_REDRAW_MS=$now_ms
-            prev_count=${#devices[@]}
-        fi
 
-        # SELECTION TRIGGER
-        if read -rsn1 -t 0.1 key; then
-            # continue to selection
-            # Stop the scanner engine before opening the selection menu so
-            # the UI doesn't continue to update in the background.
-            stop_bt_engine
-            while read -rsn1 -t 0.01 _junk; do :; done 
-
-            # Build a filtered selection: prefer database guesses (~) and real
-            # broadcast names. Skip generic 'Searching...' and 'Privacy' entries.
-            local sel_macs=()
-            local sel_devices=()
-            for i in "${!macs[@]}"; do
-                local raw_name="${devices[$i]}"
-                if [[ "$raw_name" =~ ^(Searching|Privacy) ]]; then
-                    continue
-                fi
-                # Include database guesses (~), validated real names, or any
-                # device already marked as paired so users can select paired
-                # devices even if their broadcast name is generic.
-                if [[ "$raw_name" =~ ^~ ]] || is_real_name "${raw_name#~}" || [[ "${is_paired[$i]:-}" == "true" ]]; then
-                    local n="${raw_name#~}"
-                    [[ "${is_paired[$i]:-}" == "true" ]] && n="$n (Paired)"
-                    sel_macs+=("${macs[$i]}")
-                    sel_devices+=("$n")
-                fi
-            done
-
-            local menu_labels=()
-            for i in "${!sel_macs[@]}"; do
-                menu_labels+=("$(printf '%-40.40s [%s]' "${sel_devices[$i]}" "${sel_macs[$i]}")")
-            done
-            menu_labels+=("Refresh List" "Back")
-            # Ensure the footer reflects menu controls (not scanning)
-            draw_bottom_border "Arrows: Up/Down | Enter: Select"
-            show_scrollable_menu "SELECT DEVICE" menu_labels 0
-            local sanitized=$?
-            local refresh_idx=${#sel_macs[@]}
-            if [[ "$sanitized" -eq 255 || "$sanitized" -eq "$refresh_idx" ]]; then
-                # User chose "Refresh List". Restart the scanning engine so the
-                # UI updates immediately rather than leaving the engine paused.
-                # Clear the current lists and reset the read offset.
-                devices=(); macs=(); rssis=(); last_processed_line=1
-
-                # If the engine was paused, restart the writer/reader pipeline.
-                # Ensure any previous engine artifacts are stopped before starting.
-                stop_bt_engine || true
-                # Short pause to allow kernel to release filehandles/process state
-                
-                if ! start_bt_engine; then
-                    draw_error_screen "BLUETOOTH START FAILED" "Error: failed to start Bluetooth scan engine." 1
-                    return 1
-                fi
-                # Hide cursor again before resuming scan loop and redraw
-                enter_ui_mode
-                draw_bottom_panel_header "RADAR: Starting scan..."
-                clear_info_area
-                draw_bottom_border "Initializing Bluetooth..."
-                continue
-            elif [[ "$sanitized" -eq $((refresh_idx + 1)) ]]; then
-                return 1
+            if read -rsn1 -t 0.1 key; then
+                stop_bt_engine
+                break # Transition to Selection Phase
             fi
+        done
 
-            if [[ "$sanitized" -lt "$refresh_idx" ]]; then
-                local sel_mac="${sel_macs[$sanitized]}"; local sel_name="${sel_devices[$sanitized]}"
-                update_config_key "bluetooth_lastdevice_address" "$sel_mac"
-                update_config_key "bluetooth_lastdevice_name" "$sel_name"
-                update_config_key "filter_device" "$sel_name"
-                update_config_key "bluetooth_address" "$sel_mac"
-                
-                draw_bottom_panel_header "DEVICE LINKED"
-                clear_info_area
-                draw_sealed_row $((LOG_TOP + 2)) "   ${GREEN}Device linked successfully!${NC}"
-                draw_sealed_row $((LOG_TOP + 4)) "   Name: ${WHITE}$sel_name${NC}"
-                draw_sealed_row $((LOG_TOP + 5)) "   Addr: ${GRAY}$sel_mac${NC}"
-                draw_bottom_border ""; sleep 2; return 0
-            fi
+        # --- PHASE 2: THE SELECTION ---
+        local menu_labels=()
+        for i in "${!macs[@]}"; do
+            menu_labels+=("$(printf '%-30s [%s]' "${devices[$i]}" "${macs[$i]}")")
+        done
+        menu_labels+=("Scan" "Back")
+        
+        # Call directly (returns selection via exit code $?)
+        show_scrollable_menu "SELECT DEVICE" menu_labels 0
+        local sanitized=$? 
+        
+        local num_devs=${#macs[@]}
+        local refresh_idx=$num_devs
+        local skip_idx=$((num_devs + 1))
+
+        if [[ "$sanitized" -eq 255 || "$sanitized" -eq "$refresh_idx" ]]; then
+            # User chose REFRESH: Loop restarts, clearing data
+            exit_ui_mode
+            clear_info_area
+            continue 
+        elif [[ "$sanitized" -eq "$skip_idx" ]]; then
+            exit_ui_mode; return 1
+        elif [[ "$sanitized" -lt "$num_devs" ]]; then
+            # SUCCESS: Save Selection
+            local sel_mac="${macs[$sanitized]}"
+            local sel_name="${devices[$sanitized]}"
+            update_config_key "bluetooth_lastdevice_address" "$sel_mac"
+            update_config_key "bluetooth_lastdevice_name" "$sel_name"
+            update_config_key "filter_device" "$sel_name"
+            update_config_key "bluetooth_address" "$sel_mac"
+            
+            draw_bottom_panel_header "DEVICE LINKED"
+            clear_info_area
+            draw_sealed_row $((LOG_TOP + 2)) "   ${GREEN}Device linked successfully!${NC}"
+            draw_sealed_row $((LOG_TOP + 4)) "   Name: ${WHITE}$sel_name${NC}"
+            draw_sealed_row $((LOG_TOP + 5)) "   Addr: ${GRAY}$sel_mac${NC}"
+            draw_bottom_border ""; sleep 2
+            exit_ui_mode; return 0
         fi
     done
 }
@@ -1985,12 +1940,10 @@ install_venv() {
 }
 
 install_python_packages() {
-    # README: ~/ant_venv/bin/pip install --upgrade pip
-    # README: ~/ant_venv/bin/pip install openant pyusb pybind11
-    local home_dir="${TARGET_HOME:-$HOME}"
-    local pip_path="$home_dir/ant_venv/bin/pip"
-    local cmd="sudo -u \"$TARGET_USER\" $pip_path install --upgrade pip && sudo -u \"$TARGET_USER\" $pip_path install openant pyusb pybind11"
-    run_with_progress "Installing ANT+ Python Packages" "$cmd"
+    local pip_path="$TARGET_HOME/ant_venv/bin/pip"
+    # Added bleak to the installation list
+    local cmd="sudo -u \"$TARGET_USER\" $pip_path install --upgrade pip && sudo -u \"$TARGET_USER\" $pip_path install openant pyusb pybind11 bleak"
+    run_with_progress "Installing Python PIPs (incl. Bleak)" "$cmd"
 }
 
 install_qt5_libs() {
@@ -2037,25 +1990,6 @@ install_lsusb() {
     # README: usbutils
     local cmd="apt-get update && apt-get install -y usbutils"
     run_with_progress "Installing USB Utilities" "$cmd"
-}
-
-create_config_file_interactive() {
-    load_current_profile_values
-    write_base_config
-
-    while true; do
-        local options=("User Profile (Weight, Age, Units)" "Equipment Selection (Model)" "Bluetooth Setup (Scan)" "Back to Dashboard")
-        # Standardized scrollable menu starts at LOG_TOP automatically
-        show_scrollable_menu "MODIFY CONFIGURATION" options 0
-        local main_choice=$?
-
-        case "$main_choice" in
-            0) configure_user_profile ;;
-            1) select_equipment_flow ;;
-            2) perform_bluetooth_scan ;;
-            3|255) return 0 ;;
-        esac
-    done
 }
 
 create_systemd_service() {
@@ -2216,8 +2150,9 @@ prompt_setup_mode() {
 prompt_success_menu() {
     local warns=${1:-0}
     enter_ui_mode
-    local options=("Modify Configuration" "Uninstall" "Exit")
+    local options=("User Profile" "Equipment Selection" "Bluetooth Scan" "Uninstall" "Exit")
     local selected=0
+    local num_options=${#options[@]}
     
     local title="SYSTEM READY"
     [[ "$warns" -eq 1 ]] && title="READY WITH 1 WARNING"
@@ -2226,10 +2161,10 @@ prompt_success_menu() {
     while true; do
         draw_bottom_panel_header "$title"
         clear_info_area
+        draw_sealed_row 12 "" # Spacer
         
-        # Options start at Row LOG_TOP + 1
         for i in "${!options[@]}"; do
-            local row=$((LOG_TOP + 1 + i))
+            local row=$((13 + i))
             if [[ $i -eq $selected ]]; then
                 draw_sealed_row "$row" "   ${CYAN}► ${BOLD_CYAN}${options[$i]}${NC}"
             else
@@ -2248,24 +2183,28 @@ prompt_success_menu() {
         elif [[ $key == "" ]]; then
             return "$selected"
         fi
-        [[ $selected -lt 0 ]] && selected=2
-        [[ $selected -ge 3 ]] && selected=0
+        [[ $selected -lt 0 ]] && selected=$((num_options - 1))
+        [[ $selected -ge $num_options ]] && selected=0
     done
 }
 
 prompt_action_menu() {
     local fails=$1
     enter_ui_mode
-    local options=("Guided Fix" "Uninstall" "Exit")
+    local options=("Guided Fix" "Exit")
     local selected=0
+    local num_options=${#options[@]}
     
     while true; do
         draw_bottom_panel_header "ISSUES DETECTED ($fails)"
         clear_info_area
         
-        # Options start at Row LOG_TOP + 1
+        # Spacer at Row 12
+        draw_sealed_row 12 ""
+        
+        # Options start at Row 13
         for i in "${!options[@]}"; do
-            local row=$((LOG_TOP + 1 + i))
+            local row=$((13 + i))
             if [[ $i -eq $selected ]]; then
                 draw_sealed_row "$row" "   ${CYAN}► ${BOLD_CYAN}${options[$i]}${NC}"
             else
@@ -2284,8 +2223,8 @@ prompt_action_menu() {
         elif [[ $key == "" ]]; then
             return "$selected"
         fi
-        [[ $selected -lt 0 ]] && selected=2
-        [[ $selected -ge 3 ]] && selected=0
+        [[ $selected -lt 0 ]] && selected=$((num_options - 1))
+        [[ $selected -ge $num_options ]] && selected=0
     done
 }
 
@@ -2321,7 +2260,7 @@ show_scrollable_menu() {
     # Ensure the cursor is hidden while the menu is active and restore it
     # on any function return or interrupt. The trap clears itself immediately
     # so it does not persist beyond this menu invocation.
-    trap 'trap - RETURN SIGINT SIGTERM; printf "\033[%d;1H" "$((LOG_BOTTOM + 2))"; exit_ui_mode' RETURN SIGINT SIGTERM
+    trap 'trap - RETURN SIGINT SIGTERM; move_cursor $((LOG_BOTTOM + 1)) 0; exit_ui_mode' RETURN SIGINT SIGTERM
     enter_ui_mode
     while true; do
         draw_bottom_panel_header "$title"
@@ -2367,11 +2306,11 @@ show_scrollable_menu() {
             # If the "Back" label was chosen, return 255 to signal the caller
             if [[ -n "$back_label" ]] && [[ $selected -eq $((total_count - 1)) ]]; then
                 # Move cursor below dashboard and restore terminal before returning
-                printf "\033[%d;1H" "$((LOG_BOTTOM + 2))"
+                move_cursor $((LOG_BOTTOM + 1)) 0
                 exit_ui_mode
                 return 255
             fi
-            printf "\033[%d;1H" "$((LOG_BOTTOM + 2))"
+            move_cursor $((LOG_BOTTOM + 1)) 0
             exit_ui_mode
             return "$selected"
         fi
@@ -2500,13 +2439,30 @@ run_guided_mode() {
         fi
     fi
 
-    # 9. Configuration File
+    
+    # 9. Configuration File & Initial Setup Wizard
     if [ ! -f "$CONFIG_FILE" ]; then
-        request_fix "CONFIG" "No configuration file found." "Start interactive setup?"
+        request_fix "CONFIG" "No configuration file found." "Start setup wizard?"
         local res=$?
-        if [ $res -eq 2 ]; then return 1; fi
+        if [ $res -eq 2 ]; then return 1; fi # Cancel to Main Menu
         if [ $res -eq 0 ]; then
-            create_config_file_interactive && check_config_file
+            # A. Select the Treadmill/Bike model
+            if select_equipment_flow; then
+                # B. Set Weight and Age
+                configure_user_profile
+                
+                # C. Ask to scan for the device now
+                draw_bottom_panel_header "BLUETOOTH SETUP"
+                clear_info_area
+                draw_sealed_row $((LOG_TOP + 2)) "   Equipment and Profile saved."
+                draw_sealed_row $((LOG_TOP + 4)) "   Would you like to scan for your device now?"
+                
+                if prompt_yes_no 6; then
+                    perform_bluetooth_scan
+                fi
+            fi
+            
+            check_config_file
             action_taken=true
         fi
     fi
@@ -2660,14 +2616,13 @@ draw_verifying_screen() {
 check_final_status() {
     while true; do
         local fails=0 warns=0
-        # 1. Calculate current stats from existing STATUS_MAP
         for key in "${!STATUS_MAP[@]}"; do
             local val="${STATUS_MAP[$key]}"
             if [ "$val" = "fail" ]; then ((fails++)); elif [ "$val" = "warn" ]; then ((warns++)); fi
         done
 
         if [ $fails -gt 0 ]; then
-            # --- ISSUE STATE ---
+            # --- FAILURE MODE (Fresh Install) ---
             local choice
             prompt_action_menu "$fails"
             choice=$?
@@ -2678,37 +2633,26 @@ check_final_status() {
                         run_all_checks
                     fi
                     ;;
-                1) # Uninstall
-                    if run_uninstall_mode; then
-                        draw_verifying_screen "Verifying system state..."
-                        run_all_checks
-                    fi
-                    ;;
-                2) finish_and_exit 0 ;;
+                1) finish_and_exit 0 ;; # Exit
             esac
         else
-            # --- READY STATE ---
+            # --- SUCCESS MODE (Flattened Setup) ---
             local choice
             prompt_success_menu "$warns"
             choice=$?
             case $choice in
-                0)
-                    create_config_file_interactive
-                    # Refresh status icons after config changes without full hardware probe
-                    check_config_file
-                    check_qz_service
-                    ;;
-                1)
+                0) configure_user_profile; check_config_file ;;
+                1) select_equipment_flow; check_config_file ;;
+                2) perform_bluetooth_scan; check_config_file ;;
+                3) # Uninstall
                     if run_uninstall_mode; then
                         draw_verifying_screen "Verifying system state..."
                         run_all_checks
                     fi
                     ;;
-                2) finish_and_exit 0 ;;
+                4) finish_and_exit 0 ;; # Exit
             esac
         fi
-
-        # Loop around to re-evaluate status_map and present menu again
         sleep 0.05
     done
 }
@@ -2731,6 +2675,9 @@ QDomyos-Zwift ANT+ Setup Dashboard
 USAGE:
     sudo ./setup_dashboard.sh       # Run validation & interactive setup
     sudo ./setup_dashboard.sh --help
+
+    Non-interactive options:
+        --scan-now     Start the Bluetooth scan page immediately and exit
 
 DESCRIPTION:
     Checks system prerequisites and offers a Menu to:
@@ -2756,6 +2703,9 @@ if [ $# -gt 0 ]; then
             --help)
                 show_help; exit 0
                 ;;
+            --scan-now)
+                SCAN_NOW=1
+                ;;
             --debug-bt)
                 DEBUG_BT=1
                 ;;
@@ -2777,6 +2727,7 @@ fi
 # ============================================================================
 
 # 1. Prepare terminal
+set_ui_output
 refresh_dashboard # Draws the top status table and global frame
 
 # 2. Draw the new consistent startup screen
@@ -2784,6 +2735,14 @@ draw_verifying_screen "Verifying system status..."
 
 # 3. Perform the checks (The status icons will update live in the top panel)
 run_all_checks
+
+# If requested via CLI, jump directly to the Bluetooth scanning page and
+# perform a scan non-interactively, then exit. This is useful for automated
+# captures and avoids the interactive main menu.
+if [ "${SCAN_NOW:-0}" -eq 1 ]; then
+    perform_bluetooth_scan
+    finish_and_exit
+fi
 
 # 4. Enter the main menu loop
 check_final_status
