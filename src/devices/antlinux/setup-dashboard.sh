@@ -390,9 +390,12 @@ FINISH_DONE=0
 # shellcheck disable=SC2034
 CAN_INSTALL=0
 SETUP_MODE=""
+BT_DEBUG_LOG=${BT_DEBUG_LOG:-/tmp/qz_bt_scan_debug.log}
 bt_debug() {
-    # Debug disabled in production: no-op
-    return 0
+    # Temporarily enabled debug logger for troubleshooting
+    local ts
+    ts=$(date +"%Y-%m-%dT%H:%M:%S%z")
+    printf "%s %s\n" "$ts" "$*" >> "$BT_DEBUG_LOG" 2>/dev/null || true
 }
 
 # Optional Python provider integration (minimal, safe wrappers).
@@ -2697,6 +2700,13 @@ check_final_status() {
 # ============================================================================
 # MAIN
 # ============================================================================
+
+# Allow tests to source this file without running the full interactive main loop.
+# Set QZ_NO_MAIN=1 in the environment when sourcing to prevent main execution.
+if [ "${QZ_NO_MAIN:-0}" -eq 1 ]; then
+    # If this file is sourced, `return` will work; if executed, fall back to exit.
+    return 0 2>/dev/null || exit 0
+fi
 
 show_help() {
     cat << 'EOF'
