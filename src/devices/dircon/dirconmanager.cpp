@@ -28,10 +28,7 @@ using namespace std::chrono_literals;
     OP(WAHOO_TREADMILL, "Wahoo TREAD $uuid_hex$", DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)
 
 #define DM_MACHINE_OP_ROUVY(OP, P1, P2, P3)                                                                            \
-    OP(WAHOO_KICKR, "ELITE AVANTI $uuid_hex$ W", DM_MACHINE_TYPE_TREADMILL | DM_MACHINE_TYPE_BIKE, P1, P2, P3)            \
-    OP(WAHOO_BLUEHR, "Wahoo HRM", DM_MACHINE_TYPE_BIKE | DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)                        \
-    OP(WAHOO_RPM_SPEED, "Wahoo SPEED $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)                                    \
-    OP(WAHOO_TREADMILL, "Wahoo TREAD $uuid_hex$", DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)
+    OP(WAHOO_KICKR, "ELITE AVANTI $uuid_hex$ W", DM_MACHINE_TYPE_TREADMILL | DM_MACHINE_TYPE_BIKE, P1, P2, P3)
 
 #define DP_PROCESS_WRITE_0003() (zwift_play_emulator ? writeP0003 : 0)
 #define DP_PROCESS_WRITE_2AD9() writeP2AD9
@@ -152,6 +149,19 @@ enum {
     }
 
 QString DirconManager::getMacAddress() {
+    QSettings settings;
+    bool rouvy_compatibility = settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool();
+    int dircon_id = settings.value(QZSettings::dircon_id, QZSettings::default_dircon_id).toInt();
+
+    // When Rouvy compatibility is enabled, use a specific MAC address with the last byte set to dircon_id
+    if (rouvy_compatibility) {
+        // Use base MAC address "24:DC:C3:E3:B5:XX" where XX is the dircon_id
+        // Ensure dircon_id is in the valid range 0-255
+        int last_byte = dircon_id & 0xFF;
+        return QString("24:DC:C3:E3:B5:%1").arg(last_byte, 2, 16, QChar('0')).toUpper();
+    }
+
+    // Default behavior: get MAC address from network interfaces
     QString addr;
     foreach (QNetworkInterface netInterface, QNetworkInterface::allInterfaces()) {
         // Return only the first non-loopback MAC Address
