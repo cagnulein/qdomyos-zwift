@@ -17,8 +17,8 @@ ApplicationWindow {
     visibility: Qt.WindowFullScreen
     visible: true
 	 objectName: "stack"
-    title: qsTr("qDomyos-Zwift")
-    
+    title: Qt.platform.os === "ios" ? "" : qsTr("qDomyos-Zwift")
+
     // Force update on orientation change
     property int currentOrientation: Screen.orientation
     onCurrentOrientationChanged: {
@@ -729,6 +729,7 @@ ApplicationWindow {
         bottomPadding: getBottomPadding()
         leftPadding: getLeftPadding()
         rightPadding: getRightPadding()
+        Accessible.ignored: !drawer.opened
 
         ScrollView {
             contentWidth: -1
@@ -756,12 +757,12 @@ ApplicationWindow {
                     width: parent.width
                     onClicked: {
                         toolButtonLoadSettings.visible = true;
-                        toolButtonSaveSettings.visible = true;
+                        toolButtonSaveSettings.visible = true;                        
                         stackView.push("settings.qml")
                         stackView.currentItem.peloton_connect_clicked.connect(function() {
                             peloton_connect_clicked()
                          });
-                        drawer.close()
+                         drawer.close()
                     }
                 }
 
@@ -913,7 +914,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.20.15"
+                    text: "version 2.20.17"
                     width: parent.width
                 }
 
@@ -989,17 +990,22 @@ ApplicationWindow {
                         }
             }
         }
-    }    
+    }
 
-    StackView {
-        id: stackView
-        initialItem: "Home.qml"
+    // Wrapper Item to prevent ApplicationWindow from capturing all VoiceOver focus
+    Item {
         anchors.fill: parent
-        anchors.bottomMargin: (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0
-        anchors.rightMargin: getRightPadding()
-        anchors.leftMargin: getLeftPadding()
-        focus: true
-        Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
+        Accessible.ignored: true
+
+        StackView {
+            id: stackView
+            initialItem: "Home.qml"
+            anchors.fill: parent
+            anchors.bottomMargin: (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0
+            anchors.rightMargin: getRightPadding()
+            anchors.leftMargin: getLeftPadding()
+            focus: true
+            Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
         Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
         Keys.onPressed: (event)=> {
             if (event.key === Qt.Key_MediaPrevious)
@@ -1012,6 +1018,7 @@ ApplicationWindow {
                 volumeUp();
 
             event.accepted = settings.volume_change_gears;
+        }
         }
     }
 }

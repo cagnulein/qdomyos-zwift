@@ -144,6 +144,8 @@ void treadmill::update_metrics(bool watt_calc, const double watts, const bool fr
     METS = calculateMETS();
     if (currentInclination().value() > 0)
         elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
+    else if (currentInclination().value() < 0)
+        negativeElevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * fabs(currentInclination().value() / 100.0) * deltaTime;
 
     _lastTimeUpdate = current;
     _firstUpdate = false;
@@ -187,6 +189,7 @@ void treadmill::clearStats() {
     Heart.clear(false);
     m_jouls.clear(true);
     elevationAcc = 0;
+    negativeElevationAcc = 0;
     m_watt.clear(false);
     WeightLoss.clear(false);
     WattKg.clear(false);
@@ -561,6 +564,46 @@ void treadmill::cadenceFromAppleWatch() {
         qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
     }
 #endif    
+}
+
+double treadmill::calculateCadenceFromSpeed(double speed) {
+    QSettings settings;
+
+    // Return 0 if speed is too low (walking or stopped)
+    if (speed < 0.1) {
+        return 0.0;
+    }
+
+    // Get user height in meters
+    double heightCm = settings.value(QZSettings::height, QZSettings::default_height).toDouble();
+    double heightM = heightCm / 100.0;
+
+    // Get user gender
+    QString gender = settings.value(QZSettings::sex, QZSettings::default_sex).toString();
+
+    // Calculate stride length from height based on gender
+    // Male: height × 0.415, Female: height × 0.413
+    double strideLengthM;
+    if (gender.compare(QStringLiteral("Male"), Qt::CaseInsensitive) == 0) {
+        strideLengthM = heightM * 0.415;
+    } else {
+        strideLengthM = heightM * 0.413;
+    }
+
+    // If stride length is available from external sensor, use that instead
+    if (instantaneousStrideLengthCMAvailableFromDevice && InstantaneousStrideLengthCM.value() > 0) {
+        strideLengthM = InstantaneousStrideLengthCM.value() / 100.0;
+    }
+
+    // Calculate cadence: SPM = (speed_m/s / stride_length_m) × 60
+    // speed is in km/h, convert to m/s
+    double speedMs = speed * 1000.0 / 3600.0;  // km/h to m/s
+    double calculatedCadence = (speedMs / strideLengthM) * 60.0;
+
+    qDebug() << "Calculated Cadence from Speed:" << calculatedCadence
+             << "SPM (speed:" << speed << "km/h, stride:" << (strideLengthM * 100) << "cm)";
+
+    return calculatedCadence;
 }
 
 bool treadmill::simulateInclinationWithSpeed() {

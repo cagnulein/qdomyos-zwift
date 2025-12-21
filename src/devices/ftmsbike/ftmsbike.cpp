@@ -369,7 +369,7 @@ void ftmsbike::update() {
         
         // gpx scenario for example
         if(!virtualBike || !virtualBike->ftmsDeviceConnected()) {
-            if ((requestInclination != -100 || lastGearValue != gears())) {
+            if ((requestInclination != -100 || (lastGearValue != gears() && requestInclination != -100))) {
                 emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
                 forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
                                                                 // i'm using the gears in the inclination
@@ -1370,7 +1370,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
 
                 QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
+                if ((c.properties() & QLowEnergyCharacteristic::Write || c.properties() & QLowEnergyCharacteristic::WriteNoResponse) && c.uuid() == _gattWriteCharControlPointId) {
                     qDebug() << QStringLiteral("FTMS service and Control Point found");
                     gattWriteCharControlPointId = c;
                     gattFTMSService = s;
@@ -1534,7 +1534,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 #endif
             writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
             return;
-        } else if(b.at(0) == FTMS_SET_TARGET_POWER && ((zwiftPlayService != nullptr && gears_zwift_ratio) || !ergModeSupported)) {
+        } else if(b.at(0) == FTMS_SET_TARGET_POWER && !ergModeSupported) {
             qDebug() << "discarding";
             return;
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
@@ -1781,6 +1781,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("FS-YK- found");
             FS_YK = true;
             ergModeSupported = false; // this bike doesn't have ERG mode natively
+        } else if(device.name().toUpper().startsWith("S18")) {
+            qDebug() << QStringLiteral("S18 found");
+            S18 = true;
+            max_resistance = 24;
         }
 
 

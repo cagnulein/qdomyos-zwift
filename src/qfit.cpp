@@ -241,14 +241,13 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     fit::SessionMesg sessionMesg;
     sessionMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     sessionMesg.SetStartTime(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
-    // Fixed: According to FIT spec, total_elapsed_time includes pauses (real-time duration)
-    // and total_timer_time excludes pauses (active time only)
-    sessionMesg.SetTotalElapsedTime(session.last().time.toSecsSinceEpoch() -
-                                    session.at(firstRealIndex).time.toSecsSinceEpoch());
+    sessionMesg.SetTotalElapsedTime(session.last().elapsedTime);
     sessionMesg.SetTotalTimerTime(session.last().elapsedTime);
     sessionMesg.SetTotalDistance((session.last().distance - startingDistanceOffset) * 1000.0); // meters
     sessionMesg.SetTotalCalories(session.last().calories);
     sessionMesg.SetTotalMovingTime(session.last().elapsedTime);
+    sessionMesg.SetTotalAscent(session.last().elevationGain);  // Total elevation gain (meters)
+    sessionMesg.SetTotalDescent(session.last().negativeElevationGain);  // Total elevation loss/descent (meters)
     sessionMesg.SetMinAltitude(min_alt);
     sessionMesg.SetMaxAltitude(max_alt);
     sessionMesg.SetEvent(FIT_EVENT_SESSION);

@@ -269,7 +269,9 @@ ScrollView {
         property bool tile_auto_virtual_shifting_climb_enabled: false
         property int  tile_auto_virtual_shifting_climb_order: 73
         property bool tile_auto_virtual_shifting_sprint_enabled: false
-        property int  tile_auto_virtual_shifting_sprint_order: 74               
+        property int  tile_auto_virtual_shifting_sprint_order: 74
+        property bool tile_negative_inclination_enabled: false
+        property int  tile_negative_inclination_order: 75
     }
 
 
@@ -431,7 +433,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: elevationEnabledAccordion
-            title: qsTr("Elevation")
+            title: qsTr("Elevation Gain")
             linkedBoolSetting: "tile_elevation_enabled"
             settings: settings
             accordionContent: RowLayout {
@@ -460,6 +462,49 @@ ScrollView {
                 }
             }
         }            
+
+        AccordionCheckElement {
+            id: negativeInclinationEnabledAccordion
+            title: qsTr("Negative Elevation Gain (Descent)")
+            linkedBoolSetting: "tile_negative_inclination_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: negativeInclinationOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_negative_inclination_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = negativeInclinationOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_negative_inclination_order = negativeInclinationOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Displays the total negative elevation gain (descent) in meters or feet accumulated during the workout.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
 
         AccordionCheckElement {
             id: caloriesEnabledAccordion
@@ -5410,6 +5455,6 @@ ScrollView {
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             Layout.fillWidth: true
             color: Material.color(Material.Lime)
-        }
+        }        
     }
 }
