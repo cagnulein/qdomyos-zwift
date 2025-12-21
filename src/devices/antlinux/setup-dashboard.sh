@@ -925,12 +925,17 @@ draw_top_title() {
     padded=$(pad_display "$naked_inner" $inner_w)
 
     # Now insert color around the visible text only (preserve paddings)
-    # We locate the text inside the padded string and replace it with colored text.
-    # Simple approach: build colored_inner by replacing the naked text occurrence.
-    local escaped_text
-    escaped_text=$(printf '%s' "$naked_inner" | sed -e 's/[]\\[]/\\&/g')
-    local colored_inner
-    colored_inner=$(printf '%s' "$padded" | sed "s/${escaped_text}/${t_color}${text}${NC}/")
+    # Deterministically slice the padded naked string: left decoration, text, right remainder
+    local left_decoration="═══  "
+    local left_len
+    left_len=$(printf '%s' "$left_decoration" | wc -m)
+    local text_chars
+    text_chars=$(printf '%s' "$text" | wc -m)
+    local left_part right_part colored_inner
+    # Extract left_part (first left_len chars) and right_part (remaining after left+text)
+    left_part=$(printf '%s' "$padded" | cut -c1-$left_len)
+    right_part=$(printf '%s' "$padded" | cut -c$((left_len + text_chars + 1))-)
+    colored_inner="${left_part}${t_color}${text}${NC}${right_part}"
 
     # Print the framed line (corner + inner + corner) atomically
     printf "%s%s%s" "${BLUE}${left_c}" "$colored_inner" "${right_c}${NC}" >&${UI_FD:-2}
