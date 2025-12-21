@@ -1010,9 +1010,9 @@ draw_hr() {
         # Log the stripped horizontal line to a temp file for inspection if enabled
         # Default file: /tmp/qz_drawn_lines.log (append)
         if [[ -n "${QZ_HR_LOG:-}" ]]; then
-            printf '%s\n' "$nocolor_line" >> "$QZ_HR_LOG"
+            printf '%s\n' "$nocolor_line" >> "$QZ_HR_LOG" 2>/dev/null
         else
-            printf '%s\n' "$nocolor_line" >> /tmp/qz_drawn_lines.log
+            printf '%s\n' "$nocolor_line" >> /tmp/qz_drawn_lines.log 2>/dev/null
         fi
         # Also log numeric diagnostics to help trace overlong fills
         local diag_log=${QZ_HR_LOG:-/tmp/qz_drawn_lines.log}
@@ -1024,8 +1024,8 @@ draw_hr() {
             "$row" "$inner_w" "$t_vis" "$l_vis" "$fill_len" "$_tlen" "$_llen" "$_fill" >> "$diag_log"
 
         # 3b. Build and Print as one atomic operation to prevent flickering
-        # [Corner] + [═══] + [  ] + [COLOR+TEXT+NC] + [  ] + [FILL] + [LEGEND] + [══] + [Corner]
-        printf "${BLUE}${left_c}═══  ${NC}${t_color}${text}${NC}${BLUE}  ${fill}${NC}${legend}${BLUE}══${right_c}${NC}" >&${UI_FD:-2}
+        # [Corner] + [  ] + [COLOR+TEXT+NC] + [  ] + [FILL] + [LEGEND] + [══] + [Corner]
+        printf "%s%s%s" "${BLUE}${left_c}" "$colored_inner" "${right_c}${NC}" >&${UI_FD:-2}
     fi
 
     # 4. CRITICAL: Always restore cursor to the top of the log area to
