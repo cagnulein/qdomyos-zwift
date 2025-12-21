@@ -428,9 +428,17 @@ start_bt_provider() {
     if [ "$(id -u)" -eq 0 ] && [ -n "${TARGET_USER:-}" ]; then
         chown "$TARGET_USER":"$TARGET_USER" "$BT_PROVIDER_STREAM" 2>/dev/null || true
     fi
+    # Ensure debug log exists and is writable by the target user as well
+    BT_DEBUG_LOG=${BT_DEBUG_LOG:-/tmp/qz_bt_scan_debug.log}
+    : > "$BT_DEBUG_LOG" 2>/dev/null || true
+    chmod 0666 "$BT_DEBUG_LOG" 2>/dev/null || true
+    if [ "$(id -u)" -eq 0 ] && [ -n "${TARGET_USER:-}" ]; then
+        chown "$TARGET_USER":"$TARGET_USER" "$BT_DEBUG_LOG" 2>/dev/null || true
+    fi
     "$pybin" "$prov" >"$BT_PROVIDER_STREAM" 2>&1 &
     BT_PROVIDER_PID=$!
     bt_debug "PY_PROVIDER_STARTED pid=$BT_PROVIDER_PID stream=$BT_PROVIDER_STREAM"
+    sleep 10
     return 0
 }
 
