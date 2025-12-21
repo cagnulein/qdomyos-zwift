@@ -1320,21 +1320,10 @@ QString GarminConnect::generateOAuth1Signature(
 
 QString GarminConnect::percentEncode(const QString &str)
 {
-    QString encoded;
-    for (QChar c : str) {
-        if ((c >= 'A' && c <= 'Z') ||
-            (c >= 'a' && c <= 'z') ||
-            (c >= '0' && c <= '9') ||
-            c == '-' || c == '.' || c == '_' || c == '~') {
-            encoded += c;
-        } else {
-            QByteArray utf8 = QString(c).toUtf8();
-            for (char byte : utf8) {
-                encoded += QString("%%%1").arg((unsigned char)byte, 2, 16, QChar('0')).toUpper();
-            }
-        }
-    }
-    return encoded;
+    // Use Qt's built-in percent encoding for consistency
+    // This ensures we use the same encoding method as QUrl::toPercentEncoding()
+    // which we use to build the HTTP request URL
+    return QString::fromUtf8(QUrl::toPercentEncoding(str));
 }
 
 QString GarminConnect::generateNonce()
