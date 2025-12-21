@@ -969,7 +969,43 @@ draw_hr() {
         left_piece="${left_c}═══  "
         right_piece="══${right_c}"
         local nocolor_line
+        # Construct the no-color line and enforce exact target width (80 cols)
+        local target_total=80
         nocolor_line="${left_piece}${stripped_text}  ${fill}${stripped_legend}${right_piece}"
+        # Measure and adjust if necessary: pad or trim the filler to reach target_total
+        local actual_len
+        actual_len=$(printf '%s' "$nocolor_line" | wc -m)
+        if [[ $actual_len -ne $target_total ]]; then
+            local delta=$(( target_total - actual_len ))
+            if [[ $delta -gt 0 ]]; then
+                # Need to pad with spaces before the right_piece
+                nocolor_line="${left_piece}${stripped_text}  ${fill}${stripped_legend}$(printf '%*s' "$delta" '')${right_piece}"
+            else
+                # Too long: try to reduce filler first, else truncate stripped_text
+                delta=$(( -delta ))
+                local f_len
+                f_len=$(printf '%s' "$fill" | wc -m)
+                if [[ $f_len -ge $delta ]]; then
+                    # remove delta chars from fill
+                    local new_f_len=$(( f_len - delta ))
+                    fill=$(printf '%*s' "$new_f_len" '' | tr ' ' '═')
+                    nocolor_line="${left_piece}${stripped_text}  ${fill}${stripped_legend}${right_piece}"
+                else
+                    # not enough in fill: truncate stripped_text to fit
+                    local keep=$(( ${#stripped_text} - (delta - f_len) ))
+                    if [[ $keep -lt 0 ]]; then keep=0; fi
+                    stripped_text=$(printf '%s' "${stripped_text}" | cut -c 1-$keep)
+                    fill=""
+                    nocolor_line="${left_piece}${stripped_text}  ${fill}${stripped_legend}${right_piece}"
+                    # final pad if still short
+                    actual_len=$(printf '%s' "$nocolor_line" | wc -m)
+                    if [[ $actual_len -lt $target_total ]]; then
+                        local pad=$(( target_total - actual_len ))
+                        nocolor_line="${nocolor_line:0:-${#right_piece}}$(printf '%*s' "$pad" '')${right_piece}"
+                    fi
+                fi
+            fi
+        fi
 
         # Log the stripped horizontal line to a temp file for inspection if enabled
         # Default file: /tmp/qz_drawn_lines.log (append)
