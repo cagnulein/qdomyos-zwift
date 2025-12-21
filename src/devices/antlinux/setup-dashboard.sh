@@ -911,8 +911,6 @@ draw_top_panel() {
 
     # Arguments: Row, LeftCorner, RightCorner, Text, TextColor, Legend
     draw_hr 4 "╠" "╣" "STATUS" "$BOLD_WHITE" "$full_legend"
-
-    draw_hr 4 "╠" "╣" "STATUS" "$full_legend"
     render_status_grid 5
 }
 
