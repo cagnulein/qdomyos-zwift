@@ -933,14 +933,28 @@ draw_hr() {
         for ((i=0; i<inner_w; i++)); do fill="${fill}═"; done
         printf "${BLUE}${left_c}${fill}${right_c}${NC}" >&${UI_FD:-2}
     else
-        # 2. Calculate visible widths (strip ANSI and count display columns)
-        local t_vis
-        t_vis=$(get_vis_width "$text")
-        local l_vis
-        l_vis=$(get_vis_width "$legend")
+        # 2. Prepare stripped text and legend, then calculate visible widths
+        local expanded stripped_text stripped_legend
+        expanded=$(printf '%b' "${text:-}" 2>/dev/null || printf '%s' "${text:-}")
+        stripped_text=$(printf '%s' "$expanded" | sed -r 's/\x1B\[[0-9;?]*[ -/]*[@-~]//g' | tr -d '\r\n')
+        expanded=$(printf '%b' "${legend:-}" 2>/dev/null || printf '%s' "${legend:-}")
+        stripped_legend=$(printf '%s' "$expanded" | sed -r 's/\x1B\[[0-9;?]*[ -/]*[@-~]//g' | tr -d '\r\n')
 
-        # consumed = 3(bars) + 2(spaces) + t_vis + 2(spaces) + l_vis + 2(right bars)
-        local fill_len=$(( inner_w - 3 - 2 - t_vis - 2 - l_vis - 2 ))
+        # Compute visible column widths from stripped strings (prefer Python)
+        local t_vis l_vis
+        if command -v python3 >/dev/null 2>&1; then
+            t_vis=$(printf '%s' "$stripped_text" | python3 -c "import sys,unicodedata; s=sys.stdin.read(); print(sum(2 if unicodedata.east_asian_width(ch) in 'WF' else 1 for ch in s))")
+            l_vis=$(printf '%s' "$stripped_legend" | python3 -c "import sys,unicodedata; s=sys.stdin.read(); print(sum(2 if unicodedata.east_asian_width(ch) in 'WF' else 1 for ch in s))")
+        else
+            t_vis=$(printf '%s' "$stripped_text" | wc -m)
+            l_vis=$(printf '%s' "$stripped_legend" | wc -m)
+        fi
+
+        # consumed: left corner + fixed decorations + text + legend + right decorations
+        local left_pad=5   # e.g. '╔═══  '
+        local right_pad=3  # e.g. '══╗'
+        local sep_pad=2    # spaces between parts
+        local fill_len=$(( inner_w - left_pad - t_vis - sep_pad - l_vis - right_pad ))
         [[ $fill_len -lt 0 ]] && fill_len=0
         
         local fill=""
