@@ -840,6 +840,11 @@ ApplicationWindow {
                             editorPage.closeRequested.connect(function() {
                                 stackView.pop()
                             })
+                            // Close editor when workout is started from Save & Start
+                            trainprogram_autostart_requested.connect(function() {
+                                console.log("[main.qml] trainprogram_autostart_requested received, closing editor")
+                                editorPage.closeRequested()
+                            })
                         }
                         drawer.close()
                     }

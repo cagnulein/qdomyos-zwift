@@ -50,14 +50,6 @@ Item {
         }
     }
 
-    Connections {
-        target: stackView
-        onTrainprogram_autostart_requested: {
-            console.log("[WorkoutEditor] trainprogram_autostart_requested signal received, closing editor")
-            root.closeRequested()
-        }
-    }
-
     BusyIndicator {
         id: busy
         anchors.centerIn: parent
