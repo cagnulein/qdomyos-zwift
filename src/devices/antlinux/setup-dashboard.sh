@@ -964,6 +964,14 @@ draw_hr() {
         else
             printf '%s\n' "$nocolor_line" >> /tmp/qz_drawn_lines.log
         fi
+        # Also log numeric diagnostics to help trace overlong fills
+        local diag_log=${QZ_HR_LOG:-/tmp/qz_drawn_lines.log}
+        local _tlen _llen _fill
+        _tlen=$(printf '%s' "$stripped_text" | wc -m)
+        _llen=$(printf '%s' "$stripped_legend" | wc -m)
+        _fill=$(printf '%s' "$fill" | wc -m)
+        printf 'DEBUG row=%d inner_w=%d t_vis=%s l_vis=%s fill_len=%d t_len=%d l_len=%d fill_chars=%d\n' \
+            "$row" "$inner_w" "$t_vis" "$l_vis" "$fill_len" "$_tlen" "$_llen" "$_fill" >> "$diag_log"
 
         # 3b. Build and Print as one atomic operation to prevent flickering
         # [Corner] + [═══] + [  ] + [COLOR+TEXT+NC] + [  ] + [FILL] + [LEGEND] + [══] + [Corner]
