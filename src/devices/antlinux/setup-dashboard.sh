@@ -419,7 +419,15 @@ start_bt_provider() {
         bt_debug "PY_PROVIDER_MISSING prov=$prov"
         return 1
     fi
+    # Ensure stream exists and is writable by the provider process.
+    mkdir -p "$(dirname "$BT_PROVIDER_STREAM")" 2>/dev/null || true
     : > "$BT_PROVIDER_STREAM" 2>/dev/null || true
+    chmod 0666 "$BT_PROVIDER_STREAM" 2>/dev/null || true
+    # If running as root, try to chown the stream to the target user so
+    # non-root provider processes can write without permission issues.
+    if [ "$(id -u)" -eq 0 ] && [ -n "${TARGET_USER:-}" ]; then
+        chown "$TARGET_USER":"$TARGET_USER" "$BT_PROVIDER_STREAM" 2>/dev/null || true
+    fi
     "$pybin" "$prov" >"$BT_PROVIDER_STREAM" 2>&1 &
     BT_PROVIDER_PID=$!
     bt_debug "PY_PROVIDER_STARTED pid=$BT_PROVIDER_PID stream=$BT_PROVIDER_STREAM"
