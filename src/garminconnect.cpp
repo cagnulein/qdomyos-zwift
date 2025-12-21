@@ -677,29 +677,56 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
     // REASON: percentEncode() correctly made "https%3A%2F%2F..."
     //         But QUrl::fromEncoded() decoded it back to "https://..."
     //         Then Qt re-encoded on HTTP send: "https%25%3A..." (double encoded)
+    // COMMIT: b3c1b1b, 5a0ccf7
     //
-    // CURRENT SOLUTION: Pass QUrl object directly (no string conversions!)
-    // - Use QUrl + QUrlQuery normally
-    // - Let Qt encode once when sending HTTP request
-    // - Pass QUrl DIRECTLY to QNetworkRequest (NOT through fromEncoded!)
-    // - Use url.toString(FullyEncoded) ONLY for OAuth signature
-    // KEY DIFFERENCE: request(url) instead of request(QUrl::fromEncoded(...))
+    // ATTEMPT 4: Revert to Qt natural encoding (QUrlQuery.addQueryItem)
+    //   Code: QUrlQuery query;
+    //         query.addQueryItem("login-url", url);
+    //         url.setQuery(query);
+    // RESULT: FAILED - Back to no encoding of ':' and '/'
+    // ERROR: "Invalid URL encoding..." - URL had "https://..." unencoded
+    // REASON: Qt considers ':' and '/' as "unreserved" and won't encode them
+    // COMMIT: 40ee928
+    //
+    // ATTEMPT 5: QUrl::toPercentEncoding() with DecodedMode
+    //   Code: queryString = "ticket=" + QUrl::toPercentEncoding(ticket) + ...;
+    //         url.setQuery(queryString, QUrl::DecodedMode);
+    // RESULT: FAILED - Triple encoding!
+    // ERROR: "Invalid URL encoding..." - URL had "https%253A%252F%252F..."
+    // REASON: DecodedMode tells Qt "this string is NOT encoded, please encode it"
+    //         So Qt encoded the '%' characters: %3A → %253A (triple encoding!)
+    // COMMIT: (attempted but not committed - same session)
+    //
+    // ATTEMPT 6 (CURRENT): toPercentEncoding() + fromEncoded(StrictMode) + manual query parsing
+    //   Code: queryString = "ticket=" + QUrl::toPercentEncoding(ticket) + ...;
+    //         fullUrl = baseUrl + "?" + queryString;  // Complete URL as string
+    //         url = QUrl::fromEncoded(fullUrl.toUtf8(), StrictMode);  // Parse as-is
+    //         Use fullUrl STRING for signature (NOT url.toString())
+    //         Fixed signature to manually parse query params with fromPercentEncoding()
+    // REASON: - Build URL with correct encoding as string: "login-url=https%3A%2F%2F..."
+    //         - fromEncoded(StrictMode) should preserve encoding
+    //         - Using fullUrl for signature avoids Qt toString() re-encoding
+    //         - Signature now properly: decode URL params → re-encode (OAuth1 spec)
+    // STATUS: Testing now...
     //
     QUrl url(connectApiUrl() + "/oauth-service/oauth/preauthorized");
 
     // CRITICAL: Qt NEVER encodes ':' and '/' in parameter values (considers them "unreserved")
     // But OAuth1 and Garmin REQUIRE them to be encoded
-    // Solution: Build query string manually with QUrl::toPercentEncoding(), set as raw string
+    // Solution: Build complete URL string manually, use fromEncoded() to create QUrl
     QString queryString = "ticket=" + QString::fromUtf8(QUrl::toPercentEncoding(ticket)) +
                           "&login-url=" + QString::fromUtf8(QUrl::toPercentEncoding(ssoUrl() + SSO_EMBED_PATH)) +
                           "&accepts-mfa-tokens=true";
 
-    // Set query as raw encoded string with DecodedMode (Qt treats it as already-encoded)
-    url.setQuery(queryString, QUrl::DecodedMode);
+    // Build complete URL as string (this is what we'll use for signature and request)
+    QString baseUrl = connectApiUrl() + "/oauth-service/oauth/preauthorized";
+    QString fullUrl = baseUrl + "?" + queryString;
 
-    // Get the fully encoded URL that Qt will actually send
-    QString fullUrl = url.toString(QUrl::FullyEncoded);
-    QString prettyUrl = url.toString(QUrl::PrettyDecoded);
+    // Create QUrl from the encoded string WITHOUT any further processing
+    // StrictMode ensures Qt doesn't try to "fix" or re-encode anything
+    url = QUrl::fromEncoded(fullUrl.toUtf8(), QUrl::StrictMode);
+
+    QString prettyUrl = QUrl::fromPercentEncoding(fullUrl.toUtf8());
 
     qDebug() << "GarminConnect: ===== URL ENCODING DEBUG =====";
     qDebug() << "GarminConnect: URL (PrettyDecoded):" << prettyUrl;
@@ -714,9 +741,11 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
         qDebug() << "GarminConnect: WARNING - Triple encoding detected in URL!";
     }
 
-    // Show what login-url parameter looks like
-    QUrlQuery debugQuery(url);
-    QString loginUrl = debugQuery.queryItemValue("login-url", QUrl::FullyEncoded);
+    // Extract login-url parameter directly from our query string to verify encoding
+    int loginUrlStart = queryString.indexOf("login-url=") + 10;  // Skip "login-url="
+    int loginUrlEnd = queryString.indexOf("&", loginUrlStart);
+    if (loginUrlEnd == -1) loginUrlEnd = queryString.length();
+    QString loginUrl = queryString.mid(loginUrlStart, loginUrlEnd - loginUrlStart);
     qDebug() << "GarminConnect: login-url parameter (encoded):" << loginUrl;
     qDebug() << "GarminConnect: Expected: https%3A%2F%2Fsso.garmin.com%2Fsso%2Fembed";
 
@@ -1140,21 +1169,56 @@ QString GarminConnect::generateOAuth1AuthorizationHeader(
         params["oauth_token"] = oauth_token;
     }
 
+    // ==============================================================================
+    // QUERY PARAMETER PARSING FOR OAUTH1 SIGNATURE
+    // ==============================================================================
+    // HISTORY OF ATTEMPTS TO FIX OAUTH1 ENCODING:
+    //
+    // SIGNATURE PARSING ATTEMPT 1 (original): QUrlQuery with PrettyDecoded
+    //   Code: QUrlQuery urlQuery(qurl.query());
+    //         queryItems = urlQuery.queryItems(QUrl::PrettyDecoded);
+    //         params[key] = value;  // Then percentEncode(value) in signature
+    // RESULT: Created double/triple encoding because:
+    //   - If URL had "login-url=https%3A%2F%2Fsso.com" (single encoded)
+    //   - PrettyDecoded gave "https://sso.com" (decoded)
+    //   - percentEncode() created "https%253A%252F%252Fsso.com" (double encoded)
+    //
+    // SIGNATURE PARSING ATTEMPT 2 (current): Manual parsing with fromPercentEncoding
+    //   Code: Extract query string manually, split by '&'
+    //         For each param: decode with QUrl::fromPercentEncoding()
+    //         Store decoded value, then percentEncode() in signature
+    // REASON: OAuth1 spec requires: decode URL params → re-encode for signature
+    //   This creates intentional "double encoding" in signature base string,
+    //   but should match what OAuth servers expect
+    // ==============================================================================
+
     // Parse URL query parameters and add them to params map
-    // CRITICAL: Use component encoding to match what Qt sends in the HTTP request
-    QUrl qurl(url);
-    QUrlQuery urlQuery(qurl.query());
-    QList<QPair<QString, QString>> queryItems = urlQuery.queryItems(QUrl::PrettyDecoded);
+    // CRITICAL: Extract query params WITHOUT Qt decoding/re-encoding them
+    // OAuth1 spec says: decode URL params, then re-encode for signature
+    int queryStart = url.indexOf('?');
+    QString queryString = (queryStart >= 0) ? url.mid(queryStart + 1) : QString();
 
     qDebug() << "GarminConnect: ========== OAuth1 SIGNATURE DEBUG ==========";
     qDebug() << "GarminConnect: URL being parsed:" << url;
-    qDebug() << "GarminConnect: Query string from URL:" << qurl.query();
-    qDebug() << "GarminConnect: Number of query items extracted:" << queryItems.size();
-    qDebug() << "GarminConnect: Query parameters (FULL VALUES):";
-    for (const auto &pair : queryItems) {
-        qDebug() << "  KEY:" << pair.first;
-        qDebug() << "  VALUE:" << pair.second;  // FULL value, no truncation
-        params[pair.first] = pair.second;
+    qDebug() << "GarminConnect: Query string extracted:" << queryString;
+
+    // Parse query string manually to get DECODED values
+    QStringList queryPairs = queryString.split('&', Qt::SkipEmptyParts);
+    qDebug() << "GarminConnect: Number of query items extracted:" << queryPairs.size();
+    qDebug() << "GarminConnect: Query parameters (DECODED VALUES for signature):";
+
+    for (const QString &pair : queryPairs) {
+        int eqPos = pair.indexOf('=');
+        if (eqPos > 0) {
+            QString key = pair.left(eqPos);
+            QString encodedValue = pair.mid(eqPos + 1);
+            // Decode the value from URL encoding
+            QString decodedValue = QUrl::fromPercentEncoding(encodedValue.toUtf8());
+            qDebug() << "  KEY:" << key;
+            qDebug() << "  VALUE (encoded in URL):" << encodedValue;
+            qDebug() << "  VALUE (decoded for signature):" << decodedValue;
+            params[key] = decodedValue;
+        }
     }
 
     // 3. Create parameter string (sorted by key)
