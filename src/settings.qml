@@ -85,8 +85,6 @@ import Qt.labs.platform 1.1
             property int  tile_odometer_order: 5
             property bool tile_pace_enabled: true
             property int  tile_pace_order: 6
-            property bool tile_avg_pace_enabled: false
-            property int  tile_avg_pace_order: 76
             property bool tile_resistance_enabled: true
             property int  tile_resistance_order: 7
             property bool tile_watt_enabled: true
@@ -1234,6 +1232,8 @@ import Qt.labs.platform 1.1
             property bool rouvy_compatibility: false
             property bool tile_negative_inclination_enabled: false
             property int tile_negative_inclination_order: 75
+            property bool tile_avg_pace_enabled: false
+            property int  tile_avg_pace_order: 76
         }
 
 
