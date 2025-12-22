@@ -903,10 +903,21 @@
                 selectors.programSelect.value = payload.name;
                 if (startAfter) {
                     console.log('[saveWorkflow] startAfter is true, checking for file:', payload.name);
-                    // Verify file exists in program files map before starting
+
+                    // Try to find file with exact name or with common extensions
+                    let foundFileName = null;
                     if (state.programFiles[payload.name]) {
-                        console.log('[saveWorkflow] File verified in list, starting workout');
-                        return startProgram(payload.name);
+                        foundFileName = payload.name;
+                    } else if (state.programFiles[payload.name + '.xml']) {
+                        foundFileName = payload.name + '.xml';
+                    } else if (state.programFiles[payload.name + '.zwo']) {
+                        foundFileName = payload.name + '.zwo';
+                    }
+
+                    // Verify file exists in program files map before starting
+                    if (foundFileName) {
+                        console.log('[saveWorkflow] File verified in list as:', foundFileName);
+                        return startProgram(foundFileName);
                     } else {
                         // If not found immediately, wait a bit and try again
                         console.log('[saveWorkflow] File not immediately available, retrying...');
@@ -915,13 +926,25 @@
                             return refreshProgramList();
                         }).then(() => {
                             console.log('[saveWorkflow] Retry: programFiles:', Object.keys(state.programFiles));
+
+                            // Try again with extensions
+                            let retryFileName = null;
                             if (state.programFiles[payload.name]) {
-                                console.log('[saveWorkflow] File found after retry, starting workout');
-                                return startProgram(payload.name);
+                                retryFileName = payload.name;
+                            } else if (state.programFiles[payload.name + '.xml']) {
+                                retryFileName = payload.name + '.xml';
+                            } else if (state.programFiles[payload.name + '.zwo']) {
+                                retryFileName = payload.name + '.zwo';
+                            }
+
+                            if (retryFileName) {
+                                console.log('[saveWorkflow] File found after retry as:', retryFileName);
+                                return startProgram(retryFileName);
                             } else {
                                 announce('Workout file not ready, please try again', true);
                                 console.error('[saveWorkflow] File not found in programs list after save and retry');
                                 console.error('[saveWorkflow] Available files:', Object.keys(state.programFiles));
+                                console.error('[saveWorkflow] Looking for:', payload.name, 'or', payload.name + '.xml', 'or', payload.name + '.zwo');
                             }
                         });
                     }

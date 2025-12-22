@@ -668,8 +668,17 @@ void TemplateInfoSenderBuilder::onTrainingProgramAutostart(const QJsonValue &msg
         return;
     }
 
-    qDebug() << "[TemplateInfoSenderBuilder] Invoking trainprogram_autostart_requested signal";
-    QMetaObject::invokeMethod(homeform::singleton(), "trainprogram_autostart_requested", Qt::QueuedConnection);
+    // Get the QML stack and emit the signal there, so main.qml can intercept it
+    // This is important for WorkoutEditor to close properly
+    QQmlApplicationEngine *engine = homeform::singleton()->getEngine();
+    if (engine && !engine->rootObjects().isEmpty()) {
+        QObject *stack = engine->rootObjects().constFirst();
+        qDebug() << "[TemplateInfoSenderBuilder] Emitting trainprogram_autostart_requested signal on QML stack";
+        QMetaObject::invokeMethod(stack, "trainprogram_autostart_requested", Qt::QueuedConnection);
+    } else {
+        qDebug() << "[TemplateInfoSenderBuilder] QML stack is null, calling homeform slot directly";
+        QMetaObject::invokeMethod(homeform::singleton(), "trainprogram_autostart_requested", Qt::QueuedConnection);
+    }
 }
 
 void TemplateInfoSenderBuilder::onWorkoutEditorEnv(TemplateInfoSender *tempSender) {
