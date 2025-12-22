@@ -8,7 +8,7 @@
 [submodule "src/qmdnsengine"]
 	path = src/qmdnsengine
 	url = https://github.com/cagnulein/qmdnsengine.git
-	branch = zwift
+	branch = cagnulein-patch-1
 [submodule "tst/googletest"]
 	path = tst/googletest
 	url = https://github.com/google/googletest.git
