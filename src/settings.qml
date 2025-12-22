@@ -6945,212 +6945,214 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
-                    AccordionCheckElement {
-                        id: trainingProgramRandomAccordion
-                        title: qsTr("Training Program Random Options")
-                        linkedBoolSetting: "trainprogram_random"
-                        settings: settings
-                        accordionContent: ColumnLayout {
-                            spacing: 0
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelTrainProgramRandomDuration
-                                    text: qsTr("Duration (minutes):")
-                                    Layout.fillWidth: true
-                                }
-                                TextField {
-                                    id: trainProgramRandomDurationTextField
-                                    text: settings.trainprogram_total
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.trainprogram_total = text
-                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    id: okTrainProgramRandomDuration
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.trainprogram_total = trainProgramRandomDurationTextField.text; toast.show("Setting saved!"); }
-                                }
-                            }
+                    IndicatorOnlySwitch {
+                        id: trainprogramRandomDelegate
+                        text: qsTr("Training Program Random")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        Layout.fillWidth: true
+                        checked: settings.trainprogram_random
+                        onCheckedChanged: settings.trainprogram_random = checked
+                    }
 
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelTrainProgramRandomPeriod
-                                    text: qsTr("Period (seconds):")
-                                    Layout.fillWidth: true
-                                }
-                                TextField {
-                                    id: trainProgramRandomPeriodTextField
-                                    text: settings.trainprogram_period_seconds
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.trainprogram_period_seconds = text
-                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    id: okTrainProgramRandomPeriod
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.trainprogram_period_seconds = trainProgramRandomPeriodTextField.text; toast.show("Setting saved!"); }
-                                }
-                            }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRandomDuration
+                            text: qsTr("Duration (minutes):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRandomDurationTextField
+                            text: settings.trainprogram_total
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.trainprogram_total = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRandomDuration
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_total = trainProgramRandomDurationTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
 
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelTrainProgramRandomSpeedMin
-                                    text: qsTr("Speed min.:")
-                                    Layout.fillWidth: true
-                                }
-                                TextField {
-                                    id: trainProgramRandomSpeedMinTextField
-                                    text: settings.trainprogram_speed_min
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.trainprogram_speed_min = text
-                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    id: okTrainProgramRandomSpeedMin
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.trainprogram_speed_min = trainProgramRandomSpeedMinTextField.text; toast.show("Setting saved!"); }
-                                }
-                            }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRandomPeriod
+                            text: qsTr("Period (seconds):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRandomPeriodTextField
+                            text: settings.trainprogram_period_seconds
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.trainprogram_period_seconds = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRandomPeriod
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_period_seconds = trainProgramRandomPeriodTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
 
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelTrainProgramRandomSpeedMax
-                                    text: qsTr("Speed max.:")
-                                    Layout.fillWidth: true
-                                }
-                                TextField {
-                                    id: trainProgramRandomSpeedMaxTextField
-                                    text: settings.trainprogram_speed_max
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.trainprogram_speed_max = text
-                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    id: okTrainProgramRandomSpeedMax
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.trainprogram_speed_max = trainProgramRandomSpeedMaxTextField.text; toast.show("Setting saved!"); }
-                                }
-                            }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRandomSpeedMin
+                            text: qsTr("Speed min.:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRandomSpeedMinTextField
+                            text: settings.trainprogram_speed_min
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.trainprogram_speed_min = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRandomSpeedMin
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_speed_min = trainProgramRandomSpeedMinTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
 
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelTrainProgramRandomInclineMin
-                                    text: qsTr("Incline min.:")
-                                    Layout.fillWidth: true
-                                }
-                                TextField {
-                                    id: trainProgramRandomInclineMinTextField
-                                    text: settings.trainprogram_incline_min
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.trainprogram_incline_min = text
-                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    id: okTrainProgramRandomInclineMin
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.trainprogram_incline_min = trainProgramRandomInclineMinTextField.text; toast.show("Setting saved!"); }
-                                }
-                            }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRandomSpeedMax
+                            text: qsTr("Speed max.:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRandomSpeedMaxTextField
+                            text: settings.trainprogram_speed_max
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.trainprogram_speed_max = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRandomSpeedMax
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_speed_max = trainProgramRandomSpeedMaxTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
 
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelTrainProgramRandomInclineMax
-                                    text: qsTr("Incline max.:")
-                                    Layout.fillWidth: true
-                                }
-                                TextField {
-                                    id: trainProgramRandomInclineMaxTextField
-                                    text: settings.trainprogram_incline_max
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.trainprogram_incline_max = text
-                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    id: okTrainProgramRandomInclineMax
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.trainprogram_incline_max = trainProgramRandomInclineMaxTextField.text; toast.show("Setting saved!"); }
-                                }
-                            }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRandomInclineMin
+                            text: qsTr("Incline min.:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRandomInclineMinTextField
+                            text: settings.trainprogram_incline_min
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.trainprogram_incline_min = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRandomInclineMin
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_incline_min = trainProgramRandomInclineMinTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
 
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelTrainProgramRandomResistanceMin
-                                    text: qsTr("Resistance min.:")
-                                    Layout.fillWidth: true
-                                }
-                                TextField {
-                                    id: trainProgramRandomResistanceMinTextField
-                                    text: settings.trainprogram_resistance_min
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.trainprogram_resistance_min = text
-                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    id: okTrainProgramRandomResistanceMin
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.trainprogram_resistance_min = trainProgramRandomResistanceMinTextField.text; toast.show("Setting saved!"); }
-                                }
-                            }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRandomInclineMax
+                            text: qsTr("Incline max.:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRandomInclineMaxTextField
+                            text: settings.trainprogram_incline_max
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.trainprogram_incline_max = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRandomInclineMax
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_incline_max = trainProgramRandomInclineMaxTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
 
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelTrainProgramRandomResistanceMax
-                                    text: qsTr("Resistance max.:")
-                                    Layout.fillWidth: true
-                                }
-                                TextField {
-                                    id: trainProgramRandomResistanceMaxTextField
-                                    text: settings.trainprogram_resistance_max
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.trainprogram_resistance_max = text
-                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    id: okTrainProgramRandomResistanceMax
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.trainprogram_resistance_max = trainProgramRandomResistanceMaxTextField.text; toast.show("Setting saved!"); }
-                                }
-                            }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRandomResistanceMin
+                            text: qsTr("Resistance min.:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRandomResistanceMinTextField
+                            text: settings.trainprogram_resistance_min
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.trainprogram_resistance_min = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRandomResistanceMin
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_resistance_min = trainProgramRandomResistanceMinTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRandomResistanceMax
+                            text: qsTr("Resistance max.:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRandomResistanceMaxTextField
+                            text: settings.trainprogram_resistance_max
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.trainprogram_resistance_max = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRandomResistanceMax
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_resistance_max = trainProgramRandomResistanceMaxTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
