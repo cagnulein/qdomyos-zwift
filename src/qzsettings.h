@@ -844,9 +844,6 @@ class QZSettings {
     static const QString power_avg_5s;
     static constexpr bool default_power_avg_5s = false;
 
-    static const QString power_avg_5_sec_hold;
-    static constexpr bool default_power_avg_5_sec_hold = false;
-
     static const QString instant_power_on_pause;
     static constexpr bool default_instant_power_on_pause = false;
 
