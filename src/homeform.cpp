@@ -8626,19 +8626,18 @@ void homeform::garmin_upload_file_prepare() {
         return;
     }
 
-    // Read FIT file
-    QFile f(lastFitFileSaved);
-    if (!f.open(QFile::ReadOnly)) {
-        setToastRequested("Garmin: Failed to open FIT file");
-        return;
+    // Upload to Garmin Connect using new uploadFitFile method
+    qDebug() << "Garmin: Starting upload of" << lastFitFileSaved;
+    setToastRequested("Uploading to Garmin Connect...");
+
+    bool success = garminConnect->uploadFitFile(lastFitFileSaved);
+    if (success) {
+        qDebug() << "Garmin: Upload successful";
+        setToastRequested("Garmin: Upload successful!");
+    } else {
+        qDebug() << "Garmin: Upload failed:" << garminConnect->lastError();
+        setToastRequested("Garmin: Upload failed - " + garminConnect->lastError());
     }
-
-    QByteArray fitfile = f.readAll();
-    f.close();
-
-    // Upload to Garmin Connect
-    QString fileName = QFileInfo(lastFitFileSaved).fileName();
-    garminConnect->uploadActivity(fitfile, fileName);
 }
 
 bool homeform::generalPopupVisible() { return m_generalPopupVisible; }

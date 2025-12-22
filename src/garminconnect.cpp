@@ -3,6 +3,8 @@
 #include <QRegularExpression>
 #include <QRandomGenerator>
 #include <QHttpPart>
+#include <QHttpMultiPart>
+#include <QFileInfo>
 #include <QNetworkCookieJar>
 #include <QUrl>
 #include <QCryptographicHash>
@@ -37,6 +39,129 @@ void GarminConnect::logout()
     emit authenticated();
 }
 
+bool GarminConnect::uploadFitFile(const QString &fitFilePath)
+{
+    qDebug() << "GarminConnect: Uploading FIT file:" << fitFilePath;
+    m_lastError.clear();
+
+    // Check if authenticated
+    if (!isAuthenticated()) {
+        m_lastError = "Not authenticated. Please login first.";
+        qDebug() << "GarminConnect:" << m_lastError;
+        emit uploadFailed(m_lastError);
+        return false;
+    }
+
+    // Check if file exists
+    QFile fitFile(fitFilePath);
+    if (!fitFile.exists()) {
+        m_lastError = "FIT file does not exist: " + fitFilePath;
+        qDebug() << "GarminConnect:" << m_lastError;
+        emit uploadFailed(m_lastError);
+        return false;
+    }
+
+    if (!fitFile.open(QIODevice::ReadOnly)) {
+        m_lastError = "Failed to open FIT file: " + fitFile.errorString();
+        qDebug() << "GarminConnect:" << m_lastError;
+        emit uploadFailed(m_lastError);
+        return false;
+    }
+
+    QByteArray fitData = fitFile.readAll();
+    fitFile.close();
+
+    if (fitData.isEmpty()) {
+        m_lastError = "FIT file is empty";
+        qDebug() << "GarminConnect:" << m_lastError;
+        emit uploadFailed(m_lastError);
+        return false;
+    }
+
+    qDebug() << "GarminConnect: FIT file size:" << fitData.size() << "bytes";
+
+    // Prepare multipart form data
+    QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+
+    QHttpPart filePart;
+    filePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
+    filePart.setHeader(QNetworkRequest::ContentDispositionHeader,
+        QVariant("form-data; name=\"file\"; filename=\"" + QFileInfo(fitFilePath).fileName() + "\""));
+    filePart.setBody(fitData);
+    multiPart->append(filePart);
+
+    // Prepare request
+    QUrl url(connectApiUrl() + "/upload-service/upload/.fit");
+    QNetworkRequest request(url);
+    request.setRawHeader("User-Agent", USER_AGENT);
+
+    // Use OAuth2 Bearer token for authorization
+    QString authHeader = "Bearer " + m_oauth2Token.access_token;
+    request.setRawHeader("Authorization", authHeader.toUtf8());
+
+    qDebug() << "GarminConnect: Uploading to:" << url.toString();
+    qDebug() << "GarminConnect: Using OAuth2 access token (length:" << m_oauth2Token.access_token.length() << ")";
+
+    // Send POST request
+    QNetworkReply *reply = m_manager->post(request, multiPart);
+    multiPart->setParent(reply); // Delete multiPart with reply
+
+    QEventLoop loop;
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    QByteArray responseBody = reply->readAll();
+
+    qDebug() << "GarminConnect: Upload HTTP status code:" << statusCode;
+    qDebug() << "GarminConnect: Upload response:" << QString::fromUtf8(responseBody);
+
+    if (reply->error() != QNetworkReply::NoError) {
+        m_lastError = "Upload failed (HTTP " + QString::number(statusCode) + "): " + reply->errorString();
+        qDebug() << "GarminConnect:" << m_lastError;
+        reply->deleteLater();
+        emit uploadFailed(m_lastError);
+        return false;
+    }
+
+    // Parse JSON response
+    QJsonDocument doc = QJsonDocument::fromJson(responseBody);
+    if (!doc.isObject()) {
+        m_lastError = "Invalid JSON response from upload";
+        qDebug() << "GarminConnect:" << m_lastError;
+        reply->deleteLater();
+        emit uploadFailed(m_lastError);
+        return false;
+    }
+
+    QJsonObject obj = doc.object();
+
+    // Check for upload ID or success indicators
+    if (obj.contains("detailedImportResult")) {
+        QJsonObject importResult = obj["detailedImportResult"].toObject();
+        qDebug() << "GarminConnect: Upload successful!";
+        qDebug() << "GarminConnect: Upload ID:" << importResult["uploadId"].toVariant();
+
+        if (importResult.contains("failures") && !importResult["failures"].toArray().isEmpty()) {
+            QJsonArray failures = importResult["failures"].toArray();
+            qDebug() << "GarminConnect: Upload had failures:" << failures;
+            m_lastError = "Upload completed with failures: " + QString::fromUtf8(QJsonDocument(failures).toJson());
+            reply->deleteLater();
+            emit uploadFailed(m_lastError);
+            return false;
+        }
+
+        reply->deleteLater();
+        emit uploadSucceeded();
+        return true;
+    } else {
+        qDebug() << "GarminConnect: Upload successful (basic response)";
+        reply->deleteLater();
+        emit uploadSucceeded();
+        return true;
+    }
+}
+
 bool GarminConnect::login(const QString &email, const QString &password, const QString &mfaCode)
 {
     qDebug() << "GarminConnect: Starting login process...";
@@ -61,13 +186,15 @@ bool GarminConnect::login(const QString &email, const QString &password, const Q
     if (!performLogin(email, password)) {
         // Check if MFA is required
         if (m_lastError.contains("MFA", Qt::CaseInsensitive)) {
-            emit mfaRequired();
+            // Only emit mfaRequired if we don't already have an MFA code
+            // This prevents showing the MFA dialog multiple times when retrying with a code
             if (mfaCode.isEmpty()) {
+                emit mfaRequired();
                 m_lastError = "MFA code required";
                 emit authenticationFailed(m_lastError);
                 return false;
             }
-            // Perform MFA verification
+            // Perform MFA verification with provided code
             if (!performMfaVerification(mfaCode)) {
                 emit authenticationFailed(m_lastError);
                 return false;

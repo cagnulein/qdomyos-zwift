@@ -67,6 +67,13 @@ public:
     void logout();
 
     /**
+     * @brief Upload a FIT file to Garmin Connect
+     * @param fitFilePath Path to the FIT file to upload
+     * @return true if upload successful, false otherwise
+     */
+    bool uploadFitFile(const QString &fitFilePath);
+
+    /**
      * @brief Get the last error message
      * @return Error message string
      */
