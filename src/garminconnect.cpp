@@ -899,15 +899,25 @@ bool GarminConnect::exchangeForOAuth2Token()
     request.setRawHeader("User-Agent", USER_AGENT);
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
 
+    // Extract POST body parameters for OAuth1 signature
+    // Per OAuth1 spec: POST body params with application/x-www-form-urlencoded
+    // MUST be included in signature calculation
+    QMap<QString, QString> postBodyParamsMap;
+    if (!m_oauth1Token.mfa_token.isEmpty()) {
+        postBodyParamsMap["mfa_token"] = m_oauth1Token.mfa_token;
+    }
+
     // Generate OAuth1 signature for POST request with OAuth1 credentials
     // CRITICAL: Use FullyEncoded URL to match HTTP request encoding
+    // CRITICAL: Include POST body params in signature (OAuth1 RFC 5849, Section 3.4.1.3.1)
     QString authHeader = generateOAuth1AuthorizationHeader(
         "POST",
         url.toString(QUrl::FullyEncoded),
         consumerKey,
         consumerSecret,
         m_oauth1Token.oauth_token,
-        m_oauth1Token.oauth_token_secret
+        m_oauth1Token.oauth_token_secret,
+        postBodyParamsMap
     );
     request.setRawHeader("Authorization", authHeader.toUtf8());
 
@@ -1173,7 +1183,8 @@ QString GarminConnect::generateOAuth1AuthorizationHeader(
     const QString &consumerKey,
     const QString &consumerSecret,
     const QString &oauth_token,
-    const QString &oauth_token_secret)
+    const QString &oauth_token_secret,
+    const QMap<QString, QString> &postBodyParams)
 {
     // 1. Generate OAuth parameters
     QString nonce = generateNonce();
@@ -1243,8 +1254,20 @@ QString GarminConnect::generateOAuth1AuthorizationHeader(
         }
     }
 
+    // Add POST body parameters to signature
+    // Per OAuth1 spec (RFC 5849, Section 3.4.1.3.1): When Content-Type is
+    // application/x-www-form-urlencoded, POST body params MUST be included
+    if (!postBodyParams.isEmpty()) {
+        qDebug() << "GarminConnect: POST body parameters (for signature):";
+        for (auto it = postBodyParams.constBegin(); it != postBodyParams.constEnd(); ++it) {
+            qDebug() << "  KEY:" << it.key();
+            qDebug() << "  VALUE:" << it.value();
+            params[it.key()] = it.value();
+        }
+    }
+
     // 3. Create parameter string (sorted by key)
-    qDebug() << "GarminConnect: ALL parameters in signature (OAuth + Query):";
+    qDebug() << "GarminConnect: ALL parameters in signature (OAuth + Query + POST body):";
     QString parameterString;
     for (auto it = params.constBegin(); it != params.constEnd(); ++it) {
         qDebug() << "  KEY:" << it.key();

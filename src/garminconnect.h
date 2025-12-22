@@ -175,7 +175,8 @@ private:
         const QString &consumerKey,
         const QString &consumerSecret,
         const QString &oauth_token = "",
-        const QString &oauth_token_secret = ""
+        const QString &oauth_token_secret = "",
+        const QMap<QString, QString> &postBodyParams = QMap<QString, QString>()
     );
 
     QString generateOAuth1Signature(
