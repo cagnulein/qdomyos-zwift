@@ -934,14 +934,29 @@ bool GarminConnect::exchangeForOAuth2Token()
     connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
 
+    // Debug: Check HTTP status and response
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    QByteArray responseBody = reply->readAll();
+
+    qDebug() << "GarminConnect: OAuth2 HTTP status code:" << statusCode;
+    qDebug() << "GarminConnect: OAuth2 response body:" << QString::fromUtf8(responseBody);
+
     if (reply->error() != QNetworkReply::NoError) {
-        m_lastError = "OAuth2 exchange failed: " + reply->errorString();
+        m_lastError = "OAuth2 exchange failed (HTTP " + QString::number(statusCode) + "): " + reply->errorString();
         qDebug() << "GarminConnect:" << m_lastError;
         reply->deleteLater();
         return false;
     }
 
-    QJsonObject jsonResponse = extractJsonFromResponse(reply);
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(responseBody);
+    if (!jsonDoc.isObject()) {
+        m_lastError = "Invalid OAuth2 JSON response";
+        qDebug() << "GarminConnect:" << m_lastError;
+        reply->deleteLater();
+        return false;
+    }
+
+    QJsonObject jsonResponse = jsonDoc.object();
     reply->deleteLater();
 
     m_oauth2Token.access_token = jsonResponse["access_token"].toString();
