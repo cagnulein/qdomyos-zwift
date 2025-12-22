@@ -835,7 +835,17 @@ ApplicationWindow {
                     text: qsTr("Workout Editor")
                     width: parent.width
                     onClicked: {
-                        stackView.push("WorkoutEditor.qml")
+                        var editorPage = stackView.push("WorkoutEditor.qml")
+                        if (editorPage) {
+                            editorPage.closeRequested.connect(function() {
+                                stackView.pop()
+                            })
+                            // Close editor when workout is started from Save & Start
+                            trainprogram_autostart_requested.connect(function() {
+                                console.log("[main.qml] trainprogram_autostart_requested received, closing editor")
+                                editorPage.closeRequested()
+                            })
+                        }
                         drawer.close()
                     }
                 }

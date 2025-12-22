@@ -536,23 +536,25 @@ void treadmill::evaluateStepCount() {
     StepCount += (Cadence.lastChanged().msecsTo(QDateTime::currentDateTime())) * (Cadence.value() / 60000) * 2.0;
 }
 
-void treadmill::cadenceFromAppleWatch() {
+bool treadmill::cadenceFromAppleWatch() {
     QSettings settings;
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
-        lockscreen h;
+    lockscreen h;
+    if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {        
         evaluateStepCount();
         Cadence = h.getFootCad();
         qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
-    } else if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+        return true;
+    } else if (h.appleWatchAppInstalled() && 
+                settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                    .toString()
                    .startsWith(QStringLiteral("Disabled"))) {
-        lockscreen h;
         evaluateStepCount();
         long appleWatchCadence = h.stepCadence();
         Cadence = appleWatchCadence;
         qDebug() << QStringLiteral("Current Cadence: ") << QString::number(Cadence.value());
+        return true;
     }
 #endif
 #endif
@@ -562,8 +564,11 @@ void treadmill::cadenceFromAppleWatch() {
         evaluateStepCount();
         Cadence = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
         qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
+        return true;
     }
 #endif    
+
+    return false;
 }
 
 double treadmill::calculateCadenceFromSpeed(double speed) {

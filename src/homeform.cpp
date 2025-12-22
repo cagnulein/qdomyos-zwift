@@ -200,6 +200,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         new DataObject(QStringLiteral("Pace (m/") + unit + QStringLiteral(")"), QStringLiteral("icons/icons/pace.png"),
                        QStringLiteral("0:00"), false, QStringLiteral("pace"), 48, labelFontSize);
 
+    avg_pace =
+        new DataObject(QStringLiteral("Avg Pace (m/") + unit + QStringLiteral(")"), QStringLiteral("icons/icons/pace.png"),
+                       QStringLiteral("0:00"), false, QStringLiteral("avg_pace"), 48, labelFontSize);
+
     target_pace =
         new DataObject(QStringLiteral("T.Pace(m/") + unit + QStringLiteral(")"), QStringLiteral("icons/icons/pace.png"),
                        QStringLiteral("0:00"), false, QStringLiteral("pace"), 48, labelFontSize);
@@ -1644,6 +1648,12 @@ void homeform::sortTiles() {
                 dataList.append(pace);
             }
 
+            if (settings.value(QZSettings::tile_avg_pace_enabled, QZSettings::default_tile_avg_pace_enabled).toBool() &&
+                settings.value(QZSettings::tile_avg_pace_order, QZSettings::default_tile_avg_pace_order).toInt() == i) {
+                avg_pace->setGridId(i);
+                dataList.append(avg_pace);
+            }
+
             if (settings.value(QZSettings::tile_watt_enabled, true).toBool() &&
                 settings.value(QZSettings::tile_watt_order, 0).toInt() == i) {
                 watt->setGridId(i);
@@ -2025,6 +2035,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_pace_order, 0).toInt() == i) {
                 pace->setGridId(i);
                 dataList.append(pace);
+            }
+
+            if (settings.value(QZSettings::tile_avg_pace_enabled, QZSettings::default_tile_avg_pace_enabled).toBool() &&
+                settings.value(QZSettings::tile_avg_pace_order, QZSettings::default_tile_avg_pace_order).toInt() == i) {
+                avg_pace->setGridId(i);
+                dataList.append(avg_pace);
             }
 
             if (settings.value(QZSettings::tile_watt_enabled, true).toBool() &&
@@ -2987,6 +3003,13 @@ void homeform::sortTiles() {
                 dataList.append(pace);
             }
 
+            if (settings.value(QZSettings::tile_avg_pace_enabled, QZSettings::default_tile_avg_pace_enabled).toBool() &&
+                settings.value(QZSettings::tile_avg_pace_order, QZSettings::default_tile_avg_pace_order).toInt() == i) {
+                avg_pace->setGridId(i);
+                avg_pace->setName("Avg Pace (m/500m)");
+                dataList.append(avg_pace);
+            }
+
             if (settings.value(QZSettings::tile_watt_kg_enabled, false).toBool() &&
                 settings.value(QZSettings::tile_watt_kg_order, 24).toInt() == i) {
                 wattKg->setGridId(i);
@@ -3343,6 +3366,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_pace_order, 0).toInt() == i) {
                 pace->setGridId(i);
                 dataList.append(pace);
+            }
+
+            if (settings.value(QZSettings::tile_avg_pace_enabled, QZSettings::default_tile_avg_pace_enabled).toBool() &&
+                settings.value(QZSettings::tile_avg_pace_order, QZSettings::default_tile_avg_pace_order).toInt() == i) {
+                avg_pace->setGridId(i);
+                dataList.append(avg_pace);
             }
 
             if (settings.value(QZSettings::tile_watt_kg_enabled, false).toBool() &&
@@ -5645,6 +5674,11 @@ void homeform::update() {
                 ((treadmill *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
                 QStringLiteral(" MAX: ") +
                 ((treadmill *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
+            this->avg_pace->setValue(
+                ((treadmill *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")));
+            this->avg_pace->setSecondLine(
+                QStringLiteral("MAX: ") +
+                ((treadmill *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->target_power->setValue(
                 QString::number(((treadmill *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
             this->inclination->setValue(QString::number(inclination, 'f', 1));
@@ -5819,6 +5853,11 @@ void homeform::update() {
                 QStringLiteral("AVG: ") +
                 ((stairclimber *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
                 QStringLiteral(" MAX: ") +
+                ((stairclimber *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
+            this->avg_pace->setValue(
+                ((stairclimber *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")));
+            this->avg_pace->setSecondLine(
+                QStringLiteral("MAX: ") +
                 ((stairclimber *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine(
@@ -5998,6 +6037,11 @@ void homeform::update() {
                 ((rower *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
                 QStringLiteral(" MAX: ") +
                 ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
+            this->avg_pace->setValue(
+                ((rower *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")));
+            this->avg_pace->setSecondLine(
+                QStringLiteral("MAX: ") +
+                ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->target_pace->setValue(
                 ((rower *)bluetoothManager->device())->lastRequestedPace().toString(QStringLiteral("m:ss")));
             if (trainProgram) {
@@ -6150,6 +6194,11 @@ void homeform::update() {
                     ((jumprope *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
                     QStringLiteral(" MAX: ") +
                     ((jumprope *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
+                this->avg_pace->setValue(
+                    ((jumprope *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")));
+                this->avg_pace->setSecondLine(
+                    QStringLiteral("MAX: ") +
+                    ((jumprope *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
                 this->inclination->setValue(QString::number(inclination, 'f', 0));
                 this->inclination->setSecondLine("");
                 this->stepCount->setValue(QString::number(stepCount, 'f', 0));
@@ -6169,6 +6218,11 @@ void homeform::update() {
                 QStringLiteral("AVG: ") +
                 ((elliptical *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
                 QStringLiteral(" MAX: ") +
+                ((elliptical *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
+            this->avg_pace->setValue(
+                ((elliptical *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")));
+            this->avg_pace->setSecondLine(
+                QStringLiteral("MAX: ") +
                 ((elliptical *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             resistance = ((elliptical *)bluetoothManager->device())->currentResistance().value();

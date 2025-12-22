@@ -378,6 +378,12 @@ class QZSettings {
     static const QString tile_pace_order;
     static constexpr int default_tile_pace_order = 6;
 
+    static const QString tile_avg_pace_enabled;
+    static constexpr bool default_tile_avg_pace_enabled = false;
+
+    static const QString tile_avg_pace_order;
+    static constexpr int default_tile_avg_pace_order = 76;
+
     static const QString tile_resistance_enabled;
     static constexpr bool default_tile_resistance_enabled = true;
 

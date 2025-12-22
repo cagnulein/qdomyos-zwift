@@ -467,11 +467,13 @@
             base.__enabled_cadence = true;
             break;
         default:
-            // treadmill
+            // treadmill - duration is enabled by default, distance is disabled (mutually exclusive)
             base.speed = state.miles ? 6.0 : 9.5;
             base.__enabled_speed = true;
             base.inclination = 1.0;
             base.__enabled_inclination = true;
+            base.__enabled_duration = true;
+            base.__enabled_distance = false;
             break;
         }
         base.__selected = false;
@@ -547,11 +549,13 @@
                     fieldWrap.classList.add('disabled');
                 }
 
-                // Create label with enable/disable checkbox (except for name, duration, linked fields, and synced fields like pace)
+                // Create label with enable/disable checkbox (except for name, linked fields, and synced fields like pace)
+                // Duration can be disabled for treadmill (mutually exclusive with distance)
                 const labelWrap = document.createElement('label');
                 labelWrap.className = 'field-label';
 
-                if (field.key !== 'name' && field.key !== 'duration' && !field.linkedTo && !field.syncWith) {
+                const allowToggle = field.key !== 'name' && !field.linkedTo && !field.syncWith;
+                if (allowToggle) {
                     const enableCheckbox = document.createElement('input');
                     enableCheckbox.type = 'checkbox';
                     enableCheckbox.checked = isEnabled;
@@ -573,6 +577,14 @@
                             if (field.key === 'speed') {
                                 row['__enabled_forcespeed'] = true;
                                 row['forcespeed'] = false; // default to false
+                            }
+                            // For treadmill: duration and distance are mutually exclusive
+                            if (state.device === 'treadmill') {
+                                if (field.key === 'distance') {
+                                    row['__enabled_duration'] = false;
+                                } else if (field.key === 'duration') {
+                                    row['__enabled_distance'] = false;
+                                }
                             }
                         } else {
                             fieldWrap.classList.add('disabled');
@@ -863,16 +875,20 @@
     }
 
     function saveWorkflow(startAfter) {
+        console.log('[saveWorkflow] Called with startAfter:', startAfter);
         if (window.QZ_OFFLINE) {
             announce('Offline: cannot save workouts', true);
             return;
         }
         const payload = buildPayload();
         if (!payload) {
+            console.error('[saveWorkflow] No payload generated');
             return;
         }
+        console.log('[saveWorkflow] Payload name:', payload.name);
         setWorking(true);
         sendMessage('savetrainingprogram', payload, 'R_savetrainingprogram').then(content => {
+            console.log('[saveWorkflow] Save response:', content);
             if (!content) {
                 announce('Save failed', true);
                 return;
@@ -881,40 +897,94 @@
             selectors.name.value = payload.name;
             announce(`Saved ${payload.name}`);
 
+            console.log('[saveWorkflow] Refreshing program list...');
             return refreshProgramList().then(() => {
+                console.log('[saveWorkflow] Program list refreshed. programFiles:', Object.keys(state.programFiles));
                 selectors.programSelect.value = payload.name;
                 if (startAfter) {
-                    // Verify file exists in program list before starting
-                    if (state.programs.includes(payload.name)) {
-                        console.log('File verified in list, starting workout');
-                        return startProgram(payload.name);
-                    } else {
-                        announce('Workout file not ready, please try again', true);
-                        console.error('File not found in programs list after save');
+                    console.log('[saveWorkflow] startAfter is true, checking for file:', payload.name);
+
+                    // Try to find file with exact name or with common extensions
+                    let foundFileName = null;
+                    if (state.programFiles[payload.name]) {
+                        foundFileName = payload.name;
+                    } else if (state.programFiles[payload.name + '.xml']) {
+                        foundFileName = payload.name + '.xml';
+                    } else if (state.programFiles[payload.name + '.zwo']) {
+                        foundFileName = payload.name + '.zwo';
                     }
+
+                    // Verify file exists in program files map before starting
+                    if (foundFileName) {
+                        console.log('[saveWorkflow] File verified in list as:', foundFileName);
+                        return startProgram(foundFileName);
+                    } else {
+                        // If not found immediately, wait a bit and try again
+                        console.log('[saveWorkflow] File not immediately available, retrying...');
+                        return new Promise(resolve => setTimeout(resolve, 300)).then(() => {
+                            console.log('[saveWorkflow] Retry: refreshing program list again...');
+                            return refreshProgramList();
+                        }).then(() => {
+                            console.log('[saveWorkflow] Retry: programFiles:', Object.keys(state.programFiles));
+
+                            // Try again with extensions
+                            let retryFileName = null;
+                            if (state.programFiles[payload.name]) {
+                                retryFileName = payload.name;
+                            } else if (state.programFiles[payload.name + '.xml']) {
+                                retryFileName = payload.name + '.xml';
+                            } else if (state.programFiles[payload.name + '.zwo']) {
+                                retryFileName = payload.name + '.zwo';
+                            }
+
+                            if (retryFileName) {
+                                console.log('[saveWorkflow] File found after retry as:', retryFileName);
+                                return startProgram(retryFileName);
+                            } else {
+                                announce('Workout file not ready, please try again', true);
+                                console.error('[saveWorkflow] File not found in programs list after save and retry');
+                                console.error('[saveWorkflow] Available files:', Object.keys(state.programFiles));
+                                console.error('[saveWorkflow] Looking for:', payload.name, 'or', payload.name + '.xml', 'or', payload.name + '.zwo');
+                            }
+                        });
+                    }
+                } else {
+                    console.log('[saveWorkflow] startAfter is false, not starting workout');
                 }
             });
         }).catch(err => {
-            console.error(err);
+            console.error('[saveWorkflow] Error:', err);
             announce('Unable to save workout', true);
         }).finally(() => setWorking(false));
     }
 
     function startProgram(name) {
+        console.log('[startProgram] Called with name:', name);
         if (window.QZ_OFFLINE) {
             announce('Offline: cannot start workouts', true);
             return Promise.resolve();
         }
-        return sendMessage('workouteditor_start', { name }, 'R_workouteditor_start').then(resp => {
-            if (!resp || !resp.ok) {
-                announce('Unable to start workout', true);
-                return;
-            }
+
+        // Get the file object for the saved workout
+        const fileObj = state.programFiles[name];
+        console.log('[startProgram] fileObj:', fileObj);
+        if (!fileObj || !fileObj.url) {
+            console.error('[startProgram] Cannot find workout file for:', name);
+            announce('Cannot find workout file', true);
+            return Promise.resolve();
+        }
+
+        // Use the same pattern as training browser: open then autostart
+        console.log('[startProgram] Sending trainprogram_open_clicked with url:', fileObj.url);
+        sendMessage('trainprogram_open_clicked', { url: fileObj.url });
+
+        setTimeout(() => {
+            console.log('[startProgram] Sending trainprogram_autostart_requested');
+            sendMessage('trainprogram_autostart_requested', {});
             announce('Workout started');
-        }).catch(err => {
-            console.error(err);
-            announce('Unable to start workout', true);
-        });
+        }, 100);
+
+        return Promise.resolve();
     }
 
     function buildPayload() {
@@ -1025,7 +1095,19 @@
         }));
 
         state.intervals.forEach(interval => {
-            const duration = parseDuration(interval.duration);
+            // For treadmill: if distance is used instead of duration, calculate duration from speed
+            let duration;
+            const hasDistance = interval.__enabled_distance !== false && interval.distance > 0;
+            const hasSpeed = interval.__enabled_speed !== false && interval.speed > 0;
+
+            if (state.device === 'treadmill' && hasDistance && hasSpeed) {
+                // Calculate duration from distance and speed: duration (sec) = distance (km) / speed (km/h) * 3600
+                duration = (parseFloat(interval.distance) / parseFloat(interval.speed)) * 3600;
+            } else {
+                // Use duration field
+                duration = parseDuration(interval.duration);
+            }
+
             if (!duration) {
                 return;
             }
