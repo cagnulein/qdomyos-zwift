@@ -237,7 +237,7 @@ class bluetoothdevice : public QObject {
         QSettings settings;
         bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
         if (power5s)
-            return wattsMetric().average5s();
+            return wattsMetric().average5sHarmonic();
         else
             return wattsMetric().value();
     }

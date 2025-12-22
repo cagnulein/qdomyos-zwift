@@ -189,6 +189,29 @@ double metric::average5s() {
     }
 }
 
+double metric::average5sHarmonic() {
+    if (m_last5.count() == 0)
+        return 0;
+    else {
+        double reciprocalSum = 0;
+        uint8_t c = 0;
+        QMutableListIterator<double> i(m_last5);
+        while (i.hasNext()) {
+            double b = i.next();
+            // If any value is 0, return 0 immediately
+            if (b == 0.0)
+                return 0.0;
+            reciprocalSum += (1.0 / b);
+            c++;
+        }
+
+        if (c > 0)
+            return (c / reciprocalSum);  // Harmonic mean: n / (1/x1 + 1/x2 + ... + 1/xn)
+        else
+            return 0;
+    }
+}
+
 double metric::average20s() {
     if (m_last20.count() == 0)
         return 0;

@@ -239,7 +239,7 @@ void bike::clearStats() {
     WattKg.clear(false);
     for(int i=0; i<maxHeartZone(); i++) {
         hrZonesSeconds[i].clear(false);
-    }    
+    }
 }
 
 void bike::setPaused(bool p) {
