@@ -119,6 +119,8 @@ const QString QZSettings::tile_odometer_enabled = QStringLiteral("tile_odometer_
 const QString QZSettings::tile_odometer_order = QStringLiteral("tile_odometer_order");
 const QString QZSettings::tile_pace_enabled = QStringLiteral("tile_pace_enabled");
 const QString QZSettings::tile_pace_order = QStringLiteral("tile_pace_order");
+const QString QZSettings::tile_avg_pace_enabled = QStringLiteral("tile_avg_pace_enabled");
+const QString QZSettings::tile_avg_pace_order = QStringLiteral("tile_avg_pace_order");
 const QString QZSettings::tile_resistance_enabled = QStringLiteral("tile_resistance_enabled");
 const QString QZSettings::tile_resistance_order = QStringLiteral("tile_resistance_order");
 const QString QZSettings::tile_watt_enabled = QStringLiteral("tile_watt_enabled");
@@ -1011,7 +1013,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 826;
+const uint32_t allSettingsCount = 828;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
