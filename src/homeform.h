@@ -220,6 +220,7 @@ class homeform : public QObject {
   public:
     static homeform *singleton() { return m_singleton; }
     bluetooth *bluetoothManager;
+    QQmlApplicationEngine *getEngine() { return engine; }
 
     QByteArray currentPelotonImage();
     Q_INVOKABLE void save_screenshot() {
