@@ -363,9 +363,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
             return;
 
         // Check for valid speed packet header: a5 20 06, a5 21 06, or a5 23 06
-        bool isValidSpeedPacket = ((uint8_t)newValue[0] == 0xa5 &&
-                                   ((uint8_t)newValue[1] == 0x20 || (uint8_t)newValue[1] == 0x21 || (uint8_t)newValue[1] == 0x23) &&
-                                   (uint8_t)newValue[2] == 0x06);
+        bool isValidSpeedPacket = ((uint8_t)newValue[0] == 0xa5);
         if (!isValidSpeedPacket) {
             if (newValue.contains(actualPaceSign) || newValue.contains(actualPace2Sign)) {
                 emit debug(QStringLiteral("ZR8: Ignoring non-speed packet with pace signature"));
@@ -471,6 +469,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
