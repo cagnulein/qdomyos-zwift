@@ -6530,7 +6530,11 @@ import Qt.labs.platform 1.1
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.garmin_email = garminEmailTextField.text; toast.show("Setting saved!"); }
+                            onClicked: {
+                                rootItem.garmin_connect_logout();
+                                settings.garmin_email = garminEmailTextField.text;
+                                toast.show("Setting saved!");
+                            }
                         }
                     }
 
@@ -6553,7 +6557,11 @@ import Qt.labs.platform 1.1
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.garmin_password = garminPasswordTextField.text; toast.show("Setting saved!"); }
+                            onClicked: {
+                                rootItem.garmin_connect_logout();
+                                settings.garmin_password = garminPasswordTextField.text;
+                                toast.show("Setting saved!");
+                            }
                         }
                     }
 

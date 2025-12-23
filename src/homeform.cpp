@@ -8601,6 +8601,15 @@ void homeform::garmin_submit_mfa_code(const QString &mfaCode) {
     garminConnect->submitMfaCode(mfaCode);
 }
 
+void homeform::garmin_connect_logout() {
+    qDebug() << "Garmin Connect logout requested";
+
+    if (garminConnect) {
+        garminConnect->logout();
+        qDebug() << "Garmin Connect: Logged out and tokens cleared";
+    }
+}
+
 void homeform::garmin_upload_file_prepare() {
     qDebug() << "Garmin upload file prepare" << lastFitFileSaved;
 
