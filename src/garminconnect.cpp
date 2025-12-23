@@ -185,8 +185,9 @@ bool GarminConnect::login(const QString &email, const QString &password, const Q
     }
 
     // Step 3: Perform login
+    // If we have an MFA code, suppress the mfaRequired signal since we're retrying with the code
     QString ticket;
-    if (!performLogin(email, password)) {
+    if (!performLogin(email, password, !mfaCode.isEmpty())) {
         // Check if MFA is required
         if (m_lastError.contains("MFA", Qt::CaseInsensitive)) {
             // Only emit mfaRequired if we don't already have an MFA code
@@ -316,7 +317,7 @@ bool GarminConnect::fetchCsrfToken()
     return true;
 }
 
-bool GarminConnect::performLogin(const QString &email, const QString &password)
+bool GarminConnect::performLogin(const QString &email, const QString &password, bool suppressMfaSignal)
 {
     qDebug() << "GarminConnect: Performing login...";
 
@@ -459,8 +460,12 @@ bool GarminConnect::performLogin(const QString &email, const QString &password)
 
         mfaReply->deleteLater();
 
-        qDebug() << "GarminConnect: Emitting mfaRequired signal";
-        emit mfaRequired();
+        if (!suppressMfaSignal) {
+            qDebug() << "GarminConnect: Emitting mfaRequired signal";
+            emit mfaRequired();
+        } else {
+            qDebug() << "GarminConnect: MFA required but signal suppressed (retrying with MFA code)";
+        }
         return false;
     }
 
@@ -485,7 +490,9 @@ bool GarminConnect::performLogin(const QString &email, const QString &password)
         // Update cookies
         m_cookies = m_manager->cookieJar()->cookiesForUrl(url);
 
-        emit mfaRequired();
+        if (!suppressMfaSignal) {
+            emit mfaRequired();
+        }
         reply->deleteLater();
         return false;
     }

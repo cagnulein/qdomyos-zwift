@@ -161,7 +161,7 @@ private:
 
     bool fetchCookies();
     bool fetchCsrfToken();
-    bool performLogin(const QString &email, const QString &password);
+    bool performLogin(const QString &email, const QString &password, bool suppressMfaSignal = false);
     bool performMfaVerification(const QString &mfaCode);
     bool exchangeForOAuth1Token(const QString &ticket);
     bool exchangeForOAuth2Token();
