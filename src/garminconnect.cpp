@@ -11,6 +11,9 @@
 #include <QMessageAuthenticationCode>
 #include <QUuid>
 #include <QDateTime>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 GarminConnect::GarminConnect(QObject *parent)
     : QObject(parent)
