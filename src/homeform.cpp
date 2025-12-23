@@ -8564,6 +8564,14 @@ void homeform::garmin_connect_login() {
         });
     }
 
+    // Check if already authenticated before attempting login
+    if (garminConnect->isAuthenticated()) {
+        qDebug() << "Garmin Connect: Already authenticated, skipping login";
+        setToastRequested("Garmin Connect: Already authenticated!");
+        emit garminConnect->authenticated();  // Emit signal to trigger any waiting handlers
+        return;
+    }
+
     // Perform login
     bool success = garminConnect->login(email, password);
     if (!success) {
@@ -8587,16 +8595,12 @@ void homeform::garmin_submit_mfa_code(const QString &mfaCode) {
     // Close the MFA dialog
     setGarminMfaRequested(false);
 
-    // Get credentials from settings
-    QSettings settings;
-    QString email = settings.value(QZSettings::garmin_email, QZSettings::default_garmin_email).toString();
-    QString password = settings.value(QZSettings::garmin_password, QZSettings::default_garmin_password).toString();
-
-    // Retry login with MFA code
+    // Submit MFA code to continue authentication (no need to restart login flow)
     setToastRequested("Submitting MFA code...");
-    bool success = garminConnect->login(email, password, mfaCode);
+    bool success = garminConnect->submitMfaCode(mfaCode);
     if (!success) {
-        qDebug() << "Garmin MFA login failed:" << garminConnect->lastError();
+        qDebug() << "Garmin MFA submission failed:" << garminConnect->lastError();
+        setToastRequested("Garmin MFA failed: " + garminConnect->lastError());
     }
 }
 
@@ -8611,6 +8615,7 @@ void homeform::garmin_upload_file_prepare() {
         return;
     }
 
+    // Check if Garmin Connect is initialized and authenticated
     if (!garminConnect) {
         qDebug() << "Garmin Connect not initialized, attempting login first...";
         garmin_connect_login();
@@ -8619,8 +8624,18 @@ void homeform::garmin_upload_file_prepare() {
         QEventLoop loop;
         QTimer::singleShot(2000, &loop, &QEventLoop::quit);
         loop.exec();
+    } else if (!garminConnect->isAuthenticated()) {
+        // Already initialized but not authenticated - attempt login
+        qDebug() << "Garmin Connect not authenticated, attempting login...";
+        garmin_connect_login();
+
+        // Give it a moment to authenticate
+        QEventLoop loop;
+        QTimer::singleShot(2000, &loop, &QEventLoop::quit);
+        loop.exec();
     }
 
+    // Final check before upload
     if (!garminConnect || !garminConnect->isAuthenticated()) {
         setToastRequested("Garmin: Not authenticated. Please login first.");
         return;

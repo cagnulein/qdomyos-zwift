@@ -170,6 +170,10 @@ bool GarminConnect::login(const QString &email, const QString &password, const Q
     qDebug() << "GarminConnect: Starting login process...";
     m_lastError.clear();
 
+    // Store credentials for MFA flow continuation
+    m_pendingEmail = email;
+    m_pendingPassword = password;
+
     // Step 1: Fetch cookies from embed endpoint
     if (!fetchCookies()) {
         m_lastError = "Failed to fetch cookies";
@@ -207,6 +211,28 @@ bool GarminConnect::login(const QString &email, const QString &password, const Q
             emit authenticationFailed(m_lastError);
             return false;
         }
+    }
+
+    qDebug() << "GarminConnect: Login successful!";
+    emit authenticated();
+    return true;
+}
+
+bool GarminConnect::submitMfaCode(const QString &mfaCode)
+{
+    qDebug() << "GarminConnect: Submitting MFA code (continuing authentication flow)...";
+    m_lastError.clear();
+
+    if (mfaCode.isEmpty()) {
+        m_lastError = "MFA code cannot be empty";
+        emit authenticationFailed(m_lastError);
+        return false;
+    }
+
+    // Perform MFA verification - this will handle OAuth1/OAuth2 exchange internally
+    if (!performMfaVerification(mfaCode)) {
+        emit authenticationFailed(m_lastError);
+        return false;
     }
 
     qDebug() << "GarminConnect: Login successful!";

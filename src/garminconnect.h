@@ -74,6 +74,14 @@ public:
     bool uploadFitFile(const QString &fitFilePath);
 
     /**
+     * @brief Submit MFA code to continue authentication
+     * Call this after mfaRequired() signal is emitted
+     * @param mfaCode The MFA/2FA code from authenticator app or email
+     * @return true if authentication successful, false otherwise
+     */
+    bool submitMfaCode(const QString &mfaCode);
+
+    /**
      * @brief Get the last error message
      * @return Error message string
      */
@@ -149,6 +157,10 @@ private:
     OAuth1Token m_oauth1Token;
     OAuth2Token m_oauth2Token;
 
+    // MFA flow state (stored during login to avoid re-requesting MFA)
+    QString m_pendingEmail;
+    QString m_pendingPassword;
+
     // Constants
     static constexpr const char* USER_AGENT = "com.garmin.android.apps.connectmobile";
     static constexpr const char* SSO_URL_PATH = "/sso/signin";
@@ -166,6 +178,7 @@ private:
     bool exchangeForOAuth1Token(const QString &ticket);
     bool exchangeForOAuth2Token();
     bool refreshOAuth2Token();
+    bool completeOAuthFlow();  // Complete OAuth1/OAuth2 exchange after MFA
 
     void loadTokensFromSettings();
     void saveTokensToSettings();
