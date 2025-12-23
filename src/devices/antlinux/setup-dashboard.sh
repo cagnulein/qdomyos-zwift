@@ -3647,8 +3647,10 @@ perform_ant_test() {
             fi
             # Render using draw_instructions_bottom which will crop/paginate
             # to the available info panel height (LOG_TOP..LOG_BOTTOM).
-            draw_bottom_panel_header "ANT+ BROADCAST TEST"
-            draw_instructions_bottom "$panel_msg"
+            # Use the error panel for the broadcast test output so users
+            # must acknowledge the failure/details. Expand \n escapes
+            # into real newlines before passing to the error renderer.
+            draw_error_screen "ANT+ BROADCAST TEST" "$(printf '%b' "$panel_msg")" 1
             break
         fi
 

@@ -32,6 +32,26 @@ except ImportError:
     print("ERROR: pyusb library not found. Please run 'pip install pyusb' in your venv.")
     sys.exit(1)
 
+# Quick check: ensure the ant_broadcaster module/file is available so the
+# user sees a helpful error message instead of a raw ModuleNotFoundError.
+try:
+    from importlib.util import find_spec
+except Exception:
+    find_spec = None
+
+bb_path = Path(__file__).parent / 'ant_broadcaster.py'
+spec_available = False
+if find_spec is not None:
+    try:
+        spec_available = find_spec('ant_broadcaster') is not None
+    except Exception:
+        spec_available = False
+
+if not spec_available and not bb_path.exists():
+    sys.stderr.write("ERROR: Required module 'ant_broadcaster' not found.\n")
+    sys.stderr.write("Place 'ant_broadcaster.py' next to this script.\n")
+    sys.exit(1)
+
 from ant_broadcaster import AntBroadcaster
 
 """
