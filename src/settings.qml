@@ -1227,13 +1227,19 @@ import Qt.labs.platform 1.1
             property string intervalsicu_athlete_id: ""
             property bool intervalsicu_upload_enabled: true
             property string intervalsicu_suffix: "#QZ"
-            property bool intervalsicu_date_prefix: false
+            property bool intervalsicu_date_prefix: false            
+
             property bool proform_treadmill_sport_3_0: false
             property bool rouvy_compatibility: false
             property bool tile_negative_inclination_enabled: false
             property int tile_negative_inclination_order: 75
             property bool tile_avg_pace_enabled: false
             property int  tile_avg_pace_order: 76
+
+            // Garmin connect
+            property string garmin_email: ""
+            property string garmin_password: ""
+            property bool garmin_upload_enabled: false
         }
 
 
@@ -6463,6 +6469,345 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
+                    Label {
+                        id: garminConnectLabel
+                        text: qsTr("Garmin Connect")
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Enable Garmin Upload")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.garmin_upload_enabled
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.garmin_upload_enabled = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("Enable automatic upload of FIT files to Garmin Connect after workouts.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Garmin Email:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: garminEmailTextField
+                            text: settings.garmin_email
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.garmin_email = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.garmin_email = garminEmailTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Garmin Password:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: garminPasswordTextField
+                            text: settings.garmin_password
+                            echoMode: TextInput.Password
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.garmin_password = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.garmin_password = garminPasswordTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Button {
+                        text: "Test Garmin Login"
+                        Layout.alignment: Qt.AlignHCenter
+                        onClicked: { rootItem.garmin_connect_login(); }
+                    }
+
+                    // MFA Dialog
+                    Popup {
+                        id: garminMfaDialog
+                        modal: true
+                        focus: true
+                        closePolicy: Popup.CloseOnEscape
+                        anchors.centerIn: Overlay.overlay
+                        width: Math.min(parent.width * 0.9, 400)
+
+                        visible: rootItem.garminMfaRequested
+
+                        ColumnLayout {
+                            anchors.fill: parent
+                            spacing: 20
+
+                            Label {
+                                text: "Garmin MFA Required"
+                                font.pixelSize: 18
+                                font.bold: true
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignHCenter
+                            }
+
+                            Label {
+                                text: "Garmin has sent a verification code to your email.\nPlease enter it below:"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignHCenter
+                            }
+
+                            TextField {
+                                id: mfaCodeTextField
+                                placeholderText: "Enter MFA code"
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 40
+                                font.pixelSize: 16
+
+                                onAccepted: {
+                                    if (text.length > 0) {
+                                        rootItem.garmin_submit_mfa_code(text);
+                                        text = "";
+                                    }
+                                }
+                            }
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 10
+
+                                Button {
+                                    text: "Cancel"
+                                    Layout.fillWidth: true
+                                    onClicked: {
+                                        mfaCodeTextField.text = "";
+                                        rootItem.garminMfaRequested = false;
+                                    }
+                                }
+
+                                Button {
+                                    text: "Submit"
+                                    Layout.fillWidth: true
+                                    highlighted: true
+                                    enabled: mfaCodeTextField.text.length > 0
+                                    onClicked: {
+                                        rootItem.garmin_submit_mfa_code(mfaCodeTextField.text);
+                                        mfaCodeTextField.text = "";
+                                    }
+                                }
+                            }
+                        }
+
+                        onVisibleChanged: {
+                            if (visible) {
+                                mfaCodeTextField.forceActiveFocus();
+                            }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Enter your Garmin Connect credentials to enable automatic upload. Your password is stored locally and securely.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Use Garmin device in the FIT file")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.fit_file_garmin_device_training_effect
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.fit_file_garmin_device_training_effect = checked; window.settings_restart_to_apply = false; }
+                    }
+
+                    Label {
+                        text: qsTr("With this enabled, QZ will write the FIT file as a Garmin device so Garmin will consider this fit file for the training effect. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    Label {
+                        text: qsTr("Garmin device for FIT file")
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                    }
+
+                    ComboBox {
+                        id: garminDeviceComboBoxDelegate
+                        model: [
+                            "Edge 130 (2909)",
+                            "Edge 200 (1325)",
+                            "Edge 520 (2067)",
+                            "Edge 530 (3121)",
+                            "Edge 810 (1567)",
+                            "Edge 820 (2530)",
+                            "Edge 830 (3122)",
+                            "Edge 1000 (1836)",
+                            "Edge 1030 (2713)",
+                            "Edge Explore (3011)",
+                            "Fenix (1551)",
+                            "Fenix 2 (1967)",
+                            "Fenix 3 (2050)",
+                            "Fenix 3 HR (2413)",
+                            "Fenix 3 Chronos (2432)",
+                            "Fenix 5 (2697)",
+                            "Fenix 5S (2544)",
+                            "Fenix 5X (2604)",
+                            "Fenix 5S Plus (2900)",
+                            "Fenix 5 Plus (3110)",
+                            "Fenix 5X Plus (3111)",
+                            "Fenix 6 (3290)",
+                            "Fenix 6S (3288)",
+                            "Fenix 6X (3291)",
+                            "Fenix 7 (3906)",
+                            "Fenix 7S (3905)",
+                            "Fenix 7X (3907)",
+                            "Fenix 8 (4536)",
+                            "Venu (3226)",
+                            "Venu 2 (3703)",
+                            "Venu 2S (3704)",
+                            "Venu 3 (4260)",
+                            "Venu 3S (4261)",
+                            "VenuSq (3600)",
+                            "VenuSq Music (3596)",
+                            "Vivoactive 3 (2700)",
+                            "Vivoactive 4 Small (3224)",
+                            "Vivoactive 4 Large (3225)"
+                        ]
+                        currentIndex: {
+                            if (settings.fit_file_garmin_device_training_effect_device === 2909) return 0;  // Edge 130
+                            if (settings.fit_file_garmin_device_training_effect_device === 1325) return 1;  // Edge 200
+                            if (settings.fit_file_garmin_device_training_effect_device === 2067) return 2;  // Edge 520
+                            if (settings.fit_file_garmin_device_training_effect_device === 3121) return 3;  // Edge 530
+                            if (settings.fit_file_garmin_device_training_effect_device === 1567) return 4;  // Edge 810
+                            if (settings.fit_file_garmin_device_training_effect_device === 2530) return 5;  // Edge 820
+                            if (settings.fit_file_garmin_device_training_effect_device === 3122) return 6;  // Edge 830
+                            if (settings.fit_file_garmin_device_training_effect_device === 1836) return 7;  // Edge 1000
+                            if (settings.fit_file_garmin_device_training_effect_device === 2713) return 8;  // Edge 1030
+                            if (settings.fit_file_garmin_device_training_effect_device === 3011) return 9;  // Edge Explore
+                            if (settings.fit_file_garmin_device_training_effect_device === 1551) return 10; // Fenix
+                            if (settings.fit_file_garmin_device_training_effect_device === 1967) return 11; // Fenix 2
+                            if (settings.fit_file_garmin_device_training_effect_device === 2050) return 12; // Fenix 3
+                            if (settings.fit_file_garmin_device_training_effect_device === 2413) return 13; // Fenix 3 HR
+                            if (settings.fit_file_garmin_device_training_effect_device === 2432) return 14; // Fenix 3 Chronos
+                            if (settings.fit_file_garmin_device_training_effect_device === 2697) return 15; // Fenix 5
+                            if (settings.fit_file_garmin_device_training_effect_device === 2544) return 16; // Fenix 5S
+                            if (settings.fit_file_garmin_device_training_effect_device === 2604) return 17; // Fenix 5X
+                            if (settings.fit_file_garmin_device_training_effect_device === 2900) return 18; // Fenix 5S Plus
+                            if (settings.fit_file_garmin_device_training_effect_device === 3110) return 19; // Fenix 5 Plus
+                            if (settings.fit_file_garmin_device_training_effect_device === 3111) return 20; // Fenix 5X Plus
+                            if (settings.fit_file_garmin_device_training_effect_device === 3290) return 21; // Fenix 6
+                            if (settings.fit_file_garmin_device_training_effect_device === 3288) return 22; // Fenix 6S
+                            if (settings.fit_file_garmin_device_training_effect_device === 3291) return 23; // Fenix 6X
+                            if (settings.fit_file_garmin_device_training_effect_device === 3906) return 24; // Fenix 7
+                            if (settings.fit_file_garmin_device_training_effect_device === 3905) return 25; // Fenix 7S
+                            if (settings.fit_file_garmin_device_training_effect_device === 3907) return 26; // Fenix 7X
+                            if (settings.fit_file_garmin_device_training_effect_device === 4536) return 27; // Fenix 8
+                            if (settings.fit_file_garmin_device_training_effect_device === 3226) return 28; // Venu
+                            if (settings.fit_file_garmin_device_training_effect_device === 3703) return 29; // Venu 2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3704) return 30; // Venu 2S
+                            if (settings.fit_file_garmin_device_training_effect_device === 4260) return 31; // Venu 3
+                            if (settings.fit_file_garmin_device_training_effect_device === 4261) return 32; // Venu 3S
+                            if (settings.fit_file_garmin_device_training_effect_device === 3600) return 33; // VenuSq
+                            if (settings.fit_file_garmin_device_training_effect_device === 3596) return 34; // VenuSq Music
+                            if (settings.fit_file_garmin_device_training_effect_device === 2700) return 35; // Vivoactive 3
+                            if (settings.fit_file_garmin_device_training_effect_device === 3224) return 36; // Vivoactive 4 Small
+                            if (settings.fit_file_garmin_device_training_effect_device === 3225) return 37; // Vivoactive 4 Large
+                            return 6; // Default to Edge 830
+                        }
+                        onCurrentIndexChanged: {
+                            switch(currentIndex) {
+                                case 0: settings.fit_file_garmin_device_training_effect_device = 2909; break;  // Edge 130
+                                case 1: settings.fit_file_garmin_device_training_effect_device = 1325; break;  // Edge 200
+                                case 2: settings.fit_file_garmin_device_training_effect_device = 2067; break;  // Edge 520
+                                case 3: settings.fit_file_garmin_device_training_effect_device = 3121; break;  // Edge 530
+                                case 4: settings.fit_file_garmin_device_training_effect_device = 1567; break;  // Edge 810
+                                case 5: settings.fit_file_garmin_device_training_effect_device = 2530; break;  // Edge 820
+                                case 6: settings.fit_file_garmin_device_training_effect_device = 3122; break;  // Edge 830
+                                case 7: settings.fit_file_garmin_device_training_effect_device = 1836; break;  // Edge 1000
+                                case 8: settings.fit_file_garmin_device_training_effect_device = 2713; break;  // Edge 1030
+                                case 9: settings.fit_file_garmin_device_training_effect_device = 3011; break;  // Edge Explore
+                                case 10: settings.fit_file_garmin_device_training_effect_device = 1551; break; // Fenix
+                                case 11: settings.fit_file_garmin_device_training_effect_device = 1967; break; // Fenix 2
+                                case 12: settings.fit_file_garmin_device_training_effect_device = 2050; break; // Fenix 3
+                                case 13: settings.fit_file_garmin_device_training_effect_device = 2413; break; // Fenix 3 HR
+                                case 14: settings.fit_file_garmin_device_training_effect_device = 2432; break; // Fenix 3 Chronos
+                                case 15: settings.fit_file_garmin_device_training_effect_device = 2697; break; // Fenix 5
+                                case 16: settings.fit_file_garmin_device_training_effect_device = 2544; break; // Fenix 5S
+                                case 17: settings.fit_file_garmin_device_training_effect_device = 2604; break; // Fenix 5X
+                                case 18: settings.fit_file_garmin_device_training_effect_device = 2900; break; // Fenix 5S Plus
+                                case 19: settings.fit_file_garmin_device_training_effect_device = 3110; break; // Fenix 5 Plus
+                                case 20: settings.fit_file_garmin_device_training_effect_device = 3111; break; // Fenix 5X Plus
+                                case 21: settings.fit_file_garmin_device_training_effect_device = 3290; break; // Fenix 6
+                                case 22: settings.fit_file_garmin_device_training_effect_device = 3288; break; // Fenix 6S
+                                case 23: settings.fit_file_garmin_device_training_effect_device = 3291; break; // Fenix 6X
+                                case 24: settings.fit_file_garmin_device_training_effect_device = 3906; break; // Fenix 7
+                                case 25: settings.fit_file_garmin_device_training_effect_device = 3905; break; // Fenix 7S
+                                case 26: settings.fit_file_garmin_device_training_effect_device = 3907; break; // Fenix 7X
+                                case 27: settings.fit_file_garmin_device_training_effect_device = 4536; break; // Fenix 8
+                                case 28: settings.fit_file_garmin_device_training_effect_device = 3226; break; // Venu
+                                case 29: settings.fit_file_garmin_device_training_effect_device = 3703; break; // Venu 2
+                                case 30: settings.fit_file_garmin_device_training_effect_device = 3704; break; // Venu 2S
+                                case 31: settings.fit_file_garmin_device_training_effect_device = 4260; break; // Venu 3
+                                case 32: settings.fit_file_garmin_device_training_effect_device = 4261; break; // Venu 3S
+                                case 33: settings.fit_file_garmin_device_training_effect_device = 3600; break; // VenuSq
+                                case 34: settings.fit_file_garmin_device_training_effect_device = 3596; break; // VenuSq Music
+                                case 35: settings.fit_file_garmin_device_training_effect_device = 2700; break; // Vivoactive 3
+                                case 36: settings.fit_file_garmin_device_training_effect_device = 3224; break; // Vivoactive 4 Small
+                                case 37: settings.fit_file_garmin_device_training_effect_device = 3225; break; // Vivoactive 4 Large
+                            }
+                        }
+                        Layout.fillWidth: true
+                    }
                 }
             }
 
@@ -9971,168 +10316,7 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }
-
-                    IndicatorOnlySwitch {
-                        text: qsTr("Use Garmin device in the FIT file")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.fit_file_garmin_device_training_effect
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.fit_file_garmin_device_training_effect = checked; window.settings_restart_to_apply = false; }
-                    }
-
-                    Label {
-                        text: qsTr("With this enabled, QZ will write the FIT file as a Garmin device so Garmin will consider this fit file for the training effect. Default: disabled.")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-
-                    Label {
-                        text: qsTr("Garmin device for FIT file")
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                    }
-
-                    ComboBox {
-                        id: garminDeviceComboBoxDelegate
-                        model: [
-                            "Edge 130 (2909)",
-                            "Edge 200 (1325)", 
-                            "Edge 520 (2067)",
-                            "Edge 530 (3121)",
-                            "Edge 810 (1567)",
-                            "Edge 820 (2530)",
-                            "Edge 830 (3122)",
-                            "Edge 1000 (1836)",
-                            "Edge 1030 (2713)",
-                            "Edge Explore (3011)",
-                            "Fenix (1551)",
-                            "Fenix 2 (1967)",
-                            "Fenix 3 (2050)",
-                            "Fenix 3 HR (2413)",
-                            "Fenix 3 Chronos (2432)",
-                            "Fenix 5 (2697)",
-                            "Fenix 5S (2544)",
-                            "Fenix 5X (2604)",
-                            "Fenix 5S Plus (2900)",
-                            "Fenix 5 Plus (3110)",
-                            "Fenix 5X Plus (3111)",
-                            "Fenix 6 (3290)",
-                            "Fenix 6S (3288)",
-                            "Fenix 6X (3291)",
-                            "Fenix 7 (3906)",
-                            "Fenix 7S (3905)",
-                            "Fenix 7X (3907)",
-                            "Fenix 8 (4536)",
-                            "Venu (3226)",
-                            "Venu 2 (3703)",
-                            "Venu 2S (3704)",
-                            "Venu 3 (4260)",
-                            "Venu 3S (4261)",
-                            "VenuSq (3600)",
-                            "VenuSq Music (3596)",
-                            "Vivoactive 3 (2700)",
-                            "Vivoactive 4 Small (3224)",
-                            "Vivoactive 4 Large (3225)"
-                        ]
-                        currentIndex: {
-                            if (settings.fit_file_garmin_device_training_effect_device === 2909) return 0;  // Edge 130
-                            if (settings.fit_file_garmin_device_training_effect_device === 1325) return 1;  // Edge 200
-                            if (settings.fit_file_garmin_device_training_effect_device === 2067) return 2;  // Edge 520
-                            if (settings.fit_file_garmin_device_training_effect_device === 3121) return 3;  // Edge 530
-                            if (settings.fit_file_garmin_device_training_effect_device === 1567) return 4;  // Edge 810
-                            if (settings.fit_file_garmin_device_training_effect_device === 2530) return 5;  // Edge 820
-                            if (settings.fit_file_garmin_device_training_effect_device === 3122) return 6;  // Edge 830
-                            if (settings.fit_file_garmin_device_training_effect_device === 1836) return 7;  // Edge 1000
-                            if (settings.fit_file_garmin_device_training_effect_device === 2713) return 8;  // Edge 1030
-                            if (settings.fit_file_garmin_device_training_effect_device === 3011) return 9;  // Edge Explore
-                            if (settings.fit_file_garmin_device_training_effect_device === 1551) return 10; // Fenix
-                            if (settings.fit_file_garmin_device_training_effect_device === 1967) return 11; // Fenix 2
-                            if (settings.fit_file_garmin_device_training_effect_device === 2050) return 12; // Fenix 3
-                            if (settings.fit_file_garmin_device_training_effect_device === 2413) return 13; // Fenix 3 HR
-                            if (settings.fit_file_garmin_device_training_effect_device === 2432) return 14; // Fenix 3 Chronos
-                            if (settings.fit_file_garmin_device_training_effect_device === 2697) return 15; // Fenix 5
-                            if (settings.fit_file_garmin_device_training_effect_device === 2544) return 16; // Fenix 5S
-                            if (settings.fit_file_garmin_device_training_effect_device === 2604) return 17; // Fenix 5X
-                            if (settings.fit_file_garmin_device_training_effect_device === 2900) return 18; // Fenix 5S Plus
-                            if (settings.fit_file_garmin_device_training_effect_device === 3110) return 19; // Fenix 5 Plus
-                            if (settings.fit_file_garmin_device_training_effect_device === 3111) return 20; // Fenix 5X Plus
-                            if (settings.fit_file_garmin_device_training_effect_device === 3290) return 21; // Fenix 6
-                            if (settings.fit_file_garmin_device_training_effect_device === 3288) return 22; // Fenix 6S
-                            if (settings.fit_file_garmin_device_training_effect_device === 3291) return 23; // Fenix 6X
-                            if (settings.fit_file_garmin_device_training_effect_device === 3906) return 24; // Fenix 7
-                            if (settings.fit_file_garmin_device_training_effect_device === 3905) return 25; // Fenix 7S
-                            if (settings.fit_file_garmin_device_training_effect_device === 3907) return 26; // Fenix 7X
-                            if (settings.fit_file_garmin_device_training_effect_device === 4536) return 27; // Fenix 8
-                            if (settings.fit_file_garmin_device_training_effect_device === 3226) return 28; // Venu
-                            if (settings.fit_file_garmin_device_training_effect_device === 3703) return 29; // Venu 2
-                            if (settings.fit_file_garmin_device_training_effect_device === 3704) return 30; // Venu 2S
-                            if (settings.fit_file_garmin_device_training_effect_device === 4260) return 31; // Venu 3
-                            if (settings.fit_file_garmin_device_training_effect_device === 4261) return 32; // Venu 3S
-                            if (settings.fit_file_garmin_device_training_effect_device === 3600) return 33; // VenuSq
-                            if (settings.fit_file_garmin_device_training_effect_device === 3596) return 34; // VenuSq Music
-                            if (settings.fit_file_garmin_device_training_effect_device === 2700) return 35; // Vivoactive 3
-                            if (settings.fit_file_garmin_device_training_effect_device === 3224) return 36; // Vivoactive 4 Small
-                            if (settings.fit_file_garmin_device_training_effect_device === 3225) return 37; // Vivoactive 4 Large
-                            return 6; // Default to Edge 830
-                        }
-                        onCurrentIndexChanged: {
-                            switch(currentIndex) {
-                                case 0: settings.fit_file_garmin_device_training_effect_device = 2909; break;  // Edge 130
-                                case 1: settings.fit_file_garmin_device_training_effect_device = 1325; break;  // Edge 200
-                                case 2: settings.fit_file_garmin_device_training_effect_device = 2067; break;  // Edge 520
-                                case 3: settings.fit_file_garmin_device_training_effect_device = 3121; break;  // Edge 530
-                                case 4: settings.fit_file_garmin_device_training_effect_device = 1567; break;  // Edge 810
-                                case 5: settings.fit_file_garmin_device_training_effect_device = 2530; break;  // Edge 820
-                                case 6: settings.fit_file_garmin_device_training_effect_device = 3122; break;  // Edge 830
-                                case 7: settings.fit_file_garmin_device_training_effect_device = 1836; break;  // Edge 1000
-                                case 8: settings.fit_file_garmin_device_training_effect_device = 2713; break;  // Edge 1030
-                                case 9: settings.fit_file_garmin_device_training_effect_device = 3011; break;  // Edge Explore
-                                case 10: settings.fit_file_garmin_device_training_effect_device = 1551; break; // Fenix
-                                case 11: settings.fit_file_garmin_device_training_effect_device = 1967; break; // Fenix 2
-                                case 12: settings.fit_file_garmin_device_training_effect_device = 2050; break; // Fenix 3
-                                case 13: settings.fit_file_garmin_device_training_effect_device = 2413; break; // Fenix 3 HR
-                                case 14: settings.fit_file_garmin_device_training_effect_device = 2432; break; // Fenix 3 Chronos
-                                case 15: settings.fit_file_garmin_device_training_effect_device = 2697; break; // Fenix 5
-                                case 16: settings.fit_file_garmin_device_training_effect_device = 2544; break; // Fenix 5S
-                                case 17: settings.fit_file_garmin_device_training_effect_device = 2604; break; // Fenix 5X
-                                case 18: settings.fit_file_garmin_device_training_effect_device = 2900; break; // Fenix 5S Plus
-                                case 19: settings.fit_file_garmin_device_training_effect_device = 3110; break; // Fenix 5 Plus
-                                case 20: settings.fit_file_garmin_device_training_effect_device = 3111; break; // Fenix 5X Plus
-                                case 21: settings.fit_file_garmin_device_training_effect_device = 3290; break; // Fenix 6
-                                case 22: settings.fit_file_garmin_device_training_effect_device = 3288; break; // Fenix 6S
-                                case 23: settings.fit_file_garmin_device_training_effect_device = 3291; break; // Fenix 6X
-                                case 24: settings.fit_file_garmin_device_training_effect_device = 3906; break; // Fenix 7
-                                case 25: settings.fit_file_garmin_device_training_effect_device = 3905; break; // Fenix 7S
-                                case 26: settings.fit_file_garmin_device_training_effect_device = 3907; break; // Fenix 7X
-                                case 27: settings.fit_file_garmin_device_training_effect_device = 4536; break; // Fenix 8
-                                case 28: settings.fit_file_garmin_device_training_effect_device = 3226; break; // Venu
-                                case 29: settings.fit_file_garmin_device_training_effect_device = 3703; break; // Venu 2
-                                case 30: settings.fit_file_garmin_device_training_effect_device = 3704; break; // Venu 2S
-                                case 31: settings.fit_file_garmin_device_training_effect_device = 4260; break; // Venu 3
-                                case 32: settings.fit_file_garmin_device_training_effect_device = 4261; break; // Venu 3S
-                                case 33: settings.fit_file_garmin_device_training_effect_device = 3600; break; // VenuSq
-                                case 34: settings.fit_file_garmin_device_training_effect_device = 3596; break; // VenuSq Music
-                                case 35: settings.fit_file_garmin_device_training_effect_device = 2700; break; // Vivoactive 3
-                                case 36: settings.fit_file_garmin_device_training_effect_device = 3224; break; // Vivoactive 4 Small
-                                case 37: settings.fit_file_garmin_device_training_effect_device = 3225; break; // Vivoactive 4 Large
-                            }
-                        }
-                        Layout.fillWidth: true
-                    }
+                    }                    
 
                     IndicatorOnlySwitch {
                         id: stravaVirtualActivityDelegate

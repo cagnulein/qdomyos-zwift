@@ -40,6 +40,11 @@ const QString QZSettings::strava_lastrefresh = QStringLiteral("strava_lastrefres
 const QString QZSettings::default_strava_lastrefresh = QStringLiteral("");
 const QString QZSettings::strava_expires = QStringLiteral("strava_expires");
 const QString QZSettings::default_strava_expires = QStringLiteral("");
+const QString QZSettings::garmin_email = QStringLiteral("garmin_email");
+const QString QZSettings::default_garmin_email = QStringLiteral("");
+const QString QZSettings::garmin_password = QStringLiteral("garmin_password");
+const QString QZSettings::default_garmin_password = QStringLiteral("");
+const QString QZSettings::garmin_upload_enabled = QStringLiteral("garmin_upload_enabled");
 const QString QZSettings::intervalsicu_accesstoken = QStringLiteral("intervalsicu_accesstoken");
 const QString QZSettings::default_intervalsicu_accesstoken = QStringLiteral("");
 const QString QZSettings::intervalsicu_refreshtoken = QStringLiteral("intervalsicu_refreshtoken");
@@ -1013,7 +1018,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 828;
+const uint32_t allSettingsCount = 831;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1037,6 +1042,9 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::strava_refreshtoken, QZSettings::default_strava_refreshtoken},
     {QZSettings::strava_lastrefresh, QZSettings::default_strava_lastrefresh},
     {QZSettings::strava_expires, QZSettings::default_strava_expires},
+    {QZSettings::garmin_email, QZSettings::default_garmin_email},
+    {QZSettings::garmin_password, QZSettings::default_garmin_password},
+    {QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled},
     {QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken},
     {QZSettings::intervalsicu_refreshtoken, QZSettings::default_intervalsicu_refreshtoken},
     {QZSettings::intervalsicu_athlete_id, QZSettings::default_intervalsicu_athlete_id},

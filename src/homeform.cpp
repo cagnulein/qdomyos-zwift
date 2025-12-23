@@ -41,6 +41,8 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QTime>
+#include <QTimer>
+#include <QFile>
 #include <QUrlQuery>
 #include <QRegularExpression>
 #include <chrono>
@@ -7930,6 +7932,12 @@ void homeform::fit_save_clicked() {
             }
         }
 
+        // Garmin Connect upload (if enabled)
+        bool garmin_enabled = settings.value(QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled).toBool();
+        if (garmin_enabled && !settings.value(QZSettings::garmin_email, QZSettings::default_garmin_email).toString().isEmpty()) {
+            garmin_upload_file_prepare();
+        }
+
         // Intervals.icu upload (OAuth)
         bool intervalsicu_enabled = settings.value(QZSettings::intervalsicu_upload_enabled, QZSettings::default_intervalsicu_upload_enabled).toBool();
 
@@ -8515,6 +8523,136 @@ void homeform::strava_connect_clicked() {
     strava->grant();
     // qDebug() <<
     // QAbstractOAuth2::post("https://www.strava.com/oauth/authorize?client_id=7976&scope=activity:read_all,activity:write&redirect_uri=http://127.0.0.1&response_type=code&approval_prompt=force");
+}
+
+void homeform::garmin_connect_login() {
+    qDebug() << "Garmin Connect login requested";
+
+    QSettings settings;
+    QString email = settings.value(QZSettings::garmin_email, QZSettings::default_garmin_email).toString();
+    QString password = settings.value(QZSettings::garmin_password, QZSettings::default_garmin_password).toString();
+
+    if (email.isEmpty() || password.isEmpty()) {
+        setToastRequested("Garmin credentials not configured. Please set email and password in settings.");
+        return;
+    }
+
+    // Initialize GarminConnect if not already done
+    if (!garminConnect) {
+        garminConnect = new GarminConnect(this);
+
+        // Connect signals
+        connect(garminConnect, &GarminConnect::authenticated, this, [this]() {
+            setToastRequested("Garmin Connect: Authentication successful!");
+        });
+
+        connect(garminConnect, &GarminConnect::authenticationFailed, this, [this](const QString &error) {
+            setToastRequested("Garmin Connect Login Failed: " + error);
+        });
+
+        connect(garminConnect, &GarminConnect::uploadSucceeded, this, [this]() {
+            setToastRequested("Garmin Connect: Upload successful!");
+        });
+
+        connect(garminConnect, &GarminConnect::uploadFailed, this, [this](const QString &error) {
+            setToastRequested("Garmin Connect Upload Failed: " + error);
+        });
+
+        connect(garminConnect, &GarminConnect::mfaRequired, this, [this]() {
+            qDebug() << "Garmin Connect: MFA code required - showing dialog";
+            setGarminMfaRequested(true);
+        });
+    }
+
+    // Check if already authenticated before attempting login
+    if (garminConnect->isAuthenticated()) {
+        qDebug() << "Garmin Connect: Already authenticated, skipping login";
+        setToastRequested("Garmin Connect: Already authenticated!");
+        emit garminConnect->authenticated();  // Emit signal to trigger any waiting handlers
+        return;
+    }
+
+    // Perform login
+    bool success = garminConnect->login(email, password);
+    if (!success) {
+        qDebug() << "Garmin login failed:" << garminConnect->lastError();
+    }
+}
+
+void homeform::garmin_submit_mfa_code(const QString &mfaCode) {
+    qDebug() << "Garmin MFA code submission requested";
+
+    if (!garminConnect) {
+        setToastRequested("Garmin Connect not initialized");
+        return;
+    }
+
+    if (mfaCode.isEmpty()) {
+        setToastRequested("Please enter a valid MFA code");
+        return;
+    }
+
+    // Close the MFA dialog
+    setGarminMfaRequested(false);
+
+    // Submit MFA code to continue authentication (no need to restart login flow)
+    setToastRequested("Submitting MFA code...");
+    bool success = garminConnect->submitMfaCode(mfaCode);
+    if (!success) {
+        qDebug() << "Garmin MFA submission failed:" << garminConnect->lastError();
+        setToastRequested("Garmin MFA failed: " + garminConnect->lastError());
+    }
+}
+
+void homeform::garmin_upload_file_prepare() {
+    qDebug() << "Garmin upload file prepare" << lastFitFileSaved;
+
+    QSettings settings;
+    bool uploadEnabled = settings.value(QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled).toBool();
+
+    if (!uploadEnabled) {
+        qDebug() << "Garmin upload is disabled in settings";
+        return;
+    }
+
+    // Check if Garmin Connect is initialized and authenticated
+    if (!garminConnect) {
+        qDebug() << "Garmin Connect not initialized, attempting login first...";
+        garmin_connect_login();
+
+        // Give it a moment to authenticate
+        QEventLoop loop;
+        QTimer::singleShot(2000, &loop, &QEventLoop::quit);
+        loop.exec();
+    } else if (!garminConnect->isAuthenticated()) {
+        // Already initialized but not authenticated - attempt login
+        qDebug() << "Garmin Connect not authenticated, attempting login...";
+        garmin_connect_login();
+
+        // Give it a moment to authenticate
+        QEventLoop loop;
+        QTimer::singleShot(2000, &loop, &QEventLoop::quit);
+        loop.exec();
+    }
+
+    // Final check before upload
+    if (!garminConnect || !garminConnect->isAuthenticated()) {
+        setToastRequested("Garmin: Not authenticated. Please login first.");
+        return;
+    }
+
+    // Upload to Garmin Connect using new uploadFitFile method
+    qDebug() << "Garmin: Starting upload of" << lastFitFileSaved;
+    setToastRequested("Uploading to Garmin Connect...");
+
+    bool success = garminConnect->uploadFitFile(lastFitFileSaved);
+    if (success) {
+        qDebug() << "Garmin: Upload successful";
+        setToastRequested("Garmin: Upload successful!");
+    } else {
+        qDebug() << "Garmin: Upload failed:" << garminConnect->lastError();
+        setToastRequested("Garmin: Upload failed - " + garminConnect->lastError());
+    }
 }
 
 bool homeform::generalPopupVisible() { return m_generalPopupVisible; }
@@ -9960,3 +10098,4 @@ extern "C" {
     }
 }
 #endif
+// Force rebuild for Q_INVOKABLE changes
