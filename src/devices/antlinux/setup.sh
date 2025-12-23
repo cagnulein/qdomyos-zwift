@@ -4,7 +4,7 @@
 #
 # Purpose:
 #   Unified tool for validating and setting up ANT+ prerequisites.
-#   Provides quick validation, guided setup, and testing capabilities.
+#   Provides quick validation, guided setup, and testing.
 #
 # Usage:
 #   ./setup.sh --check              # Fast validation check (no sudo)
@@ -28,6 +28,16 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
+
+# Helper printers to keep color intent consistent:
+# - print_ok: success messages (green)
+# - print_info: actionable information/commands (cyan)
+# - print_warn: attention/warnings (yellow)
+# - print_err: errors (red)
+print_ok() { echo -e "${GREEN}$*${NC}"; }
+print_info() { echo -e "${CYAN}$*${NC}"; }
+print_warn() { echo -e "${YELLOW}$*${NC}"; }
+print_err() { echo -e "${RED}$*${NC}"; }
 
 # Mode flags
 MODE_CHECK=0
@@ -71,9 +81,8 @@ DESCRIPTION:
 
 USAGE:
     ./setup.sh --check              # Validate prerequisites (no sudo required)
-    sudo ./setup.sh --gui           # Interactive Setup for GUI systems
-    sudo ./setup.sh --headless      # Interactive Setup for headless systems
-    sudo ./setup.sh --reset         # Remove configurations (undo setup)
+    sudo ./setup.sh --gui           # Interactive guided setup for GUI systems
+    sudo ./setup.sh --headless      # Interactive guided setup for headless systems
     sudo ./setup.sh --test          # Test ANT+ broadcasting (treadmill/footpod only)
     ./setup.sh --help               # Show this help
 
@@ -83,14 +92,14 @@ MODES:
                    - Fast execution (~10 seconds)
                    - Exit codes: 0 (ready), 1 (failed), 2 (warnings)
 
-    --gui          Interactive setup for GUI systems
+    --gui          Interactive guided setup for GUI systems
                    - Requires sudo
                    - Step-by-step with prompts
                    - Installs dependencies and configures system
                    - No systemd service file generated
                    - For all device types (treadmill, bike, rower, etc.)
     
-    --headless     Interactive setup for headless systems
+    --headless     Interactive guided setup for headless systems
                    - Requires sudo
                    - Step-by-step with prompts
                    - Installs dependencies and configures system
@@ -98,16 +107,6 @@ MODES:
                    - Recommended for all users
                    - Service file defaults to treadmill/footpod mode (-ant-footpod)
                    - For bikes/rowers, edit the service file to remove -ant-footpod
-
-    --reset        Complete removal of ANT+ setup
-                   - Requires sudo
-                   - Removes Python 3.11 (system and pyenv)
-                   - Removes Python virtual environment
-                   - Removes Qt5 libraries
-                   - Removes libusb-1.0
-                   - Removes user from plugdev group
-                   - Removes udev rules
-                   - Keeps bluez (Bluetooth service)
 
     --test         Test ANT+ broadcasting without QDomyos-Zwift
                    - Requires sudo
@@ -121,18 +120,11 @@ EXAMPLES:
     # Check what's needed
     ./setup.sh --check
 
-
-    # Interactive setup for GUI systems
-    sudo ./setup.sh --gui
-
-    # Interactive setup for headless systems
-    sudo ./setup.sh --headless
+    # Guided setup (recommended)
+    sudo ./setup.sh --guided
 
     # Test ANT+ broadcasting
     sudo ./setup.sh --test
-
-    # Reset to clean state (for testing)
-    sudo ./setup.sh --reset
 
 EXIT CODES (--check mode):
     0 - All tests passed, system ready
@@ -189,21 +181,23 @@ for arg in "$@"; do
 done
 
 # Validate mode combination
-# Only allow one mode at a time
 active_modes=0
 for mode in $MODE_CHECK $MODE_GUIDED $MODE_TEST; do
     active_modes=$((active_modes + mode))
 done
+
 if [ $active_modes -gt 1 ]; then
     echo "Error: Only one mode can be selected at a time"
     echo "Use --help for usage information"
     exit 1
 fi
+
 # Default to guided mode (GUI) if no mode selected
 if [ $active_modes -eq 0 ]; then
     MODE_GUIDED=1
     GUIDED_WITH_SERVICE=0
 fi
+
 # Check sudo requirement for guided/test modes
 if [ $MODE_GUIDED -eq 1 ] || [ $MODE_TEST -eq 1 ]; then
     if [ $EUID -ne 0 ]; then
@@ -504,10 +498,10 @@ run_check_mode() {
             echo -e "${GREEN}[PASS]${NC} Service is enabled"
         else
             echo -e "${YELLOW}[INFO]${NC} Service exists but is not enabled"
-            echo -e "    ${YELLOW}Before enabling, ensure:${NC}"
-            echo -e "    ${YELLOW}1. Configuration file is set up for your treadmill${NC}"
-            echo -e "    ${YELLOW}2. Service file matches your system (user, paths)${NC}"
-            echo -e "    ${YELLOW}Then enable: sudo systemctl enable qz.service${NC}"
+            echo -e "       Before enabling, ensure:"
+            echo -e "       1. Configuration file is set up for your treadmill"
+            echo -e "       2. Service file matches your system (user, paths)"
+            echo -e "       Then enable: sudo systemctl enable qz.service"
         fi
         
         # Check if service is running
@@ -515,8 +509,8 @@ run_check_mode() {
             echo -e "${GREEN}[PASS]${NC} Service is running"
         else
             echo -e "${YELLOW}[INFO]${NC} Service is not running"
-            echo -e "    ${YELLOW}To start: sudo systemctl start qz.service${NC}"
-            echo -e "    ${YELLOW}To view status: sudo systemctl status qz.service${NC}"
+            echo -e "       To start: sudo systemctl start qz.service"
+            echo -e "       To view status: sudo systemctl status qz.service"
         fi
     else
         # Service file is optional - only relevant for headless systems
@@ -553,266 +547,12 @@ run_check_mode() {
 }
 
 # ============================================================================
-# RESET MODE - Remove configurations (undo --guided)
-# ============================================================================
-
-run_reset_mode() {
-    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
-    echo -e "${BLUE}QDomyos-Zwift ANT+ Configuration Reset${NC}"
-    echo -e "${CYAN}Running for user: $TARGET_USER${NC}"
-    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
-    echo ""
-    echo -e "${YELLOW}WARNING: This will completely remove ANT+ setup${NC}"
-    echo ""
-    echo "This will remove:"
-    echo "  - Python 3.11 (system and pyenv installations)"
-    echo "  - Python virtual environment (~/ant_venv)"
-    echo "  - Python packages (openant, pyusb, pybind11)"
-    echo "  - Qt5 libraries (9 packages: charts, multimedia, networkauth, etc.)"
-    echo "  - QML modules (8 packages: QtLocation, QtQuick, etc.)"
-    echo "  - libusb-1.0"
-    echo "  - User from 'plugdev' group"
-    echo "  - ANT+ udev rules"
-    echo ""
-    echo "This will NOT remove:"
-    echo "  - bluez (system Bluetooth service)"
-    echo "  - libqt5bluetooth5, libqt5positioning5, libqt5sql5 (system packages)"
-    echo ""
-    echo -e "${YELLOW}Note: Qt5/libusb removal skipped on desktop systems to prevent breakage${NC}"
-    echo ""
-    echo -e "${CYAN}Completely removes what was installed by --guided mode${NC}"
-    echo ""
-    
-    read -p "Continue with reset? [y/N]: " response
-    case "$response" in
-        [Yy]* ) ;;
-        * ) 
-            echo "Reset cancelled"
-            exit 0
-            ;;
-    esac
-    
-    echo ""
-    local reset_count=0
-    local failed_count=0
-    
-    # Reset 1: Remove user from plugdev group
-    echo -e "${YELLOW}[1/6] Removing $TARGET_USER from plugdev group...${NC}"
-    if groups "$TARGET_USER" | grep >/dev/null 2>&1 plugdev; then
-        if gpasswd -d "$TARGET_USER" plugdev 2>/dev/null; then
-            echo -e "${GREEN}✓ User removed from plugdev group${NC}"
-            echo -e "${YELLOW}⚠ You must logout and login for changes to take effect${NC}"
-            ((reset_count++))
-        else
-            echo -e "${RED}✗ Failed to remove user from plugdev group${NC}"
-            ((failed_count++))
-        fi
-    else
-        echo -e "${GREEN}✓ User not in plugdev group${NC}"
-    fi
-    echo ""
-    
-    # Reset 2: Remove udev rules
-    echo -e "${YELLOW}[2/6] Removing ANT+ udev rules...${NC}"
-    local rules_removed=0
-    for rules_file in \
-        /etc/udev/rules.d/99-ant-usb.rules \
-        /etc/udev/rules.d/99-garmin-ant.rules \
-        /etc/udev/rules.d/51-garmin-ant.rules; do
-        
-        if [ -f "$rules_file" ]; then
-            if rm -f "$rules_file"; then
-                ((rules_removed++))
-            else
-                echo -e "${RED}✗ Failed to remove $rules_file${NC}"
-                ((failed_count++))
-            fi
-        fi
-    done
-    
-    if [ $rules_removed -gt 0 ]; then
-        udevadm control --reload-rules
-        udevadm trigger
-        echo -e "${GREEN}✓ Removed $rules_removed udev rule(s)${NC}"
-        ((reset_count++))
-    else
-        echo -e "${GREEN}✓ No udev rules to remove${NC}"
-    fi
-    echo ""
-    
-    # Reset 3: Remove Python virtual environment
-    echo -e "${YELLOW}[3/6] Removing Python virtual environment...${NC}"
-    if [ -d "$TARGET_HOME/ant_venv" ]; then
-        if rm -rf "$TARGET_HOME/ant_venv"; then
-            echo -e "${GREEN}✓ Virtual environment removed${NC}"
-            ((reset_count++))
-        else
-            echo -e "${RED}✗ Failed to remove virtual environment${NC}"
-            ((failed_count++))
-        fi
-    else
-        echo -e "${GREEN}✓ No virtual environment found${NC}"
-    fi
-    echo ""
-    
-    # Reset 4: Remove Python 3.11
-    echo -e "${YELLOW}[4/6] Removing Python 3.11...${NC}"
-    local python_removed=0
-    
-    # Check if Python 3.11 is installed via apt
-    if dpkg -l python3.11 2>/dev/null | grep >/dev/null 2>&1 "^ii"; then
-        echo "Removing system Python 3.11 packages..."
-        if apt-get remove -y python3.11 python3.11-venv python3.11-dev 2>/dev/null; then
-            apt-get autoremove -y 2>/dev/null
-            echo -e "${GREEN}✓ System Python 3.11 removed${NC}"
-            ((reset_count++))
-            ((python_removed++))
-        else
-            echo -e "${RED}✗ Failed to remove system Python 3.11${NC}"
-            ((failed_count++))
-        fi
-    fi
-    
-    # Remove pyenv Python 3.11 installations
-    if [ -d "$TARGET_HOME/.pyenv/versions" ]; then
-        local pyenv_versions=$(ls -d "$TARGET_HOME/.pyenv/versions/3.11"* 2>/dev/null)
-        if [ -n "$pyenv_versions" ]; then
-            echo "Removing pyenv Python 3.11 installation(s)..."
-            for version_dir in $pyenv_versions; do
-                if rm -rf "$version_dir"; then
-                    echo -e "${GREEN}✓ Removed pyenv version: $(basename $version_dir)${NC}"
-                    ((python_removed++))
-                else
-                    echo -e "${RED}✗ Failed to remove: $(basename $version_dir)${NC}"
-                    ((failed_count++))
-                fi
-            done
-            ((reset_count++))
-        fi
-    fi
-    
-    if [ $python_removed -eq 0 ]; then
-        echo -e "${GREEN}✓ No Python 3.11 installations found${NC}"
-    fi
-    echo ""
-    
-    # Check if running on a desktop environment
-    # Use multiple detection methods to catch all desktop variants
-    local is_desktop=false
-    
-    # Method 1: Check if X11 or Wayland display server is available
-    if [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]; then
-        is_desktop=true
-    # Method 2: Check systemd default target (graphical.target indicates desktop)
-    elif systemctl get-default 2>/dev/null | grep -q "graphical.target"; then
-        is_desktop=true
-    # Method 3: Check for common desktop packages (fallback)
-    elif dpkg -l 2>/dev/null | grep -qE "^ii  (ubuntu-desktop|lubuntu-desktop|kubuntu-desktop|xubuntu-desktop|ubuntu-mate-desktop|ubuntu-budgie-desktop|gnome-shell|kde-plasma-desktop|xfce4|lxde|mate-desktop)"; then
-        is_desktop=true
-    fi
-    
-    # Reset 5: Remove Qt5 libraries
-    echo -e "${YELLOW}[5/6] Removing Qt5 libraries and QML modules...${NC}"
-    
-    if [ "$is_desktop" = true ]; then
-        echo -e "${YELLOW}⚠ Desktop environment detected - skipping Qt5 removal to prevent system breakage${NC}"
-        echo -e "${YELLOW}  Qt5 is a core dependency of your desktop environment${NC}"
-        echo -e "${GREEN}✓ Skipped (desktop protection)${NC}"
-    else
-        local qt_packages=(
-            "libqt5charts5"
-            "libqt5multimedia5"
-            "libqt5multimediawidgets5"
-            "libqt5multimedia5-plugins"
-            "libqt5networkauth5"
-            "libqt5texttospeech5"
-            "libqt5websockets5"
-            "libqt5widgets5"
-            "libqt5xml5"
-            "qtlocation5-dev"
-            "qml-module-qtlocation"
-            "qml-module-qtpositioning"
-            "qml-module-qtquick2"
-            "qml-module-qtquick-controls"
-            "qml-module-qtquick-controls2"
-            "qml-module-qtquick-dialogs"
-            "qml-module-qtquick-layouts"
-            "qml-module-qtquick-window2"
-            "qml-module-qtmultimedia"
-        )
-        
-        # Note: Excluding system packages that may be auto-installed:
-        # - libqt5bluetooth5, libqt5positioning5, libqt5sql5 (often system deps)
-        
-        local qt_found=0
-        for pkg in "${qt_packages[@]}"; do
-            if dpkg -l "$pkg" 2>/dev/null | grep >/dev/null 2>&1 "^ii"; then
-                ((qt_found++))
-            fi
-        done
-        
-        if [ $qt_found -gt 0 ]; then
-            echo "Removing $qt_found Qt5/QML/Bluetooth package(s)..."
-            if apt-get remove -y "${qt_packages[@]}" 2>/dev/null; then
-                apt-get autoremove -y 2>/dev/null
-                echo -e "${GREEN}✓ Qt5 libraries and QML modules removed${NC}"
-                ((reset_count++))
-            else
-                echo -e "${RED}✗ Failed to remove some Qt5/QML packages${NC}"
-                ((failed_count++))
-            fi
-        else
-            echo -e "${GREEN}✓ No Qt5/QML packages found${NC}"
-        fi
-    fi
-    echo ""
-    
-    # Reset 6: Remove libusb
-    echo -e "${YELLOW}[6/6] Removing libusb-1.0...${NC}"
-    
-    if [ "$is_desktop" = true ]; then
-        echo -e "${YELLOW}⚠ Desktop environment detected - skipping libusb removal to prevent system breakage${NC}"
-        echo -e "${YELLOW}  libusb is a core dependency of your desktop environment${NC}"
-        echo -e "${GREEN}✓ Skipped (desktop protection)${NC}"
-    else
-        if dpkg -l libusb-1.0-0 2>/dev/null | grep >/dev/null 2>&1 "^ii"; then
-            if apt-get remove -y libusb-1.0-0 2>/dev/null; then
-                apt-get autoremove -y 2>/dev/null
-                echo -e "${GREEN}✓ libusb-1.0 removed${NC}"
-                ((reset_count++))
-            else
-                echo -e "${RED}✗ Failed to remove libusb-1.0${NC}"
-                ((failed_count++))
-            fi
-        else
-            echo -e "${GREEN}✓ No libusb-1.0 package found${NC}"
-        fi
-    fi
-    echo ""
-    
-    # Summary
-    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
-    if [ $reset_count -gt 0 ]; then
-        echo -e "${GREEN}✓ Reset complete - removed $reset_count configuration(s)${NC}"
-    fi
-    if [ $failed_count -gt 0 ]; then
-        echo -e "${RED}✗ Failed to reset $failed_count item(s)${NC}"
-    fi
-    if [ $reset_count -eq 0 ] && [ $failed_count -eq 0 ]; then
-        echo -e "${GREEN}✓ No configurations to reset - system already clean${NC}"
-    fi
-    echo ""
-    echo -e "Note: bluez (Bluetooth) remains installed as it may be used by other apps"
-    echo -e "Run '${YELLOW}./setup.sh --check${NC}' to verify clean state"
-}
-
-# ============================================================================
 # GUIDED MODE - Interactive step-by-step setup
 # ============================================================================
 
 run_guided_mode() {
     echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
-    echo -e "${CYAN}QDomyos-Zwift Interactive Setup${NC}"
+    echo -e "${CYAN}QDomyos-Zwift ANT+ Setup Wizard${NC}"
     echo -e "${CYAN}Running for user: $TARGET_USER${NC}"
     echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
     echo ""
@@ -1111,12 +851,25 @@ EOF
         
         if [ -f "$SERVICE_FILE" ]; then
             echo -e "${YELLOW}Service file already exists at: ${SERVICE_FILE}${NC}"
-            if ! prompt_yes_no "Overwrite existing service file?"; then
+
+            # Simplified flow: offer a single prompt to backup-and-overwrite.
+            # Default action is to backup the existing file and then create the new one.
+            if prompt_yes_no "Backup existing service file and create new one?"; then
+                TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+                BACKUP_FILE="${SERVICE_FILE}.${TIMESTAMP}.bak"
+                if cp "$SERVICE_FILE" "$BACKUP_FILE"; then
+                    echo -e "${GREEN}✓ Backup created: ${BACKUP_FILE}${NC}"
+                    GENERATE_SERVICE=true
+                else
+                    echo -e "${RED}✗ Failed to create backup: ${BACKUP_FILE}${NC}"
+                    echo -e "${YELLOW}Skipping service file generation${NC}"
+                    echo ""
+                    GENERATE_SERVICE=false
+                fi
+            else
                 echo -e "${YELLOW}Skipping service file generation${NC}"
                 echo ""
                 GENERATE_SERVICE=false
-            else
-                GENERATE_SERVICE=true
             fi
         else
             GENERATE_SERVICE=true
@@ -1134,6 +887,18 @@ EOF
             else
                 BIN_DIR="$INSTALL_DIR/qdomyos-zwift-x86-64-ant"
             fi
+            # If the install dir resolved to root (for example when the
+            # script is placed directly at "/qdomyos-zwift-arm64-ant" such
+            # as inside a container image), prefer creating service paths
+            # under the target user's home directory instead of referencing
+            # the root filesystem. This avoids service entries like
+            # "//qdomyos-zwift-arm64-ant/..." which are missing the
+            # user's home prefix on typical installations.
+            if [[ "$BIN_DIR" == /qdomyos-* || "$BIN_DIR" == //qdomyos-* ]]; then
+                BIN_DIR="${TARGET_HOME}${BIN_DIR}"
+            fi
+            # Collapse any accidental double-slashes for cleanliness
+            BIN_DIR="${BIN_DIR//\/\//\/}"
             
             # Create service file
             cat > "$SERVICE_FILE" <<EOF
@@ -1154,48 +919,23 @@ KillSignal=SIGINT
 WantedBy=multi-user.target
 EOF
             
-            echo -e "${GREEN}✓ Service file created: ${SERVICE_FILE}${NC}"
+            print_ok "✓ Service file created: ${SERVICE_FILE}"
+
+            # Show backup location if we created one
+            if [ -n "${BACKUP_FILE:-}" ]; then
+                print_ok "✓ Previous service backed up:"
+                print_warn "  ${BACKUP_FILE}"
+            fi
+
             echo ""
-            echo -e "${CYAN}Service configuration:${NC}"
-            echo -e "  Working Directory: ${BIN_DIR}"
-            echo -e "  User: root (runs as ${TARGET_USER} via QZ_USER)"
-            echo -e "  Command: qdomyos-zwift -no-gui -log -ant-footpod (treadmill/footpod mode)"
-            echo -e "  Debug log: /home/${TARGET_USER}/debug-*.log (timestamped)"
-            echo ""
-            echo -e "${YELLOW}⚠ IMPORTANT: Configure before starting the service${NC}"
-            echo ""
-            echo -e "${CYAN}1. Review and modify the service file for your system:${NC}"
-            echo -e "   ${YELLOW}sudo nano ${SERVICE_FILE}${NC}"
-            echo -e "   - Update QZ_USER to your username if needed"
-            echo -e "   - Adjust ExecStart flags as needed:"
-            echo -e "     - For treadmill/footpod: keep '-ant-footpod'"
-            echo -e "     - For bike/rower/other: REMOVE '-ant-footpod'"
-            echo -e "   - After setup is working, change -log to -no-log for better performance"
-            echo -e "   ${YELLOW}If you modify the service file later, reload and restart:${NC}"
-            echo -e "   ${YELLOW}sudo systemctl daemon-reload${NC}"
-            echo -e "   ${YELLOW}sudo systemctl restart qz.service${NC}"
-            echo ""
-            echo -e "${CYAN}2. Create configuration file for your device:${NC}"
-            echo -e "   ${YELLOW}/home/${TARGET_USER}/.config/Roberto Viola/qDomyos-Zwift.conf${NC}"
-            echo ""
-            echo -e "   ${CYAN}Option A - Configure via GUI (recommended):${NC}"
-            echo -e "   - On this system (if it has a display): ${YELLOW}sudo ./qdomyos-zwift${NC}"
-            echo -e "   - Or on another system with display, then copy the config file"
-            echo -e "   - Select your device type (treadmill, bike, rower, etc.)"
-            echo -e "   - Configure device-specific settings"
-            echo ""
-            echo -e "   ${CYAN}Option B - Copy from another system:${NC}"
-            echo -e "   - See README.md section 'Headless Configuration'"
-            echo ""
-            echo -e "${CYAN}3. When ready, enable and start the service:${NC}"
-            echo -e "   ${YELLOW}sudo systemctl daemon-reload${NC}"
-            echo -e "   ${YELLOW}sudo systemctl enable qz.service${NC}"
-            echo -e "   ${YELLOW}sudo systemctl start qz.service${NC}"
-            echo ""
-            echo -e "${CYAN}4. Monitor service status and debug log:${NC}"
-            echo -e "   ${YELLOW}sudo systemctl status qz.service${NC}"
-            echo -e "   ${YELLOW}# Find and tail the latest debug log:${NC}"
-            echo -e "   ${YELLOW}tail -f \$(ls -t /home/${TARGET_USER}/debug-*.log 2>/dev/null | head -1)${NC}"
+            print_info "Next steps (headless):"
+            print_info "  1) Review / edit service file: sudo nano ${SERVICE_FILE}"
+            echo "     - Verify 'QZ_USER' is correct; remove '-ant-footpod' for bikes/rowers"
+            print_info "  2) Device configuration file: ${TARGET_HOME}/.config/Roberto Viola/qDomyos-Zwift.conf (create or copy)"
+            print_info "  3) Enable and start service: sudo systemctl daemon-reload && sudo systemctl enable --now qz.service"
+            print_info "  4) Check service status: sudo systemctl status qz.service"
+            print_info "  5) Tail the debug logs (follow all matching files):"
+            print_info "     tail -f ${TARGET_HOME}/debug-*.log"
             echo ""
         fi
     else
@@ -1218,12 +958,8 @@ EOF
     
     # Final summary
     echo ""
-    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
-    echo -e "${GREEN}✓ ANT+ Prerequisites Installed${NC}"
-    echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
-    echo ""
     echo -e "${CYAN}To verify your system status:${NC}"
-    echo -e "  ${YELLOW}./setup.sh --check${NC}"
+    echo -e "  ./setup.sh --check"
     echo ""
 }
 
@@ -1299,8 +1035,6 @@ run_test_mode() {
 
 if [ $MODE_CHECK -eq 1 ]; then
     run_check_mode
-elif [ $MODE_RESET -eq 1 ]; then
-    run_reset_mode
 elif [ $MODE_GUIDED -eq 1 ]; then
     run_guided_mode
 elif [ $MODE_TEST -eq 1 ]; then
