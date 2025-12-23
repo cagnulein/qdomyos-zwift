@@ -793,8 +793,7 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
 
     QByteArray consumerData = consumerReply->readAll();
     qDebug() << "GarminConnect: OAuth consumer response received, length:" << consumerData.length();
-    qDebug() << "GarminConnect: Consumer response body (first 200 chars):"
-             << QString::fromUtf8(consumerData.left(200));
+    // NOTE: Consumer response contains sensitive data (consumer_secret) - not logging
 
     QJsonDocument consumerDoc = QJsonDocument::fromJson(consumerData);
     consumerReply->deleteLater();
@@ -974,8 +973,8 @@ bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
 
     // Read response body
     QString responseText = QString::fromUtf8(reply->readAll());
-    qDebug() << "GarminConnect: OAuth1 response body (full):" << responseText;
     qDebug() << "GarminConnect: OAuth1 response length:" << responseText.length();
+    // NOTE: OAuth1 response contains sensitive tokens (oauth_token, oauth_token_secret, mfa_token) - not logging
 
     if (reply->error() != QNetworkReply::NoError || statusCode >= 400) {
         m_lastError = QString("OAuth1 exchange failed (HTTP %1): %2").arg(statusCode).arg(reply->errorString());
@@ -1112,7 +1111,8 @@ bool GarminConnect::exchangeForOAuth2Token()
     QByteArray responseBody = reply->readAll();
 
     qDebug() << "GarminConnect: OAuth2 HTTP status code:" << statusCode;
-    qDebug() << "GarminConnect: OAuth2 response body:" << QString::fromUtf8(responseBody);
+    qDebug() << "GarminConnect: OAuth2 response length:" << responseBody.length();
+    // NOTE: OAuth2 response contains sensitive tokens (access_token, refresh_token) - not logging
 
     if (reply->error() != QNetworkReply::NoError) {
         m_lastError = "OAuth2 exchange failed (HTTP " + QString::number(statusCode) + "): " + reply->errorString();
@@ -1410,9 +1410,7 @@ QString GarminConnect::generateOAuth1AuthorizationHeader(
             QString encodedValue = pair.mid(eqPos + 1);
             // Decode the value from URL encoding
             QString decodedValue = QUrl::fromPercentEncoding(encodedValue.toUtf8());
-            qDebug() << "  KEY:" << key;
-            qDebug() << "  VALUE (encoded in URL):" << encodedValue;
-            qDebug() << "  VALUE (decoded for signature):" << decodedValue;
+            qDebug() << "  Query parameter:" << key << "(value length:" << decodedValue.length() << ")";
             params[key] = decodedValue;
         }
     }
@@ -1421,25 +1419,24 @@ QString GarminConnect::generateOAuth1AuthorizationHeader(
     // Per OAuth1 spec (RFC 5849, Section 3.4.1.3.1): When Content-Type is
     // application/x-www-form-urlencoded, POST body params MUST be included
     if (!postBodyParams.isEmpty()) {
-        qDebug() << "GarminConnect: POST body parameters (for signature):";
+        qDebug() << "GarminConnect: Adding" << postBodyParams.size() << "POST body parameters to signature";
         for (auto it = postBodyParams.constBegin(); it != postBodyParams.constEnd(); ++it) {
-            qDebug() << "  KEY:" << it.key();
-            qDebug() << "  VALUE:" << it.value();
+            qDebug() << "  POST parameter:" << it.key() << "(value length:" << it.value().length() << ")";
             params[it.key()] = it.value();
         }
     }
 
     // 3. Create parameter string (sorted by key)
-    qDebug() << "GarminConnect: ALL parameters in signature (OAuth + Query + POST body):";
+    qDebug() << "GarminConnect: Building signature with" << params.size() << "parameters";
     QString parameterString;
     for (auto it = params.constBegin(); it != params.constEnd(); ++it) {
-        qDebug() << "  KEY:" << it.key();
-        qDebug() << "  VALUE:" << it.value();  // FULL values
+        // Only log keys, not values (values may contain sensitive tokens)
+        qDebug() << "  Parameter:" << it.key();
         if (it != params.constBegin()) parameterString += "&";
         parameterString += percentEncode(it.key()) + "=" + percentEncode(it.value());
     }
-    qDebug() << "GarminConnect: ===== COMPLETE Parameter String (Encoded) =====";
-    qDebug() << parameterString;  // FULL parameter string, no truncation
+    qDebug() << "GarminConnect: Parameter string length:" << parameterString.length();
+    // NOTE: Parameter string may contain sensitive data (mfa_token, tickets) - not logging full string
 
     // 4. Create base URL (without query string)
     QUrl baseUrl(url);
@@ -1501,9 +1498,8 @@ QString GarminConnect::generateOAuth1Signature(
     QString baseString = httpMethod.toUpper() + "&" + percentEncode(baseUrl) +
                          "&" + percentEncode(parameterString);
 
-    qDebug() << "GarminConnect: ===== COMPLETE Base String =====";
-    qDebug() << baseString;  // FULL base string
     qDebug() << "GarminConnect: Base string length:" << baseString.length();
+    // NOTE: Base string contains sensitive data (mfa_token, tickets, parameters) - not logging
 
     // HMAC-SHA1
     QByteArray signature = QMessageAuthenticationCode::hash(
