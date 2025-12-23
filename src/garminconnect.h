@@ -77,9 +77,9 @@ public:
      * @brief Submit MFA code to continue authentication
      * Call this after mfaRequired() signal is emitted
      * @param mfaCode The MFA/2FA code from authenticator app or email
-     * @return true if authentication successful, false otherwise
+     * Result will be signaled via authenticated() or authenticationFailed()
      */
-    bool submitMfaCode(const QString &mfaCode);
+    void submitMfaCode(const QString &mfaCode);
 
     /**
      * @brief Get the last error message
@@ -160,6 +160,8 @@ private:
     // MFA flow state (stored during login to avoid re-requesting MFA)
     QString m_pendingEmail;
     QString m_pendingPassword;
+    QString m_pendingMfaCode;
+    QString m_pendingTicket;
 
     // Constants
     static constexpr const char* USER_AGENT = "com.garmin.android.apps.connectmobile";
@@ -174,11 +176,15 @@ private:
     bool fetchCookies();
     bool fetchCsrfToken();
     bool performLogin(const QString &email, const QString &password, bool suppressMfaSignal = false);
-    bool performMfaVerification(const QString &mfaCode);
+    void performMfaVerification(const QString &mfaCode);
     bool exchangeForOAuth1Token(const QString &ticket);
     bool exchangeForOAuth2Token();
     bool refreshOAuth2Token();
     bool completeOAuthFlow();  // Complete OAuth1/OAuth2 exchange after MFA
+
+    // Async handlers for MFA verification
+    void handleMfaReplyFinished();
+    void handleMfaLoginTokenReplyFinished();
 
     void loadTokensFromSettings();
     void saveTokensToSettings();

@@ -8596,12 +8596,9 @@ void homeform::garmin_submit_mfa_code(const QString &mfaCode) {
     setGarminMfaRequested(false);
 
     // Submit MFA code to continue authentication (no need to restart login flow)
+    // Note: This is async - results will be signaled via authenticated() or authenticationFailed()
     setToastRequested("Submitting MFA code...");
-    bool success = garminConnect->submitMfaCode(mfaCode);
-    if (!success) {
-        qDebug() << "Garmin MFA submission failed:" << garminConnect->lastError();
-        setToastRequested("Garmin MFA failed: " + garminConnect->lastError());
-    }
+    garminConnect->submitMfaCode(mfaCode);
 }
 
 void homeform::garmin_upload_file_prepare() {

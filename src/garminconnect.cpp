@@ -202,11 +202,9 @@ bool GarminConnect::login(const QString &email, const QString &password, const Q
                 emit authenticationFailed(m_lastError);
                 return false;
             }
-            // Perform MFA verification with provided code
-            if (!performMfaVerification(mfaCode)) {
-                emit authenticationFailed(m_lastError);
-                return false;
-            }
+            // Perform MFA verification with provided code (async - signals will be emitted)
+            performMfaVerification(mfaCode);
+            return true;  // Return true to indicate the async flow has started
         } else {
             emit authenticationFailed(m_lastError);
             return false;
@@ -218,7 +216,7 @@ bool GarminConnect::login(const QString &email, const QString &password, const Q
     return true;
 }
 
-bool GarminConnect::submitMfaCode(const QString &mfaCode)
+void GarminConnect::submitMfaCode(const QString &mfaCode)
 {
     qDebug() << "GarminConnect: Submitting MFA code (continuing authentication flow)...";
     m_lastError.clear();
@@ -226,18 +224,11 @@ bool GarminConnect::submitMfaCode(const QString &mfaCode)
     if (mfaCode.isEmpty()) {
         m_lastError = "MFA code cannot be empty";
         emit authenticationFailed(m_lastError);
-        return false;
+        return;
     }
 
-    // Perform MFA verification - this will handle OAuth1/OAuth2 exchange internally
-    if (!performMfaVerification(mfaCode)) {
-        emit authenticationFailed(m_lastError);
-        return false;
-    }
-
-    qDebug() << "GarminConnect: Login successful!";
-    emit authenticated();
-    return true;
+    // Perform MFA verification asynchronously - signals will be emitted when complete
+    performMfaVerification(mfaCode);
 }
 
 bool GarminConnect::fetchCookies()
@@ -573,9 +564,11 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
     return true;
 }
 
-bool GarminConnect::performMfaVerification(const QString &mfaCode)
+void GarminConnect::performMfaVerification(const QString &mfaCode)
 {
     qDebug() << "GarminConnect: Performing MFA verification...";
+
+    m_pendingMfaCode = mfaCode;
 
     QString ssoEmbedUrl = ssoUrl() + SSO_EMBED_PATH;
 
@@ -612,15 +605,36 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
     }
 
     QNetworkReply *reply = m_manager->post(request, data);
-    QEventLoop loop;
-    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-    loop.exec();
+    connect(reply, &QNetworkReply::finished, this, &GarminConnect::handleMfaReplyFinished);
+}
+
+void GarminConnect::handleMfaReplyFinished()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply) {
+        m_lastError = "Invalid reply object";
+        emit authenticationFailed(m_lastError);
+        return;
+    }
+
+    QString ssoEmbedUrl = ssoUrl() + SSO_EMBED_PATH;
+    QUrl url(ssoUrl() + "/sso/verifyMFA/loginEnterMfaCode");
+    QUrlQuery query;
+    query.addQueryItem("id", "gauth-widget");
+    query.addQueryItem("embedWidget", "true");
+    query.addQueryItem("gauthHost", ssoEmbedUrl);
+    query.addQueryItem("service", ssoEmbedUrl);
+    query.addQueryItem("source", ssoEmbedUrl);
+    query.addQueryItem("redirectAfterAccountLoginUrl", ssoEmbedUrl);
+    query.addQueryItem("redirectAfterAccountCreationUrl", ssoEmbedUrl);
+    url.setQuery(query);
 
     if (reply->error() != QNetworkReply::NoError) {
         m_lastError = "MFA verification failed: " + reply->errorString();
         qDebug() << "GarminConnect:" << m_lastError;
         reply->deleteLater();
-        return false;
+        emit authenticationFailed(m_lastError);
+        return;
     }
 
     QString response = QString::fromUtf8(reply->readAll());
@@ -638,7 +652,6 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
 
     // Try to extract ticket from redirect URL first
     QString ticket;
-    bool replyDeleted = false;
     if (!responseUrl.isEmpty()) {
         QUrlQuery responseQuery(responseUrl);
         ticket = responseQuery.queryItemValue("ticket");
@@ -651,7 +664,6 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
                 qDebug() << "GarminConnect: Found logintoken in redirect, following to get ticket:" << loginToken;
 
                 reply->deleteLater();
-                replyDeleted = true;
 
                 // Follow the logintoken redirect to get the actual ticket
                 QNetworkRequest tokenRequest(responseUrl);
@@ -665,50 +677,8 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
                 }
 
                 QNetworkReply *tokenReply = m_manager->get(tokenRequest);
-                QEventLoop tokenLoop;
-                connect(tokenReply, &QNetworkReply::finished, &tokenLoop, &QEventLoop::quit);
-                tokenLoop.exec();
-
-                if (tokenReply->error() == QNetworkReply::NoError) {
-                    // Check for another redirect with the ticket
-                    QUrl ticketUrl = tokenReply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
-                    qDebug() << "GarminConnect: Logintoken redirect result:" << ticketUrl.toString();
-
-                    if (!ticketUrl.isEmpty()) {
-                        QUrlQuery ticketQuery(ticketUrl);
-                        ticket = ticketQuery.queryItemValue("ticket");
-                        if (!ticket.isEmpty()) {
-                            qDebug() << "GarminConnect: Found ticket after logintoken redirect:" << ticket.left(20) << "...";
-                        }
-                    }
-
-                    // If still no ticket, try response body
-                    if (ticket.isEmpty()) {
-                        QString tokenResponse = QString::fromUtf8(tokenReply->readAll());
-                        QRegularExpression ticketRegex1("embed\\?ticket=([^\"]+)\"");
-                        QRegularExpression ticketRegex2("ticket=([^&\"']+)");
-
-                        QRegularExpressionMatch match = ticketRegex1.match(tokenResponse);
-                        if (match.hasMatch()) {
-                            ticket = match.captured(1);
-                            qDebug() << "GarminConnect: Found ticket in logintoken response body (pattern 1)";
-                        } else {
-                            match = ticketRegex2.match(tokenResponse);
-                            if (match.hasMatch()) {
-                                ticket = match.captured(1);
-                                qDebug() << "GarminConnect: Found ticket in logintoken response body (pattern 2)";
-                            }
-                        }
-                    }
-                }
-
-                // CRITICAL: Update cookies after logintoken redirect
-                // Garmin may set new session cookies during this redirect
-                QUrl loginTokenUrl = tokenRequest.url();
-                m_cookies = m_manager->cookieJar()->cookiesForUrl(loginTokenUrl);
-                qDebug() << "GarminConnect: Updated cookies after logintoken redirect, count:" << m_cookies.size();
-
-                tokenReply->deleteLater();
+                connect(tokenReply, &QNetworkReply::finished, this, &GarminConnect::handleMfaLoginTokenReplyFinished);
+                return;
             }
         }
     }
@@ -732,31 +702,110 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
         }
     }
 
-    // Only delete reply if not already deleted
-    if (!replyDeleted) {
-        reply->deleteLater();
-    }
+    reply->deleteLater();
 
     if (ticket.isEmpty()) {
         m_lastError = "Failed to extract ticket after MFA";
         qDebug() << "GarminConnect:" << m_lastError;
-        return false;
+        emit authenticationFailed(m_lastError);
+        return;
     }
 
     qDebug() << "GarminConnect: MFA verification successful";
 
     // Exchange ticket for OAuth1 token
     if (!exchangeForOAuth1Token(ticket)) {
-        return false;
+        emit authenticationFailed(m_lastError);
+        return;
     }
 
     // Exchange OAuth1 for OAuth2 token
     if (!exchangeForOAuth2Token()) {
-        return false;
+        emit authenticationFailed(m_lastError);
+        return;
     }
 
     saveTokensToSettings();
-    return true;
+    qDebug() << "GarminConnect: Login successful!";
+    emit authenticated();
+}
+
+void GarminConnect::handleMfaLoginTokenReplyFinished()
+{
+    QNetworkReply *tokenReply = qobject_cast<QNetworkReply*>(sender());
+    if (!tokenReply) {
+        m_lastError = "Invalid token reply object";
+        emit authenticationFailed(m_lastError);
+        return;
+    }
+
+    QString ticket;
+
+    if (tokenReply->error() == QNetworkReply::NoError) {
+        // Check for another redirect with the ticket
+        QUrl ticketUrl = tokenReply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+        qDebug() << "GarminConnect: Logintoken redirect result:" << ticketUrl.toString();
+
+        if (!ticketUrl.isEmpty()) {
+            QUrlQuery ticketQuery(ticketUrl);
+            ticket = ticketQuery.queryItemValue("ticket");
+            if (!ticket.isEmpty()) {
+                qDebug() << "GarminConnect: Found ticket after logintoken redirect:" << ticket.left(20) << "...";
+            }
+        }
+
+        // If still no ticket, try response body
+        if (ticket.isEmpty()) {
+            QString tokenResponse = QString::fromUtf8(tokenReply->readAll());
+            QRegularExpression ticketRegex1("embed\\?ticket=([^\"]+)\"");
+            QRegularExpression ticketRegex2("ticket=([^&\"']+)");
+
+            QRegularExpressionMatch match = ticketRegex1.match(tokenResponse);
+            if (match.hasMatch()) {
+                ticket = match.captured(1);
+                qDebug() << "GarminConnect: Found ticket in logintoken response body (pattern 1)";
+            } else {
+                match = ticketRegex2.match(tokenResponse);
+                if (match.hasMatch()) {
+                    ticket = match.captured(1);
+                    qDebug() << "GarminConnect: Found ticket in logintoken response body (pattern 2)";
+                }
+            }
+        }
+    }
+
+    // CRITICAL: Update cookies after logintoken redirect
+    // Garmin may set new session cookies during this redirect
+    QUrl loginTokenUrl = tokenReply->url();
+    m_cookies = m_manager->cookieJar()->cookiesForUrl(loginTokenUrl);
+    qDebug() << "GarminConnect: Updated cookies after logintoken redirect, count:" << m_cookies.size();
+
+    tokenReply->deleteLater();
+
+    if (ticket.isEmpty()) {
+        m_lastError = "Failed to extract ticket after logintoken redirect";
+        qDebug() << "GarminConnect:" << m_lastError;
+        emit authenticationFailed(m_lastError);
+        return;
+    }
+
+    qDebug() << "GarminConnect: MFA verification successful";
+
+    // Exchange ticket for OAuth1 token
+    if (!exchangeForOAuth1Token(ticket)) {
+        emit authenticationFailed(m_lastError);
+        return;
+    }
+
+    // Exchange OAuth1 for OAuth2 token
+    if (!exchangeForOAuth2Token()) {
+        emit authenticationFailed(m_lastError);
+        return;
+    }
+
+    saveTokensToSettings();
+    qDebug() << "GarminConnect: Login successful!";
+    emit authenticated();
 }
 
 bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
