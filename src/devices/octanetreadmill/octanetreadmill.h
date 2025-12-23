@@ -63,6 +63,9 @@ class octanetreadmill : public treadmill {
     QByteArray actualPace2Sign;
     QByteArray cadenceSign;
 
+    QDateTime lastValidSpeedTime;
+    QDateTime lastCadenceZeroTime;
+
     QTimer *refresh;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
