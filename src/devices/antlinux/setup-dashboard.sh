@@ -1772,11 +1772,15 @@ configure_user_profile() {
     # Selection Menus (Units/Gender)
     # shellcheck disable=SC2034
     local unit_opts=("Metric (kg/km)" "Imperial (lbs/mi)")
+    draw_bottom_panel_header "SELECT UNIT SYSTEM"
+    clear_info_area
     show_scrollable_menu "SELECT UNIT SYSTEM" unit_opts "$( [ "$PREV_MILES" == "true" ] && echo 1 || echo 0)"
     [[ $? -eq 255 ]] && return 0
     
     # shellcheck disable=SC2034
     local sex_opts=("Male" "Female")
+    draw_bottom_panel_header "SELECT GENDER"
+    clear_info_area
     show_scrollable_menu "SELECT GENDER" sex_opts "$( [ "$PREV_SEX" == "Female" ] && echo 1 || echo 0)"
     [[ $? -eq 255 ]] && return 0
 
@@ -1841,7 +1845,10 @@ select_equipment_flow() {
 
     while true; do
         if [ "$state" -eq 0 ]; then
-             show_scrollable_menu "SELECT DEVICE TYPE" types "$type_def_idx" "Back"
+               # Update info header for equipment selection and clear the area
+               draw_bottom_panel_header "SELECT DEVICE TYPE"
+               clear_info_area
+               show_scrollable_menu "SELECT DEVICE TYPE" types "$type_def_idx" "Back" "pad"
              local t_idx=$?
              if [ "$t_idx" -eq 255 ]; then return 1; fi 
              selected_type="${types[$t_idx]}"
@@ -1868,7 +1875,10 @@ select_equipment_flow() {
                 done
             fi
 
-            show_scrollable_menu "SELECT $selected_type MODEL" models "$mod_def_idx" "Back"
+            # Update info header to reflect model selection
+            draw_bottom_panel_header "SELECT $selected_type MODEL"
+            clear_info_area
+            show_scrollable_menu "SELECT $selected_type MODEL" models "$mod_def_idx" "Back" "pad"
             local m_idx=$?
             if [ "$m_idx" -eq 255 ]; then state=0; continue; fi
             
@@ -3003,6 +3013,7 @@ show_scrollable_menu() {
     local items_name="$2"
     local selected="${3:-0}"
     local back_label="${4:-}"
+    local pad_mode="${5:-}"
 
     # Copy the named array into a local array safely
     local menu_list=()
@@ -3026,9 +3037,18 @@ show_scrollable_menu() {
     local render_start=$LOG_TOP
     local max_display=$total_info_rows
 
-    if [[ $total_count -le 8 ]]; then
+    # If caller requests padding, leave the very top and bottom rows blank
+    # (useful for equipment selection where we want breathing room).
+    if [[ "$pad_mode" == "pad" ]]; then
         render_start=$(( LOG_TOP + 1 ))
-        max_display=$(( total_info_rows - 1 ))
+        max_display=$(( total_info_rows - 2 ))
+        # Ensure max_display is at least 1
+        [[ $max_display -lt 1 ]] && max_display=1
+    else
+        if [[ $total_count -le 8 ]]; then
+            render_start=$(( LOG_TOP + 1 ))
+            max_display=$(( total_info_rows - 1 ))
+        fi
     fi
 
     local display_count=$total_count
