@@ -1249,12 +1249,9 @@ draw_top_panel() {
     draw_header_service_line
 
     # Status Header with Legend
-    local l_pass="${GREEN}${SYMBOL_PASS}${BLUE} Ready"
-    local l_lock="${BOLD_MAGENTA}${SYMBOL_LOCKED}${BLUE} Protected"
-    local l_warn="${YELLOW}${SYMBOL_WARN}${BLUE} Warning"
-    local l_serv="${GRAY}${SYMBOL_PENDING}${BLUE} Service"
-    local l_fail="${RED}${SYMBOL_FAIL}${BLUE} Missing"
-    local full_legend="${l_pass}  ${l_lock}  ${l_warn}  ${l_serv}  ${l_fail} "
+    # Compact status legend: show only colored symbols (no descriptive text)
+    # No inline legend in the header — the popup covers explanations.
+    local full_legend=""
 
     # Arguments: Row, LeftCorner, RightCorner, Text, TextColor, Legend
     draw_hr 4 "╠" "╣" "STATUS" "$BOLD_WHITE" "$full_legend"
@@ -1518,6 +1515,36 @@ draw_instructions_bottom() {
     for ((r=start_fill; r<=LOG_BOTTOM; r++)); do
         print_at "$r" "${BLUE}║${NC}$(pad_display "" $INFO_WIDTH)${BLUE}║${NC}"
     done
+
+}
+
+# Display a temporary Legend popup in the info area. This is non-destructive
+# and returns immediately after the user presses any key.
+show_legend_popup() {
+    enter_ui_mode
+    clear_info_area
+
+    # Expanded concise legend: symbol, short label and a one-line explanation
+    local row=$((LOG_TOP + 1))
+    draw_sealed_row "$row" "   ${BOLD_WHITE}LEGEND${NC}"
+    row=$((row + 1))
+    draw_sealed_row "$row" "   ${GREEN}${SYMBOL_PASS}${NC}  Ready  — Present and functioning"
+    row=$((row + 1))
+    draw_sealed_row "$row" "   ${BOLD_MAGENTA}${SYMBOL_LOCKED}${NC}  Protected  — Keep this resource unchanged"
+    row=$((row + 1))
+    draw_sealed_row "$row" "   ${YELLOW}${SYMBOL_WARN}${NC}  Warning  — Needs attention; non-fatal"
+    row=$((row + 1))
+    draw_sealed_row "$row" "   ${GRAY}${SYMBOL_PENDING}${NC}  Service  — Background service active/pending"
+    row=$((row + 1))
+    draw_sealed_row "$row" "   ${RED}${SYMBOL_FAIL}${NC}  Missing  — Not installed or failed check"
+
+    draw_bottom_border "Press any key to continue"
+    # Wait for any single keypress (read from controlling TTY)
+    local k
+    IFS= read -rsn1 k </dev/tty 2>/dev/null || true
+
+    clear_info_area
+    exit_ui_mode
 }
 
 
@@ -2780,21 +2807,22 @@ prompt_yes_no() {
         done
         
         # Border call
-        draw_bottom_border "Arrows: Up/Down | Enter: Select"
+        draw_bottom_border "Arrows: Up/Down | Enter: Select | L: Legend"
 
         local key=""
-        IFS= read -rsn1 key
+        # Read from controlling TTY to avoid stdin redirections interfering
+        IFS= read -rsn1 key </dev/tty
         if [[ $key == $'\x1b' ]]; then
-            # Read the rest of the escape sequence with a slightly longer
-            # timeout to accommodate slower terminals (some send 3-byte seqs).
-            read -rsn2 -t 0.06 k2 || true
-            # If there's still more, try one more byte quickly
-            if [[ -z "$k2" ]]; then read -rsn1 -t 0.02 k3 || true; fi
+            read -rsn2 -t 0.06 k2 </dev/tty || true
+            if [[ -z "$k2" ]]; then read -rsn1 -t 0.02 k3 </dev/tty || true; fi
             local seq="${k2}${k3:-}"
             case "${seq:-}" in
                 '[A'|"[A") ((selected--)) ;; 
                 '[B'|"[B") ((selected++)) ;;
             esac
+        elif [[ $key == [lL] ]]; then
+            show_legend_popup
+            continue
         elif [[ $key == "" ]]; then
             return "$selected"
         fi
@@ -2859,16 +2887,19 @@ prompt_setup_mode() {
             fi
         done
         
-        draw_bottom_border "Arrows: Up/Down | Enter: Select"
+        draw_bottom_border "Arrows: Up/Down | Enter: Select | L: Legend"
         
         local key=""
-        IFS= read -rsn1 key
+        IFS= read -rsn1 key </dev/tty
         if [[ $key == $'\x1b' ]]; then
-            read -rsn2 -t 0.01 k2
+            read -rsn2 -t 0.01 k2 </dev/tty || true
             case "${k2:-}" in
                 '[A') ((selected--)) ;; 
                 '[B') ((selected++)) ;;
             esac
+        elif [[ $key == [lL] ]]; then
+            show_legend_popup
+            continue
         elif [[ $key == "" ]]; then
             if [ $selected -eq 2 ]; then return 1; fi
             [ $selected -eq 0 ] && SETUP_MODE="gui" || SETUP_MODE="headless"
@@ -2904,14 +2935,17 @@ prompt_success_menu() {
             fi
         done
         
-        draw_bottom_border "Arrows: Up/Down | Enter: Select"
+        draw_bottom_border "Arrows: Up/Down | Enter: Select | L: Legend"
         
         local key=""
-        IFS= read -rsn1 key
+        IFS= read -rsn1 key </dev/tty
         if [[ $key == $'\x1b' ]]; then
-            read -rsn2 -t 0.01 k2
+            read -rsn2 -t 0.01 k2 </dev/tty || true
             [[ "${k2:-}" == "[A" ]] && ((selected--))
             [[ "${k2:-}" == "[B" ]] && ((selected++))
+        elif [[ $key == [lL] ]]; then
+            show_legend_popup
+            continue
         elif [[ $key == "" ]]; then
             return "$selected"
         fi
@@ -2944,14 +2978,17 @@ prompt_action_menu() {
             fi
         done
         
-        draw_bottom_border "Arrows: Up/Down | Enter: Select"
+        draw_bottom_border "Arrows: Up/Down | Enter: Select | L: Legend"
         
         local key=""
-        IFS= read -rsn1 key
+        IFS= read -rsn1 key </dev/tty
         if [[ $key == $'\x1b' ]]; then
-            read -rsn2 -t 0.01 k2
+            read -rsn2 -t 0.01 k2 </dev/tty || true
             [[ "${k2:-}" == "[A" ]] && ((selected--))
             [[ "${k2:-}" == "[B" ]] && ((selected++))
+        elif [[ $key == [lL] ]]; then
+            show_legend_popup
+            continue
         elif [[ $key == "" ]]; then
             return "$selected"
         fi
@@ -3053,7 +3090,7 @@ show_scrollable_menu() {
 
         # 5. Add footer to buffer
         local b_row=$((LOG_BOTTOM + 1))
-        local help_text="Arrows: Up/Down | Enter: Select"
+        local help_text="Arrows: Up/Down | Enter: Select | L: Legend"
         
         # Calculate footer components
         local help_w
@@ -3082,10 +3119,12 @@ show_scrollable_menu() {
 
         # 7. Input handling (unchanged)
         local key=""
-        IFS= read -rsn1 key
+        # Read explicitly from the controlling TTY so piped stdin or sudo
+        # redirections don't interfere with interactive input.
+        IFS= read -rsn1 key </dev/tty
         if [[ $key == $'\x1b' ]]; then
-            read -rsn2 -t 0.06 k2 || true
-            if [[ -z "$k2" ]]; then read -rsn1 -t 0.02 k3 || true; fi
+            read -rsn2 -t 0.06 k2 </dev/tty || true
+            if [[ -z "$k2" ]]; then read -rsn1 -t 0.02 k3 </dev/tty || true; fi
             local seq="${k2}${k3:-}"
             case "${seq:-}" in
                 '[A'|"[A") ((selected--)) ;; 
@@ -3100,6 +3139,9 @@ show_scrollable_menu() {
             move_cursor $((LOG_BOTTOM + 1)) 0
             exit_ui_mode
             return "$selected"
+        elif [[ $key == [lL] ]]; then
+            # Show legend popup, then continue the menu loop (selection unchanged)
+            show_legend_popup
         fi
 
         # Wrap selection

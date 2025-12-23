@@ -65,6 +65,25 @@ RUN python3 -m venv /opt/ant_venv && \
 WORKDIR /app
 COPY . .
 
+# Generate devices.ini for distribution if QML source is present. This is
+# best-effort: if generation fails we fall back to any existing devices.ini
+# checked into the repo so the build does not break.
+RUN if [ -f src/setting.qml ]; then \
+            # Run the generator (from project root) if the project's QML is present
+            python3 src/devices/antlinux/generate_devices.py || true; \
+        else \
+            echo "No setting.qml found; keeping checked-in devices.ini if present."; \
+        fi && \
+        # If generator wrote into src/devices/antlinux/devices.ini, normalize
+        # it to src/devices.ini so the final COPY can reference a single path.
+        if [ ! -f src/devices.ini ] && [ -f src/devices/antlinux/devices.ini ]; then \
+            cp src/devices/antlinux/devices.ini src/devices.ini; \
+        fi && \
+        # Ensure a devices.ini exists so the final image copy step doesn't fail
+        if [ ! -f src/devices.ini ]; then \
+            touch src/devices.ini; \
+        fi
+
 # Initialize only the needed submodules (avoid full recursive fetch)
 RUN git submodule update --init src/smtpclient/ && \
     git submodule update --init src/qmdnsengine/ && \
@@ -115,6 +134,7 @@ COPY src/devices/antlinux/setup.sh /qdomyos-zwift-arm64-ant/
 COPY src/devices/antlinux/test_ant.py /qdomyos-zwift-arm64-ant/
 COPY src/devices/antlinux/ant_broadcaster.py /qdomyos-zwift-arm64-ant/
 COPY src/devices/antlinux/README.md /qdomyos-zwift-arm64-ant/
+COPY --from=builder /app/src/devices/antlinux/devices.ini /qdomyos-zwift-arm64-ant/devices.ini
 RUN chmod +x /qdomyos-zwift-arm64-ant/qdomyos-zwift && \
     chmod +x /qdomyos-zwift-arm64-ant/setup.sh
 
