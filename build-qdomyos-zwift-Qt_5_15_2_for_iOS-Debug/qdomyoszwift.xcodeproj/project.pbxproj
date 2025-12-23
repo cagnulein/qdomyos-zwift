@@ -523,6 +523,8 @@
 		87C5F0D926285E7E0067A1B5 /* moc_mimeattachment.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C5F0CE26285E7E0067A1B5 /* moc_mimeattachment.cpp */; };
 		87C7074227E4CF5300E79C46 /* moc_keepbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C7074127E4CF5300E79C46 /* moc_keepbike.cpp */; };
 		87C7074327E4CF5900E79C46 /* keepbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C7073F27E4CF4500E79C46 /* keepbike.cpp */; };
+		87CBCF122EFAA2F8004F5ECE /* garminconnect.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CBCF102EFAA2F8004F5ECE /* garminconnect.cpp */; };
+		87CBCF132EFAA2F8004F5ECE /* moc_garminconnect.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CBCF112EFAA2F8004F5ECE /* moc_garminconnect.cpp */; };
 		87CC3B9D25A08812001EC5A8 /* moc_domyoselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CC3B9B25A08812001EC5A8 /* moc_domyoselliptical.cpp */; };
 		87CC3B9E25A08812001EC5A8 /* moc_elliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CC3B9C25A08812001EC5A8 /* moc_elliptical.cpp */; };
 		87CC3BA325A0885F001EC5A8 /* domyoselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CC3B9F25A0885D001EC5A8 /* domyoselliptical.cpp */; };
@@ -1613,6 +1615,9 @@
 		87C7073F27E4CF4500E79C46 /* keepbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = keepbike.cpp; path = ../src/devices/keepbike/keepbike.cpp; sourceTree = "<group>"; };
 		87C7074027E4CF4500E79C46 /* keepbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = keepbike.h; path = ../src/devices/keepbike/keepbike.h; sourceTree = "<group>"; };
 		87C7074127E4CF5300E79C46 /* moc_keepbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_keepbike.cpp; sourceTree = "<group>"; };
+		87CBCF0F2EFAA2F8004F5ECE /* garminconnect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = garminconnect.h; path = ../src/garminconnect.h; sourceTree = SOURCE_ROOT; };
+		87CBCF102EFAA2F8004F5ECE /* garminconnect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = garminconnect.cpp; path = ../src/garminconnect.cpp; sourceTree = SOURCE_ROOT; };
+		87CBCF112EFAA2F8004F5ECE /* moc_garminconnect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_garminconnect.cpp; sourceTree = "<group>"; };
 		87CC3B9B25A08812001EC5A8 /* moc_domyoselliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_domyoselliptical.cpp; sourceTree = "<group>"; };
 		87CC3B9C25A08812001EC5A8 /* moc_elliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_elliptical.cpp; sourceTree = "<group>"; };
 		87CC3B9F25A0885D001EC5A8 /* domyoselliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = domyoselliptical.cpp; path = ../src/devices/domyoselliptical/domyoselliptical.cpp; sourceTree = "<group>"; };
@@ -2333,6 +2338,9 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87CBCF0F2EFAA2F8004F5ECE /* garminconnect.h */,
+				87CBCF102EFAA2F8004F5ECE /* garminconnect.cpp */,
+				87CBCF112EFAA2F8004F5ECE /* moc_garminconnect.cpp */,
 				87EFC58E2E919DB7005BB573 /* QZWorkoutAttributes.swift */,
 				87EFC57C2E918DAA005BB573 /* LiveActivityBridge.swift */,
 				870C72622E91565E00DC8A84 /* ios_liveactivity.h */,
@@ -4032,6 +4040,8 @@
 				872088EB2CE6543C008C2C17 /* moc_mqttpublisher.cpp in Compile Sources */,
 				872088EC2CE6543C008C2C17 /* moc_qmqttclient.cpp in Compile Sources */,
 				875CA94C2D130F8100667EE6 /* moc_osc.cpp in Compile Sources */,
+				87CBCF122EFAA2F8004F5ECE /* garminconnect.cpp in Compile Sources */,
+				87CBCF132EFAA2F8004F5ECE /* moc_garminconnect.cpp in Compile Sources */,
 				872088ED2CE6543C008C2C17 /* moc_qmqttmessage.cpp in Compile Sources */,
 				872088EE2CE6543C008C2C17 /* moc_qmqttsubscription.cpp in Compile Sources */,
 				872088EF2CE6543C008C2C17 /* moc_qmqttconnection_p.cpp in Compile Sources */,
