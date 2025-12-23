@@ -1,4 +1,5 @@
 #include "garminconnect.h"
+#include "qzsettings.h"
 #include <QDebug>
 #include <QRegularExpression>
 #include <QRandomGenerator>
@@ -1331,12 +1332,12 @@ bool GarminConnect::uploadActivity(const QByteArray &fitData, const QString &fil
 void GarminConnect::loadTokensFromSettings()
 {
     QSettings settings;
-    m_oauth2Token.access_token = settings.value("garmin_access_token").toString();
-    m_oauth2Token.refresh_token = settings.value("garmin_refresh_token").toString();
-    m_oauth2Token.token_type = settings.value("garmin_token_type").toString();
-    m_oauth2Token.expires_at = settings.value("garmin_expires_at").toLongLong();
-    m_oauth2Token.refresh_token_expires_at = settings.value("garmin_refresh_token_expires_at").toLongLong();
-    m_domain = settings.value("garmin_domain", "garmin.com").toString();
+    m_oauth2Token.access_token = settings.value(QZSettings::garmin_access_token, QZSettings::default_garmin_access_token).toString();
+    m_oauth2Token.refresh_token = settings.value(QZSettings::garmin_refresh_token, QZSettings::default_garmin_refresh_token).toString();
+    m_oauth2Token.token_type = settings.value(QZSettings::garmin_token_type, QZSettings::default_garmin_token_type).toString();
+    m_oauth2Token.expires_at = settings.value(QZSettings::garmin_expires_at, QZSettings::default_garmin_expires_at).toLongLong();
+    m_oauth2Token.refresh_token_expires_at = settings.value(QZSettings::garmin_refresh_token_expires_at, QZSettings::default_garmin_refresh_token_expires_at).toLongLong();
+    m_domain = settings.value(QZSettings::garmin_domain, QZSettings::default_garmin_domain).toString();
 
     if (!m_oauth2Token.access_token.isEmpty()) {
         qDebug() << "GarminConnect: Loaded tokens from settings";
@@ -1346,13 +1347,13 @@ void GarminConnect::loadTokensFromSettings()
 void GarminConnect::saveTokensToSettings()
 {
     QSettings settings;
-    settings.setValue("garmin_access_token", m_oauth2Token.access_token);
-    settings.setValue("garmin_refresh_token", m_oauth2Token.refresh_token);
-    settings.setValue("garmin_token_type", m_oauth2Token.token_type);
-    settings.setValue("garmin_expires_at", m_oauth2Token.expires_at);
-    settings.setValue("garmin_refresh_token_expires_at", m_oauth2Token.refresh_token_expires_at);
-    settings.setValue("garmin_domain", m_domain);
-    settings.setValue("garmin_last_refresh", QDateTime::currentDateTime());
+    settings.setValue(QZSettings::garmin_access_token, m_oauth2Token.access_token);
+    settings.setValue(QZSettings::garmin_refresh_token, m_oauth2Token.refresh_token);
+    settings.setValue(QZSettings::garmin_token_type, m_oauth2Token.token_type);
+    settings.setValue(QZSettings::garmin_expires_at, m_oauth2Token.expires_at);
+    settings.setValue(QZSettings::garmin_refresh_token_expires_at, m_oauth2Token.refresh_token_expires_at);
+    settings.setValue(QZSettings::garmin_domain, m_domain);
+    settings.setValue(QZSettings::garmin_last_refresh, QDateTime::currentDateTime());
 
     qDebug() << "GarminConnect: Tokens saved to settings";
 }
@@ -1360,12 +1361,12 @@ void GarminConnect::saveTokensToSettings()
 void GarminConnect::clearTokens()
 {
     QSettings settings;
-    settings.remove("garmin_access_token");
-    settings.remove("garmin_refresh_token");
-    settings.remove("garmin_token_type");
-    settings.remove("garmin_expires_at");
-    settings.remove("garmin_refresh_token_expires_at");
-    settings.remove("garmin_last_refresh");
+    settings.remove(QZSettings::garmin_access_token);
+    settings.remove(QZSettings::garmin_refresh_token);
+    settings.remove(QZSettings::garmin_token_type);
+    settings.remove(QZSettings::garmin_expires_at);
+    settings.remove(QZSettings::garmin_refresh_token_expires_at);
+    settings.remove(QZSettings::garmin_last_refresh);
 
     m_oauth1Token = OAuth1Token();
     m_oauth2Token = OAuth2Token();

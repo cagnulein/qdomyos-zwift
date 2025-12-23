@@ -90,6 +90,28 @@ class QZSettings {
 
     static const QString garmin_upload_enabled;
     static constexpr bool default_garmin_upload_enabled = false;
+
+    static const QString garmin_access_token;
+    static const QString default_garmin_access_token;
+
+    static const QString garmin_refresh_token;
+    static const QString default_garmin_refresh_token;
+
+    static const QString garmin_token_type;
+    static const QString default_garmin_token_type;
+
+    static const QString garmin_expires_at;
+    static constexpr qint64 default_garmin_expires_at = 0;
+
+    static const QString garmin_refresh_token_expires_at;
+    static constexpr qint64 default_garmin_refresh_token_expires_at = 0;
+
+    static const QString garmin_domain;
+    static const QString default_garmin_domain;
+
+    static const QString garmin_last_refresh;
+    static const QString default_garmin_last_refresh;
+
     static const QString intervalsicu_accesstoken;
     static const QString default_intervalsicu_accesstoken;
 

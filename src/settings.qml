@@ -1240,6 +1240,13 @@ import Qt.labs.platform 1.1
             property string garmin_email: ""
             property string garmin_password: ""
             property bool garmin_upload_enabled: false
+            property string garmin_access_token: ""
+            property string garmin_refresh_token: ""
+            property string garmin_token_type: ""
+            property var garmin_expires_at: 0
+            property var garmin_refresh_token_expires_at: 0
+            property string garmin_domain: "garmin.com"
+            property string garmin_last_refresh: ""
         }
 
 

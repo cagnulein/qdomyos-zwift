@@ -45,6 +45,18 @@ const QString QZSettings::default_garmin_email = QStringLiteral("");
 const QString QZSettings::garmin_password = QStringLiteral("garmin_password");
 const QString QZSettings::default_garmin_password = QStringLiteral("");
 const QString QZSettings::garmin_upload_enabled = QStringLiteral("garmin_upload_enabled");
+const QString QZSettings::garmin_access_token = QStringLiteral("garmin_access_token");
+const QString QZSettings::default_garmin_access_token = QStringLiteral("");
+const QString QZSettings::garmin_refresh_token = QStringLiteral("garmin_refresh_token");
+const QString QZSettings::default_garmin_refresh_token = QStringLiteral("");
+const QString QZSettings::garmin_token_type = QStringLiteral("garmin_token_type");
+const QString QZSettings::default_garmin_token_type = QStringLiteral("");
+const QString QZSettings::garmin_expires_at = QStringLiteral("garmin_expires_at");
+const QString QZSettings::garmin_refresh_token_expires_at = QStringLiteral("garmin_refresh_token_expires_at");
+const QString QZSettings::garmin_domain = QStringLiteral("garmin_domain");
+const QString QZSettings::default_garmin_domain = QStringLiteral("garmin.com");
+const QString QZSettings::garmin_last_refresh = QStringLiteral("garmin_last_refresh");
+const QString QZSettings::default_garmin_last_refresh = QStringLiteral("");
 const QString QZSettings::intervalsicu_accesstoken = QStringLiteral("intervalsicu_accesstoken");
 const QString QZSettings::default_intervalsicu_accesstoken = QStringLiteral("");
 const QString QZSettings::intervalsicu_refreshtoken = QStringLiteral("intervalsicu_refreshtoken");
@@ -1018,7 +1030,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 831;
+const uint32_t allSettingsCount = 838;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1045,6 +1057,13 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::garmin_email, QZSettings::default_garmin_email},
     {QZSettings::garmin_password, QZSettings::default_garmin_password},
     {QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled},
+    {QZSettings::garmin_access_token, QZSettings::default_garmin_access_token},
+    {QZSettings::garmin_refresh_token, QZSettings::default_garmin_refresh_token},
+    {QZSettings::garmin_token_type, QZSettings::default_garmin_token_type},
+    {QZSettings::garmin_expires_at, QZSettings::default_garmin_expires_at},
+    {QZSettings::garmin_refresh_token_expires_at, QZSettings::default_garmin_refresh_token_expires_at},
+    {QZSettings::garmin_domain, QZSettings::default_garmin_domain},
+    {QZSettings::garmin_last_refresh, QZSettings::default_garmin_last_refresh},
     {QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken},
     {QZSettings::intervalsicu_refreshtoken, QZSettings::default_intervalsicu_refreshtoken},
     {QZSettings::intervalsicu_athlete_id, QZSettings::default_intervalsicu_athlete_id},
