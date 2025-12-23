@@ -1,14 +1,0 @@
-power on
-scan on
-sleep 4
-quit
-[?2004hWaiting to connect to bluetoothd...[0;94m[bluetooth][0m# [C[C[C[C[C[C[C[CSHARP CP-SS30power on
-[?2004l[?2004h[0;94m[SHARP CP-SS30][0m# scan on
-[?2004l[?2004h[0;94m[SHARP CP-SS30][0m# sleep 4
-[?2004l[1;39mInvalid command in menu main: sleep[0m
-[1;39m
-Use "help" for a list of available commands in a menu.
-Use "menu <submenu>" if you want to enter any submenu.
-Use "back" if you want to return to menu main.[0m
-[?2004h[0;94m[SHARP CP-SS30][0m# quit
-[?2004l[?2004h[0;94m[SHARP CP-SS30][0m# [?2004l

@@ -446,70 +446,53 @@ FINISH_DONE=0
 CAN_INSTALL=0
 SETUP_MODE=""
 
-# No disk-backed logging. Ensure a RAM-only `TEMP_DIR` exists early.
-_validate_ram_storage() {
-    local path="$1"
-    [[ ! -d "$path" || ! -w "$path" ]] && return 1
-    # Prefer stat filesystem type check; fall back to a write-test if unknown
-    local fs_type
-    fs_type=$(stat -f -c %T "$path" 2>/dev/null || echo "unknown")
-    if [[ "$fs_type" == "tmpfs" ]]; then
-        return 0
-    fi
-    # As an additional check, verify /dev/shm device id matches
-    if [[ -e "/dev/shm" ]]; then
-        local dev_shm_dev
-        dev_shm_dev=$(stat -c %d "/dev/shm" 2>/dev/null || echo "")
-        local cand_dev
-        cand_dev=$(stat -c %d "$path" 2>/dev/null || echo "")
-        [[ -n "$dev_shm_dev" && "$dev_shm_dev" == "$cand_dev" ]] && return 0
-    fi
-    return 1
-}
-
-_init_temp_dir() {
-    local candidates=("/dev/shm" "/run/user/$(id -u)")
-    for base in "${candidates[@]}"; do
-        if _validate_ram_storage "$base"; then
-            TEMP_DIR="$base/qz_$$"
-            if mkdir -p "$TEMP_DIR" 2>/dev/null; then
-                trap 'rm -rf "$TEMP_DIR" 2>/dev/null || true' EXIT
-                return 0
-            fi
+# No disk-backed logging. Ensure a RAM-first `TEMP_DIR` exists early.
+if [[ -z "${TEMP_DIR:-}" ]]; then
+    __qz_uid=$(id -u 2>/dev/null || echo 0)
+    for __qz_base in "/dev/shm" "/run/user/$__qz_uid" "/tmp"; do
+        if [[ -d "${__qz_base}" && -w "${__qz_base}" ]]; then
+            TEMP_DIR="${__qz_base}/qz_$$"
+            mkdir -p "${TEMP_DIR}" 2>/dev/null || continue
+            break
         fi
     done
-    cat >&2 <<'EOF'
-FATAL ERROR: No RAM-backed storage available.
-The dashboard requires tmpfs to prevent SD card wear.
-
-SOLUTION:
-  1. Ensure /dev/shm is mounted:
-     sudo mount -t tmpfs -o size=128M tmpfs /dev/shm
-
-  2. Verify with: df -h /dev/shm
-
-  3. Make persistent by adding to /etc/fstab:
-     tmpfs /dev/shm tmpfs defaults,size=128M 0 0
-
-Cannot proceed without RAM storage.
-EOF
-    exit 1
-}
-
-# Initialize TEMP_DIR with strict validation
-if [[ -z "${TEMP_DIR:-}" ]]; then
-    _init_temp_dir
+    if [[ -z "${TEMP_DIR:-}" ]]; then
+        TEMP_DIR="./.qz_$$"
+        mkdir -p "$TEMP_DIR" 2>/dev/null || true
+    fi
+    trap 'rm -rf "${TEMP_DIR}" 2>/dev/null || true' EXIT
 fi
 
 # Optional Python provider integration (minimal, safe wrappers).
 # Note: debug logging removed; `bt_debug` calls were stripped from this file.
-# Prefer FIFO in shared memory to avoid SD card writes.
+# Prefer FIFO in shared memory to avoid SD card writes; fall back to file
 BT_PROVIDER_SUPERVISOR_PID=0
 BT_PROVIDER_PIDFILE=""
 BT_PROVIDER_STOP_FILE=""
 BT_PROVIDER_HEARTBEAT=""
 
-# Standardized temp paths (inside validated TEMP_DIR)
+# TEMP_DIR helper: prefer RAM-backed locations, fall back to per-user or /tmp
+get_temp_dir() {
+    local prefix="${1:-qz}"
+    local uid
+    uid=$(id -u)
+    for base in "/dev/shm" "/run/user/$uid" "/tmp"; do
+        if [[ -d "$base" && -w "$base" ]]; then
+            local td="$base/${prefix}_$$"
+            mkdir -p "$td" 2>/dev/null || continue
+            echo "$td" && return 0
+        fi
+    done
+    # Fallback: current directory
+    echo "./.${prefix}_$$"
+}
+
+# Initialize TEMP_DIR once at startup
+TEMP_DIR=${TEMP_DIR:-$(get_temp_dir "qz")}
+mkdir -p "$TEMP_DIR" 2>/dev/null || true
+trap 'rm -rf "$TEMP_DIR" 2>/dev/null || true' EXIT
+
+# Standardized temp paths
 BT_PROVIDER_FIFO="${BT_PROVIDER_FIFO:-$TEMP_DIR/qz_bt_fifo_$$}"
 BT_PROVIDER_PIDFILE=${BT_PROVIDER_PIDFILE:-$TEMP_DIR/qz_bt_provider_$$.pid}
 BT_PROVIDER_STOP_FILE=${BT_PROVIDER_STOP_FILE:-$TEMP_DIR/qz_bt_provider.stop}
@@ -773,6 +756,20 @@ stop_bt_provider() {
             kill_gracefully "$ppid" 2
         fi
         rm -f "$BT_PROVIDER_PIDFILE" 2>/dev/null || true
+    else
+        # Fallback: conservative pgrep using exact path match
+        local owner_user="${TARGET_USER:-$(id -un)}"
+        if [ -n "${BT_PROVIDER_PROV_PATH:-}" ]; then
+            local pids
+            pids=$(pgrep -u "$owner_user" -f "python.*${BT_PROVIDER_PROV_PATH}" 2>/dev/null || true)
+            if [ -n "$pids" ]; then
+                for pid in $pids; do
+                    if is_bt_provider_process "$pid"; then
+                        kill_gracefully "$pid" 2
+                    fi
+                done
+            fi
+        fi
     fi
 
     # Kill supervisor if present
@@ -784,6 +781,66 @@ stop_bt_provider() {
     fi
 
     # Clean up IPC artifacts
+    rm -f "$BT_PROVIDER_STOP_FILE" "$BT_PROVIDER_PIDFILE" "$BT_PROVIDER_FIFO" "$BT_PROVIDER_HEARTBEAT" 2>/dev/null || true
+}
+
+stop_bt_provider() {
+    # Signal supervisor to stop
+    touch "$BT_PROVIDER_STOP_FILE" 2>/dev/null || true
+
+    # Kill provider if pidfile exists
+    if [ -f "$BT_PROVIDER_PIDFILE" ]; then
+        local ppid
+        ppid=$(cat "$BT_PROVIDER_PIDFILE" 2>/dev/null || true)
+        if [ -n "$ppid" ]; then
+            kill "$ppid" 2>/dev/null || true
+            for i in {1..10}; do
+                if ps -p "$ppid" >/dev/null 2>&1; then sleep 0.05; else break; fi
+            done
+        fi
+        rm -f "$BT_PROVIDER_PIDFILE" 2>/dev/null || true
+    else
+        # No pidfile; try a conservative kill that only targets processes
+        # whose command line contains the exact provider path and are owned
+        # by the target user. This avoids killing unrelated apps with
+        # similar names.
+        local owner_user="${TARGET_USER:-$(id -un)}"
+        if [ -n "${BT_PROVIDER_PROV_PATH:-}" ]; then
+            # pgrep for processes matching the full path owned by owner_user
+            local pids
+            pids=$(pgrep -u "$owner_user" -f "${BT_PROVIDER_PROV_PATH}" || true)
+            if [ -n "$pids" ]; then
+                kill $pids 2>/dev/null || true
+                for pid in $pids; do
+                    for i in {1..10}; do
+                        if ps -p "$pid" >/dev/null 2>&1; then sleep 0.05; else break; fi
+                    done
+                done
+            else
+                # As a last-resort conservative fallback, look for python processes
+                # that reference a bt_provider.py basename and are owned by owner_user.
+                local basename
+                basename=$(basename "${BT_PROVIDER_PROV_PATH}" || true)
+                if [ -n "$basename" ]; then
+                    pids=$(pgrep -u "$owner_user" -f "[p]ython.*${basename}" || true)
+                    if [ -n "$pids" ]; then
+                        kill $pids 2>/dev/null || true
+                    fi
+                fi
+            fi
+        fi
+    fi
+
+    # Kill supervisor if present
+    if [ -n "${BT_PROVIDER_SUPERVISOR_PID:-}" ]; then
+        kill "$BT_PROVIDER_SUPERVISOR_PID" 2>/dev/null || true
+        for i in {1..10}; do
+            if ps -p "$BT_PROVIDER_SUPERVISOR_PID" >/dev/null 2>&1; then sleep 0.05; else break; fi
+        done
+        BT_PROVIDER_SUPERVISOR_PID=0
+    fi
+
+    # Clean up stop file and any RAM IPC artifacts
     rm -f "$BT_PROVIDER_STOP_FILE" "$BT_PROVIDER_PIDFILE" "$BT_PROVIDER_FIFO" "$BT_PROVIDER_HEARTBEAT" 2>/dev/null || true
 }
 
@@ -2346,12 +2403,7 @@ perform_bluetooth_scan() {
                 # Build index file: "RSSI|INDEX" for each device
                 local sort_input=""
                 for idx in "${!rssis[@]}"; do
-                    # Pad RSSI to positive range for stable numeric sort (handles negatives)
-                    local raw_rssi=${rssis[$idx]}
-                    if ! [[ "$raw_rssi" =~ ^-?[0-9]+$ ]]; then raw_rssi=0; fi
-                    # shift into positive space and zero-pad
-                    printf -v padded_rssi "%04d" "$(( raw_rssi + 200 ))"
-                    sort_input+="${padded_rssi}|${idx}"$'\n'
+                    sort_input+="${rssis[$idx]}|$idx"$'\n'
                 done
 
                 # Sort by RSSI (descending) and extract indices
@@ -3454,9 +3506,6 @@ perform_ant_test() {
     local launched=0
     local py_pid=0
     local success_log_file=""
-    # Try a safe dongle reset before starting attempts to reduce "device busy"
-    # failures. This is best-effort and will not abort the test if it fails.
-    safe_reset_dongle >/dev/null 2>&1 || true
     while [[ $attempt -le $retries ]]; do
         # Pre-kill any lingering test processes to free the dongle
         sudo pkill -f test_ant.py >/dev/null 2>&1 || true
@@ -3471,11 +3520,6 @@ perform_ant_test() {
             "$venv_py" -u "$py_script" --dashboard >"$log_file" 2>&1 &
         fi
         py_pid=$!
-        # Record the pid to a well-known temp file so external cleanup (trap)
-        # can discover and stop the test process if needed.
-        if [[ -n "${TEMP_DIR:-}" ]]; then
-            printf '%s' "$py_pid" > "$TEMP_DIR/qz_ant_test.pid" 2>/dev/null || true
-        fi
 
         # Wait briefly for the test script to initialize and emit any startup
         # output. If no output appears within `warmup_secs`, retry.
@@ -3509,53 +3553,6 @@ perform_ant_test() {
     # Use the successful log file for monitoring
     local log_file="$success_log_file"
 
-    # Capture a short startup excerpt so we can display initialization
-    # messages immediately in the UI after entering UI mode. Read a few
-    # extra lines so we can filter noisy USB/dongle diagnostics.
-    local initial_startup_lines=()
-    if [ -f "$log_file" ]; then
-        mapfile -t initial_startup_lines < <(tail -n 6 "$log_file" 2>/dev/null || true)
-        # Strip ANSI while collecting diagnostics separately so we can
-        # merge dongle/reset diagnostics into the primary initialization
-        # line instead of discarding them.
-        local _tmp=()
-        local _diag=()
-        for l in "${initial_startup_lines[@]}"; do
-            local cl
-            cl=$(strip_ansi_cached "$l")
-            if [[ "$cl" =~ (Pre-Test[[:space:]]USB[[:space:]]Reset|Found[[:space:]]dongle:|Attempting[[:space:]]to[[:space:]]reset|Reset[[:space:]]complete|ERROR[[:space:]]during[[:space:]]USB[[:space:]]reset) ]]; then
-                _diag+=("$cl")
-                continue
-            fi
-            _tmp+=("$cl")
-        done
-        # If we have diagnostics, merge them into the first meaningful
-        # startup line (or use them as the primary line if none exist).
-        if [ ${#_diag[@]} -gt 0 ]; then
-            local diag_join
-            diag_join=$(printf ' | %s' "${_diag[@]}")
-            # trim leading separator
-            diag_join=${diag_join#" | "}
-            if [ ${#_tmp[@]} -gt 0 ]; then
-                _tmp[0]="${_tmp[0]} — ${diag_join}"
-            else
-                _tmp=("${diag_join}")
-            fi
-        fi
-        # Keep the last 3 meaningful lines (oldest->newest)
-        if [ ${#_tmp[@]} -gt 3 ]; then
-            initial_startup_lines=("${_tmp[@]: -3}")
-        else
-            initial_startup_lines=("${_tmp[@]}")
-        fi
-    fi
-    # Ensure exactly three slots exist (may be empty)
-    for i in 0 1 2; do
-        if [[ -z "${initial_startup_lines[$i]:-}" ]]; then
-            initial_startup_lines[$i]=""
-        fi
-    done
-
     enter_ui_mode
     local spinner=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
     local sc=0
@@ -3565,28 +3562,24 @@ perform_ant_test() {
     while true; do
         # If process died, break
         if ! ps -p "$py_pid" >/dev/null 2>&1; then
-            # Process exited — show a compact, panel-safe summary of the
-            # final status so we don't overflow the info area.
+            # Process exited — show final status and last log excerpt to help
+            # diagnose why the broadcaster stopped before emitting data.
+            draw_sealed_row $((LOG_TOP + 2)) "   ANT+ Test completed."
+            draw_sealed_row $((LOG_TOP + 3)) "   ${GRAY}Test completed - broadcaster stopped.${NC}"
             local excerpt
             excerpt=$(tail -n 8 "$log_file" 2>/dev/null || true)
-            local panel_msg=""
-            panel_msg+="ANT+ Test completed.\n"
-            panel_msg+="Test completed - broadcaster stopped.\n"
             if [[ -n "$excerpt" ]]; then
-                panel_msg+="Last output from test_ant.py:\n"
+                draw_sealed_row $((LOG_TOP + 4)) "   Last output from test_ant.py:"
+                local lnum=$((LOG_TOP + 5))
                 while IFS= read -r l; do
                     local clean
                     clean=$(strip_ansi_cached "$l")
-                    # prefix dash for readability and cap line width
-                    panel_msg+="- ${clean:0:$((INFO_WIDTH-6))}\n"
+                    draw_sealed_row $lnum "   ${clean:0:$((INFO_WIDTH-3))}"
+                    lnum=$((lnum+1))
                 done <<< "$excerpt"
             else
-                panel_msg+="No output captured from test_ant.py.\n"
+                draw_sealed_row $((LOG_TOP + 4)) "   No output captured from test_ant.py."
             fi
-            # Render using draw_instructions_bottom which will crop/paginate
-            # to the available info panel height (LOG_TOP..LOG_BOTTOM).
-            draw_bottom_panel_header "ANT+ BROADCAST TEST"
-            draw_instructions_bottom "$panel_msg"
             break
         fi
 
@@ -3649,14 +3642,12 @@ perform_ant_test() {
             draw_bottom_panel_header "ANT+ BROADCAST TEST"
             clear_info_area
             draw_sealed_row $((LOG_TOP + 1)) "   Running: test_ant.py (PID: $py_pid)"
-            # Display captured initialization messages (up to 3 lines).
-            # Stage will later overwrite the first of these rows when it
-            # appears; the remaining lines remain for diagnostics.
-            draw_sealed_row $((LOG_TOP + 4)) "   ${initial_startup_lines[0]:-}"
-            draw_sealed_row $((LOG_TOP + 5)) "   ${initial_startup_lines[1]:-}"
-            draw_sealed_row $((LOG_TOP + 6)) "   ${initial_startup_lines[2]:-}"
-            # Use bottom border for stop instruction (consistency with Bluetooth)
-            draw_bottom_border "Any key to stop"
+            # Reserve dynamic rows; they'll be updated each loop
+            draw_sealed_row $((LOG_TOP + 3)) ""
+            draw_sealed_row $((LOG_TOP + 4)) ""
+            draw_sealed_row $((LOG_TOP + 5)) ""
+            draw_sealed_row $((LOG_TOP + 7)) "   Press 'b' to stop the test and return to the dashboard"
+            draw_bottom_border ""
             _first_draw=0
         fi
 
@@ -3668,9 +3659,7 @@ perform_ant_test() {
         local timer_total=""
 
         # If the compact dashboard status is present (stage | ...), parse it
-        local compact_present=0
         if [[ "$clean_line" =~ ^([^|]+)\|[[:space:]]*(.*) ]]; then
-            compact_present=1
             stage_name_display="${BASH_REMATCH[1]}"
             local compact_rest="${BASH_REMATCH[2]}"
             # Extract timer in brackets like [  7s / 30s ] (regex needs nested [] groups)
@@ -3686,44 +3675,16 @@ perform_ant_test() {
             if [[ "$compact_rest" =~ [Cc]adence[:space:]*([0-9]{1,3}) ]]; then m_cad="${BASH_REMATCH[1]}"; fi
             if [[ "$compact_rest" =~ [Ss]peed[:space:]*([0-9]+\.?[0-9]*) ]]; then m_speed="${BASH_REMATCH[1]}"; fi
             if [[ "$compact_rest" =~ [Pp]ace[:space:]*([0-9]{1,2}:[0-9]{2}) ]]; then m_pace="${BASH_REMATCH[1]}"; fi
-            # Simplified: use fixed 18-char fields per metric (54 total).
-            # Compute progress width and cap metrics if terminal too narrow.
-            local TIMER_FIELD_W=18
-            local progress_w=$(( INNER_COLS - 7 - TIMER_FIELD_W ))
-            if [[ $progress_w -lt 8 ]]; then progress_w=8; fi
-
-            local FIXED_MET_COL=18
-            local FIXED_MET_TOTAL=$(( FIXED_MET_COL * 3 ))
-
-            # If terminal/progress width is narrower than FIXED_MET_TOTAL,
-            # shrink each column proportionally (floor) to avoid overflow.
-            local col_w=$FIXED_MET_COL
-            if (( FIXED_MET_TOTAL > progress_w )); then
-                col_w=$(( progress_w / 3 ))
-                if (( col_w < 6 )); then col_w=6; fi
-            fi
-
-            local col1=$col_w; local col2=$col_w; local col3=$col_w
-
-            local left_txt="Pace:${m_pace:---}"
-            local mid_txt="Cadence:${m_cad:---}"
-            local right_txt="Speed:${m_speed:---}"
-
-            left_txt=$(trunc_vis "$left_txt" $col1)
-            mid_txt=$(trunc_vis "$mid_txt" $col2)
-            right_txt=$(trunc_vis "$right_txt" $col3)
-
-            left_txt=$(pad_display "$left_txt" $col1)
-            mid_txt=$(pad_display "$mid_txt" $col2)
-            right_txt=$(pad_display "$right_txt" $col3)
-
-            metrics_display="${left_txt}${mid_txt}${right_txt}"
+            # Build three-column metrics display padded to INFO_WIDTH
+            local col_w=$(( (INFO_WIDTH - 4) / 3 ))
+            [ $col_w -lt 8 ] && col_w=8
+            local left="Pace:${m_pace:---}"
+            local mid="Cadence:${m_cad:---}"
+            local right="Speed:${m_speed:---}"
+            metrics_display=$(printf "%-${col_w}s%-${col_w}s%-${col_w}s" "$left" "$mid" "$right")
         else
-            # No compact stage present; do not treat arbitrary log lines
-            # as the 'stage' — only show stage when compact status exists
-            # or when metrics are present. This avoids overwriting startup
-            # messages with partial log fragments.
-            stage_name_display=""
+            # No compact stage present; fallback: show last line
+            stage_name_display="${clean_line}"
             # Build metrics from parsed cadence/speed/pace variables
             local metrics_line=""
             [[ -n "$pace" ]] && metrics_line+="Pace: ${pace}  "
@@ -3732,180 +3693,89 @@ perform_ant_test() {
             if [[ -n "$metrics_line" ]]; then
                 metrics_display="$metrics_line"
             else
-                # Do not print a noisy placeholder here to avoid overlapping
-                # with startup messages from test_ant.py. Leave metrics empty
-                # until real broadcast data arrives.
-                metrics_display=""
+                metrics_display="${GRAY}Waiting for broadcast data...${NC}"
             fi
         fi
 
-        # Render stage and metrics on the SAME line: stage at left, then
-        # a ' . ' separator, then three evenly spaced metric columns that
-        # occupy exactly the progress-bar width so they never overflow.
-        # Build stage prefix and ensure it is truncated if necessary to fit.
-        local stage_prefix_spaces="   "
-        # Use spaces as separator; do not print a dot character
-        local sep="  "
-
-        # Fixed metrics total width (3 * 18 = 54) used for stage truncation
-        local FIXED_MET_COL=18
-        local FIXED_MET_TOTAL=$(( FIXED_MET_COL * 3 ))
-
-        # Determine progress width (same as above) and metrics_allowed_w
-        local TIMER_FIELD_W=18
-        local progress_w=$(( INNER_COLS - 7 - TIMER_FIELD_W ))
-        if [[ $progress_w -lt 8 ]]; then progress_w=8; fi
-        local metrics_allowed_w=$progress_w
-
-        # To align metrics with the progress bar, force the stage text to
-        # occupy a fixed visual width so that the metrics begin at the
-        # same column as the progress bar. Compute max stage width so that
-        # stage_prefix + stage_text + sep == (3 + TIMER_FIELD_W + 2)
-        # Solve for stage_text: stage_text_vis = (3 + TIMER_FIELD_W + 2) - (vis(stage_prefix)+vis(sep))
-        local desired_metrics_col=$(( 3 + TIMER_FIELD_W + 2 ))
-        local prefix_vis
-        prefix_vis=$(get_vis_width "$stage_prefix_spaces")
-        local sep_vis
-        sep_vis=$(get_vis_width "$sep")
-        local max_stage_vis=$(( desired_metrics_col - prefix_vis - sep_vis ))
-        if [[ $max_stage_vis -lt 0 ]]; then max_stage_vis=0; fi
-
-        # Truncate and pad the stage text to exactly max_stage_vis so metrics
-        # will start at the same column as the progress bar below.
-        local truncated_stage
-        truncated_stage=$(trunc_vis "$stage_name_display" $max_stage_vis)
-        truncated_stage=$(pad_display "$truncated_stage" $max_stage_vis)
-        local stage_row_text="${stage_prefix_spaces}${BOLD_WHITE}${truncated_stage}${NC}${sep}"
-
-        # Combine stage text and metrics (metrics_display already padded to metrics_allowed_w)
-        local full_line_content="${stage_row_text}${CYAN}${metrics_display}${NC}"
-
-        # Build an atomic render buffer for the dynamic rows (avoid interleaved prints)
-        local render_buffer=""
-
-        # Row LOG_TOP+4: show startup/initialization messages while compact
-        # status is NOT present. Do NOT clear this row once the compact
-        # status appears; leave whatever initialization message was printed
-        # so the user can read startup diagnostics.
-        local row4=$(( LOG_TOP + 4 ))
-        if [[ $compact_present -eq 0 && -n "$clean_line" ]]; then
-            local row4_text
-            row4_text=$(trunc_vis "   ${clean_line}" $INNER_COLS)
-            local vis4
-            vis4=$(get_vis_width "$row4_text")
-            local pad4=$(( INNER_COLS - vis4 )); (( pad4 < 0 )) && pad4=0
-            local padstr4
-            padstr4=$(printf '%*s' "$pad4" "")
-            local line4="${BLUE}║${NC}${row4_text}${padstr4}${BLUE}║${NC}"
-            render_buffer+=$(printf "\033[%d;1H%s" $((row4 + 1)) "$line4")
+        # Place metrics row above the stage so they appear 'in front of' the
+        # stage name within the information panel. Metrics redraw-on-change.
+        if [[ "$metrics_display" != "$_prev_metrics" ]]; then
+            if [[ -n "$metrics_display" ]]; then
+                draw_sealed_row $((LOG_TOP + 3)) "   ${CYAN}${metrics_display}${NC}"
+            else
+                draw_sealed_row $((LOG_TOP + 3)) ""
+            fi
+            _prev_metrics="$metrics_display"
         fi
 
-        # Stage will render at LOG_TOP+4 (it will overwrite the init text)
-        local row_stage=$(( LOG_TOP + 4 ))
-        # Only render this row if we have either a stage or metrics to show.
-        local stage_vis
-        stage_vis=$(get_vis_width "$(strip_ansi_cached "$truncated_stage")")
-        # Only render the stage+metrics row after a compact status line
-        # confirms a successful connection and structured output.
-        if [[ $compact_present -eq 1 ]]; then
-            local vis_stage
-            vis_stage=$(get_vis_width "$full_line_content")
-            local pad_stage=$(( INNER_COLS - vis_stage )); (( pad_stage < 0 )) && pad_stage=0
-            local padstr_stage
-            padstr_stage=$(printf '%*s' "$pad_stage" "")
-            local line_stage="${BLUE}║${NC}${full_line_content}${padstr_stage}${BLUE}║${NC}"
-            render_buffer+=$(printf "\033[%d;1H%s" $((row_stage + 1)) "$line_stage")
-        fi
+        # Draw the stage row atomically (stage name only). The timer and
+        # progress bar are drawn on the row below the metrics to provide a
+        # consistent fixed-width timer field and an adjacent progress bar.
+        local stage_row_text="   ${BOLD_WHITE}${stage_name_display}${NC}"
+        draw_sealed_row $((LOG_TOP + 4)) "$stage_row_text"
+        _prev_stage="$stage_name_display"
 
-        # Row LOG_TOP+5: timer + progress (only when compact status is present)
-        local row_progress=$(( LOG_TOP + 5 ))
+        # Draw timer (fixed field) and progress bar on the row below metrics
+        # Row: LOG_TOP + 5
         local TIMER_FIELD_W=18
+        # Build timer field (fixed width, right-pad)
         local timer_field=""
         if [[ -n "$timer_display" ]]; then
             local timer_vis
             timer_vis=$(get_vis_width "$timer_display")
             local pad=$(( TIMER_FIELD_W - timer_vis ))
             (( pad < 0 )) && pad=0
-            timer_field="${CYAN}${timer_display}${NC}$(printf '%*s' "$pad" "")"
+            local padstr=""
+            for ((i=0;i<pad;i++)); do padstr+=" "; done
+            timer_field="${CYAN}${timer_display}${NC}${padstr}"
         else
-            timer_field=$(printf '%*s' "$TIMER_FIELD_W" "")
+            # empty padded field
+            local padstr=""
+            for ((i=0;i<TIMER_FIELD_W;i++)); do padstr+=" "; done
+            timer_field="$padstr"
         fi
 
+        # Compute progress bar width and render
+        # Compute progress bar inner width so the full '[bar]' fits within
+        # the INNER_COLS available. Account for leading spaces and timer
+        # field: 3 (left) + TIMER_FIELD_W + 2 (gap) + 1('[') + progress_w + 1(']') = INNER_COLS
         local progress_w=$(( INNER_COLS - 7 - TIMER_FIELD_W ))
         if [[ $progress_w -lt 8 ]]; then progress_w=8; fi
         local progress_bar=""
         if [[ -n "$timer_elapsed" && -n "$timer_total" && $timer_total -gt 0 ]]; then
             local num_filled=$(( (timer_elapsed * progress_w) / timer_total ))
-            (( num_filled > progress_w )) && num_filled=$progress_w
-            (( num_filled < 0 )) && num_filled=0
-            local filled_spaces
-            filled_spaces=$(printf '%*s' "$num_filled" "")
-            local empty_spaces
-            empty_spaces=$(printf '%*s' "$((progress_w - num_filled))" "")
-            progress_bar="${BG_GREEN}${filled_spaces}${BG_GRAY}${empty_spaces}${NC}"
+            if [[ $num_filled -gt $progress_w ]]; then num_filled=$progress_w; fi
+            if [[ $num_filled -lt 0 ]]; then num_filled=0; fi
+                local filled_spaces=""
+                for ((i=0;i<num_filled;i++)); do filled_spaces+=" "; done
+                local empty_spaces=""
+                for ((i=0;i<progress_w-num_filled;i++)); do empty_spaces+=" "; done
+                # Render full bar as grey background, then overlay green background
+                # for the filled portion. No surrounding brackets; draw_sealed_row adds borders.
+                progress_bar="${BG_GREEN}${filled_spaces}${BG_GRAY}${empty_spaces}${NC}"
         else
-            local empty_spaces
-            empty_spaces=$(printf '%*s' "$progress_w" "")
-            progress_bar="${BG_GRAY}${empty_spaces}${NC}"
+            # empty progress bar
+                local empty_spaces=""
+                for ((i=0;i<progress_w;i++)); do empty_spaces+=" "; done
+                progress_bar="${BG_GRAY}${empty_spaces}${NC}"
         fi
 
-        local row_progress_text=""
-        if [[ $compact_present -eq 1 && -n "$timer_total" && $timer_total -gt 0 ]]; then
-            row_progress_text="   ${timer_field}  ${progress_bar}"
+        # Only show the timer+progress row when we have a valid total time
+        if [[ -n "$timer_total" && "$timer_total" -gt 0 ]]; then
+            draw_sealed_row $((LOG_TOP + 5)) "   ${timer_field}  ${progress_bar}"
+        else
+            draw_sealed_row $((LOG_TOP + 5)) ""
         fi
-        if [[ -n "$row_progress_text" ]]; then
-            local visp
-            visp=$(get_vis_width "$row_progress_text")
-            local padp=$(( INNER_COLS - visp )); (( padp < 0 )) && padp=0
-            local padstrp
-            padstrp=$(printf '%*s' "$padp" "")
-            local linep="${BLUE}║${NC}${row_progress_text}${padstrp}${BLUE}║${NC}"
-            render_buffer+=$(printf "\033[%d;1H%s" $((row_progress + 1)) "$linep")
-        fi
-
-        # Show simple user guidance while a stage is actively running
-        if [[ $compact_present -eq 1 ]]; then
-            local g1_row=$(( LOG_TOP + 7 ))
-            local g2_row=$(( LOG_TOP + 8 ))
-            local g1="   Put your watch in pairing mode and link it now."
-            local g2="   Your watch will show speed, cadence and pace."
-            # Truncate/pad to fit
-            g1=$(trunc_vis "$g1" $INNER_COLS)
-            g2=$(trunc_vis "$g2" $INNER_COLS)
-            local visg1 visg2 padg1 padg2 padstrg1 padstrg2 lineg1 lineg2
-            visg1=$(get_vis_width "$g1")
-            visg2=$(get_vis_width "$g2")
-            padg1=$(( INNER_COLS - visg1 )); (( padg1 < 0 )) && padg1=0
-            padg2=$(( INNER_COLS - visg2 )); (( padg2 < 0 )) && padg2=0
-            padstrg1=$(printf '%*s' "$padg1" "")
-            padstrg2=$(printf '%*s' "$padg2" "")
-            lineg1="${BLUE}║${NC}${g1}${padstrg1}${BLUE}║${NC}"
-            lineg2="${BLUE}║${NC}${g2}${padstrg2}${BLUE}║${NC}"
-            render_buffer+=$(printf "\033[%d;1H%s" $((g1_row + 1)) "$lineg1")
-            render_buffer+=$(printf "\033[%d;1H%s" $((g2_row + 1)) "$lineg2")
-        fi
-
-        # Atomic write of dynamic area
-        printf '%s' "$render_buffer" >&${UI_FD:-2}
 
         # Non-blocking read for key to allow user to abort
         local key
         IFS= read -rsn1 -t 0.4 key 2>/dev/null || true
         if [[ -n "$key" ]]; then
-            # Any key stops the test (consistent with Bluetooth scan)
-            # Show a friendly, non-technical completion panel similar to
-            # the DEVICE LINKED flow so users see a consistent UI.
-            draw_bottom_panel_header "ANT+ BROADCAST TEST"
-            clear_info_area
-            draw_sealed_row $((LOG_TOP + 2)) "   ${GREEN}Test completed successfully${NC}"
-            draw_sealed_row $((LOG_TOP + 4)) "   Cleaning up devices..."
-            draw_sealed_row $((LOG_TOP + 7)) "   Put your watch in pairing mode and link to the ANT+ device now."
-            draw_sealed_row $((LOG_TOP + 8)) "   Your watch will show pace and cadence (if setup in data field)"
-            draw_bottom_border ""
-            sleep 2
-            # Now stop the broadcaster and allow the outer cleanup to run
-            sudo kill -TERM "$py_pid" 2>/dev/null || true
-            break
+            if [[ "$key" == 'b' || "$key" == $'\x0a' ]]; then
+                # Stop request
+                sudo kill -TERM "$py_pid" 2>/dev/null || true
+                break
+            fi
         fi
         sc=$((sc+1))
     done
@@ -3914,11 +3784,9 @@ perform_ant_test() {
     if ps -p "$py_pid" >/dev/null 2>&1; then
         sudo kill -9 "$py_pid" 2>/dev/null || true
     fi
-    # Remove pid file so external cleaners don't attempt to kill a dead process
-    rm -f "$TEMP_DIR/qz_ant_test.pid" 2>/dev/null || true
     rm -f "$log_file" 2>/dev/null || true
 
-    sleep 2
+    sleep 10
     exit_ui_mode
     return 0
 }
@@ -4007,81 +3875,6 @@ cleanup() {
     restore_terminal
 }
 
-# Stop any running test_ant.py sessions discovered via the pidfile or by pkill.
-stop_test_ant_sessions() {
-    if [[ -n "${TEMP_DIR:-}" && -f "$TEMP_DIR/qz_ant_test.pid" ]]; then
-        local apid
-        apid=$(<"$TEMP_DIR/qz_ant_test.pid")
-        if [[ -n "$apid" ]] && ps -p "$apid" >/dev/null 2>&1; then
-            printf 'Stopping lingering test_ant.py (PID %s)...\n' "$apid" >/dev/stderr
-            sudo kill -TERM "$apid" 2>/dev/null || true
-            sleep 2
-            if ps -p "$apid" >/dev/null 2>&1; then
-                sudo kill -9 "$apid" 2>/dev/null || true
-            fi
-        fi
-        rm -f "$TEMP_DIR/qz_ant_test.pid" 2>/dev/null || true
-    fi
-    # As a fallback also kill any remaining test_ant.py processes
-    sudo pkill -f test_ant.py >/dev/null 2>&1 || true
-}
-
-# Attempt a safe USB reset of the ANT+ dongle using pyusb. This mirrors
-# the behavior present in test_ant.py.reset_ant_dongle(). Failure is
-# non-fatal; we print diagnostic info to stderr for the user.
-safe_reset_dongle() {
-    # Run a small Python snippet that finds known ANT vendor/product IDs
-    # and calls .reset() on the device if present. This requires pyusb
-    # and typically needs root privileges.
-    python3 - <<'PY' || return 1
-import sys
-try:
-    import usb.core
-    import usb.util
-except Exception as e:
-    print('safe_reset_dongle: pyusb not available:', e, file=sys.stderr)
-    sys.exit(1)
-SUPPORTED = [
-    (0x0fcf, 0x1009), (0x0fcf, 0x1008), (0x0fcf, 0x100c),
-    (0x0fcf, 0x100e), (0x0fcf, 0x88a4), (0x0fcf, 0x1004), (0x11fd, 0x0001)
-]
-def find_device():
-    for v,p in SUPPORTED:
-        d = usb.core.find(idVendor=v, idProduct=p)
-        if d is not None:
-            return d
-    return None
-
-d = find_device()
-if d is None:
-    print('safe_reset_dongle: no ANT+ dongle found', file=sys.stderr)
-    sys.exit(0)
-try:
-    print('safe_reset_dongle: resetting', file=sys.stderr)
-    d.reset()
-    print('safe_reset_dongle: reset complete', file=sys.stderr)
-except usb.core.USBError as e:
-    print('safe_reset_dongle: USBError:', e, file=sys.stderr)
-    sys.exit(1)
-except Exception as e:
-    print('safe_reset_dongle: unexpected error:', e, file=sys.stderr)
-    sys.exit(1)
-PY
-}
-
-# Unified shutdown called from traps: stop test sessions, attempt reset,
-# restore terminal and exit with the provided code.
-safe_shutdown() {
-    local code=${1:-0}
-    # stop background test processes first
-    stop_test_ant_sessions
-    # attempt a safe dongle reset (best-effort)
-    safe_reset_dongle >/dev/stderr 2>&1 || true
-    restore_terminal
-    # Re-emit the signal exit code
-    exit "$code"
-}
-
 # Parse arguments
 if [ $# -gt 0 ]; then
     for arg in "$@"; do
@@ -4108,10 +3901,6 @@ fi
 # ============================================================================
 
 # 1. Prepare terminal
-# Ensure cleanup on exit or signals: stop test sessions and attempt dongle reset
-trap 'safe_shutdown 0' EXIT
-trap 'safe_shutdown 130' SIGINT
-trap 'safe_shutdown 143' SIGTERM
 set_ui_output
 refresh_dashboard # Draws the top status table and global frame
 

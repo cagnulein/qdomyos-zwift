@@ -19,6 +19,7 @@
 
 import time
 import sys
+import argparse
 from pathlib import Path
 
 # Ensure the ant_broadcaster module can be found in the same directory
@@ -157,6 +158,10 @@ def main():
     
     broadcaster = AntBroadcaster()
 
+    parser = argparse.ArgumentParser(description='ANT+ test runner')
+    parser.add_argument('--dashboard', action='store_true', help='Emit compact status lines for dashboard consumption')
+    args = parser.parse_args()
+
     try:
         print(f"Starting ANT+ broadcaster with device ID {ant_device_id}...")
         if not broadcaster.start(ant_device_id, ant_verbose):
@@ -193,26 +198,46 @@ def main():
             print("="*50)
             
             stage_start_time = time.monotonic()
+            # Precompute a compact pace string (choose upper bound)
+            pace_km_str, _ = calculate_and_format_pace_range(speed_kmh)
+            pace_upper = pace_km_str
+            if '-' in pace_km_str:
+                pace_upper = pace_km_str.split('-')[-1].strip()
+                pace_upper = pace_upper.lstrip('~')
+
             while True:
                 loop_start_time = time.monotonic()
                 stage_elapsed = loop_start_time - stage_start_time
-                
+
                 if stage_elapsed >= duration:
                     break
 
                 speed_mps = speed_kmh / 3.6
-                
+
                 broadcaster.send_ant_data(speed_mps, expected_cadence)
-                
-                progress_str = f"  Running... [ {int(stage_elapsed):>2}s / {duration}s ]"
-                print(f"{progress_str:<50}", end="\r")
-                sys.stdout.flush()
+
+                # Compact dashboard-friendly status line (CR-terminated)
+                if args.dashboard:
+                    # Prefix with the human-readable stage name so the
+                    # dashboard can show which stage is active.
+                    status = f"{stage_name} | Cadence:{expected_cadence} Speed:{speed_kmh:.1f} Pace:{pace_upper} [ {int(stage_elapsed):>2}s / {duration}s ]"
+                    # Pad to avoid remnants of previous longer lines
+                    print(f"{status:<80}", end="\r")
+                    sys.stdout.flush()
+                else:
+                    progress_str = f"  Running... [ {int(stage_elapsed):>2}s / {duration}s ]"
+                    print(f"{progress_str:<50}", end="\r")
+                    sys.stdout.flush()
 
                 # Self-correcting timer to ensure a precise 4Hz loop rate
                 work_duration = time.monotonic() - loop_start_time
                 sleep_duration = 0.250 - work_duration
                 if sleep_duration > 0:
                     time.sleep(sleep_duration)
+
+            # Ensure we end the stage with a newline so logs remain readable
+            if args.dashboard:
+                print("")
 
     except KeyboardInterrupt:
         print("\n\nUser interrupted test...")
