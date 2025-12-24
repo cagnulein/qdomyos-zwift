@@ -57,7 +57,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libudev-dev
 
 # Set up the Python virtual environment for ANT+ support
-RUN python3 -m venv /opt/ant_venv && \
+RUN python3.11 -m venv /opt/ant_venv && \
     /opt/ant_venv/bin/pip install --upgrade pip --quiet && \
     /opt/ant_venv/bin/pip install openant pyusb pybind11 --quiet
 
@@ -71,7 +71,7 @@ COPY . .
 RUN if [ -f src/settings.qml ]; then \
             echo "Generating devices.ini from settings.qml..."; \
             cd /app && \
-            python3 src/devices/antlinux/generate_devices.py src/settings.qml && \
+            /opt/ant_venv/bin/python3 src/devices/antlinux/generate_devices.py src/settings.qml && \
             echo "✓ devices.ini generated successfully"; \
         else \
             echo "⚠ Warning: No QML settings file found"; \

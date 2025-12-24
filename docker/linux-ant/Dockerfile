@@ -58,7 +58,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Set up the Python virtual environment for ANT+ support
-RUN python3 -m venv /opt/ant_venv && \
+RUN python3.11 -m venv /opt/ant_venv && \
     /opt/ant_venv/bin/pip install --upgrade pip --quiet && \
     /opt/ant_venv/bin/pip install openant pyusb pybind11 --quiet
 
