@@ -1477,6 +1477,12 @@ get_symbol() {
         return
     fi
 
+    # If a SYMBOL_CACHE is populated, prefer it to avoid repeated printf calls
+    if [[ -n "${SYMBOL_CACHE[$status]:-}" ]]; then
+        printf '%s' "${SYMBOL_CACHE[$status]}"
+        return
+    fi
+
     case "$status" in
         pass)    printf "${GREEN}${SYMBOL_PASS}${NC}" ;;
         fail)    printf "${RED}${SYMBOL_FAIL}${NC}" ;;
@@ -1484,6 +1490,20 @@ get_symbol() {
         working) printf "${CYAN}${SYMBOL_WORKING}${NC}" ;;
         *)       printf "${GRAY}${SYMBOL_PENDING}${NC}" ;;
     esac
+}
+
+# Symbol cache to reduce repeated printf/subprocess overhead in hot paths
+declare -A SYMBOL_CACHE
+SYMBOL_CACHE_INIT=0
+
+init_symbol_cache() {
+    SYMBOL_CACHE_INIT=1
+    SYMBOL_CACHE[pass]="${GREEN}${SYMBOL_PASS}${NC}"
+    SYMBOL_CACHE[fail]="${RED}${SYMBOL_FAIL}${NC}"
+    SYMBOL_CACHE[warn]="${YELLOW}${SYMBOL_WARN}${NC}"
+    SYMBOL_CACHE[working]="${CYAN}${SYMBOL_WORKING}${NC}"
+    SYMBOL_CACHE[pending]="${GRAY}${SYMBOL_PENDING}${NC}"
+    SYMBOL_CACHE[locked]="${BOLD_MAGENTA}${SYMBOL_LOCKED}${NC}"
 }
 
 draw_status_row() {
@@ -5500,6 +5520,7 @@ trap 'safe_shutdown 130' SIGINT
 trap 'safe_shutdown 143' SIGTERM
 set_ui_output
 # Draw the complete initial UI in a single buffered pass
+init_symbol_cache
 draw_initial_screen "Verifying system status..."
 
 # 3. Perform the checks (The status icons will update live in the top panel)
