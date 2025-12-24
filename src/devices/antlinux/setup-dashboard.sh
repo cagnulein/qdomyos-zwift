@@ -3631,6 +3631,16 @@ show_scrollable_menu() {
 
     [[ -n "$back_label" ]] && menu_list+=("$back_label")
     local total_count=${#menu_list[@]}
+    # Precompute visual widths for all menu items once to avoid repeated
+    # `get_vis_width` calls in the hot render loop. This leverages the
+    # DISPLAY_CACHE inside `get_vis_width` and reduces subprocess churn.
+    local item_widths=()
+    local i itm w
+    for i in "${!menu_list[@]}"; do
+        itm="${menu_list[$i]}"
+        w=$(get_vis_width "$itm")
+        item_widths[$i]="$w"
+    done
     
     # Dynamic space calculation
     local total_info_rows=$(( LOG_BOTTOM - LOG_TOP + 1 ))
@@ -3674,11 +3684,16 @@ show_scrollable_menu() {
                 local current_idx=$(( start_idx + row_index ))
                 local item_text="${menu_list[$current_idx]}"
 
-                # Truncate if needed (consider full item visual width)
+                # Truncate if needed (consider full item visual width).
+                # Use precomputed width when available to avoid repeated calls.
                 local vis_w
-                vis_w=$(get_vis_width "$item_text")
+                vis_w=${item_widths[$current_idx]:-}
+                if [[ -z "${vis_w}" ]]; then
+                    vis_w=$(get_vis_width "$item_text")
+                fi
                 if [[ $vis_w -gt $((INNER_COLS - 5)) ]]; then
                     item_text=$(trunc_vis "$item_text" $((INNER_COLS - 5)))
+                    vis_w=$((INNER_COLS - 5))
                 fi
 
                 # Build base content (no padding yet)
