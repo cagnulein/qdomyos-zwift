@@ -112,6 +112,109 @@ config_set_int() {
     CONFIG_INT[$key]=$value
 }
 
+# ==========================================================================
+# CONFIG GENERATION - Template Parser & Defaults (Milestone 3)
+# Functions to parse a reference INI, auto-classify types, and load defaults.
+# ==========================================================================
+
+# Auto-classify value type and store into typed arrays
+classify_and_store() {
+    local key="$1" value="$2"
+
+    # Trim surrounding whitespace from key and value
+    key="$(printf '%s' "$key" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    value="$(printf '%s' "$value" | sed -e 's/^\s*//' -e 's/\s*$//')"
+
+    # Boolean detection (exact lowercase true/false)
+    if [[ "$value" == "true" || "$value" == "false" ]]; then
+        CONFIG_BOOL["$key"]="$value"
+        return 0
+    fi
+
+    # Integer detection (no decimal)
+    if [[ "$value" =~ ^-?[0-9]+$ ]]; then
+        CONFIG_INT["$key"]="$value"
+        return 0
+    fi
+
+    # Float detection (has decimal or scientific notation)
+    if [[ "$value" =~ ^-?[0-9]*\.[0-9]+([eE][-+]?[0-9]+)?$ || "$value" =~ ^-?[0-9]+[eE][-+]?[0-9]+$ ]]; then
+        CONFIG_FLOAT["$key"]="$value"
+        return 0
+    fi
+
+    # Fallback to string
+    CONFIG_STRING["$key"]="$value"
+    return 0
+}
+
+
+# Parse an existing INI file into the typed arrays
+parse_reference_config() {
+    local file="$1"
+    if [[ -z "$file" || ! -f "$file" ]]; then
+        echo "ERROR: Reference config not found: $file" >&2
+        return 1
+    fi
+
+    local line section key value
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        # Skip comments and empty lines
+        [[ -z "$line" ]] && continue
+        [[ "$line" =~ ^[[:space:]]*# ]] && continue
+
+        # Section header (we only care about [General] for now)
+        if [[ "$line" =~ ^[[:space:]]*\[([^]]+)\][[:space:]]*$ ]]; then
+            section="${BASH_REMATCH[1]}"
+            continue
+        fi
+
+        # Only parse lines in [General] or no-section files
+        if [[ -n "$section" && "$section" != "General" ]]; then
+            continue
+        fi
+
+        # Key=Value lines
+        if [[ "$line" =~ ^[[:space:]]*([^=]+)=(.*)$ ]]; then
+            key="${BASH_REMATCH[1]}"
+            value="${BASH_REMATCH[2]}"
+            classify_and_store "$key" "$value"
+        fi
+    done < "$file"
+
+    return 0
+}
+
+
+# Load defaults from reference template or hardcoded minimal defaults
+initialize_default_config() {
+    local reference_file="${1:-qDomyos-Zwift.conf}"
+    if [[ -f "$reference_file" ]]; then
+        parse_reference_config "$reference_file" || return 1
+        return 0
+    fi
+
+    # Fallback to minimal hardcoded defaults
+    load_hardcoded_defaults
+    return 0
+}
+
+
+# Minimal hardcoded defaults (used if no reference template found)
+load_hardcoded_defaults() {
+    config_set_int "age" 54 || true
+    config_set_int "weight" 78 || true
+    config_set_int "height" 175 || true
+    config_set_int "ftp" 200 || true
+    config_set_bool "dircon_yes" true || true
+    config_set_int "dircon_server_base_port" 36866 || true
+    config_set_string "filter_device" "I_TL" || true
+    config_set_bool "virtual_device_enabled" true || true
+    config_set_bool "virtual_device_force_treadmill" true || true
+
+    return 0
+}
+
 config_set_float() {
     local key=$1
     local value=$2
@@ -131,6 +234,22 @@ config_set_string() {
     # Store string as-is (INI format uses no quotes)
     CONFIG_STRING[$key]=$value
 }
+
+# Ensure TEMP_DIR is on tmpfs (prefer /dev/shm) to avoid SD writes
+ensure_ram_temp_dir() {
+    if [[ -d "/dev/shm" && -w "/dev/shm" ]]; then
+        TEMP_DIR="/dev/shm/qz_setup_$$"
+    else
+        TEMP_DIR="/tmp/qz_setup_$$"
+    fi
+    mkdir -p "$TEMP_DIR" || return 1
+    # Clean up on exit
+    trap 'rm -rf "${TEMP_DIR}" 2>/dev/null || true' EXIT
+    export TEMP_DIR
+}
+
+# Call early so other functions can rely on TEMP_DIR
+ensure_ram_temp_dir || true
 
 # ==========================================================================
 # CONFIG GENERATION - INI File Generator (Milestone 2)
