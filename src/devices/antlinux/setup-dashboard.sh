@@ -4715,11 +4715,47 @@ draw_verifying_screen() {
     
 }
 
+draw_splash_screen() {
+    # Minimal instant splash shown before the buffered initial screen.
+    # Can be disabled by setting QZ_NO_SPLASH=1 in the environment.
+    local title="${1:-QZ ANT+ BRIDGE SETUP UTILITY}"
+    local subtitle="${2:-Loading dashboard...}"
+    set_ui_output || true
+    clear_screen
+
+    local inner_w=${INNER_COLS:-80}
+    local t_len=${#title}
+    local s_len=${#subtitle}
+    local t_pad=$(( (inner_w - t_len) / 2 ))
+    local s_pad=$(( (inner_w - s_len) / 2 ))
+    [[ $t_pad -lt 0 ]] && t_pad=0
+    [[ $s_pad -lt 0 ]] && s_pad=0
+
+    local start_row=$((LOG_TOP + 1))
+    if [ -w /dev/tty ]; then
+        printf '\033[%d;1H' $((start_row + 1)) > /dev/tty 2>/dev/null || true
+        printf '%*s%s\n' "$t_pad" "" "$title" > /dev/tty 2>/dev/null || true
+        printf '%*s%s\n' "$s_pad" "" "$subtitle" > /dev/tty 2>/dev/null || true
+    else
+        local ui_fd
+        ui_fd=$(get_safe_ui_fd)
+        printf '\033[%d;1H' $((start_row + 1)) >&${ui_fd} 2>/dev/null || true
+        printf '%*s%s\n' "$t_pad" "" "$title" >&${ui_fd} 2>/dev/null || true
+        printf '%*s%s\n' "$s_pad" "" "$subtitle" >&${ui_fd} 2>/dev/null || true
+    fi
+}
+
 draw_initial_screen() {
     local message=${1:-"Starting"}
 
+    # Quick splash unless explicitly disabled
+    if [[ -z "${QZ_NO_SPLASH:-}" ]]; then
+        draw_splash_screen
+    fi
+
+    # Create buffer in TEMP_DIR (prefer RAM-backed) or /tmp
     local buf
-    buf=$(mktemp) || buf="/tmp/qz_screen.$$"
+    buf=$(mktemp "${TEMP_DIR:-/tmp}/qz_screen.XXXXXX") || buf="/tmp/qz_screen.$$"
 
     # Open FD9 for buffered UI output and temporarily set UI_FD to 9
     exec 9>"$buf" 2>/dev/null || exec 9>"$buf" || true
@@ -4740,14 +4776,14 @@ draw_initial_screen() {
     print_at() {
         local row=$1; shift
         local line="$*"
-        local esc; esc=$(printf '\033[%d;1H' "$((row + 1))")
+        local esc; esc=$(printf '\\033[%d;1H' "$((row + 1))")
         printf '%s%s' "$esc" "$line" >&9 2>/dev/null || true
         return 0
     }
     print_at_col() {
         local row=${1:-0}; local col=${2:-1}; shift 2
         local text="$*"
-        printf '\033[%d;%dH' $((row + 1)) $col >&9 2>/dev/null || true
+        printf '\\033[%d;%dH' $((row + 1)) $col >&9 2>/dev/null || true
         printf '%s' "$text" >&9 2>/dev/null || true
         return 0
     }
@@ -4768,12 +4804,18 @@ draw_initial_screen() {
     if [[ -n "$orig_print_at" ]]; then eval "$orig_print_at"; fi
     if [[ -n "$orig_print_at_col" ]]; then eval "$orig_print_at_col"; fi
     UI_FD="$prev_ui_fd"
-    # Restore previous UI FD cache values
     _UI_FD_CACHE="${_old_ui_fd_cache}"
     _UI_FD_CACHE_TIME="${_old_ui_fd_cache_time}"
     exec 9>&-
 
     # Emit buffer to controlling TTY or stdout
+    # Normalize any literal "\033" sequences into real ESC bytes (some
+    # callers may have produced escaped sequences); use perl when available.
+    if command -v perl >/dev/null 2>&1; then
+        perl -0777 -pe 's/\\033/\x1b/g' "$buf" > "${buf}.norm" || true
+        if [ -f "${buf}.norm" ]; then mv -f "${buf}.norm" "$buf" || true; fi
+    fi
+
     if [ -w /dev/tty ]; then
         cat "$buf" > /dev/tty 2>/dev/null || cat "$buf"
     else
@@ -5519,7 +5561,11 @@ trap 'safe_shutdown 0' EXIT
 trap 'safe_shutdown 130' SIGINT
 trap 'safe_shutdown 143' SIGTERM
 set_ui_output
-# Draw the complete initial UI in a single buffered pass
+# Show quick splash for immediate feedback unless disabled
+if [[ "${QZ_NO_SPLASH:-0}" -eq 0 ]]; then
+    draw_splash_screen
+fi
+# Initialize symbol cache and draw the complete initial UI in a single buffered pass
 init_symbol_cache
 draw_initial_screen "Verifying system status..."
 
