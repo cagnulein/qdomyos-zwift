@@ -1594,6 +1594,51 @@ update_status() {
     render_status_grid 5
 }
 
+# Atomic status updater: update only the affected cell (left or right)
+update_status_atomic() {
+    local key="$1"
+    local status="$2"
+    STATUS_MAP["$key"]="$status"
+
+    # Find which row contains this key
+    local row_idx=0
+    local start_row=5
+    for entry in "${STATUS_GRID[@]}"; do
+        IFS='|' read -r L_label L_key R_label R_key <<< "$entry"
+        local target_row=$(( start_row + row_idx ))
+
+        local left_w=$(( (INNER_COLS - 3) / 2 ))
+        local right_w=$(( INNER_COLS - 3 - left_w ))
+
+        if [[ "$L_key" == "$key" ]]; then
+            local L_sym
+            L_sym=$(get_symbol "$L_key")
+            local L_content="${L_sym} ${CYAN}${L_label}${NC}"
+            local L_padded
+            L_padded=$(pad_display "$L_content" "$left_w")
+            # Print left half including left border and separator
+            print_at_col "$target_row" 1 "${BLUE}║${NC} ${L_padded}${BLUE}│${NC}"
+            return 0
+        elif [[ "$R_key" == "$key" ]]; then
+            local R_sym
+            R_sym=$(get_symbol "$R_key")
+            local R_content="${R_sym} ${CYAN}${R_label}${NC}"
+            local R_padded
+            R_padded=$(pad_display "$R_content" "$right_w")
+            # Right column starts after: 1 (border) + 1 (space) + left_w + 1 (sep)
+            local right_col=$(( 1 + 1 + left_w + 1 + 1 ))
+            # right_col computes to 4 + left_w; use print_at_col to overwrite right side
+            print_at_col "$target_row" "$right_col" "${R_padded} ${BLUE}║${NC}"
+            return 0
+        fi
+
+        row_idx=$(( row_idx + 1 ))
+    done
+
+    # Fallback: full render if key not found
+    render_status_grid 5
+}
+
 # ============================================================================
 # CONFIG HELPERS
 # ============================================================================
@@ -2537,7 +2582,7 @@ run_all_checks_parallel() {
     local idx=0
     for fn in "${func_names[@]}"; do
         local key="${status_keys[$idx]}"
-        update_status "$key" "working"
+    update_status_atomic "$key" "working"
         (
             # call corresponding fast function name pattern
             local func="check_${fn}_fast"
@@ -2574,13 +2619,13 @@ run_all_checks_parallel() {
 
     for pid in "${pids[@]}"; do kill -9 "$pid" 2>/dev/null || true; done
 
-    for key in "${status_keys[@]}"; do
+        for key in "${status_keys[@]}"; do
         local result_file="${CHECK_CACHE_DIR}/${key}.result"
         if [[ -f "$result_file" ]]; then
             local status=$(cat "$result_file" 2>/dev/null || true)
-            update_status "$key" "$status"
+            update_status_atomic "$key" "$status"
         else
-            update_status "$key" "fail"
+            update_status_atomic "$key" "fail"
         fi
     done
 
