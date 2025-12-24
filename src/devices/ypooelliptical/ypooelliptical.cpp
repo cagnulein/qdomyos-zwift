@@ -316,6 +316,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                     .startsWith(QStringLiteral("Disabled"))) {
                 double divisor = 1.0;
                 if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)
+                    if(!TRUE_ELLIPTICAL) // TRUE ELLIPTICAL uses actual cadence value
                     divisor = 2.0;
                 Cadence = (((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)lastPacket.at(index))))) / divisor;
@@ -393,6 +394,12 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (Flags.resistanceLvl) {
             Resistance = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)lastPacket.at(index))));
+            
+            // TRUE ELLIPTICAL sends resistance in whole units, but FTMS expects tenths
+            if(TRUE_ELLIPTICAL) {
+                Resistance = Resistance.value() / 10.0;
+            }
+            
             // emit resistanceRead(Resistance.value());
             index += 2;
             emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
@@ -481,9 +488,14 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                 heartRate((uint8_t)lastPacket.at(23));
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else if (Flags.heartRate && !disable_hr_frommachinery && lastPacket.length() > index) {
-                heartRate((uint8_t)lastPacket.at(index));
-                // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
-                emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+                uint8_t hrValue = (uint8_t)lastPacket.at(index);
+                // 0xFF means heart rate not available/invalid in FTMS
+                if(hrValue != 0xFF) {
+                    heartRate(hrValue);
+                    emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+                } else {
+                    emit debug(QStringLiteral("Heart rate not available from device (0xFF)"));
+                }
             } else {
                 Flags.heartRate = false;
             }
@@ -728,7 +740,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
-        (!Flags.heartRate || Heart.value() == 0 || disable_hr_frommachinery)) {
+        (!Flags.heartRate || Heart.value() == 0 || Heart.value() == 0xFF || disable_hr_frommachinery)) {
         update_hr_from_external();
     }    
 
