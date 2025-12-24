@@ -34,6 +34,15 @@ except Exception:
 
 log = logging.getLogger("AntBroadcaster")
 
+# Timing / timeout constants (tweak per-platform as needed)
+BROADCAST_PERIOD = 0.250
+THREAD_JOIN_TIMEOUT = 3.0
+CHANNEL_CLOSE_DELAY = 0.1
+NODE_STOP_DELAY = 0.2
+USB_DISPOSE_DELAY = 0.05
+DONGLE_RESET_SETTLE = 1.0
+LOG_SKEW_WARNING_THRESHOLD = 0.25
+
 # Precompiled struct formats for performance
 _PAGE_STRUCT = struct.Struct('<BBBBBBBB')
 
@@ -80,7 +89,7 @@ def _reset_ant_dongle_once() -> bool:
 
         log.info(f"Found dongle for reset: {dongle.manufacturer} {dongle.product}")
         dongle.reset()
-        time.sleep(1)
+        time.sleep(DONGLE_RESET_SETTLE)
         log.info("Dongle reset sequence finished.")
         return True
     except Exception as e:
@@ -192,10 +201,10 @@ class AntBroadcaster:
                 self._running.set()
                 break
             
-            sleep_duration = 0.250 - (time.monotonic() - now)
+            sleep_duration = BROADCAST_PERIOD - (time.monotonic() - now)
             if sleep_duration > 0:
                 time.sleep(sleep_duration)
-            elif sleep_duration < -0.25: 
+            elif sleep_duration < -LOG_SKEW_WARNING_THRESHOLD:
                 if log.isEnabledFor(logging.DEBUG):
                     log.info("Broadcast thread is running: %.3fs behind schedule", -sleep_duration)
 
@@ -262,10 +271,10 @@ class AntBroadcaster:
 
         # PHASE 1: Wait for the broadcast thread to finish
         try:
-            if self._thread is not None and getattr(self._thread, 'is_alive', lambda: False)():
-                self._thread.join(timeout=3.0)
-                if getattr(self._thread, 'is_alive', lambda: False)():
-                    log.warning("Broadcast thread did not terminate cleanly within timeout")
+                if self._thread is not None and getattr(self._thread, 'is_alive', lambda: False)():
+                    self._thread.join(timeout=THREAD_JOIN_TIMEOUT)
+                    if getattr(self._thread, 'is_alive', lambda: False)():
+                        log.warning("Broadcast thread did not terminate cleanly within timeout")
         except Exception as e:
             log.warning("Error while joining broadcast thread: %s", e)
 
@@ -277,7 +286,7 @@ class AntBroadcaster:
                 except Exception as e:
                     log.warning("Channel close warning: %s", e)
                 try:
-                    time.sleep(0.1)
+                    time.sleep(CHANNEL_CLOSE_DELAY)
                 except Exception:
                     pass
                 self._ant_channel = None
@@ -292,7 +301,7 @@ class AntBroadcaster:
                 except Exception as e:
                     log.warning("Node stop warning: %s", e)
                 try:
-                    time.sleep(0.2)
+                    time.sleep(NODE_STOP_DELAY)
                 except Exception:
                     pass
                 self._ant_node = None
@@ -339,7 +348,7 @@ class AntBroadcaster:
                         except Exception:
                             pass
                         try:
-                            time.sleep(0.05)
+                            time.sleep(USB_DISPOSE_DELAY)
                         except Exception:
                             pass
                     except Exception:

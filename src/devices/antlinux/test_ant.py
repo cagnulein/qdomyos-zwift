@@ -22,6 +22,12 @@ import sys
 import argparse
 import os
 
+# Timing constants for probe/reset and main loop (tweak per-platform)
+PROBE_SHORT_SLEEP = 0.6
+PROBE_LONG_SLEEP = 0.8
+RESET_SETTLE = 0.5
+LOOP_PERIOD = 0.250
+
 # Ensure the ant_broadcaster module can be found in the same directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
 if script_dir not in sys.path:
@@ -184,7 +190,7 @@ def reset_ant_dongle():
             if dongle is None:
                 print(f"- Dongle missing/in use (attempt {attempt}/{attempts})")
                 if attempt < attempts:
-                    time.sleep(0.6)
+                    time.sleep(PROBE_SHORT_SLEEP)
                     continue
                 return False
 
@@ -211,7 +217,7 @@ def reset_ant_dongle():
             # Attempt reset with backoff on transient USB errors
             try:
                 dongle.reset()
-                time.sleep(0.5)
+                time.sleep(RESET_SETTLE)
                 print("- Reset complete")
                 return True
             except usb.core.USBError as e:
@@ -242,13 +248,13 @@ def reset_ant_dongle():
                     pass
 
                 if attempt < attempts:
-                    time.sleep(0.8)
+                    time.sleep(PROBE_LONG_SLEEP)
                     continue
                 return False
         except Exception as e:
             print(f"- Unexpected error during USB probe/reset: {e}")
             if attempt < attempts:
-                time.sleep(0.6)
+                time.sleep(PROBE_SHORT_SLEEP)
                 continue
             return False
 
@@ -337,7 +343,7 @@ def main():
 
                 # Self-correcting timer to ensure a precise 4Hz loop rate
                 work_duration = time.monotonic() - loop_start_time
-                sleep_duration = 0.250 - work_duration
+                sleep_duration = LOOP_PERIOD - work_duration
                 if sleep_duration > 0:
                     time.sleep(sleep_duration)
 
