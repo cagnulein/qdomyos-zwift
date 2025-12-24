@@ -4694,6 +4694,73 @@ draw_verifying_screen() {
     
 }
 
+draw_initial_screen() {
+    local message=${1:-"Starting"}
+
+    local buf
+    buf=$(mktemp) || buf="/tmp/qz_screen.$$"
+
+    # Open FD9 for buffered UI output and temporarily set UI_FD to 9
+    exec 9>"$buf" 2>/dev/null || exec 9>"$buf" || true
+    local prev_ui_fd="${UI_FD:-2}"
+    UI_FD=9
+    # Cache UI FD so callers of get_safe_ui_fd return 9 during buffered render
+    local _old_ui_fd_cache="${_UI_FD_CACHE:-}"
+    local _old_ui_fd_cache_time="${_UI_FD_CACHE_TIME:-0}"
+    _UI_FD_CACHE=9
+    _UI_FD_CACHE_TIME=$(date +%s)
+
+    # Save existing helpers if present
+    local orig_print_at orig_print_at_col
+    orig_print_at="$(declare -f print_at 2>/dev/null || true)"
+    orig_print_at_col="$(declare -f print_at_col 2>/dev/null || true)"
+
+    # Override print helpers to write to FD 9
+    print_at() {
+        local row=$1; shift
+        local line="$*"
+        local esc; esc=$(printf '\033[%d;1H' "$((row + 1))")
+        printf '%s%s' "$esc" "$line" >&9 2>/dev/null || true
+        return 0
+    }
+    print_at_col() {
+        local row=${1:-0}; local col=${2:-1}; shift 2
+        local text="$*"
+        printf '\033[%d;%dH' $((row + 1)) $col >&9 2>/dev/null || true
+        printf '%s' "$text" >&9 2>/dev/null || true
+        return 0
+    }
+
+    # Draw the complete initial UI into the buffer
+    clear_screen
+    enter_ui_mode
+    draw_top_panel
+    draw_bottom_panel_header "SYSTEM CHECK"
+
+    # Fill interaction area with startup message
+    clear_info_area
+    draw_sealed_row $((LOG_TOP + 1)) "   ${WHITE}${message}${NC}"
+    draw_sealed_row $((LOG_TOP + 3)) "   Please wait while system status is updated..."
+    draw_bottom_border ""
+
+    # Restore helpers and UI_FD, and restore cached UI FD
+    if [[ -n "$orig_print_at" ]]; then eval "$orig_print_at"; fi
+    if [[ -n "$orig_print_at_col" ]]; then eval "$orig_print_at_col"; fi
+    UI_FD="$prev_ui_fd"
+    # Restore previous UI FD cache values
+    _UI_FD_CACHE="${_old_ui_fd_cache}"
+    _UI_FD_CACHE_TIME="${_old_ui_fd_cache_time}"
+    exec 9>&-
+
+    # Emit buffer to controlling TTY or stdout
+    if [ -w /dev/tty ]; then
+        cat "$buf" > /dev/tty 2>/dev/null || cat "$buf"
+    else
+        cat "$buf"
+    fi
+    rm -f "$buf" 2>/dev/null || true
+}
+
 # Simple ANT+ test runner: launches `test_ant.py` to emulate a treadmill
 # session and broadcast cadence/pace. Uses the same venv/python selection
 # logic as other provider runners and provides a minimal UI to stop the test.
@@ -5431,10 +5498,8 @@ trap 'safe_shutdown 0' EXIT
 trap 'safe_shutdown 130' SIGINT
 trap 'safe_shutdown 143' SIGTERM
 set_ui_output
-refresh_dashboard # Draws the top status table and global frame
-
-# 2. Draw the new consistent startup screen
-draw_verifying_screen "Verifying system status..."
+# Draw the complete initial UI in a single buffered pass
+draw_initial_screen "Verifying system status..."
 
 # 3. Perform the checks (The status icons will update live in the top panel)
 run_all_checks
