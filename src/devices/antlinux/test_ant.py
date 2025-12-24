@@ -21,6 +21,7 @@ import time
 import sys
 import argparse
 import os
+import signal
 
 # Timing constants for probe/reset and main loop (tweak per-platform)
 PROBE_SHORT_SLEEP = 0.6
@@ -80,6 +81,9 @@ def check_required_packages():
 if not check_required_packages():
     # Informational exit (non-zero) so callers know the test didn't run
     sys.exit(2)
+
+# Module-global broadcaster reference so signal handlers can stop it
+broadcaster = None
 
 # Attempt direct import and provide a clear error message if missing
 try:
@@ -262,7 +266,7 @@ def main():
     """Main test function."""
     ant_device_id = 54321
     ant_verbose = False
-
+    global broadcaster
     if not reset_ant_dongle():
         sys.exit(1)
 
@@ -285,6 +289,23 @@ def main():
             return
 
         print("Broadcaster started successfully. Simulating a structured workout...")
+
+        # Ensure we stop broadcaster cleanly on SIGTERM/SIGINT so the USB
+        # device is released and the watch is no longer linked.
+        def _term_handler(signum, frame):
+            try:
+                if broadcaster is not None:
+                    broadcaster.stop()
+            except Exception:
+                pass
+            # Exit after attempting cleanup
+            try:
+                sys.exit(0)
+            except Exception:
+                os._exit(0)
+
+        signal.signal(signal.SIGTERM, _term_handler)
+        signal.signal(signal.SIGINT, _term_handler)
         print("Please check your watch and compare with the EXPECTED values below.")
 
         test_plan = [

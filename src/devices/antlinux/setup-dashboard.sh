@@ -4677,8 +4677,22 @@ perform_ant_test() {
             draw_sealed_row $((LOG_TOP + 8)) "   Your watch will show pace and cadence (if setup in data field)"
             draw_bottom_border ""
             sleep 2
-            # Now stop the broadcaster and allow the outer cleanup to run
+            # Now request a graceful shutdown of the test script so it can
+            # cleanly stop the broadcaster and release the USB device.
             sudo kill -TERM "$py_pid" 2>/dev/null || true
+            # Give the test process some time to run its cleanup handlers
+            # (broadcaster.stop()) before we escalate. This avoids leaving
+            # the dongle in a claimed state which can keep the watch linked.
+            local shutdown_wait=4
+            local waited=0
+            while ps -p "$py_pid" >/dev/null 2>&1 && [ $waited -lt $shutdown_wait ]; do
+                sleep 0.5
+                waited=$((waited+1))
+            done
+            if ps -p "$py_pid" >/dev/null 2>&1; then
+                # Still alive — escalate to kill -9
+                sudo kill -9 "$py_pid" 2>/dev/null || true
+            fi
             break
         fi
         sc=$((sc+1))
