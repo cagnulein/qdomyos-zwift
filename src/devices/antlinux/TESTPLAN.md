@@ -17,24 +17,31 @@ This document provides concise testing procedures for the ANT+ footpod broadcast
 
 Run:
 ```bash
-./setup.sh --check
+./setup-dashboard.sh
 ```
 Success Criteria:
 - All checks pass (Python, Qt5, QML, plugdev, udev, dongle, Bluetooth)
 - System status: READY
 
-If any check fails, run:
+If any check fails, run the interactive dashboard for guided fixes:
+
 ```bash
-sudo ./setup.sh --gui
+sudo ./setup-dashboard.sh
 ```
 
 ---
 
 ## 2. ANT+ Hardware Test
 
-Run:
+Run the ANT+ hardware test from the dashboard (recommended):
+
+1. `sudo ./setup-dashboard.sh`
+2. Select "Test ANT+ Hardware" from the success menu
+
+Advanced (direct):
+
 ```bash
-sudo ./setup.sh --test
+sudo ~/ant_venv/bin/python3 ./test_ant.py
 ```
 Success Criteria:
 - Watch pairs as footpod within 10 seconds

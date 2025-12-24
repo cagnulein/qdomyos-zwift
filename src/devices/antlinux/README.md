@@ -90,7 +90,7 @@ If you have the wrong binary, please download the appropriate version from the r
 2. **Run the System Check** - See what (if anything) you actually need:
 
 	```bash
-	./setup.sh --check
+	./setup-dashboard.sh
 	```
 
 	- If all tests pass, you can proceed directly to running and configuring the application.
@@ -131,7 +131,7 @@ cd qdomyos-zwift-x86-64-ant
 **Package Contents:**
 - `qdomyos-zwift` - Smart wrapper script (use this, not the binary directly)
 - `qdomyos-zwift-bin` - Application binary
-- `setup.sh` - Automated setup and validation tool
+- `setup-dashboard.sh` - Interactive setup and validation dashboard
 - `test_ant.py` - Standalone ANT+ test for troubleshooting
 - `ant_broadcaster.py` - ANT+ module used by test script
 
@@ -142,7 +142,7 @@ cd qdomyos-zwift-x86-64-ant
 Before installing anything, see what's needed:
 
 ```bash
-./setup.sh --check
+./setup-dashboard.sh
 ```
 
 This validates your entire setup in seconds:
@@ -166,25 +166,26 @@ This validates your entire setup in seconds:
 
 Let the Interactive Setup guide you through installation:
 
-**For GUI/Desktop systems** (no systemd service):
+Run the interactive dashboard which adapts to GUI or headless environments automatically:
+
 ```bash
-sudo ./setup.sh --gui
+sudo ./setup-dashboard.sh
 ```
 
-**For headless/server systems** (with systemd service):
-```bash
-sudo ./setup.sh --headless
-```
-
-The Interactive Setup explains each step and asks for confirmation before making changes.
+The dashboard explains each step and asks for confirmation before making changes.
 
 ### Other Useful Commands
 
-**Test ANT+ independently:**
+**Test ANT+ independently (via dashboard):**
+
+Run `sudo ./setup-dashboard.sh` and choose "Test ANT+ Hardware" from the success menu. The dashboard will simulate treadmill data and display user-friendly output.
+
+Advanced: to run the standalone test script directly (advanced users):
+
 ```bash
-sudo ./setup.sh --test
+sudo ~/ant_venv/bin/python3 ./test_ant.py
 ```
-Simulates treadmill data to verify ANT+ works before testing the full app. Your watch should pair within 5-10 seconds showing pace (~7:00 min/km) and cadence (~166 SPM).
+This runs the same simulation but without the dashboard UI.
 
 
 ---
@@ -321,7 +322,7 @@ After installation, verify everything works:
 
 ```bash
 cd ~/qdomyos-zwift-x86-64-ant  # or qdomyos-zwift-arm64-ant
-./setup.sh --check
+./setup-dashboard.sh
 ```
 
 All tests should pass. If issues remain, the tool will provide specific guidance.
@@ -502,21 +503,21 @@ If you are still stuck, review the detailed troubleshooting table below or open 
 
 ### Quick System Check
 
-Run the diagnostic tool anytime:
+Run the diagnostic dashboard anytime:
 ```bash
-./setup.sh --check
+./setup-dashboard.sh
 ```
 
-### Test ANT+ Without the Main App
+- ### Test ANT+ Without the Main App
 
 Verify ANT+ works independently before troubleshooting the full application:
 
-**Option 1: Setup tool (recommended):**
-```bash
-sudo ./setup.sh --test
-```
+**Option 1: Dashboard (recommended):**
+
+Run `sudo ./setup-dashboard.sh` and select "Test ANT+ Hardware" from the menu.
 
 **Option 2: Direct test script:**
+
 ```bash
 sudo ~/ant_venv/bin/python3 ./test_ant.py
 ```
@@ -538,15 +539,15 @@ Press `Ctrl+C` to stop.
 
 | Problem | Solution |
 |---------|----------|
-| `error while loading shared libraries: libpython3.11.so.1.0` | Python 3.11 missing. Run `./setup.sh --check` to diagnose, then install via apt or pyenv |
-| Wrapper shows dependency warnings | Follow provided instructions. Run `./setup.sh --check` for diagnosis or `sudo ./setup.sh --gui` for automatic fix |
+| `error while loading shared libraries: libpython3.11.so.1.0` | Python 3.11 missing. Run `./setup-dashboard.sh` to diagnose, then install via apt or pyenv |
+| Wrapper shows dependency warnings | Follow provided instructions. Run `./setup-dashboard.sh` for diagnosis or run `sudo ./setup-dashboard.sh` for guided fixes |
 | Test fails / watch won't pair | Ensure running with `sudo`. Reboot after USB permissions setup. Try unplug/replug dongle |
 | Watch pairs but pace shows `--:--` | Treadmill not configured. Edit your configuration file (see above for possible locations) and add your model (e.g., `proform_treadmill_705_cst=true`) |
 | App works but no watch connection | Unplug/replug dongle. Verify USB permissions + reboot. Check device ID (default 54321). Ensure running as root. Check logs |
 | `systemctl stop qz` hangs | Add `KillSignal=SIGINT` to service file `[Service]` section |
 | Binary won't run: "cannot execute binary file" | Wrong architecture downloaded. Get correct package: arm64 for Pi, x86-64 for desktop |
 | `pyenv: command not found` | Reload shell: `source ~/.bashrc` or open new terminal |
-| Setup validation fails multiple checks | Use the Interactive Setup: `sudo ./setup.sh --gui` (or `--headless`) for step-by-step fixes |
+| Setup validation fails multiple checks | Use the Interactive Setup: `sudo ./setup-dashboard.sh` for step-by-step fixes |
 | Test script works but app doesn't connect to treadmill | Treadmill Bluetooth issue. Ensure treadmill is powered on and discoverable |
 
 ---

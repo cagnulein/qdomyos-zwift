@@ -54,14 +54,15 @@ Extract the package and verify:
 cd ../../..  # From src/devices/antlinux
 unzip linux-binary-x86-64-ant.zip -d ~/
 cd ~/qdomyos-zwift-x86-64-ant
-./setup.sh --check
-sudo ./setup.sh --test
+./setup-dashboard.sh
+# To run the standalone ANT+ test directly (advanced):
+sudo ~/ant_venv/bin/python3 ./test_ant.py
 sudo ./qdomyos-zwift -no-gui -ant-footpod
 ```
 
 Your build is successful if:
 - Build completes without errors
-- `./setup.sh --check` passes
+ - `./setup-dashboard.sh` passes
 - Application detects your ANT+ dongle
 - Watch connects and shows data
 

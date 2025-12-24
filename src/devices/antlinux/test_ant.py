@@ -13,8 +13,12 @@
 # hardware, Python environment, and watch pairing issues.
 #
 # Usage:
-#   cd ~/qdomyos-zwift-x86-64-ant  # or qdomyos-zwift-arm64-ant
-#   sudo ~/ant_venv/bin/python3 ./test_ant.py
+#   Via dashboard (recommended):
+#     sudo ./setup-dashboard.sh  # → Menu → Test ANT+ Hardware
+#
+#   Direct execution (advanced):
+#     cd ~/qdomyos-zwift-x86-64-ant  # or qdomyos-zwift-arm64-ant
+#     sudo ~/ant_venv/bin/python3 ./test_ant.py
 # -----------------------------------------------------------------------------
 
 import time
