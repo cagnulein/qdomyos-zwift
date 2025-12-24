@@ -52,6 +52,7 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
+#include <QPointer>
 #include "bluetoothdevicetype.h" 
 #include "devices/antlinux/AntManager.h"
 bool ant_footpod_enabled = false;
@@ -892,10 +893,10 @@ int main(int argc, char *argv[]) {
                     qInfo() << "[main] Real treadmill detected. Using a 10-second startup delay for ANT+.";
                 }
 
-                QTimer::singleShot(startupDelayMs, [dev]() {
+                QTimer::singleShot(startupDelayMs, [dev = QPointer<bluetoothdevice>(dev)]() {
                     if (dev && dev->connected()) {
                         qInfo() << "[main] Initialization delay complete. Starting ANT+ Manager.";
-                        AntManager::instance().startForDevice(dev);
+                        AntManager::instance().startForDevice(dev.data());
                     } else {
                         qWarning() << "[main] Device disconnected during initialization delay - ANT+ not started.";
                     }
