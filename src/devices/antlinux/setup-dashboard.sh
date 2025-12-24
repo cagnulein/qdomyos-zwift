@@ -3842,25 +3842,29 @@ prompt_action_menu() {
     local selected=0
     local num_options=${#options[@]}
     
+    # Initial render
+    draw_bottom_panel_header "ISSUES DETECTED ($fails)"
+    clear_info_area
+
+    # Spacer at Row 12
+    draw_sealed_row 12 ""
+
+    # Options start at Row 13
+    for i in "${!options[@]}"; do
+        local row=$((13 + i))
+        if [[ $i -eq $selected ]]; then
+            draw_sealed_row "$row" "   ${CYAN}► ${BOLD_CYAN}${options[$i]}${NC}"
+        else
+            draw_sealed_row "$row" "     ${GRAY}${options[$i]}${NC}"
+        fi
+    done
+
+    draw_bottom_border "Arrows: Up/Down | Enter: Select | L: Legend"
+
+    local prev_selected=$selected
+
     while true; do
-        draw_bottom_panel_header "ISSUES DETECTED ($fails)"
-        clear_info_area
-        
-        # Spacer at Row 12
-        draw_sealed_row 12 ""
-        
-        # Options start at Row 13
-        for i in "${!options[@]}"; do
-            local row=$((13 + i))
-            if [[ $i -eq $selected ]]; then
-                draw_sealed_row "$row" "   ${CYAN}► ${BOLD_CYAN}${options[$i]}${NC}"
-            else
-                draw_sealed_row "$row" "     ${GRAY}${options[$i]}${NC}"
-            fi
-        done
-        
-        draw_bottom_border "Arrows: Up/Down | Enter: Select | L: Legend"
-        
+        # Input-first for responsiveness
         local key=""
         IFS= read -rsn1 key </dev/tty
         if [[ $key == $'\x1b' ]]; then
@@ -3869,12 +3873,39 @@ prompt_action_menu() {
             [[ "${k2:-}" == "[B" ]] && ((selected++))
         elif [[ $key == [lL] ]]; then
             show_legend_popup
+            # Full redraw after popup
+            draw_bottom_panel_header "ISSUES DETECTED ($fails)"
+            clear_info_area
+            draw_sealed_row 12 ""
+            for i in "${!options[@]}"; do
+                local row=$((13 + i))
+                if [[ $i -eq $selected ]]; then
+                    draw_sealed_row "$row" "   ${CYAN}► ${BOLD_CYAN}${options[$i]}${NC}"
+                else
+                    draw_sealed_row "$row" "     ${GRAY}${options[$i]}${NC}"
+                fi
+            done
+            draw_bottom_border "Arrows: Up/Down | Enter: Select | L: Legend"
+            prev_selected=$selected
             continue
         elif [[ $key == "" ]]; then
             return "$selected"
         fi
+
         [[ $selected -lt 0 ]] && selected=$((num_options - 1))
         [[ $selected -ge $num_options ]] && selected=0
+
+        if [[ $selected -ne $prev_selected ]]; then
+            # Deselect previous
+            local prev_row=$((13 + prev_selected))
+            draw_sealed_row "$prev_row" "     ${GRAY}${options[$prev_selected]}${NC}"
+
+            # Select new
+            local new_row=$((13 + selected))
+            draw_sealed_row "$new_row" "   ${CYAN}► ${BOLD_CYAN}${options[$selected]}${NC}"
+
+            prev_selected=$selected
+        fi
     done
 }
 
