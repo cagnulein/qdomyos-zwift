@@ -237,27 +237,103 @@ class AntBroadcaster:
             return False
 
     def stop(self):
-        if self._running.is_set():
-            return
-        
-        log.info("Stopping ANT+ broadcaster...")
-        self._running.set()
+        """Enhanced shutdown with explicit USB release and state verification.
 
-        if self._thread is not None:
-            self._thread.join(timeout=2.0) # Increased timeout for safety
-        
+        This phased shutdown ensures the ANT+ channel and USB device are
+        released cleanly before allowing a subsequent start().
+        """
+        # PHASE 0: Ensure we signal shutdown and allow cleanup to proceed
+        if not getattr(self, '_running', None) or not hasattr(self, '_running'):
+            # If state missing, try a safe reset
+            try:
+                self._running = threading.Event()
+            except Exception:
+                pass
+
+        # If not already set, signal stop
         try:
-            if self._ant_channel: self._ant_channel.close()
-            if self._ant_node: self._ant_node.stop()
-        except Exception as e:
-            log.warning("Non-critical error during ANT+ resource cleanup: %s", e)
+            if not self._running.is_set():
+                self._running.set()
+        except Exception:
+            # best effort
+            pass
 
-        self._ant_channel, self._ant_node, self._thread = None, None, None
-        
-        # Reset all state by calling __init__
-        self.__init__()
-        
-        log.info("ANT+ broadcaster stopped and resources released.")
+        log.info("Stopping ANT+ broadcaster...")
+
+        # PHASE 1: Wait for the broadcast thread to finish
+        try:
+            if self._thread is not None and getattr(self._thread, 'is_alive', lambda: False)():
+                self._thread.join(timeout=3.0)
+                if getattr(self._thread, 'is_alive', lambda: False)():
+                    log.warning("Broadcast thread did not terminate cleanly within timeout")
+        except Exception as e:
+            log.warning("Error while joining broadcast thread: %s", e)
+
+        # PHASE 2: Close ANT+ channel and allow USB layer to propagate
+        try:
+            if getattr(self, '_ant_channel', None):
+                try:
+                    self._ant_channel.close()
+                except Exception as e:
+                    log.warning("Channel close warning: %s", e)
+                try:
+                    time.sleep(0.1)
+                except Exception:
+                    pass
+                self._ant_channel = None
+        except Exception as e:
+            log.warning("Unexpected channel cleanup error: %s", e)
+
+        # PHASE 3: Stop node and allow kernel driver to detach
+        try:
+            if getattr(self, '_ant_node', None):
+                try:
+                    self._ant_node.stop()
+                except Exception as e:
+                    log.warning("Node stop warning: %s", e)
+                try:
+                    time.sleep(0.2)
+                except Exception:
+                    pass
+                self._ant_node = None
+        except Exception as e:
+            log.warning("Unexpected node cleanup error: %s", e)
+
+        # PHASE 4: Force garbage collection to release PyUSB references
+        try:
+            import gc
+            gc.collect()
+        except Exception:
+            pass
+
+        # PHASE 5: Reset internal state and clear running flag for next start
+        try:
+            self._thread = None
+        except Exception:
+            pass
+        try:
+            if hasattr(self, '_running'):
+                self._running.clear()
+        except Exception:
+            pass
+
+        # Reset counters and state variables used by broadcasting loop
+        try:
+            self._speed_mps = 0.0
+            self._target_cadence = 0.0
+            self._current_cadence = 0.0
+            self._stride_accumulator = 0.0
+            self._total_time = 0.0
+            self._stride_count = 0
+            self._last_tick = 0.0
+            self._last_log_time = 0.0
+            self._last_broadcast_time = 0
+            self._broadcast_counter = 0
+            self._total_distance = 0.0
+        except Exception:
+            pass
+
+        log.info("ANT+ broadcaster stopped and USB device released.")
 
     def send_ant_data(self, speed_mps: float, cadence_spm: int):
         with self._data_lock:
