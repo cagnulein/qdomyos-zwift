@@ -2253,20 +2253,10 @@ check_qz_service() {
     [[ "$status" != "fail" ]] && return 0 || return 1
 }
 
-run_all_checks() {
-    check_python311
-    check_venv
-    check_python_packages
-    check_qt5_libs
-    check_qml_modules
-    check_bluetooth
-    check_lsusb
-    check_plugdev
-    check_udev_rules 
-    check_config_file
-    check_qz_service
-    check_ant_dongle
-}
+## NOTE: sequential `run_all_checks()` implementation removed.
+## The optimized parallel runner `run_all_checks_parallel()` is used
+## via a single thin wrapper defined later in the file.
+
 
 # ---------------------------------------------------------------------------
 # Optimized parallel check system (drop-in replacement for run_all_checks)
