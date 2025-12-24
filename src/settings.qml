@@ -6601,6 +6601,16 @@ import Qt.labs.platform 1.1
                                 horizontalAlignment: Text.AlignHCenter
                             }
 
+                            Label {
+                                text: "If you don't receive the code, please enable 2FA in your Garmin profile privacy settings."
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignHCenter
+                                font.pixelSize: 12
+                                font.italic: true
+                                color: Material.color(Material.Grey)
+                            }
+
                             TextField {
                                 id: mfaCodeTextField
                                 placeholderText: "Enter MFA code"
