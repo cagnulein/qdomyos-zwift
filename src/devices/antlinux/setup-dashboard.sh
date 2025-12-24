@@ -179,20 +179,14 @@ config_set_string() {
     CONFIG_STRING[$key]=$value
 }
 
-# Ensure TEMP_DIR is on tmpfs (prefer /dev/shm) to avoid SD writes
+# Ensure TEMP_DIR is a RAM-backed tmpfs to avoid SD writes
+# Delegate to a strict initializer that exits if tmpfs is unavailable.
 ensure_ram_temp_dir() {
-    if [[ -d "/dev/shm" && -w "/dev/shm" ]]; then
-        TEMP_DIR="/dev/shm/qz_setup_$$"
-    else
-        TEMP_DIR="/tmp/qz_setup_$$"
-    fi
-    mkdir -p "$TEMP_DIR" || return 1
-    # Clean up on exit
-    trap 'rm -rf "${TEMP_DIR}" 2>/dev/null || true' EXIT
-    export TEMP_DIR
+    # Use the more strict initializer below which validates tmpfs.
+    _init_temp_dir || return 1
 }
 
-# Call early so other functions can rely on TEMP_DIR
+# Call early so other functions can rely on TEMP_DIR; require tmpfs
 ensure_ram_temp_dir || true
 
 # ==========================================================================
