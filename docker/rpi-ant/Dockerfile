@@ -1,11 +1,21 @@
 # =============================================================================
-# Dockerfile for QDomyos-Zwift (Raspberry Pi 64-bit with ANT+)
+# QDomyos-Zwift: Multi-Stage Docker Build (ARM64 / Raspberry Pi)
 #
-# This file defines a multi-stage build to cross-compile the application
-# for the linux/arm64 platform.
+# Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
+# Contributor: bassai-sho | AI-assisted development | License: GPL-3.0
 #
-# It uses the latest 'bookworm' base image for security but pins the Python
-# version to ensure a stable build for the ANT+ feature.
+# Cross-compiles QDomyos-Zwift for linux/arm64 platform (Raspberry Pi 3+).
+# Uses Debian Bookworm with pinned Python 3.11.2 for stable ANT+ integration.
+#
+# Build stages:
+#   1. Builder: Compiles Qt5/C++ application with embedded Python ANT+ support
+#   2. Artifact: Minimal busybox container for file extraction only
+#
+# Output: /qdomyos-zwift-arm64-ant/ directory with binary, scripts, and configs
+#
+# Usage:
+#   docker buildx build --platform linux/arm64 -f docker/rpi-ant/Dockerfile .
+#   docker buildx build --build-arg ENABLE_DEBUG_LOGS=1 ...  # Debug mode
 # =============================================================================
 
 # --- Stage 1: The Builder ---

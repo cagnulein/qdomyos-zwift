@@ -1,25 +1,17 @@
 #!/usr/bin/env python3
-# -----------------------------------------------------------------------------
-# QDomyos-Zwift: ANT+ Virtual Footpod Feature
-# Standalone ANT+ Test Script
+# =============================================================================
+# QDomyos-Zwift: ANT+ Hardware Test Script
 #
-# Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
-# Contributor(s): bassai-sho
-# Development assisted by AI analysis tools
-# Licensed under GPL-3.0 - see project repository for full license
+# Part of QDomyos-Zwift: https://github.com/cagnulein/qdomyos-zwift
+# Contributor: bassai-sho | AI-assisted development | License: GPL-3.0
 #
-# This script tests ANT+ functionality independently of the QDomyos-Zwift binary.
-# It simulates a running treadmill broadcasting data to help troubleshoot ANT+
-# hardware, Python environment, and watch pairing issues.
+# Standalone test script for validating ANT+ hardware and watch pairing.
+# Simulates multi-stage workout data for comparison and troubleshooting.
 #
 # Usage:
-#   Via dashboard (recommended):
-#     sudo ./setup-dashboard.sh  # → Menu → ANT+ Test
-#
-#   Direct execution (advanced):
-#     cd ~/qdomyos-zwift-x86-64-ant  # or qdomyos-zwift-arm64-ant
-#     sudo ~/ant_venv/bin/python3 ./test_ant.py
-# -----------------------------------------------------------------------------
+#   sudo ./setup-dashboard.sh (recommended) or
+#   sudo ~/ant_venv/bin/python3 ./test_ant.py
+# =============================================================================
 
 import time
 import sys

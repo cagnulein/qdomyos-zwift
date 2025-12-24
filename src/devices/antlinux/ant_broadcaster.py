@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
-# -----------------------------------------------------------------------------
-# QDomyos-Zwift: ANT+ Virtual Footpod Feature
-# ANT+ SDM Broadcaster - Python Core
+# =============================================================================
+# QDomyos-Zwift: ANT+ SDM Broadcaster - Python Core
 #
-# Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
-# Contributor(s): bassai-sho
-# AI analysis tools (Claude, Gemini) were used to assist coding and debugging
+# Part of QDomyos-Zwift: https://github.com/cagnulein/qdomyos-zwift
+# Contributor: bassai-sho | AI-assisted development | License: GPL-3.0
 #
-# Licensed under GPL-3.0 - see project repository for full license
+# Core ANT+ communication module implementing Stride-Based Speed & Distance
+# Monitor (SDM) protocol for broadcasting treadmill data to Garmin watches.
+# Runs in a dedicated thread and is controlled by the C++ `AntWorker`.
 #
-# This script handles the low-level ANT+ communication using the `openant`
-# library. It runs in a dedicated thread, broadcasting treadmill speed data
-# using a specific ANT+ SDM (footpod) payload structure determined to be
-# compatible with Garmin watch receivers. This module is designed to be
-# embedded and controlled by the C++ AntWorker class.
-# -----------------------------------------------------------------------------
+# Key features: real-time priority scheduling, cadence ramping, phased shutdown
+# and one-time dongle reset with multi-vendor support.
+#
+# Dependencies: openant, pyusb, pybind11, Python 3.9+
+# =============================================================================
 
 import logging
 import time

@@ -1,28 +1,20 @@
 #!/bin/bash
 ################################################################################
-# QDomyos-Zwift ANT+ Wrapper Script
+# QDomyos-Zwift: Runtime Wrapper Script (ARM64 / Raspberry Pi)
 #
-# Purpose:
-#   Runtime validation and dependency checker for QDomyos-Zwift with ANT+ support.
-#   Creates a clean isolated environment to prevent library conflicts (snap/flatpak).
+# Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
+# Contributor: bassai-sho | AI-assisted development | License: GPL-3.0
 #
-# Features:
-#   - Auto-detects Python 3.11 library (pyenv priority, then system paths)
-#   - Validates ANT+ virtual environment and required packages
-#   - Checks USB permissions (plugdev group, udev rules)
-#   - Filters snap paths from LD_LIBRARY_PATH to prevent glibc conflicts
-#   - Executes binary with env -i for complete environment isolation
-#   - Provides helpful error messages and setup instructions
+# Runtime validation and dependency checker for QDomyos-Zwift with ANT+ support.
+# Auto-detects Python 3.11, validates Qt5/ANT+ dependencies, and launches binary
+# in a clean environment to prevent snap/flatpak library conflicts.
+#
+# Platform: ARM64 Linux (Raspberry Pi 3+, Debian/RPi OS)
+# Key checks: Python 3.11 libs, Qt5 runtime, QML modules, ANT+ venv/USB permissions
 #
 # Usage:
 #   ./qdomyos-zwift [OPTIONS]
-#   Example: sudo ./qdomyos-zwift -no-gui -ant-footpod
-#
-# Platform: ARM64 Linux (Raspberry Pi - Debian/Raspberry Pi OS)
-# Dependencies: Python 3.11, openant, pyusb, pybind11, Qt5 runtime libraries
-# Author: bassai-sho
-# Development assisted by AI analysis tools
-# Documentation: https://github.com/cagnulein/qdomyos-zwift/blob/master/src/devices/antlinux/README.md
+#   ./qdomyos-zwift -no-gui -ant-footpod    # Headless with ANT+
 ################################################################################
 
 set -e

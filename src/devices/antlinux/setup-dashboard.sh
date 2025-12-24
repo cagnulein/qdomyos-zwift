@@ -1,76 +1,20 @@
 #!/bin/bash
 ################################################################################
-# setup_dashboard.sh - QDomyos-Zwift ANT+ Setup Dashboard
+# QDomyos-Zwift: ANT+ Setup Dashboard
 #
-# Highlights: improved profile persistence, RAM-first TEMP_DIR, atomic UI
-# rendering, safer TTY handling, and ANSI-aware printing/truncation.
-# Disk-based debug logging removed to reduce SD wear.
-# Recent changes (2025-12-22): Fix Ctrl+C during initial status scan so the
-# cursor reliably moves to the safe row; hardened UI signal traps and
-# terminal restore logic to prevent leftover UI when interrupted.
+# Part of QDomyos-Zwift: https://github.com/cagnulein/qdomyos-zwift
+# Contributor: bassai-sho | AI-assisted development | License: GPL-3.0
 #
-# Recent changes (2025-12-22): Performance: unified `DISPLAY_CACHE` for
-# width calculations (replaced md5/sha1 hashing), reduced subprocess
-# overhead on low-power devices (Raspberry Pi) — cache-hit latency
-# significantly improved; visual layout preserved.
+# Interactive TUI for system validation, profile configuration, Bluetooth
+# scanning, ANT+ testing and application lifecycle management. Optimized
+# for low-end hardware (Raspberry Pi) with RAM-first architecture.
 #
-# Recent critical changes (2025-12-22):
-#  - C-1: Width calculation optimized to a unified `DISPLAY_CACHE`, added
-#    `init_width_calculator()` and fast ASCII path to eliminate per-call
-#    md5/sha1 and reduce subprocess spawning (Perl/gawk only on Unicode
-#    slow-path).
-#  - C-2: Bluetooth scan sorting improved from O(n^2) bubble sort to an
-#    indexed O(n log n) sort using `sort`/`cut`, reducing CPU during scans.
-#  - C-3: `bt_provider.py` heartbeat writes throttled to 30s intervals and
-#    final heartbeat ensured via `atexit` to reduce SD card wear.
-#  - C-4: Provider lifecycle made robust: added `is_bt_provider_process()`,
-#    `kill_gracefully()`, atomic supervisor-based `start_bt_provider()` and
-#    `stop_bt_provider()` to avoid race conditions and orphaned processes.
+# Key optimizations: unified display cache, RAM-first TEMP_DIR, buffered
+# event-driven output, and per-section device caches to avoid Python spawns.
 #
-# High-priority fixes (2025-12-22):
-#  - H-1: Added a pure-Bash ANSI stripper (`strip_ansi_pure()`) and wired it
-#    into the unified `DISPLAY_CACHE` to avoid spawning `sed`/`perl` on cache
-#    misses; preserves existing Unicode/gawk slow-path for edge cases.
-#  - H-2: Implemented Python-side sanitization caching (`_SANITIZE_CACHE`) and
-#    optimized `sanitize_label()`; added an event-driven `BufferedWriter`
-#    to reduce stdout/syscall overhead and batch writes.
-#  - H-3: Introduced `collect_bt_updates_batch()` in the dashboard to read
-#    FIFO input in batches (tunable via `BT_BATCH_*` env vars), amortizing
-#    IO and parsing work in `perform_bluetooth_scan()`.
-#  - H-4: Ensured buffered output flush on shutdown by registering
-#    `writer.stop()` with `atexit` and providing `flush_immediate()` for
-#    high-priority status lines.
-#
-# Recent changes (2025-12-23): generator & QML parsing improvements
-#  - G-1: `generate_devices.py` enhanced with ListModel and inline-array
-#    parsing, improved heuristics to resolve dynamic ComboBox models, and
-#    noise-filtering to remove UI-only entries from generated lists.
-#  - G-2: Added deduplication scoring, `slugify` identifiers for new
-#    models, and conservative section inference to improve device coverage
-#    (notably Rowers and uncommon brands).
-#  - G-3: `generate_devices.py` now writes `src/devices.ini` and produces
-#    an initial `devices_optimized.json` (used for per-section cache files).
-#  - G-4: Added `--verbose` diagnostics to the generator to assist tuning
-#    parsing heuristics and to help identify unassigned model arrays.
-#
-# Recent changes (2025-12-24): cache & fast-render improvements
-#  - R-1: Disabled the global flat JSON fast-path for correctness; fast
-#    renderer remains available but is now opt-in per-menu to avoid
-#    incorrect cached lists for small/profile menus.
-#  - R-2: Added per-section flat cache files (`.menu_cache/<Section>.cache`)
-#    written by `generate_devices.py` to avoid spawning Python at menu time.
-#  - R-3: `select_equipment_flow` now prefers the per-section cache and
-#    populates a transient `MENU_CACHE_LINES`/`MENU_CACHE_WIDTHS` which is
-#    rendered by `show_scrollable_menu_fast` for near-instant UI response.
-#  - R-4: `show_scrollable_menu_fast` input handling changed to block for
-#    real keypresses (no timeout) and to handle escape sequences like the
-#    original menu — prevents auto-advancing on timeouts.
-#  - R-5: `generate_devices.py` now emits per-section cache files with
-#    precomputed display widths to avoid per-item width computation in
-#    the shell; fallback parsing remains in place.
-#  - R-6: Fixed a stray `local`-outside-function issue and several small
-#    brace mismatches introduced during iterative edits (stability fix).
-#
+# Usage:
+#   sudo ./setup-dashboard.sh
+#   sudo ./setup-dashboard.sh --scan-now
 ################################################################################
 
 set -uo pipefail

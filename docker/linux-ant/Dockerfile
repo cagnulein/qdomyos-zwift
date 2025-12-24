@@ -1,8 +1,21 @@
 # =============================================================================
-# Dockerfile for QDomyos-Zwift (Linux x86-64 with ANT+)
+# QDomyos-Zwift: Multi-Stage Docker Build (x86-64 / Desktop Linux)
 #
-# This file defines a multi-stage build to compile the application for the
-# linux/amd64 platform, mirroring the environment of the linux-x86-build job.
+# Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
+# Contributor: bassai-sho | AI-assisted development | License: GPL-3.0
+#
+# Compiles QDomyos-Zwift for linux/amd64 platform (Ubuntu/Debian desktops).
+# Uses Ubuntu LTS with Python 3.11 from deadsnakes PPA for ANT+ integration.
+#
+# Build stages:
+#   1. Builder: Compiles Qt5/C++ application with embedded Python ANT+ support
+#   2. Artifact: Minimal busybox container for file extraction only
+#
+# Output: /qdomyos-zwift-x86-64-ant/ directory with binary, scripts, and configs
+#
+# Usage:
+#   docker buildx build --platform linux/amd64 -f docker/linux-ant/Dockerfile .
+#   docker buildx build --build-arg ENABLE_DEBUG_LOGS=1 ...  # Debug mode
 # =============================================================================
 
 # --- Stage 1: The Builder ---

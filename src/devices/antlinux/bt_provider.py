@@ -1,4 +1,19 @@
 #!/usr/bin/env python3
+# =============================================================================
+# QDomyos-Zwift: Bluetooth Device Discovery Provider
+#
+# Part of QDomyos-Zwift: https://github.com/cagnulein/qdomyos-zwift
+# Contributor: bassai-sho | AI-assisted development | License: GPL-3.0
+#
+# Asynchronous BLE scanner with RAM-based caching and buffered output.
+# Runs as a supervised subprocess controlled by `setup-dashboard.sh`.
+#
+# Optimizations: RAM-only cache (/dev/shm), sanitize LRU cache, event-driven
+# buffered output, and throttled heartbeat writes.
+#
+# Dependencies: bleak, Python 3.9+
+# =============================================================================
+
 import argparse
 import re
 import asyncio

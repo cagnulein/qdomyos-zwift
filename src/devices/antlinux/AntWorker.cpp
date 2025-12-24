@@ -1,26 +1,15 @@
-// -----------------------------------------------------------------------------
-// QDomyos-Zwift: ANT+ Virtual Footpod Feature
-// C++/Python Bridge for ANT+ Broadcasting (Implementation)
+// =============================================================================
+// QDomyos-Zwift: ANT+ Worker Thread (Implementation)
 //
-// Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
-// Contributor(s): bassai-sho
-// Development assisted by AI analysis tools
-// Licensed under GPL-3.0 - see project repository for full license
+// Part of QDomyos-Zwift: https://github.com/cagnulein/qdomyos-zwift
+// Contributor: bassai-sho | AI-assisted development | License: GPL-3.0
 //
-// This file implements the AntWorker class. It runs on a dedicated QThread
-// and serves as the bridge between the C++ application and the Python ANT+
-// script. It manages the embedded Python interpreter's lifecycle, polls the
-// treadmill for speed, and passes data to the Python script.
+// Implements the AntWorker class: embedded Python lifecycle, device polling,
+// and data transmission. Optimized for low-CPU devices with strict timing.
 //
-// Optimizations for low-CPU devices (Raspberry Pi etc.)
-// - Optimized Threading and Timers: The worker thread priority is set to
-//   HighPriority and the QTimer uses Qt::CoarseTimer to reduce scheduling overhead.
-// - Conditional Logging: High-frequency logging is compiled out or conditional
-//   on the `ant_verbose` flag, minimizing I/O and string formatting costs.
-// - Robust, Synchronous Shutdown: The stop() method implements a strict,
-//   ordered shutdown sequence entirely within the worker thread to prevent
-//   memory corruption crashes on exit.
-// -----------------------------------------------------------------------------
+// Key points: high-priority thread, coarse timers, cached Python objects,
+// and a phased, synchronous shutdown sequence to safely release USB resources.
+// =============================================================================
 
 #ifdef ANT_LINUX_ENABLED
 #include "AntWorker.h"

@@ -1,16 +1,15 @@
-// -----------------------------------------------------------------------------
-// QDomyos-Zwift: ANT+ Virtual Footpod Feature
-// C++/Python Bridge for ANT+ Broadcasting (Header)
+// =============================================================================
+// QDomyos-Zwift: ANT+ Worker Thread (Header)
 //
-// Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
-// Contributor(s): bassai-sho
-// AI analysis tools (Claude, Gemini) were used to assist coding and debugging
-// Licensed under GPL-3.0 - see project repository for full license
+// Part of QDomyos-Zwift: https://github.com/cagnulein/qdomyos-zwift
+// Contributor: bassai-sho | AI-assisted development | License: GPL-3.0
 //
-// This file declares the AntWorker class, the QObject responsible for managing
-// the pybind11-based interaction with the embedded Python ANT+ broadcaster.
-// Optimized for low-CPU devices (Raspberry Pi, etc.)
-// -----------------------------------------------------------------------------
+// QObject managing pybind11-based interaction with embedded Python ANT+
+// broadcaster. Runs on a dedicated QThread and polls `bluetoothdevice` for
+// speed updates to pass to the Python broadcaster.
+//
+// Key notes: high-priority thread, cached Python objects, and phased shutdown.
+// =============================================================================
 
 #ifdef ANT_LINUX_ENABLED
 #pragma once

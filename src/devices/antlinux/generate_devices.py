@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """
-Enhanced QML Device Parser for generating devices.ini
-Robust parsing with comprehensive error handling for Docker environments
+QDomyos-Zwift: Device Database Generator (BUILD-TIME TOOL ONLY)
+
+Part of QDomyos-Zwift: https://github.com/cagnulein/qdomyos-zwift
+Contributor: bassai-sho | AI-assisted development | License: GPL-3.0
+
+BUILD-TIME TOOL: parses settings.qml to extract device models and generates
+`devices.ini`, `devices_optimized.json` and per-section caches. Not included
+in runtime packages.
 """
 import re
 import configparser

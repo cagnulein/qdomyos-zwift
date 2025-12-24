@@ -1,28 +1,12 @@
 #!/usr/bin/bash
 # =============================================================================
-# QDomyos-Zwift: Universal Docker Build Script (v1.0)
+# QDomyos-Zwift: Universal Docker Build Script
 #
-# This script builds the QDomyos-Zwift application for different target
-# architectures using a containerized Docker environment. It requires Docker
-# and the buildx plugin to be installed.
+# Part of QDomyos-Zwift: https://github.com/cagnulein/qdomyos-zwift
+# Contributor: bassai-sho | AI-assisted development | License: GPL-3.0
 #
-# This script replaces the previous cross-compiler script and provides a single,
-# unified interface for all Docker-based builds.
-#
-# USAGE:
-#   From the 'src' directory, run:
-#   ./docker-build.sh --arch <ARCH> [--enable-debug-logs]
-#
-#   ARCH can be:
-#     - arm64   (for Raspberry Pi)
-#     - x86-64  (for Desktop Linux)
-#
-#   OPTIONS:
-#     --enable-debug-logs  Enable qDebug() output for troubleshooting
-#                          (Without this, qDebug() is suppressed for smaller binaries)
-#
-# Contributor(s): bassai-sho
-# Development assisted by AI analysis tools
+# Unified Docker build helper for multi-architecture images (x86-64, arm64).
+# Usage (from src/): ./docker-build.sh --arch <arch> [--enable-debug-logs]
 # =============================================================================
 
 set -euo pipefail
