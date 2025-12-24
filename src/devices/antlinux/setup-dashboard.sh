@@ -3971,79 +3971,65 @@ show_scrollable_menu() {
 
     trap 'trap - RETURN SIGINT SIGTERM; move_cursor $((LOG_BOTTOM + 1)) 0; exit_ui_mode' RETURN SIGINT SIGTERM
     enter_ui_mode
-    while true; do
-        # Atomic render buffer (build full screen in-memory)
-        local render_buffer=""
-        
-        # 1. Calculate sliding window
-        local start_idx=0
-        if [[ $total_count -gt $display_count ]]; then
-            start_idx=$(( selected - (display_count / 2) ))
-            [[ $start_idx -lt 0 ]] && start_idx=0
-            [[ $start_idx -gt $((total_count - display_count)) ]] && start_idx=$((total_count - display_count))
-        fi
-        # 4. BUILD COMPLETE MENU BUFFER (render each info row atomically)
-        for ((r=LOG_TOP; r<=LOG_BOTTOM; r++)); do
-            local row_index=$(( r - render_start ))
-            local row_content=""
-            if (( row_index >= 0 && row_index < display_count )); then
-                local current_idx=$(( start_idx + row_index ))
-                local item_text="${menu_list[$current_idx]}"
 
-                # Truncate if needed (consider full item visual width).
-                # Use precomputed width when available to avoid repeated calls.
-                local vis_w
-                vis_w=${item_widths[$current_idx]:-}
-                if [[ -z "${vis_w}" ]]; then
-                    vis_w=$(get_vis_width "$item_text")
-                fi
-                if [[ $vis_w -gt $((INNER_COLS - 5)) ]]; then
-                    item_text=$(trunc_vis "$item_text" $((INNER_COLS - 5)))
-                    vis_w=$((INNER_COLS - 5))
-                fi
+    # Initial sliding window calculation
+    local start_idx=0
+    if [[ $total_count -gt $display_count ]]; then
+        start_idx=$(( selected - (display_count / 2) ))
+        [[ $start_idx -lt 0 ]] && start_idx=0
+        [[ $start_idx -gt $((total_count - display_count)) ]] && start_idx=$((total_count - display_count))
+    fi
 
-                # Build base content (no padding yet)
-                if [[ $current_idx -eq $selected ]]; then
-                    row_content="   ${CYAN}► ${BOLD_CYAN}${item_text}${NC}"
-                else
-                    row_content="     ${GRAY}${item_text}${NC}"
-                fi
-
-                # Compute visual width once for the item_text (ANSI-aware)
-                # and reuse it to calculate padding without re-calling get_vis_width
-                # on the full row which saves subprocess/work.
-                local prefix_chars=5
-                # vis_w already computed above for item_text; if truncation occurred
-                # and we forced item_text to INNER_COLS-5 width, ensure vis_w reflects that.
-                if [[ ${vis_w:-0} -gt $((INNER_COLS - prefix_chars)) ]]; then
-                    vis_w=$((INNER_COLS - prefix_chars))
-                fi
-
-                local pad_needed=$(( INNER_COLS - prefix_chars - vis_w ))
-                [[ $pad_needed -lt 0 ]] && pad_needed=0
-                local padding
-                padding=$(printf '%*s' "$pad_needed" "")
-                row_content+="$padding"
-            else
-                # Blank padded content for non-menu rows
-                row_content=$(printf '%*s' "$INNER_COLS" "")
+    # Initial full render
+    local render_buffer=""
+    for ((r=LOG_TOP; r<=LOG_BOTTOM; r++)); do
+        local row_index=$(( r - render_start ))
+        local row_content=""
+        if (( row_index >= 0 && row_index < display_count )); then
+            local current_idx=$(( start_idx + row_index ))
+            local item_text="${menu_list[$current_idx]}"
+            local vis_w=${item_widths[$current_idx]:-}
+            if [[ -z "${vis_w}" ]]; then
+                vis_w=$(get_vis_width "$item_text")
+            fi
+            if [[ $vis_w -gt $((INNER_COLS - 5)) ]]; then
+                item_text=$(trunc_vis "$item_text" $((INNER_COLS - 5)))
+                vis_w=$((INNER_COLS - 5))
             fi
 
-            render_buffer+=$(printf "\033[%d;1H${BLUE}║${NC}%s${BLUE}║${NC}" "$((r + 1))" "$row_content")
-        done
+            if [[ $current_idx -eq $selected ]]; then
+                row_content="   ${CYAN}► ${BOLD_CYAN}${item_text}${NC}"
+            else
+                row_content="     ${GRAY}${item_text}${NC}"
+            fi
 
-        # 5. Add footer to buffer
-        local b_row=$((LOG_BOTTOM + 1))
-        local help_text="Arrows: Up/Down | Enter: Select"
-        render_buffer+=$(build_hr_string "$b_row" "╚" "╝" "$help_text" "${BOLD_BLUE}" "")
+            local prefix_chars=5
+            if [[ ${vis_w:-0} -gt $((INNER_COLS - prefix_chars)) ]]; then
+                vis_w=$((INNER_COLS - prefix_chars))
+            fi
+            local pad_needed=$(( INNER_COLS - prefix_chars - vis_w ))
+            [[ $pad_needed -lt 0 ]] && pad_needed=0
+            local padding
+            padding=$(printf '%*s' "$pad_needed" "")
+            row_content+="$padding"
+        else
+            row_content=$(printf '%*s' "$INNER_COLS" "")
+        fi
+        render_buffer+=$(printf "\033[%d;1H${BLUE}║${NC}%s${BLUE}║${NC}" "$((r + 1))" "$row_content")
+    done
 
-        # 6. ATOMIC OUTPUT - single write prevents interleaving
-            local ui_fd
-            ui_fd=$(get_safe_ui_fd)
-            printf '%s' "$render_buffer" >&${ui_fd} 2>/dev/null || true
-        # atomic render complete
+    local b_row=$((LOG_BOTTOM + 1))
+    local help_text="Arrows: Up/Down | Enter: Select"
+    render_buffer+=$(build_hr_string "$b_row" "╚" "╝" "$help_text" "${BOLD_BLUE}" "")
+    local ui_fd
+    ui_fd=$(get_safe_ui_fd)
+    printf '%s' "$render_buffer" >&${ui_fd} 2>/dev/null || true
 
-        # 7. Input handling (unchanged)
+    local prev_selected=$selected
+    local prev_start_idx=$start_idx
+
+    while true; do
+        # Input handling first for snappy response
         local key=""
         IFS= read -rsn1 key </dev/tty 2>/dev/null || true
         if [[ $key == $'\x1b' ]]; then
@@ -4068,6 +4054,103 @@ show_scrollable_menu() {
         # Wrap selection
         [[ $selected -lt 0 ]] && selected=$((total_count - 1))
         [[ $selected -ge $total_count ]] && selected=0
+
+        # Recompute window start index
+        start_idx=0
+        if [[ $total_count -gt $display_count ]]; then
+            start_idx=$(( selected - (display_count / 2) ))
+            [[ $start_idx -lt 0 ]] && start_idx=0
+            [[ $start_idx -gt $((total_count - display_count)) ]] && start_idx=$((total_count - display_count))
+        fi
+
+        # If window scrolled, perform full redraw
+        if [[ $start_idx -ne $prev_start_idx ]]; then
+            local render_buffer=""
+            for ((r=LOG_TOP; r<=LOG_BOTTOM; r++)); do
+                local row_index=$(( r - render_start ))
+                local row_content=""
+                if (( row_index >= 0 && row_index < display_count )); then
+                    local current_idx=$(( start_idx + row_index ))
+                    local item_text="${menu_list[$current_idx]}"
+                    local vis_w=${item_widths[$current_idx]:-}
+                    if [[ -z "${vis_w}" ]]; then
+                        vis_w=$(get_vis_width "$item_text")
+                    fi
+                    if [[ $vis_w -gt $((INNER_COLS - 5)) ]]; then
+                        item_text=$(trunc_vis "$item_text" $((INNER_COLS - 5)))
+                        vis_w=$((INNER_COLS - 5))
+                    fi
+                    if [[ $current_idx -eq $selected ]]; then
+                        row_content="   ${CYAN}► ${BOLD_CYAN}${item_text}${NC}"
+                    else
+                        row_content="     ${GRAY}${item_text}${NC}"
+                    fi
+                    local prefix_chars=5
+                    if [[ ${vis_w:-0} -gt $((INNER_COLS - prefix_chars)) ]]; then
+                        vis_w=$((INNER_COLS - prefix_chars))
+                    fi
+                    local pad_needed=$(( INNER_COLS - prefix_chars - vis_w ))
+                    [[ $pad_needed -lt 0 ]] && pad_needed=0
+                    local padding
+                    padding=$(printf '%*s' "$pad_needed" "")
+                    row_content+="$padding"
+                else
+                    row_content=$(printf '%*s' "$INNER_COLS" "")
+                fi
+                render_buffer+=$(printf "\033[%d;1H${BLUE}║${NC}%s${BLUE}║${NC}" "$((r + 1))" "$row_content")
+            done
+            render_buffer+=$(build_hr_string "$b_row" "╚" "╝" "$help_text" "${BOLD_BLUE}" "")
+            ui_fd=$(get_safe_ui_fd)
+            printf '%s' "$render_buffer" >&${ui_fd} 2>/dev/null || true
+            prev_start_idx=$start_idx
+            prev_selected=$selected
+            continue
+        fi
+
+        # If only selection changed and window stayed same, update two rows
+        if [[ $selected -ne $prev_selected ]]; then
+            ui_fd=$(get_safe_ui_fd)
+
+            # Deselect previous if visible
+            local prev_row_index=$(( prev_selected - start_idx ))
+            if (( prev_row_index >= 0 && prev_row_index < display_count )); then
+                local prev_row=$(( render_start + prev_row_index ))
+                local prev_item="${menu_list[$prev_selected]}"
+                local prev_vis_w=${item_widths[$prev_selected]:-}
+                if [[ -z "${prev_vis_w}" ]]; then prev_vis_w=$(get_vis_width "$prev_item"); fi
+                if [[ $prev_vis_w -gt $((INNER_COLS - 5)) ]]; then
+                    prev_item=$(trunc_vis "$prev_item" $((INNER_COLS - 5)))
+                    prev_vis_w=$((INNER_COLS - 5))
+                fi
+                local prev_content="     ${GRAY}${prev_item}${NC}"
+                local prev_pad_needed=$(( INNER_COLS - 5 - prev_vis_w ))
+                [[ $prev_pad_needed -lt 0 ]] && prev_pad_needed=0
+                local prev_padding
+                prev_padding=$(printf '%*s' "$prev_pad_needed" "")
+                printf "\033[%d;1H${BLUE}║${NC}%s%s${BLUE}║${NC}" "$((prev_row + 1))" "$prev_content" "$prev_padding" >&${ui_fd} 2>/dev/null || true
+            fi
+
+            # Select new if visible
+            local new_row_index=$(( selected - start_idx ))
+            if (( new_row_index >= 0 && new_row_index < display_count )); then
+                local new_row=$(( render_start + new_row_index ))
+                local new_item="${menu_list[$selected]}"
+                local new_vis_w=${item_widths[$selected]:-}
+                if [[ -z "${new_vis_w}" ]]; then new_vis_w=$(get_vis_width "$new_item"); fi
+                if [[ $new_vis_w -gt $((INNER_COLS - 5)) ]]; then
+                    new_item=$(trunc_vis "$new_item" $((INNER_COLS - 5)))
+                    new_vis_w=$((INNER_COLS - 5))
+                fi
+                local new_content="   ${CYAN}► ${BOLD_CYAN}${new_item}${NC}"
+                local new_pad_needed=$(( INNER_COLS - 5 - new_vis_w ))
+                [[ $new_pad_needed -lt 0 ]] && new_pad_needed=0
+                local new_padding
+                new_padding=$(printf '%*s' "$new_pad_needed" "")
+                printf "\033[%d;1H${BLUE}║${NC}%s%s${BLUE}║${NC}" "$((new_row + 1))" "$new_content" "$new_padding" >&${ui_fd} 2>/dev/null || true
+            fi
+
+            prev_selected=$selected
+        fi
     done
 }
 
