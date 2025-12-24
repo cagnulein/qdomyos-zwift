@@ -134,7 +134,7 @@ COPY src/devices/antlinux/ant_broadcaster.py /qdomyos-zwift-x86-64-ant/
 COPY src/devices/antlinux/README.md /qdomyos-zwift-x86-64-ant/
 COPY --from=builder /app/src/devices.ini /qdomyos-zwift-x86-64-ant/devices.ini
 RUN chmod +x /qdomyos-zwift-x86-64-ant/qdomyos-zwift && \
-    chmod +x /qdomyos-zwift-x86-64-ant/setup.sh
+    chmod +x /qdomyos-zwift-x86-64-ant/setup-dashboard.sh || true
 
 # Set a no-op command (required for Docker image)
 CMD ["/bin/bash"]
