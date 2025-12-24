@@ -263,7 +263,8 @@ def parse_combobox_with_mapping(content: str, combo_id: str) -> Dict[str, str]:
     
     # Find the initializeModel function
     init_pattern = rf'function\s+initializeModel\(\)\s*\{{.*?var\s+selectedModel\s*=\s*(.*?);'
-    init_match = re.search(init_pattern, content[combo_match.end():combo_match.end()+5000], re.DOTALL)
+    # Search for initializeModel starting from the ComboBox definition to the end
+    init_match = re.search(init_pattern, content[combo_match.end():], re.DOTALL)
     
     if init_match:
         # Parse the ternary chain to map indices to setting IDs
