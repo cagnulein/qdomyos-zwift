@@ -2985,8 +2985,9 @@ perform_bluetooth_scan() {
         local last_raw="NONE"
         local spin_chars=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
 
-        # Setup FIFO Pipe
+        # Setup FIFO Pipe (ensure world-writable so sudo/other users can write)
         rm -f "$bt_fifo" && mkfifo "$bt_fifo"
+        chmod 0666 "$bt_fifo" 2>/dev/null || true
         
         # Start Python Provider (Unbuffered)
         # We use 'exec' to ensure the PID is the Python process itself
@@ -4727,6 +4728,8 @@ perform_ant_test() {
         : > "$log_file" 2>/dev/null || true
 
         if [ "$(id -u)" -eq 0 ] && [[ -n "${TARGET_USER:-}" ]]; then
+            # Ensure the target user can write the log file when sudo-ing
+            chown "$TARGET_USER":"$TARGET_USER" "$log_file" 2>/dev/null || true
             sudo -u "$TARGET_USER" -- env HOME="$TARGET_HOME" "$venv_py" -u "$py_script" --dashboard >"$log_file" 2>&1 &
         else
             "$venv_py" -u "$py_script" --dashboard >"$log_file" 2>&1 &
