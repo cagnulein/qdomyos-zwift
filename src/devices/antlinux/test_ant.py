@@ -20,39 +20,68 @@
 import time
 import sys
 import argparse
-from pathlib import Path
+import os
 
 # Ensure the ant_broadcaster module can be found in the same directory
-sys.path.append(str(Path(__file__).parent.absolute()))
+script_dir = os.path.dirname(os.path.abspath(__file__))
+if script_dir not in sys.path:
+    sys.path.insert(0, script_dir)
 
+# Ensure pyusb symbols are imported into the module namespace for USB ops
 try:
     import usb.core
     import usb.util
-except ImportError:
-    print("ERROR: pyusb library not found. Please run 'pip install pyusb' in your venv.")
-    sys.exit(1)
-
-# Quick check: ensure the ant_broadcaster module/file is available so the
-# user sees a helpful error message instead of a raw ModuleNotFoundError.
-try:
-    from importlib.util import find_spec
 except Exception:
-    find_spec = None
+    # If check_required_packages passed earlier, this should not fail.
+    # Leave errors to be handled by the caller.
+    pass
 
-bb_path = Path(__file__).parent / 'ant_broadcaster.py'
-spec_available = False
-if find_spec is not None:
-    try:
-        spec_available = find_spec('ant_broadcaster') is not None
-    except Exception:
-        spec_available = False
 
-if not spec_available and not bb_path.exists():
-    sys.stderr.write("ERROR: Required module 'ant_broadcaster' not found.\n")
-    sys.stderr.write("Place 'ant_broadcaster.py' next to this script.\n")
+def check_required_packages():
+    """Self-check for required Python packages used by the test script.
+    Prints compact one-line diagnostics (prefixed with '-') so callers
+    (the TUI) can display a concise summary.
+    Returns True if all packages are present, False otherwise.
+    """
+    required = [
+        ("openant", "openant"),
+        ("pyusb", "usb.core"),
+        ("pybind11", "pybind11"),
+    ]
+    missing = []
+    for label, modname in required:
+        try:
+            __import__(modname)
+        except Exception:
+            missing.append(label)
+
+    if missing:
+        # Emit compact bullets for the TUI to capture and show
+        for m in missing:
+            if m == "pyusb":
+                print(f"- pyusb not installed")
+            elif m == "openant":
+                print(f"- openant not installed")
+            elif m == "pybind11":
+                print(f"- pybind11 not installed")
+            else:
+                print(f"- {m} not installed")
+        return False
+    return True
+
+
+# Early self-check: if any runtime packages are missing, print and exit
+if not check_required_packages():
+    # Informational exit (non-zero) so callers know the test didn't run
+    sys.exit(2)
+
+# Attempt direct import and provide a clear error message if missing
+try:
+    from ant_broadcaster import AntBroadcaster
+except Exception as e:
+    sys.stderr.write("ERROR: Cannot import 'ant_broadcaster'. Ensure 'ant_broadcaster.py' is next to this script.\n")
+    sys.stderr.write(f"Details: {e}\n")
     sys.exit(1)
-
-from ant_broadcaster import AntBroadcaster
 
 """
 Improved Cadence Estimation Model
@@ -66,16 +95,6 @@ Research-backed transition points:
 - Moderate running: 170-180 SPM (10-14 km/h)
 - Fast running: 180-190 SPM (14+ km/h)
 """
-def estimate_cadence(speed_kmh: float) -> int:
-
-    if speed_kmh < 5.0:
-        cadence = int(speed_kmh * 15.0 + 45.0)
-    else:
-        cadence = int(speed_kmh * 5.0 + 110.0)
-    
-    # Round down to the nearest even number
-    return min(cadence, 200) & ~1
-
 def estimate_cadence(speed_kmh: float) -> int:
     """
     Estimates realistic cadence in SPM based on biomechanics research.
@@ -148,23 +167,90 @@ def reset_ant_dongle():
         (0x11fd, 0x0001)   # Suunto ANT+ Dongle
     ]
     print("--- Pre-Test USB Reset ---")
-    try:
-        dongle = next((usb.core.find(idVendor=v, idProduct=p) for v, p in SUPPORTED_DONGLES if usb.core.find(idVendor=v, idProduct=p)), None)
-        if dongle is None:
-            print("No ANT+ dongle found to reset. Proceeding...")
-            return True
-        print(f"Found dongle: {dongle.manufacturer} {dongle.product}")
-        print("Attempting to reset USB device...")
-        dongle.reset()
-        time.sleep(1)
-        print("Reset complete.")
-        return True
-    except usb.core.USBError as e:
-        print(f"\nERROR during USB reset: {e}\nThis is likely a permissions issue. Please run this script with 'sudo'.")
-        return False
-    except Exception as e:
-        print(f"\nAn unexpected error occurred during USB reset: {e}")
-        return False
+    # Retry loop to handle transient kernel/device races
+    attempts = 6
+    for attempt in range(1, attempts + 1):
+        try:
+            dongle = None
+            for v, p in SUPPORTED_DONGLES:
+                try:
+                    d = usb.core.find(idVendor=v, idProduct=p)
+                except Exception:
+                    d = None
+                if d:
+                    dongle = d
+                    break
+
+            if dongle is None:
+                print(f"- Dongle missing/in use (attempt {attempt}/{attempts})")
+                if attempt < attempts:
+                    time.sleep(0.6)
+                    continue
+                return False
+
+            # Try to safely detach kernel driver interfaces if present
+            try:
+                for cfg in dongle:
+                    for intf in cfg:
+                        try:
+                            if hasattr(dongle, 'is_kernel_driver_active') and dongle.is_kernel_driver_active(intf.bInterfaceNumber):
+                                try:
+                                    dongle.detach_kernel_driver(intf.bInterfaceNumber)
+                                except Exception:
+                                    pass
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+
+            # Informational
+            man = getattr(dongle, 'manufacturer', '') or ''
+            prod = getattr(dongle, 'product', '') or ''
+            print(f"Found dongle: {man} {prod}")
+
+            # Attempt reset with backoff on transient USB errors
+            try:
+                dongle.reset()
+                time.sleep(0.5)
+                print("- Reset complete")
+                return True
+            except usb.core.USBError as e:
+                msg = str(e)
+                if 'Access' in msg or 'Permission' in msg or (hasattr(e, 'errno') and e.errno == 13):
+                    print("- Permission error (run sudo)")
+                    return False
+                print(f"- USB reset error (attempt {attempt}/{attempts}): {e}")
+                # Try to show which process holds the device (best-effort)
+                try:
+                    import subprocess
+                    bus = getattr(dongle, 'bus', None)
+                    addr = getattr(dongle, 'address', None)
+                    if bus and addr:
+                        bus_s = f"{int(bus):03d}" if isinstance(bus, int) else str(bus)
+                        addr_s = f"{int(addr):03d}" if isinstance(addr, int) else str(addr)
+                        out = subprocess.check_output(["/usr/bin/which", "lsof"], stderr=subprocess.DEVNULL).strip()
+                        if out:
+                            try:
+                                l = subprocess.check_output(["lsof", f"/dev/bus/usb/{bus_s}/{addr_s}"], stderr=subprocess.DEVNULL, text=True)
+                                if l:
+                                    print("- Device held by process:")
+                                    for ln in l.splitlines()[:4]:
+                                        print(f"- {ln}")
+                            except Exception:
+                                pass
+                except Exception:
+                    pass
+
+                if attempt < attempts:
+                    time.sleep(0.8)
+                    continue
+                return False
+        except Exception as e:
+            print(f"- Unexpected error during USB probe/reset: {e}")
+            if attempt < attempts:
+                time.sleep(0.6)
+                continue
+            return False
 
 def main():
     """Main test function."""

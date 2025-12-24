@@ -8,7 +8,13 @@ import time
 from collections import deque
 import threading
 from pathlib import Path
-from bleak import BleakScanner
+try:
+    from bleak import BleakScanner
+except Exception:
+    # Emit a compact, dashboard-friendly diagnostic and exit early.
+    # The TUI expects single-line bullets prefixed with '-'.
+    print("- bleak not installed")
+    sys.exit(2)
 import atexit
 
 # Heartbeat optimization: reduce disk writes from 2s to 30s intervals
