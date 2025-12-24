@@ -925,6 +925,15 @@ void horizontreadmill::update() {
 
         if (firstDistanceCalculated) {
             QDateTime now = QDateTime::currentDateTime();
+
+            // T318_ timeout workaround: if we don't receive 2ACD notifications for 5 seconds, set speed to 0 (Issue #4023)
+            if (T318_device) {
+                qint64 secondsSinceLastNotification = last2ACDNotification.secsTo(now);
+                if (secondsSinceLastNotification >= 5 && Speed.value() > 0) {
+                    qDebug() << "T318_ timeout: No 2ACD notification for" << secondsSinceLastNotification << "seconds - setting speed to 0";
+                    Speed = 0;
+                }
+            }
             KCal +=
                 ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
             1.19) *
@@ -1830,6 +1839,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         bool horizon_treadmill_7_0_at_24 = settings.value(QZSettings::horizon_treadmill_7_0_at_24, QZSettings::default_horizon_treadmill_7_0_at_24).toBool();
         lastPacket = newValue;
 
+        // Update timestamp for T318_ timeout workaround (Issue #4023)
+        last2ACDNotification = QDateTime::currentDateTime();
+
         // default flags for this treadmill is 84 04
 
         union flags {
@@ -2638,6 +2650,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("TM4800-"))) {
             qDebug() << QStringLiteral("TM4800 treadmill found");
             TM4800 = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("T318_"))) {
+            qDebug() << QStringLiteral("T318_ treadmill found - enabling stop button timeout workaround");
+            T318_device = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
