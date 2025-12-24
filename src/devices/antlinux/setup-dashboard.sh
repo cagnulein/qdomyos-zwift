@@ -40,6 +40,37 @@
 #  - H-4: Ensured buffered output flush on shutdown by registering
 #    `writer.stop()` with `atexit` and providing `flush_immediate()` for
 #    high-priority status lines.
+#
+# Recent changes (2025-12-23): generator & QML parsing improvements
+#  - G-1: `generate_devices.py` enhanced with ListModel and inline-array
+#    parsing, improved heuristics to resolve dynamic ComboBox models, and
+#    noise-filtering to remove UI-only entries from generated lists.
+#  - G-2: Added deduplication scoring, `slugify` identifiers for new
+#    models, and conservative section inference to improve device coverage
+#    (notably Rowers and uncommon brands).
+#  - G-3: `generate_devices.py` now writes `src/devices.ini` and produces
+#    an initial `devices_optimized.json` (used for per-section cache files).
+#  - G-4: Added `--verbose` diagnostics to the generator to assist tuning
+#    parsing heuristics and to help identify unassigned model arrays.
+#
+# Recent changes (2025-12-24): cache & fast-render improvements
+#  - R-1: Disabled the global flat JSON fast-path for correctness; fast
+#    renderer remains available but is now opt-in per-menu to avoid
+#    incorrect cached lists for small/profile menus.
+#  - R-2: Added per-section flat cache files (`.menu_cache/<Section>.cache`)
+#    written by `generate_devices.py` to avoid spawning Python at menu time.
+#  - R-3: `select_equipment_flow` now prefers the per-section cache and
+#    populates a transient `MENU_CACHE_LINES`/`MENU_CACHE_WIDTHS` which is
+#    rendered by `show_scrollable_menu_fast` for near-instant UI response.
+#  - R-4: `show_scrollable_menu_fast` input handling changed to block for
+#    real keypresses (no timeout) and to handle escape sequences like the
+#    original menu — prevents auto-advancing on timeouts.
+#  - R-5: `generate_devices.py` now emits per-section cache files with
+#    precomputed display widths to avoid per-item width computation in
+#    the shell; fallback parsing remains in place.
+#  - R-6: Fixed a stray `local`-outside-function issue and several small
+#    brace mismatches introduced during iterative edits (stability fix).
+#
 ################################################################################
 
 set -uo pipefail
@@ -1856,14 +1887,56 @@ select_equipment_flow() {
         fi
         
         if [ "$state" -eq 1 ]; then
+            # Prefer precomputed models from devices_optimized.json for snappy UI
             local models=()
             local keys=()
-            while IFS= read -r line; do
-                if [[ "$line" =~ = ]]; then
-                    models+=("$(echo "${line%%=*}" | xargs)")
-                    keys+=("$(echo "${line#*=}" | xargs)")
-                fi
-            done < <(awk -v section="[$selected_type]" '$0==section { flag=1; next } /^\[/ { flag=0 } flag && $0!="" && $0!~/^;/ { print $0 }' "$DEVICES_INI")
+            local json_file="${SCRIPT_DIR}/devices_optimized.json"
+            local cache_dir="${SCRIPT_DIR}/.menu_cache"
+            local cache_file="$cache_dir/${selected_type}.cache"
+            local model_widths=()
+            if [[ -f "$cache_file" ]]; then
+                while IFS=$'\x1f' read -r name id width; do
+                    models+=("$name")
+                    keys+=("$id")
+                    model_widths+=("$width")
+                done < "$cache_file"
+            elif [[ -f "$json_file" ]]; then
+                # Fallback to JSON parsing (should be rare)
+                while IFS=$'\x1f' read -r name id width; do
+                    models+=("$name")
+                    keys+=("$id")
+                    model_widths+=("$width")
+                done < <(python3 - <<'PY'
+import json,sys
+f=sys.argv[1]
+cat=sys.argv[2]
+try:
+    with open(f,'r',encoding='utf-8') as fh:
+        d=json.load(fh)
+    for it in d.get('flat_menu',[]):
+        if it.get('category')==cat:
+            name=it.get('name') or it.get('line') or ''
+            idv=it.get('id') or ''
+            width=it.get('width', len(name))
+            print(f"{name}\x1f{idv}\x1f{width}")
+except Exception:
+    pass
+PY
+"$json_file" "$selected_type")
+            #fi
+            fi
+
+            # Fallback: parse `devices.ini` if JSON absent or produced no entries
+            if [[ ${#models[@]} -eq 0 ]]; then
+                while IFS= read -r line; do
+                    if [[ "$line" =~ = ]]; then
+                        models+=("$(echo "${line%%=*}" | xargs)")
+                        keys+=("$(echo "${line#*=}" | xargs)")
+                        # compute length of the just-added model name
+                        model_widths+=("${#models[${#models[@]}-1]}")
+                    fi
+                done < <(awk -v section="[$selected_type]" '$0==section { flag=1; next } /^\[/ { flag=0 } flag && $0!="" && $0!~/^;/ { print $0 }' "$DEVICES_INI")
+            fi
             
             local mod_def_idx=0
             if [ -f "$CONFIG_FILE" ]; then
@@ -1878,8 +1951,38 @@ select_equipment_flow() {
             # Update info header to reflect model selection
             draw_bottom_panel_header "SELECT $selected_type MODEL"
             clear_info_area
-            show_scrollable_menu "SELECT $selected_type MODEL" models "$mod_def_idx" "Back" "pad"
-            local m_idx=$?
+
+            # If we have a precomputed models list, use the fast renderer
+            local m_idx
+            if [[ ${#models[@]} -gt 0 ]]; then
+                # Prepare per-menu cache arrays for fast rendering
+                MENU_CACHE_LINES=()
+                MENU_CACHE_WIDTHS=()
+                for i in "${!models[@]}"; do
+                    name="${models[$i]}"
+                    MENU_CACHE_LINES+=("$name")
+                    # Prefer width from model_widths if available (from JSON), else fall back
+                    if [[ -n "${model_widths[$i]:-}" ]]; then
+                        MENU_CACHE_WIDTHS+=("${model_widths[$i]}")
+                    elif declare -f get_vis_width >/dev/null 2>&1; then
+                        MENU_CACHE_WIDTHS+=("$(get_vis_width "$name")")
+                    else
+                        MENU_CACHE_WIDTHS+=("${#name}")
+                    fi
+                done
+                MENU_CACHE_LOADED=1
+
+                show_scrollable_menu_fast "SELECT $selected_type MODEL" "models" "$mod_def_idx" "Back" "pad"
+                m_idx=$?
+
+                # Reset the temporary per-menu cache to avoid reuse elsewhere
+                MENU_CACHE_LOADED=0
+                MENU_CACHE_LINES=()
+                MENU_CACHE_WIDTHS=()
+            else
+                show_scrollable_menu "SELECT $selected_type MODEL" models "$mod_def_idx" "Back" "pad"
+                m_idx=$?
+            fi
             if [ "$m_idx" -eq 255 ]; then state=0; continue; fi
             
             local selected_key="${keys[$m_idx]}"
@@ -2165,10 +2268,341 @@ run_all_checks() {
     check_ant_dongle
 }
 
-# Initialize these globally to prevent "unbound variable" errors in the trap
-#scan_pid=""
-#bt_log=""
-#bt_pipe=""
+# ---------------------------------------------------------------------------
+# Optimized parallel check system (drop-in replacement for run_all_checks)
+# - Runs checks in parallel
+# - Caches recent results in RAM to avoid repeated subprocesses
+# ---------------------------------------------------------------------------
+CHECK_CACHE_DIR="${TEMP_DIR:-/tmp}/qz_check_cache"
+CHECK_CACHE_TTL=${CHECK_CACHE_TTL:-30}
+
+init_check_cache() {
+    mkdir -p "$CHECK_CACHE_DIR" 2>/dev/null || true
+}
+
+cache_check_result() {
+    local check_name="$1"
+    local status="$2"
+    local cache_file="${CHECK_CACHE_DIR}/${check_name}"
+    printf '%s' "$status" > "$cache_file" 2>/dev/null || true
+    touch "$cache_file" 2>/dev/null || true
+}
+
+get_cached_check() {
+    local check_name="$1"
+    local cache_file="${CHECK_CACHE_DIR}/${check_name}"
+    if [[ -f "$cache_file" ]]; then
+        local age=$(( $(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || echo 0) ))
+        if (( age < CHECK_CACHE_TTL )); then
+            cat "$cache_file" 2>/dev/null
+            return 0
+        fi
+    fi
+    return 1
+}
+
+# Fast, minimal-overhead checks. These mirror the behaviour of the
+# existing check_* functions but favor fewer subprocesses and use cache.
+check_python311_fast() {
+    local result
+    if result=$(get_cached_check "python311"); then
+        echo "$result"
+        return 0
+    fi
+
+    if [[ -f "${TARGET_HOME:-}/.pyenv/versions/3.11.9/bin/python" ]]; then
+        cache_check_result "python311" "pass"
+        echo "pass"; return 0
+    fi
+
+    if command -v python3.11 >/dev/null 2>&1; then
+        cache_check_result "python311" "pass"
+        echo "pass"; return 0
+    fi
+
+    cache_check_result "python311" "fail"
+    echo "fail"; return 1
+}
+
+check_venv_fast() {
+    local result
+    if result=$(get_cached_check "venv"); then
+        echo "$result"; return 0
+    fi
+    if [[ -d "${TARGET_HOME:-}/ant_venv" ]]; then
+        cache_check_result "venv" "pass"; echo "pass"
+    else
+        cache_check_result "venv" "fail"; echo "fail"
+    fi
+}
+
+check_python_packages_fast() {
+    local result
+    if result=$(get_cached_check "pkg_pips"); then
+        echo "$result"; return 0
+    fi
+    local venv_py=""
+    local -a venv_candidates=(
+        "${TARGET_HOME:-}/ant_venv"
+        "${HOME:-}/ant_venv"
+        "/home/${TARGET_USER:-$USER}/ant_venv"
+        "./ant_venv"
+    )
+    for vdir in "${venv_candidates[@]}"; do
+        [[ -d "$vdir" ]] || continue
+        for p in "$vdir/bin/python3" "$vdir/bin/python" $(ls "$vdir/bin/python"* 2>/dev/null | head -n1); do
+            [[ -x "$p" ]] || continue
+            venv_py="$p"; break 2
+        done
+    done
+
+    if [[ -n "$venv_py" ]]; then
+        # If running as the same user, avoid sudo to preserve venv env
+        if [[ "$USER" = "$TARGET_USER" || -z "${SUDO_USER:-}" ]]; then
+            if "$venv_py" -c "import openant, usb, pybind11, bleak" 2>/dev/null; then
+                cache_check_result "pkg_pips" "pass"; echo "pass"; return 0
+            else
+                cache_check_result "pkg_pips" "fail"; echo "fail"; return 1
+            fi
+        else
+            if sudo -u "$TARGET_USER" "$venv_py" -c "import openant, usb, pybind11, bleak" 2>/dev/null; then
+                cache_check_result "pkg_pips" "pass"; echo "pass"; return 0
+            else
+                cache_check_result "pkg_pips" "fail"; echo "fail"; return 1
+            fi
+        fi
+    fi
+
+    # Fallback: try system python3.11 then python3
+    if command -v python3.11 >/dev/null 2>&1; then
+        if python3.11 -c "import openant, usb, pybind11, bleak" 2>/dev/null; then
+            cache_check_result "pkg_pips" "pass"; echo "pass"; return 0
+        fi
+    fi
+    if command -v python3 >/dev/null 2>&1; then
+        if python3 -c "import openant, usb, pybind11, bleak" 2>/dev/null; then
+            cache_check_result "pkg_pips" "pass"; echo "pass"; return 0
+        fi
+    fi
+
+    cache_check_result "pkg_pips" "fail"; echo "fail"; return 1
+}
+
+check_qt5_libs_fast() {
+    local result
+    if result=$(get_cached_check "qt5_libs"); then
+        echo "$result"; return 0
+    fi
+    local required=("libQt5Core.so" "libQt5Qml.so" "libQt5Quick.so" "libQt5Bluetooth.so" "libusb-1.0.so")
+    local missing=0
+    for lib in "${required[@]}"; do
+        if ! find /usr/lib* -maxdepth 2 -name "$lib*" -print -quit 2>/dev/null | grep -q .; then
+            ((missing++))
+        fi
+    done
+    if (( missing == 0 )); then
+        cache_check_result "qt5_libs" "pass"; echo "pass"
+    else
+        cache_check_result "qt5_libs" "fail"; echo "fail"
+    fi
+}
+
+check_qml_modules_fast() {
+    local result
+    if result=$(get_cached_check "qml_modules"); then
+        echo "$result"; return 0
+    fi
+    local missing=0
+    local qmls=("QtLocation" "QtQuick.2" "QtQuick/Controls.2")
+    for qml in "${qmls[@]}"; do
+        local found=0
+        for path in /usr/lib/*/qt5/qml /usr/lib/qt5/qml; do
+            [ -d "$path/$qml" ] && { found=1; break; }
+        done
+        [ $found -eq 0 ] && ((missing++))
+    done
+    if [ $missing -eq 0 ]; then cache_check_result "qml_modules" "pass"; echo "pass"; return 0; else cache_check_result "qml_modules" "fail"; echo "fail"; return 1; fi
+}
+
+check_bluetooth_fast() {
+    local result
+    if result=$(get_cached_check "bluetooth"); then
+        echo "$result"; return 0
+    fi
+    if command -v systemctl >/dev/null 2>&1 && ( systemctl is-active --quiet bluetooth.service 2>/dev/null || systemctl is-active --quiet bluez.service 2>/dev/null ); then
+        cache_check_result "bluetooth" "pass"; echo "pass"
+    else
+        cache_check_result "bluetooth" "fail"; echo "fail"
+    fi
+}
+
+check_plugdev_fast() {
+    local result
+    if result=$(get_cached_check "plugdev"); then
+        echo "$result"; return 0
+    fi
+    if groups "$TARGET_USER" 2>/dev/null | grep -q '\bplugdev\b'; then
+        cache_check_result "plugdev" "pass"; echo "pass"
+    else
+        cache_check_result "plugdev" "fail"; echo "fail"
+    fi
+}
+
+check_udev_rules_fast() {
+    local result
+    if result=$(get_cached_check "udev_rules"); then
+        echo "$result"; return 0
+    fi
+    if [[ -f /etc/udev/rules.d/99-garmin-ant.rules ]] || [[ -f /etc/udev/rules.d/51-garmin-ant.rules ]] || [[ -f /etc/udev/rules.d/99-ant-usb.rules ]]; then
+        cache_check_result "udev_rules" "pass"; echo "pass"
+    else
+        cache_check_result "udev_rules" "fail"; echo "fail"
+    fi
+}
+
+check_lsusb_fast() {
+    local result
+    if result=$(get_cached_check "lsusb"); then
+        echo "$result"; return 0
+    fi
+    if command -v lsusb >/dev/null 2>&1; then
+        cache_check_result "lsusb" "pass"; echo "pass"
+    else
+        cache_check_result "lsusb" "fail"; echo "fail"
+    fi
+}
+
+check_ant_dongle_fast() {
+    local result
+    if result=$(get_cached_check "ant_dongle"); then
+        echo "$result"; return 0
+    fi
+    local found=0
+    local dongles=("0fcf:1009" "0fcf:1008" "0fcf:100c" "0fcf:100e" "0fcf:88a4" "0fcf:1004" "11fd:0001")
+    if [[ -d /sys/bus/usb/devices ]]; then
+        for dev in /sys/bus/usb/devices/*; do
+            [[ -d "$dev" ]] || continue
+            local vid=$(cat "$dev/idVendor" 2>/dev/null || true)
+            local pid=$(cat "$dev/idProduct" 2>/dev/null || true)
+            if [[ -n "$vid" && -n "$pid" ]]; then
+                local vidpid="${vid}:${pid}"
+                for ant_dev in "${dongles[@]}"; do
+                    if [[ "$vidpid" == "$ant_dev" ]]; then
+                        found=1; break 2
+                    fi
+                done
+            fi
+        done
+    fi
+    if (( found == 1 )); then
+        cache_check_result "ant_dongle" "pass"; echo "pass"
+    else
+        cache_check_result "ant_dongle" "warn"; echo "warn"
+    fi
+}
+
+check_config_file_fast() {
+    local result
+    if result=$(get_cached_check "config_file"); then
+        echo "$result"; return 0
+    fi
+    if [[ -f "$CONFIG_FILE" ]]; then
+        cache_check_result "config_file" "pass"; echo "pass"
+    else
+        cache_check_result "config_file" "fail"; echo "fail"
+    fi
+}
+
+check_qz_service_fast() {
+    local result
+    if result=$(get_cached_check "qz_service"); then
+        echo "$result"; return 0
+    fi
+    local status="warn"
+    if command -v systemctl >/dev/null 2>&1 && systemctl is-enabled --quiet qz.service 2>/dev/null; then
+        status="pass"
+    elif [[ "$HAS_GUI" == true ]]; then
+        status="pending"
+    fi
+    cache_check_result "qz_service" "$status"
+    echo "$status"
+}
+
+run_all_checks_parallel() {
+    init_check_cache
+    local -a pids=()
+    # Function suffixes (match fast function names) and their corresponding
+    # STATUS_MAP keys (display keys). Maintain index alignment.
+    local -a func_names=(
+        "python311" "venv" "python_packages" "qt5_libs" "qml_modules"
+        "bluetooth" "lsusb" "plugdev" "udev_rules"
+        "config_file" "qz_service" "ant_dongle"
+    )
+    local -a status_keys=(
+        "python311" "venv" "pkg_pips" "qt5_libs" "qml_modules"
+        "bluetooth" "lsusb" "plugdev" "udev_rules"
+        "config_file" "qz_service" "ant_dongle"
+    )
+
+    local idx=0
+    for fn in "${func_names[@]}"; do
+        local key="${status_keys[$idx]}"
+        update_status "$key" "working"
+        (
+            # call corresponding fast function name pattern
+            local func="check_${fn}_fast"
+            local result
+            if command -v "$func" >/dev/null 2>&1; then
+                result=$($func 2>/dev/null || true)
+            else
+                # try legacy name mapping for python_packages
+                if [[ "$fn" == "python_packages" && $(type -t check_python_packages_fast) == "function" ]]; then
+                    result=$(check_python_packages_fast 2>/dev/null || true)
+                else
+                    result=""
+                fi
+            fi
+            printf '%s' "$result" > "${CHECK_CACHE_DIR}/${key}.result" 2>/dev/null || true
+        ) &
+        pids+=($!)
+        idx=$((idx + 1))
+    done
+
+    local timeout=5
+    local waited=0
+    while (( waited < timeout )); do
+        local all_done=1
+        for pid in "${pids[@]}"; do
+            if kill -0 "$pid" 2>/dev/null; then
+                all_done=0; break
+            fi
+        done
+        if (( all_done == 1 )); then break; fi
+        sleep 0.1
+        waited=$((waited + 1))
+    done
+
+    for pid in "${pids[@]}"; do kill -9 "$pid" 2>/dev/null || true; done
+
+    for key in "${status_keys[@]}"; do
+        local result_file="${CHECK_CACHE_DIR}/${key}.result"
+        if [[ -f "$result_file" ]]; then
+            local status=$(cat "$result_file" 2>/dev/null || true)
+            update_status "$key" "$status"
+        else
+            update_status "$key" "fail"
+        fi
+    done
+
+    render_status_grid 5
+    draw_header_config_line
+    draw_header_service_line
+}
+
+# Replace the original run_all_checks with the parallel runner
+run_all_checks() {
+    run_all_checks_parallel
+}
 
 # Global process management variables (placeholders so traps with set -u don't fail)
 # These are assigned inside perform_bluetooth_scan() when the scan runs.
@@ -3009,6 +3443,282 @@ prompt_action_menu() {
 
 
 show_scrollable_menu() {
+    local title="${1:-INFORMATION}"
+    local items_name="$2"
+    local selected="${3:-0}"
+    local back_label="${4:-}"
+    local pad_mode="${5:-}"
+
+    # Fast path disabled: using dynamic arrays for all menus to ensure
+    # correct per-menu filtering and behavior. Re-enable only if a
+    # dedicated per-menu cache mapping is implemented.
+
+    # Copy the named array into a local array safely
+    local menu_list=()
+    if declare -p "$items_name" >/dev/null 2>&1; then
+        if [[ -n "${BASH_VERSINFO:-}" && ${BASH_VERSINFO[0]} -ge 4 ]]; then
+            local -n __ref="$items_name"
+            menu_list=( "${__ref[@]}" )
+            unset -n __ref 2>/dev/null || true
+        else
+            eval "menu_list=( \"\\\${${items_name}[@]}\" )"
+        fi
+    else
+        menu_list=("$items_name")
+    fi
+
+    [[ -n "$back_label" ]] && menu_list+=("$back_label")
+    local total_count=${#menu_list[@]}
+    
+    # Dynamic space calculation
+    local total_info_rows=$(( LOG_BOTTOM - LOG_TOP + 1 ))
+    local render_start=$LOG_TOP
+    local max_display=$total_info_rows
+
+    # If caller requests padding, leave the very top and bottom rows blank
+    # (useful for equipment selection where we want breathing room).
+    if [[ "$pad_mode" == "pad" ]]; then
+        render_start=$(( LOG_TOP + 1 ))
+        max_display=$(( total_info_rows - 2 ))
+        [[ $max_display -lt 1 ]] && max_display=1
+    else
+        if [[ $total_count -le 8 ]]; then
+            render_start=$(( LOG_TOP + 1 ))
+            max_display=$(( total_info_rows - 1 ))
+        fi
+    fi
+
+    local display_count=$total_count
+    [[ $display_count -gt $max_display ]] && display_count=$max_display
+
+    trap 'trap - RETURN SIGINT SIGTERM; move_cursor $((LOG_BOTTOM + 1)) 0; exit_ui_mode' RETURN SIGINT SIGTERM
+    enter_ui_mode
+    while true; do
+        # Atomic render buffer (build full screen in-memory)
+        local render_buffer=""
+        
+        # 1. Calculate sliding window
+        local start_idx=0
+        if [[ $total_count -gt $display_count ]]; then
+            start_idx=$(( selected - (display_count / 2) ))
+            [[ $start_idx -lt 0 ]] && start_idx=0
+            [[ $start_idx -gt $((total_count - display_count)) ]] && start_idx=$((total_count - display_count))
+        fi
+        # 4. BUILD COMPLETE MENU BUFFER (render each info row atomically)
+        for ((r=LOG_TOP; r<=LOG_BOTTOM; r++)); do
+            local row_index=$(( r - render_start ))
+            local row_content=""
+            if (( row_index >= 0 && row_index < display_count )); then
+                local current_idx=$(( start_idx + row_index ))
+                local item_text="${menu_list[$current_idx]}"
+
+                # Truncate if needed (consider full item visual width)
+                local vis_w
+                vis_w=$(get_vis_width "$item_text")
+                if [[ $vis_w -gt $((INNER_COLS - 5)) ]]; then
+                    item_text=$(trunc_vis "$item_text" $((INNER_COLS - 5)))
+                fi
+
+                # Build base content (no padding yet)
+                if [[ $current_idx -eq $selected ]]; then
+                    row_content="   ${CYAN}► ${BOLD_CYAN}${item_text}${NC}"
+                else
+                    row_content="     ${GRAY}${item_text}${NC}"
+                fi
+
+                # Compute visual width of the whole content (ANSI-aware) and pad to INNER_COLS
+                local vis_row
+                vis_row=$(get_vis_width "$row_content")
+                local pad_needed=$((INNER_COLS - vis_row))
+                [[ $pad_needed -lt 0 ]] && pad_needed=0
+                local padding
+                padding=$(printf '%*s' "$pad_needed" "")
+                row_content+="$padding"
+            else
+                # Blank padded content for non-menu rows
+                row_content=$(printf '%*s' "$INNER_COLS" "")
+            fi
+
+            render_buffer+=$(printf "\033[%d;1H${BLUE}║${NC}%s${BLUE}║${NC}" "$((r + 1))" "$row_content")
+        done
+
+        # 5. Add footer to buffer
+        local b_row=$((LOG_BOTTOM + 1))
+        local help_text="Arrows: Up/Down | Enter: Select"
+        render_buffer+=$(build_hr_string "$b_row" "╚" "╝" "$help_text" "${BOLD_BLUE}" "")
+
+        # 6. ATOMIC OUTPUT - single write prevents interleaving
+            printf '%s' "$render_buffer" >&${UI_FD:-2}
+        # atomic render complete
+
+        # 7. Input handling (unchanged)
+        local key=""
+        IFS= read -rsn1 key </dev/tty 2>/dev/null || true
+        if [[ $key == $'\x1b' ]]; then
+            read -rsn2 -t 0.06 k2 </dev/tty 2>/dev/null || true
+            if [[ -z "$k2" ]]; then read -rsn1 -t 0.02 k3 </dev/tty 2>/dev/null || true; fi
+            local seq="${k2}${k3:-}"
+            case "${seq:-}" in
+                '[A'|"[A") ((selected--)) ;; 
+                '[B'|"[B") ((selected++)) ;;
+            esac
+        elif [[ $key == "" ]]; then
+            if [[ -n "$back_label" ]] && [[ $selected -eq $((total_count - 1)) ]]; then
+                move_cursor $((LOG_BOTTOM + 1)) 0
+                exit_ui_mode
+                return 255
+            fi
+            move_cursor $((LOG_BOTTOM + 1)) 0
+            exit_ui_mode
+            return "$selected"
+        fi
+
+        # Wrap selection
+        [[ $selected -lt 0 ]] && selected=$((total_count - 1))
+        [[ $selected -ge $total_count ]] && selected=0
+    done
+}
+
+# ---------------------------------------------------------------------------
+# Optimized menu cache loader and fast renderer
+# ---------------------------------------------------------------------------
+MENU_CACHE_LINES=()
+MENU_CACHE_WIDTHS=()
+MENU_CACHE_LOADED=0
+
+load_menu_cache() {
+    [[ $MENU_CACHE_LOADED -eq 1 ]] && return 0
+    local json_file="${SCRIPT_DIR}/devices_optimized.json"
+    if [[ ! -f "$json_file" ]]; then
+        return 1
+    fi
+
+    # Use Python to dump lines with widths to stdout (one per line)
+    local out
+    out=$(python3 - <<'PY'
+import json,sys
+f=sys.argv[1]
+try:
+    with open(f,'r',encoding='utf-8') as fh:
+        data=json.load(fh)
+    for item in data.get('flat_menu',[]):
+        line=item.get('line','')
+        width=item.get('width',len(line))
+        print(f"{line}\x1f{width}")
+except Exception:
+    pass
+PY
+"$json_file")
+
+    # Build arrays
+    while IFS=$'\x1f' read -r line width; do
+        MENU_CACHE_LINES+=("$line")
+        MENU_CACHE_WIDTHS+=("$width")
+    done <<< "$out"
+
+    MENU_CACHE_LOADED=1
+    return 0
+}
+
+show_scrollable_menu_fast() {
+    local title="${1:-INFORMATION}"
+    local items_name="$2"
+    local selected="${3:-0}"
+    local back_label="${4:-}"
+    local pad_mode="${5:-}"
+
+    if ! load_menu_cache; then
+        return 1
+    fi
+
+    local menu_list=("${MENU_CACHE_LINES[@]}")
+    local menu_widths=("${MENU_CACHE_WIDTHS[@]}")
+    [[ -n "$back_label" ]] && menu_list+=("$back_label") && menu_widths+=("${#back_label}")
+    local total_count=${#menu_list[@]}
+
+    local total_info_rows=$(( LOG_BOTTOM - LOG_TOP + 1 ))
+    local render_start=$LOG_TOP
+    local max_display=$total_info_rows
+    if [[ "$pad_mode" == "pad" ]]; then
+        render_start=$(( LOG_TOP + 1 ))
+        max_display=$(( total_info_rows - 2 ))
+        [[ $max_display -lt 1 ]] && max_display=1
+    else
+        if [[ $total_count -le 8 ]]; then
+            render_start=$(( LOG_TOP + 1 ))
+            max_display=$(( total_info_rows - 1 ))
+        fi
+    fi
+
+    local display_count=$total_count
+    [[ $display_count -gt $max_display ]] && display_count=$max_display
+
+    enter_ui_mode
+    trap 'trap - RETURN SIGINT SIGTERM; move_cursor $((LOG_BOTTOM + 1)) 0; exit_ui_mode' RETURN SIGINT SIGTERM
+
+    while true; do
+        local start_idx=0
+        if (( total_count > display_count )); then
+            start_idx=$(( selected - (display_count / 2) ))
+            [[ $start_idx -lt 0 ]] && start_idx=0
+            [[ $start_idx -gt $((total_count - display_count)) ]] && start_idx=$((total_count - display_count))
+        fi
+
+        local render_buffer=""
+        for ((r=render_start; r<=LOG_BOTTOM; r++)); do
+            local row_index=$(( r - render_start ))
+            if (( row_index >= 0 && row_index < display_count )); then
+                local current_idx=$(( start_idx + row_index ))
+                local item_text="${menu_list[$current_idx]}"
+                local item_width="${menu_widths[$current_idx]:-${#item_text}}"
+                if (( item_width > (INNER_COLS - 5) )); then
+                    item_text="${item_text:0:$((INNER_COLS - 5))}"
+                    item_width=$((INNER_COLS - 5))
+                fi
+                local row_content
+                if [[ $current_idx -eq $selected ]]; then
+                    row_content="   ${CYAN}► ${BOLD_CYAN}${item_text}${NC}"
+                else
+                    row_content="     ${GRAY}${item_text}${NC}"
+                fi
+                local pad_needed=$((INNER_COLS - item_width - 5))
+                [[ $pad_needed -lt 0 ]] && pad_needed=0
+                local padding=$(printf '%*s' "$pad_needed" "")
+                render_buffer+=$(printf "\033[%d;1H${BLUE}║${NC}%s%s${BLUE}║${NC}" "$((r + 1))" "$row_content" "$padding")
+            else
+                local blank=$(printf '%*s' "$INNER_COLS" "")
+                render_buffer+=$(printf "\033[%d;1H${BLUE}║${NC}%s${BLUE}║${NC}" "$((r + 1))" "$blank")
+            fi
+        done
+
+        printf '%s' "$render_buffer" >&${UI_FD:-2}
+        draw_bottom_border "Arrows: Up/Down | Enter: Select"
+
+        local key
+        # Block waiting for a keypress (do not auto-timeout)
+        IFS= read -rsn1 key </dev/tty
+        if [[ $key == $'\x1b' ]]; then
+            # Attempt to read the remainder of an escape sequence briefly
+            read -rsn2 -t 0.06 k2 </dev/tty || true
+            if [[ -z "${k2:-}" ]]; then read -rsn1 -t 0.02 k3 </dev/tty || true; fi
+            local seq="${k2}${k3:-}"
+            case "${seq:-}" in
+                '[A'|"[A") ((selected--)) ;; 
+                '[B'|"[B") ((selected++)) ;;
+            esac
+        elif [[ $key == "" ]]; then
+            if [[ -n "$back_label" ]] && [[ $selected -eq $((total_count - 1)) ]]; then
+                exit_ui_mode
+                return 255
+            fi
+            exit_ui_mode
+            return "$selected"
+        fi
+
+        [[ $selected -lt 0 ]] && selected=$((total_count - 1))
+        [[ $selected -ge $total_count ]] && selected=0
+    done
+
     local title="${1:-INFORMATION}"
     local items_name="$2"
     local selected="${3:-0}"
