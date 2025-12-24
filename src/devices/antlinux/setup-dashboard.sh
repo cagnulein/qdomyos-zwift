@@ -1939,7 +1939,8 @@ update_status_atomic() {
 # and emit once to the controlling TTY to reduce per-row redraw overhead.
 render_screen_atomic() {
     local buf
-    buf=$(mktemp) || buf="/tmp/qz_screen.$$"
+    # Prefer RAM-backed TEMP_DIR (ensure_ram_temp_dir sets this earlier)
+    buf=$(mktemp "${TEMP_DIR:-/tmp}/qz_screen.XXXXXX" 2>/dev/null) || buf=$(mktemp /tmp/qz_screen.XXXXXX 2>/dev/null) || buf="/tmp/qz_screen.$$"
 
     # Open a dedicated FD for UI output to capture functions that write
     # directly to $UI_FD (print_at, print_at_col, etc.). Use FD 9 to
