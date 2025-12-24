@@ -926,7 +926,7 @@ void ypooelliptical::descriptorWritten(const QLowEnergyDescriptor &descriptor, c
         if(!iconsole_elliptical)
             initRequest = true;
         emit connectedAndDiscovered();
-    } else if(E35) {
+    } else if(E35 || FTMS) {
         initRequest = true;
         emit connectedAndDiscovered();
     }
