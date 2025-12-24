@@ -125,7 +125,8 @@ RUN mkdir -p /qdomyos-zwift-arm64-ant
 # Copy the compiled binary and wrapper script from the build context
 COPY --from=builder /app/src/qdomyos-zwift-bin /qdomyos-zwift-arm64-ant/
 COPY docker/rpi-ant/qdomyos-zwift-wrapper.sh /qdomyos-zwift-arm64-ant/qdomyos-zwift
-COPY src/devices/antlinux/setup.sh /qdomyos-zwift-arm64-ant/
+COPY src/devices/antlinux/setup-dashboard.sh /qdomyos-zwift-arm64-ant/
+COPY src/devices/antlinux/bt_provider.py /qdomyos-zwift-arm64-ant/
 COPY src/devices/antlinux/test_ant.py /qdomyos-zwift-arm64-ant/
 COPY src/devices/antlinux/ant_broadcaster.py /qdomyos-zwift-arm64-ant/
 COPY src/devices/antlinux/README.md /qdomyos-zwift-arm64-ant/
