@@ -395,7 +395,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             Resistance = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)lastPacket.at(index))));
             
-            // TRUE ELLIPTICAL sends resistance in whole units, but FTMS expects tenths
+            // FTMS Spec Compliant Machines (0.1 Resolution, so 50 = 5.0)
             if(TRUE_ELLIPTICAL) {
                 Resistance = Resistance.value() / 10.0;
             }
@@ -502,7 +502,14 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.metabolicEq) {
-            // todo
+            // FTMS metabolic equivalent is uint16 with 0.1 resolution
+            if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || TRUE_ELLIPTICAL || FTMS) {
+                uint16_t metabolicValue = ((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                        (uint16_t)((uint8_t)lastPacket.at(index));
+                METS = metabolicValue / 10.0; // Convert from 0.1 resolution to actual METs value
+                emit debug(QStringLiteral("Current METs: ") + QString::number(METS.value()));
+            }
+            index += 2;
         }
 
         if (Flags.elapsedTime) {
