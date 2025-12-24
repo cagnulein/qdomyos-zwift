@@ -1580,12 +1580,7 @@ show_legend_popup() {
 
 
 refresh_dashboard() {
-    clear_screen
-    enter_ui_mode
-    draw_top_panel
-    draw_bottom_panel_header "INFORMATION"
-    draw_instructions_bottom "$CURRENT_INSTRUCTION"
-    draw_bottom_border
+    render_screen_atomic
 }
 
 update_status() {
@@ -1642,8 +1637,70 @@ update_status_atomic() {
 # ============================================================================
 # CONFIG HELPERS
 # ============================================================================
-
  
+# Buffered full-screen renderer: capture drawing into a temp buffer
+# and emit once to the controlling TTY to reduce per-row redraw overhead.
+render_screen_atomic() {
+    local buf
+    buf=$(mktemp) || buf="/tmp/qz_screen.$$"
+
+    # Open a dedicated FD for UI output to capture functions that write
+    # directly to $UI_FD (print_at, print_at_col, etc.). Use FD 9 to
+    # avoid clashing with existing FDs.
+    exec 9>"$buf" 2>/dev/null || exec 9>"$buf" || true
+    local prev_ui_fd="${UI_FD:-2}"
+    UI_FD=9
+
+    # Temporarily override print helpers so they write directly to FD 9
+    local orig_print_at orig_print_at_col
+    orig_print_at="$(declare -f print_at 2>/dev/null || true)"
+    orig_print_at_col="$(declare -f print_at_col 2>/dev/null || true)"
+
+    # Redefine print_at to write to FD 9
+    print_at() {
+        local row=$1; shift
+        local line="$*"
+        local esc; esc=$(printf '\033[%d;1H' "$((row + 1))")
+        printf '%s%s' "$esc" "$line" >&9 2>/dev/null || true
+        return 0
+    }
+
+    # Redefine print_at_col to write to FD 9
+    print_at_col() {
+        local row=${1:-0}
+        local col=${2:-1}
+        shift 2
+        local text="$*"
+        printf '\033[%d;%dH' $((row + 1)) $col >&9 2>/dev/null || true
+        printf '%s' "$text" >&9 2>/dev/null || true
+        return 0
+    }
+
+    # Run drawing ops which will now use our overridden print helpers
+    clear_screen
+    enter_ui_mode
+    draw_top_panel
+    draw_bottom_panel_header "INFORMATION"
+    draw_instructions_bottom "$CURRENT_INSTRUCTION"
+    draw_bottom_border
+
+    # Restore original print helpers
+    if [[ -n "$orig_print_at" ]]; then eval "$orig_print_at"; fi
+    if [[ -n "$orig_print_at_col" ]]; then eval "$orig_print_at_col"; fi
+
+    # Restore previous UI_FD and close FD 9
+    UI_FD="$prev_ui_fd"
+    exec 9>&-
+
+    # Emit buffer to controlling TTY when available, else to stdout
+    if [ -w /dev/tty ]; then
+        cat "$buf" > /dev/tty 2>/dev/null || cat "$buf"
+    else
+        cat "$buf"
+    fi
+
+    rm -f "$buf" 2>/dev/null || true
+}
 
 load_current_profile_values() {
     # Load and sanitize profile values from $CONFIG_FILE
