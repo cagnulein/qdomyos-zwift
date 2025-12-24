@@ -136,7 +136,9 @@ restore_terminal() {
     if command -v show_cursor >/dev/null 2>&1; then
         show_cursor || true
     else
-        printf '\033[?25h' >&${UI_FD:-2} 2>/dev/null || true
+        local ui_fd
+        ui_fd=$(get_safe_ui_fd)
+        printf '\033[?25h' >&${ui_fd} 2>/dev/null || true
     fi
     # If TERM_HEIGHT is not yet set, default to 24
     local _th=${TERM_HEIGHT:-24}
@@ -167,7 +169,9 @@ finish_and_exit() {
     if command -v show_cursor >/dev/null 2>&1; then
         show_cursor || true
     else
-        printf '\033[?25h' 2>/dev/null || true
+        local ui_fd
+        ui_fd=$(get_safe_ui_fd)
+        printf '\033[?25h' >&${ui_fd} 2>/dev/null || true
     fi
 
     stty echo 2>/dev/null || true
@@ -177,7 +181,9 @@ finish_and_exit() {
     if [[ -n "${LOG_BOTTOM:-}" ]]; then
         dest_row=$(( LOG_BOTTOM + 3 ))
     fi
-    printf "\033[%d;1H" "$dest_row"
+    local ui_fd
+    ui_fd=$(get_safe_ui_fd)
+    printf "\033[%d;1H" "$dest_row" >&${ui_fd} 2>/dev/null || true
 
     # Do not call restore_terminal here to avoid its TERM_HEIGHT move.
     exit 0
@@ -308,13 +314,15 @@ PREV_MILES=""
 move_cursor() {
     local r=$(( ${1:-0} + 1 ))
     local c=$(( ${2:-0} + 1 ))
-    printf "\033[%d;%dH" "$r" "$c" >&${UI_FD:-2}
+    local ui_fd
+    ui_fd=$(get_safe_ui_fd)
+    printf "\033[%d;%dH" "$r" "$c" >&${ui_fd} 2>/dev/null || true
 }
 
  
-clear_screen() { printf "\033[2J\033[H" >&${UI_FD:-2}; }
-hide_cursor() { printf "\033[?25l" >&${UI_FD:-2}; }
-show_cursor() { printf "\033[?25h" >&${UI_FD:-2}; }
+clear_screen() { local ui_fd; ui_fd=$(get_safe_ui_fd); printf "\033[2J\033[H" >&${ui_fd} 2>/dev/null || true; }
+hide_cursor() { local ui_fd; ui_fd=$(get_safe_ui_fd); printf "\033[?25l" >&${ui_fd} 2>/dev/null || true; }
+show_cursor() { local ui_fd; ui_fd=$(get_safe_ui_fd); printf "\033[?25h" >&${ui_fd} 2>/dev/null || true; }
 
 # UI mode helpers (reference-counted)
 UI_MODE_COUNT=${UI_MODE_COUNT:-0}
@@ -1346,7 +1354,9 @@ draw_hr() {
     local inner_w=$INNER_COLS
 
     # 1. Position cursor at the start of the line
-    printf "\033[%d;1H" "$((row + 1))" >&${UI_FD:-2}
+    local ui_fd
+    ui_fd=$(get_safe_ui_fd)
+    printf "\033[%d;1H" "$((row + 1))" >&${ui_fd} 2>/dev/null || true
 
     # Left/right visual paddings
     local left_pad="═══  "
@@ -1365,7 +1375,9 @@ draw_hr() {
     if [[ $t_vis -eq 0 && $l_vis -eq 0 ]]; then
         local fill=""
         for ((i=0; i<inner_w; i++)); do fill="${fill}═"; done
-        printf '%s%s%s' "${BLUE}" "${left_c}${fill}${right_c}" "${NC}" >&${UI_FD:-2}
+        local ui_fd
+        ui_fd=$(get_safe_ui_fd)
+        printf '%s%s%s' "${BLUE}" "${left_c}${fill}${right_c}" "${NC}" >&${ui_fd} 2>/dev/null || true
         # Hide cursor for very low rows as before
         if [[ "$row" -ge 22 ]]; then hide_cursor; fi
         return 0
@@ -1414,7 +1426,9 @@ draw_hr() {
         # Use the shared builder to render the horizontal rule and print it.
         local _hr
         _hr=$(build_hr_string "$row" "$left_c" "$right_c" "$text" "$t_color" "$legend")
-        printf '%s' "$_hr" >&${UI_FD:-2}
+        local ui_fd
+        ui_fd=$(get_safe_ui_fd)
+        printf '%s' "$_hr" >&${ui_fd} 2>/dev/null || true
 
     # 4. For very low rows we only need to hide the cursor; avoid moving
     # the cursor position here as it can interfere with subsequent prints
@@ -1500,7 +1514,9 @@ draw_bottom_border() {
     # Build footer via builder and print once for atomicity
     local _foot
     _foot=$(build_hr_string "$b_row" "╚" "╝" "${BOLD_BLUE}${help_text}${NC}" "")
-    printf '%s' "$_foot" >&${UI_FD:-2}
+    local ui_fd
+    ui_fd=$(get_safe_ui_fd)
+    printf '%s' "$_foot" >&${ui_fd} 2>/dev/null || true
 }
 
 # Clear the info/interactive area between LOG_TOP and LOG_BOTTOM
@@ -1563,7 +1579,9 @@ draw_bottom_panel_header() {
     # cursor movements from other concurrent prints.
     local _hr
     _hr=$(build_hr_string 11 "╠" "╣" "$title")
-    printf '%s' "$_hr" >&${UI_FD:-2}
+    local ui_fd
+    ui_fd=$(get_safe_ui_fd)
+    printf '%s' "$_hr" >&${ui_fd} 2>/dev/null || true
 }
 
 draw_instructions_bottom() {
@@ -1911,7 +1929,9 @@ prompt_numeric_input() {
         [[ -z "$buffer" ]] && cursor_col=$(( cursor_col + 1 ))
 
         # Move cursor and ensure it is visible
-        printf "\033[%d;%dH" "$((row + 1))" "$((cursor_col + 1))" >&${UI_FD:-2}
+        local ui_fd
+        ui_fd=$(get_safe_ui_fd)
+        printf "\033[%d;%dH" "$((row + 1))" "$((cursor_col + 1))" >&${ui_fd} 2>/dev/null || true
         show_cursor
 
         # 5. CAPTURE RAW BYTE
@@ -2753,8 +2773,10 @@ cleanup_bt_engine() {
     # Prefer the provider stop logic for consistent cleanup
     stop_bt_provider 2>/dev/null || true
     [[ -t 0 ]] && stty echo 2>/dev/null
-    printf "\033[?25h" >&${UI_FD:-2}
-    printf "\033[23;1H\n" >&${UI_FD:-2}
+    local ui_fd
+    ui_fd=$(get_safe_ui_fd)
+    printf "\033[?25h" >&${ui_fd} 2>/dev/null || true
+    printf "\033[23;1H\n" >&${ui_fd} 2>/dev/null || true
 }
  
 # Start the Bluetooth scanner engine: create fifo/log, start the background
@@ -3111,7 +3133,9 @@ perform_bluetooth_scan() {
             done
 
             # Atomic write of all info rows
-            printf '%s' "$render_buffer" >&${UI_FD:-2}
+            local ui_fd
+            ui_fd=$(get_safe_ui_fd)
+            printf '%s' "$render_buffer" >&${ui_fd} 2>/dev/null || true
 
             # Split diagnostics across rows 19/20/21 to avoid truncation
             # Build full raw and dev info then slice into two safe pieces
@@ -3693,7 +3717,9 @@ show_scrollable_menu() {
         render_buffer+=$(build_hr_string "$b_row" "╚" "╝" "$help_text" "${BOLD_BLUE}" "")
 
         # 6. ATOMIC OUTPUT - single write prevents interleaving
-            printf '%s' "$render_buffer" >&${UI_FD:-2}
+            local ui_fd
+            ui_fd=$(get_safe_ui_fd)
+            printf '%s' "$render_buffer" >&${ui_fd} 2>/dev/null || true
         # atomic render complete
 
         # 7. Input handling (unchanged)
@@ -3836,7 +3862,9 @@ show_scrollable_menu_fast() {
             fi
         done
 
-        printf '%s' "$render_buffer" >&${UI_FD:-2}
+        local ui_fd
+        ui_fd=$(get_safe_ui_fd)
+        printf '%s' "$render_buffer" >&${ui_fd} 2>/dev/null || true
         draw_bottom_border "Arrows: Up/Down | Enter: Select"
 
         local key
@@ -4660,7 +4688,9 @@ perform_ant_test() {
         fi
 
         # Atomic write of dynamic area
-        printf '%s' "$render_buffer" >&${UI_FD:-2}
+        local ui_fd
+        ui_fd=$(get_safe_ui_fd)
+        printf '%s' "$render_buffer" >&${ui_fd} 2>/dev/null || true
 
         # Non-blocking read for key to allow user to abort
         local key
