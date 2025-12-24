@@ -75,6 +75,64 @@
 
 set -uo pipefail
 
+# ==========================================================================
+# CONFIG GENERATION - Type-Safe Storage (Milestone 1)
+# Pure Bash associative arrays and setter functions for type-safe values.
+# These are used by the config generator to ensure exact formatting.
+# ==========================================================================
+
+# Declare config storage arrays
+declare -A CONFIG_BOOL    # Boolean values (true/false)
+declare -A CONFIG_INT     # Integer values
+declare -A CONFIG_FLOAT   # Float values (with decimal)
+declare -A CONFIG_STRING  # String values
+
+# Type-safe setters
+config_set_bool() {
+    local key=$1
+    local value=$2
+
+    # Normalize to lowercase true/false
+    case "${value,,}" in
+        true|1|yes|on)  CONFIG_BOOL[$key]="true" ;;
+        false|0|no|off) CONFIG_BOOL[$key]="false" ;;
+        *) echo "ERROR: Invalid boolean for $key: $value" >&2; return 1 ;;
+    esac
+}
+
+config_set_int() {
+    local key=$1
+    local value=$2
+
+    # Validate integer
+    if [[ ! "$value" =~ ^-?[0-9]+$ ]]; then
+        echo "ERROR: Invalid integer for $key: $value" >&2
+        return 1
+    fi
+    CONFIG_INT[$key]=$value
+}
+
+config_set_float() {
+    local key=$1
+    local value=$2
+
+    # Validate float (supports scientific notation)
+    if [[ ! "$value" =~ ^-?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$ ]]; then
+        echo "ERROR: Invalid float for $key: $value" >&2
+        return 1
+    fi
+    CONFIG_FLOAT[$key]=$value
+}
+
+config_set_string() {
+    local key=$1
+    local value=$2
+
+    # Store string as-is (INI format uses no quotes)
+    CONFIG_STRING[$key]=$value
+}
+
+
 # Script versioning: update when you deploy/copy this script to another host.
 # Prefer semantic or date-based strings. You can also set the env var
 # QZ_SETUP_DASHBOARD_VERSION to override at runtime.
