@@ -3641,10 +3641,17 @@ show_scrollable_menu() {
                     row_content="     ${GRAY}${item_text}${NC}"
                 fi
 
-                # Compute visual width of the whole content (ANSI-aware) and pad to INNER_COLS
-                local vis_row
-                vis_row=$(get_vis_width "$row_content")
-                local pad_needed=$((INNER_COLS - vis_row))
+                # Compute visual width once for the item_text (ANSI-aware)
+                # and reuse it to calculate padding without re-calling get_vis_width
+                # on the full row which saves subprocess/work.
+                local prefix_chars=5
+                # vis_w already computed above for item_text; if truncation occurred
+                # and we forced item_text to INNER_COLS-5 width, ensure vis_w reflects that.
+                if [[ ${vis_w:-0} -gt $((INNER_COLS - prefix_chars)) ]]; then
+                    vis_w=$((INNER_COLS - prefix_chars))
+                fi
+
+                local pad_needed=$(( INNER_COLS - prefix_chars - vis_w ))
                 [[ $pad_needed -lt 0 ]] && pad_needed=0
                 local padding
                 padding=$(printf '%*s' "$pad_needed" "")
