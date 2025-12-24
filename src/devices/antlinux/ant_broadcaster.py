@@ -306,6 +306,47 @@ class AntBroadcaster:
         except Exception:
             pass
 
+        # PHASE 4b: Attempt explicit USB resource disposal/reset for known dongles.
+        # This helps ensure libusb releases kernel claims on some platforms.
+        try:
+            try:
+                import usb.core as _usb_core
+                import usb.util as _usb_util
+            except Exception:
+                _usb_core = None
+                _usb_util = None
+
+            if _usb_core is not None:
+                SUPPORTED = [
+                    (0x0fcf, 0x1009), (0x0fcf, 0x1008), (0x0fcf, 0x100c),
+                    (0x0fcf, 0x100e), (0x0fcf, 0x88a4), (0x0fcf, 0x1004),
+                    (0x11fd, 0x0001)
+                ]
+                for (v, p) in SUPPORTED:
+                    try:
+                        d = _usb_core.find(idVendor=v, idProduct=p)
+                        if d is None:
+                            continue
+                        # Dispose python-side resources if available
+                        try:
+                            if _usb_util is not None:
+                                _usb_util.dispose_resources(d)
+                        except Exception:
+                            pass
+                        # Try a lightweight reset to nudge kernel driver detach
+                        try:
+                            d.reset()
+                        except Exception:
+                            pass
+                        try:
+                            time.sleep(0.05)
+                        except Exception:
+                            pass
+                    except Exception:
+                        continue
+        except Exception:
+            pass
+
         # PHASE 5: Reset internal state and clear running flag for next start
         try:
             self._thread = None
