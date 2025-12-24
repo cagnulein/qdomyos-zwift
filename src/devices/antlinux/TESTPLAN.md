@@ -36,7 +36,7 @@ sudo ./setup-dashboard.sh
 Run the ANT+ hardware test from the dashboard (recommended):
 
 1. `sudo ./setup-dashboard.sh`
-2. Select "Test ANT+ Hardware" from the success menu
+2. Select "ANT+ Test" from the menu
 
 Advanced (direct):
 

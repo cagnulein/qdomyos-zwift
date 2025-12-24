@@ -1,0 +1,398 @@
+Fri Dec 12 14:19:49 2025 1765549189114 Debug:   Bluez 5 detected.
+Fri Dec 12 14:19:49 2025 1765549189135 Debug:   Creating QtBluezDiscoveryManager
+Fri Dec 12 14:19:49 2025 1765549189143 Debug:   Discovered:  "I_TL" "E0:E3:E1:EA:35:2C" Num UUIDs 5 total device 0 cached RSSI 0 Num ManufacturerData 1
+Fri Dec 12 14:19:49 2025 1765549189144 Info: main.cpp int main(int, char**) [main] ANT+ feature enabled. Arming startup trigger...
+Fri Dec 12 14:19:49 2025 1765549189242 Debug:   BluetoothManagement: Ignored event: 13
+Fri Dec 12 14:19:49 2025 1765549189291 Debug:   BluetoothManagement: found random device "E0:E3:E1:EA:35:2C"
+Fri Dec 12 14:19:49 2025 1765549189296 Debug:   Updating RSSI for "E0:E3:E1:EA:35:2C" QVariant(short, -40)
+Fri Dec 12 14:19:49 2025 1765549189610 Debug:   BluetoothManagement: found random device "D3:2F:6D:09:1C:F3"
+Fri Dec 12 14:19:49 2025 1765549189616 Debug:   Discovered:  "D3-2F-6D-09-1C-F3" "D3:2F:6D:09:1C:F3" Num UUIDs 1 total device 1 cached RSSI -51 Num ManufacturerData 0
+Fri Dec 12 14:19:49 2025 1765549189659 Debug:   void QBluetoothDeviceDiscoveryAgentPrivate::stop()
+Fri Dec 12 14:19:49 2025 1765549189673 Debug:   Detecting bluetoothd version
+Fri Dec 12 14:19:49 2025 1765549189680 Debug:   Using /proc/<pid>/exe
+Fri Dec 12 14:19:49 2025 1765549189702 Debug:   Detected bluetoothd version 5.72
+Fri Dec 12 14:19:49 2025 1765549189705 Debug:   Bluetoothd: "5.72"
+Fri Dec 12 14:19:49 2025 1765549189707 Warning:   Using BlueZ LE DBus API
+Fri Dec 12 14:19:49 2025 1765549189758 Debug:   QLowEnergyControllerPrivateBluezDBus::connectToDevice()
+Fri Dec 12 14:19:49 2025 1765549189769 Debug:   QLowEnergyControllerPrivate setting state to QLowEnergyController::ConnectingState
+Fri Dec 12 14:19:49 2025 1765549189772 Info: main.cpp main(int, char**)::<lambda(bluetoothdevice*)> [main] Real treadmill detected. Using a 10-second startup delay for ANT+.
+Fri Dec 12 14:19:49 2025 1765549189774 Debug:   BluetoothManagement: Ignored event: 13
+Fri Dec 12 14:19:49 2025 1765549189922 Debug:   BluetoothManagement: Ignored event: b
+Fri Dec 12 14:19:49 2025 1765549189927 Debug:   ###### "org.bluez.Device1" QMap(("Connected", QVariant(bool, true)))
+Fri Dec 12 14:19:50 2025 1765549190796 Debug:   ###### "org.bluez.Device1" QMap(("ServicesResolved", QVariant(bool, true)))
+Fri Dec 12 14:19:50 2025 1765549190800 Debug:   QLowEnergyControllerPrivate setting state to QLowEnergyController::ConnectedState
+Fri Dec 12 14:19:50 2025 1765549190801 Debug:   QLowEnergyControllerPrivate setting state to QLowEnergyController::DiscoveringState
+Fri Dec 12 14:19:50 2025 1765549190855 Debug:   QLowEnergyControllerPrivate setting state to QLowEnergyController::DiscoveredState
+Fri Dec 12 14:19:51 2025 1765549191231 Debug:   Read Char: "{00001535-1412-efde-1523-785feabcd123}" "ff11000000000058020000000000000000003db47e0081f3fdf5ff0002dfff0032ffb70077ffff010100057ffb0001fdfb4000ffff0000ffffaffb0000eff72008efff5020ffff102202"
+Fri Dec 12 14:19:51 2025 1765549191320 Debug:   Read Desc: "\x00\x00"
+Fri Dec 12 14:19:51 2025 1765549191683 Debug:   Read Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000003fde4800bfdd0a10febf7eff00187fff04007fff0000ffff00004488fff60482fffe00a8fffe0080fffbf6ff4402f6ff0000f7df03"
+Fri Dec 12 14:19:51 2025 1765549191703 Warning:   Using BlueZ kernel ATT interface
+Fri Dec 12 14:19:52 2025 1765549192129 Debug:   Starting to advertise
+Fri Dec 12 14:19:52 2025 1765549192131 Debug:   QLowEnergyControllerPrivate setting state to QLowEnergyController::AdvertisingState
+Fri Dec 12 14:19:52 2025 1765549192132 Debug:   sending command; ogf: 8 ocf: 7
+Fri Dec 12 14:19:52 2025 1765549192133 Debug:   command sent successfully
+Fri Dec 12 14:19:52 2025 1765549192145 Debug:   Init CCC change to "0100" "{00001535-1412-efde-1523-785feabcd123}" "{00001533-1412-efde-1523-785feabcd123}"
+Fri Dec 12 14:19:52 2025 1765549192153 Debug:   HCI event triggered, type: e
+Fri Dec 12 14:19:52 2025 1765549192157 Debug:   command 7 executed successfully
+Fri Dec 12 14:19:52 2025 1765549192160 Debug:   TX power level is 2
+Fri Dec 12 14:19:52 2025 1765549192161 Debug:   advertising parameters: "300050000000000000000000000700"
+Fri Dec 12 14:19:52 2025 1765549192164 Debug:   advertising data: "15020a020201060a094b49434b522052554e0303261800000000000000000000"
+Fri Dec 12 14:19:52 2025 1765549192166 Debug:   sending command; ogf: 8 ocf: 10
+Fri Dec 12 14:19:52 2025 1765549192167 Debug:   command sent successfully
+Fri Dec 12 14:19:52 2025 1765549192170 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:52 2025 1765549192171 Debug:   HCI event triggered, type: e
+Fri Dec 12 14:19:52 2025 1765549192173 Debug:   command 10 executed successfully
+Fri Dec 12 14:19:52 2025 1765549192174 Debug:   sending command; ogf: 8 ocf: 6
+Fri Dec 12 14:19:52 2025 1765549192176 Debug:   command sent successfully
+Fri Dec 12 14:19:52 2025 1765549192178 Debug:   HCI event triggered, type: e
+Fri Dec 12 14:19:52 2025 1765549192181 Debug:   command 6 executed successfully
+Fri Dec 12 14:19:52 2025 1765549192182 Debug:   sending command; ogf: 8 ocf: 8
+Fri Dec 12 14:19:52 2025 1765549192184 Debug:   command sent successfully
+Fri Dec 12 14:19:52 2025 1765549192186 Debug:   HCI event triggered, type: e
+Fri Dec 12 14:19:52 2025 1765549192187 Debug:   command 8 executed successfully
+Fri Dec 12 14:19:52 2025 1765549192187 Debug:   sending command; ogf: 8 ocf: 10
+Fri Dec 12 14:19:52 2025 1765549192189 Debug:   command sent successfully
+Fri Dec 12 14:19:52 2025 1765549192191 Debug:   HCI event triggered, type: e
+Fri Dec 12 14:19:52 2025 1765549192191 Debug:   command 10 executed successfully
+Fri Dec 12 14:19:52 2025 1765549192218 Debug:   Write Desc: "{00002902-0000-1000-8000-00805f9b34fb}" "0100"
+Fri Dec 12 14:19:52 2025 1765549192436 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:52 2025 1765549192483 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe020802"
+Fri Dec 12 14:19:52 2025 1765549192932 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:52 2025 1765549192979 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff08020402040204818700000000000000000000"
+Fri Dec 12 14:19:53 2025 1765549193425 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:53 2025 1765549193473 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe020802"
+Fri Dec 12 14:19:53 2025 1765549193922 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:53 2025 1765549193971 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff08020402040404808800000000000000000000"
+Fri Dec 12 14:19:54 2025 1765549194416 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:54 2025 1765549194464 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe020802"
+Fri Dec 12 14:19:54 2025 1765549194912 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:54 2025 1765549194962 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff08020402040404889000000000000000000000"
+Fri Dec 12 14:19:55 2025 1765549195406 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:55 2025 1765549195453 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe020a02"
+Fri Dec 12 14:19:55 2025 1765549195902 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:55 2025 1765549195950 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff0a0204020602068200008a0000000000000000"
+Fri Dec 12 14:19:56 2025 1765549196396 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:56 2025 1765549196446 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe020a02"
+Fri Dec 12 14:19:56 2025 1765549196891 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:56 2025 1765549196940 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff0a0204020602068400008c0000000000000000"
+Fri Dec 12 14:19:57 2025 1765549197386 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:57 2025 1765549197435 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe020802"
+Fri Dec 12 14:19:57 2025 1765549197882 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:57 2025 1765549197930 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff08020402040204959b00000000000000000000"
+Fri Dec 12 14:19:58 2025 1765549198376 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:58 2025 1765549198426 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe022c04"
+Fri Dec 12 14:19:58 2025 1765549198871 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:58 2025 1765549198920 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "00120204022804289004009624a83aca68fc862e"
+Fri Dec 12 14:19:59 2025 1765549199366 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:59 2025 1765549199415 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "0112cc50f29250f49e26f4982afab84c16de9c20"
+Fri Dec 12 14:19:59 2025 1765549199861 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:19:59 2025 1765549199911 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff08e2a2a080020000f000000000000000000000"
+Fri Dec 12 14:20:00 2025 1765549200329 Info: main.cpp main(int, char**)::<lambda(bluetoothdevice*)>::<lambda()> [main] Initialization delay complete. Starting ANT+ Manager.
+Fri Dec 12 14:20:00 2025 1765549200331 Info: devices/antlinux/AntManager.cpp void AntManager::startForDevice(bluetoothdevice*) [ANT+] Manager: Received start command. Initializing worker thread...
+Fri Dec 12 14:20:00 2025 1765549200333 Info: devices/antlinux/AntManager.cpp AntManager::startForDevice(bluetoothdevice*)::<lambda()> [ANT+] AntWorkerThread has started. Setting to high priority.
+Fri Dec 12 14:20:00 2025 1765549200334 Info: devices/antlinux/AntWorker.cpp void AntWorker::start() [ANT+] Worker process started on thread QThread(0x5d86f57c1550, name = "AntWorkerThread")
+Fri Dec 12 14:20:00 2025 1765549200355 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:00 2025 1765549200403 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:00 2025 1765549200762 Info: devices/antlinux/AntWorker.cpp bool AntWorker::initializePython() [ANT+] Python interpreter and ANT module initialized successfully.
+Fri Dec 12 14:20:00 2025 1765549200764 Info: devices/antlinux/AntWorker.cpp void PythonLogger::write(const std::string&) [ANT+] --- Starting ANT+ Dongle Reset Sequence (one-time) ---
+Fri Dec 12 14:20:00 2025 1765549200851 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:00 2025 1765549200885 Info: devices/antlinux/AntWorker.cpp void PythonLogger::write(const std::string&) [ANT+] Found dongle for reset: Dynastream Innovations  ANT USBStick2 
+Fri Dec 12 14:20:00 2025 1765549200896 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d001000d81c480000e0"
+Fri Dec 12 14:20:01 2025 1765549201347 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:01 2025 1765549201394 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000106200000000000000000000000000"
+Fri Dec 12 14:20:01 2025 1765549201840 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:01 2025 1765549201889 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021903"
+Fri Dec 12 14:20:02 2025 1765549202132 Info: devices/antlinux/AntWorker.cpp void PythonLogger::write(const std::string&) [ANT+] Dongle reset sequence finished.
+Fri Dec 12 14:20:02 2025 1765549202135 Info: devices/antlinux/AntWorker.cpp void PythonLogger::write(const std::string&) [ANT+] Initializing ANT+ Node...
+Fri Dec 12 14:20:02 2025 1765549202337 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:02 2025 1765549202384 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "0012020402150415020e00000000000000000000"
+Fri Dec 12 14:20:02 2025 1765549202832 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:02 2025 1765549202879 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff070000001001003a0000000000000000000000"
+Fri Dec 12 14:20:03 2025 1765549203326 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:03 2025 1765549203419 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:03 2025 1765549203438 Info: devices/antlinux/AntWorker.cpp void PythonLogger::write(const std::string&) [ANT+] Successfully set broadcaster thread to real-time priority.
+Fri Dec 12 14:20:03 2025 1765549203439 Info: devices/antlinux/AntWorker.cpp void PythonLogger::write(const std::string&) [ANT+] ANT+ broadcasting thread started.
+Fri Dec 12 14:20:03 2025 1765549203440 Info: devices/antlinux/AntWorker.cpp void PythonLogger::write(const std::string&) [ANT+] ANT+ broadcaster started successfully (Device ID 54321).
+Fri Dec 12 14:20:03 2025 1765549203441 Info: devices/antlinux/AntWorker.cpp void AntWorker::start() [ANT+] ANT+ broadcasting started. Starting polling timer.
+Fri Dec 12 14:20:03 2025 1765549203867 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:03 2025 1765549203915 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "0012020402130413020c00000000000000000000"
+Fri Dec 12 14:20:04 2025 1765549204361 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:04 2025 1765549204412 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff0500800000a500000000000000000000000000"
+Fri Dec 12 14:20:04 2025 1765549204856 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:04 2025 1765549204904 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:05 2025 1765549205037 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:05 2025 1765549205084 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:05 2025 1765549205261 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:05 2025 1765549205307 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:05 2025 1765549205439 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:05 2025 1765549205487 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:05 2025 1765549205667 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:05 2025 1765549205715 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:05 2025 1765549205846 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:05 2025 1765549205895 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:05 2025 1765549205936 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:05 2025 1765549205983 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe022003"
+Fri Dec 12 14:20:06 2025 1765549206026 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:06 2025 1765549206164 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "00120204021c041c020900004002184000008030"
+Fri Dec 12 14:20:06 2025 1765549206252 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:06 2025 1765549206388 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff0e2a0000c720580201b400580200ef00000000"
+Fri Dec 12 14:20:06 2025 1765549206430 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:06 2025 1765549206479 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021102"
+Fri Dec 12 14:20:06 2025 1765549206521 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:06 2025 1765549206570 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff110204020d040d02020310c800640002008e00"
+Fri Dec 12 14:20:06 2025 1765549206655 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:06 2025 1765549206705 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:06 2025 1765549206836 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:06 2025 1765549206929 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:07 2025 1765549207061 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:07 2025 1765549207107 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:07 2025 1765549207240 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:07 2025 1765549207289 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:07 2025 1765549207466 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:07 2025 1765549207512 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:07 2025 1765549207646 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:07 2025 1765549207696 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:07 2025 1765549207871 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:07 2025 1765549207918 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:08 2025 1765549208051 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:08 2025 1765549208098 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:08 2025 1765549208232 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:08 2025 1765549208277 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:08 2025 1765549208456 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:08 2025 1765549208517 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:08 2025 1765549208636 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:08 2025 1765549208683 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:08 2025 1765549208861 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:08 2025 1765549208907 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:09 2025 1765549209040 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:09 2025 1765549209090 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:09 2025 1765549209266 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:09 2025 1765549209359 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:09 2025 1765549209447 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:09 2025 1765549209494 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:09 2025 1765549209625 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:09 2025 1765549209673 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:09 2025 1765549209852 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:09 2025 1765549209900 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:10 2025 1765549210032 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:10 2025 1765549210085 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:10 2025 1765549210255 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:10 2025 1765549210304 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:10 2025 1765549210436 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:10 2025 1765549210484 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:10 2025 1765549210662 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:10 2025 1765549210710 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:10 2025 1765549210840 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:10 2025 1765549210890 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:11 2025 1765549211067 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:11 2025 1765549211116 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:11 2025 1765549211246 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:11 2025 1765549211299 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:11 2025 1765549211425 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:11 2025 1765549211475 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:11 2025 1765549211651 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:11 2025 1765549211697 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:11 2025 1765549211831 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:11 2025 1765549211882 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:12 2025 1765549212056 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:12 2025 1765549212106 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:12 2025 1765549212237 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:12 2025 1765549212285 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:12 2025 1765549212462 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:12 2025 1765549212512 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:12 2025 1765549212640 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:12 2025 1765549212688 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:12 2025 1765549212912 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:12 2025 1765549212957 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:13 2025 1765549213091 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:13 2025 1765549213140 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:13 2025 1765549213225 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:13 2025 1765549213275 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:13 2025 1765549213451 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:13 2025 1765549213499 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:13 2025 1765549213632 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:13 2025 1765549213679 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:13 2025 1765549213856 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:13 2025 1765549213905 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:14 2025 1765549214081 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:14 2025 1765549214172 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:14 2025 1765549214261 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:14 2025 1765549214311 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:14 2025 1765549214440 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:14 2025 1765549214534 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:14 2025 1765549214757 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:14 2025 1765549214984 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:15 2025 1765549215026 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:15 2025 1765549215163 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:15 2025 1765549215250 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:15 2025 1765549215299 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:15 2025 1765549215432 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:15 2025 1765549215480 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:15 2025 1765549215658 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:15 2025 1765549215703 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:15 2025 1765549215835 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:15 2025 1765549215884 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:16 2025 1765549216061 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:16 2025 1765549216111 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:16 2025 1765549216241 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:16 2025 1765549216289 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:16 2025 1765549216466 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:16 2025 1765549216513 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:16 2025 1765549216647 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:16 2025 1765549216693 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:16 2025 1765549216826 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:16 2025 1765549216872 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:17 2025 1765549217051 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:17 2025 1765549217098 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:17 2025 1765549217231 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:17 2025 1765549217279 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:17 2025 1765549217457 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:17 2025 1765549217513 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:17 2025 1765549217635 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:17 2025 1765549217684 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:17 2025 1765549217862 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:17 2025 1765549217909 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:18 2025 1765549218041 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:18 2025 1765549218089 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:18 2025 1765549218265 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:18 2025 1765549218316 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:18 2025 1765549218446 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:18 2025 1765549218494 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:18 2025 1765549218672 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:18 2025 1765549218721 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:18 2025 1765549218850 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:18 2025 1765549218899 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:19 2025 1765549219031 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:19 2025 1765549219081 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:19 2025 1765549219256 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:19 2025 1765549219349 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:19 2025 1765549219435 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:19 2025 1765549219482 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:19 2025 1765549219661 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:19 2025 1765549219753 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:19 2025 1765549219841 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:19 2025 1765549219887 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:20 2025 1765549220020 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:20 2025 1765549220115 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:20 2025 1765549220246 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:20 2025 1765549220339 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:20 2025 1765549220427 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:20 2025 1765549220473 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:20 2025 1765549220695 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:20 2025 1765549220743 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:20 2025 1765549220876 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:20 2025 1765549220924 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:21 2025 1765549221101 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:21 2025 1765549221148 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:21 2025 1765549221235 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:21 2025 1765549221285 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:21 2025 1765549221462 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:21 2025 1765549221511 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:21 2025 1765549221641 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:21 2025 1765549221691 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:21 2025 1765549221820 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:21 2025 1765549221868 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:22 2025 1765549222046 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:22 2025 1765549222093 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:22 2025 1765549222227 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:22 2025 1765549222275 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:22 2025 1765549222450 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:22 2025 1765549222497 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:22 2025 1765549222632 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:22 2025 1765549222679 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:22 2025 1765549222857 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:22 2025 1765549222908 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:23 2025 1765549223035 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:23 2025 1765549223084 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:23 2025 1765549223261 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:23 2025 1765549223310 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:23 2025 1765549223442 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:23 2025 1765549223492 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:23 2025 1765549223666 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:23 2025 1765549223716 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:23 2025 1765549223847 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:23 2025 1765549223894 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:24 2025 1765549224072 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:24 2025 1765549224121 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:24 2025 1765549224251 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:24 2025 1765549224300 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:24 2025 1765549224431 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:24 2025 1765549224477 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:24 2025 1765549224657 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:24 2025 1765549224707 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:24 2025 1765549224835 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:24 2025 1765549224885 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:25 2025 1765549225062 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:25 2025 1765549225107 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:25 2025 1765549225241 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:25 2025 1765549225289 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:25 2025 1765549225420 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:25 2025 1765549225467 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:25 2025 1765549225646 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:25 2025 1765549225692 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:25 2025 1765549225826 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:25 2025 1765549225875 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:26 2025 1765549226050 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:26 2025 1765549226101 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:26 2025 1765549226232 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:26 2025 1765549226278 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:26 2025 1765549226456 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:26 2025 1765549226508 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:26 2025 1765549226635 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:26 2025 1765549226684 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:26 2025 1765549226862 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:26 2025 1765549226909 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:27 2025 1765549227041 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:27 2025 1765549227090 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:27 2025 1765549227265 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:27 2025 1765549227315 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:27 2025 1765549227446 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:27 2025 1765549227493 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:27 2025 1765549227627 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:27 2025 1765549227673 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:27 2025 1765549227851 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:27 2025 1765549227900 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:28 2025 1765549228076 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:28 2025 1765549228122 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:28 2025 1765549228256 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:28 2025 1765549228303 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:28 2025 1765549228435 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:28 2025 1765549228483 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:28 2025 1765549228617 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:28 2025 1765549228665 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:28 2025 1765549228842 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:28 2025 1765549228890 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:29 2025 1765549229020 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:29 2025 1765549229068 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:29 2025 1765549229246 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:29 2025 1765549229294 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:29 2025 1765549229427 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:29 2025 1765549229473 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:29 2025 1765549229651 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:29 2025 1765549229698 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:29 2025 1765549229832 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:29 2025 1765549229878 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:30 2025 1765549230056 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:30 2025 1765549230103 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:30 2025 1765549230236 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:30 2025 1765549230283 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:30 2025 1765549230507 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:30 2025 1765549230552 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d800a40000000000000"
+Fri Dec 12 14:20:30 2025 1765549230641 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:30 2025 1765549230688 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05000000847400000000000000000000000000"
+Fri Dec 12 14:20:30 2025 1765549230821 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:30 2025 1765549230869 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "fe021703"
+Fri Dec 12 14:20:31 2025 1765549231046 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:31 2025 1765549231093 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "001202040213041302000d1b9431000040500080"
+Fri Dec 12 14:20:31 2025 1765549231226 Debug:   HCI event triggered, type: 13
+Fri Dec 12 14:20:31 2025 1765549231274 Debug:   Written Char: "{00001534-1412-efde-1523-785feabcd123}" "ff05180000012f00000000000000000000000000"
+Fri Dec 12 14:20:31 2025 1765549231334 Info: main.cpp main(int, char**)::<lambda()> [main] Application shutting down. Stopping ANT+ Manager.
+Fri Dec 12 14:20:31 2025 1765549231335 Info: devices/antlinux/AntManager.cpp void AntManager::stopForDevice(bluetoothdevice*) [ANT+] Manager: Stopping ANT+ worker thread...
+Fri Dec 12 14:20:31 2025 1765549231336 Info: devices/antlinux/AntWorker.cpp void AntWorker::stop() [ANT+] AntWorker::stop() called on thread QThread(0x5d86f57c1550, name = "AntWorkerThread")
+Fri Dec 12 14:20:31 2025 1765549231337 Info: devices/antlinux/AntWorker.cpp void PythonLogger::write(const std::string&) [ANT+] Stopping ANT+ broadcaster...
+Fri Dec 12 14:20:31 2025 1765549231504 Info: devices/antlinux/AntWorker.cpp void PythonLogger::write(const std::string&) [ANT+] ANT+ broadcasting thread finished.
+Fri Dec 12 14:20:32 2025 1765549232511 Info: devices/antlinux/AntWorker.cpp void PythonLogger::write(const std::string&) [ANT+] ANT+ broadcaster stopped and resources released.
+Fri Dec 12 14:20:32 2025 1765549232513 Info: devices/antlinux/AntWorker.cpp void AntWorker::stop() [ANT+] Finalizing Python interpreter...
+Fri Dec 12 14:20:32 2025 1765549232612 Info: devices/antlinux/AntWorker.cpp void AntWorker::stop() [ANT+] Python interpreter finalized.
+Fri Dec 12 14:20:32 2025 1765549232613 Info: devices/antlinux/AntWorker.cpp void AntWorker::stop() [ANT+] Worker cleanup complete, emitting finished signal.
+Fri Dec 12 14:20:32 2025 1765549232613 Info: devices/antlinux/AntManager.cpp void AntManager::stopForDevice(bluetoothdevice*) [ANT+] Worker thread stopped cleanly.

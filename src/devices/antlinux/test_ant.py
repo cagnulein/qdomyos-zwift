@@ -14,7 +14,7 @@
 #
 # Usage:
 #   Via dashboard (recommended):
-#     sudo ./setup-dashboard.sh  # → Menu → Test ANT+ Hardware
+#     sudo ./setup-dashboard.sh  # → Menu → ANT+ Test
 #
 #   Direct execution (advanced):
 #     cd ~/qdomyos-zwift-x86-64-ant  # or qdomyos-zwift-arm64-ant

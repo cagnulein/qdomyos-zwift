@@ -1,0 +1,670 @@
+{
+  "version":"1.0",
+  "total_devices":83,
+  "flat_menu":[
+    {
+      "line":"Cycle Trainer 300 CI                     [Bike]",
+      "width":47,
+      "name":"Cycle Trainer 300 CI",
+      "id":"cycle_trainer_300_ci",
+      "category":"Bike",
+      "index":0
+    },
+    {
+      "line":"Cycle Trainer 400                        [Bike]",
+      "width":47,
+      "name":"Cycle Trainer 400",
+      "id":"proform_cycle_trainer_300_ci",
+      "category":"Bike",
+      "index":1
+    },
+    {
+      "line":"Freemotion Coachbike B22.7               [Bike]",
+      "width":47,
+      "name":"Freemotion Coachbike B22.7",
+      "id":"freemotion_coachbike_b22_7",
+      "category":"Bike",
+      "index":2
+    },
+    {
+      "line":"NordicTrack GX 2.7                       [Bike]",
+      "width":47,
+      "name":"NordicTrack GX 2.7",
+      "id":"proform_tdf_10_0",
+      "category":"Bike",
+      "index":3
+    },
+    {
+      "line":"NordicTrack GX 4.5                       [Bike]",
+      "width":47,
+      "name":"NordicTrack GX 4.5",
+      "id":"nordictrack_gx_2_7",
+      "category":"Bike",
+      "index":4
+    },
+    {
+      "line":"Nordictrack GX 4.4 Pro                   [Bike]",
+      "width":47,
+      "name":"Nordictrack GX 4.4 Pro",
+      "id":"proform_bike_sb",
+      "category":"Bike",
+      "index":5
+    },
+    {
+      "line":"Proform 225 CSX                          [Bike]",
+      "width":47,
+      "name":"Proform 225 CSX",
+      "id":"proform_cycle_trainer_400",
+      "category":"Bike",
+      "index":6
+    },
+    {
+      "line":"Proform 225 CSX PFEX32925 INT.0          [Bike]",
+      "width":47,
+      "name":"Proform 225 CSX PFEX32925 INT.0",
+      "id":"proform_xbike",
+      "category":"Bike",
+      "index":7
+    },
+    {
+      "line":"Proform 325 CSX / Healthrider H30X       [Bike]",
+      "width":47,
+      "name":"Proform 325 CSX / Healthrider H30X",
+      "id":"proform_bike_225_csx",
+      "category":"Bike",
+      "index":8
+    },
+    {
+      "line":"Proform CSX210                           [Bike]",
+      "width":47,
+      "name":"Proform CSX210",
+      "id":"proform_csx210",
+      "category":"Bike",
+      "index":9
+    },
+    {
+      "line":"Proform SB                               [Bike]",
+      "width":47,
+      "name":"Proform SB",
+      "id":"proform_bike_325_csx",
+      "category":"Bike",
+      "index":10
+    },
+    {
+      "line":"Proform Studio Bike                      [Bike]",
+      "width":47,
+      "name":"Proform Studio Bike",
+      "id":"proform_tour_de_france_clc",
+      "category":"Bike",
+      "index":11
+    },
+    {
+      "line":"Proform Studio Bike NTEX71021            [Bike]",
+      "width":47,
+      "name":"Proform Studio Bike NTEX71021",
+      "id":"proform_studio",
+      "category":"Bike",
+      "index":12
+    },
+    {
+      "line":"Proform TDF 10                           [Bike]",
+      "width":47,
+      "name":"Proform TDF 10",
+      "id":"proform_tdf_10",
+      "category":"Bike",
+      "index":13
+    },
+    {
+      "line":"TDF 1.0 PFEVEX71316.0                    [Bike]",
+      "width":47,
+      "name":"TDF 1.0 PFEVEX71316.0",
+      "id":"nordictrack_gx_44_pro",
+      "category":"Bike",
+      "index":14
+    },
+    {
+      "line":"Tour de France CLC                       [Bike]",
+      "width":47,
+      "name":"Tour de France CLC",
+      "id":"tour_de_france_clc",
+      "category":"Bike",
+      "index":15
+    },
+    {
+      "line":"NordicTrack Series 7                     [Treadmill]",
+      "width":52,
+      "name":"NordicTrack Series 7",
+      "id":"proform_treadmill_995i",
+      "category":"Treadmill",
+      "index":16
+    },
+    {
+      "line":"NordicTrack X22i                         [Treadmill]",
+      "width":52,
+      "name":"NordicTrack X22i",
+      "id":"nordictrack_incline_trainer_x7i",
+      "category":"Treadmill",
+      "index":17
+    },
+    {
+      "line":"Nordictrack 10                           [Treadmill]",
+      "width":52,
+      "name":"Nordictrack 10",
+      "id":"nordictrack_x22i",
+      "category":"Treadmill",
+      "index":18
+    },
+    {
+      "line":"Nordictrack 1750                         [Treadmill]",
+      "width":52,
+      "name":"Nordictrack 1750",
+      "id":"nordictrack_1750",
+      "category":"Treadmill",
+      "index":19
+    },
+    {
+      "line":"Nordictrack EXP 5i                       [Treadmill]",
+      "width":52,
+      "name":"Nordictrack EXP 5i",
+      "id":"proform_treadmill_carbon_t7",
+      "category":"Treadmill",
+      "index":20
+    },
+    {
+      "line":"Nordictrack Elite 800                    [Treadmill]",
+      "width":52,
+      "name":"Nordictrack Elite 800",
+      "id":"nordictrack_t65s_treadmill_81_miles",
+      "category":"Treadmill",
+      "index":21
+    },
+    {
+      "line":"Nordictrack Incline Trainer x7i          [Treadmill]",
+      "width":52,
+      "name":"Nordictrack Incline Trainer x7i",
+      "id":"norditrack_s25i_treadmill",
+      "category":"Treadmill",
+      "index":22
+    },
+    {
+      "line":"Nordictrack L6.0S                        [Treadmill]",
+      "width":52,
+      "name":"Nordictrack L6.0S",
+      "id":"proform_pro_1000_treadmill",
+      "category":"Treadmill",
+      "index":23
+    },
+    {
+      "line":"Nordictrack S20                          [Treadmill]",
+      "width":52,
+      "name":"Nordictrack S20",
+      "id":"nordictrack_t70_treadmill",
+      "category":"Treadmill",
+      "index":24
+    },
+    {
+      "line":"Nordictrack S20i                         [Treadmill]",
+      "width":52,
+      "name":"Nordictrack S20i",
+      "id":"proform_proshox2",
+      "category":"Treadmill",
+      "index":25
+    },
+    {
+      "line":"Nordictrack S25                          [Treadmill]",
+      "width":52,
+      "name":"Nordictrack S25",
+      "id":"nordictrack_s25",
+      "category":"Treadmill",
+      "index":26
+    },
+    {
+      "line":"Nordictrack S25i                         [Treadmill]",
+      "width":52,
+      "name":"Nordictrack S25i",
+      "id":"norditrack_s25_treadmill",
+      "category":"Treadmill",
+      "index":27
+    },
+    {
+      "line":"Nordictrack S30                          [Treadmill]",
+      "width":52,
+      "name":"Nordictrack S30",
+      "id":"nordictrack_s20_treadmill",
+      "category":"Treadmill",
+      "index":28
+    },
+    {
+      "line":"Nordictrack T Series 5                   [Treadmill]",
+      "width":52,
+      "name":"Nordictrack T Series 5",
+      "id":"proform_treadmill_c960i",
+      "category":"Treadmill",
+      "index":29
+    },
+    {
+      "line":"Nordictrack T6.5S v81                    [Treadmill]",
+      "width":52,
+      "name":"Nordictrack T6.5S v81",
+      "id":"proform_treadmill_l6_0s",
+      "category":"Treadmill",
+      "index":30
+    },
+    {
+      "line":"Nordictrack T6.5S v81 Miles              [Treadmill]",
+      "width":52,
+      "name":"Nordictrack T6.5S v81 Miles",
+      "id":"proform_performance_300i",
+      "category":"Treadmill",
+      "index":31
+    },
+    {
+      "line":"Nordictrack T6.5S v83                    [Treadmill]",
+      "width":52,
+      "name":"Nordictrack T6.5S v83",
+      "id":"nordictrack_t65s_treadmill",
+      "category":"Treadmill",
+      "index":32
+    },
+    {
+      "line":"Nordictrack T7.0                         [Treadmill]",
+      "width":52,
+      "name":"Nordictrack T7.0",
+      "id":"nordictrack_t65s_83_treadmill",
+      "category":"Treadmill",
+      "index":33
+    },
+    {
+      "line":"Nordictrack T8.5s                        [Treadmill]",
+      "width":52,
+      "name":"Nordictrack T8.5s",
+      "id":"nordictrack_10_treadmill",
+      "category":"Treadmill",
+      "index":34
+    },
+    {
+      "line":"Nordictrack Ultra LE                     [Treadmill]",
+      "width":52,
+      "name":"Nordictrack Ultra LE",
+      "id":"nordictrack_elite_800",
+      "category":"Treadmill",
+      "index":35
+    },
+    {
+      "line":"Nordictrack x14i                         [Treadmill]",
+      "width":52,
+      "name":"Nordictrack x14i",
+      "id":"proform_treadmill_705_cst",
+      "category":"Treadmill",
+      "index":36
+    },
+    {
+      "line":"Proform 1500 Pro                         [Treadmill]",
+      "width":52,
+      "name":"Proform 1500 Pro",
+      "id":"proform_1500_pro",
+      "category":"Treadmill",
+      "index":37
+    },
+    {
+      "line":"Proform 1800i                            [Treadmill]",
+      "width":52,
+      "name":"Proform 1800i",
+      "id":"nordictrack_s30_treadmill",
+      "category":"Treadmill",
+      "index":38
+    },
+    {
+      "line":"Proform 2000 (not pro)                   [Treadmill]",
+      "width":52,
+      "name":"Proform 2000 (not pro)",
+      "id":"nordictrack_treadmill_t8_5s",
+      "category":"Treadmill",
+      "index":39
+    },
+    {
+      "line":"Proform 505 CST                          [Treadmill]",
+      "width":52,
+      "name":"Proform 505 CST",
+      "id":"proform_2000_treadmill",
+      "category":"Treadmill",
+      "index":40
+    },
+    {
+      "line":"Proform 505 CST v.80.44                  [Treadmill]",
+      "width":52,
+      "name":"Proform 505 CST v.80.44",
+      "id":"proform_treadmill_1500_pro",
+      "category":"Treadmill",
+      "index":41
+    },
+    {
+      "line":"Proform 575i                             [Treadmill]",
+      "width":52,
+      "name":"Proform 575i",
+      "id":"proform_treadmill_sport_70",
+      "category":"Treadmill",
+      "index":42
+    },
+    {
+      "line":"Proform 595i                             [Treadmill]",
+      "width":52,
+      "name":"Proform 595i",
+      "id":"nordictrack_s20i_treadmill",
+      "category":"Treadmill",
+      "index":43
+    },
+    {
+      "line":"Proform 705 CST                          [Treadmill]",
+      "width":52,
+      "name":"Proform 705 CST",
+      "id":"proform_treadmill_9_0",
+      "category":"Treadmill",
+      "index":44
+    },
+    {
+      "line":"Proform 705 CST V78.239                  [Treadmill]",
+      "width":52,
+      "name":"Proform 705 CST V78.239",
+      "id":"proform_treadmill_8_7",
+      "category":"Treadmill",
+      "index":45
+    },
+    {
+      "line":"Proform 705 CST v.80.44                  [Treadmill]",
+      "width":52,
+      "name":"Proform 705 CST v.80.44",
+      "id":"proform_trainer_8_0",
+      "category":"Treadmill",
+      "index":46
+    },
+    {
+      "line":"Proform 8.0                              [Treadmill]",
+      "width":52,
+      "name":"Proform 8.0",
+      "id":"proform_treadmill_cadence_lt",
+      "category":"Treadmill",
+      "index":47
+    },
+    {
+      "line":"Proform 8.5                              [Treadmill]",
+      "width":52,
+      "name":"Proform 8.5",
+      "id":"proform_treadmill_505_cst",
+      "category":"Treadmill",
+      "index":48
+    },
+    {
+      "line":"Proform 8.7                              [Treadmill]",
+      "width":52,
+      "name":"Proform 8.7",
+      "id":"proform_595i_proshox2",
+      "category":"Treadmill",
+      "index":49
+    },
+    {
+      "line":"Proform 9.0                              [Treadmill]",
+      "width":52,
+      "name":"Proform 9.0",
+      "id":"proform_treadmill_8_0",
+      "category":"Treadmill",
+      "index":50
+    },
+    {
+      "line":"Proform 995i                             [Treadmill]",
+      "width":52,
+      "name":"Proform 995i",
+      "id":"proform_treadmill_carbon_tls",
+      "category":"Treadmill",
+      "index":51
+    },
+    {
+      "line":"Proform C700                             [Treadmill]",
+      "width":52,
+      "name":"Proform C700",
+      "id":"proform_performance_400i",
+      "category":"Treadmill",
+      "index":52
+    },
+    {
+      "line":"Proform C960i                            [Treadmill]",
+      "width":52,
+      "name":"Proform C960i",
+      "id":"proform_treadmill_c700",
+      "category":"Treadmill",
+      "index":53
+    },
+    {
+      "line":"Proform Cadence LT                       [Treadmill]",
+      "width":52,
+      "name":"Proform Cadence LT",
+      "id":"proform_treadmill_se",
+      "category":"Treadmill",
+      "index":54
+    },
+    {
+      "line":"Proform Carbon T7                        [Treadmill]",
+      "width":52,
+      "name":"Proform Carbon T7",
+      "id":"proform_carbon_t7",
+      "category":"Treadmill",
+      "index":55
+    },
+    {
+      "line":"Proform Carbon TL                        [Treadmill]",
+      "width":52,
+      "name":"Proform Carbon TL",
+      "id":"nordictrack_treadmill_x14i",
+      "category":"Treadmill",
+      "index":56
+    },
+    {
+      "line":"Proform Carbon TL PFTL59720              [Treadmill]",
+      "width":52,
+      "name":"Proform Carbon TL PFTL59720",
+      "id":"nordictrack_treadmill_exp_5i",
+      "category":"Treadmill",
+      "index":57
+    },
+    {
+      "line":"Proform Carbon TL PFTL59722c             [Treadmill]",
+      "width":52,
+      "name":"Proform Carbon TL PFTL59722c",
+      "id":"nordictrack_tseries5_treadmill",
+      "category":"Treadmill",
+      "index":58
+    },
+    {
+      "line":"Proform Carbon TLS                       [Treadmill]",
+      "width":52,
+      "name":"Proform Carbon TLS",
+      "id":"nordictrack_treadmill_ultra_le",
+      "category":"Treadmill",
+      "index":59
+    },
+    {
+      "line":"Proform Performance 300i                 [Treadmill]",
+      "width":52,
+      "name":"Proform Performance 300i",
+      "id":"nordictrack_treadmill_1750_adb",
+      "category":"Treadmill",
+      "index":60
+    },
+    {
+      "line":"Proform Performance 400i                 [Treadmill]",
+      "width":52,
+      "name":"Proform Performance 400i",
+      "id":"proform_treadmill_575i",
+      "category":"Treadmill",
+      "index":61
+    },
+    {
+      "line":"Proform Pro 1000                         [Treadmill]",
+      "width":52,
+      "name":"Proform Pro 1000",
+      "id":"proform_treadmill_sport_8_5",
+      "category":"Treadmill",
+      "index":62
+    },
+    {
+      "line":"Proform Proshox 2                        [Treadmill]",
+      "width":52,
+      "name":"Proform Proshox 2",
+      "id":"proform_carbon_tl",
+      "category":"Treadmill",
+      "index":63
+    },
+    {
+      "line":"Proform SE                               [Treadmill]",
+      "width":52,
+      "name":"Proform SE",
+      "id":"proform_treadmill_z1300i",
+      "category":"Treadmill",
+      "index":64
+    },
+    {
+      "line":"Proform Sport 3.0                        [Treadmill]",
+      "width":52,
+      "name":"Proform Sport 3.0",
+      "id":"proform_trainer_9_0",
+      "category":"Treadmill",
+      "index":65
+    },
+    {
+      "line":"Proform Sport 7.0                        [Treadmill]",
+      "width":52,
+      "name":"Proform Sport 7.0",
+      "id":"proform_sport_7_0",
+      "category":"Treadmill",
+      "index":66
+    },
+    {
+      "line":"Proform Sport 8.5                        [Treadmill]",
+      "width":52,
+      "name":"Proform Sport 8.5",
+      "id":"proform_8_5_treadmill",
+      "category":"Treadmill",
+      "index":67
+    },
+    {
+      "line":"Proform Trainer 8.0                      [Treadmill]",
+      "width":52,
+      "name":"Proform Trainer 8.0",
+      "id":"proform_505_cst_80_44",
+      "category":"Treadmill",
+      "index":68
+    },
+    {
+      "line":"Proform Trainer 9.0 (PFTL69921-INT.4)    [Treadmill]",
+      "width":52,
+      "name":"Proform Trainer 9.0 (PFTL69921-INT.4)",
+      "id":"nordictrack_series_7",
+      "category":"Treadmill",
+      "index":69
+    },
+    {
+      "line":"Proform/NordicTrack z1300i               [Treadmill]",
+      "width":52,
+      "name":"Proform/NordicTrack z1300i",
+      "id":"proform_treadmill_1800i",
+      "category":"Treadmill",
+      "index":70
+    },
+    {
+      "line":"Confirm Stop Workout                     [Elliptical]",
+      "width":53,
+      "name":"Confirm Stop Workout",
+      "id":"confirm_stop_workout",
+      "category":"Elliptical",
+      "index":71
+    },
+    {
+      "line":"Sole E55 elliptical                      [Elliptical]",
+      "width":53,
+      "name":"Sole E55 elliptical",
+      "id":"sole_elliptical_e55",
+      "category":"Elliptical",
+      "index":72
+    },
+    {
+      "line":"Inclination Supported                    [Elliptical]",
+      "width":53,
+      "name":"Inclination Supported",
+      "id":"sole_elliptical_inclination",
+      "category":"Elliptical",
+      "index":73
+    },
+    {
+      "line":"NordicTrack Elliptical SE7i              [Elliptical]",
+      "width":53,
+      "name":"NordicTrack Elliptical SE7i",
+      "id":"nordictrack_se7i",
+      "category":"Elliptical",
+      "index":74
+    },
+    {
+      "line":"Nordictrack C7.5                         [Elliptical]",
+      "width":53,
+      "name":"Nordictrack C7.5",
+      "id":"nordictrack_elliptical_c7_5",
+      "category":"Elliptical",
+      "index":75
+    },
+    {
+      "line":"Proform Hybrid Trainer PFEL03815         [Elliptical]",
+      "width":53,
+      "name":"Proform Hybrid Trainer PFEL03815",
+      "id":"proform_hybrid_trainer_",
+      "category":"Elliptical",
+      "index":76
+    },
+    {
+      "line":"Proform Hybrid Trainer XT                [Elliptical]",
+      "width":53,
+      "name":"Proform Hybrid Trainer XT",
+      "id":"proform_hybrid_trainer_xt",
+      "category":"Elliptical",
+      "index":77
+    },
+    {
+      "line":"iConcept elliptical                      [Elliptical]",
+      "width":53,
+      "name":"iConcept elliptical",
+      "id":"iconcept_elliptical",
+      "category":"Elliptical",
+      "index":78
+    },
+    {
+      "line":"Concept2 (CSAFE/PM3/PM4)                 [Rower]",
+      "width":48,
+      "name":"Concept2 (CSAFE/PM3/PM4)",
+      "id":"csafe_rower_enabled",
+      "category":"Rower",
+      "index":79
+    },
+    {
+      "line":"FTMS Generic                             [Rower]",
+      "width":48,
+      "name":"FTMS Generic",
+      "id":"ftms_rower_enabled",
+      "category":"Rower",
+      "index":80
+    },
+    {
+      "line":"Proform Rower 750R                       [Rower]",
+      "width":48,
+      "name":"Proform Rower 750R",
+      "id":"proform_rower_750r",
+      "category":"Rower",
+      "index":81
+    },
+    {
+      "line":"Proform Sport RL                         [Rower]",
+      "width":48,
+      "name":"Proform Sport RL",
+      "id":"proform_rower_sport_rl",
+      "category":"Rower",
+      "index":82
+    }
+  ]
+}

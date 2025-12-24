@@ -178,7 +178,7 @@ The dashboard explains each step and asks for confirmation before making changes
 
 **Test ANT+ independently (via dashboard):**
 
-Run `sudo ./setup-dashboard.sh` and choose "Test ANT+ Hardware" from the success menu. The dashboard will simulate treadmill data and display user-friendly output.
+Run `sudo ./setup-dashboard.sh` and choose "ANT+ Test" from the menu. The dashboard will simulate treadmill data and display user-friendly output.
 
 Advanced: to run the standalone test script directly (advanced users):
 
@@ -514,7 +514,7 @@ Verify ANT+ works independently before troubleshooting the full application:
 
 **Option 1: Dashboard (recommended):**
 
-Run `sudo ./setup-dashboard.sh` and select "Test ANT+ Hardware" from the menu.
+Run `sudo ./setup-dashboard.sh` and select "ANT+ Test" from the menu.
 
 **Option 2: Direct test script:**
 
