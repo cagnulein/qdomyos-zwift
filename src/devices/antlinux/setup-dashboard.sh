@@ -4439,10 +4439,23 @@ perform_ant_test() {
             if [[ -n "$excerpt" ]]; then
                 panel_msg+="Last output from test_ant.py:\n"
                 while IFS= read -r l; do
-                    local clean
-                    clean=$(strip_ansi_cached "$l")
-                    # prefix dash for readability and cap line width
-                    panel_msg+="- ${clean:0:$((INFO_WIDTH-6))}\n"
+                    local clean short
+                    clean=$(strip_ansi_cached "$l" | tr -s ' ')
+                    # Tighten common verbose messages into short bullets
+                    if [[ "$clean" =~ [Dd]ongle ]] || [[ "$clean" == *"not connected or is in use"* ]]; then
+                        short="Dongle missing/in use"
+                    elif [[ "$clean" == *"Permission issues"* ]] || [[ "$clean" == *"Permission denied"* ]]; then
+                        short="Permission error (run sudo)"
+                    elif [[ "$clean" == *"openant"* && ( "$clean" == *"not installed"* || "$clean" == *"missing"* ) ]]; then
+                        short="openant missing"
+                    elif [[ "$clean" == *"Stopping ANT+ broadcaster"* || "$clean" == *"broadcaster stopped"* ]]; then
+                        # skip noisy stop messages; they are not actionable
+                        continue
+                    else
+                        short="$clean"
+                    fi
+                    # prefix dash and cap to available width
+                    panel_msg+="- ${short:0:$((INFO_WIDTH-6))}\n"
                 done <<< "$excerpt"
             else
                 panel_msg+="No output captured from test_ant.py.\n"
