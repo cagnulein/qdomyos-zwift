@@ -1103,7 +1103,30 @@ get_vis_width() {
         stripped=$(strip_ansi_pure "$text" | tr -d $'\r\n')
     fi
 
+    # Optional ASCII-only fast-path (disabled by default). Enable by
+    # exporting QZ_ASCII_FAST_PATH=1 in the environment. This avoids
+    # invoking perl/gawk for the very common case of ASCII-only names.
+    local enable_ascii_fast=${QZ_ASCII_FAST_PATH:-0}
     local width
+    if [[ "$enable_ascii_fast" -eq 1 ]]; then
+        # Fast-path: check each character's byte value using builtin printf
+        # to ensure pure printable ASCII (32..126). This avoids external
+        # subprocesses while remaining robust across locales.
+        local is_ascii=1
+        local i ch code
+        for ((i=0; i<${#stripped}; i++)); do
+            ch=${stripped:i:1}
+            code=$(printf '%d' "'${ch}" 2>/dev/null) || { is_ascii=0; break; }
+            if (( code < 32 || code > 126 )); then is_ascii=0; break; fi
+        done
+        if [[ $is_ascii -eq 1 ]]; then
+            width=${#stripped}
+            DISPLAY_CACHE["$text"]="${stripped}|${width}"
+            echo "$width"
+            return 0
+        fi
+    fi
+
     if command -v perl >/dev/null 2>&1; then
         width=$(printf '%s' "$stripped" | perl -CS -Mutf8 -0777 -ne '
             use utf8;
