@@ -80,14 +80,14 @@ def _reset_ant_dongle_once() -> bool:
         (0x11fd, 0x0001)   # Suunto
     ]
 
-    log.info("--- Starting ANT+ Dongle Reset Sequence (one-time) ---")
+    log.debug("--- Starting ANT+ Dongle Reset Sequence (one-time) ---")
     try:
         dongle = next((usb.core.find(idVendor=v, idProduct=p) for v, p in SUPPORTED_DONGLES if usb.core.find(idVendor=v, idProduct=p)), None)
         if dongle is None:
             log.info("No supported ANT+ dongle found for reset. Continuing.")
             return True
 
-        log.info(f"Found dongle for reset: {dongle.manufacturer} {dongle.product}")
+        log.debug(f"Found dongle for reset: {dongle.manufacturer} {dongle.product}")
         dongle.reset()
         time.sleep(DONGLE_RESET_SETTLE)
         log.info("Dongle reset sequence finished.")
