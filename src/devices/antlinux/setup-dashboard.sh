@@ -4231,53 +4231,59 @@ show_scrollable_menu_fast() {
     enter_ui_mode
     trap 'trap - RETURN SIGINT SIGTERM; move_cursor $((LOG_BOTTOM + 1)) 0; exit_ui_mode' RETURN SIGINT SIGTERM
 
-    while true; do
-        local start_idx=0
-        if (( total_count > display_count )); then
-            start_idx=$(( selected - (display_count / 2) ))
-            [[ $start_idx -lt 0 ]] && start_idx=0
-            [[ $start_idx -gt $((total_count - display_count)) ]] && start_idx=$((total_count - display_count))
-        fi
+    # Initial window calculation
+    local start_idx=0
+    if (( total_count > display_count )); then
+        start_idx=$(( selected - (display_count / 2) ))
+        [[ $start_idx -lt 0 ]] && start_idx=0
+        [[ $start_idx -gt $((total_count - display_count)) ]] && start_idx=$((total_count - display_count))
+    fi
 
-        local render_buffer=""
-        for ((r=render_start; r<=LOG_BOTTOM; r++)); do
-            local row_index=$(( r - render_start ))
-            if (( row_index >= 0 && row_index < display_count )); then
-                local current_idx=$(( start_idx + row_index ))
-                local item_text="${menu_list[$current_idx]}"
-                local item_width="${menu_widths[$current_idx]:-${#item_text}}"
-                if (( item_width > (INNER_COLS - 5) )); then
-                    item_text="${item_text:0:$((INNER_COLS - 5))}"
-                    item_width=$((INNER_COLS - 5))
-                fi
-                local row_content
-                if [[ $current_idx -eq $selected ]]; then
-                    row_content="   ${CYAN}► ${BOLD_CYAN}${item_text}${NC}"
-                else
-                    row_content="     ${GRAY}${item_text}${NC}"
-                fi
-                local pad_needed=$((INNER_COLS - item_width - 5))
-                [[ $pad_needed -lt 0 ]] && pad_needed=0
-                local padding=$(printf '%*s' "$pad_needed" "")
-                render_buffer+=$(printf "\033[%d;1H${BLUE}║${NC}%s%s${BLUE}║${NC}" "$((r + 1))" "$row_content" "$padding")
-            else
-                local blank=$(printf '%*s' "$INNER_COLS" "")
-                render_buffer+=$(printf "\033[%d;1H${BLUE}║${NC}%s${BLUE}║${NC}" "$((r + 1))" "$blank")
+    # Initial full render
+    local render_buffer=""
+    for ((r=render_start; r<=LOG_BOTTOM; r++)); do
+        local row_index=$(( r - render_start ))
+        if (( row_index >= 0 && row_index < display_count )); then
+            local current_idx=$(( start_idx + row_index ))
+            local item_text="${menu_list[$current_idx]}"
+            local item_width=${menu_widths[$current_idx]:-${#item_text}}
+            if (( item_width > (INNER_COLS - 5) )); then
+                item_text="${item_text:0:$((INNER_COLS - 5))}"
+                item_width=$((INNER_COLS - 5))
             fi
-        done
+            local row_content
+            if [[ $current_idx -eq $selected ]]; then
+                row_content="   ${CYAN}► ${BOLD_CYAN}${item_text}${NC}"
+            else
+                row_content="     ${GRAY}${item_text}${NC}"
+            fi
+            local pad_needed=$((INNER_COLS - item_width - 5))
+            [[ $pad_needed -lt 0 ]] && pad_needed=0
+            local padding
+            padding=$(printf '%*s' "$pad_needed" "")
+            render_buffer+=$(printf "\033[%d;1H${BLUE}║${NC}%s%s${BLUE}║${NC}" "$((r + 1))" "$row_content" "$padding")
+        else
+            local blank
+            blank=$(printf '%*s' "$INNER_COLS" "")
+            render_buffer+=$(printf "\033[%d;1H${BLUE}║${NC}%s${BLUE}║${NC}" "$((r + 1))" "$blank")
+        fi
+    done
 
-        local ui_fd
-        ui_fd=$(get_safe_ui_fd)
-        printf '%s' "$render_buffer" >&${ui_fd} 2>/dev/null || true
-        draw_bottom_border "Arrows: Up/Down | Enter: Select"
+    local ui_fd
+    ui_fd=$(get_safe_ui_fd)
+    printf '%s' "$render_buffer" >&${ui_fd} 2>/dev/null || true
+    draw_bottom_border "Arrows: Up/Down | Enter: Select"
 
+    local prev_selected=$selected
+    local prev_start_idx=$start_idx
+
+    while true; do
+        # Input-first for fast response
         local key
-        # Block waiting for a keypress (do not auto-timeout)
-        IFS= read -rsn1 key </dev/tty
+        IFS= read -rsn1 key </dev/tty 2>/dev/null || true
         if [[ $key == $'\x1b' ]]; then
-            # Attempt to read the remainder of an escape sequence briefly
-            read -rsn2 -t 0.06 k2 </dev/tty || true
-            if [[ -z "${k2:-}" ]]; then read -rsn1 -t 0.02 k3 </dev/tty || true; fi
+            read -rsn2 -t 0.06 k2 </dev/tty 2>/dev/null || true
+            if [[ -z "${k2:-}" ]]; then read -rsn1 -t 0.02 k3 </dev/tty 2>/dev/null || true; fi
             local seq="${k2}${k3:-}"
             case "${seq:-}" in
                 '[A'|"[A") ((selected--)) ;; 
@@ -4292,8 +4298,98 @@ show_scrollable_menu_fast() {
             return "$selected"
         fi
 
+        # Wrap selection
         [[ $selected -lt 0 ]] && selected=$((total_count - 1))
         [[ $selected -ge $total_count ]] && selected=0
+
+        # Recompute window start index
+        start_idx=0
+        if (( total_count > display_count )); then
+            start_idx=$(( selected - (display_count / 2) ))
+            [[ $start_idx -lt 0 ]] && start_idx=0
+            [[ $start_idx -gt $((total_count - display_count)) ]] && start_idx=$((total_count - display_count))
+        fi
+
+        # If window scrolled, full redraw
+        if [[ $start_idx -ne $prev_start_idx ]]; then
+            local render_buffer=""
+            for ((r=render_start; r<=LOG_BOTTOM; r++)); do
+                local row_index=$(( r - render_start ))
+                if (( row_index >= 0 && row_index < display_count )); then
+                    local current_idx=$(( start_idx + row_index ))
+                    local item_text="${menu_list[$current_idx]}"
+                    local item_width=${menu_widths[$current_idx]:-${#item_text}}
+                    if (( item_width > (INNER_COLS - 5) )); then
+                        item_text="${item_text:0:$((INNER_COLS - 5))}"
+                        item_width=$((INNER_COLS - 5))
+                    fi
+                    local row_content
+                    if [[ $current_idx -eq $selected ]]; then
+                        row_content="   ${CYAN}► ${BOLD_CYAN}${item_text}${NC}"
+                    else
+                        row_content="     ${GRAY}${item_text}${NC}"
+                    fi
+                    local pad_needed=$((INNER_COLS - item_width - 5))
+                    [[ $pad_needed -lt 0 ]] && pad_needed=0
+                    local padding
+                    padding=$(printf '%*s' "$pad_needed" "")
+                    render_buffer+=$(printf "\033[%d;1H${BLUE}║${NC}%s%s${BLUE}║${NC}" "$((r + 1))" "$row_content" "$padding")
+                else
+                    local blank
+                    blank=$(printf '%*s' "$INNER_COLS" "")
+                    render_buffer+=$(printf "\033[%d;1H${BLUE}║${NC}%s${BLUE}║${NC}" "$((r + 1))" "$blank")
+                fi
+            done
+            ui_fd=$(get_safe_ui_fd)
+            printf '%s' "$render_buffer" >&${ui_fd} 2>/dev/null || true
+            draw_bottom_border "Arrows: Up/Down | Enter: Select"
+            prev_start_idx=$start_idx
+            prev_selected=$selected
+            continue
+        fi
+
+        # Only selection changed and window same -> update two rows
+        if [[ $selected -ne $prev_selected ]]; then
+            ui_fd=$(get_safe_ui_fd)
+
+            # Deselect previous if visible
+            local prev_row_index=$(( prev_selected - start_idx ))
+            if (( prev_row_index >= 0 && prev_row_index < display_count )); then
+                local prev_row=$(( render_start + prev_row_index ))
+                local prev_item="${menu_list[$prev_selected]}"
+                local prev_w=${menu_widths[$prev_selected]:-${#prev_item}}
+                if (( prev_w > (INNER_COLS - 5) )); then
+                    prev_item="${prev_item:0:$((INNER_COLS - 5))}"
+                    prev_w=$((INNER_COLS - 5))
+                fi
+                local prev_content="     ${GRAY}${prev_item}${NC}"
+                local prev_pad_needed=$(( INNER_COLS - prev_w - 5 ))
+                [[ $prev_pad_needed -lt 0 ]] && prev_pad_needed=0
+                local prev_padding
+                prev_padding=$(printf '%*s' "$prev_pad_needed" "")
+                printf "\033[%d;1H${BLUE}║${NC}%s%s${BLUE}║${NC}" "$((prev_row + 1))" "$prev_content" "$prev_padding" >&${ui_fd} 2>/dev/null || true
+            fi
+
+            # Select new if visible
+            local new_row_index=$(( selected - start_idx ))
+            if (( new_row_index >= 0 && new_row_index < display_count )); then
+                local new_row=$(( render_start + new_row_index ))
+                local new_item="${menu_list[$selected]}"
+                local new_w=${menu_widths[$selected]:-${#new_item}}
+                if (( new_w > (INNER_COLS - 5) )); then
+                    new_item="${new_item:0:$((INNER_COLS - 5))}"
+                    new_w=$((INNER_COLS - 5))
+                fi
+                local new_content="   ${CYAN}► ${BOLD_CYAN}${new_item}${NC}"
+                local new_pad_needed=$(( INNER_COLS - new_w - 5 ))
+                [[ $new_pad_needed -lt 0 ]] && new_pad_needed=0
+                local new_padding
+                new_padding=$(printf '%*s' "$new_pad_needed" "")
+                printf "\033[%d;1H${BLUE}║${NC}%s%s${BLUE}║${NC}" "$((new_row + 1))" "$new_content" "$new_padding" >&${ui_fd} 2>/dev/null || true
+            fi
+
+            prev_selected=$selected
+        fi
     done
 
     
