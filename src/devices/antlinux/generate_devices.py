@@ -1,10 +1,28 @@
+#!/usr/bin/env python3
+"""
+Enhanced QML Device Parser for generating devices.ini
+Robust parsing with comprehensive error handling for Docker environments
+"""
 import re
 import configparser
 import os
 import sys
 import json
+import logging
+from typing import Dict, List, Tuple, Optional, Set
+from pathlib import Path
 
-# Accept an optional input file path as argv[1], otherwise try common filenames
+# Configure logging for Docker/production use
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
+
+# Configuration
 INPUT_FILE = sys.argv[1] if len(sys.argv) > 1 else None
 OUTPUT_FILE = "devices.ini"
 
@@ -15,7 +33,6 @@ _CANDIDATES = [
     "settings.qml.txt",
 ]
 
-# Heuristic keyword lists used to infer sections for inline model arrays
 DEVICE_TYPE_KEYWORDS = {
     'Bike': ['bike', 'cycle', 'trainer', 'cycling', 'studio', 'tdf'],
     'Treadmill': ['treadmill', 'running', 'runner', 'run', 'incline'],
@@ -23,651 +40,549 @@ DEVICE_TYPE_KEYWORDS = {
     'Rower': ['rower', 'rowing', 'erg', 'ftms', 'csafe']
 }
 
-BRAND_KEYWORDS = ['proform', 'nordic', 'nordictrack', 'concept', 'peloton', 'echelon', 'sole', 'iconsole', 'hydrow', 'waterrower', 'kettler', 'schwinn', 'horizon', 'toorx', 'fitplus', 'domyos']
+BRAND_KEYWORDS = [
+    'proform', 'nordic', 'nordictrack', 'concept', 'peloton', 
+    'echelon', 'sole', 'hydrow', 'waterrower', 'kettler', 
+    'schwinn', 'horizon', 'toorx', 'fitplus', 'domyos', 
+    'life fitness', 'iconcept', 'freemotion'
+]
 
-def infer_section_from_model_content(models, context_before='', context_after=''):
-    """Infer section name (Bike/Treadmill/Elliptical/Rower) from model strings and nearby context.
-    Returns one of the section names or None.
+# Known device ID patterns from QML settings properties
+KNOWN_DEVICE_IDS = {
+    # Bikes
+    'proform_tour_de_france_clc': 'Tour de France CLC',
+    'proform_studio': 'Proform Studio Bike',
+    'proform_studio_NTEX71021': 'Proform Studio Bike NTEX71021',
+    'freemotion_coachbike_b22_7': 'Freemotion Coachbike B22.7',
+    'proform_tdf_10': 'Proform TDF 1.0',
+    'proform_bike_PFEVEX71316_1': 'TDF 1.0 PFEVEX71316.1',
+    'proform_tdf_10_0': 'Proform TDF 10',
+    'nordictrack_gx_2_7': 'NordicTrack GX 2.7',
+    'nordictrack_GX4_5_bike': 'NordicTrack GX 4.5',
+    'proform_cycle_trainer_300_ci': 'Cycle Trainer 300 CI',
+    'proform_cycle_trainer_400': 'Cycle Trainer 400',
+    'proform_bike_225_csx': 'Proform 225 CSX',
+    'proform_bike_325_csx': 'Proform 325 CSX / Healthrider H30X',
+    'proform_bike_sb': 'Proform SB',
+    'nordictrack_gx_44_pro': 'Nordictrack GX 4.4 Pro',
+    'proform_bike_PFEVEX71316_0': 'TDF 1.0 PFEVEX71316.0',
+    'proform_xbike': 'Proform XBike',
+    'proform_225_csx_PFEX32925_INT_0': 'Proform 225 CSX PFEX32925 INT.0',
+    'proform_csx210': 'Proform CSX210',
+    
+    # Treadmills
+    'norditrack_s25_treadmill': 'Nordictrack S25',
+    'norditrack_s25i_treadmill': 'Nordictrack S25i',
+    'nordictrack_incline_trainer_x7i': 'Nordictrack Incline Trainer x7i',
+    'nordictrack_x22i': 'NordicTrack X22i',
+    'nordictrack_10_treadmill': 'Nordictrack 10',
+    'nordictrack_treadmill_t8_5s': 'Nordictrack T8.5s',
+    'proform_2000_treadmill': 'Proform 2000 (not pro)',
+    'proform_treadmill_505_cst': 'Proform 505 CST',
+    'proform_8_5_treadmill': 'Proform 8.5',
+    'proform_treadmill_sport_8_5': 'Proform Sport 8.5',
+    'proform_pro_1000_treadmill': 'Proform Pro 1000',
+    'proform_treadmill_l6_0s': 'Nordictrack L6.0S',
+    'nordictrack_t65s_treadmill': 'Nordictrack T6.5S v81',
+    'nordictrack_t65s_83_treadmill': 'Nordictrack T6.5S v83',
+    'nordictrack_t70_treadmill': 'Nordictrack T7.0',
+    'nordictrack_s20_treadmill': 'Nordictrack S20',
+    'nordictrack_s30_treadmill': 'Nordictrack S30',
+    'proform_treadmill_1800i': 'Proform 1800i',
+    'proform_treadmill_z1300i': 'Proform/NordicTrack z1300i',
+    'proform_treadmill_se': 'Proform SE',
+    'proform_treadmill_cadence_lt': 'Proform Cadence LT',
+    'proform_treadmill_8_0': 'Proform 8.0',
+    'proform_treadmill_9_0': 'Proform 9.0',
+    
+    # Rowers
+    'proform_rower_sport_rl': 'Proform Sport RL',
+    'proform_rower_750r': 'Proform 750R',
+    'csafe_rower_enabled': 'Concept2 (CSAFE/PM3/PM4)',
+    'ftms_rower_enabled': 'FTMS Generic',
+    
+    # Ellipticals
+    'proform_hybrid_trainer_xt': 'Proform Hybrid Trainer XT',
+    'proform_hybrid_trainer_PFEL03815': 'Proform Hybrid Trainer PFEL03815',
+    'nordictrack_elliptical_c7_5': 'Nordictrack C7.5',
+    'nordictrack_se7i': 'NordicTrack Elliptical SE7i',
+    'sole_elliptical_e55': 'Sole E55 elliptical',
+    'iconcept_elliptical': 'iConcept elliptical',
+}
+
+
+def load_file_content(path: Optional[str] = None) -> Optional[str]:
     """
-    text = ' '.join(models).lower() + ' ' + (context_before or '').lower() + ' ' + (context_after or '').lower()
-
-    # Quick brand presence check — prefer arrays that look like device lists
-    has_brand = any(b in text for b in BRAND_KEYWORDS)
-
-    # Score device-type keyword occurrences
-    scores = {sec: 0 for sec in DEVICE_TYPE_KEYWORDS}
-    for sec, keys in DEVICE_TYPE_KEYWORDS.items():
-        for k in keys:
-            scores[sec] += text.count(k)
-
-    # Choose highest scoring section when brand keywords are present or score is significant
-    best = max(scores, key=scores.get)
-    if scores[best] > 0 and (has_brand or scores[best] >= 2):
-        return best
-    return None
-
-def log_unassigned_array_context(models, position, content, window=200):
-    start = max(0, position - window)
-    end = min(len(content), position + window)
-    ctx = content[start:end].replace('\n', ' ')
-    print('\n=== UNASSIGNED MODEL ARRAY ===')
-    print('Models sample:', models[:6])
-    print('Context:', ctx)
-    suggestion = infer_section_from_model_content(models, ctx, '')
-    if suggestion:
-        print('SUGGESTED SECTION:', suggestion)
-    print('=' * 50)
-
-
-def is_noise_model(name):
-    """Return True for names that look like UI options or non-device items we should skip."""
-    if not name or not name.strip():
-        return True
-    n = name.strip()
-    nl = n.lower()
-    # explicit blacklist
-    if nl in ('disabled', 'other'):
-        return True
-    # single numbers like '1', '2', ...
-    if re.fullmatch(r"\d+", nl):
-        return True
-    # distance/time presets like '1 mile', '5 km', '10 km', 'half marathon', 'marathon'
-    if re.fullmatch(r"\d+\s*(km|m|mile|miles)", nl):
-        return True
-    if 'marathon' in nl or 'half marathon' in nl:
-        return True
-    # short UI options (two-words common) that are non-device
-    if nl in ('male', 'female', 'always', 'request'):
-        return True
-    # generic words that are not device names
-    if len(n) <= 2:
-        return True
-    return False
-
-def load_file_content(filename=None):
-    # If a filename is provided, prefer it. Otherwise probe candidate names.
-    candidates = []
-    if filename:
-        candidates.append(filename)
-    if INPUT_FILE:
-        candidates.append(INPUT_FILE)
-    candidates.extend(_CANDIDATES)
-
-    # Search locations: script dir, parent dirs up to 3 levels, and cwd
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    search_dirs = [base_dir, os.path.join(base_dir, '..'), os.path.join(base_dir, '..', '..'), os.path.join(base_dir, '..', '..', '..'), os.getcwd()]
-
-    for fn in candidates:
-        if not fn:
-            continue
-        if os.path.isabs(fn) and os.path.exists(fn):
-            with open(fn, 'r', encoding='utf-8') as f:
-                print(f"Using input file: {fn}")
+    Load QML file content with comprehensive fallback search strategy.
+    Designed to work in Docker containers and various deployment scenarios.
+    """
+    search_paths = []
+    
+    # Priority 1: Explicit path provided
+    if path and os.path.exists(path):
+        logger.info(f"Loading file from explicit path: {path}")
+        try:
+            with open(path, 'r', encoding='utf-8', errors='ignore') as f:
                 return f.read()
-        for d in search_dirs:
-            path = os.path.abspath(os.path.join(d, fn))
-            if os.path.exists(path):
-                with open(path, 'r', encoding='utf-8') as f:
-                    print(f"Using input file: {path}")
-                    return f.read()
-
-    print(f"Error: Could not find any of: {', '.join(candidates)} in {', '.join(search_dirs)}")
+        except Exception as e:
+            logger.error(f"Failed to read {path}: {e}")
+            return None
+    
+    # Priority 2: Current directory candidates
+    for candidate in _CANDIDATES:
+        if os.path.exists(candidate):
+            search_paths.append(candidate)
+    
+    # Priority 3: Script directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    for candidate in _CANDIDATES:
+        p = os.path.join(script_dir, candidate)
+        if os.path.exists(p):
+            search_paths.append(p)
+    
+    # Priority 4: Repository structure (../../src/settings.qml)
+    repo_src = os.path.abspath(os.path.join(script_dir, '..', '..', 'src', 'settings.qml'))
+    if os.path.exists(repo_src):
+        search_paths.append(repo_src)
+    
+    # Priority 5: Current working directory src/
+    cwd_candidate = os.path.join(os.getcwd(), 'src', 'settings.qml')
+    if os.path.exists(cwd_candidate):
+        search_paths.append(cwd_candidate)
+    
+    # Priority 6: Common Docker mount points
+    docker_paths = [
+        '/app/settings.qml',
+        '/app/src/settings.qml',
+        '/data/settings.qml',
+        '/config/settings.qml',
+    ]
+    for dpath in docker_paths:
+        if os.path.exists(dpath):
+            search_paths.append(dpath)
+    
+    # Try each path
+    for spath in search_paths:
+        try:
+            logger.info(f"Attempting to load: {spath}")
+            with open(spath, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+                logger.info(f"Successfully loaded file from: {spath} ({len(content)} bytes)")
+                return content
+        except Exception as e:
+            logger.warning(f"Failed to read {spath}: {e}")
+            continue
+    
+    logger.error("No QML file found in any search location")
     return None
 
-def parse_combobox_logic(content, combo_id):
-    devices = {}
-    
-    # Robust Model Pattern: Handles multiline and spaces
-    model_pattern = rf'id:\s*{re.escape(combo_id)}.*?model:\s*\[\s*(.*?)\s*\]'
-    model_match = re.search(model_pattern, content, re.DOTALL)
-    
-    if not model_match:
-        # Try to resolve model by referencing a ListModel id elsewhere
-        listmodels = build_listmodel_index(content)
-        # Search for "model: someId" near the combo id
-        start_index = content.find(f"id: {combo_id}")
-        if start_index == -1:
-            start_index = content.find(combo_id)
-        if start_index != -1:
-            tail = content[start_index:start_index+2000]
-            m = re.search(r'model\s*:\s*([A-Za-z0-9_\.]+)', tail)
-            if m:
-                mid = m.group(1)
-                # Attempt to resolve referenced model identifier (e.g., rootItem.bluetoothDevices)
-                resolved = resolve_model_identifier(content, mid, listmodels)
-                if resolved:
-                    for name in resolved:
-                        devices[name] = name.lower().replace(' ', '_')
-                    return devices
-        # Fallback: try nearby ListModel parsing
-        lm = parse_listmodel_near(content, combo_id)
-        if lm:
-            return lm
-        print(f"Warning: No model definition found for {combo_id}")
-        return devices
 
-    raw_list = model_match.group(1)
-    model_list = []
-    # Split by comma but respect quotes
-    for item in re.split(r',\s*(?=(?:[^"]*"[^"]*")*[^"]*$)', raw_list):
-        clean_name = item.strip().strip('"').strip("'")
-        if clean_name:
-            model_list.append(clean_name)
-
-    # Find switch block
-    start_index = content.find(f"id: {combo_id}")
-    if start_index == -1: return devices
-    
-    # We scan a reasonable chunk, looking for the switch logic
-    chunk = content[start_index:start_index + 15000] 
-    
-    # Flexible case pattern
-    case_pattern = r'case\s+(\d+)\s*:\s*settings\.(\w+)\s*=\s*true'
-    matches = re.findall(case_pattern, chunk)
-    
-    for index_str, variable in matches:
-        index = int(index_str)
-        if 0 <= index < len(model_list):
-            model_name = model_list[index]
-            if model_name != "Other":
-                if is_noise_model(model_name):
-                    continue
-                devices[model_name] = variable
-
-    # Always include inline model_list entries (slugified) so new models
-    # appearing in the QML are captured even when no explicit case mapping
-    # exists. Prefer existing variable names from 'devices' mapping.
-    def slugify(s):
-        s = s.strip()
-        s = s.replace('(PFTL','').replace(')','')
-        s = re.sub(r"[^A-Za-z0-9]+", '_', s)
-        s = re.sub(r'_+', '_', s)
-        s = s.strip('_').lower()
-        return s or 'unknown'
-
-    for idx, name in enumerate(model_list):
-        if name == 'Other':
-            continue
-        if is_noise_model(name):
-            continue
-        if name in devices:
-            # already mapped via case -> variable
-            continue
-        # create a slug id, but avoid collisions by appending index if needed
-        base = slugify(name)
-        candidate = base
-        suffix = 1
-        while candidate in devices.values():
-            candidate = f"{base}_{suffix}"
-            suffix += 1
-        devices[name] = candidate
-
-    return devices
-
-def parse_accordion_switches(content, section_title_keyword):
-    devices = {}
-    
-    # Robust Title Search
-    section_start_match = re.search(
-        rf'title:\s*qsTr\(["\']([^"\']*{re.escape(section_title_keyword)}[^"\']*)["\']',
-        content
-    )
-    
-    if not section_start_match:
-        return devices
-        
-    start_pos = section_start_match.start()
-    
-    # Robust End Finding using Brace Counting
-    brace_count = 0
-    in_section = False
-    section_end = len(content)
-    
-    # Scan forward to find the block
-    for i, char in enumerate(content[start_pos:], start_pos):
-        if char == '{':
-            brace_count += 1
-            in_section = True
-        elif char == '}':
-            brace_count -= 1
-            if in_section and brace_count == 0:
-                section_end = i
-                break
-                
-    chunk = content[start_pos:section_end]
-    
-    # Parse switches inside the chunk
-    # We split by 'IndicatorOnlySwitch' to handle them sequentially
-    items = chunk.split("IndicatorOnlySwitch")
-    
-    for item in items[1:]:
-        # Stop if we hit nested structures that shouldn't be here
-        if "AccordionElement" in item or "NewPageElement" in item:
-             # Heuristic: stop if we see a new major element start
-             pass 
-
-        name_match = re.search(r'text:\s*qsTr\(["\']([^"\']+)["\']\)', item)
-
-        # Try several patterns to find the backing settings variable:
-        # 1) property binding: checked: settings.var
-        # 2) onClicked assignment: settings.var = checked
-        # 3) explicit reference inside onClicked or other handlers
-        var_match = None
-        m1 = re.search(r'checked\s*:\s*settings\.([A-Za-z0-9_]+)', item)
-        m2 = re.search(r'settings\.([A-Za-z0-9_]+)\s*=\s*checked', item)
-        m3 = re.search(r'onClicked\s*:\s*\{[^}]*settings\.([A-Za-z0-9_]+)\s*=\s*checked', item, re.DOTALL)
-        if m1:
-            var_match = m1
-        elif m2:
-            var_match = m2
-        elif m3:
-            var_match = m3
-
-        if name_match and var_match:
-            name = name_match.group(1)
-            variable = var_match.group(1)
-            
-            skip_keywords = ["Incline", "Resistance", "Gain", "Offset", "Log", "Debug", "Reverse", "Invert", "Unit", "Pause", "Force", "Miles"]
-            if not any(x in name for x in skip_keywords):
-                if is_noise_model(name):
-                    continue
-                devices[name] = variable
-
-    return devices
-
-
-def parse_listmodel_near(content, combo_id):
-    """Attempt to find a nearby ListModel for the given combo id and
-    extract display strings from ListElement blocks."""
-    devices = {}
-    start_index = content.find(f"id: {combo_id}")
-    if start_index == -1:
-        # fallback: search for combo_id anywhere
-        start_index = content.find(combo_id)
-        if start_index == -1:
-            return devices
-
-    chunk = content[start_index:start_index + 20000]
-    # find ListModel { ... }
-    lm_match = re.search(r'ListModel\s*\{(.*?)\}', chunk, re.DOTALL)
-    if not lm_match:
-        return devices
-    lm_body = lm_match.group(1)
-    # find all ListElement blocks
-    for m in re.finditer(r'ListElement\s*\{(.*?)\}', lm_body, re.DOTALL):
-        body = m.group(1)
-        # try a set of common property names
-        for keyname in ('text', 'name', 'display', 'label', 'title'):
-            mm = re.search(rf'{keyname}\s*[:=]\s*"([^"]+)"', body)
-            if mm:
-                label = mm.group(1).strip()
-                # use a synthetic id if present
-                valm = re.search(r'value\s*[:=]\s*"?([A-Za-z0-9_\-]+)"?', body)
-                val = valm.group(1).strip() if valm else label.lower().replace(' ', '_')
-                devices[label] = val
-                break
-    return devices
-
-
-def resolve_model_identifier(content, identifier, listmodels_index=None):
-    """Given an identifier used as a ComboBox model (e.g., rootItem.bluetoothDevices or myListModel),
-    attempt to resolve it to a list of display strings.
-    Returns list of strings or None.
+def parse_inline_model_array(array_text: str) -> List[str]:
     """
-    if not identifier:
-        return None
-    # allow dotted identifiers like rootItem.bluetoothDevices -> bluetoothDevices
-    key = identifier.split('.')[-1]
-    if listmodels_index is None:
-        listmodels_index = build_listmodel_index(content)
-
-    # 1) check if key matches a ListModel id
-    if key in listmodels_index and listmodels_index[key]:
-        return [name for name, val in listmodels_index[key]]
-
-    # 2) look for a ListModel block whose id matches key
-    lm_re = re.compile(r'ListModel\b(.*?)\{(.*?)\}', re.DOTALL)
-    # fallback simple search for 'ListModel { ... id: key ... }'
-    m = re.search(r'ListModel\s*\{(.*?)id\s*:\s*' + re.escape(key) + r'(.*?)\}', content, re.DOTALL)
-    if m:
-        block = m.group(0)
-        # extract ListElement strings
-        items = []
-        for me in re.finditer(r'ListElement\s*\{(.*?)\}', block, re.DOTALL):
-            body = me.group(1)
-            mm = re.search(r'(?:text|name|display|label|title)\s*[:=]\s*"([^"]+)"', body)
-            if mm:
-                items.append(mm.group(1).strip())
-        if items:
-            return items
-
-    # 3) look for inline array assignment: key = [ "A", "B" ] or key: [ ... ]
-    arrm = re.search(r'\b' + re.escape(key) + r'\s*(?:=|:)\s*\[(.*?)\]', content, re.DOTALL)
-    if arrm:
-        arr_body = arrm.group(1)
-        return parse_inline_model_array(arr_body)
-
-    # 4) look for occurrences like "model: rootItem.bluetoothDevices" where bluetoothDevices is populated elsewhere
-    # Search for 'bluetoothDevices' followed by '=' or ':' and then an array or ListModel
-    pattern = re.compile(r'\b' + re.escape(key) + r'\b.*?(?:=|:)\s*(\[|ListModel)', re.DOTALL)
-    if pattern.search(content):
-        # try to find the nearest array or ListModel after the keyword
-        post = content[content.find(key):content.find(key)+2000]
-        arr2 = re.search(r'\[(.*?)\]', post, re.DOTALL)
-        if arr2:
-            return parse_inline_model_array(arr2.group(1))
-
-    return None
-
-
-def build_listmodel_index(content):
-    """Scan the entire content for ListModel blocks and return a mapping
-    of listmodel id -> list of (display, value) tuples."""
-    res = {}
-    idx = 0
-    import re
-    L = len(content)
-    while True:
-        m = re.search(r'ListModel\b', content[idx:])
-        if not m:
-            break
-        start = idx + m.start()
-        ob = content.find('{', start)
-        if ob == -1:
-            idx = start + 8
+    Parse inline JavaScript array from QML model definition.
+    Handles quoted strings with proper comma separation.
+    """
+    if not array_text:
+        return []
+    
+    # Split by commas not inside quotes
+    parts = re.split(r',\s*(?=(?:[^"\']*["\'][^"\']*["\'])*[^"\']*$)', array_text)
+    items = []
+    
+    for p in parts:
+        p = p.strip()
+        if not p:
             continue
-        brace = 0
-        end = ob
-        for i in range(ob, L):
-            if content[i] == '{':
-                brace += 1
-            elif content[i] == '}':
-                brace -= 1
-                if brace == 0:
-                    end = i
-                    break
-        block = content[start:end+1]
-        # find id inside block
-        idm = re.search(r'\bid\s*:\s*([A-Za-z_][A-Za-z0-9_]*)', block)
-        lid = idm.group(1) if idm else None
-        items = []
-        for me in re.finditer(r'ListElement\s*\{(.*?)\}', block, re.DOTALL):
-            body = me.group(1)
-            name = None
-            for keyname in ('text', 'name', 'display', 'label', 'title'):
-                mm = re.search(rf'{keyname}\s*[:=]\s*"([^"]+)"', body)
-                if mm:
-                    name = mm.group(1).strip()
-                    break
-            if not name:
-                mm = re.search(r'"([^"]+)"', body)
-                if mm:
-                    name = mm.group(1).strip()
-            if not name:
+        
+        # Remove surrounding quotes
+        if (p.startswith('"') and p.endswith('"')) or (p.startswith("'") and p.endswith("'")):
+            p = p[1:-1]
+        
+        if p and p != 'Other':
+            items.append(p)
+    
+    return items
+
+
+def extract_switch_devices(content: str, section_title: str) -> Dict[str, str]:
+    """
+    Extract device models from IndicatorOnlySwitch patterns within a section.
+    This handles the Elliptical and Rower accordion sections.
+    """
+    devices = {}
+    
+    # Find the section
+    section_pattern = re.escape(section_title)
+    section_matches = list(re.finditer(section_pattern, content, re.IGNORECASE))
+    
+    if not section_matches:
+        logger.warning(f"Section not found: {section_title}")
+        return devices
+    
+    for section_match in section_matches:
+        # Extract a reasonable window around the section
+        start = section_match.start()
+        # Find the next major section or use a fixed window
+        window_end = min(start + 5000, len(content))
+        window = content[start:window_end]
+        
+        # Find all IndicatorOnlySwitch blocks
+        switch_pattern = r'IndicatorOnlySwitch\s*\{[^}]*text:\s*qsTr\("([^"]+)"\)[^}]*checked:\s*settings\.([a-z_0-9]+)[^}]*\}'
+        
+        for match in re.finditer(switch_pattern, window, re.DOTALL):
+            display_name = match.group(1)
+            device_id = match.group(2)
+            
+            if not is_noise_model(display_name):
+                devices[display_name] = device_id
+                logger.debug(f"Found switch device: {display_name} -> {device_id}")
+    
+    return devices
+
+
+def parse_combobox_with_mapping(content: str, combo_id: str) -> Dict[str, str]:
+    """
+    Enhanced ComboBox parser that extracts both the model array and 
+    the corresponding settings property mappings.
+    """
+    devices = {}
+    
+    # Find the ComboBox definition
+    combo_pattern = rf'id:\s*{re.escape(combo_id)}.*?model:\s*\[(.*?)\]'
+    combo_match = re.search(combo_pattern, content, re.DOTALL)
+    
+    if not combo_match:
+        logger.warning(f"ComboBox not found: {combo_id}")
+        return devices
+    
+    # Extract model array
+    model_array = combo_match.group(1)
+    model_items = parse_inline_model_array(model_array)
+    
+    logger.info(f"Found {len(model_items)} items in {combo_id} model array")
+    
+    # Find the initializeModel function
+    init_pattern = rf'function\s+initializeModel\(\)\s*\{{.*?var\s+selectedModel\s*=\s*(.*?);'
+    init_match = re.search(init_pattern, content[combo_match.end():combo_match.end()+5000], re.DOTALL)
+    
+    if init_match:
+        # Parse the ternary chain to map indices to setting IDs
+        ternary_chain = init_match.group(1)
+        setting_pattern = r'settings\.([a-z_0-9]+)\s*\?\s*(\d+)'
+        
+        index_to_setting = {}
+        for setting_match in re.finditer(setting_pattern, ternary_chain):
+            setting_id = setting_match.group(1)
+            index = int(setting_match.group(2))
+            index_to_setting[index] = setting_id
+        
+        # Match model items to settings
+        for idx, display_name in enumerate(model_items):
+            if display_name == 'Other' or is_noise_model(display_name):
                 continue
-            valm = re.search(r'value\s*[:=]\s*"?([A-Za-z0-9_\-]+)"?', body)
-            val = valm.group(1).strip() if valm else name.lower().replace(' ', '_')
-            items.append((name, val))
-        if lid and items:
-            res[lid] = items
-        idx = end + 1
-    return res
+            
+            device_id = None
+            if idx in index_to_setting:
+                device_id = index_to_setting[idx]
+            else:
+                # Fallback to slugified name
+                device_id = slugify(display_name)
+            
+            devices[display_name] = device_id
+            logger.debug(f"Mapped: {display_name} -> {device_id}")
+    else:
+        # Fallback: use slugified names
+        logger.warning(f"Could not find initializeModel for {combo_id}, using slugified names")
+        for item in model_items:
+            if item != 'Other' and not is_noise_model(item):
+                devices[item] = slugify(item)
+    
+    return devices
 
-def main():
-    content = load_file_content(INPUT_FILE)
-    if not content:
-        sys.exit(1)
 
+def is_noise_model(name: Optional[str]) -> bool:
+    """Check if a model name is noise/placeholder."""
+    if not name:
+        return True
+    n = name.strip().lower()
+    return n in ('', 'other', 'none', 'disabled') or len(n) < 2
+
+
+def slugify(name: str) -> str:
+    """Convert display name to setting ID format."""
+    s = re.sub(r'[^A-Za-z0-9]+', '_', name).strip('_').lower()
+    return s or 'model'
+
+
+def _name_score(name: str) -> int:
+    """Score a name for quality (prefer longer, more descriptive names)."""
+    if not name:
+        return 0
+    s = name.strip()
+    alpha = sum(c.isalpha() for c in s)
+    digits = sum(c.isdigit() for c in s)
+    non_alnum = sum(1 for c in s if not (c.isalnum() or c.isspace()))
+    spaces = s.count(' ')
+    return alpha * 3 + spaces * 5 + len(s) - digits * 2 - non_alnum * 4
+
+
+def build_config_from_content(content: str, verbose: bool = False) -> configparser.ConfigParser:
+    """
+    Build the configuration by parsing the QML content.
+    Uses multiple parsing strategies for robustness.
+    """
     config = configparser.ConfigParser()
-    config.optionxform = str
-
-    print("Parsing QML file...")
-
-    verbose = '--verbose' in sys.argv or '-v' in sys.argv
-
-    def vprint(*args, **kwargs):
-        if verbose:
-            print(*args, **kwargs)
-
-    bikes = parse_combobox_logic(content, "bikeModelComboBox")
-    vprint(f"Parsed bikes: {len(bikes)} items")
-    treadmills = parse_combobox_logic(content, "treadmillModelComboBox")
-    vprint(f"Parsed treadmills: {len(treadmills)} items")
-    ellipticals = parse_accordion_switches(content, "Elliptical Options")
-    vprint(f"Parsed ellipticals: {len(ellipticals)} items")
-    rowers = parse_accordion_switches(content, "Rower Options")
-    vprint(f"Parsed rowers: {len(rowers)} items")
-
-    # Manual overrides for specific Rower/Elliptical items if regex missed complex nesting
-    if "Proform Sport RL" not in rowers and "proform_rower_sport_rl" in content:
-        rowers["Proform Sport RL"] = "proform_rower_sport_rl"
-    if "Proform 750R" not in rowers and "proform_rower_750r" in content:
-        rowers["Proform 750R"] = "proform_rower_750r"
-
-    if verbose:
-        # Print any nearby contexts where these manual variables appear to help diagnosis
-        for var in ("proform_rower_sport_rl", "proform_rower_750r"):
-            pos = content.find(var)
-            if pos != -1:
-                start = max(0, pos-80)
-                end = min(len(content), pos+80)
-                snippet = content[start:end].replace('\n', ' ')
-                print(f"Found variable '{var}' near:\n...{snippet}...\n")
-
+    config.optionxform = str  # Preserve case
+    
+    # Parse bikes
+    logger.info("Parsing bike models...")
+    bikes = parse_combobox_with_mapping(content, "bikeModelComboBox")
+    logger.info(f"Found {len(bikes)} bike models")
+    
+    # Parse treadmills
+    logger.info("Parsing treadmill models...")
+    treadmills = parse_combobox_with_mapping(content, "treadmillModelComboBox")
+    logger.info(f"Found {len(treadmills)} treadmill models")
+    
+    # Parse ellipticals
+    logger.info("Parsing elliptical models...")
+    ellipticals = extract_switch_devices(content, "Elliptical Options")
+    
+    # Add known elliptical devices from KNOWN_DEVICE_IDS
+    for device_id, display_name in KNOWN_DEVICE_IDS.items():
+        if any(kw in device_id.lower() for kw in ['elliptical', 'ellipt']):
+            if display_name not in ellipticals:
+                ellipticals[display_name] = device_id
+    
+    logger.info(f"Found {len(ellipticals)} elliptical models")
+    
+    # Parse rowers
+    logger.info("Parsing rower models...")
+    rowers = extract_switch_devices(content, "Rower Options")
+    
+    # Add known rower devices
+    for device_id, display_name in KNOWN_DEVICE_IDS.items():
+        if any(kw in device_id.lower() for kw in ['rower', 'row']):
+            if display_name not in rowers:
+                rowers[display_name] = device_id
+    
+    # Add FTMS and CSAFE rowers explicitly
+    rowers["Concept2 (CSAFE/PM3/PM4)"] = "csafe_rower_enabled"
+    rowers["FTMS Generic"] = "ftms_rower_enabled"
+    
+    logger.info(f"Found {len(rowers)} rower models")
+    
+    # Build config sections
     config["Bike"] = {k: v for k, v in sorted(bikes.items())}
     config["Treadmill"] = {k: v for k, v in sorted(treadmills.items())}
     config["Elliptical"] = {k: v for k, v in sorted(ellipticals.items())}
     config["Rower"] = {k: v for k, v in sorted(rowers.items())}
     
-    # Add generic flags for Rowers manually as they are often logic-based in QZ
-    config["Rower"]["Concept2 (CSAFE/PM3/PM4)"] = "csafe_rower_enabled"
-    config["Rower"]["FTMS Generic"] = "ftms_rower_enabled"
-
-    # Deduplicate entries by device id: keep the first display name seen for each id
-    def name_score(name: str) -> int:
-        # Prefer longer, multi-word, alphabetic names and penalize punctuation/digits
-        if not name:
-            return 0
-        s = name.strip()
-        alpha = sum(c.isalpha() for c in s)
-        digits = sum(c.isdigit() for c in s)
-        non_alnum = sum(1 for c in s if not (c.isalnum() or c.isspace()))
-        spaces = s.count(' ')
-        # weights tuned to prefer cleaner readable names
-        return alpha * 3 + spaces * 5 + len(s) - digits * 2 - non_alnum * 4
-
+    # Deduplicate by device_id (keep best name)
     for section in list(config.keys()):
         id_to_best_name = {}
-        # iterate in original order to bias toward earlier entries when scores tie
         for display_name, device_id in config[section].items():
             if device_id not in id_to_best_name:
                 id_to_best_name[device_id] = display_name
             else:
                 existing = id_to_best_name[device_id]
-                if name_score(display_name) > name_score(existing):
+                if _name_score(display_name) > _name_score(existing):
                     id_to_best_name[device_id] = display_name
-
-        # rebuild section mapping using preferred names
+        
         new_section = {}
         for device_id, best_name in id_to_best_name.items():
             new_section[best_name] = device_id
         config[section] = new_section
+    
+    return config
 
-    # ------------------------------------------------------------------
-    # Global scan: pick up any inline `model: [ ... ]` arrays or ListModel
-    # blocks not tied to the known combobox ids. This ensures new models
-    # added to settings.qml are captured automatically.
-    # ------------------------------------------------------------------
-    def guess_section_from_id(identifier, context_chunk=''):
-        id_low = (identifier or '').lower()
-        ctx = (context_chunk or '').lower()
-        if 'treadmill' in id_low or 'treadmill' in ctx or 'treadmill' in id_low:
-            return 'Treadmill'
-        if 'bike' in id_low or 'bikes' in ctx or 'bike' in id_low or 'bike' in ctx:
-            return 'Bike'
-        if 'ellipt' in id_low or 'elliptical' in ctx:
-            return 'Elliptical'
-        if 'rower' in id_low or 'rowers' in ctx or 'rower' in id_low:
-            return 'Rower'
-        return None
 
-    def parse_inline_model_array(array_text):
-        # Split respecting quotes
-        items = []
-        for item in re.split(r',\s*(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)', array_text):
-            it = item.strip().strip('"').strip("'")
-            if it:
-                items.append(it)
-        return items
-
-    # find all model: [ ... ] occurrences across file
-    for m in re.finditer(r'model\s*:\s*\[(.*?)\]', content, re.DOTALL):
-        arr_body = m.group(1)
-        # search backward a small window to find an id or label to guess section
-        start = max(0, m.start() - 400)
-        context = content[start:m.start()]
-        idm = re.search(r'id\s*:\s*([A-Za-z0-9_]+)', context)
-        identifier = idm.group(1) if idm else None
-        section = guess_section_from_id(identifier, context)
-        items = parse_inline_model_array(arr_body)
-        # If we couldn't guess a section from id/context, use heuristics
-        if not section:
-            inferred = infer_section_from_model_content(items, context, content[m.end():m.end()+400])
-            if inferred:
-                section = inferred
-            else:
-                if verbose:
-                    log_unassigned_array_context(items, m.start(), content)
-        if section:
-            for name in items:
-                if section not in config:
-                    config[section] = {}
-                if name == 'Other' or is_noise_model(name):
-                    continue
-                if name not in config[section]:
-                    # create slug id and avoid collisions
-                    slug = re.sub(r"[^A-Za-z0-9]+", '_', name).strip('_').lower()
-                    base = slug
-                    i = 1
-                    while slug in config[section].values():
-                        slug = f"{base}_{i}"; i += 1
-                    config[section][name] = slug
-
-    # Also include any ListModel entries found globally (using build_listmodel_index)
-    lm_index = build_listmodel_index(content)
-    for lid, items in lm_index.items():
-        # find where lid is referenced to guess section
-        refpos = content.find(lid)
-        section = None
-        if refpos != -1:
-            start = max(0, refpos - 400)
-            context = content[start:refpos]
-            section = guess_section_from_id(lid, context)
-        if not section:
-            # try to infer from nearby words
-            section = 'Bike' if 'bike' in lid.lower() else None
-        if not section:
-            continue
-        if section not in config:
-            config[section] = {}
-        for name, val in items:
-            if is_noise_model(name):
-                continue
-            if name not in config[section]:
-                # avoid collisions
-                candidate = val
-                base = candidate
-                i = 1
-                while candidate in config[section].values():
-                    candidate = f"{base}_{i}"; i += 1
-                config[section][name] = candidate
-
-    with open(OUTPUT_FILE, 'w') as configfile:
-        configfile.write(f"; Devices configuration generated from {INPUT_FILE}\n")
-        config.write(configfile)
-
-    # Also write a copy into the repository's `src` folder (helpful when the script
-    # is run from repo root vs its own directory). This ensures `src/devices.ini`
-    # is updated.
+def write_outputs(config: configparser.ConfigParser, content_source: str, verbose: bool = False):
+    """
+    Write output files with error handling for Docker environments.
+    """
+    outputs_written = []
+    
+    # Write primary output
+    try:
+        with open(OUTPUT_FILE, 'w', encoding='utf-8') as configfile:
+            configfile.write(f"; Devices configuration generated from {content_source}\n")
+            config.write(configfile)
+        logger.info(f"✓ Written: {OUTPUT_FILE}")
+        outputs_written.append(OUTPUT_FILE)
+    except Exception as e:
+        logger.error(f"Failed to write {OUTPUT_FILE}: {e}")
+    
+    # Try alternate locations
     script_dir = os.path.dirname(os.path.abspath(__file__))
     repo_src_dir = os.path.abspath(os.path.join(script_dir, '..', '..'))
     alt_path = os.path.join(repo_src_dir, 'devices.ini')
+    
     try:
-        with open(alt_path, 'w') as f2:
-            f2.write(f"; Devices configuration generated from {INPUT_FILE}\n")
+        with open(alt_path, 'w', encoding='utf-8') as f2:
+            f2.write(f"; Devices configuration generated from {content_source}\n")
             config.write(f2)
-        print(f"Wrote additional devices.ini: {alt_path}")
-    except Exception:
-        pass
-
-    print(f"Done! Generated {OUTPUT_FILE}")
-    print(f"- {len(bikes)} Bikes")
-    print(f"- {len(treadmills)} Treadmills")
-    print(f"- {len(ellipticals)} Ellipticals")
-    print(f"- {len(rowers)} Rowers")
-
-    # Write optimized JSON cache
+        logger.info(f"✓ Written: {alt_path}")
+        outputs_written.append(alt_path)
+    except Exception as e:
+        logger.debug(f"Could not write to {alt_path}: {e}")
+    
+    # Generate JSON cache
     flat_menu = []
     idx = 0
     for section in config.sections():
         for display_name, device_id in config.items(section):
             line = f"{display_name:<40} [{section}]"
-            width = len(line)
             flat_menu.append({
                 'line': line,
-                'width': width,
+                'width': len(line),
                 'name': display_name,
                 'id': device_id,
                 'category': section,
                 'index': idx,
             })
             idx += 1
-
-    cache = {'version': '1.0', 'total_devices': idx, 'flat_menu': flat_menu}
+    
+    cache = {
+        'version': '1.0',
+        'total_devices': idx,
+        'flat_menu': flat_menu
+    }
+    
     out_json = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'devices_optimized.json')
-    with open(out_json, 'w', encoding='utf-8') as jf:
-        json.dump(cache, jf, separators=(',', ':'))
-    print(f"Wrote optimized JSON cache: {out_json} ({idx} items)")
-    # Also write per-section flat cache files for fast shell consumption
+    try:
+        with open(out_json, 'w', encoding='utf-8') as jf:
+            json.dump(cache, jf, separators=(',', ':'), indent=2)
+        logger.info(f"✓ Written: {out_json} ({idx} devices)")
+        outputs_written.append(out_json)
+    except Exception as e:
+        logger.error(f"Failed to write {out_json}: {e}")
+    
+    # Generate per-section caches
     cache_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.menu_cache')
     try:
         os.makedirs(cache_dir, exist_ok=True)
-        # Build per-section lists
         per_section = {}
         for it in flat_menu:
             sec = it.get('category', 'Other')
             per_section.setdefault(sec, []).append(it)
-
+        
         for sec, items in per_section.items():
             fname = os.path.join(cache_dir, f"{sec}.cache")
             with open(fname, 'w', encoding='utf-8') as fh:
                 for it in items:
-                    # store as: name <US> id <US> width (width is name-length for fast rendering)
-                    name = it.get('name','')
-                    idv = it.get('id','')
+                    name = it.get('name', '')
+                    idv = it.get('id', '')
                     width = len(name)
                     fh.write(f"{name}\x1f{idv}\x1f{width}\n")
-        print(f"Wrote per-section menu caches to: {cache_dir}")
-    except Exception:
-        pass
+        logger.info(f"✓ Written per-section caches to: {cache_dir}")
+    except Exception as e:
+        logger.warning(f"Could not write section caches: {e}")
+    
+    # Summary
     if verbose:
-        print('\nSummary by section:')
+        logger.info('\n=== Summary by Section ===')
         for section in config.sections():
-            print(f"- {section}: {len(config[section])} entries")
+            logger.info(f"  {section}: {len(config[section])} devices")
+        logger.info(f"\nTotal outputs written: {len(outputs_written)}")
 
-        # Report any model arrays we found but couldn't assign a section for
-        unassigned = []
-        for m in re.finditer(r'model\s*:\s*\[(.*?)\]', content, re.DOTALL):
-            start = m.start()
-            # if no nearby id or hint that maps to a known section, note it
-            ctx = content[max(0, start-120):start]
-            if not re.search(r'(bike|treadmill|ellipt|rower)', ctx, re.IGNORECASE):
-                arr = m.group(1).strip().split('\n')[0][:120]
-                unassigned.append(arr)
-        if unassigned:
-            print('\nUnassigned model arrays (sample):')
-            for s in unassigned[:10]:
-                print(f"  {s.strip()}")
 
-if __name__ == "__main__":
+def validate_config(config: configparser.ConfigParser) -> bool:
+    """Validate the generated configuration."""
+    if not config.sections():
+        logger.error("Configuration is empty!")
+        return False
+    
+    total_devices = sum(len(config[section]) for section in config.sections())
+    if total_devices == 0:
+        logger.error("No devices found in configuration!")
+        return False
+    
+    # Check for minimum expected devices
+    min_expected = {
+        'Bike': 10,
+        'Treadmill': 20,
+        'Elliptical': 3,
+        'Rower': 2,
+    }
+    
+    for section, min_count in min_expected.items():
+        if section in config:
+            count = len(config[section])
+            if count < min_count:
+                logger.warning(f"Section '{section}' has only {count} devices (expected at least {min_count})")
+        else:
+            logger.warning(f"Section '{section}' is missing!")
+    
+    logger.info(f"✓ Validation passed: {total_devices} total devices")
+    return True
+
+
+def health_check() -> bool:
+    """
+    Health check for Docker and monitoring systems.
+    Returns True if the script can find and load a QML file.
+    """
+    try:
+        content = load_file_content()
+        if content and len(content) > 1000:
+            logger.info("✓ Health check passed")
+            return True
+        logger.error("✗ Health check failed: file too small or empty")
+        return False
+    except Exception as e:
+        logger.error(f"✗ Health check failed: {e}")
+        return False
+
+
+def main():
+    """Main entry point."""
+    # Handle health check
+    if '--health' in sys.argv:
+        sys.exit(0 if health_check() else 1)
+    
+    verbose = '--verbose' in sys.argv or '-v' in sys.argv
+    
+    if verbose:
+        logger.setLevel(logging.DEBUG)
+    
+    logger.info("=" * 60)
+    logger.info("QML Device Configuration Generator")
+    logger.info("=" * 60)
+    
+    # Load content
+    content = load_file_content(INPUT_FILE)
+    if not content:
+        logger.error("FAILED: No settings QML file found")
+        logger.error("Please provide the settings.qml file path as an argument")
+        logger.error("or place it in one of the expected locations.")
+        sys.exit(1)
+    
+    logger.info(f"Loaded QML content: {len(content)} bytes")
+    
+    # Parse and build config
+    try:
+        config = build_config_from_content(content, verbose=verbose)
+    except Exception as e:
+        logger.error(f"FAILED during parsing: {e}", exc_info=True)
+        sys.exit(1)
+    
+    # Validate
+    if not validate_config(config):
+        logger.error("FAILED: Configuration validation failed")
+        sys.exit(1)
+    
+    # Write outputs
+    try:
+        write_outputs(config, INPUT_FILE or '<auto-detected>', verbose=verbose)
+    except Exception as e:
+        logger.error(f"FAILED during output: {e}", exc_info=True)
+        sys.exit(1)
+    
+    logger.info("=" * 60)
+    logger.info("✓ SUCCESS: Device configuration generated")
+    logger.info("=" * 60)
+
+
+if __name__ == '__main__':
     main()
