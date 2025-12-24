@@ -71,18 +71,21 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
     bool fit_file_garmin_device_training_effect = settings.value(QZSettings::fit_file_garmin_device_training_effect, QZSettings::default_fit_file_garmin_device_training_effect).toBool();
     int fit_file_garmin_device_training_effect_device = settings.value(QZSettings::fit_file_garmin_device_training_effect_device, QZSettings::default_fit_file_garmin_device_training_effect_device).toInt();
+    bool is_zwift_device = (fit_file_garmin_device_training_effect_device == 99999);
     fit::FileIdMesg fileIdMesg; // Every FIT file requires a File ID message
     fileIdMesg.SetType(FIT_FILE_ACTIVITY);
     if(bluetooth_device_name.toUpper().startsWith("DOMYOS"))
         fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DECATHLON);
     else {
-        if(fit_file_garmin_device_training_effect)
+        if(is_zwift_device)
+            fileIdMesg.SetManufacturer(FIT_MANUFACTURER_ZWIFT);
+        else if(fit_file_garmin_device_training_effect)
             fileIdMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
         else
             fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
     }
-    if(fit_file_garmin_device_training_effect) {
-        fileIdMesg.SetProduct(fit_file_garmin_device_training_effect_device);
+    if(fit_file_garmin_device_training_effect || is_zwift_device) {
+        fileIdMesg.SetProduct(is_zwift_device ? 3288 : fit_file_garmin_device_training_effect_device);
         fileIdMesg.SetSerialNumber(3313379353);
     } else {
         fileIdMesg.SetProduct(1);
@@ -108,7 +111,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
     fit::DeviceInfoMesg deviceInfoMesg;
     deviceInfoMesg.SetDeviceIndex(FIT_DEVICE_INDEX_CREATOR);
-    if(fit_file_garmin_device_training_effect) {
+    if(is_zwift_device) {
+        deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_ZWIFT);
+        deviceInfoMesg.SetSerialNumber(3313379353);
+        deviceInfoMesg.SetProduct(3288);
+        deviceInfoMesg.SetSoftwareVersion(21.19);
+    } else if(fit_file_garmin_device_training_effect) {
         deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
         deviceInfoMesg.SetSerialNumber(3313379353);
         deviceInfoMesg.SetProduct(fit_file_garmin_device_training_effect_device);

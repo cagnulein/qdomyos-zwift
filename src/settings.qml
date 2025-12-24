@@ -6746,7 +6746,8 @@ import Qt.labs.platform 1.1
                             "VenuSq Music (3596)",
                             "Vivoactive 3 (2700)",
                             "Vivoactive 4 Small (3224)",
-                            "Vivoactive 4 Large (3225)"
+                            "Vivoactive 4 Large (3225)",
+                            "Zwift (3288)"
                         ]
                         currentIndex: {
                             if (settings.fit_file_garmin_device_training_effect_device === 2909) return 0;  // Edge 130
@@ -6787,6 +6788,7 @@ import Qt.labs.platform 1.1
                             if (settings.fit_file_garmin_device_training_effect_device === 2700) return 35; // Vivoactive 3
                             if (settings.fit_file_garmin_device_training_effect_device === 3224) return 36; // Vivoactive 4 Small
                             if (settings.fit_file_garmin_device_training_effect_device === 3225) return 37; // Vivoactive 4 Large
+                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 38; // Zwift
                             return 6; // Default to Edge 830
                         }
                         onCurrentIndexChanged: {
@@ -6829,6 +6831,7 @@ import Qt.labs.platform 1.1
                                 case 35: settings.fit_file_garmin_device_training_effect_device = 2700; break; // Vivoactive 3
                                 case 36: settings.fit_file_garmin_device_training_effect_device = 3224; break; // Vivoactive 4 Small
                                 case 37: settings.fit_file_garmin_device_training_effect_device = 3225; break; // Vivoactive 4 Large
+                                case 38: settings.fit_file_garmin_device_training_effect_device = 99999; break; // Zwift
                             }
                         }
                         Layout.fillWidth: true
