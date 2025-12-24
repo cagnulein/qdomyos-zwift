@@ -65,22 +65,17 @@ RUN python3 -m venv /opt/ant_venv && \
 WORKDIR /app
 COPY . .
 
-# Generate devices.ini for distribution if QML source is present. This is
-# best-effort: if generation fails we fall back to any existing devices.ini
-# checked into the repo so the build does not break.
-RUN if [ -f src/setting.qml ]; then \
-            # Run the generator (from project root) if the project's QML is present
-            python3 src/devices/antlinux/generate_devices.py || true; \
+# Generate devices.ini from QML source file
+# The parser creates devices.ini directly in src/ and outputs JSON cache files.
+# If the QML file is not found, create an empty devices.ini to prevent build failure.
+RUN if [ -f src/settings.qml ]; then \
+            echo "Generating devices.ini from settings.qml..."; \
+            cd /app && \
+            python3 src/devices/antlinux/generate_devices.py src/settings.qml && \
+            echo "✓ devices.ini generated successfully"; \
         else \
-            echo "No setting.qml found; keeping checked-in devices.ini if present."; \
-        fi && \
-        # If generator wrote into src/devices/antlinux/devices.ini, normalize
-        # it to src/devices.ini so the final COPY can reference a single path.
-        if [ ! -f src/devices.ini ] && [ -f src/devices/antlinux/devices.ini ]; then \
-            cp src/devices/antlinux/devices.ini src/devices.ini; \
-        fi && \
-        # Ensure a devices.ini exists so the final image copy step doesn't fail
-        if [ ! -f src/devices.ini ]; then \
+            echo "⚠ Warning: No QML settings file found"; \
+            echo "Creating empty devices.ini to prevent build failure"; \
             touch src/devices.ini; \
         fi
 
@@ -134,7 +129,7 @@ COPY src/devices/antlinux/setup.sh /qdomyos-zwift-arm64-ant/
 COPY src/devices/antlinux/test_ant.py /qdomyos-zwift-arm64-ant/
 COPY src/devices/antlinux/ant_broadcaster.py /qdomyos-zwift-arm64-ant/
 COPY src/devices/antlinux/README.md /qdomyos-zwift-arm64-ant/
-COPY --from=builder /app/src/devices/antlinux/devices.ini /qdomyos-zwift-arm64-ant/devices.ini
+COPY --from=builder /app/src/devices.ini /qdomyos-zwift-arm64-ant/devices.ini
 RUN chmod +x /qdomyos-zwift-arm64-ant/qdomyos-zwift && \
     chmod +x /qdomyos-zwift-arm64-ant/setup.sh
 
