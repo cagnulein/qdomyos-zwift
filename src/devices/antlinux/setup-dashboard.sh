@@ -352,6 +352,63 @@ enter_ui_mode() {
     trap 'immediate_exit' SIGINT SIGTERM
 }
 
+# -----------------
+# Input forwarder
+# -----------------
+# Start a background process that forwards keystrokes from /dev/tty into
+# a named pipe so the main script can read them non-blocking from a FD.
+start_input_forwarder() {
+    INPUT_FIFO="${TEMP_DIR:-/tmp}/qz_input_fifo_$$"
+    INPUT_FWD_PID=""
+    # Create FIFO
+    mkdir -p "$(dirname "$INPUT_FIFO")" 2>/dev/null || true
+    rm -f "$INPUT_FIFO" 2>/dev/null || true
+    if ! mkfifo "$INPUT_FIFO" 2>/dev/null; then
+        : > "$INPUT_FIFO" 2>/dev/null || true
+    fi
+
+    # Launch forwarder: read raw bytes from /dev/tty and write to the FIFO
+    ( while IFS= read -rn1 ch </dev/tty 2>/dev/null; do printf '%s' "$ch"; done > "$INPUT_FIFO" ) &
+    INPUT_FWD_PID=$!
+
+    # Open FIFO for reading on FD 7
+    exec 7<"$INPUT_FIFO" 2>/dev/null || true
+    INPUT_FD=7
+}
+
+stop_input_forwarder() {
+    if [[ -n "$INPUT_FWD_PID" ]]; then
+        kill "$INPUT_FWD_PID" 2>/dev/null || true
+        wait "$INPUT_FWD_PID" 2>/dev/null || true
+        INPUT_FWD_PID=""
+    fi
+    if [[ -n "$INPUT_FD" ]]; then
+        exec {INPUT_FD}>&- 2>/dev/null || true
+        unset INPUT_FD
+    fi
+    [[ -n "$INPUT_FIFO" ]] && rm -f "$INPUT_FIFO" 2>/dev/null || true
+}
+
+# Read a single key into the provided variable name (or KEY by default).
+# Usage: read_key [timeout_seconds] [varname]
+read_key() {
+    local timeout="$1"
+    local varname="${2:-KEY}"
+    if [[ -n "$INPUT_FD" ]]; then
+        if [[ -n "$timeout" ]]; then
+            if read -u "$INPUT_FD" -rsn1 -t "$timeout" "$varname" 2>/dev/null; then return 0; else return 1; fi
+        else
+            IFS= read -u "$INPUT_FD" -rsn1 "$varname" 2>/dev/null || return 1
+        fi
+    else
+        if [[ -n "$timeout" ]]; then
+            if read -rsn1 -t "$timeout" "$varname" </dev/tty 2>/dev/null; then return 0; else return 1; fi
+        else
+            IFS= read -rsn1 "$varname" </dev/tty 2>/dev/null || return 1
+        fi
+    fi
+}
+
 exit_ui_mode() {
     # Decrement nesting count; only restore on transition to zero
     if [ -z "${UI_MODE_COUNT:-}" ] || [ "$UI_MODE_COUNT" -le 0 ]; then
@@ -1080,6 +1137,16 @@ get_vis_width() {
         stripped=$(strip_ansi_pure "$text" | tr -d $'\r\n')
     fi
 
+    # Fast ASCII-only path: avoid spawning external programs for common
+    # printable-ASCII strings. For ASCII, character count equals terminal
+    # column width.
+    if [[ "$stripped" =~ ^[\x20-\x7E]*$ ]]; then
+        local width=${#stripped}
+        DISPLAY_CACHE["$text"]="${stripped}|${width}"
+        echo "$width"
+        return 0
+    fi
+
     local width
     if command -v perl >/dev/null 2>&1; then
         width=$(printf '%s' "$stripped" | perl -CS -Mutf8 -0777 -ne '
@@ -1500,8 +1567,11 @@ draw_error_screen() {
         # Wait for a single keypress without showing the cursor to avoid
         # a flashing cursor in the footer area. Keep UI mode active so the
         # rendered error panel remains visible and consistent.
+        # Prefer the input forwarder when available for non-blocking reads
+        start_input_forwarder 2>/dev/null || true
         local k
-        IFS= read -rsn1 k 2>/dev/null || true
+        read_key  k || true
+        stop_input_forwarder 2>/dev/null || true
     fi
 
     # Clear the error area after dismiss
@@ -1571,8 +1641,10 @@ show_legend_popup() {
 
     draw_bottom_border "Press any key to continue"
     # Wait for any single keypress (read from controlling TTY)
+    start_input_forwarder 2>/dev/null || true
     local k
-    IFS= read -rsn1 k </dev/tty 2>/dev/null || true
+    read_key  k || true
+    stop_input_forwarder 2>/dev/null || true
 
     clear_info_area
     exit_ui_mode
@@ -3643,12 +3715,15 @@ show_scrollable_menu() {
             printf '%s' "$render_buffer" >&${UI_FD:-2}
         # atomic render complete
 
-        # 7. Input handling (unchanged)
+        # 7. Input handling (use read_key wrapper)
+        start_input_forwarder 2>/dev/null || true
         local key=""
-        IFS= read -rsn1 key </dev/tty 2>/dev/null || true
+        read_key  key || true
         if [[ $key == $'\x1b' ]]; then
-            read -rsn2 -t 0.06 k2 </dev/tty 2>/dev/null || true
-            if [[ -z "$k2" ]]; then read -rsn1 -t 0.02 k3 </dev/tty 2>/dev/null || true; fi
+            # attempt to read the remaining sequence from input forwarder
+            local k2 k3
+            read_key 0.06 k2 || true
+            if [[ -z "$k2" ]]; then read_key 0.02 k3 || true; fi
             local seq="${k2}${k3:-}"
             case "${seq:-}" in
                 '[A'|"[A") ((selected--)) ;; 
