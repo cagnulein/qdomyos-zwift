@@ -29,6 +29,7 @@
 #include <QDir>
 #include <QProcess>
 #include <QStandardPaths>
+#include <QMutex>
 #include <chrono>
 #include <cmath>
 #include <string>
@@ -67,6 +68,17 @@ inline int estimateCadence(double speed_kmh) noexcept {
 }
 
 QString getVenvSitePackages() {
+    // Cache the resolved venv site-packages path to avoid spawning a Python
+    // subprocess on every initialization. Use a mutex for thread-safety.
+    static QString cachedPath;
+    static bool pathResolved = false;
+    static QMutex cacheMutex;
+
+    QMutexLocker locker(&cacheMutex);
+    if (pathResolved) {
+        return cachedPath;
+    }
+
     QByteArray sudoUser = qgetenv("SUDO_USER");
     QByteArray qzUser = qgetenv("QZ_USER");
     QString homePath = (!sudoUser.isEmpty()) ? "/home/" + QString::fromLocal8Bit(sudoUser) :
@@ -84,7 +96,11 @@ QString getVenvSitePackages() {
 
     if (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0) {
         QString sitePackages = QString::fromUtf8(process.readAllStandardOutput()).trimmed();
-        if (!sitePackages.isEmpty()) { return sitePackages; }
+        if (!sitePackages.isEmpty()) {
+            cachedPath = sitePackages;
+            pathResolved = true;
+            return cachedPath;
+        }
     }
     qCritical() << "[ANT+] Failed to determine venv site-packages path.";
     return QString();
