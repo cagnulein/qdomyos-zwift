@@ -923,18 +923,17 @@ void horizontreadmill::update() {
             settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
         update_metrics(!powerReceivedFromPowerSensor, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
-        // T318_ timeout workaround: if we don't receive 2ACD notifications for 5 seconds, set speed to 0 (Issue #4023)
-        if (T318_device && firstDistanceCalculated) {
-            QDateTime now = QDateTime::currentDateTime();
-            qint64 secondsSinceLastNotification = last2ACDNotification.secsTo(now);
-            if (secondsSinceLastNotification >= 5 && Speed.value() > 0) {
-                qDebug() << "T318_ timeout: No 2ACD notification for" << secondsSinceLastNotification << "seconds - setting speed to 0";
-                Speed = 0;
-            }
-        }
-
         if (firstDistanceCalculated) {
             QDateTime now = QDateTime::currentDateTime();
+
+            // T318_ timeout workaround: if we don't receive 2ACD notifications for 5 seconds, set speed to 0 (Issue #4023)
+            if (T318_device) {
+                qint64 secondsSinceLastNotification = last2ACDNotification.secsTo(now);
+                if (secondsSinceLastNotification >= 5 && Speed.value() > 0) {
+                    qDebug() << "T318_ timeout: No 2ACD notification for" << secondsSinceLastNotification << "seconds - setting speed to 0";
+                    Speed = 0;
+                }
+            }
             KCal +=
                 ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
             1.19) *
@@ -1841,9 +1840,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         lastPacket = newValue;
 
         // Update timestamp for T318_ timeout workaround (Issue #4023)
-        if (T318_device) {
-            last2ACDNotification = QDateTime::currentDateTime();
-        }
+        last2ACDNotification = QDateTime::currentDateTime();
 
         // default flags for this treadmill is 84 04
 
