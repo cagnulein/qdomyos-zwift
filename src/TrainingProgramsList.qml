@@ -307,7 +307,7 @@ ColumnLayout {
                     }
                 }
             }
-        }
+
 
         // SplitView handle customization for better touch
 /*
@@ -322,8 +322,7 @@ ColumnLayout {
                 height: parent.height
                 color: Material.color(Material.Grey, Material.Shade600)
             }
-        }*/
-    }
+        }*/    
 
     Button {
         id: searchButton

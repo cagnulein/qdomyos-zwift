@@ -82,6 +82,36 @@ class QZSettings {
     static const QString strava_expires;
     static const QString default_strava_expires;
 
+    static const QString garmin_email;
+    static const QString default_garmin_email;
+
+    static const QString garmin_password;
+    static const QString default_garmin_password;
+
+    static const QString garmin_upload_enabled;
+    static constexpr bool default_garmin_upload_enabled = false;
+
+    static const QString garmin_access_token;
+    static const QString default_garmin_access_token;
+
+    static const QString garmin_refresh_token;
+    static const QString default_garmin_refresh_token;
+
+    static const QString garmin_token_type;
+    static const QString default_garmin_token_type;
+
+    static const QString garmin_expires_at;
+    static constexpr qint64 default_garmin_expires_at = 0;
+
+    static const QString garmin_refresh_token_expires_at;
+    static constexpr qint64 default_garmin_refresh_token_expires_at = 0;
+
+    static const QString garmin_domain;
+    static const QString default_garmin_domain;
+
+    static const QString garmin_last_refresh;
+    static const QString default_garmin_last_refresh;
+
     static const QString intervalsicu_accesstoken;
     static const QString default_intervalsicu_accesstoken;
 
@@ -369,6 +399,12 @@ class QZSettings {
 
     static const QString tile_pace_order;
     static constexpr int default_tile_pace_order = 6;
+
+    static const QString tile_avg_pace_enabled;
+    static constexpr bool default_tile_avg_pace_enabled = false;
+
+    static const QString tile_avg_pace_order;
+    static constexpr int default_tile_avg_pace_order = 76;
 
     static const QString tile_resistance_enabled;
     static constexpr bool default_tile_resistance_enabled = true;
@@ -2716,6 +2752,18 @@ class QZSettings {
      */
     static const QString tile_auto_virtual_shifting_sprint_order;
     static constexpr int default_tile_auto_virtual_shifting_sprint_order = 57;
+
+    /**
+     * @brief Enable negative inclination tile
+     */
+    static const QString tile_negative_inclination_enabled;
+    static constexpr bool default_tile_negative_inclination_enabled = false;
+
+    /**
+     * @brief Order of negative inclination tile
+     */
+    static const QString tile_negative_inclination_order;
+    static constexpr int default_tile_negative_inclination_order = 75;
 
     /**
      * @brief Chart display mode: 0 = both charts, 1 = heart rate only, 2 = power only

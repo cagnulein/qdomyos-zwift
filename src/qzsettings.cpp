@@ -40,6 +40,23 @@ const QString QZSettings::strava_lastrefresh = QStringLiteral("strava_lastrefres
 const QString QZSettings::default_strava_lastrefresh = QStringLiteral("");
 const QString QZSettings::strava_expires = QStringLiteral("strava_expires");
 const QString QZSettings::default_strava_expires = QStringLiteral("");
+const QString QZSettings::garmin_email = QStringLiteral("garmin_email");
+const QString QZSettings::default_garmin_email = QStringLiteral("");
+const QString QZSettings::garmin_password = QStringLiteral("garmin_password");
+const QString QZSettings::default_garmin_password = QStringLiteral("");
+const QString QZSettings::garmin_upload_enabled = QStringLiteral("garmin_upload_enabled");
+const QString QZSettings::garmin_access_token = QStringLiteral("garmin_access_token");
+const QString QZSettings::default_garmin_access_token = QStringLiteral("");
+const QString QZSettings::garmin_refresh_token = QStringLiteral("garmin_refresh_token");
+const QString QZSettings::default_garmin_refresh_token = QStringLiteral("");
+const QString QZSettings::garmin_token_type = QStringLiteral("garmin_token_type");
+const QString QZSettings::default_garmin_token_type = QStringLiteral("");
+const QString QZSettings::garmin_expires_at = QStringLiteral("garmin_expires_at");
+const QString QZSettings::garmin_refresh_token_expires_at = QStringLiteral("garmin_refresh_token_expires_at");
+const QString QZSettings::garmin_domain = QStringLiteral("garmin_domain");
+const QString QZSettings::default_garmin_domain = QStringLiteral("garmin.com");
+const QString QZSettings::garmin_last_refresh = QStringLiteral("garmin_last_refresh");
+const QString QZSettings::default_garmin_last_refresh = QStringLiteral("");
 const QString QZSettings::intervalsicu_accesstoken = QStringLiteral("intervalsicu_accesstoken");
 const QString QZSettings::default_intervalsicu_accesstoken = QStringLiteral("");
 const QString QZSettings::intervalsicu_refreshtoken = QStringLiteral("intervalsicu_refreshtoken");
@@ -119,6 +136,8 @@ const QString QZSettings::tile_odometer_enabled = QStringLiteral("tile_odometer_
 const QString QZSettings::tile_odometer_order = QStringLiteral("tile_odometer_order");
 const QString QZSettings::tile_pace_enabled = QStringLiteral("tile_pace_enabled");
 const QString QZSettings::tile_pace_order = QStringLiteral("tile_pace_order");
+const QString QZSettings::tile_avg_pace_enabled = QStringLiteral("tile_avg_pace_enabled");
+const QString QZSettings::tile_avg_pace_order = QStringLiteral("tile_avg_pace_order");
 const QString QZSettings::tile_resistance_enabled = QStringLiteral("tile_resistance_enabled");
 const QString QZSettings::tile_resistance_order = QStringLiteral("tile_resistance_order");
 const QString QZSettings::tile_watt_enabled = QStringLiteral("tile_watt_enabled");
@@ -999,6 +1018,8 @@ const QString QZSettings::tile_auto_virtual_shifting_climb_enabled = QStringLite
 const QString QZSettings::tile_auto_virtual_shifting_climb_order = QStringLiteral("tile_auto_virtual_shifting_climb_order");
 const QString QZSettings::tile_auto_virtual_shifting_sprint_enabled = QStringLiteral("tile_auto_virtual_shifting_sprint_enabled");
 const QString QZSettings::tile_auto_virtual_shifting_sprint_order = QStringLiteral("tile_auto_virtual_shifting_sprint_order");
+const QString QZSettings::tile_negative_inclination_enabled = QStringLiteral("tile_negative_inclination_enabled");
+const QString QZSettings::tile_negative_inclination_order = QStringLiteral("tile_negative_inclination_order");
 const QString QZSettings::chart_display_mode = QStringLiteral("chart_display_mode");
 const QString QZSettings::calories_active_only = QStringLiteral("calories_active_only");
 const QString QZSettings::calories_from_hr = QStringLiteral("calories_from_hr");
@@ -1009,7 +1030,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 824;
+const uint32_t allSettingsCount = 838;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1033,6 +1054,16 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::strava_refreshtoken, QZSettings::default_strava_refreshtoken},
     {QZSettings::strava_lastrefresh, QZSettings::default_strava_lastrefresh},
     {QZSettings::strava_expires, QZSettings::default_strava_expires},
+    {QZSettings::garmin_email, QZSettings::default_garmin_email},
+    {QZSettings::garmin_password, QZSettings::default_garmin_password},
+    {QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled},
+    {QZSettings::garmin_access_token, QZSettings::default_garmin_access_token},
+    {QZSettings::garmin_refresh_token, QZSettings::default_garmin_refresh_token},
+    {QZSettings::garmin_token_type, QZSettings::default_garmin_token_type},
+    {QZSettings::garmin_expires_at, QZSettings::default_garmin_expires_at},
+    {QZSettings::garmin_refresh_token_expires_at, QZSettings::default_garmin_refresh_token_expires_at},
+    {QZSettings::garmin_domain, QZSettings::default_garmin_domain},
+    {QZSettings::garmin_last_refresh, QZSettings::default_garmin_last_refresh},
     {QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken},
     {QZSettings::intervalsicu_refreshtoken, QZSettings::default_intervalsicu_refreshtoken},
     {QZSettings::intervalsicu_athlete_id, QZSettings::default_intervalsicu_athlete_id},
@@ -1844,6 +1875,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_auto_virtual_shifting_climb_order, QZSettings::default_tile_auto_virtual_shifting_climb_order},
     {QZSettings::tile_auto_virtual_shifting_sprint_enabled, QZSettings::default_tile_auto_virtual_shifting_sprint_enabled},
     {QZSettings::tile_auto_virtual_shifting_sprint_order, QZSettings::default_tile_auto_virtual_shifting_sprint_order},
+    {QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled},
+    {QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order},
     {QZSettings::chart_display_mode, QZSettings::default_chart_display_mode},
     {QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike},
     {QZSettings::calories_active_only, QZSettings::default_calories_active_only},

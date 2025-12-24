@@ -177,6 +177,7 @@ bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
 }
 bool bluetoothdevice::connected() { return false; }
 metric bluetoothdevice::elevationGain() { return elevationAcc; }
+metric bluetoothdevice::negativeElevationGain() { return negativeElevationAcc; }
 void bluetoothdevice::heartRate(uint8_t heart) {
     Heart.setValue(heart);
 #ifdef Q_OS_IOS
@@ -286,6 +287,8 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts, const b
     METS = calculateMETS();
     if (currentInclination().value() > 0)
         elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
+    else if (currentInclination().value() < 0)
+        negativeElevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * fabs(currentInclination().value() / 100.0) * deltaTime;
 
     _lastTimeUpdate = current;
     _firstUpdate = false;
@@ -377,6 +380,7 @@ void bluetoothdevice::clearStats() {
     Heart.clear(false);
     m_jouls.clear(true);
     elevationAcc = 0;
+    negativeElevationAcc = 0;
     m_watt.clear(false);
     m_rawWatt.clear(false);
     WeightLoss.clear(false);
