@@ -68,6 +68,7 @@ class horizontreadmill : public treadmill {
     QByteArray lastPacket;
     QByteArray lastPacketComplete;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime last2ACDNotification = QDateTime::currentDateTime();
     bool firstDistanceCalculated = false;
     uint8_t firstStateChanged = 0;
     double lastSpeed = 0.0;
@@ -115,6 +116,7 @@ class horizontreadmill : public treadmill {
     bool TP1 = false;
     bool T01 = false;
     bool TM4800 = false;
+    bool T318_device = false;
 
     void testProfileCRC();
     void updateProfileCRC();
