@@ -309,7 +309,7 @@ restore_terminal() {
     else
         local ui_fd
         ui_fd=$(get_safe_ui_fd)
-        printf '\033[?25h' >&${ui_fd} 2>/dev/null || true
+        ( printf '\033[?25h' >&${ui_fd} ) 2>/dev/null || true
     fi
     # If TERM_HEIGHT is not yet set, default to 24
     local _th=${TERM_HEIGHT:-24}
@@ -342,7 +342,7 @@ finish_and_exit() {
     else
         local ui_fd
         ui_fd=$(get_safe_ui_fd)
-        printf '\033[?25h' >&${ui_fd} 2>/dev/null || true
+        ( printf '\033[?25h' >&${ui_fd} ) 2>/dev/null || true
     fi
 
     stty echo 2>/dev/null || true
@@ -354,7 +354,7 @@ finish_and_exit() {
     fi
     local ui_fd
     ui_fd=$(get_safe_ui_fd)
-    printf "\033[%d;1H" "$dest_row" >&${ui_fd} 2>/dev/null || true
+    ( printf "\033[%d;1H" "$dest_row" >&${ui_fd} ) 2>/dev/null || true
 
     # Do not call restore_terminal here to avoid its TERM_HEIGHT move.
     exit 0
@@ -372,7 +372,7 @@ immediate_exit() {
     if command -v show_cursor >/dev/null 2>&1; then
         show_cursor || true
     else
-        printf '\033[?25h' >&${UI_FD:-2} 2>/dev/null || true
+        ( printf '\033[?25h' >&${UI_FD:-2} ) 2>/dev/null || true
     fi
     # Move the cursor down to a safe row (row 24) before exiting so the
     # interactive shell prompt does not overwrite the drawn UI area.
@@ -381,7 +381,7 @@ immediate_exit() {
         # Prefer 3 rows below LOG_BOTTOM when available
         dest_row=$(( LOG_BOTTOM + 3 ))
     fi
-    printf "\033[%d;1H" "$dest_row" >&${UI_FD:-2} 2>/dev/null || true
+    ( printf "\033[%d;1H" "$dest_row" >&${UI_FD:-2} ) 2>/dev/null || true
     
     # Exit with the standard 'Interrupted' exit code
     # We un-trap first to prevent a loop if exit itself triggers EXIT
@@ -487,13 +487,13 @@ move_cursor() {
     local c=$(( ${2:-0} + 1 ))
     local ui_fd
     ui_fd=$(get_safe_ui_fd)
-    printf "\033[%d;%dH" "$r" "$c" >&${ui_fd} 2>/dev/null || true
+    ( printf "\033[%d;%dH" "$r" "$c" >&${ui_fd} ) 2>/dev/null || true
 }
 
  
-clear_screen() { local ui_fd; ui_fd=$(get_safe_ui_fd); printf "\033[2J\033[H" >&${ui_fd} 2>/dev/null || true; }
-hide_cursor() { local ui_fd; ui_fd=$(get_safe_ui_fd); printf "\033[?25l" >&${ui_fd} 2>/dev/null || true; }
-show_cursor() { local ui_fd; ui_fd=$(get_safe_ui_fd); printf "\033[?25h" >&${ui_fd} 2>/dev/null || true; }
+clear_screen() { local ui_fd; ui_fd=$(get_safe_ui_fd); ( printf "\033[2J\033[H" >&${ui_fd} ) 2>/dev/null || true; }
+hide_cursor() { local ui_fd; ui_fd=$(get_safe_ui_fd); ( printf "\033[?25l" >&${ui_fd} ) 2>/dev/null || true; }
+show_cursor() { local ui_fd; ui_fd=$(get_safe_ui_fd); ( printf "\033[?25h" >&${ui_fd} ) 2>/dev/null || true; }
 
 # UI mode helpers (reference-counted)
 UI_MODE_COUNT=${UI_MODE_COUNT:-0}
@@ -1088,7 +1088,7 @@ print_at() {
     esc=$(printf '\033[%d;1H' "$((row + 1))")
     # Print cursor position then the literal line string. Use '%s' so
     # printf treats the arguments as data, not format strings.
-    printf '%s%s' "$esc" "$line" >&${UI_FD} 2>/dev/null || true
+    ( printf '%s%s' "$esc" "$line" >&${UI_FD} ) 2>/dev/null || true
     return 0
 }
 
@@ -1100,8 +1100,8 @@ print_at_col() {
     local text="$*"
     local ui_fd
     ui_fd=$(get_safe_ui_fd)
-    printf '\033[%d;%dH' $((row + 1)) $col >&${ui_fd} 2>/dev/null || true
-    printf '%s' "$text" >&${ui_fd} 2>/dev/null || true
+    ( printf '\033[%d;%dH' $((row + 1)) $col >&${ui_fd} ) 2>/dev/null || true
+    ( printf '%s' "$text" >&${ui_fd} ) 2>/dev/null || true
 }
 
 draw_sealed_row() {
@@ -1453,7 +1453,7 @@ draw_hr() {
     # 1. Position cursor at the start of the line
     local ui_fd
     ui_fd=$(get_safe_ui_fd)
-    printf "\033[%d;1H" "$((row + 1))" >&${ui_fd} 2>/dev/null || true
+    ( printf "\033[%d;1H" "$((row + 1))" >&${ui_fd} ) 2>/dev/null || true
 
     # Left/right visual paddings
     local left_pad="═══  "
@@ -1474,7 +1474,7 @@ draw_hr() {
         for ((i=0; i<inner_w; i++)); do fill="${fill}═"; done
         local ui_fd
         ui_fd=$(get_safe_ui_fd)
-        printf '%s%s%s' "${BLUE}" "${left_c}${fill}${right_c}" "${NC}" >&${ui_fd} 2>/dev/null || true
+        ( printf '%s%s%s' "${BLUE}" "${left_c}${fill}${right_c}" "${NC}" >&${ui_fd} ) 2>/dev/null || true
         # Hide cursor for very low rows as before
         if [[ "$row" -ge 22 ]]; then hide_cursor; fi
         return 0
@@ -1525,7 +1525,7 @@ draw_hr() {
         _hr=$(build_hr_string "$row" "$left_c" "$right_c" "$text" "$t_color" "$legend")
         local ui_fd
         ui_fd=$(get_safe_ui_fd)
-        printf '%s' "$_hr" >&${ui_fd} 2>/dev/null || true
+        ( printf '%s' "$_hr" >&${ui_fd} ) 2>/dev/null || true
 
     # 4. For very low rows we only need to hide the cursor; avoid moving
     # the cursor position here as it can interfere with subsequent prints
@@ -1613,7 +1613,7 @@ draw_bottom_border() {
     _foot=$(build_hr_string "$b_row" "╚" "╝" "${BOLD_BLUE}${help_text}${NC}" "")
     local ui_fd
     ui_fd=$(get_safe_ui_fd)
-    printf '%s' "$_foot" >&${ui_fd} 2>/dev/null || true
+    ( printf '%s' "$_foot" >&${ui_fd} ) 2>/dev/null || true
 }
 
 # Clear the info/interactive area between LOG_TOP and LOG_BOTTOM
@@ -1678,7 +1678,7 @@ draw_bottom_panel_header() {
     _hr=$(build_hr_string 11 "╠" "╣" "$title")
     local ui_fd
     ui_fd=$(get_safe_ui_fd)
-    printf '%s' "$_hr" >&${ui_fd} 2>/dev/null || true
+    ( printf '%s' "$_hr" >&${ui_fd} ) 2>/dev/null || true
 }
 
 draw_instructions_bottom() {
@@ -2034,7 +2034,7 @@ prompt_numeric_input() {
         # Move cursor and ensure it is visible
         local ui_fd
         ui_fd=$(get_safe_ui_fd)
-        printf "\033[%d;%dH" "$((row + 1))" "$((cursor_col + 1))" >&${ui_fd} 2>/dev/null || true
+        ( printf "\033[%d;%dH" "$((row + 1))" "$((cursor_col + 1))" >&${ui_fd} ) 2>/dev/null || true
         show_cursor
 
         # 5. CAPTURE RAW BYTE
@@ -2882,8 +2882,8 @@ cleanup_bt_engine() {
     [[ -t 0 ]] && stty echo 2>/dev/null
     local ui_fd
     ui_fd=$(get_safe_ui_fd)
-    printf "\033[?25h" >&${ui_fd} 2>/dev/null || true
-    printf "\033[23;1H\n" >&${ui_fd} 2>/dev/null || true
+    ( printf "\033[?25h" >&${ui_fd} ) 2>/dev/null || true
+    ( printf "\033[23;1H\n" >&${ui_fd} ) 2>/dev/null || true
 }
  
 # Start the Bluetooth scanner engine: create fifo/log, start the background
@@ -3243,7 +3243,7 @@ perform_bluetooth_scan() {
             # Atomic write of all info rows
             local ui_fd
             ui_fd=$(get_safe_ui_fd)
-            printf '%s' "$render_buffer" >&${ui_fd} 2>/dev/null || true
+            ( printf '%s' "$render_buffer" >&${ui_fd} ) 2>/dev/null || true
 
             # Split diagnostics across rows 19/20/21 to avoid truncation
             # Build full raw and dev info then slice into two safe pieces
@@ -3889,7 +3889,7 @@ show_scrollable_menu() {
     render_buffer+=$(build_hr_string "$b_row" "╚" "╝" "$help_text" "${BOLD_BLUE}" "")
     local ui_fd
     ui_fd=$(get_safe_ui_fd)
-    printf '%s' "$render_buffer" >&${ui_fd} 2>/dev/null || true
+    ( printf '%s' "$render_buffer" >&${ui_fd} ) 2>/dev/null || true
 
     local prev_selected=$selected
     local prev_start_idx=$start_idx
@@ -3967,7 +3967,7 @@ show_scrollable_menu() {
             done
             render_buffer+=$(build_hr_string "$b_row" "╚" "╝" "$help_text" "${BOLD_BLUE}" "")
             ui_fd=$(get_safe_ui_fd)
-            printf '%s' "$render_buffer" >&${ui_fd} 2>/dev/null || true
+            ( printf '%s' "$render_buffer" >&${ui_fd} ) 2>/dev/null || true
             prev_start_idx=$start_idx
             prev_selected=$selected
             continue
@@ -3993,7 +3993,7 @@ show_scrollable_menu() {
                 [[ $prev_pad_needed -lt 0 ]] && prev_pad_needed=0
                 local prev_padding
                 prev_padding=$(printf '%*s' "$prev_pad_needed" "")
-                printf "\033[%d;1H${BLUE}║${NC}%s%s${BLUE}║${NC}" "$((prev_row + 1))" "$prev_content" "$prev_padding" >&${ui_fd} 2>/dev/null || true
+                ( printf "\033[%d;1H${BLUE}║${NC}%s%s${BLUE}║${NC}" "$((prev_row + 1))" "$prev_content" "$prev_padding" >&${ui_fd} ) 2>/dev/null || true
             fi
 
             # Select new if visible
@@ -4012,7 +4012,7 @@ show_scrollable_menu() {
                 [[ $new_pad_needed -lt 0 ]] && new_pad_needed=0
                 local new_padding
                 new_padding=$(printf '%*s' "$new_pad_needed" "")
-                printf "\033[%d;1H${BLUE}║${NC}%s%s${BLUE}║${NC}" "$((new_row + 1))" "$new_content" "$new_padding" >&${ui_fd} 2>/dev/null || true
+                ( printf "\033[%d;1H${BLUE}║${NC}%s%s${BLUE}║${NC}" "$((new_row + 1))" "$new_content" "$new_padding" >&${ui_fd} ) 2>/dev/null || true
             fi
 
             prev_selected=$selected
@@ -4137,7 +4137,7 @@ show_scrollable_menu_fast() {
 
     local ui_fd
     ui_fd=$(get_safe_ui_fd)
-    printf '%s' "$render_buffer" >&${ui_fd} 2>/dev/null || true
+    ( printf '%s' "$render_buffer" >&${ui_fd} ) 2>/dev/null || true
     draw_bottom_border "Arrows: Up/Down | Enter: Select"
 
     local prev_selected=$selected
@@ -4207,7 +4207,7 @@ show_scrollable_menu_fast() {
                 fi
             done
             ui_fd=$(get_safe_ui_fd)
-            printf '%s' "$render_buffer" >&${ui_fd} 2>/dev/null || true
+            ( printf '%s' "$render_buffer" >&${ui_fd} ) 2>/dev/null || true
             draw_bottom_border "Arrows: Up/Down | Enter: Select"
             prev_start_idx=$start_idx
             prev_selected=$selected
@@ -4233,7 +4233,7 @@ show_scrollable_menu_fast() {
                 [[ $prev_pad_needed -lt 0 ]] && prev_pad_needed=0
                 local prev_padding
                 prev_padding=$(printf '%*s' "$prev_pad_needed" "")
-                printf "\033[%d;1H${BLUE}║${NC}%s%s${BLUE}║${NC}" "$((prev_row + 1))" "$prev_content" "$prev_padding" >&${ui_fd} 2>/dev/null || true
+                ( printf "\033[%d;1H${BLUE}║${NC}%s%s${BLUE}║${NC}" "$((prev_row + 1))" "$prev_content" "$prev_padding" >&${ui_fd} ) 2>/dev/null || true
             fi
 
             # Select new if visible
@@ -4251,7 +4251,7 @@ show_scrollable_menu_fast() {
                 [[ $new_pad_needed -lt 0 ]] && new_pad_needed=0
                 local new_padding
                 new_padding=$(printf '%*s' "$new_pad_needed" "")
-                printf "\033[%d;1H${BLUE}║${NC}%s%s${BLUE}║${NC}" "$((new_row + 1))" "$new_content" "$new_padding" >&${ui_fd} 2>/dev/null || true
+                ( printf "\033[%d;1H${BLUE}║${NC}%s%s${BLUE}║${NC}" "$((new_row + 1))" "$new_content" "$new_padding" >&${ui_fd} ) 2>/dev/null || true
             fi
 
             prev_selected=$selected
@@ -4584,9 +4584,9 @@ draw_splash_screen() {
     else
         local ui_fd
         ui_fd=$(get_safe_ui_fd)
-        printf '\033[%d;1H' $((start_row + 1)) >&${ui_fd} 2>/dev/null || true
-        printf '%*s%s\n' "$t_pad" "" "$title" >&${ui_fd} 2>/dev/null || true
-        printf '%*s%s\n' "$s_pad" "" "$subtitle" >&${ui_fd} 2>/dev/null || true
+        ( printf '\033[%d;1H' $((start_row + 1)) >&${ui_fd} ) 2>/dev/null || true
+        ( printf '%*s%s\n' "$t_pad" "" "$title" >&${ui_fd} ) 2>/dev/null || true
+        ( printf '%*s%s\n' "$s_pad" "" "$subtitle" >&${ui_fd} ) 2>/dev/null || true
     fi
 }
 
@@ -5167,7 +5167,7 @@ perform_ant_test() {
         # Atomic write of dynamic area
         local ui_fd
         ui_fd=$(get_safe_ui_fd)
-        printf '%s' "$render_buffer" >&${ui_fd} 2>/dev/null || true
+        ( printf '%s' "$render_buffer" >&${ui_fd} ) 2>/dev/null || true
 
         # Non-blocking read for key to allow user to abort
         local key
