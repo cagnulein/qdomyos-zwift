@@ -946,6 +946,41 @@ set_ui_output() {
     UI_FD=2
 }
 
+# Cached UI FD with TTL to avoid repeated filesystem checks on hot paths.
+# This reduces per-render overhead while still allowing the UI to recover
+# when the controlling TTY changes (e.g., sudo, terminal switch).
+_UI_FD_CACHE=""
+_UI_FD_CACHE_TIME=0
+_UI_FD_CACHE_TTL=5
+
+get_safe_ui_fd() {
+    local now age
+    now=$(date +%s)
+    age=$(( now - _UI_FD_CACHE_TIME ))
+    if [[ -n "${_UI_FD_CACHE:-}" && $age -lt $_UI_FD_CACHE_TTL ]]; then
+        echo "${_UI_FD_CACHE}"
+        return 0
+    fi
+
+    local ui_fd=2
+    # Prefer sudo TTY, then /dev/tty, then stdout/stderr
+    if [[ -n "${SUDO_TTY:-}" ]] && [ -w "${SUDO_TTY}" ] 2>/dev/null; then
+        exec 3>"${SUDO_TTY}" 2>/dev/null || true
+        ui_fd=3
+    elif [ -c /dev/tty ] 2>/dev/null && [ -w /dev/tty ] 2>/dev/null; then
+        exec 3>/dev/tty 2>/dev/null || true
+        ui_fd=3
+    elif [ -t 1 ]; then
+        ui_fd=1
+    elif [ -t 2 ]; then
+        ui_fd=2
+    fi
+
+    _UI_FD_CACHE="$ui_fd"
+    _UI_FD_CACHE_TIME=$now
+    echo "$ui_fd"
+}
+
 # Standard dashboard print (Now unbuffered)
 print_at() {
     local row=$1
@@ -956,22 +991,8 @@ print_at() {
     fi
     # Move cursor to Row, Column 1 using centralized helper and print to UI fd
     # (debug logging removed)
-    if [[ -n "${SUDO_TTY:-}" ]] && [ -w "${SUDO_TTY}" ] 2>/dev/null; then
-        exec 3>"${SUDO_TTY}" 2>/dev/null || true
-        UI_FD=3
-    fi
-
-    if [ -c /dev/tty ] 2>/dev/null; then
-        exec 3>/dev/tty 2>/dev/null || true
-        if [ -w /dev/tty ] 2>/dev/null; then
-            UI_FD=3
-        fi
-    fi
-
-    # Fallbacks: prefer stdout if it's a tty, then stderr
-    if [ -t 1 ]; then UI_FD=1; fi
-    if [ -t 2 ] && [ -z "${UI_FD:-}" ]; then UI_FD=2; fi
-    UI_FD=${UI_FD:-2}
+    # Use cached UI FD determination to avoid repeated filesystem checks
+    UI_FD=$(get_safe_ui_fd)
 
     # Compose the line to print (remaining args). Use safe printing to
     # avoid interpreting user-supplied content as printf format strings
@@ -992,8 +1013,10 @@ print_at_col() {
     local col=${2:-1}
     shift 2
     local text="$*"
-    printf '\033[%d;%dH' $((row + 1)) $col >&${UI_FD} 2>/dev/null || true
-    printf '%s' "$text" >&${UI_FD} 2>/dev/null || true
+    local ui_fd
+    ui_fd=$(get_safe_ui_fd)
+    printf '\033[%d;%dH' $((row + 1)) $col >&${ui_fd} 2>/dev/null || true
+    printf '%s' "$text" >&${ui_fd} 2>/dev/null || true
 }
 
 draw_sealed_row() {
