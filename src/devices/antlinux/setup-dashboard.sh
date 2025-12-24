@@ -2128,6 +2128,11 @@ update_config_key() {
     else
         echo "${key}=${value}" >> "$CONFIG_FILE" 2>/dev/null || true
     fi
+    # Keep typed arrays in sync for generated configs
+    # Normalize value for classification (lowercase booleans)
+    local _val_norm
+    _val_norm="${value,,}"
+    classify_and_store "$key" "$_val_norm" || true
 }
 
 prompt_numeric_input() {
@@ -2245,6 +2250,8 @@ configure_user_profile() {
     update_config_key "age" "$new_a"
     
     draw_bottom_panel_header "PROFILE SAVED"
+    # Persist consolidated config to disk from typed arrays
+    generate_config_file "${CONFIG_FILE:-$HOME/.config/qdomyos-zwift/qDomyos-Zwift.conf}" || true
     sleep 1
 }
 
@@ -2407,6 +2414,8 @@ PY
             update_config_key "$selected_key" "true"
             
             draw_bottom_panel_header "EQUIPMENT SAVED"
+            # Persist consolidated config to disk
+            generate_config_file "${CONFIG_FILE:-$HOME/.config/qdomyos-zwift/qDomyos-Zwift.conf}" || true
             sleep 1
             
             return 0
@@ -3456,6 +3465,8 @@ perform_bluetooth_scan() {
             draw_sealed_row $((LOG_TOP + 2)) "   ${GREEN}Device linked successfully!${NC}"
             draw_sealed_row $((LOG_TOP + 4)) "   Name: ${WHITE}$sel_name${NC}"
             draw_sealed_row $((LOG_TOP + 5)) "   Addr: ${GRAY}$sel_mac${NC}"
+            # Persist bluetooth selection into typed arrays and write atomically
+            generate_config_file "${CONFIG_FILE:-$HOME/.config/qdomyos-zwift/qDomyos-Zwift.conf}" || true
             draw_bottom_border ""; sleep 2
             exit_ui_mode; return 0
         fi
