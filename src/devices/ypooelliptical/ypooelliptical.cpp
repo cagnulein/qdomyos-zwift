@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QThread>
 #include <math.h>
@@ -79,7 +80,7 @@ void ypooelliptical::forceInclination(double inclination) {
 
 void ypooelliptical::forceResistance(resistance_t requestResistance) {
 
-    if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS) {
+    if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || TRUE_ELLIPTICAL || FTMS) {
         uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
         write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
         writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write),
@@ -108,7 +109,7 @@ void ypooelliptical::update() {
 
     if (initRequest) {
         initRequest = false;
-        if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS) {
+        if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || TRUE_ELLIPTICAL || FTMS) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write), "requestControl", false, true);
         } else {
@@ -250,7 +251,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE) && !iconsole_elliptical) {
 
-        if(E35 == false && SCH_590E == false && SCH_411_510E == false && KETTLER == false && CARDIOPOWER_EEGO == false && MYELLIPTICAL == false && SKANDIKA == false && DOMYOS == false && FEIER == false && MX_AS == false && FTMS == false) {
+        if(E35 == false && SCH_590E == false && SCH_411_510E == false && KETTLER == false && CARDIOPOWER_EEGO == false && MYELLIPTICAL == false && SKANDIKA == false && DOMYOS == false && FEIER == false && MX_AS == false && TRUE_ELLIPTICAL == false && FTMS == false) {
             if (newvalue.length() == 18) {
                 qDebug() << QStringLiteral("let's wait for the next piece of frame");
                 lastPacket = newvalue;
@@ -270,7 +271,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         index += 3;
 
         if (!Flags.moreData) {
-            if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS) {
+            if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || TRUE_ELLIPTICAL || FTMS) {
                 Speed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                 (uint16_t)((uint8_t)lastPacket.at(index)))) /
                         100.0;
@@ -282,7 +283,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         // this particular device, seems to send the actual speed here
         if (Flags.avgSpeed) {
             // double avgSpeed;
-            if(!E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !FTMS) {
+            if(!E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !TRUE_ELLIPTICAL && !FTMS) {
                 Speed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)lastPacket.at(index)))) /
                     100.0;
@@ -292,7 +293,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.totDistance) {
-            if(!E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !FTMS) {
+            if(!E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !TRUE_ELLIPTICAL && !FTMS) {
                 Distance = ((double)((((uint32_t)((uint8_t)lastPacket.at(index + 2)) << 16) |
                                   (uint32_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                  (uint32_t)((uint8_t)lastPacket.at(index)))) /
@@ -315,6 +316,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                     .startsWith(QStringLiteral("Disabled"))) {
                 double divisor = 1.0;
                 if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)
+                    if(!TRUE_ELLIPTICAL) // TRUE ELLIPTICAL uses actual cadence value
                     divisor = 2.0;
                 Cadence = (((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)lastPacket.at(index))))) / divisor;
@@ -392,6 +394,12 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (Flags.resistanceLvl) {
             Resistance = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)lastPacket.at(index))));
+            
+            // FTMS Spec Compliant Machines (0.1 Resolution, so 50 = 5.0)
+            if(TRUE_ELLIPTICAL) {
+                Resistance = Resistance.value() / 10.0;
+            }
+            
             // emit resistanceRead(Resistance.value());
             index += 2;
             emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
@@ -480,16 +488,28 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                 heartRate((uint8_t)lastPacket.at(23));
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else if (Flags.heartRate && !disable_hr_frommachinery && lastPacket.length() > index) {
-                heartRate((uint8_t)lastPacket.at(index));
-                // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
-                emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+                uint8_t hrValue = (uint8_t)lastPacket.at(index);
+                // 0xFF means heart rate not available/invalid in FTMS
+                if(hrValue != 0xFF) {
+                    heartRate(hrValue);
+                    emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+                } else {
+                    emit debug(QStringLiteral("Heart rate not available from device (0xFF)"));
+                }
             } else {
                 Flags.heartRate = false;
             }
         }
 
         if (Flags.metabolicEq) {
-            // todo
+            // FTMS metabolic equivalent is uint16 with 0.1 resolution
+            if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || TRUE_ELLIPTICAL || FTMS) {
+                uint16_t metabolicValue = ((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                        (uint16_t)((uint8_t)lastPacket.at(index));
+                METS = metabolicValue / 10.0; // Convert from 0.1 resolution to actual METs value
+                emit debug(QStringLiteral("Current METs: ") + QString::number(METS.value()));
+            }
+            index += 2;
         }
 
         if (Flags.elapsedTime) {
@@ -727,7 +747,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
-        (!Flags.heartRate || Heart.value() == 0 || disable_hr_frommachinery)) {
+        (!Flags.heartRate || Heart.value() == 0 || Heart.value() == 0xFF || disable_hr_frommachinery)) {
         update_hr_from_external();
     }    
 
@@ -777,7 +797,7 @@ void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
             qDebug() << "skipping service" << s->serviceUuid();
             continue;
         }
-        else if(s->serviceUuid() != _gattFTMSService && (SCH_590E || SCH_411_510E || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)) {
+        else if(s->serviceUuid() != _gattFTMSService && (SCH_590E || SCH_411_510E || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || TRUE_ELLIPTICAL || FTMS)) {
             qDebug() << "skipping service" << s->serviceUuid();
             continue;
         }
@@ -1013,6 +1033,11 @@ void ypooelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith(QStringLiteral("MX-AS "))) {
             MX_AS = true;
             qDebug() << "MX_AS workaround ON!";
+        } else if(device.name().toUpper().startsWith(QStringLiteral("TRUE ELLIPTICAL ")) &&
+                  device.name().length() > QStringLiteral("TRUE ELLIPTICAL ").length() &&
+                  QRegularExpression(QStringLiteral("TRUE ELLIPTICAL \\d{3,}$")).match(device.name().toUpper()).hasMatch()) {
+            TRUE_ELLIPTICAL = true;
+            qDebug() << "TRUE ELLIPTICAL workaround ON!";
         }
 
         QSettings settings;
