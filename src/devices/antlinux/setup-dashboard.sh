@@ -5300,7 +5300,7 @@ perform_ant_test() {
             local g1_row=$(( LOG_TOP + 7 ))
             local g2_row=$(( LOG_TOP + 8 ))
             local g1="   Put your watch in pairing mode and link it now."
-            local g2="   Your watch will show speed, cadence and pace."
+            local g2="   Your watch will show pace and candence"
             # Truncate/pad to fit
             g1=$(trunc_vis "$g1" $INNER_COLS)
             g2=$(trunc_vis "$g2" $INNER_COLS)
@@ -5333,8 +5333,8 @@ perform_ant_test() {
             clear_info_area
             draw_sealed_row $((LOG_TOP + 2)) "   ${GREEN}Test completed successfully${NC}"
             draw_sealed_row $((LOG_TOP + 4)) "   Cleaning up devices..."
-            draw_sealed_row $((LOG_TOP + 7)) "   Put your watch in pairing mode and link to the ANT+ device now."
-            draw_sealed_row $((LOG_TOP + 8)) "   Your watch will show pace and cadence (if setup in data field)"
+            draw_sealed_row $((LOG_TOP + 7)) "   "
+            draw_sealed_row $((LOG_TOP + 8)) "   "
             draw_bottom_border ""
             sleep 2
             # Now request a graceful shutdown of the test script so it can
