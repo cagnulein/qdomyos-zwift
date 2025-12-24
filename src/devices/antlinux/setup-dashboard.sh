@@ -132,6 +132,62 @@ config_set_string() {
     CONFIG_STRING[$key]=$value
 }
 
+# ==========================================================================
+# CONFIG GENERATION - INI File Generator (Milestone 2)
+# Generate qDomyos-Zwift.conf from config arrays using atomic write.
+# TEMP_DIR should be set (Milestone 5 will enforce /dev/shm), fallback to /tmp.
+# ==========================================================================
+
+generate_config_file() {
+    local config_path="${1:-${CONFIG_FILE:-$HOME/.config/qdomyos-zwift/qDomyos-Zwift.conf}}"
+    local temp_file
+
+    # Ensure TEMP_DIR exists; fallback to /tmp
+    : "${TEMP_DIR:=/tmp}"
+    mkdir -p "$TEMP_DIR" || { echo "ERROR: Cannot create TEMP_DIR: $TEMP_DIR" >&2; return 1; }
+
+    temp_file="${TEMP_DIR}/qDomyos-Zwift.conf.tmp"
+
+    {
+        # INI header
+        echo "[General]"
+
+        # Merge keys from all typed arrays into associative ALL_KEYS
+        declare -A ALL_KEYS
+        local k
+        for k in "${!CONFIG_BOOL[@]}"; do ALL_KEYS[$k]="${CONFIG_BOOL[$k]}"; done
+        for k in "${!CONFIG_INT[@]}"; do ALL_KEYS[$k]="${CONFIG_INT[$k]}"; done
+        for k in "${!CONFIG_FLOAT[@]}"; do ALL_KEYS[$k]="${CONFIG_FLOAT[$k]}"; done
+        for k in "${!CONFIG_STRING[@]}"; do ALL_KEYS[$k]="${CONFIG_STRING[$k]}"; done
+
+        # Write sorted keys for deterministic output
+        for k in $(printf '%s\n' "${!ALL_KEYS[@]}" | sort); do
+            printf '%s=%s\n' "$k" "${ALL_KEYS[$k]}"
+        done
+
+    } > "$temp_file"
+
+    # Atomic move to destination
+    if ! mv -f "$temp_file" "$config_path"; then
+        echo "ERROR: Failed to move generated config to $config_path" >&2
+        rm -f "$temp_file" 2>/dev/null || true
+        return 1
+    fi
+
+    # Basic validation
+    if [[ ! -f "$config_path" ]]; then
+        echo "ERROR: Config file missing after move: $config_path" >&2
+        return 1
+    fi
+    if ! grep -q "^\[General\]$" "$config_path"; then
+        echo "ERROR: Generated config missing [General] header" >&2
+        return 1
+    fi
+
+    return 0
+}
+
+
 
 # Script versioning: update when you deploy/copy this script to another host.
 # Prefer semantic or date-based strings. You can also set the env var
