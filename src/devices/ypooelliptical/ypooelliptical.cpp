@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QThread>
 #include <math.h>
@@ -1020,6 +1021,14 @@ void ypooelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if(ftms_elliptical_setting != QStringLiteral("Disabled") && device.name().toUpper() == ftms_elliptical_setting.toUpper()) {
             FTMS = true;
             qDebug() << "FTMS Elliptical workaround ON!";
+        }
+
+        // Enable FTMS for TRUE ELLIPTICAL devices with digits
+        if(device.name().toUpper().startsWith(QStringLiteral("TRUE ELLIPTICAL ")) &&
+           device.name().length() > QStringLiteral("TRUE ELLIPTICAL ").length() &&
+           QRegularExpression(QStringLiteral("TRUE ELLIPTICAL \\d{3,}$")).match(device.name().toUpper()).hasMatch()) {
+            FTMS = true;
+            qDebug() << "FTMS Elliptical workaround ON for TRUE ELLIPTICAL!";
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
