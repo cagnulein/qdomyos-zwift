@@ -557,7 +557,11 @@ Press `Ctrl+C` to stop.
 **Project & Development:**
 - Main project: https://github.com/cagnulein/qdomyos-zwift
 - ANT+ Linux footpod implementation: bassai-sho
-- Development assisted by AI analysis tools
+- ANT+ is a wireless protocol managed by Garmin Canada Inc.
+
+**Technology:**
+- ANT+ is a wireless protocol managed by Garmin Canada Inc.
+- This is an independent open-source implementation for interoperability
 
 **Research References:**
 
