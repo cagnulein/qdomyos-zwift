@@ -475,6 +475,9 @@ elif ! tput setaf 1 &>/dev/null; then
     USE_COLOR=false
 fi
 
+#!/usr/bin/env bash
+
+# shellcheck disable=SC2034
 if [ "$USE_COLOR" = true ]; then
     RED=$'\033[0;31m'
     GREEN=$'\033[0;32m'
@@ -495,13 +498,13 @@ if [ "$USE_COLOR" = true ]; then
     MAGENTA=$'\033[0;35m'
     BOLD_MAGENTA=$'\033[1;35m'
 else
-    # shellcheck disable=SC2034
     # Color/format variables intentionally defined (may be used externally)
     RED=''; GREEN=''; YELLOW=''; BLUE=''; CYAN=''; WHITE=''; GRAY=''; NC=''
     BG_GREEN=''; BG_GRAY=''
     BOLD=''; BOLD_RED=''; BOLD_BLUE=''; BOLD_CYAN=''; BOLD_WHITE=''
     ORANGE=''; MAGENTA=''; BOLD_MAGENTA=''
 fi
+# shellcheck enable=SC2034
 
 
 SYMBOL_PASS="✓"
@@ -1413,6 +1416,7 @@ get_symbol() {
 
 # Symbol cache to reduce repeated printf/subprocess overhead in hot paths
 declare -A SYMBOL_CACHE
+# shellcheck disable=SC2034
 SYMBOL_CACHE_INIT=0
 
 init_symbol_cache() {
@@ -3454,6 +3458,7 @@ perform_bluetooth_scan() {
             local slice_w_b=$(( INNER_COLS - 20 ))
 
             local dev_a dev_b raw_a
+            # shellcheck disable=SC2034
             dev_a=$(printf '%s' "$dev_info_full" | cut -c1-$slice_w_a)
             dev_b=$(printf '%s' "$dev_info_full" | cut -c$(( slice_w_a + 1 ))-$(( slice_w_a + slice_w_b )) )
             raw_a=$(printf '%s' "$raw_full" | cut -c1-$(( INNER_COLS - 12 )) )
@@ -5000,7 +5005,7 @@ perform_ant_test() {
     fi
     # Ensure exactly three slots exist (may be empty)
     for i in 0 1 2; do
-        if [[ -z "${initial_startup_lines[$i]:-}" ]]; then
+            if [[ -z "${initial_startup_lines[$i]:-}" ]]; then
             initial_startup_lines[$i]=""
         fi
     done
