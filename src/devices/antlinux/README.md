@@ -1,301 +1,167 @@
 # ANT+ Virtual Footpod Broadcaster for Linux
 
-Transform your Linux system into an ANT+ bridge that broadcasts treadmill data as a virtual footpod. Your Garmin watch or other ANT+ device will display real-time pace, distance, and cadence—just like running outdoors.
+Transform your Linux system into an ANT+ bridge that broadcasts treadmill data as a virtual footpod. Your Garmin watch or ANT+ device displays real-time pace, distance and cadence, just like running outdoors.
 
 ## Device Type Guidance
 
-This guide provides instructions for different device types. Select the correct flag for your equipment:
+**For treadmill users only.** This ANT+ footpod feature broadcasts treadmill data.
 
-- **Treadmills:** Use the `-ant-footpod` flag as shown in the examples below.
-- **Bikes, Rowers, or Other Devices:** Omit the `-ant-footpod` flag. Use the standard commands without it.
+For bikes, ellipticals or rowers, use the main application without the `-ant-footpod` flag in all commands.
 
-Using the appropriate flag ensures your device works as expected. If you are unsure, refer to the Interactive Setup for further guidance. 
-
-**Summary:**
-- For **treadmills**, always add the `-ant-footpod` flag to your command.
-- For **bikes, rowers, or other devices**, do **not** use the `-ant-footpod` flag.
+---
 
 ## What You'll Achieve
-- Broadcast treadmill pace, distance, and cadence in real-time
-- Pair your Garmin watch as a Foot Pod for accurate indoor run tracking
+
+- Broadcast treadmill pace, distance and cadence in real-time
+- Pair your Garmin watch as a foot pod for accurate indoor run tracking
 - Automatically log runs to your fitness ecosystem
+
+---
 
 ## Prerequisites
 
-**Hardware Requirements:**
-- ANT+ USB dongle (Garmin USB2/USB-m/USB3/mini, or Suunto)
+### Hardware
+- ANT+ USB dongle (Garmin USB2/USB-m/USB3/mini or Suunto)
 - Garmin watch or compatible ANT+ device
-- Raspberry Pi (Zero 2 W, 3, 4, or 5) **OR** x86-64 PC/Laptop
+- Raspberry Pi (Zero 2 W, 3, 4 or 5) **OR** x86-64 PC/laptop
 
-**Software Requirements:**
-- Linux distribution: Debian/Ubuntu-based (Bookworm or newer recommended)
-- Basic Linux terminal skills (navigating directories, editing files)
+### Software
+- Debian/Ubuntu-based Linux (Bookworm or newer recommended)
+- Basic terminal skills (navigating directories, editing files)
 
-**Tested Configurations:**
-- **Raspberry Pi:** Zero 2 W (Raspberry Pi OS Bookworm)
-- **Desktop Linux:** Ubuntu 24.04 LTS (x86-64)
-- **Treadmill:** Proform 705 CST
-- **Watch:** Garmin Forerunner 245
-
-> **Tip:** It's a good idea to back up your system before making changes, but this is optional for most users.
+### Tested Configurations
+- **Raspberry Pi**: Zero 2 W (Raspberry Pi OS Bookworm)
+- **Desktop Linux**: Ubuntu 24.04 LTS (x86-64)
+- **Treadmill**: Proform 705 CST
+- **Watch**: Garmin Forerunner 245
 
 ---
 
+## Quick Start
 
-## Table of Contents
+### 1. Download & Extract
 
+Identify your platform:
+- **Raspberry Pi**: `arm64`
+- **Desktop Linux**: `x86-64`
 
-If you are new to this guide, start with the [Quick Start Guide](#quick-start-guide).
-If you encounter issues, see [Troubleshooting](#troubleshooting).
-
-### Main Guide
-1. [What You'll Achieve](#what-youll-achieve)
-2. [Prerequisites](#prerequisites)
-3. [Quick Start Guide](#quick-start-guide)
-	- Download & Extract
-	- System Check
-	- Interactive Setup
-	- Configuration & Testing
-4. [Automatic Startup](#automatic-startup)
-5. [Troubleshooting](#troubleshooting)
-
-### Appendices
-- [Compilation Guide](COMPILE.md)
-
-## Quick Start Guide
-
-This guide uses **pre-compiled binaries** from GitHub Releases—the easiest method for most users.
-
-> **Developers:** Need to compile from source? See the [Compilation Guide](COMPILE.md).
-
-
-
-### Verifying Your System Architecture
-
-Before proceeding, you can check your system architecture to ensure you have downloaded the correct binary:
-
+Verify your system architecture:
 ```bash
 uname -m
 ```
+Output `x86_64` = use x86-64 binary | Output `aarch64` = use arm64 binary
 
-- If the output is `x86_64`, use the x86-64 binary.
-- If the output is `aarch64`, use the arm64 binary.
+Download from the [Releases page](https://github.com/cagnulein/qdomyos-zwift/releases):
+- File: `linux-binary-<PLATFORM>-ant.zip`
 
-If you have the wrong binary, please download the appropriate version from the releases page.
-
-
-### Installation Steps
-
-1. **Download Binary** - Get the pre-compiled package for your platform
-2. **Run the System Check** - See what (if anything) you actually need:
-
-	```bash
-	./setup-dashboard.sh
-	```
-
-	- If all tests pass, you can proceed directly to running and configuring the application.
-	- If there are warnings or failures, follow the guidance provided by the System Check or continue with the Interactive Setup.
-
-3. **Install Dependencies** - Only if the System Check indicates they are needed
-4. **Run & Automate** - Test and configure automatic startup
-
-**Note:** For safety, reset/uninstall functionality is not provided. If you need to remove QDomyos-Zwift or its components, please do so manually.
-
----
-
-## Step 1: Download and Extract
-
-### Download from GitHub Releases
-
-1. Visit the **[Releases page](https://github.com/cagnulein/qdomyos-zwift/releases)**
-2. Download the package for your platform:
-   - **Raspberry Pi (ARM64):** `linux-binary-arm64-ant.zip`
-   - **Desktop Linux (x86-64):** `linux-binary-x86-64-ant.zip`
-
-### Extract to Your Home Directory
-
-**Raspberry Pi:**
+Extract:
 ```bash
 cd ~
-unzip linux-binary-arm64-ant.zip
-cd qdomyos-zwift-arm64-ant
+unzip linux-binary-<PLATFORM>-ant.zip
+cd qdomyos-zwift-<PLATFORM>-ant
 ```
 
-**Desktop Linux:**
-```bash
-cd ~
-unzip linux-binary-x86-64-ant.zip
-cd qdomyos-zwift-x86-64-ant
-```
+### 2. System Check
 
-**Package Contents:**
-- `qdomyos-zwift` - Smart wrapper script (use this, not the binary directly)
-- `qdomyos-zwift-bin` - Application binary
-- `setup-dashboard.sh` - Interactive setup and validation dashboard
-- `test_ant.py` - Standalone ANT+ test for troubleshooting
-- `ant_broadcaster.py` - ANT+ module used by test script
-- `devices_optimized.json` - Device menu JSON
-- `.menu_cache/` - Per-section menu caches
-- `devices.ini` - Device mappings
-
-
-## Step 2: Check Your System
-
-Before installing anything, see what's needed:
-
-```bash
-./setup-dashboard.sh
-```
-
-This validates your entire setup in seconds:
-- Python 3.11 availability
-- Virtual environment
-- Python packages (openant, pyusb, pybind11)
-- Qt5 libraries
-- USB permissions (plugdev group, udev rules)
-- ANT+ dongle detection
-- Bluetooth service
-
-**All tests pass?** Skip to Step 4!
-
-**Issues found?** Continue to Step 3 for automatic fixes. Most issues can be resolved with the Interactive Setup or by following the provided instructions.
-
----
-
-## Step 3: Install Dependencies
-
-### Automatic Setup (Recommended)
-
-Let the Interactive Setup guide you through installation:
-
-Run the interactive dashboard which adapts to GUI or headless environments automatically:
-
+Run the validation dashboard:
 ```bash
 sudo ./setup-dashboard.sh
 ```
 
-The dashboard explains each step and asks for confirmation before making changes.
+The dashboard validates:
+- Python 3.11 availability
+- Virtual environment
+- Python packages (openant, pyusb, pybind11)
+- Qt5 libraries
+- USB permissions
+- ANT+ dongle detection
+- Bluetooth service
 
-### Other Useful Commands
+**All tests pass?** Skip to Step 4.
 
-**Test ANT+ independently (via dashboard):**
+**Issues found?** Continue to Step 3.
 
-Run `sudo ./setup-dashboard.sh` and choose "ANT+ Test" from the menu. The dashboard will simulate treadmill data and display user-friendly output.
+### 3. Install Dependencies (if needed)
 
-Advanced: to run the standalone test script directly (advanced users):
-
+The interactive dashboard guides you through automatic fixes:
 ```bash
-sudo ~/ant_venv/bin/python3 ./test_ant.py
+sudo ./setup-dashboard.sh
 ```
-This runs the same simulation but without the dashboard UI.
 
+Select the relevant option from the menu. The dashboard explains each step and requests confirmation before making changes.
 
 ---
 
 ### Manual Installation (Advanced Users)
-
-Prefer full control? Follow these steps to install each component yourself.
 
 #### Install System Dependencies
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
-	libqt5core5a \
-	libqt5qml5 \
-	libqt5quick5 \
-	libqt5quickwidgets5 \
-	libqt5concurrent5 \
-	libqt5bluetooth5 \
-	libqt5charts5 \
-	libqt5multimedia5 \
-	libqt5multimediawidgets5 \
-	libqt5multimedia5-plugins \
-	libqt5networkauth5 \
-	libqt5positioning5 \
-	libqt5sql5 \
-	libqt5texttospeech5 \
-	libqt5websockets5 \
-	libqt5widgets5 \
-	libqt5xml5 \
-	libqt5location5 \
-	qtlocation5-dev \
-	qml-module-qtlocation \
-	qml-module-qtpositioning \
-	qml-module-qtquick2 \
-	qml-module-qtquick-controls \
-	qml-module-qtquick-controls2 \
-	qml-module-qtquick-dialogs \
-	qml-module-qtquick-layouts \
-	qml-module-qtquick-window2 \
-	qml-module-qtmultimedia \
-	libusb-1.0-0 \
-	bluez \
-	usbutils \
-	python3-pip
+    libqt5core5a libqt5qml5 libqt5quick5 libqt5quickwidgets5 \
+    libqt5concurrent5 libqt5bluetooth5 libqt5charts5 \
+    libqt5multimedia5 libqt5multimediawidgets5 libqt5multimedia5-plugins \
+    libqt5networkauth5 libqt5positioning5 libqt5sql5 libqt5texttospeech5 \
+    libqt5websockets5 libqt5widgets5 libqt5xml5 libqt5location5 \
+    qtlocation5-dev qml-module-qtlocation qml-module-qtpositioning \
+    qml-module-qtquick2 qml-module-qtquick-controls qml-module-qtquick-controls2 \
+    qml-module-qtquick-dialogs qml-module-qtquick-layouts qml-module-qtquick-window2 \
+    qml-module-qtmultimedia libusb-1.0-0 bluez usbutils python3-pip
 ```
 
 #### Install Python 3.11
 
-The pre-compiled binaries require Python 3.11. Check availability:
-
+Check availability:
 ```bash
 python3.11 --version
 ```
 
-**If Python 3.11 is available:**
+**If available:**
 ```bash
 sudo apt-get install -y python3.11 python3.11-venv
 ```
 
-**If Python 3.11 is NOT available**, install via pyenv:
+**If not available**, install via pyenv:
 ```bash
-# Install pyenv dependencies
-sudo apt-get install -y \
-	git curl build-essential libssl-dev zlib1g-dev \
-	libbz2-dev libreadline-dev libsqlite3-dev wget \
-	llvm libncurses5-dev libncursesw5-dev xz-utils \
-	tk-dev libffi-dev liblzma-dev
+# Install dependencies
+sudo apt-get install -y git curl build-essential libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev wget llvm \
+    libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev
 
-# Note: Ubuntu 24.04+ users should use libncurses-dev instead:
-# sudo apt-get install -y libncurses-dev
+# Ubuntu 24.04+ users use: libncurses-dev
 
 # Install pyenv
 curl https://pyenv.run | bash
 
-# Add pyenv to shell
-echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
-echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
-echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+# Add to shell (add these lines to ~/.bashrc)
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
 
-# Reload shell configuration
+# Reload shell
 source ~/.bashrc
 
 # Install Python 3.11
 pyenv install 3.11.9
 pyenv global 3.11.9
-
-# Verify installation
-python --version  # Should show Python 3.11.9
 ```
 
-#### Create Python Virtual Environment
-
-QZ looks for `ant_venv` in your home directory:
+#### Create Virtual Environment
 
 ```bash
-# Create virtual environment
+cd ~/qdomyos-zwift-<PLATFORM>-ant
 python3.11 -m venv ~/ant_venv
-
-# Install required packages (do NOT use sudo)
-~/ant_venv/bin/pip install --upgrade pip
-~/ant_venv/bin/pip install openant pyusb pybind11
+source ~/ant_venv/bin/activate
+pip install --upgrade pip
+pip install openant pyusb pybind11
+deactivate
 ```
 
 #### Configure USB Permissions
 
 ```bash
-# Create udev rule for ANT+ dongles
+# Create udev rules
 sudo tee /etc/udev/rules.d/99-ant-usb.rules > /dev/null << 'EOF'
 SUBSYSTEM=="usb", ATTRS{idVendor}=="0fcf", ATTRS{idProduct}=="100?", MODE="0666", GROUP="plugdev"
 SUBSYSTEM=="usb", ATTRS{idVendor}=="0fcf", ATTRS{idProduct}=="88a4", MODE="0666", GROUP="plugdev"
@@ -310,230 +176,169 @@ sudo usermod -aG plugdev $USER
 sudo reboot
 ```
 
-#### Enable Bluetooth Service
+#### Enable Bluetooth
 
 ```bash
-# Ensure Bluetooth is running (required for treadmill connection)
 sudo systemctl start bluetooth
 sudo systemctl enable bluetooth
 ```
 
-#### Verify Manual Installation
-
-After installation, verify everything works:
-
-```bash
-cd ~/qdomyos-zwift-x86-64-ant  # or qdomyos-zwift-arm64-ant
-./setup-dashboard.sh
-```
-
-All tests should pass. If issues remain, the tool will provide specific guidance.
-
 ---
 
-## Step 4: Run and Configure
+### 4. Configure & Run
 
-### Understanding Device Pairing
+#### Configure the Application First
 
-**Pairing your Garmin watch:**
+**You must configure your treadmill model and user profile before pairing your watch.** Without this, the application cannot connect to your treadmill or broadcast data.
+
+**With Display (Desktop/Laptop):**
+
+Run the GUI to configure:
+```bash
+cd ~/qdomyos-zwift-<PLATFORM>-ant
+sudo ./qdomyos-zwift -ant-footpod
+```
+Select your treadmill model and enter your user profile (age, weight, units). Settings save automatically.
+
+**Headless (Raspberry Pi/Server):**
+
+Use the interactive dashboard:
+```bash
+sudo ./setup-dashboard.sh
+```
+Select "User Profile" for age, weight and units. Select "Equipment" for your treadmill model.
+
+Alternatively, configure on another system and transfer the file (see Configuration section below for details).
+
+#### Start the Application
+
+Connect your ANT+ dongle, start your treadmill and run:
+
+```bash
+cd ~/qdomyos-zwift-<PLATFORM>-ant
+sudo ./qdomyos-zwift -no-gui -ant-footpod
+
+# Optional: Custom device ID (range 1-65535)
+sudo ./qdomyos-zwift -no-gui -ant-footpod -ant-device 12345
+
+# Optional: Verbose logging (debug only)
+sudo ./qdomyos-zwift -no-gui -ant-footpod -ant-verbose
+```
+
+The application will connect to your treadmill via Bluetooth and begin broadcasting via ANT+.
+
+#### Pair Your Garmin Watch
+
+Once the application is running and connected to your treadmill:
+
 1. Menu → Sensors & Accessories → Add New → Foot Pod
 2. Watch detects and pairs automatically (5-10 seconds)
 3. Start "Treadmill" or "Run Indoor" activity
-4. **Add Cadence field:** Settings → Activities & Apps → [Activity] → Data Screens → customize
+4. **Add cadence field**: Settings → Activities & Apps → [Activity] → Data Screens → customise
 
-**Cadence Calculation:**
+#### Understanding Cadence
 
-The system uses biomechanics research to switch between walking and running cadence at **7.0 km/h** (the walk-run transition zone):
+The system switches between walking and running cadence at **7.0 km/h** based on biomechanics research:
 
 | Speed | Cadence Type | Typical Range | Example |
 |-------|--------------|---------------|---------|
 | < 7.0 km/h | Walking | 90-140 SPM | 6.0 km/h ≈ 128 SPM |
 | ≥ 7.0 km/h | Running | 160-200 SPM | 8.5 km/h ≈ 166 SPM |
 
-> See "Further Reading" section for research references.
+---
 
-### Test the Application
+## Configuration Details
 
-Connect your ANT+ dongle, start your treadmill, and run QZ:
+### Configuration File Location
 
-```bash
-cd ~/qdomyos-zwift-arm64-ant  # or ~/qdomyos-zwift-x86-64-ant
-sudo ./qdomyos-zwift -no-gui -ant-footpod
+ANT+ builds store configuration at `~/.config/Roberto Viola/qDomyos-Zwift.conf`. Non-ANT+ builds use `/root/.config/Roberto Viola/qDomyos-Zwift.conf`.
 
-# Optional: Custom device ID (useful for conflicts, range 1-65535)
-sudo ./qdomyos-zwift -no-gui -ant-footpod -ant-device 12345
+### Alternative Configuration Method: Transfer from Another System
 
-# Optional: Verbose logging (debug only - creates large logs)
-sudo ./qdomyos-zwift -no-gui -ant-footpod -ant-verbose
-```
+If you've already configured on a system with display and need to transfer to a headless system:
 
-**Note:** See dependency warnings? The wrapper provides specific fix instructions. The app may still run but ANT+ won't work until resolved.
+1. On the system with display, copy the configuration file:
+   ```bash
+   cp ~/.config/Roberto\ Viola/qDomyos-Zwift.conf ~/qz-config.conf
+   ```
 
-### Configure Automatic Startup
+2. Transfer to headless system:
+   ```bash
+   scp ~/qz-config.conf pi@raspberrypi:~/
+   ```
 
-Create a systemd service for automatic startup on boot:
+3. Place file on headless system:
+   ```bash
+   mkdir -p ~/.config/Roberto\ Viola
+   cp ~/qz-config.conf ~/.config/Roberto\ Viola/qDomyos-Zwift.conf
+   ```
 
-**Raspberry Pi configuration:**
-```bash
-sudo nano /lib/systemd/system/qz.service
-```
-```ini
-[Unit]
-Description=qdomyos-zwift service
-After=multi-user.target
+---
 
-[Service]
-User=root
-Group=plugdev
-Environment="QZ_USER=pi"
-WorkingDirectory=/home/pi/qdomyos-zwift-arm64-ant
-ExecStart=/home/pi/qdomyos-zwift-arm64-ant/qdomyos-zwift -no-gui -log -ant-footpod
-KillSignal=SIGINT
+## Automatic Startup
 
-[Install]
-WantedBy=multi-user.target
-```
-
-**Desktop Linux configuration:**
-```bash
-sudo nano /etc/systemd/system/qz.service
-```
-```ini
-[Unit]
-Description=qdomyos-zwift service
-After=multi-user.target
-
-[Service]
-User=root
-Group=plugdev
-Environment="QZ_USER=YOUR_USERNAME"
-WorkingDirectory=/home/YOUR_USERNAME/qdomyos-zwift-x86-64-ant
-ExecStart=/home/YOUR_USERNAME/qdomyos-zwift-x86-64-ant/qdomyos-zwift -no-gui -log -ant-footpod
-KillSignal=SIGINT
-
-[Install]
-WantedBy=multi-user.target
-```
-
-> **Important:** Replace `YOUR_USERNAME` with your actual username.
-
-**Enable and start the service:**
+The dashboard creates the systemd service file during setup. Enable and start manually:
 
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable qz
 sudo systemctl start qz
-sudo systemctl status qz  # Check it's running
+sudo systemctl status qz
 ```
 
-
-## Configuration
-
-### For GUI Systems (Desktop/Laptop)
-1. Run the application: `sudo ./qdomyos-zwift -ant-footpod` (for treadmills) or `sudo ./qdomyos-zwift` (for bikes/rowers/other)
-2. The graphical interface will open—select your device type and configure preferences.
-3. Settings are saved automatically to: `~/.config/Roberto Viola/qDomyos-Zwift.conf`
-4. You can run the application anytime with the same command.
-
-### For Headless Systems (Raspberry Pi/Server)
-
-There are two main options:
-
-**Option 1: Configure on a System with a Display (Recommended)**
-1. On any system with a display:
-	- For treadmills: run `sudo ./qdomyos-zwift -ant-footpod`
-	- For bikes, rowers, or other devices: run `sudo ./qdomyos-zwift`
-	- Configure your device and preferences
-
-2. Transfer the configuration file to your headless system:
-   
-	The configuration file could be located at either of the following paths, depending on how you ran the application:
-	- `/root/.config/Roberto Viola/qDomyos-Zwift.conf`
-	- `~/.config/Roberto Viola/qDomyos-Zwift.conf`
-
-	```bash
-	# On the GUI system
-	# Copy from the location where your configuration was saved
-	sudo cp "/root/.config/Roberto Viola/qDomyos-Zwift.conf" ~/qz-config.conf
-	# or
-	cp ~/.config/Roberto\ Viola/qDomyos-Zwift.conf ~/qz-config.conf
-
-	# Transfer qz-config.conf to the headless system (scp/sftp/usb)
-	# On the headless system, copy into the intended service user's config directory
-	TARGET_USER=pi  # or your service username
-	sudo mkdir -p "/home/$TARGET_USER/.config/Roberto Viola"
-	sudo cp ~/qz-config.conf "/home/$TARGET_USER/.config/Roberto Viola/qDomyos-Zwift.conf"
-	sudo chown -R "$TARGET_USER:$TARGET_USER" "/home/$TARGET_USER/.config/Roberto Viola"
-	```
-
-
-**Option 2: Manual Configuration File Creation**
-- Advanced users can create or edit the configuration file directly.
-
-This approach ensures your headless system uses the same settings as a GUI-configured system.
-
 ---
 
-## Success Indicators
+### Manual Service File Creation
 
-- Watch displays stable pace and cadence
-- QZ receives and broadcasts treadmill data  
-- Distance accumulates accurately
-- Service starts automatically on boot (if configured)
+**Platform-specific paths:**
+
+| Platform | Service Location | Install Path |
+|----------|-----------------|--------------|
+| Raspberry Pi | `/etc/systemd/system/qz.service` | `~/qdomyos-zwift-arm64-ant` |
+| Desktop Linux | `/lib/systemd/system/qz.service` | `~/qdomyos-zwift-x86-64-ant` |
+
+Create the service:
+```bash
+sudo nano <SERVICE_LOCATION>
+```
+
+```ini
+[Unit]
+Description=qdomyos-zwift service
+After=multi-user.target
+
+[Service]
+User=root
+Group=plugdev
+WorkingDirectory=<INSTALL_PATH>
+ExecStart=<INSTALL_PATH>/qdomyos-zwift -no-gui -log -ant-footpod
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Replace `<SERVICE_LOCATION>` and `<INSTALL_PATH>` using your platform values from the table. To get your absolute install path, run `echo ~/qdomyos-zwift-<PLATFORM>-ant` and use the output.
 
 ---
-
 
 ## Troubleshooting
 
-### Quick Reference Checklist (First-Time Users)
+### Quick Diagnostics
 
-If you run into problems, check these common issues first:
-
-- **Is your ANT+ dongle plugged in and detected?**
-	- Run `lsusb` and look for Garmin, Suunto, or Dynastream device.
-- **Are you running commands with `sudo` when required?**
-- **Did you run `./setup.sh --check` and follow all recommendations?**
-- **Is your configuration file present and correct?**
-	- See above for possible locations and transfer instructions.
-- **Is your treadmill powered on and in Bluetooth pairing mode?**
-- **Have you rebooted after changing USB permissions or user groups?**
-- **Are you using the correct device flag for your equipment?**
-	- Treadmills: add `-ant-footpod` flag. Bikes/rowers: omit this flag.
-
-If you are still stuck, review the detailed troubleshooting table below or open an issue on GitHub with your log output.
-
-### Quick System Check
-
-Run the diagnostic dashboard anytime:
+**Validate Setup:**
 ```bash
-./setup-dashboard.sh
+sudo ./setup-dashboard.sh
 ```
 
-- ### Test ANT+ Without the Main App
+**Test ANT+ Independently:**
 
-Verify ANT+ works independently before troubleshooting the full application:
+From the dashboard menu, select "ANT+ Test". This simulates a running treadmill at various speeds. Press `Ctrl+C` to stop.
 
-**Option 1: Dashboard (recommended):**
-
-Run `sudo ./setup-dashboard.sh` and select "ANT+ Test" from the menu.
-
-**Option 2: Direct test script:**
-
+Advanced: run the test directly:
 ```bash
 sudo ~/ant_venv/bin/python3 ./test_ant.py
 ```
-
-Both simulate a running treadmill. Your watch should show:
-- Pace: ~7:00 min/km (varying)
-- Cadence: ~166 SPM
-- Distance accumulating
-
-**Test works but app doesn't?** This usually means the treadmill Bluetooth pairing or configuration needs adjustment, not the ANT+ setup.
-
-**Test fails?** Check USB permissions, dongle connection, or Python environment. Most problems can be resolved by reviewing the troubleshooting table below.
-
-Press `Ctrl+C` to stop.
 
 ---
 
@@ -541,16 +346,22 @@ Press `Ctrl+C` to stop.
 
 | Problem | Solution |
 |---------|----------|
-| `error while loading shared libraries: libpython3.11.so.1.0` | Python 3.11 missing. Run `./setup-dashboard.sh` to diagnose, then install via apt or pyenv |
-| Wrapper shows dependency warnings | Follow provided instructions. Run `./setup-dashboard.sh` for diagnosis or run `sudo ./setup-dashboard.sh` for guided fixes |
-| Test fails / watch won't pair | Ensure running with `sudo`. Reboot after USB permissions setup. Try unplug/replug dongle |
-| Watch pairs but pace shows `--:--` | Treadmill not configured. Edit your configuration file (see above for possible locations) and add your model (e.g., `proform_treadmill_705_cst=true`) |
-| App works but no watch connection | Unplug/replug dongle. Verify USB permissions + reboot. Check device ID (default 54321). Ensure running as root. Check logs |
+| ANT+ dongle not detected | Run `lsusb`, look for Garmin/Suunto/Dynastream. Unplug/replug dongle. Verify USB permissions and reboot |
+| `error while loading shared libraries: libpython3.11.so.1.0` | Python 3.11 missing. Run dashboard for guided installation |
+| Wrapper shows dependency warnings | Run dashboard for diagnosis and fixes |
+| Test fails or watch won't pair | Ensure using `sudo`. Reboot after USB permissions setup. Try unplug/replug dongle |
+| Watch won't detect foot pod | Configure application first (Step 4). Application must be running and connected to treadmill before pairing watch |
+| Watch pairs but pace shows `--:--` | Treadmill not configured or not connected. Configure your treadmill model first (Step 4). Ensure treadmill is powered and paired via Bluetooth |
+| Configuration file missing | ANT+ builds: check `~/.config/Roberto Viola/qDomyos-Zwift.conf`. Non-ANT+ builds: check `/root/.config/Roberto Viola/qDomyos-Zwift.conf` |
+| Treadmill not pairing via Bluetooth | Ensure treadmill is powered and in pairing mode |
+| App works but no watch connection | Unplug/replug dongle. Verify USB permissions and reboot. Check device ID (default 54321) |
+| Changes not taking effect | Reboot after changing USB permissions or user groups |
+| Wrong device flag used | Treadmills: add `-ant-footpod`. Bikes/ellipticals/rowers: omit flag |
 | `systemctl stop qz` hangs | Add `KillSignal=SIGINT` to service file `[Service]` section |
-| Binary won't run: "cannot execute binary file" | Wrong architecture downloaded. Get correct package: arm64 for Pi, x86-64 for desktop |
+| Binary won't run: "cannot execute binary file" | Wrong architecture. Download correct package: arm64 for Pi, x86-64 for desktop |
 | `pyenv: command not found` | Reload shell: `source ~/.bashrc` or open new terminal |
-| Setup validation fails multiple checks | Use the Interactive Setup: `sudo ./setup-dashboard.sh` for step-by-step fixes |
-| Test script works but app doesn't connect to treadmill | Treadmill Bluetooth issue. Ensure treadmill is powered on and discoverable |
+| Multiple validation failures | Run dashboard and use Interactive Setup for step-by-step fixes |
+| Test works but app doesn't connect | Treadmill Bluetooth pairing or configuration issue. Verify treadmill is powered and discoverable |
 
 ---
 
@@ -559,7 +370,6 @@ Press `Ctrl+C` to stop.
 **Project & Development:**
 - Main project: https://github.com/cagnulein/qdomyos-zwift
 - ANT+ Linux footpod implementation: bassai-sho
-- ANT+ is a wireless protocol managed by Garmin Canada Inc.
 
 **Technology:**
 - ANT+ is a wireless protocol managed by Garmin Canada Inc.
@@ -568,7 +378,13 @@ Press `Ctrl+C` to stop.
 **Research References:**
 
 [Preferred transition speed between walking and running](https://pubmed.ncbi.nlm.nih.gov/16286854/)  
-*Explains the biomechanical walk-run transition zone around 7.0-7.4 km/h*
+*Biomechanical walk-run transition zone around 7.0-7.4 km/h*
 
 [Biomechanics of Gait Transition](https://scholarworks.boisestate.edu/cgi/viewcontent.cgi?article=1178&context=td)  
 *Detailed analysis of cadence patterns during gait transitions*
+
+---
+
+## Appendices
+
+- [Compilation Guide](COMPILE.md)

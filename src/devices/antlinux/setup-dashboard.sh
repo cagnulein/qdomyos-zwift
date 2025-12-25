@@ -3683,13 +3683,14 @@ create_systemd_service() {
     local arch
     arch=$(uname -m)
     local bin_dir
+    local service_file
     if [ "$arch" = "aarch64" ]; then
         bin_dir="$install_dir/qdomyos-zwift-arm64-ant"
+        service_file="/etc/systemd/system/qz.service"
     else
         bin_dir="$install_dir/qdomyos-zwift-x86-64-ant"
+        service_file="/lib/systemd/system/qz.service"
     fi
-    
-    local service_file="/etc/systemd/system/qz.service"
     
     local cmd="cat > \"$service_file\" <<EOF
 [Unit]
