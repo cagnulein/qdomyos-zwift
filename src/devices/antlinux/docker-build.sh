@@ -78,7 +78,7 @@ setup_qemu_if_needed() {
         
         # Check if the STABLE emulator is already registered.
         # We specifically look for the tonistiigi behavior or just ensure aarch64 exists.
-        if ! ls /proc/sys/fs/binfmt_misc/ | grep -q 'aarch64'; then
+        if ! grep -q 'aarch64' /proc/sys/fs/binfmt_misc/* 2>/dev/null; then
             info "Configuring QEMU environment..."
             
             # 1. Clean up any potential old/unstable QEMU handlers
@@ -172,7 +172,6 @@ main() {
     fi
     
     local IMAGE_TAG="qdomyos-zwift-legacy-builder:$ARCH"
-    local CONTAINER_NAME="qdomyos-zwift-legacy-extractor"
     
     info "Building Docker image '$IMAGE_TAG'..."
 
@@ -183,8 +182,8 @@ main() {
     if [[ "$DRIVER" != "docker" ]]; then
         local CACHE_DIR="$PROJECT_ROOT/.buildx-cache"
         mkdir -p "$CACHE_DIR"
-        CACHE_ARGS+=(--cache-from=type=local,src="$CACHE_DIR")
-        CACHE_ARGS+=(--cache-to=type=local,dest="$CACHE_DIR",mode=max)
+        CACHE_ARGS+=("--cache-from=type=local,src=$CACHE_DIR")
+        CACHE_ARGS+=("--cache-to=type=local,dest=$CACHE_DIR,mode=max")
     else
         info "Buildx driver is 'docker'; skipping cache export/import (not supported)."
     fi
@@ -196,9 +195,9 @@ main() {
     fi
 
     # Add --no-cache after buildx to force a clean build if ever needed.
-    if ! docker buildx build --progress=plain $PLATFORM_FLAG \
-         "${CACHE_ARGS[@]}" $DEBUG_ARG \
-         -t "$IMAGE_TAG" -f "$DOCKERFILE_PATH" --load .; then
+        if ! docker buildx build --progress=plain "$PLATFORM_FLAG" \
+            "${CACHE_ARGS[@]}" "$DEBUG_ARG" \
+            -t "$IMAGE_TAG" -f "$DOCKERFILE_PATH" --load .; then
         err "Docker build failed."
     fi
     success "Docker image built successfully."
@@ -222,7 +221,7 @@ main() {
     docker run -d --name "$TEMP_CONTAINER" "$IMAGE_TAG" sleep 10 >/dev/null
     
     # Change ownership inside container to match host user (works because we're in the container context)
-    docker exec "$TEMP_CONTAINER" chown -R $(id -u):$(id -g) "$INTERNAL_APPDIR_PATH"
+    docker exec "$TEMP_CONTAINER" chown -R "$(id -u):$(id -g)" "$INTERNAL_APPDIR_PATH"
     
     # Now copy files with correct ownership
     docker cp "$TEMP_CONTAINER:$INTERNAL_APPDIR_PATH/." "$OUTPUT_DIR/"
