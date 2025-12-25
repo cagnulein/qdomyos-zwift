@@ -2801,7 +2801,14 @@ check_python_packages_fast() {
     )
     for vdir in "${venv_candidates[@]}"; do
         [[ -d "$vdir" ]] || continue
-        for p in "$vdir/bin/python3" "$vdir/bin/python" $(ls "$vdir/bin/python"* 2>/dev/null | head -n1); do
+        # Find first matching python executable in the venv bin dir without using ls
+        local first_py=""
+        for _f in "$vdir/bin/python"*; do
+            [ -e "$_f" ] || continue
+            first_py="$_f"
+            break
+        done
+        for p in "$vdir/bin/python3" "$vdir/bin/python" "$first_py"; do
             [[ -x "$p" ]] || continue
             venv_py="$p"; break 2
         done
@@ -3180,7 +3187,8 @@ perform_bluetooth_scan() {
         
         # Start Python Provider (Unbuffered)
         # We use 'exec' to ensure the PID is the Python process itself
-        sudo "$venv_py" -u "$py_script" > "$bt_fifo" 2>&1 &
+        # Ensure redirection happens under sudo so the child process owns the FIFO
+        sudo bash -c "exec \"$venv_py\" -u \"$py_script\" >\"$bt_fifo\" 2>&1 &"
         local py_pid=$!
         BT_SCAN_PID=$py_pid
         
@@ -3723,8 +3731,8 @@ prompt_yes_no() {
             if [[ -z "$k2" ]]; then read -rsn1 -t 0.02 k3 </dev/tty || true; fi
             local seq="${k2}${k3:-}"
             case "${seq:-}" in
-                '[A'|"[A") ((selected--)) ;; 
-                '[B'|"[B") ((selected++)) ;;
+                '[A') ((selected--)) ;; 
+                '[B') ((selected++)) ;;
             esac
         elif [[ $key == [lL] ]]; then
             show_legend_popup
@@ -4093,8 +4101,8 @@ show_scrollable_menu() {
             if [[ -z "$k2" ]]; then read -rsn1 -t 0.02 k3 </dev/tty 2>/dev/null || true; fi
             local seq="${k2}${k3:-}"
             case "${seq:-}" in
-                '[A'|"[A") ((selected--)) ;; 
-                '[B'|"[B") ((selected++)) ;;
+                '[A') ((selected--)) ;; 
+                '[B') ((selected++)) ;;
             esac
         elif [[ $key == "" ]]; then
             if [[ -n "$back_label" ]] && [[ $selected -eq $((total_count - 1)) ]]; then
@@ -4342,8 +4350,8 @@ show_scrollable_menu_fast() {
             if [[ -z "${k2:-}" ]]; then read -rsn1 -t 0.02 k3 </dev/tty 2>/dev/null || true; fi
             local seq="${k2}${k3:-}"
             case "${seq:-}" in
-                '[A'|"[A") ((selected--)) ;; 
-                '[B'|"[B") ((selected++)) ;;
+                '[A') ((selected--)) ;; 
+                '[B') ((selected++)) ;;
             esac
         elif [[ $key == "" ]]; then
             if [[ -n "$back_label" ]] && [[ $selected -eq $((total_count - 1)) ]]; then
@@ -4920,7 +4928,8 @@ perform_ant_test() {
         if [ "$(id -u)" -eq 0 ] && [[ -n "${TARGET_USER:-}" ]]; then
             # Ensure the target user can write the log file when sudo-ing
             chown "$TARGET_USER":"$TARGET_USER" "$log_file" 2>/dev/null || true
-            sudo -u "$TARGET_USER" -- env HOME="$TARGET_HOME" "$venv_py" -u "$py_script" --dashboard >"$log_file" 2>&1 &
+            # run under the target user's shell so redirection is applied by that user
+            sudo -u "$TARGET_USER" -- bash -c "exec \"$venv_py\" -u \"$py_script\" --dashboard >\"$log_file\" 2>&1 &"
         else
             "$venv_py" -u "$py_script" --dashboard >"$log_file" 2>&1 &
         fi
