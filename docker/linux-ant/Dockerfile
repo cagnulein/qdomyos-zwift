@@ -146,6 +146,9 @@ COPY src/devices/antlinux/test_ant.py /qdomyos-zwift-x86-64-ant/
 COPY src/devices/antlinux/ant_broadcaster.py /qdomyos-zwift-x86-64-ant/
 COPY src/devices/antlinux/README.md /qdomyos-zwift-x86-64-ant/
 COPY --from=builder /app/src/devices.ini /qdomyos-zwift-x86-64-ant/devices.ini
+# Include the pre-generated JSON and per-section caches so runtime can use them
+COPY --from=builder /app/src/devices/antlinux/devices_optimized.json /qdomyos-zwift-x86-64-ant/devices_optimized.json || true
+COPY --from=builder /app/src/devices/antlinux/.menu_cache /qdomyos-zwift-x86-64-ant/.menu_cache || true
 RUN chmod +x /qdomyos-zwift-x86-64-ant/qdomyos-zwift && \
     chmod +x /qdomyos-zwift-x86-64-ant/setup-dashboard.sh || true
 

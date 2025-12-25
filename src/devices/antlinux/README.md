@@ -134,8 +134,10 @@ cd qdomyos-zwift-x86-64-ant
 - `setup-dashboard.sh` - Interactive setup and validation dashboard
 - `test_ant.py` - Standalone ANT+ test for troubleshooting
 - `ant_broadcaster.py` - ANT+ module used by test script
+- `devices_optimized.json` - Device menu JSON
+- `.menu_cache/` - Per-section menu caches
+- `devices.ini` - Device mappings
 
----
 
 ## Step 2: Check Your System
 

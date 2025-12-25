@@ -2248,11 +2248,40 @@ select_equipment_flow() {
             local cache_file="$cache_dir/${selected_type}.cache"
             local model_widths=()
             if [[ -f "$cache_file" ]]; then
+                # Read cache into temp arrays first, then validate IDs
+                local _tmp_models=() _tmp_keys=() _tmp_widths=()
                 while IFS=$'\x1f' read -r name id width; do
-                    models+=("$name")
-                    keys+=("$id")
-                    model_widths+=("$width")
+                    _tmp_models+=("$name")
+                    _tmp_keys+=("$id")
+                    _tmp_widths+=("$width")
                 done < "$cache_file"
+
+                # Validate that keys exist in DEVICES_INI; if validation fails,
+                # treat cache as corrupted and fall back to JSON/devices.ini parsing.
+                local _valid_cache=1
+                if [[ -f "$DEVICES_INI" ]]; then
+                    for _id in "${_tmp_keys[@]:-}"; do
+                        if ! grep -q "=${_id}$" "$DEVICES_INI"; then
+                            _valid_cache=0
+                            break
+                        fi
+                    done
+                else
+                    _valid_cache=0
+                fi
+
+                if [[ $_valid_cache -eq 1 ]]; then
+                    models=("${_tmp_models[@]}")
+                    keys=("${_tmp_keys[@]}")
+                    model_widths=("${_tmp_widths[@]}")
+                else
+                    # optional debug trace for invalid cache
+                    if [[ -n "${QZ_DEBUG_MENU:-}" ]]; then
+                        : "${TEMP_DIR:=/tmp}"
+                        mkdir -p "$TEMP_DIR" 2>/dev/null || true
+                        printf '%s: MENU DEBUG invalid cache: %s\n' "$(date -u +%FT%TZ)" "$cache_file" >> "$TEMP_DIR/qz_menu_debug.log" 2>/dev/null || true
+                    fi
+                fi
             elif [[ -f "$json_file" ]]; then
                 # Fallback to JSON parsing (should be rare)
                 while IFS=$'\x1f' read -r name id width; do
@@ -2293,12 +2322,46 @@ PY
             
             local mod_def_idx=0
             if [ -f "$CONFIG_FILE" ]; then
+                # Build a set of keys that are true in the config (case-insensitive 'true')
+                mapfile -t _true_keys < <(awk -F'=' '{ k=$1; v=$2; gsub(/^[ \t]+|[ \t]+$/, "", k); gsub(/^[ \t]+|[ \t]+$/, "", v); if(tolower(v)=="true") print k }' "$CONFIG_FILE")
+                declare -A _TK=()
+                for _k in "${_true_keys[@]:-}"; do _TK["$_k"]=1; done
                 for i in "${!keys[@]}"; do
-                    if grep -q "^${keys[$i]}=true" "$CONFIG_FILE"; then
+                    if [[ -n "${_TK[${keys[$i]}]:-}" ]]; then
                         mod_def_idx=$i
                         break
                     fi
                 done
+                unset _true_keys _TK
+                # Optional debug trace when QZ_DEBUG_MENU=1 is set in environment
+                if [[ -n "${QZ_DEBUG_MENU:-}" ]]; then
+                    : "${TEMP_DIR:=/tmp}"
+                    mkdir -p "$TEMP_DIR" 2>/dev/null || true
+                    {
+                        printf '%s: MENU DEBUG selected_type="%s" mod_def_idx=%s\n' "$(date -u +%FT%TZ)" "$selected_type" "$mod_def_idx"
+                        printf 'keys (total %s):\n' "${#keys[@]}"
+                        for ii in "${!keys[@]}"; do
+                            printf '  %s -> %s\n' "${ii}" "${keys[$ii]}"
+                        done
+                        printf '\nkeys set true in config:\n'
+                        awk -F'=' '{ k=$1; v=$2; gsub(/^[ \t]+|[ \t]+$/, "", k); gsub(/^[ \t]+|[ \t]+$/, "", v); if(tolower(v)=="true") print k }' "$CONFIG_FILE" | sed -n '1,200p' | awk '{print "  " $0}'
+                        printf '\nmodels (around mod_def_idx %s):\n' "$mod_def_idx"
+                        for jj in $(seq $((mod_def_idx-4)) $((mod_def_idx+4)) ); do
+                            if [[ $jj -ge 0 && $jj -lt ${#models[@]} ]]; then
+                                printf '  %s: %s -> key=%s\n' "$jj" "${models[$jj]}" "${keys[$jj]}"
+                            fi
+                        done
+                        # Also print index of specific known key if present
+                        for _k in proform_treadmill_705_cst proform_treadmill_705_cst_V78_239 proform_treadmill_9_0 nordictrack_treadmill_x14i; do
+                            for ii in "${!keys[@]}"; do
+                                if [[ "${keys[$ii]}" == "$_k" ]]; then
+                                    printf 'INDEX_OF[%s]=%s\n' "$_k" "$ii"
+                                    break
+                                fi
+                            done
+                        done
+                    } >> "$TEMP_DIR/qz_menu_debug.log" 2>/dev/null || true
+                fi
             fi
 
             # Update info header to reflect model selection
@@ -2339,8 +2402,31 @@ PY
             if [ "$m_idx" -eq 255 ]; then state=0; continue; fi
             
             local selected_key="${keys[$m_idx]}"
+            # Defensive lookup: map the displayed model name back to the
+            # canonical key in `devices.ini` to avoid mismatches when
+            # menu arrays and key arrays become out-of-sync.
+            local selected_name="${models[$m_idx]}"
+            if [[ -n "$selected_name" && -f "$DEVICES_INI" ]]; then
+                local lookup_key
+                lookup_key=$(awk -F'=' -v name="$selected_name" '
+                    { lhs=$1; gsub(/^[ \t]+|[ \t]+$/, "", lhs); if(lhs==name){ val=$2; gsub(/^[ \t]+|[ \t]+$/, "", val); print val; exit } }
+                ' "$DEVICES_INI") || true
+                if [[ -n "$lookup_key" ]]; then
+                    selected_key="$lookup_key"
+                fi
+            fi
             
             # --- SAVE CONFIGURATION ---
+            # Immediate feedback: show saving header so the UI responds
+            draw_bottom_panel_header "SAVING"
+            clear_info_area
+            # Prefer the human-friendly model name for the saving message
+            local _save_display="${selected_name:-$selected_key}"
+            draw_sealed_row $((LOG_TOP + 2)) "   ${WHITE}Saving: ${selected_type} / ${_save_display}${NC}"
+            draw_bottom_border ""
+            # allow UI to render
+            sleep 0.05
+
             local all_possible_keys
             all_possible_keys=$(grep '=' "$DEVICES_INI" | cut -d'=' -f2 | xargs)
             for k in $all_possible_keys; do update_config_key "$k" "false"; done
@@ -2357,13 +2443,21 @@ PY
                 "Bike")       update_config_key "virtual_device_force_bike" "true" ;;
             esac
             update_config_key "$selected_key" "true"
-            
-            draw_bottom_panel_header "EQUIPMENT SAVED"
+
             # Persist consolidated config to disk
             generate_config_file "${CONFIG_FILE:-$HOME/.config/qdomyos-zwift/qDomyos-Zwift.conf}" || true
-            sleep 1
-            
-            return 0
+
+            # Friendly confirmation (align with Bluetooth flow)
+            draw_bottom_panel_header "EQUIPMENT SAVED"
+            clear_info_area
+            local _display_name="${selected_name:-${_save_display:-$selected_key}}"
+            draw_sealed_row $((LOG_TOP + 2)) "   ${GREEN}Equipment saved successfully!${NC}"
+            draw_sealed_row $((LOG_TOP + 4)) "   Type : ${WHITE}${selected_type}${NC}"
+            draw_sealed_row $((LOG_TOP + 5)) "   Model: ${WHITE}${_display_name}${NC}"
+            draw_sealed_row $((LOG_TOP + 6)) "   Key  : ${GRAY}${selected_key}${NC}"
+            draw_bottom_border ""
+            sleep 1.5
+            exit_ui_mode; return 0
         fi
     done
 }
