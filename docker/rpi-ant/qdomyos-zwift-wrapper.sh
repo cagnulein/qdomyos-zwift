@@ -21,7 +21,6 @@ set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Color codes for output
-C_GREEN="\033[0;32m"
 C_RED="\033[0;31m"
 C_YELLOW="\033[0;33m"
 C_RESET="\033[0m"
@@ -146,15 +145,6 @@ else
     fi
     export LD_LIBRARY_PATH="${PYTHON_LIB}:${CLEAN_LD_PATH}"
 fi
-
-# Check for -no-gui flag in arguments
-USING_NO_GUI=false
-for arg in "$@"; do
-    if [[ "$arg" == "-no-gui" ]]; then
-        USING_NO_GUI=true
-        break
-    fi
-done
 
 # === CHECK 2: Qt5 Runtime Libraries ===
 # Qt5 Bluetooth is always required
