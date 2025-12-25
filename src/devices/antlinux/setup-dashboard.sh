@@ -552,8 +552,10 @@ PREV_MILES=""
 
 # Standard cursor movement (Row, Column) - 1-based for ANSI
 move_cursor() {
-    local r=$(( ${1:-0} + 1 ))
-    local c=$(( ${2:-0} + 1 ))
+    local _arg_r=${1:-0}
+    local _arg_c=${2:-0}
+    local r=$(( _arg_r + 1 ))
+    local c=$(( _arg_c + 1 ))
     local ui_fd
     ui_fd=$(get_safe_ui_fd)
     ( printf "\033[%d;%dH" "$r" "$c" >&"${ui_fd}" ) 2>/dev/null || true
@@ -2108,7 +2110,9 @@ prompt_numeric_input() {
 
         # 4. PRECISE CURSOR POSITIONING
         # ║(1) + Spacer(1) + label_str + buffer_len
-        local cursor_col=$(( 2 + ${#label_str} + ${#buffer} ))
+        local _len_label=${#label_str}
+        local _len_buffer=${#buffer}
+        local cursor_col=$(( 2 + _len_label + _len_buffer ))
         # If we are showing the placeholder [75], put cursor at index 1 (after '[')
         [[ -z "$buffer" ]] && cursor_col=$(( cursor_col + 1 ))
 
