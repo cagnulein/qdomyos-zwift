@@ -475,8 +475,6 @@ elif ! tput setaf 1 &>/dev/null; then
     USE_COLOR=false
 fi
 
-#!/usr/bin/env bash
-
 # shellcheck disable=SC2034
 if [ "$USE_COLOR" = true ]; then
     RED=$'\033[0;31m'
@@ -504,9 +502,7 @@ else
     BOLD=''; BOLD_RED=''; BOLD_BLUE=''; BOLD_CYAN=''; BOLD_WHITE=''
     ORANGE=''; MAGENTA=''; BOLD_MAGENTA=''
 fi
-# shellcheck enable=SC2034
-
-
+ 
 SYMBOL_PASS="✓"
 SYMBOL_FAIL="✗"
 SYMBOL_WARN="!"
@@ -514,6 +510,10 @@ SYMBOL_PENDING="●"
 SYMBOL_WORKING="⟳"
 SYMBOL_LOCKED="⛊"
 PROTECTED_ITEMS=("python311" "qt5_libs" "qml_modules" "bluetooth" "lsusb")
+
+# Many variables below are intentionally defined for optional export or indirect use
+# Disable these ShellCheck warnings in bulk to reduce noise during iterative cleanup
+# shellcheck disable=SC2034,SC2004
 
 # ============================================================================
 # USER CONTEXT & ENVIRONMENT
