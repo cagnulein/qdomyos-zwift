@@ -155,6 +155,31 @@ load_hardcoded_defaults() {
     config_set_string "filter_device" "I_TL" || true
     config_set_bool "virtual_device_enabled" true || true
     config_set_bool "virtual_device_force_treadmill" true || true
+    config_set_bool "bluetooth_30m_hangs" false || true
+    config_set_bool "bluetooth_no_reconnection" false || true
+    config_set_bool "bluetooth_relaxed" false || true
+    config_set_bool "fakedevice_elliptical" false || true
+    config_set_bool "fakedevice_rower" false || true
+    config_set_bool "fakedevice_treadmill" false || true
+    config_set_bool "treadmill_difficulty_gain_or_offset" false || true
+    config_set_bool "treadmill_follow_wattage" false || true
+    config_set_bool "treadmill_force_speed" true || true
+    config_set_int  "treadmill_incline_max" 100 || true
+    config_set_int  "treadmill_incline_min" -100 || true
+    config_set_int  "treadmill_pid_heart_max" 0 || true
+    config_set_int  "treadmill_pid_heart_min" 0 || true
+    config_set_string "treadmill_pid_heart_zone" "Disabled" || true
+    config_set_bool "treadmill_simulate_inclination_with_speed" false || true
+    config_set_int  "treadmill_speed_max" 100 || true
+    config_set_float "treadmill_step_incline" 0.5 || true
+    config_set_float "treadmill_step_speed" 0.5 || true
+    config_set_bool "virtual_device_bluetooth" true || true
+    config_set_bool "virtual_device_echelon" false || true
+    config_set_bool "virtual_device_force_bike" false || true
+    config_set_bool "virtual_device_ifit" false || true
+    config_set_bool "virtual_device_onlyheart" false || true
+    config_set_bool "virtual_device_rower" false || true
+    config_set_bool "virtualbike_forceresistance" true || true
 
     return 0
 }
@@ -217,11 +242,55 @@ generate_config_file() {
         for k in "${!CONFIG_FLOAT[@]}"; do ALL_KEYS[$k]="${CONFIG_FLOAT[$k]}"; done
         for k in "${!CONFIG_STRING[@]}"; do ALL_KEYS[$k]="${CONFIG_STRING[$k]}"; done
 
+        # Populate model keys from devices.ini with default=false so
+        # generated config contains boolean-per-model entries matching
+        # the available devices. Do not override existing values.
+        if [[ -f "${DEVICES_INI:-$SCRIPT_DIR/devices.ini}" ]]; then
+            # Extract RHS identifiers (trim whitespace) and add to ALL_KEYS
+            awk -F'=' '/=/ { gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2 }' "${DEVICES_INI:-$SCRIPT_DIR/devices.ini}" \
+                | while IFS= read -r _mk; do
+                    if [[ -n "$_mk" && -z "${ALL_KEYS[$_mk]+x}" ]]; then
+                        ALL_KEYS[$_mk]=false
+                    fi
+                done
+        fi
+
+        # Ensure template defaults are present (do not override existing values)
+        if [[ -z "${ALL_KEYS[bluetooth_30m_hangs]+x}" ]]; then ALL_KEYS[bluetooth_30m_hangs]=false; fi
+        if [[ -z "${ALL_KEYS[bluetooth_no_reconnection]+x}" ]]; then ALL_KEYS[bluetooth_no_reconnection]=false; fi
+        if [[ -z "${ALL_KEYS[bluetooth_relaxed]+x}" ]]; then ALL_KEYS[bluetooth_relaxed]=false; fi
+
+        if [[ -z "${ALL_KEYS[fakedevice_elliptical]+x}" ]]; then ALL_KEYS[fakedevice_elliptical]=false; fi
+        if [[ -z "${ALL_KEYS[fakedevice_rower]+x}" ]]; then ALL_KEYS[fakedevice_rower]=false; fi
+        if [[ -z "${ALL_KEYS[fakedevice_treadmill]+x}" ]]; then ALL_KEYS[fakedevice_treadmill]=false; fi
+
+        if [[ -z "${ALL_KEYS[treadmill_difficulty_gain_or_offset]+x}" ]]; then ALL_KEYS[treadmill_difficulty_gain_or_offset]=false; fi
+        if [[ -z "${ALL_KEYS[treadmill_follow_wattage]+x}" ]]; then ALL_KEYS[treadmill_follow_wattage]=false; fi
+        if [[ -z "${ALL_KEYS[treadmill_force_speed]+x}" ]]; then ALL_KEYS[treadmill_force_speed]=true; fi
+        if [[ -z "${ALL_KEYS[treadmill_incline_max]+x}" ]]; then ALL_KEYS[treadmill_incline_max]=100; fi
+        if [[ -z "${ALL_KEYS[treadmill_incline_min]+x}" ]]; then ALL_KEYS[treadmill_incline_min]=-100; fi
+        if [[ -z "${ALL_KEYS[treadmill_pid_heart_max]+x}" ]]; then ALL_KEYS[treadmill_pid_heart_max]=0; fi
+        if [[ -z "${ALL_KEYS[treadmill_pid_heart_min]+x}" ]]; then ALL_KEYS[treadmill_pid_heart_min]=0; fi
+        if [[ -z "${ALL_KEYS[treadmill_pid_heart_zone]+x}" ]]; then ALL_KEYS[treadmill_pid_heart_zone]="Disabled"; fi
+        if [[ -z "${ALL_KEYS[treadmill_simulate_inclination_with_speed]+x}" ]]; then ALL_KEYS[treadmill_simulate_inclination_with_speed]=false; fi
+        if [[ -z "${ALL_KEYS[treadmill_speed_max]+x}" ]]; then ALL_KEYS[treadmill_speed_max]=100; fi
+        if [[ -z "${ALL_KEYS[treadmill_step_incline]+x}" ]]; then ALL_KEYS[treadmill_step_incline]=0.5; fi
+        if [[ -z "${ALL_KEYS[treadmill_step_speed]+x}" ]]; then ALL_KEYS[treadmill_step_speed]=0.5; fi
+
+        if [[ -z "${ALL_KEYS[virtual_device_bluetooth]+x}" ]]; then ALL_KEYS[virtual_device_bluetooth]=true; fi
+        if [[ -z "${ALL_KEYS[virtual_device_enabled]+x}" ]]; then ALL_KEYS[virtual_device_enabled]=true; fi
+        if [[ -z "${ALL_KEYS[virtual_device_force_treadmill]+x}" ]]; then ALL_KEYS[virtual_device_force_treadmill]=true; fi
+        if [[ -z "${ALL_KEYS[virtual_device_echelon]+x}" ]]; then ALL_KEYS[virtual_device_echelon]=false; fi
+        if [[ -z "${ALL_KEYS[virtual_device_force_bike]+x}" ]]; then ALL_KEYS[virtual_device_force_bike]=false; fi
+        if [[ -z "${ALL_KEYS[virtual_device_ifit]+x}" ]]; then ALL_KEYS[virtual_device_ifit]=false; fi
+        if [[ -z "${ALL_KEYS[virtual_device_onlyheart]+x}" ]]; then ALL_KEYS[virtual_device_onlyheart]=false; fi
+        if [[ -z "${ALL_KEYS[virtual_device_rower]+x}" ]]; then ALL_KEYS[virtual_device_rower]=false; fi
+        if [[ -z "${ALL_KEYS[virtualbike_forceresistance]+x}" ]]; then ALL_KEYS[virtualbike_forceresistance]=true; fi
+
         # Write sorted keys for deterministic output
         for k in $(printf '%s\n' "${!ALL_KEYS[@]}" | sort); do
             printf '%s=%s\n' "$k" "${ALL_KEYS[$k]}"
         done
-
     } > "$temp_file"
 
     # Atomic move to destination
@@ -1938,6 +2007,12 @@ update_config_key() {
     local key="$1"
     local value="$2"
     [[ -z "$key" ]] && return
+
+    # Do not persist bluetooth_address via the config updater; keep it out
+    # of generated configs and avoid storing sensitive device addresses.
+    if [[ "$key" == "bluetooth_address" ]]; then
+        return 0
+    fi
 
     # Strip decimal if weight/age
     if [[ "$key" == "age" || "$key" == "weight" ]]; then
