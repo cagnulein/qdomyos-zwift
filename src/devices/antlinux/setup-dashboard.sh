@@ -2594,6 +2594,10 @@ check_python311() {
 check_venv() {
     update_status "venv" "working"
     
+    # Debug: record venv dir existence for troubleshooting
+    : "${TEMP_DIR:=/tmp}"
+    printf 'DEBUG: check_venv TARGET_HOME=%s ant_venv_exists=%s\n' "$TARGET_HOME" "$( [ -d \"$TARGET_HOME/ant_venv\" ] && echo yes || echo no)" >> "${TEMP_DIR}/qz_debug.log" 2>/dev/null || true
+
     if [ -d "$TARGET_HOME/ant_venv" ]; then
         update_status "venv" "pass"
         return 0
@@ -2827,6 +2831,9 @@ check_python_packages_fast() {
             first_py="$_f"
             break
         done
+        # Debug: record candidate venv directory
+        : "${TEMP_DIR:=/tmp}"
+        printf 'DEBUG: venv_candidate=%s first_py=%s\n' "$vdir" "$first_py" >> "${TEMP_DIR}/qz_debug.log" 2>/dev/null || true
         for p in "$vdir/bin/python3" "$vdir/bin/python" "$first_py"; do
             [[ -x "$p" ]] || continue
             venv_py="$p"; break 2
@@ -2834,17 +2841,23 @@ check_python_packages_fast() {
     done
 
     if [[ -n "$venv_py" ]]; then
+        : "${TEMP_DIR:=/tmp}"
+        printf 'DEBUG: selected venv_py=%s\n' "$venv_py" >> "${TEMP_DIR}/qz_debug.log" 2>/dev/null || true
         # If running as the same user, avoid sudo to preserve venv env
         if [[ "$USER" = "$TARGET_USER" || -z "${SUDO_USER:-}" ]]; then
             if "$venv_py" -c "import openant, usb, pybind11, bleak" 2>/dev/null; then
+                printf 'DEBUG: import_check user_pass=yes\n' >> "${TEMP_DIR}/qz_debug.log" 2>/dev/null || true
                 cache_check_result "pkg_pips" "pass"; echo "pass"; return 0
             else
+                printf 'DEBUG: import_check user_pass=no\n' >> "${TEMP_DIR}/qz_debug.log" 2>/dev/null || true
                 cache_check_result "pkg_pips" "fail"; echo "fail"; return 1
             fi
         else
             if sudo -u "$TARGET_USER" "$venv_py" -c "import openant, usb, pybind11, bleak" 2>/dev/null; then
+                printf 'DEBUG: import_check sudo_pass=yes target_user=%s\n' "$TARGET_USER" >> "${TEMP_DIR}/qz_debug.log" 2>/dev/null || true
                 cache_check_result "pkg_pips" "pass"; echo "pass"; return 0
             else
+                printf 'DEBUG: import_check sudo_pass=no target_user=%s\n' "$TARGET_USER" >> "${TEMP_DIR}/qz_debug.log" 2>/dev/null || true
                 cache_check_result "pkg_pips" "fail"; echo "fail"; return 1
             fi
         fi
