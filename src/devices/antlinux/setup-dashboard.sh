@@ -494,12 +494,14 @@ if [ "$USE_COLOR" = true ]; then
     ORANGE=$'\033[38;5;214m' # 256-color mode orange
     MAGENTA=$'\033[0;35m'
     BOLD_MAGENTA=$'\033[1;35m'
-else
-    RED=''; GREEN=''; YELLOW=''; BLUE=''; CYAN=''; WHITE=''; GRAY=''; NC=''
-    BG_GREEN=''; BG_GRAY=''
-    BOLD=''; BOLD_RED=''; BOLD_BLUE=''; BOLD_CYAN=''; BOLD_WHITE=''
-    ORANGE=''; MAGENTA=''; BOLD_MAGENTA=''
-fi
+    else
+        # shellcheck disable=SC2034
+        # Color/format variables intentionally defined (may be used externally)
+        RED=''; GREEN=''; YELLOW=''; BLUE=''; CYAN=''; WHITE=''; GRAY=''; NC=''
+        BG_GREEN=''; BG_GRAY=''
+        BOLD=''; BOLD_RED=''; BOLD_BLUE=''; BOLD_CYAN=''; BOLD_WHITE=''
+        ORANGE=''; MAGENTA=''; BOLD_MAGENTA=''
+    fi
 
 
 SYMBOL_PASS="✓"
