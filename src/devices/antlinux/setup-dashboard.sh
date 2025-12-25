@@ -862,7 +862,8 @@ start_bt_provider() {
     [ -n "$pybin" ] || return 1
 
     # Provider path relative to this script
-    local prov="$(dirname "$0")/bt_provider.py"
+    local prov
+    prov="$(dirname "$0")/bt_provider.py"
     if [ ! -f "$prov" ]; then
         prov="$(dirname "${BASH_SOURCE[0]}")/bt_provider.py"
     fi
@@ -1169,7 +1170,7 @@ print_at_col() {
     local text="$*"
     local ui_fd
     ui_fd=$(get_safe_ui_fd)
-    ( printf '\033[%d;%dH' $((row + 1)) "$col" >&"${ui_fd}" ) 2>/dev/null || true
+    ( printf '\033[%d;%dH' "$((row + 1))" "$col" >&"${ui_fd}" ) 2>/dev/null || true
     ( printf '%s' "$text" >&"${ui_fd}" ) 2>/dev/null || true
 }
 
@@ -1907,7 +1908,7 @@ render_screen_atomic() {
         local col=${2:-1}
         shift 2
         local text="$*"
-        printf '\033[%d;%dH' $((row + 1)) $col >&9 2>/dev/null || true
+        printf '\033[%d;%dH' "$((row + 1))" "$col" >&9 2>/dev/null || true
         printf '%s' "$text" >&9 2>/dev/null || true
         return 0
     }
@@ -2511,9 +2512,9 @@ run_with_progress() {
         draw_sealed_row $((LOG_TOP + 5)) "                  [${CYAN}${bar_str}${NC}]"
         
         if [ "$dir" -eq 1 ]; then
-            ((pos++)); [ "$((pos + pulse_width))" -ge "$bar_width" ] && dir=-1
+            ((pos++)); (( pos + pulse_width >= bar_width )) && dir=-1
         else
-            ((pos--)); [ "$pos" -le 0 ] && dir=1
+            ((pos--)); (( pos <= 0 )) && dir=1
         fi
         
     done
@@ -3369,9 +3370,9 @@ perform_bluetooth_scan() {
                     # Left-8th-block glyphs (index 1..7). index 0 means no partial
                     local BLOCKS=("" '▏' '▎' '▍' '▌' '▋' '▊' '▉')
                     for ((pos=1; pos<=width; pos++)); do
-                        if [ $pos -le $full ]; then
+                        if (( pos <= full )); then
                             strength+=$'\u2588' # █ full block
-                        elif [ $pos -eq $((full + 1)) ] && [ $rem -gt 0 ]; then
+                        elif (( pos == full + 1 )) && (( rem > 0 )); then
                             strength+="${BLOCKS[$rem]}"
                         else
                             strength+=" "
@@ -3447,7 +3448,7 @@ perform_bluetooth_scan() {
 
             local dev_a dev_b raw_a
             dev_a=$(printf '%s' "$dev_info_full" | cut -c1-$slice_w_a)
-            dev_b=$(printf '%s' "$dev_info_full" | cut -c$(( slice_w_a + 1 ))-$(($slice_w_a + slice_w_b)) )
+            dev_b=$(printf '%s' "$dev_info_full" | cut -c$(( slice_w_a + 1 ))-$(( slice_w_a + slice_w_b )) )
             raw_a=$(printf '%s' "$raw_full" | cut -c1-$(( INNER_COLS - 12 )) )
 
             # Diagnostics removed: rows 19-21 were used for temporary debugging
