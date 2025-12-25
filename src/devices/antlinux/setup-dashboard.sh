@@ -527,6 +527,7 @@ if [ -c /dev/tty ]; then :; fi
 
 # GUI / platform hints
 HAS_GUI=false; [[ -n "${DISPLAY:-}" || -n "${WAYLAND_DISPLAY:-}" ]] && HAS_GUI=true
+# shellcheck disable=SC2034
 IS_PI=false; grep -q "Raspberry Pi" /proc/cpuinfo 2>/dev/null && IS_PI=true
 
 # Paths
@@ -681,6 +682,7 @@ INNER_COLS=$(( local_cols - 2 ))
 if (( INNER_COLS > 78 )); then
     INNER_COLS=78
 fi
+# shellcheck disable=SC2034
 TOTAL_COLS=$(( INNER_COLS + 2 ))
 INFO_WIDTH=$INNER_COLS
 
