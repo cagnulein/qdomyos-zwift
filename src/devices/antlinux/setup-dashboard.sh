@@ -210,8 +210,23 @@ config_set_string() {
 
 # Ensure TEMP_DIR is a RAM-backed tmpfs to avoid SD writes
 # Delegate to a strict initializer that exits if tmpfs is unavailable.
+# Provide a minimal early stub for _init_temp_dir so initial calls
+# (performed before the full implementation lower in the file) can
+# create a working TEMP_DIR. The full implementation later will
+# override this stub with stricter validation.
+_init_temp_dir() {
+    : "${TEMP_DIR:=/tmp}"
+    TEMP_DIR="${TEMP_DIR%/}/qz_$$"
+    if mkdir -p "$TEMP_DIR" 2>/dev/null; then
+        trap 'rm -rf "$TEMP_DIR" 2>/dev/null || true' EXIT
+        return 0
+    fi
+    return 1
+}
+
 ensure_ram_temp_dir() {
-    # Use the more strict initializer below which validates tmpfs.
+    # Use the more strict initializer defined later, but allow the stub
+    # to provide TEMP_DIR during early initialization.
     _init_temp_dir || return 1
 }
 
