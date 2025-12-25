@@ -93,6 +93,13 @@ RUN if [ -f src/settings.qml ]; then \
             touch src/devices.ini; \
         fi
 
+# Ensure optional runtime cache and optimized JSON files exist so the final
+# artifact stage can copy them from the builder without failing the build
+# when the generator did not produce them.
+RUN mkdir -p /app/src/devices/antlinux && \
+    touch /app/src/devices/antlinux/devices_optimized.json || true && \
+    touch /app/src/devices/antlinux/.menu_cache || true
+
 # Initialize only the needed submodules (avoid full recursive fetch)
 RUN git submodule update --init src/smtpclient/ && \
     git submodule update --init src/qmdnsengine/ && \
@@ -147,8 +154,8 @@ COPY src/devices/antlinux/ant_broadcaster.py /qdomyos-zwift-x86-64-ant/
 COPY src/devices/antlinux/README.md /qdomyos-zwift-x86-64-ant/
 COPY --from=builder /app/src/devices.ini /qdomyos-zwift-x86-64-ant/devices.ini
 # Include the pre-generated JSON and per-section caches so runtime can use them
-COPY --from=builder /app/src/devices/antlinux/devices_optimized.json /qdomyos-zwift-x86-64-ant/devices_optimized.json || true
-COPY --from=builder /app/src/devices/antlinux/.menu_cache /qdomyos-zwift-x86-64-ant/.menu_cache || true
+COPY --from=builder /app/src/devices/antlinux/devices_optimized.json /qdomyos-zwift-x86-64-ant/devices_optimized.json
+COPY --from=builder /app/src/devices/antlinux/.menu_cache /qdomyos-zwift-x86-64-ant/.menu_cache
 RUN chmod +x /qdomyos-zwift-x86-64-ant/qdomyos-zwift && \
     chmod +x /qdomyos-zwift-x86-64-ant/setup-dashboard.sh || true
 

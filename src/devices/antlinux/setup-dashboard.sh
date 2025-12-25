@@ -5052,11 +5052,11 @@ perform_ant_test() {
         DEVICE_ID_LINE=""
         for i in "${!initial_startup_lines[@]}"; do
             local _il
-            _il=${initial_startup_lines[$i]}
+            _il=${initial_startup_lines[i]}
             if [[ "$_il" =~ Starting[[:space:]]ANT\+[[:space:]]broadcaster[[:space:]]with[[:space:]]device[[:space:]]ID[[:space:]]*([0-9]+) ]]; then
                 DEVICE_ID_LINE="ANT+ broadcaster device ID: ${BASH_REMATCH[1]}"
                 # remove from the startup lines so it doesn't display twice
-                initial_startup_lines[$i]=""
+                initial_startup_lines[i]=""
             fi
         done
     fi

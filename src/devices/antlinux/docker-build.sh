@@ -188,16 +188,34 @@ main() {
         info "Buildx driver is 'docker'; skipping cache export/import (not supported)."
     fi
 
+    # The 'docker' buildx driver (local docker) does not accept --platform
+    # in some Docker/Buildx versions. Avoid passing the platform flag when
+    # the driver is 'docker' to prevent "unknown flag: --platform" errors.
+    if [[ "$DRIVER" == "docker" ]]; then
+        PLATFORM_FLAG=""
+    fi
+
     # Pass debug flag to Docker build as a build argument
     local DEBUG_ARG=""
     if [[ "$ENABLE_DEBUG_LOGS" == "true" ]]; then
         DEBUG_ARG="--build-arg ENABLE_DEBUG_LOGS=1"
     fi
 
-    # Add --no-cache after buildx to force a clean build if ever needed.
-        if ! docker buildx build --progress=plain "$PLATFORM_FLAG" \
-            "${CACHE_ARGS[@]}" "$DEBUG_ARG" \
-            -t "$IMAGE_TAG" -f "$DOCKERFILE_PATH" --load .; then
+    # Assemble buildx arguments into an array to ensure the final context
+    # (.) is always passed and flags are only included when non-empty.
+    BUILD_ARGS=(--progress=plain)
+    if [[ -n "$PLATFORM_FLAG" ]]; then
+        BUILD_ARGS+=("$PLATFORM_FLAG")
+    fi
+    if [[ ${#CACHE_ARGS[@]} -gt 0 ]]; then
+        BUILD_ARGS+=("${CACHE_ARGS[@]}")
+    fi
+    if [[ -n "$DEBUG_ARG" ]]; then
+        BUILD_ARGS+=("$DEBUG_ARG")
+    fi
+    BUILD_ARGS+=(-t "$IMAGE_TAG" -f "$DOCKERFILE_PATH" --load)
+
+    if ! docker buildx build "${BUILD_ARGS[@]}" .; then
         err "Docker build failed."
     fi
     success "Docker image built successfully."
