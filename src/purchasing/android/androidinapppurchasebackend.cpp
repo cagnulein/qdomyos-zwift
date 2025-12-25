@@ -48,9 +48,10 @@
 **
 ****************************************************************************/
 
-#include <QAndroidJniEnvironment>
+#include <QJniEnvironment>
+#include <QJniObject>
 #include <QDebug>
-#include <QtAndroid>
+#include <QCoreApplication>
 #include <QtCore>
 
 #include "../inapp/inappstore.h"
@@ -62,8 +63,9 @@ QT_BEGIN_NAMESPACE
 
 AndroidInAppPurchaseBackend::AndroidInAppPurchaseBackend(QObject *parent)
     : InAppPurchaseBackend(parent), m_isReady(false) {
-    m_javaObject = QAndroidJniObject("org/qtproject/qt/android/purchasing/InAppPurchase");
-    m_javaObject.callMethod<void>("initPointer", "(Landroid/content/Context;J)V", QtAndroid::androidContext().object(),
+    m_javaObject = QJniObject("org/qtproject/qt/android/purchasing/InAppPurchase");
+    QJniObject context = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+    m_javaObject.callMethod<void>("initPointer", "(Landroid/content/Context;J)V", context.object(),
                                   this);
 
     if (!m_javaObject.isValid()) {
@@ -90,7 +92,7 @@ void AndroidInAppPurchaseBackend::restorePurchases() {
 
 void AndroidInAppPurchaseBackend::queryProducts(const QList<Product> &products) {
     QMutexLocker locker(&m_mutex);
-    QAndroidJniEnvironment environment;
+    QJniEnvironment environment;
 
     QStringList newProducts;
     for (int i = 0; i < products.size(); ++i) {
@@ -112,7 +114,7 @@ void AndroidInAppPurchaseBackend::queryProducts(const QList<Product> &products) 
     environment->DeleteLocalRef(cls);
 
     for (int i = 0; i < newProducts.size(); ++i) {
-        QAndroidJniObject identifier = QAndroidJniObject::fromString(newProducts.at(i));
+        QJniObject identifier = QJniObject::fromString(newProducts.at(i));
         environment->SetObjectArrayElement(productIds, i, identifier.object());
     }
 
@@ -128,20 +130,20 @@ void AndroidInAppPurchaseBackend::setPlatformProperty(const QString &propertyNam
     QMutexLocker locker(&m_mutex);
     if (propertyName.compare(QStringLiteral("AndroidPublicKey"), Qt::CaseInsensitive) == 0) {
         m_javaObject.callMethod<void>("setPublicKey", "(Ljava/lang/String;)V",
-                                      QAndroidJniObject::fromString(value).object<jstring>());
+                                      QJniObject::fromString(value).object<jstring>());
     }
 }
 
 void AndroidInAppPurchaseBackend::consumeTransaction(const QString &purchaseToken) {
     QMutexLocker locker(&m_mutex);
     m_javaObject.callMethod<void>("consumePurchase", "(Ljava/lang/String;)V",
-                                  QAndroidJniObject::fromString(purchaseToken).object<jstring>());
+                                  QJniObject::fromString(purchaseToken).object<jstring>());
 }
 
 void AndroidInAppPurchaseBackend::registerFinalizedUnlockable(const QString &purchaseToken) {
     QMutexLocker locker(&m_mutex);
     m_javaObject.callMethod<void>("acknowledgeUnlockablePurchase", "(Ljava/lang/String;)V",
-                                  QAndroidJniObject::fromString(purchaseToken).object<jstring>());
+                                  QJniObject::fromString(purchaseToken).object<jstring>());
 }
 
 bool AndroidInAppPurchaseBackend::transactionFinalizedForProduct(InAppProduct *product) {
@@ -226,7 +228,7 @@ void AndroidInAppPurchaseBackend::purchaseProduct(AndroidInAppProduct *product) 
     m_activePurchaseRequests[requestCode] = product;
 
     m_javaObject.callMethod<void>("launchBillingFlow", "(Ljava/lang/String;I)V",
-                                  QAndroidJniObject::fromString(product->identifier()).object<jstring>(), requestCode);
+                                  QJniObject::fromString(product->identifier()).object<jstring>(), requestCode);
 }
 
 void AndroidInAppPurchaseBackend::purchaseFailed(int requestCode, int failureReason, const QString &errorString) {

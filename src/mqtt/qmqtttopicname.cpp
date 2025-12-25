@@ -186,7 +186,7 @@ bool operator<(const QMqttTopicName &lhs, const QMqttTopicName &rhs) Q_DECL_NOTH
 */
 uint qHash(const QMqttTopicName &name, uint seed) Q_DECL_NOTHROW
 {
-    return qHash(name.d->name, seed);
+    return qHash(name.d->name, static_cast<size_t>(seed));
 }
 
 #ifndef QT_NO_DATASTREAM

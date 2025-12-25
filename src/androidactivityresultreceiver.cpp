@@ -1,12 +1,14 @@
 #include "androidactivityresultreceiver.h"
 #ifdef Q_OS_ANDROID
+#include <QJniObject>
 AndroidActivityResultReceiver::AndroidActivityResultReceiver() { qDebug() << "AndroidActivityResultReceiver"; }
 
 void AndroidActivityResultReceiver::handleActivityResult(int receiverRequestCode, int resultCode,
-                                                         const QAndroidJniObject &data) {
+                                                         const QJniObject &data) {
     qDebug() << "AndroidActivityResultReceiver::handleActivityResult" << receiverRequestCode << resultCode;
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaProjection", "startService",
+    QJniObject context = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MediaProjection", "startService",
                                               "(Landroid/content/Context;ILandroid/content/Intent;)V",
-                                              QtAndroid::androidContext().object(), resultCode, data.object<jobject>());
+                                              context.object(), resultCode, data.object<jobject>());
 }
 #endif

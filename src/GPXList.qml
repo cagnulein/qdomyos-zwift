@@ -1,43 +1,28 @@
-import QtQuick 2.7
-import Qt.labs.folderlistmodel 2.15
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.15
-import QtQuick.Controls.Material 2.0
-import QtQuick.Dialogs 1.0
-import QtCharts 2.2
-import Qt.labs.settings 1.0
-import QtPositioning 5.5
-import QtLocation 5.6
+import QtQuick
+import Qt.labs.folderlistmodel
+import QtQuick.Layouts
+import QtQuick.Controls
+import QtQuick.Controls.Material
+import QtQuick.Dialogs
+import QtCharts
+import Qt.labs.settings
+import QtPositioning
+import QtLocation
 
 ColumnLayout {
     signal trainprogram_open_clicked(url name)
     signal trainprogram_open_other_folder(url name)
     signal trainprogram_preview(url name)
-    Loader {
-        id: fileDialogLoader
-        active: false
-        sourceComponent: Component {
-            FileDialog {
-                title: "Please choose a file"
-                folder: shortcuts.home
-                visible: true
-                onAccepted: {
-                    console.log("You chose: " + fileUrl)
-                    if(OS_VERSION === "Android") {
-                        trainprogram_open_other_folder(fileUrl)
-                    } else {
-                        trainprogram_open_clicked(fileUrl)
-                    }
-                    close()
-                    // Destroy and recreate the dialog for next use
-                    fileDialogLoader.active = false
-                }
-                onRejected: {
-                    console.log("Canceled")
-                    close()
-                    // Destroy the dialog
-                    fileDialogLoader.active = false
-                }
+    FileDialog {
+        id: fileDialogTrainProgram
+        currentFolder: StandardPaths ? StandardPaths.standardLocations(StandardPaths.HomeLocation)[0] : ""
+        title: "Please choose a file"
+        onAccepted: {
+            console.log("You chose: " + fileDialogTrainProgram.selectedFile)
+            if(OS_VERSION === "Android") {
+                trainprogram_open_other_folder(fileDialogTrainProgram.selectedFile)
+            } else {
+                trainprogram_open_clicked(fileDialogTrainProgram.selectedFile)
             }
         }
     }
@@ -77,8 +62,9 @@ ColumnLayout {
                     onTextChanged: updateFilter()
                 }
                 Button {
-                     anchors.left: mainRect.right
-                     anchors.leftMargin: 5
+                     // Rimuovere o aggiornare questo riferimento a mainRect se non esiste
+                     // anchors.left: mainRect.right
+                     // anchors.leftMargin: 5
                      text: "←"
                      onClicked: folderModel.folder = folderModel.parentFolder
                 }
@@ -99,7 +85,7 @@ ColumnLayout {
                     folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
                     showDotAndDotDot: false
                     showDirs: true
-                    sortField: "Name"
+                    sortField: FolderListModel.Name  // Usa l'enum corretto in Qt6
                     showDirsFirst: true
                 }
                 model: folderModel
@@ -119,13 +105,13 @@ ColumnLayout {
                             clip: true
                             Text {
                                 id: fileTextBox
-                                color: (!folderModel.isFolder(index)?Material.color(Material.Grey):Material.color(Material.Orange))
+                                color: (!folderModel.isFolder(index) ? Material.color(Material.Grey) : Material.color(Material.Orange))
                                 font.pixelSize: Qt.application.font.pixelSize * 1.6
                                 text: fileName.substring(0, fileName.length-4)
                                 NumberAnimation on x {
                                     Component.onCompleted: {
                                         if(fileName.length > 30) {
-                                            running: true;
+                                            running = true;  // Corretto da running: true a running = true
                                         } else {
                                             stop();
                                         }
@@ -146,12 +132,15 @@ ColumnLayout {
                             onClicked: {
                                 console.log('onclicked ' + index+ " count "+list.count);
                                 if (index == list.currentIndex) {
-                                    let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
+                                    // In Qt6, l'accesso ai modelli è leggermente diverso
+                                    let fileUrl = folderModel.get(list.currentIndex, "fileUrl") || folderModel.get(list.currentIndex, "fileURL");
                                     if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
                                         trainprogram_open_clicked(fileUrl);
-                                        popup.open()
+                                        if (typeof popup !== 'undefined' && popup) {
+                                            popup.open()
+                                        }
                                     } else {
-                                        folderModel.folder = fileURL
+                                        folderModel.folder = fileUrl
                                     }
                                 }
                                 else {
@@ -211,10 +200,15 @@ ColumnLayout {
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
 
+                // Modifica nella creazione del plugin per seguire lo schema di Qt6
                 Plugin {
                     id: osmMapPlugin
                     name: "osm"
-                    PluginParameter { name: "osm.useragent"; value: "QZ Fitness" }
+                    // In Qt6, è preferibile usare PluginParameter esplicito
+                    PluginParameter {
+                        name: "osm.useragent"
+                        value: "QZ Fitness"
+                    }
                 }
 
                 Map {
@@ -227,10 +221,13 @@ ColumnLayout {
                     center: pathController.center
                     visible: true
 
+                    // In Qt6, MapPolyline ha mantenuto la stessa API ma verifichiamo
                     MapPolyline {
                         id: pl
-                        line.width: 3
-                        line.color: 'red'
+                        line {
+                            width: 3
+                            color: 'red'
+                        }
                     }
                     Component.onCompleted: {
                         console.log("Dimensions: ", width, height)
@@ -250,12 +247,14 @@ ColumnLayout {
                     return lines;
                 }
 
+                // In Qt6, la sintassi delle connessioni è cambiata
                 Connections{
                     target: pathController
-                    onGeopathChanged: {
+                    // Utilizziamo la nuova sintassi on<SignalName>
+                    function onGeopathChanged() {
                         pl.path = row.loadPath();
                     }
-                    onCenterChanged: {
+                    function onCenterChanged() {
                         map.center = pathController.center;
                     }
                 }
