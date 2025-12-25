@@ -215,12 +215,18 @@ config_set_string() {
 # create a working TEMP_DIR. The full implementation later will
 # override this stub with stricter validation.
 _init_temp_dir() {
-    : "${TEMP_DIR:=/tmp}"
-    TEMP_DIR="${TEMP_DIR%/}/qz_$$"
-    if mkdir -p "$TEMP_DIR" 2>/dev/null; then
-        trap 'rm -rf "$TEMP_DIR" 2>/dev/null || true' EXIT
-        return 0
-    fi
+    local uid
+    uid=$(id -u 2>/dev/null || echo 0)
+    local candidates=("/dev/shm" "/run/user/$uid" "/tmp")
+    for base in "${candidates[@]}"; do
+        if [ -d "$base" ] && [ -w "$base" ]; then
+            TEMP_DIR="${base%/}/qz_$$"
+            if mkdir -p "$TEMP_DIR" 2>/dev/null; then
+                trap 'rm -rf "$TEMP_DIR" 2>/dev/null || true' EXIT
+                return 0
+            fi
+        fi
+    done
     return 1
 }
 
