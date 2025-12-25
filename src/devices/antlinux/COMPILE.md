@@ -1,8 +1,6 @@
 # Compiling QDomyos-Zwift with ANT+ Support
 
-This guide is for users who need to build from source, such as for custom modifications, development, or unsupported systems. Most users should use pre-compiled binaries—see the [README](README.md) for details.
-
-**Note:** For safety, reset/uninstall functionality is not provided. If you need to remove QDomyos-Zwift or its components, please do so manually.
+This guide is for users who need to build from source, such as for custom modifications, development, or unsupported systems. Most users should use pre-compiled binaries, see the [README](README.md) for details.
 
 ---
 
@@ -62,7 +60,7 @@ sudo ./qdomyos-zwift -no-gui -ant-footpod
 
 Your build is successful if:
 - Build completes without errors
- - `./setup-dashboard.sh` passes
+- `./setup-dashboard.sh` passes
 - Application detects your ANT+ dongle
 - Watch connects and shows data
 
@@ -82,4 +80,4 @@ Your build is successful if:
 
 ## Next Steps
 
-Refer to the [README](README.md) for setup, configuration, and usage instructions after building.
+Refer to the [README](README.md) for setup, configuration and usage instructions after building.

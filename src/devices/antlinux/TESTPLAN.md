@@ -1,7 +1,6 @@
-
 # ANT+ Feature Test Plan
 
-This document provides concise testing procedures for the ANT+ footpod broadcasting feature. It is intended for contributors, end users, and QA. Use as a reference for validating changes, verifying installations, or release testing.
+This document provides concise testing procedures for the ANT+ footpod broadcasting feature. It is intended for contributors, end users and QA. Use as a reference for validating changes, verifying installations or release testing.
 
 ---
 
@@ -36,7 +35,7 @@ sudo ./setup-dashboard.sh
 Run the ANT+ hardware test from the dashboard (recommended):
 
 1. `sudo ./setup-dashboard.sh`
-2. Select "ANT+ Test" from the menu
+2. Select 'ANT+ Test' from the menu
 
 Advanced (direct):
 
@@ -69,7 +68,6 @@ Success Criteria:
 
 ---
 
-
 ## Troubleshooting
 
 Refer to the troubleshooting section in the [README.md](README.md#troubleshooting) for common issues and solutions, including:
@@ -96,4 +94,3 @@ Refer to the troubleshooting section in the [README.md](README.md#troubleshootin
 
 - [User Setup](README.md)
 - [Build Instructions](COMPILE.md)
-- Architecture: See `AntManager.cpp` and `AntWorker.cpp`
