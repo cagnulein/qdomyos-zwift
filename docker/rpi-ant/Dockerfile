@@ -76,18 +76,9 @@ WORKDIR /app
 COPY . .
 
 # Generate devices.ini from QML source file
-# The parser creates devices.ini directly in src/ and outputs JSON cache files.
-# If the QML file is not found, create an empty devices.ini to prevent build failure.
-RUN if [ -f src/settings.qml ]; then \
-            echo "Generating devices.ini from settings.qml..."; \
-            cd /app && \
-            /opt/ant_venv/bin/python3 src/devices/antlinux/generate_devices.py src/settings.qml && \
-            echo "✓ devices.ini generated successfully"; \
-        else \
-            echo "⚠ Warning: No QML settings file found"; \
-            echo "Creating empty devices.ini to prevent build failure"; \
-            touch src/devices.ini; \
-        fi
+RUN echo "Generating devices.ini from settings.qml..."; \
+    cd /app && \
+    /opt/ant_venv/bin/python3 src/devices/antlinux/generate_devices.py src/settings.qml
 
 # Initialize only the needed submodules (avoid full recursive fetch)
 RUN git submodule update --init src/smtpclient/ && \
@@ -124,6 +115,14 @@ RUN cd src && \
     fi && \
     mv qdomyos-zwift qdomyos-zwift-bin
 
+# Validate that all required build artifacts exist before proceeding
+RUN echo "Validating build artifacts..." && \
+    test -f /app/qdomyos-zwift-bin || (echo "ERROR: Binary not found" && exit 1) && \
+    test -f /app/src/devices.ini || (echo "ERROR: devices.ini not found" && exit 1) && \
+    test -f /app/src/devices/antlinux/devices_optimized.json || (echo "ERROR: devices_optimized.json not found" && exit 1) && \
+    test -d /app/src/devices/antlinux/.menu_cache || (echo "ERROR: .menu_cache directory not found" && exit 1) && \
+    echo "✓ All required artifacts validated successfully"
+
 # --- Stage 2: Minimal Artifact Container ---
 # Using busybox for minimal image size since files are only extracted, not run here.
 # Users will run the binary on their host with system-installed dependencies.
@@ -142,8 +141,8 @@ COPY src/devices/antlinux/ant_broadcaster.py /qdomyos-zwift-arm64-ant/
 COPY src/devices/antlinux/README.md /qdomyos-zwift-arm64-ant/
 COPY --from=builder /app/src/devices.ini /qdomyos-zwift-arm64-ant/devices.ini
 # Include the pre-generated JSON and per-section caches so runtime can use them
-COPY --from=builder /app/src/devices/antlinux/devices_optimized.json /qdomyos-zwift-arm64-ant/devices_optimized.json || true
-COPY --from=builder /app/src/devices/antlinux/.menu_cache /qdomyos-zwift-arm64-ant/.menu_cache || true
+COPY --from=builder /app/src/devices/antlinux/devices_optimized.json /qdomyos-zwift-arm64-ant/devices_optimized.json
+COPY --from=builder /app/src/devices/antlinux/.menu_cache /qdomyos-zwift-arm64-ant/.menu_cache
 RUN chmod +x /qdomyos-zwift-arm64-ant/qdomyos-zwift && \
     chmod +x /qdomyos-zwift-arm64-ant/setup-dashboard.sh || true
 
