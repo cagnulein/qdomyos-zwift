@@ -494,14 +494,14 @@ if [ "$USE_COLOR" = true ]; then
     ORANGE=$'\033[38;5;214m' # 256-color mode orange
     MAGENTA=$'\033[0;35m'
     BOLD_MAGENTA=$'\033[1;35m'
-    else
-        # shellcheck disable=SC2034
-        # Color/format variables intentionally defined (may be used externally)
-        RED=''; GREEN=''; YELLOW=''; BLUE=''; CYAN=''; WHITE=''; GRAY=''; NC=''
-        BG_GREEN=''; BG_GRAY=''
-        BOLD=''; BOLD_RED=''; BOLD_BLUE=''; BOLD_CYAN=''; BOLD_WHITE=''
-        ORANGE=''; MAGENTA=''; BOLD_MAGENTA=''
-    fi
+else
+    # shellcheck disable=SC2034
+    # Color/format variables intentionally defined (may be used externally)
+    RED=''; GREEN=''; YELLOW=''; BLUE=''; CYAN=''; WHITE=''; GRAY=''; NC=''
+    BG_GREEN=''; BG_GRAY=''
+    BOLD=''; BOLD_RED=''; BOLD_BLUE=''; BOLD_CYAN=''; BOLD_WHITE=''
+    ORANGE=''; MAGENTA=''; BOLD_MAGENTA=''
+fi
 
 
 SYMBOL_PASS="✓"
@@ -876,6 +876,7 @@ start_bt_provider() {
     fi
 
     # Record absolute provider path for stop logic
+    # shellcheck disable=SC2034
     BT_PROVIDER_PROV_PATH=$(readlink -f "$prov" 2>/dev/null || echo "$prov")
 
     # Pick writable paths for stream/debug
@@ -5005,6 +5006,7 @@ perform_ant_test() {
     done
 
     enter_ui_mode
+    # shellcheck disable=SC2034
     local spinner=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
     local sc=0
     local _first_draw=1
@@ -5218,6 +5220,7 @@ perform_ant_test() {
         local TIMER_FIELD_W=18
         local progress_w=$(( INNER_COLS - 7 - TIMER_FIELD_W ))
         if [[ $progress_w -lt 8 ]]; then progress_w=8; fi
+        # shellcheck disable=SC2034
         local metrics_allowed_w=$progress_w
 
         # To align metrics with the progress bar, force the stage text to
@@ -5266,6 +5269,7 @@ perform_ant_test() {
         # Stage will render at LOG_TOP+4 (it will overwrite the init text)
         local row_stage=$(( LOG_TOP + 4 ))
         # Only render this row if we have either a stage or metrics to show.
+        # shellcheck disable=SC2034
         local stage_vis
         stage_vis=$(get_vis_width "$(strip_ansi_cached "$truncated_stage")")
         # Only render the stage+metrics row after a compact status line
