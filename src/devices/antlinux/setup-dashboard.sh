@@ -45,7 +45,8 @@ config_set_bool() {
 }
 
 declare -A SYMBOL_CACHE
-SYMBOL_CACHE_INIT=0 # shellcheck disable=SC2034
+# shellcheck disable=SC2034
+SYMBOL_CACHE_INIT=0
 
 config_set_int() {
     local key=$1
@@ -531,7 +532,9 @@ if [ -c /dev/tty ]; then :; fi
 # GUI / platform hints
 HAS_GUI=false; [[ -n "${DISPLAY:-}" || -n "${WAYLAND_DISPLAY:-}" ]] && HAS_GUI=true
 # shellcheck disable=SC2034
-IS_PI=false; grep -q "Raspberry Pi" /proc/cpuinfo 2>/dev/null && IS_PI=true
+IS_PI=false
+grep -q "Raspberry Pi" /proc/cpuinfo 2>/dev/null && IS_PI=true
+: "${IS_PI:-}" >/dev/null 2>&1
 
 # Paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -734,7 +737,7 @@ CURRENT_INSTRUCTION=""
 # shellcheck disable=SC2034
 FINISH_DONE=0
 # shellcheck disable=SC2034
-CAN_INSTALL=0 # shellcheck disable=SC2034
+CAN_INSTALL=0
 SETUP_MODE=""
 
 # No disk-backed logging. Ensure a RAM-only `TEMP_DIR` exists early.
@@ -998,7 +1001,8 @@ stop_bt_provider() {
 # Unified cache: raw_string -> "stripped_text|width"
 declare -gA DISPLAY_CACHE
 # Cache for pre-computed ANSI cursor position sequences (row -> escape seq)
-declare -gA ANSI_CACHE # shellcheck disable=SC2034
+# shellcheck disable=SC2034
+declare -gA ANSI_CACHE
 
 # Eagerly pre-compute common cursor sequences to avoid arithmetic in hot path
 # Precompute rows 0..100 which covers typical dashboard sizes
@@ -1423,6 +1427,7 @@ get_symbol() {
 declare -A SYMBOL_CACHE
 # shellcheck disable=SC2034
 SYMBOL_CACHE_INIT=0
+: "${SYMBOL_CACHE_INIT:-}" >/dev/null 2>&1
 
 init_symbol_cache() {
     SYMBOL_CACHE_INIT=1
@@ -1649,7 +1654,7 @@ build_hr_string() {
     if [[ $t_vis -eq 0 && $l_vis -eq 0 ]]; then
         local fill=""
         for ((i=0; i<inner_w; i++)); do fill="${fill}═"; done
-        printf "\033[%d;1H%s%s%s" $((row + 1)) "${BLUE}" "${left_c}${fill}${right_c}" "${NC}"
+        printf "\033[%d;1H%s%s%s" "$((row + 1))" "${BLUE}" "${left_c}${fill}${right_c}" "${NC}"
         return 0
     fi
 
@@ -1690,7 +1695,7 @@ build_hr_string() {
     local line
     line="${BLUE}${left_c}${left_pad}${NC}${t_color}${text}${NC}${sep}${BLUE}${fill}${NC}${legend}${BLUE}${right_pad}${right_c}${NC}"
 
-    printf "\033[%d;1H%s" $((row + 1)) "$line"
+    printf "\033[%d;1H%s" "$((row + 1))" "$line"
 }
 
 draw_bottom_border() {
@@ -1908,6 +1913,7 @@ render_screen_atomic() {
     orig_print_at_col="$(declare -f print_at_col 2>/dev/null || true)"
 
     # Redefine print_at to write to FD 9
+    # shellcheck disable=SC2317
     print_at() {
         local row=$1; shift
         local line="$*"
@@ -1917,6 +1923,7 @@ render_screen_atomic() {
     }
 
     # Redefine print_at_col to write to FD 9
+    # shellcheck disable=SC2317
     print_at_col() {
         local row=${1:-0}
         local col=${2:-1}
@@ -2148,7 +2155,10 @@ prompt_numeric_input() {
                 [[ ${#buffer} -lt 10 ]] && buffer+="${char}" ;;
             $'\x1b') # ESCAPE (Skip)
                 # Check if it's just ESC or an arrow sequence
+                # shellcheck disable=SC2034
+                local junk
                 read -rsn2 -t 0.01 junk </dev/tty 2>/dev/null
+                : "${junk:-}" >/dev/null 2>&1
                 buffer="${current_val}"
                 break ;;
         esac
@@ -2165,6 +2175,7 @@ prompt_numeric_input() {
 configure_user_profile() {
     load_current_profile_values
     # Clear ANSI position and display caches to avoid stale mappings from previous UI
+    # shellcheck disable=SC2034
     declare -gA ANSI_CACHE=()
     declare -gA DISPLAY_CACHE=()
 
@@ -2489,10 +2500,13 @@ run_with_progress() {
     local log_file="$TEMP_DIR/qz_setup.log"
     local script_file="$TEMP_DIR/qz_install_step.sh"
     
-    echo "#!/bin/bash" > "$script_file"
-    echo "export DEBIAN_FRONTEND=noninteractive" >> "$script_file"
-    echo "set -e" >> "$script_file"
-    echo "$command_text" >> "$script_file"
+    # Expand $command_text into the temporary script (allowing embedded vars)
+    cat > "$script_file" <<EOF
+#!/bin/bash
+export DEBIAN_FRONTEND=noninteractive
+set -e
+$command_text
+EOF
     chmod +x "$script_file"
     : > "$log_file"
 
@@ -3234,8 +3248,12 @@ perform_bluetooth_scan() {
                 while IFS= read -r raw_data; do
                     # Handle STATUS messages robustly
                     if [[ "$raw_data" == STATUS\|* ]]; then
+                        # shellcheck disable=SC2034
+                        local status_code status_msg
                         IFS='|' read -r _ status_code status_msg <<< "${raw_data%%$'\r'}"
+                        : "${status_code:-}" >/dev/null 2>&1
                         [[ -n "$status_msg" ]] && py_status="$status_msg"
+                        : "${py_status:-}" >/dev/null 2>&1
                         continue
                     fi
                     [[ "$raw_data" == "HEARTBEAT|"* ]] && { py_status="ACTIVE"; continue; }
@@ -3274,7 +3292,7 @@ perform_bluetooth_scan() {
                     # Keep only printable characters (remove stray control bytes)
                     clean_label=$(printf '%s' "$clean_label" | tr -cd '[:print:]' | xargs)
                     if [[ $idx -ge 0 ]]; then
-                        rssis[$idx]=$r; devices[$idx]="$clean_label"
+                        rssis[idx]=$r; devices[idx]="$clean_label"
                     else
                         macs+=("$m"); rssis+=("$r"); devices+=("$clean_label")
                     fi
@@ -3335,16 +3353,19 @@ perform_bluetooth_scan() {
             # local num_devs=${#macs[@]}
             # Build atomic render buffer for rows 13-20 to avoid interleaved prints
             local render_buffer=""
-            local dbg_hex="" # shellcheck disable=SC2034
+            # shellcheck disable=SC2034
+            local dbg_hex=""
             for ((i=0; i<8; i++)); do
                 local row=$((13 + i))
                 local row_content=""
                 if [ "$i" -lt "$num_devs" ]; then
                     local s=${rssis[$i]}
-                    local bar="${RED}[#   ]${NC}" # shellcheck disable=SC2034
+                    # shellcheck disable=SC2034
+                    local bar="${RED}[#   ]${NC}"
                     if (( s >= -60 )); then bar="${GREEN}[####]${NC}"
                     elif (( s >= -75 )); then bar="${YELLOW}[### ]${NC}"
                     elif (( s >= -85 )); then bar="${ORANGE}[##  ]${NC}"; fi
+                    : "${bar:-}" >/dev/null 2>&1
 
                     local name="${devices[$i]}"
                     # Use a consistent name color to avoid confusing mixed styles
@@ -3473,8 +3494,10 @@ perform_bluetooth_scan() {
             local dev_a dev_b raw_a
             # shellcheck disable=SC2034
             dev_a=$(printf '%s' "$dev_info_full" | cut -c1-$slice_w_a)
-            dev_b=$(printf '%s' "$dev_info_full" | cut -c$(( slice_w_a + 1 ))-$(( slice_w_a + slice_w_b )) ) # shellcheck disable=SC2034
-            raw_a=$(printf '%s' "$raw_full" | cut -c1-$(( INNER_COLS - 12 )) ) # shellcheck disable=SC2034
+            # shellcheck disable=SC2034
+            dev_b=$(printf '%s' "$dev_info_full" | cut -c$(( slice_w_a + 1 ))-$(( slice_w_a + slice_w_b )) )
+            # shellcheck disable=SC2034
+            raw_a=$(printf '%s' "$raw_full" | cut -c1-$(( INNER_COLS - 12 )) )
 
             # Diagnostics removed: rows 19-21 were used for temporary debugging
             # (Footer row at LOG_BOTTOM+1 remains unchanged)
@@ -4012,9 +4035,9 @@ show_scrollable_menu() {
     local item_widths=()
     local i itm w
     for i in "${!menu_list[@]}"; do
-        itm="${menu_list[$i]}"
-        w=$(get_vis_width "$itm")
-        item_widths[$i]="$w"
+    itm="${menu_list[i]}"
+    w=$(get_vis_width "$itm")
+    item_widths[i]="$w"
     done
     
     # Dynamic space calculation
@@ -4763,7 +4786,8 @@ draw_verifying_screen() {
     
 }
 
-draw_splash_screen() {
+    # shellcheck disable=SC2120
+    draw_splash_screen() {
     # Minimal instant splash shown before the buffered initial screen.
     # Can be disabled by setting QZ_NO_SPLASH=1 in the environment.
     local title="${1:-QZ ANT+ BRIDGE SETUP UTILITY}"
@@ -4781,13 +4805,13 @@ draw_splash_screen() {
 
     local start_row=$((LOG_TOP + 1))
     if [ -w /dev/tty ]; then
-        printf '\033[%d;1H' $((start_row + 1)) > /dev/tty 2>/dev/null || true
+        printf '\033[%d;1H' "$((start_row + 1))" > /dev/tty 2>/dev/null || true
         printf '%*s%s\n' "$t_pad" "" "$title" > /dev/tty 2>/dev/null || true
         printf '%*s%s\n' "$s_pad" "" "$subtitle" > /dev/tty 2>/dev/null || true
     else
         local ui_fd
         ui_fd=$(get_safe_ui_fd)
-        ( printf '\033[%d;1H' $((start_row + 1)) >&"${ui_fd}" ) 2>/dev/null || true
+        ( printf '\033[%d;1H' "$((start_row + 1))" >&"${ui_fd}" ) 2>/dev/null || true
         ( printf '%*s%s\n' "$t_pad" "" "$title" >&"${ui_fd}" ) 2>/dev/null || true
         ( printf '%*s%s\n' "$s_pad" "" "$subtitle" >&"${ui_fd}" ) 2>/dev/null || true
     fi
@@ -4831,7 +4855,7 @@ draw_initial_screen() {
     print_at_col() {
         local row=${1:-0}; local col=${2:-1}; shift 2
         local text="$*"
-        printf '\\033[%d;%dH' $((row + 1)) $col >&9 2>/dev/null || true
+        printf '\033[%d;%dH' "$((row + 1))" "$col" >&9 2>/dev/null || true
         printf '%s' "$text" >&9 2>/dev/null || true
         return 0
     }
@@ -4948,7 +4972,7 @@ perform_ant_test() {
         # Wait briefly for the test script to initialize and emit any startup
         # output. If no output appears within `warmup_secs`, retry.
         local seen=0
-        for _ in $(seq 1 $warmup_secs); do
+        for _ in $(seq 1 "$warmup_secs"); do
             if [ -s "$log_file" ]; then seen=1; break; fi
             sleep 1
         done
@@ -5019,8 +5043,8 @@ perform_ant_test() {
     fi
     # Ensure exactly three slots exist (may be empty)
     for i in 0 1 2; do
-            if [[ -z "${initial_startup_lines[$i]:-}" ]]; then
-            initial_startup_lines[$i]=""
+            if [[ -z "${initial_startup_lines[i]:-}" ]]; then
+            initial_startup_lines[i]=""
         fi
     done
 
@@ -5282,7 +5306,7 @@ perform_ant_test() {
             local padstr4
             padstr4=$(printf '%*s' "$pad4" "")
             local line4="${BLUE}║${NC}${row4_text}${padstr4}${BLUE}║${NC}"
-            render_buffer+=$(printf "\033[%d;1H%s" $((row4 + 1)) "$line4")
+              render_buffer+=$(printf "\033[%d;1H%s" "$((row4 + 1))" "$line4")
         fi
 
         # Stage will render at LOG_TOP+4 (it will overwrite the init text)
@@ -5291,6 +5315,7 @@ perform_ant_test() {
         # shellcheck disable=SC2034
         local stage_vis
         stage_vis=$(get_vis_width "$(strip_ansi_cached "$truncated_stage")")
+        : "${stage_vis:-}" >/dev/null 2>&1
         # Only render the stage+metrics row after a compact status line
         # confirms a successful connection and structured output.
         if [[ $compact_present -eq 1 ]]; then
@@ -5300,7 +5325,7 @@ perform_ant_test() {
             local padstr_stage
             padstr_stage=$(printf '%*s' "$pad_stage" "")
             local line_stage="${BLUE}║${NC}${full_line_content}${padstr_stage}${BLUE}║${NC}"
-            render_buffer+=$(printf "\033[%d;1H%s" $((row_stage + 1)) "$line_stage")
+              render_buffer+=$(printf "\033[%d;1H%s" "$((row_stage + 1))" "$line_stage")
         fi
 
         # Row LOG_TOP+5: timer + progress (only when compact status is present)
@@ -5346,7 +5371,7 @@ perform_ant_test() {
             local padstrp
             padstrp=$(printf '%*s' "$padp" "")
             local linep="${BLUE}║${NC}${row_progress_text}${padstrp}${BLUE}║${NC}"
-            render_buffer+=$(printf "\033[%d;1H%s" $((row_progress + 1)) "$linep")
+              render_buffer+=$(printf "\033[%d;1H%s" "$((row_progress + 1))" "$linep")
         fi
 
         # Show simple user guidance while a stage is actively running
@@ -5367,8 +5392,8 @@ perform_ant_test() {
             padstrg2=$(printf '%*s' "$padg2" "")
             lineg1="${BLUE}║${NC}${g1}${padstrg1}${BLUE}║${NC}"
             lineg2="${BLUE}║${NC}${g2}${padstrg2}${BLUE}║${NC}"
-            render_buffer+=$(printf "\033[%d;1H%s" $((g1_row + 1)) "$lineg1")
-            render_buffer+=$(printf "\033[%d;1H%s" $((g2_row + 1)) "$lineg2")
+              render_buffer+=$(printf "\033[%d;1H%s" "$((g1_row + 1))" "$lineg1")
+              render_buffer+=$(printf "\033[%d;1H%s" "$((g2_row + 1))" "$lineg2")
         fi
 
         # Atomic write of dynamic area
@@ -5476,6 +5501,7 @@ check_final_status() {
 
 # Allow tests to source this file without running the full interactive main loop.
 # Set QZ_NO_MAIN=1 in the environment when sourcing to prevent main execution.
+# shellcheck disable=SC2317
 if [ "${QZ_NO_MAIN:-0}" -eq 1 ]; then
     # If this file is sourced, `return` will work; if executed, fall back to exit.
     return 0 2>/dev/null || exit 0
@@ -5604,6 +5630,7 @@ fi
 
 # Check root for install capability
 [ $EUID -eq 0 ] && CAN_INSTALL=1
+: "${CAN_INSTALL:-}" >/dev/null 2>&1
 
 # ============================================================================
 # MAIN EXECUTION START
