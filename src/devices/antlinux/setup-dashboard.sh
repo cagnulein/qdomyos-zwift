@@ -44,6 +44,9 @@ config_set_bool() {
     esac
 }
 
+declare -A SYMBOL_CACHE
+SYMBOL_CACHE_INIT=0 # shellcheck disable=SC2034
+
 config_set_int() {
     local key=$1
     local value=$2
@@ -731,7 +734,7 @@ CURRENT_INSTRUCTION=""
 # shellcheck disable=SC2034
 FINISH_DONE=0
 # shellcheck disable=SC2034
-CAN_INSTALL=0
+CAN_INSTALL=0 # shellcheck disable=SC2034
 SETUP_MODE=""
 
 # No disk-backed logging. Ensure a RAM-only `TEMP_DIR` exists early.
@@ -995,7 +998,7 @@ stop_bt_provider() {
 # Unified cache: raw_string -> "stripped_text|width"
 declare -gA DISPLAY_CACHE
 # Cache for pre-computed ANSI cursor position sequences (row -> escape seq)
-declare -gA ANSI_CACHE
+declare -gA ANSI_CACHE # shellcheck disable=SC2034
 
 # Eagerly pre-compute common cursor sequences to avoid arithmetic in hot path
 # Precompute rows 0..100 which covers typical dashboard sizes
@@ -3332,13 +3335,13 @@ perform_bluetooth_scan() {
             # local num_devs=${#macs[@]}
             # Build atomic render buffer for rows 13-20 to avoid interleaved prints
             local render_buffer=""
-            local dbg_hex=""
+            local dbg_hex="" # shellcheck disable=SC2034
             for ((i=0; i<8; i++)); do
                 local row=$((13 + i))
                 local row_content=""
                 if [ "$i" -lt "$num_devs" ]; then
                     local s=${rssis[$i]}
-                    local bar="${RED}[#   ]${NC}"
+                    local bar="${RED}[#   ]${NC}" # shellcheck disable=SC2034
                     if (( s >= -60 )); then bar="${GREEN}[####]${NC}"
                     elif (( s >= -75 )); then bar="${YELLOW}[### ]${NC}"
                     elif (( s >= -85 )); then bar="${ORANGE}[##  ]${NC}"; fi
@@ -3470,8 +3473,8 @@ perform_bluetooth_scan() {
             local dev_a dev_b raw_a
             # shellcheck disable=SC2034
             dev_a=$(printf '%s' "$dev_info_full" | cut -c1-$slice_w_a)
-            dev_b=$(printf '%s' "$dev_info_full" | cut -c$(( slice_w_a + 1 ))-$(( slice_w_a + slice_w_b )) )
-            raw_a=$(printf '%s' "$raw_full" | cut -c1-$(( INNER_COLS - 12 )) )
+            dev_b=$(printf '%s' "$dev_info_full" | cut -c$(( slice_w_a + 1 ))-$(( slice_w_a + slice_w_b )) ) # shellcheck disable=SC2034
+            raw_a=$(printf '%s' "$raw_full" | cut -c1-$(( INNER_COLS - 12 )) ) # shellcheck disable=SC2034
 
             # Diagnostics removed: rows 19-21 were used for temporary debugging
             # (Footer row at LOG_BOTTOM+1 remains unchanged)
