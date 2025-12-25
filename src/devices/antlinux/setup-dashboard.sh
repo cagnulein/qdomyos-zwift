@@ -1317,7 +1317,7 @@ get_symbol() {
     # Padlock Logic for GUI environments
     if [ "$HAS_GUI" = true ] && [[ " ${PROTECTED_ITEMS[*]} " == *" $key "* ]] && [ "$status" == "pass" ]; then
         # We use BOLD_MAGENTA to make the lock distinctive
-        printf "${BOLD_MAGENTA}${SYMBOL_LOCKED}${NC}"
+        printf '%s' "${BOLD_MAGENTA}${SYMBOL_LOCKED}${NC}"
         return
     fi
 
@@ -1328,11 +1328,11 @@ get_symbol() {
     fi
 
     case "$status" in
-        pass)    printf "${GREEN}${SYMBOL_PASS}${NC}" ;;
-        fail)    printf "${RED}${SYMBOL_FAIL}${NC}" ;;
-        warn)    printf "${YELLOW}${SYMBOL_WARN}${NC}" ;;
-        working) printf "${CYAN}${SYMBOL_WORKING}${NC}" ;;
-        *)       printf "${GRAY}${SYMBOL_PENDING}${NC}" ;;
+        pass)    printf '%s' "${GREEN}${SYMBOL_PASS}${NC}" ;;
+        fail)    printf '%s' "${RED}${SYMBOL_FAIL}${NC}" ;;
+        warn)    printf '%s' "${YELLOW}${SYMBOL_WARN}${NC}" ;;
+        working) printf '%s' "${CYAN}${SYMBOL_WORKING}${NC}" ;;
+        *)       printf '%s' "${GRAY}${SYMBOL_PENDING}${NC}" ;;
     esac
 }
 
@@ -1390,7 +1390,7 @@ draw_header_config_line() {
     
     local line="  Config:  ${cfg_color}${cfg_sym}${CYAN} ${cfg_path}"
     # Target Row 2
-    print_at 2 "${BLUE}║${CYAN}$(pad_display "$line" $inner_w)${BLUE}║${NC}"
+    print_at 2 "${BLUE}║${CYAN}$(pad_display "$line" "$inner_w")${BLUE}║${NC}"
 }
 
 draw_header_service_line() {
@@ -1416,7 +1416,7 @@ draw_header_service_line() {
     local line="  Service: ${svc_color}${svc_sym}${CYAN} ${svc_path}"
     
     # 4. Print to Row 3 (New Layout)
-    print_at 3 "${BLUE}║${CYAN}$(pad_display "$line" $inner_w)${BLUE}║${NC}"
+    print_at 3 "${BLUE}║${CYAN}$(pad_display "$line" "$inner_w")${BLUE}║${NC}"
 }
 
 draw_top_panel() {
@@ -1425,8 +1425,13 @@ draw_top_panel() {
     draw_hr 0 "╔" "╗" "QZ ANT+ BRIDGE SETUP & DIAGNOSTICS UTILITY" ""
 
     # User/Environment/Paths (Standard rows)
-    local env_str=$([[ "$HAS_GUI" == true ]] && echo "GUI (X11/Wayland)" || echo "Headless")
-    print_at 1 "${BLUE}║${CYAN}$(pad_display "  User: $TARGET_USER | Environment: $env_str" $inner_w)${BLUE}║${NC}"
+    local env_str
+    if [[ "$HAS_GUI" == true ]]; then
+        env_str="GUI (X11/Wayland)"
+    else
+        env_str="Headless"
+    fi
+    print_at 1 "${BLUE}║${CYAN}$(pad_display "  User: $TARGET_USER | Environment: $env_str" "$inner_w")${BLUE}║${NC}"
     draw_header_config_line
     draw_header_service_line
 
@@ -1621,7 +1626,7 @@ clear_info_area() {
     # Use explicit print_at with padded empty content to reliably overwrite
     # any previous characters (including stray control sequences).
     for ((r=LOG_TOP; r<=LOG_BOTTOM; r++)); do
-        print_at "$r" "${BLUE}║${NC}$(pad_display "" $INFO_WIDTH)${BLUE}║${NC}"
+        print_at "$r" "${BLUE}║${NC}$(pad_display "" "$INFO_WIDTH")${BLUE}║${NC}"
     done
 }
 
@@ -1700,12 +1705,12 @@ draw_instructions_bottom() {
         local li=$((start + idx))
         [ "$li" -lt "${#lines[@]}" ] && content="${lines[$li]}"
         
-        print_at $((LOG_TOP + idx)) "${BLUE}║${NC}$(pad_display " $content" $INFO_WIDTH)${BLUE}║${NC}"
+        print_at $((LOG_TOP + idx)) "${BLUE}║${NC}$(pad_display " $content" "$INFO_WIDTH")${BLUE}║${NC}"
     done
     
     local start_fill=$((LOG_TOP + show_lines))
     for ((r=start_fill; r<=LOG_BOTTOM; r++)); do
-        print_at "$r" "${BLUE}║${NC}$(pad_display "" $INFO_WIDTH)${BLUE}║${NC}"
+        print_at "$r" "${BLUE}║${NC}$(pad_display "" "$INFO_WIDTH")${BLUE}║${NC}"
     done
 
 }
@@ -2747,8 +2752,10 @@ check_ant_dongle_fast() {
     if [[ -d /sys/bus/usb/devices ]]; then
         for dev in /sys/bus/usb/devices/*; do
             [[ -d "$dev" ]] || continue
-            local vid=$(cat "$dev/idVendor" 2>/dev/null || true)
-            local pid=$(cat "$dev/idProduct" 2>/dev/null || true)
+            local vid
+            vid=$(cat "$dev/idVendor" 2>/dev/null || true)
+            local pid
+            pid=$(cat "$dev/idProduct" 2>/dev/null || true)
             if [[ -n "$vid" && -n "$pid" ]]; then
                 local vidpid="${vid}:${pid}"
                 for ant_dev in "${dongles[@]}"; do
@@ -2852,7 +2859,8 @@ run_all_checks_parallel() {
         for key in "${status_keys[@]}"; do
         local result_file="${CHECK_CACHE_DIR}/${key}.result"
         if [[ -f "$result_file" ]]; then
-            local status=$(cat "$result_file" 2>/dev/null || true)
+            local status
+            status=$(cat "$result_file" 2>/dev/null || true)
             update_status_atomic "$key" "$status"
         else
             update_status_atomic "$key" "fail"
@@ -3156,7 +3164,7 @@ perform_bluetooth_scan() {
                     local vis_name
                     vis_name=$(trunc_vis "$name" 38)
                     local name_col
-                    name_col=$(pad_display "  ${color}${vis_name}${NC}" 40)
+                    name_col=$(pad_display "  ${color}${vis_name}${NC}" "40")
 
                     # MAC address column (17 chars typical: AA:BB:CC:DD:EE:FF)
                     local mac_addr
@@ -4992,9 +5000,9 @@ perform_ant_test() {
             mid_txt=$(trunc_vis "$mid_txt" $col2)
             right_txt=$(trunc_vis "$right_txt" $col3)
 
-            left_txt=$(pad_display "$left_txt" $col1)
-            mid_txt=$(pad_display "$mid_txt" $col2)
-            right_txt=$(pad_display "$right_txt" $col3)
+            left_txt=$(pad_display "$left_txt" "$col1")
+            mid_txt=$(pad_display "$mid_txt" "$col2")
+            right_txt=$(pad_display "$right_txt" "$col3")
 
             metrics_display="${left_txt}${mid_txt}${right_txt}"
         else
@@ -5053,7 +5061,7 @@ perform_ant_test() {
         # will start at the same column as the progress bar below.
         local truncated_stage
         truncated_stage=$(trunc_vis "$stage_name_display" $max_stage_vis)
-        truncated_stage=$(pad_display "$truncated_stage" $max_stage_vis)
+        truncated_stage=$(pad_display "$truncated_stage" "$max_stage_vis")
         local stage_row_text="${stage_prefix_spaces}${BOLD_WHITE}${truncated_stage}${NC}${sep}"
 
         # Combine stage text and metrics (metrics_display already padded to metrics_allowed_w)
