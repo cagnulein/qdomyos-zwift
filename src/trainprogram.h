@@ -84,8 +84,8 @@ class trainprogram : public QObject {
                  bool videoAvailable = false);
     void save(const QString &filename);
     static trainprogram *load(const QString &filename, bluetooth *b, QString Extension);
-    static QList<trainrow> loadXML(const QString &filename, BLUETOOTH_TYPE device_type);
-    static bool saveXML(const QString &filename, const QList<trainrow> &rows);
+    static QList<trainrow> loadXML(const QString &filename, BLUETOOTH_TYPE device_type, bool *ftp_test = nullptr, int *cooldown_cadence = nullptr);
+    static bool saveXML(const QString &filename, const QList<trainrow> &rows, bool ftp_test = false, int cooldown_cadence = -1);
     static bool hasTargetPower(const QString &filename);
     QTime totalElapsedTime();
     QTime currentRowElapsedTime();
@@ -121,6 +121,10 @@ class trainprogram : public QObject {
     bool enabled = true;
     bool videoAvailable = false;
     void setVideoAvailable(bool v) {videoAvailable = v;}
+
+    // FTP Test mode settings
+    bool ftp_test = false;
+    int cooldown_cadence = -1; // -1 = disabled, otherwise target cadence (e.g., 80 rpm)
 
     void restart();
     bool isStarted() { return started; }
@@ -190,6 +194,11 @@ private slots:
 
     // Track which text events have been shown for each row
     QSet<QString> shownTextEvents;  // Format: "row_index:timeoffset"
+
+    // FTP Test mode tracking
+    int ftp_warmup_seconds = 0;     // Counter for 1 minute warmup above cadence threshold
+    int ftp_cooldown_seconds = 0;   // Counter for 3 consecutive seconds below cadence threshold
+    bool ftp_triggered = false;     // Flag to ensure logic triggers only once per workout
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
