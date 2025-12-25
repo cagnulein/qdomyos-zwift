@@ -19,6 +19,31 @@ import argparse
 import os
 import signal
 
+
+def write_pidfile(path: str) -> None:
+    """Write current process PID to `path` (best-effort).
+    This is used by external launchers (the dashboard) to reliably
+    detect and monitor the running test process.
+    """
+    try:
+        # Ensure directory exists
+        d = os.path.dirname(path)
+        if d and not os.path.isdir(d):
+            try:
+                os.makedirs(d, exist_ok=True)
+            except Exception:
+                pass
+        with open(path, 'w') as f:
+            f.write(str(os.getpid()))
+            f.flush()
+            try:
+                os.fsync(f.fileno())
+            except Exception:
+                pass
+    except Exception:
+        # Best-effort: do not fail startup if pidfile cannot be written
+        pass
+
 # Timing constants for probe/reset and main loop (tweak per-platform)
 PROBE_SHORT_SLEEP = 0.6
 PROBE_LONG_SLEEP = 0.8
@@ -272,7 +297,13 @@ def main():
 
     parser = argparse.ArgumentParser(description='ANT+ test runner')
     parser.add_argument('--dashboard', action='store_true', help='Emit compact status lines for dashboard consumption')
+    parser.add_argument('--pidfile', type=str, help='Write PID to this file for external monitoring')
     args = parser.parse_args()
+
+    # If requested, write our PID early so external launchers (dashboards)
+    # can reliably monitor this process without racing on wrapper shells.
+    if getattr(args, 'pidfile', None):
+        write_pidfile(args.pidfile)
 
     try:
         print(f"Starting ANT+ broadcaster with device ID {ant_device_id}...")

@@ -208,35 +208,33 @@ config_set_string() {
     CONFIG_STRING[$key]=$value
 }
 
-# Ensure TEMP_DIR is a RAM-backed tmpfs to avoid SD writes
-# Delegate to a strict initializer that exits if tmpfs is unavailable.
-# Provide a minimal early stub for _init_temp_dir so initial calls
-# (performed before the full implementation lower in the file) can
-# create a working TEMP_DIR. The full implementation later will
-# override this stub with stricter validation.
-_init_temp_dir() {
-    local uid
-    uid=$(id -u 2>/dev/null || echo 0)
-    local candidates=("/dev/shm" "/run/user/$uid" "/tmp")
+# Ensure TEMP_DIR is a RAM-backed tmpfs; define the initializer here
+# so early callers can rely on the function. The strict behavior (fatal
+# exit if no RAM-backed storage) is performed when invoked later.
+ensure_ram_temp_dir() {
+    # If TEMP_DIR already set and writable, keep it.
+    if [[ -n "${TEMP_DIR:-}" && -d "$TEMP_DIR" && -w "$TEMP_DIR" ]]; then
+        return 0
+    fi
+
+    local candidates=("/dev/shm" "/run/user/$(id -u)" )
     for base in "${candidates[@]}"; do
-        if [ -d "$base" ] && [ -w "$base" ]; then
-            TEMP_DIR="${base%/}/qz_$$"
+        if _validate_ram_storage "$base"; then
+            TEMP_DIR="$base/qz_$$"
             if mkdir -p "$TEMP_DIR" 2>/dev/null; then
                 trap 'rm -rf "$TEMP_DIR" 2>/dev/null || true' EXIT
                 return 0
             fi
         fi
     done
+
+    # Caller may invoke strict behavior; return non-zero to allow
+    # callers to decide whether to abort. When used as the strict
+    # initializer, callers should handle the non-zero return and exit.
     return 1
 }
 
-ensure_ram_temp_dir() {
-    # Use the more strict initializer defined later, but allow the stub
-    # to provide TEMP_DIR during early initialization.
-    _init_temp_dir || return 1
-}
-
-# Call early so other functions can rely on TEMP_DIR; require tmpfs
+# Early attempt to create TEMP_DIR (non-fatal here)
 ensure_ram_temp_dir || true
 
 # ==========================================================================
@@ -504,13 +502,11 @@ fi
 if [ "$USE_COLOR" = true ]; then
     RED=$'\033[0;31m'
     GREEN=$'\033[0;32m'
-        BG_GREEN=$'\033[42m'
+    BG_GREEN=$'\033[42m'
     YELLOW=$'\033[1;33m'
     BLUE=$'\033[0;34m'
     CYAN=$'\033[0;36m'
     WHITE=$'\033[1;37m'
-        GRAY=$'\033[0;90m'
-        BG_GRAY=$'\033[100m'
     NC=$'\033[0m'
     BOLD=$'\033[1m'
     BOLD_RED=$'\033[1;31m'
@@ -518,14 +514,15 @@ if [ "$USE_COLOR" = true ]; then
     BOLD_CYAN=$'\033[1;36m'   # Added for high-visibility selection
     BOLD_WHITE=$'\033[1;37m'
     ORANGE=$'\033[38;5;214m' # 256-color mode orange
-    MAGENTA=$'\033[0;35m'
-    BOLD_MAGENTA=$'\033[1;35m'
+    GRAY=$'\033[0;90m'
+    BOLD_GRAY=$'\033[1;90m'
+    BG_GRAY=$'\033[100m'
 else
     # Color/format variables intentionally defined (may be used externally)
     RED=''; GREEN=''; YELLOW=''; BLUE=''; CYAN=''; WHITE=''; GRAY=''; NC=''
     BG_GREEN=''; BG_GRAY=''
     BOLD=''; BOLD_RED=''; BOLD_BLUE=''; BOLD_CYAN=''; BOLD_WHITE=''
-    ORANGE=''; MAGENTA=''; BOLD_MAGENTA=''
+    ORANGE=''; BOLD_GRAY=''
 fi
  
 SYMBOL_PASS="✓"
@@ -782,18 +779,10 @@ _validate_ram_storage() {
     return 1
 }
 
-_init_temp_dir() {
-    local candidates=("/dev/shm" "/run/user/$(id -u)")
-    for base in "${candidates[@]}"; do
-        if _validate_ram_storage "$base"; then
-            TEMP_DIR="$base/qz_$$"
-            if mkdir -p "$TEMP_DIR" 2>/dev/null; then
-                trap 'rm -rf "$TEMP_DIR" 2>/dev/null || true' EXIT
-                return 0
-            fi
-        fi
-    done
-    cat >&2 <<'EOF'
+# Initialize TEMP_DIR with strict validation (fatal if unavailable)
+if [[ -z "${TEMP_DIR:-}" ]]; then
+    if ! ensure_ram_temp_dir; then
+        cat >&2 <<'EOF'
 FATAL ERROR: No RAM-backed storage available.
 The dashboard requires tmpfs to prevent SD card wear.
 
@@ -808,12 +797,8 @@ SOLUTION:
 
 Cannot proceed without RAM storage.
 EOF
-    exit 1
-}
-
-# Initialize TEMP_DIR with strict validation
-if [[ -z "${TEMP_DIR:-}" ]]; then
-    _init_temp_dir
+        exit 1
+    fi
 fi
 
 # Optional Python provider integration (minimal, safe wrappers).
@@ -1424,8 +1409,8 @@ get_symbol() {
 
     # Padlock Logic for GUI environments
     if [ "$HAS_GUI" = true ] && [[ " ${PROTECTED_ITEMS[*]} " == *" $key "* ]] && [ "$status" == "pass" ]; then
-        # We use BOLD_MAGENTA to make the lock distinctive
-        printf '%s' "${BOLD_MAGENTA}${SYMBOL_LOCKED}${NC}"
+        # We use BOLD_GRAY to make the lock distinctive (muted)
+        printf '%s' "${BOLD_GRAY}${SYMBOL_LOCKED}${NC}"
         return
     fi
 
@@ -1457,7 +1442,7 @@ init_symbol_cache() {
     SYMBOL_CACHE[warn]="${YELLOW}${SYMBOL_WARN}${NC}"
     SYMBOL_CACHE[working]="${CYAN}${SYMBOL_WORKING}${NC}"
     SYMBOL_CACHE[pending]="${GRAY}${SYMBOL_PENDING}${NC}"
-    SYMBOL_CACHE[locked]="${BOLD_MAGENTA}${SYMBOL_LOCKED}${NC}"
+    SYMBOL_CACHE[locked]="${BOLD_GRAY}${SYMBOL_LOCKED}${NC}"
 }
 
 draw_status_row() {
@@ -1551,6 +1536,7 @@ draw_top_panel() {
     local full_legend=""
 
     # Arguments: Row, LeftCorner, RightCorner, Text, TextColor, Legend
+    # Status header shown in the information panel (kept as 'STATUS')
     draw_hr 4 "╠" "╣" "STATUS" "$BOLD_WHITE" "$full_legend"
     render_status_grid 5
 }
@@ -1830,23 +1816,22 @@ draw_instructions_bottom() {
 show_legend_popup() {
     enter_ui_mode
     clear_info_area
+    # Temporarily set the bottom panel header to indicate this is the legend
+    draw_bottom_panel_header "STATUS GUIDE"
 
-    # Expanded concise legend: symbol, short label and a one-line explanation
     local row=$((LOG_TOP + 1))
-    draw_sealed_row "$row" "   ${BOLD_WHITE}LEGEND${NC}"
     row=$((row + 1))
-    draw_sealed_row "$row" "   ${GREEN}${SYMBOL_PASS}${NC}  Ready  — Present and functioning"
+    draw_sealed_row "$row" "   ${GREEN}${SYMBOL_PASS}${NC}  Ready       — Working correctly"
     row=$((row + 1))
-    draw_sealed_row "$row" "   ${BOLD_MAGENTA}${SYMBOL_LOCKED}${NC}  Protected  — Keep this resource unchanged"
+    draw_sealed_row "$row" "   ${YELLOW}${SYMBOL_WARN}${NC}  Warning     — Required for full functionality"
     row=$((row + 1))
-    draw_sealed_row "$row" "   ${YELLOW}${SYMBOL_WARN}${NC}  Warning  — Needs attention; non-fatal"
+    draw_sealed_row "$row" "   ${RED}${SYMBOL_FAIL}${NC}  Missing     — Needs installation"
     row=$((row + 1))
-    draw_sealed_row "$row" "   ${GRAY}${SYMBOL_PENDING}${NC}  Service  — Background service active/pending"
+    draw_sealed_row "$row" "   ${BOLD_GRAY}${SYMBOL_LOCKED}${NC}  Protected   — Do not remove (system-managed)"
     row=$((row + 1))
-    draw_sealed_row "$row" "   ${RED}${SYMBOL_FAIL}${NC}  Missing  — Not installed or failed check"
+    draw_sealed_row "$row" "   ${GRAY}${SYMBOL_PENDING}${NC}  Service     — Background service not setup up"
 
     draw_bottom_border "Press any key to continue"
-    # Wait for any single keypress (read from controlling TTY)
     local k
     IFS= read -rsn1 k </dev/tty 2>/dev/null || true
 
@@ -2326,9 +2311,7 @@ select_equipment_flow() {
                 else
                     # optional debug trace for invalid cache
                     if [[ -n "${QZ_DEBUG_MENU:-}" ]]; then
-                        : "${TEMP_DIR:=/tmp}"
-                        mkdir -p "$TEMP_DIR" 2>/dev/null || true
-                        printf '%s: MENU DEBUG invalid cache: %s\n' "$(date -u +%FT%TZ)" "$cache_file" >> "$TEMP_DIR/qz_menu_debug.log" 2>/dev/null || true
+                        : # debug disabled
                     fi
                 fi
             elif [[ -f "$json_file" ]]; then
@@ -2384,32 +2367,7 @@ PY
                 unset _true_keys _TK
                 # Optional debug trace when QZ_DEBUG_MENU=1 is set in environment
                 if [[ -n "${QZ_DEBUG_MENU:-}" ]]; then
-                    : "${TEMP_DIR:=/tmp}"
-                    mkdir -p "$TEMP_DIR" 2>/dev/null || true
-                    {
-                        printf '%s: MENU DEBUG selected_type="%s" mod_def_idx=%s\n' "$(date -u +%FT%TZ)" "$selected_type" "$mod_def_idx"
-                        printf 'keys (total %s):\n' "${#keys[@]}"
-                        for ii in "${!keys[@]}"; do
-                            printf '  %s -> %s\n' "${ii}" "${keys[$ii]}"
-                        done
-                        printf '\nkeys set true in config:\n'
-                        awk -F'=' '{ k=$1; v=$2; gsub(/^[ \t]+|[ \t]+$/, "", k); gsub(/^[ \t]+|[ \t]+$/, "", v); if(tolower(v)=="true") print k }' "$CONFIG_FILE" | sed -n '1,200p' | awk '{print "  " $0}'
-                        printf '\nmodels (around mod_def_idx %s):\n' "$mod_def_idx"
-                        for jj in $(seq $((mod_def_idx-4)) $((mod_def_idx+4)) ); do
-                            if [[ $jj -ge 0 && $jj -lt ${#models[@]} ]]; then
-                                printf '  %s: %s -> key=%s\n' "$jj" "${models[$jj]}" "${keys[$jj]}"
-                            fi
-                        done
-                        # Also print index of specific known key if present
-                        for _k in proform_treadmill_705_cst proform_treadmill_705_cst_V78_239 proform_treadmill_9_0 nordictrack_treadmill_x14i; do
-                            for ii in "${!keys[@]}"; do
-                                if [[ "${keys[$ii]}" == "$_k" ]]; then
-                                    printf 'INDEX_OF[%s]=%s\n' "$_k" "$ii"
-                                    break
-                                fi
-                            done
-                        done
-                    } >> "$TEMP_DIR/qz_menu_debug.log" 2>/dev/null || true
+                    : # debug disabled
                 fi
             fi
 
@@ -2615,9 +2573,7 @@ check_python311() {
 check_venv() {
     update_status "venv" "working"
     
-    # Debug: record venv dir existence for troubleshooting
-    : "${TEMP_DIR:=/tmp}"
-    printf 'DEBUG: check_venv TARGET_HOME=%s ant_venv_exists=%s\n' "$TARGET_HOME" "$( [ -d \"$TARGET_HOME/ant_venv\" ] && echo yes || echo no)" >> "${TEMP_DIR}/qz_debug.log" 2>/dev/null || true
+    # venv existence check
 
     if [ -d "$TARGET_HOME/ant_venv" ]; then
         update_status "venv" "pass"
@@ -2852,9 +2808,7 @@ check_python_packages_fast() {
             first_py="$_f"
             break
         done
-        # Debug: record candidate venv directory
-        : "${TEMP_DIR:=/tmp}"
-        printf 'DEBUG: venv_candidate=%s first_py=%s\n' "$vdir" "$first_py" >> "${TEMP_DIR}/qz_debug.log" 2>/dev/null || true
+        # candidate venv directory (no debug log)
         for p in "$vdir/bin/python3" "$vdir/bin/python" "$first_py"; do
             [[ -x "$p" ]] || continue
             venv_py="$p"; break 2
@@ -2862,23 +2816,22 @@ check_python_packages_fast() {
     done
 
     if [[ -n "$venv_py" ]]; then
-        : "${TEMP_DIR:=/tmp}"
-        printf 'DEBUG: selected venv_py=%s\n' "$venv_py" >> "${TEMP_DIR}/qz_debug.log" 2>/dev/null || true
+        # selected venv (no debug log)
         # If running as the same user, avoid sudo to preserve venv env
         if [[ "$USER" = "$TARGET_USER" || -z "${SUDO_USER:-}" ]]; then
             if "$venv_py" -c "import openant, usb, pybind11, bleak" 2>/dev/null; then
-                printf 'DEBUG: import_check user_pass=yes\n' >> "${TEMP_DIR}/qz_debug.log" 2>/dev/null || true
+                # import check passed for current user
                 cache_check_result "pkg_pips" "pass"; echo "pass"; return 0
             else
-                printf 'DEBUG: import_check user_pass=no\n' >> "${TEMP_DIR}/qz_debug.log" 2>/dev/null || true
+                # import check failed for current user
                 cache_check_result "pkg_pips" "fail"; echo "fail"; return 1
             fi
         else
             if sudo -u "$TARGET_USER" "$venv_py" -c "import openant, usb, pybind11, bleak" 2>/dev/null; then
-                printf 'DEBUG: import_check sudo_pass=yes target_user=%s\n' "$TARGET_USER" >> "${TEMP_DIR}/qz_debug.log" 2>/dev/null || true
+                # import check passed for sudo target user
                 cache_check_result "pkg_pips" "pass"; echo "pass"; return 0
             else
-                printf 'DEBUG: import_check sudo_pass=no target_user=%s\n' "$TARGET_USER" >> "${TEMP_DIR}/qz_debug.log" 2>/dev/null || true
+                # import check failed for sudo target user
                 cache_check_result "pkg_pips" "fail"; echo "fail"; return 1
             fi
         fi
@@ -4707,7 +4660,8 @@ run_uninstall_mode() {
     
     local menu_start=3
     if [ "${HAS_GUI:-false}" = true ]; then
-        draw_sealed_row $((LOG_TOP + 2)) "   Note: ${CYAN}${SYMBOL_LOCKED}${NC} items preserved for system stability."
+        # Use the muted protected glyph color for consistency with the UI
+        draw_sealed_row $((LOG_TOP + 2)) "   Note: ${BOLD_GRAY}${SYMBOL_LOCKED}${NC} items preserved for system stability."
         menu_start=4
     fi
 
@@ -4991,12 +4945,29 @@ perform_ant_test() {
         if [ "$(id -u)" -eq 0 ] && [[ -n "${TARGET_USER:-}" ]]; then
             # Ensure the target user can write the log file when sudo-ing
             chown "$TARGET_USER":"$TARGET_USER" "$log_file" 2>/dev/null || true
-            # run under the target user's shell so redirection is applied by that user
-            sudo -u "$TARGET_USER" -- bash -c "exec \"$venv_py\" -u \"$py_script\" --dashboard >\"$log_file\" 2>&1 &"
+            # Launch the python test under the target user and request it
+            # write its own pidfile using --pidfile. Wait briefly for the
+            # pidfile to appear (best-effort) and fallback to pgrep if needed.
+            sudo -u "$TARGET_USER" -- bash -c "exec \"$venv_py\" -u \"$py_script\" --dashboard --pidfile \"$TEMP_DIR/qz_ant_test.pid\" >\"$log_file\" 2>&1 &"
+
+            py_pid=""
+            for _wait_i in {1..15}; do
+                if [ -s "$TEMP_DIR/qz_ant_test.pid" ]; then
+                    py_pid=$(cat "$TEMP_DIR/qz_ant_test.pid" 2>/dev/null || true)
+                    break
+                fi
+                sleep 0.1
+            done
+
+            # Fallback: try to find the oldest matching python process for
+            # the target user (less likely to pick the wrapper).
+            if [[ -z "$py_pid" ]]; then
+                py_pid=$(pgrep -o -u "$TARGET_USER" -f "test_ant.py" || true)
+            fi
         else
-            "$venv_py" -u "$py_script" --dashboard >"$log_file" 2>&1 &
+            "$venv_py" -u "$py_script" --dashboard --pidfile "$TEMP_DIR/qz_ant_test.pid" >"$log_file" 2>&1 &
+            py_pid=$!
         fi
-        py_pid=$!
         # Record the pid to a well-known temp file so external cleanup (trap)
         # can discover and stop the test process if needed.
         if [[ -n "${TEMP_DIR:-}" ]]; then
@@ -5074,6 +5045,20 @@ perform_ant_test() {
         else
             initial_startup_lines=("${_tmp[@]}")
         fi
+
+        # Normalize certain verbose startup messages for a cleaner UI.
+        # Extract a dedicated device-id line so it can be displayed below
+        # the progress bar with a blank row separating them.
+        DEVICE_ID_LINE=""
+        for i in "${!initial_startup_lines[@]}"; do
+            local _il
+            _il=${initial_startup_lines[$i]}
+            if [[ "$_il" =~ Starting[[:space:]]ANT\+[[:space:]]broadcaster[[:space:]]with[[:space:]]device[[:space:]]ID[[:space:]]*([0-9]+) ]]; then
+                DEVICE_ID_LINE="ANT+ broadcaster device ID: ${BASH_REMATCH[1]}"
+                # remove from the startup lines so it doesn't display twice
+                initial_startup_lines[$i]=""
+            fi
+        done
     fi
     # Ensure exactly three slots exist (may be empty)
     for i in 0 1 2; do
@@ -5105,8 +5090,10 @@ perform_ant_test() {
                     local clean short
                     clean=$(strip_ansi_cached "$l" | tr -s ' ')
                     # Tighten common verbose messages into short bullets
-                    if [[ "$clean" =~ [Dd]ongle ]] || [[ "$clean" == *"not connected or is in use"* ]]; then
+                    if [[ "$clean" == *"not connected"* ]] || [[ "$clean" == *"in use"* ]] || [[ "$clean" == *"missing"* ]] || [[ "$clean" == *"not connected or is in use"* ]]; then
                         short="Dongle missing/in use"
+                    elif [[ "$clean" =~ [Dd]ongle ]]; then
+                        short="$clean"
                     elif [[ "$clean" == *"Permission issues"* ]] || [[ "$clean" == *"Permission denied"* ]]; then
                         short="Permission error (run sudo)"
                     elif [[ "$clean" == *"openant"* && ( "$clean" == *"not installed"* || "$clean" == *"missing"* ) ]]; then
@@ -5138,9 +5125,11 @@ perform_ant_test() {
             # Read the tail of the log (include carriage-return-updated lines).
             local last_chunk
             last_chunk=$(tail -c 512 "$log_file" 2>/dev/null || true)
-            # Convert CR to LF so progress printed with '\r' becomes a line
-            # we can extract reliably. Then take the final line fragment.
-            last_line=$(printf '%s' "$last_chunk" | tr '\r' '\n' | tail -n1 2>/dev/null || true)
+            # Convert CR to LF so progress printed with '\r' becomes separate
+            # lines and then select the last non-empty fragment. Using awk
+            # avoids picking a trailing empty fragment when a CR is the
+            # final byte in the captured chunk.
+            last_line=$(printf '%s' "$last_chunk" | tr '\r' '\n' | awk 'NF{l=$0} END{print l}')
         fi
         # Strip ANSI and control bytes for reliable parsing
         clean_line=$(strip_ansi_cached "${last_line}")
@@ -5190,13 +5179,17 @@ perform_ant_test() {
             # Initial full draw (static parts) - do this once to reduce redraws
             draw_bottom_panel_header "ANT+ BROADCAST TEST"
             clear_info_area
-            draw_sealed_row $((LOG_TOP + 1)) "   Running: test_ant.py (PID: $py_pid)"
             # Display captured initialization messages (up to 3 lines).
             # Stage will later overwrite the first of these rows when it
             # appears; the remaining lines remain for diagnostics.
-            draw_sealed_row $((LOG_TOP + 4)) "   ${initial_startup_lines[0]:-}"
-            draw_sealed_row $((LOG_TOP + 5)) "   ${initial_startup_lines[1]:-}"
-            draw_sealed_row $((LOG_TOP + 6)) "   ${initial_startup_lines[2]:-}"
+            draw_sealed_row $((LOG_TOP + 1)) "   ${initial_startup_lines[0]:-}"
+            draw_sealed_row $((LOG_TOP + 2)) "   ${initial_startup_lines[1]:-}"
+            draw_sealed_row $((LOG_TOP + 3)) "   ${initial_startup_lines[2]:-}"
+            # If we captured a dedicated device-id line, render it below
+            # the progress bar with one blank separator row (now LOG_TOP+3).
+            if [[ -n "${DEVICE_ID_LINE:-}" ]]; then
+                draw_sealed_row $((LOG_TOP + 4)) "   ${DEVICE_ID_LINE}"
+            fi
             # Use bottom border for stop instruction (consistency with Bluetooth)
             draw_bottom_border "Any key to stop"
             _first_draw=0
@@ -5326,11 +5319,11 @@ perform_ant_test() {
         # Build an atomic render buffer for the dynamic rows (avoid interleaved prints)
         local render_buffer=""
 
-        # Row LOG_TOP+4: show startup/initialization messages while compact
+        # Row LOG_TOP+1: show startup/initialization messages while compact
         # status is NOT present. Do NOT clear this row once the compact
         # status appears; leave whatever initialization message was printed
         # so the user can read startup diagnostics.
-        local row4=$(( LOG_TOP + 4 ))
+        local row4=$(( LOG_TOP + 1 ))
         if [[ $compact_present -eq 0 && -n "$clean_line" ]]; then
             local row4_text
             row4_text=$(trunc_vis "   ${clean_line}" $INNER_COLS)
@@ -5343,16 +5336,21 @@ perform_ant_test() {
               render_buffer+=$(printf "\033[%d;1H%s" "$((row4 + 1))" "$line4")
         fi
 
-        # Stage will render at LOG_TOP+4 (it will overwrite the init text)
-        local row_stage=$(( LOG_TOP + 4 ))
+        # Stage will render at LOG_TOP+1 (it will overwrite the init text)
+        local row_stage=$(( LOG_TOP + 1 ))
         # Only render this row if we have either a stage or metrics to show.
         # shellcheck disable=SC2034
         local stage_vis
         stage_vis=$(get_vis_width "$(strip_ansi_cached "$truncated_stage")")
         : "${stage_vis:-}" >/dev/null 2>&1
-        # Only render the stage+metrics row after a compact status line
-        # confirms a successful connection and structured output.
-        if [[ $compact_present -eq 1 ]]; then
+        # Allow rendering when we either have a compact stage line OR
+        # when parsed metrics exist (fast-path parsing). Pad metrics
+        # when compact status is not present so columns align.
+        if [[ $compact_present -eq 0 && -n "$metrics_display" ]]; then
+            metrics_display=$(trunc_vis "$metrics_display" "$metrics_allowed_w")
+            metrics_display=$(pad_display "$metrics_display" "$metrics_allowed_w")
+        fi
+        if [[ $compact_present -eq 1 || -n "$metrics_display" ]]; then
             local vis_stage
             vis_stage=$(get_vis_width "$full_line_content")
             local pad_stage=$(( INNER_COLS - vis_stage )); (( pad_stage < 0 )) && pad_stage=0
@@ -5362,8 +5360,8 @@ perform_ant_test() {
               render_buffer+=$(printf "\033[%d;1H%s" "$((row_stage + 1))" "$line_stage")
         fi
 
-        # Row LOG_TOP+5: timer + progress (only when compact status is present)
-        local row_progress=$(( LOG_TOP + 5 ))
+        # Row LOG_TOP+2: timer + progress (only when compact status is present)
+        local row_progress=$(( LOG_TOP + 2 ))
         local TIMER_FIELD_W=18
         local timer_field=""
         if [[ -n "$timer_display" ]]; then
@@ -5410,24 +5408,34 @@ perform_ant_test() {
 
         # Show simple user guidance while a stage is actively running
         if [[ $compact_present -eq 1 ]]; then
-            local g1_row=$(( LOG_TOP + 7 ))
-            local g2_row=$(( LOG_TOP + 8 ))
-            local g1="   Put your watch in pairing mode and link it now."
-            local g2="   Your watch will show pace and candence"
+            # Leave one blank row after the progress bar and device-id
+            # row, so shift guidance lines down for visual separation.
+            local g1_row=$(( LOG_TOP + 6 ))
+            local g2_row=$(( LOG_TOP + 7 ))
+            local g3_row=$(( LOG_TOP + 8 ))
+            local g1="   On your watch: enable the Foot Pod sensor and start a treadmill workout."
+            local g2="   Menu → Sensors & Accessories → Add New → Foot Pod (pair now)."
+            local g3="   Start Treadmill / Run Indoor activity — Watch will display pace & cadence."
             # Truncate/pad to fit
             g1=$(trunc_vis "$g1" $INNER_COLS)
             g2=$(trunc_vis "$g2" $INNER_COLS)
-            local visg1 visg2 padg1 padg2 padstrg1 padstrg2 lineg1 lineg2
+            g3=$(trunc_vis "$g3" $INNER_COLS)
+            local visg1 visg2 visg3 padg1 padg2 padg3 padstrg1 padstrg2 padstrg3 lineg1 lineg2 lineg3
             visg1=$(get_vis_width "$g1")
             visg2=$(get_vis_width "$g2")
+            visg3=$(get_vis_width "$g3")
             padg1=$(( INNER_COLS - visg1 )); (( padg1 < 0 )) && padg1=0
             padg2=$(( INNER_COLS - visg2 )); (( padg2 < 0 )) && padg2=0
+            padg3=$(( INNER_COLS - visg3 )); (( padg3 < 0 )) && padg3=0
             padstrg1=$(printf '%*s' "$padg1" "")
             padstrg2=$(printf '%*s' "$padg2" "")
+            padstrg3=$(printf '%*s' "$padg3" "")
             lineg1="${BLUE}║${NC}${g1}${padstrg1}${BLUE}║${NC}"
             lineg2="${BLUE}║${NC}${g2}${padstrg2}${BLUE}║${NC}"
-              render_buffer+=$(printf "\033[%d;1H%s" "$((g1_row + 1))" "$lineg1")
-              render_buffer+=$(printf "\033[%d;1H%s" "$((g2_row + 1))" "$lineg2")
+            lineg3="${BLUE}║${NC}${g3}${padstrg3}${BLUE}║${NC}"
+            render_buffer+=$(printf "\033[%d;1H%s" "$((g1_row + 1))" "$lineg1")
+            render_buffer+=$(printf "\033[%d;1H%s" "$((g2_row + 1))" "$lineg2")
+            render_buffer+=$(printf "\033[%d;1H%s" "$((g3_row + 1))" "$lineg3")
         fi
 
         # Atomic write of dynamic area
