@@ -1780,7 +1780,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
     return list;
 }
 
-QTime trainprogram::totalElapsedTime() { return QTime(0, 0, 0).addSecs(ticks); }
+QTime trainprogram::totalElapsedTime() { return QTime(0, 0, ticks); }
 
 trainrow trainprogram::currentRow() {
     if (started && !rows.isEmpty()) {
