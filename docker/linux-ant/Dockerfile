@@ -4,8 +4,8 @@
 # Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
 # Contributor: bassai-sho | AI-assisted development | License: GPL-3.0
 #
-# Compiles QDomyos-Zwift for linux/amd64 platform (Ubuntu/Debian desktops).
-# Uses Ubuntu LTS with Python 3.11 from deadsnakes PPA for ANT+ integration.
+# Cross-compiles QDomyos-Zwift for linux/amd64 platform (Ubuntu 20.04+, Debian 11+).
+# Uses Debian Bookworm with pinned Python 3.11.2 for stable ANT+ integration.
 #
 # Build stages:
 #   1. Builder: Compiles Qt5/C++ application with embedded Python ANT+ support
@@ -19,56 +19,46 @@
 # =============================================================================
 
 # --- Stage 1: The Builder ---
-FROM ubuntu:latest AS builder
+FROM debian:bookworm AS builder
 
-# Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Add deadsnakes PPA for Python 3.11 and install all necessary build dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends software-properties-common && \
-    add-apt-repository ppa:deadsnakes/ppa -y && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
+# Install all necessary build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     git \
     cmake \
-    xvfb \
-    # Core Qt5 development packages
     qtbase5-dev \
     qtbase5-private-dev \
     qtchooser \
     qt5-qmake \
     qtbase5-dev-tools \
-    qtquickcontrols2-5-dev \
-    libqt5bluetooth5 \
-    libqt5widgets5 \
-    libqt5positioning5 \
-    libqt5xml5 \
-    qtconnectivity5-dev \
-    qtpositioning5-dev \
-    libqt5charts5-dev \
-    libqt5charts5 \
-    libqt5networkauth5-dev \
-    libqt5websockets5-dev \
+    qttools5-dev-tools \
+    libqt5svg5-dev \
     qtmultimedia5-dev \
-    qtlocation5-dev \
+    libqt5charts5-dev \
+    qtpositioning5-dev \
+    qtconnectivity5-dev \
+    libqt5websockets5-dev \
     libqt5texttospeech5-dev \
-    libxcb-randr0-dev \
-    libxcb-xtest0-dev \
-    libxcb-xinerama0-dev \
-    libxcb-shape0-dev \
-    libxcb-xkb-dev \
+    libqt5bluetooth5 \
+    libqt5networkauth5-dev \
+    qml-module-qtlocation \
+    qml-module-qtpositioning \
+    qtlocation5-dev \
+    libqt5quickcontrols2-5 \
+    qtquickcontrols2-5-dev \
+    qml-module-qtquick-controls2 \
     libqt5sql5-sqlite \
     libqt5sql5-mysql \
     libqt5sql5-psql \
-    # Python 3.11 for ANT+ support (from deadsnakes PPA)
-    python3.11 \
-    python3.11-dev \
-    python3.11-venv \
+    libsqlite3-dev \
+    python3-pip \
+    python3=3.11.2-1+b1 \
+    python3-dev=3.11.2-1+b1 \
+    python3-venv=3.11.2-1+b1 \
     libusb-1.0-0-dev \
-    libudev-dev && \
-    rm -rf /var/lib/apt/lists/*
+    libudev-dev
 
 # Set up the Python virtual environment for ANT+ support
 RUN python3.11 -m venv /opt/ant_venv && \
@@ -79,10 +69,15 @@ RUN python3.11 -m venv /opt/ant_venv && \
 WORKDIR /app
 COPY . .
 
-# Generate devices.ini from QML source file
-RUN echo "Generating devices.ini from settings.qml..."; \
-    cd /app && \
-    /opt/ant_venv/bin/python3 src/devices/antlinux/generate_devices.py src/settings.qml
+# Generate devices.ini and validate immediately (fail-fast)
+RUN set -e; \
+    echo "Generating devices.ini from settings.qml..."; \
+    cd /app; \
+    /opt/ant_venv/bin/python3 src/devices/antlinux/generate_devices.py src/settings.qml; \
+    test -f src/devices.ini || { echo "ERROR: devices.ini not generated"; exit 1; }; \
+    test -f src/devices/antlinux/devices_optimized.json || { echo "ERROR: devices_optimized.json not generated"; exit 1; }; \
+    test -d src/devices/antlinux/.menu_cache || { echo "ERROR: .menu_cache not created"; exit 1; }; \
+    echo "Python artifacts validated"
 
 # Initialize only the needed submodules (avoid full recursive fetch)
 RUN git submodule update --init src/smtpclient/ && \
@@ -90,66 +85,53 @@ RUN git submodule update --init src/smtpclient/ && \
     git submodule update --init src/qthttpserver/ && \
     git submodule update --init tst/googletest/
 
-# Instead of compiling qthttpserver, we copy the pre-built headers,
-# exactly like the original linux-x86-build CI job.
-RUN cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
-
 # Configure the project for an ANT+ build
 RUN echo 'include(devices/antlinux/antlinux.pri)' >> src/qdomyos-zwift.pro && \
-    echo '/opt/ant_venv/bin/python3' > src/.ant_venv_path
+    echo '/opt/ant_venv/bin/python3' > src/.ant_venv_path && \
+    sed -i '/QtHttpServer/d' src/qdomyos-zwift.pro && \
+    find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + && \
+    find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} +
 
-# --- OPTIMIZED BUILD STEP ---
-# Accept build argument to enable debug logging (optional, defaults to release)
+# Build and validate binary immediately (fail-fast)
 ARG ENABLE_DEBUG_LOGS=0
 
-# 1. Run qmake with release or debug flags based on ENABLE_DEBUG_LOGS.
-# 2. Run make to compile the application.
-# 3. Run strip on the final binary ONLY for release builds.
-RUN cd src && \
+RUN set -e; \
+    cd src; \
     if [ "$ENABLE_DEBUG_LOGS" = "1" ]; then \
-        echo "Building with DEBUG LOGS ENABLED (qDebug output visible)"; \
+        echo "Building with debug logs enabled"; \
         qmake "CONFIG+=debug" "CONFIG+=optimize_full" \
               "DEFINES-=QT_NO_DEBUG" "DEFINES-=QT_NO_DEBUG_OUTPUT" \
               "QMAKE_CXXFLAGS+=-ffile-prefix-map=/app=." qdomyos-zwift.pro; \
         make -j$(nproc); \
     else \
-        echo "Building RELEASE mode (qDebug suppressed for smaller binary)"; \
+        echo "Building release mode"; \
         qmake "CONFIG+=release" "QMAKE_CXXFLAGS+=-ffile-prefix-map=/app=." qdomyos-zwift.pro; \
         make -j$(nproc); \
         strip qdomyos-zwift; \
-    fi && \
-    mv qdomyos-zwift qdomyos-zwift-bin
-
-# Validate that all required build artifacts exist before proceeding
-RUN echo "Validating build artifacts..." && \
-    test -f /app/qdomyos-zwift-bin || (echo "ERROR: Binary not found" && exit 1) && \
-    test -f /app/src/devices.ini || (echo "ERROR: devices.ini not found" && exit 1) && \
-    test -f /app/src/devices/antlinux/devices_optimized.json || (echo "ERROR: devices_optimized.json not found" && exit 1) && \
-    test -d /app/src/devices/antlinux/.menu_cache || (echo "ERROR: .menu_cache directory not found" && exit 1) && \
-    echo "✓ All required artifacts validated successfully"
+    fi; \
+    mv qdomyos-zwift qdomyos-zwift-bin; \
+    test -f qdomyos-zwift-bin || { echo "ERROR: Binary not created"; exit 1; }; \
+    echo "Build complete"
 
 # --- Stage 2: Minimal Artifact Container ---
-# Using busybox for minimal image size since files are only extracted, not run here.
-# Users will run the binary on their host with system-installed dependencies.
 FROM busybox:latest
 
 # Create the application directory structure
 RUN mkdir -p /qdomyos-zwift-x86-64-ant
 
-# Copy the compiled binary and wrapper script from the build context
+# Copy artifacts - now using unified wrapper from src/devices/antlinux/
 COPY --from=builder /app/src/qdomyos-zwift-bin /qdomyos-zwift-x86-64-ant/
-COPY docker/linux-ant/qdomyos-zwift-wrapper.sh /qdomyos-zwift-x86-64-ant/qdomyos-zwift
+COPY src/devices/antlinux/qdomyos-zwift-wrapper.sh /qdomyos-zwift-x86-64-ant/qdomyos-zwift
 COPY src/devices/antlinux/setup-dashboard.sh /qdomyos-zwift-x86-64-ant/
 COPY src/devices/antlinux/bt_provider.py /qdomyos-zwift-x86-64-ant/
 COPY src/devices/antlinux/test_ant.py /qdomyos-zwift-x86-64-ant/
 COPY src/devices/antlinux/ant_broadcaster.py /qdomyos-zwift-x86-64-ant/
 COPY src/devices/antlinux/README.md /qdomyos-zwift-x86-64-ant/
 COPY --from=builder /app/src/devices.ini /qdomyos-zwift-x86-64-ant/devices.ini
-# Include the pre-generated JSON and per-section caches so runtime can use them
 COPY --from=builder /app/src/devices/antlinux/devices_optimized.json /qdomyos-zwift-x86-64-ant/devices_optimized.json
 COPY --from=builder /app/src/devices/antlinux/.menu_cache /qdomyos-zwift-x86-64-ant/.menu_cache
+
 RUN chmod +x /qdomyos-zwift-x86-64-ant/qdomyos-zwift && \
     chmod +x /qdomyos-zwift-x86-64-ant/setup-dashboard.sh || true
 
-# Set a no-op command (required for Docker image)
-CMD ["/bin/bash"]
+CMD ["/bin/sh"]

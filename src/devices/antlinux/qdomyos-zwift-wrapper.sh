@@ -1,16 +1,19 @@
 #!/bin/bash
 ################################################################################
-# QDomyos-Zwift: Runtime Wrapper Script (ARM64 / Raspberry Pi)
+# QDomyos-Zwift: Universal Runtime Wrapper Script (Multi-Architecture)
 #
 # Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
 # Contributor: bassai-sho | AI-assisted development | License: GPL-3.0
 #
 # Runtime validation and dependency checker for QDomyos-Zwift with ANT+ support.
-# Auto-detects Python 3.11, validates Qt5/ANT+ dependencies, and launches binary
-# in a clean environment to prevent snap/flatpak library conflicts.
+# Auto-detects system architecture (x86-64/ARM64), validates Python 3.11, Qt5,
+# and ANT+ dependencies, then launches the binary in a clean environment to
+# prevent snap/flatpak library conflicts.
 #
-# Platform: ARM64 Linux (Raspberry Pi 3+, Debian/RPi OS)
-# Key checks: Python 3.11 libs, Qt5 runtime, QML modules, ANT+ venv/USB permissions
+# Platform: Multi-arch Linux (x86-64: Ubuntu 20.04+, Debian 11+)
+#                            (ARM64: Raspberry Pi 3+, Debian/RPi OS)
+# Key checks: Architecture validation, Python 3.11 libs, Qt5 runtime,
+#             QML modules, ANT+ venv/USB permissions
 #
 # Usage:
 #   ./qdomyos-zwift [OPTIONS]
@@ -28,6 +31,24 @@ C_RESET="\033[0m"
 WARNINGS=()
 ERRORS=()
 ANT_WARNINGS=()
+
+# === ARCHITECTURE DETECTION ===
+ARCH_TYPE="$(uname -m)"
+case "$ARCH_TYPE" in
+    x86_64|amd64)
+        PLATFORM="x86-64"
+        ARCH_LIB_PATH="x86_64-linux-gnu"
+        ;;
+    aarch64|arm64)
+        PLATFORM="ARM64"
+        ARCH_LIB_PATH="aarch64-linux-gnu"
+        ;;
+    *)
+        echo -e "${C_RED}ERROR: Unsupported architecture: $ARCH_TYPE${C_RESET}" >&2
+        echo -e "${C_RED}This script supports x86-64 (x86_64/amd64) and ARM64 (aarch64/arm64) only.${C_RESET}" >&2
+        exit 1
+        ;;
+esac
 
 # Determine the actual user's home (mirror setup.sh logic for systemd compatibility)
 # Priority:
@@ -119,9 +140,9 @@ if [[ -d "${USER_HOME}/.pyenv/versions" ]]; then
     done
 fi
 
-# 2. Try system locations if not found in pyenv (ARM64-specific paths)
+# 2. Try system locations if not found in pyenv (architecture-aware paths)
 if [[ -z "$PYTHON_LIB" ]]; then
-    for sys_lib in /usr/lib/aarch64-linux-gnu /usr/lib64 /usr/lib /usr/local/lib; do
+    for sys_lib in "/usr/lib/${ARCH_LIB_PATH}" /usr/lib64 /usr/lib /usr/local/lib; do
         if check_libpython "$sys_lib"; then
             PYTHON_LIB="$sys_lib"
             break
@@ -185,18 +206,18 @@ if [[ ${#MISSING_QT5[@]} -gt 0 ]]; then
     ERRORS+=("Missing Qt5 libraries: ${MISSING_QT5[*]}")
 fi
 
-# === CHECK 5: QML Modules ===
+# === CHECK 3: QML Modules (architecture-aware paths) ===
 MISSING_QML=()
 QML_MODULES=(
-    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtLocation"
-    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtPositioning"
-    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtQuick.2"
-    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtQuick/Controls"
-    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtQuick/Controls.2"
-    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtQuick/Dialogs"
-    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtQuick/Layouts"
-    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtQuick/Window.2"
-    "/usr/lib/aarch64-linux-gnu/qt5/qml/QtMultimedia"
+    "/usr/lib/${ARCH_LIB_PATH}/qt5/qml/QtLocation"
+    "/usr/lib/${ARCH_LIB_PATH}/qt5/qml/QtPositioning"
+    "/usr/lib/${ARCH_LIB_PATH}/qt5/qml/QtQuick.2"
+    "/usr/lib/${ARCH_LIB_PATH}/qt5/qml/QtQuick/Controls"
+    "/usr/lib/${ARCH_LIB_PATH}/qt5/qml/QtQuick/Controls.2"
+    "/usr/lib/${ARCH_LIB_PATH}/qt5/qml/QtQuick/Dialogs"
+    "/usr/lib/${ARCH_LIB_PATH}/qt5/qml/QtQuick/Layouts"
+    "/usr/lib/${ARCH_LIB_PATH}/qt5/qml/QtQuick/Window.2"
+    "/usr/lib/${ARCH_LIB_PATH}/qt5/qml/QtMultimedia"
 )
 
 for qml_path in "${QML_MODULES[@]}"; do
@@ -261,7 +282,8 @@ if [[ "$USING_ANT_FOOTPOD" == true ]]; then
 fi
 
 # Promote ANT-specific warnings to ERRORS when ANT+ footpod mode requested,
-# otherwise treat them as general WARNINGS. Centralizes guidance messaging.
+# otherwise treat them as general WARNINGS. This centralizes decision logic
+# and avoids scattering guidance messages through the checks above.
 if [[ ${#ANT_WARNINGS[@]} -gt 0 ]]; then
     if [[ "$USING_ANT_FOOTPOD" == true ]]; then
         for w in "${ANT_WARNINGS[@]}"; do
@@ -281,7 +303,7 @@ fi
 
 # === Display warnings and errors ===
 if [[ ${#ERRORS[@]} -gt 0 ]]; then
-    echo -e "${C_RED}ERROR: Cannot start QDomyos-Zwift${C_RESET}" >&2
+    echo -e "${C_RED}ERROR: Cannot start QDomyos-Zwift (Platform: $PLATFORM)${C_RESET}" >&2
     echo "" >&2
     for err in "${ERRORS[@]}"; do
         echo -e "${C_RED}  $err${C_RESET}" >&2
@@ -293,7 +315,7 @@ if [[ ${#ERRORS[@]} -gt 0 ]]; then
 fi
 
 if [[ ${#WARNINGS[@]} -gt 0 ]]; then
-    echo -e "${C_YELLOW}WARNING: ANT+ functionality may not work:${C_RESET}" >&2
+    echo -e "${C_YELLOW}WARNING: ANT+ functionality may not work (Platform: $PLATFORM):${C_RESET}" >&2
     echo "" >&2
     for warn in "${WARNINGS[@]}"; do
         echo -e "${C_YELLOW}  $warn${C_RESET}" >&2

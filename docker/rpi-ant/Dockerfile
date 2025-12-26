@@ -19,15 +19,11 @@
 # =============================================================================
 
 # --- Stage 1: The Builder ---
-# Use the latest stable Debian release to get ongoing security updates.
 FROM debian:bookworm AS builder
 
-# Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install all necessary build dependencies.
-# We pin the Python version to 3.11.2 (package version 3.11.2-1+b1)
-# to ensure a reproducible build for the C++ interface.
+# Install all necessary build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     git \
@@ -58,11 +54,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libqt5sql5-psql \
     libsqlite3-dev \
     python3-pip \
-    # --- Start of Pinned Python Version ---
     python3=3.11.2-1+b1 \
     python3-dev=3.11.2-1+b1 \
     python3-venv=3.11.2-1+b1 \
-    # --- End of Pinned Python Version ---
     libusb-1.0-0-dev \
     libudev-dev
 
@@ -75,10 +69,15 @@ RUN python3.11 -m venv /opt/ant_venv && \
 WORKDIR /app
 COPY . .
 
-# Generate devices.ini from QML source file
-RUN echo "Generating devices.ini from settings.qml..."; \
-    cd /app && \
-    /opt/ant_venv/bin/python3 src/devices/antlinux/generate_devices.py src/settings.qml
+# Generate devices.ini and validate immediately (fail-fast)
+RUN set -e; \
+    echo "Generating devices.ini from settings.qml..."; \
+    cd /app; \
+    /opt/ant_venv/bin/python3 src/devices/antlinux/generate_devices.py src/settings.qml; \
+    test -f src/devices.ini || { echo "ERROR: devices.ini not generated"; exit 1; }; \
+    test -f src/devices/antlinux/devices_optimized.json || { echo "ERROR: devices_optimized.json not generated"; exit 1; }; \
+    test -d src/devices/antlinux/.menu_cache || { echo "ERROR: .menu_cache not created"; exit 1; }; \
+    echo "Python artifacts validated"
 
 # Initialize only the needed submodules (avoid full recursive fetch)
 RUN git submodule update --init src/smtpclient/ && \
@@ -93,58 +92,46 @@ RUN echo 'include(devices/antlinux/antlinux.pri)' >> src/qdomyos-zwift.pro && \
     find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + && \
     find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} +
 
-# --- OPTIMIZED BUILD STEP ---
-# Accept build argument to enable debug logging (optional, defaults to release)
+# Build and validate binary immediately (fail-fast)
 ARG ENABLE_DEBUG_LOGS=0
 
-# 1. Run qmake with release or debug flags based on ENABLE_DEBUG_LOGS.
-# 2. Run make to compile the application.
-# 3. Run strip on the final binary ONLY for release builds.
-RUN cd src && \
+RUN set -e; \
+    cd src; \
     if [ "$ENABLE_DEBUG_LOGS" = "1" ]; then \
-        echo "Building with DEBUG LOGS ENABLED (qDebug output visible)"; \
+        echo "Building with debug logs enabled"; \
         qmake "CONFIG+=debug" "CONFIG+=optimize_full" \
               "DEFINES-=QT_NO_DEBUG" "DEFINES-=QT_NO_DEBUG_OUTPUT" \
               "QMAKE_CXXFLAGS+=-ffile-prefix-map=/app=." qdomyos-zwift.pro; \
         make -j$(nproc); \
     else \
-        echo "Building RELEASE mode (qDebug suppressed for smaller binary)"; \
+        echo "Building release mode"; \
         qmake "CONFIG+=release" "QMAKE_CXXFLAGS+=-ffile-prefix-map=/app=." qdomyos-zwift.pro; \
         make -j$(nproc); \
         strip qdomyos-zwift; \
-    fi && \
-    mv qdomyos-zwift qdomyos-zwift-bin
-
-# Validate that all required build artifacts exist before proceeding
-RUN echo "Validating build artifacts..." && \
-    test -f /app/qdomyos-zwift-bin || (echo "ERROR: Binary not found" && exit 1) && \
-    test -f /app/src/devices.ini || (echo "ERROR: devices.ini not found" && exit 1) && \
-    test -f /app/src/devices/antlinux/devices_optimized.json || (echo "ERROR: devices_optimized.json not found" && exit 1) && \
-    test -d /app/src/devices/antlinux/.menu_cache || (echo "ERROR: .menu_cache directory not found" && exit 1) && \
-    echo "✓ All required artifacts validated successfully"
+    fi; \
+    mv qdomyos-zwift qdomyos-zwift-bin; \
+    test -f qdomyos-zwift-bin || { echo "ERROR: Binary not created"; exit 1; }; \
+    echo "Build complete"
 
 # --- Stage 2: Minimal Artifact Container ---
-# Using busybox for minimal image size since files are only extracted, not run here.
-# Users will run the binary on their host with system-installed dependencies.
 FROM busybox:latest
 
 # Create the application directory structure
 RUN mkdir -p /qdomyos-zwift-arm64-ant
 
-# Copy the compiled binary and wrapper script from the build context
+# Copy artifacts - now using unified wrapper from src/devices/antlinux/
 COPY --from=builder /app/src/qdomyos-zwift-bin /qdomyos-zwift-arm64-ant/
-COPY docker/rpi-ant/qdomyos-zwift-wrapper.sh /qdomyos-zwift-arm64-ant/qdomyos-zwift
+COPY src/devices/antlinux/qdomyos-zwift-wrapper.sh /qdomyos-zwift-arm64-ant/qdomyos-zwift
 COPY src/devices/antlinux/setup-dashboard.sh /qdomyos-zwift-arm64-ant/
 COPY src/devices/antlinux/bt_provider.py /qdomyos-zwift-arm64-ant/
 COPY src/devices/antlinux/test_ant.py /qdomyos-zwift-arm64-ant/
 COPY src/devices/antlinux/ant_broadcaster.py /qdomyos-zwift-arm64-ant/
 COPY src/devices/antlinux/README.md /qdomyos-zwift-arm64-ant/
 COPY --from=builder /app/src/devices.ini /qdomyos-zwift-arm64-ant/devices.ini
-# Include the pre-generated JSON and per-section caches so runtime can use them
 COPY --from=builder /app/src/devices/antlinux/devices_optimized.json /qdomyos-zwift-arm64-ant/devices_optimized.json
 COPY --from=builder /app/src/devices/antlinux/.menu_cache /qdomyos-zwift-arm64-ant/.menu_cache
+
 RUN chmod +x /qdomyos-zwift-arm64-ant/qdomyos-zwift && \
     chmod +x /qdomyos-zwift-arm64-ant/setup-dashboard.sh || true
 
-# Set a no-op command (required for Docker image)
-CMD ["/bin/bash"]
+CMD ["/bin/sh"]
