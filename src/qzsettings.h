@@ -2122,6 +2122,9 @@ class QZSettings {
     static const QString zwift_play_vibration;
     static constexpr bool default_zwift_play_vibration = true;
 
+    static const QString shimano_di2;
+    static constexpr bool default_shimano_di2 = false;
+
     static const QString nordictrack_treadmill_x14i;
     static constexpr bool default_nordictrack_treadmill_x14i = false;
 
