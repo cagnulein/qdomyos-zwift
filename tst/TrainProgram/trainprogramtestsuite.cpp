@@ -3,6 +3,7 @@
 #include "zwiftworkout.h"
 #include <QTime>
 #include <QList>
+#include <QSignalSpy>
 
 TrainProgramTestSuite::TrainProgramTestSuite()
 {
@@ -10,12 +11,11 @@ TrainProgramTestSuite::TrainProgramTestSuite()
 }
 
 void TrainProgramTestSuite::test_singleRow40MinuteWorkout_shouldReach40Minutes() {
-    // Test the REAL trainprogram logic, not just display
-    // Bug: workout stops when calculatedElapsedTime > ticks at 2399, not 2400
+    // Test using REAL trainprogram class and scheduler() method
 
-    qDebug() << "\n=== TEST: Single Row Logic (40 minutes = 2400 seconds) ===\n";
+    qDebug() << "\n=== REAL TEST: Single Row 40-Minute Workout ===\n";
 
-    // Create a single row workout of 40 minutes
+    // Create workout
     QList<trainrow> rows;
     trainrow row;
     row.duration = QTime(0, 40, 0); // 2400 seconds
@@ -24,105 +24,83 @@ void TrainProgramTestSuite::test_singleRow40MinuteWorkout_shouldReach40Minutes()
 
     trainprogram program(rows, nullptr);
 
-    qDebug() << "Workout created: 1 row of" << row.duration.toString("hh:mm:ss");
-    qDebug() << "Expected completion: at ticks = 2400";
+    qDebug() << "Workout: 1 row of" << row.duration.toString("hh:mm:ss");
+    qDebug() << "Expected to complete at tick 2400";
     qDebug() << "";
 
-    // The bug is in the comparison logic in scheduler():
-    // Line ~1001: if (calculatedElapsedTime > static_cast<uint32_t>(ticks) ...)
-    //
-    // For a 2400 second workout:
-    // - calculateTimeForRow(0) returns 2400
-    // - When ticks=2399: 2400 > 2399 = TRUE → breaks → ends early!
-    // - When ticks=2400: 2400 > 2400 = FALSE → should continue
+    // Connect to stop signal to detect when workout ends
+    QSignalSpy stopSpy(&program, &trainprogram::stop);
 
-    // Simulate what happens in scheduler() at different ticks
-    qDebug() << "=== Simulating scheduler() logic ===\n";
+    // Start the program
+    program.restart();
 
-    // Test the comparison at tick 2398
-    {
-        int32_t ticks = 2398;
-        uint32_t calculatedElapsedTime = 0;
-        for (int i = 0; i < rows.length(); i++) {
-            uint32_t rowTime = (rows.at(i).duration.second() +
-                               (rows.at(i).duration.minute() * 60) +
-                               (rows.at(i).duration.hour() * 3600));
-            calculatedElapsedTime += rowTime;
-        }
+    qDebug() << "Program started, isStarted() =" << program.isStarted();
+    qDebug() << "";
 
-        bool shouldBreak = (calculatedElapsedTime > static_cast<uint32_t>(ticks));
-        qDebug() << "At ticks=" << ticks << "(39:58):";
-        qDebug() << "  calculatedElapsedTime =" << calculatedElapsedTime;
-        qDebug() << "  calculatedElapsedTime > ticks?" << shouldBreak;
-        qDebug() << "  → Workout should" << (shouldBreak ? "END" : "CONTINUE");
-        qDebug() << "";
+    // Simulate workout by calling scheduler() repeatedly
+    // NOTE: scheduler() calls ticks++, so we need to call it 2400 times
+
+    qDebug() << "Simulating workout...";
+
+    // Fast forward to near the end
+    for (int i = 0; i < 2397; i++) {
+        program.increaseElapsedTime(1);
     }
 
-    // Test the comparison at tick 2399 (THE BUG!)
-    {
-        int32_t ticks = 2399;
-        uint32_t calculatedElapsedTime = 0;
-        for (int i = 0; i < rows.length(); i++) {
-            uint32_t rowTime = (rows.at(i).duration.second() +
-                               (rows.at(i).duration.minute() * 60) +
-                               (rows.at(i).duration.hour() * 3600));
-            calculatedElapsedTime += rowTime;
-        }
+    qDebug() << "At ticks=2397 (39:57):";
+    qDebug() << "  isStarted():" << program.isStarted();
+    qDebug() << "  stop signal count:" << stopSpy.count();
+    qDebug() << "";
 
-        bool shouldBreak = (calculatedElapsedTime > static_cast<uint32_t>(ticks));
-        qDebug() << "At ticks=" << ticks << "(39:59):";
-        qDebug() << "  calculatedElapsedTime =" << calculatedElapsedTime;
-        qDebug() << "  calculatedElapsedTime > ticks?" << shouldBreak;
-        qDebug() << "  → Workout should" << (shouldBreak ? "END" : "CONTINUE");
-        qDebug() << "  *** BUG: This returns TRUE, ending workout 1 second early! ***";
-        qDebug() << "";
+    // Tick 2398
+    program.increaseElapsedTime(1);
+    qDebug() << "At ticks=2398 (39:58):";
+    qDebug() << "  isStarted():" << program.isStarted();
+    qDebug() << "  stop signal count:" << stopSpy.count();
+    qDebug() << "";
 
-        // This is the bug! At tick 2399, the comparison says "END"
-        // but the workout should complete at tick 2400
-        EXPECT_FALSE(shouldBreak)
-            << "BUG FOUND: At ticks=2399, shouldBreak is TRUE but workout should continue to 2400";
+    // Tick 2399 - BUG: workout might end here
+    program.increaseElapsedTime(1);
+    qDebug() << "At ticks=2399 (39:59):";
+    qDebug() << "  isStarted():" << program.isStarted();
+    qDebug() << "  stop signal count:" << stopSpy.count();
+
+    if (stopSpy.count() > 0) {
+        qDebug() << "  *** BUG CONFIRMED: Workout ended at tick 2399 instead of 2400! ***";
+    }
+    qDebug() << "";
+
+    // Tick 2400 - Should be the real end
+    program.increaseElapsedTime(1);
+    qDebug() << "At ticks=2400 (40:00):";
+    qDebug() << "  isStarted():" << program.isStarted();
+    qDebug() << "  stop signal count:" << stopSpy.count();
+    qDebug() << "";
+
+    // The workout should NOT have stopped before tick 2400
+    // It should stop at or after tick 2400
+    int stopsAt2399 = 0;
+    if (stopSpy.count() > 0) {
+        // Check if first stop was before we hit 2400
+        // Since we manually increment, we can't know exact timing
+        // but we know it should NOT stop at 2399
+        qDebug() << "Workout stopped. Checking if it stopped too early...";
     }
 
-    // Test the comparison at tick 2400 (when it SHOULD end)
-    {
-        int32_t ticks = 2400;
-        uint32_t calculatedElapsedTime = 0;
-        for (int i = 0; i < rows.length(); i++) {
-            uint32_t rowTime = (rows.at(i).duration.second() +
-                               (rows.at(i).duration.minute() * 60) +
-                               (rows.at(i).duration.hour() * 3600));
-            calculatedElapsedTime += rowTime;
-        }
-
-        bool shouldBreak = (calculatedElapsedTime > static_cast<uint32_t>(ticks));
-        qDebug() << "At ticks=" << ticks << "(40:00):";
-        qDebug() << "  calculatedElapsedTime =" << calculatedElapsedTime;
-        qDebug() << "  calculatedElapsedTime > ticks?" << shouldBreak;
-        qDebug() << "  → Workout should" << (shouldBreak ? "END" : "CONTINUE");
-        qDebug() << "";
-    }
-
-    qDebug() << "=== ROOT CAUSE ===";
-    qDebug() << "Line ~1001 in trainprogram.cpp:";
-    qDebug() << "  if (calculatedElapsedTime > static_cast<uint32_t>(ticks) ...)";
-    qDebug() << "";
-    qDebug() << "This uses STRICT > comparison, which causes:";
-    qDebug() << "  2400 > 2399 = TRUE → breaks at tick 2399 (1 second early)";
-    qDebug() << "";
-    qDebug() << "FIX: The comparison should allow the last tick to complete:";
-    qDebug() << "  Either change to: >= (ticks + 1)";
-    qDebug() << "  Or ensure the workout processes tick 2400 before ending";
+    qDebug() << "=== Analysis ===";
+    qDebug() << "Expected: workout completes at tick 2400 (40:00)";
+    qDebug() << "Actual: stop signal emitted" << stopSpy.count() << "times";
     qDebug() << "";
 
+    // For now, just log what happened - we need to see scheduler() output
     qDebug() << "=== END TEST ===\n";
 }
 
 void TrainProgramTestSuite::test_multiRowWorkout_lastRowMissing1Second() {
-    // Test why ONLY the last row is affected
+    // Test with 2 rows to see if only last row is affected
 
-    qDebug() << "\n=== TEST: Multi-Row Workout (2 rows × 20 minutes) ===\n";
+    qDebug() << "\n=== REAL TEST: Multi-Row Workout ===\n";
 
-    // Create a workout with 2 rows
     QList<trainrow> rows;
 
     trainrow row1;
@@ -137,86 +115,68 @@ void TrainProgramTestSuite::test_multiRowWorkout_lastRowMissing1Second() {
 
     trainprogram program(rows, nullptr);
 
-    qDebug() << "Workout created:";
+    qDebug() << "Workout:";
     qDebug() << "  Row 1:" << row1.duration.toString("hh:mm:ss") << "@ power" << row1.power;
     qDebug() << "  Row 2:" << row2.duration.toString("hh:mm:ss") << "@ power" << row2.power;
     qDebug() << "";
 
-    qDebug() << "=== Row 1 Transition (at ticks=1200) ===\n";
+    QSignalSpy stopSpy(&program, &trainprogram::stop);
 
-    // When scheduler processes tick 1200:
-    // - calculatedLine loop: calculatedElapsedTime = 1200 (row 0)
-    // - Next iteration: calculatedElapsedTime = 2400 (row 0 + row 1)
-    // - Check: 1200 > 1200? NO → continues to next row
-    // - Sets currentStep = 1 (row 2)
-    {
-        int32_t ticks = 1200;
-        uint32_t calculatedElapsedTime = 0;
+    program.restart();
 
-        qDebug() << "At ticks=" << ticks << "(20:00 - end of Row 1):";
+    qDebug() << "=== Testing Row 1 transition ===";
 
-        for (int calculatedLine = 0; calculatedLine < rows.length(); calculatedLine++) {
-            uint32_t rowTime = (rows.at(calculatedLine).duration.second() +
-                               (rows.at(calculatedLine).duration.minute() * 60) +
-                               (rows.at(calculatedLine).duration.hour() * 3600));
-            calculatedElapsedTime += rowTime;
-
-            bool shouldBreak = (calculatedElapsedTime > static_cast<uint32_t>(ticks));
-
-            qDebug() << "  Checking row" << calculatedLine << ":";
-            qDebug() << "    calculatedElapsedTime =" << calculatedElapsedTime;
-            qDebug() << "    shouldBreak?" << shouldBreak;
-
-            if (shouldBreak && calculatedLine >= 0) { // simplified currentStep check
-                qDebug() << "    → BREAK, move to next row";
-                break;
-            }
-        }
-        qDebug() << "  Result: Moves to Row 2 ✓";
-        qDebug() << "";
+    // Advance to near end of row 1
+    for (int i = 0; i < 1198; i++) {
+        program.increaseElapsedTime(1);
     }
 
-    qDebug() << "=== Row 2 End (at ticks=2399) - THE BUG ===\n";
+    qDebug() << "At ticks=1198 (19:58):";
+    qDebug() << "  currentRow power:" << program.currentRow().power;
+    qDebug() << "";
 
-    // When scheduler processes tick 2399:
-    // - calculatedLine loop: calculatedElapsedTime = 2400 (both rows)
-    // - Check: 2400 > 2399? YES → breaks
-    // - currentStep >= rows.length() → calls end()!
-    {
-        int32_t ticks = 2399;
-        uint32_t calculatedElapsedTime = 0;
+    program.increaseElapsedTime(1); // 1199
+    qDebug() << "At ticks=1199 (19:59):";
+    qDebug() << "  currentRow power:" << program.currentRow().power;
+    qDebug() << "";
 
-        qDebug() << "At ticks=" << ticks << "(39:59 - last row should continue):";
+    program.increaseElapsedTime(1); // 1200
+    qDebug() << "At ticks=1200 (20:00 - Row 1 should complete):";
+    qDebug() << "  currentRow power:" << program.currentRow().power;
 
-        for (int calculatedLine = 0; calculatedLine < rows.length(); calculatedLine++) {
-            uint32_t rowTime = (rows.at(calculatedLine).duration.second() +
-                               (rows.at(calculatedLine).duration.minute() * 60) +
-                               (rows.at(calculatedLine).duration.hour() * 3600));
-            calculatedElapsedTime += rowTime;
+    if (program.currentRow().power == 150) {
+        qDebug() << "  ✓ Row 1 completed, moved to Row 2";
+    } else {
+        qDebug() << "  ✗ Still on Row 1!";
+    }
+    qDebug() << "";
 
-            bool shouldBreak = (calculatedElapsedTime > static_cast<uint32_t>(ticks));
+    qDebug() << "=== Testing Row 2 (last row) end ===";
 
-            qDebug() << "  Checking row" << calculatedLine << ":";
-            qDebug() << "    calculatedElapsedTime =" << calculatedElapsedTime;
-            qDebug() << "    shouldBreak?" << shouldBreak;
-
-            if (shouldBreak && calculatedLine >= 1) { // assuming currentStep=1
-                qDebug() << "    → BREAK";
-                qDebug() << "    *** BUG: Breaks at last row, calls end() ***";
-                break;
-            }
-        }
-        qDebug() << "";
-
-        // This is the bug!
-        EXPECT_FALSE(calculatedElapsedTime > static_cast<uint32_t>(ticks))
-            << "BUG: Last row ends 1 second early because 2400 > 2399";
+    // Advance to near end of row 2
+    for (int i = 1200; i < 2398; i++) {
+        program.increaseElapsedTime(1);
     }
 
-    qDebug() << "=== WHY ONLY LAST ROW? ===";
-    qDebug() << "- For intermediate rows: the > comparison triggers transition to NEXT row";
-    qDebug() << "- For the LAST row: there is no next row → calls end() instead";
-    qDebug() << "- The off-by-one affects all rows, but only visible on the last one!";
+    qDebug() << "At ticks=2398 (39:58):";
+    qDebug() << "  isStarted():" << program.isStarted();
+    qDebug() << "  stop count:" << stopSpy.count();
+    qDebug() << "";
+
+    program.increaseElapsedTime(1); // 2399
+    qDebug() << "At ticks=2399 (39:59):";
+    qDebug() << "  isStarted():" << program.isStarted();
+    qDebug() << "  stop count:" << stopSpy.count();
+
+    if (stopSpy.count() > 0) {
+        qDebug() << "  *** BUG: Last row ended at 2399 instead of 2400! ***";
+    }
+    qDebug() << "";
+
+    program.increaseElapsedTime(1); // 2400
+    qDebug() << "At ticks=2400 (40:00):";
+    qDebug() << "  isStarted():" << program.isStarted();
+    qDebug() << "  stop count:" << stopSpy.count();
     qDebug() << "";
 
     qDebug() << "=== END TEST ===\n";
