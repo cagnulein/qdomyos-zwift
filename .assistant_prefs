@@ -1,0 +1,3 @@
+# Assistant persisted preferences
+# Set to 'true' to auto-apply top recommendation when it's the only option
+auto_proceed=true
