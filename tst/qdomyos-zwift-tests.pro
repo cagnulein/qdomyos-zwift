@@ -24,6 +24,7 @@ SOURCES += \
         ToolTests/testsettingstestsuite.cpp \
         Tools/testsettings.cpp \
         Tools/typeidgenerator.cpp \
+        TrainProgram/trainprogramtestsuite.cpp \
         main.cpp
 
 # Avoid the "File too big" error building in Windows. This has happened when a template class is used with Google Test / typed tests
@@ -57,4 +58,5 @@ HEADERS += \
     ToolTests/testsettingstestsuite.h \
     Tools/devicetypeid.h \
     Tools/testsettings.h \
-    Tools/typeidgenerator.h
+    Tools/typeidgenerator.h \
+    TrainProgram/trainprogramtestsuite.h
