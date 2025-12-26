@@ -767,6 +767,7 @@ const QString QZSettings::zwift_click = QStringLiteral("zwift_click");
 const QString QZSettings::hop_sport_hs_090h_bike = QStringLiteral("hop_sport_hs_090h_bike");
 const QString QZSettings::zwift_play = QStringLiteral("zwift_play");
 const QString QZSettings::zwift_play_vibration = QStringLiteral("zwift_play_vibration");
+const QString QZSettings::shimano_di2 = QStringLiteral("shimano_di2");
 const QString QZSettings::nordictrack_treadmill_x14i = QStringLiteral("nordictrack_treadmill_x14i");
 const QString QZSettings::zwift_api_poll = QStringLiteral("zwift_api_poll");
 const QString QZSettings::tile_step_count_enabled = QStringLiteral("tile_step_count_enabled");
@@ -1030,7 +1031,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 838;
+const uint32_t allSettingsCount = 839;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1671,6 +1672,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::hop_sport_hs_090h_bike, QZSettings::default_hop_sport_hs_090h_bike},
     {QZSettings::zwift_play, QZSettings::default_zwift_play},
     {QZSettings::zwift_play_vibration, QZSettings::default_zwift_play_vibration},
+    {QZSettings::shimano_di2, QZSettings::default_shimano_di2},
     {QZSettings::nordictrack_treadmill_x14i, QZSettings::default_nordictrack_treadmill_x14i},
     {QZSettings::zwift_api_poll, QZSettings::default_zwift_api_poll},
     {QZSettings::tile_step_count_enabled, QZSettings::default_tile_step_count_enabled},

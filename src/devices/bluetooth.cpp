@@ -3089,6 +3089,27 @@ void bluetooth::connectedAndDiscovered() {
         }
     }
 
+    if(settings.value(QZSettings::shimano_di2, QZSettings::default_shimano_di2).toBool()) {
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            // Shimano Di2 devices typically advertise as "DI2" or contain "SHIMANO" in the name
+            if ((b.name().toUpper().contains("DI2") || b.name().toUpper().contains("SHIMANO")) &&
+                !shimanoDi2 && this->device() && this->device()->deviceType() == BIKE) {
+
+                qDebug() << "Shimano Di2 device found:" << b.name();
+
+                shimanoDi2 = new shimano_di2(this->device());
+
+                connect(shimanoDi2, &shimano_di2::debug, this, &bluetooth::debug);
+                connect(shimanoDi2, &shimano_di2::plus, (bike*)this->device(), &bike::gearUp);
+                connect(shimanoDi2, &shimano_di2::minus, (bike*)this->device(), &bike::gearDown);
+                shimanoDi2->deviceDiscovered(b);
+                if(homeform::singleton())
+                    homeform::singleton()->setToastRequested("Shimano Di2 Connected!");
+                break;
+            }
+        }
+    }
+
     if(settings.value(QZSettings::zwift_play, QZSettings::default_zwift_play).toBool()) {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (((b.name().toUpper().startsWith("SQUARE"))) && !eliteSquareController && this->device() &&

@@ -1247,6 +1247,7 @@ import Qt.labs.platform 1.1
             property var garmin_refresh_token_expires_at: 0
             property string garmin_domain: "garmin.com"
             property string garmin_last_refresh: ""
+            property bool shimano_di2: false
         }
 
 
@@ -6116,11 +6117,12 @@ import Qt.labs.platform 1.1
                     MessageDialog {
                         id: zwiftPlaySettingsDialog
                         text: "Zwift Play & Click Settings"
-                        informativeText: "Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with 'Get gears from Zwift' may cause conflicts."
+                        informativeText: "Would you like to disable Zwift Play, Zwift Click and Shimano Di2 settings? Having them enabled together with 'Get gears from Zwift' may cause conflicts."
                         buttons: (MessageDialog.Yes | MessageDialog.No)
                         onYesClicked: {
                             settings.zwift_play = false;
                             settings.zwift_click = false;
+                            settings.shimano_di2 = false;
                             settings.zwift_play_emulator = true;
                             window.settings_restart_to_apply = true;
                         }
@@ -6140,7 +6142,7 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         onClicked: {
                              if (checked && !settings.zwift_play_emulator) {  // Only show dialog when enabling
-                                 if (settings.zwift_play || settings.zwift_click) {
+                                 if (settings.zwift_play || settings.zwift_click || settings.shimano_di2) {
                                      zwiftPlaySettingsDialog.visible = true;
                                  }
                                  settings.watt_bike_emulator = false;
@@ -12156,6 +12158,33 @@ import Qt.labs.platform 1.1
 
                             Label {
                                 text: qsTr("Enable vibration feedback on Zwift Play controllers when changing gears. Default: enabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Shimano Di2")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.shimano_di2
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.shimano_di2 = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Use Shimano Di2 electronic shifting to change gears on QZ. Make sure to configure your Di2 buttons to D-Fly channels in the Shimano E-TUBE app!")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
