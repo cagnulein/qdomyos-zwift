@@ -1023,7 +1023,24 @@ void trainprogram::scheduler() {
                  << distanceEvaluation << QStringLiteral("rows distance") << rows.at(currentStep).distance
                  << QStringLiteral("same iteration") << sameIteration;
 
-        if ((calculatedLine != currentStep && !distanceStep) || distanceEvaluation) {
+        // Check if we've reached the end of all rows (calculatedLine >= rows.length())
+        // This happens when the total workout time has been reached or exceeded
+        if (calculatedLine >= static_cast<uint32_t>(rows.length())) {
+            // Calculate total workout time
+            uint32_t totalTime = 0;
+            for (int i = 0; i < rows.length(); i++) {
+                totalTime += calculateTimeForRow(i);
+            }
+
+            // Only call end() if current tick EXCEEDS total time, not when it just reaches it
+            // This ensures the last second is displayed before the workout ends
+            if (static_cast<uint32_t>(ticks) > totalTime) {
+                end();
+                return;
+            }
+            // If ticks == totalTime, do nothing and let the current row continue
+            // end() will be called on the next tick when ticks > totalTime
+        } else if ((calculatedLine != currentStep && !distanceStep) || distanceEvaluation) {
             if (calculateTimeForRow(calculatedLine) || calculateDistanceForRow(calculatedLine) > 0) {
 
                 if(rows.at(currentStep).distance != -1)
