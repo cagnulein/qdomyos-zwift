@@ -39,6 +39,12 @@ public:
      * This test PASSES when it confirms the bug existed with the old approach
      */
     void test_oldBuggyCode_proveBugExisted();
+
+    /**
+     * @brief CRITICAL TEST: Simulates what toString() actually returns with old buggy code
+     * This shows us what the UI would have displayed with the bug
+     */
+    void test_whatUserActuallySaw_withBuggyCode();
 };
 
 TEST_F(TrainProgramTestSuite, TestTotalElapsedTime_ShortWorkout) {
@@ -63,6 +69,10 @@ TEST_F(TrainProgramTestSuite, TestTotalElapsedTime_MultiHourWorkout) {
 
 TEST_F(TrainProgramTestSuite, TestOldBuggyCode_ProveBugExisted) {
     this->test_oldBuggyCode_proveBugExisted();
+}
+
+TEST_F(TrainProgramTestSuite, TestWhatUserActuallySaw_WithBuggyCode) {
+    this->test_whatUserActuallySaw_withBuggyCode();
 }
 
 #endif // TRAINPROGRAMTESTSUITE_H

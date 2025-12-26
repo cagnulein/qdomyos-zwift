@@ -221,3 +221,120 @@ void TrainProgramTestSuite::test_oldBuggyCode_proveBugExisted() {
     // 2. The new code fixes the problem
     // 3. The user was right - there WAS a bug!
 }
+
+void TrainProgramTestSuite::test_whatUserActuallySaw_withBuggyCode() {
+    // CRITICAL TEST: This simulates EXACTLY what the user saw in the UI
+    //
+    // The UI calls: trainProgram->totalElapsedTime().toString("hh:mm:ss")
+    // With old buggy code, this was: QTime(0, 0, ticks).toString("hh:mm:ss")
+    //
+    // Let's see what toString() ACTUALLY returns for various tick values
+
+    qDebug() << "\n=== SIMULATING 40-MINUTE WORKOUT WITH OLD BUGGY CODE ===";
+    qDebug() << "What the UI would display using QTime(0, 0, ticks).toString(\"hh:mm:ss\"):\n";
+
+    // Test key moments in a 40-minute workout
+    struct TestCase {
+        int ticks;
+        QString description;
+    };
+
+    TestCase testCases[] = {
+        {0, "Start"},
+        {30, "30 seconds"},
+        {59, "Last valid second"},
+        {60, "First invalid second (1 minute)"},
+        {119, "1:59 - should show 00:01:59"},
+        {120, "2:00 - should show 00:02:00"},
+        {2395, "39:55 - 5 seconds before end"},
+        {2396, "39:56 - 4 seconds before end"},
+        {2397, "39:57 - 3 seconds before end"},
+        {2398, "39:58 - 2 seconds before end"},
+        {2399, "39:59 - 1 second before end"},
+        {2400, "40:00 - Expected end time"},
+    };
+
+    QString lastValidDisplayedTime = "";
+    int lastValidTicks = -1;
+
+    for (const auto& tc : testCases) {
+        // OLD BUGGY WAY (what the code WAS doing)
+        QTime oldWay(0, 0, tc.ticks);
+        QString displayedTime = oldWay.toString("hh:mm:ss");
+
+        // NEW CORRECT WAY (what the code SHOULD do)
+        QTime newWay = QTime(0, 0, 0).addSecs(tc.ticks);
+        QString correctTime = newWay.toString("hh:mm:ss");
+
+        qDebug() << "Ticks" << tc.ticks << "(" << tc.description.toStdString().c_str() << "):";
+        qDebug() << "  OLD BUGGY CODE displays:" << displayedTime;
+        qDebug() << "  NEW CORRECT CODE displays:" << correctTime;
+        qDebug() << "  QTime.isValid():" << oldWay.isValid();
+
+        // Track the last valid time that was displayed
+        if (oldWay.isValid() && !displayedTime.isEmpty()) {
+            lastValidDisplayedTime = displayedTime;
+            lastValidTicks = tc.ticks;
+        }
+
+        qDebug() << "";
+    }
+
+    qDebug() << "\n=== ANALYSIS ===";
+    qDebug() << "Last VALID time displayed with old code: " << lastValidDisplayedTime
+             << " (at ticks=" << lastValidTicks << ")";
+    qDebug() << "Expected final time: 00:40:00 (at ticks=2400)";
+    qDebug() << "";
+
+    // Now let's verify our hypothesis about what the user saw
+
+    // At ticks=59: old code should still work
+    QTime at59 = QTime(0, 0, 59);
+    EXPECT_TRUE(at59.isValid());
+    EXPECT_EQ(at59.toString("hh:mm:ss").toStdString(), "00:00:59");
+
+    // At ticks=60: old code breaks
+    QTime at60 = QTime(0, 0, 60);
+    EXPECT_FALSE(at60.isValid()) << "At 60 seconds, old code creates invalid QTime";
+    QString display60 = at60.toString("hh:mm:ss");
+    qDebug() << "At ticks=60, toString() returns: '" << display60 << "' (length: " << display60.length() << ")";
+
+    // At ticks=2399 (39:59): old code breaks
+    QTime at2399 = QTime(0, 0, 2399);
+    EXPECT_FALSE(at2399.isValid()) << "At 2399 seconds (39:59), old code creates invalid QTime";
+    QString display2399 = at2399.toString("hh:mm:ss");
+    qDebug() << "At ticks=2399, toString() returns: '" << display2399 << "' (length: " << display2399.length() << ")";
+
+    // At ticks=2400 (40:00): old code breaks
+    QTime at2400 = QTime(0, 0, 2400);
+    EXPECT_FALSE(at2400.isValid()) << "At 2400 seconds (40:00), old code creates invalid QTime";
+    QString display2400 = at2400.toString("hh:mm:ss");
+    qDebug() << "At ticks=2400, toString() returns: '" << display2400 << "' (length: " << display2400.length() << ")";
+
+    // CRITICAL FINDING: What does toString() return for invalid QTime?
+    // If it returns empty string, the UI might:
+    // 1. Show nothing (blank)
+    // 2. Keep showing the last valid value
+    // 3. Show some default value
+
+    qDebug() << "\n=== CONCLUSION ===";
+    qDebug() << "For a 40-minute workout:";
+    qDebug() << "- All ticks >= 60 create INVALID QTime with old code";
+    qDebug() << "- toString() on invalid QTime returns: '" << display2400 << "'";
+    qDebug() << "- This explains why the timer display was broken!";
+    qDebug() << "";
+
+    // The key assertion: with old code, you CANNOT display times >= 1 minute
+    for (int ticks = 60; ticks <= 2400; ticks += 60) {
+        QTime oldBuggy(0, 0, ticks);
+        EXPECT_FALSE(oldBuggy.isValid())
+            << "Old code fails at " << ticks << " seconds";
+    }
+
+    // With new code, all times are valid
+    for (int ticks = 0; ticks <= 2400; ticks += 60) {
+        QTime newCorrect = QTime(0, 0, 0).addSecs(ticks);
+        EXPECT_TRUE(newCorrect.isValid())
+            << "New code works at " << ticks << " seconds";
+    }
+}
