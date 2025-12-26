@@ -3090,25 +3090,13 @@ void bluetooth::connectedAndDiscovered() {
     }
 
     if(settings.value(QZSettings::shimano_di2, QZSettings::default_shimano_di2).toBool()) {
-        // Shimano Di2 Service UUIDs (from swiftcontrol Dart implementation)
-        QBluetoothUuid shimanoDi2ServiceUuid1(QStringLiteral("000018ef-5348-494d-414e-4f5f424c4500"));
-        QBluetoothUuid shimanoDi2ServiceUuid2(QStringLiteral("000018ff-5348-494d-414e-4f5f424c4500"));
-
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
-            // Detect Shimano Di2 by checking advertised service UUIDs
-            // Device name can vary (WU111, R9250, R8150, or custom user name)
-            QList<QBluetoothUuid> serviceUuids = b.serviceUuids();
-            bool isShimanoDi2 = false;
+            // Shimano Di2 device names: WU111 (11-speed wireless unit), R9250/R8150 (12-speed built-in)
+            QString deviceName = b.name().toUpper();
+            if ((deviceName.contains("WU111") || deviceName.contains("R9250") || deviceName.contains("R8150")) &&
+                !shimanoDi2 && this->device() && this->device()->deviceType() == BIKE) {
 
-            for(const QBluetoothUuid &uuid : serviceUuids) {
-                if(uuid == shimanoDi2ServiceUuid1 || uuid == shimanoDi2ServiceUuid2) {
-                    isShimanoDi2 = true;
-                    break;
-                }
-            }
-
-            if (isShimanoDi2 && !shimanoDi2 && this->device() && this->device()->deviceType() == BIKE) {
-                qDebug() << "Shimano Di2 device found:" << b.name() << "Service UUIDs:" << serviceUuids;
+                qDebug() << "Shimano Di2 device found:" << b.name();
 
                 shimanoDi2 = new shimano_di2(this->device());
 
