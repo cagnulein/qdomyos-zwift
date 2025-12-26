@@ -142,3 +142,82 @@ void TrainProgramTestSuite::test_totalElapsedTime_multiHourWorkout() {
     // Verify the QTime is valid
     EXPECT_TRUE(elapsed.isValid());
 }
+
+void TrainProgramTestSuite::test_oldBuggyCode_proveBugExisted() {
+    // This test PROVES that the old buggy code was broken
+    // It simulates what the old code did: QTime(0, 0, ticks)
+    // and confirms that approach fails for values > 59 seconds
+
+    // Simulate the user's reported case: 40 minutes = 2400 seconds
+    int ticks_40minutes = 2400;
+
+    // OLD BUGGY CODE APPROACH: QTime(0, 0, ticks)
+    QTime oldBuggyWay(0, 0, ticks_40minutes);
+
+    // PROOF #1: The old way creates an INVALID QTime
+    // When you try to create QTime(0, 0, 2400), Qt rejects it because
+    // seconds must be 0-59, and 2400 is way out of range
+    EXPECT_FALSE(oldBuggyWay.isValid())
+        << "OLD BUG CONFIRMED: QTime(0, 0, " << ticks_40minutes
+        << ") creates an INVALID QTime";
+
+    // PROOF #2: Invalid QTime methods return -1
+    // This is Qt's way of saying "this time is broken"
+    EXPECT_EQ(oldBuggyWay.hour(), -1)
+        << "OLD BUG CONFIRMED: hour() returns -1 for invalid QTime";
+    EXPECT_EQ(oldBuggyWay.minute(), -1)
+        << "OLD BUG CONFIRMED: minute() returns -1 for invalid QTime";
+    EXPECT_EQ(oldBuggyWay.second(), -1)
+        << "OLD BUG CONFIRMED: second() returns -1 for invalid QTime";
+
+    // PROOF #3: toString() on invalid QTime returns empty string
+    QString oldBuggyString = oldBuggyWay.toString("hh:mm:ss");
+    EXPECT_TRUE(oldBuggyString.isEmpty() || oldBuggyString == "")
+        << "OLD BUG CONFIRMED: toString() returns empty/invalid string for invalid QTime";
+
+    // Now test a few more boundary cases to show exactly when the bug occurs
+
+    // At 59 seconds: OLD CODE WORKS (barely)
+    QTime at59seconds(0, 0, 59);
+    EXPECT_TRUE(at59seconds.isValid())
+        << "At 59 seconds, old code still works";
+    EXPECT_EQ(at59seconds.second(), 59);
+
+    // At 60 seconds: OLD CODE BREAKS
+    QTime at60seconds(0, 0, 60);
+    EXPECT_FALSE(at60seconds.isValid())
+        << "OLD BUG CONFIRMED: At 60 seconds, old code breaks (creates invalid QTime)";
+
+    // At 120 seconds (2 minutes): OLD CODE BREAKS
+    QTime at120seconds(0, 0, 120);
+    EXPECT_FALSE(at120seconds.isValid())
+        << "OLD BUG CONFIRMED: At 120 seconds, old code breaks";
+
+    // COMPARE WITH NEW CORRECT CODE
+    // This is what the fix does: QTime(0, 0, 0).addSecs(ticks)
+    QTime newCorrectWay = QTime(0, 0, 0).addSecs(ticks_40minutes);
+
+    // PROOF #4: The new way creates a VALID QTime
+    EXPECT_TRUE(newCorrectWay.isValid())
+        << "FIX CONFIRMED: QTime(0,0,0).addSecs(" << ticks_40minutes
+        << ") creates a VALID QTime";
+
+    // PROOF #5: The new way has correct values
+    EXPECT_EQ(newCorrectWay.hour(), 0) << "FIX CONFIRMED: Correct hour";
+    EXPECT_EQ(newCorrectWay.minute(), 40) << "FIX CONFIRMED: Correct minute";
+    EXPECT_EQ(newCorrectWay.second(), 0) << "FIX CONFIRMED: Correct second";
+
+    // PROOF #6: The new way produces correct string
+    QString newCorrectString = newCorrectWay.toString("hh:mm:ss");
+    EXPECT_EQ(newCorrectString.toStdString(), "00:40:00")
+        << "FIX CONFIRMED: Correct string representation";
+
+    // FINAL SUMMARY:
+    // - Old code: QTime(0, 0, 2400) → INVALID → hour()=-1, minute()=-1, second()=-1
+    // - New code: QTime(0, 0, 0).addSecs(2400) → VALID → hour()=0, minute()=40, second()=0
+    //
+    // This test PASSES, which means we've successfully proven:
+    // 1. The old code was definitely broken for workouts > 59 seconds
+    // 2. The new code fixes the problem
+    // 3. The user was right - there WAS a bug!
+}

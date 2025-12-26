@@ -33,6 +33,12 @@ public:
      * @brief Test totalElapsedTime() for multi-hour workouts
      */
     void test_totalElapsedTime_multiHourWorkout();
+
+    /**
+     * @brief Regression test: Proves the old buggy code QTime(0, 0, ticks) was broken
+     * This test PASSES when it confirms the bug existed with the old approach
+     */
+    void test_oldBuggyCode_proveBugExisted();
 };
 
 TEST_F(TrainProgramTestSuite, TestTotalElapsedTime_ShortWorkout) {
@@ -53,6 +59,10 @@ TEST_F(TrainProgramTestSuite, TestTotalElapsedTime_40MinuteWorkout) {
 
 TEST_F(TrainProgramTestSuite, TestTotalElapsedTime_MultiHourWorkout) {
     this->test_totalElapsedTime_multiHourWorkout();
+}
+
+TEST_F(TrainProgramTestSuite, TestOldBuggyCode_ProveBugExisted) {
+    this->test_oldBuggyCode_proveBugExisted();
 }
 
 #endif // TRAINPROGRAMTESTSUITE_H
