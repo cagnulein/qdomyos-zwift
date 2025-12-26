@@ -327,14 +327,39 @@ fi
 
 # All checks passed or warnings only - execute the binary with clean environment
 # Use env -i to avoid snap/flatpak library conflicts, preserve essential variables
-exec env -i \
-    HOME="$USER_HOME" \
-    USER="${TARGET_USER:-$USER}" \
-    LOGNAME="${TARGET_USER:-$USER}" \
-    PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-    LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
-    DISPLAY="${DISPLAY:-}" \
-    XAUTHORITY="${XAUTHORITY:-}" \
-    XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-}" \
-    DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-}" \
-    "$DIR/qdomyos-zwift-bin" "$@"
+## Launch the binary in its own session and forward signals to its process group.
+# We avoid a plain `exec` so we can trap and forward signals when the binary
+# spawns children that must be killed as a group.
+LAUNCH_ENV=(
+    HOME="$USER_HOME"
+    USER="${TARGET_USER:-$USER}"
+    LOGNAME="${TARGET_USER:-$USER}"
+    PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+    DISPLAY="${DISPLAY:-}"
+    XAUTHORITY="${XAUTHORITY:-}"
+    XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-}"
+    DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-}"
+)
+
+# Use setsid so the child becomes session and process-group leader.
+setsid env -i "${LAUNCH_ENV[@]}" "$DIR/qdomyos-zwift-bin" "$@" &
+child_pid=$!
+
+forward_signal() {
+    local sig="$1"
+    if [[ -n "$child_pid" ]]; then
+        # Send the signal to the child's process group. Use '--' so a
+        # negative PID (process group id) is not parsed as an option.
+        kill -s "$sig" -- -"$child_pid" 2>/dev/null || true
+    fi
+}
+
+trap 'forward_signal TERM' TERM
+trap 'forward_signal INT' INT
+trap 'forward_signal QUIT' QUIT
+
+# Wait for child to exit and return its status
+wait "$child_pid"
+rc=$?
+exit $rc

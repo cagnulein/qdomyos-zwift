@@ -48,6 +48,19 @@ declare -A SYMBOL_CACHE
 # shellcheck disable=SC2034
 SYMBOL_CACHE_INIT=0
 
+# Validate that a candidate path is a RAM-backed tmpfs-like storage.
+# Returns 0 if usable (writable dir on tmpfs), non-zero otherwise.
+_validate_ram_storage() {
+    local p="$1"
+    [[ -n "$p" && -d "$p" ]] || return 1
+    # If mountpoint exists and is tmpfs, accept. Fallback: writable dir is ok.
+    if command -v mountpoint >/dev/null 2>&1 && mountpoint -q "$p"; then
+        grep -q "[[:space:]]$p[[:space:]]" /proc/mounts 2>/dev/null && grep -q tmpfs /proc/mounts 2>/dev/null && return 0 || return 1
+    fi
+    [[ -w "$p" ]] || return 1
+    return 0
+}
+
 config_set_int() {
     local key=$1
     local value=$2
@@ -371,6 +384,10 @@ while [ "$#" -gt 0 ]; do
             --scan-now)
                 SCAN_NOW=1
                 NONINTERACTIVE_SHOW_CURSOR=1
+                shift
+                ;;
+            --no-extract)
+                SKIP_TEST_EXTRACT=1
                 shift
                 ;;
         *)
@@ -3843,7 +3860,7 @@ prompt_setup_mode() {
 prompt_success_menu() {
     local warns=${1:-0}
     enter_ui_mode
-    local options=("User Profile" "Equipment Selection" "Bluetooth Scan" "ANT+ Test" "Uninstall" "Exit")
+    local options=("User Profile" "Equipment Selection" "Bluetooth Scan" "ANT+ Test" "Service" "Uninstall" "Exit")
     local selected=0
     local num_options=${#options[@]}
     
@@ -4714,6 +4731,21 @@ run_uninstall_mode() {
         ACTIVE_SERVICE_FILE=""
         update_status "qz_service" "pending"
     fi
+
+    # G. Remove extracted test binary and temp service files (created during 'install' testing)
+    # Only remove files inside the repo device folder to avoid touching system-installed binaries.
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local repo_test_bin="$script_dir/qdomyos-zwift-bin"
+    if [ -f "$repo_test_bin" ]; then
+        run_step "Removing extracted test binary" "rm -f \"$repo_test_bin\"" || return 1
+        update_status "test_binary" "fail"
+    fi
+    # Remove any temporary generated service files in RAM-backed temp dir
+    if [ -d "/dev/shm" ]; then
+        run_step "Removing temporary service files" "rm -f /dev/shm/qz.service.* 2>/dev/null || true" || return 1
+        update_status "tmp_service_files" "fail"
+    fi
     
     # E. Remove USB udev rules
     local rules_file="/etc/udev/rules.d/99-ant-usb.rules"
@@ -5493,6 +5525,594 @@ perform_ant_test() {
     return 0
 }
 
+### Milestone 1-4: Service config, generation and validators
+# Persistent service flags storage
+declare -A SERVICE_FLAGS
+SERVICE_CONF_PATH="${HOME}/.config/qdomyos-zwift/service.conf"
+
+# Defaults
+SERVICE_FLAGS[logging]=false
+SERVICE_FLAGS[console]=false
+SERVICE_FLAGS[bluetooth_relaxed]=false
+SERVICE_FLAGS[ant_footpod]=false
+SERVICE_FLAGS[ant_device]=54321
+SERVICE_FLAGS[ant_verbose]=false
+SERVICE_FLAGS[profile]=''
+SERVICE_FLAGS[poll_time]=200
+SERVICE_FLAGS[heart_service]=false
+
+init_service_config() {
+    mkdir -p "$(dirname "$SERVICE_CONF_PATH")" || return 1
+    if [[ ! -f "$SERVICE_CONF_PATH" ]]; then
+        save_service_config || return 1
+    fi
+    return 0
+}
+
+load_service_config() {
+    init_service_config || return 1
+    local in_flags=0 line key val
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        line="${line%%\#*}"
+        [[ -z "$line" ]] && continue
+        if [[ "$line" =~ ^\[flags\] ]]; then in_flags=1; continue; fi
+        if [[ $in_flags -eq 1 && "$line" =~ ^([^=]+)=(.*)$ ]]; then
+            key="${BASH_REMATCH[1]}"; val="${BASH_REMATCH[2]}"
+            SERVICE_FLAGS[$key]="$val"
+        fi
+    done < "$SERVICE_CONF_PATH"
+    return 0
+}
+
+save_service_config() {
+    if ! ensure_ram_temp_dir >/dev/null 2>&1; then TEMP_DIR=/tmp; fi
+    local tmp="$TEMP_DIR/service.conf.$$"
+    {
+        echo "[flags]"
+        for k in console logging bluetooth_relaxed ant_footpod ant_device ant_verbose profile poll_time heart_service; do
+            printf '%s=%s\n' "$k" "${SERVICE_FLAGS[$k]:-}"
+        done
+    } > "$tmp" || return 1
+    mv -f "$tmp" "$SERVICE_CONF_PATH" || return 1
+    return 0
+}
+
+# Validators
+validate_ant_device_id() {
+    local id=$1
+    [[ "$id" =~ ^[0-9]+$ ]] || return 1
+    (( id>=1 && id<=65535 )) || return 1
+    return 0
+}
+
+validate_poll_time() {
+    local t=$1
+    [[ "$t" =~ ^[0-9]+$ ]] || return 1
+    (( t>=50 && t<=5000 )) || return 1
+    return 0
+}
+
+# Binary detection and flags builder
+detect_binary_path() {
+    local candidates=("./qdomyos-zwift" "$(pwd)/qdomyos-zwift" "/usr/local/bin/qdomyos-zwift" "/usr/bin/qdomyos-zwift")
+    for c in "${candidates[@]}"; do [[ -x "$c" ]] && { echo "$c"; return 0; }; done
+    command -v qdomyos-zwift 2>/dev/null || return 1
+}
+
+build_service_flags() {
+    local flags=("-no-gui")
+    if [[ "${SERVICE_FLAGS[logging]}" == "true" ]]; then flags+=("-log"); else flags+=("-no-log"); fi
+    if [[ "${SERVICE_FLAGS[console]}" == "true" ]]; then :; else flags+=("-no-console"); fi
+    [[ "${SERVICE_FLAGS[bluetooth_relaxed]}" == "true" ]] && flags+=("-bluetooth_relaxed")
+    if [[ "${SERVICE_FLAGS[ant_footpod]}" == "true" ]]; then
+        flags+=("-ant-footpod" "-ant-device" "${SERVICE_FLAGS[ant_device]:-54321}")
+        [[ "${SERVICE_FLAGS[ant_verbose]}" == "true" ]] && flags+=("-ant-verbose")
+    fi
+    [[ -n "${SERVICE_FLAGS[profile]:-}" ]] && flags+=("-profile" "${SERVICE_FLAGS[profile]}")
+    [[ -n "${SERVICE_FLAGS[poll_time]:-}" ]] && flags+=("-poll-device-time" "${SERVICE_FLAGS[poll_time]}")
+    [[ "${SERVICE_FLAGS[heart_service]}" == "true" ]] && flags+=("-heart-service")
+    printf '%s ' "${flags[@]}" | sed -e 's/ $//'
+}
+
+generate_service_file() {
+    # Detect systemd install path
+[ - - ]
+    local svc_dir="/etc/systemd/system"
+    local svc_file="$svc_dir/qz.service"
+    local bin
+
+    # Prefer using the runtime wrapper (which sets LD_LIBRARY_PATH etc.)
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local system_wrapper="/usr/local/bin/qdomyos-zwift-wrapper.sh"
+    local wrapper="$script_dir/qdomyos-zwift-wrapper.sh"
+    # Prefer an installed wrapper (packaged to /usr/local) when present.
+    if [[ -x "$system_wrapper" ]]; then
+        bin="$system_wrapper"
+    elif [[ -f "$wrapper" ]]; then
+        # Ensure wrapper has a shebang and is executable
+        if ! head -n1 "$wrapper" | grep -q '^#!' >/dev/null 2>&1; then
+            sed -i '1i#!/bin/bash' "$wrapper" || true
+        fi
+        chmod +x "$wrapper" || true
+        bin="$wrapper"
+    else
+        bin=$(detect_binary_path 2>/dev/null) || bin="<binary-not-found>"
+    fi
+
+    local user="${SUDO_USER:-$USER}"
+    local flags
+    flags=$(build_service_flags)
+    if ! ensure_ram_temp_dir >/dev/null 2>&1; then TEMP_DIR=/tmp; fi
+    local tmp="$TEMP_DIR/qz.service.$$"
+    cat > "$tmp" <<EOF
+[Unit]
+Description=qdomyos-zwift service
+After=multi-user.target
+
+[Service]
+Type=simple
+User=root
+Group=plugdev
+Environment="QZ_USER=${user}"
+WorkingDirectory=$(dirname "$bin")
+# Provide a conservative LD_LIBRARY_PATH fallback to assist systems
+# where libpython/Qt may live in standard locations.
+Environment="LD_LIBRARY_PATH=/usr/local/lib:/usr/lib"
+# Use /bin/bash -c to preserve argument parsing and avoid systemd exec quoting pitfalls
+ExecStart=/bin/bash -c '${bin} ${flags}'
+KillSignal=SIGINT
+KillMode=control-group
+TimeoutStopSec=20
+Restart=on-failure
+RestartSec=5
+StartLimitBurst=5
+StartLimitIntervalSec=60
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    # If running as root, install to system path
+    if [[ $(id -u) -eq 0 ]]; then
+        mv -f "$tmp" "$svc_file" || return 1
+        systemctl daemon-reload || true
+        ACTIVE_SERVICE_FILE="$svc_file"
+        echo "$svc_file"
+        return 0
+    fi
+    ACTIVE_SERVICE_FILE="$tmp"
+    echo "$tmp"
+    return 0
+}
+
+# Interactive flags UI
+configure_service_flags_ui() {
+    load_service_config >/dev/null 2>&1 || true
+    local tty=/dev/tty
+    exit_ui_mode || true
+    printf "Service Flag Configuration\n" >"$tty"
+    prompt_bool() {
+        local label=$1 key=$2 default=$3 cur
+        cur="${SERVICE_FLAGS[$key]:-$default}"
+        while true; do
+            printf "%s [y/N] (current: %s): " "$label" "$cur" >"$tty"
+            IFS= read -r ans <"$tty"
+            case "${ans,,}" in
+                y|yes) SERVICE_FLAGS[$key]=true; break;;
+                n|no) SERVICE_FLAGS[$key]=false; break;;
+                "") break;;
+                *) printf "Please answer y or n.\n" >"$tty";;
+            esac
+        done
+    }
+    prompt_bool "Enable logging (creates logs)" logging false
+    prompt_bool "Disable console output (-no-console)" console true
+    prompt_bool "Bluetooth relaxed mode" bluetooth_relaxed false
+    prompt_bool "Enable heart service" heart_service false
+    # ANT options shown only on treadmill
+    local equip
+    equip=$(detect_equipment_type 2>/dev/null || echo unknown)
+    if [[ "$equip" == "treadmill" ]]; then
+        prompt_bool "Enable ANT+ footpod support" ant_footpod false
+        if [[ "${SERVICE_FLAGS[ant_footpod]}" == "true" ]]; then
+            local idval
+            idval="${SERVICE_FLAGS[ant_device]:-54321}"
+            while true; do
+                printf "ANT device id (1-65535) [current: %s]: " "$idval" >"$tty"
+                IFS= read -r idtmp <"$tty"
+                idtmp="${idtmp:-$idval}"
+                if validate_ant_device_id "$idtmp"; then SERVICE_FLAGS[ant_device]="$idtmp"; break; fi
+                printf "Invalid device id.\n" >"$tty"
+            done
+        fi
+        prompt_bool "Enable ANT verbose output" ant_verbose false
+    else
+        printf "ANT+ options hidden (equipment: %s)\n" "$equip" >"$tty"
+    fi
+    printf "Profile name (optional) [current: %s]: " "${SERVICE_FLAGS[profile]:-}" >"$tty"
+    IFS= read -r profile_in <"$tty"
+    SERVICE_FLAGS[profile]="${profile_in:-${SERVICE_FLAGS[profile]:-}}"
+    local curpoll="${SERVICE_FLAGS[poll_time]:-200}"
+    while true; do
+        printf "Poll device time (ms) 50-5000 [current: %s]: " "$curpoll" >"$tty"
+        IFS= read -r poll_in <"$tty"
+        poll_in="${poll_in:-$curpoll}"
+        if validate_poll_time "$poll_in"; then SERVICE_FLAGS[poll_time]="$poll_in"; break; fi
+        printf "Invalid poll time.\n" >"$tty"
+    done
+    if save_service_config; then
+        generate_service_file >/dev/null 2>&1 || true
+        draw_error_screen "SERVICE CONFIG" "Configuration saved successfully." "wait"
+    else
+        draw_error_screen "SERVICE CONFIG" "Failed to save configuration." "wait"
+    fi
+    enter_ui_mode || true
+    return 0
+}
+
+### Milestone 5: Service lifecycle UI functions
+run_as_root_or_sudo() {
+    if [[ $(id -u) -eq 0 ]]; then
+        "$@"
+        return $?
+    fi
+    if command -v sudo >/dev/null 2>&1; then
+        sudo "$@"
+        return $?
+    fi
+    echo "ERROR: root privileges required and sudo not available." >&2
+    return 1
+}
+
+install_service_ui() {
+    # Non-interactive install flow that presents results via dashboard UI
+    exit_ui_mode || true
+    load_service_config >/dev/null 2>&1 || true
+    if ! ensure_ram_temp_dir >/dev/null 2>&1; then
+        TEMP_DIR=/tmp
+    fi
+    local gen_out tmp
+    gen_out=$(generate_service_file 2>&1) || true
+    tmp="${ACTIVE_SERVICE_FILE:-$gen_out}"
+
+    # Attempt installation as root (using sudo if needed). Keep extraction
+    # behaviour for test binaries when SKIP_TEST_EXTRACT is not set.
+    if run_as_root_or_sudo bash -lc '
+        script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        install_root="$(cd "$script_dir/../../.." && pwd)"
+        target_bin="$script_dir/qdomyos-zwift-bin"
+        if [[ -z "${SKIP_TEST_EXTRACT:-}" && ! -x "$target_bin" && -f "$install_root/linux-binary-x86-64-ant.zip" ]]; then
+            unzip -p "$install_root/linux-binary-x86-64-ant.zip" qdomyos-zwift-x86-64-ant/qdomyos-zwift-bin > "$target_bin" && chmod +x "$target_bin" || true
+        fi
+        generate_service_file >/dev/null 2>&1 && systemctl daemon-reload && echo INSTALLED_OK
+    '; then
+        draw_error_screen "SERVICE INSTALLED" "Service file installed: ${tmp}" "wait"
+    else
+        draw_error_screen "INSTALL FAILED" "Installation failed — check sudo privileges or logs." "wait"
+    fi
+    enter_ui_mode || true
+}
+
+start_service_ui() {
+    exit_ui_mode || true
+    if run_as_root_or_sudo systemctl start qz.service; then
+        sleep 1
+        if systemctl is-active --quiet qz.service 2>/dev/null; then
+            draw_error_screen "SERVICE STARTED" "Service started successfully.\nStatus: ACTIVE" "wait"
+        else
+            draw_error_screen "SERVICE FAILED" "Service did not become active. Check logs." "wait"
+        fi
+    else
+        draw_error_screen "ERROR" "Failed to start service (sudo may be required)." "wait"
+    fi
+    enter_ui_mode || true
+}
+
+stop_service_ui() {
+    exit_ui_mode || true
+    if run_as_root_or_sudo systemctl stop qz.service; then
+        draw_error_screen "SERVICE STOPPED" "Service stopped successfully." "wait"
+    else
+        draw_error_screen "ERROR" "Failed to stop service." "wait"
+    fi
+    enter_ui_mode || true
+}
+
+restart_service_ui() {
+    exit_ui_mode || true
+    if run_as_root_or_sudo systemctl restart qz.service; then
+        draw_error_screen "SERVICE RESTARTED" "Service restarted successfully." "wait"
+    else
+        draw_error_screen "ERROR" "Failed to restart service." "wait"
+    fi
+    enter_ui_mode || true
+}
+
+enable_service_ui() {
+    exit_ui_mode || true
+    if run_as_root_or_sudo systemctl enable qz.service; then
+        draw_error_screen "SERVICE ENABLED" "Service enabled for auto-start." "wait"
+    else
+        draw_error_screen "ERROR" "Failed to enable service." "wait"
+    fi
+    enter_ui_mode || true
+}
+
+disable_service_ui() {
+    exit_ui_mode || true
+    if run_as_root_or_sudo systemctl disable qz.service; then
+        draw_error_screen "SERVICE DISABLED" "Auto-start disabled." "wait"
+    else
+        draw_error_screen "ERROR" "Failed to disable service." "wait"
+    fi
+    enter_ui_mode || true
+}
+
+remove_service_ui() {
+    exit_ui_mode || true
+    local tty=/dev/tty
+    printf "This will stop and remove the installed service file. Continue? [y/N]: " >"$tty"
+    IFS= read -r yn <"$tty"
+    case "${yn,,}" in
+        y|yes)
+            if run_as_root_or_sudo bash -lc 'systemctl stop qz.service >/dev/null 2>&1 || true; systemctl disable qz.service >/dev/null 2>&1 || true; for f in /etc/systemd/system/qz.service /lib/systemd/system/qz.service; do [ -f "$f" ] && rm -f "$f"; done; systemctl daemon-reload; echo REMOVED_OK'; then
+                draw_error_screen "SERVICE REMOVED" "Service removed successfully." "wait"
+            else
+                draw_error_screen "REMOVE FAILED" "Failed to remove service; check privileges." "wait"
+            fi
+            ;;
+        *) draw_error_screen "REMOVE ABORTED" "Service removal aborted." "wait" ;;
+    esac
+    enter_ui_mode || true
+}
+
+view_service_logs_ui() {
+    local lines=${1:-200}
+    exit_ui_mode || true
+    run_as_root_or_sudo journalctl -u qz.service -n "$lines" --no-pager || true
+    enter_ui_mode || true
+}
+
+view_service_config_ui() {
+    local cfg="${SERVICE_CONF_PATH:-$HOME/.config/qdomyos-zwift/service.conf}"
+    if [[ ! -f "$cfg" ]]; then
+        draw_error_screen "SERVICE CONFIGURATION" "Configuration file not found:\n\n$cfg\n\nRun 'Configure Service Flags' first." "wait"
+        return 1
+    fi
+
+    load_service_config >/dev/null 2>&1 || true
+    local config_text=""
+    config_text+="Logging: ${SERVICE_FLAGS[logging]:-false}\n"
+    config_text+="Console: ${SERVICE_FLAGS[console]:-false}\n"
+    config_text+="ANT+ Footpod: ${SERVICE_FLAGS[ant_footpod]:-false}\n"
+    config_text+="ANT+ Device ID: ${SERVICE_FLAGS[ant_device]:-54321}\n"
+    config_text+="Profile: ${SERVICE_FLAGS[profile]:-(default)}\n"
+    config_text+="Poll Time: ${SERVICE_FLAGS[poll_time]:-200}ms\n"
+
+    exit_ui_mode || true
+    draw_error_screen "CURRENT SERVICE CONFIGURATION" "$config_text" "wait"
+    enter_ui_mode || true
+}
+
+regenerate_service_file_ui() {
+    if ! ensure_ram_temp_dir >/dev/null 2>&1; then
+        TEMP_DIR=/tmp
+    fi
+    local gen_out
+    exit_ui_mode || true
+    gen_out=$(generate_service_file 2>&1) || true
+    draw_error_screen "SERVICE FILE GENERATED" "${ACTIVE_SERVICE_FILE:-$gen_out}" "wait"
+    enter_ui_mode || true
+}
+
+show_service_status_ui() {
+    exit_ui_mode || true
+    if systemctl status qz.service --no-pager; then
+        :
+    fi
+    enter_ui_mode || true
+}
+
+## Service status helpers (STEP 1)
+# Returns: not-installed | stopped | running | failed
+get_service_status() {
+    local svc_file
+    if [[ -f "/etc/systemd/system/qz.service" ]]; then
+        svc_file="/etc/systemd/system/qz.service"
+    elif [[ -f "/lib/systemd/system/qz.service" ]]; then
+        svc_file="/lib/systemd/system/qz.service"
+    else
+        printf "not-installed"
+        return 0
+    fi
+
+    if systemctl is-active --quiet qz.service 2>/dev/null; then
+        printf "running"
+    elif systemctl is-failed --quiet qz.service 2>/dev/null; then
+        printf "failed"
+    else
+        printf "stopped"
+    fi
+}
+
+# Returns 0 if enabled, non-zero otherwise
+is_service_enabled() {
+    systemctl is-enabled --quiet qz.service 2>/dev/null
+}
+
+# Build a context-sensitive list of menu options (one per line)
+# Ensures the returned list will fit within the dashboard info area.
+build_service_menu_options() {
+    local status
+    status=$(get_service_status)
+    local opts=()
+
+    opts+=("Configure Service Flags")
+    opts+=("View Current Configuration")
+
+    case "$status" in
+        not-installed)
+            opts+=("Generate & Install Service")
+            ;;
+        stopped)
+            opts+=("Start Service")
+            opts+=("Regenerate Service File")
+            opts+=("Remove Service")
+            ;;
+        running)
+            opts+=("Restart Service")
+            opts+=("Stop Service")
+            opts+=("View Service Logs")
+            opts+=("Regenerate Service File")
+            ;;
+        failed)
+            opts+=("View Service Logs")
+            opts+=("Restart Service")
+            opts+=("Remove Service")
+            ;;
+    esac
+
+    if [[ "$status" != "not-installed" ]]; then
+        if is_service_enabled; then
+            opts+=("Disable Auto-Start")
+        else
+            opts+=("Enable Auto-Start")
+        fi
+    fi
+
+    opts+=("Back to Main Menu")
+
+    # Safety: ensure we never return more than 9 options (fits LOG_TOP..LOG_BOTTOM)
+    local max=9
+    if (( ${#opts[@]} > max )); then
+        local truncated=()
+        for i in "${!opts[@]}"; do
+            if (( i < max-1 )); then
+                truncated+=("${opts[i]}")
+            fi
+        done
+        truncated+=("Back to Main Menu")
+        opts=("${truncated[@]}")
+        fi
+
+        printf '%s\n' "${opts[@]}"
+    }
+
+service_menu_flow() {
+    enter_ui_mode || true
+    while true; do
+        local status
+        status=$(get_service_status)
+        local status_display
+        case "$status" in
+            not-installed) status_display="NOT CONFIGURED" ;;
+            stopped) status_display="STOPPED" ;;
+            running) status_display="ACTIVE" ;;
+            failed) status_display="FAILED" ;;
+            *) status_display="UNKNOWN" ;;
+        esac
+
+        # Build options array
+        mapfile -t options < <(build_service_menu_options)
+        local num_options=${#options[@]}
+        local selected=0
+
+        # Safety cap (should be enforced by builder)
+        if (( num_options > 9 )); then
+            num_options=9
+            options=("${options[@]:0:8}" "Back to Main Menu")
+        fi
+
+        # Initial render
+        draw_bottom_panel_header "SERVICE CONFIGURATION - ${status_display}"
+        clear_info_area
+        draw_sealed_row $((LOG_TOP)) ""
+
+        for i in "${!options[@]}"; do
+            local row=$((LOG_TOP + 1 + i))
+            if (( i == selected )); then
+                draw_sealed_row "$row" "   ${CYAN}► ${BOLD_CYAN}${options[i]}${NC}"
+            else
+                draw_sealed_row "$row" "     ${GRAY}${options[i]}${NC}"
+            fi
+        done
+
+        draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Back | L: Legend"
+
+        local prev_selected=$selected
+
+        # Event loop for navigation
+        while true; do
+            local key
+            IFS= read -rsn1 key </dev/tty
+            if [[ $key == $'\x1b' ]]; then
+                # escape sequence
+                read -rsn2 -t 0.01 k2 </dev/tty || true
+                if [[ "${k2:-}" == "[A" ]]; then
+                    ((selected--))
+                elif [[ "${k2:-}" == "[B" ]]; then
+                    ((selected++))
+                else
+                    # plain Esc = back
+                    exit_ui_mode || true
+                    return 0
+                fi
+            elif [[ $key == $'\x0a' || $key == $'\x0d' ]]; then
+                # Enter
+                break
+            elif [[ "${key,,}" == "l" ]]; then
+                # show legend/help
+                exit_ui_mode || true
+                draw_error_screen "SERVICE MENU - Legend" "Arrows: navigate\nEnter: select\nEsc: back\nL: legend" "wait"
+                enter_ui_mode || true
+                # re-render full menu after returning
+                break
+            fi
+
+            # wrap
+            if (( selected < 0 )); then selected=$((num_options - 1)); fi
+            if (( selected >= num_options )); then selected=0; fi
+
+            if (( selected != prev_selected )); then
+                # redraw previous and new rows
+                local prev_row=$((LOG_TOP + 1 + prev_selected))
+                draw_sealed_row "$prev_row" "     ${GRAY}${options[prev_selected]}${NC}"
+                local new_row=$((LOG_TOP + 1 + selected))
+                draw_sealed_row "$new_row" "   ${CYAN}► ${BOLD_CYAN}${options[selected]}${NC}"
+                prev_selected=$selected
+            fi
+
+        done
+
+        # Execute selection
+        exit_ui_mode || true
+        local choice="${options[selected]}"
+
+        case "$choice" in
+            "Configure Service Flags") configure_service_flags_ui ;; 
+            "View Current Configuration") view_service_config_ui ;; 
+            "Generate & Install Service") install_service_ui ;; 
+            "Start Service") start_service_ui ;; 
+            "Stop Service") stop_service_ui ;; 
+            "Restart Service") restart_service_ui ;; 
+            "View Service Logs") view_service_logs_ui 200 ;; 
+            "Regenerate Service File") regenerate_service_file_ui ;; 
+            "Enable Auto-Start") enable_service_ui ;; 
+            "Disable Auto-Start") disable_service_ui ;; 
+            "Remove Service") remove_service_ui ;; 
+            "Back to Main Menu") return 0 ;; 
+            *) return 0 ;; 
+        esac
+
+        # Show brief pause and continue loop
+        draw_error_screen "ACTION COMPLETED" "${choice}" "wait"
+        enter_ui_mode || true
+    done
+}
+
+### End Milestone 5
+
 check_final_status() {
     while true; do
         local fails=0 warns=0
@@ -5525,13 +6145,16 @@ check_final_status() {
                 1) select_equipment_flow; check_config_file ;;
                 2) perform_bluetooth_scan; check_config_file ;;
                 3) perform_ant_test; check_config_file ;;
-                4) # Uninstall
+                4) # Service menu
+                    service_menu_flow || true
+                    ;;
+                5) # Uninstall
                     if run_uninstall_mode; then
                         draw_verifying_screen "Verifying system state..."
                         run_all_checks
                     fi
                     ;;
-                5) finish_and_exit 0 ;; # Exit
+                6) finish_and_exit 0 ;; # Exit
             esac
         fi
         sleep 0.05
