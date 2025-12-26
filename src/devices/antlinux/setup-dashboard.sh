@@ -3835,6 +3835,11 @@ prompt_yes_no() {
         IFS= read -rsn1 key </dev/tty
         if [[ $key == $'\x1b' ]]; then
             read -rsn2 -t 0.06 k2 </dev/tty || true
+            # Single ESC -> treat as Cancel/Back for prompt menus
+            if [[ -z "${k2:-}" ]]; then
+                exit_ui_mode || true
+                return 2
+            fi
             if [[ -z "$k2" ]]; then read -rsn1 -t 0.02 k3 </dev/tty || true; fi
             local seq="${k2}${k3:-}"
             case "${seq:-}" in
