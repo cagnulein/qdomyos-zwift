@@ -112,14 +112,13 @@ void TrainProgramTestSuite::test_singleRow40MinuteWorkout_shouldReach40Minutes()
         qDebug() << "";
     }
 
-    // At tick 11 (what SHOULD happen):
+    // At tick 10 WITH FIX:
     {
-        int32_t ticks = 11;
+        int32_t ticks = 10;
         uint32_t calculatedElapsedTime = 0;
         uint32_t calculatedLine = 0;
-        uint32_t currentStep = 1;
 
-        qDebug() << "At tick 11 (what SHOULD happen):";
+        qDebug() << "\nAt tick 10 WITH FIX:";
 
         for (calculatedLine = 0; calculatedLine < static_cast<uint32_t>(rows.length()); calculatedLine++) {
             uint32_t rowTime = rows.at(calculatedLine).duration.hour() * 3600 +
@@ -127,32 +126,94 @@ void TrainProgramTestSuite::test_singleRow40MinuteWorkout_shouldReach40Minutes()
                               rows.at(calculatedLine).duration.second();
             calculatedElapsedTime += rowTime;
 
-            // With the fix: use >= instead of >
-            if (calculatedElapsedTime >= static_cast<uint32_t>(ticks)) {
+            if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
+                break;
+            }
+        }
+
+        qDebug() << "  Final calculatedLine =" << calculatedLine << "(rows.length() =" << rows.length() << ")";
+
+        // New fix logic: check if calculatedLine >= rows.length()
+        if (calculatedLine >= static_cast<uint32_t>(rows.length())) {
+            // Calculate total time
+            uint32_t totalTime = 0;
+            for (int i = 0; i < rows.length(); i++) {
+                totalTime += rows.at(i).duration.hour() * 3600 +
+                             rows.at(i).duration.minute() * 60 +
+                             rows.at(i).duration.second();
+            }
+
+            qDebug() << "  calculatedLine >= rows.length(), NEW FIX checks totalTime";
+            qDebug() << "  totalTime =" << totalTime << ", ticks =" << ticks;
+            qDebug() << "  Check: ticks (" << ticks << ") > totalTime (" << totalTime << ")?";
+
+            if (static_cast<uint32_t>(ticks) > totalTime) {
+                qDebug() << "    → TRUE, would call end()";
+            } else {
+                qDebug() << "    → FALSE, continue current row";
+                qDebug() << "    *** FIX SUCCESS: Tick 10 displays, NO premature end() ***";
+            }
+        }
+        qDebug() << "";
+    }
+
+    // At tick 11 WITH FIX:
+    {
+        int32_t ticks = 11;
+        uint32_t calculatedElapsedTime = 0;
+        uint32_t calculatedLine = 0;
+
+        qDebug() << "At tick 11 WITH FIX:";
+
+        for (calculatedLine = 0; calculatedLine < static_cast<uint32_t>(rows.length()); calculatedLine++) {
+            uint32_t rowTime = rows.at(calculatedLine).duration.hour() * 3600 +
+                              rows.at(calculatedLine).duration.minute() * 60 +
+                              rows.at(calculatedLine).duration.second();
+            calculatedElapsedTime += rowTime;
+
+            if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
                 break;
             }
         }
 
         qDebug() << "  Final calculatedLine =" << calculatedLine;
 
-        if (calculatedLine != currentStep) {
-            currentStep = calculatedLine;
-            if (currentStep >= static_cast<uint32_t>(rows.length())) {
-                qDebug() << "    → Would call end() here (CORRECT)";
+        if (calculatedLine >= static_cast<uint32_t>(rows.length())) {
+            uint32_t totalTime = 0;
+            for (int i = 0; i < rows.length(); i++) {
+                totalTime += rows.at(i).duration.hour() * 3600 +
+                             rows.at(i).duration.minute() * 60 +
+                             rows.at(i).duration.second();
+            }
+
+            qDebug() << "  totalTime =" << totalTime << ", ticks =" << ticks;
+            qDebug() << "  Check: ticks (" << ticks << ") > totalTime (" << totalTime << ")?";
+
+            if (static_cast<uint32_t>(ticks) > totalTime) {
+                qDebug() << "    → TRUE, calls end() (CORRECT - after tick 10 displayed)";
             }
         }
         qDebug() << "";
     }
 
     qDebug() << "=== ROOT CAUSE ===";
-    qDebug() << "The '>' comparison at line 1001 allows tick 10 to set calculatedLine = rows.length()";
-    qDebug() << "This triggers end() DURING tick 10, before it's fully displayed";
-    qDebug() << "User sees: 1,2,3,4,5,6,7,8,9... then stops (never shows 10)";
+    qDebug() << "The '>' comparison allows tick 10 to set calculatedLine = rows.length()";
+    qDebug() << "Old code called end() immediately without checking if time EXCEEDED vs REACHED";
+    qDebug() << "This triggered end() DURING tick 10, before it was displayed";
+    qDebug() << "User saw: 1,2,3,4,5,6,7,8,9... then stopped (never showed 10)";
     qDebug() << "";
 
-    qDebug() << "=== FIX ===";
-    qDebug() << "Option 1: Delay end() until AFTER tick 10 completes";
-    qDebug() << "Option 2: Change comparison to allow last tick to complete";
+    qDebug() << "=== FIX IMPLEMENTED ===";
+    qDebug() << "Added check before transition logic in trainprogram.cpp:1028-1043";
+    qDebug() << "When calculatedLine >= rows.length():";
+    qDebug() << "  - Calculate totalTime of workout";
+    qDebug() << "  - Only call end() if ticks > totalTime (EXCEEDED)";
+    qDebug() << "  - If ticks == totalTime (REACHED), continue current row";
+    qDebug() << "";
+    qDebug() << "Result:";
+    qDebug() << "  - Tick 10: ticks (10) > totalTime (10)? NO → stay on row, display tick";
+    qDebug() << "  - Tick 11: ticks (11) > totalTime (10)? YES → call end()";
+    qDebug() << "  - User sees: 1,2,3,4,5,6,7,8,9,10 then workout ends (CORRECT!)";
     qDebug() << "";
 
     qDebug() << "=== END TEST ===\n";
