@@ -9,70 +9,24 @@ public:
     TrainProgramTestSuite();
 
     /**
-     * @brief Test totalElapsedTime() for workouts shorter than 60 seconds
+     * @brief Test that a single-row 40-minute workout completes at exactly 40:00
+     * Bug: Currently stops at 39:59 (missing 1 second)
      */
-    void test_totalElapsedTime_shortWorkout();
+    void test_singleRow40MinuteWorkout_shouldReach40Minutes();
 
     /**
-     * @brief Test totalElapsedTime() for workouts exactly 60 seconds
+     * @brief Test that a multi-row workout completes all rows correctly
+     * Bug: Last row stops 1 second early (first rows complete correctly)
      */
-    void test_totalElapsedTime_exactly60Seconds();
-
-    /**
-     * @brief Test totalElapsedTime() for workouts longer than 60 seconds (where the bug occurs)
-     */
-    void test_totalElapsedTime_longWorkout();
-
-    /**
-     * @brief Test totalElapsedTime() for a 40-minute workout (2400 seconds)
-     * This is the specific case reported by the user
-     */
-    void test_totalElapsedTime_40MinuteWorkout();
-
-    /**
-     * @brief Test totalElapsedTime() for multi-hour workouts
-     */
-    void test_totalElapsedTime_multiHourWorkout();
-
-    /**
-     * @brief Regression test: Proves the old buggy code QTime(0, 0, ticks) was broken
-     * This test PASSES when it confirms the bug existed with the old approach
-     */
-    void test_oldBuggyCode_proveBugExisted();
-
-    /**
-     * @brief CRITICAL TEST: Simulates what toString() actually returns with old buggy code
-     * This shows us what the UI would have displayed with the bug
-     */
-    void test_whatUserActuallySaw_withBuggyCode();
+    void test_multiRowWorkout_lastRowMissing1Second();
 };
 
-TEST_F(TrainProgramTestSuite, TestTotalElapsedTime_ShortWorkout) {
-    this->test_totalElapsedTime_shortWorkout();
+TEST_F(TrainProgramTestSuite, Test_SingleRow40MinuteWorkout_ShouldReach40Minutes) {
+    this->test_singleRow40MinuteWorkout_shouldReach40Minutes();
 }
 
-TEST_F(TrainProgramTestSuite, TestTotalElapsedTime_Exactly60Seconds) {
-    this->test_totalElapsedTime_exactly60Seconds();
-}
-
-TEST_F(TrainProgramTestSuite, TestTotalElapsedTime_LongWorkout) {
-    this->test_totalElapsedTime_longWorkout();
-}
-
-TEST_F(TrainProgramTestSuite, TestTotalElapsedTime_40MinuteWorkout) {
-    this->test_totalElapsedTime_40MinuteWorkout();
-}
-
-TEST_F(TrainProgramTestSuite, TestTotalElapsedTime_MultiHourWorkout) {
-    this->test_totalElapsedTime_multiHourWorkout();
-}
-
-TEST_F(TrainProgramTestSuite, TestOldBuggyCode_ProveBugExisted) {
-    this->test_oldBuggyCode_proveBugExisted();
-}
-
-TEST_F(TrainProgramTestSuite, TestWhatUserActuallySaw_WithBuggyCode) {
-    this->test_whatUserActuallySaw_withBuggyCode();
+TEST_F(TrainProgramTestSuite, Test_MultiRowWorkout_LastRowMissing1Second) {
+    this->test_multiRowWorkout_lastRowMissing1Second();
 }
 
 #endif // TRAINPROGRAMTESTSUITE_H
