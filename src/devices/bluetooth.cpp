@@ -1957,6 +1957,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("KS-WLT")) || // KS-WLT-W1
                         b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MRK-CRYDN-")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("SMARTROWER")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YOROTO-RW-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SF-RW")) ||
                         b.name().toUpper().startsWith(QStringLiteral("NORDLYS")) ||
