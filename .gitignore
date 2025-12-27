@@ -53,3 +53,10 @@ src/inner_templates/googlemaps/cesium-key.js
 /tst/Devices/.vs
 src/inner_templates/googlemaps/cesium-key.js
 src/qdomyos-zwift.pro.user.49de507
+
+# Ignore generated caches and local runtime artifacts for antlinux
+__pycache__/*
+.menu_cache/*
+qDomyos-Zwift.conf
+qdomyos-zwift-bin
+setup.sh
