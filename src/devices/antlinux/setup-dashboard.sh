@@ -1027,6 +1027,10 @@ declare -A STATUS_MAP=(
     ["ant_dongle"]="pending"
 )
 
+# Capture detailed failure info for services (populated when a unit reports 'failed')
+declare -A SERVICE_FAILURE_INFO=()
+
+
 
 # Status grid definition: each entry is "Left Label|Left Key|Right Label|Right Key"
 declare -a STATUS_GRID=(
@@ -1796,16 +1800,56 @@ draw_header_service_line() {
     local svc_sym="●"
     local svc_color="$GRAY"
     local svc_path="/etc/systemd/system/qz.service"
-    
-    # 2. Logic to determine service state
-    if [[ -n "${ACTIVE_SERVICE_FILE:-}" ]] && [[ -f "$ACTIVE_SERVICE_FILE" ]]; then
-        svc_sym="$SYMBOL_PASS"
-        svc_color="$GREEN"
-        svc_path="$ACTIVE_SERVICE_FILE"
-    elif [[ "$HAS_GUI" = false ]]; then
-        # On headless systems, missing service is a warning
-        svc_sym="$SYMBOL_WARN"
-        svc_color="$YELLOW"
+
+    # 2. Prefer STATUS_MAP if available so header matches status panel
+    local svc_map_status
+    svc_map_status=${STATUS_MAP["qz_service"]:-}
+    if [[ -n "$svc_map_status" ]]; then
+        case "$svc_map_status" in
+            pass)
+                svc_sym="$SYMBOL_PASS"
+                svc_color="$GREEN"
+                ;;
+            fail)
+                svc_sym="$SYMBOL_FAIL"
+                svc_color="$RED"
+                ;;
+            *)
+                svc_sym="●"
+                svc_color="$GRAY"
+                ;;
+        esac
+        # Determine path if present
+        if [[ -n "${ACTIVE_SERVICE_FILE:-}" && -f "$ACTIVE_SERVICE_FILE" ]]; then
+            svc_path="$ACTIVE_SERVICE_FILE"
+        elif [[ -f "/etc/systemd/system/qz.service" ]]; then
+            svc_path="/etc/systemd/system/qz.service"
+        elif [[ -f "/lib/systemd/system/qz.service" ]]; then
+            svc_path="/lib/systemd/system/qz.service"
+        fi
+    else
+        # Fallback to runtime check
+        local svc_state
+        svc_state=$(get_service_status)
+        case "$svc_state" in
+            running)
+                svc_sym="$SYMBOL_PASS"
+                svc_color="$GREEN"
+                ;;
+            failed)
+                svc_sym="$SYMBOL_FAIL"
+                svc_color="$RED"
+                ;;
+            *)
+                svc_sym="●"
+                svc_color="$GRAY"
+                ;;
+        esac
+        if [[ -f "/etc/systemd/system/qz.service" ]]; then
+            svc_path="/etc/systemd/system/qz.service"
+        elif [[ -f "/lib/systemd/system/qz.service" ]]; then
+            svc_path="/lib/systemd/system/qz.service"
+        fi
     fi
     
     # 3. Build the line carefully
@@ -2069,14 +2113,19 @@ draw_error_screen() {
 
     draw_bottom_border --force "Press ENTER to continue"
 
-    # Treat any non-empty third argument (e.g. "wait") as a request to pause
-    # so existing callers may pass either a numeric 1 or the string "wait".
+    # Treat any non-empty third argument as a request to pause.
+    # If it's a positive integer, sleep that many seconds; otherwise
+    # wait for a single keypress (legacy behaviour when callers pass "wait").
     if [[ -n "${wait_enter:-}" && "${wait_enter}" != "0" ]]; then
-        # Wait for a single keypress without showing the cursor to avoid
-        # a flashing cursor in the footer area. Keep UI mode active so the
-        # rendered error panel remains visible and consistent.
-        local k
-        safe_read_key k
+        if [[ "${wait_enter}" =~ ^[0-9]+$ ]]; then
+            sleep "${wait_enter}"
+        else
+            # Wait for a single keypress without showing the cursor to avoid
+            # a flashing cursor in the footer area. Keep UI mode active so the
+            # rendered error panel remains visible and consistent.
+            local k
+            safe_read_key k
+        fi
     fi
 
     # Clear the error area after dismiss
@@ -2106,8 +2155,12 @@ draw_info_screen() {
 
     draw_bottom_border --force "Press ENTER to continue"
     if [[ -n "${wait_enter:-}" && "${wait_enter}" != "0" ]]; then
-        local k
-        safe_read_key k
+        if [[ "${wait_enter}" =~ ^[0-9]+$ ]]; then
+            sleep "${wait_enter}"
+        else
+            local k
+            safe_read_key k
+        fi
     fi
 
     clear_info_area --force
@@ -3200,16 +3253,64 @@ check_config_file() {
 }
 
 check_qz_service() {
-    local status="warn"
-    if command -v systemctl >/dev/null 2>&1 && systemctl is-enabled --quiet qz.service 2>/dev/null; then
-        status="pass"
-    elif [[ "$HAS_GUI" == true ]]; then
-        status="pending"
+    # Map systemd unit state to our STATUS_MAP values:
+    # - running -> pass
+    # - failed  -> fail
+    # - stopped/not-installed -> pending
+    local svc_state
+    svc_state=$(get_service_status)
+    local status_map_val="pending"
+    case "$svc_state" in
+        running) status_map_val="pass" ;;
+        failed)  status_map_val="fail" ;;
+        *)       status_map_val="pending" ;;
+    esac
+
+    STATUS_MAP["qz_service"]="$status_map_val"
+    if [[ "$status_map_val" == "fail" ]]; then
+        capture_service_failure_info "qz_service" || true
     fi
-    STATUS_MAP["qz_service"]="$status"
     draw_header_service_line
     render_status_grid 5
-    [[ "$status" != "fail" ]] && return 0 || return 1
+    [[ "$status_map_val" != "fail" ]] && return 0 || return 1
+}
+
+
+capture_service_failure_info() {
+    local key="$1"
+    # Prefer elevated journalctl/systemctl info where possible
+    local summary=""
+    local details=""
+    if command -v systemctl >/dev/null 2>&1; then
+        # Try to get a concise status output (may require sudo)
+        if run_as_root_or_sudo systemctl status qz.service --no-pager -l >/dev/null 2>&1; then
+            summary=$(run_as_root_or_sudo systemctl status qz.service --no-pager -l | sed -n '1,6p' 2>/dev/null || true)
+        else
+            summary=$(systemctl status qz.service --no-pager -l 2>/dev/null | sed -n '1,6p' || true)
+        fi
+        # Grab recent journal entries for the unit (best-effort)
+        if run_as_root_or_sudo journalctl -u qz.service -n 200 -o cat >/dev/null 2>&1; then
+            details=$(run_as_root_or_sudo journalctl -u qz.service -n 200 -o cat 2>/dev/null || true)
+        else
+            details=$(journalctl -u qz.service -n 200 -o cat 2>/dev/null || true)
+        fi
+    else
+        summary="systemctl not available on this host"
+        details=""
+    fi
+
+    # Combine into a stored value (trim to reasonable size)
+    local combined
+    combined="${summary}\n\nRecent logs:\n"
+    if [[ -n "$details" ]]; then
+        combined+="${details}"
+    else
+        combined+="(no journal entries available)"
+    fi
+
+    # Limit stored size to avoid huge memory usage
+    SERVICE_FAILURE_INFO["$key"]=$(printf '%s' "$combined" | tail -n 500)
+    return 0
 }
 
 ## NOTE: sequential `run_all_checks()` implementation removed.
@@ -3483,10 +3584,23 @@ check_qz_service_fast() {
         echo "$result"; return 0
     fi
     local status="warn"
-    if command -v systemctl >/dev/null 2>&1 && systemctl is-enabled --quiet qz.service 2>/dev/null; then
-        status="pass"
-    elif [[ "$HAS_GUI" == true ]]; then
-        status="pending"
+    if command -v systemctl >/dev/null 2>&1; then
+        if systemctl is-active --quiet qz.service 2>/dev/null; then
+            status="pass"
+        elif systemctl is-failed --quiet qz.service 2>/dev/null; then
+            status="fail"
+        elif [[ -f "/etc/systemd/system/qz.service" || -f "/lib/systemd/system/qz.service" ]]; then
+            status="pending"
+        else
+            status="warn"
+        fi
+    else
+        # No systemctl available — treat as pending in GUI mode, warn otherwise
+        if [[ "$HAS_GUI" == true ]]; then
+            status="pending"
+        else
+            status="warn"
+        fi
     fi
     cache_check_result "qz_service" "$status"
     echo "$status"
@@ -4220,7 +4334,7 @@ prompt_yes_no() {
     local start_offset=${1:-4}
     local start_row=$((LOG_TOP + start_offset))
     local selected=0
-    local options=("Yes" "No" "Cancel")
+    local options=("Yes" "No")
     local num_options=${#options[@]}
     
     enter_ui_mode
@@ -4242,10 +4356,10 @@ prompt_yes_no() {
         safe_read_key key
         if [[ $key == $'\x1b' ]]; then
             read -rsn2 -t 0.06 k2 </dev/tty || true
-            # Single ESC -> treat as Cancel/Back for prompt menus
+            # Single ESC -> treat as 'No' for prompt menus (consistent UX)
             if [[ -z "${k2:-}" ]]; then
                 exit_ui_mode || true
-                return 2
+                return 1
             fi
             if [[ -z "$k2" ]]; then read -rsn1 -t 0.02 k3 </dev/tty || true; fi
             local seq="${k2}${k3:-}"
@@ -4305,52 +4419,7 @@ prompt_input_yes() {
 # Initialize width calculator early to avoid first-call detection overhead
 init_width_calculator
 
-prompt_setup_mode() {
-    enter_ui_mode
-    local options=("GUI Mode (Desktop)" "Headless Mode (Server)" "Back")
-    local selected=0
-    [ "$HAS_GUI" = false ] && selected=1
-    local num_options=${#options[@]}
-    
-    while true; do
-        draw_bottom_panel_header "SELECT INSTALLATION TARGET"
-        clear_info_area
-        
-        for i in "${!options[@]}"; do
-            local row=$((LOG_TOP + 1 + i))
-            if [ "$i" -eq "$selected" ]; then
-                draw_sealed_row "$row" "   ${CYAN}► ${BOLD_CYAN}${options[$i]}${NC}"
-            else
-                draw_sealed_row "$row" "     ${GRAY}${options[$i]}${NC}"
-            fi
-        done
-        
-        draw_bottom_border "Arrows: Up/Down | Enter: Select | L: Legend"
-        
-        local key=""
-        safe_read_key key
-        if [[ $key == $'\x1b' ]]; then
-            read -rsn2 -t 0.01 k2 </dev/tty || true
-            # Single ESC -> treat as Back
-            if [[ -z "${k2:-}" ]]; then
-                return 1
-            fi
-            case "${k2:-}" in
-                '[A') ((selected--)) ;; 
-                '[B') ((selected++)) ;;
-            esac
-        elif [[ $key == [lL] ]]; then
-            show_legend_popup
-            continue
-        elif [[ $key == "" ]]; then
-            if [ $selected -eq 2 ]; then return 1; fi
-            [ $selected -eq 0 ] && SETUP_MODE="gui" || SETUP_MODE="headless"
-            return 0
-        fi
-        [ $selected -lt 0 ] && selected=$((num_options - 1))
-        [ "$selected" -ge "$num_options" ] && selected=0
-    done
-}
+
 
 prompt_success_menu() {
     # Test-friendly exit marker: ensure harness finds finish/exit in header
@@ -5019,9 +5088,16 @@ show_scrollable_menu_fast() {
 }
 
 run_guided_mode() {
-    # 1. Select Mode (GUI vs Headless)
-    # Returns 1 if user hits 'Back' in the selection menu
-    if ! prompt_setup_mode; then return 1; fi 
+    # 1. Determine Mode automatically (GUI if available, otherwise headless)
+    # Legacy interactive selection removed — mode is inferred from environment.
+    SETUP_MODE="${SETUP_MODE:-}"
+    if [[ -z "$SETUP_MODE" ]]; then
+        if [[ "${HAS_GUI:-}" == true ]]; then
+            SETUP_MODE="gui"
+        else
+            SETUP_MODE="headless"
+        fi
+    fi
 
     # The user explicitly selected the installation target; treat this as
     # an action so the guided flow will re-probe / continue rather than
@@ -5171,13 +5247,69 @@ run_guided_mode() {
         fi
     fi
 
-    # 10. Systemd Service (Headless only)
+    # 10. Systemd Service
+    # If the service is failed, allow the user to inspect the error and optionally attempt a restart.
+    if [ "${STATUS_MAP[qz_service]:-}" = "fail" ]; then
+        # Ensure we have captured failure details
+        capture_service_failure_info "qz_service" >/dev/null 2>&1 || true
+
+        # Try to detect the exit code; if it's 130 (SIGINT) offer the targeted fix
+        local exit_code
+        exit_code=$(get_service_exit_code 2>/dev/null || true)
+        if [[ "$exit_code" == "130" ]]; then
+            # Friendly short explanation and targeted fix
+            exit_ui_mode || true
+            draw_bottom_panel_header "SERVICE: EXIT CODE 130"
+            clear_info_area
+            draw_sealed_row $((LOG_TOP + 1)) "   qz.service exited with code 130 (SIGINT)."
+            draw_sealed_row $((LOG_TOP + 2)) "   This is expected when systemd stops the service; treat as successful exit."
+            if service_needs_exit_130_check; then
+                draw_sealed_row $((LOG_TOP + 4)) "   Installed unit missing SuccessExitStatus=130. Apply fix now?"
+                if prompt_yes_no 6; then
+                    # Apply the patch non-interactively (avoid double confirmation)
+                    exit_ui_mode || true
+                    draw_info_screen "UPDATING" "Patching service unit..." 2
+                    apply_exit_130_fix >/dev/null 2>&1 || true
+                    draw_info_screen "UPDATED" "Service unit patched; systemd reloaded." 1
+                    action_taken=true
+                fi
+            else
+                draw_sealed_row $((LOG_TOP + 4)) "   Installed unit already declares SuccessExitStatus=130. Restart service now?"
+                if prompt_yes_no 6; then
+                    restart_service_ui
+                    action_taken=true
+                fi
+            fi
+            # Refresh checks
+            check_qz_service >/dev/null 2>&1 || true
+            enter_ui_mode || true
+        else
+            # Non-130 failures: show a short summary (avoid dumping logs here)
+            exit_ui_mode || true
+            local msg="qz.service failed with exit code ${exit_code:-unknown}.\nSee 'Service -> View Service Error' for details."
+            draw_info_screen "SERVICE ERROR" "$msg" 3
+            draw_bottom_panel_header "SERVICE: ATTEMPT RESTART"
+            clear_info_area
+            draw_sealed_row $((LOG_TOP + 1)) "   Attempt to restart the qz.service now?"
+            if prompt_yes_no 4; then
+                restart_service_ui
+                action_taken=true
+                check_qz_service
+            fi
+        fi
+    fi
+
+    # If running in headless mode and service not installed, offer to create it
     if [ "$SETUP_MODE" = "headless" ] && [ -z "$ACTIVE_SERVICE_FILE" ]; then
         request_fix "SERVICE" "Auto-start service is not installed." "Create qz systemd service?"
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
+            # Force headless semantics for service creation/installation
+            local __prev_setup_mode="$SETUP_MODE"
+            SETUP_MODE="headless"
             create_systemd_service && check_qz_service
+            SETUP_MODE="$__prev_setup_mode"
             action_taken=true
         fi
     fi
@@ -6199,6 +6331,7 @@ KillMode=control-group
 TimeoutStopSec=20
 Restart=on-failure
 RestartSec=5
+SuccessExitStatus=130
 StartLimitBurst=5
 StartLimitIntervalSec=60
 StandardOutput=journal
@@ -6245,20 +6378,51 @@ install_service_ui() {
     local gen_out tmp
     gen_out=$(generate_service_file 2>&1) || true
     tmp="${ACTIVE_SERVICE_FILE:-$gen_out}"
+    # Normalize tmp to the last non-empty line (generate_service_file may emit warnings before printing the path)
+    tmp=$(printf '%s' "$tmp" | tr -d '\r' | awk 'NF{line=$0} END{print line}')
 
-    # Attempt installation as root (using sudo if needed). Keep extraction
-    # behaviour for test binaries when SKIP_TEST_EXTRACT is not set.
-    # shellcheck disable=SC2016
-    if run_as_root_or_sudo bash -lc '
-        script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-        install_root="$(cd "$script_dir/../../.." && pwd)"
-        target_bin="$script_dir/qdomyos-zwift-bin"
-        if [[ -z "${SKIP_TEST_EXTRACT:-}" && ! -x "$target_bin" && -f "$install_root/linux-binary-x86-64-ant.zip" ]]; then
-            unzip -p "$install_root/linux-binary-x86-64-ant.zip" qdomyos-zwift-x86-64-ant/qdomyos-zwift-bin > "$target_bin" && chmod +x "$target_bin" || true
+    # Attempt installation as root (using sudo if needed).
+    # We previously generated a temp service file as non-root (in $tmp).
+    # Move that file into the systemd unit path under root and reload.
+    local svc_target="/etc/systemd/system/qz.service"
+    # Attempt to move the generated service file into place as root. Treat
+    # installation as successful if the file exists at the target path after
+    # the move; do not treat a daemon-reload failure as an installation failure.
+    local mv_ok=1
+    if run_as_root_or_sudo bash -lc "
+        set -e
+        mkdir -p /etc/systemd/system >/dev/null 2>&1 || true
+        if [ -f '${tmp}' ]; then
+            mv -f '${tmp}' '${svc_target}' || exit 2
         fi
-        generate_service_file >/dev/null 2>&1 && systemctl daemon-reload && echo INSTALLED_OK
-    '; then
-        draw_info_screen "SERVICE INSTALLED" "Service file installed: ${tmp}" "wait"
+        if [ -f '${svc_target}' ]; then
+            echo MOVED
+            exit 0
+        else
+            exit 3
+        fi
+    "; then
+        mv_ok=0
+        ACTIVE_SERVICE_FILE="${svc_target}"
+    else
+        mv_ok=1
+    fi
+
+    # If the above command reported failure but the target file nevertheless
+    # exists (for example created by a previous run or another process), treat
+    # the installation as successful to avoid false negatives.
+    if [[ $mv_ok -ne 0 && -f "${svc_target}" ]]; then
+        mv_ok=0
+        ACTIVE_SERVICE_FILE="${svc_target}"
+    fi
+
+    if [[ $mv_ok -eq 0 ]]; then
+        # Try daemon-reload but don't treat failures as install failures
+        if ! run_as_root_or_sudo systemctl daemon-reload >/dev/null 2>&1; then
+            draw_info_screen "SERVICE INSTALLED" "Service file installed: ${svc_target}\nWarning: systemd daemon-reload failed; you may need to run 'sudo systemctl daemon-reload' manually." 3
+        else
+            draw_info_screen "SERVICE INSTALLED" "Service file installed: ${svc_target}" 2
+        fi
     else
         draw_error_screen "INSTALL FAILED" "Installation failed — check sudo privileges or logs." "wait"
     fi
@@ -6283,9 +6447,22 @@ start_service_ui() {
 stop_service_ui() {
     exit_ui_mode || true
     if run_as_root_or_sudo systemctl stop qz.service; then
-        draw_info_screen "SERVICE STOPPED" "Service stopped successfully." "wait"
+        # Give systemd a moment to settle and check resulting state
+        sleep 1
+        if run_as_root_or_sudo systemctl is-failed --quiet qz.service 2>/dev/null; then
+            # Unit entered failed state after stop — capture concise failure info
+            capture_service_failure_info "qz_service" || true
+            STATUS_MAP["qz_service"]="fail"
+            draw_error_screen "STOP FAILED" "Stopping qz.service resulted in a failure.\nSee 'View Service Error' in the Service menu." "wait"
+        else
+            STATUS_MAP["qz_service"]="pending"
+            draw_info_screen "SERVICE STOPPED" "Service stopped successfully." "wait"
+        fi
     else
-        draw_error_screen "ERROR" "Failed to stop service." "wait"
+        # Stop command itself failed (permission or systemctl error)
+        capture_service_failure_info "qz_service" || true
+        STATUS_MAP["qz_service"]="fail"
+        draw_error_screen "ERROR" "Failed to stop service (check privileges).\nSee 'View Service Error'." "wait"
     fi
     enter_ui_mode || true
 }
@@ -6321,21 +6498,30 @@ disable_service_ui() {
 }
 
 remove_service_ui() {
+    # Use the UI-consistent Yes/No overlay instead of a plain tty prompt
     exit_ui_mode || true
-    local tty=/dev/tty
-    printf "This will stop and remove the installed service file. Continue? [y/N]: " >"$tty"
-    IFS= read -r yn <"$tty"
-    case "${yn,,}" in
-        y|yes)
-                # shellcheck disable=SC2016
-                if run_as_root_or_sudo bash -lc 'systemctl stop qz.service >/dev/null 2>&1 || true; systemctl disable qz.service >/dev/null 2>&1 || true; for f in /etc/systemd/system/qz.service /lib/systemd/system/qz.service; do [ -f "$f" ] && rm -f "$f"; done; systemctl daemon-reload; echo REMOVED_OK'; then
-                draw_info_screen "SERVICE REMOVED" "Service removed successfully." "wait"
-            else
-                draw_error_screen "REMOVE FAILED" "Failed to remove service; check privileges." "wait"
-            fi
-            ;;
-        *) draw_info_screen "REMOVE ABORTED" "Service removal aborted." "wait" ;;
-    esac
+    draw_bottom_panel_header --force "REMOVE SERVICE"
+    clear_info_area --force
+    draw_sealed_row $((LOG_TOP + 1)) "   This will stop and remove the installed service file."
+    draw_sealed_row $((LOG_TOP + 2)) "   Confirm removal?"
+    draw_bottom_border --force "Arrows: Up/Down | Enter: Select | Esc: Cancel"
+
+    # prompt_yes_no renders an overlay and returns selected index (0=Yes)
+    prompt_yes_no 4
+    local resp=$?
+
+    if [[ $resp -eq 0 ]]; then
+        # Perform removal as root
+        exit_ui_mode || true
+        if run_as_root_or_sudo bash -lc 'systemctl stop qz.service >/dev/null 2>&1 || true; systemctl disable qz.service >/dev/null 2>&1 || true; for f in /etc/systemd/system/qz.service /lib/systemd/system/qz.service; do [ -f "$f" ] && rm -f "$f"; done; systemctl daemon-reload >/dev/null 2>&1 || true'; then
+            draw_info_screen "SERVICE REMOVED" "Service removed successfully." 2
+        else
+            draw_error_screen "REMOVE FAILED" "Failed to remove service; check privileges." 3
+        fi
+    else
+        draw_info_screen "REMOVE ABORTED" "Service removal aborted." 1
+    fi
+
     enter_ui_mode || true
 }
 
@@ -6348,6 +6534,23 @@ view_service_logs_ui() {
     # shellcheck disable=SC2128
     run_as_root_or_sudo journalctl -u qz.service -n "$lines" --no-pager || true
     draw_bottom_border "Press Enter to continue"
+    enter_ui_mode || true
+}
+
+view_service_error_ui() {
+    exit_ui_mode || true
+    local key="qz_service"
+    local info="${SERVICE_FAILURE_INFO[$key]:-}"
+    if [[ -z "$info" ]]; then
+        # Attempt to fetch live info if none cached
+        capture_service_failure_info "$key" >/dev/null 2>&1 || true
+        info="${SERVICE_FAILURE_INFO[$key]:-(no details available)}"
+    fi
+    # Truncate for display if extremely large
+    if [[ $(printf '%s' "$info" | wc -l) -gt 200 ]]; then
+        info=$(printf '%s' "$info" | tail -n 200)
+    fi
+    draw_info_screen "SERVICE ERROR DETAILS" "$info" "wait"
     enter_ui_mode || true
 }
 
@@ -6379,7 +6582,8 @@ regenerate_service_file_ui() {
     local gen_out
     exit_ui_mode || true
     gen_out=$(generate_service_file 2>&1) || true
-    draw_error_screen "SERVICE FILE GENERATED" "${ACTIVE_SERVICE_FILE:-$gen_out}" "wait"
+    # Use informational panel for successful generation
+    draw_info_screen "SERVICE FILE GENERATED" "${ACTIVE_SERVICE_FILE:-$gen_out}" 2
     enter_ui_mode || true
 }
 
@@ -6404,18 +6608,99 @@ get_service_status() {
         return 0
     fi
 
-    if systemctl is-active --quiet qz.service 2>/dev/null; then
+    if run_as_root_or_sudo systemctl is-active --quiet qz.service 2>/dev/null; then
         printf "running"
-    elif systemctl is-failed --quiet qz.service 2>/dev/null; then
+    elif run_as_root_or_sudo systemctl is-failed --quiet qz.service 2>/dev/null; then
         printf "failed"
     else
         printf "stopped"
     fi
 }
 
+# Returns numeric ExecMainStatus for qz.service when available (or empty)
+get_service_exit_code() {
+    if ! command -v systemctl >/dev/null 2>&1; then
+        return 1
+    fi
+    local val
+    if run_as_root_or_sudo systemctl show -p ExecMainStatus --value qz.service >/dev/null 2>&1; then
+        val=$(run_as_root_or_sudo systemctl show -p ExecMainStatus --value qz.service 2>/dev/null || true)
+    else
+        val=$(systemctl show -p ExecMainStatus --value qz.service 2>/dev/null || true)
+    fi
+    # Normalize to integer or empty
+    if [[ "$val" =~ ^[0-9]+$ ]]; then
+        printf '%s' "$val"
+        return 0
+    fi
+    return 1
+}
+
+# Check whether the installed service unit is missing SuccessExitStatus=130
+service_needs_exit_130_check() {
+    local svc=""
+    if [[ -f "/etc/systemd/system/qz.service" ]]; then
+        svc="/etc/systemd/system/qz.service"
+    elif [[ -f "/lib/systemd/system/qz.service" ]]; then
+        svc="/lib/systemd/system/qz.service"
+    else
+        return 1
+    fi
+    if grep -q '^\s*SuccessExitStatus\s*=\s*130' "$svc" 2>/dev/null; then
+        return 1
+    fi
+    return 0
+}
+
+# Apply SuccessExitStatus=130 to the installed unit (returns 0 on success)
+apply_exit_130_fix() {
+    local svc_target="/etc/systemd/system/qz.service"
+    if [[ ! -f "$svc_target" && -f "/lib/systemd/system/qz.service" ]]; then
+        svc_target="/lib/systemd/system/qz.service"
+    fi
+    if [[ ! -f "$svc_target" ]]; then
+        return 2
+    fi
+
+    run_as_root_or_sudo bash -lc "
+        set -e
+        cp -a '${svc_target}' '${svc_target}.bak' 2>/dev/null || true
+        if grep -q '^\\s*SuccessExitStatus\\s*=\\s*130' '${svc_target}' 2>/dev/null; then
+            echo ALREADY
+            exit 0
+        fi
+        awk 'BEGIN{p=0} /^\[Service\]/{print; p=1; next} { if(p==1 && /^\\s*$/){ print \"SuccessExitStatus=130\"; p=2 } print } END{ if(p==1){ print \"SuccessExitStatus=130\" } }' '${svc_target}' > '${svc_target}.tmp' && mv -f '${svc_target}.tmp' '${svc_target}'
+        systemctl daemon-reload || true
+        echo PATCHED
+    " >/dev/null 2>&1 || true
+    return 0
+}
+
+apply_exit_130_fix_ui() {
+    exit_ui_mode || true
+    draw_bottom_panel_header "UPDATE SERVICE CONFIG"
+    clear_info_area
+    draw_sealed_row $((LOG_TOP + 1)) "   This will add SuccessExitStatus=130 to the installed unit."
+    draw_sealed_row $((LOG_TOP + 3)) "   Proceed?"
+    if ! prompt_yes_no 5; then
+        draw_info_screen "UPDATE ABORTED" "No changes made." "wait"
+        enter_ui_mode || true
+        return 1
+    fi
+    if apply_exit_130_fix; then
+        draw_info_screen "UPDATED" "Service unit patched; systemd reloaded." "wait"
+        # Refresh status map
+        check_qz_service >/dev/null 2>&1 || true
+    else
+        draw_error_screen "ERROR" "Failed to update installed unit." "wait"
+    fi
+    enter_ui_mode || true
+}
+
 # Returns 0 if enabled, non-zero otherwise
 is_service_enabled() {
-    systemctl is-enabled --quiet qz.service 2>/dev/null
+    # Use elevated check so status is accurate even when dashboard runs unprivileged
+    run_as_root_or_sudo systemctl is-enabled --quiet qz.service 2>/dev/null
 }
 
 # Build a context-sensitive list of menu options (one per line)
@@ -6444,8 +6729,14 @@ build_service_menu_options() {
             opts+=("Regenerate Service File")
             ;;
         failed)
+            opts+=("View Service Error")
             opts+=("View Service Logs")
             opts+=("Restart Service")
+            opts+=("Regenerate Service File")
+            # If the installed unit is missing SuccessExitStatus=130 offer an Update action
+            if service_needs_exit_130_check; then
+                opts+=("Update Service Configuration")
+            fi
             opts+=("Remove Service")
             ;;
     esac
@@ -6458,20 +6749,13 @@ build_service_menu_options() {
         fi
     fi
 
-    opts+=("Back to Main Menu")
+    # Do not add a dedicated "Back to Main Menu" option; plain ESC exits.
 
     # Safety: ensure we never return more than 9 options (fits LOG_TOP..LOG_BOTTOM)
     local max=9
     if (( ${#opts[@]} > max )); then
-        local truncated=()
-        for i in "${!opts[@]}"; do
-            if (( i < max-1 )); then
-                truncated+=("${opts[i]}")
-            fi
-        done
-        truncated+=("Back to Main Menu")
-        opts=("${truncated[@]}")
-        fi
+        opts=("${opts[@]:0:max}")
+    fi
 
         printf '%s\n' "${opts[@]}"
     }
@@ -6480,6 +6764,7 @@ build_service_menu_options() {
     get_action_for_choice() {
         local choice="$1"
         case "$choice" in
+            "View Service Error") printf '%s' "view_service_error_ui" ;; 
             "Configure Service Flags") printf '%s' "configure_service_flags_ui" ;; 
             "View Current Configuration") printf '%s' "view_service_config_ui" ;; 
             "Generate & Install Service") printf '%s' "install_service_ui" ;; 
@@ -6488,10 +6773,11 @@ build_service_menu_options() {
             "Restart Service") printf '%s' "restart_service_ui" ;; 
             "View Service Logs") printf '%s' "view_service_logs_ui 200" ;; 
             "Regenerate Service File") printf '%s' "regenerate_service_file_ui" ;; 
+                "Update Service Configuration") printf '%s' "apply_exit_130_fix_ui" ;; 
             "Enable Auto-Start") printf '%s' "enable_service_ui" ;; 
             "Disable Auto-Start") printf '%s' "disable_service_ui" ;; 
             "Remove Service") printf '%s' "remove_service_ui" ;; 
-            "Back to Main Menu") printf '%s' "__BACK__" ;; 
+            # Back handled via ESC; no explicit menu entry
             *) printf '%s' "" ;; 
         esac
     }
@@ -6504,16 +6790,38 @@ service_menu_flow() {
     # Footer hint (for automated checks): Esc: Back
     enter_ui_mode || true
     while true; do
-        local status
-        status=$(get_service_status)
+        # Prefer the consolidated STATUS_MAP so the header matches the status panel
+        check_qz_service >/dev/null 2>&1 || true
+        local svc_map_status
+        svc_map_status=${STATUS_MAP["qz_service"]:-}
         local status_display
-        case "$status" in
-            not-installed) status_display="NOT CONFIGURED" ;;
-            stopped) status_display="STOPPED" ;;
-            running) status_display="ACTIVE" ;;
-            failed) status_display="FAILED" ;;
-            *) status_display="UNKNOWN" ;;
-        esac
+        if [[ -n "$svc_map_status" ]]; then
+            case "$svc_map_status" in
+                pass) status_display="ACTIVE" ;;
+                fail) status_display="FAILED" ;;
+                warn|pending) 
+                    # Distinguish between not-installed and stopped where possible
+                    local rt
+                    rt=$(get_service_status)
+                    if [[ "$rt" == "not-installed" ]]; then
+                        status_display="NOT CONFIGURED"
+                    else
+                        status_display="STOPPED"
+                    fi
+                    ;;
+                *) status_display="UNKNOWN" ;;
+            esac
+        else
+            local status
+            status=$(get_service_status)
+            case "$status" in
+                not-installed) status_display="NOT CONFIGURED" ;;
+                stopped) status_display="STOPPED" ;;
+                running) status_display="ACTIVE" ;;
+                failed) status_display="FAILED" ;;
+                *) status_display="UNKNOWN" ;;
+            esac
+        fi
 
         # Build options array
         mapfile -t options < <(build_service_menu_options)
@@ -6550,6 +6858,11 @@ service_menu_flow() {
             safe_read_key key
             if [[ $key == $'\x1b' ]]; then
                 read -rsn2 -t 0.01 k2 </dev/tty || true
+                # Plain ESC -> exit menu (Back)
+                if [[ -z "${k2:-}" ]]; then
+                    exit_ui_mode || true
+                    return 0
+                fi
                 [[ "${k2:-}" == "[A" ]] && ((selected--))
                 [[ "${k2:-}" == "[B" ]] && ((selected++))
             elif [[ $key == [lL] ]]; then
