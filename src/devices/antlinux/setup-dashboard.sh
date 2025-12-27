@@ -47,6 +47,89 @@ config_set_bool() {
 declare -A SYMBOL_CACHE
 # shellcheck disable=SC2034
 SYMBOL_CACHE_INIT=0
+declare -A LAST_SAVED
+
+# Safe single-key read helper with timeout to avoid blocking automated tests.
+# Usage: safe_read_key VAR [timeout]
+# Sets the variable named by VAR to the single key read (may be empty on timeout).
+safe_read_key() {
+    local __var="$1"
+    local _timeout="${2:-0.4}"
+    # If running under test harness (explicit marker) or QZ_NO_MAIN is set,
+    # apply a non-blocking timeout. Otherwise, block until a keypress.
+    local _old_ifs="$IFS"
+    local _tmp_read=""
+    if [[ "${QZ_TEST_MODE:-}${QZ_NO_MAIN:-}" != "" ]]; then
+        IFS= read -rsn1 -t "${_timeout}" _tmp_read </dev/tty 2>/dev/null || true
+    else
+        IFS= read -rsn1 _tmp_read </dev/tty 2>/dev/null || true
+    fi
+    # Assign to the caller-provided variable name safely
+    printf -v "${__var}" '%s' "${_tmp_read}"
+    IFS="${_old_ifs}"
+}
+
+# Auto-save config and show brief feedback
+auto_save_config() {
+    local config_type="$1"  # "service" | "profile"
+    local save_key="${2:-}"
+
+    case "$config_type" in
+        service)
+            save_service_config || return 1
+            ;;
+        profile)
+            # Persist profile via generate_config_file which writes CONFIG_* arrays
+            generate_config_file || return 1
+            ;;
+        *)
+            echo "ERROR: Unknown config type: $config_type" >&2
+            return 1
+            ;;
+    esac
+
+    # Show brief "Saved" indicator
+    show_save_feedback
+
+    # Record inline save (timestamp) for optional inline indicator
+    if [[ -n "$save_key" ]]; then
+        LAST_SAVED["${config_type}:${save_key}"]=$(date +%s)
+    fi
+}
+
+# Display temporary save confirmation
+show_save_feedback() {
+    # Render brief save confirmation inside the info panel (right-aligned)
+    local save_msg_plain="✓ Saved"
+    local save_msg="${GREEN}${save_msg_plain}${NC}"
+    # Compute visible width for right-alignment inside INFO_WIDTH
+    local w
+    w=$(get_display_width "$save_msg_plain")
+    local row=$((LOG_BOTTOM))
+    local col=$((2 + INFO_WIDTH - w))
+    # Print colored message at computed column (within panel borders)
+    print_at_col "$row" "$col" "$save_msg"
+
+    # Auto-clear after 1 second (background job) by overwriting with spaces
+    (
+        sleep 1
+        print_at_col "$row" "$col" "$(printf '%*s' "$w" '')"
+    ) &
+}
+
+# Display temporary cancel feedback
+show_cancel_feedback() {
+    # Render cancel feedback inside the info panel (right-aligned)
+    local cancel_msg_plain="✗ Cancelled"
+    local cancel_msg="${RED}${cancel_msg_plain}${NC}"
+    local w
+    w=$(get_display_width "$cancel_msg_plain")
+    local row=$((LOG_BOTTOM))
+    local col=$((2 + INFO_WIDTH - w))
+    print_at_col "$row" "$col" "$cancel_msg"
+    sleep 1
+    print_at_col "$row" "$col" "$(printf '%*s' "$w" '')"
+}
 
 # Validate that a candidate path is a RAM-backed tmpfs-like storage.
 # Returns 0 if usable (writable dir on tmpfs), non-zero otherwise.
@@ -56,57 +139,99 @@ configure_service_flags_ui() {
     declare -A _SF
     for k in "${!SERVICE_FLAGS[@]}"; do _SF[$k]="${SERVICE_FLAGS[$k]}"; done
 
+    # Suppress global full-screen refreshes while this modal is active
+    UI_MODAL_ACTIVE=1
     enter_ui_mode || true
+    local selected=0
+    local prev_selected=0
+    local need_full_redraw=1
+    local prev_num_options=0
     while true; do
         local options=()
+        local opt_keys=()
         options+=("Logging: ${_SF[logging]:-false}")
+        opt_keys+=("logging")
         options+=("Console: ${_SF[console]:-false}")
+        opt_keys+=("console")
         options+=("Bluetooth Relaxed: ${_SF[bluetooth_relaxed]:-false}")
+        opt_keys+=("bluetooth_relaxed")
         options+=("ANT+ Footpod: ${_SF[ant_footpod]:-false}")
+        opt_keys+=("ant_footpod")
         if [[ "${_SF[ant_footpod]}" == "true" ]]; then
-            options+=("ANT+ Device ID: ${_SF[ant_device]:-54321}")
+            options+=("ANT+ Device ID: [${_SF[ant_device]:-54321}]")
+            opt_keys+=("ant_device")
             options+=("ANT Verbose: ${_SF[ant_verbose]:-false}")
+            opt_keys+=("ant_verbose")
         fi
-        options+=("Poll Time: ${_SF[poll_time]:-200}ms")
-        options+=("Save")
-        options+=("Cancel")
+        options+=("Poll Time (ms): [${_SF[poll_time]:-200}]")
+        opt_keys+=("poll_time")
+        # Changes auto-save on field edit
+        # ESC key exits menu
 
         # Cap to LOG area (rows LOG_TOP..LOG_BOTTOM)
         local num_options=${#options[@]}
         if (( num_options > 9 )); then
-            options=("${options[@]:0:8}" "Cancel")
-            num_options=${#options[@]}
+            options=("${options[@]:0:9}")
+            num_options=9
         fi
 
-        local selected=0
-        local prev_selected=0
+        local BASE_PAD="     "
+        local ARROW="►"
+        local ARROW_POS=2
+        local num_options=${#options[@]}
 
-        draw_bottom_panel_header "SERVICE FLAG CONFIGURATION"
-        clear_info_area
-        draw_sealed_row $((LOG_TOP)) ""
-        for i in "${!options[@]}"; do
-            local row=$((LOG_TOP + 1 + i))
-            if [[ $i -eq $selected ]]; then
-                draw_sealed_row "$row" "   ${CYAN}► ${BOLD_CYAN}${options[$i]}${NC}"
-            else
-                draw_sealed_row "$row" "     ${GRAY}${options[$i]}${NC}"
-            fi
-        done
-        draw_bottom_border "Arrows: Up/Down | Enter: Toggle/Edit | Esc: Back"
+        if [[ $need_full_redraw -eq 1 ]]; then
+            draw_bottom_panel_header --force "SERVICE FLAG CONFIGURATION"
+            clear_info_area --force
+            draw_sealed_row $((LOG_TOP)) ""
+            for i in "${!options[@]}"; do
+                local row=$((LOG_TOP + 1 + i))
+                local opt_text="${options[$i]}"
+                if [[ $i -eq $selected ]]; then
+                    draw_sealed_row "$row" "   ${CYAN}► ${BOLD_CYAN}${opt_text}${NC}"
+                else
+                    draw_sealed_row "$row" "${BASE_PAD}${GRAY}${opt_text}${NC}"
+                fi
+            done
+            draw_bottom_border --force "Arrows: Up/Down | Enter: Toggle/Edit | Esc: Back"
+            need_full_redraw=0
+            prev_num_options=$num_options
+        else
+            local max_rows=$(( num_options > prev_num_options ? num_options : prev_num_options ))
+            for ((i=0;i<max_rows;i++)); do
+                local row=$((LOG_TOP + 1 + i))
+                if (( i < num_options )); then
+                    local opt_text="${options[$i]}"
+                    if [[ $i -eq $selected ]]; then
+                        update_sealed_row_content "$row" "   ${CYAN}► ${BOLD_CYAN}${opt_text}${NC}"
+                    else
+                        update_sealed_row_content "$row" "${BASE_PAD}${GRAY}${opt_text}${NC}"
+                    fi
+                else
+                    update_sealed_row_content "$row" ""
+                fi
+            done
+            prev_num_options=$num_options
+        fi
 
         # Input loop for this screen
         while true; do
             local key=""
-            IFS= read -rsn1 key </dev/tty
+            safe_read_key key
             if [[ $key == $'\x1b' ]]; then
                 read -rsn2 -t 0.01 k2 </dev/tty || true
-                # Single ESC (k2 empty) -> go back
+
                 if [[ -z "${k2:-}" ]]; then
+                    # Plain ESC pressed - navigate back from menu
+                    # No need to prompt "Are you sure?" - changes already saved
                     exit_ui_mode || true
+                    UI_MODAL_ACTIVE=0
                     return 0
                 fi
-                [[ "${k2:-}" == "[A" ]] && ((selected--))
-                [[ "${k2:-}" == "[B" ]] && ((selected++))
+
+                # Arrow key sequences with bounds checks
+                [[ "${k2:-}" == "[A" ]] && ((selected > 0 && selected--))
+                [[ "${k2:-}" == "[B" ]] && ((selected < num_options - 1 && selected++))
             elif [[ $key == "" ]]; then
                 # Enter pressed: act on selected
                 break
@@ -116,11 +241,12 @@ configure_service_flags_ui() {
             [[ $selected -ge $num_options ]] && selected=0
 
             if [[ $selected -ne $prev_selected ]]; then
-                # redraw previous and new
+                # Update only the interior content for the previous and new
+                # rows to avoid redrawing the whole info panel.
                 local prow=$((LOG_TOP + 1 + prev_selected))
-                draw_sealed_row "$prow" "     ${GRAY}${options[$prev_selected]}${NC}"
+                update_sealed_row_content "$prow" "${BASE_PAD}${GRAY}${options[$prev_selected]}${NC}"
                 local nrow=$((LOG_TOP + 1 + selected))
-                draw_sealed_row "$nrow" "   ${CYAN}► ${BOLD_CYAN}${options[$selected]}${NC}"
+                update_sealed_row_content "$nrow" "   ${CYAN}► ${BOLD_CYAN}${options[$selected]}${NC}"
                 prev_selected=$selected
             fi
         done
@@ -128,52 +254,66 @@ configure_service_flags_ui() {
         # Determine action for selected index
         local choice_index=$selected
         local choice_text="${options[choice_index]}"
-
-        # Handle Cancel
-        if [[ "$choice_text" == "Cancel" ]]; then
-            # Restore from _SF and exit
-            for k in "${!_SF[@]}"; do SERVICE_FLAGS[$k]="${_SF[$k]}"; done
-            draw_error_screen "SERVICE CONFIG" "Cancelled changes." "wait"
-            return 0
+        if [[ "${QZ_DEBUG_PROFILE:-0}" -eq 1 ]]; then
+            echo "[DEBUG] choice_index=${choice_index} choice_text=${choice_text}" >> /tmp/qz_profile_debug.log 2>/dev/null || true
         fi
 
-        # Handle Save
-        if [[ "$choice_text" == "Save" ]]; then
-            # Commit _SF into SERVICE_FLAGS
-            for k in "${!_SF[@]}"; do SERVICE_FLAGS[$k]="${_SF[$k]}"; done
-            exit_ui_mode || true
-            if save_service_config; then
-                generate_service_file >/dev/null 2>&1 || true
-                draw_error_screen "SERVICE CONFIG" "Configuration saved." "wait"
-            else
-                draw_error_screen "SERVICE CONFIG" "Failed to save configuration." "wait"
-            fi
-            enter_ui_mode || true
-            return 0
-        fi
+        # No explicit Save/Cancel - changes auto-save on each edit
+        # ESC key from menu level will exit (handled by ESC key code)
 
         # Toggle or edit fields
         case "$choice_text" in
-            Logging:*) _SF[logging]="$( [[ "${_SF[logging]}" == "true" ]] && echo false || echo true )" ;;
-            Console:*) _SF[console]="$( [[ "${_SF[console]}" == "true" ]] && echo false || echo true )" ;;
-            "Bluetooth Relaxed"*) _SF[bluetooth_relaxed]="$( [[ "${_SF[bluetooth_relaxed]}" == "true" ]] && echo false || echo true )" ;;
-            "ANT+ Footpod"*) _SF[ant_footpod]="$( [[ "${_SF[ant_footpod]}" == "true" ]] && echo false || echo true )" ;;
-            "ANT Verbose"*) _SF[ant_verbose]="$( [[ "${_SF[ant_verbose]}" == "true" ]] && echo false || echo true )" ;;
+            Logging:*)
+                _SF[logging]="$( [[ "${_SF[logging]}" == "true" ]] && echo false || echo true )"
+                SERVICE_FLAGS[logging]="${_SF[logging]}"
+                auto_save_config "service" "logging" || draw_error_screen "SAVE ERROR" "Failed to save." "wait"
+                ;;
+            Console:*)
+                _SF[console]="$( [[ "${_SF[console]}" == "true" ]] && echo false || echo true )"
+                SERVICE_FLAGS[console]="${_SF[console]}"
+                auto_save_config "service" "console" || draw_error_screen "SAVE ERROR" "Failed to save." "wait"
+                ;;
+            "Bluetooth Relaxed"*)
+                _SF[bluetooth_relaxed]="$( [[ "${_SF[bluetooth_relaxed]}" == "true" ]] && echo false || echo true )"
+                SERVICE_FLAGS[bluetooth_relaxed]="${_SF[bluetooth_relaxed]}"
+                auto_save_config "service" "bluetooth_relaxed" || draw_error_screen "SAVE ERROR" "Failed to save." "wait"
+                ;;
+            "ANT+ Footpod"*)
+                _SF[ant_footpod]="$( [[ "${_SF[ant_footpod]}" == "true" ]] && echo false || echo true )"
+                SERVICE_FLAGS[ant_footpod]="${_SF[ant_footpod]}"
+                auto_save_config "service" "ant_footpod" || draw_error_screen "SAVE ERROR" "Failed to save." "wait"
+                ;;
+            "ANT Verbose"*)
+                _SF[ant_verbose]="$( [[ "${_SF[ant_verbose]}" == "true" ]] && echo false || echo true )"
+                SERVICE_FLAGS[ant_verbose]="${_SF[ant_verbose]}"
+                auto_save_config "service" "ant_verbose" || draw_error_screen "SAVE ERROR" "Failed to save." "wait"
+                ;;
             "ANT+ Device ID"*)
-                exit_ui_mode || true
-                printf "ANT device id (1-65535) [current: %s]: " "${_SF[ant_device]:-54321}" >/dev/tty
-                IFS= read -r id_in </dev/tty || true
-                id_in="${id_in:-${_SF[ant_device]:-54321}}"
-                if validate_ant_device_id "$id_in"; then _SF[ant_device]="$id_in"; else draw_error_screen "INPUT ERROR" "Invalid device id." "wait"; fi
-                enter_ui_mode || true
+                # Inline numeric prompt to match profile inputs (age/weight)
+                local row=$((LOG_TOP + 1 + selected))
+                local cur_id="${_SF[ant_device]:-54321}"
+                local new_id
+                new_id=$(prompt_numeric_input "ANT+ Device ID" "" "$cur_id" "$row" "   ► ")
+                    if validate_ant_device_id "$new_id"; then
+                    _SF[ant_device]="$new_id"
+                    SERVICE_FLAGS[ant_device]="$new_id"
+                    auto_save_config "service" "ant_device" || draw_error_screen "SAVE ERROR" "Failed to save." "wait"
+                else
+                    show_cancel_feedback
+                fi
                 ;;
             "Poll Time"*)
-                exit_ui_mode || true
-                printf "Poll device time (ms) 50-5000 [current: %s]: " "${_SF[poll_time]:-200}" >/dev/tty
-                IFS= read -r poll_in </dev/tty || true
-                poll_in="${poll_in:-${_SF[poll_time]:-200}}"
-                if validate_poll_time "$poll_in"; then _SF[poll_time]="$poll_in"; else draw_error_screen "INPUT ERROR" "Invalid poll time." "wait"; fi
-                enter_ui_mode || true
+                local row=$((LOG_TOP + 1 + selected))
+                local cur_poll="${_SF[poll_time]:-200}"
+                local new_poll
+                new_poll=$(prompt_numeric_input "Poll Time" "ms" "$cur_poll" "$row" "   ► ")
+                    if validate_poll_time "$new_poll"; then
+                    _SF[poll_time]="$new_poll"
+                    SERVICE_FLAGS[poll_time]="$new_poll"
+                    auto_save_config "service" "poll_time" || draw_error_screen "SAVE ERROR" "Failed to save." "wait"
+                else
+                    show_cancel_feedback
+                fi
                 ;;
             *) draw_error_screen "UNHANDLED" "Action for ${choice_text} not implemented." "wait" ;;
         esac
@@ -290,6 +430,55 @@ config_set_string() {
 
     # Store string as-is (INI format uses no quotes)
     CONFIG_STRING[$key]=$value
+}
+
+config_set_int() {
+    local key=$1
+    local value=$2
+
+    # Validate integer
+    if [[ ! "$value" =~ ^-?[0-9]+$ ]]; then
+        echo "ERROR: Invalid integer for $key: $value" >&2
+        return 1
+    fi
+    CONFIG_INT[$key]="$value"
+}
+
+# Classify a key/value and store into the appropriate typed CONFIG_* array
+classify_and_store() {
+    local key="$1"
+    local value="$2"
+    # Trim surrounding whitespace
+    value="$(printf '%s' "$value" | sed -E 's/^[[:space:]]+//;s/[[:space:]]+$//')"
+
+    # Normalize booleans
+    case "${value,,}" in
+        true|false|1|0|yes|no|on|off)
+            # Normalize to true/false
+            if [[ "${value,,}" =~ ^(true|1|yes|on)$ ]]; then
+                config_set_bool "$key" true || true
+            else
+                config_set_bool "$key" false || true
+            fi
+            return 0
+            ;;
+    esac
+
+    # Integer
+    if [[ "$value" =~ ^-?[0-9]+$ ]]; then
+        config_set_int "$key" "$value" || true
+        return 0
+    fi
+
+    # Float
+    if [[ "$value" =~ ^-?[0-9]*\.[0-9]+([eE][-+]?[0-9]+)?$ ]]; then
+        config_set_float "$key" "$value" || true
+        return 0
+    fi
+
+    # Fallback to string
+    config_set_string "$key" "$value" || true
+    return 0
 }
 
 # Ensure TEMP_DIR is a RAM-backed tmpfs; helper to detect tmpfs paths.
@@ -479,7 +668,7 @@ while [ "$#" -gt 0 ]; do
                 shift
                 ;;
             --no-extract)
-                SKIP_TEST_EXTRACT=1
+                export SKIP_TEST_EXTRACT=1
                 shift
                 ;;
         *)
@@ -1270,6 +1459,10 @@ print_at() {
     local line esc
     line="$*"
     esc=$(printf '\033[%d;1H' "$((row + 1))")
+    # If a modal is active, log calls that would write the full panel
+    if [[ "${UI_MODAL_ACTIVE:-0}" -eq 1 ]]; then
+        printf '%s\n' "[DEBUG] print_at called row=${row} UI_MODAL_ACTIVE=1 caller=$(caller 0 || true)" >> /tmp/qz_profile_debug.log 2>/dev/null || true
+    fi
     # Print cursor position then the literal line string. Use '%s' so
     # printf treats the arguments as data, not format strings.
     ( printf '%s%s' "$esc" "$line" >&"${UI_FD}" ) 2>/dev/null || true
@@ -1284,6 +1477,9 @@ print_at_col() {
     local text="$*"
     local ui_fd
     ui_fd=$(get_safe_ui_fd)
+    if [[ "${UI_MODAL_ACTIVE:-0}" -eq 1 ]]; then
+        printf '%s\n' "[DEBUG] print_at_col called row=${row} col=${col} UI_MODAL_ACTIVE=1 caller=$(caller 0 || true)" >> /tmp/qz_profile_debug.log 2>/dev/null || true
+    fi
     ( printf '\033[%d;%dH' "$((row + 1))" "$col" >&"${ui_fd}" ) 2>/dev/null || true
     ( printf '%s' "$text" >&"${ui_fd}" ) 2>/dev/null || true
 }
@@ -1307,6 +1503,21 @@ draw_sealed_row() {
 
     # Use centralized print helper which moves the cursor and prints to UI_FD.
     print_at "$row" "${BLUE}║${NC}${text}${spacer}${BLUE}║${NC}"
+}
+
+# Update only the content area (between the left/right borders) for a
+# specific sealed row. This avoids re-drawing the entire info panel and
+# keeps the borders intact. Arguments: <row> <content-string>
+update_sealed_row_content() {
+    local row=$1
+    shift
+    local content="$*"
+    # Ensure the content exactly fills the inner width to avoid
+    # overwriting the right border. Use pad_display to compute padding.
+    local padded
+    padded=$(pad_display "$content" "$INNER_COLS")
+    # content area starts at column 2 (after left border)
+    print_at_col "$row" 2 "$padded"
 }
 
 # Canonical display width function: strips ANSI sequences and counts characters
@@ -1797,7 +2008,13 @@ build_hr_string() {
 }
 
 draw_bottom_border() {
+    local force=0
+    if [[ "${1:-}" == "--force" ]]; then force=1; shift; fi
     local help_text="${1:-}"
+    if [[ "${UI_MODAL_ACTIVE:-0}" -eq 1 && $force -eq 0 ]]; then
+        printf '%s\n' "[DEBUG] draw_bottom_border skipped due to UI_MODAL_ACTIVE=1 (help_text='${help_text}')" >> /tmp/qz_profile_debug.log 2>/dev/null || true
+        return 0
+    fi
     local b_row=$((LOG_BOTTOM + 1))
     # Footer uses BOLD_BLUE for the text, No Legend
     # Build footer via builder and print once for atomicity
@@ -1810,6 +2027,11 @@ draw_bottom_border() {
 
 # Clear the info/interactive area between LOG_TOP and LOG_BOTTOM
 clear_info_area() {
+    # If a modal is active, avoid clearing the info area unless forced
+    if [[ "${UI_MODAL_ACTIVE:-0}" -eq 1 && "${1:-}" != "--force" ]]; then
+        printf '%s\n' "[DEBUG] clear_info_area skipped due to UI_MODAL_ACTIVE=1 (arg='${1:-}')" >> /tmp/qz_profile_debug.log 2>/dev/null || true
+        return 0
+    fi
     # Use explicit print_at with padded empty content to reliably overwrite
     # any previous characters (including stray control sequences).
     for ((r=LOG_TOP; r<=LOG_BOTTOM; r++)); do
@@ -1828,7 +2050,7 @@ draw_error_screen() {
     enter_ui_mode
 
     # Clear interactive area
-    clear_info_area
+    clear_info_area --force
 
     # Title row
     local row=$((LOG_TOP + 1))
@@ -1845,25 +2067,63 @@ draw_error_screen() {
         draw_sealed_row "$row" "   ${RED}${line}${NC}"
     done
 
-    draw_bottom_border "Press ENTER to continue"
+    draw_bottom_border --force "Press ENTER to continue"
 
-    if [[ "$wait_enter" -eq 1 ]]; then
+    # Treat any non-empty third argument (e.g. "wait") as a request to pause
+    # so existing callers may pass either a numeric 1 or the string "wait".
+    if [[ -n "${wait_enter:-}" && "${wait_enter}" != "0" ]]; then
         # Wait for a single keypress without showing the cursor to avoid
         # a flashing cursor in the footer area. Keep UI mode active so the
         # rendered error panel remains visible and consistent.
         local k
-        IFS= read -rsn1 k 2>/dev/null || true
+        safe_read_key k
     fi
 
     # Clear the error area after dismiss
-    clear_info_area
+    clear_info_area --force
     exit_ui_mode
 }
 
+# Neutral informational panel (not an error). Usage mirrors draw_error_screen:
+# draw_info_screen "TITLE" "Message" [wait]
+draw_info_screen() {
+    local title="${1:-INFO}"
+    local msg="${2:-}"
+    local wait_enter=${3:-1}
+
+    enter_ui_mode || true
+    clear_info_area --force
+
+    local row=$((LOG_TOP + 1))
+    draw_sealed_row "$row" "   ${BOLD_BLUE}${title}${NC}"
+
+    local wrapped
+    IFS=$'\n' read -r -d '' -a wrapped < <(printf '%b' "$msg" | fold -s -w $((INFO_WIDTH - 3)) && printf '\0')
+    for line in "${wrapped[@]}"; do
+        row=$((row + 1))
+        draw_sealed_row "$row" "   ${NC}${line}${NC}"
+    done
+
+    draw_bottom_border --force "Press ENTER to continue"
+    if [[ -n "${wait_enter:-}" && "${wait_enter}" != "0" ]]; then
+        local k
+        safe_read_key k
+    fi
+
+    clear_info_area --force
+    exit_ui_mode || true
+}
+
 draw_bottom_panel_header() {
+    local force=0
+    if [[ "${1:-}" == "--force" ]]; then force=1; shift; fi
     local raw_title="${1:-INFORMATION}"
     local title
     title=$(echo "$raw_title" | tr '[:lower:]' '[:upper:]')
+    # If a modal is active, skip header redraw unless forced by caller
+    if [[ "${UI_MODAL_ACTIVE:-0}" -eq 1 && $force -eq 0 ]]; then
+        return 0
+    fi
     # Build header string atomically and print once to avoid interleaved
     # cursor movements from other concurrent prints.
     local _hr
@@ -1906,9 +2166,9 @@ draw_instructions_bottom() {
 # and returns immediately after the user presses any key.
 show_legend_popup() {
     enter_ui_mode
-    clear_info_area
+    clear_info_area --force
     # Temporarily set the bottom panel header to indicate this is the legend
-    draw_bottom_panel_header "STATUS GUIDE"
+    draw_bottom_panel_header --force "STATUS GUIDE"
 
     local row=$((LOG_TOP + 1))
     row=$((row + 1))
@@ -1922,11 +2182,11 @@ show_legend_popup() {
     row=$((row + 1))
     draw_sealed_row "$row" "   ${GRAY}${SYMBOL_PENDING}${NC}  Service     — Background service not setup up"
 
-    draw_bottom_border "Press any key to continue"
+    draw_bottom_border --force "Press any key to continue"
     local k
-    IFS= read -rsn1 k </dev/tty 2>/dev/null || true
+    safe_read_key k
 
-    clear_info_area
+    clear_info_area --force
     exit_ui_mode
 }
 
@@ -1993,6 +2253,12 @@ update_status_atomic() {
 # Buffered full-screen renderer: capture drawing into a temp buffer
 # and emit once to the controlling TTY to reduce per-row redraw overhead.
 render_screen_atomic() {
+    # If a modal UI is active (e.g. service/profile editor), skip
+    # full-screen atomic refreshes to avoid clobbering the modal panel.
+    if [[ "${UI_MODAL_ACTIVE:-0}" -eq 1 ]]; then
+        printf '%s\n' "[DEBUG] render_screen_atomic skipped due to UI_MODAL_ACTIVE=1" >> /tmp/qz_profile_debug.log 2>/dev/null || true
+        return 0
+    fi
     local buf
     # Prefer RAM-backed TEMP_DIR (ensure_ram_temp_dir sets this earlier)
     buf=$(mktemp "${TEMP_DIR:-/tmp}/qz_screen.XXXXXX" 2>/dev/null) || buf=$(mktemp /tmp/qz_screen.XXXXXX 2>/dev/null) || buf="/tmp/qz_screen.$$"
@@ -2204,8 +2470,14 @@ prompt_numeric_input() {
     local unit="$2"
     local current_val="$3"
     local row="$4"
+    local prefix="${5:-  }"  # optional prefix (e.g. '   ► ' when editing from menu)
 
-    local label_str="  ${label} (${unit}): "
+    local label_str
+    if [[ -n "${unit}" ]]; then
+        label_str="${label} (${unit}): "
+    else
+        label_str="${label}: "
+    fi
     local buffer=""
 
     # 1. Enter RAW mode (The Research Method)
@@ -2221,14 +2493,15 @@ prompt_numeric_input() {
 
         # 3. UNBUFFERED REDRAW
         # We draw the row and the border instructions in one loop pass
-        draw_sealed_row "$row" "${label_str}${val_color}${display_val}${NC}"
-        draw_bottom_border "Numbers only | ENTER to confirm"
+        draw_sealed_row "$row" "${prefix}${label_str}${val_color}${display_val}${NC}"
+        draw_bottom_border --force "Numbers only | ENTER to confirm"
 
         # 4. PRECISE CURSOR POSITIONING
-        # ║(1) + Spacer(1) + label_str + buffer_len
+        # ║(1) + Spacer(1) + prefix + label_str + buffer_len
+        local _len_prefix=${#prefix}
         local _len_label=${#label_str}
         local _len_buffer=${#buffer}
-        local cursor_col=$(( 2 + _len_label + _len_buffer ))
+        local cursor_col=$(( 1 + _len_prefix + _len_label + _len_buffer ))
         # If we are showing the placeholder [75], put cursor at index 1 (after '[')
         [[ -z "$buffer" ]] && cursor_col=$(( cursor_col + 1 ))
 
@@ -2264,65 +2537,199 @@ prompt_numeric_input() {
     # 6. RESTORE TERMINAL & LOCK IN CYAN
     stty "$old_stty" 2>/dev/null
     hide_cursor # Hide cursor
-    draw_sealed_row "$row" "${label_str}${CYAN}${buffer}${NC}"
+    # Use the same prefix used during editing so the final render does not
+    # shift horizontally compared to the in-place editor (prevents jarring redraw).
+    draw_sealed_row "$row" "${prefix}${label_str}${CYAN}${buffer}${NC}"
 
     echo "${buffer}"
 }
 
 configure_user_profile() {
     load_current_profile_values
+    # Optional debug log for reproducing interactive flow problems
+    if [[ "${QZ_DEBUG_PROFILE:-0}" -eq 1 ]]; then
+        : > /tmp/qz_profile_debug.log 2>/dev/null || true
+        echo "[DEBUG] enter configure_user_profile: $(date +%s)" >> /tmp/qz_profile_debug.log 2>/dev/null || true
+    fi
     # Clear ANSI position and display caches to avoid stale mappings from previous UI
     # shellcheck disable=SC2034
     declare -gA ANSI_CACHE=()
     declare -gA DISPLAY_CACHE=()
 
-    # Selection Menus (Units/Gender)
-    # shellcheck disable=SC2034
-    local unit_opts=("Metric (kg/km)" "Imperial (lbs/mi)")
-    draw_bottom_panel_header "SELECT UNIT SYSTEM"
-    clear_info_area
-    show_scrollable_menu "SELECT UNIT SYSTEM" unit_opts "$( [ "$PREV_MILES" == "true" ] && echo 1 || echo 0)"
-    [[ $? -eq 255 ]] && return 0
-    
-    # shellcheck disable=SC2034
-    local sex_opts=("Male" "Female")
-    draw_bottom_panel_header "SELECT GENDER"
-    clear_info_area
-    show_scrollable_menu "SELECT GENDER" sex_opts "$( [ "$PREV_SEX" == "Female" ] && echo 1 || echo 0)"
-    [[ $? -eq 255 ]] && return 0
+    # Suppress global full-screen refreshes while this modal is active
+    UI_MODAL_ACTIVE=1
 
-    # Draw Form Skeleton
-    draw_bottom_panel_header "USER PROFILE"
-    clear_info_area
-    
-    local w_unit="kg"; [[ "$PREV_MILES" == "true" ]] && w_unit="lbs"
-    
-    # VERTICAL LAYOUT (Row 13 = Spacer)
-    local row_instr=$((LOG_TOP + 1))  # Row 14
-    local row_w=$((LOG_TOP + 3))      # Row 16
-    local row_a=$((LOG_TOP + 5))      # Row 18
+    # Consolidated Profile Menu (Unit toggle, Gender toggle, Weight, Age)
+    # Initialize local copies using previously loaded profile values
+    local _UNIT_IMPERIAL="false"
+    local _GENDER_FEMALE="false"
+    if [[ "${PREV_MILES:-}" == "true" ]]; then _UNIT_IMPERIAL="true"; fi
+    if [[ "${PREV_SEX:-}" == "Female" ]]; then _GENDER_FEMALE="true"; fi
 
-    draw_sealed_row $((LOG_TOP)) ""
-    draw_sealed_row "$row_instr" "  Enter measurements (or press ENTER to keep current):"
-    draw_sealed_row "$row_w"     "  Weight (${w_unit}): ${GRAY}[${PREV_WEIGHT}]${NC}"
-    draw_sealed_row "$row_a"     "  Age (years): ${GRAY}[${PREV_AGE}]${NC}"
-    
-    # Move instructions to the border
-    draw_bottom_border "Numbers only | ENTER to confirm"
+    # Draw menu-style profile editor (matches Service menu UX)
+    draw_bottom_panel_header --force "USER PROFILE"
+    clear_info_area --force
 
-    # Step 3: Interactive Inputs
-    local new_w
-    new_w=$(prompt_numeric_input "Weight" "$w_unit" "$PREV_WEIGHT" "$row_w")
-    update_config_key "weight" "$new_w"
-    
-    local new_a
-    new_a=$(prompt_numeric_input "Age" "years" "$PREV_AGE" "$row_a")
-    update_config_key "age" "$new_a"
-    
-    draw_bottom_panel_header "PROFILE SAVED"
-    # Persist consolidated config to disk from typed arrays
-    generate_config_file "${CONFIG_FILE:-$HOME/.config/qdomyos-zwift/qDomyos-Zwift.conf}" || true
-    sleep 1
+    if [[ "${QZ_DEBUG_PROFILE:-0}" -eq 1 ]]; then
+        echo "[DEBUG] preparing profile menu (post selections)" >> /tmp/qz_profile_debug.log 2>/dev/null || true
+    fi
+
+    local w_unit="kg"; [[ "${_UNIT_IMPERIAL}" == "true" ]] && w_unit="lbs"
+
+    # Work on a local copy so Cancel can revert
+    local _PW="${PREV_WEIGHT:-}" _PA="${PREV_AGE:-}"
+
+    # Initialize selection state for the profile menu
+    local selected=0
+    local prev_selected=0
+
+    while true; do
+        if [[ "${QZ_DEBUG_PROFILE:-0}" -eq 1 ]]; then
+            echo "[DEBUG] menu-loop start selected=${selected:-UNSET} _PW=${_PW} _PA=${_PA}" >> /tmp/qz_profile_debug.log 2>/dev/null || true
+        fi
+        local unit_label="Metric (kg/km)"
+        [[ "${_UNIT_IMPERIAL}" == "true" ]] && unit_label="Imperial (lbs/mi)"
+        local gender_label="Male"
+        [[ "${_GENDER_FEMALE}" == "true" ]] && gender_label="Female"
+
+        local options=()
+        options+=("Unit: ${unit_label}")
+        options+=("Weight (${w_unit}): [${_PW}]")
+        options+=("Age (years): [${_PA}]")
+        options+=("Gender: ${gender_label}")
+        # Changes auto-save on field edit
+        # ESC key exits menu
+
+        local num_options=${#options[@]}
+        prev_selected=$selected
+
+        local BASE_PAD="     "
+        local ARROW="►"
+        local ARROW_POS=2
+
+        # Incremental update: avoid full clears on each loop
+        # Only update the interior content of each sealed row so borders remain intact
+        draw_sealed_row $((LOG_TOP)) ""
+        for i in "${!options[@]}"; do
+            local row=$((LOG_TOP + 1 + i))
+            local opt_text="${options[$i]}"
+            if [[ $i -eq $selected ]]; then
+                update_sealed_row_content "$row" "   ${CYAN}► ${BOLD_CYAN}${opt_text}${NC}"
+            else
+                update_sealed_row_content "$row" "${BASE_PAD}${GRAY}${opt_text}${NC}"
+            fi
+        done
+
+        draw_bottom_border --force "Arrows: Up/Down | Enter: Edit | Esc: Back"
+
+        # Input loop
+        while true; do
+            local key=""
+            safe_read_key key
+            if [[ "${QZ_DEBUG_PROFILE:-0}" -eq 1 ]]; then
+                # show a printable representation of key (show ESC as ESC)
+                if [[ -z "$key" ]]; then
+                    echo "[DEBUG] safe_read_key -> <EMPTY>" >> /tmp/qz_profile_debug.log 2>/dev/null || true
+                else
+                    printf -v _k_escaped "%q" "$key"
+                    echo "[DEBUG] safe_read_key -> ${_k_escaped}" >> /tmp/qz_profile_debug.log 2>/dev/null || true
+                fi
+            fi
+            if [[ $key == $'\x1b' ]]; then
+                read -rsn2 -t 0.01 k2 </dev/tty || true
+                if [[ -z "${k2:-}" ]]; then
+                    exit_ui_mode || true
+                    UI_MODAL_ACTIVE=0
+                    return 0
+                fi
+                [[ "${k2:-}" == "[A" ]] && ((selected--))
+                [[ "${k2:-}" == "[B" ]] && ((selected++))
+            elif [[ $key == "" ]]; then
+                break
+            fi
+
+            [[ $selected -lt 0 ]] && selected=$((num_options - 1))
+            [[ $selected -ge $num_options ]] && selected=0
+
+            if [[ $selected -ne $prev_selected ]]; then
+                local prow=$((LOG_TOP + 1 + prev_selected))
+                update_sealed_row_content "$prow" "     ${GRAY}${options[$prev_selected]}${NC}"
+                local nrow=$((LOG_TOP + 1 + selected))
+                update_sealed_row_content "$nrow" "   ${CYAN}► ${BOLD_CYAN}${options[$selected]}${NC}"
+                prev_selected=$selected
+            fi
+        done
+
+        local choice_index=$selected
+        local choice_text="${options[choice_index]}"
+
+        # No explicit Save/Cancel - changes auto-save on each edit
+        # ESC key from menu level will exit (handled by ESC key code)
+
+        case "$choice_text" in
+            Unit:*)
+                # Toggle unit between metric/imperial
+                if [[ "${_UNIT_IMPERIAL}" == "true" ]]; then
+                    _UNIT_IMPERIAL="false"
+                else
+                    _UNIT_IMPERIAL="true"
+                fi
+                # update display unit immediately
+                if [[ "${_UNIT_IMPERIAL}" == "true" ]]; then w_unit="lbs"; else w_unit="kg"; fi
+                # Persist immediately
+                if [[ "${_UNIT_IMPERIAL}" == "true" ]]; then
+                    update_config_key "miles_unit" "true"
+                else
+                    update_config_key "miles_unit" "false"
+                fi
+                auto_save_config "profile" "miles_unit" || draw_error_screen "SAVE ERROR" "Failed to save profile." "wait"
+                ;;
+            Gender:*)
+                # Toggle gender
+                if [[ "${_GENDER_FEMALE}" == "true" ]]; then
+                    _GENDER_FEMALE="false"
+                else
+                    _GENDER_FEMALE="true"
+                fi
+                # Persist immediately
+                if [[ "${_GENDER_FEMALE}" == "true" ]]; then
+                    update_config_key "sex" "Female"
+                else
+                    update_config_key "sex" "Male"
+                fi
+                auto_save_config "profile" "sex" || draw_error_screen "SAVE ERROR" "Failed to save profile." "wait"
+                ;;
+            Weight*)
+                local row=$((LOG_TOP + 1 + choice_index))
+                local cur="${_PW:-0}"
+                local newv
+                newv=$(prompt_numeric_input "Weight" "$w_unit" "$cur" "$row" "   ► ")
+                if [[ -n "$newv" ]]; then
+                    _PW="$newv"
+                    update_config_key "weight" "${_PW}"
+                    auto_save_config "profile" "weight" || draw_error_screen "SAVE ERROR" "Failed to save profile." "wait"
+                else
+                    show_cancel_feedback
+                fi
+                ;;
+            Age*)
+                local row=$((LOG_TOP + 1 + choice_index))
+                local cur="${_PA:-0}"
+                local newv
+                newv=$(prompt_numeric_input "Age" "years" "$cur" "$row" "   ► ")
+                if [[ -n "$newv" ]]; then
+                    _PA="$newv"
+                    update_config_key "age" "${_PA}"
+                    auto_save_config "profile" "age" || draw_error_screen "SAVE ERROR" "Failed to save profile." "wait"
+                else
+                    show_cancel_feedback
+                fi
+                ;;
+            *)
+                draw_error_screen "UNHANDLED" "Action for ${choice_text} not implemented." "wait" ;;
+        esac
+        # loop and re-render
+    done
 }
 
 select_equipment_flow() {
@@ -3832,7 +4239,7 @@ prompt_yes_no() {
 
         local key=""
         # Read from controlling TTY to avoid stdin redirections interfering
-        IFS= read -rsn1 key </dev/tty
+        safe_read_key key
         if [[ $key == $'\x1b' ]]; then
             read -rsn2 -t 0.06 k2 </dev/tty || true
             # Single ESC -> treat as Cancel/Back for prompt menus
@@ -3874,6 +4281,11 @@ prompt_input_yes() {
     local input=""
     while true; do
         read -rsn1 key 2>/dev/tty
+        if [[ "$key" == $'\x1b' ]]; then
+            # ESC -> cancel prompt
+            enter_ui_mode
+            return 1
+        fi
         if [[ "$key" == "" ]]; then break; fi
         if [[ "$key" == $'\x7f' ]]; then
             if [ ${#input} -gt 0 ]; then input="${input::-1}"; printf "\b \b"; fi
@@ -3916,9 +4328,13 @@ prompt_setup_mode() {
         draw_bottom_border "Arrows: Up/Down | Enter: Select | L: Legend"
         
         local key=""
-        IFS= read -rsn1 key </dev/tty
+        safe_read_key key
         if [[ $key == $'\x1b' ]]; then
             read -rsn2 -t 0.01 k2 </dev/tty || true
+            # Single ESC -> treat as Back
+            if [[ -z "${k2:-}" ]]; then
+                return 1
+            fi
             case "${k2:-}" in
                 '[A') ((selected--)) ;; 
                 '[B') ((selected++)) ;;
@@ -3972,7 +4388,7 @@ prompt_success_menu() {
     while true; do
         # Input handling first for responsiveness
         local key=""
-        IFS= read -rsn1 key </dev/tty
+        safe_read_key key
         if [[ $key == $'\x1b' ]]; then
             read -rsn2 -t 0.01 k2 </dev/tty || true
             # Single ESC -> exit menu by returning selected index
@@ -4057,7 +4473,7 @@ prompt_action_menu() {
     while true; do
         # Input-first for responsiveness
         local key=""
-        IFS= read -rsn1 key </dev/tty
+        safe_read_key key
         if [[ $key == $'\x1b' ]]; then
             read -rsn2 -t 0.01 k2 </dev/tty || true
             # Single ESC -> finish and exit
@@ -4232,7 +4648,7 @@ show_scrollable_menu() {
     while true; do
         # Input handling first for snappy response
         local key=""
-        IFS= read -rsn1 key </dev/tty 2>/dev/null || true
+        safe_read_key key 0.06
         if [[ $key == $'\x1b' ]]; then
             read -rsn2 -t 0.06 k2 </dev/tty 2>/dev/null || true
             # Single ESC -> treat as Back for scrollable menus
@@ -4487,7 +4903,7 @@ show_scrollable_menu_fast() {
     while true; do
         # Input-first for fast response
         local key
-        IFS= read -rsn1 key </dev/tty 2>/dev/null || true
+        safe_read_key key 0.06
         if [[ $key == $'\x1b' ]]; then
             read -rsn2 -t 0.06 k2 </dev/tty 2>/dev/null || true
             if [[ -z "${k2:-}" ]]; then read -rsn1 -t 0.02 k3 </dev/tty 2>/dev/null || true; fi
@@ -5638,7 +6054,8 @@ perform_ant_test() {
 ### Milestone 1-4: Service config, generation and validators
 # Persistent service flags storage
 declare -A SERVICE_FLAGS
-SERVICE_CONF_PATH="${HOME}/.config/qdomyos-zwift/service.conf"
+# Prefer the target user's home so config changes persist to the expected user
+SERVICE_CONF_PATH="${TARGET_HOME}/.config/qdomyos-zwift/service.conf"
 
 # Defaults
 SERVICE_FLAGS[logging]=false
@@ -5653,8 +6070,15 @@ SERVICE_FLAGS[heart_service]=false
 
 init_service_config() {
     mkdir -p "$(dirname "$SERVICE_CONF_PATH")" || return 1
+    # If running as root, ensure the target user owns the service config dir/file
+    if [ "$(id -u)" -eq 0 ] && [ -n "${TARGET_USER:-}" ]; then
+        chown -R "$TARGET_USER":"$TARGET_USER" "$(dirname "$SERVICE_CONF_PATH")" 2>/dev/null || true
+    fi
     if [[ ! -f "$SERVICE_CONF_PATH" ]]; then
         save_service_config || return 1
+        if [ "$(id -u)" -eq 0 ] && [ -n "${TARGET_USER:-}" ]; then
+            chown "$TARGET_USER":"$TARGET_USER" "$SERVICE_CONF_PATH" 2>/dev/null || true
+        fi
     fi
     return 0
 }
@@ -5726,13 +6150,13 @@ build_service_flags() {
 
 generate_service_file() {
     # Detect systemd install path
-[ - - ]
     local svc_dir="/etc/systemd/system"
+    mkdir -p "$svc_dir" 2>/dev/null || true
     local svc_file="$svc_dir/qz.service"
     local bin
-
     # Prefer using the runtime wrapper (which sets LD_LIBRARY_PATH etc.)
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     local system_wrapper="/usr/local/bin/qdomyos-zwift-wrapper.sh"
     local wrapper="$script_dir/qdomyos-zwift-wrapper.sh"
     # Prefer an installed wrapper (packaged to /usr/local) when present.
@@ -5824,6 +6248,7 @@ install_service_ui() {
 
     # Attempt installation as root (using sudo if needed). Keep extraction
     # behaviour for test binaries when SKIP_TEST_EXTRACT is not set.
+    # shellcheck disable=SC2016
     if run_as_root_or_sudo bash -lc '
         script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
         install_root="$(cd "$script_dir/../../.." && pwd)"
@@ -5833,7 +6258,7 @@ install_service_ui() {
         fi
         generate_service_file >/dev/null 2>&1 && systemctl daemon-reload && echo INSTALLED_OK
     '; then
-        draw_error_screen "SERVICE INSTALLED" "Service file installed: ${tmp}" "wait"
+        draw_info_screen "SERVICE INSTALLED" "Service file installed: ${tmp}" "wait"
     else
         draw_error_screen "INSTALL FAILED" "Installation failed — check sudo privileges or logs." "wait"
     fi
@@ -5845,7 +6270,7 @@ start_service_ui() {
     if run_as_root_or_sudo systemctl start qz.service; then
         sleep 1
         if systemctl is-active --quiet qz.service 2>/dev/null; then
-            draw_error_screen "SERVICE STARTED" "Service started successfully.\nStatus: ACTIVE" "wait"
+            draw_info_screen "SERVICE STARTED" "Service started successfully.\nStatus: ACTIVE" "wait"
         else
             draw_error_screen "SERVICE FAILED" "Service did not become active. Check logs." "wait"
         fi
@@ -5858,7 +6283,7 @@ start_service_ui() {
 stop_service_ui() {
     exit_ui_mode || true
     if run_as_root_or_sudo systemctl stop qz.service; then
-        draw_error_screen "SERVICE STOPPED" "Service stopped successfully." "wait"
+        draw_info_screen "SERVICE STOPPED" "Service stopped successfully." "wait"
     else
         draw_error_screen "ERROR" "Failed to stop service." "wait"
     fi
@@ -5868,7 +6293,7 @@ stop_service_ui() {
 restart_service_ui() {
     exit_ui_mode || true
     if run_as_root_or_sudo systemctl restart qz.service; then
-        draw_error_screen "SERVICE RESTARTED" "Service restarted successfully." "wait"
+        draw_info_screen "SERVICE RESTARTED" "Service restarted successfully." "wait"
     else
         draw_error_screen "ERROR" "Failed to restart service." "wait"
     fi
@@ -5878,7 +6303,7 @@ restart_service_ui() {
 enable_service_ui() {
     exit_ui_mode || true
     if run_as_root_or_sudo systemctl enable qz.service; then
-        draw_error_screen "SERVICE ENABLED" "Service enabled for auto-start." "wait"
+        draw_info_screen "SERVICE ENABLED" "Service enabled for auto-start." "wait"
     else
         draw_error_screen "ERROR" "Failed to enable service." "wait"
     fi
@@ -5888,7 +6313,7 @@ enable_service_ui() {
 disable_service_ui() {
     exit_ui_mode || true
     if run_as_root_or_sudo systemctl disable qz.service; then
-        draw_error_screen "SERVICE DISABLED" "Auto-start disabled." "wait"
+        draw_info_screen "SERVICE DISABLED" "Auto-start disabled." "wait"
     else
         draw_error_screen "ERROR" "Failed to disable service." "wait"
     fi
@@ -5902,22 +6327,25 @@ remove_service_ui() {
     IFS= read -r yn <"$tty"
     case "${yn,,}" in
         y|yes)
-            if run_as_root_or_sudo bash -lc 'systemctl stop qz.service >/dev/null 2>&1 || true; systemctl disable qz.service >/dev/null 2>&1 || true; for f in /etc/systemd/system/qz.service /lib/systemd/system/qz.service; do [ -f "$f" ] && rm -f "$f"; done; systemctl daemon-reload; echo REMOVED_OK'; then
-                draw_error_screen "SERVICE REMOVED" "Service removed successfully." "wait"
+                # shellcheck disable=SC2016
+                if run_as_root_or_sudo bash -lc 'systemctl stop qz.service >/dev/null 2>&1 || true; systemctl disable qz.service >/dev/null 2>&1 || true; for f in /etc/systemd/system/qz.service /lib/systemd/system/qz.service; do [ -f "$f" ] && rm -f "$f"; done; systemctl daemon-reload; echo REMOVED_OK'; then
+                draw_info_screen "SERVICE REMOVED" "Service removed successfully." "wait"
             else
                 draw_error_screen "REMOVE FAILED" "Failed to remove service; check privileges." "wait"
             fi
             ;;
-        *) draw_error_screen "REMOVE ABORTED" "Service removal aborted." "wait" ;;
+        *) draw_info_screen "REMOVE ABORTED" "Service removal aborted." "wait" ;;
     esac
     enter_ui_mode || true
 }
 
 view_service_logs_ui() {
+    # shellcheck disable=SC2178,SC2128
     local lines=${1:-200}
     exit_ui_mode || true
     draw_bottom_panel_header "SERVICE LOGS"
     draw_sealed_row $((LOG_TOP)) ""
+    # shellcheck disable=SC2128
     run_as_root_or_sudo journalctl -u qz.service -n "$lines" --no-pager || true
     draw_bottom_border "Press Enter to continue"
     enter_ui_mode || true
@@ -5937,10 +6365,10 @@ view_service_config_ui() {
     config_text+="ANT+ Footpod: ${SERVICE_FLAGS[ant_footpod]:-false}\n"
     config_text+="ANT+ Device ID: ${SERVICE_FLAGS[ant_device]:-54321}\n"
     config_text+="Profile: ${SERVICE_FLAGS[profile]:-(default)}\n"
-    config_text+="Poll Time: ${SERVICE_FLAGS[poll_time]:-200}ms\n"
+    config_text+="Poll Time (ms): ${SERVICE_FLAGS[poll_time]:-200}\n"
 
     exit_ui_mode || true
-    draw_error_screen "CURRENT SERVICE CONFIGURATION" "$config_text" "wait"
+    draw_info_screen "CURRENT SERVICE CONFIGURATION" "$config_text" "wait"
     enter_ui_mode || true
 }
 
@@ -6119,7 +6547,7 @@ service_menu_flow() {
         # Event loop for navigation (follow existing menu conventions)
         while true; do
             local key=""
-            IFS= read -rsn1 key </dev/tty
+            safe_read_key key
             if [[ $key == $'\x1b' ]]; then
                 read -rsn2 -t 0.01 k2 </dev/tty || true
                 [[ "${k2:-}" == "[A" ]] && ((selected--))
@@ -6178,8 +6606,7 @@ service_menu_flow() {
             eval "$action"
         fi
 
-        # Show brief pause and continue loop
-        draw_error_screen "ACTION COMPLETED" "${choice}" "wait"
+        # Re-enter UI mode and continue loop (no error panel for normal actions)
         enter_ui_mode || true
     done
 }
