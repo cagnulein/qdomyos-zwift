@@ -1918,7 +1918,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(stagesBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 stagesBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(stagesBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("SMARTROW")) && b.name().toUpper() != QStringLiteral("SMARTROWER") && !smartrowRower && filter) { // Issue #4033
+            } else if (b.name().toUpper().startsWith(QStringLiteral("SMARTROW")) && !b.name().toUpper().startsWith(QStringLiteral("SMARTROWER")) && !smartrowRower && filter) { // Issue #4033
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 smartrowRower =
