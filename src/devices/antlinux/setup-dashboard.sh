@@ -32,16 +32,51 @@ declare -A CONFIG_FLOAT   # Float values (with decimal)
 declare -A CONFIG_STRING  # String values
 
 # Type-safe setters
-config_set_bool() {
-    local key=$1
-    local value=$2
-
-    case "${value,,}" in
-        true|1|yes|on)  CONFIG_BOOL[$key]="true" ;;
-        false|0|no|off) CONFIG_BOOL[$key]="false" ;;
-        *) echo "ERROR: Invalid boolean for $key: $value" >&2; return 1 ;;
+# Unified type-safe config setter with validation dispatch
+config_set() {
+    local type="$1"
+    local key="$2"
+    local value="$3"
+    
+    case "$type" in
+        bool)
+            case "${value,,}" in
+                true|1|yes|on)  CONFIG_BOOL[$key]="true" ;;
+                false|0|no|off) CONFIG_BOOL[$key]="false" ;;
+                *) echo "ERROR: Invalid boolean for $key: $value" >&2; return 1 ;;
+            esac
+            ;;
+        int)
+            if [[ "$value" =~ ^-?[0-9]+$ ]]; then
+                CONFIG_INT[$key]="$value"
+            else
+                echo "ERROR: Invalid integer for $key: $value" >&2
+                return 1
+            fi
+            ;;
+        float)
+            if [[ "$value" =~ ^-?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$ ]]; then
+                CONFIG_FLOAT[$key]="$value"
+            else
+                echo "ERROR: Invalid float for $key: $value" >&2
+                return 1
+            fi
+            ;;
+        string)
+            CONFIG_STRING[$key]="$value"
+            ;;
+        *)
+            echo "ERROR: Unknown config type: $type" >&2
+            return 1
+            ;;
     esac
 }
+
+# Backward-compatible wrappers
+config_set_bool() { config_set bool "$1" "$2"; }
+config_set_int() { config_set int "$1" "$2"; }
+config_set_float() { config_set float "$1" "$2"; }
+config_set_string() { config_set string "$1" "$2"; }
 
 declare -A SYMBOL_CACHE
 # shellcheck disable=SC2034
@@ -64,7 +99,7 @@ safe_read_key() {
         IFS= read -rsn1 _tmp_read </dev/tty 2>/dev/null || true
     fi
     # Assign to the caller-provided variable name safely
-    printf -v "${__var}" '%s' "${_tmp_read}"
+    printf -v "${__var}" '%s' "${_tmp_read}" || return 1
     IFS="${_old_ifs}"
 }
 
@@ -96,10 +131,38 @@ auto_save_config() {
     fi
 }
 
-# Toggle boolean flag, sync to global array, and auto-save
+# Generic temporary feedback display with auto-clear
+show_temporary_feedback() {
+    local symbol="$1"
+    local label="$2"
+    local color="$3"
+    local duration="${4:-1}"
+    local async="${5:-false}"
+    
+    local msg_plain="${symbol} ${label}"
+    local msg="${color}${msg_plain}${NC}"
+    local visible_width row column
+    visible_width=$(get_display_width "$msg_plain") || return 1
+    row=$((LOG_BOTTOM))
+    column=$((2 + INFO_WIDTH - visible_width))
+    print_at_col "$row" "$column" "$msg"
+    
+    local clear_cmd="sleep ${duration}; print_at_col $row $column \"\$(printf '%*s' $visible_width '')\""
+    if [[ "$async" == "true" ]]; then
+        eval "$clear_cmd" &
+    else
+        eval "$clear_cmd"
+    fi
+}
+
+# Convenience wrappers
+show_save_feedback() { show_temporary_feedback "✓" "Saved" "$GREEN" 1 true; }
+show_cancel_feedback() { show_temporary_feedback "✗" "Cancelled" "$RED" 1 false; }
+
+# Helper: updates a value in local and global arrays, saves to disk, showing errors if any.
 toggle_and_save() {
-    local config_type=$1
-    local flag_key=$2
+    local config_type="$1"
+    local flag_key="$2"
     local -n _local_ref=$3
     local -n _global_ref=$4
 
@@ -112,15 +175,15 @@ toggle_and_save() {
         draw_error_screen "SAVE ERROR" "Failed to save $flag_key." "wait"
 }
 
-# Prompt for numeric input with optional validation, update config, and save
-prompt_validate_save() {
-    local config_type=$1
-    local config_key=$2
-    local prompt_label=$3
-    local unit=$4
-    local current_value=$5
-    local row=$6
-    local validator_fn=${7:-}
+# Helper: prompts for numeric input, validates, updates config, saves, handles cancellation.
+prompt_and_save_value() {
+    local config_type="$1"
+    local config_key="$2"
+    local prompt_label="$3"
+    local unit="$4"
+    local current_value="$5"
+    local row="$6"
+    local validator_fn="${7:-}"
 
     local new_value
     new_value=$(prompt_numeric_input "$prompt_label" "$unit" "$current_value" "$row" "   ► ")
@@ -141,10 +204,10 @@ prompt_validate_save() {
     fi
 }
 
-# Update global config (SERVICE_FLAGS or CONFIG_*)
+# Helper: updates configuration key in memory (SERVICE_FLAGS or typed arrays)
 update_config_key() {
-    local key=$1
-    local value=$2
+    local key="$1"
+    local value="$2"
     
     if [[ "$key" =~ ^(logging|console|bluetooth_relaxed|ant_|poll_time)$ ]]; then
         SERVICE_FLAGS[$key]="$value"
@@ -155,47 +218,13 @@ update_config_key() {
     fi
 }
 
-# Display temporary save confirmation
-show_save_feedback() {
-    # Render brief save confirmation inside the info panel (right-aligned)
-    local save_msg_plain="✓ Saved"
-    local save_msg="${GREEN}${save_msg_plain}${NC}"
-    # Compute visible width for right-alignment inside INFO_WIDTH
-    local w
-    w=$(get_display_width "$save_msg_plain")
-    local row=$((LOG_BOTTOM))
-    local col=$((2 + INFO_WIDTH - w))
-    # Print colored message at computed column (within panel borders)
-    print_at_col "$row" "$col" "$save_msg"
-
-    # Auto-clear after 1 second (background job) by overwriting with spaces
-    (
-        sleep 1
-        print_at_col "$row" "$col" "$(printf '%*s' "$w" '')"
-    ) &
-}
-
-# Display temporary cancel feedback
-show_cancel_feedback() {
-    # Render cancel feedback inside the info panel (right-aligned)
-    local cancel_msg_plain="✗ Cancelled"
-    local cancel_msg="${RED}${cancel_msg_plain}${NC}"
-    local w
-    w=$(get_display_width "$cancel_msg_plain")
-    local row=$((LOG_BOTTOM))
-    local col=$((2 + INFO_WIDTH - w))
-    print_at_col "$row" "$col" "$cancel_msg"
-    sleep 1
-    print_at_col "$row" "$col" "$(printf '%*s' "$w" '')"
-}
-
 # Validate that a candidate path is a RAM-backed tmpfs-like storage.
 # Returns 0 if usable (writable dir on tmpfs), non-zero otherwise.
 configure_service_flags_ui() {
     load_service_config >/dev/null 2>&1 || true
     # Work on an in-memory copy so Cancel can revert
-    declare -A _SF
-    for k in "${!SERVICE_FLAGS[@]}"; do _SF[$k]="${SERVICE_FLAGS[$k]}"; done
+    declare -A _service_flags_copy
+    for k in "${!SERVICE_FLAGS[@]}"; do _service_flags_copy[$k]="${SERVICE_FLAGS[$k]}"; done
 
     # Suppress global full-screen refreshes while this modal is active
     UI_MODAL_ACTIVE=1
@@ -207,21 +236,21 @@ configure_service_flags_ui() {
     while true; do
         local options=()
         local opt_keys=()
-        options+=("Logging: ${_SF[logging]:-false}")
+        options+=("Logging: ${_service_flags_copy[logging]:-false}")
         opt_keys+=("logging")
-        options+=("Console: ${_SF[console]:-false}")
+        options+=("Console: ${_service_flags_copy[console]:-false}")
         opt_keys+=("console")
-        options+=("Bluetooth Relaxed: ${_SF[bluetooth_relaxed]:-false}")
+        options+=("Bluetooth Relaxed: ${_service_flags_copy[bluetooth_relaxed]:-false}")
         opt_keys+=("bluetooth_relaxed")
-        options+=("ANT+ Footpod: ${_SF[ant_footpod]:-false}")
+        options+=("ANT+ Footpod: ${_service_flags_copy[ant_footpod]:-false}")
         opt_keys+=("ant_footpod")
-        if [[ "${_SF[ant_footpod]}" == "true" ]]; then
-            options+=("ANT+ Device ID: [${_SF[ant_device]:-54321}]")
+        if [[ "${_service_flags_copy[ant_footpod]}" == "true" ]]; then
+            options+=("ANT+ Device ID: [${_service_flags_copy[ant_device]:-54321}]")
             opt_keys+=("ant_device")
-            options+=("ANT Verbose: ${_SF[ant_verbose]:-false}")
+            options+=("ANT Verbose: ${_service_flags_copy[ant_verbose]:-false}")
             opt_keys+=("ant_verbose")
         fi
-        options+=("Poll Time (ms): [${_SF[poll_time]:-200}]")
+        options+=("Poll Time (ms): [${_service_flags_copy[poll_time]:-200}]")
         opt_keys+=("poll_time")
         # Changes auto-save on field edit
         # ESC key exits menu
@@ -234,6 +263,8 @@ configure_service_flags_ui() {
         fi
 
         local BASE_PAD="     "
+        local ARROW="►"
+        local ARROW_POS=2
         local num_options=${#options[@]}
 
         if [[ $need_full_redraw -eq 1 ]]; then
@@ -243,11 +274,7 @@ configure_service_flags_ui() {
             for i in "${!options[@]}"; do
                 local row=$((LOG_TOP + 1 + i))
                 local opt_text="${options[$i]}"
-                if [[ $i -eq $selected ]]; then
-                    draw_sealed_row "$row" "   ${CYAN}► ${BOLD_CYAN}${opt_text}${NC}"
-                else
-                    draw_sealed_row "$row" "${BASE_PAD}${GRAY}${opt_text}${NC}"
-                fi
+                render_sealed_row "$row" "$opt_text" "$i" "$selected" "true"
             done
             draw_bottom_border --force "Arrows: Up/Down | Enter: Toggle/Edit | Esc: Back"
             need_full_redraw=0
@@ -258,11 +285,7 @@ configure_service_flags_ui() {
                 local row=$((LOG_TOP + 1 + i))
                 if (( i < num_options )); then
                     local opt_text="${options[$i]}"
-                    if [[ $i -eq $selected ]]; then
-                        update_sealed_row_content "$row" "   ${CYAN}► ${BOLD_CYAN}${opt_text}${NC}"
-                    else
-                        update_sealed_row_content "$row" "${BASE_PAD}${GRAY}${opt_text}${NC}"
-                    fi
+                    render_sealed_row "$row" "$opt_text" "$i" "$selected" "false"
                 else
                     update_sealed_row_content "$row" ""
                 fi
@@ -275,17 +298,21 @@ configure_service_flags_ui() {
             local key=""
             safe_read_key key
             if [[ $key == $'\x1b' ]]; then
-                read -rsn2 -t 0.01 k2 </dev/tty || true
+                read -rsn2 -t 0.01 escape_sequence </dev/tty || true
 
-                if [[ -z "${k2:-}" ]]; then
+                if [[ -z "${escape_sequence:-}" ]]; then
+                    # Plain ESC pressed - navigate back from menu
+                    # No need to prompt "Are you sure?" - changes already saved
                     exit_ui_mode || true
                     UI_MODAL_ACTIVE=0
                     return 0
                 fi
 
-                [[ "${k2:-}" == "[A" ]] && ((selected > 0 && selected--))
-                [[ "${k2:-}" == "[B" ]] && ((selected < num_options - 1 && selected++))
+                # Arrow key sequences with bounds checks
+                [[ "${escape_sequence:-}" == "[A" ]] && ((selected > 0 && selected--))
+                [[ "${escape_sequence:-}" == "[B" ]] && ((selected < num_options - 1 && selected++))
             elif [[ $key == "" ]]; then
+                # Enter pressed: act on selected
                 break
             fi
 
@@ -293,10 +320,12 @@ configure_service_flags_ui() {
             [[ $selected -ge $num_options ]] && selected=0
 
             if [[ $selected -ne $prev_selected ]]; then
+                # Update only the interior content for the previous and new
+                # rows to avoid redrawing the whole info panel.
                 local prow=$((LOG_TOP + 1 + prev_selected))
-                update_sealed_row_content "$prow" "${BASE_PAD}${GRAY}${options[$prev_selected]}${NC}"
+                render_sealed_row "$prow" "${options[$prev_selected]}" "$prev_selected" "$selected" "false"
                 local nrow=$((LOG_TOP + 1 + selected))
-                update_sealed_row_content "$nrow" "   ${CYAN}► ${BOLD_CYAN}${options[$selected]}${NC}"
+                render_sealed_row "$nrow" "${options[$selected]}" "$selected" "$selected" "false"
                 prev_selected=$selected
             fi
         done
@@ -314,32 +343,32 @@ configure_service_flags_ui() {
         # Toggle or edit fields
         case "$choice_text" in
             Logging:*)
-                toggle_and_save "service" "logging" _SF SERVICE_FLAGS
+                toggle_and_save "service" "logging" _service_flags_copy SERVICE_FLAGS
                 ;;
             Console:*)
-                toggle_and_save "service" "console" _SF SERVICE_FLAGS
+                toggle_and_save "service" "console" _service_flags_copy SERVICE_FLAGS
                 ;;
             "Bluetooth Relaxed"*)
-                toggle_and_save "service" "bluetooth_relaxed" _SF SERVICE_FLAGS
+                toggle_and_save "service" "bluetooth_relaxed" _service_flags_copy SERVICE_FLAGS
                 ;;
             "ANT+ Footpod"*)
-                toggle_and_save "service" "ant_footpod" _SF SERVICE_FLAGS
+                toggle_and_save "service" "ant_footpod" _service_flags_copy SERVICE_FLAGS
                 ;;
             "ANT Verbose"*)
-                toggle_and_save "service" "ant_verbose" _SF SERVICE_FLAGS
+                toggle_and_save "service" "ant_verbose" _service_flags_copy SERVICE_FLAGS
                 ;;
             "ANT+ Device ID"*)
                 local row=$((LOG_TOP + 1 + selected))
-                if prompt_validate_save "service" "ant_device" "ANT+ Device ID" "" \
-                    "${_SF[ant_device]:-54321}" "$row" validate_ant_device_id; then
-                    _SF[ant_device]="${SERVICE_FLAGS[ant_device]}"
+                if prompt_and_save_value "service" "ant_device" "ANT+ Device ID" "" \
+                    "${_service_flags_copy[ant_device]:-54321}" "$row" validate_ant_device_id; then
+                    _service_flags_copy[ant_device]="${SERVICE_FLAGS[ant_device]}"
                 fi
                 ;;
             "Poll Time"*)
                 local row=$((LOG_TOP + 1 + selected))
-                if prompt_validate_save "service" "poll_time" "Poll Time" "ms" \
-                    "${_SF[poll_time]:-200}" "$row" validate_poll_time; then
-                    _SF[poll_time]="${SERVICE_FLAGS[poll_time]}"
+                if prompt_and_save_value "service" "poll_time" "Poll Time" "ms" \
+                    "${_service_flags_copy[poll_time]:-200}" "$row" validate_poll_time; then
+                    _service_flags_copy[poll_time]="${SERVICE_FLAGS[poll_time]}"
                 fi
                 ;;
             *) draw_error_screen "UNHANDLED" "Action for ${choice_text} not implemented." "wait" ;;
@@ -358,18 +387,22 @@ parse_reference_config() {
 
     local line section key value
     while IFS= read -r line || [[ -n "$line" ]]; do
+        # Skip comments and empty lines
         [[ -z "$line" ]] && continue
         [[ "$line" =~ ^[[:space:]]*# ]] && continue
 
+        # Section header (we only care about [General] for now)
         if [[ "$line" =~ ^[[:space:]]*\[([^]]+)\][[:space:]]*$ ]]; then
             section="${BASH_REMATCH[1]}"
             continue
         fi
 
+        # Only parse lines in [General] or no-section files
         if [[ -n "$section" && "$section" != "General" ]]; then
             continue
         fi
 
+        # Key=Value lines
         if [[ "$line" =~ ^[[:space:]]*([^=]+)=(.*)$ ]]; then
             key="${BASH_REMATCH[1]}"
             value="${BASH_REMATCH[2]}"
@@ -435,42 +468,13 @@ load_hardcoded_defaults() {
     return 0
 }
 
-config_set_float() {
-    local key=$1
-    local value=$2
 
-    # Validate float (supports scientific notation)
-    if [[ ! "$value" =~ ^-?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$ ]]; then
-        echo "ERROR: Invalid float for $key: $value" >&2
-        return 1
-    fi
-    CONFIG_FLOAT[$key]=$value
-}
-
-config_set_string() {
-    local key=$1
-    local value=$2
-
-    # Store string as-is (INI format uses no quotes)
-    CONFIG_STRING[$key]=$value
-}
-
-config_set_int() {
-    local key=$1
-    local value=$2
-
-    # Validate integer
-    if [[ ! "$value" =~ ^-?[0-9]+$ ]]; then
-        echo "ERROR: Invalid integer for $key: $value" >&2
-        return 1
-    fi
-    CONFIG_INT[$key]="$value"
-}
 
 # Classify a key/value and store into the appropriate typed CONFIG_* array
 classify_and_store() {
     local key="$1"
     local value="$2"
+    # Trim surrounding whitespace
     value="$(printf '%s' "$value" | sed -E 's/^[[:space:]]+//;s/[[:space:]]+$//')"
 
     # Normalize booleans
@@ -486,21 +490,25 @@ classify_and_store() {
             ;;
     esac
 
+    # Integer
     if [[ "$value" =~ ^-?[0-9]+$ ]]; then
         config_set_int "$key" "$value" || true
         return 0
     fi
 
+    # Float
     if [[ "$value" =~ ^-?[0-9]*\.[0-9]+([eE][-+]?[0-9]+)?$ ]]; then
         config_set_float "$key" "$value" || true
         return 0
     fi
 
+    # Fallback to string
     config_set_string "$key" "$value" || true
     return 0
 }
 
-# Ensure TEMP_DIR is a RAM-backed tmpfs; helper to detect tmpfs paths.
+# Ensure TEMP_DIR is a RAM-backed tmpfs-like storage.
+# Returns 0 if usable (writable dir on tmpfs), non-zero otherwise.
 _validate_ram_storage() {
     local path="$1"
     [[ ! -d "$path" || ! -w "$path" ]] && return 1
@@ -560,11 +568,9 @@ generate_config_file() {
     local config_path="${1:-${CONFIG_FILE:-$HOME/.config/qdomyos-zwift/qDomyos-Zwift.conf}}"
     local temp_file
 
+    # Ensure TEMP_DIR exists; fallback to /tmp
     : "${TEMP_DIR:=/tmp}"
-    if ! mkdir -p "$TEMP_DIR" 2>/dev/null; then
-        echo "ERROR: Cannot create TEMP_DIR: $TEMP_DIR" >&2
-        return 1
-    fi
+    mkdir -p "$TEMP_DIR" || { echo "ERROR: Cannot create TEMP_DIR: $TEMP_DIR" >&2; return 1; }
 
     temp_file="${TEMP_DIR}/qDomyos-Zwift.conf.tmp"
 
@@ -584,27 +590,46 @@ generate_config_file() {
         # generated config contains boolean-per-model entries matching
         # the available devices. Do not override existing values.
         if [[ -f "${DEVICES_INI:-$SCRIPT_DIR/devices.ini}" ]]; then
-            while IFS= read -r model_key; do
-                [[ -n "$model_key" && -z "${ALL_KEYS[$model_key]+x}" ]] && ALL_KEYS[$model_key]=false
-            done < <(awk -F'=' '/=/ { gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2 }' "${DEVICES_INI:-$SCRIPT_DIR/devices.ini}")
+            # Extract RHS identifiers (trim whitespace) and add to ALL_KEYS
+            awk -F'=' '/=/ { gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2 }' "${DEVICES_INI:-$SCRIPT_DIR/devices.ini}" \
+                | while IFS= read -r _mk; do
+                    if [[ -n "$_mk" && -z "${ALL_KEYS[$_mk]+x}" ]]; then
+                        ALL_KEYS[$_mk]=false
+                    fi
+                done
         fi
 
-        # Apply template defaults (preserve existing values)
-        local -A defaults=(
-            [bluetooth_30m_hangs]=false [bluetooth_no_reconnection]=false [bluetooth_relaxed]=false
-            [fakedevice_elliptical]=false [fakedevice_rower]=false [fakedevice_treadmill]=false
-            [treadmill_difficulty_gain_or_offset]=false [treadmill_follow_wattage]=false
-            [treadmill_force_speed]=true [treadmill_incline_max]=100 [treadmill_incline_min]=-100
-            [treadmill_pid_heart_max]=0 [treadmill_pid_heart_min]=0 [treadmill_pid_heart_zone]="Disabled"
-            [treadmill_simulate_inclination_with_speed]=false [treadmill_speed_max]=100
-            [treadmill_step_incline]=0.5 [treadmill_step_speed]=0.5
-            [virtual_device_bluetooth]=true [virtual_device_enabled]=true [virtual_device_force_treadmill]=true
-            [virtual_device_echelon]=false [virtual_device_force_bike]=false [virtual_device_ifit]=false
-            [virtual_device_onlyheart]=false [virtual_device_rower]=false [virtualbike_forceresistance]=true
-        )
-        for key in "${!defaults[@]}"; do
-            [[ -z "${ALL_KEYS[$key]+x}" ]] && ALL_KEYS[$key]="${defaults[$key]}"
-        done
+        # Ensure template defaults are present (do not override existing values)
+        if [[ -z "${ALL_KEYS[bluetooth_30m_hangs]+x}" ]]; then ALL_KEYS[bluetooth_30m_hangs]=false; fi
+        if [[ -z "${ALL_KEYS[bluetooth_no_reconnection]+x}" ]]; then ALL_KEYS[bluetooth_no_reconnection]=false; fi
+        if [[ -z "${ALL_KEYS[bluetooth_relaxed]+x}" ]]; then ALL_KEYS[bluetooth_relaxed]=false; fi
+
+        if [[ -z "${ALL_KEYS[fakedevice_elliptical]+x}" ]]; then ALL_KEYS[fakedevice_elliptical]=false; fi
+        if [[ -z "${ALL_KEYS[fakedevice_rower]+x}" ]]; then ALL_KEYS[fakedevice_rower]=false; fi
+        if [[ -z "${ALL_KEYS[fakedevice_treadmill]+x}" ]]; then ALL_KEYS[fakedevice_treadmill]=false; fi
+
+        if [[ -z "${ALL_KEYS[treadmill_difficulty_gain_or_offset]+x}" ]]; then ALL_KEYS[treadmill_difficulty_gain_or_offset]=false; fi
+        if [[ -z "${ALL_KEYS[treadmill_follow_wattage]+x}" ]]; then ALL_KEYS[treadmill_follow_wattage]=false; fi
+        if [[ -z "${ALL_KEYS[treadmill_force_speed]+x}" ]]; then ALL_KEYS[treadmill_force_speed]=true; fi
+        if [[ -z "${ALL_KEYS[treadmill_incline_max]+x}" ]]; then ALL_KEYS[treadmill_incline_max]=100; fi
+        if [[ -z "${ALL_KEYS[treadmill_incline_min]+x}" ]]; then ALL_KEYS[treadmill_incline_min]=-100; fi
+        if [[ -z "${ALL_KEYS[treadmill_pid_heart_max]+x}" ]]; then ALL_KEYS[treadmill_pid_heart_max]=0; fi
+        if [[ -z "${ALL_KEYS[treadmill_pid_heart_min]+x}" ]]; then ALL_KEYS[treadmill_pid_heart_min]=0; fi
+        if [[ -z "${ALL_KEYS[treadmill_pid_heart_zone]+x}" ]]; then ALL_KEYS[treadmill_pid_heart_zone]="Disabled"; fi
+        if [[ -z "${ALL_KEYS[treadmill_simulate_inclination_with_speed]+x}" ]]; then ALL_KEYS[treadmill_simulate_inclination_with_speed]=false; fi
+        if [[ -z "${ALL_KEYS[treadmill_speed_max]+x}" ]]; then ALL_KEYS[treadmill_speed_max]=100; fi
+        if [[ -z "${ALL_KEYS[treadmill_step_incline]+x}" ]]; then ALL_KEYS[treadmill_step_incline]=0.5; fi
+        if [[ -z "${ALL_KEYS[treadmill_step_speed]+x}" ]]; then ALL_KEYS[treadmill_step_speed]=0.5; fi
+
+        if [[ -z "${ALL_KEYS[virtual_device_bluetooth]+x}" ]]; then ALL_KEYS[virtual_device_bluetooth]=true; fi
+        if [[ -z "${ALL_KEYS[virtual_device_enabled]+x}" ]]; then ALL_KEYS[virtual_device_enabled]=true; fi
+        if [[ -z "${ALL_KEYS[virtual_device_force_treadmill]+x}" ]]; then ALL_KEYS[virtual_device_force_treadmill]=true; fi
+        if [[ -z "${ALL_KEYS[virtual_device_echelon]+x}" ]]; then ALL_KEYS[virtual_device_echelon]=false; fi
+        if [[ -z "${ALL_KEYS[virtual_device_force_bike]+x}" ]]; then ALL_KEYS[virtual_device_force_bike]=false; fi
+        if [[ -z "${ALL_KEYS[virtual_device_ifit]+x}" ]]; then ALL_KEYS[virtual_device_ifit]=false; fi
+        if [[ -z "${ALL_KEYS[virtual_device_onlyheart]+x}" ]]; then ALL_KEYS[virtual_device_onlyheart]=false; fi
+        if [[ -z "${ALL_KEYS[virtual_device_rower]+x}" ]]; then ALL_KEYS[virtual_device_rower]=false; fi
+        if [[ -z "${ALL_KEYS[virtualbike_forceresistance]+x}" ]]; then ALL_KEYS[virtualbike_forceresistance]=true; fi
 
         # Write sorted keys for deterministic output
         for k in $(printf '%s\n' "${!ALL_KEYS[@]}" | sort); do
@@ -612,13 +637,14 @@ generate_config_file() {
         done
     } > "$temp_file"
 
+    # Atomic move to destination
     if ! mv -f "$temp_file" "$config_path"; then
         echo "ERROR: Failed to move generated config to $config_path" >&2
         rm -f "$temp_file" 2>/dev/null || true
         return 1
     fi
-    sync 2>/dev/null || true
 
+    # Basic validation
     if [[ ! -f "$config_path" ]]; then
         echo "ERROR: Config file missing after move: $config_path" >&2
         return 1
@@ -639,6 +665,10 @@ generate_config_file() {
 SCRIPT_VERSION="2025.12.22-feat/ant_footpod-1"
 SCRIPT_VERSION=${QZ_SETUP_DASHBOARD_VERSION:-$SCRIPT_VERSION}
 
+# Compute a short, human-friendly version for display in tight headers.
+# Priority: use env `QZ_SETUP_DASHBOARD_VERSION_SHORT` if set; otherwise
+# extract a YYYY.MM.DD prefix if present; else take the part before the
+# first hyphen.
 if [[ -n "${QZ_SETUP_DASHBOARD_VERSION_SHORT:-}" ]]; then
     SCRIPT_VERSION_SHORT="$QZ_SETUP_DASHBOARD_VERSION_SHORT"
 elif [[ "$SCRIPT_VERSION" =~ ([0-9]{4}\.[0-9]{2}\.[0-9]{2}) ]]; then
@@ -852,7 +882,7 @@ grep -q "Raspberry Pi" /proc/cpuinfo 2>/dev/null && IS_PI=true
 # Paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$TARGET_HOME/.config/Roberto Viola"
-CONFIG_FILE="$CONFIG_DIR/qDomyos-Zwift.conf"
+CONFIG_FILE="$CONFIG_DIR/qDomyos-Zwift/qDomyos-Zwift.conf"
 DEVICES_INI="$SCRIPT_DIR/devices.ini"  # absolute path for menus
 SERVICE_FILE_1="/etc/systemd/system/qz.service"
 SERVICE_FILE_2="/lib/systemd/system/qz.service"
@@ -1393,7 +1423,7 @@ set_ui_output() {
 
     if [ -c /dev/tty ] 2>/dev/null; then
         exec 3>/dev/tty 2>/dev/null || true
-        if [ -w /dev/tty ] 2>/dev/null; then
+        if [ -w /dev/tty ] 2>/dev/tty; then
             UI_FD=3
             return 0
         fi
@@ -1506,6 +1536,30 @@ draw_sealed_row() {
     print_at "$row" "${BLUE}║${NC}${text}${spacer}${BLUE}║${NC}"
 }
 
+# Render a sealed row with optional selection highlighting
+render_sealed_row() {
+    local row="$1"
+    local content="$2"
+    local index="$3"
+    local selected_index="$4"
+    local force="${5:-false}"
+    
+    local prefix padding color
+    if [[ "$index" -eq "$selected_index" ]]; then
+        prefix="   ${CYAN}► "
+        color="${BOLD_CYAN}"
+    else
+        prefix="     "
+        color="${GRAY}"
+    fi
+    
+    if [[ "$force" == "true" ]]; then
+        draw_sealed_row "$row" "${prefix}${color}${content}${NC}"
+    else
+        update_sealed_row_content "$row" "${prefix}${color}${content}${NC}"
+    fi
+}
+
 # Update only the content area (between the left/right borders) for a
 # specific sealed row. This avoids re-drawing the entire info panel and
 # keeps the borders intact. Arguments: <row> <content-string>
@@ -1533,15 +1587,6 @@ get_display_width() {
 
 # Strip ANSI sequences from a string and cache the result.
 # Uses the full input string as the cache key (safe for shell associative arrays).
-strip_ansi() {
-    local text="$1"
-    # Interpret backslash-style escapes (e.g. \033) so callers that pass
-    # color variables defined as '\033[...m' are normalized to actual ESC
-    # bytes before we strip them. Then remove common SGR/K sequences.
-    # Deprecated: use strip_ansi_pure for no-subprocess stripping
-    strip_ansi_pure "$text"
-}
-
 strip_ansi_cached() {
     local text="${1:-}"
     # Fast-return for empty
@@ -1665,7 +1710,7 @@ trunc_vis() {
     if ! command -v gawk >/dev/null 2>&1; then
         # Fallback: simple truncation (strip ANSI so widths are approximate)
         local stripped
-        stripped=$(strip_ansi "$text")
+        stripped=$(strip_ansi_pure "$text")
         printf '%s' "${stripped:0:$target}"
         return
     fi
@@ -2172,6 +2217,7 @@ draw_bottom_panel_header() {
     title=$(echo "$raw_title" | tr '[:lower:]' '[:upper:]')
     # If a modal is active, skip header redraw unless forced by caller
     if [[ "${UI_MODAL_ACTIVE:-0}" -eq 1 && $force -eq 0 ]]; then
+        printf '%s\n' "[DEBUG] draw_bottom_panel_header skipped due to UI_MODAL_ACTIVE=1 (arg='${1:-}')" >> /tmp/qz_profile_debug.log 2>/dev/null || true
         return 0
     fi
     # Build header string atomically and print once to avoid interleaved
@@ -2316,7 +2362,7 @@ render_screen_atomic() {
     # Open a dedicated FD for UI output to capture functions that write
     # directly to $UI_FD (print_at, print_at_col, etc.). Use FD 9 to
     # avoid clashing with existing FDs.
-    exec 9>"$buf" 2>/dev/null || exec 9>"$buf" || true
+    exec 9>""$buf"" 2>/dev/null || exec 9>"$buf" || true
     local prev_ui_fd="${UI_FD:-2}"
     UI_FD=9
 
@@ -2437,83 +2483,8 @@ load_current_profile_values() {
 
  
 
-# Update a key in $CONFIG_FILE (create dir/file if needed). Sanitize values.
-update_config_key() {
-    local key="$1"
-    local value="$2"
-    [[ -z "$key" ]] && return
 
-    # Do not persist bluetooth_address via the config updater; keep it out
-    # of generated configs and avoid storing sensitive device addresses.
-    if [[ "$key" == "bluetooth_address" ]]; then
-        return 0
-    fi
 
-    # Strip decimal if weight/age
-    if [[ "$key" == "age" || "$key" == "weight" ]]; then
-        # Remove common ANSI/CSI escape sequences first (e.g. ESC[?25l)
-        if command -v perl >/dev/null 2>&1; then
-            value=$(printf '%s' "$value" | perl -pe 's/\e\[[\d;?;]*[A-Za-z]//g')
-        else
-            value=$(printf '%s' "$value" | sed -E "s/$(printf '\033')\\[[0-9;?]*[A-Za-z]//g")
-        fi
-        value=$(echo "$value" | cut -d. -f1)
-        # Ensure only digits remain (filter out any remaining control chars)
-        value=$(echo "$value" | tr -cd '0-9')
-        # If the remaining digits look like a concatenation of an escape
-        # parameter (e.g. "25") and the real number (e.g. "78" -> "2578"),
-        # prefer the trailing digits that produce a sensible value.
-        if [[ "$key" == "weight" ]]; then
-            # try last 2 then 3 digits to find a weight between 20 and 300
-            if [[ -n "$value" ]]; then
-                local v2=${value: -2}
-                local v3=${value: -3}
-                if [[ -n "$v2" ]] && (( v2 >= 20 && v2 <= 300 )); then
-                    value="$v2"
-                elif [[ -n "$v3" ]] && (( v3 >= 20 && v3 <= 300 )); then
-                    value="$v3"
-                fi
-            fi
-        elif [[ "$key" == "age" ]]; then
-            if [[ -n "$value" ]]; then
-                local a2=${value: -2}
-                if [[ -n "$a2" ]] && (( a2 >= 1 && a2 <= 120 )); then
-                    value="$a2"
-                fi
-            fi
-        fi
-    fi
-
-    # Ensure config directory and file exist so updates always persist.
-    local cfg_dir
-    cfg_dir=$(dirname "$CONFIG_FILE")
-    if [[ ! -d "$cfg_dir" ]]; then
-        mkdir -p "$cfg_dir" 2>/dev/null || true
-        # If running as root, ensure the target user owns the config dir
-        if [ "$(id -u)" -eq 0 ] && [ -n "${TARGET_USER:-}" ]; then
-            chown -R "$TARGET_USER":"$TARGET_USER" "$cfg_dir" 2>/dev/null || true
-        fi
-    fi
-
-    if [[ ! -f "$CONFIG_FILE" ]]; then
-        : > "$CONFIG_FILE" 2>/dev/null || true
-        if [ "$(id -u)" -eq 0 ] && [ -n "${TARGET_USER:-}" ]; then
-            chown "$TARGET_USER":"$TARGET_USER" "$CONFIG_FILE" 2>/dev/null || true
-        fi
-    fi
-
-    if grep -q "^${key}=" "$CONFIG_FILE" 2>/dev/null; then
-        # Use @ as sed delimiter to avoid issues with slashes
-        sed -i "s@^${key}=.*@${key}=${value}@" "$CONFIG_FILE" 2>/dev/null || true
-    else
-        echo "${key}=${value}" >> "$CONFIG_FILE" 2>/dev/null || true
-    fi
-    # Keep typed arrays in sync for generated configs
-    # Normalize value for classification (lowercase booleans)
-    local _val_norm
-    _val_norm="${value,,}"
-    classify_and_store "$key" "$_val_norm" || true
-}
 
 prompt_numeric_input() {
     local label="$1"
@@ -2654,6 +2625,11 @@ configure_user_profile() {
         prev_selected=$selected
 
         local BASE_PAD="     "
+        local ARROW="►"
+        local ARROW_POS=2
+
+        # Incremental update: avoid full clears on each loop
+        # Only update the interior content of each sealed row so borders remain intact
         draw_sealed_row $((LOG_TOP)) ""
         for i in "${!options[@]}"; do
             local row=$((LOG_TOP + 1 + i))
@@ -2667,12 +2643,18 @@ configure_user_profile() {
 
         draw_bottom_border --force "Arrows: Up/Down | Enter: Edit | Esc: Back"
 
+        # Input loop
         while true; do
             local key=""
             safe_read_key key
             if [[ "${QZ_DEBUG_PROFILE:-0}" -eq 1 ]]; then
-                printf -v _k_escaped "%q" "$key"
-                echo "[DEBUG] key=${_k_escaped}" >> "${QZ_DEBUG_LOG:-/dev/null}" 2>&1
+                # show a printable representation of key (show ESC as ESC)
+                if [[ -z "$key" ]]; then
+                    echo "[DEBUG] safe_read_key -> <EMPTY>" >> /tmp/qz_profile_debug.log 2>/dev/null || true
+                else
+                    printf -v _k_escaped "%q" "$key"
+                    echo "[DEBUG] safe_read_key -> ${_k_escaped}" >> /tmp/qz_profile_debug.log 2>/dev/null || true
+                fi
             fi
             if [[ $key == $'\x1b' ]]; then
                 read -rsn2 -t 0.01 k2 </dev/tty || true
@@ -2702,30 +2684,66 @@ configure_user_profile() {
         local choice_index=$selected
         local choice_text="${options[choice_index]}"
 
-
+        # No explicit Save/Cancel - changes auto-save on each edit
+        # ESC key from menu level will exit (handled by ESC key code)
 
         case "$choice_text" in
             Unit:*)
-                [[ "${_UNIT_IMPERIAL}" == "true" ]] && _UNIT_IMPERIAL=false || _UNIT_IMPERIAL=true
-                [[ "${_UNIT_IMPERIAL}" == "true" ]] && w_unit="lbs" || w_unit="kg"
-                update_config_key "miles_unit" "${_UNIT_IMPERIAL}"
-                auto_save_config "profile" "miles_unit" || draw_error_screen "SAVE ERROR" "Failed to save miles_unit." "wait"
+                # Toggle unit between metric/imperial
+                if [[ "${_UNIT_IMPERIAL}" == "true" ]]; then
+                    _UNIT_IMPERIAL="false"
+                else
+                    _UNIT_IMPERIAL="true"
+                fi
+                # update display unit immediately
+                if [[ "${_UNIT_IMPERIAL}" == "true" ]]; then w_unit="lbs"; else w_unit="kg"; fi
+                # Persist immediately
+                if [[ "${_UNIT_IMPERIAL}" == "true" ]]; then
+                    update_config_key "miles_unit" "true"
+                else
+                    update_config_key "miles_unit" "false"
+                fi
+                auto_save_config "profile" "miles_unit" || draw_error_screen "SAVE ERROR" "Failed to save profile." "wait"
                 ;;
             Gender:*)
-                [[ "${_GENDER_FEMALE}" == "true" ]] && _GENDER_FEMALE=false || _GENDER_FEMALE=true
-                [[ "${_GENDER_FEMALE}" == "true" ]] && update_config_key "sex" "Female" || update_config_key "sex" "Male"
-                auto_save_config "profile" "sex" || draw_error_screen "SAVE ERROR" "Failed to save sex." "wait"
+                # Toggle gender
+                if [[ "${_GENDER_FEMALE}" == "true" ]]; then
+                    _GENDER_FEMALE="false"
+                else
+                    _GENDER_FEMALE="true"
+                fi
+                # Persist immediately
+                if [[ "${_GENDER_FEMALE}" == "true" ]]; then
+                    update_config_key "sex" "Female"
+                else
+                    update_config_key "sex" "Male"
+                fi
+                auto_save_config "profile" "sex" || draw_error_screen "SAVE ERROR" "Failed to save profile." "wait"
                 ;;
             Weight*)
                 local row=$((LOG_TOP + 1 + choice_index))
-                if prompt_validate_save "profile" "weight" "Weight" "$w_unit" "${_PW:-0}" "$row"; then
-                    _PW="${CONFIG_INT[weight]:-${CONFIG_FLOAT[weight]:-0}}"
+                local cur="${_PW:-0}"
+                local newv
+                newv=$(prompt_numeric_input "Weight" "$w_unit" "$cur" "$row" "   ► ")
+                if [[ -n "$newv" ]]; then
+                    _PW="$newv"
+                    update_config_key "weight" "${_PW}"
+                    auto_save_config "profile" "weight" || draw_error_screen "SAVE ERROR" "Failed to save profile." "wait"
+                else
+                    show_cancel_feedback
                 fi
                 ;;
             Age*)
                 local row=$((LOG_TOP + 1 + choice_index))
-                if prompt_validate_save "profile" "age" "Age" "years" "${_PA:-0}" "$row"; then
-                    _PA="${CONFIG_INT[age]:-0}"
+                local cur="${_PA:-0}"
+                local newv
+                newv=$(prompt_numeric_input "Age" "years" "$cur" "$row" "   ► ")
+                if [[ -n "$newv" ]]; then
+                    _PA="$newv"
+                    update_config_key "age" "${_PA}"
+                    auto_save_config "profile" "age" || draw_error_screen "SAVE ERROR" "Failed to save profile." "wait"
+                else
+                    show_cancel_feedback
                 fi
                 ;;
             *)
@@ -2925,8 +2943,16 @@ PY
             fi
             
             # --- SAVE CONFIGURATION ---
-            # Streamlined save with inline feedback (matches Service/Profile menus)
-            
+            # Immediate feedback: show saving header so the UI responds
+            draw_bottom_panel_header "SAVING"
+            clear_info_area
+            # Prefer the human-friendly model name for the saving message
+            local _save_display="${selected_name:-$selected_key}"
+            draw_sealed_row $((LOG_TOP + 2)) "   ${WHITE}Saving: ${selected_type} / ${_save_display}${NC}"
+            draw_bottom_border ""
+            # allow UI to render
+            sleep 0.05
+
             local all_possible_keys
             all_possible_keys=$(grep '=' "$DEVICES_INI" | cut -d'=' -f2 | xargs)
             for k in $all_possible_keys; do update_config_key "$k" "false"; done
@@ -2945,26 +2971,19 @@ PY
             update_config_key "$selected_key" "true"
 
             # Persist consolidated config to disk
-            if ! generate_config_file "${CONFIG_FILE:-$HOME/.config/qdomyos-zwift/qDomyos-Zwift.conf}"; then
-                draw_error_screen "SAVE ERROR" "Failed to save equipment configuration." "wait"
-                state=0
-                continue
-            fi
+            generate_config_file "${CONFIG_FILE:-$HOME/.config/qdomyos-zwift/qDomyos-Zwift.conf}" || true
 
-            # Use standard inline save feedback (consistent with Service/Profile)
-            show_save_feedback
-
-            # Return to type selection instead of exiting
-            state=0
-            
-            # Update default to reflect saved selection
-            type_def_idx=0
-            for i in "${!types[@]}"; do
-                [[ "${types[$i]}" == "$selected_type" ]] && type_def_idx=$i
-            done
-            
-            # Continue menu loop (no exit)
-            continue
+            # Friendly confirmation (align with Bluetooth flow)
+            draw_bottom_panel_header "EQUIPMENT SAVED"
+            clear_info_area
+            local _display_name="${selected_name:-${_save_display:-$selected_key}}"
+            draw_sealed_row $((LOG_TOP + 2)) "   ${GREEN}Equipment saved successfully!${NC}"
+            draw_sealed_row $((LOG_TOP + 4)) "   Type : ${WHITE}${selected_type}${NC}"
+            draw_sealed_row $((LOG_TOP + 5)) "   Model: ${WHITE}${_display_name}${NC}"
+            draw_sealed_row $((LOG_TOP + 6)) "   Key  : ${GRAY}${selected_key}${NC}"
+            draw_bottom_border ""
+            sleep 1.5
+            exit_ui_mode; return 0
         fi
     done
 }
@@ -4290,11 +4309,7 @@ prompt_yes_no() {
     while true; do
         for i in "${!options[@]}"; do
             local row=$((start_row + i))
-            if [ "$i" -eq "$selected" ]; then
-                draw_sealed_row "$row" "   ${CYAN}► ${BOLD_CYAN}${options[$i]}${NC}"
-            else
-                draw_sealed_row "$row" "     ${GRAY}${options[$i]}${NC}"
-            fi
+            render_sealed_row "$row" "${options[$i]}" "$i" "$selected" "true"
         done
         
         # Border call
@@ -4424,11 +4439,7 @@ prompt_success_menu() {
             draw_sealed_row 12 ""
             for i in "${!options[@]}"; do
                 local row=$((13 + i))
-                if [[ $i -eq $selected ]]; then
-                    draw_sealed_row "$row" "   ${CYAN}► ${BOLD_CYAN}${options[$i]}${NC}"
-                else
-                    draw_sealed_row "$row" "     ${GRAY}${options[$i]}${NC}"
-                fi
+                render_sealed_row "$row" "${options[$i]}" "$i" "$selected" "true"
             done
             draw_bottom_border "Arrows: Up/Down | Enter: Select | L: Legend"
             prev_selected=$selected
@@ -4444,11 +4455,11 @@ prompt_success_menu() {
         if [[ $selected -ne $prev_selected ]]; then
             # Deselect previous row
             local prev_row=$((13 + prev_selected))
-            draw_sealed_row "$prev_row" "     ${GRAY}${options[$prev_selected]}${NC}"
+            render_sealed_row "$prev_row" "${options[$prev_selected]}" "$prev_selected" "$selected" "true"
 
             # Select new row
             local new_row=$((13 + selected))
-            draw_sealed_row "$new_row" "   ${CYAN}► ${BOLD_CYAN}${options[$selected]}${NC}"
+            render_sealed_row "$new_row" "${options[$selected]}" "$selected" "$selected" "true"
 
             prev_selected=$selected
         fi
@@ -6790,11 +6801,7 @@ service_menu_flow() {
 
         for i in "${!options[@]}"; do
             local row=$((LOG_TOP + 1 + i))
-            if (( i == selected )); then
-                draw_sealed_row "$row" "   ${CYAN}► ${BOLD_CYAN}${options[i]}${NC}"
-            else
-                draw_sealed_row "$row" "     ${GRAY}${options[i]}${NC}"
-            fi
+            render_sealed_row "$row" "${options[i]}" "$i" "$selected" "true"
         done
 
         draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Back | L: Legend"
@@ -6822,11 +6829,7 @@ service_menu_flow() {
                 draw_sealed_row $((LOG_TOP)) ""
                 for i in "${!options[@]}"; do
                     local row=$((LOG_TOP + 1 + i))
-                    if (( i == selected )); then
-                        draw_sealed_row "$row" "   ${CYAN}► ${BOLD_CYAN}${options[i]}${NC}"
-                    else
-                        draw_sealed_row "$row" "     ${GRAY}${options[i]}${NC}"
-                    fi
+                    render_sealed_row "$row" "${options[i]}" "$i" "$selected" "true"
                 done
                 draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Back | L: Legend"
                 prev_selected=$selected
@@ -6843,9 +6846,9 @@ service_menu_flow() {
             if (( selected != prev_selected )); then
                 # redraw previous and new rows
                 local prev_row=$((LOG_TOP + 1 + prev_selected))
-                draw_sealed_row "$prev_row" "     ${GRAY}${options[prev_selected]}${NC}"
+                render_sealed_row "$prev_row" "${options[prev_selected]}" "$prev_selected" "$selected" "true"
                 local new_row=$((LOG_TOP + 1 + selected))
-                draw_sealed_row "$new_row" "   ${CYAN}► ${BOLD_CYAN}${options[selected]}${NC}"
+                render_sealed_row "$new_row" "${options[selected]}" "$selected" "$selected" "true"
                 prev_selected=$selected
             fi
 
