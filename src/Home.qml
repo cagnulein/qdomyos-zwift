@@ -314,13 +314,15 @@ HomeForm {
                 id: myText
                 anchors {
                     top: myIcon.top
+                    horizontalCenter: settings.theme_tile_icon_enabled ? undefined : parent.horizontalCenter
+                    left: settings.theme_tile_icon_enabled ? parent.left : undefined
+                    leftMargin: settings.theme_tile_icon_enabled ? 55 * settings.ui_zoom / 100 : 0
                 }
                 font.bold: true
-                     font.pointSize: labelFontSize
+                     font.pointSize: labelFontSize * settings.ui_zoom / 100
                 color: "white"
                 text: name
-                anchors.left: parent.left
-                anchors.leftMargin: 55 * settings.ui_zoom / 100
+                horizontalAlignment: settings.theme_tile_icon_enabled ? Text.AlignLeft : Text.AlignHCenter
                 anchors.topMargin: 20 * settings.ui_zoom / 100
                 visible: !largeButton
 
