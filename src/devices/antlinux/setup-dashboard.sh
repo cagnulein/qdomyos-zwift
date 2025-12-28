@@ -100,7 +100,7 @@ auto_save_config() {
 # Display temporary save confirmation
 show_save_feedback() {
     # Render brief save confirmation inside the info panel (right-aligned)
-    local save_msg_plain="✓ Saved"
+    local save_msg_plain="✓ ${1:+$1 }Saved"
     local save_msg="${GREEN}${save_msg_plain}${NC}"
     # Compute visible width for right-alignment inside INFO_WIDTH
     local w
@@ -2180,7 +2180,7 @@ draw_bottom_panel_header() {
     # Build header string atomically and print once to avoid interleaved
     # cursor movements from other concurrent prints.
     local _hr
-    _hr=$(build_hr_string 11 "╠" "╣" "$title")
+    _hr=$(build_hr_string 11 "╠" "╣" "$title" "$BOLD_WHITE" "${GRAY}L: Legend${NC}")
     local ui_fd
     ui_fd=$(get_safe_ui_fd)
     ( printf '%s' "$_hr" >&"${ui_fd}" ) 2>/dev/null || true
@@ -2815,7 +2815,7 @@ select_equipment_flow() {
                # Update info header for equipment selection and clear the area
                draw_bottom_panel_header "SELECT DEVICE TYPE"
                clear_info_area
-               show_scrollable_menu "SELECT DEVICE TYPE" types "$type_def_idx" "Back" "pad"
+               show_scrollable_menu "SELECT DEVICE TYPE" types "$type_def_idx" "" "pad"
              local t_idx=$?
              if [ "$t_idx" -eq 255 ]; then return 1; fi 
              selected_type="${types[$t_idx]}"
@@ -2944,7 +2944,7 @@ PY
                 done
                 MENU_CACHE_LOADED=1
 
-                show_scrollable_menu_fast "SELECT $selected_type MODEL" "models" "$mod_def_idx" "Back" "pad"
+                show_scrollable_menu_fast "SELECT $selected_type MODEL" "models" "$mod_def_idx" "" "pad"
                 m_idx=$?
 
                 # Reset the temporary per-menu cache to avoid reuse elsewhere
@@ -2952,7 +2952,7 @@ PY
                 MENU_CACHE_LINES=()
                 MENU_CACHE_WIDTHS=()
             else
-                show_scrollable_menu "SELECT $selected_type MODEL" models "$mod_def_idx" "Back" "pad"
+                show_scrollable_menu "SELECT $selected_type MODEL" models "$mod_def_idx" "" "pad"
                 m_idx=$?
             fi
             if [ "$m_idx" -eq 255 ]; then state=0; continue; fi
@@ -2973,16 +2973,6 @@ PY
             fi
             
             # --- SAVE CONFIGURATION ---
-            # Immediate feedback: show saving header so the UI responds
-            draw_bottom_panel_header "SAVING"
-            clear_info_area
-            # Prefer the human-friendly model name for the saving message
-            local _save_display="${selected_name:-$selected_key}"
-            draw_sealed_row $((LOG_TOP + 2)) "   ${WHITE}Saving: ${selected_type} / ${_save_display}${NC}"
-            draw_bottom_border ""
-            # allow UI to render
-            sleep 0.05
-
             local all_possible_keys
             all_possible_keys=$(grep '=' "$DEVICES_INI" | cut -d'=' -f2 | xargs)
             for k in $all_possible_keys; do update_config_key "$k" "false"; done
@@ -3003,17 +2993,12 @@ PY
             # Persist consolidated config to disk
             generate_config_file "${CONFIG_FILE:-$HOME/.config/qdomyos-zwift/qDomyos-Zwift.conf}" || true
 
-            # Friendly confirmation (align with Bluetooth flow)
-            draw_bottom_panel_header "EQUIPMENT SAVED"
-            clear_info_area
-            local _display_name="${selected_name:-${_save_display:-$selected_key}}"
-            draw_sealed_row $((LOG_TOP + 2)) "   ${GREEN}Equipment saved successfully!${NC}"
-            draw_sealed_row $((LOG_TOP + 4)) "   Type : ${WHITE}${selected_type}${NC}"
-            draw_sealed_row $((LOG_TOP + 5)) "   Model: ${WHITE}${_display_name}${NC}"
-            draw_sealed_row $((LOG_TOP + 6)) "   Key  : ${GRAY}${selected_key}${NC}"
-            draw_bottom_border ""
-            sleep 1.5
-            exit_ui_mode; return 0
+            # Standardized feedback
+            show_save_feedback "Equipment"
+            
+            # Return to Device Selection (Persistent Menu)
+            state=0
+            continue
         fi
     done
 }
@@ -4342,7 +4327,7 @@ prompt_yes_no() {
         done
         
         # Border call
-        draw_bottom_border "Arrows: Up/Down | Enter: Select | L: Legend"
+        draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: No"
 
         local key=""
         # Read from controlling TTY to avoid stdin redirections interfering
@@ -4443,7 +4428,7 @@ prompt_success_menu() {
         fi
     done
 
-    draw_bottom_border "Arrows: Up/Down | Enter: Select | L: Legend"
+    draw_bottom_border "Arrows: Up/Down | Enter: Select"
 
     local prev_selected=$selected
 
@@ -4453,11 +4438,7 @@ prompt_success_menu() {
         safe_read_key key
         if [[ $key == $'\x1b' ]]; then
             read -rsn2 -t 0.01 k2 </dev/tty || true
-            # Single ESC -> exit menu by returning selected index
-            if [[ -z "${k2:-}" ]]; then
-                exit_ui_mode || true
-                finish_and_exit 0
-            fi
+            # Single ESC -> ignore (only Exit menu item allowed for exit)
             [[ "${k2:-}" == "[A" ]] && ((selected--))
             [[ "${k2:-}" == "[B" ]] && ((selected++))
         elif [[ $key == [lL] ]]; then
@@ -4474,7 +4455,7 @@ prompt_success_menu() {
                     draw_sealed_row "$row" "     ${GRAY}${options[$i]}${NC}"
                 fi
             done
-            draw_bottom_border "Arrows: Up/Down | Enter: Select | L: Legend"
+            draw_bottom_border "Arrows: Up/Down | Enter: Select"
             prev_selected=$selected
             continue
         elif [[ $key == "" ]]; then
@@ -4528,7 +4509,7 @@ prompt_action_menu() {
         fi
     done
 
-    draw_bottom_border "Arrows: Up/Down | Enter: Select | L: Legend"
+    draw_bottom_border "Arrows: Up/Down | Enter: Select"
 
     local prev_selected=$selected
 
@@ -4538,11 +4519,7 @@ prompt_action_menu() {
         safe_read_key key
         if [[ $key == $'\x1b' ]]; then
             read -rsn2 -t 0.01 k2 </dev/tty || true
-            # Single ESC -> finish and exit
-            if [[ -z "${k2:-}" ]]; then
-                exit_ui_mode || true
-                finish_and_exit 0
-            fi
+            # Single ESC -> ignore
             [[ "${k2:-}" == "[A" ]] && ((selected--))
             [[ "${k2:-}" == "[B" ]] && ((selected++))
         elif [[ $key == [lL] ]]; then
@@ -4559,7 +4536,7 @@ prompt_action_menu() {
                     draw_sealed_row "$row" "     ${GRAY}${options[$i]}${NC}"
                 fi
             done
-            draw_bottom_border "Arrows: Up/Down | Enter: Select | L: Legend"
+            draw_bottom_border "Arrows: Up/Down | Enter: Select"
             prev_selected=$selected
             continue
         elif [[ $key == "" ]]; then
@@ -4698,7 +4675,7 @@ show_scrollable_menu() {
     done
 
     local b_row=$((LOG_BOTTOM + 1))
-    local help_text="Arrows: Up/Down | Enter: Select"
+    local help_text="Arrows: Up/Down | Enter: Select | Esc: Back"
     render_buffer+=$(build_hr_string "$b_row" "╚" "╝" "$help_text" "${BOLD_BLUE}" "")
     local ui_fd
     ui_fd=$(get_safe_ui_fd)
@@ -4957,7 +4934,7 @@ show_scrollable_menu_fast() {
     local ui_fd
     ui_fd=$(get_safe_ui_fd)
     ( printf '%s' "$render_buffer" >&"${ui_fd}" ) 2>/dev/null || true
-    draw_bottom_border "Arrows: Up/Down | Enter: Select"
+    draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Back"
 
     local prev_selected=$selected
     local prev_start_idx=$start_idx
@@ -4968,7 +4945,12 @@ show_scrollable_menu_fast() {
         safe_read_key key 0.06
         if [[ $key == $'\x1b' ]]; then
             read -rsn2 -t 0.06 k2 </dev/tty 2>/dev/null || true
-            if [[ -z "${k2:-}" ]]; then read -rsn1 -t 0.02 k3 </dev/tty 2>/dev/null || true; fi
+            if [[ -z "${k2:-}" ]]; then
+                # Single ESC -> treat as Back
+                exit_ui_mode
+                return 255
+            fi
+            if [[ -z "$k2" ]]; then read -rsn1 -t 0.02 k3 </dev/tty 2>/dev/null || true; fi
             local seq="${k2}${k3:-}"
             case "${seq:-}" in
                 '[A') ((selected--)) ;; 
@@ -5027,7 +5009,7 @@ show_scrollable_menu_fast() {
             done
             ui_fd=$(get_safe_ui_fd)
             ( printf '%s' "$render_buffer" >&"${ui_fd}" ) 2>/dev/null || true
-            draw_bottom_border "Arrows: Up/Down | Enter: Select"
+            draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Back"
             prev_start_idx=$start_idx
             prev_selected=$selected
             continue
@@ -6766,7 +6748,7 @@ build_service_menu_options() {
             "Restart Service") printf '%s' "restart_service_ui" ;; 
             "View Service Logs") printf '%s' "view_service_logs_ui 200" ;; 
             "Regenerate Service File") printf '%s' "regenerate_service_file_ui" ;; 
-                "Update Service Configuration") printf '%s' "apply_exit_130_fix_ui" ;; 
+            "Update Service Configuration") printf '%s' "apply_exit_130_fix_ui" ;; 
             "Enable Auto-Start") printf '%s' "enable_service_ui" ;; 
             "Disable Auto-Start") printf '%s' "disable_service_ui" ;; 
             "Remove Service") printf '%s' "remove_service_ui" ;; 
@@ -6841,7 +6823,7 @@ service_menu_flow() {
             fi
         done
 
-        draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Back | L: Legend"
+        draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Back"
 
         local prev_selected=$selected
 
@@ -6872,7 +6854,7 @@ service_menu_flow() {
                         draw_sealed_row "$row" "     ${GRAY}${options[i]}${NC}"
                     fi
                 done
-                draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Back | L: Legend"
+                draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Back"
                 prev_selected=$selected
                 continue
             elif [[ $key == "" ]]; then
