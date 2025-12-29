@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="it_IT" sourcelanguage="en">
+<TS version="2.1" language="id_ID">
 <context>
     <name>Home</name>
     <message>
@@ -1181,6 +1181,11 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../main.qml" line="788"/>
+        <source>Charts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../main.qml" line="801"/>
         <source>Open GPX</source>
         <translation type="unfinished"></translation>
@@ -1193,11 +1198,6 @@ restart the app.</source>
     <message>
         <location filename="../main.qml" line="835"/>
         <source>Workout Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main.qml" line="788"/>
-        <source>Charts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1272,7 +1272,7 @@ restart the app.</source>
     <message>
         <location filename="../settings.qml" line="1285"/>
         <source>General Options</source>
-        <translation>Opzioni Generali</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="1298"/>
@@ -1426,6 +1426,31 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1832"/>
+        <source>This prevents your bike or treadmill from sending its calories-burned calculation to QZ and defaults to QZ&apos;s more accurate calculation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="1846"/>
+        <source>Calculate Active Calories Only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="1860"/>
+        <source>Enable to calculate only active calories (excluding basal metabolic rate) similar to Apple Watch. When disabled, total calories including BMR are calculated. This affects both display and Apple Health integration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="1874"/>
+        <source>Calculate Calories from Heart Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="1888"/>
+        <source>Enable to calculate calories based on heart rate data instead of power. Requires heart rate sensor connection for accurate calorie estimation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="1902"/>
         <source>Heart Belt Name:</source>
         <translation type="unfinished"></translation>
@@ -1461,6 +1486,16 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2057"/>
+        <source>Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="2070"/>
+        <source>Choose the percentages for where you want your zones 1-4 to end and click OK.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="2084"/>
         <source>Heart Rate Max Override</source>
         <translation type="unfinished"></translation>
@@ -1478,41 +1513,6 @@ restart the app.</source>
     <message>
         <location filename="../settings.qml" line="2133"/>
         <source>QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="2070"/>
-        <source>Choose the percentages for where you want your zones 1-4 to end and click OK.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="1832"/>
-        <source>This prevents your bike or treadmill from sending its calories-burned calculation to QZ and defaults to QZ&apos;s more accurate calculation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="1846"/>
-        <source>Calculate Active Calories Only</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="1860"/>
-        <source>Enable to calculate only active calories (excluding basal metabolic rate) similar to Apple Watch. When disabled, total calories including BMR are calculated. This affects both display and Apple Health integration.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="1874"/>
-        <source>Calculate Calories from Heart Rate</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="1888"/>
-        <source>Enable to calculate calories based on heart rate data instead of power. Requires heart rate sensor connection for accurate calorie estimation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="2057"/>
-        <source>Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1663,6 +1663,11 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2687"/>
+        <source>In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="2703"/>
         <source>Zwift ERG Watt Down Filter:</source>
         <translation type="unfinished"></translation>
@@ -1708,13 +1713,133 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2875"/>
+        <source>Applies a multiplier to the gears. Default is 1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="2890"/>
+        <source>Gears Offset:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="2911"/>
+        <source>Applies an offset to the gears. Default is 0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="2925"/>
+        <source>Automatic Virtual Shifting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="2934"/>
+        <source>Enable Automatic Virtual Shifting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="2948"/>
+        <source>Enable automatic gear shifting based on cadence thresholds. When enabled, QZ will automatically shift gears up or down based on your pedaling cadence.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="2965"/>
+        <source>Profile:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="2981"/>
+        <source>Cruise Profile Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="2994"/>
+        <source>Cruise - Gear Up Cadence (RPM):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3018"/>
+        <source>Cruise - Gear Up Time (seconds):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3042"/>
+        <source>Cruise - Gear Down Cadence (RPM):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3066"/>
+        <source>Cruise - Gear Down Time (seconds):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3087"/>
+        <source>Climb Profile Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3100"/>
+        <source>Climb - Gear Up Cadence (RPM):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3124"/>
+        <source>Climb - Gear Up Time (seconds):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3148"/>
+        <source>Climb - Gear Down Cadence (RPM):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3172"/>
+        <source>Climb - Gear Down Time (seconds):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3193"/>
+        <source>Sprint Profile Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3206"/>
+        <source>Sprint - Gear Up Cadence (RPM):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3230"/>
+        <source>Sprint - Gear Up Time (seconds):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3254"/>
+        <source>Sprint - Gear Down Cadence (RPM):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3278"/>
+        <source>Sprint - Gear Down Time (seconds):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="3301"/>
         <source>FTMS Bike:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3327"/>
+        <source>If you have a generic FTMS bike and the tiles don&apos;t appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="3340"/>
         <source>Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about the QZ settings for your equipment, open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3353"/>
+        <source>Wahoo Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1740,6 +1865,11 @@ restart the app.</source>
     <message>
         <location filename="../settings.qml" line="3413"/>
         <source>Resistance Smoothing:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3434"/>
+        <source>Since this bike doesn&apos;t send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little &apos;jumpy&apos; and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1854,6 +1984,21 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3765"/>
+        <source>Skandika Bike Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3773"/>
+        <source>Skandika X-2000 Protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3786"/>
+        <source>Enable this for Skandika X-2000 bikes. Disable for other Skandika models (e.g., HT211212095)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="3801"/>
         <source>Fitplus Bike Options</source>
         <translation type="unfinished"></translation>
@@ -1899,6 +2044,11 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3933"/>
+        <source>Ignore FTMS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="3946"/>
         <source>Fix Calories/Km to Console</source>
         <translation type="unfinished"></translation>
@@ -1906,6 +2056,11 @@ restart the app.</source>
     <message>
         <location filename="../settings.qml" line="3959"/>
         <source>Bike 500 wattage profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3972"/>
+        <source>Bike 500 wattage profile v2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1919,6 +2074,16 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4007"/>
+        <source>Disable Negative Inclination due to gear</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4020"/>
+        <source>Enabling this QZ will ignore changing gears if the value is too low for this trainer. Default: disabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="4035"/>
         <source>Proform/Norditrack Options</source>
         <translation type="unfinished"></translation>
@@ -1927,6 +2092,17 @@ restart the app.</source>
         <location filename="../settings.qml" line="4044"/>
         <location filename="../settings.qml" line="10987"/>
         <source>Wheel Ratio:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4066"/>
+        <location filename="../settings.qml" line="7924"/>
+        <source>Specific Model:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4195"/>
+        <source>TDF CBC Jonseed watt table</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1952,6 +2128,11 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4294"/>
+        <source>Use Resistance instead of Inc.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="4311"/>
         <source>Computrainer Bike Options</source>
         <translation type="unfinished"></translation>
@@ -1962,6 +2143,16 @@ restart the app.</source>
         <location filename="../settings.qml" line="9515"/>
         <location filename="../settings.qml" line="9709"/>
         <source>Serial Port:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4344"/>
+        <source>Kettler USB Bike Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4377"/>
+        <source>Baudrate:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1987,6 +2178,34 @@ restart the app.</source>
     <message>
         <location filename="../settings.qml" line="4484"/>
         <source>Use KCal from the Bike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4501"/>
+        <source>Sole Bike Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4508"/>
+        <location filename="../settings.qml" line="8329"/>
+        <location filename="../settings.qml" line="8698"/>
+        <location filename="../settings.qml" line="8830"/>
+        <source>Miles unit from the device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4525"/>
+        <source>Technogym Bike Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4533"/>
+        <source>Group Cycle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4555"/>
+        <source>ANT+ Bike Device Number (0=Auto):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2035,8 +2254,23 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4724"/>
+        <source>ANT+ Heart Device Number (0=Auto):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="4746"/>
         <source>This setting enables receiving the heart rate from an external HRM over ANT+ instead of from QZ.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4759"/>
+        <source>Ant+ Bike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4773"/>
+        <source>Use this to connect to your bike using ANT+ instead of Bluetooth. Default: Disabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2052,6 +2286,16 @@ restart the app.</source>
     <message>
         <location filename="../settings.qml" line="4824"/>
         <source>Top Bar Enabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4841"/>
+        <source>Floating Window Type:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4863"/>
+        <source>Choose the floating window layout type. Classic uses the standard floating.htm file, while Horizontal uses the hfloating.htm file for horizontal layout.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2100,6 +2344,16 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5037"/>
+        <source>Chart Display Mode:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5059"/>
+        <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="5073"/>
         <source>UI Themes</source>
         <translation type="unfinished"></translation>
@@ -2145,18 +2399,6 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="6042"/>
-        <location filename="../settings.qml" line="12869"/>
-        <source>Username:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6080"/>
-        <location filename="../settings.qml" line="12905"/>
-        <source>Password:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../settings.qml" line="5374"/>
         <source>Difficulty:</source>
         <translation type="unfinished"></translation>
@@ -2167,8 +2409,33 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5413"/>
+        <source>Treadmill Level:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5436"/>
+        <source>Difficulty level for Peloton treadmill classes. 1 is easy 10 is hard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5451"/>
+        <source>Treadmill Walk Level:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5474"/>
+        <source>Difficulty level for Peloton treadmill walking classes. 1 is easy 10 is hard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="5489"/>
         <source>Rower Level:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5512"/>
+        <source>Difficulty level for Peloton rower classes. 1 is easy 10 is hard.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2207,6 +2474,11 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5664"/>
+        <source>Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="5678"/>
         <source>Cycling Cadence Sensor (Peloton compatibility)</source>
         <translation type="unfinished"></translation>
@@ -2214,6 +2486,26 @@ restart the app.</source>
     <message>
         <location filename="../settings.qml" line="5692"/>
         <source>Turn this on to send cadence to Peloton over Bluetooth. Default is off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5705"/>
+        <source>Auto Start (with intro)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5719"/>
+        <source>Turn this on to start a workout automatically when you start a workout on Peloton (waiting the intro). Default is off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5732"/>
+        <source>Auto Start (without intro)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5746"/>
+        <source>Turn this on to start a workout automatically when you start a workout on Peloton (skipping the intro). Default is off.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2234,6 +2526,11 @@ restart the app.</source>
     <message>
         <location filename="../settings.qml" line="5854"/>
         <source>Allows you to choose whether you would like the Peloton class air date to display before or after the class title on Strava.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5869"/>
+        <source>Date Format:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2262,8 +2559,18 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5962"/>
+        <source>Only for Android where QZ is running on the same Peloton device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Peloton workout screen and will adjust the Peloton offset in order to stay in sync in realtime with your Peloton workout. A popup about screen recording will appear in order to notify this.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="5975"/>
         <source>Peloton Auto Sync Companion (Exp.)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5989"/>
+        <source>This setting enables the AI (Artificial Intelligence) on the QZ Companion AI app that will read the Peloton workout screen and will adjust the Peloton offset in order to stay in sync in realtime with your Peloton workout.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2272,13 +2579,55 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6042"/>
+        <location filename="../settings.qml" line="12869"/>
+        <source>Username:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="6064"/>
         <source>Enter the email address you use to login to Zwift. Ensure there are no spaces before or after your email. Click OK.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6080"/>
+        <location filename="../settings.qml" line="12905"/>
+        <source>Password:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="6104"/>
         <source>Enter the password you use to login to Zwift. Click OK.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6131"/>
+        <source>Get Gears from Zwift</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6154"/>
+        <source>This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure Zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. MUST be disabled for Mywhoosh app. Default: disabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6195"/>
+        <source>Align Gear Value on Both Zwift and QZ</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6209"/>
+        <source>By default QZ is showing the actual gears from the bike. Enabling this, QZ will show the same gears that you see on Zwift. This doesn&apos;t affect the real gear value one the bike. Default: disabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6224"/>
+        <source>Poll Time:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6245"/>
+        <source>Define the number of delay seconds between each inclination change from Zwift. This value can&apos;t be less than 5. Default: 5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2313,6 +2662,21 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6355"/>
+        <source>Rouvy Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6363"/>
+        <source>Rouvy Compatibility</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6377"/>
+        <source>Wifi Compatibility for Rouvy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="6392"/>
         <source>Garmin Options</source>
         <translation type="unfinished"></translation>
@@ -2338,6 +2702,61 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6454"/>
+        <source>Ant+ Bike Over Garmin Watch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6468"/>
+        <source>Use your garmin watch to get the ANT+ metrics from a bike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6482"/>
+        <source>Garmin Connect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6489"/>
+        <source>Enable Garmin Upload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6503"/>
+        <source>Enable automatic upload of FIT files to Garmin Connect after workouts.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6518"/>
+        <source>Garmin Email:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6544"/>
+        <source>Garmin Password:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6664"/>
+        <source>Enter your Garmin Connect credentials to enable automatic upload. Your password is stored locally and securely.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6677"/>
+        <source>Use Garmin device in the FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6691"/>
+        <source>With this enabled, QZ will write the FIT file as a Garmin device so Garmin will consider this fit file for the training effect. Default: disabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6704"/>
+        <source>Garmin device for FIT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="6844"/>
         <source>Training Program Options</source>
         <translation type="unfinished"></translation>
@@ -2350,6 +2769,16 @@ restart the app.</source>
     <message>
         <location filename="../settings.qml" line="6871"/>
         <source>Treadmill only: enabling this if you want that QZ will stop the tape at the end of the current train program.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6884"/>
+        <source>Treadmill Auto-adjust speed by power</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6898"/>
+        <source>Treadmill only: Automatically adjusts speed to maintain consistent power output. Speed adjustments occur on incline changes and adapt to manual speed modifications.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2375,6 +2804,26 @@ restart the app.</source>
     <message>
         <location filename="../settings.qml" line="6995"/>
         <source>Alternatively to &apos;PID on Heart Zone&apos; setting you can use this couple of settings in order to specify a HR range.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="7008"/>
+        <source>PID &apos;Pushy&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="7022"/>
+        <source>Enabling this the PID is trying to motivate yourself to always increase a little the effort trying anyway to keep you in the zone. Default: Enabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="7035"/>
+        <source>PID Ignore Inclination</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="7049"/>
+        <source>Enabling this the PID will ignore the inclination changes. Default: Disabled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2435,6 +2884,21 @@ restart the app.</source>
     <message>
         <location filename="../settings.qml" line="7274"/>
         <source>Select the default Pace to be used when the ZWO file does not indicate a precise pace.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="7290"/>
+        <source>ERG Mode Watt Step:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="7311"/>
+        <source>Set the wattage step increment for ERG mode heart rate zone training. Default: 5 watts.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="7325"/>
+        <source>Training Program Random</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2533,106 +2997,6 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="8535"/>
-        <source>Remap 5 km/h button:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="8558"/>
-        <source>Remap 10 km/h button:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="8581"/>
-        <source>Remap 16 km/h button:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="8604"/>
-        <source>Remap 22 km/h button:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="9197"/>
-        <source>BH SPADA wattage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="9211"/>
-        <source>Toorx SRX 500</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="9226"/>
-        <source>Toorx SRX 3500</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="9240"/>
-        <source>Enerfit SPX 9500 / Toorx SRX 500</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="9254"/>
-        <source>HOP-Sport HS-090h</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="9268"/>
-        <source>Taurua IC90 Bike</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10337"/>
-        <source>QZ can open an external browser to authorize Strava. Default: disabled.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10378"/>
-        <source>Strava Treadmill Tag</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10392"/>
-        <source>Append the Treadmill Tag to the Strava Activity when you are using a treadmill. If you want to see the elevation on Strava, you need to disable this.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10419"/>
-        <source>Append the Date to the Strava Activity as a prefix only for non-Peloton workout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10433"/>
-        <source>Volume buttons change gears</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10460"/>
-        <source>Volume buttons debouncing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10474"/>
-        <source>Debounce the volume buttons, so you will only see 1 gear step if there are 2 or more volume near steps.  Default is off.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10649"/>
-        <source>Minimum Inclination:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10670"/>
-        <source>If you don&apos;t want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10686"/>
-        <source>Inclination Step:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../settings.qml" line="7710"/>
         <source>Min. Inclination:</source>
         <translation type="unfinished"></translation>
@@ -2653,6 +3017,16 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7782"/>
+        <source>Max. Speed:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="7803"/>
+        <source>This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="7816"/>
         <source>Inclination Overrides</source>
         <translation type="unfinished"></translation>
@@ -2663,6 +3037,11 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7837"/>
+        <source>Simulate Inclination with Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="7851"/>
         <source>For treadmills without inclination: turning this on and QZ will transform inclination requests into speed changes.</source>
         <translation type="unfinished"></translation>
@@ -2670,6 +3049,11 @@ restart the app.</source>
     <message>
         <location filename="../settings.qml" line="7864"/>
         <source>FTMS Treadmill:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="7890"/>
+        <source>If you have a generic FTMS bike and the tiles doesn&apos;t appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2720,490 +3104,6 @@ restart the app.</source>
     <message>
         <location filename="../settings.qml" line="8322"/>
         <source>Echelon Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4508"/>
-        <location filename="../settings.qml" line="8329"/>
-        <location filename="../settings.qml" line="8698"/>
-        <location filename="../settings.qml" line="8830"/>
-        <source>Miles unit from the device</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="2687"/>
-        <source>In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="2875"/>
-        <source>Applies a multiplier to the gears. Default is 1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="2890"/>
-        <source>Gears Offset:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="2911"/>
-        <source>Applies an offset to the gears. Default is 0.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="2925"/>
-        <source>Automatic Virtual Shifting</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="2934"/>
-        <source>Enable Automatic Virtual Shifting</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="2948"/>
-        <source>Enable automatic gear shifting based on cadence thresholds. When enabled, QZ will automatically shift gears up or down based on your pedaling cadence.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="2965"/>
-        <source>Profile:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="2981"/>
-        <source>Cruise Profile Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="2994"/>
-        <source>Cruise - Gear Up Cadence (RPM):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3018"/>
-        <source>Cruise - Gear Up Time (seconds):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3042"/>
-        <source>Cruise - Gear Down Cadence (RPM):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3066"/>
-        <source>Cruise - Gear Down Time (seconds):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3087"/>
-        <source>Climb Profile Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3100"/>
-        <source>Climb - Gear Up Cadence (RPM):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3124"/>
-        <source>Climb - Gear Up Time (seconds):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3148"/>
-        <source>Climb - Gear Down Cadence (RPM):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3172"/>
-        <source>Climb - Gear Down Time (seconds):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3193"/>
-        <source>Sprint Profile Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3206"/>
-        <source>Sprint - Gear Up Cadence (RPM):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3230"/>
-        <source>Sprint - Gear Up Time (seconds):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3254"/>
-        <source>Sprint - Gear Down Cadence (RPM):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3278"/>
-        <source>Sprint - Gear Down Time (seconds):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3327"/>
-        <source>If you have a generic FTMS bike and the tiles don&apos;t appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3353"/>
-        <source>Wahoo Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3434"/>
-        <source>Since this bike doesn&apos;t send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little &apos;jumpy&apos; and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3765"/>
-        <source>Skandika Bike Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3773"/>
-        <source>Skandika X-2000 Protocol</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3786"/>
-        <source>Enable this for Skandika X-2000 bikes. Disable for other Skandika models (e.g., HT211212095)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3933"/>
-        <source>Ignore FTMS</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="3972"/>
-        <source>Bike 500 wattage profile v2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4007"/>
-        <source>Disable Negative Inclination due to gear</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4020"/>
-        <source>Enabling this QZ will ignore changing gears if the value is too low for this trainer. Default: disabled.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4066"/>
-        <location filename="../settings.qml" line="7924"/>
-        <source>Specific Model:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4195"/>
-        <source>TDF CBC Jonseed watt table</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4294"/>
-        <source>Use Resistance instead of Inc.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4344"/>
-        <source>Kettler USB Bike Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4377"/>
-        <source>Baudrate:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4501"/>
-        <source>Sole Bike Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4525"/>
-        <source>Technogym Bike Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4533"/>
-        <source>Group Cycle</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4555"/>
-        <source>ANT+ Bike Device Number (0=Auto):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4724"/>
-        <source>ANT+ Heart Device Number (0=Auto):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4759"/>
-        <source>Ant+ Bike</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4773"/>
-        <source>Use this to connect to your bike using ANT+ instead of Bluetooth. Default: Disabled</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4841"/>
-        <source>Floating Window Type:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="4863"/>
-        <source>Choose the floating window layout type. Classic uses the standard floating.htm file, while Horizontal uses the hfloating.htm file for horizontal layout.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5037"/>
-        <source>Chart Display Mode:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5059"/>
-        <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5413"/>
-        <source>Treadmill Level:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5436"/>
-        <source>Difficulty level for Peloton treadmill classes. 1 is easy 10 is hard.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5451"/>
-        <source>Treadmill Walk Level:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5474"/>
-        <source>Difficulty level for Peloton treadmill walking classes. 1 is easy 10 is hard.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5512"/>
-        <source>Difficulty level for Peloton rower classes. 1 is easy 10 is hard.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5664"/>
-        <source>Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5705"/>
-        <source>Auto Start (with intro)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5719"/>
-        <source>Turn this on to start a workout automatically when you start a workout on Peloton (waiting the intro). Default is off.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5732"/>
-        <source>Auto Start (without intro)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5746"/>
-        <source>Turn this on to start a workout automatically when you start a workout on Peloton (skipping the intro). Default is off.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5869"/>
-        <source>Date Format:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5962"/>
-        <source>Only for Android where QZ is running on the same Peloton device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Peloton workout screen and will adjust the Peloton offset in order to stay in sync in realtime with your Peloton workout. A popup about screen recording will appear in order to notify this.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5989"/>
-        <source>This setting enables the AI (Artificial Intelligence) on the QZ Companion AI app that will read the Peloton workout screen and will adjust the Peloton offset in order to stay in sync in realtime with your Peloton workout.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6131"/>
-        <source>Get Gears from Zwift</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6154"/>
-        <source>This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure Zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. MUST be disabled for Mywhoosh app. Default: disabled.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6195"/>
-        <source>Align Gear Value on Both Zwift and QZ</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6209"/>
-        <source>By default QZ is showing the actual gears from the bike. Enabling this, QZ will show the same gears that you see on Zwift. This doesn&apos;t affect the real gear value one the bike. Default: disabled.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6224"/>
-        <source>Poll Time:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6245"/>
-        <source>Define the number of delay seconds between each inclination change from Zwift. This value can&apos;t be less than 5. Default: 5</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6355"/>
-        <source>Rouvy Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6363"/>
-        <source>Rouvy Compatibility</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6377"/>
-        <source>Wifi Compatibility for Rouvy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6454"/>
-        <source>Ant+ Bike Over Garmin Watch</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6468"/>
-        <source>Use your garmin watch to get the ANT+ metrics from a bike</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6482"/>
-        <source>Garmin Connect</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6489"/>
-        <source>Enable Garmin Upload</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6503"/>
-        <source>Enable automatic upload of FIT files to Garmin Connect after workouts.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6518"/>
-        <source>Garmin Email:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6544"/>
-        <source>Garmin Password:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6664"/>
-        <source>Enter your Garmin Connect credentials to enable automatic upload. Your password is stored locally and securely.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6677"/>
-        <source>Use Garmin device in the FIT file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6691"/>
-        <source>With this enabled, QZ will write the FIT file as a Garmin device so Garmin will consider this fit file for the training effect. Default: disabled.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6704"/>
-        <source>Garmin device for FIT file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6884"/>
-        <source>Treadmill Auto-adjust speed by power</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="6898"/>
-        <source>Treadmill only: Automatically adjusts speed to maintain consistent power output. Speed adjustments occur on incline changes and adapt to manual speed modifications.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="7008"/>
-        <source>PID &apos;Pushy&apos;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="7022"/>
-        <source>Enabling this the PID is trying to motivate yourself to always increase a little the effort trying anyway to keep you in the zone. Default: Enabled.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="7035"/>
-        <source>PID Ignore Inclination</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="7049"/>
-        <source>Enabling this the PID will ignore the inclination changes. Default: Disabled.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="7290"/>
-        <source>ERG Mode Watt Step:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="7311"/>
-        <source>Set the wattage step increment for ERG mode heart rate zone training. Default: 5 watts.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="7325"/>
-        <source>Training Program Random</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="7782"/>
-        <source>Max. Speed:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="7803"/>
-        <source>This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="7837"/>
-        <source>Simulate Inclination with Speed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="7890"/>
-        <source>If you have a generic FTMS bike and the tiles doesn&apos;t appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3277,43 +3177,23 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10708"/>
-        <source>(Incline Tile) This controls the amount of the increase or decrease in the inclination when you press the plus or minus button in the Incline Tile for both treadmills and bikes. Default is 0.5.</source>
+        <location filename="../settings.qml" line="8535"/>
+        <source>Remap 5 km/h button:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10721"/>
-        <source>Send real inclination to virtual bridge</source>
+        <location filename="../settings.qml" line="8558"/>
+        <source>Remap 10 km/h button:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10735"/>
-        <source>By default QZ sends to the virtual Bluetooth/DIRCON bridge the current inclination of the treadmill. Enabling this, it will send instead the one wihtout considering inclination gain or offset. Default: False.</source>
+        <location filename="../settings.qml" line="8581"/>
+        <source>Remap 16 km/h button:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10749"/>
-        <source>Disable wattage from machinery</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="12434"/>
-        <source>Bluetooth hangs after 30 m</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="12700"/>
-        <source>Enables a virtual Bluetooth bridge to the iFit App. This setting requires that at least one device be Android. For example, this setting does NOT work with QZ on iOS and iFit to iOS, but DOES work with QZ on iOS and iFit to Android. On Android remember to rename your device into I_EL into the android settings and reboot your device.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="12724"/>
-        <source>ID:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="12745"/>
-        <source>If you have multiple QZ instances, you can change the id of the virtual wahoo device. Default: 0</source>
+        <location filename="../settings.qml" line="8604"/>
+        <source>Remap 22 km/h button:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3491,6 +3371,36 @@ restart the app.</source>
     <message>
         <location filename="../settings.qml" line="9183"/>
         <source>BH SPADA Compatibility</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="9197"/>
+        <source>BH SPADA wattage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="9211"/>
+        <source>Toorx SRX 500</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="9226"/>
+        <source>Toorx SRX 3500</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="9240"/>
+        <source>Enerfit SPX 9500 / Toorx SRX 500</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="9254"/>
+        <source>HOP-Sport HS-090h</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="9268"/>
+        <source>Taurua IC90 Bike</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3805,6 +3715,11 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10337"/>
+        <source>QZ can open an external browser to authorize Strava. Default: disabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="10351"/>
         <source>Strava Virtual Activity Tag</source>
         <translation type="unfinished"></translation>
@@ -3815,13 +3730,43 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10378"/>
+        <source>Strava Treadmill Tag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10392"/>
+        <source>Append the Treadmill Tag to the Strava Activity when you are using a treadmill. If you want to see the elevation on Strava, you need to disable this.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="10405"/>
         <source>Date Prefix on Strava Workout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10419"/>
+        <source>Append the Date to the Strava Activity as a prefix only for non-Peloton workout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10433"/>
+        <source>Volume buttons change gears</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="10447"/>
         <source>Allows you to change resistance during auto-follow mode using the volume buttons of the device running QZ, Bluetooth headphones or a Bluetooth remote. Changes made using these external controls will be visible in the Gears tile. This is a VERY USEFUL feature! Default is off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10460"/>
+        <source>Volume buttons debouncing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10474"/>
+        <source>Debounce the volume buttons, so you will only see 1 gear step if there are 2 or more volume near steps.  Default is off.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3872,6 +3817,41 @@ restart the app.</source>
     <message>
         <location filename="../settings.qml" line="10634"/>
         <source>The number you enter as a Gain is a multiplier applied to the inclination sent from Zwift or any other 3rd party app. Default is 1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10649"/>
+        <source>Minimum Inclination:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10670"/>
+        <source>If you don&apos;t want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10686"/>
+        <source>Inclination Step:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10708"/>
+        <source>(Incline Tile) This controls the amount of the increase or decrease in the inclination when you press the plus or minus button in the Incline Tile for both treadmills and bikes. Default is 0.5.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10721"/>
+        <source>Send real inclination to virtual bridge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10735"/>
+        <source>By default QZ sends to the virtual Bluetooth/DIRCON bridge the current inclination of the treadmill. Enabling this, it will send instead the one wihtout considering inclination gain or offset. Default: False.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10749"/>
+        <source>Disable wattage from machinery</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4293,6 +4273,11 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12434"/>
+        <source>Bluetooth hangs after 30 m</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="12448"/>
         <source>Same as “Relaxed Bluetooth for mad devices”. Leave off unless the Support staff asks you to turn it on. Default is off.</source>
         <translation type="unfinished"></translation>
@@ -4383,8 +4368,23 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12700"/>
+        <source>Enables a virtual Bluetooth bridge to the iFit App. This setting requires that at least one device be Android. For example, this setting does NOT work with QZ on iOS and iFit to iOS, but DOES work with QZ on iOS and iFit to Android. On Android remember to rename your device into I_EL into the android settings and reboot your device.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings.qml" line="12715"/>
         <source>Wahoo direct connect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="12724"/>
+        <source>ID:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="12745"/>
+        <source>If you have multiple QZ instances, you can change the id of the virtual wahoo device. Default: 0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
