@@ -2683,12 +2683,6 @@ restart the app.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settings.qml" line="5830"/>
-        <source>Date on Strava:</source>
-        <oldsource>Nordictrack S20</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="settings.qml" line="8198"/>
         <source>Proform IP:</source>
         <translation type="unfinished"></translation>
