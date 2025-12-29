@@ -4,6 +4,17 @@ on:
   workflow_dispatch:  # Manual trigger
   schedule:
     - cron: '0 0 * * 0'  # Weekly on Sunday at midnight
+  pull_request:  # Run on every PR commit for testing
+    paths:
+      - 'src/**/*.cpp'
+      - 'src/**/*.h'
+      - 'src/**/*.qml'
+      - 'src/**/*.ui'
+      - 'src/**/*.ts'
+  push:  # Run on push to PR branches
+    branches:
+      - 'claude/**'  # All Claude Code branches
+      - 'translations/**'  # Translation-specific branches
 
 jobs:
   update-translations:
@@ -26,27 +37,64 @@ jobs:
           modules: 'qtcharts qtnetworkauth qtwebsockets'
           cache: true
 
+      - name: Detect workflow context
+        id: context
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ] || [ "${{ github.event_name }}" = "push" ]; then
+            echo "mode=testing" >> $GITHUB_OUTPUT
+            echo "🧪 Running in TESTING mode (PR/push to branch)"
+          else
+            echo "mode=production" >> $GITHUB_OUTPUT
+            echo "🚀 Running in PRODUCTION mode (scheduled/manual)"
+          fi
+
       - name: Update translation files
         run: |
-          # Run lupdate to extract translatable strings
+          echo "Extracting translatable strings from source code..."
           lupdate src/qdomyos-zwift.pri -ts src/qdomyos-zwift.ts
+
+          echo ""
+          echo "Checking for changes..."
 
           # Check if there are changes
           if git diff --quiet src/qdomyos-zwift.ts; then
-            echo "No translation updates needed"
+            echo "✅ No translation updates needed - file is up to date"
             echo "HAS_CHANGES=false" >> $GITHUB_ENV
           else
-            echo "Translation file updated"
+            echo "📝 Translation file has been updated with new/modified strings"
             echo "HAS_CHANGES=true" >> $GITHUB_ENV
+
+            # Show diff stats
+            echo ""
+            echo "Changes summary:"
+            git diff --stat src/qdomyos-zwift.ts
           fi
 
-      - name: Commit and push changes
-        if: env.HAS_CHANGES == 'true'
+      - name: Commit and push changes (Testing Mode)
+        if: env.HAS_CHANGES == 'true' && steps.context.outputs.mode == 'testing'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-          # Create a new branch
+          # Commit to current branch (PR branch)
+          git add src/qdomyos-zwift.ts
+          git commit -m "chore: update translation strings [automated]
+
+          Automatic update of translatable strings extracted from source code.
+
+          - Updated by GitHub Actions (Testing Mode)
+          - Triggered by: ${{ github.event_name }}
+          - Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+
+          echo "✅ Changes committed to current branch"
+
+      - name: Commit and push changes (Production Mode)
+        if: env.HAS_CHANGES == 'true' && steps.context.outputs.mode == 'production'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          # Create a new branch for production updates
           BRANCH_NAME="translations/auto-update-$(date +%Y%m%d-%H%M%S)"
           git checkout -b "$BRANCH_NAME"
 
@@ -56,7 +104,7 @@ jobs:
 
           Automatic update of translatable strings extracted from source code.
 
-          - Updated by GitHub Actions
+          - Updated by GitHub Actions (Scheduled)
           - Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 
           # Push the branch
@@ -64,9 +112,10 @@ jobs:
 
           # Store branch name for PR creation
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "✅ Changes pushed to new branch: $BRANCH_NAME"
 
-      - name: Create Pull Request
-        if: env.HAS_CHANGES == 'true'
+      - name: Create Pull Request (Production Mode Only)
+        if: env.HAS_CHANGES == 'true' && steps.context.outputs.mode == 'production'
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -97,3 +146,27 @@ jobs:
           labels: |
             translations
             automation
+
+      - name: Summary
+        if: always()
+        run: |
+          echo ""
+          echo "============================================"
+          echo "Translation Workflow Summary"
+          echo "============================================"
+          echo "Mode: ${{ steps.context.outputs.mode }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Has changes: ${{ env.HAS_CHANGES }}"
+          echo "============================================"
+
+          if [ "${{ env.HAS_CHANGES }}" = "true" ]; then
+            if [ "${{ steps.context.outputs.mode }}" = "testing" ]; then
+              echo "✅ Translation file updated in current branch"
+              echo "   Review changes in: src/qdomyos-zwift.ts"
+            else
+              echo "✅ Translation file updated and PR created"
+              echo "   Branch: ${{ env.BRANCH_NAME }}"
+            fi
+          else
+            echo "ℹ️  No updates needed - translation file is current"
+          fi
