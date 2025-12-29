@@ -124,7 +124,6 @@ class trainprogram : public QObject {
 
     void restart();
     bool isStarted() { return started; }
-    void scheduler(int tick);
 
     void applySpeedFilter();
 
