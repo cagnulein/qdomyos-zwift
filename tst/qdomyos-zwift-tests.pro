@@ -10,6 +10,8 @@ CONFIG -= app_bundle
 CONFIG += thread
 CONFIG += androidextras
 
+QT += testlib
+
 SOURCES += \
         Devices/bluetoothdevicetestdata.cpp \
         Devices/bluetoothdevicetestdatabuilder.cpp \
@@ -59,6 +61,4 @@ HEADERS += \
     Tools/devicetypeid.h \
     Tools/testsettings.h \
     Tools/typeidgenerator.h \
-    TrainProgram/mockbluetoothdevice.h \
-    TrainProgram/mockbluetooth.h \
     TrainProgram/trainprogramtestsuite.h

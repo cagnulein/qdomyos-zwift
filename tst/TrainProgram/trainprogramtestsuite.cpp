@@ -1,6 +1,5 @@
 #include "trainprogramtestsuite.h"
 #include "trainprogram.h"
-#include "mockbluetooth.h"
 #include <QSignalSpy>
 #include <QSettings>
 
@@ -14,9 +13,6 @@ void TrainProgramTestSuite::test_singleRow40MinuteWorkout_shouldReach40Minutes()
     // Enable trainprogram_stop_at_end so end() emits stop() signal
     QSettings settings;
     settings.setValue("trainprogram_stop_at_end", true);
-
-    // Create mock bluetooth with mock device
-    MockBluetooth* mockBt = new MockBluetooth();
 
     // Create REAL workout: 2 rows of 5 seconds each = 10 seconds total
     QList<trainrow> rows;
@@ -38,8 +34,8 @@ void TrainProgramTestSuite::test_singleRow40MinuteWorkout_shouldReach40Minutes()
     qDebug() << "  Row 2: 5 seconds @ 10 km/h";
     qDebug() << "  Total: 10 seconds\n";
 
-    // Create REAL trainprogram object
-    trainprogram* tp = new trainprogram(rows, mockBt);
+    // Create REAL trainprogram object (nullptr for bluetooth is OK for time-based tests)
+    trainprogram* tp = new trainprogram(rows, nullptr);
 
     // Use QSignalSpy to detect when stop() is emitted
     QSignalSpy stopSpy(tp, &trainprogram::stop);
@@ -61,7 +57,6 @@ void TrainProgramTestSuite::test_singleRow40MinuteWorkout_shouldReach40Minutes()
             qDebug() << "\n✗ FAIL: stop() was emitted at tick" << tick << "(BUG: ended too early!)";
             FAIL() << "Workout ended prematurely at tick " << tick << " instead of after tick 10";
             delete tp;
-            delete mockBt;
             return;
         }
     }
@@ -88,7 +83,6 @@ void TrainProgramTestSuite::test_singleRow40MinuteWorkout_shouldReach40Minutes()
     }
 
     delete tp;
-    delete mockBt;
 }
 
 void TrainProgramTestSuite::test_multiRowWorkout_lastRowMissing1Second() {
@@ -97,8 +91,6 @@ void TrainProgramTestSuite::test_multiRowWorkout_lastRowMissing1Second() {
 
     QSettings settings;
     settings.setValue("trainprogram_stop_at_end", true);
-
-    MockBluetooth* mockBt = new MockBluetooth();
 
     // Create workout: 3 rows of different durations
     QList<trainrow> rows;
@@ -127,7 +119,7 @@ void TrainProgramTestSuite::test_multiRowWorkout_lastRowMissing1Second() {
     qDebug() << "  Row 3: 5 seconds @ 10 km/h";
     qDebug() << "  Total: 12 seconds\n";
 
-    trainprogram* tp = new trainprogram(rows, mockBt);
+    trainprogram* tp = new trainprogram(rows, nullptr);
     QSignalSpy stopSpy(tp, &trainprogram::stop);
 
     tp->onTapeStarted();
@@ -147,7 +139,6 @@ void TrainProgramTestSuite::test_multiRowWorkout_lastRowMissing1Second() {
             qDebug() << "\n✗ FAIL: stop() emitted at tick" << tick << "(ended too early!)";
             FAIL() << "Workout ended prematurely at tick " << tick;
             delete tp;
-            delete mockBt;
             return;
         }
     }
@@ -172,5 +163,4 @@ void TrainProgramTestSuite::test_multiRowWorkout_lastRowMissing1Second() {
     }
 
     delete tp;
-    delete mockBt;
 }
