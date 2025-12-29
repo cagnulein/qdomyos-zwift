@@ -46,23 +46,30 @@ jobs:
       - name: Update translation files
         run: |
           echo "Extracting translatable strings from source code..."
-          lupdate src/qdomyos-zwift.pri -ts src/qdomyos-zwift.ts
+          echo "Updating 30 language files..."
+
+          # lupdate will create/update all .ts files defined in TRANSLATIONS
+          lupdate src/qdomyos-zwift.pri
 
           echo ""
           echo "Checking for changes..."
 
-          # Check if there are changes
-          if git diff --quiet src/qdomyos-zwift.ts; then
-            echo "✅ No translation updates needed - file is up to date"
+          # Check if there are changes in translations folder
+          if git diff --quiet src/translations/; then
+            echo "✅ No translation updates needed - files are up to date"
             echo "HAS_CHANGES=false" >> $GITHUB_ENV
           else
-            echo "📝 Translation file has been updated with new/modified strings"
+            echo "📝 Translation files have been updated with new/modified strings"
             echo "HAS_CHANGES=true" >> $GITHUB_ENV
 
             # Show diff stats
             echo ""
             echo "Changes summary:"
-            git diff --stat src/qdomyos-zwift.ts
+            git diff --stat src/translations/
+
+            echo ""
+            echo "Files modified:"
+            git diff --name-only src/translations/
           fi
 
       - name: Commit and push changes (Testing Mode)
@@ -72,10 +79,11 @@ jobs:
           git config --local user.name "github-actions[bot]"
 
           # Commit to current branch (PR branch)
-          git add src/qdomyos-zwift.ts
+          git add src/translations/
           git commit -m "chore: update translation strings [automated]
 
           Automatic update of translatable strings extracted from source code.
+          Updated 30 language files in src/translations/
 
           - Updated by GitHub Actions (Testing Mode)
           - Triggered by: ${{ github.event_name }}
@@ -97,10 +105,11 @@ jobs:
           git checkout -b "$BRANCH_NAME"
 
           # Add and commit changes
-          git add src/qdomyos-zwift.ts
+          git add src/translations/
           git commit -m "chore: update translation strings
 
           Automatic update of translatable strings extracted from source code.
+          Updated 30 language files in src/translations/
 
           - Updated by GitHub Actions (Scheduled)
           - Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
@@ -126,16 +135,19 @@ jobs:
 
             ### Changes
             - Extracted new translatable strings using `lupdate`
-            - Updated `src/qdomyos-zwift.ts`
+            - Updated 30 language files in `src/translations/`
+            - Languages: Italian, German, French, Spanish, Portuguese, Russian, Chinese, Japanese, Korean, Arabic, Hindi, and 19 more
 
             ### What to do next
-            1. Review the new strings in `src/qdomyos-zwift.ts`
-            2. Add translations for Italian (`<translation>` tags)
-            3. Merge this PR when translations are complete
+            1. Review the new strings in `src/translations/qdomyos-zwift_*.ts`
+            2. Contributors can now create PRs to add translations in their language
+            3. Edit the `.ts` file for your language and add translations in `<translation>` tags
+            4. Merge this PR to make new strings available
 
-            ### Translation Status
-            - File: `src/qdomyos-zwift.ts`
-            - Language: Italian (it_IT)
+            ### Translation Files
+            - Location: `src/translations/`
+            - Format: `qdomyos-zwift_LOCALE.ts` (e.g., `qdomyos-zwift_it.ts` for Italian)
+            - 30 languages supported
 
             **Note:** Strings marked as `<translation type="unfinished">` need translation.
 
@@ -159,12 +171,12 @@ jobs:
 
           if [ "${{ env.HAS_CHANGES }}" = "true" ]; then
             if [ "${{ steps.context.outputs.mode }}" = "testing" ]; then
-              echo "✅ Translation file updated in current branch"
-              echo "   Review changes in: src/qdomyos-zwift.ts"
+              echo "✅ Translation files updated in current branch"
+              echo "   Review changes in: src/translations/"
             else
-              echo "✅ Translation file updated and PR created"
+              echo "✅ Translation files updated and PR created"
               echo "   Branch: ${{ env.BRANCH_NAME }}"
             fi
           else
-            echo "ℹ️  No updates needed - translation file is current"
+            echo "ℹ️  No updates needed - translation files are current"
           fi

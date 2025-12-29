@@ -867,13 +867,14 @@ int main(int argc, char *argv[]) {
 
         // Try to load translation for the current locale
         // The .qm files are embedded in the application via translations.qrc
-        if (translator.load(QStringLiteral(":/translations/qdomyos-zwift_") + locale)) {
+        // Located in src/translations/ folder
+        if (translator.load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + locale)) {
             app->installTranslator(&translator);
             qDebug() << "Translation loaded successfully for locale:" << locale;
         } else {
             // Try to load just the language part (e.g., "it" from "it_IT")
             QString language = locale.split('_').at(0);
-            if (translator.load(QStringLiteral(":/translations/qdomyos-zwift_") + language)) {
+            if (translator.load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + language)) {
                 app->installTranslator(&translator);
                 qDebug() << "Translation loaded successfully for language:" << language;
             } else {
