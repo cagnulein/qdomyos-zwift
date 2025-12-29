@@ -59,4 +59,6 @@ HEADERS += \
     Tools/devicetypeid.h \
     Tools/testsettings.h \
     Tools/typeidgenerator.h \
+    TrainProgram/mockbluetoothdevice.h \
+    TrainProgram/mockbluetooth.h \
     TrainProgram/trainprogramtestsuite.h
