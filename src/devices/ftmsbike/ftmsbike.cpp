@@ -1649,6 +1649,17 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+        // Apply general max resistance setting from zwift_erg_resistance_up
+        // Special cases can override this value later
+        float generalMaxResistance = settings.value(QZSettings::zwift_erg_resistance_up,
+                                                     QZSettings::default_zwift_erg_resistance_up).toFloat();
+        if (generalMaxResistance > 0) {
+            // Cap at 100 if the setting is above 100
+            max_resistance = (generalMaxResistance > 100) ? 100 : static_cast<int>(generalMaxResistance);
+            qDebug() << QStringLiteral("FTMS Bike: applying general max resistance setting:") << max_resistance;
+        }
+
         if (bluetoothDevice.name().toUpper().startsWith("SUITO")) {
             qDebug() << QStringLiteral("SUITO found");
             max_resistance = 16;
