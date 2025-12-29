@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/translations">
+        <file>qdomyos-zwift_it.qm</file>
+    </qresource>
+</RCC>

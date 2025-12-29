@@ -1,0 +1,99 @@
+name: Update Translations
+
+on:
+  workflow_dispatch:  # Manual trigger
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday at midnight
+
+jobs:
+  update-translations:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '5.15.2'
+          host: 'linux'
+          target: 'desktop'
+          arch: 'gcc_64'
+          modules: 'qtcharts qtnetworkauth qtwebsockets'
+          cache: true
+
+      - name: Update translation files
+        run: |
+          # Run lupdate to extract translatable strings
+          lupdate src/qdomyos-zwift.pri -ts src/qdomyos-zwift.ts
+
+          # Check if there are changes
+          if git diff --quiet src/qdomyos-zwift.ts; then
+            echo "No translation updates needed"
+            echo "HAS_CHANGES=false" >> $GITHUB_ENV
+          else
+            echo "Translation file updated"
+            echo "HAS_CHANGES=true" >> $GITHUB_ENV
+          fi
+
+      - name: Commit and push changes
+        if: env.HAS_CHANGES == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          # Create a new branch
+          BRANCH_NAME="translations/auto-update-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b "$BRANCH_NAME"
+
+          # Add and commit changes
+          git add src/qdomyos-zwift.ts
+          git commit -m "chore: update translation strings
+
+          Automatic update of translatable strings extracted from source code.
+
+          - Updated by GitHub Actions
+          - Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+
+          # Push the branch
+          git push origin "$BRANCH_NAME"
+
+          # Store branch name for PR creation
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+
+      - name: Create Pull Request
+        if: env.HAS_CHANGES == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ env.BRANCH_NAME }}
+          title: "🌍 Update translation strings"
+          body: |
+            ## Translation Update
+
+            This PR updates the translation file with new strings extracted from the source code.
+
+            ### Changes
+            - Extracted new translatable strings using `lupdate`
+            - Updated `src/qdomyos-zwift.ts`
+
+            ### What to do next
+            1. Review the new strings in `src/qdomyos-zwift.ts`
+            2. Add translations for Italian (`<translation>` tags)
+            3. Merge this PR when translations are complete
+
+            ### Translation Status
+            - File: `src/qdomyos-zwift.ts`
+            - Language: Italian (it_IT)
+
+            **Note:** Strings marked as `<translation type="unfinished">` need translation.
+
+            ---
+            *Generated automatically by GitHub Actions*
+          labels: |
+            translations
+            automation

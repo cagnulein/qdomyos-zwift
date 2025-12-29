@@ -866,9 +866,17 @@ exists(secret.h): HEADERS += secret.h
    charts.ui \
 	mainwindow.ui
 
+# Translation files
+TRANSLATIONS += \
+    $$PWD/qdomyos-zwift.ts
+
+# Qt will automatically compile .ts to .qm files during build
+# .qm files will be embedded in the application
+
 RESOURCES += \
    icons.qrc \
-	qml.qrc
+	qml.qrc \
+	translations.qrc
 
 DISTFILES += \
     $$PWD/android/libs/android_antlib_4-16-0.aar \
