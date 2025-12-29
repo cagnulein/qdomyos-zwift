@@ -81,7 +81,10 @@ jobs:
           - Triggered by: ${{ github.event_name }}
           - Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 
-          echo "✅ Changes committed to current branch"
+          # Push to remote
+          git push origin HEAD
+
+          echo "✅ Changes committed and pushed to current branch"
 
       - name: Commit and push changes (Production Mode)
         if: env.HAS_CHANGES == 'true' && steps.context.outputs.mode == 'production'
