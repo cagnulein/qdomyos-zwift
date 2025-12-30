@@ -14,7 +14,9 @@ import Qt.labs.platform 1.1
         anchors.fill: parent
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
-        id: settingsPane        
+        id: settingsPane
+
+        property string openSection: ""
 
         signal peloton_connect_clicked()
         signal intervalsicu_connect_clicked()
@@ -6389,6 +6391,7 @@ import Qt.labs.platform 1.1
             }
 
             AccordionElement {
+                id: garminOptionsAccordion
                 title: qsTr("Garmin Options") + "\uD83E\uDD47"
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
@@ -13468,6 +13471,12 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
                 }
+            }
+        }
+
+        Component.onCompleted: {
+            if (openSection === "garmin") {
+                garminOptionsAccordion.isOpen = true
             }
         }
     }

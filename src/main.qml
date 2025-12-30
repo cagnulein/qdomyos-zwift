@@ -966,6 +966,28 @@ ApplicationWindow {
                     }
                 }
 
+                ItemDelegate {
+                    Image {
+                        anchors.left: parent.left;
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "icons/icons/garmin-connect-badge.png"
+                        fillMode: Image.PreserveAspectFit
+                        visible: true
+                        width: parent.width
+                    }
+                    width: parent.width
+                    onClicked: {
+                        toolButtonLoadSettings.visible = true;
+                        toolButtonSaveSettings.visible = true;
+                        var settingsPage = stackView.push("settings.qml")
+                        settingsPage.openSection = "garmin"
+                        settingsPage.peloton_connect_clicked.connect(function() {
+                            peloton_connect_clicked()
+                        });
+                        drawer.close()
+                    }
+                }
+
 				ItemDelegate {
                     Image {
                         anchors.left: parent.left;
