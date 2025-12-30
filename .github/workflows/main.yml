@@ -629,22 +629,24 @@ jobs:
 
       - name: Set Android NDK 21 && build
         run: |
-          # Remove standard Qt from PATH to ensure custom Qt is used
-          export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "output/qt-standard" | tr '\n' ':' | sed 's/:$//')
+          # Completely remove all Qt installations from PATH to ensure only custom Qt is used
+          # This prevents moc, qmake, and other Qt tools from the standard installation being used
+          export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "Qt" | grep -v "qt" | tr '\n' ':' | sed 's/:$//')
 
           # Setup custom Qt installation for Android build (with 16k page support)
           export QT_ROOT="${{ github.workspace }}/Qt-5.15.0-custom/qt5.15.0-android-page16/usr/local/Qt-5.15.0"
           export PATH="${QT_ROOT}/bin:$PATH"
           export Qt5_DIR="${QT_ROOT}"
+          export QT_HOST_PATH="${QT_ROOT}"
 
           # Verify we're using the correct Qt installation
           echo "=== Qt Installation Verification ==="
           echo "QT_ROOT: $QT_ROOT"
-          echo "PATH (after custom Qt): $PATH"
+          echo "PATH (first 5 entries): $(echo $PATH | tr ':' '\n' | head -5 | tr '\n' ':')"
           echo "qmake location: $(which qmake)"
           echo "qmake version: $(qmake -version)"
+          echo "moc location: $(which moc)"
           echo "androiddeployqt location: $(which androiddeployqt)"
-          ls -la "$QT_ROOT/bin/" | head -20
           echo "===================================="
 
           # Install NDK 25 on macOS (for compatibility with custom Qt build)
