@@ -1189,6 +1189,18 @@ bool GarminConnect::exchangeForOAuth2Token()
     m_oauth2Token.refresh_token_expires_at = QDateTime::currentSecsSinceEpoch() +
                                               jsonResponse["refresh_token_expires_in"].toInt();
 
+    // Log token validity periods for debugging
+    int expiresIn = jsonResponse["expires_in"].toInt();
+    int refreshExpiresIn = jsonResponse["refresh_token_expires_in"].toInt();
+    qDebug() << "GarminConnect: ===== TOKEN VALIDITY =====";
+    qDebug() << "GarminConnect: access_token expires_in:" << expiresIn << "seconds ("
+             << (expiresIn / 3600) << "hours," << (expiresIn / 86400) << "days)";
+    qDebug() << "GarminConnect: refresh_token expires_in:" << refreshExpiresIn << "seconds ("
+             << (refreshExpiresIn / 3600) << "hours," << (refreshExpiresIn / 86400) << "days)";
+    qDebug() << "GarminConnect: access_token expires at:" << QDateTime::fromSecsSinceEpoch(m_oauth2Token.expires_at).toString(Qt::ISODate);
+    qDebug() << "GarminConnect: refresh_token expires at:" << QDateTime::fromSecsSinceEpoch(m_oauth2Token.refresh_token_expires_at).toString(Qt::ISODate);
+    qDebug() << "GarminConnect: ============================";
+
     if (m_oauth2Token.access_token.isEmpty()) {
         m_lastError = "Failed to get OAuth2 token";
         return false;
@@ -1203,6 +1215,11 @@ bool GarminConnect::refreshOAuth2Token()
     qDebug() << "GarminConnect: Refreshing OAuth2 token...";
 
     if (m_oauth2Token.refresh_token.isEmpty() || m_oauth2Token.isRefreshExpired()) {
+        qDebug() << "GarminConnect: ⚠️  REFRESH TOKEN EXPIRED ⚠️";
+        qDebug() << "GarminConnect: refresh_token was valid until:"
+                 << QDateTime::fromSecsSinceEpoch(m_oauth2Token.refresh_token_expires_at).toString(Qt::ISODate);
+        qDebug() << "GarminConnect: Current time:" << QDateTime::currentDateTime().toString(Qt::ISODate);
+        qDebug() << "GarminConnect: You will need to login again with MFA code";
         m_lastError = "Refresh token is empty or expired, full login required";
         return false;
     }
@@ -1241,6 +1258,18 @@ bool GarminConnect::refreshOAuth2Token()
     m_oauth2Token.expires_at = QDateTime::currentSecsSinceEpoch() + jsonResponse["expires_in"].toInt();
     m_oauth2Token.refresh_token_expires_at = QDateTime::currentSecsSinceEpoch() +
                                               jsonResponse["refresh_token_expires_in"].toInt();
+
+    // Log token validity periods for debugging
+    int expiresIn = jsonResponse["expires_in"].toInt();
+    int refreshExpiresIn = jsonResponse["refresh_token_expires_in"].toInt();
+    qDebug() << "GarminConnect: ===== TOKEN REFRESH VALIDITY =====";
+    qDebug() << "GarminConnect: access_token expires_in:" << expiresIn << "seconds ("
+             << (expiresIn / 3600) << "hours," << (expiresIn / 86400) << "days)";
+    qDebug() << "GarminConnect: refresh_token expires_in:" << refreshExpiresIn << "seconds ("
+             << (refreshExpiresIn / 3600) << "hours," << (refreshExpiresIn / 86400) << "days)";
+    qDebug() << "GarminConnect: access_token expires at:" << QDateTime::fromSecsSinceEpoch(m_oauth2Token.expires_at).toString(Qt::ISODate);
+    qDebug() << "GarminConnect: refresh_token expires at:" << QDateTime::fromSecsSinceEpoch(m_oauth2Token.refresh_token_expires_at).toString(Qt::ISODate);
+    qDebug() << "GarminConnect: ============================";
 
     saveTokensToSettings();
     qDebug() << "GarminConnect: Token refreshed successfully";
@@ -1341,6 +1370,19 @@ void GarminConnect::loadTokensFromSettings()
 
     if (!m_oauth2Token.access_token.isEmpty()) {
         qDebug() << "GarminConnect: Loaded tokens from settings";
+        qint64 now = QDateTime::currentSecsSinceEpoch();
+        qDebug() << "GarminConnect: ===== LOADED TOKEN STATUS =====";
+        qDebug() << "GarminConnect: Current time:" << QDateTime::currentDateTime().toString(Qt::ISODate);
+        qDebug() << "GarminConnect: access_token expires at:" << QDateTime::fromSecsSinceEpoch(m_oauth2Token.expires_at).toString(Qt::ISODate)
+                 << (m_oauth2Token.expires_at > now ? "(valid)" : "(EXPIRED)");
+        qDebug() << "GarminConnect: refresh_token expires at:" << QDateTime::fromSecsSinceEpoch(m_oauth2Token.refresh_token_expires_at).toString(Qt::ISODate)
+                 << (m_oauth2Token.refresh_token_expires_at > now ? "(valid)" : "(EXPIRED)");
+        if (m_oauth2Token.refresh_token_expires_at > now) {
+            qint64 days = (m_oauth2Token.refresh_token_expires_at - now) / 86400;
+            qint64 hours = ((m_oauth2Token.refresh_token_expires_at - now) % 86400) / 3600;
+            qDebug() << "GarminConnect: refresh_token valid for:" << days << "days" << hours << "hours";
+        }
+        qDebug() << "GarminConnect: ============================";
     }
 }
 
