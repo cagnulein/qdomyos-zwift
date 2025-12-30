@@ -53,6 +53,9 @@ const QString QZSettings::garmin_token_type = QStringLiteral("garmin_token_type"
 const QString QZSettings::default_garmin_token_type = QStringLiteral("");
 const QString QZSettings::garmin_expires_at = QStringLiteral("garmin_expires_at");
 const QString QZSettings::garmin_refresh_token_expires_at = QStringLiteral("garmin_refresh_token_expires_at");
+const QString QZSettings::garmin_mfa_token = QStringLiteral("garmin_mfa_token");
+const QString QZSettings::default_garmin_mfa_token = QStringLiteral("");
+const QString QZSettings::garmin_mfa_expiration_timestamp = QStringLiteral("garmin_mfa_expiration_timestamp");
 const QString QZSettings::garmin_domain = QStringLiteral("garmin_domain");
 const QString QZSettings::default_garmin_domain = QStringLiteral("garmin.com");
 const QString QZSettings::garmin_last_refresh = QStringLiteral("garmin_last_refresh");
@@ -1030,7 +1033,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 838;
+const uint32_t allSettingsCount = 840;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1062,6 +1065,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::garmin_token_type, QZSettings::default_garmin_token_type},
     {QZSettings::garmin_expires_at, QZSettings::default_garmin_expires_at},
     {QZSettings::garmin_refresh_token_expires_at, QZSettings::default_garmin_refresh_token_expires_at},
+    {QZSettings::garmin_mfa_token, QZSettings::default_garmin_mfa_token},
+    {QZSettings::garmin_mfa_expiration_timestamp, QZSettings::default_garmin_mfa_expiration_timestamp},
     {QZSettings::garmin_domain, QZSettings::default_garmin_domain},
     {QZSettings::garmin_last_refresh, QZSettings::default_garmin_last_refresh},
     {QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken},

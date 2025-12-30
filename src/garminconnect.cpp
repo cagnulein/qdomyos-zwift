@@ -1337,6 +1337,8 @@ void GarminConnect::loadTokensFromSettings()
     m_oauth2Token.token_type = settings.value(QZSettings::garmin_token_type, QZSettings::default_garmin_token_type).toString();
     m_oauth2Token.expires_at = settings.value(QZSettings::garmin_expires_at, QZSettings::default_garmin_expires_at).toLongLong();
     m_oauth2Token.refresh_token_expires_at = settings.value(QZSettings::garmin_refresh_token_expires_at, QZSettings::default_garmin_refresh_token_expires_at).toLongLong();
+    m_oauth1Token.mfa_token = settings.value(QZSettings::garmin_mfa_token, QZSettings::default_garmin_mfa_token).toString();
+    m_oauth1Token.mfa_expiration_timestamp = settings.value(QZSettings::garmin_mfa_expiration_timestamp, QZSettings::default_garmin_mfa_expiration_timestamp).toLongLong();
     m_domain = settings.value(QZSettings::garmin_domain, QZSettings::default_garmin_domain).toString();
 
     if (!m_oauth2Token.access_token.isEmpty()) {
@@ -1352,6 +1354,8 @@ void GarminConnect::saveTokensToSettings()
     settings.setValue(QZSettings::garmin_token_type, m_oauth2Token.token_type);
     settings.setValue(QZSettings::garmin_expires_at, m_oauth2Token.expires_at);
     settings.setValue(QZSettings::garmin_refresh_token_expires_at, m_oauth2Token.refresh_token_expires_at);
+    settings.setValue(QZSettings::garmin_mfa_token, m_oauth1Token.mfa_token);
+    settings.setValue(QZSettings::garmin_mfa_expiration_timestamp, m_oauth1Token.mfa_expiration_timestamp);
     settings.setValue(QZSettings::garmin_domain, m_domain);
     settings.setValue(QZSettings::garmin_last_refresh, QDateTime::currentDateTime());
 
@@ -1366,6 +1370,8 @@ void GarminConnect::clearTokens()
     settings.remove(QZSettings::garmin_token_type);
     settings.remove(QZSettings::garmin_expires_at);
     settings.remove(QZSettings::garmin_refresh_token_expires_at);
+    settings.remove(QZSettings::garmin_mfa_token);
+    settings.remove(QZSettings::garmin_mfa_expiration_timestamp);
     settings.remove(QZSettings::garmin_last_refresh);
 
     m_oauth1Token = OAuth1Token();
