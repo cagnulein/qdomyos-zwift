@@ -366,12 +366,10 @@ void trxappgateusbrower::stateChanged(QLowEnergyService::ServiceState state) {
                 } else if (!virtual_device_rower) {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                    connect(virtualBike, &virtualbike::debug, this, &trxappgateusbrower::debug);
                     this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual rower interface...");
                     auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
-                    connect(virtualRower, &virtualrower::debug, this, &trxappgateusbrower::debug);
                     this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::PRIMARY);
                 }
                 firstStateChanged = 1;
