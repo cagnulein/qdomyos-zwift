@@ -887,6 +887,23 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         }
     });
 
+    // Check Garmin Connect authentication status on startup (after 5 seconds delay)
+    QTimer::singleShot(5000, this, [this]() {
+        QSettings settings;
+        bool garmin_enabled = settings.value(QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled).toBool();
+        QString email = settings.value(QZSettings::garmin_email, QZSettings::default_garmin_email).toString();
+        QString password = settings.value(QZSettings::garmin_password, QZSettings::default_garmin_password).toString();
+
+        // Check if Garmin Connect is enabled and credentials are configured
+        if (garmin_enabled && !email.isEmpty() && !password.isEmpty()) {
+            qDebug() << "Garmin Connect: Checking authentication status on startup";
+            // Simply call the existing login method - it will handle initialization and authentication check
+            garmin_connect_login();
+        } else {
+            qDebug() << "Garmin Connect: Startup check skipped (not enabled or credentials not configured)";
+        }
+    });
+
     bluetoothManager->homeformLoaded = true;
 }
 
