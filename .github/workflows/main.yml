@@ -647,13 +647,13 @@ jobs:
           ls -la "$QT_ROOT/bin/" | head -20
           echo "===================================="
 
-          # Install NDK 21 on macOS
+          # Install NDK 25 on macOS (for compatibility with custom Qt build)
           # https://github.com/actions/virtual-environments/issues/5595
           # On macOS, Android SDK is in $ANDROID_HOME
           export ANDROID_SDK_ROOT="$ANDROID_HOME"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
-          export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
+          echo "y" | $SDKMANAGER "ndk;25.1.8937393"
+          export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk/25.1.8937393"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
@@ -665,12 +665,8 @@ jobs:
           echo "#define LICENSE" >> secret.h
           cd ..
 
-          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
-          # Remove default NDK if present (macOS path)
-          rm -rf $ANDROID_SDK_ROOT/ndk/25.1.8937393 || true
-
           # Build Android app with custom Qt (16k page support)
-          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/21.4.7075529" && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/25.1.8937393" && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           # Use sed with backup extension for macOS compatibility
           sed -i.bak '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           rm -f src/android-qdomyos-zwift-deployment-settings.json.bak
