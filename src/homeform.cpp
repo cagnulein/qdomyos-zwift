@@ -8589,7 +8589,17 @@ void homeform::garmin_connect_login() {
         return;
     }
 
-    // Perform login
+    // Try to refresh token if access_token expired but refresh_token is still valid
+    // This avoids full login flow (no MFA needed) if we can just refresh
+    if (garminConnect->tryRefreshToken()) {
+        qDebug() << "Garmin Connect: Token refreshed successfully, now authenticated";
+        setToastRequested("Garmin Connect: Already authenticated!");
+        emit garminConnect->authenticated();
+        return;
+    }
+
+    // Full login required (no valid tokens available)
+    qDebug() << "Garmin Connect: No valid tokens, performing full login";
     bool success = garminConnect->login(email, password);
     if (!success) {
         qDebug() << "Garmin login failed:" << garminConnect->lastError();
