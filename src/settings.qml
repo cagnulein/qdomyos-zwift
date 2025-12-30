@@ -16,11 +16,14 @@ import Qt.labs.platform 1.1
         //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane
 
-        property string openSection
-
         signal peloton_connect_clicked()
         signal intervalsicu_connect_clicked()
         signal intervalsicu_download_todays_workout_clicked()
+
+        function openGarminSection() {
+            garminOptionsAccordion.isOpen = true
+            scrollTimer.start()
+        }
 
         Settings {
             id: settings
@@ -13486,13 +13489,6 @@ import Qt.labs.platform 1.1
                         settingsPane.contentItem.contentY = yPos
                     }
                 }
-            }
-        }
-
-        Component.onCompleted: {
-            if (openSection && openSection === "garmin") {
-                garminOptionsAccordion.isOpen = true
-                scrollTimer.start()
             }
         }
     }
