@@ -1,11 +1,11 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.0'
+        classpath 'com.android.tools.build:gradle:7.2.2'
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.4'
     }
 }
@@ -16,7 +16,7 @@ plugins {
 
 repositories {
     google()
-    jcenter()
+    mavenCentral()
     maven { url 'https://jitpack.io' }
 }
 
@@ -93,9 +93,10 @@ android {
      * Changing them manually might break the compilation!
      *******************************************************/
 
+    namespace 'org.cagnulen.qdomyoszwift'
     compileSdkVersion androidCompileSdkVersion.toInteger()
 
-    buildToolsVersion '29.0.2'
+    buildToolsVersion '33.0.0'
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
