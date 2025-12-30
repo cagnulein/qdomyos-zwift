@@ -50,10 +50,22 @@ bool GarminConnect::uploadFitFile(const QString &fitFilePath)
 
     // Check if authenticated
     if (!isAuthenticated()) {
-        m_lastError = "Not authenticated. Please login first.";
-        qDebug() << "GarminConnect:" << m_lastError;
-        emit uploadFailed(m_lastError);
-        return false;
+        // Try to refresh token if we have a valid refresh_token
+        if (!m_oauth2Token.refresh_token.isEmpty() && !m_oauth2Token.isRefreshExpired()) {
+            qDebug() << "GarminConnect: Access token expired, attempting refresh...";
+            if (!refreshOAuth2Token()) {
+                m_lastError = "Failed to refresh token. Please login again.";
+                qDebug() << "GarminConnect:" << m_lastError;
+                emit uploadFailed(m_lastError);
+                return false;
+            }
+            qDebug() << "GarminConnect: Token refreshed successfully";
+        } else {
+            m_lastError = "Not authenticated. Please login first.";
+            qDebug() << "GarminConnect:" << m_lastError;
+            emit uploadFailed(m_lastError);
+            return false;
+        }
     }
 
     // Check if file exists
