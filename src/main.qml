@@ -739,6 +739,7 @@ ApplicationWindow {
 
             Column {
                 anchors.fill: parent
+                spacing: 3
 
                 ItemDelegate {
                     text: qsTr("Profile: ") + settings.profile_name
@@ -974,6 +975,7 @@ ApplicationWindow {
                         fillMode: Image.PreserveAspectFit
                         visible: true
                         width: parent.width
+                        height: 48
                     }
                     width: parent.width
                     onClicked: {

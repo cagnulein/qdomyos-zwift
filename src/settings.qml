@@ -13474,16 +13474,23 @@ import Qt.labs.platform 1.1
             }
         }
 
+        Timer {
+            id: scrollTimer
+            interval: 150
+            repeat: false
+            onTriggered: {
+                if (garminOptionsAccordion && garminOptionsAccordion.y !== undefined) {
+                    var yPos = garminOptionsAccordion.y - 20
+                    if (yPos < 0) yPos = 0
+                    settingsPane.contentItem.contentY = yPos
+                }
+            }
+        }
+
         Component.onCompleted: {
             if (openSection === "garmin") {
                 garminOptionsAccordion.isOpen = true
-                garminOptionsAccordion.contentBecameVisible.connect(function() {
-                    // Wait for layout to update, then scroll to the accordion
-                    Qt.callLater(function() {
-                        var accordionY = garminOptionsAccordion.y
-                        settingsPane.contentItem.contentY = Math.max(0, accordionY - 20)
-                    })
-                })
+                scrollTimer.start()
             }
         }
     }
