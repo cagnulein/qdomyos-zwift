@@ -13477,6 +13477,13 @@ import Qt.labs.platform 1.1
         Component.onCompleted: {
             if (openSection === "garmin") {
                 garminOptionsAccordion.isOpen = true
+                garminOptionsAccordion.contentBecameVisible.connect(function() {
+                    // Wait for layout to update, then scroll to the accordion
+                    Qt.callLater(function() {
+                        var accordionY = garminOptionsAccordion.y
+                        settingsPane.contentItem.contentY = Math.max(0, accordionY - 20)
+                    })
+                })
             }
         }
     }
