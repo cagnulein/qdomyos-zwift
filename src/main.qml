@@ -981,9 +981,8 @@ ApplicationWindow {
                     onClicked: {
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;
-                        var settingsPage = stackView.push("settings.qml")
-                        settingsPage.openSection = "garmin"
-                        settingsPage.peloton_connect_clicked.connect(function() {
+                        stackView.push("settings.qml", { openSection: "garmin" })
+                        stackView.currentItem.peloton_connect_clicked.connect(function() {
                             peloton_connect_clicked()
                         });
                         drawer.close()
