@@ -16,7 +16,7 @@ import Qt.labs.platform 1.1
         //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane
 
-        property string openSection: ""
+        property string openSection
 
         signal peloton_connect_clicked()
         signal intervalsicu_connect_clicked()
@@ -13490,7 +13490,7 @@ import Qt.labs.platform 1.1
         }
 
         Component.onCompleted: {
-            if (openSection === "garmin") {
+            if (openSection && openSection === "garmin") {
                 garminOptionsAccordion.isOpen = true
                 scrollTimer.start()
             }
