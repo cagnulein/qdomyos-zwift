@@ -54,6 +54,7 @@ unix:android: {
     CONFIG -= optimize_size
     QMAKE_CFLAGS_OPTIMIZE_FULL -= -Oz
     QMAKE_CFLAGS_OPTIMIZE_FULL += -O3
+    QMAKE_CXXFLAGS += -fno-typed-cxx-new-delete
 }
 macx: CONFIG += debug
 win32: CONFIG += debug
