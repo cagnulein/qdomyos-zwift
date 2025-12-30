@@ -50,6 +50,7 @@ class ypooelliptical : public elliptical {
     uint16_t watts();
     void forceResistance(resistance_t requestResistance);
     void forceInclination(double inclination);
+    void evaluateStepCount();
 
     QTimer *refresh;
 
