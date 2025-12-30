@@ -896,40 +896,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
         // Check if Garmin Connect is enabled and credentials are configured
         if (garmin_enabled && !email.isEmpty() && !password.isEmpty()) {
-            // Initialize GarminConnect if not already done
-            if (!garminConnect) {
-                garminConnect = new GarminConnect(this);
-
-                // Connect signals
-                connect(garminConnect, &GarminConnect::authenticated, this, [this]() {
-                    setToastRequested("Garmin Connect: Authentication successful!");
-                });
-
-                connect(garminConnect, &GarminConnect::authenticationFailed, this, [this](const QString &error) {
-                    setToastRequested("Garmin Connect Login Failed: " + error);
-                });
-
-                connect(garminConnect, &GarminConnect::uploadSucceeded, this, [this]() {
-                    setToastRequested("Garmin Connect: Upload successful!");
-                });
-
-                connect(garminConnect, &GarminConnect::uploadFailed, this, [this](const QString &error) {
-                    setToastRequested("Garmin Connect Upload Failed: " + error);
-                });
-
-                connect(garminConnect, &GarminConnect::mfaRequired, this, [this]() {
-                    qDebug() << "Garmin Connect: MFA code required - showing dialog";
-                    setGarminMfaRequested(true);
-                });
-            }
-
-            // Check if already authenticated
-            if (garminConnect->isAuthenticated()) {
-                qDebug() << "Garmin Connect: Account is already authenticated";
-                setToastRequested("Garmin Connect: Account connected!");
-            } else {
-                qDebug() << "Garmin Connect: Not authenticated (credentials set but tokens expired or not present)";
-            }
+            qDebug() << "Garmin Connect: Checking authentication status on startup";
+            // Simply call the existing login method - it will handle initialization and authentication check
+            garmin_connect_login();
         } else {
             qDebug() << "Garmin Connect: Startup check skipped (not enabled or credentials not configured)";
         }
