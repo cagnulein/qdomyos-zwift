@@ -70,6 +70,9 @@ class trxappgateusbelliptical : public elliptical {
     bool initDone = false;
     bool initRequest = false;
 
+    resistance_t lastResistanceBeforeDisconnection = -1;
+    bool needsResistanceRestore = false;
+
     bool noWriteResistance = false;
     bool noHeartService = false;
 

@@ -84,6 +84,14 @@ void trxappgateusbelliptical::update() {
         QSettings settings;
         update_metrics(true, watts());
 
+        // Restore resistance after reconnection and init
+        if (needsResistanceRestore && lastResistanceBeforeDisconnection > 0) {
+            qDebug() << QStringLiteral("Restoring resistance after reconnection:") << lastResistanceBeforeDisconnection;
+            forceResistance(lastResistanceBeforeDisconnection);
+            needsResistanceRestore = false;
+            lastResistanceBeforeDisconnection = -1;
+        }
+
         // Calculate time since last valid packet
         qint64 msSinceLastValidPacket = lastValidPacketTime.msecsTo(QDateTime::currentDateTime());
 
@@ -523,6 +531,14 @@ void trxappgateusbelliptical::controllerStateChanged(QLowEnergyController::Contr
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again in 3 seconds...");
+
+        // Save current resistance before disconnection
+        if (Resistance.value() > 0) {
+            lastResistanceBeforeDisconnection = Resistance.value();
+            needsResistanceRestore = true;
+            qDebug() << QStringLiteral("Saved resistance before disconnection:") << lastResistanceBeforeDisconnection;
+        }
+
         initDone = false;
 
         // Schedule reconnection after 3 seconds
