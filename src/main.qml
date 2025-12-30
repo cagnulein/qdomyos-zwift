@@ -739,6 +739,7 @@ ApplicationWindow {
 
             Column {
                 anchors.fill: parent
+                spacing: 3
 
                 ItemDelegate {
                     text: qsTr("Profile: ") + settings.profile_name
@@ -962,6 +963,35 @@ ApplicationWindow {
                             stackView.pop();
                         })
                         peloton_connect_clicked()
+                        drawer.close()
+                    }
+                }
+
+                ItemDelegate {
+                    Image {
+                        anchors.left: parent.left;
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "icons/icons/garmin-connect-badge.png"
+                        fillMode: Image.PreserveAspectFit
+                        visible: true
+                        width: parent.width
+                        height: 48
+                    }
+                    width: parent.width
+                    onClicked: {
+                        toolButtonLoadSettings.visible = true;
+                        toolButtonSaveSettings.visible = true;
+                        stackView.push("settings.qml")
+                        if (stackView.currentItem) {
+                            if (stackView.currentItem.openGarminSection) {
+                                stackView.currentItem.openGarminSection()
+                            }
+                            if (stackView.currentItem.peloton_connect_clicked) {
+                                stackView.currentItem.peloton_connect_clicked.connect(function() {
+                                    peloton_connect_clicked()
+                                });
+                            }
+                        }
                         drawer.close()
                     }
                 }

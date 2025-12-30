@@ -14,11 +14,16 @@ import Qt.labs.platform 1.1
         anchors.fill: parent
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
-        id: settingsPane        
+        id: settingsPane
 
         signal peloton_connect_clicked()
         signal intervalsicu_connect_clicked()
         signal intervalsicu_download_todays_workout_clicked()
+
+        function openGarminSection() {
+            garminOptionsAccordion.isOpen = true
+            scrollTimer.start()
+        }
 
         Settings {
             id: settings
@@ -6389,6 +6394,7 @@ import Qt.labs.platform 1.1
             }
 
             AccordionElement {
+                id: garminOptionsAccordion
                 title: qsTr("Garmin Options") + "\uD83E\uDD47"
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
@@ -13466,6 +13472,21 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+                }
+            }
+        }
+
+        Timer {
+            id: scrollTimer
+            interval: 200
+            repeat: false
+            onTriggered: {
+                if (garminOptionsAccordion && garminOptionsAccordion.y !== undefined) {
+                    var yPos = garminOptionsAccordion.y - 20
+                    if (yPos < 0) yPos = 0
+                    if (settingsPane.contentItem) {
+                        settingsPane.contentItem.contentY = yPos
                     }
                 }
             }
