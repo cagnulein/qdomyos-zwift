@@ -982,9 +982,11 @@ ApplicationWindow {
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;
                         stackView.push("settings.qml", { openSection: "garmin" })
-                        stackView.currentItem.peloton_connect_clicked.connect(function() {
-                            peloton_connect_clicked()
-                        });
+                        if (stackView.currentItem && stackView.currentItem.peloton_connect_clicked) {
+                            stackView.currentItem.peloton_connect_clicked.connect(function() {
+                                peloton_connect_clicked()
+                            });
+                        }
                         drawer.close()
                     }
                 }

@@ -13476,13 +13476,15 @@ import Qt.labs.platform 1.1
 
         Timer {
             id: scrollTimer
-            interval: 150
+            interval: 200
             repeat: false
             onTriggered: {
                 if (garminOptionsAccordion && garminOptionsAccordion.y !== undefined) {
                     var yPos = garminOptionsAccordion.y - 20
                     if (yPos < 0) yPos = 0
-                    settingsPane.contentItem.contentY = yPos
+                    if (settingsPane.contentItem) {
+                        settingsPane.contentItem.contentY = yPos
+                    }
                 }
             }
         }
