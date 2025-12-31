@@ -8603,6 +8603,10 @@ void homeform::garmin_connect_login() {
     bool success = garminConnect->login(email, password);
     if (!success) {
         qDebug() << "Garmin login failed:" << garminConnect->lastError();
+        // Only show error toast if it's not MFA required (MFA has its own dialog)
+        if (!garminConnect->lastError().contains("MFA", Qt::CaseInsensitive)) {
+            setToastRequested("Garmin Connect: Login failed - " + garminConnect->lastError());
+        }
     }
 }
 
