@@ -6758,6 +6758,10 @@ import Qt.labs.platform 1.1
                             "Vivoactive 3 (2700)",
                             "Vivoactive 4 Small (3224)",
                             "Vivoactive 4 Large (3225)",
+                            "Forerunner 255 (3992)",
+                            "Forerunner 255s (3993)",
+                            "Forerunner 255 Music (3990)",
+                            "Forerunner 255s Music (3991)",
                             "Zwift (3288)"
                         ]
                         currentIndex: {
@@ -6799,7 +6803,11 @@ import Qt.labs.platform 1.1
                             if (settings.fit_file_garmin_device_training_effect_device === 2700) return 35; // Vivoactive 3
                             if (settings.fit_file_garmin_device_training_effect_device === 3224) return 36; // Vivoactive 4 Small
                             if (settings.fit_file_garmin_device_training_effect_device === 3225) return 37; // Vivoactive 4 Large
-                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 38; // Zwift
+                            if (settings.fit_file_garmin_device_training_effect_device === 3992) return 38; // Forerunner 255
+                            if (settings.fit_file_garmin_device_training_effect_device === 3993) return 39; // Forerunner 255s
+                            if (settings.fit_file_garmin_device_training_effect_device === 3990) return 40; // Forerunner 255 Music
+                            if (settings.fit_file_garmin_device_training_effect_device === 3991) return 41; // Forerunner 255s Music
+                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 42; // Zwift
                             return 6; // Default to Edge 830
                         }
                         onCurrentIndexChanged: {
@@ -6842,7 +6850,11 @@ import Qt.labs.platform 1.1
                                 case 35: settings.fit_file_garmin_device_training_effect_device = 2700; break; // Vivoactive 3
                                 case 36: settings.fit_file_garmin_device_training_effect_device = 3224; break; // Vivoactive 4 Small
                                 case 37: settings.fit_file_garmin_device_training_effect_device = 3225; break; // Vivoactive 4 Large
-                                case 38: settings.fit_file_garmin_device_training_effect_device = 99999; break; // Zwift
+                                case 38: settings.fit_file_garmin_device_training_effect_device = 3992; break; // Forerunner 255
+                                case 39: settings.fit_file_garmin_device_training_effect_device = 3993; break; // Forerunner 255s
+                                case 40: settings.fit_file_garmin_device_training_effect_device = 3990; break; // Forerunner 255 Music
+                                case 41: settings.fit_file_garmin_device_training_effect_device = 3991; break; // Forerunner 255s Music
+                                case 42: settings.fit_file_garmin_device_training_effect_device = 99999; break; // Zwift
                             }
                         }
                         Layout.fillWidth: true
