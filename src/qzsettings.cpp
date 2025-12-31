@@ -1035,7 +1035,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 839;
+const uint32_t allSettingsCount = 841;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1894,6 +1894,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::skandika_wiri_x2000_protocol, QZSettings::default_skandika_wiri_x2000_protocol},
     {QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed},
     {QZSettings::proform_treadmill_sport_3_0, QZSettings::default_proform_treadmill_sport_3_0},
+    {QZSettings::garmin_oauth1_token, QZSettings::default_garmin_oauth1_token},
+    {QZSettings::garmin_oauth1_token_secret, QZSettings::default_garmin_oauth1_token_secret},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
