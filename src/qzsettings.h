@@ -106,6 +106,12 @@ class QZSettings {
     static const QString garmin_refresh_token_expires_at;
     static constexpr qint64 default_garmin_refresh_token_expires_at = 0;
 
+    static const QString garmin_oauth1_token;
+    static const QString default_garmin_oauth1_token;
+
+    static const QString garmin_oauth1_token_secret;
+    static const QString default_garmin_oauth1_token_secret;
+
     static const QString garmin_domain;
     static const QString default_garmin_domain;
 
