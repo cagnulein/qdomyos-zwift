@@ -1252,7 +1252,11 @@ import Qt.labs.platform 1.1
             property var garmin_refresh_token_expires_at: 0
             property string garmin_domain: "garmin.com"
             property string garmin_last_refresh: ""
+            
             property bool power_sensor_cadence_instead_treadmill: false
+            
+            property string garmin_oauth1_token: ""
+            property string garmin_oauth1_token_secret: ""            
         }
 
 
