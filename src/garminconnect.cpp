@@ -246,12 +246,6 @@ void GarminConnect::submitMfaCode(const QString &mfaCode)
 
 bool GarminConnect::tryRefreshToken()
 {
-    // Already authenticated, no need to refresh
-    if (isAuthenticated()) {
-        qDebug() << "GarminConnect: Token is still valid, no refresh needed";
-        return true;
-    }
-
     // Check if we have a valid refresh token
     if (m_oauth2Token.refresh_token.isEmpty() || m_oauth2Token.isRefreshExpired()) {
         qDebug() << "GarminConnect: No valid refresh_token available for refresh";
@@ -262,12 +256,18 @@ bool GarminConnect::tryRefreshToken()
         return false;
     }
 
+    // Always refresh on startup for maximum token freshness
     // Log current token state before refresh
     qDebug() << "GarminConnect: ===== TOKEN REFRESH ATTEMPT =====";
     qDebug() << "GarminConnect: Current time:" << QDateTime::currentDateTime().toString(Qt::ISODate);
-    qDebug() << "GarminConnect: access_token expired at:"
+    qDebug() << "GarminConnect: access_token expires at:"
              << QDateTime::fromSecsSinceEpoch(m_oauth2Token.expires_at).toString(Qt::ISODate);
-    qDebug() << "GarminConnect: Attempting to refresh expired access_token...";
+
+    if (isAuthenticated()) {
+        qDebug() << "GarminConnect: Token still valid but refreshing proactively for freshness";
+    } else {
+        qDebug() << "GarminConnect: Token expired, refreshing...";
+    }
 
     bool success = refreshOAuth2Token();
 
@@ -1294,14 +1294,32 @@ bool GarminConnect::refreshOAuth2Token()
     connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
 
+    // Enhanced debugging for refresh failures
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    QByteArray responseBody = reply->readAll();
+
+    qDebug() << "GarminConnect: Refresh HTTP status code:" << statusCode;
+    qDebug() << "GarminConnect: Refresh response length:" << responseBody.length();
+
     if (reply->error() != QNetworkReply::NoError) {
         m_lastError = "Token refresh failed: " + reply->errorString();
         qDebug() << "GarminConnect:" << m_lastError;
+        qDebug() << "GarminConnect: HTTP status:" << statusCode;
+        qDebug() << "GarminConnect: Response body:" << QString::fromUtf8(responseBody);
         reply->deleteLater();
         return false;
     }
 
-    QJsonObject jsonResponse = extractJsonFromResponse(reply);
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(responseBody);
+    if (!jsonDoc.isObject()) {
+        m_lastError = "Invalid refresh response JSON";
+        qDebug() << "GarminConnect:" << m_lastError;
+        qDebug() << "GarminConnect: Response was:" << QString::fromUtf8(responseBody);
+        reply->deleteLater();
+        return false;
+    }
+
+    QJsonObject jsonResponse = jsonDoc.object();
     reply->deleteLater();
 
     m_oauth2Token.access_token = jsonResponse["access_token"].toString();
