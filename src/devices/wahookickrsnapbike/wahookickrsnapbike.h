@@ -21,6 +21,7 @@
 #include <QtCore/qmutex.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
+#include <QtCore/qqueue.h>
 
 #include <QDateTime>
 #include <QObject>
@@ -69,6 +70,13 @@ class wahookickrsnapbike : public bike {
     void handleCharacteristicValueChanged(const QBluetoothUuid &uuid, const QByteArray &newValue);
 
   private:
+    // Structure for async write queue
+    struct WriteRequest {
+        QByteArray data;
+        QString info;
+        bool disable_log;
+        bool wait_for_response;
+    };
     QByteArray unlockCommand();
     QByteArray setResistanceMode(double resistance);
     QByteArray setStandardMode(uint8_t level);
@@ -82,6 +90,7 @@ class wahookickrsnapbike : public bike {
 
     bool writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
+    void processWriteQueue();
     uint16_t wattsFromResistance(double resistance);
     metric ResistanceFromFTMSAccessory;
     void startDiscover();
@@ -90,11 +99,16 @@ class wahookickrsnapbike : public bike {
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
 
-#ifndef Q_OS_IOS
+    // Bluetooth LE services and characteristics (unified for all platforms)
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyService *gattPowerChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
-#endif
+
+    // Async write queue management
+    QQueue<WriteRequest> writeQueue;
+    bool isWriting = false;
+    bool currentWriteWaitingForResponse = false;
+    QTimer *writeTimeoutTimer = nullptr;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
