@@ -8581,18 +8581,18 @@ void homeform::garmin_connect_login() {
         });
     }
 
-    // Check if already authenticated before attempting login
-    if (garminConnect->isAuthenticated()) {
-        qDebug() << "Garmin Connect: Already authenticated, skipping login";
+    // Always try to refresh token on startup for maximum token freshness
+    // tryRefreshToken() handles all cases: valid tokens, expired access_token, etc.
+    if (garminConnect->tryRefreshToken()) {
+        qDebug() << "Garmin Connect: Token refresh successful, authenticated";
         setToastRequested("Garmin Connect: Authenticated!");
-        emit garminConnect->authenticated();  // Emit signal to trigger any waiting handlers
+        emit garminConnect->authenticated();
         return;
     }
 
-    // Try to refresh token if access_token expired but refresh_token is still valid
-    // This avoids full login flow (no MFA needed) if we can just refresh
-    if (garminConnect->tryRefreshToken()) {
-        qDebug() << "Garmin Connect: Token refreshed successfully, now authenticated";
+    // If already authenticated (refresh was skipped or not needed)
+    if (garminConnect->isAuthenticated()) {
+        qDebug() << "Garmin Connect: Already authenticated";
         setToastRequested("Garmin Connect: Authenticated!");
         emit garminConnect->authenticated();
         return;
