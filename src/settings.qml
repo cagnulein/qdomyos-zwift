@@ -1252,6 +1252,7 @@ import Qt.labs.platform 1.1
             property var garmin_refresh_token_expires_at: 0
             property string garmin_domain: "garmin.com"
             property string garmin_last_refresh: ""
+            property bool power_sensor_cadence_instead_treadmill: false
         }
 
 
@@ -11216,6 +11217,33 @@ import Qt.labs.platform 1.1
 
                             Label {
                                 text: qsTr("If you have a Bluetooth treadmill and also a Runn device connected to QZ and you want to use the inclination from the RUNN instead of the inclination of the treadmill, enable this. Default: disabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Use cadence from the power sensor")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.power_sensor_cadence_instead_treadmill
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.power_sensor_cadence_instead_treadmill = checked
+                            }
+
+                            Label {
+                                text: qsTr("If you have a Bluetooth treadmill and also a power sensor (like Stryd) connected to QZ and you want to use the cadence from the power sensor instead of the cadence of the treadmill, enable this. This is useful when the treadmill cadence sensor is unreliable at low speeds (walking/jogging). Default: disabled.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2

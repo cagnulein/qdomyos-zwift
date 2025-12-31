@@ -1715,9 +1715,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
-                Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                double cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index)))) /
                           2.0;
+                parseCadence(cadence);
                 cadenceAvailable = true;
             }
             index += 2;
@@ -2108,8 +2109,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
-                Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                double cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index))));
+                parseCadence(cadence);
                 cadenceAvailable = true;
             }
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
@@ -2243,7 +2245,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             }
         }
 
-        Cadence = cadence;
+        parseCadence(cadence);
         cadenceAvailable = true;
         emit cadenceChanged(cadence);
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(cadence));
@@ -2268,7 +2270,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
             if (calculatedCadence > 0) {
                 evaluateStepCount();
-                Cadence = calculatedCadence;
+                parseCadence(calculatedCadence);
                 emit debug(QStringLiteral("Current Cadence (calculated from speed): ") + QString::number(Cadence.value()));
             }
         }
