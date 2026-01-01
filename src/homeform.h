@@ -541,6 +541,7 @@ class homeform : public QObject {
     }
     Q_INVOKABLE void garmin_connect_login();
     Q_INVOKABLE void garmin_submit_mfa_code(const QString &mfaCode);
+    Q_INVOKABLE void garmin_connect_logout();
 
     void setGeneralPopupVisible(bool value);
     void setPelotonPopupVisible(bool value);

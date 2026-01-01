@@ -887,6 +887,23 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         }
     });
 
+    // Check Garmin Connect authentication status on startup (after 5 seconds delay)
+    QTimer::singleShot(5000, this, [this]() {
+        QSettings settings;
+        bool garmin_enabled = settings.value(QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled).toBool();
+        QString email = settings.value(QZSettings::garmin_email, QZSettings::default_garmin_email).toString();
+        QString password = settings.value(QZSettings::garmin_password, QZSettings::default_garmin_password).toString();
+
+        // Check if Garmin Connect is enabled and credentials are configured
+        if (garmin_enabled && !email.isEmpty() && !password.isEmpty()) {
+            qDebug() << "Garmin Connect: Checking authentication status on startup";
+            // Simply call the existing login method - it will handle initialization and authentication check
+            garmin_connect_login();
+        } else {
+            qDebug() << "Garmin Connect: Startup check skipped (not enabled or credentials not configured)";
+        }
+    });
+
     bluetoothManager->homeformLoaded = true;
 }
 
@@ -8564,18 +8581,32 @@ void homeform::garmin_connect_login() {
         });
     }
 
-    // Check if already authenticated before attempting login
-    if (garminConnect->isAuthenticated()) {
-        qDebug() << "Garmin Connect: Already authenticated, skipping login";
-        setToastRequested("Garmin Connect: Already authenticated!");
-        emit garminConnect->authenticated();  // Emit signal to trigger any waiting handlers
+    // Always try to refresh token on startup for maximum token freshness
+    // tryRefreshToken() handles all cases: valid tokens, expired access_token, etc.
+    if (garminConnect->tryRefreshToken()) {
+        qDebug() << "Garmin Connect: Token refresh successful, authenticated";
+        setToastRequested("Garmin Connect: Authenticated!");
+        emit garminConnect->authenticated();
         return;
     }
 
-    // Perform login
+    // If already authenticated (refresh was skipped or not needed)
+    if (garminConnect->isAuthenticated()) {
+        qDebug() << "Garmin Connect: Already authenticated";
+        setToastRequested("Garmin Connect: Authenticated!");
+        emit garminConnect->authenticated();
+        return;
+    }
+
+    // Full login required (no valid tokens available)
+    qDebug() << "Garmin Connect: No valid tokens, performing full login";
     bool success = garminConnect->login(email, password);
     if (!success) {
         qDebug() << "Garmin login failed:" << garminConnect->lastError();
+        // Only show error toast if it's not MFA required (MFA has its own dialog)
+        if (!garminConnect->lastError().contains("MFA", Qt::CaseInsensitive)) {
+            setToastRequested("Garmin Connect: Login failed - " + garminConnect->lastError());
+        }
     }
 }
 
@@ -8596,11 +8627,17 @@ void homeform::garmin_submit_mfa_code(const QString &mfaCode) {
     setGarminMfaRequested(false);
 
     // Submit MFA code to continue authentication (no need to restart login flow)
+    // Note: This is async - results will be signaled via authenticated() or authenticationFailed()
     setToastRequested("Submitting MFA code...");
-    bool success = garminConnect->submitMfaCode(mfaCode);
-    if (!success) {
-        qDebug() << "Garmin MFA submission failed:" << garminConnect->lastError();
-        setToastRequested("Garmin MFA failed: " + garminConnect->lastError());
+    garminConnect->submitMfaCode(mfaCode);
+}
+
+void homeform::garmin_connect_logout() {
+    qDebug() << "Garmin Connect logout requested";
+
+    if (garminConnect) {
+        garminConnect->logout();
+        qDebug() << "Garmin Connect: Logged out and tokens cleared";
     }
 }
 

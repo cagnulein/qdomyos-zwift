@@ -14,11 +14,16 @@ import Qt.labs.platform 1.1
         anchors.fill: parent
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
-        id: settingsPane        
+        id: settingsPane
 
         signal peloton_connect_clicked()
         signal intervalsicu_connect_clicked()
         signal intervalsicu_download_todays_workout_clicked()
+
+        function openGarminSection() {
+            garminOptionsAccordion.isOpen = true
+            scrollTimer.start()
+        }
 
         Settings {
             id: settings
@@ -1240,6 +1245,18 @@ import Qt.labs.platform 1.1
             property string garmin_email: ""
             property string garmin_password: ""
             property bool garmin_upload_enabled: false
+            property string garmin_access_token: ""
+            property string garmin_refresh_token: ""
+            property string garmin_token_type: ""
+            property var garmin_expires_at: 0
+            property var garmin_refresh_token_expires_at: 0
+            property string garmin_domain: "garmin.com"
+            property string garmin_last_refresh: ""
+            
+            property bool power_sensor_cadence_instead_treadmill: false
+            
+            property string garmin_oauth1_token: ""
+            property string garmin_oauth1_token_secret: ""            
         }
 
 
@@ -6382,6 +6399,7 @@ import Qt.labs.platform 1.1
             }
 
             AccordionElement {
+                id: garminOptionsAccordion
                 title: qsTr("Garmin Options") + "\uD83E\uDD47"
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
@@ -6523,7 +6541,11 @@ import Qt.labs.platform 1.1
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.garmin_email = garminEmailTextField.text; toast.show("Setting saved!"); }
+                            onClicked: {
+                                rootItem.garmin_connect_logout();
+                                settings.garmin_email = garminEmailTextField.text;
+                                toast.show("Setting saved!");
+                            }
                         }
                     }
 
@@ -6546,7 +6568,11 @@ import Qt.labs.platform 1.1
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.garmin_password = garminPasswordTextField.text; toast.show("Setting saved!"); }
+                            onClicked: {
+                                rootItem.garmin_connect_logout();
+                                settings.garmin_password = garminPasswordTextField.text;
+                                toast.show("Setting saved!");
+                            }
                         }
                     }
 
@@ -6584,6 +6610,16 @@ import Qt.labs.platform 1.1
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 horizontalAlignment: Text.AlignHCenter
+                            }
+
+                            Label {
+                                text: "If you don't receive the code, please enable 2FA in your Garmin profile privacy settings."
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignHCenter
+                                font.pixelSize: 12
+                                font.italic: true
+                                color: Material.color(Material.Grey)
                             }
 
                             TextField {
@@ -6721,7 +6757,8 @@ import Qt.labs.platform 1.1
                             "VenuSq Music (3596)",
                             "Vivoactive 3 (2700)",
                             "Vivoactive 4 Small (3224)",
-                            "Vivoactive 4 Large (3225)"
+                            "Vivoactive 4 Large (3225)",
+                            "Zwift (3288)"
                         ]
                         currentIndex: {
                             if (settings.fit_file_garmin_device_training_effect_device === 2909) return 0;  // Edge 130
@@ -6762,6 +6799,7 @@ import Qt.labs.platform 1.1
                             if (settings.fit_file_garmin_device_training_effect_device === 2700) return 35; // Vivoactive 3
                             if (settings.fit_file_garmin_device_training_effect_device === 3224) return 36; // Vivoactive 4 Small
                             if (settings.fit_file_garmin_device_training_effect_device === 3225) return 37; // Vivoactive 4 Large
+                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 38; // Zwift
                             return 6; // Default to Edge 830
                         }
                         onCurrentIndexChanged: {
@@ -6804,6 +6842,7 @@ import Qt.labs.platform 1.1
                                 case 35: settings.fit_file_garmin_device_training_effect_device = 2700; break; // Vivoactive 3
                                 case 36: settings.fit_file_garmin_device_training_effect_device = 3224; break; // Vivoactive 4 Small
                                 case 37: settings.fit_file_garmin_device_training_effect_device = 3225; break; // Vivoactive 4 Large
+                                case 38: settings.fit_file_garmin_device_training_effect_device = 99999; break; // Zwift
                             }
                         }
                         Layout.fillWidth: true
@@ -11194,6 +11233,33 @@ import Qt.labs.platform 1.1
                             }
 
                             IndicatorOnlySwitch {
+                                text: qsTr("Use cadence from the power sensor")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.power_sensor_cadence_instead_treadmill
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.power_sensor_cadence_instead_treadmill = checked
+                            }
+
+                            Label {
+                                text: qsTr("If you have a Bluetooth treadmill and also a power sensor (like Stryd) connected to QZ and you want to use the cadence from the power sensor instead of the cadence of the treadmill, enable this. This is useful when the treadmill cadence sensor is unreliable at low speeds (walking/jogging). Default: disabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            IndicatorOnlySwitch {
                                 text: qsTr("Add inclination gain factor to the power")
                                 spacing: 0
                                 bottomPadding: 0
@@ -13438,6 +13504,21 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+                }
+            }
+        }
+
+        Timer {
+            id: scrollTimer
+            interval: 200
+            repeat: false
+            onTriggered: {
+                if (garminOptionsAccordion && garminOptionsAccordion.y !== undefined) {
+                    var yPos = garminOptionsAccordion.y - 20
+                    if (yPos < 0) yPos = 0
+                    if (settingsPane.contentItem) {
+                        settingsPane.contentItem.contentY = yPos
                     }
                 }
             }

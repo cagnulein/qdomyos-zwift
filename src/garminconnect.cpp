@@ -1,4 +1,5 @@
 #include "garminconnect.h"
+#include "qzsettings.h"
 #include <QDebug>
 #include <QRegularExpression>
 #include <QRandomGenerator>
@@ -49,10 +50,22 @@ bool GarminConnect::uploadFitFile(const QString &fitFilePath)
 
     // Check if authenticated
     if (!isAuthenticated()) {
-        m_lastError = "Not authenticated. Please login first.";
-        qDebug() << "GarminConnect:" << m_lastError;
-        emit uploadFailed(m_lastError);
-        return false;
+        // Try to refresh token if we have a valid refresh_token
+        if (!m_oauth2Token.refresh_token.isEmpty() && !m_oauth2Token.isRefreshExpired()) {
+            qDebug() << "GarminConnect: Access token expired, attempting refresh...";
+            if (!refreshOAuth2Token()) {
+                m_lastError = "Failed to refresh token. Please login again.";
+                qDebug() << "GarminConnect:" << m_lastError;
+                emit uploadFailed(m_lastError);
+                return false;
+            }
+            qDebug() << "GarminConnect: Token refreshed successfully";
+        } else {
+            m_lastError = "Not authenticated. Please login first.";
+            qDebug() << "GarminConnect:" << m_lastError;
+            emit uploadFailed(m_lastError);
+            return false;
+        }
     }
 
     // Check if file exists
@@ -202,11 +215,9 @@ bool GarminConnect::login(const QString &email, const QString &password, const Q
                 emit authenticationFailed(m_lastError);
                 return false;
             }
-            // Perform MFA verification with provided code
-            if (!performMfaVerification(mfaCode)) {
-                emit authenticationFailed(m_lastError);
-                return false;
-            }
+            // Perform MFA verification with provided code (async - signals will be emitted)
+            performMfaVerification(mfaCode);
+            return true;  // Return true to indicate the async flow has started
         } else {
             emit authenticationFailed(m_lastError);
             return false;
@@ -218,7 +229,7 @@ bool GarminConnect::login(const QString &email, const QString &password, const Q
     return true;
 }
 
-bool GarminConnect::submitMfaCode(const QString &mfaCode)
+void GarminConnect::submitMfaCode(const QString &mfaCode)
 {
     qDebug() << "GarminConnect: Submitting MFA code (continuing authentication flow)...";
     m_lastError.clear();
@@ -226,18 +237,47 @@ bool GarminConnect::submitMfaCode(const QString &mfaCode)
     if (mfaCode.isEmpty()) {
         m_lastError = "MFA code cannot be empty";
         emit authenticationFailed(m_lastError);
+        return;
+    }
+
+    // Perform MFA verification asynchronously - signals will be emitted when complete
+    performMfaVerification(mfaCode);
+}
+
+bool GarminConnect::tryRefreshToken()
+{
+    // Already authenticated and not expired - no need to refresh
+    if (isAuthenticated()) {
+        qDebug() << "GarminConnect: Token is still valid, no refresh needed";
+        return true;
+    }
+
+    // Check if we have a valid refresh token (actually OAuth1 token)
+    if (m_oauth1Token.oauth_token.isEmpty() || m_oauth1Token.oauth_token_secret.isEmpty()) {
+        qDebug() << "GarminConnect: No valid OAuth1 token available for refresh";
         return false;
     }
 
-    // Perform MFA verification - this will handle OAuth1/OAuth2 exchange internally
-    if (!performMfaVerification(mfaCode)) {
-        emit authenticationFailed(m_lastError);
-        return false;
+    // Token expired - refresh using OAuth1 token (garth method)
+    qDebug() << "GarminConnect: ===== TOKEN REFRESH ATTEMPT =====";
+    qDebug() << "GarminConnect: Current time:" << QDateTime::currentDateTime().toString(Qt::ISODate);
+    qDebug() << "GarminConnect: access_token expired at:"
+             << QDateTime::fromSecsSinceEpoch(m_oauth2Token.expires_at).toString(Qt::ISODate);
+    qDebug() << "GarminConnect: Token expired, refreshing...";
+
+    bool success = refreshOAuth2Token();
+
+    if (success) {
+        qDebug() << "GarminConnect: Token refresh successful!";
+        qDebug() << "GarminConnect: New access_token expires at:"
+                 << QDateTime::fromSecsSinceEpoch(m_oauth2Token.expires_at).toString(Qt::ISODate);
+        qDebug() << "GarminConnect: ============================";
+    } else {
+        qDebug() << "GarminConnect: Token refresh failed:" << m_lastError;
+        qDebug() << "GarminConnect: ============================";
     }
 
-    qDebug() << "GarminConnect: Login successful!";
-    emit authenticated();
-    return true;
+    return success;
 }
 
 bool GarminConnect::fetchCookies()
@@ -573,9 +613,11 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
     return true;
 }
 
-bool GarminConnect::performMfaVerification(const QString &mfaCode)
+void GarminConnect::performMfaVerification(const QString &mfaCode)
 {
     qDebug() << "GarminConnect: Performing MFA verification...";
+
+    m_pendingMfaCode = mfaCode;
 
     QString ssoEmbedUrl = ssoUrl() + SSO_EMBED_PATH;
 
@@ -612,15 +654,36 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
     }
 
     QNetworkReply *reply = m_manager->post(request, data);
-    QEventLoop loop;
-    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-    loop.exec();
+    connect(reply, &QNetworkReply::finished, this, &GarminConnect::handleMfaReplyFinished);
+}
+
+void GarminConnect::handleMfaReplyFinished()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply) {
+        m_lastError = "Invalid reply object";
+        emit authenticationFailed(m_lastError);
+        return;
+    }
+
+    QString ssoEmbedUrl = ssoUrl() + SSO_EMBED_PATH;
+    QUrl url(ssoUrl() + "/sso/verifyMFA/loginEnterMfaCode");
+    QUrlQuery query;
+    query.addQueryItem("id", "gauth-widget");
+    query.addQueryItem("embedWidget", "true");
+    query.addQueryItem("gauthHost", ssoEmbedUrl);
+    query.addQueryItem("service", ssoEmbedUrl);
+    query.addQueryItem("source", ssoEmbedUrl);
+    query.addQueryItem("redirectAfterAccountLoginUrl", ssoEmbedUrl);
+    query.addQueryItem("redirectAfterAccountCreationUrl", ssoEmbedUrl);
+    url.setQuery(query);
 
     if (reply->error() != QNetworkReply::NoError) {
         m_lastError = "MFA verification failed: " + reply->errorString();
         qDebug() << "GarminConnect:" << m_lastError;
         reply->deleteLater();
-        return false;
+        emit authenticationFailed(m_lastError);
+        return;
     }
 
     QString response = QString::fromUtf8(reply->readAll());
@@ -638,7 +701,6 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
 
     // Try to extract ticket from redirect URL first
     QString ticket;
-    bool replyDeleted = false;
     if (!responseUrl.isEmpty()) {
         QUrlQuery responseQuery(responseUrl);
         ticket = responseQuery.queryItemValue("ticket");
@@ -651,7 +713,6 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
                 qDebug() << "GarminConnect: Found logintoken in redirect, following to get ticket:" << loginToken;
 
                 reply->deleteLater();
-                replyDeleted = true;
 
                 // Follow the logintoken redirect to get the actual ticket
                 QNetworkRequest tokenRequest(responseUrl);
@@ -665,50 +726,8 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
                 }
 
                 QNetworkReply *tokenReply = m_manager->get(tokenRequest);
-                QEventLoop tokenLoop;
-                connect(tokenReply, &QNetworkReply::finished, &tokenLoop, &QEventLoop::quit);
-                tokenLoop.exec();
-
-                if (tokenReply->error() == QNetworkReply::NoError) {
-                    // Check for another redirect with the ticket
-                    QUrl ticketUrl = tokenReply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
-                    qDebug() << "GarminConnect: Logintoken redirect result:" << ticketUrl.toString();
-
-                    if (!ticketUrl.isEmpty()) {
-                        QUrlQuery ticketQuery(ticketUrl);
-                        ticket = ticketQuery.queryItemValue("ticket");
-                        if (!ticket.isEmpty()) {
-                            qDebug() << "GarminConnect: Found ticket after logintoken redirect:" << ticket.left(20) << "...";
-                        }
-                    }
-
-                    // If still no ticket, try response body
-                    if (ticket.isEmpty()) {
-                        QString tokenResponse = QString::fromUtf8(tokenReply->readAll());
-                        QRegularExpression ticketRegex1("embed\\?ticket=([^\"]+)\"");
-                        QRegularExpression ticketRegex2("ticket=([^&\"']+)");
-
-                        QRegularExpressionMatch match = ticketRegex1.match(tokenResponse);
-                        if (match.hasMatch()) {
-                            ticket = match.captured(1);
-                            qDebug() << "GarminConnect: Found ticket in logintoken response body (pattern 1)";
-                        } else {
-                            match = ticketRegex2.match(tokenResponse);
-                            if (match.hasMatch()) {
-                                ticket = match.captured(1);
-                                qDebug() << "GarminConnect: Found ticket in logintoken response body (pattern 2)";
-                            }
-                        }
-                    }
-                }
-
-                // CRITICAL: Update cookies after logintoken redirect
-                // Garmin may set new session cookies during this redirect
-                QUrl loginTokenUrl = tokenRequest.url();
-                m_cookies = m_manager->cookieJar()->cookiesForUrl(loginTokenUrl);
-                qDebug() << "GarminConnect: Updated cookies after logintoken redirect, count:" << m_cookies.size();
-
-                tokenReply->deleteLater();
+                connect(tokenReply, &QNetworkReply::finished, this, &GarminConnect::handleMfaLoginTokenReplyFinished);
+                return;
             }
         }
     }
@@ -732,31 +751,110 @@ bool GarminConnect::performMfaVerification(const QString &mfaCode)
         }
     }
 
-    // Only delete reply if not already deleted
-    if (!replyDeleted) {
-        reply->deleteLater();
-    }
+    reply->deleteLater();
 
     if (ticket.isEmpty()) {
         m_lastError = "Failed to extract ticket after MFA";
         qDebug() << "GarminConnect:" << m_lastError;
-        return false;
+        emit authenticationFailed(m_lastError);
+        return;
     }
 
     qDebug() << "GarminConnect: MFA verification successful";
 
     // Exchange ticket for OAuth1 token
     if (!exchangeForOAuth1Token(ticket)) {
-        return false;
+        emit authenticationFailed(m_lastError);
+        return;
     }
 
     // Exchange OAuth1 for OAuth2 token
     if (!exchangeForOAuth2Token()) {
-        return false;
+        emit authenticationFailed(m_lastError);
+        return;
     }
 
     saveTokensToSettings();
-    return true;
+    qDebug() << "GarminConnect: Login successful!";
+    emit authenticated();
+}
+
+void GarminConnect::handleMfaLoginTokenReplyFinished()
+{
+    QNetworkReply *tokenReply = qobject_cast<QNetworkReply*>(sender());
+    if (!tokenReply) {
+        m_lastError = "Invalid token reply object";
+        emit authenticationFailed(m_lastError);
+        return;
+    }
+
+    QString ticket;
+
+    if (tokenReply->error() == QNetworkReply::NoError) {
+        // Check for another redirect with the ticket
+        QUrl ticketUrl = tokenReply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+        qDebug() << "GarminConnect: Logintoken redirect result:" << ticketUrl.toString();
+
+        if (!ticketUrl.isEmpty()) {
+            QUrlQuery ticketQuery(ticketUrl);
+            ticket = ticketQuery.queryItemValue("ticket");
+            if (!ticket.isEmpty()) {
+                qDebug() << "GarminConnect: Found ticket after logintoken redirect:" << ticket.left(20) << "...";
+            }
+        }
+
+        // If still no ticket, try response body
+        if (ticket.isEmpty()) {
+            QString tokenResponse = QString::fromUtf8(tokenReply->readAll());
+            QRegularExpression ticketRegex1("embed\\?ticket=([^\"]+)\"");
+            QRegularExpression ticketRegex2("ticket=([^&\"']+)");
+
+            QRegularExpressionMatch match = ticketRegex1.match(tokenResponse);
+            if (match.hasMatch()) {
+                ticket = match.captured(1);
+                qDebug() << "GarminConnect: Found ticket in logintoken response body (pattern 1)";
+            } else {
+                match = ticketRegex2.match(tokenResponse);
+                if (match.hasMatch()) {
+                    ticket = match.captured(1);
+                    qDebug() << "GarminConnect: Found ticket in logintoken response body (pattern 2)";
+                }
+            }
+        }
+    }
+
+    // CRITICAL: Update cookies after logintoken redirect
+    // Garmin may set new session cookies during this redirect
+    QUrl loginTokenUrl = tokenReply->url();
+    m_cookies = m_manager->cookieJar()->cookiesForUrl(loginTokenUrl);
+    qDebug() << "GarminConnect: Updated cookies after logintoken redirect, count:" << m_cookies.size();
+
+    tokenReply->deleteLater();
+
+    if (ticket.isEmpty()) {
+        m_lastError = "Failed to extract ticket after logintoken redirect";
+        qDebug() << "GarminConnect:" << m_lastError;
+        emit authenticationFailed(m_lastError);
+        return;
+    }
+
+    qDebug() << "GarminConnect: MFA verification successful";
+
+    // Exchange ticket for OAuth1 token
+    if (!exchangeForOAuth1Token(ticket)) {
+        emit authenticationFailed(m_lastError);
+        return;
+    }
+
+    // Exchange OAuth1 for OAuth2 token
+    if (!exchangeForOAuth2Token()) {
+        emit authenticationFailed(m_lastError);
+        return;
+    }
+
+    saveTokensToSettings();
+    qDebug() << "GarminConnect: Login successful!";
+    emit authenticated();
 }
 
 bool GarminConnect::exchangeForOAuth1Token(const QString &ticket)
@@ -1139,6 +1237,18 @@ bool GarminConnect::exchangeForOAuth2Token()
     m_oauth2Token.refresh_token_expires_at = QDateTime::currentSecsSinceEpoch() +
                                               jsonResponse["refresh_token_expires_in"].toInt();
 
+    // Log token validity periods for debugging
+    int expiresIn = jsonResponse["expires_in"].toInt();
+    int refreshExpiresIn = jsonResponse["refresh_token_expires_in"].toInt();
+    qDebug() << "GarminConnect: ===== TOKEN VALIDITY =====";
+    qDebug() << "GarminConnect: access_token expires_in:" << expiresIn << "seconds ("
+             << (expiresIn / 3600) << "hours," << (expiresIn / 86400) << "days)";
+    qDebug() << "GarminConnect: refresh_token expires_in:" << refreshExpiresIn << "seconds ("
+             << (refreshExpiresIn / 3600) << "hours," << (refreshExpiresIn / 86400) << "days)";
+    qDebug() << "GarminConnect: access_token expires at:" << QDateTime::fromSecsSinceEpoch(m_oauth2Token.expires_at).toString(Qt::ISODate);
+    qDebug() << "GarminConnect: refresh_token expires at:" << QDateTime::fromSecsSinceEpoch(m_oauth2Token.refresh_token_expires_at).toString(Qt::ISODate);
+    qDebug() << "GarminConnect: ============================";
+
     if (m_oauth2Token.access_token.isEmpty()) {
         m_lastError = "Failed to get OAuth2 token";
         return false;
@@ -1150,51 +1260,32 @@ bool GarminConnect::exchangeForOAuth2Token()
 
 bool GarminConnect::refreshOAuth2Token()
 {
-    qDebug() << "GarminConnect: Refreshing OAuth2 token...";
+    qDebug() << "GarminConnect: Refreshing OAuth2 token using OAuth1 (garth method)...";
 
-    if (m_oauth2Token.refresh_token.isEmpty() || m_oauth2Token.isRefreshExpired()) {
-        m_lastError = "Refresh token is empty or expired, full login required";
+    // Check if we have OAuth1 token (lasts 1 year!)
+    if (m_oauth1Token.oauth_token.isEmpty() || m_oauth1Token.oauth_token_secret.isEmpty()) {
+        qDebug() << "GarminConnect: ⚠️  NO OAUTH1 TOKEN AVAILABLE ⚠️";
+        qDebug() << "GarminConnect: Cannot refresh without OAuth1 token";
+        qDebug() << "GarminConnect: You will need to login again with email/password/MFA";
+        m_lastError = "OAuth1 token is empty, full login required";
         return false;
     }
 
-    QUrl url(connectApiUrl() + "/oauth-service/oauth/exchange/user/2.0");
+    qDebug() << "GarminConnect: Using saved OAuth1 token to obtain fresh OAuth2 token";
+    qDebug() << "GarminConnect: This is how garth refreshes - reuses OAuth1 token";
 
-    // Prepare POST data
-    QUrlQuery postData;
-    postData.addQueryItem("refresh_token", m_oauth2Token.refresh_token);
-    postData.addQueryItem("grant_type", "refresh_token");
+    // Use the existing exchangeForOAuth2Token() method which works correctly!
+    // This is exactly what garth does: reuse OAuth1 token to get new OAuth2 token
+    bool success = exchangeForOAuth2Token();
 
-    QByteArray data = postData.query(QUrl::FullyEncoded).toUtf8();
-
-    QNetworkRequest request(url);
-    request.setRawHeader("User-Agent", USER_AGENT);
-    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
-
-    QNetworkReply *reply = m_manager->post(request, data);
-    QEventLoop loop;
-    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-    loop.exec();
-
-    if (reply->error() != QNetworkReply::NoError) {
-        m_lastError = "Token refresh failed: " + reply->errorString();
-        qDebug() << "GarminConnect:" << m_lastError;
-        reply->deleteLater();
-        return false;
+    if (success) {
+        qDebug() << "GarminConnect: OAuth2 token refreshed successfully using OAuth1!";
+    } else {
+        qDebug() << "GarminConnect: OAuth2 refresh failed:" << m_lastError;
+        qDebug() << "GarminConnect: OAuth1 token may have expired (lasts ~1 year)";
     }
 
-    QJsonObject jsonResponse = extractJsonFromResponse(reply);
-    reply->deleteLater();
-
-    m_oauth2Token.access_token = jsonResponse["access_token"].toString();
-    m_oauth2Token.refresh_token = jsonResponse["refresh_token"].toString();
-    m_oauth2Token.token_type = jsonResponse["token_type"].toString();
-    m_oauth2Token.expires_at = QDateTime::currentSecsSinceEpoch() + jsonResponse["expires_in"].toInt();
-    m_oauth2Token.refresh_token_expires_at = QDateTime::currentSecsSinceEpoch() +
-                                              jsonResponse["refresh_token_expires_in"].toInt();
-
-    saveTokensToSettings();
-    qDebug() << "GarminConnect: Token refreshed successfully";
-    return true;
+    return success;
 }
 
 bool GarminConnect::uploadActivity(const QByteArray &fitData, const QString &fileName)
@@ -1282,41 +1373,58 @@ bool GarminConnect::uploadActivity(const QByteArray &fitData, const QString &fil
 void GarminConnect::loadTokensFromSettings()
 {
     QSettings settings;
-    m_oauth2Token.access_token = settings.value("garmin_access_token").toString();
-    m_oauth2Token.refresh_token = settings.value("garmin_refresh_token").toString();
-    m_oauth2Token.token_type = settings.value("garmin_token_type").toString();
-    m_oauth2Token.expires_at = settings.value("garmin_expires_at").toLongLong();
-    m_oauth2Token.refresh_token_expires_at = settings.value("garmin_refresh_token_expires_at").toLongLong();
-    m_domain = settings.value("garmin_domain", "garmin.com").toString();
+    m_oauth2Token.access_token = settings.value(QZSettings::garmin_access_token, QZSettings::default_garmin_access_token).toString();
+    m_oauth2Token.refresh_token = settings.value(QZSettings::garmin_refresh_token, QZSettings::default_garmin_refresh_token).toString();
+    m_oauth2Token.token_type = settings.value(QZSettings::garmin_token_type, QZSettings::default_garmin_token_type).toString();
+    m_oauth2Token.expires_at = settings.value(QZSettings::garmin_expires_at, QZSettings::default_garmin_expires_at).toLongLong();
+    m_oauth2Token.refresh_token_expires_at = settings.value(QZSettings::garmin_refresh_token_expires_at, QZSettings::default_garmin_refresh_token_expires_at).toLongLong();
+    m_oauth1Token.oauth_token = settings.value(QZSettings::garmin_oauth1_token, QZSettings::default_garmin_oauth1_token).toString();
+    m_oauth1Token.oauth_token_secret = settings.value(QZSettings::garmin_oauth1_token_secret, QZSettings::default_garmin_oauth1_token_secret).toString();
+    m_domain = settings.value(QZSettings::garmin_domain, QZSettings::default_garmin_domain).toString();
 
     if (!m_oauth2Token.access_token.isEmpty()) {
-        qDebug() << "GarminConnect: Loaded tokens from settings";
+        qDebug() << "GarminConnect: Loaded tokens from settings (OAuth1 + OAuth2)";
+        qint64 now = QDateTime::currentSecsSinceEpoch();
+        qDebug() << "GarminConnect: ===== LOADED TOKEN STATUS =====";
+        qDebug() << "GarminConnect: Current time:" << QDateTime::currentDateTime().toString(Qt::ISODate);
+        qDebug() << "GarminConnect: access_token expires at:" << QDateTime::fromSecsSinceEpoch(m_oauth2Token.expires_at).toString(Qt::ISODate)
+                 << (m_oauth2Token.expires_at > now ? "(valid)" : "(EXPIRED)");
+        qDebug() << "GarminConnect: refresh_token expires at:" << QDateTime::fromSecsSinceEpoch(m_oauth2Token.refresh_token_expires_at).toString(Qt::ISODate)
+                 << (m_oauth2Token.refresh_token_expires_at > now ? "(valid)" : "(EXPIRED)");
+        if (m_oauth2Token.refresh_token_expires_at > now) {
+            qint64 days = (m_oauth2Token.refresh_token_expires_at - now) / 86400;
+            qint64 hours = ((m_oauth2Token.refresh_token_expires_at - now) % 86400) / 3600;
+            qDebug() << "GarminConnect: refresh_token valid for:" << days << "days" << hours << "hours";
+        }
+        qDebug() << "GarminConnect: ============================";
     }
 }
 
 void GarminConnect::saveTokensToSettings()
 {
     QSettings settings;
-    settings.setValue("garmin_access_token", m_oauth2Token.access_token);
-    settings.setValue("garmin_refresh_token", m_oauth2Token.refresh_token);
-    settings.setValue("garmin_token_type", m_oauth2Token.token_type);
-    settings.setValue("garmin_expires_at", m_oauth2Token.expires_at);
-    settings.setValue("garmin_refresh_token_expires_at", m_oauth2Token.refresh_token_expires_at);
-    settings.setValue("garmin_domain", m_domain);
-    settings.setValue("garmin_last_refresh", QDateTime::currentDateTime());
+    settings.setValue(QZSettings::garmin_access_token, m_oauth2Token.access_token);
+    settings.setValue(QZSettings::garmin_refresh_token, m_oauth2Token.refresh_token);
+    settings.setValue(QZSettings::garmin_token_type, m_oauth2Token.token_type);
+    settings.setValue(QZSettings::garmin_expires_at, m_oauth2Token.expires_at);
+    settings.setValue(QZSettings::garmin_refresh_token_expires_at, m_oauth2Token.refresh_token_expires_at);
+    settings.setValue(QZSettings::garmin_oauth1_token, m_oauth1Token.oauth_token);
+    settings.setValue(QZSettings::garmin_oauth1_token_secret, m_oauth1Token.oauth_token_secret);
+    settings.setValue(QZSettings::garmin_domain, m_domain);
+    settings.setValue(QZSettings::garmin_last_refresh, QDateTime::currentDateTime());
 
-    qDebug() << "GarminConnect: Tokens saved to settings";
+    qDebug() << "GarminConnect: Tokens saved to settings (OAuth1 + OAuth2)";
 }
 
 void GarminConnect::clearTokens()
 {
     QSettings settings;
-    settings.remove("garmin_access_token");
-    settings.remove("garmin_refresh_token");
-    settings.remove("garmin_token_type");
-    settings.remove("garmin_expires_at");
-    settings.remove("garmin_refresh_token_expires_at");
-    settings.remove("garmin_last_refresh");
+    settings.remove(QZSettings::garmin_access_token);
+    settings.remove(QZSettings::garmin_refresh_token);
+    settings.remove(QZSettings::garmin_token_type);
+    settings.remove(QZSettings::garmin_expires_at);
+    settings.remove(QZSettings::garmin_refresh_token_expires_at);
+    settings.remove(QZSettings::garmin_last_refresh);
 
     m_oauth1Token = OAuth1Token();
     m_oauth2Token = OAuth2Token();
