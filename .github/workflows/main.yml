@@ -674,6 +674,50 @@ jobs:
           rm -f src/android-qdomyos-zwift-deployment-settings.json.bak
           cat src/android-qdomyos-zwift-deployment-settings.json
 
+      - name: Verify Custom Qt Libraries (Before APK Build)
+        run: |
+          echo "========================================================"
+          echo "  Verifying Custom Qt 5.15.0 Libraries (16k alignment)"
+          echo "========================================================"
+          echo ""
+
+          QT_LIB_DIR="${{ github.workspace }}/Qt-5.15.0-custom/qt5.15.0-android-page16/usr/local/Qt-5.15.0/lib"
+
+          echo "Qt library directory: $QT_LIB_DIR"
+          echo ""
+
+          # Check if directory exists
+          if [ ! -d "$QT_LIB_DIR" ]; then
+            echo "ERROR: Qt library directory not found!"
+            exit 1
+          fi
+
+          # List and check a few key Qt libraries for arm64-v8a
+          echo "=== Key Qt Libraries (arm64-v8a) ==="
+          echo ""
+
+          for lib in libQt5Core_arm64-v8a.so libQt5Gui_arm64-v8a.so libQt5Network_arm64-v8a.so libQt5Bluetooth_arm64-v8a.so; do
+            if [ -f "$QT_LIB_DIR/$lib" ]; then
+              SIZE=$(ls -lh "$QT_LIB_DIR/$lib" | awk '{print $5}')
+              MD5=$(md5 -q "$QT_LIB_DIR/$lib" 2>/dev/null || md5sum "$QT_LIB_DIR/$lib" | awk '{print $1}')
+              echo "✓ $lib"
+              echo "  Size: $SIZE"
+              echo "  MD5:  $MD5"
+              echo ""
+            else
+              echo "✗ $lib - NOT FOUND!"
+            fi
+          done
+
+          echo "========================================================"
+          echo ""
+
+          # Check what Qt libraries will be deployed by androiddeployqt
+          echo "=== Checking android-qdomyos-zwift-deployment-settings.json ==="
+          cat src/android-qdomyos-zwift-deployment-settings.json | grep -A5 -B5 "qt5AndroidDir" || true
+          echo ""
+          echo "========================================================"
+
       - name: Build APK (using Qt 5.15.0 with 16k page support)
         run: |
           # Remove standard Qt from PATH again (for androiddeployqt)
@@ -682,6 +726,58 @@ jobs:
           export PATH="${QT_ROOT}/bin:$PATH"
           cd src
           androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+
+      - name: Verify Qt Libraries in APK (After Build)
+        run: |
+          APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
+          EXTRACT_DIR="${{ github.workspace }}/apk_verify"
+          QT_LIB_DIR="${{ github.workspace }}/Qt-5.15.0-custom/qt5.15.0-android-page16/usr/local/Qt-5.15.0/lib"
+
+          echo "========================================================"
+          echo "  Verifying Qt Libraries Inside APK"
+          echo "========================================================"
+          echo ""
+
+          # Extract APK
+          rm -rf "$EXTRACT_DIR"
+          mkdir -p "$EXTRACT_DIR"
+          unzip -q "$APK_PATH" -d "$EXTRACT_DIR"
+
+          echo "=== Comparing Qt Libraries: Custom vs APK ==="
+          echo ""
+
+          for lib in libQt5Core_arm64-v8a.so libQt5Gui_arm64-v8a.so libQt5Network_arm64-v8a.so libQt5Bluetooth_arm64-v8a.so; do
+            CUSTOM_LIB="$QT_LIB_DIR/$lib"
+            APK_LIB="$EXTRACT_DIR/lib/arm64-v8a/$lib"
+
+            if [ -f "$APK_LIB" ]; then
+              CUSTOM_SIZE=$(ls -lh "$CUSTOM_LIB" 2>/dev/null | awk '{print $5}' || echo "N/A")
+              APK_SIZE=$(ls -lh "$APK_LIB" | awk '{print $5}')
+
+              CUSTOM_MD5=$(md5 -q "$CUSTOM_LIB" 2>/dev/null || md5sum "$CUSTOM_LIB" 2>/dev/null | awk '{print $1}' || echo "N/A")
+              APK_MD5=$(md5 -q "$APK_LIB" 2>/dev/null || md5sum "$APK_LIB" | awk '{print $1}')
+
+              echo "Library: $lib"
+              echo "  Custom Qt:  Size=$CUSTOM_SIZE  MD5=$CUSTOM_MD5"
+              echo "  Inside APK: Size=$APK_SIZE     MD5=$APK_MD5"
+
+              if [ "$CUSTOM_MD5" = "$APK_MD5" ]; then
+                echo "  ✓ MATCH - Using custom Qt library"
+              else
+                echo "  ✗ MISMATCH - APK contains different library!"
+              fi
+              echo ""
+            else
+              echo "✗ $lib - NOT FOUND in APK!"
+              echo ""
+            fi
+          done
+
+          # Cleanup
+          rm -rf "$EXTRACT_DIR"
+
+          echo "========================================================"
+          echo ""
 
       - name: Verify APK 16k alignment
         run: |
