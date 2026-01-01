@@ -4413,6 +4413,37 @@ bool bluetooth::fitmetria_fanfit_isconnected(QString name) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
 void bluetooth::deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields) {
 
-    debug("deviceUpdated " + device.name() + " " + updateFields);
+    debug(QStringLiteral("deviceUpdated %1 fields: %2").arg(device.name()).arg(QString::number(updateFields)));
+
+    // Update the device in the devices list to keep services up-to-date
+    // This is important for devices like iPhone that advertise services progressively
+    for (int i = 0; i < devices.size(); ++i) {
+        if (devices[i].address() == device.address()) {
+            // Log service changes for debugging
+            if (updateFields & QBluetoothDeviceInfo::Field::RSSI) {
+                // RSSI update - don't log services
+            } else {
+                QStringList oldServices, newServices;
+                foreach(QBluetoothUuid uuid, devices[i].serviceUuids()) {
+                    oldServices.append(uuid.toString());
+                }
+                foreach(QBluetoothUuid uuid, device.serviceUuids()) {
+                    newServices.append(uuid.toString());
+                }
+                if (oldServices != newServices) {
+                    debug(QStringLiteral("Device '%1' services updated from %2 to %3 services")
+                        .arg(device.name())
+                        .arg(devices[i].serviceUuids().size())
+                        .arg(device.serviceUuids().size()));
+                    debug(QStringLiteral("  Old: %1").arg(oldServices.join(", ")));
+                    debug(QStringLiteral("  New: %1").arg(newServices.join(", ")));
+                }
+            }
+
+            // Replace with updated device info
+            devices[i] = device;
+            return;
+        }
+    }
 }
 #endif
