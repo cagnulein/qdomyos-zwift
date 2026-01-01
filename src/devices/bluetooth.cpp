@@ -13,6 +13,9 @@
 #include "keepawakehelper.h"
 #include <QAndroidJniObject>
 #endif
+#ifdef Q_OS_IOS
+#include "ios/ios_blescanner.h"
+#endif
 
 bluetooth::bluetooth(const discoveryoptions &options)
     : bluetooth(options.logs, options.deviceName, options.noWriteResistance, options.noHeartService,
@@ -284,6 +287,28 @@ void bluetooth::finished() {
         }
 #endif
 
+#ifdef Q_OS_IOS
+        // On iOS, query native scanner for complete service lists
+        // This works around Qt's limitation where it doesn't report progressively discovered services
+        debug(QStringLiteral("Querying native iOS scanner for complete service lists"));
+
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (!b.name().isEmpty()) {
+                // On iOS, b.address().toString() returns the peripheral UUID
+                QString deviceId = b.address().toString();
+                QString servicesStr = ios_blescanner::getDeviceServices(deviceId);
+
+                if (!servicesStr.isEmpty()) {
+                    QStringList servicesList = servicesStr.split(",");
+                    debug(QStringLiteral("Device '%1' (Native) has %2 services: %3")
+                        .arg(b.name())
+                        .arg(servicesList.size())
+                        .arg(servicesList.join(", ")));
+                }
+            }
+        }
+#endif
+
         // Scan all discovered devices for generic services
         // Priority: 1826 (FTMS) first, then 1818 (Cycling Power), then 1816 (Cadence)
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
@@ -313,6 +338,20 @@ void bluetooth::finished() {
                     hasCyclingPower = servicesStr.contains("00001818-0000-1000-8000-00805f9b34fb", Qt::CaseInsensitive);
                     hasCadence = servicesStr.contains("00001816-0000-1000-8000-00805f9b34fb", Qt::CaseInsensitive);
                 }
+            }
+#endif
+
+#ifdef Q_OS_IOS
+            // On iOS, use native scanner results for more complete service detection
+            QString deviceId = b.address().toString();
+            QString servicesStr = ios_blescanner::getDeviceServices(deviceId);
+
+            if (!servicesStr.isEmpty()) {
+                // Check if native services contain our target UUIDs
+                // UUIDs in native scanner are full 128-bit format (lowercase)
+                hasFTMS = servicesStr.contains("00001826-0000-1000-8000-00805f9b34fb", Qt::CaseInsensitive);
+                hasCyclingPower = servicesStr.contains("00001818-0000-1000-8000-00805f9b34fb", Qt::CaseInsensitive);
+                hasCadence = servicesStr.contains("00001816-0000-1000-8000-00805f9b34fb", Qt::CaseInsensitive);
             }
 #endif
 
@@ -356,6 +395,15 @@ void bluetooth::finished() {
             }
 #endif
 
+#ifdef Q_OS_IOS
+            QString deviceId = b.address().toString();
+            QString servicesStr = ios_blescanner::getDeviceServices(deviceId);
+
+            if (!servicesStr.isEmpty()) {
+                hasCyclingPower = servicesStr.contains("00001818-0000-1000-8000-00805f9b34fb", Qt::CaseInsensitive);
+            }
+#endif
+
             if (!hasCyclingPower) {
                 hasCyclingPower = deviceHasService(b, cyclingPowerUuid);
             }
@@ -393,6 +441,15 @@ void bluetooth::finished() {
             }
 #endif
 
+#ifdef Q_OS_IOS
+            QString deviceId = b.address().toString();
+            QString servicesStr = ios_blescanner::getDeviceServices(deviceId);
+
+            if (!servicesStr.isEmpty()) {
+                hasCadence = servicesStr.contains("00001816-0000-1000-8000-00805f9b34fb", Qt::CaseInsensitive);
+            }
+#endif
+
             if (!hasCadence) {
                 hasCadence = deviceHasService(b, cadenceUuid);
             }
@@ -413,6 +470,11 @@ void bluetooth::finished() {
             "stopScan",
             "()V");
         debug(QStringLiteral("Native Android BLE scanner stopped"));
+#endif
+
+#ifdef Q_OS_IOS
+        // Stop native iOS scanner after generic device check
+        ios_blescanner::stopScan();
 #endif
 
         // If we found generic devices, emit signal to show dialog
@@ -473,6 +535,12 @@ void bluetooth::startDiscovery() {
             debug(QStringLiteral("Native Android BLE scanner started for generic device detection"));
         }
     }
+#endif
+
+#ifdef Q_OS_IOS
+    // Start native iOS BLE scanner in parallel for generic device dialog support
+    // This scanner can detect all progressively advertised services that Qt misses
+    ios_blescanner::startScan();
 #endif
 }
 
