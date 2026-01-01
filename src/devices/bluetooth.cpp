@@ -249,12 +249,40 @@ void bluetooth::finished() {
                 foreach(QBluetoothUuid uuid, b.serviceUuids()) {
                     servicesList.append(uuid.toString());
                 }
-                debug(QStringLiteral("Device '%1' has %2 services: %3")
+                debug(QStringLiteral("Device '%1' (Qt) has %2 services: %3")
                     .arg(b.name())
                     .arg(b.serviceUuids().size())
                     .arg(servicesList.join(", ")));
             }
         }
+
+#ifdef Q_OS_ANDROID
+        // On Android, query native scanner for complete service lists
+        // This works around Qt's limitation where it doesn't report progressively discovered services
+        debug(QStringLiteral("Querying native Android scanner for complete service lists"));
+
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (!b.name().isEmpty()) {
+                QAndroidJniObject macAddress = QAndroidJniObject::fromString(b.address().toString());
+                QAndroidJniObject nativeServices = QAndroidJniObject::callStaticObjectMethod(
+                    "org/cagnulen/qdomyoszwift/BleServiceScanner",
+                    "getDeviceServices",
+                    "(Ljava/lang/String;)Ljava/lang/String;",
+                    macAddress.object<jstring>());
+
+                if (nativeServices.isValid()) {
+                    QString servicesStr = nativeServices.toString();
+                    if (!servicesStr.isEmpty()) {
+                        QStringList servicesList = servicesStr.split(",");
+                        debug(QStringLiteral("Device '%1' (Native) has %2 services: %3")
+                            .arg(b.name())
+                            .arg(servicesList.size())
+                            .arg(servicesList.join(", ")));
+                    }
+                }
+            }
+        }
+#endif
 
         // Scan all discovered devices for generic services
         // Priority: 1826 (FTMS) first, then 1818 (Cycling Power), then 1816 (Cadence)
@@ -263,8 +291,40 @@ void bluetooth::finished() {
                 continue;  // Skip devices without names
             }
 
+            bool hasFTMS = false;
+            bool hasCyclingPower = false;
+            bool hasCadence = false;
+
+#ifdef Q_OS_ANDROID
+            // On Android, use native scanner results for more complete service detection
+            QAndroidJniObject macAddress = QAndroidJniObject::fromString(b.address().toString());
+            QAndroidJniObject nativeServices = QAndroidJniObject::callStaticObjectMethod(
+                "org/cagnulen/qdomyoszwift/BleServiceScanner",
+                "getDeviceServices",
+                "(Ljava/lang/String;)Ljava/lang/String;",
+                macAddress.object<jstring>());
+
+            if (nativeServices.isValid()) {
+                QString servicesStr = nativeServices.toString();
+                if (!servicesStr.isEmpty()) {
+                    // Check if native services contain our target UUIDs
+                    // UUIDs in native scanner are full 128-bit format
+                    hasFTMS = servicesStr.contains("00001826-0000-1000-8000-00805f9b34fb", Qt::CaseInsensitive);
+                    hasCyclingPower = servicesStr.contains("00001818-0000-1000-8000-00805f9b34fb", Qt::CaseInsensitive);
+                    hasCadence = servicesStr.contains("00001816-0000-1000-8000-00805f9b34fb", Qt::CaseInsensitive);
+                }
+            }
+#endif
+
+            // Fall back to Qt services if native scanner didn't find anything (or on non-Android)
+            if (!hasFTMS && !hasCyclingPower && !hasCadence) {
+                hasFTMS = deviceHasService(b, ftmsUuid);
+                hasCyclingPower = deviceHasService(b, cyclingPowerUuid);
+                hasCadence = deviceHasService(b, cadenceUuid);
+            }
+
             // Check for FTMS (priority)
-            if (deviceHasService(b, ftmsUuid)) {
+            if (hasFTMS) {
                 debug(QStringLiteral("Found FTMS device: %1").arg(b.name()));
                 genericDeviceNames.append(b.name());
                 genericDeviceAddresses.append(b.address().toString());
@@ -278,8 +338,30 @@ void bluetooth::finished() {
                 continue;
             }
 
+            bool hasCyclingPower = false;
+
+#ifdef Q_OS_ANDROID
+            QAndroidJniObject macAddress = QAndroidJniObject::fromString(b.address().toString());
+            QAndroidJniObject nativeServices = QAndroidJniObject::callStaticObjectMethod(
+                "org/cagnulen/qdomyoszwift/BleServiceScanner",
+                "getDeviceServices",
+                "(Ljava/lang/String;)Ljava/lang/String;",
+                macAddress.object<jstring>());
+
+            if (nativeServices.isValid()) {
+                QString servicesStr = nativeServices.toString();
+                if (!servicesStr.isEmpty()) {
+                    hasCyclingPower = servicesStr.contains("00001818-0000-1000-8000-00805f9b34fb", Qt::CaseInsensitive);
+                }
+            }
+#endif
+
+            if (!hasCyclingPower) {
+                hasCyclingPower = deviceHasService(b, cyclingPowerUuid);
+            }
+
             // Check for Cycling Power Service (only if not already added as FTMS)
-            if (deviceHasService(b, cyclingPowerUuid) && !genericDeviceNames.contains(b.name())) {
+            if (hasCyclingPower && !genericDeviceNames.contains(b.name())) {
                 debug(QStringLiteral("Found Cycling Power device: %1").arg(b.name()));
                 genericDeviceNames.append(b.name());
                 genericDeviceAddresses.append(b.address().toString());
@@ -293,14 +375,45 @@ void bluetooth::finished() {
                 continue;
             }
 
+            bool hasCadence = false;
+
+#ifdef Q_OS_ANDROID
+            QAndroidJniObject macAddress = QAndroidJniObject::fromString(b.address().toString());
+            QAndroidJniObject nativeServices = QAndroidJniObject::callStaticObjectMethod(
+                "org/cagnulen/qdomyoszwift/BleServiceScanner",
+                "getDeviceServices",
+                "(Ljava/lang/String;)Ljava/lang/String;",
+                macAddress.object<jstring>());
+
+            if (nativeServices.isValid()) {
+                QString servicesStr = nativeServices.toString();
+                if (!servicesStr.isEmpty()) {
+                    hasCadence = servicesStr.contains("00001816-0000-1000-8000-00805f9b34fb", Qt::CaseInsensitive);
+                }
+            }
+#endif
+
+            if (!hasCadence) {
+                hasCadence = deviceHasService(b, cadenceUuid);
+            }
+
             // Check for Cycling Speed and Cadence Service (only if not already added)
-            if (deviceHasService(b, cadenceUuid) && !genericDeviceNames.contains(b.name())) {
+            if (hasCadence && !genericDeviceNames.contains(b.name())) {
                 debug(QStringLiteral("Found Cadence device: %1").arg(b.name()));
                 genericDeviceNames.append(b.name());
                 genericDeviceAddresses.append(b.address().toString());
                 genericDeviceServiceTypes.append(QStringLiteral("cadence"));
             }
         }
+
+#ifdef Q_OS_ANDROID
+        // Stop native Android scanner after generic device check
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/BleServiceScanner",
+            "stopScan",
+            "()V");
+        debug(QStringLiteral("Native Android BLE scanner stopped"));
+#endif
 
         // If we found generic devices, emit signal to show dialog
         if (!genericDeviceNames.isEmpty()) {
@@ -340,6 +453,25 @@ void bluetooth::startDiscovery() {
     } else {
         discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
                               QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+    }
+#endif
+
+#ifdef Q_OS_ANDROID
+    // Start native Android BLE scanner in parallel for generic device dialog support
+    // This scanner can detect all progressively advertised services that Qt misses
+    QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod(
+        "org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
+
+    if (activity.isValid()) {
+        QAndroidJniObject context = activity.callObjectMethod("getApplicationContext", "()Landroid/content/Context;");
+        if (context.isValid()) {
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/BleServiceScanner",
+                "startScan",
+                "(Landroid/content/Context;)V",
+                context.object<jobject>());
+            debug(QStringLiteral("Native Android BLE scanner started for generic device detection"));
+        }
     }
 #endif
 }
