@@ -242,6 +242,20 @@ void bluetooth::finished() {
         QBluetoothUuid cyclingPowerUuid((quint16)0x1818);
         QBluetoothUuid ftmsUuid((quint16)0x1826);
 
+        // First, log all devices and their services for debugging
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (!b.name().isEmpty()) {
+                QStringList servicesList;
+                foreach(QBluetoothUuid uuid, b.serviceUuids()) {
+                    servicesList.append(uuid.toString());
+                }
+                debug(QStringLiteral("Device '%1' has %2 services: %3")
+                    .arg(b.name())
+                    .arg(b.serviceUuids().size())
+                    .arg(servicesList.join(", ")));
+            }
+        }
+
         // Scan all discovered devices for generic services
         // Priority: 1826 (FTMS) first, then 1818 (Cycling Power), then 1816 (Cadence)
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
