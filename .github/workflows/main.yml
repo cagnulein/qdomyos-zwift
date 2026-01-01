@@ -698,11 +698,12 @@ jobs:
           echo "Using zipalign: $ZIPALIGN"
           echo "APK path: $APK_PATH"
           echo ""
-          echo "=== Checking APK alignment to 16k (16384 bytes) ==="
+          echo "========================================================"
+          echo "  Detailed 16k Alignment Check for All Native Libraries"
+          echo "========================================================"
           echo ""
 
-          # Check alignment with verbose output to see which files fail
-          # Don't fail the build, just report the results
+          # Check overall APK alignment
           if $ZIPALIGN -c -v 16384 "$APK_PATH" 2>&1 | tee alignment_check.log; then
             echo ""
             echo "✓ SUCCESS: APK is correctly aligned to 16k (16384 bytes)"
@@ -711,16 +712,69 @@ jobs:
             echo ""
             echo "⚠ WARNING: APK is NOT fully aligned to 16k (16384 bytes)"
             echo ""
-            echo "=== Files NOT aligned to 16384 bytes: ==="
-            grep -E "would not be" alignment_check.log || grep -E "Verification FAILED" alignment_check.log || cat alignment_check.log
+
+            # Extract APK for detailed analysis
+            EXTRACT_DIR="${{ github.workspace }}/apk_extracted"
+            rm -rf "$EXTRACT_DIR"
+            mkdir -p "$EXTRACT_DIR"
+            unzip -q "$APK_PATH" -d "$EXTRACT_DIR"
+
+            echo "=== Analyzing .so files in APK ==="
             echo ""
-            echo "=== Analyzing unaligned files ==="
-            # Extract and show .so files in the APK
-            unzip -l "$APK_PATH" | grep "\.so$" | head -20
+
+            # Find all .so files and check their alignment
+            ALIGNED_COUNT=0
+            UNALIGNED_COUNT=0
+
+            echo "Checking all .so libraries:"
+            echo "-----------------------------------------------------------"
+
+            find "$EXTRACT_DIR" -name "*.so" -type f | sort | while read so_file; do
+              RELATIVE_PATH=$(echo "$so_file" | sed "s|$EXTRACT_DIR/||")
+
+              # Get file offset in APK using unzip -l -v
+              OFFSET=$(unzip -l -v "$APK_PATH" | grep -F "$RELATIVE_PATH" | awk '{print $7}')
+
+              # Check if offset is divisible by 16384
+              if [ -n "$OFFSET" ]; then
+                REMAINDER=$((OFFSET % 16384))
+                if [ $REMAINDER -eq 0 ]; then
+                  echo "✓ ALIGNED   (16k): $RELATIVE_PATH (offset: $OFFSET)"
+                  ALIGNED_COUNT=$((ALIGNED_COUNT + 1))
+                else
+                  echo "✗ UNALIGNED (16k): $RELATIVE_PATH (offset: $OFFSET, remainder: $REMAINDER)"
+                  UNALIGNED_COUNT=$((UNALIGNED_COUNT + 1))
+                fi
+              fi
+            done > so_alignment_report.txt
+
+            cat so_alignment_report.txt
+
             echo ""
-            echo "Note: The custom Qt libraries should be 16k-aligned internally."
-            echo "The APK container alignment may differ from library alignment."
+            echo "-----------------------------------------------------------"
+            echo "Summary:"
+
+            ALIGNED_COUNT=$(grep "✓ ALIGNED" so_alignment_report.txt | wc -l | tr -d ' ')
+            UNALIGNED_COUNT=$(grep "✗ UNALIGNED" so_alignment_report.txt | wc -l | tr -d ' ')
+
+            echo "  Aligned to 16k:   $ALIGNED_COUNT libraries"
+            echo "  NOT aligned:      $UNALIGNED_COUNT libraries"
+            echo ""
+
+            if [ "$UNALIGNED_COUNT" -gt 0 ]; then
+              echo "⚠ WARNING: Some libraries are NOT aligned to 16k page boundaries"
+              echo "This APK may have issues on devices with 16k page size."
+              echo ""
+              echo "Unaligned libraries:"
+              grep "✗ UNALIGNED" so_alignment_report.txt | sed 's/^/  /'
+            fi
+
+            # Cleanup
+            rm -rf "$EXTRACT_DIR"
           fi
+
+          echo ""
+          echo "========================================================"
 
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
