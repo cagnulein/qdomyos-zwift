@@ -739,12 +739,40 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             QBluetoothDeviceInfo b = i.next();
             if (SAME_BLUETOOTH_DEVICE(b, device) && !b.name().isEmpty()) {
 
+                // Log service changes when updating existing device
+                QStringList oldServices, newServices;
+                foreach(QBluetoothUuid uuid, b.serviceUuids()) {
+                    oldServices.append(uuid.toString());
+                }
+                foreach(QBluetoothUuid uuid, device.serviceUuids()) {
+                    newServices.append(uuid.toString());
+                }
+                debug(QStringLiteral("Updating existing device '%1': %2 -> %3 services")
+                    .arg(device.name())
+                    .arg(b.serviceUuids().size())
+                    .arg(device.serviceUuids().size()));
+                if (oldServices != newServices) {
+                    debug(QStringLiteral("  Services changed!"));
+                    debug(QStringLiteral("    Old: %1").arg(oldServices.join(", ")));
+                    debug(QStringLiteral("    New: %1").arg(newServices.join(", ")));
+                } else {
+                    debug(QStringLiteral("  Services unchanged: %1").arg(newServices.join(", ")));
+                }
+
                 i.setValue(device); // in order to keep the freshest copy of this struct
                 found = true;
                 break;
             }
         }
         if (!found) {
+            QStringList services;
+            foreach(QBluetoothUuid uuid, device.serviceUuids()) {
+                services.append(uuid.toString());
+            }
+            debug(QStringLiteral("Adding new device '%1' with %2 services: %3")
+                .arg(device.name())
+                .arg(device.serviceUuids().size())
+                .arg(services.join(", ")));
             devices.append(device);
         }
     }
