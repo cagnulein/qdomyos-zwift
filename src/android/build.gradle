@@ -121,9 +121,10 @@ android {
 		  checkReleaseBuilds false
     }
 
-    // Do not compress Qt binary resources file
+    // Do not compress Qt binary resources file and native libraries
+    // Native libraries (.so) must not be compressed to preserve 16k page alignment
     aaptOptions {
-        noCompress 'rcc'
+        noCompress 'rcc', '.so'
     }
 
     defaultConfig {
