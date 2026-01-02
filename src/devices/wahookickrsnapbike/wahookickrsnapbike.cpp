@@ -922,14 +922,6 @@ void wahookickrsnapbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         qDebug() << "KICKR SNAP workaround activated";
     }
     
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    iOS_wahooKickrSnapBike = new lockscreen();
-    iOS_wahooKickrSnapBike->wahooKickrSnapBike(device.name().toStdString().c_str(), this);
-    return;
-#endif
-#endif
-
     {
         bluetoothDevice = device;
 

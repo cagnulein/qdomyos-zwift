@@ -142,7 +142,6 @@ class wahookickrsnapbike : public bike {
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
-    lockscreen* iOS_wahooKickrSnapBike = nullptr;
 #endif
 
   signals:
