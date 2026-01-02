@@ -809,7 +809,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/output/android
           # Increase Gradle heap size for large custom Qt libraries (not stripped, uncompressed)
-          export GRADLE_OPTS="-Xmx4096m -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError"
+          export GRADLE_OPTS="-Xmx4096m -XX:+HeapDumpOnOutOfMemoryError"
           ./gradlew assembleDebug bundleDebug
 
       - name: Verify Qt Libraries in APK (After Build)
