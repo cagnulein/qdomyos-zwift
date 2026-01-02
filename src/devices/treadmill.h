@@ -91,6 +91,7 @@ class treadmill : public bluetoothdevice {
 
     void parseSpeed(double speed);
     void parseInclination(double speed);
+    void parseCadence(double cadence);
     bool areInclinationSettingsDefault();
     void evaluateStepCount();
 

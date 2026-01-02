@@ -53,6 +53,10 @@ const QString QZSettings::garmin_token_type = QStringLiteral("garmin_token_type"
 const QString QZSettings::default_garmin_token_type = QStringLiteral("");
 const QString QZSettings::garmin_expires_at = QStringLiteral("garmin_expires_at");
 const QString QZSettings::garmin_refresh_token_expires_at = QStringLiteral("garmin_refresh_token_expires_at");
+const QString QZSettings::garmin_oauth1_token = QStringLiteral("garmin_oauth1_token");
+const QString QZSettings::default_garmin_oauth1_token = QStringLiteral("");
+const QString QZSettings::garmin_oauth1_token_secret = QStringLiteral("garmin_oauth1_token_secret");
+const QString QZSettings::default_garmin_oauth1_token_secret = QStringLiteral("");
 const QString QZSettings::garmin_domain = QStringLiteral("garmin_domain");
 const QString QZSettings::default_garmin_domain = QStringLiteral("garmin.com");
 const QString QZSettings::garmin_last_refresh = QStringLiteral("garmin_last_refresh");
@@ -943,6 +947,7 @@ const QString QZSettings::proform_bike_PFEVEX71316_0 = QStringLiteral("proform_b
 
 const QString QZSettings::real_inclination_to_virtual_treamill_bridge = QStringLiteral("real_inclination_to_virtual_treamill_bridge");
 const QString QZSettings::stryd_inclination_instead_treadmill = QStringLiteral("stryd_inclination_instead_treadmill");
+const QString QZSettings::power_sensor_cadence_instead_treadmill = QStringLiteral("power_sensor_cadence_instead_treadmill");
 const QString QZSettings::domyos_elliptical_fmts = QStringLiteral("domyos_elliptical_fmts");
 const QString QZSettings::proform_xbike = QStringLiteral("proform_xbike");
 const QString QZSettings::peloton_current_user_id = QStringLiteral("peloton_current_user_id");
@@ -1030,7 +1035,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 838;
+const uint32_t allSettingsCount = 841;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1813,6 +1818,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_bike_PFEVEX71316_0, QZSettings::default_proform_bike_PFEVEX71316_0},
     {QZSettings::real_inclination_to_virtual_treamill_bridge, QZSettings::default_real_inclination_to_virtual_treamill_bridge},
     {QZSettings::stryd_inclination_instead_treadmill, QZSettings::default_stryd_inclination_instead_treadmill},
+    {QZSettings::power_sensor_cadence_instead_treadmill, QZSettings::default_power_sensor_cadence_instead_treadmill},
     {QZSettings::domyos_elliptical_fmts, QZSettings::default_domyos_elliptical_fmts},
     {QZSettings::proform_xbike, QZSettings::default_proform_xbike},
     {QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id},
@@ -1888,6 +1894,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::skandika_wiri_x2000_protocol, QZSettings::default_skandika_wiri_x2000_protocol},
     {QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed},
     {QZSettings::proform_treadmill_sport_3_0, QZSettings::default_proform_treadmill_sport_3_0},
+    {QZSettings::garmin_oauth1_token, QZSettings::default_garmin_oauth1_token},
+    {QZSettings::garmin_oauth1_token_secret, QZSettings::default_garmin_oauth1_token_secret},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

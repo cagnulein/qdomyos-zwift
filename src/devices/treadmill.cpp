@@ -740,6 +740,16 @@ void treadmill::parseSpeed(double speed) {
     rawSpeed = speed;
 }
 
+void treadmill::parseCadence(double cadence) {
+    QSettings settings;
+    bool power_sensor_cadence_instead_treadmill = settings.value(QZSettings::power_sensor_cadence_instead_treadmill, QZSettings::default_power_sensor_cadence_instead_treadmill).toBool();
+    if(!power_sensor_cadence_instead_treadmill) {
+        Cadence = cadence;
+    } else {
+        qDebug() << "cadence from the treadmill is discarded since we are using the one from the power sensor " << cadence;
+    }
+}
+
 /*
  * Running Stress Score
  */

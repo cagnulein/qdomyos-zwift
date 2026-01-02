@@ -74,7 +74,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     bool is_zwift_device = (fit_file_garmin_device_training_effect_device == 99999);
     fit::FileIdMesg fileIdMesg; // Every FIT file requires a File ID message
     fileIdMesg.SetType(FIT_FILE_ACTIVITY);
-    if(bluetooth_device_name.toUpper().startsWith("DOMYOS"))
+    if(bluetooth_device_name.toUpper().startsWith("DOMYOS") && !is_zwift_device && !fit_file_garmin_device_training_effect)
         fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DECATHLON);
     else {
         if(is_zwift_device)

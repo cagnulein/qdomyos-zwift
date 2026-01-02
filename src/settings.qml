@@ -14,11 +14,16 @@ import Qt.labs.platform 1.1
         anchors.fill: parent
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
-        id: settingsPane        
+        id: settingsPane
 
         signal peloton_connect_clicked()
         signal intervalsicu_connect_clicked()
         signal intervalsicu_download_todays_workout_clicked()
+
+        function openGarminSection() {
+            garminOptionsAccordion.isOpen = true
+            scrollTimer.start()
+        }
 
         Settings {
             id: settings
@@ -1247,6 +1252,11 @@ import Qt.labs.platform 1.1
             property var garmin_refresh_token_expires_at: 0
             property string garmin_domain: "garmin.com"
             property string garmin_last_refresh: ""
+            
+            property bool power_sensor_cadence_instead_treadmill: false
+            
+            property string garmin_oauth1_token: ""
+            property string garmin_oauth1_token_secret: ""            
         }
 
 
@@ -6389,6 +6399,7 @@ import Qt.labs.platform 1.1
             }
 
             AccordionElement {
+                id: garminOptionsAccordion
                 title: qsTr("Garmin Options") + "\uD83E\uDD47"
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
@@ -6747,6 +6758,10 @@ import Qt.labs.platform 1.1
                             "Vivoactive 3 (2700)",
                             "Vivoactive 4 Small (3224)",
                             "Vivoactive 4 Large (3225)",
+                            "Forerunner 255 (3992)",
+                            "Forerunner 255s (3993)",
+                            "Forerunner 255 Music (3990)",
+                            "Forerunner 255s Music (3991)",
                             "Zwift (3288)"
                         ]
                         currentIndex: {
@@ -6788,7 +6803,11 @@ import Qt.labs.platform 1.1
                             if (settings.fit_file_garmin_device_training_effect_device === 2700) return 35; // Vivoactive 3
                             if (settings.fit_file_garmin_device_training_effect_device === 3224) return 36; // Vivoactive 4 Small
                             if (settings.fit_file_garmin_device_training_effect_device === 3225) return 37; // Vivoactive 4 Large
-                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 38; // Zwift
+                            if (settings.fit_file_garmin_device_training_effect_device === 3992) return 38; // Forerunner 255
+                            if (settings.fit_file_garmin_device_training_effect_device === 3993) return 39; // Forerunner 255s
+                            if (settings.fit_file_garmin_device_training_effect_device === 3990) return 40; // Forerunner 255 Music
+                            if (settings.fit_file_garmin_device_training_effect_device === 3991) return 41; // Forerunner 255s Music
+                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 42; // Zwift
                             return 6; // Default to Edge 830
                         }
                         onCurrentIndexChanged: {
@@ -6831,7 +6850,11 @@ import Qt.labs.platform 1.1
                                 case 35: settings.fit_file_garmin_device_training_effect_device = 2700; break; // Vivoactive 3
                                 case 36: settings.fit_file_garmin_device_training_effect_device = 3224; break; // Vivoactive 4 Small
                                 case 37: settings.fit_file_garmin_device_training_effect_device = 3225; break; // Vivoactive 4 Large
-                                case 38: settings.fit_file_garmin_device_training_effect_device = 99999; break; // Zwift
+                                case 38: settings.fit_file_garmin_device_training_effect_device = 3992; break; // Forerunner 255
+                                case 39: settings.fit_file_garmin_device_training_effect_device = 3993; break; // Forerunner 255s
+                                case 40: settings.fit_file_garmin_device_training_effect_device = 3990; break; // Forerunner 255 Music
+                                case 41: settings.fit_file_garmin_device_training_effect_device = 3991; break; // Forerunner 255s Music
+                                case 42: settings.fit_file_garmin_device_training_effect_device = 99999; break; // Zwift
                             }
                         }
                         Layout.fillWidth: true
@@ -11222,6 +11245,33 @@ import Qt.labs.platform 1.1
                             }
 
                             IndicatorOnlySwitch {
+                                text: qsTr("Use cadence from the power sensor")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.power_sensor_cadence_instead_treadmill
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.power_sensor_cadence_instead_treadmill = checked
+                            }
+
+                            Label {
+                                text: qsTr("If you have a Bluetooth treadmill and also a power sensor (like Stryd) connected to QZ and you want to use the cadence from the power sensor instead of the cadence of the treadmill, enable this. This is useful when the treadmill cadence sensor is unreliable at low speeds (walking/jogging). Default: disabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            IndicatorOnlySwitch {
                                 text: qsTr("Add inclination gain factor to the power")
                                 spacing: 0
                                 bottomPadding: 0
@@ -13466,6 +13516,21 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+                }
+            }
+        }
+
+        Timer {
+            id: scrollTimer
+            interval: 200
+            repeat: false
+            onTriggered: {
+                if (garminOptionsAccordion && garminOptionsAccordion.y !== undefined) {
+                    var yPos = garminOptionsAccordion.y - 20
+                    if (yPos < 0) yPos = 0
+                    if (settingsPane.contentItem) {
+                        settingsPane.contentItem.contentY = yPos
                     }
                 }
             }

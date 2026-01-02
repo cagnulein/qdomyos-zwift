@@ -82,6 +82,14 @@ public:
     void submitMfaCode(const QString &mfaCode);
 
     /**
+     * @brief Try to refresh OAuth2 token if expired
+     * Attempts to refresh the access_token using the refresh_token if available.
+     * Only logs debug messages, no user-facing notifications.
+     * @return true if token is valid or refresh successful, false if refresh failed
+     */
+    bool tryRefreshToken();
+
+    /**
      * @brief Get the last error message
      * @return Error message string
      */
