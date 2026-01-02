@@ -761,7 +761,50 @@ jobs:
           echo ""
 
           cd src
-          androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+          # Run androiddeployqt WITHOUT --gradle to just copy files, we'll run gradle manually after
+          androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31
+
+      - name: Copy Custom Qt Libraries (Force Override)
+        run: |
+          echo "========================================================"
+          echo "  Copying Custom Qt Libraries to Override Standard Ones"
+          echo "========================================================"
+          echo ""
+
+          CUSTOM_QT_LIB="${{ github.workspace }}/Qt-5.15.0-custom/qt5.15.0-android-page16/usr/local/Qt-5.15.0/lib"
+          OUTPUT_LIBS="${{ github.workspace }}/output/android/libs"
+
+          # Copy all Qt libraries for all architectures from custom Qt to output libs
+          echo "Copying Qt libraries from custom Qt to output directory..."
+          echo "Source: $CUSTOM_QT_LIB"
+          echo "Destination: $OUTPUT_LIBS"
+          echo ""
+
+          for ARCH in arm64-v8a armeabi-v7a x86 x86_64; do
+            echo "Processing architecture: $ARCH"
+            mkdir -p "$OUTPUT_LIBS/$ARCH"
+
+            # Copy all Qt .so files for this architecture
+            cp -v "$CUSTOM_QT_LIB"/libQt*_${ARCH}.so "$OUTPUT_LIBS/$ARCH/" 2>/dev/null || true
+
+            # Verify a few key libraries were copied
+            if [ -f "$OUTPUT_LIBS/$ARCH/libQt5Core_${ARCH}.so" ]; then
+              SIZE=$(ls -lh "$OUTPUT_LIBS/$ARCH/libQt5Core_${ARCH}.so" | awk '{print $5}')
+              echo "  ✓ libQt5Core copied (size: $SIZE)"
+            else
+              echo "  ✗ libQt5Core NOT found!"
+            fi
+          done
+
+          echo ""
+          echo "Custom Qt libraries copied successfully!"
+          echo "========================================================"
+          echo ""
+
+      - name: Build APK with Gradle (After Qt Override)
+        run: |
+          cd ${{ github.workspace }}/output/android
+          ./gradlew assembleDebug bundleDebug
 
       - name: Verify Qt Libraries in APK (After Build)
         run: |
