@@ -390,6 +390,10 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
     if (tags != nullptr)
         tags->clear();
 
+    // Storage for text events to associate with current workout segment
+    QList<trainrow::TextEvent> pendingTextEvents;
+    int currentSegmentStartIndex = -1;
+
     while (!stream.atEnd()) {
         stream.readNext();
         QString name = stream.name().toString();
@@ -409,10 +413,29 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
             if (atts.hasAttribute(QStringLiteral("name"))) {
                 tags->append("#" + atts.value(QStringLiteral("name")).toString() + " ");
             }
+        } else if (name.toLower().contains(QStringLiteral("textevent"))) {
+            // Parse text event
+            if (atts.hasAttribute(QStringLiteral("timeoffset")) && atts.hasAttribute(QStringLiteral("message"))) {
+                trainrow::TextEvent evt;
+                evt.timeoffset = atts.value(QStringLiteral("timeoffset")).toUInt();
+                evt.message = atts.value(QStringLiteral("message")).toString();
+                pendingTextEvents.append(evt);
+                qDebug() << "Found textevent: timeoffset=" << evt.timeoffset << " message=" << evt.message;
+            }
         } else if (name.toLower().contains(QStringLiteral("durationtype")) && durationType.length() == 0) {
             stream.readNext();
             durationType = stream.text().toString();
         } else if (!atts.isEmpty()) {
+            // Apply pending text events to previous segment before starting new one
+            if (currentSegmentStartIndex >= 0 && currentSegmentStartIndex < list.length() && !pendingTextEvents.isEmpty()) {
+                list[currentSegmentStartIndex].textEvents = pendingTextEvents;
+                qDebug() << "Applied" << pendingTextEvents.length() << "text events to trainrow at index" << currentSegmentStartIndex;
+            }
+
+            // Mark start of new segment and clear pending text events
+            currentSegmentStartIndex = list.length();
+            pendingTextEvents.clear();
+
             if (name.contains(QStringLiteral("IntervalsT"))) {
                 uint32_t repeat = 1;
                 uint32_t OnDuration = 1;
@@ -523,5 +546,12 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
             }
         }
     }
+
+    // Apply any remaining text events to the last segment
+    if (currentSegmentStartIndex >= 0 && currentSegmentStartIndex < list.length() && !pendingTextEvents.isEmpty()) {
+        list[currentSegmentStartIndex].textEvents = pendingTextEvents;
+        qDebug() << "Applied" << pendingTextEvents.length() << "text events to final trainrow at index" << currentSegmentStartIndex;
+    }
+
     return list;
 }

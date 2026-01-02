@@ -35,19 +35,20 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
         this->tags = *tags;
     
     if(settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0) {
-        static bool zwift_auth_toast_shown = false;
-
         zwift_auth_token = new AuthToken(settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString(), settings.value(QZSettings::zwift_password, QZSettings::default_zwift_password).toString());
-        zwift_auth_token->getAccessToken();
 
-        if(!zwift_auth_toast_shown && homeform::singleton()) {
-            if(zwift_auth_token->access_token.length() > 0) {
-                homeform::singleton()->setToastRequested("Zwift Login OK!");
-            } else {
-                homeform::singleton()->setToastRequested("Zwift Auth Failed!");
-            }
-            zwift_auth_toast_shown = true;
+        // Connect signal to show toast when token response arrives
+        if(homeform::singleton()) {
+            connect(zwift_auth_token, &AuthToken::tokenReceived, [](bool success, const QString& message) {
+                static bool toast_shown = false;
+                if(!toast_shown && homeform::singleton()) {
+                    homeform::singleton()->setToastRequested(message);
+                    toast_shown = true;
+                }
+            });
         }
+
+        zwift_auth_token->getAccessToken();
     }
 
     /*
@@ -1263,6 +1264,33 @@ void trainprogram::scheduler() {
                 emit changeTimestamp(lastCurrentStepTime, QTime(0, 0, 0).addSecs(ticks));
             }
         }
+
+        // Check for text events that should be displayed at this time
+        if (currentStep < rows.length() && !rows.at(currentStep).textEvents.isEmpty()) {
+            // Calculate elapsed time in current step
+            uint32_t elapsedInCurrentStep = 0;
+            if (rows.at(currentStep).started.isValid()) {
+                elapsedInCurrentStep = rows.at(currentStep).started.secsTo(QDateTime::currentDateTime());
+            }
+
+            // Check each text event
+            foreach (const trainrow::TextEvent &evt, rows.at(currentStep).textEvents) {
+                // Create unique key for this event
+                QString eventKey = QString("%1:%2").arg(currentStep).arg(evt.timeoffset);
+
+                // Check if this event should be shown now and hasn't been shown yet
+                if (elapsedInCurrentStep >= evt.timeoffset && !shownTextEvents.contains(eventKey)) {
+                    qDebug() << "Showing text event at step" << currentStep << "offset" << evt.timeoffset << ":" << evt.message;
+
+                    // Emit toast request
+                    emit toastRequest(evt.message);
+
+                    // Mark as shown
+                    shownTextEvents.insert(eventKey);
+                }
+            }
+        }
+
         sameIteration++;
     } while (distanceEvaluation);
 }
@@ -1325,7 +1353,8 @@ void trainprogram::restart() {
     ticks = 0;
     offset = 0;
     currentStep = 0;
-    currentTimerJitter = 0;    
+    currentTimerJitter = 0;
+    shownTextEvents.clear();  // Reset shown text events when restarting
     started = true;
 }
 

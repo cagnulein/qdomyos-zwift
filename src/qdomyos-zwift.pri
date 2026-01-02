@@ -155,6 +155,7 @@ devices/ypooelliptical/ypooelliptical.cpp \
 devices/ziprotreadmill/ziprotreadmill.cpp \
 zwift_play/zwiftclickremote.cpp \
 devices/computrainerbike/Computrainer.cpp \
+devices/kettlerusbbike/KettlerUSB.cpp \
 PathController.cpp \
 characteristics/characteristicnotifier2a53.cpp \
 characteristics/characteristicnotifier2a5b.cpp \
@@ -164,6 +165,7 @@ characteristics/characteristicnotifier2ad9.cpp \
 characteristics/characteristicwriteprocessor.cpp \
 characteristics/characteristicwriteprocessore005.cpp \
 devices/computrainerbike/computrainerbike.cpp \
+devices/kettlerusbbike/kettlerusbbike.cpp \
 devices/fakeelliptical/fakeelliptical.cpp \
 devices/faketreadmill/faketreadmill.cpp \
 devices/lifefitnesstreadmill/lifefitnesstreadmill.cpp \
@@ -256,6 +258,7 @@ gpx.cpp \
 devices/heartratebelt/heartratebelt.cpp \
 homefitnessbuddy.cpp \
 homeform.cpp \
+garminconnect.cpp \
 devices/horizongr7bike/horizongr7bike.cpp \
 devices/horizontreadmill/horizontreadmill.cpp \
 devices/iconceptbike/iconceptbike.cpp \
@@ -454,6 +457,7 @@ devices/wahookickrheadwind/wahookickrheadwind.h \
 devices/ypooelliptical/ypooelliptical.h \
 devices/ziprotreadmill/ziprotreadmill.h \
 devices/computrainerbike/Computrainer.h \
+devices/kettlerusbbike/KettlerUSB.h \
 PathController.h \
 characteristics/characteristicnotifier2a53.h \
 characteristics/characteristicnotifier2a5b.h \
@@ -462,6 +466,7 @@ characteristics/characteristicnotifier2acd.h \
 characteristics/characteristicnotifier2ad9.h \
 characteristics/characteristicwriteprocessore005.h \
 devices/computrainerbike/computrainerbike.h \
+devices/kettlerusbbike/kettlerusbbike.h \
 definitions.h \
 devices/fakeelliptical/fakeelliptical.h \
 devices/faketreadmill/faketreadmill.h \
@@ -767,6 +772,7 @@ devices/flywheelbike/flywheelbike.h \
 devices/ftmsbike/ftmsbike.h \
 devices/heartratebelt/heartratebelt.h \
 homeform.h \
+garminconnect.h \
 devices/horizontreadmill/horizontreadmill.h \
 devices/inspirebike/inspirebike.h \
 ios/lockscreen.h \
@@ -1173,4 +1179,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.20.12
+VERSION = 2.20.21

@@ -1114,6 +1114,9 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
 
     if (log_request) {
         qDebug() << QStringLiteral("peloton::workout_onfinish") << workout;
+        if (isWalkingWorkout()) {
+            qDebug() << "Detected walking-based workout:" << current_workout_name << "Type:" << current_workout_type;
+        }
     } else {
         qDebug() << QStringLiteral("peloton::workout_onfinish");
     }
@@ -1481,6 +1484,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
             QJsonObject segmentObj = segment.toObject();
             QJsonObject offsets = segmentObj["offsets"].toObject();
             QJsonArray metrics = segmentObj["metrics"].toArray();
+            QString segment_type = segmentObj["segment_type"].toString();
 
             int start = offsets["start"].toInt();
             int end = offsets["end"].toInt();
@@ -1500,6 +1504,16 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
             }
 
             lastEnd = end;
+
+            // Handle floor segments (bootcamp workouts)
+            if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
+                trainrow r;
+                r.duration = QTime(0, 0, 0).addSecs(end - start + 1);
+                r.power = -1; // No power target for floor segments
+                trainrows.append(r);
+                qDebug() << r.duration << "floor segment - no cycling metrics" << "time range" << start << "-" << end;
+                continue;
+            }
 
             trainrow r;
             r.duration = QTime(0, 0, 0).addSecs(end - start + 1);
@@ -1701,15 +1715,15 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                     if (metricName == "pace_intensity") {
                         pace_intensity_lower = metricObj["lower"].toInt();
                         pace_intensity_upper = metricObj["upper"].toInt();
-                        
-                        if (current_workout_type == "walking") {
+
+                        if (isWalkingWorkout()) {
                             speed_lower = walking_pace[pace_intensity_lower].levels[peloton_treadmill_walk_level].slow_pace;
                             speed_upper = walking_pace[pace_intensity_upper].levels[peloton_treadmill_walk_level].fast_pace;
                         } else {
                             speed_lower = treadmill_pace[pace_intensity_lower].levels[peloton_treadmill_level].slow_pace;
                             speed_upper = treadmill_pace[pace_intensity_upper].levels[peloton_treadmill_level].fast_pace;
                         }
-                        
+
                         miles = 1; // the pace intensity are always in km/h
                     }
                     else if (metricName == "speed") {
@@ -1851,6 +1865,23 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             QJsonObject targetMetric = targetMetrics.at(i).toObject();
             QJsonObject offsets = targetMetric[QStringLiteral("offsets")].toObject();
             QJsonArray metrics = targetMetric[QStringLiteral("metrics")].toArray();
+            QString segment_type = targetMetric[QStringLiteral("segment_type")].toString();
+
+            // Handle floor segments (bootcamp workouts)
+            if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
+                trainrow r;
+                int offset_start = offsets[QStringLiteral("start")].toInt();
+                int offset_end = offsets[QStringLiteral("end")].toInt();
+                int duration = offset_end - offset_start;
+                if (i != 0) {
+                    duration++;
+                }
+                r.duration = QTime(0, 0, 0).addSecs(duration);
+                r.power = -1; // No power target for floor segments
+                trainrows.append(r);
+                qDebug() << i << r.duration << "floor segment - no cycling metrics";
+                continue;
+            }
 
                    // Find resistance and cadence metrics
             int lowerResistance = 0, upperResistance = 0, lowerCadence = 0, upperCadence = 0;
@@ -1966,10 +1997,11 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             for (QJsonValue metric : sortedMetrics) {
                 QJsonObject metricObj = metric.toObject();
                 QJsonObject offsets = metricObj[QStringLiteral("offsets")].toObject();
+                QString segment_type = metricObj[QStringLiteral("segment_type")].toString();
                 int start = offsets[QStringLiteral("start")].toInt();
                 int end = offsets[QStringLiteral("end")].toInt();
                 int len = end - start + 1;
-                
+
                 // Check if there's a gap from previous segment
                 if (!trainrows.isEmpty()) {
                    int prevEnd = start - 1; // Expected previous end
@@ -1982,8 +2014,18 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                        trainrows.append(gapRow);
                    }
                 }
-                
+
                 lastEnd = end;
+
+                // Handle floor segments (bootcamp workouts)
+                if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
+                    trainrow r;
+                    r.duration = QTime(0, len / 60, len % 60, 0);
+                    r.power = -1; // No power target for floor segments
+                    trainrows.append(r);
+                    qDebug() << r.duration << "floor segment - no cycling metrics" << "time range" << start << "-" << end;
+                    continue;
+                }
 
                 QJsonArray metricsArray = metricObj[QStringLiteral("metrics")].toArray();
                 if (!metricsArray.isEmpty()) {
@@ -2085,7 +2127,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                         paceintensity_upper = oo[QStringLiteral("upper")].toInt();
                         paceintensity_avg = ((paceintensity_upper - paceintensity_lower) / 2.0) + paceintensity_lower;
                         if(paceintensity_lower < 7) {
-                            if (current_workout_type == "walking") {
+                            if (isWalkingWorkout()) {
                                 speed_lower = walking_pace[paceintensity_lower].levels[peloton_treadmill_walk_level].slow_pace;
                                 speed_upper = walking_pace[paceintensity_upper].levels[peloton_treadmill_walk_level].fast_pace;
                             } else {

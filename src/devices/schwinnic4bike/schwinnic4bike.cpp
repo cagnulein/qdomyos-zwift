@@ -10,6 +10,7 @@
 
 #include <QThread>
 #include <math.h>
+#include <limits>
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
@@ -349,12 +350,16 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         emit resistanceRead(Resistance.value());
     } else {
         Resistance = ResistanceFromFTMSAccessory.value();
+        m_pelotonResistance = bikeResistanceToPeloton(ResistanceFromFTMSAccessory.value());
     }
 
     lastRefreshCharacteristicChanged = now;
 
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-        if (heart == 0.0) {
+        if (heart == 0.0 || disable_hr_frommachinery) {
             update_hr_from_external();
         } else {
             Heart = heart;
@@ -626,6 +631,21 @@ uint16_t schwinnic4bike::wattsFromResistance(double resistance) {
 void schwinnic4bike::resistanceFromFTMSAccessory(resistance_t res) {
     ResistanceFromFTMSAccessory = res;
     qDebug() << QStringLiteral("resistanceFromFTMSAccessory") << res;
+}
+
+double schwinnic4bike::bikeResistanceToPeloton(double bikeResistance) {
+    // brute-force inverse of pelotonToBikeResistance with current settings
+    double bestPeloton = 0;
+    double bestDiff = std::numeric_limits<double>::max();
+    for (int peloton = 0; peloton <= 100; peloton++) {
+        resistance_t converted = pelotonToBikeResistance(peloton);
+        double diff = qFabs((double)converted - bikeResistance);
+        if (diff < bestDiff) {
+            bestDiff = diff;
+            bestPeloton = peloton;
+        }
+    }
+    return bestPeloton;
 }
 
 /*

@@ -25,6 +25,8 @@
         <file>templates/debug/workout.htm</file>
         <file>templates/qz-TcpClient.qzt</file>
         <file>TrainingProgramsList.qml</file>
+        <file>TrainingProgramsListJS.qml</file>
+        <file>WorkoutEditor.qml</file>
         <file>SettingsList.qml</file>
         <file>ChartJsTest.qml</file>
         <file>inner_templates/chartjs/.eslintrc.js</file>
@@ -118,6 +120,12 @@
         <file>inner_templates/chartjs/qzlogo.png</file>
         <file>inner_templates/chartjs/dochartlive.js</file>
         <file>inner_templates/chartjs/chartlive.htm</file>
+        <file>inner_templates/workouteditor/index.html</file>
+        <file>inner_templates/workouteditor/workout-editor.css</file>
+        <file>inner_templates/workouteditor/workout-editor.js</file>
+        <file>inner_templates/workouteditor/workout-editor-app.js</file>
+        <file>inner_templates/workoutpreview/preview.html</file>
+        <file>inner_templates/trainingbrowser/browser.html</file>
         <file>ChartFooter.qml</file>
         <file>ChartFooterInnerJS.qml</file>
         <file>ChartFooterInnerNoJS.qml</file>
@@ -131,5 +139,6 @@
         <file>PreviewChart.qml</file>
         <file>WebPelotonAuth.qml</file>
         <file>inner_templates/floating/hfloating.htm</file>
+        <file>WebIntervalsICUAuth.qml</file>
     </qresource>
 </RCC>

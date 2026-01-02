@@ -254,6 +254,11 @@ class bluetoothdevice : public QObject {
     virtual metric elevationGain();
 
     /**
+     * @brief negativeElevationGain Gets a metric object to get and set the negative elevation gain (descents). Units: ?
+     */
+    virtual metric negativeElevationGain();
+
+    /**
      * @brief clearStats Clear the statistics.
      */
     virtual void clearStats();
@@ -629,6 +634,11 @@ class bluetoothdevice : public QObject {
     metric elevationAcc;
 
     /**
+     * @brief negativeElevationAcc The negative elevation gain (descents). Units: meters
+     */
+    metric negativeElevationAcc;
+
+    /**
      * @brief m_watt Metric to get and set the power read from the trainer or from the power sensor Unit: watts
      */
     metric m_watt;
@@ -786,6 +796,11 @@ class bluetoothdevice : public QObject {
      * @brief update_hr_from_external Updates heart rate from Garmin Companion App or Apple Watch
      */
     void update_hr_from_external();
+
+    /**
+     * @brief update_ios_live_activity Updates iOS Live Activity with throttling (max 1 update per second)
+     */
+    void update_ios_live_activity();
 
     /**
      * @brief calculateMETS Calculate the METS (Metabolic Equivalent of Tasks)
