@@ -2,6 +2,8 @@
 #include "devices/bike.h"
 #include "treadmill.h"
 #include <QDirIterator>
+#include <QFile>
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -991,6 +993,21 @@ void TemplateInfoSenderBuilder::onDeleteTrainingProgram(const QJsonValue &msgCon
             success = true;
             outObj[QStringLiteral("success")] = true;
             outObj[QStringLiteral("message")] = QStringLiteral("Workout deleted successfully");
+
+            // Create a marker file to prevent repopulation of default files
+            QFileInfo fileInfo(filePath);
+            QString fileName = fileInfo.fileName();
+            QString directory = fileInfo.absolutePath();
+            QString markerPath = directory + "/.deleted_" + fileName;
+
+            QFile markerFile(markerPath);
+            if (markerFile.open(QIODevice::WriteOnly)) {
+                markerFile.write("This file was intentionally deleted by the user");
+                markerFile.close();
+                qDebug() << "onDeleteTrainingProgram: created deletion marker at" << markerPath;
+            } else {
+                qDebug() << "onDeleteTrainingProgram: failed to create deletion marker at" << markerPath;
+            }
         } else {
             qDebug() << "onDeleteTrainingProgram: failed to delete" << filePath;
             outObj[QStringLiteral("success")] = false;
