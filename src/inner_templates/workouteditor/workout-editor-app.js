@@ -501,6 +501,11 @@
                         value = value / 1.60934;
                     }
 
+                    // Truncate speed values to 1 decimal place to avoid floating-point precision issues
+                    if (def.unitKey === 'speed' && !isDefaultValue) {
+                        value = Math.round(value * 10) / 10;
+                    }
+
                     if (!isDefaultValue) {
                         out[def.key] = value;
                         // Mark field as enabled if it has a non-default value
