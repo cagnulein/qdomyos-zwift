@@ -808,8 +808,15 @@ jobs:
       - name: Build APK with Gradle (After Qt Override)
         run: |
           cd ${{ github.workspace }}/output/android
+
+          # Clean Gradle cache and build artifacts
+          echo "Cleaning Gradle cache..."
+          ./gradlew clean
+
           # Increase Gradle heap size for large custom Qt libraries (not stripped, uncompressed)
           export GRADLE_OPTS="-Xmx4096m -XX:+HeapDumpOnOutOfMemoryError"
+
+          echo "Building APK with custom Qt libraries..."
           ./gradlew assembleDebug bundleDebug
 
       - name: Verify Qt Libraries in APK (After Build)
