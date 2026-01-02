@@ -49,21 +49,22 @@ declare -A SYMBOL_CACHE
 SYMBOL_CACHE_INIT=0
 declare -A LAST_SAVED
 
-# Safe single-key read helper with timeout to avoid blocking automated tests.
+# Safe single-key read helper with conditional timeout logic.
 # Usage: safe_read_key VAR [timeout]
-# Sets the variable named by VAR to the single key read (may be empty on timeout).
 safe_read_key() {
     local __var="$1"
-    local _timeout="${2:-0.4}"
-    # If running under test harness (explicit marker) or QZ_NO_MAIN is set,
-    # apply a non-blocking timeout. Otherwise, block until a keypress.
+    local _req_timeout="${2:-}"
     local _old_ifs="$IFS"
     local _tmp_read=""
-    if [[ "${QZ_TEST_MODE:-}${QZ_NO_MAIN:-}" != "" ]]; then
-        IFS= read -rsn1 -t "${_timeout}" _tmp_read </dev/tty 2>/dev/null || true
+
+    if [[ -n "$_req_timeout" ]]; then
+        # Case A: An explicit timeout was passed (Use it for non-blocking UI loops)
+        IFS= read -rsn1 -t "${_req_timeout}" _tmp_read </dev/tty 2>/dev/null || true
     else
+        # Case C: No timeout and not in test mode (Block until a key is actually pressed)
         IFS= read -rsn1 _tmp_read </dev/tty 2>/dev/null || true
     fi
+
     # Assign to the caller-provided variable name safely
     printf -v "${__var}" '%s' "${_tmp_read}"
     IFS="${_old_ifs}"
@@ -828,7 +829,7 @@ SYMBOL_FAIL="✗"
 SYMBOL_WARN="!"
 SYMBOL_PENDING="●"
 SYMBOL_WORKING="⟳"
-SYMBOL_LOCKED="⛊"
+SYMBOL_LOCKED="◈"
 PROTECTED_ITEMS=("python311" "qt5_libs" "qml_modules" "bluetooth" "lsusb")
 
 # Many variables below are intentionally defined for optional export or indirect use
@@ -1034,12 +1035,12 @@ declare -A SERVICE_FAILURE_INFO=()
 
 # Status grid definition: each entry is "Left Label|Left Key|Right Label|Right Key"
 declare -a STATUS_GRID=(
-    "Python 3.11 Library|python311|lsusb Command|lsusb"
-    "Python Virtual Environment|venv|User in plugdev Group|plugdev"
-    "Python PIPs|pkg_pips|USB udev Rules|udev_rules"
-    "Qt5 Runtime Libraries|qt5_libs|Configuration File|config_file"
-    "QML Modules|qml_modules|QZ Service|qz_service"
-    "Bluetooth Service|bluetooth|ANT+ USB Dongle|ant_dongle"
+    "Python 3.11 Library|python311|Python PIPs|pkg_pips"
+    "Qt5 Runtime Libraries|qt5_libs|QML Modules|qml_modules"
+    "Python Virtual Environment|venv|Configuration File|config_file"
+    "User in plugdev Group|plugdev|USB udev Rules|udev_rules"
+    "Bluetooth Service|bluetooth|QZ Service|qz_service"
+    "lsusb Command|lsusb|ANT+ USB Dongle|ant_dongle"
 )
 
 # Render the status grid starting at given row (default 5)
@@ -1735,6 +1736,21 @@ get_symbol() {
     esac
 }
 
+# Returns the ANSI color code for a given status key's label
+get_status_label_color() {
+    local key="$1"
+    local status="${STATUS_MAP[$key]:-pending}"
+
+    case "$status" in
+        pass)    printf '%s' "${GREEN}" ;;
+        fail)    printf '%s' "${RED}" ;;
+        warn)    printf '%s' "${YELLOW}" ;;
+        working) printf '%s' "${CYAN}" ;;
+        locked)  printf '%s' "${BOLD_GRAY}" ;;
+        *)       printf '%s' "${GRAY}" ;;
+    esac
+}
+
 # Symbol cache to reduce repeated printf/subprocess overhead in hot paths
 declare -A SYMBOL_CACHE
 # shellcheck disable=SC2034
@@ -1760,14 +1776,20 @@ draw_status_row() {
     L_sym=$(get_symbol "$L_key")
     R_sym=$(get_symbol "$R_key")
     
-    # 2. Build strings using CYAN for labels to harmonize with System Info
-    local L_content="${L_sym} ${CYAN}${L_label}${NC}"
-    local R_content="${R_sym} ${CYAN}${R_label}${NC}"
+    # 2. Get label colors and build strings
+    local L_color R_color
+    L_color=$(get_status_label_color "$L_key")
+    R_color=$(get_status_label_color "$R_key")
+    
+    local L_content="${L_sym} ${L_color}${L_label}${NC}"
+    local R_content="${R_sym} ${R_color}${R_label}${NC}"
     
     # 3. Calculate padding: split INNER_COLS into left/right with center separator
     local L_padded
     local R_padded
     local left_w right_w
+    # Total content width: INNER_COLS (area between ║ ║) - 3 (one space, one separator, one space)
+    # The original split logic is robust.
     left_w=$(( (INNER_COLS - 3) / 2 ))
     right_w=$(( INNER_COLS - 3 - left_w ))
     L_padded=$(pad_display "$L_content" "$left_w")
@@ -1775,6 +1797,7 @@ draw_status_row() {
     
     # 4. Print the row
     print_at "$row" "${BLUE}║${NC} ${L_padded}${BLUE}│${NC}${R_padded} ${BLUE}║${NC}"
+
 }
 
 draw_header_config_line() {
@@ -2051,6 +2074,66 @@ build_hr_string() {
     printf "\033[%d;1H%s" "$((row + 1))" "$line"
 }
 
+# Draws the standardized RSSI progress bar and returns the colored bar and RSSI text.
+# Usage: read -r bar rssi_text < <(draw_rssi_bar -75 10)
+draw_rssi_bar() {
+    local s=$1 # RSSI value (e.g., -75)
+    local width=$2 # Width of the bar (e.g., 10)
+    
+    # Mapping parameters for RSSI -> fill fraction (tuned)
+    local rmin=-95 rmax=-30
+    local full rem
+    # Use awk for robust floating-point math on RSSI mapping
+    read -r full rem < <(
+        awk -v s="$s" -v rmin="$rmin" -v rmax="$rmax" -v w="$width" 'BEGIN{
+            # Bias mapping: use exponent <1 to expand mid/low RSSI into larger visual fill
+            e = 0.7
+            if(s > rmax) s=rmax; if(s < rmin) s=rmin;
+            p = (s - rmin) / (rmax - rmin);
+            if (p <= 0) { f = 0; }
+            else if (p >= 1) { f = w; }
+            else { f = exp(log(p) * e) * w; }
+            if(f < 0) f = 0; if(f > w) f = w;
+            full = int(f);
+            rem = int((f - full) * 8 + 0.5);
+            if(rem > 7) rem = 7;
+            print full, rem;
+        }'
+    )
+
+    local strength=""
+    # Left-8th-block glyphs (index 1..7). index 0 means no partial
+    local BLOCKS=("" '▏' '▎' '▍' '▌' '▋' '▊' '▉')
+    for ((pos=1; pos<=width; pos++)); do
+        if (( pos <= full )); then
+            strength+=$'\u2588' # █ full block
+        elif (( pos == full + 1 )) && (( rem > 0 )); then
+            strength+="${BLOCKS[$rem]}"
+        else
+            strength+=" "
+        fi
+    done
+
+    # Color selection based on RSSI (tuned thresholds; treat -70 as green)
+    local strength_color="$RED"
+    if (( s >= -70 )); then strength_color="$GREEN"
+    elif (( s >= -78 )); then strength_color="$YELLOW"
+    elif (( s >= -82 )); then strength_color="$ORANGE"
+    else strength_color="$RED"; fi
+    
+    # RSSI field fixed to 4 characters and lightly colored
+    local rssi_field
+    rssi_field=$(printf '%4s' "$s")
+    local rssi_color="$RED"
+    if (( s >= -70 )); then rssi_color="$GREEN"
+    elif (( s >= -78 )); then rssi_color="$YELLOW"
+    elif (( s >= -82 )); then rssi_color="$ORANGE"
+    else rssi_color="$RED"; fi
+    
+    # Return two parts: the colored strength bar and the colored RSSI text
+    printf '%s|%s' "${strength_color}${strength}${NC}" "${rssi_color}${rssi_field}${NC}"
+}
+
 draw_bottom_border() {
     local force=0
     if [[ "${1:-}" == "--force" ]]; then force=1; shift; fi
@@ -2111,6 +2194,7 @@ draw_error_screen() {
         draw_sealed_row "$row" "   ${RED}${line}${NC}"
     done
 
+sleep 5
     draw_bottom_border --force "Press ENTER to continue"
 
     # Treat any non-empty third argument as a request to pause.
@@ -2271,7 +2355,7 @@ update_status_atomic() {
         if [[ "$L_key" == "$key" ]]; then
             local L_sym
             L_sym=$(get_symbol "$L_key")
-            local L_content="${L_sym} ${CYAN}${L_label}${NC}"
+            local L_content="${L_sym} $(get_status_label_color "$L_key")${L_label}${NC}"
             local L_padded
             L_padded=$(pad_display "$L_content" "$left_w")
             # Print left half including left border and separator
@@ -2280,12 +2364,13 @@ update_status_atomic() {
         elif [[ "$R_key" == "$key" ]]; then
             local R_sym
             R_sym=$(get_symbol "$R_key")
-            local R_content="${R_sym} ${CYAN}${R_label}${NC}"
+            local R_content="${R_sym} $(get_status_label_color "$R_key")${R_label}${NC}"
             local R_padded
             R_padded=$(pad_display "$R_content" "$right_w")
-            # Right column starts after: 1 (border) + 1 (space) + left_w + 1 (sep)
-            local right_col=$(( 1 + 1 + left_w + 1 + 1 ))
-            # right_col computes to 4 + left_w; use print_at_col to overwrite right side
+            # Right column starts at the beginning of R_padded content:
+            # Col 1 (║) + Col 2 ( ) + left_w (L_padded) + Col 1 (│) = left_w + 3 visual columns.
+            # Since print_at_col is 1-based, the column index is left_w + 4.
+            local right_col=$(( left_w + 4 ))
             print_at_col "$target_row" "$right_col" "${R_padded} ${BLUE}║${NC}"
             return 0
         fi
@@ -3588,34 +3673,45 @@ check_qz_service_fast() {
 }
 
 run_all_checks() {
+    local mode="${1:-dashboard}" # "dashboard" or "splash"
     init_check_cache
-    local -a pids=()
-    # Function suffixes (match fast function names) and their corresponding
-    # STATUS_MAP keys (display keys). Maintain index alignment.
-    local -a func_names=(
-        "python311" "venv" "python_packages" "qt5_libs" "qml_modules"
-        "bluetooth" "lsusb" "plugdev" "udev_rules"
-        "config_file" "qz_service" "ant_dongle"
-    )
+    
     local -a status_keys=(
         "python311" "venv" "pkg_pips" "qt5_libs" "qml_modules"
         "bluetooth" "lsusb" "plugdev" "udev_rules"
         "config_file" "qz_service" "ant_dongle"
     )
+    
+    # Function names corresponding to keys
+    local -a func_names=(
+        "python311" "venv" "python_packages" "qt5_libs" "qml_modules"
+        "bluetooth" "lsusb" "plugdev" "udev_rules"
+        "config_file" "qz_service" "ant_dongle"
+    )
 
-    local idx=0
-    for fn in "${func_names[@]}"; do
-        local key="${status_keys[$idx]}"
-    update_status_atomic "$key" "working"
+    local total_checks=${#status_keys[@]}
+    local completed=0
+
+    # 1. Launch all checks in background
+    local -a pids=()
+    
+    for ((i=0; i<total_checks; i++)); do
+        local key="${status_keys[$i]}"
+        local fn="${func_names[$i]}"
+        
+        # If in dashboard mode, mark as working immediately
+        if [[ "$mode" == "dashboard" ]]; then
+            update_status_atomic "$key" "working"
+        fi
+
         (
-            # call corresponding fast function name pattern
             local func="check_${fn}_fast"
             local result
             if command -v "$func" >/dev/null 2>&1; then
                 result=$($func 2>/dev/null || true)
             else
-                # try legacy name mapping for python_packages
-                if [[ "$fn" == "python_packages" && $(type -t check_python_packages_fast) == "function" ]]; then
+                # legacy mapping fallback
+                if [[ "$fn" == "python_packages" ]]; then
                     result=$(check_python_packages_fast 2>/dev/null || true)
                 else
                     result=""
@@ -3624,39 +3720,58 @@ run_all_checks() {
             printf '%s' "$result" > "${CHECK_CACHE_DIR}/${key}.result" 2>/dev/null || true
         ) &
         pids+=($!)
-        idx=$((idx + 1))
     done
 
-    local timeout=5
+    # 2. Wait loop with Progress Updates
+    local timeout=100 # 10 seconds total (100 * 0.1s)
     local waited=0
+    
     while (( waited < timeout )); do
-        local all_done=1
+        local running_count=0
         for pid in "${pids[@]}"; do
             if kill -0 "$pid" 2>/dev/null; then
-                all_done=0; break
+                ((running_count++))
             fi
         done
-        if (( all_done == 1 )); then break; fi
+        
+        local finished_count=$(( total_checks - running_count ))
+        
+        if [[ "$mode" == "splash" ]]; then
+            update_splash_progress "$finished_count" "$total_checks" "Verifying system components ($finished_count/$total_checks)..."
+        fi
+
+        if (( running_count == 0 )); then break; fi
+        
         sleep 0.1
-        waited=$((waited + 1))
+        ((waited++))
     done
 
+    # Kill stragglers
     for pid in "${pids[@]}"; do kill -9 "$pid" 2>/dev/null || true; done
 
-        for key in "${status_keys[@]}"; do
+    # 3. Collect Results and Update State
+    for key in "${status_keys[@]}"; do
         local result_file="${CHECK_CACHE_DIR}/${key}.result"
         if [[ -f "$result_file" ]]; then
             local status
             status=$(cat "$result_file" 2>/dev/null || true)
-            update_status_atomic "$key" "$status"
+            # Update the global map
+            STATUS_MAP["$key"]="$status"
         else
-            update_status_atomic "$key" "fail"
+            STATUS_MAP["$key"]="fail"
+        fi
+        
+        # If in dashboard mode, update the UI grid atomically
+        if [[ "$mode" == "dashboard" ]]; then
+            update_status_atomic "$key" "${STATUS_MAP[$key]}"
         fi
     done
 
-    render_status_grid 5
-    draw_header_config_line
-    draw_header_service_line
+    # If in dashboard mode, refresh headers
+    if [[ "$mode" == "dashboard" ]]; then
+        draw_header_config_line
+        draw_header_service_line
+    fi
 }
 
 
@@ -3937,12 +4052,10 @@ perform_bluetooth_scan() {
                 local row_content=""
                 if [ "$i" -lt "$num_devs" ]; then
                     local s=${rssis[$i]}
-                    # shellcheck disable=SC2034
-                    local bar="${RED}[#   ]${NC}"
-                    if (( s >= -60 )); then bar="${GREEN}[####]${NC}"
-                    elif (( s >= -75 )); then bar="${YELLOW}[### ]${NC}"
-                    elif (( s >= -85 )); then bar="${ORANGE}[##  ]${NC}"; fi
-                    : "${bar:-}" >/dev/null 2>&1
+                    # Use standardized RSSI bar generator (width 10)
+                    local strength_colored rssi_colored
+                    # The complex logic (3967-4023) is now abstracted to draw_rssi_bar for standardization
+                    read -r strength_colored rssi_colored < <(draw_rssi_bar "$s" 10)
 
                     local name="${devices[$i]}"
                     # Use a consistent name color to avoid confusing mixed styles
@@ -3963,63 +4076,7 @@ perform_bluetooth_scan() {
                     mac_addr="${macs[$i]:-}"
                     local mac_col
                     mac_col=$(printf '%-17s' "$mac_addr")
-
-                    # Strength bar with 10 visual columns using 1/8-block glyphs
-                    local strength=""
-                    local strength_color="$RED"
-                    # Mapping parameters for RSSI -> fill fraction (tuned)
-                    # Use a slightly larger dynamic range to improve sensitivity
-                    local rmin=-95 rmax=-30 width=10
-                    # Compute full and remainder (0..8) using awk for floats
-                    local full rem
-                    read -r full rem < <(
-                        awk -v s="$s" -v rmin="$rmin" -v rmax="$rmax" -v w="$width" 'BEGIN{
-                            # Bias mapping: use exponent <1 to expand mid/low RSSI into larger visual fill
-                            e = 0.7
-                            if(s > rmax) s=rmax; if(s < rmin) s=rmin;
-                            p = (s - rmin) / (rmax - rmin);
-                            if (p <= 0) { f = 0; }
-                            else if (p >= 1) { f = w; }
-                            else { f = exp(log(p) * e) * w; }
-                            if(f < 0) f = 0; if(f > w) f = w;
-                            full = int(f);
-                            rem = int((f - full) * 8 + 0.5);
-                            if(rem > 7) rem = 7;
-                            print full, rem;
-                        }'
-                    )
-
-                    # Left-8th-block glyphs (index 1..7). index 0 means no partial
-                    local BLOCKS=("" '▏' '▎' '▍' '▌' '▋' '▊' '▉')
-                    for ((pos=1; pos<=width; pos++)); do
-                        if (( pos <= full )); then
-                            strength+=$'\u2588' # █ full block
-                        elif (( pos == full + 1 )) && (( rem > 0 )); then
-                            strength+="${BLOCKS[$rem]}"
-                        else
-                            strength+=" "
-                        fi
-                    done
-
-                    # Color selection based on RSSI (tuned thresholds; treat -70 as green)
-                    if (( s >= -70 )); then strength_color="$GREEN"
-                    elif (( s >= -78 )); then strength_color="$YELLOW"
-                    elif (( s >= -82 )); then strength_color="$ORANGE"
-                    else strength_color="$RED"; fi
-                    local strength_colored
-                    strength_colored="${strength_color}${strength}${NC}"
-
-                    # RSSI field fixed to 4 characters and lightly colored
-                    local rssi_field
-                    rssi_field=$(printf '%4s' "$s")
-                    local rssi_color
-                    if (( s >= -70 )); then rssi_color="$GREEN"
-                    elif (( s >= -78 )); then rssi_color="$YELLOW"
-                    elif (( s >= -82 )); then rssi_color="$ORANGE"
-                    else rssi_color="$RED"; fi
-                    local rssi_colored
-                    rssi_colored="${rssi_color}${rssi_field}${NC}"
-
+                    
                     row_content="${name_col}  ${mac_col}  ${strength_colored} ${rssi_colored}"
                 else
                     row_content=""
@@ -4509,7 +4566,12 @@ prompt_action_menu() {
         fi
     done
 
-    draw_bottom_border "Arrows: Up/Down | Enter: Select"
+    # Helper text explaining the menu options
+    draw_sealed_row 17 "   Guided Fix detects missing components (Python, packages, permissions, etc.)"
+    draw_sealed_row 18 "   and guides you through resolving them step-by-step."
+    draw_sealed_row 17 ""
+    draw_sealed_row 18 "   Select 'Guided Fix' to start the automated setup process,"
+    draw_sealed_row 19 "   or 'Exit' to return to the terminal."
 
     local prev_selected=$selected
 
@@ -5440,114 +5502,147 @@ draw_verifying_screen() {
     
 }
 
-    # shellcheck disable=SC2120
-    draw_splash_screen() {
-    # Minimal instant splash shown before the buffered initial screen.
-    # Can be disabled by setting QZ_NO_SPLASH=1 in the environment.
-    local title="${1:-QZ ANT+ BRIDGE SETUP UTILITY}"
-    local subtitle="${2:-Loading dashboard...}"
+#!/bin/bash
+# ============================================================================
+# QDOMYOS-ZWIFT LOGO - 20 rows (256-color mode for Raspberry Pi compatibility)
+# Uses ANSI 256-color codes instead of RGB for universal terminal support
+# ============================================================================
+
+#!/bin/bash
+# ============================================================================
+# QDOMYOS-ZWIFT LOGO - 20 rows (256-color, exact reproduction)
+# Maintains the magnifying glass "Q" with "Z" inside
+# Compatible with ALL terminals (Raspberry Pi, Ubuntu, etc.)
+# ============================================================================
+
+#!/bin/bash
+# ============================================================================
+# QDOMYOS-ZWIFT LOGO - 20 rows (optimized for 24-row terminal)
+# Converted from text-image.com HTML to bash format
+# ============================================================================
+
+#!/bin/bash
+# ============================================================================
+# QDOMYOS-ZWIFT LOGO - 20 rows (EXACT conversion RGB → 256-color)
+# This maintains the EXACT artwork that works on Ubuntu
+# Converted for Raspberry Pi compatibility
+# ============================================================================
+
+#!/bin/bash
+# ============================================================================
+# QDOMYOS-ZWIFT LOGO - 20 rows (Complete RGB → 256-color conversion)
+# Maintains ALL colors including dark structure for proper logo shape
+# Compatible with Raspberry Pi and all terminals
+# ============================================================================
+
+#!/bin/bash
+# ============================================================================
+# QDOMYOS-ZWIFT LOGO - 20 rows (optimized for 24-row terminal)
+# Converted from text-image.com HTML to bash format
+# ============================================================================
+
+#!/bin/bash
+# ============================================================================
+# QDOMYOS-ZWIFT LOGO - 20 rows (RGB → 256-color conversion)
+# EXACT conversion maintaining all structure and colors
+# Compatible with Raspberry Pi and all terminals
+# ============================================================================
+draw_splash_screen() {
+    local title="${1:-QDomyos-Zwift}"
+    local subtitle="${2:-ANT+ BRIDGE SETUP UTILITY}"
+
     set_ui_output || true
     clear_screen
-
+    
+    local term_rows=${TERM_ROWS:-24}
     local inner_w=${INNER_COLS:-80}
-    local t_len=${#title}
-    local s_len=${#subtitle}
-    local t_pad=$(( (inner_w - t_len) / 2 ))
-    local s_pad=$(( (inner_w - s_len) / 2 ))
-    [[ $t_pad -lt 0 ]] && t_pad=0
-    [[ $s_pad -lt 0 ]] && s_pad=0
-
-    local start_row=$((LOG_TOP + 1))
-    if [ -w /dev/tty ]; then
-        printf '\033[%d;1H' "$((start_row + 1))" > /dev/tty 2>/dev/null || true
-        printf '%*s%s\n' "$t_pad" "" "$title" > /dev/tty 2>/dev/null || true
-        printf '%*s%s\n' "$s_pad" "" "$subtitle" > /dev/tty 2>/dev/null || true
-    else
-        local ui_fd
-        ui_fd=$(get_safe_ui_fd)
-        ( printf '\033[%d;1H' "$((start_row + 1))" >&"${ui_fd}" ) 2>/dev/null || true
-        ( printf '%*s%s\n' "$t_pad" "" "$title" >&"${ui_fd}" ) 2>/dev/null || true
-        ( printf '%*s%s\n' "$s_pad" "" "$subtitle" >&"${ui_fd}" ) 2>/dev/null || true
-    fi
+    
+    # Color variables
+    local BOLD_WHITE=$'\033[1;37m'
+    local WHITE=$'\033[1;37m'
+    local GRAY=$'\033[0;90m'
+    local NC=$'\033[0m'
+    
+    # 20-row logo with 256-color codes (converted from RGB)
+    local logo_lines=(
+        $'\033[38;5;232m●●●●●●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;52m●\033[38;5;52m●\033[38;5;89m●\033[38;5;89m●\033[38;5;125m●●\033[38;5;89m●\033[38;5;89m●\033[38;5;52m●\033[38;5;52m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●●●●●●●\033[0m'
+        $'\033[38;5;232m●●●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;52m●\033[38;5;89m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●●●●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;89m●\033[38;5;52m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●●●●\033[0m'
+        $'\033[38;5;232m●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;234m●\033[38;5;125m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;161m●\033[38;5;125m●\033[38;5;125m●●\033[38;5;125m●\033[38;5;161m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;125m●\033[38;5;234m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●●\033[0m'
+        $'\033[38;5;232m●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;234m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;198m●\033[38;5;198m●\033[38;5;125m●\033[38;5;52m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;52m●\033[38;5;125m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;198m●\033[38;5;161m●\033[38;5;234m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●\033[0m'
+        $'\033[38;5;232m●●\033[38;5;232m●\033[38;5;232m●\033[38;5;89m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;52m●\033[38;5;232m●\033[38;5;16m●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●\033[38;5;232m●●●●\033[38;5;232m●●\033[38;5;232m●\033[38;5;232m●\033[38;5;16m●●\033[38;5;232m●\033[38;5;52m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;89m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●\033[0m'
+        $'\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;52m●\033[38;5;232m●\033[38;5;232m●\033[38;5;235m●\033[38;5;70m●\033[38;5;106m●\033[38;5;70m●●\033[38;5;106m●\033[38;5;106m●\033[38;5;106m●●●●●\033[38;5;106m●\033[38;5;106m●●●\033[38;5;106m●\033[38;5;64m●\033[38;5;233m●\033[38;5;232m●\033[38;5;52m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[0m'
+        $'\033[38;5;232m●\033[38;5;232m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;197m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●●●●●●●●\033[38;5;190m●\033[38;5;190m●●●●●\033[38;5;190m●\033[38;5;190m●\033[38;5;112m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;197m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;232m●\033[38;5;232m●\033[0m'
+        $'\033[38;5;232m●\033[38;5;52m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●\033[38;5;235m●\033[38;5;64m●\033[38;5;148m●\033[38;5;190m●●●●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;154m●\033[38;5;240m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;52m●\033[38;5;232m●\033[0m'
+        $'\033[38;5;232m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;89m●\033[38;5;232m●\033[38;5;232m●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●●\033[38;5;232m●\033[38;5;16m●\033[38;5;232m●\033[38;5;234m●\033[38;5;112m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●●\033[38;5;154m●\033[38;5;64m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●\033[38;5;232m●\033[38;5;89m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;232m●\033[0m'
+        $'\033[38;5;233m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;52m●\033[38;5;232m●\033[38;5;232m●●●●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;236m●\033[38;5;148m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;148m●\033[38;5;237m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●●●\033[38;5;232m●\033[38;5;52m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;233m●\033[0m'
+        $'\033[38;5;233m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;52m●\033[38;5;232m●\033[38;5;232m●●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;238m●\033[38;5;154m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;112m●\033[38;5;235m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●●●●●\033[38;5;232m●\033[38;5;52m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;233m●\033[0m'
+        $'\033[38;5;232m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;89m●\033[38;5;232m●\033[38;5;232m●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;64m●\033[38;5;154m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;106m●\033[38;5;234m●\033[38;5;232m●\033[38;5;16m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●\033[38;5;232m●\033[38;5;89m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;232m●\033[0m'
+        $'\033[38;5;232m●\033[38;5;52m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;234m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;70m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;112m●\033[38;5;70m●●\033[38;5;70m●\033[38;5;70m●\033[38;5;64m●\033[38;5;232m●\033[38;5;234m●\033[38;5;240m●\033[38;5;70m●\033[38;5;235m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;234m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;52m●\033[38;5;232m●\033[0m'
+        $'\033[38;5;232m●\033[38;5;232m●\033[38;5;125m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;148m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●●●●●\033[38;5;190m●\033[38;5;190m●●●\033[38;5;190m●\033[38;5;112m●\033[38;5;232m●\033[38;5;154m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;233m●\033[38;5;233m●\033[38;5;232m●\033[38;5;233m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;125m●\033[38;5;232m●\033[38;5;232m●\033[0m'
+        $'\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;52m●\033[38;5;232m●\033[38;5;233m●\033[38;5;64m●\033[38;5;70m●\033[38;5;190m●●●●●●\033[38;5;190m●\033[38;5;190m●●\033[38;5;70m●\033[38;5;64m●\033[38;5;232m●\033[38;5;234m●\033[38;5;64m●\033[38;5;64m●\033[38;5;236m●\033[38;5;52m●\033[38;5;198m●\033[38;5;197m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[0m'
+        $'\033[38;5;232m●●\033[38;5;232m●\033[38;5;232m●\033[38;5;89m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;161m●\033[38;5;52m●\033[38;5;232m●\033[38;5;16m●\033[38;5;16m●\033[38;5;16m●\033[38;5;232m●\033[38;5;232m●●●●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;16m●\033[38;5;232m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;89m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●\033[0m'
+        $'\033[38;5;232m●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;125m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;52m●\033[38;5;234m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;234m●\033[38;5;52m●\033[38;5;125m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;161m●\033[38;5;52m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[0m'
+        $'\033[38;5;232m●●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;89m●\033[38;5;197m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;197m●\033[38;5;161m●\033[38;5;161m●\033[38;5;125m●●\033[38;5;161m●\033[38;5;161m●\033[38;5;197m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;197m●\033[38;5;125m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;198m●\033[38;5;198m●\033[38;5;233m●\033[38;5;232m●\033[0m'
+        $'\033[38;5;232m●●●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;234m●\033[38;5;89m●\033[38;5;161m●\033[38;5;197m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;198m●●\033[38;5;198m●●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;197m●\033[38;5;161m●\033[38;5;89m●\033[38;5;234m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;52m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;233m●\033[38;5;232m●\033[0m'
+        $'\033[38;5;232m●●●●●●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;234m●\033[38;5;52m●\033[38;5;53m●\033[38;5;89m●\033[38;5;89m●●\033[38;5;89m●\033[38;5;53m●\033[38;5;52m●\033[38;5;234m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[0m'
+    )
+    
+    # Calculate positioning (20 rows logo + 4 rows text/spacing = 24 total)
+    local logo_height=${#logo_lines[@]}
+    local start_row=0
+    local row_counter=$start_row
+    
+    # Print centered logo
+    for logo_line in "${logo_lines[@]}"; do
+        # Strip ANSI for width calculation
+        local visible_text=$(echo "$logo_line" | sed 's/\x1b\[[0-9;]*m//g')
+        local logo_pad=$(( (inner_w - ${#visible_text}) / 2 ))
+        [[ $logo_pad -lt 0 ]] && logo_pad=0
+        print_at "$row_counter" "$(printf '%*s%s' "$logo_pad" "" "$logo_line")"
+        ((row_counter++))
+    done
+    
+    ((row_counter++))
+    
+    # Title
+    local title_pad=$(( (inner_w - ${#title}) / 2 ))
+    print_at "$row_counter" "$(printf '%*s%s' "$title_pad" "" "${BOLD_WHITE}${title}${NC}")"
+    ((row_counter++))
+    
+    # Subtitle
+    local subtitle_pad=$(( (inner_w - ${#subtitle}) / 2 ))
+    print_at "$row_counter" "$(printf '%*s%s' "$subtitle_pad" "" "${WHITE}${subtitle}${NC}")"
+    ((row_counter++))
+    
+    sleep 2
 }
 
-draw_initial_screen() {
-    local message=${1:-"Starting"}
-
-    # Quick splash unless explicitly disabled
-    if [[ -z "${QZ_NO_SPLASH:-}" ]]; then
-        draw_splash_screen
-    fi
-
-    # Create buffer in TEMP_DIR (prefer RAM-backed) or /tmp
-    local buf
-    buf=$(mktemp "${TEMP_DIR:-/tmp}/qz_screen.XXXXXX") || buf="/tmp/qz_screen.$$"
-
-    # Open FD9 for buffered UI output and temporarily set UI_FD to 9
-    exec 9>"$buf" 2>/dev/null || exec 9>"$buf" || true
-    local prev_ui_fd="${UI_FD:-2}"
-    UI_FD=9
-    # Cache UI FD so callers of get_safe_ui_fd return 9 during buffered render
-    local _old_ui_fd_cache="${_UI_FD_CACHE:-}"
-    local _old_ui_fd_cache_time="${_UI_FD_CACHE_TIME:-0}"
-    _UI_FD_CACHE=9
-    _UI_FD_CACHE_TIME=$(date +%s)
-
-    # Save existing helpers if present
-    local orig_print_at orig_print_at_col
-    orig_print_at="$(declare -f print_at 2>/dev/null || true)"
-    orig_print_at_col="$(declare -f print_at_col 2>/dev/null || true)"
-
-    # Override print helpers to write to FD 9
-    print_at() {
-        local row=$1; shift
-        local line="$*"
-        local esc; esc=$(printf '\\033[%d;1H' "$((row + 1))")
-        printf '%s%s' "$esc" "$line" >&9 2>/dev/null || true
-        return 0
-    }
-    print_at_col() {
-        local row=${1:-0}; local col=${2:-1}; shift 2
-        local text="$*"
-        printf '\033[%d;%dH' "$((row + 1))" "$col" >&9 2>/dev/null || true
-        printf '%s' "$text" >&9 2>/dev/null || true
-        return 0
-    }
-
-    # Draw the complete initial UI into the buffer
-    clear_screen
-    enter_ui_mode
-    draw_top_panel
-    draw_bottom_panel_header "SYSTEM CHECK"
-
-    # Fill interaction area with startup message
-    clear_info_area
-    draw_sealed_row $((LOG_TOP + 1)) "   ${WHITE}${message}${NC}"
-    draw_sealed_row $((LOG_TOP + 3)) "   Please wait while system status is updated..."
-    draw_bottom_border ""
-
-    # Restore helpers and UI_FD, and restore cached UI FD
-    if [[ -n "$orig_print_at" ]]; then eval "$orig_print_at"; fi
-    if [[ -n "$orig_print_at_col" ]]; then eval "$orig_print_at_col"; fi
-    UI_FD="$prev_ui_fd"
-    _UI_FD_CACHE="${_old_ui_fd_cache}"
-    _UI_FD_CACHE_TIME="${_old_ui_fd_cache_time}"
-    exec 9>&-
-
-    # Emit buffer to controlling TTY or stdout
-    # Normalize any literal "\033" sequences into real ESC bytes (some
-    # callers may have produced escaped sequences); use perl when available.
-    if command -v perl >/dev/null 2>&1; then
-        perl -0777 -pe 's/\\033/\x1b/g' "$buf" > "${buf}.norm" || true
-        if [ -f "${buf}.norm" ]; then mv -f "${buf}.norm" "$buf" || true; fi
-    fi
-
-    if [ -w /dev/tty ]; then
-        cat "$buf" > /dev/tty 2>/dev/null || cat "$buf"
-    else
-        cat "$buf"
-    fi
-    rm -f "$buf" 2>/dev/null || true
+# Update the splash screen progress bar
+# Usage: update_splash_progress <current> <total> <text>
+update_splash_progress() {
+    local current=$1
+    local total=$2
+    local text="${3:-Loading...}"
+    
+    # Calculate percentage and bar width
+    local percent=$(( (current * 100) / total ))
+    local bar_width=$(( INNER_COLS - 4 )) # Leave room for borders
+    local filled_width=$(( (current * bar_width) / total ))
+    
+    # Create bar string
+    local bar_str=""
+    for ((i=0; i<filled_width; i++)); do bar_str="${bar_str}█"; done
+    for ((i=filled_width; i<bar_width; i++)); do bar_str="${bar_str}░"; done
+    
+    # Position: 3 rows below the logo/title block (approx row 22)
+    local row=22
+    
+    # Draw Text centered
+    local text_pad=$(( (INNER_COLS - ${#text}) / 2 ))
+    print_at $((row - 1)) "$(printf '%*s%s' "$text_pad" "" "${GRAY}${text}${NC}" "$text_pad")"
+    
+    # Draw Bar centered
+    print_at "$row" "  ${CYAN}${bar_str}${NC}"
 }
 
 # Simple ANT+ test runner: launches `test_ant.py` to emulate a treadmill
@@ -5561,602 +5656,202 @@ perform_ant_test() {
     [[ ! -f "$venv_py" ]] && venv_py=$(command -v python3)
 
     set_ui_output
-    clear_info_area
+    clear_info_area --force
 
-    # Check for ANT+ dongle before attempting to run the test script. This
-    # will update the dashboard `ant_dongle` status (warn/pass) as needed.
-    if ! check_ant_dongle; then
-        # check_ant_dongle already sets the status to 'warn' when missing.
-        draw_error_screen "NO ANT+ DEVICE" "Error: No ANT+ device detected.\n\nPlease connect a supported ANT+ USB dongle and retry the test." 1
+    # 1. Hardware Check
+    if [[ "${STATUS_MAP[ant_dongle]:-}" != "pass" ]]; then
+        draw_error_screen "NO ANT+ DEVICE" "Error: No ANT+ device detected via lsusb." 1
         return 1
     fi
 
-    if [[ ! -f "$py_script" ]]; then
-        draw_error_screen "ANT+ TEST" "Error: Script not found: $py_script\nPlease ensure the file exists in the script directory." 1
-        return 1
+    # 2. Stop Service (only if running)
+    local svc_status
+    svc_status=$(get_service_status)
+    if [[ "$svc_status" == "running" ]]; then
+        draw_bottom_panel_header --force "ANT+ INITIALIZATION"
+        local spinner=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
+        local sc=0
+        local stop_started=false
+        for ((i=0; i<30; i++)); do
+            if [[ "$stop_started" == false ]]; then
+                sudo systemctl stop qz.service >/dev/null 2>&1 || true
+                sudo killall -9 qdomyos-zwift >/dev/null 2>&1 || true
+                stop_started=true
+            fi
+            local spin_char="${spinner[$((sc % 10))]}"
+            draw_sealed_row $((LOG_TOP + 1)) "   ${CYAN}${spin_char}${NC} Stopping background service..."
+            ((sc++))
+            sleep 0.1
+            # Check if stopped
+            svc_status=$(get_service_status)
+            if [[ "$svc_status" != "running" ]]; then
+                break
+            fi
+        done
     fi
 
-    # Launch test script (unbuffered) and capture output to a temp log so we
-    # can display lightweight feedback in the UI. We avoid modifying
-    # ant_broadcaster.py — the test script should import and use it.
-    # Implement pre-kill and retry logic to handle transient device busy
-    # situations. Default: 2 retries. Retry wait is derived from
-    # ANT_TEST_WARMUP if present (shorter), otherwise defaults to 2s.
-    local retries=${ANT_TEST_RETRIES:-2}
-    local warmup_secs=${ANT_TEST_WARMUP:-6}
-    # Compute retry wait: prefer explicit env var, else half of warmup (min 1s)
-    local retry_wait
-    if [[ -n "${ANT_TEST_RETRY_WAIT:-}" ]]; then
-        retry_wait=${ANT_TEST_RETRY_WAIT}
-    else
-        retry_wait=$(( warmup_secs / 2 ))
-        (( retry_wait < 1 )) && retry_wait=1
-    fi
-
+    local retries=2
     local attempt=0
     local launched=0
-    local py_pid=0
-    local success_log_file=""
-    # Try a safe dongle reset before starting attempts to reduce "device busy"
-    # failures. This is best-effort and will not abort the test if it fails.
-    safe_reset_dongle >/dev/null 2>&1 || true
+    local py_pid=""
+    local log_file=""
+    local spinner=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
+    local sc=0
+
+    enter_ui_mode
+    UI_MODAL_ACTIVE=0
+
     while [[ $attempt -le $retries ]]; do
-        # Pre-kill any lingering test processes to free the dongle
         sudo pkill -f test_ant.py >/dev/null 2>&1 || true
-        sudo pkill -f bt_provider.py >/dev/null 2>&1 || true
+        log_file="$TEMP_DIR/qz_ant_test_$$.log"
+        : > "$log_file"
 
-        local log_file="$TEMP_DIR/qz_ant_test_$$.$attempt.log"
-        : > "$log_file" 2>/dev/null || true
+        # 3. Launch Python with UNBUFFERED output
+        # PYTHONUNBUFFERED=1 is critical for the dashboard to see logs in real-time
+        local unit_flag=""
+        if [[ "${CONFIG_BOOL[miles_unit]:-false}" == "true" ]]; then
+            unit_flag="--imperial"
+        fi
+        local cmd="PYTHONUNBUFFERED=1 \"$venv_py\" -u \"$py_script\" --dashboard $unit_flag --pidfile \"$TEMP_DIR/qz_ant_test.pid\""
 
-        if [ "$(id -u)" -eq 0 ] && [[ -n "${TARGET_USER:-}" ]]; then
-            # Ensure the target user can write the log file when sudo-ing
-            chown "$TARGET_USER":"$TARGET_USER" "$log_file" 2>/dev/null || true
-            # Launch the python test under the target user and request it
-            # write its own pidfile using --pidfile. Wait briefly for the
-            # pidfile to appear (best-effort) and fallback to pgrep if needed.
-            sudo -u "$TARGET_USER" -- bash -c "exec \"$venv_py\" -u \"$py_script\" --dashboard --pidfile \"$TEMP_DIR/qz_ant_test.pid\" >\"$log_file\" 2>&1 &"
+        eval "$cmd >\"$log_file\" 2>&1 &"
 
-            py_pid=""
-            for _wait_i in {1..15}; do
-                if [ -s "$TEMP_DIR/qz_ant_test.pid" ]; then
-                    py_pid=$(cat "$TEMP_DIR/qz_ant_test.pid" 2>/dev/null || true)
-                    break
-                fi
-                sleep 0.1
-            done
-
-            # Fallback: try to find the oldest matching python process for
-            # the target user (less likely to pick the wrapper).
-            if [[ -z "$py_pid" ]]; then
-                py_pid=$(pgrep -o -u "$TARGET_USER" -f "test_ant.py" || true)
+        # Wait for PID
+        py_pid=""
+        for _wait_i in {1..30}; do
+            if [ -s "$TEMP_DIR/qz_ant_test.pid" ]; then
+                py_pid=$(cat "$TEMP_DIR/qz_ant_test.pid" 2>/dev/null || true)
+                # Verify PID actually runs
+                if ps -p "$py_pid" >/dev/null 2>&1; then break; fi
             fi
-        else
-            "$venv_py" -u "$py_script" --dashboard --pidfile "$TEMP_DIR/qz_ant_test.pid" >"$log_file" 2>&1 &
-            py_pid=$!
-        fi
-        # Record the pid to a well-known temp file so external cleanup (trap)
-        # can discover and stop the test process if needed.
-        if [[ -n "${TEMP_DIR:-}" ]]; then
-            printf '%s' "$py_pid" > "$TEMP_DIR/qz_ant_test.pid" 2>/dev/null || true
-        fi
-
-        # Wait briefly for the test script to initialize and emit any startup
-        # output. If no output appears within `warmup_secs`, retry.
-        local seen=0
-        for _ in $(seq 1 "$warmup_secs"); do
-            if [ -s "$log_file" ]; then seen=1; break; fi
-            sleep 1
+            sleep 0.1
         done
 
-        if [[ $seen -eq 1 ]]; then
-            launched=1
-            success_log_file="$log_file"
-            break
-        fi
+        # 4. Wait for Signal
+        # We wait up to 25 seconds for the "Signal:Startup" or data flow
+        local seen=0
+        for (( i=0; i<250; i++ )); do
+            if [[ -n "$py_pid" ]] && ! ps -p "$py_pid" >/dev/null 2>&1; then break; fi
 
-        # Startup failed — kill and retry if attempts remain
-        sudo kill -9 "$py_pid" 2>/dev/null || true
-        rm -f "$log_file" 2>/dev/null || true
+            # Check for success signals
+            # "Signal:Startup" = Init successful
+            # "| Cadence" = Data is already flowing
+            if grep -qE "Signal:Startup|\| Cadence" "$log_file"; then
+                seen=1
+                break
+            fi
+
+            # UI Feedback
+            local spin_char="${spinner[$((sc % 10))]}"
+            local last_line=$(tail -n 1 "$log_file" 2>/dev/null | tr -d '\r')
+            local status_msg="Initializing..."
+            [[ "$last_line" == *"Reset"* ]] && status_msg="Resetting USB..."
+            [[ "$last_line" == *"Node"* ]] && status_msg="Opening ANT+ Node..."
+            
+            draw_sealed_row $((LOG_TOP + 2)) "   ${CYAN}${spin_char}${NC}  ${status_msg} (Attempt $((attempt + 1)))"
+            draw_bottom_border --force "Resetting hardware (can take 15s)..."
+            
+            safe_read_key stop_check 0.1
+            if [[ -n "$stop_check" ]]; then
+                [[ -n "$py_pid" ]] && sudo kill -9 "$py_pid" 2>/dev/null || true
+                exit_ui_mode; return 1
+            fi
+            ((sc++))
+        done
+
+        if [[ $seen -eq 1 ]]; then launched=1; break; fi
+        
+        [[ -n "$py_pid" ]] && sudo kill -9 "$py_pid" 2>/dev/null || true
         attempt=$(( attempt + 1 ))
-        if [[ $attempt -le $retries ]]; then
-            sleep "$retry_wait"
-        fi
     done
 
     if [[ $launched -ne 1 ]]; then
-        draw_error_screen "NO ANT+ DEVICE" \
-            "Error: No ANT+ device detected.\n\nThe ANT+ test could not start after retries. Please connect a supported ANT+ USB dongle and retry, or run test_ant.py from a shell to debug." 1
+        local final_err=$(tail -n 10 "$log_file" 2>/dev/null | tr -d '\r')
+        draw_error_screen "STARTUP FAILED" "Python process failed to initialize.\n\nLog Output:\n$final_err" 1
         return 1
     fi
 
-    # Use the successful log file for monitoring
-    local log_file="$success_log_file"
+    # 5. Live Display Loop
+    draw_bottom_panel_header "ANT+ BROADCAST TEST"
+    clear_info_area
 
-    # Capture a short startup excerpt so we can display initialization
-    # messages immediately in the UI after entering UI mode. Read a few
-    # extra lines so we can filter noisy USB/dongle diagnostics.
-    local initial_startup_lines=()
-    if [ -f "$log_file" ]; then
-        mapfile -t initial_startup_lines < <(tail -n 6 "$log_file" 2>/dev/null || true)
-        # Strip ANSI while collecting diagnostics separately so we can
-        # merge dongle/reset diagnostics into the primary initialization
-        # line instead of discarding them.
-        local _tmp=()
-        local _diag=()
-        for l in "${initial_startup_lines[@]}"; do
-            local cl
-            cl=$(strip_ansi_cached "$l")
-            if [[ "$cl" =~ (Pre-Test[[:space:]]USB[[:space:]]Reset|Found[[:space:]]dongle:|Attempting[[:space:]]to[[:space:]]reset|Reset[[:space:]]complete|ERROR[[:space:]]during[[:space:]]USB[[:space:]]reset) ]]; then
-                _diag+=("$cl")
-                continue
-            fi
-            _tmp+=("$cl")
-        done
-        # If we have diagnostics, merge them into the first meaningful
-        # startup line (or use them as the primary line if none exist).
-        if [ ${#_diag[@]} -gt 0 ]; then
-            local diag_join
-            diag_join=$(printf ' | %s' "${_diag[@]}")
-            # trim leading separator
-            diag_join=${diag_join#" | "}
-            if [ ${#_tmp[@]} -gt 0 ]; then
-                _tmp[0]="${_tmp[0]} — ${diag_join}"
-            else
-                _tmp=("${diag_join}")
-            fi
-        fi
-        # Keep the last 3 meaningful lines (oldest->newest)
-        if [ ${#_tmp[@]} -gt 3 ]; then
-            initial_startup_lines=("${_tmp[@]: -3}")
-        else
-            initial_startup_lines=("${_tmp[@]}")
-        fi
+    # Draw instructions immediately to avoid blank panel
+    draw_sealed_row $((LOG_TOP + 6)) "   1. WATCH: Open Sensors & Accessories > Add New."
+    draw_sealed_row $((LOG_TOP + 7)) "   2. PAIR: Select Foot Pod and follow pairing prompts."
+    draw_sealed_row $((LOG_TOP + 8)) "   3. TEST: Start a Treadmill or Run Indoor activity."
 
-        # Normalize certain verbose startup messages for a cleaner UI.
-        # Extract a dedicated device-id line so it can be displayed below
-        # the progress bar with a blank row separating them.
-        DEVICE_ID_LINE=""
-        for i in "${!initial_startup_lines[@]}"; do
-            local _il
-            _il=${initial_startup_lines[i]}
-            if [[ "$_il" =~ Starting[[:space:]]ANT\+[[:space:]]broadcaster[[:space:]]with[[:space:]]device[[:space:]]ID[[:space:]]*([0-9]+) ]]; then
-                DEVICE_ID_LINE="ANT+ broadcaster device ID: ${BASH_REMATCH[1]}"
-                # remove from the startup lines so it doesn't display twice
-                initial_startup_lines[i]=""
-            fi
-        done
-    fi
-    # Ensure exactly three slots exist (may be empty)
-    for i in 0 1 2; do
-            if [[ -z "${initial_startup_lines[i]:-}" ]]; then
-            initial_startup_lines[i]=""
-        fi
-    done
+    draw_bottom_border "Any key to stop"
 
-    enter_ui_mode
-    # shellcheck disable=SC2034
+    local last_elapsed="-1"
+    local stale_count=0
     local spinner=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
     local sc=0
-    local _first_draw=1
-    local _prev_stage=""
-    local _prev_metrics=""
+
     while true; do
-        # If process died, break
         if ! ps -p "$py_pid" >/dev/null 2>&1; then
-            # Process exited — show a compact, panel-safe summary of the
-            # final status so we don't overflow the info area.
-            local excerpt
-            excerpt=$(tail -n 8 "$log_file" 2>/dev/null || true)
-            local panel_msg=""
-            panel_msg+="ANT+ Test completed.\n"
-            panel_msg+="Test completed - broadcaster stopped.\n"
-            if [[ -n "$excerpt" ]]; then
-                panel_msg+="Last output from test_ant.py:\n"
-                while IFS= read -r l; do
-                    local clean short
-                    clean=$(strip_ansi_cached "$l" | tr -s ' ')
-                    # Tighten common verbose messages into short bullets
-                    if [[ "$clean" == *"not connected"* ]] || [[ "$clean" == *"in use"* ]] || [[ "$clean" == *"missing"* ]] || [[ "$clean" == *"not connected or is in use"* ]]; then
-                        short="Dongle missing/in use"
-                    elif [[ "$clean" =~ [Dd]ongle ]]; then
-                        short="$clean"
-                    elif [[ "$clean" == *"Permission issues"* ]] || [[ "$clean" == *"Permission denied"* ]]; then
-                        short="Permission error (run sudo)"
-                    elif [[ "$clean" == *"openant"* && ( "$clean" == *"not installed"* || "$clean" == *"missing"* ) ]]; then
-                        short="openant missing"
-                    elif [[ "$clean" == *"Stopping ANT+ broadcaster"* || "$clean" == *"broadcaster stopped"* ]]; then
-                        # skip noisy stop messages; they are not actionable
-                        continue
-                    else
-                        short="$clean"
-                    fi
-                    # prefix dash and cap to available width
-                    panel_msg+="- ${short:0:$((INFO_WIDTH-6))}\n"
-                done <<< "$excerpt"
+            local excerpt=$(tail -n 5 "$log_file" 2>/dev/null | tr -d '\r')
+            # Check if the test completed normally by looking for "Test finished." in the log
+            if grep -q "Test finished." "$log_file" 2>/dev/null; then
+                # Normal completion - show success message
+                draw_info_screen "TEST COMPLETED" "ANT+ test finished successfully.\nAll stages completed including 'Stopping'." "wait"
             else
-                panel_msg+="No output captured from test_ant.py.\n"
+                # Unexpected exit - show error
+                draw_error_screen "TEST STOPPED" "Process exited unexpectedly.\nLog:\n$excerpt" 1
             fi
-            # Render using draw_instructions_bottom which will crop/paginate
-            # to the available info panel height (LOG_TOP..LOG_BOTTOM).
-            # Use the error panel for the broadcast test output so users
-            # must acknowledge the failure/details. Expand \n escapes
-            # into real newlines before passing to the error renderer.
-            draw_error_screen "ANT+ BROADCAST TEST" "$(printf '%b' "$panel_msg")" 1
             break
         fi
 
-        # Display a small status area showing last log line and parsed metrics
-        local last_line="" clean_line="" cadence="" speed="" pace=""
-        if [ -f "$log_file" ]; then
-            # Read the tail of the log (include carriage-return-updated lines).
-            local last_chunk
-            last_chunk=$(tail -c 512 "$log_file" 2>/dev/null || true)
-            # Convert CR to LF so progress printed with '\r' becomes separate
-            # lines and then select the last non-empty fragment. Using awk
-            # avoids picking a trailing empty fragment when a CR is the
-            # final byte in the captured chunk.
-            last_line=$(printf '%s' "$last_chunk" | tr '\r' '\n' | awk 'NF{l=$0} END{print l}')
-        fi
-        # Strip ANSI and control bytes for reliable parsing
-        clean_line=$(strip_ansi_cached "${last_line}")
-        # Extract common metrics if present (cadence, speed, pace) from
-        # the most recent single-line output (fast path)
-        if [[ "$clean_line" =~ ([Cc]adence|cad)[[:space:][:punct:]]*([0-9]{1,3}) ]]; then
-            cadence="${BASH_REMATCH[2]}"
-        fi
-        if [[ "$clean_line" =~ ([Ss]peed|spd)[[:space:][:punct:]]*([0-9]+\.?[0-9]*)([[:space:]]*(km/h|kph|m/s|mph))? ]]; then
-            speed="${BASH_REMATCH[2]}"
-            if [[ -n "${BASH_REMATCH[4]:-}" ]]; then
-                speed+=" ${BASH_REMATCH[4]}"
-            fi
-        fi
-        if [[ "$clean_line" =~ ([Pp]ace)[[:space:][:punct:]]*([0-9]{1,2}:[0-9]{2}) ]]; then
-            pace="${BASH_REMATCH[2]}"
-        elif [[ "$clean_line" =~ ([0-9]{1,2}):([0-9]{2}) ]]; then
-            pace="${BASH_REMATCH[1]}:${BASH_REMATCH[2]}"
-        fi
+        # Read the last line only
+        local line=$(tail -n 1 "$log_file" 2>/dev/null | tr -d '\r')
 
-        # Scan the last N log lines for stage/target text produced by
-        # test_ant.py so metrics update when stages change. This overrides
-        # any parsed values from the single-line fast path and keeps the
-        # UI in sync with the printed stage info.
-        local recent
-        recent=$(tail -n 40 "$log_file" 2>/dev/null || true)
-        # Normalize to uppercase for simple case-insensitive matching
-        local recent_upper
-        recent_upper=$(printf '%s' "$recent" | tr '[:lower:]' '[:upper:]')
+        # Regex: "Stage Name | Cadence:100 Speed:10.0 Pace:6:00 [ 10s / 20s ]"
+        if [[ "$line" =~ ^([^|]+)\|[[:space:]]*Cadence:([0-9]+)[[:space:]]*Speed:([0-9.]+)[[:space:]]*Pace:([^ ]+)[[:space:]]*\[[[:space:]]*([0-9]+)s[[:space:]]*/[[:space:]]*([0-9]+)s[[:space:]]*\] ]]; then
+            local stage="${BASH_REMATCH[1]}"
+            local cad="${BASH_REMATCH[2]}"
+            local spd="${BASH_REMATCH[3]}"
+            local pace="${BASH_REMATCH[4]}"
+            local t_now="${BASH_REMATCH[5]}"
+            local t_max="${BASH_REMATCH[6]}"
 
-        if [[ "$recent_upper" =~ TARGET[[:space:]]+SPEED[:[:space:]]*([0-9]+\.?[0-9]*) ]]; then
-            speed="${BASH_REMATCH[1]}"
-        fi
-        if [[ "$recent_upper" =~ EXPECTED[[:space:]]+PACE[:[:space:]]*~?([0-9]{1,2}:[0-9]{2})(-([0-9]{1,2}:[0-9]{2}))? ]]; then
-            # If a range is present (e.g. 12:00-12:05) prefer the upper bound
-            if [[ -n "${BASH_REMATCH[3]:-}" ]]; then
-                pace="${BASH_REMATCH[3]}"
-            else
-                pace="${BASH_REMATCH[1]}"
-            fi
-        fi
-        if [[ "$recent_upper" =~ EXPECTED[[:space:]]+CADENCE[:[:space:]]*([0-9]{1,3}) ]]; then
-            cadence="${BASH_REMATCH[1]}"
-        fi
+            # Data Freeze Detection
+            if [[ "$t_now" == "$last_elapsed" ]]; then ((stale_count++)); else last_elapsed="$t_now"; stale_count=0; fi
 
-        if [[ _first_draw -eq 1 || $_first_draw -eq "1" ]]; then
-            # Initial full draw (static parts) - do this once to reduce redraws
-            draw_bottom_panel_header "ANT+ BROADCAST TEST"
-            clear_info_area
-            # Display captured initialization messages (up to 3 lines).
-            # Stage will later overwrite the first of these rows when it
-            # appears; the remaining lines remain for diagnostics.
-            draw_sealed_row $((LOG_TOP + 1)) "   ${initial_startup_lines[0]:-}"
-            draw_sealed_row $((LOG_TOP + 2)) "   ${initial_startup_lines[1]:-}"
-            draw_sealed_row $((LOG_TOP + 3)) "   ${initial_startup_lines[2]:-}"
-            # If we captured a dedicated device-id line, render it below
-            # the progress bar with one blank separator row (now LOG_TOP+3).
-            if [[ -n "${DEVICE_ID_LINE:-}" ]]; then
-                draw_sealed_row $((LOG_TOP + 4)) "   ${DEVICE_ID_LINE}"
-            fi
-            # Use bottom border for stop instruction (consistency with Bluetooth)
-            draw_bottom_border "Any key to stop"
-            _first_draw=0
-        fi
+            stage="$(echo "$stage" | xargs)"
+            draw_sealed_row $((LOG_TOP + 2)) "   ${BOLD_WHITE}${stage}${NC}   ID:54321   ${CYAN}Pace:${pace}  Cad:${cad}  Spd:${spd}${NC}"
 
-        # Update dynamic rows: stage name, metrics, and timer/progress (if compact)
-        local stage_name_display=""
-        local metrics_display=""
-        local timer_display=""
-        local timer_elapsed=""
-        local timer_total=""
-
-        # If the compact dashboard status is present (stage | ...), parse it
-        local compact_present=0
-        if [[ "$clean_line" =~ ^([^|]+)\|[[:space:]]*(.*) ]]; then
-            compact_present=1
-            stage_name_display="${BASH_REMATCH[1]}"
-            local compact_rest="${BASH_REMATCH[2]}"
-            # Extract timer in brackets like [  7s / 30s ] (regex needs nested [] groups)
-            if [[ "$compact_rest" =~ \[[[:space:]]*([0-9]{1,3})s[[:space:]]*/[[:space:]]*([0-9]{1,3})s[[:space:]]*\] ]]; then
-                timer_elapsed="${BASH_REMATCH[1]}"
-                timer_total="${BASH_REMATCH[2]}"
-                timer_display="[ ${timer_elapsed}s / ${timer_total}s ]"
-                # remove the bracketed timer from metrics
-                compact_rest=$(printf '%s' "$compact_rest" | sed -E 's/\[.*\]//')
-            fi
-            # Parse individual metric tokens from compact_rest
-            local m_cad="" m_speed="" m_pace=""
-            if [[ "$compact_rest" =~ [Cc]adence[:space:]*([0-9]{1,3}) ]]; then m_cad="${BASH_REMATCH[1]}"; fi
-            if [[ "$compact_rest" =~ [Ss]peed[:space:]*([0-9]+\.?[0-9]*) ]]; then m_speed="${BASH_REMATCH[1]}"; fi
-            if [[ "$compact_rest" =~ [Pp]ace[:space:]*([0-9]{1,2}:[0-9]{2}) ]]; then m_pace="${BASH_REMATCH[1]}"; fi
-            # Simplified: use fixed 18-char fields per metric (54 total).
-            # Compute progress width and cap metrics if terminal too narrow.
-            local TIMER_FIELD_W=18
-            local progress_w=$(( INNER_COLS - 7 - TIMER_FIELD_W ))
-            if [[ $progress_w -lt 8 ]]; then progress_w=8; fi
-
-            local FIXED_MET_COL=18
-            local FIXED_MET_TOTAL=$(( FIXED_MET_COL * 3 ))
-
-            # If terminal/progress width is narrower than FIXED_MET_TOTAL,
-            # shrink each column proportionally (floor) to avoid overflow.
-            local col_w=$FIXED_MET_COL
-            if (( FIXED_MET_TOTAL > progress_w )); then
-                col_w=$(( progress_w / 3 ))
-                if (( col_w < 6 )); then col_w=6; fi
-            fi
-
-            local col1=$col_w; local col2=$col_w; local col3=$col_w
-
-            local left_txt="Pace:${m_pace:---}"
-            local mid_txt="Cadence:${m_cad:---}"
-            local right_txt="Speed:${m_speed:---}"
-
-            left_txt=$(trunc_vis "$left_txt" $col1)
-            mid_txt=$(trunc_vis "$mid_txt" $col2)
-            right_txt=$(trunc_vis "$right_txt" $col3)
-
-            left_txt=$(pad_display "$left_txt" "$col1")
-            mid_txt=$(pad_display "$mid_txt" "$col2")
-            right_txt=$(pad_display "$right_txt" "$col3")
-
-            metrics_display="${left_txt}${mid_txt}${right_txt}"
+            # Calculate bar width dynamically based on actual prefix length, with 6-char margin from right border
+            local line_without_bar="   ${CYAN}[ ${t_now}s / ${t_max}s ]${NC}  "
+            local line_vis
+            line_vis=$(get_display_width "$line_without_bar")
+            local bar_w=$(( INNER_COLS - line_vis - 6 ))
+            local fill=0; [[ $t_max -gt 0 ]] && fill=$(( (t_now * bar_w) / t_max ))
+            [[ $fill -gt $bar_w ]] && fill=$bar_w
+            local p_bar="${BG_GREEN}$(printf '%*s' "$fill" "")${BG_GRAY}$(printf '%*s' "$((bar_w - fill))" "")${NC}"
+            draw_sealed_row $((LOG_TOP + 3)) "${line_without_bar}${p_bar}"
         else
-            # No compact stage present; do not treat arbitrary log lines
-            # as the 'stage' — only show stage when compact status exists
-            # or when metrics are present. This avoids overwriting startup
-            # messages with partial log fragments.
-            stage_name_display=""
-            # Build metrics from parsed cadence/speed/pace variables
-            local metrics_line=""
-            [[ -n "$pace" ]] && metrics_line+="Pace: ${pace}  "
-            [[ -n "$cadence" ]] && metrics_line+="Cadence: ${cadence}  "
-            [[ -n "$speed" ]] && metrics_line+="Speed: ${speed}  "
-            if [[ -n "$metrics_line" ]]; then
-                metrics_display="$metrics_line"
-            else
-                # Do not print a noisy placeholder here to avoid overlapping
-                # with startup messages from test_ant.py. Leave metrics empty
-                # until real broadcast data arrives.
-                metrics_display=""
-            fi
+            # Show spinner during the time that no live staging is displayed
+            local spin_char="${spinner[$((sc % 10))]}"
+            draw_sealed_row $((LOG_TOP + 2)) "   ${CYAN}${spin_char}${NC}  Waiting for staging data..."
+            ((sc++))
         fi
 
-        # Render stage and metrics on the SAME line: stage at left, then
-        # a ' . ' separator, then three evenly spaced metric columns that
-        # occupy exactly the progress-bar width so they never overflow.
-        # Build stage prefix and ensure it is truncated if necessary to fit.
-        local stage_prefix_spaces="   "
-        # Use spaces as separator; do not print a dot character
-        local sep="  "
-
-        # Fixed metrics total width (3 * 18 = 54) used for stage truncation
-        local FIXED_MET_COL=18
-        local FIXED_MET_TOTAL=$(( FIXED_MET_COL * 3 ))
-
-        # Determine progress width (same as above) and metrics_allowed_w
-        local TIMER_FIELD_W=18
-        local progress_w=$(( INNER_COLS - 7 - TIMER_FIELD_W ))
-        if [[ $progress_w -lt 8 ]]; then progress_w=8; fi
-        # shellcheck disable=SC2034
-        local metrics_allowed_w=$progress_w
-
-        # To align metrics with the progress bar, force the stage text to
-        # occupy a fixed visual width so that the metrics begin at the
-        # same column as the progress bar. Compute max stage width so that
-        # stage_prefix + stage_text + sep == (3 + TIMER_FIELD_W + 2)
-        # Solve for stage_text: stage_text_vis = (3 + TIMER_FIELD_W + 2) - (vis(stage_prefix)+vis(sep))
-        local desired_metrics_col=$(( 3 + TIMER_FIELD_W + 2 ))
-        local prefix_vis
-        prefix_vis=$(get_vis_width "$stage_prefix_spaces")
-        local sep_vis
-        sep_vis=$(get_vis_width "$sep")
-        local max_stage_vis=$(( desired_metrics_col - prefix_vis - sep_vis ))
-        if [[ $max_stage_vis -lt 0 ]]; then max_stage_vis=0; fi
-
-        # Truncate and pad the stage text to exactly max_stage_vis so metrics
-        # will start at the same column as the progress bar below.
-        local truncated_stage
-        truncated_stage=$(trunc_vis "$stage_name_display" $max_stage_vis)
-        truncated_stage=$(pad_display "$truncated_stage" "$max_stage_vis")
-        local stage_row_text="${stage_prefix_spaces}${BOLD_WHITE}${truncated_stage}${NC}${sep}"
-
-        # Combine stage text and metrics (metrics_display already padded to metrics_allowed_w)
-        local full_line_content="${stage_row_text}${CYAN}${metrics_display}${NC}"
-
-        # Build an atomic render buffer for the dynamic rows (avoid interleaved prints)
-        local render_buffer=""
-
-        # Row LOG_TOP+1: show startup/initialization messages while compact
-        # status is NOT present. Do NOT clear this row once the compact
-        # status appears; leave whatever initialization message was printed
-        # so the user can read startup diagnostics.
-        local row4=$(( LOG_TOP + 1 ))
-        if [[ $compact_present -eq 0 && -n "$clean_line" ]]; then
-            local row4_text
-            row4_text=$(trunc_vis "   ${clean_line}" $INNER_COLS)
-            local vis4
-            vis4=$(get_vis_width "$row4_text")
-            local pad4=$(( INNER_COLS - vis4 )); (( pad4 < 0 )) && pad4=0
-            local padstr4
-            padstr4=$(printf '%*s' "$pad4" "")
-            local line4="${BLUE}║${NC}${row4_text}${padstr4}${BLUE}║${NC}"
-              render_buffer+=$(printf "\033[%d;1H%s" "$((row4 + 1))" "$line4")
+        if [[ $stale_count -gt 25 ]]; then
+            draw_error_screen "DATA FREEZE" "Hardware connected but data stream stopped." "wait"; break
         fi
 
-        # Stage will render at LOG_TOP+1 (it will overwrite the init text)
-        local row_stage=$(( LOG_TOP + 1 ))
-        # Only render this row if we have either a stage or metrics to show.
-        # shellcheck disable=SC2034
-        local stage_vis
-        stage_vis=$(get_vis_width "$(strip_ansi_cached "$truncated_stage")")
-        : "${stage_vis:-}" >/dev/null 2>&1
-        # Allow rendering when we either have a compact stage line OR
-        # when parsed metrics exist (fast-path parsing). Pad metrics
-        # when compact status is not present so columns align.
-        if [[ $compact_present -eq 0 && -n "$metrics_display" ]]; then
-            metrics_display=$(trunc_vis "$metrics_display" "$metrics_allowed_w")
-            metrics_display=$(pad_display "$metrics_display" "$metrics_allowed_w")
-        fi
-        if [[ $compact_present -eq 1 || -n "$metrics_display" ]]; then
-            local vis_stage
-            vis_stage=$(get_vis_width "$full_line_content")
-            local pad_stage=$(( INNER_COLS - vis_stage )); (( pad_stage < 0 )) && pad_stage=0
-            local padstr_stage
-            padstr_stage=$(printf '%*s' "$pad_stage" "")
-            local line_stage="${BLUE}║${NC}${full_line_content}${padstr_stage}${BLUE}║${NC}"
-              render_buffer+=$(printf "\033[%d;1H%s" "$((row_stage + 1))" "$line_stage")
-        fi
-
-        # Row LOG_TOP+2: timer + progress (only when compact status is present)
-        local row_progress=$(( LOG_TOP + 2 ))
-        local TIMER_FIELD_W=18
-        local timer_field=""
-        if [[ -n "$timer_display" ]]; then
-            local timer_vis
-            timer_vis=$(get_vis_width "$timer_display")
-            local pad=$(( TIMER_FIELD_W - timer_vis ))
-            (( pad < 0 )) && pad=0
-            timer_field="${CYAN}${timer_display}${NC}$(printf '%*s' "$pad" "")"
-        else
-            timer_field=$(printf '%*s' "$TIMER_FIELD_W" "")
-        fi
-
-        local progress_w=$(( INNER_COLS - 7 - TIMER_FIELD_W ))
-        if [[ $progress_w -lt 8 ]]; then progress_w=8; fi
-        local progress_bar=""
-        if [[ -n "$timer_elapsed" && -n "$timer_total" && $timer_total -gt 0 ]]; then
-            local num_filled=$(( (timer_elapsed * progress_w) / timer_total ))
-            (( num_filled > progress_w )) && num_filled=$progress_w
-            (( num_filled < 0 )) && num_filled=0
-            local filled_spaces
-            filled_spaces=$(printf '%*s' "$num_filled" "")
-            local empty_spaces
-            empty_spaces=$(printf '%*s' "$((progress_w - num_filled))" "")
-            progress_bar="${BG_GREEN}${filled_spaces}${BG_GRAY}${empty_spaces}${NC}"
-        else
-            local empty_spaces
-            empty_spaces=$(printf '%*s' "$progress_w" "")
-            progress_bar="${BG_GRAY}${empty_spaces}${NC}"
-        fi
-
-        local row_progress_text=""
-        if [[ $compact_present -eq 1 && -n "$timer_total" && $timer_total -gt 0 ]]; then
-            row_progress_text="   ${timer_field}  ${progress_bar}"
-        fi
-        if [[ -n "$row_progress_text" ]]; then
-            local visp
-            visp=$(get_vis_width "$row_progress_text")
-            local padp=$(( INNER_COLS - visp )); (( padp < 0 )) && padp=0
-            local padstrp
-            padstrp=$(printf '%*s' "$padp" "")
-            local linep="${BLUE}║${NC}${row_progress_text}${padstrp}${BLUE}║${NC}"
-              render_buffer+=$(printf "\033[%d;1H%s" "$((row_progress + 1))" "$linep")
-        fi
-
-        # Show simple user guidance while a stage is actively running
-        if [[ $compact_present -eq 1 ]]; then
-            # Leave one blank row after the progress bar and device-id
-            # row, so shift guidance lines down for visual separation.
-            local g1_row=$(( LOG_TOP + 6 ))
-            local g2_row=$(( LOG_TOP + 7 ))
-            local g3_row=$(( LOG_TOP + 8 ))
-            local g1="   On your watch: enable the Foot Pod sensor and start a treadmill workout."
-            local g2="   Menu → Sensors & Accessories → Add New → Foot Pod (pair now)."
-            local g3="   Start Treadmill / Run Indoor activity — Watch will display pace & cadence."
-            # Truncate/pad to fit
-            g1=$(trunc_vis "$g1" $INNER_COLS)
-            g2=$(trunc_vis "$g2" $INNER_COLS)
-            g3=$(trunc_vis "$g3" $INNER_COLS)
-            local visg1 visg2 visg3 padg1 padg2 padg3 padstrg1 padstrg2 padstrg3 lineg1 lineg2 lineg3
-            visg1=$(get_vis_width "$g1")
-            visg2=$(get_vis_width "$g2")
-            visg3=$(get_vis_width "$g3")
-            padg1=$(( INNER_COLS - visg1 )); (( padg1 < 0 )) && padg1=0
-            padg2=$(( INNER_COLS - visg2 )); (( padg2 < 0 )) && padg2=0
-            padg3=$(( INNER_COLS - visg3 )); (( padg3 < 0 )) && padg3=0
-            padstrg1=$(printf '%*s' "$padg1" "")
-            padstrg2=$(printf '%*s' "$padg2" "")
-            padstrg3=$(printf '%*s' "$padg3" "")
-            lineg1="${BLUE}║${NC}${g1}${padstrg1}${BLUE}║${NC}"
-            lineg2="${BLUE}║${NC}${g2}${padstrg2}${BLUE}║${NC}"
-            lineg3="${BLUE}║${NC}${g3}${padstrg3}${BLUE}║${NC}"
-            render_buffer+=$(printf "\033[%d;1H%s" "$((g1_row + 1))" "$lineg1")
-            render_buffer+=$(printf "\033[%d;1H%s" "$((g2_row + 1))" "$lineg2")
-            render_buffer+=$(printf "\033[%d;1H%s" "$((g3_row + 1))" "$lineg3")
-        fi
-
-        # Atomic write of dynamic area
-        local ui_fd
-        ui_fd=$(get_safe_ui_fd)
-        ( printf '%s' "$render_buffer" >&"${ui_fd}" ) 2>/dev/null || true
-
-        # Non-blocking read for key to allow user to abort
-        local key
-        IFS= read -rsn1 -t 0.4 key 2>/dev/null || true
-        if [[ -n "$key" ]]; then
-            # Any key stops the test (consistent with Bluetooth scan)
-            # Show a friendly, non-technical completion panel similar to
-            # the DEVICE LINKED flow so users see a consistent UI.
-            draw_bottom_panel_header "ANT+ BROADCAST TEST"
-            clear_info_area
-            draw_sealed_row $((LOG_TOP + 2)) "   ${GREEN}Test completed successfully${NC}"
-            draw_sealed_row $((LOG_TOP + 4)) "   Cleaning up devices..."
-            draw_sealed_row $((LOG_TOP + 7)) "   "
-            draw_sealed_row $((LOG_TOP + 8)) "   "
-            draw_bottom_border ""
-            sleep 2
-            # Now request a graceful shutdown of the test script so it can
-            # cleanly stop the broadcaster and release the USB device.
+        safe_read_key stop_key 0.2
+        if [[ -n "$stop_key" ]]; then
+            draw_bottom_panel_header "STOPPING..."
             sudo kill -TERM "$py_pid" 2>/dev/null || true
-            # Give the test process some time to run its cleanup handlers
-            # (broadcaster.stop()) before we escalate. This avoids leaving
-            # the dongle in a claimed state which can keep the watch linked.
-            local shutdown_wait=4
-            local waited=0
-            while ps -p "$py_pid" >/dev/null 2>&1 && [ $waited -lt $shutdown_wait ]; do
-                sleep 0.5
-                waited=$((waited+1))
-            done
-            if ps -p "$py_pid" >/dev/null 2>&1; then
-                # Still alive — escalate to kill -9
-                sudo kill -9 "$py_pid" 2>/dev/null || true
-            fi
             break
         fi
-        sc=$((sc+1))
     done
 
-    # Cleanup and ensure process terminated
-    if ps -p "$py_pid" >/dev/null 2>&1; then
-        sudo kill -9 "$py_pid" 2>/dev/null || true
-    fi
-    # Remove pid file so external cleaners don't attempt to kill a dead process
     rm -f "$TEMP_DIR/qz_ant_test.pid" 2>/dev/null || true
-    rm -f "$log_file" 2>/dev/null || true
-
-    sleep 2
     exit_ui_mode
     return 0
 }
+
 
 ### Milestone 1-4: Service config, generation and validators
 # Persistent service flags storage
@@ -6910,14 +6605,14 @@ check_final_status() {
         done
 
         if [ $fails -gt 0 ]; then
-            # --- FAILURE MODE (Fresh Install) ---
+            # --- (Fresh Install) ---
             local choice
             prompt_action_menu "$fails"
             choice=$?
             case $choice in
                 0) # Guided Fix
                     if run_guided_mode; then
-                        draw_verifying_screen "Verifying repairs..."
+                        draw_verifying_screen "Verifying system state..."
                         run_all_checks
                     fi
                     ;;
@@ -7091,29 +6786,38 @@ fi
 # ============================================================================
 
 # 1. Prepare terminal
-# Ensure cleanup on exit or signals: stop test sessions and attempt dongle reset
 trap 'safe_shutdown 0' EXIT
 trap 'safe_shutdown 130' SIGINT
 trap 'safe_shutdown 143' SIGTERM
 set_ui_output
-# Show quick splash for immediate feedback unless disabled
-if [[ "${QZ_NO_SPLASH:-0}" -eq 0 ]]; then
-    draw_splash_screen
-fi
-# Initialize symbol cache and draw the complete initial UI in a single buffered pass
 init_symbol_cache
-draw_initial_screen "Verifying system status..."
 
-# 3. Perform the checks (The status icons will update live in the top panel)
-run_all_checks
+# 2. Startup Sequence
+if [[ "${QZ_NO_SPLASH:-0}" -eq 0 ]]; then
+    # Draw Logo
+    draw_splash_screen "QDomyos-Zwift" "ANT+ BRIDGE SETUP UTILITY"
+    
+    # Run Checks in Splash Mode (Updates progress bar, populates STATUS_MAP)
+    run_all_checks "splash"
+    
+    # Brief pause to show 100%
+    update_splash_progress 100 100 "Initialization Complete"
+    sleep 2
+fi
 
-# If requested via CLI, jump directly to the Bluetooth scanning page and
-# perform a scan non-interactively, then exit. This is useful for automated
-# captures and avoids the interactive main menu.
+# 3. Render the Dashboard
+# Now we draw the full dashboard. Since run_all_checks populated STATUS_MAP,
+# this function will render with the correct icons immediately.
+draw_top_panel
+draw_bottom_panel_header "INFORMATION"
+draw_instructions_bottom "$CURRENT_INSTRUCTION"
+draw_bottom_border
+
+# 4. Handle CLI Scan-Now
 if [ "${SCAN_NOW:-0}" -eq 1 ]; then
     perform_bluetooth_scan
     finish_and_exit
 fi
 
-# 4. Enter the main menu loop
+# 5. Enter the main menu loop
 check_final_status

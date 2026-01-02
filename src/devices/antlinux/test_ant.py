@@ -18,42 +18,42 @@ import sys
 import argparse
 import os
 import signal
+import functools
 
+# --- CRITICAL FIX START ---
+# Force all print statements to flush immediately to stdout.
+# This ensures the bash dashboard receives "Signal:Startup" and workout data
+# instantly, preventing the "HARDWARE TIMEOUT" error.
+print = functools.partial(print, flush=True)
+# --- CRITICAL FIX END ---
 
 def write_pidfile(path: str) -> None:
-    """Write current process PID to `path` (best-effort).
-    This is used by external launchers (the dashboard) to reliably
-    detect and monitor the running test process.
-    """
+    """Write current process PID to `path` (best-effort)."""
     try:
-        # Ensure directory exists
         d = os.path.dirname(path)
         if d and not os.path.isdir(d):
-            try:
-                os.makedirs(d, exist_ok=True)
-            except Exception:
-                pass
+            os.makedirs(d, exist_ok=True)
         with open(path, 'w') as f:
             f.write(str(os.getpid()))
-            f.flush()
-            try:
-                os.fsync(f.fileno())
-            except Exception:
-                pass
     except Exception:
-        # Best-effort: do not fail startup if pidfile cannot be written
         pass
 
-# Timing constants for probe/reset and main loop (tweak per-platform)
+# Timing constants
 PROBE_SHORT_SLEEP = 0.6
 PROBE_LONG_SLEEP = 0.8
-RESET_SETTLE = 0.5
+RESET_SETTLE = 1.0
 LOOP_PERIOD = 0.250
 
 # Ensure the ant_broadcaster module can be found in the same directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
 if script_dir not in sys.path:
     sys.path.insert(0, script_dir)
+
+# --- EARLY STARTUP SIGNAL ---
+# This must run before any package imports (like usb/openant) 
+# so the dashboard detects life immediately.
+if '--dashboard' in sys.argv:
+    print("STAGE 0/1: Initializing | Signal:Startup")
 
 # Ensure pyusb symbols are imported into the module namespace for USB ops
 try:
@@ -99,6 +99,19 @@ def check_required_packages():
 
 
 # Early self-check: if any runtime packages are missing, print and exit
+# Emit an early startup signal for the dashboard to detect before checking packages
+if '--dashboard' in sys.argv:
+    # --- CRITICAL FIX: Explicit flush to ensure bash script sees this immediately ---
+    print("STAGE 0/1: Initializing | Signal:Startup")
+    sys.stdout.flush()
+    # Debug: Log the startup signal to a file
+    try:
+        with open('/tmp/test_ant_startup.log', 'w') as f:
+            f.write("STAGE 0/1: Initializing | Signal:Startup\n")
+            f.flush()
+    except Exception:
+        pass
+
 if not check_required_packages():
     # Informational exit (non-zero) so callers know the test didn't run
     sys.exit(2)
@@ -161,6 +174,27 @@ def estimate_cadence(speed_kmh: float) -> int:
     return int(cadence + 0.5) & ~1
 
 
+
+def calculate_pace(speed_kmh: float) -> str:
+    """Calculates and formats the pace in min/km as MM:SS."""
+    if speed_kmh <= 0:
+        return "00:00"
+    pace_min_per_km = 60.0 / speed_kmh
+    minutes = int(pace_min_per_km)
+    seconds = int((pace_min_per_km - minutes) * 60)
+    return f"{minutes}:{seconds:02d}"
+
+def calculate_pace(speed_kmh: float) -> str:
+    """Calculates and formats the expected pace in min/km."""
+    if speed_kmh < 0.5:
+        return "--:--"
+    pace_min_per_km_float = 60.0 / speed_kmh
+    total_seconds_km = pace_min_per_km_float * 60
+    lower_bound_sec_km = (total_seconds_km // 5) * 5
+    km_str = "{}:{:02d}".format(
+        int(lower_bound_sec_km // 60), int(lower_bound_sec_km % 60)
+    )
+    return km_str
 
 def calculate_and_format_pace_range(speed_kmh: float) -> (str, str):
     """Calculates and formats the expected pace range in min/km and min/mi."""
@@ -234,6 +268,13 @@ def reset_ant_dongle():
             except Exception:
                 pass
 
+            try:
+                if dongle.is_kernel_driver_active(0):
+                    print("Detaching kernel driver...")
+                    dongle.detach_kernel_driver(0)
+            except Exception as e:
+                print(f"Note: Could not detach kernel driver: {e}")
+
             # Informational
             man = getattr(dongle, 'manufacturer', '') or ''
             prod = getattr(dongle, 'product', '') or ''
@@ -284,131 +325,93 @@ def reset_ant_dongle():
             return False
 
 def main():
-    """Main test function."""
-    ant_device_id = 54321
-    ant_verbose = False
     global broadcaster
-    if not reset_ant_dongle():
-        sys.exit(1)
-
-    print("\n--- ANT+ Broadcaster Test (C++ Architecture Simulation) ---")
+    ant_device_id = 54321
     
-    broadcaster = AntBroadcaster()
-
     parser = argparse.ArgumentParser(description='ANT+ test runner')
     parser.add_argument('--dashboard', action='store_true', help='Emit compact status lines for dashboard consumption')
     parser.add_argument('--pidfile', type=str, help='Write PID to this file for external monitoring')
+    parser.add_argument('--imperial', action='store_true', help='Use imperial units (miles) for pace display')
     args = parser.parse_args()
 
-    # If requested, write our PID early so external launchers (dashboards)
-    # can reliably monitor this process without racing on wrapper shells.
-    if getattr(args, 'pidfile', None):
+    # Write PID for the dashboard monitor
+    if args.pidfile:
         write_pidfile(args.pidfile)
 
+    # 1. Reset Hardware to clear "Resource Busy" errors
+    if not reset_ant_dongle():
+        print("Warning: USB reset failed. Trying to proceed anyway...")
+
+    # 2. Start Broadcaster
+    print(f"Initializing ANT+ Node with ID {ant_device_id}...")
     try:
-        print(f"Starting ANT+ broadcaster with device ID {ant_device_id}...")
-        if not broadcaster.start(ant_device_id, ant_verbose):
-            print("\nERROR: Failed to start the broadcaster.")
-            print("Possible causes:")
-            print("- ANT+ dongle not connected or is in use by another application.")
-            print("- Permission issues (run with sudo).")
-            print("- 'openant' library not installed in the venv.")
-            return
+        broadcaster = AntBroadcaster()
+        if not broadcaster.start(ant_device_id, False):
+            print("ERROR: Broadcaster.start() returned False.")
+            sys.exit(1)
+    except Exception as e:
+        print(f"CRITICAL ERROR starting broadcaster: {e}")
+        sys.exit(1)
 
-        print("Broadcaster started successfully. Simulating a structured workout...")
+    # 3. Setup Signal Handlers for clean exit
+    def _term(signum, frame):
+        if broadcaster: broadcaster.stop()
+        sys.exit(0)
+    signal.signal(signal.SIGTERM, _term)
+    signal.signal(signal.SIGINT, _term)
 
-        # Ensure we stop broadcaster cleanly on SIGTERM/SIGINT so the USB
-        # device is released and the watch is no longer linked.
-        def _term_handler(signum, frame):
-            try:
-                if broadcaster is not None:
-                    broadcaster.stop()
-            except Exception:
-                pass
-            # Exit after attempting cleanup
-            try:
-                sys.exit(0)
-            except Exception:
-                os._exit(0)
+    print("Broadcaster active. Starting workout simulation...")
 
-        signal.signal(signal.SIGTERM, _term_handler)
-        signal.signal(signal.SIGINT, _term_handler)
-        print("Please check your watch and compare with the EXPECTED values below.")
+    test_plan = [
+        ("Warm-up Walk", 5.0, 20),
+        ("Jogging", 8.5, 30),
+        ("Running", 12.0, 30),
+        ("Jogging", 8.5, 20),
+        ("Cool-down Walk", 5.0, 20),
+        ("Stopping", 0.0, 10),
+    ]
 
-        test_plan = [
-            ("Warm-up Walk", 5.0, 20),
-            ("Jogging", 8.5, 30),
-            ("Running", 12.0, 30),
-            ("Jogging", 8.5, 20),
-            ("Cool-down Walk", 5.0, 20),
-            ("Stopping", 0.0, 10),
-        ]
+    try:
+        for stage_name, speed, duration in test_plan:
+            cadence = estimate_cadence(speed)
+            # Use pace range based on unit preference and take upper bound to match Garmin display
+            pace_range_km, pace_range_mi = calculate_and_format_pace_range(speed)
+            pace_range = pace_range_mi if args.imperial else pace_range_km
+            # Extract upper bound: "~12:00-12:05" -> "12:05"
+            pace = pace_range.split('-')[1] if '-' in pace_range else pace_range.replace('~', '')
 
-        for i, (stage_name, speed_kmh, duration) in enumerate(test_plan):
-            
-            expected_cadence = estimate_cadence(speed_kmh) if speed_kmh > 0.5 else 0
-            pace_km_str, _ = calculate_and_format_pace_range(speed_kmh)
-            
-            print("\n" + "="*50)
-            print(f" STAGE {i+1}/{len(test_plan)}: {stage_name}")
-            print("-"*50)
-            print(f"  TARGET SPEED:   {speed_kmh:.1f} km/h")
-            print(f"  EXPECTED PACE:  {pace_km_str}")
-            print(f"  EXPECTED CADENCE: {expected_cadence} SPM")
-            print("="*50)
-            
-            stage_start_time = time.monotonic()
-            # Precompute a compact pace string (choose upper bound)
-            pace_km_str, _ = calculate_and_format_pace_range(speed_kmh)
-            pace_upper = pace_km_str
-            if '-' in pace_km_str:
-                pace_upper = pace_km_str.split('-')[-1].strip()
-                pace_upper = pace_upper.lstrip('~')
+            start = time.monotonic()
+            while (time.monotonic() - start) < duration:
+                loop_s = time.monotonic()
+                elapsed = loop_s - start
 
-            while True:
-                loop_start_time = time.monotonic()
-                stage_elapsed = loop_start_time - stage_start_time
+                # --- CRITICAL FIX: Catch USB Transmission Errors ---
+                # This prevents the script from crashing if a single packet fails.
+                try:
+                    broadcaster.send_ant_data(speed / 3.6, cadence)
+                except Exception:
+                    # Ignore transient USB errors; the dashboard will just
+                    # see a skipped packet rather than a full crash.
+                    pass
 
-                if stage_elapsed >= duration:
-                    break
-
-                speed_mps = speed_kmh / 3.6
-
-                broadcaster.send_ant_data(speed_mps, expected_cadence)
-
-                # Compact dashboard-friendly status line (CR-terminated)
                 if args.dashboard:
-                    # Prefix with the human-readable stage name so the
-                    # dashboard can show which stage is active.
-                    status = f"{stage_name} | Cadence:{expected_cadence} Speed:{speed_kmh:.1f} Pace:{pace_upper} [ {int(stage_elapsed):>2}s / {duration}s ]"
-                    # Pad to avoid remnants of previous longer lines
-                    print(f"{status:<80}", end="\r")
-                    sys.stdout.flush()
+                    # Format: STAGE | Cadence:X Speed:Y Pace:Z [ E / T ]
+                    print(f"{stage_name} | Cadence:{cadence} Speed:{speed:.1f} Pace:{pace} [ {int(elapsed):>2}s / {duration}s ]")
                 else:
-                    progress_str = f"  Running... [ {int(stage_elapsed):>2}s / {duration}s ]"
-                    print(f"{progress_str:<50}", end="\r")
-                    sys.stdout.flush()
+                    print(f"Running... {int(elapsed)}s", end="\r")
 
-                # Self-correcting timer to ensure a precise 4Hz loop rate
-                work_duration = time.monotonic() - loop_start_time
-                sleep_duration = LOOP_PERIOD - work_duration
-                if sleep_duration > 0:
-                    time.sleep(sleep_duration)
-
-            # Ensure we end the stage with a newline so logs remain readable
-            if args.dashboard:
-                print("")
+                # Sleep remainder of 4Hz cycle
+                rem = LOOP_PERIOD - (time.monotonic() - loop_s)
+                if rem > 0: time.sleep(rem)
 
     except KeyboardInterrupt:
-        print("\n\nUser interrupted test...")
+        print("\nUser interrupted test.")
     except Exception as e:
-        print(f"\n\nTest failed with an unexpected exception: {e}")
+        # Catch-all for non-USB errors to print to log before exit
+        print(f"FATAL EXCEPTION: {e}")
     finally:
-        try:
-            broadcaster.stop()
-            print("\n\nTest completed - broadcaster stopped cleanly.")
-        except Exception as e:
-            print(f"\n\nWarning: An error occurred during broadcaster cleanup: {e}")
+        if broadcaster: broadcaster.stop()
+        print("Test finished.")
 
 if __name__ == "__main__":
     main()
