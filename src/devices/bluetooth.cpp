@@ -579,7 +579,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         !b.compare(settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString()) &&
         (b.toUpper().startsWith("IC BIKE") || b.toUpper().startsWith("C7-"))) {
 
-        this->stopDiscovery();
+        // Don't stop discovery here to allow time for accessories (heart rate, power, cadence sensors) to be found
+        // Discovery will stop naturally after 10 seconds or when all configured accessories are discovered
         schwinnIC4Bike = new schwinnic4bike(noWriteResistance, noHeartService);
         // stateFileRead();
         QBluetoothDeviceInfo bt;

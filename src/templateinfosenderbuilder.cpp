@@ -967,6 +967,47 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onDeleteTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    QJsonObject content;
+    QString fileUrl;
+    if ((content = msgContent.toObject()).isEmpty() ||
+        (fileUrl = content.value(QStringLiteral("url")).toString()).isEmpty()) {
+        qDebug() << "onDeleteTrainingProgram: invalid content";
+        return;
+    }
+
+    // Convert URL to local file path
+    QUrl url(fileUrl);
+    QString filePath = url.toLocalFile();
+
+    qDebug() << "onDeleteTrainingProgram: attempting to delete" << filePath;
+
+    QJsonObject main, outObj;
+    bool success = false;
+
+    if (QFile::exists(filePath)) {
+        if (QFile::remove(filePath)) {
+            qDebug() << "onDeleteTrainingProgram: successfully deleted" << filePath;
+            success = true;
+            outObj[QStringLiteral("success")] = true;
+            outObj[QStringLiteral("message")] = QStringLiteral("Workout deleted successfully");
+        } else {
+            qDebug() << "onDeleteTrainingProgram: failed to delete" << filePath;
+            outObj[QStringLiteral("success")] = false;
+            outObj[QStringLiteral("message")] = QStringLiteral("Failed to delete file");
+        }
+    } else {
+        qDebug() << "onDeleteTrainingProgram: file does not exist" << filePath;
+        outObj[QStringLiteral("success")] = false;
+        outObj[QStringLiteral("message")] = QStringLiteral("File not found");
+    }
+
+    main[QStringLiteral("content")] = outObj;
+    main[QStringLiteral("msg")] = QStringLiteral("R_deletetrainingprogram");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onLap(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     Q_UNUSED(msgContent);
     QJsonObject main, outObj;
@@ -1158,6 +1199,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("savetrainingprogram")) {
                     onSaveTrainingProgram(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("deletetrainingprogram")) {
+                    onDeleteTrainingProgram(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("savechart")) {
                     onSaveChart(jsonObject[QStringLiteral("content")], sender);

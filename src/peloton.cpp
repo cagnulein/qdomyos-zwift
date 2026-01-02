@@ -1484,6 +1484,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
             QJsonObject segmentObj = segment.toObject();
             QJsonObject offsets = segmentObj["offsets"].toObject();
             QJsonArray metrics = segmentObj["metrics"].toArray();
+            QString segment_type = segmentObj["segment_type"].toString();
 
             int start = offsets["start"].toInt();
             int end = offsets["end"].toInt();
@@ -1503,6 +1504,16 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
             }
 
             lastEnd = end;
+
+            // Handle floor segments (bootcamp workouts)
+            if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
+                trainrow r;
+                r.duration = QTime(0, 0, 0).addSecs(end - start + 1);
+                r.power = -1; // No power target for floor segments
+                trainrows.append(r);
+                qDebug() << r.duration << "floor segment - no cycling metrics" << "time range" << start << "-" << end;
+                continue;
+            }
 
             trainrow r;
             r.duration = QTime(0, 0, 0).addSecs(end - start + 1);
@@ -1854,6 +1865,23 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             QJsonObject targetMetric = targetMetrics.at(i).toObject();
             QJsonObject offsets = targetMetric[QStringLiteral("offsets")].toObject();
             QJsonArray metrics = targetMetric[QStringLiteral("metrics")].toArray();
+            QString segment_type = targetMetric[QStringLiteral("segment_type")].toString();
+
+            // Handle floor segments (bootcamp workouts)
+            if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
+                trainrow r;
+                int offset_start = offsets[QStringLiteral("start")].toInt();
+                int offset_end = offsets[QStringLiteral("end")].toInt();
+                int duration = offset_end - offset_start;
+                if (i != 0) {
+                    duration++;
+                }
+                r.duration = QTime(0, 0, 0).addSecs(duration);
+                r.power = -1; // No power target for floor segments
+                trainrows.append(r);
+                qDebug() << i << r.duration << "floor segment - no cycling metrics";
+                continue;
+            }
 
                    // Find resistance and cadence metrics
             int lowerResistance = 0, upperResistance = 0, lowerCadence = 0, upperCadence = 0;
@@ -1969,10 +1997,11 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             for (QJsonValue metric : sortedMetrics) {
                 QJsonObject metricObj = metric.toObject();
                 QJsonObject offsets = metricObj[QStringLiteral("offsets")].toObject();
+                QString segment_type = metricObj[QStringLiteral("segment_type")].toString();
                 int start = offsets[QStringLiteral("start")].toInt();
                 int end = offsets[QStringLiteral("end")].toInt();
                 int len = end - start + 1;
-                
+
                 // Check if there's a gap from previous segment
                 if (!trainrows.isEmpty()) {
                    int prevEnd = start - 1; // Expected previous end
@@ -1985,8 +2014,18 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                        trainrows.append(gapRow);
                    }
                 }
-                
+
                 lastEnd = end;
+
+                // Handle floor segments (bootcamp workouts)
+                if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
+                    trainrow r;
+                    r.duration = QTime(0, len / 60, len % 60, 0);
+                    r.power = -1; // No power target for floor segments
+                    trainrows.append(r);
+                    qDebug() << r.duration << "floor segment - no cycling metrics" << "time range" << start << "-" << end;
+                    continue;
+                }
 
                 QJsonArray metricsArray = metricObj[QStringLiteral("metrics")].toArray();
                 if (!metricsArray.isEmpty()) {

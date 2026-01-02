@@ -400,3 +400,103 @@ canvas {
         width: 100%;
     }
 }
+
+/* Custom dialogs for iOS WebView compatibility */
+.custom-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-dialog.hidden {
+    display: none;
+}
+
+.custom-dialog-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+}
+
+.custom-dialog-content {
+    position: relative;
+    background: var(--panel-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: dialogSlideIn 0.2s ease-out;
+}
+
+@keyframes dialogSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.custom-dialog-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.custom-dialog-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.custom-dialog-body {
+    padding: 20px 24px;
+}
+
+.custom-dialog-body p {
+    margin: 0 0 16px 0;
+    color: var(--text-color);
+    line-height: 1.5;
+}
+
+.custom-dialog-body input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--panel-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-color);
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.custom-dialog-body input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(53, 186, 246, 0.1);
+}
+
+.custom-dialog-footer {
+    padding: 16px 24px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.custom-dialog-footer button {
+    min-width: 80px;
+}
