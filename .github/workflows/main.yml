@@ -735,10 +735,31 @@ jobs:
 
       - name: Build APK (using Qt 5.15.0 with 16k page support)
         run: |
-          # Remove standard Qt from PATH again (for androiddeployqt)
+          # Remove standard Qt from PATH (for androiddeployqt)
           export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "output/qt-standard" | tr '\n' ':' | sed 's/:$//')
+
+          # Set custom Qt path
           export QT_ROOT="${{ github.workspace }}/Qt-5.15.0-custom/qt5.15.0-android-page16/usr/local/Qt-5.15.0"
           export PATH="${QT_ROOT}/bin:$PATH"
+
+          # CRITICAL: Override ALL Qt environment variables to point to custom Qt
+          # install-qt-action sets these to qt-standard, causing androiddeployqt to use wrong Qt
+          export Qt5_DIR="${QT_ROOT}/lib/cmake"
+          export QT_ROOT_DIR="${QT_ROOT}"
+          export QT_PLUGIN_PATH="${QT_ROOT}/plugins"
+          export QML2_IMPORT_PATH="${QT_ROOT}/qml"
+          export PKG_CONFIG_PATH="${QT_ROOT}/lib/pkgconfig"
+
+          echo "=== Qt Environment Variables (for androiddeployqt) ==="
+          echo "QT_ROOT: $QT_ROOT"
+          echo "Qt5_DIR: $Qt5_DIR"
+          echo "QT_ROOT_DIR: $QT_ROOT_DIR"
+          echo "QT_PLUGIN_PATH: $QT_PLUGIN_PATH"
+          echo "QML2_IMPORT_PATH: $QML2_IMPORT_PATH"
+          echo "androiddeployqt: $(which androiddeployqt)"
+          echo "======================================================"
+          echo ""
+
           cd src
           androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
 
