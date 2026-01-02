@@ -96,6 +96,7 @@
         selectors.saveStartWorkout = document.getElementById('saveStartWorkout');
         selectors.programSelect = document.getElementById('programSelect');
         selectors.loadProgram = document.getElementById('loadProgram');
+        selectors.deleteProgram = document.getElementById('deleteProgram');
         selectors.refreshPrograms = document.getElementById('refreshPrograms');
         selectors.statusDuration = document.getElementById('statusDuration');
         selectors.statusIntervals = document.getElementById('statusIntervals');
@@ -122,7 +123,10 @@
             addInterval();
             announce('Interval added');
         });
-        selectors.repeatSelection.addEventListener('click', repeatSelection);
+        selectors.repeatSelection.addEventListener('click', () => {
+            console.log('[button] Repeat Selection button clicked');
+            repeatSelection();
+        });
         selectors.clearIntervals.addEventListener('click', () => {
             if (state.intervals.length && !confirm('Remove all intervals?')) {
                 return;
@@ -158,6 +162,18 @@
                 return;
             }
             loadProgram(name);
+        });
+        selectors.deleteProgram.addEventListener('click', () => {
+            if (window.QZ_OFFLINE) {
+                announce('Offline: cannot delete workouts', true);
+                return;
+            }
+            const name = selectors.programSelect.value;
+            if (!name) {
+                announce('Select a workout to delete', true);
+                return;
+            }
+            deleteProgram(name);
         });
         selectors.refreshPrograms.addEventListener('click', () => {
             if (window.QZ_OFFLINE) {
@@ -294,6 +310,45 @@
                 })
                 .finally(() => setWorking(false));
         }, 300); // Give backend time to load the file
+    }
+
+    function deleteProgram(name) {
+        if (!confirm(`Are you sure you want to delete "${name}"? This cannot be undone.`)) {
+            return;
+        }
+        setWorking(true);
+        console.log('[deleteProgram] Deleting workout:', name);
+
+        // Get file URL from stored program files
+        const fileObj = state.programFiles[name];
+        if (!fileObj || !fileObj.url) {
+            announce('Cannot find workout file', true);
+            setWorking(false);
+            return;
+        }
+
+        // Send delete message to backend
+        sendMessage('deletetrainingprogram', { url: fileObj.url }, 'R_deletetrainingprogram')
+            .then(content => {
+                console.log('[deleteProgram] Delete response:', content);
+                if (content && content.success) {
+                    announce(`Deleted ${name}`);
+                    // Clear the name field if it matches the deleted workout
+                    if (state.lastSaved === name) {
+                        state.lastSaved = '';
+                        selectors.name.value = '';
+                    }
+                    // Refresh the program list
+                    return refreshProgramList();
+                } else {
+                    announce('Failed to delete workout', true);
+                }
+            })
+            .catch(err => {
+                console.error('[deleteProgram] Error:', err);
+                announce('Unable to delete workout', true);
+            })
+            .finally(() => setWorking(false));
     }
 
     function convertRow(row, idx) {
@@ -509,6 +564,7 @@
             selectBox.addEventListener('change', event => {
                 row.__selected = event.target.checked;
                 card.classList.toggle('selected', row.__selected);
+                console.log('[checkbox] Interval', index, 'selected:', row.__selected);
                 updateControls();
             });
             headerLeft.appendChild(selectBox);
@@ -1055,7 +1111,14 @@
     }
 
     function sanitizeName(name) {
-        return name.replace(/\s+/g, '_').replace(/[^A-Za-z0-9_\-]/g, '_');
+        // Remove common file extensions before sanitizing to prevent duplicate files
+        let baseName = name;
+        if (baseName.toLowerCase().endsWith('.xml')) {
+            baseName = baseName.slice(0, -4);
+        } else if (baseName.toLowerCase().endsWith('.zwo')) {
+            baseName = baseName.slice(0, -4);
+        }
+        return baseName.replace(/\s+/g, '_').replace(/[^A-Za-z0-9_\-]/g, '_');
     }
 
     function isFieldValidForDevice(field, deviceType) {
@@ -1258,7 +1321,7 @@
 
     function setWorking(active) {
         state.loading = active;
-        [selectors.saveWorkout, selectors.saveStartWorkout, selectors.loadProgram, selectors.refreshPrograms, selectors.addInterval, selectors.clearIntervals]
+        [selectors.saveWorkout, selectors.saveStartWorkout, selectors.loadProgram, selectors.deleteProgram, selectors.refreshPrograms, selectors.addInterval, selectors.clearIntervals]
             .forEach(btn => btn && (btn.disabled = active));
         updateControls();
     }
@@ -1277,55 +1340,86 @@
     }
 
     function repeatSelection() {
-        const selected = [];
-        state.intervals.forEach((row, idx) => {
-            if (row.__selected) {
-                selected.push(idx);
-            }
-        });
-        if (!selected.length) {
-            announce('Select one or more consecutive intervals first', true);
-            return;
-        }
-        selected.sort((a, b) => a - b);
-        for (let i = 1; i < selected.length; i++) {
-            if (selected[i] !== selected[i - 1] + 1) {
-                announce('Selection must be consecutive', true);
+        try {
+            console.log('[repeatSelection] Starting repeat selection');
+            const selected = [];
+            state.intervals.forEach((row, idx) => {
+                if (row.__selected) {
+                    selected.push(idx);
+                }
+            });
+            console.log('[repeatSelection] Selected indices:', selected);
+
+            if (!selected.length) {
+                announce('Select one or more consecutive intervals first', true);
+                console.log('[repeatSelection] No intervals selected');
                 return;
             }
-        }
 
-        const promptValue = prompt('Repeat block how many times (total cycles)?', '2');
-        if (promptValue === null) {
-            return;
-        }
-        const times = parseInt(promptValue, 10);
-        if (Number.isNaN(times) || times < 2) {
-            announce('Enter a number greater than 1', true);
-            return;
-        }
+            selected.sort((a, b) => a - b);
+            for (let i = 1; i < selected.length; i++) {
+                if (selected[i] !== selected[i - 1] + 1) {
+                    announce('Selection must be consecutive', true);
+                    console.log('[repeatSelection] Selection not consecutive');
+                    return;
+                }
+            }
 
-        const start = selected[0];
-        const end = selected[selected.length - 1];
-        const block = state.intervals.slice(start, end + 1).map(cloneInterval);
+            console.log('[repeatSelection] Prompting for repeat count');
+            const promptValue = prompt('Repeat block how many times (total cycles)?', '2');
+            console.log('[repeatSelection] Prompt returned:', promptValue);
 
-        let insertAt = end + 1;
-        for (let t = 1; t < times; t++) {
-            const clones = block.map(cloneInterval);
-            state.intervals.splice(insertAt, 0, ...clones);
-            insertAt += clones.length;
+            if (promptValue === null || promptValue === '') {
+                announce('Repeat cancelled', false);
+                console.log('[repeatSelection] User cancelled or empty input');
+                return;
+            }
+
+            const times = parseInt(promptValue, 10);
+            console.log('[repeatSelection] Parsed times:', times);
+
+            if (Number.isNaN(times) || times < 2) {
+                announce('Enter a number greater than 1', true);
+                console.log('[repeatSelection] Invalid repeat count:', times);
+                return;
+            }
+
+            const start = selected[0];
+            const end = selected[selected.length - 1];
+            console.log('[repeatSelection] Repeating intervals from', start, 'to', end, 'for', times, 'total cycles');
+
+            const block = state.intervals.slice(start, end + 1).map(cloneInterval);
+            console.log('[repeatSelection] Created block with', block.length, 'intervals');
+
+            let insertAt = end + 1;
+            for (let t = 1; t < times; t++) {
+                const clones = block.map(cloneInterval);
+                console.log('[repeatSelection] Iteration', t, '- Inserting', clones.length, 'clones at position', insertAt);
+                state.intervals.splice(insertAt, 0, ...clones);
+                insertAt += clones.length;
+            }
+
+            console.log('[repeatSelection] After repeat, total intervals:', state.intervals.length);
+
+            state.intervals.forEach(row => { row.__selected = false; });
+            renderIntervals();
+            updateChart();
+            updateStatus();
+            updateControls();
+
+            const message = `Block repeated ${times} times`;
+            announce(message);
+            console.log('[repeatSelection]', message);
+        } catch (error) {
+            console.error('[repeatSelection] Error:', error);
+            announce('Error repeating selection: ' + error.message, true);
         }
-
-        state.intervals.forEach(row => { row.__selected = false; });
-        renderIntervals();
-        updateChart();
-        updateStatus();
-        updateControls();
-        announce(`Block repeated ${times} times`);
     }
 
     function hasSelection() {
-        return state.intervals.some(row => row.__selected);
+        const result = state.intervals.some(row => row.__selected);
+        console.log('[hasSelection] Result:', result, 'Total intervals:', state.intervals.length);
+        return result;
     }
 
     function updateControls() {
@@ -1339,6 +1433,9 @@
         if (selectors.loadProgram) {
             selectors.loadProgram.disabled = state.loading || offline || !state.programs.length;
         }
+        if (selectors.deleteProgram) {
+            selectors.deleteProgram.disabled = state.loading || offline || !state.programs.length;
+        }
         if (selectors.refreshPrograms) {
             selectors.refreshPrograms.disabled = state.loading || offline;
         }
@@ -1346,7 +1443,9 @@
             selectors.programSelect.disabled = offline || state.loading || !state.programs.length;
         }
         if (selectors.repeatSelection) {
-            selectors.repeatSelection.disabled = state.loading || !hasSelection();
+            const shouldDisable = state.loading || !hasSelection();
+            selectors.repeatSelection.disabled = shouldDisable;
+            console.log('[updateControls] Repeat selection button disabled:', shouldDisable);
         }
         if (selectors.offlineBanner) {
             selectors.offlineBanner.classList.toggle('hidden', !offline);
