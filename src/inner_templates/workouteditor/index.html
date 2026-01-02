@@ -94,5 +94,23 @@
             </div>
         </div>
     </div>
+
+    <!-- Custom dialogs for iOS WebView compatibility -->
+    <div id="customDialog" class="custom-dialog hidden">
+        <div class="custom-dialog-overlay"></div>
+        <div class="custom-dialog-content">
+            <div class="custom-dialog-header">
+                <h3 id="customDialogTitle"></h3>
+            </div>
+            <div class="custom-dialog-body">
+                <p id="customDialogMessage"></p>
+                <input type="text" id="customDialogInput" class="hidden">
+            </div>
+            <div class="custom-dialog-footer">
+                <button id="customDialogCancel" class="small">Cancel</button>
+                <button id="customDialogConfirm" class="small primary">OK</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -73,6 +73,113 @@
         mets: -1
     };
 
+    // Custom dialog system for iOS WebView compatibility
+    // iOS WebView doesn't properly support prompt() and confirm()
+    const dialog = {
+        elements: {},
+
+        init() {
+            this.elements.container = document.getElementById('customDialog');
+            this.elements.title = document.getElementById('customDialogTitle');
+            this.elements.message = document.getElementById('customDialogMessage');
+            this.elements.input = document.getElementById('customDialogInput');
+            this.elements.cancelBtn = document.getElementById('customDialogCancel');
+            this.elements.confirmBtn = document.getElementById('customDialogConfirm');
+        },
+
+        show(title, message, options = {}) {
+            return new Promise((resolve) => {
+                console.log('[dialog.show] Title:', title, 'Message:', message, 'Options:', options);
+
+                // Set content
+                this.elements.title.textContent = title;
+                this.elements.message.textContent = message;
+
+                // Configure input field
+                if (options.input) {
+                    this.elements.input.classList.remove('hidden');
+                    this.elements.input.value = options.defaultValue || '';
+                    this.elements.input.placeholder = options.placeholder || '';
+                } else {
+                    this.elements.input.classList.add('hidden');
+                }
+
+                // Configure cancel button
+                if (options.showCancel !== false) {
+                    this.elements.cancelBtn.classList.remove('hidden');
+                } else {
+                    this.elements.cancelBtn.classList.add('hidden');
+                }
+
+                // Set button labels
+                this.elements.cancelBtn.textContent = options.cancelLabel || 'Cancel';
+                this.elements.confirmBtn.textContent = options.confirmLabel || 'OK';
+
+                // Show dialog
+                this.elements.container.classList.remove('hidden');
+
+                // Focus input if present
+                if (options.input) {
+                    setTimeout(() => this.elements.input.focus(), 100);
+                }
+
+                // Handle buttons
+                const handleConfirm = () => {
+                    cleanup();
+                    const result = options.input ? this.elements.input.value : true;
+                    console.log('[dialog.show] Confirmed with result:', result);
+                    resolve(result);
+                };
+
+                const handleCancel = () => {
+                    cleanup();
+                    console.log('[dialog.show] Cancelled');
+                    resolve(null);
+                };
+
+                const handleKeyPress = (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleConfirm();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        handleCancel();
+                    }
+                };
+
+                const cleanup = () => {
+                    this.elements.confirmBtn.removeEventListener('click', handleConfirm);
+                    this.elements.cancelBtn.removeEventListener('click', handleCancel);
+                    this.elements.input.removeEventListener('keypress', handleKeyPress);
+                    this.elements.container.classList.add('hidden');
+                };
+
+                this.elements.confirmBtn.addEventListener('click', handleConfirm);
+                this.elements.cancelBtn.addEventListener('click', handleCancel);
+                this.elements.input.addEventListener('keypress', handleKeyPress);
+            });
+        },
+
+        confirm(message, title = 'Confirm') {
+            console.log('[dialog.confirm] Message:', message);
+            return this.show(title, message, { showCancel: true });
+        },
+
+        prompt(message, defaultValue = '', title = 'Input') {
+            console.log('[dialog.prompt] Message:', message, 'Default:', defaultValue);
+            return this.show(title, message, {
+                input: true,
+                defaultValue,
+                showCancel: true
+            });
+        },
+
+        alert(message, title = 'Alert') {
+            console.log('[dialog.alert] Message:', message);
+            return this.show(title, message, { showCancel: false });
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
         cacheDom();
         bindEvents();
@@ -102,6 +209,9 @@
         selectors.statusIntervals = document.getElementById('statusIntervals');
         selectors.statusMessage = document.getElementById('statusMessage');
         selectors.offlineBanner = document.getElementById('offlineBanner');
+
+        // Initialize custom dialog system for iOS WebView compatibility
+        dialog.init();
     }
 
     function bindEvents() {
@@ -127,9 +237,12 @@
             console.log('[button] Repeat Selection button clicked');
             repeatSelection();
         });
-        selectors.clearIntervals.addEventListener('click', () => {
-            if (state.intervals.length && !confirm('Remove all intervals?')) {
-                return;
+        selectors.clearIntervals.addEventListener('click', async () => {
+            if (state.intervals.length) {
+                const confirmed = await dialog.confirm('Remove all intervals?');
+                if (!confirmed) {
+                    return;
+                }
             }
             state.intervals = [];
             addInterval();
@@ -312,8 +425,9 @@
         }, 300); // Give backend time to load the file
     }
 
-    function deleteProgram(name) {
-        if (!confirm(`Are you sure you want to delete "${name}"? This cannot be undone.`)) {
+    async function deleteProgram(name) {
+        const confirmed = await dialog.confirm(`Are you sure you want to delete "${name}"? This cannot be undone.`, 'Delete Workout');
+        if (!confirmed) {
             return;
         }
         setWorking(true);
@@ -1339,7 +1453,7 @@
         return el.enqueue();
     }
 
-    function repeatSelection() {
+    async function repeatSelection() {
         try {
             console.log('[repeatSelection] Starting repeat selection');
             const selected = [];
@@ -1366,7 +1480,7 @@
             }
 
             console.log('[repeatSelection] Prompting for repeat count');
-            const promptValue = prompt('Repeat block how many times (total cycles)?', '2');
+            const promptValue = await dialog.prompt('Repeat block how many times (total cycles)?', '2', 'Repeat Selection');
             console.log('[repeatSelection] Prompt returned:', promptValue);
 
             if (promptValue === null || promptValue === '') {
