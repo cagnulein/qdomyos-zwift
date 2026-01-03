@@ -805,6 +805,70 @@ jobs:
           echo "========================================================"
           echo ""
 
+      - name: Strip Qt Libraries (Preserve 16k Alignment)
+        run: |
+          echo "========================================================"
+          echo "  Stripping Qt Libraries (Preserve 16k Alignment)"
+          echo "========================================================"
+          echo ""
+
+          NDK_ROOT="${ANDROID_SDK_ROOT}/ndk/25.1.8937393"
+          LLVM_STRIP="${NDK_ROOT}/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-strip"
+          LLVM_READELF="${NDK_ROOT}/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-readelf"
+          OUTPUT_LIBS="${{ github.workspace }}/output/android/libs/arm64-v8a"
+
+          # Verify tools exist
+          if [ ! -f "$LLVM_STRIP" ]; then
+            echo "ERROR: llvm-strip not found at $LLVM_STRIP"
+            exit 1
+          fi
+
+          if [ ! -f "$LLVM_READELF" ]; then
+            echo "ERROR: llvm-readelf not found at $LLVM_READELF"
+            exit 1
+          fi
+
+          echo "Using NDK tools:"
+          echo "  Strip: $LLVM_STRIP"
+          echo "  Readelf: $LLVM_READELF"
+          echo ""
+
+          # Process all Qt libraries
+          for lib in "$OUTPUT_LIBS"/libQt*.so; do
+            if [ -f "$lib" ]; then
+              LIBNAME=$(basename "$lib")
+              SIZE_BEFORE=$(ls -lh "$lib" | awk '{print $5}')
+
+              echo "Processing: $LIBNAME"
+              echo "  Size before strip: $SIZE_BEFORE"
+
+              # Strip with --strip-unneeded (preserves dynamic symbol table)
+              "$LLVM_STRIP" --strip-unneeded "$lib"
+
+              SIZE_AFTER=$(ls -lh "$lib" | awk '{print $5}')
+              echo "  Size after strip:  $SIZE_AFTER"
+
+              # Verify 16k alignment is preserved
+              ALIGNMENT=$("$LLVM_READELF" -W -l "$lib" | grep "LOAD" | head -1 | awk '{print $NF}')
+
+              if [ "$ALIGNMENT" = "0x4000" ]; then
+                echo "  ✓ 16k alignment preserved (0x4000)"
+              else
+                echo "  ✗ ERROR: Alignment is $ALIGNMENT, expected 0x4000"
+                echo ""
+                echo "Full segment info:"
+                "$LLVM_READELF" -W -l "$lib" | grep -A 5 "LOAD"
+                exit 1
+              fi
+
+              echo ""
+            fi
+          done
+
+          echo "All Qt libraries stripped successfully with 16k alignment!"
+          echo "========================================================"
+          echo ""
+
       - name: Build APK with Gradle (After Qt Override)
         run: |
           cd ${{ github.workspace }}/output/android
@@ -813,7 +877,7 @@ jobs:
           echo "Cleaning Gradle cache..."
           ./gradlew clean
 
-          # Increase Gradle heap size for large custom Qt libraries (not stripped, uncompressed)
+          # Increase Gradle heap size for custom Qt libraries (stripped, uncompressed)
           export GRADLE_OPTS="-Xmx8192m -XX:+HeapDumpOnOutOfMemoryError"
 
           echo "Building APK with custom Qt libraries..."
