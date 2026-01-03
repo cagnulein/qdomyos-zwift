@@ -2773,7 +2773,8 @@ class QZSettings {
      */
     static const QString grupetto_disclaimer_shown;
     static constexpr bool default_grupetto_disclaimer_shown = false;
-    
+
+    /**
      * @brief Enable negative inclination tile
      */
     static const QString tile_negative_inclination_enabled;
