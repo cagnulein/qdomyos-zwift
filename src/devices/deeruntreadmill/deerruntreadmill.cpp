@@ -582,27 +582,36 @@ void deerruntreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     auto services_list = m_control->services();
-    emit debug("Services found:");
+    emit debug(QStringLiteral("Services found: ") + QString::number(services_list.size()));
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
-        emit debug(s.toString());
+        emit debug(QStringLiteral("  Service: ") + s.toString());
     }
+
+    emit debug(QStringLiteral("Looking for PitPat service: ") + _pitpatServiceId.toString());
+    emit debug(QStringLiteral("Looking for Superun service: ") + _superunServiceId.toString());
+    emit debug(QStringLiteral("Looking for default service: ") + _gattCommunicationChannelServiceId.toString());
 
     // Check if this is a pitpat treadmill by looking for the 0xfba0 service
     if (services_list.contains(_pitpatServiceId)) {
         pitpat = true;
         emit debug(QStringLiteral("Detected pitpat treadmill variant"));
         gattCommunicationChannelService = m_control->createServiceObject(_pitpatServiceId);
+        emit debug(QStringLiteral("PitPat service object created: ") + (gattCommunicationChannelService ? "YES" : "NO"));
         unlock_service = m_control->createServiceObject(_unlockServiceId);
+        emit debug(QStringLiteral("Unlock service object created: ") + (unlock_service ? "YES" : "NO"));
     } else if (services_list.contains(_superunServiceId)) {
         superun_ba04 = true;
         pitpat = false;
         emit debug(QStringLiteral("Detected Superun BA04 treadmill variant"));
         gattCommunicationChannelService = m_control->createServiceObject(_superunServiceId);
+        emit debug(QStringLiteral("Superun service object created: ") + (gattCommunicationChannelService ? "YES" : "NO"));
     } else {
         pitpat = false;
+        emit debug(QStringLiteral("Using default service (no pitpat/superun detected)"));
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+        emit debug(QStringLiteral("Default service object created: ") + (gattCommunicationChannelService ? "YES" : "NO"));
     }
-    
+
     if (gattCommunicationChannelService) {
         connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
                 &deerruntreadmill::stateChanged);
@@ -610,7 +619,7 @@ void deerruntreadmill::serviceScanDone(void) {
     } else {
         emit debug(QStringLiteral("error on find Service"));
     }
-    
+
     if (pitpat && unlock_service) {
         connect(unlock_service, &QLowEnergyService::stateChanged, this,
                 &deerruntreadmill::stateChanged);
