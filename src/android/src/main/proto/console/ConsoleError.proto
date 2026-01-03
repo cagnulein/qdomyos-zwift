@@ -1,0 +1,17 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console";
+option java_outer_classname = "ConsoleErrorCodeProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum ConsoleErrorCode {
+  FITNESS_VALUE_UNSUPPORTED = 0;
+  VIRTUAL_CONSOLE_REQUIRED = 1;
+  NO_VALUE_SET = 2;
+}
+
+message ConsoleError {
+  ConsoleErrorCode errorCode = 1;
+  string message = 2;
+}

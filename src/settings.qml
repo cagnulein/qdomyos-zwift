@@ -316,7 +316,7 @@ import Qt.labs.platform 1.1
             property bool horizon_paragon_x: false
 
             // from version 2.10.18
-            property real treadmill_step_speed: 0.5
+            property real treadmill_step_speed: 0.1
             property real treadmill_step_incline: 0.5
 
             // from version 2.10.19
@@ -925,7 +925,7 @@ import Qt.labs.platform 1.1
 
             // from version 2.16.45
             property bool toorx_srx_3500: false  
-            property real inclination_delay_seconds: 0.0
+            property real inclination_delay_seconds: 3.0
 
             // from version 2.16.47
             property string ergDataPoints: ""
@@ -1175,6 +1175,9 @@ import Qt.labs.platform 1.1
             property bool tile_hr_time_in_zone_individual_mode: false
             property bool wahoo_without_wheel_diameter: false
 
+            property bool nordictrackadbbike_gear_resistance_mode: false
+            property int nordictrackadbbike_gear_debounce_ms: 100
+
             // 2.20.3
             property bool technogym_group_cycle: false
             property int ant_bike_device_number: 0
@@ -1204,7 +1207,7 @@ import Qt.labs.platform 1.1
             property bool tile_auto_virtual_shifting_sprint_enabled: false
             property int tile_auto_virtual_shifting_sprint_order: 57
             property string proform_rower_ip: ""
-            property string ftms_elliptical: "Disabled"
+            property string ftms_elliptical: "Disabled"            
             property bool calories_active_only: false
             property real height: 175.0
             property bool calories_from_hr: false
@@ -1219,6 +1222,7 @@ import Qt.labs.platform 1.1
             property bool virtual_device_force_treadmill: false
             property bool proform_trainer_9_0: false
             property bool iconcept_ftms_treadmill_inclination_table: false
+
             property bool skandika_wiri_x2000_protocol: true
             property bool nordictrack_series_7: false
             property string kettler_usb_serialport: ""			
@@ -1257,6 +1261,8 @@ import Qt.labs.platform 1.1
             
             property string garmin_oauth1_token: ""
             property string garmin_oauth1_token_secret: ""            
+            
+            property bool grupetto_disclaimer_shown: false
         }
 
 
@@ -1961,6 +1967,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             RowLayout {
@@ -3373,6 +3380,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -3593,6 +3601,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                         IndicatorOnlySwitch {
@@ -3632,6 +3641,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -3865,6 +3875,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             RowLayout {
@@ -3913,6 +3924,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             RowLayout {
@@ -3998,6 +4010,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             IndicatorOnlySwitch {
                                 text: qsTr("Peloton Configuration")
@@ -4046,6 +4059,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             RowLayout {
                                 spacing: 10
@@ -4313,6 +4327,35 @@ import Qt.labs.platform 1.1
                                 Layout.fillWidth: true
                                 onClicked: { settings.nordictrackadbbike_resistance = checked; }
                             }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Gears Control Resistance (Separate Inc/Gear)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.nordictrackadbbike_gear_resistance_mode
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.nordictrackadbbike_gear_resistance_mode = checked; }
+                            }
+                            RowLayout {
+                                visible: settings.nordictrackadbbike_gear_resistance_mode
+                                Label {
+                                    text: qsTr("Gear Change Debounce (ms):")
+                                    Layout.fillWidth: true
+                                }
+                                SpinBox {
+                                    id: nordictrackadbbike_gear_debounce_ms
+                                    from: 10
+                                    to: 1000
+                                    stepSize: 50
+                                    editable: true
+                                    value: settings.nordictrackadbbike_gear_debounce_ms
+                                    onValueChanged: settings.nordictrackadbbike_gear_debounce_ms = value
+                                }
+                            }
                         }
                     }
 
@@ -4512,6 +4555,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -4536,6 +4580,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -5084,6 +5129,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -7575,6 +7621,7 @@ import Qt.labs.platform 1.1
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
+                visible: false
                 accordionContent: ColumnLayout {
                     spacing: 0
                     IndicatorOnlySwitch {
@@ -7941,6 +7988,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0    
                             Label {
@@ -8285,6 +8333,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -8323,6 +8372,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -8346,6 +8396,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -8370,6 +8421,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -8453,6 +8505,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -8491,6 +8544,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -8687,6 +8741,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -8781,6 +8836,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -8806,6 +8862,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             IndicatorOnlySwitch {
                                 id: fitshowAnyrunDelegate
@@ -8895,6 +8952,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             IndicatorOnlySwitch {
                                 id: eslinkerTreadmillCadenzaDelegate
@@ -8946,6 +9004,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -9144,6 +9203,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -9531,6 +9591,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             RowLayout {
                                 spacing: 10
@@ -9607,6 +9668,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             IndicatorOnlySwitch {
                                 text: qsTr("Proform Sport RL")
@@ -9672,6 +9734,7 @@ import Qt.labs.platform 1.1
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
+                visible: false
                 accordionContent: ColumnLayout {
                     spacing: 0
 
@@ -9725,6 +9788,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             RowLayout {
                                 spacing: 10
@@ -9802,6 +9866,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             IndicatorOnlySwitch {
                                 id: proformHybridDelegate
@@ -9901,6 +9966,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             IndicatorOnlySwitch {
                                 id: soleEllipticalInclinationDelegate
@@ -9938,6 +10004,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             IndicatorOnlySwitch {
                                 text: qsTr("iConcept elliptical")
@@ -10911,6 +10978,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
 
@@ -11076,6 +11144,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
@@ -11354,6 +11423,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             AccordionElement {
@@ -11477,6 +11547,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             Label {
@@ -12838,6 +12909,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                             spacing: 0
                             
@@ -13029,6 +13101,7 @@ import Qt.labs.platform 1.1
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
+                        visible: false
                         accordionContent: ColumnLayout {
                         spacing: 0
 

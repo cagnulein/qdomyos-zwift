@@ -1,0 +1,16 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console.idlelockout";
+option java_outer_classname = "IdleModeLockoutServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+import "console/idlelockout/IdleModeLockout.proto";
+import "util/Util.proto";
+
+service IdleModeLockoutService {
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+  rpc CanWrite(Empty) returns (AvailabilityResponse) {}
+  rpc GetIdleModeLockout(Empty) returns (IdleModeLockoutResult) {}
+  rpc SetIdleModeLockout(IdleModeLockoutMessage) returns (IdleModeLockoutResult) {}
+  rpc IdleModeLockoutSubscription(Empty) returns (stream IdleModeLockoutMessage) {}
+}

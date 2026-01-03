@@ -1073,7 +1073,7 @@ class QZSettings {
     static constexpr bool default_horizon_paragon_x = false;
 
     static const QString treadmill_step_speed;
-    static constexpr float default_treadmill_step_speed = 0.5;
+    static constexpr float default_treadmill_step_speed = 0.1;
 
     static const QString treadmill_step_incline;
     static constexpr float default_treadmill_step_incline = 0.5;
@@ -2152,7 +2152,7 @@ class QZSettings {
     static const QString stryd_speed_instead_treadmill;
     static constexpr bool default_stryd_speed_instead_treadmill = false;
     static const QString inclination_delay_seconds;
-    static constexpr float default_inclination_delay_seconds = 0.0;
+    static constexpr float default_inclination_delay_seconds = 3.0;
 
     static const QString ergDataPoints;
     static const QString default_ergDataPoints;
@@ -2219,6 +2219,12 @@ class QZSettings {
 
     static const QString nordictrackadbbike_resistance;
     static constexpr bool default_nordictrackadbbike_resistance = false;
+
+    static const QString nordictrackadbbike_gear_resistance_mode;
+    static constexpr bool default_nordictrackadbbike_gear_resistance_mode = false;
+
+    static const QString nordictrackadbbike_gear_debounce_ms;
+    static constexpr int default_nordictrackadbbike_gear_debounce_ms = 100;
 
     static const QString proform_treadmill_carbon_t7;
     static constexpr bool default_proform_treadmill_carbon_t7 = false;
@@ -2761,6 +2767,12 @@ class QZSettings {
      */
     static const QString tile_auto_virtual_shifting_sprint_order;
     static constexpr int default_tile_auto_virtual_shifting_sprint_order = 57;
+
+    /**
+     * @brief Track if Grupetto legal disclaimer has been shown to user
+     */
+    static const QString grupetto_disclaimer_shown;
+    static constexpr bool default_grupetto_disclaimer_shown = false;
 
     /**
      * @brief Enable negative inclination tile

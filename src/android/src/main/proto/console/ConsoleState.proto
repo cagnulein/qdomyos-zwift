@@ -1,0 +1,23 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console";
+option java_outer_classname = "ConsoleStateProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum ConsoleState {
+  DISCONNECTED = 0;
+  CONSOLE_STATE_UNKNOWN = 1;
+  IDLE = 2;
+  WORKOUT = 3;
+  PAUSED = 4;
+  WORKOUT_RESULTS = 5;
+  SAFETY_KEY_REMOVED = 6;
+  WARM_UP = 7;
+  COOL_DOWN = 8;
+  RESUME = 9;
+  LOCKED = 10;
+  DEMO = 11;
+  SLEEP = 12;
+  ERROR = 13;
+}

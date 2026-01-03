@@ -805,6 +805,8 @@ const QString QZSettings::atletica_lightspeed_treadmill = QStringLiteral("atleti
 const QString QZSettings::peloton_treadmill_level = QStringLiteral("peloton_treadmill_level");
 const QString QZSettings::peloton_treadmill_walk_level = QStringLiteral("peloton_treadmill_walk_level");
 const QString QZSettings::nordictrackadbbike_resistance = QStringLiteral("nordictrackadbbike_resistance");
+const QString QZSettings::nordictrackadbbike_gear_resistance_mode = QStringLiteral("nordictrackadbbike_gear_resistance_mode");
+const QString QZSettings::nordictrackadbbike_gear_debounce_ms = QStringLiteral("nordictrackadbbike_gear_debounce_ms");
 const QString QZSettings::proform_treadmill_carbon_t7 = QStringLiteral("proform_treadmill_carbon_t7");
 const QString QZSettings::nordictrack_treadmill_exp_5i = QStringLiteral("nordictrack_treadmill_exp_5i");
 const QString QZSettings::dircon_id = QStringLiteral("dircon_id");
@@ -1023,6 +1025,8 @@ const QString QZSettings::tile_auto_virtual_shifting_climb_enabled = QStringLite
 const QString QZSettings::tile_auto_virtual_shifting_climb_order = QStringLiteral("tile_auto_virtual_shifting_climb_order");
 const QString QZSettings::tile_auto_virtual_shifting_sprint_enabled = QStringLiteral("tile_auto_virtual_shifting_sprint_enabled");
 const QString QZSettings::tile_auto_virtual_shifting_sprint_order = QStringLiteral("tile_auto_virtual_shifting_sprint_order");
+const QString QZSettings::grupetto_disclaimer_shown = QStringLiteral("grupetto_disclaimer_shown");
+
 const QString QZSettings::tile_negative_inclination_enabled = QStringLiteral("tile_negative_inclination_enabled");
 const QString QZSettings::tile_negative_inclination_order = QStringLiteral("tile_negative_inclination_order");
 const QString QZSettings::chart_display_mode = QStringLiteral("chart_display_mode");
@@ -1035,7 +1039,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 841;
+const uint32_t allSettingsCount = 842;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1706,6 +1710,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::peloton_treadmill_level, QZSettings::default_peloton_treadmill_level},
     {QZSettings::peloton_treadmill_walk_level, QZSettings::default_peloton_treadmill_walk_level},
     {QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance},
+    {QZSettings::nordictrackadbbike_gear_resistance_mode, QZSettings::default_nordictrackadbbike_gear_resistance_mode},
+    {QZSettings::nordictrackadbbike_gear_debounce_ms, QZSettings::default_nordictrackadbbike_gear_debounce_ms},
     {QZSettings::proform_treadmill_carbon_t7, QZSettings::default_proform_treadmill_carbon_t7},
     {QZSettings::nordictrack_treadmill_exp_5i, QZSettings::default_nordictrack_treadmill_exp_5i},
     {QZSettings::dircon_id, QZSettings::default_dircon_id},
@@ -1881,6 +1887,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_auto_virtual_shifting_climb_order, QZSettings::default_tile_auto_virtual_shifting_climb_order},
     {QZSettings::tile_auto_virtual_shifting_sprint_enabled, QZSettings::default_tile_auto_virtual_shifting_sprint_enabled},
     {QZSettings::tile_auto_virtual_shifting_sprint_order, QZSettings::default_tile_auto_virtual_shifting_sprint_order},
+    {QZSettings::grupetto_disclaimer_shown, QZSettings::default_grupetto_disclaimer_shown},
     {QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled},
     {QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order},
     {QZSettings::chart_display_mode, QZSettings::default_chart_display_mode},

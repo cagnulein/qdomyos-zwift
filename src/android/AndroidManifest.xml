@@ -140,4 +140,8 @@
 	 <uses-permission android:name="android.permission.GET_TASKS" />
 	 <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
 	     tools:ignore="ProtectedPermissions" />
+	 
+	 <!-- Peloton sensor integration permissions (based on Grupetto analysis) -->
+	 <uses-permission android:name="onepeloton.permission.ACCESS_SENSOR_SERVICE" />
+	 <uses-permission android:name="onepeloton.permission.SUBSCRIPTION_TYPE_ACCESS" />
 </manifest>
