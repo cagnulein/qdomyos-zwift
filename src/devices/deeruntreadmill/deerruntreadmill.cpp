@@ -503,42 +503,58 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+
     if (state == QLowEnergyService::ServiceDiscovered) {
 
         QLowEnergyService* service = qobject_cast<QLowEnergyService*>(sender());
+        emit debug(QStringLiteral("Service discovered - pitpat mode: ") + (pitpat ? "YES" : "NO"));
+        emit debug(QStringLiteral("Service discovered - superun_ba04 mode: ") + (superun_ba04 ? "YES" : "NO"));
+
         if (service == unlock_service && pitpat) {
+            emit debug(QStringLiteral("Processing unlock service characteristics"));
             // Handle unlock service characteristics
             auto characteristics_list = unlock_service->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("unlock char uuid") << c.uuid() << QStringLiteral("handle") << c.handle()
-                         << c.properties();
+                emit debug(QStringLiteral("unlock char uuid: ") + c.uuid().toString() + QStringLiteral(" handle: ") + QString::number(c.handle()));
             }
 
             unlock_characteristic = unlock_service->characteristic(_unlockCharacteristicId);
             if (unlock_characteristic.isValid()) {
                 emit debug(QStringLiteral("unlock characteristic found"));
+            } else {
+                emit debug(QStringLiteral("unlock characteristic NOT found"));
             }
             return;
         }
 
+        emit debug(QStringLiteral("Processing main service characteristics"));
         // qDebug() << gattCommunicationChannelService->characteristics();
         auto characteristics_list = gattCommunicationChannelService->characteristics();
+        emit debug(QStringLiteral("Found ") + QString::number(characteristics_list.size()) + QStringLiteral(" characteristics"));
         for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-            qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle()
-                     << c.properties();
+            emit debug(QStringLiteral("char uuid: ") + c.uuid().toString() + QStringLiteral(" handle: ") + QString::number(c.handle()));
         }
 
         if (pitpat) {
+            emit debug(QStringLiteral("Looking for PitPat characteristics"));
             gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_pitpatWriteCharacteristicId);
             gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_pitpatNotifyCharacteristicId);
+            emit debug(QStringLiteral("PitPat write characteristic valid: ") + (gattWriteCharacteristic.isValid() ? "YES" : "NO"));
+            emit debug(QStringLiteral("PitPat notify characteristic valid: ") + (gattNotifyCharacteristic.isValid() ? "YES" : "NO"));
         } else if (superun_ba04) {
+            emit debug(QStringLiteral("Looking for Superun characteristics"));
             gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_superunWriteCharacteristicId);
             gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_superunNotifyCharacteristicId);
+            emit debug(QStringLiteral("Superun write characteristic valid: ") + (gattWriteCharacteristic.isValid() ? "YES" : "NO"));
+            emit debug(QStringLiteral("Superun notify characteristic valid: ") + (gattNotifyCharacteristic.isValid() ? "YES" : "NO"));
         } else {
+            emit debug(QStringLiteral("Looking for default characteristics"));
             gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
             gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
+            emit debug(QStringLiteral("Default write characteristic valid: ") + (gattWriteCharacteristic.isValid() ? "YES" : "NO"));
+            emit debug(QStringLiteral("Default notify characteristic valid: ") + (gattNotifyCharacteristic.isValid() ? "YES" : "NO"));
         }
-        
+
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotifyCharacteristic.isValid());
 
@@ -587,22 +603,40 @@ void deerruntreadmill::serviceScanDone(void) {
         emit debug(s.toString());
     }
 
+    // Debug: Log the UUIDs we're checking for
+    emit debug(QStringLiteral("Checking for PitPat service: ") + _pitpatServiceId.toString());
+    emit debug(QStringLiteral("Checking for Superun service: ") + _superunServiceId.toString());
+    emit debug(QStringLiteral("Checking for default service: ") + _gattCommunicationChannelServiceId.toString());
+
     // Check if this is a pitpat treadmill by looking for the 0xfba0 service
-    if (services_list.contains(_pitpatServiceId)) {
+    bool hasPitPat = services_list.contains(_pitpatServiceId);
+    bool hasSuperun = services_list.contains(_superunServiceId);
+    bool hasDefault = services_list.contains(_gattCommunicationChannelServiceId);
+
+    emit debug(QStringLiteral("PitPat service found: ") + (hasPitPat ? "YES" : "NO"));
+    emit debug(QStringLiteral("Superun service found: ") + (hasSuperun ? "YES" : "NO"));
+    emit debug(QStringLiteral("Default service found: ") + (hasDefault ? "YES" : "NO"));
+
+    if (hasPitPat) {
         pitpat = true;
         emit debug(QStringLiteral("Detected pitpat treadmill variant"));
         gattCommunicationChannelService = m_control->createServiceObject(_pitpatServiceId);
+        emit debug(QStringLiteral("Created PitPat service object: ") + (gattCommunicationChannelService ? "SUCCESS" : "FAILED (null)"));
         unlock_service = m_control->createServiceObject(_unlockServiceId);
-    } else if (services_list.contains(_superunServiceId)) {
+        emit debug(QStringLiteral("Created unlock service object: ") + (unlock_service ? "SUCCESS" : "FAILED (null)"));
+    } else if (hasSuperun) {
         superun_ba04 = true;
         pitpat = false;
         emit debug(QStringLiteral("Detected Superun BA04 treadmill variant"));
         gattCommunicationChannelService = m_control->createServiceObject(_superunServiceId);
+        emit debug(QStringLiteral("Created Superun service object: ") + (gattCommunicationChannelService ? "SUCCESS" : "FAILED (null)"));
     } else {
         pitpat = false;
+        emit debug(QStringLiteral("Using default service"));
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+        emit debug(QStringLiteral("Created default service object: ") + (gattCommunicationChannelService ? "SUCCESS" : "FAILED (null)"));
     }
-    
+
     if (gattCommunicationChannelService) {
         connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
                 &deerruntreadmill::stateChanged);
@@ -610,7 +644,7 @@ void deerruntreadmill::serviceScanDone(void) {
     } else {
         emit debug(QStringLiteral("error on find Service"));
     }
-    
+
     if (pitpat && unlock_service) {
         connect(unlock_service, &QLowEnergyService::stateChanged, this,
                 &deerruntreadmill::stateChanged);
@@ -672,10 +706,11 @@ void deerruntreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 void deerruntreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
-    qDebug() << QStringLiteral("controllerStateChanged") << state;
-    if (state == QLowEnergyController::UnconnectedState && m_control) {
-        qDebug() << QStringLiteral("trying to connect back again...");
+    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::ControllerState>();
+    emit debug(QStringLiteral("controllerStateChanged: ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
+    if (state == QLowEnergyController::UnconnectedState && m_control) {
+        emit debug(QStringLiteral("Disconnected - trying to connect back again..."));
         initDone = false;
         m_control->connectToDevice();
     }
