@@ -587,22 +587,36 @@ void deerruntreadmill::serviceScanDone(void) {
         emit debug(s.toString());
     }
 
-    // Check if this is a pitpat treadmill by looking for the 0xfba0 service
-    if (services_list.contains(_pitpatServiceId)) {
+    // Try to create service objects for each variant
+    // On iOS, services_list.contains() doesn't work reliably, so we try to create the service directly
+    QLowEnergyService* pitpat_service = m_control->createServiceObject(_pitpatServiceId);
+    QLowEnergyService* superun_service = m_control->createServiceObject(_superunServiceId);
+    QLowEnergyService* default_service = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+
+    // Check which service was successfully created
+    if (pitpat_service) {
         pitpat = true;
         emit debug(QStringLiteral("Detected pitpat treadmill variant"));
-        gattCommunicationChannelService = m_control->createServiceObject(_pitpatServiceId);
+        gattCommunicationChannelService = pitpat_service;
         unlock_service = m_control->createServiceObject(_unlockServiceId);
-    } else if (services_list.contains(_superunServiceId)) {
+
+        // Clean up unused services
+        if (superun_service) delete superun_service;
+        if (default_service) delete default_service;
+    } else if (superun_service) {
         superun_ba04 = true;
         pitpat = false;
         emit debug(QStringLiteral("Detected Superun BA04 treadmill variant"));
-        gattCommunicationChannelService = m_control->createServiceObject(_superunServiceId);
-    } else {
+        gattCommunicationChannelService = superun_service;
+
+        // Clean up unused services
+        if (default_service) delete default_service;
+    } else if (default_service) {
         pitpat = false;
-        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+        emit debug(QStringLiteral("Detected default treadmill variant"));
+        gattCommunicationChannelService = default_service;
     }
-    
+
     if (gattCommunicationChannelService) {
         connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
                 &deerruntreadmill::stateChanged);
@@ -610,7 +624,7 @@ void deerruntreadmill::serviceScanDone(void) {
     } else {
         emit debug(QStringLiteral("error on find Service"));
     }
-    
+
     if (pitpat && unlock_service) {
         connect(unlock_service, &QLowEnergyService::stateChanged, this,
                 &deerruntreadmill::stateChanged);
