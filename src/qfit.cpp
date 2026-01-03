@@ -110,50 +110,23 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     }
 
     fit::DeviceInfoMesg deviceInfoMesg;
+    deviceInfoMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     deviceInfoMesg.SetDeviceIndex(FIT_DEVICE_INDEX_CREATOR);
-
-    // Set device type based on equipment type
-    switch(type) {
-        case BIKE:
-            deviceInfoMesg.SetDeviceType(FIT_ANTPLUS_DEVICE_TYPE_FITNESS_EQUIPMENT);
-            break;
-        case TREADMILL:
-            deviceInfoMesg.SetDeviceType(FIT_ANTPLUS_DEVICE_TYPE_FITNESS_EQUIPMENT);
-            break;
-        case ROWING:
-            deviceInfoMesg.SetDeviceType(FIT_ANTPLUS_DEVICE_TYPE_FITNESS_EQUIPMENT);
-            break;
-        case ELLIPTICAL:
-            deviceInfoMesg.SetDeviceType(FIT_ANTPLUS_DEVICE_TYPE_FITNESS_EQUIPMENT);
-            break;
-        case JUMPROPE:
-            deviceInfoMesg.SetDeviceType(FIT_ANTPLUS_DEVICE_TYPE_FITNESS_EQUIPMENT);
-            break;
-        case STAIRCLIMBER:
-            deviceInfoMesg.SetDeviceType(FIT_ANTPLUS_DEVICE_TYPE_FITNESS_EQUIPMENT);
-            break;
-        default:
-            deviceInfoMesg.SetDeviceType(FIT_ANTPLUS_DEVICE_TYPE_FITNESS_EQUIPMENT);
-            break;
-    }
+    deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
 
     if(is_zwift_device) {
-        deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_ZWIFT);
         deviceInfoMesg.SetSerialNumber(3313379353);
         deviceInfoMesg.SetProduct(3288);
-        deviceInfoMesg.SetSoftwareVersion(21.19);
     } else if(fit_file_garmin_device_training_effect) {
-        deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
         deviceInfoMesg.SetSerialNumber(3313379353);
         deviceInfoMesg.SetProduct(fit_file_garmin_device_training_effect_device);
         deviceInfoMesg.SetGarminProduct(fit_file_garmin_device_training_effect_device);
-        deviceInfoMesg.SetSoftwareVersion(21.19);
     } else {
-        deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
         deviceInfoMesg.SetSerialNumber(12345);
         deviceInfoMesg.SetProduct(1);
-        deviceInfoMesg.SetSoftwareVersion(21.19);
     }
+
+    deviceInfoMesg.SetSoftwareVersion(2112);
     deviceInfoMesg.SetSourceType(FIT_SOURCE_TYPE_LOCAL);
 
     bool gps_data = false;
