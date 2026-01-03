@@ -817,7 +817,7 @@ jobs:
           export GRADLE_OPTS="-Xmx4096m -XX:+HeapDumpOnOutOfMemoryError"
 
           echo "Building APK with custom Qt libraries..."
-          ./gradlew assembleDebug bundleDebug
+          ./gradlew assembleDebug
 
       - name: Verify Qt Libraries in APK (After Build)
         run: |
