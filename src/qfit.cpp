@@ -111,6 +111,32 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
     fit::DeviceInfoMesg deviceInfoMesg;
     deviceInfoMesg.SetDeviceIndex(FIT_DEVICE_INDEX_CREATOR);
+
+    // Set device type based on equipment type
+    switch(type) {
+        case BIKE:
+            deviceInfoMesg.SetDeviceType(FIT_ANTPLUS_DEVICE_TYPE_FITNESS_EQUIPMENT);
+            break;
+        case TREADMILL:
+            deviceInfoMesg.SetDeviceType(FIT_ANTPLUS_DEVICE_TYPE_FITNESS_EQUIPMENT);
+            break;
+        case ROWING:
+            deviceInfoMesg.SetDeviceType(FIT_ANTPLUS_DEVICE_TYPE_FITNESS_EQUIPMENT);
+            break;
+        case ELLIPTICAL:
+            deviceInfoMesg.SetDeviceType(FIT_ANTPLUS_DEVICE_TYPE_FITNESS_EQUIPMENT);
+            break;
+        case JUMPROPE:
+            deviceInfoMesg.SetDeviceType(FIT_ANTPLUS_DEVICE_TYPE_FITNESS_EQUIPMENT);
+            break;
+        case STAIRCLIMBER:
+            deviceInfoMesg.SetDeviceType(FIT_ANTPLUS_DEVICE_TYPE_FITNESS_EQUIPMENT);
+            break;
+        default:
+            deviceInfoMesg.SetDeviceType(FIT_ANTPLUS_DEVICE_TYPE_FITNESS_EQUIPMENT);
+            break;
+    }
+
     if(is_zwift_device) {
         deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_ZWIFT);
         deviceInfoMesg.SetSerialNumber(3313379353);
