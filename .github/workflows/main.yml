@@ -814,7 +814,7 @@ jobs:
           ./gradlew clean
 
           # Increase Gradle heap size for large custom Qt libraries (not stripped, uncompressed)
-          export GRADLE_OPTS="-Xmx4096m -XX:+HeapDumpOnOutOfMemoryError"
+          export GRADLE_OPTS="-Xmx8192m -XX:+HeapDumpOnOutOfMemoryError"
 
           echo "Building APK with custom Qt libraries..."
           ./gradlew assembleDebug
