@@ -409,7 +409,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     bool domyos_treadmill_buttons =
         settings.value(QZSettings::domyos_treadmill_buttons, QZSettings::default_domyos_treadmill_buttons).toBool();
     bool domyos_treadmill_t900a = settings.value(QZSettings::domyos_treadmill_t900a, QZSettings::default_domyos_treadmill_t900a).toBool();
-    bool domyos_treadmill_sync_start = settings.value(QZSettings::domyos_treadmill_sync_start, QZSettings::default_domyos_treadmill_sync_start).toBool();
+    domyos_treadmill_sync_start = settings.value(QZSettings::domyos_treadmill_sync_start, QZSettings::default_domyos_treadmill_sync_start).toBool();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
