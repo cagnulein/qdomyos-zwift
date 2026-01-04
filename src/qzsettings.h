@@ -2413,6 +2413,9 @@ class QZSettings {
     static const QString fit_file_garmin_device_training_effect_device;
     static constexpr int default_fit_file_garmin_device_training_effect_device = FIT_GARMIN_PRODUCT_EDGE_830;
 
+    static const QString garmin_device_serial;
+    static constexpr uint32_t default_garmin_device_serial = 3313379353;
+
     static const QString proform_treadmill_705_cst_V80_44;
     static constexpr bool default_proform_treadmill_705_cst_V80_44 = false;
 

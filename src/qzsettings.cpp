@@ -884,6 +884,7 @@ const QString QZSettings::tile_biggears_swap = QStringLiteral("tile_biggears_swa
 const QString QZSettings::treadmill_follow_wattage = QStringLiteral("treadmill_follow_wattage");
 const QString QZSettings::fit_file_garmin_device_training_effect = QStringLiteral("fit_file_garmin_device_training_effect");
 const QString QZSettings::fit_file_garmin_device_training_effect_device = QStringLiteral("fit_file_garmin_device_training_effect_device");
+const QString QZSettings::garmin_device_serial = QStringLiteral("garmin_device_serial");
 const QString QZSettings::proform_treadmill_705_cst_V80_44 = QStringLiteral("proform_treadmill_705_cst_V80_44");
 const QString QZSettings::nordictrack_treadmill_1750_adb = QStringLiteral("nordictrack_treadmill_1750_adb");
 const QString QZSettings::proform_trainer_9_0 = QStringLiteral("proform_trainer_9_0");
@@ -1036,7 +1037,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 842;
+const uint32_t allSettingsCount = 843;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1771,6 +1772,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::treadmill_follow_wattage, QZSettings::default_treadmill_follow_wattage},
     {QZSettings::fit_file_garmin_device_training_effect, QZSettings::default_fit_file_garmin_device_training_effect},
     {QZSettings::fit_file_garmin_device_training_effect_device, QZSettings::default_fit_file_garmin_device_training_effect_device},
+    {QZSettings::garmin_device_serial, QZSettings::default_garmin_device_serial},
     {QZSettings::proform_treadmill_705_cst_V80_44, QZSettings::default_proform_treadmill_705_cst_V80_44},
     {QZSettings::nordictrack_treadmill_1750_adb, QZSettings::default_nordictrack_treadmill_1750_adb},
     {QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0},
