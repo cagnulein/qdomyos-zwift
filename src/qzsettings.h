@@ -2104,6 +2104,9 @@ class QZSettings {
     static const QString domyos_treadmill_t900a;
     static constexpr bool default_domyos_treadmill_t900a = false;
 
+    static const QString domyos_treadmill_sync_start;
+    static constexpr bool default_domyos_treadmill_sync_start = false;
+
     static const QString enerfit_SPX_9500;
     static constexpr bool default_enerfit_SPX_9500 = false;
 

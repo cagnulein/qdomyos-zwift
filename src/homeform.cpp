@@ -668,20 +668,33 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QDirIterator itZwo(":/zwo/");
     QDir().mkdir(getWritableAppDir() + "training/");
     while (itZwo.hasNext()) {
+
+        // Resolve issue with GUI race condition when ANT+ enabled
+        // qDebug() << itZwo.next() << itZwo.fileName();
         itZwo.next();
         qDebug() << itZwo.fileName();
-        if (!QFile(getWritableAppDir() + "training/" + itZwo.fileName()).exists()) {
-            QFile::copy(":/zwo/" + itZwo.fileName(), getWritableAppDir() + "training/" + itZwo.fileName());
+
+        QString targetPath = getWritableAppDir() + "training/" + itZwo.fileName();
+        QString markerPath = getWritableAppDir() + "training/.deleted_" + itZwo.fileName();
+        // Only copy if file doesn't exist AND no deletion marker exists
+        if (!QFile(targetPath).exists() && !QFile(markerPath).exists()) {
+            QFile::copy(":/zwo/" + itZwo.fileName(), targetPath);
         }
     }
 
     QDirIterator itGpx(":/gpx/");
     QDir().mkdir(getWritableAppDir() + "gpx/");
     while (itGpx.hasNext()) {
+        // Resolve issue with GUI race condition when ANT+ enabled
+        // qDebug() << itGpx.next() << itGpx.fileName();
         itGpx.next();
         qDebug() << itGpx.fileName();
-        if (!QFile(getWritableAppDir() + "gpx/" + itGpx.fileName()).exists()) {
-            QFile::copy(":/gpx/" + itGpx.fileName(), getWritableAppDir() + "gpx/" + itGpx.fileName());
+
+        QString targetPath = getWritableAppDir() + "gpx/" + itGpx.fileName();
+        QString markerPath = getWritableAppDir() + "gpx/.deleted_" + itGpx.fileName();
+        // Only copy if file doesn't exist AND no deletion marker exists
+        if (!QFile(targetPath).exists() && !QFile(markerPath).exists()) {
+            QFile::copy(":/gpx/" + itGpx.fileName(), targetPath);
         }
     }
 

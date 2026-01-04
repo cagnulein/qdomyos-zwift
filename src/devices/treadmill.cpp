@@ -533,7 +533,9 @@ double treadmill::treadmillInclinationOverride(double Inclination) {
 }
 
 void treadmill::evaluateStepCount() {
-    StepCount += (Cadence.lastChanged().msecsTo(QDateTime::currentDateTime())) * (Cadence.value() / 60000) * 2.0;
+    // Auto-detect cadence format: if < 120, assume it's per-leg and needs doubling for step count
+    double effectiveCadence = (Cadence.value() < 120 && Cadence.value() > 0) ? Cadence.value() * 2 : Cadence.value();
+    StepCount += (Cadence.lastChanged().msecsTo(QDateTime::currentDateTime())) * (effectiveCadence / 60000);
 }
 
 bool treadmill::cadenceFromAppleWatch() {

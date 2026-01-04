@@ -84,6 +84,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void onFloatingClose(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onAutoresistance(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onDeleteTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onGetTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onTrainingProgramPreview(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
