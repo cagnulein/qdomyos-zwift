@@ -1253,11 +1253,12 @@ import Qt.labs.platform 1.1
             property string garmin_domain: "garmin.com"
             property string garmin_last_refresh: ""
             
-            property bool power_sensor_cadence_instead_treadmill: false
-            property bool domyos_treadmill_sync_start: false
+            property bool power_sensor_cadence_instead_treadmill: false            
             
             property string garmin_oauth1_token: ""
             property string garmin_oauth1_token_secret: ""            
+
+			property bool domyos_treadmill_sync_start: false
         }
 
 
