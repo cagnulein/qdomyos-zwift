@@ -127,6 +127,11 @@ android {
         noCompress 'rcc', '.so'
     }
 
+    // Do not strip native libraries - they are already stripped with 16k alignment verification
+    packagingOptions {
+        doNotStrip "**/*.so"
+    }
+
     defaultConfig {
         resConfig "en"
                   compileSdkVersion 33
