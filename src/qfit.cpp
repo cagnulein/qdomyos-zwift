@@ -110,6 +110,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     }
 
     fit::DeviceInfoMesg deviceInfoMesg;
+    deviceInfoMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     deviceInfoMesg.SetDeviceIndex(FIT_DEVICE_INDEX_CREATOR);
     if(is_zwift_device) {
         deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_ZWIFT);
@@ -454,6 +455,67 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     encode.Write(skinTemperatureFieldDesc);
     encode.Write(heatStrainIndexFieldDesc);
     encode.Write(deviceInfoMesg);
+
+    // Add additional device info messages when Garmin device training effect is enabled
+    if(fit_file_garmin_device_training_effect) {
+        // Device Index 1: Barometer
+        fit::DeviceInfoMesg deviceInfoMesg1;
+        deviceInfoMesg1.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
+        deviceInfoMesg1.SetDeviceIndex(1);
+        deviceInfoMesg1.SetLocalDeviceType(FIT_LOCAL_DEVICE_TYPE_BAROMETER);
+        deviceInfoMesg1.SetManufacturer(FIT_MANUFACTURER_GARMIN);
+        deviceInfoMesg1.SetProduct(fit_file_garmin_device_training_effect_device);
+        deviceInfoMesg1.SetSoftwareVersion(21.12);
+        deviceInfoMesg1.SetSourceType(FIT_SOURCE_TYPE_LOCAL);
+        encode.Write(deviceInfoMesg1);
+
+        // Device Index 2: Accelerometer
+        fit::DeviceInfoMesg deviceInfoMesg2;
+        deviceInfoMesg2.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
+        deviceInfoMesg2.SetDeviceIndex(2);
+        deviceInfoMesg2.SetLocalDeviceType(FIT_LOCAL_DEVICE_TYPE_ACCELEROMETER);
+        deviceInfoMesg2.SetSourceType(FIT_SOURCE_TYPE_LOCAL);
+        encode.Write(deviceInfoMesg2);
+
+        // Device Index 3: Unknown device type 8
+        fit::DeviceInfoMesg deviceInfoMesg3;
+        deviceInfoMesg3.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
+        deviceInfoMesg3.SetDeviceIndex(3);
+        deviceInfoMesg3.SetLocalDeviceType(8);
+        deviceInfoMesg3.SetSourceType(FIT_SOURCE_TYPE_LOCAL);
+        encode.Write(deviceInfoMesg3);
+
+        // Device Index 4: WHR (Wrist Heart Rate)
+        fit::DeviceInfoMesg deviceInfoMesg4;
+        deviceInfoMesg4.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
+        deviceInfoMesg4.SetDeviceIndex(4);
+        deviceInfoMesg4.SetLocalDeviceType(FIT_LOCAL_DEVICE_TYPE_WHR);
+        deviceInfoMesg4.SetSoftwareVersion(0.02);
+        deviceInfoMesg4.SetSourceType(FIT_SOURCE_TYPE_LOCAL);
+        encode.Write(deviceInfoMesg4);
+
+        // Device Index 5: Sensor Hub
+        fit::DeviceInfoMesg deviceInfoMesg5;
+        deviceInfoMesg5.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
+        deviceInfoMesg5.SetDeviceIndex(5);
+        deviceInfoMesg5.SetLocalDeviceType(FIT_LOCAL_DEVICE_TYPE_SENSOR_HUB);
+        deviceInfoMesg5.SetManufacturer(FIT_MANUFACTURER_GARMIN);
+        deviceInfoMesg5.SetProduct(fit_file_garmin_device_training_effect_device);
+        deviceInfoMesg5.SetSoftwareVersion(38.04);
+        deviceInfoMesg5.SetSourceType(FIT_SOURCE_TYPE_LOCAL);
+        encode.Write(deviceInfoMesg5);
+
+        // Device Index 6: GPS
+        fit::DeviceInfoMesg deviceInfoMesg6;
+        deviceInfoMesg6.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
+        deviceInfoMesg6.SetDeviceIndex(6);
+        deviceInfoMesg6.SetLocalDeviceType(FIT_LOCAL_DEVICE_TYPE_GPS);
+        deviceInfoMesg6.SetManufacturer(FIT_MANUFACTURER_GARMIN);
+        deviceInfoMesg6.SetProduct(fit_file_garmin_device_training_effect_device);
+        deviceInfoMesg6.SetSoftwareVersion(7.11);
+        deviceInfoMesg6.SetSourceType(FIT_SOURCE_TYPE_LOCAL);
+        encode.Write(deviceInfoMesg6);
+    }
 
     if (workoutName.length() > 0) {
         fit::TrainingFileMesg trainingFile;
