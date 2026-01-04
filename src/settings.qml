@@ -1256,9 +1256,10 @@ import Qt.labs.platform 1.1
             property bool power_sensor_cadence_instead_treadmill: false            
             
             property string garmin_oauth1_token: ""
-            property string garmin_oauth1_token_secret: ""            
+            property string garmin_oauth1_token_secret: ""
 
 			property bool domyos_treadmill_sync_start: false
+			property int garmin_device_serial: 3313379353
         }
 
 
@@ -6860,6 +6861,43 @@ import Qt.labs.platform 1.1
                             }
                         }
                         Layout.fillWidth: true
+                    }
+
+                    Label {
+                        text: qsTr("Garmin device serial number")
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        TextField {
+                            id: garminDeviceSerialTextField
+                            text: settings.garmin_device_serial
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 250
+                            horizontalAlignment: Text.AlignLeft
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onTextChanged: {
+                                var value = parseInt(text);
+                                if (!isNaN(value)) {
+                                    settings.garmin_device_serial = value;
+                                }
+                            }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("IMPORTANT: You must set your real Garmin device serial number here to see your actual device in Garmin Connect. You can find your device serial number in the Garmin Connect app or on the back of your Garmin device. The default value (3313379353) is just a placeholder.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Orange)
                     }
                 }
             }
