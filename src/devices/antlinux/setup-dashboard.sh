@@ -262,7 +262,7 @@ inline_edit_field() {
 }
 
 configure_service_flags_ui() {
-    load_service_config >/dev/null 2>&1 || true
+    load_service_config >/dev/null 2>&1
     # Work on an in-memory copy so Cancel can revert
     declare -A _SF
     for k in "${!SERVICE_FLAGS[@]}"; do _SF[$k]="${SERVICE_FLAGS[$k]}"; done
@@ -3174,7 +3174,7 @@ PY
             update_config_key "$selected_key" "true"
 
             # Persist consolidated config to disk
-            generate_config_file "${CONFIG_FILE:-$HOME/.config/qdomyos-zwift/qDomyos-Zwift.conf}" || true
+            generate_config_file "${CONFIG_FILE:-$HOME/.config/qdomyos-zwift/qDomyos-Zwift.conf}"
 
             # Update to success feedback (replaces the "Saving..." message)
             show_save_feedback "Equipment"
@@ -3896,42 +3896,6 @@ run_all_checks() {
 BT_SCAN_PID=""
 
 # ============================================================================
-# ROBUST CLEANUP HANDLER (set -u safe & prevents freezes)
-# ============================================================================
-cleanup_bt_engine() {
-    # Prefer the provider stop logic for consistent cleanup
-    stop_bt_provider 2>/dev/null || true
-    [[ -t 0 ]] && stty echo 2>/dev/null
-    local ui_fd
-    ui_fd=$(get_safe_ui_fd)
-    ( printf "\033[?25h" >&"${ui_fd}" ) 2>/dev/null || true
-    ( printf "\033[23;1H\n" >&"${ui_fd}" ) 2>/dev/null || true
-}
- 
-# Start the Bluetooth scanner engine: create fifo/log, start the background
-# tail|script pipeline, set BT_SCAN_PID and enable scanning on controller.
- 
-
-# Stop the Bluetooth scanner engine: kill background processes and remove
-# temp files (does NOT modify terminal settings).
-stop_bt_engine() {
-    # stop_bt_engine: stopping
-    # Prefer stopping provider if active
-    stop_bt_provider || true
-    BT_SCAN_PID=""
-    bluetoothctl scan off >/dev/null 2>&1 || true
-    # stop_bt_engine: stopped
-}
-
-# Trap Ctrl+C and standard terminations
-trap 'cleanup_bt_engine; exit 130' SIGINT SIGTERM
-
-# Helper: Strictly validates if a string is a real broadcast name
- 
-
- 
-
-# ============================================================================
 # FINAL STABLE BLUETOOTH RADAR (PYTHON-POWERED + REAL-TIME FIFO)
 # ============================================================================
 
@@ -3974,6 +3938,92 @@ collect_bt_updates_batch() {
     printf '%s\n' "${batch[@]}"
 }
 
+# Generate a fixed-width RSSI signal strength bar with color-coded filled portion
+# and greyed-out remainder (similar to ANT+ progress bars)
+#
+# Usage: draw_rssi_bar_fixed RSSI_VALUE [WIDTH]
+# Example: draw_rssi_bar_fixed -65 10
+# Output: Two space-separated values:
+#   1. Colored bar with grey remainder: [████████░░]
+#   2. Colored RSSI text: -65 dBm
+#
+# RSSI Mapping (typical Bluetooth range):
+#   -30 to -50 dBm = Excellent (10-8 bars, GREEN)
+#   -51 to -60 dBm = Good (7-6 bars, CYAN)
+#   -61 to -70 dBm = Fair (5-4 bars, YELLOW)
+#   -71 to -80 dBm = Weak (3-2 bars, ORANGE/RED)
+#   -81 to -90 dBm = Very Weak (1 bar, RED)
+#   Below -90 dBm = Minimal (1 bar, DIM RED)
+draw_rssi_bar_fixed() {
+    local rssi="$1"
+    local width="${2:-10}"  # Default 10 character width
+    
+    # Validate RSSI is numeric
+    if ! [[ "$rssi" =~ ^-?[0-9]+$ ]]; then
+        rssi=-999
+    fi
+    
+    # Map RSSI to bar fill count (0 to width)
+    # Linear mapping: -30 dBm (excellent) = full, -90 dBm (weak) = 1 bar
+    local fill_count
+    if (( rssi >= -30 )); then
+        fill_count=$width  # Maximum signal
+    elif (( rssi <= -90 )); then
+        fill_count=1       # Minimum visible signal
+    else
+        # Linear interpolation between -30 and -90
+        # Formula: fill = width - ((rssi + 30) * width / 60)
+        fill_count=$(( width - ((rssi + 30) * width / 60) ))
+    fi
+    
+    # Ensure fill_count is within bounds
+    [[ $fill_count -lt 0 ]] && fill_count=0
+    [[ $fill_count -gt $width ]] && fill_count=$width
+    
+    # Determine color based on signal quality
+    local bar_color rssi_color
+    if (( rssi >= -50 )); then
+        bar_color="$GREEN"      # Excellent
+        rssi_color="$GREEN"
+    elif (( rssi >= -60 )); then
+        bar_color="$CYAN"       # Good
+        rssi_color="$CYAN"
+    elif (( rssi >= -70 )); then
+        bar_color="$YELLOW"     # Fair
+        rssi_color="$YELLOW"
+    elif (( rssi >= -80 )); then
+        bar_color="$YELLOW"     # Weak (still yellow)
+        rssi_color="$YELLOW"
+    else
+        bar_color="$RED"        # Very weak
+        rssi_color="$RED"
+    fi
+    
+    # Build the bar: filled portion + grey remainder
+    local filled_portion=""
+    local empty_portion=""
+    local empty_count=$(( width - fill_count ))
+    
+    # Use block characters for filled portion
+    if [[ $fill_count -gt 0 ]]; then
+        filled_portion=$(printf '█%.0s' $(seq 1 "$fill_count"))
+    fi
+    
+    # Use lighter shade for empty portion
+    if [[ $empty_count -gt 0 ]]; then
+        empty_portion=$(printf '░%.0s' $(seq 1 "$empty_count"))
+    fi
+    
+    # Assemble final bar with brackets
+    local bar_display="${bar_color}${filled_portion}${GRAY}${empty_portion}${NC}"
+    
+    # Format RSSI text with color
+    local rssi_display="${rssi_color}${rssi}${NC}"
+    
+    # Return both values space-separated
+    echo "$bar_display" "$rssi_display"
+}
+
 perform_bluetooth_scan() {
     # 1. PREP ENVIRONMENT
     local script_dir
@@ -3984,6 +4034,13 @@ perform_bluetooth_scan() {
     
     # Use RAM-backed FIFO for zero latency
     local bt_fifo="$TEMP_DIR/qz_bt_fifo_$$"
+    local bt_marker="BT_SCAN_$$"  # Unique marker for this scan session
+
+    # Validate script exists BEFORE system changes
+    if [[ ! -f "$py_script" ]]; then
+        draw_error_screen "BLUETOOTH SCAN" "Error: Script not found: $py_script\nPlease ensure the file exists in the script directory." 1
+        return 1
+    fi
 
     # Ensure Bluetooth hardware is awake
     sudo rfkill unblock bluetooth >/dev/null 2>&1
@@ -3993,11 +4050,42 @@ perform_bluetooth_scan() {
     set_ui_output
     clear_info_area
 
-    # Fail fast if the Python provider is missing; surface a visible error
-    if [[ ! -f "$py_script" ]]; then
-        draw_error_screen "BLUETOOTH SCAN" "Error: Script not found: $py_script\nPlease ensure the file exists in the script directory." 1
-        return 1
-    fi
+    # Performance caches for Raspberry Pi
+    declare -A ANSI_STRIP_CACHE
+    declare -A RSSI_BAR_CACHE
+    
+    # Pre-compute common RSSI bars (-30 to -90 dBm range) with FIXED WIDTH
+    for rssi_val in {-30..-90}; do
+        read -r cached_bar cached_num < <(draw_rssi_bar_fixed "$rssi_val" 10)
+        RSSI_BAR_CACHE["${rssi_val}_bar"]="$cached_bar"
+        RSSI_BAR_CACHE["${rssi_val}_num"]="$cached_num"
+    done
+
+    # CLEANUP FUNCTION - careful not to kill parent shell
+    stop_bt_engine() {
+        # Close FD FIRST to release FIFO before any killing
+        exec 4<&- 2>/dev/null || true
+        
+        # Small delay to let file handles close
+        sleep 0.1
+        
+        # Kill ONLY bt_provider.py processes with specific pattern match
+        # This avoids killing the parent bash process
+        if pgrep -f "python.*bt_provider\.py" >/dev/null 2>&1; then
+            sudo pkill -9 -f "python.*bt_provider\.py" 2>/dev/null || true
+        fi
+        
+        # Remove FIFO (safe after closing FD)
+        rm -f "$bt_fifo" 2>/dev/null
+        
+        # Turn off scanning
+        bluetoothctl scan off >/dev/null 2>&1 || true
+        
+        BT_SCAN_PID=""
+    }
+
+    # Set trap ONLY for function return (cleanup happens automatically when function exits)
+    trap stop_bt_engine RETURN
 
     # OUTER LOOP: Handles "Refresh" without crashing or recursion
     while true; do
@@ -4007,34 +4095,29 @@ perform_bluetooth_scan() {
         local last_raw="NONE"
         local spin_chars=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
 
-        # Setup FIFO Pipe (ensure world-writable so sudo/other users can write)
+        # Setup FIFO Pipe
         rm -f "$bt_fifo" && mkfifo "$bt_fifo"
-        chmod 0666 "$bt_fifo" 2>/dev/null || true
+        chmod 0666 "$bt_fifo" 2>/dev/null || sudo chmod 0666 "$bt_fifo" 2>/dev/null || true
         
-        # Start Python Provider (Unbuffered)
-        # We use 'exec' to ensure the PID is the Python process itself
-        # Ensure redirection happens under sudo so the child process owns the FIFO
-        sudo bash -c "exec \"$venv_py\" -u \"$py_script\" >\"$bt_fifo\" 2>&1 &"
-        local py_pid=$!
-        BT_SCAN_PID=$py_pid
+        # Start Python Provider
+        local cmd
+        printf -v cmd '%q -u %q' "$venv_py" "$py_script"
         
-        # Open FIFO for reading on FD 4 to keep it persistent
-        exec 4<"$bt_fifo"
-
-        stop_bt_engine() {
-            if [[ -n "${BT_SCAN_PID:-}" ]]; then
-                # Shielded Kill: Verify process name before sending signal
-                if ps -p "$BT_SCAN_PID" -o cmd= 2>/dev/null | grep -q "bt_provider"; then
-                    sudo kill -9 "$BT_SCAN_PID" 2>/dev/null || true
-                fi
-            fi
-            exec 4<&-
-            rm -f "$bt_fifo"
-            BT_SCAN_PID=""
-        }
+        # Simple background execution (no setsid - caused issues)
+        sudo bash -c "$cmd >\"$bt_fifo\" 2>&1 </dev/null" &
+        BT_SCAN_PID=$!
+        
+        # Give Python time to start
+        sleep 0.2
+        
+        # Open FIFO for reading on FD 4
+        if ! exec 4<"$bt_fifo" 2>/dev/null; then
+            handle_error "bt_scan" "Failed to open FIFO" "ERROR"
+            # Cleanup will happen via trap when we return
+            return 1
+        fi
 
         # --- PHASE 1: THE RADAR (Rows 12-21) ---
-        # Load saved bluetooth name (if any) so we can highlight it in the list
         local saved_name=""
         if [[ -f "${CONFIG_FILE:-}" ]]; then
             saved_name=$(grep -E '^bluetooth_lastdevice_name=' "${CONFIG_FILE}" 2>/dev/null | tail -n1 | cut -d'=' -f2- | tr -d '\r' | xargs || true)
@@ -4044,12 +4127,13 @@ perform_bluetooth_scan() {
         while true; do
             ((loop_count++))
             
-            # Verify Python process health
-            if ! ps -p "$py_pid" >/dev/null 2>&1; then py_status="STOPPED"; fi
+            # Verify at least one bt_provider process is running
+            if ! pgrep -f "bt_provider.py" >/dev/null 2>&1; then
+                py_status="STOPPED"
+            fi
 
-            # Batched non-blocking read from FIFO to amortize IO and parsing
+            # Batched non-blocking read from FIFO
             local batch
-            # Use environment-tunable defaults; callers may override by passing args
             batch=$(collect_bt_updates_batch 4)
             if [[ -n "$batch" ]]; then
                 while IFS= read -r raw_data; do
@@ -4067,17 +4151,15 @@ perform_bluetooth_scan() {
 
                     # Split data: MAC|RSSI|LABEL
                     IFS='|' read -r m r l <<< "$(echo "$raw_data" | tr -d '\r')"
-                    # record last raw line for lightweight in-UI diagnostics
                     last_raw="$raw_data"
-                    # Defensive filters: ignore obvious non-device lines
                     [[ -z "$m" || "$m" == "ERROR" || "$m" == "HEARTBEAT" || "$m" == "STATUS" ]] && continue
-                    # Trim label and skip status-like names (CONNECTING, STATUS)
+                    
                     local ltrim
                     ltrim=$(printf '%s' "$l" | xargs)
                     if [[ -z "$ltrim" || "${ltrim^^}" == "CONNECTING" || "${ltrim^^}" == "STATUS" ]]; then
                         continue
                     fi
-                    # Ignore suspicious RSSI values (non-negative dBm) which likely indicate placeholders
+                    
                     if [[ "$r" =~ ^-?[0-9]+$ ]]; then
                         if (( r >= 0 )); then
                             continue
@@ -4087,108 +4169,103 @@ perform_bluetooth_scan() {
                     # Update existing device or add new discovery
                     local idx=-1
                     for i in "${!macs[@]}"; do [[ "${macs[$i]}" == "$m" ]] && idx=$i && break; done
-                    # Clean device label robustly:
-                    # 1) remove common backslash-escaped ANSI forms (\\033[...m, \\e[...m, \\x1B[...m)
-                    # 2) strip any remaining real ESC sequences
-                    # 3) drop non-printable bytes and normalize whitespace
+                    
+                    # PERF: Clean device label with caching
                     local clean_label
-                    clean_label=$(printf '%s' "$ltrim" \
-                        | sed -E 's/\\\\033\\\[[0-9;]*[mK]//g; s/\\\\e\\\[[0-9;]*[mK]//g; s/\\\\x1B\\\[[0-9;]*[mK]//g; s/\\\\\[[0-9;]*[mK]//g')
-                    # Now remove any actual ESC sequences and control bytes
-                    clean_label=$(strip_ansi_cached "$clean_label")
-                    # Keep only printable characters (remove stray control bytes)
-                    clean_label=$(printf '%s' "$clean_label" | tr -cd '[:print:]' | xargs)
-                    if [[ $idx -ge 0 ]]; then
-                        rssis[idx]=$r; devices[idx]="$clean_label"
+                    local cache_key="${ltrim:0:100}"
+                    
+                    if [[ -n "${ANSI_STRIP_CACHE[$cache_key]:-}" ]]; then
+                        clean_label="${ANSI_STRIP_CACHE[$cache_key]}"
                     else
-                        macs+=("$m"); rssis+=("$r"); devices+=("$clean_label")
+                        clean_label=$(printf '%s' "$ltrim" \
+                            | sed -E 's/\\\\033\\\[[0-9;]*[mK]//g; s/\\\\e\\\[[0-9;]*[mK]//g; s/\\\\x1B\\\[[0-9;]*[mK]//g; s/\\\\\[[0-9;]*[mK]//g')
+                        clean_label=$(strip_ansi_cached "$clean_label")
+                        clean_label=$(printf '%s' "$clean_label" | tr -cd '[:print:]' | xargs)
+                        ANSI_STRIP_CACHE[$cache_key]="$clean_label"
+                    fi
+                    
+                    # FIX: Array sync - add missing $
+                    if [[ $idx -ge 0 ]]; then
+                        rssis[$idx]=$r
+                        devices[$idx]="$clean_label"
+                    else
+                        macs+=("$m")
+                        rssis+=("$r")
+                        devices+=("$clean_label")
                     fi
                 done <<< "$batch"
             fi
 
-            # Sort by Signal Strength (Closest devices at top)
-            # OPTIMIZED: O(n log n) indexed sort using external sort command
-            if [[ ${#macs[@]} -gt 0 ]]; then
-                # Build index file: "RSSI|INDEX" for each device
-                local sort_input=""
-                for idx in "${!rssis[@]}"; do
-                    # Pad RSSI to positive range for stable numeric sort (handles negatives)
-                    local raw_rssi=${rssis[$idx]}
-                    if ! [[ "$raw_rssi" =~ ^-?[0-9]+$ ]]; then raw_rssi=0; fi
-                    # shift into positive space and zero-pad
-                    printf -v padded_rssi "%04d" "$(( raw_rssi + 200 ))"
-                    sort_input+="${padded_rssi}|${idx}"$'\n'
+            # Sort by Signal Strength using pure bash bubble sort
+            if [[ ${#macs[@]} -gt 1 ]]; then
+                local n=${#rssis[@]}
+                for ((i = 0; i < n - 1; i++)); do
+                    for ((j = 0; j < n - i - 1; j++)); do
+                        local curr_rssi=${rssis[$j]}
+                        local next_rssi=${rssis[$((j + 1))]}
+                        
+                        [[ ! "$curr_rssi" =~ ^-?[0-9]+$ ]] && curr_rssi=-999
+                        [[ ! "$next_rssi" =~ ^-?[0-9]+$ ]] && next_rssi=-999
+                        
+                        if (( curr_rssi < next_rssi )); then
+                            local tmp_mac="${macs[$j]}"
+                            local tmp_rssi="${rssis[$j]}"
+                            local tmp_dev="${devices[$j]}"
+                            
+                            macs[$j]="${macs[$((j + 1))]}"
+                            rssis[$j]="${rssis[$((j + 1))]}"
+                            devices[$j]="${devices[$((j + 1))]}"
+                            
+                            macs[$((j + 1))]="$tmp_mac"
+                            rssis[$((j + 1))]="$tmp_rssi"
+                            devices[$((j + 1))]="$tmp_dev"
+                        fi
+                    done
                 done
-
-                # Sort by RSSI (descending) and extract indices
-                local sorted_indices
-                mapfile -t sorted_indices < <(
-                    printf '%s' "$sort_input" | sort -t'|' -k1 -rn | cut -d'|' -f2
-                )
-
-                # Rebuild arrays in sorted order
-                local new_macs=() new_rssis=() new_devices=()
-                for idx in "${sorted_indices[@]}"; do
-                    [[ -n "${macs[$idx]:-}" ]] || continue
-                    new_macs+=("${macs[$idx]}")
-                    new_rssis+=("${rssis[$idx]}")
-                    new_devices+=("${devices[$idx]}")
-                done
-
-                # Replace original arrays
-                macs=("${new_macs[@]}")
-                rssis=("${new_rssis[@]}")
-                devices=("${new_devices[@]}")
             fi
 
             # UI Rendering
-            # Ensure we use the synchronized length across macs/devices/rssis
-            local nm=${#macs[@]}
-            local nd=${#devices[@]}
-            local nr=${#rssis[@]}
-            local num_devs=$nm
-            # choose the smallest to avoid index errors if arrays get out of sync
-            if (( nd < num_devs )); then num_devs=$nd; fi
-            if (( nr < num_devs )); then num_devs=$nr; fi
+            local num_devs=${#macs[@]}
             draw_bottom_panel_header "BLUETOOTH: ${num_devs} NAMED DEVICES"
             
-            # Row 12: Consistent Spacer
             draw_sealed_row 12 ""
             
-            # Rows 13-20: Device slots (8 rows). Use macs length (source of truth).
-            # use synchronized count computed above
-            # local num_devs=${#macs[@]}
-            # Build atomic render buffer for rows 13-20 to avoid interleaved prints
+            # Rows 13-20: Device slots (8 rows)
             local render_buffer=""
-            # shellcheck disable=SC2034
-            local dbg_hex=""
             for ((i=0; i<8; i++)); do
                 local row=$((13 + i))
                 local row_content=""
                 if [ "$i" -lt "$num_devs" ]; then
                     local s=${rssis[$i]}
-                    # Use standardized RSSI bar generator (width 10)
                     local strength_colored rssi_colored
-                    # The complex logic (3967-4023) is now abstracted to draw_rssi_bar for standardization
-                    read -r strength_colored rssi_colored < <(draw_rssi_bar "$s" 10)
+                    
+                    # PERF: Use cache for common RSSI values
+                    if [[ -n "${RSSI_BAR_CACHE[${s}_bar]:-}" ]]; then
+                        strength_colored="${RSSI_BAR_CACHE[${s}_bar]}"
+                        rssi_colored="${RSSI_BAR_CACHE[${s}_num]}"
+                    else
+                        read -r strength_colored rssi_colored < <(draw_rssi_bar_fixed "$s" 10)
+                    fi
 
                     local name="${devices[$i]}"
-                    # Use a consistent name color to avoid confusing mixed styles
-                    # If this device matches the saved device name in config, highlight it
                     local color="$BOLD_WHITE"
                     if [[ -n "$saved_name" && "$name" == "$saved_name" ]]; then
                         color="$BOLD_CYAN"
                     fi
 
-                    # Prepare aligned columns: NAME (40 cols = 2 leading spaces + 38 chars of name)
+                    # PERF: Faster truncation
                     local vis_name
-                    vis_name=$(trunc_vis "$name" 38)
+                    local raw_len=${#name}
+                    if [[ $raw_len -le 38 ]]; then
+                        vis_name="$name"
+                    else
+                        vis_name=$(trunc_vis "$name" 38)
+                    fi
+                    
                     local name_col
                     name_col=$(pad_display "  ${color}${vis_name}${NC}" "40")
 
-                    # MAC address column (17 chars typical: AA:BB:CC:DD:EE:FF)
-                    local mac_addr
-                    mac_addr="${macs[$i]:-}"
+                    local mac_addr="${macs[$i]}"
                     local mac_col
                     mac_col=$(printf '%-17s' "$mac_addr")
                     
@@ -4197,7 +4274,6 @@ perform_bluetooth_scan() {
                     row_content=""
                 fi
 
-                # compute padding to INNER_COLS (ANSI-aware)
                 local vis_row
                 vis_row=$(get_vis_width "$row_content")
                 local pad_needed=$(( INNER_COLS - vis_row ))
@@ -4208,59 +4284,26 @@ perform_bluetooth_scan() {
                 local line_to_print
                 line_to_print="${BLUE}║${NC}${row_content}${padding}${BLUE}║${NC}"
                 render_buffer+=$(printf "\033[%d;1H%s" "$((row + 1))" "$line_to_print")
-
-                    # no per-row debug accumulation in production
             done
 
-            # Atomic write of all info rows
             local ui_fd
             ui_fd=$(get_safe_ui_fd)
             ( printf '%s' "$render_buffer" >&"${ui_fd}" ) 2>/dev/null || true
 
-            # Split diagnostics across rows 19/20/21 to avoid truncation
-            # Build full raw and dev info then slice into two safe pieces
-            local raw_full
-            raw_full=$(printf '%s' "$last_raw" | tr -d '\n' | sed -n '1p')
-
-            local nm=${#macs[@]}
-            local nd=${#devices[@]}
-            local nr=${#rssis[@]}
-
-            # Build compact per-device string (index:length:name) separated by spaces
-            local dev_info_full=""
-            for k in $(seq 0 $(( num_devs - 1 )) 2>/dev/null); do
-                local dname
-                dname=$(strip_ansi_cached "${devices[$k]:-}")
-                dname=$(printf '%s' "$dname" | tr '\n\t' '  ')
-                local dlen=${#dname}
-                dev_info_full+="${k}:${dlen}:${dname} "
-            done
-
-            # Determine slice widths (leave some headroom for labels)
-            local slice_w_a=$(( INNER_COLS - 8 ))
-            local slice_w_b=$(( INNER_COLS - 20 ))
-
-            local dev_a dev_b raw_a
-            # shellcheck disable=SC2034
-            dev_a=$(printf '%s' "$dev_info_full" | cut -c1-$slice_w_a)
-            # shellcheck disable=SC2034
-            dev_b=$(printf '%s' "$dev_info_full" | cut -c$(( slice_w_a + 1 ))-$(( slice_w_a + slice_w_b )) )
-            # shellcheck disable=SC2034
-            raw_a=$(printf '%s' "$raw_full" | cut -c1-$(( INNER_COLS - 12 )) )
-
-            # Diagnostics removed: rows 19-21 were used for temporary debugging
-            # (Footer row at LOG_BOTTOM+1 remains unchanged)
-            
-            # Border Footer
             draw_bottom_border "Scanning... ${spin_chars[$((loop_count % 10))]} | Any key to stop"
 
-            # Diagnostics removed (production) — temporary debug prints cleaned up
-
-            # Read user keypress explicitly from the controlling TTY so
-            # stdin redirections (FIFO, sudo) do not interfere.
-            if read -rsn1 -t 0.1 key </dev/tty; then
-                stop_bt_engine
-                break # Transition to Selection Phase
+            # IMPROVED: Check for key 3 times per iteration
+            local key=""
+            for check_attempt in 1 2 3; do
+                if read -rsn1 -t 0.033 key </dev/tty; then
+                    break 2  # Break out of both loops
+                fi
+            done
+            
+            # If we caught a key, exit the scanning loop
+            if [[ -n "$key" ]]; then
+                # Don't call stop_bt_engine - trap will handle cleanup
+                break  # Exit the scanning while loop, proceed to menu
             fi
         done
 
@@ -4269,29 +4312,26 @@ perform_bluetooth_scan() {
         for ((i=0;i<num_devs;i++)); do
             menu_labels+=("$(printf '%-30s [%s]' "${devices[$i]}" "${macs[$i]}")")
         done
-        menu_labels+=("Scan" "Back")
+        menu_labels+=("Refresh" "Back")
         
-        # Ensure UI mode is exited and the info area cleared so the menu
-        # rendering does not overlap residual scan output. Re-evaluate UI FD
-        # in case we are running under sudo.
         exit_ui_mode || true
         set_ui_output
         clear_info_area
-        # Call directly (returns selection via exit code $?)
         show_scrollable_menu "SELECT DEVICE" menu_labels 0
         local sanitized=$? 
         
         local num_devs=${#macs[@]}
         local refresh_idx=$num_devs
-        local skip_idx=$((num_devs + 1))
+        local back_idx=$((num_devs + 1))
 
-        if [[ "$sanitized" -eq 255 || "$sanitized" -eq "$refresh_idx" ]]; then
-            # User chose REFRESH: Loop restarts, clearing data
+        # FIX: ESC (255) should go back, not refresh
+        if [[ "$sanitized" -eq 255 || "$sanitized" -eq "$back_idx" ]]; then
+            exit_ui_mode
+            return 1
+        elif [[ "$sanitized" -eq "$refresh_idx" ]]; then
             exit_ui_mode
             clear_info_area
             continue 
-        elif [[ "$sanitized" -eq "$skip_idx" ]]; then
-            exit_ui_mode; return 1
         elif [[ "$sanitized" -lt "$num_devs" ]]; then
             # SUCCESS: Save Selection
             local sel_mac="${macs[$sanitized]}"
@@ -4306,10 +4346,12 @@ perform_bluetooth_scan() {
             draw_sealed_row $((LOG_TOP + 2)) "   ${GREEN}Device linked successfully!${NC}"
             draw_sealed_row $((LOG_TOP + 4)) "   Name: ${WHITE}$sel_name${NC}"
             draw_sealed_row $((LOG_TOP + 5)) "   Addr: ${GRAY}$sel_mac${NC}"
-            # Persist bluetooth selection into typed arrays and write atomically
-            generate_config_file "${CONFIG_FILE:-$HOME/.config/qdomyos-zwift/qDomyos-Zwift.conf}" || true
-            draw_bottom_border ""; sleep 2
-            exit_ui_mode; return 0
+            
+            generate_config_file "${CONFIG_FILE:-$HOME/.config/qdomyos-zwift/qDomyos-Zwift.conf}"
+            draw_bottom_border ""
+            sleep 2
+            exit_ui_mode
+            return 0
         fi
     done
 }
@@ -4438,9 +4480,9 @@ install_qt5_libs() {
         usbutils
         python3-pip
     )
-    # Add raspi-config for Raspberry Pi (removed during uninstall)
+    # Add raspi-config and lsof for Raspberry Pi
     if [ "$IS_PI" = true ]; then
-        libs+=(raspi-config)
+        libs+=(raspi-config lsof)
     fi
     local cmd="apt-get update && apt-get install -y ${libs[*]}"
     run_with_progress "Installing System Dependencies" "$cmd"
@@ -6100,6 +6142,8 @@ perform_ant_test() {
     draw_bottom_border "Any key to stop"
 
     local last_elapsed="-1"
+    local last_stage=""
+    local last_displayed_line=""  # FIX: Track last rendered line to avoid redundant redraws
     local stale_count=0
     local spinner=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
     local sc=0
@@ -6121,39 +6165,69 @@ perform_ant_test() {
         # Read the last line only
         local line=$(tail -n 1 "$log_file" 2>/dev/null | tr -d '\r')
 
-        # Regex: "Stage Name | Cadence:100 Speed:10.0 Pace:6:00 [ 10s / 20s ]"
-        if [[ "$line" =~ ^([^|]+)\|[[:space:]]*Cadence:([0-9]+)[[:space:]]*Speed:([0-9.]+)[[:space:]]*Pace:([^ ]+)[[:space:]]*\[[[:space:]]*([0-9]+)s[[:space:]]*/[[:space:]]*([0-9]+)s[[:space:]]*\] ]]; then
-            local stage="${BASH_REMATCH[1]}"
-            local cad="${BASH_REMATCH[2]}"
-            local spd="${BASH_REMATCH[3]}"
-            local pace="${BASH_REMATCH[4]}"
-            local t_now="${BASH_REMATCH[5]}"
-            local t_max="${BASH_REMATCH[6]}"
+        # FIX: Only process and render if the line actually changed
+        # This prevents re-rendering the same progress bar 5 times per second
+        if [[ "$line" != "$last_displayed_line" ]]; then
+            # Regex: "Stage Name | Cadence:100 Speed:10.0 Pace:6:00 [ 10s / 20s ]"
+            if [[ "$line" =~ ^([^|]+)\|[[:space:]]*Cadence:([0-9]+)[[:space:]]*Speed:([0-9.]+)[[:space:]]*Pace:([^ ]+)[[:space:]]*\[[[:space:]]*([0-9]+)s[[:space:]]*/[[:space:]]*([0-9]+)s[[:space:]]*\] ]]; then
+                local stage="${BASH_REMATCH[1]}"
+                local cad="${BASH_REMATCH[2]}"
+                local spd="${BASH_REMATCH[3]}"
+                local pace="${BASH_REMATCH[4]}"
+                local t_now="${BASH_REMATCH[5]}"
+                local t_max="${BASH_REMATCH[6]}"
 
-            # Data Freeze Detection
-            if [[ "$t_now" == "$last_elapsed" ]]; then ((stale_count++)); else last_elapsed="$t_now"; stale_count=0; fi
+                # Stage change detection
+                stage="$(echo "$stage" | xargs)"
+                if [[ "$stage" != "$last_stage" ]]; then
+                    last_stage="$stage"
+                fi
 
-            stage="$(echo "$stage" | xargs)"
-            draw_sealed_row $((LOG_TOP + 2)) "   ${BOLD_WHITE}${stage}${NC}   ID:54321   ${CYAN}Pace:${pace}  Cad:${cad}  Spd:${spd}${NC}"
+                # Data Freeze Detection
+                if [[ "$t_now" == "$last_elapsed" ]]; then 
+                    ((stale_count++))
+                else 
+                    last_elapsed="$t_now"
+                    stale_count=0
+                fi
 
-            # Calculate bar width dynamically based on actual prefix length, with 6-char margin from right border
-            local line_without_bar="   ${CYAN}[ ${t_now}s / ${t_max}s ]${NC}  "
-            local line_vis
-            line_vis=$(get_display_width "$line_without_bar")
-            local bar_w=$(( INNER_COLS - line_vis - 6 ))
-            local fill=0; [[ $t_max -gt 0 ]] && fill=$(( (t_now * bar_w) / t_max ))
-            [[ $fill -gt $bar_w ]] && fill=$bar_w
-            local p_bar="${BG_GREEN}$(printf '%*s' "$fill" "")${BG_GRAY}$(printf '%*s' "$((bar_w - fill))" "")${NC}"
-            draw_sealed_row $((LOG_TOP + 3)) "${line_without_bar}${p_bar}"
-        else
-            # Show spinner during the time that no live staging is displayed
-            local spin_char="${spinner[$((sc % 10))]}"
-            draw_sealed_row $((LOG_TOP + 2)) "   ${CYAN}${spin_char}${NC}  Waiting for staging data..."
-            ((sc++))
+                # Render stage info
+                draw_sealed_row $((LOG_TOP + 2)) "   ${BOLD_WHITE}$(printf '%-15s' "$stage")${NC}ID:54321   ${CYAN}Pace:${pace}  Cad:${cad}  Spd:${spd}${NC}"
+
+                # Calculate bar width dynamically
+                local line_without_bar="   ${CYAN}[ $(printf '%2d' "$t_now")s / $(printf '%2d' "$t_max")s ]${NC}  "
+                local line_vis
+                line_vis=$(get_display_width "$line_without_bar")
+                local bar_w=$(( INNER_COLS - line_vis - 6 ))
+                
+                # Calculate fill percentage
+                local fill=0
+                if [[ $t_max -gt 0 ]]; then
+                    fill=$(( (t_now * bar_w) / t_max ))
+                fi
+                [[ $fill -gt $bar_w ]] && fill=$bar_w
+                
+                local p_bar="${BG_GREEN}$(printf '%*s' "$fill" "")${BG_GRAY}$(printf '%*s' "$((bar_w - fill))" "")${NC}"
+                draw_sealed_row $((LOG_TOP + 3)) "${line_without_bar}${p_bar}"
+                
+                # Remember this line to avoid re-rendering
+                last_displayed_line="$line"
+            else
+                # Show spinner during the time that no live staging is displayed
+                # Only update spinner if we haven't displayed this non-matching line yet
+                if [[ "$line" != "$last_displayed_line" ]]; then
+                    local spin_char="${spinner[$((sc % 10))]}"
+                    draw_sealed_row $((LOG_TOP + 2)) "   ${CYAN}${spin_char}${NC}  Waiting for staging data..."
+                    ((sc++))
+                    last_displayed_line="$line"
+                fi
+            fi
         fi
+        # Note: If line hasn't changed, we skip all rendering (no flicker, no stutter)
 
         if [[ $stale_count -gt 25 ]]; then
-            draw_error_screen "DATA FREEZE" "Hardware connected but data stream stopped." "wait"; break
+            draw_error_screen "DATA FREEZE" "Hardware connected but data stream stopped." "wait"
+            break
         fi
 
         safe_read_key stop_key 0.2
@@ -6168,7 +6242,6 @@ perform_ant_test() {
     exit_ui_mode
     return 0
 }
-
 
 ### Milestone 1-4: Service config, generation and validators
 # Persistent service flags storage

@@ -379,9 +379,12 @@ def main():
             pace = pace_range.split('-')[1] if '-' in pace_range else pace_range.replace('~', '')
 
             start = time.monotonic()
+            last_print_second = -1  # Track last printed second to avoid duplicates
+            
             while (time.monotonic() - start) < duration:
                 loop_s = time.monotonic()
                 elapsed = loop_s - start
+                elapsed_sec = int(elapsed)
 
                 # --- CRITICAL FIX: Catch USB Transmission Errors ---
                 # This prevents the script from crashing if a single packet fails.
@@ -392,15 +395,25 @@ def main():
                     # see a skipped packet rather than a full crash.
                     pass
 
-                if args.dashboard:
+                # FIX: Only print when the second actually changes (prevents stuttering)
+                if args.dashboard and elapsed_sec != last_print_second:
                     # Format: STAGE | Cadence:X Speed:Y Pace:Z [ E / T ]
-                    print(f"{stage_name} | Cadence:{cadence} Speed:{speed:.1f} Pace:{pace} [ {int(elapsed):>2}s / {duration}s ]")
-                else:
-                    print(f"Running... {int(elapsed)}s", end="\r")
+                    print(f"{stage_name} | Cadence:{cadence} Speed:{speed:.1f} Pace:{pace} [ {elapsed_sec:>2}s / {duration}s ]", flush=True)
+                    last_print_second = elapsed_sec
+                elif not args.dashboard:
+                    print(f"Running... {elapsed_sec}s", end="\r")
 
                 # Sleep remainder of 4Hz cycle
                 rem = LOOP_PERIOD - (time.monotonic() - loop_s)
                 if rem > 0: time.sleep(rem)
+            
+            # FIX: Show final complete state before transitioning to next stage
+            # This gives the dashboard UI time to render "20/20" completion
+            if args.dashboard:
+                print(f"{stage_name} | Cadence:{cadence} Speed:{speed:.1f} Pace:{pace} [ {duration}s / {duration}s ]", flush=True)
+            
+            # Pause 1 second to allow UI to display completion state
+            time.sleep(1.0)
 
     except KeyboardInterrupt:
         print("\nUser interrupted test.")
