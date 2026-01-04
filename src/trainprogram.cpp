@@ -1367,6 +1367,9 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
         stream.writeStartElement(QStringLiteral("rows"));
         for (const trainrow &row : qAsConst(rows)) {
             stream.writeStartElement(QStringLiteral("row"));
+            if (!row.name.isEmpty()) {
+                stream.writeAttribute(QStringLiteral("name"), row.name);
+            }
             stream.writeAttribute(QStringLiteral("duration"), row.duration.toString());
             if (row.distance >= 0) {
                 stream.writeAttribute(QStringLiteral("distance"), QString::number(row.distance));
@@ -1556,6 +1559,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
         QXmlStreamAttributes atts = stream.attributes();
         bool ramp = false;
         if (!atts.isEmpty()) {
+            if (atts.hasAttribute(QStringLiteral("name"))) {
+                row.name = atts.value(QStringLiteral("name")).toString();
+            }
             if (atts.hasAttribute(QStringLiteral("duration"))) {
                 row.duration = QTime::fromString(atts.value(QStringLiteral("duration")).toString(), QStringLiteral("hh:mm:ss"));
             }

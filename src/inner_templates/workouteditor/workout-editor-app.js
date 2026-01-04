@@ -1179,6 +1179,10 @@
             const row = {
                 duration: formatDuration(durationSec)
             };
+            // Add interval name/label if present
+            if (interval.name && interval.name.trim() !== '') {
+                row.name = interval.name.trim();
+            }
             FIELD_DEFS.forEach(field => {
                 if (field.key === 'name' || field.key === 'duration') {
                     return;

@@ -21,6 +21,7 @@
 
 class trainrow {
   public:
+    QString name; // Interval label/name
     QTime duration = QTime(0, 0, 0, 0);
     QDateTime started = QDateTime();
     QDateTime ended = QDateTime();
