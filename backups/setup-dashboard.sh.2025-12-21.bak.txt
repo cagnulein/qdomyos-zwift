@@ -1,3 +1,0 @@
-Backup of setup-dashboard.sh on 2025-12-21
-
-See /home/adam/github/qdomyos-zwift/src/devices/antlinux/setup-dashboard.sh for live copy.

@@ -70,6 +70,29 @@ safe_read_key() {
     IFS="${_old_ifs}"
 }
 
+# Flush any buffered keyboard input to prevent delayed key processing
+# Call this after processing navigation keys to stop scroll lag
+flush_input_buffer() {
+    local _discard=""
+    while IFS= read -rsn1 -t 0.001 _discard </dev/tty 2>/dev/null; do
+        : # Drain buffer
+    done
+}
+
+# Read escape sequence (2 characters after ESC key)
+# Usage: read_escape_sequence VAR [timeout]
+read_escape_sequence() {
+    local __var="$1"
+    local _timeout="${2:-0.01}"
+    local _old_ifs="$IFS"
+    local _tmp_read=""
+    
+    IFS= read -rsn2 -t "${_timeout}" _tmp_read </dev/tty 2>/dev/null || true
+    
+    printf -v "${__var}" '%s' "${_tmp_read}"
+    IFS="${_old_ifs}"
+}
+
 # Auto-save config and show brief feedback
 auto_save_config() {
     local config_type="$1"  # "service" | "profile"
@@ -132,8 +155,112 @@ show_cancel_feedback() {
     print_at_col "$row" "$col" "$(printf '%*s' "$w" '')"
 }
 
-# Validate that a candidate path is a RAM-backed tmpfs-like storage.
-# Returns 0 if usable (writable dir on tmpfs), non-zero otherwise.
+# Inline field editor - edits numeric values in brackets on the same line
+# Usage: inline_edit_field ROW LABEL CURRENT_VALUE MIN MAX MAXLEN
+# Returns: new value via stdout, or empty if cancelled/invalid
+inline_edit_field() {
+    local row="$1"
+    local label="$2"
+    local current_value="$3"
+    local min_val="$4"
+    local max_val="$5"
+    local max_len="$6"
+    local new_value=""  # Start empty
+    local placeholder_visible=true
+    
+    # Flush any buffered input before starting
+    flush_input_buffer
+    
+    while true; do
+        # Build display string
+        local display_value
+        local display_color
+        if [[ $placeholder_visible == true && -z "$new_value" ]]; then
+            display_value="$current_value"
+            display_color="$GRAY"
+        else
+            display_value="$new_value"
+            display_color="$WHITE"
+        fi
+        
+        # Update the row content using safe update function
+        local row_content="   ${CYAN}► ${NC}${label}: [${display_color}${display_value}${NC}]"
+        update_sealed_row_content "$row" "$row_content"
+        
+        # Position cursor
+        local cursor_col
+        if [[ -z "$new_value" ]]; then
+            cursor_col=$((5 + ${#label} + 4))  # Start of brackets
+        else
+            cursor_col=$((5 + ${#label} + 4 + ${#new_value}))  # After typed text
+        fi
+        move_cursor "$((row + 1))" "$cursor_col"
+        printf '\033[?25h'  # Show cursor
+        
+        # Read one key
+        local key=""
+        safe_read_key key
+        
+        if [[ $key == $'\x1b' ]]; then
+            read_escape_sequence k2
+            if [[ -z "${k2:-}" ]]; then
+                # ESC - cancel
+                printf '\033[?25l'
+                flush_input_buffer
+                return 1
+            fi
+            # Ignore arrow keys
+            continue
+        elif [[ $key == "" ]]; then
+            # Enter - confirm
+            printf '\033[?25l'
+            
+            # If nothing typed, no change
+            if [[ -z "$new_value" ]]; then
+                flush_input_buffer
+                echo "$current_value"
+                return 0
+            fi
+            
+            # Validate range
+            local num_val=$((new_value))
+            if [[ $num_val -lt $min_val ]] || [[ $num_val -gt $max_val ]]; then
+                # Show error briefly
+                local err_text="✗ Must be ${min_val}-${max_val}"
+                update_sealed_row_content "$row" "     ${RED}${err_text}${NC}"
+                sleep 1
+                flush_input_buffer
+                return 1
+            fi
+            
+            # Valid - return new value
+            flush_input_buffer
+            echo "$new_value"
+            return 0
+        elif [[ $key == $'\x7f' ]] || [[ $key == $'\x08' ]]; then
+            # Backspace
+            if [[ ${#new_value} -gt 0 ]]; then
+                new_value="${new_value%?}"
+                if [[ -z "$new_value" ]]; then
+                    placeholder_visible=true
+                fi
+            fi
+        elif [[ $key =~ ^[0-9]$ ]]; then
+            # First digit clears placeholder
+            if [[ $placeholder_visible == true ]]; then
+                placeholder_visible=false
+                new_value=""
+            fi
+            
+            # Add digit if not at max length
+            if [[ ${#new_value} -lt $max_len ]]; then
+                new_value="${new_value}${key}"
+            fi
+        fi
+        # Ignore other keys and loop
+    done
+}
+
 configure_service_flags_ui() {
     load_service_config >/dev/null 2>&1 || true
     # Work on an in-memory copy so Cancel can revert
@@ -144,9 +271,9 @@ configure_service_flags_ui() {
     UI_MODAL_ACTIVE=1
     enter_ui_mode || true
     local selected=0
-    local prev_selected=0
-    local need_full_redraw=1
-    local prev_num_options=0
+    local prev_selected=-1
+    local first_draw=true
+    
     while true; do
         local options=()
         local opt_keys=()
@@ -154,36 +281,28 @@ configure_service_flags_ui() {
         opt_keys+=("logging")
         options+=("Console: ${_SF[console]:-false}")
         opt_keys+=("console")
-        options+=("Bluetooth Relaxed: ${_SF[bluetooth_relaxed]:-false}")
-        opt_keys+=("bluetooth_relaxed")
         options+=("ANT+ Footpod: ${_SF[ant_footpod]:-false}")
         opt_keys+=("ant_footpod")
         if [[ "${_SF[ant_footpod]}" == "true" ]]; then
             options+=("ANT+ Device ID: [${_SF[ant_device]:-54321}]")
             opt_keys+=("ant_device")
-            options+=("ANT Verbose: ${_SF[ant_verbose]:-false}")
-            opt_keys+=("ant_verbose")
+            # Only show ANT Verbose if both ANT+ Footpod AND Logging are true
+            if [[ "${_SF[logging]}" == "true" ]]; then
+                options+=("ANT Verbose: ${_SF[ant_verbose]:-false}")
+                opt_keys+=("ant_verbose")
+            fi
         fi
+        options+=("Bluetooth Relaxed: ${_SF[bluetooth_relaxed]:-false}")
+        opt_keys+=("bluetooth_relaxed")
         options+=("Poll Time (ms): [${_SF[poll_time]:-200}]")
         opt_keys+=("poll_time")
-        # Changes auto-save on field edit
-        # ESC key exits menu
 
-        # Cap to LOG area (rows LOG_TOP..LOG_BOTTOM)
-        local num_options=${#options[@]}
-        if (( num_options > 9 )); then
-            options=("${options[@]:0:9}")
-            num_options=9
-        fi
-
-        local BASE_PAD="     "
-        local ARROW="►"
-        local ARROW_POS=2
         local num_options=${#options[@]}
 
-        if [[ $need_full_redraw -eq 1 ]]; then
-            draw_bottom_panel_header --force "SERVICE FLAG CONFIGURATION"
-            clear_info_area --force
+        # Full redraw when options change or first render
+        if [[ $first_draw == true ]]; then
+            draw_bottom_panel_header "SERVICE FLAG CONFIGURATION"
+            clear_info_area
             draw_sealed_row $((LOG_TOP)) ""
             for i in "${!options[@]}"; do
                 local row=$((LOG_TOP + 1 + i))
@@ -191,134 +310,149 @@ configure_service_flags_ui() {
                 if [[ $i -eq $selected ]]; then
                     draw_sealed_row "$row" "   ${CYAN}► ${BOLD_CYAN}${opt_text}${NC}"
                 else
-                    draw_sealed_row "$row" "${BASE_PAD}${GRAY}${opt_text}${NC}"
+                    draw_sealed_row "$row" "     ${GRAY}${opt_text}${NC}"
                 fi
             done
-            draw_bottom_border --force "Arrows: Up/Down | Enter: Toggle/Edit | Esc: Back"
-            need_full_redraw=0
+            draw_bottom_border "Arrows: Up/Down | Enter: Toggle/Edit | Esc: Back"
             prev_num_options=$num_options
-        else
+            prev_selected=$selected
+            first_draw=false
+        elif [[ $num_options -ne $prev_num_options ]]; then
+            # Menu structure changed (items added/removed) - smooth line-by-line redraw
             local max_rows=$(( num_options > prev_num_options ? num_options : prev_num_options ))
-            for ((i=0;i<max_rows;i++)); do
+            for ((i=0; i<max_rows; i++)); do
                 local row=$((LOG_TOP + 1 + i))
                 if (( i < num_options )); then
                     local opt_text="${options[$i]}"
                     if [[ $i -eq $selected ]]; then
                         update_sealed_row_content "$row" "   ${CYAN}► ${BOLD_CYAN}${opt_text}${NC}"
                     else
-                        update_sealed_row_content "$row" "${BASE_PAD}${GRAY}${opt_text}${NC}"
+                        update_sealed_row_content "$row" "     ${GRAY}${opt_text}${NC}"
                     fi
                 else
+                    # Clear rows that are no longer needed
                     update_sealed_row_content "$row" ""
                 fi
             done
             prev_num_options=$num_options
+            prev_selected=$selected
+        elif [[ $selected -ne $prev_selected ]]; then
+            # Selection changed - just update the two affected rows
+            if [[ $prev_selected -ge 0 ]] && [[ $prev_selected -lt $num_options ]]; then
+                local prev_row=$((LOG_TOP + 1 + prev_selected))
+                update_sealed_row_content "$prev_row" "     ${GRAY}${options[$prev_selected]}${NC}"
+            fi
+            local new_row=$((LOG_TOP + 1 + selected))
+            update_sealed_row_content "$new_row" "   ${CYAN}► ${BOLD_CYAN}${options[$selected]}${NC}"
+            prev_selected=$selected
         fi
 
-        # Input loop for this screen
-        while true; do
-            local key=""
-            safe_read_key key
-            if [[ $key == $'\x1b' ]]; then
-                read -rsn2 -t 0.01 k2 </dev/tty || true
-
-                if [[ -z "${k2:-}" ]]; then
-                    # Plain ESC pressed - navigate back from menu
-                    # No need to prompt "Are you sure?" - changes already saved
-                    exit_ui_mode || true
-                    UI_MODAL_ACTIVE=0
-                    return 0
-                fi
-
-                # Arrow key sequences with bounds checks
-                [[ "${k2:-}" == "[A" ]] && ((selected > 0 && selected--))
-                [[ "${k2:-}" == "[B" ]] && ((selected < num_options - 1 && selected++))
-            elif [[ $key == "" ]]; then
-                # Enter pressed: act on selected
-                break
+        # Input handling
+        local key=""
+        safe_read_key key
+        if [[ $key == $'\x1b' ]]; then
+            read_escape_sequence k2
+            if [[ -z "${k2:-}" ]]; then
+                # Plain ESC pressed - copy changes back to global array and save
+                for k in "${!_SF[@]}"; do
+                    SERVICE_FLAGS[$k]="${_SF[$k]}"
+                done
+                save_service_config
+                
+                exit_ui_mode || true
+                UI_MODAL_ACTIVE=0
+                return 0
             fi
-
-            [[ $selected -lt 0 ]] && selected=$((num_options - 1))
-            [[ $selected -ge $num_options ]] && selected=0
-
-            if [[ $selected -ne $prev_selected ]]; then
-                # Update only the interior content for the previous and new
-                # rows to avoid redrawing the whole info panel.
-                local prow=$((LOG_TOP + 1 + prev_selected))
-                update_sealed_row_content "$prow" "${BASE_PAD}${GRAY}${options[$prev_selected]}${NC}"
-                local nrow=$((LOG_TOP + 1 + selected))
-                update_sealed_row_content "$nrow" "   ${CYAN}► ${BOLD_CYAN}${options[$selected]}${NC}"
-                prev_selected=$selected
-            fi
-        done
-
-        # Determine action for selected index
-        local choice_index=$selected
-        local choice_text="${options[choice_index]}"
-        if [[ "${QZ_DEBUG_PROFILE:-0}" -eq 1 ]]; then
-            echo "[DEBUG] choice_index=${choice_index} choice_text=${choice_text}" >> /tmp/qz_profile_debug.log 2>/dev/null || true
+            [[ "${k2:-}" == "[A" ]] && ((selected--))
+            [[ "${k2:-}" == "[B" ]] && ((selected++))
+            flush_input_buffer
+        elif [[ $key == "" ]]; then
+            # Enter key -> toggle or edit value
+            local sel_key="${opt_keys[$selected]}"
+            local current_row=$((LOG_TOP + 1 + selected))
+            
+            case "$sel_key" in
+                logging)
+                    if [[ "${_SF[logging]}" == "true" ]]; then
+                        _SF[logging]="false"
+                        _SF[ant_verbose]="false"
+                    else
+                        _SF[logging]="true"
+                    fi
+                    # Menu structure may change - will redraw on next loop
+                    ;;
+                console)
+                    [[ "${_SF[console]}" == "true" ]] && _SF[console]="false" || _SF[console]="true"
+                    # Simple toggle - just update this row
+                    local new_text="Console: ${_SF[console]}"
+                    update_sealed_row_content "$current_row" "   ${CYAN}► ${BOLD_CYAN}${new_text}${NC}"
+                    ;;
+                bluetooth_relaxed)
+                    [[ "${_SF[bluetooth_relaxed]}" == "true" ]] && _SF[bluetooth_relaxed]="false" || _SF[bluetooth_relaxed]="true"
+                    # Simple toggle - just update this row
+                    local new_text="Bluetooth Relaxed: ${_SF[bluetooth_relaxed]}"
+                    update_sealed_row_content "$current_row" "   ${CYAN}► ${BOLD_CYAN}${new_text}${NC}"
+                    ;;
+                ant_footpod)
+                    [[ "${_SF[ant_footpod]}" == "true" ]] && _SF[ant_footpod]="false" || _SF[ant_footpod]="true"
+                    # Menu structure may change - will redraw on next loop
+                    ;;
+                ant_verbose)
+                    [[ "${_SF[ant_verbose]}" == "true" ]] && _SF[ant_verbose]="false" || _SF[ant_verbose]="true"
+                    # Simple toggle - just update this row
+                    local new_text="ANT Verbose: ${_SF[ant_verbose]}"
+                    update_sealed_row_content "$current_row" "   ${CYAN}► ${BOLD_CYAN}${new_text}${NC}"
+                    ;;
+                ant_device)
+                    # Inline edit ANT+ Device ID (range: 1-65535, max 5 digits)
+                    local current_val="${_SF[ant_device]:-54321}"
+                    local new_val
+                    if new_val=$(inline_edit_field "$current_row" "ANT+ Device ID" "$current_val" 1 65535 5); then
+                        if [[ "$new_val" != "$current_val" ]]; then
+                            _SF[ant_device]="$new_val"
+                            # Just update this row with new value
+                            local new_text="ANT+ Device ID: [${new_val}]"
+                            update_sealed_row_content "$current_row" "   ${CYAN}► ${BOLD_CYAN}${new_text}${NC}"
+                        else
+                            # No change - restore normal display
+                            local new_text="ANT+ Device ID: [${current_val}]"
+                            update_sealed_row_content "$current_row" "   ${CYAN}► ${BOLD_CYAN}${new_text}${NC}"
+                        fi
+                    else
+                        # Cancelled - restore normal display
+                        local new_text="ANT+ Device ID: [${current_val}]"
+                        update_sealed_row_content "$current_row" "   ${CYAN}► ${BOLD_CYAN}${new_text}${NC}"
+                    fi
+                    flush_input_buffer
+                    ;;
+                poll_time)
+                    # Inline edit Poll Time (range: 100-999, max 3 digits)
+                    local current_val="${_SF[poll_time]:-200}"
+                    local new_val
+                    if new_val=$(inline_edit_field "$current_row" "Poll Time (ms)" "$current_val" 100 999 3); then
+                        if [[ "$new_val" != "$current_val" ]]; then
+                            _SF[poll_time]="$new_val"
+                            # Just update this row with new value
+                            local new_text="Poll Time (ms): [${new_val}]"
+                            update_sealed_row_content "$current_row" "   ${CYAN}► ${BOLD_CYAN}${new_text}${NC}"
+                        else
+                            # No change - restore normal display
+                            local new_text="Poll Time (ms): [${current_val}]"
+                            update_sealed_row_content "$current_row" "   ${CYAN}► ${BOLD_CYAN}${new_text}${NC}"
+                        fi
+                    else
+                        # Cancelled - restore normal display
+                        local new_text="Poll Time (ms): [${current_val}]"
+                        update_sealed_row_content "$current_row" "   ${CYAN}► ${BOLD_CYAN}${new_text}${NC}"
+                    fi
+                    flush_input_buffer
+                    ;;
+            esac
         fi
 
-        # No explicit Save/Cancel - changes auto-save on each edit
-        # ESC key from menu level will exit (handled by ESC key code)
-
-        # Toggle or edit fields
-        case "$choice_text" in
-            Logging:*)
-                _SF[logging]="$( [[ "${_SF[logging]}" == "true" ]] && echo false || echo true )"
-                SERVICE_FLAGS[logging]="${_SF[logging]}"
-                auto_save_config "service" "logging" || draw_error_screen "SAVE ERROR" "Failed to save." "wait"
-                ;;
-            Console:*)
-                _SF[console]="$( [[ "${_SF[console]}" == "true" ]] && echo false || echo true )"
-                SERVICE_FLAGS[console]="${_SF[console]}"
-                auto_save_config "service" "console" || draw_error_screen "SAVE ERROR" "Failed to save." "wait"
-                ;;
-            "Bluetooth Relaxed"*)
-                _SF[bluetooth_relaxed]="$( [[ "${_SF[bluetooth_relaxed]}" == "true" ]] && echo false || echo true )"
-                SERVICE_FLAGS[bluetooth_relaxed]="${_SF[bluetooth_relaxed]}"
-                auto_save_config "service" "bluetooth_relaxed" || draw_error_screen "SAVE ERROR" "Failed to save." "wait"
-                ;;
-            "ANT+ Footpod"*)
-                _SF[ant_footpod]="$( [[ "${_SF[ant_footpod]}" == "true" ]] && echo false || echo true )"
-                SERVICE_FLAGS[ant_footpod]="${_SF[ant_footpod]}"
-                auto_save_config "service" "ant_footpod" || draw_error_screen "SAVE ERROR" "Failed to save." "wait"
-                ;;
-            "ANT Verbose"*)
-                _SF[ant_verbose]="$( [[ "${_SF[ant_verbose]}" == "true" ]] && echo false || echo true )"
-                SERVICE_FLAGS[ant_verbose]="${_SF[ant_verbose]}"
-                auto_save_config "service" "ant_verbose" || draw_error_screen "SAVE ERROR" "Failed to save." "wait"
-                ;;
-            "ANT+ Device ID"*)
-                # Inline numeric prompt to match profile inputs (age/weight)
-                local row=$((LOG_TOP + 1 + selected))
-                local cur_id="${_SF[ant_device]:-54321}"
-                local new_id
-                new_id=$(prompt_numeric_input "ANT+ Device ID" "" "$cur_id" "$row" "   ► ")
-                    if validate_ant_device_id "$new_id"; then
-                    _SF[ant_device]="$new_id"
-                    SERVICE_FLAGS[ant_device]="$new_id"
-                    auto_save_config "service" "ant_device" || draw_error_screen "SAVE ERROR" "Failed to save." "wait"
-                else
-                    show_cancel_feedback
-                fi
-                ;;
-            "Poll Time"*)
-                local row=$((LOG_TOP + 1 + selected))
-                local cur_poll="${_SF[poll_time]:-200}"
-                local new_poll
-                new_poll=$(prompt_numeric_input "Poll Time" "ms" "$cur_poll" "$row" "   ► ")
-                    if validate_poll_time "$new_poll"; then
-                    _SF[poll_time]="$new_poll"
-                    SERVICE_FLAGS[poll_time]="$new_poll"
-                    auto_save_config "service" "poll_time" || draw_error_screen "SAVE ERROR" "Failed to save." "wait"
-                else
-                    show_cancel_feedback
-                fi
-                ;;
-            *) draw_error_screen "UNHANDLED" "Action for ${choice_text} not implemented." "wait" ;;
-        esac
-        # Loop and re-render
+        # Wrap selection
+        [[ $selected -lt 0 ]] && selected=$((num_options - 1))
+        [[ $selected -ge $num_options ]] && selected=0
     done
 }
 
@@ -631,34 +765,9 @@ generate_config_file() {
     return 0
 }
 
-
-
-# Script versioning: update when you deploy/copy this script to another host.
-# Prefer semantic or date-based strings. You can also set the env var
-# QZ_SETUP_DASHBOARD_VERSION to override at runtime.
-SCRIPT_VERSION="2025.12.22-feat/ant_footpod-1"
-SCRIPT_VERSION=${QZ_SETUP_DASHBOARD_VERSION:-$SCRIPT_VERSION}
-
-# Compute a short, human-friendly version for display in tight headers.
-# Priority: use env `QZ_SETUP_DASHBOARD_VERSION_SHORT` if set; otherwise
-# extract a YYYY.MM.DD prefix if present; else take the part before the
-# first hyphen.
-if [[ -n "${QZ_SETUP_DASHBOARD_VERSION_SHORT:-}" ]]; then
-    SCRIPT_VERSION_SHORT="$QZ_SETUP_DASHBOARD_VERSION_SHORT"
-elif [[ "$SCRIPT_VERSION" =~ ([0-9]{4}\.[0-9]{2}\.[0-9]{2}) ]]; then
-    SCRIPT_VERSION_SHORT="${BASH_REMATCH[1]}"
-else
-    SCRIPT_VERSION_SHORT="${SCRIPT_VERSION%%-*}"
-fi
-
 # Simple CLI flags: support --version (non-intrusive)
 while [ "$#" -gt 0 ]; do
     case "$1" in
-        --version)
-            printf 'SCRIPT_VERSION=%s\n' "$SCRIPT_VERSION"
-            printf 'SCRIPT_VERSION_SHORT=%s\n' "$SCRIPT_VERSION_SHORT"
-            exit 0
-            ;;
         --help|-h)
                 printf 'Usage: %s [--version|--scan-now]\n' "${0##*/}"
             exit 0
@@ -672,11 +781,9 @@ while [ "$#" -gt 0 ]; do
                 export SKIP_TEST_EXTRACT=1
                 shift
                 ;;
-        *)
-            # ignore unknown flags; the dashboard will continue normally
-            shift
-            ;;
     esac
+    # Leave unknown flags for later parsing
+    break
 done
 
     # Unknown flags are ignored; the dashboard will continue normally
@@ -2135,13 +2242,7 @@ draw_rssi_bar() {
 }
 
 draw_bottom_border() {
-    local force=0
-    if [[ "${1:-}" == "--force" ]]; then force=1; shift; fi
     local help_text="${1:-}"
-    if [[ "${UI_MODAL_ACTIVE:-0}" -eq 1 && $force -eq 0 ]]; then
-        printf '%s\n' "[DEBUG] draw_bottom_border skipped due to UI_MODAL_ACTIVE=1 (help_text='${help_text}')" >> /tmp/qz_profile_debug.log 2>/dev/null || true
-        return 0
-    fi
     local b_row=$((LOG_BOTTOM + 1))
     # Footer uses BOLD_BLUE for the text, No Legend
     # Build footer via builder and print once for atomicity
@@ -2154,11 +2255,6 @@ draw_bottom_border() {
 
 # Clear the info/interactive area between LOG_TOP and LOG_BOTTOM
 clear_info_area() {
-    # If a modal is active, avoid clearing the info area unless forced
-    if [[ "${UI_MODAL_ACTIVE:-0}" -eq 1 && "${1:-}" != "--force" ]]; then
-        printf '%s\n' "[DEBUG] clear_info_area skipped due to UI_MODAL_ACTIVE=1 (arg='${1:-}')" >> /tmp/qz_profile_debug.log 2>/dev/null || true
-        return 0
-    fi
     # Use explicit print_at with padded empty content to reliably overwrite
     # any previous characters (including stray control sequences).
     for ((r=LOG_TOP; r<=LOG_BOTTOM; r++)); do
@@ -2177,7 +2273,7 @@ draw_error_screen() {
     enter_ui_mode
 
     # Clear interactive area
-    clear_info_area --force
+    clear_info_area
 
     # Title row
     local row=$((LOG_TOP + 1))
@@ -2195,7 +2291,7 @@ draw_error_screen() {
     done
 
 sleep 5
-    draw_bottom_border --force "Press ENTER to continue"
+    draw_bottom_border "Press ENTER to continue"
 
     # Treat any non-empty third argument as a request to pause.
     # If it's a positive integer, sleep that many seconds; otherwise
@@ -2213,7 +2309,7 @@ sleep 5
     fi
 
     # Clear the error area after dismiss
-    clear_info_area --force
+    clear_info_area
     exit_ui_mode
 }
 
@@ -2225,7 +2321,7 @@ draw_info_screen() {
     local wait_enter=${3:-1}
 
     enter_ui_mode || true
-    clear_info_area --force
+    clear_info_area
 
     local row=$((LOG_TOP + 1))
     draw_sealed_row "$row" "   ${BOLD_BLUE}${title}${NC}"
@@ -2237,30 +2333,25 @@ draw_info_screen() {
         draw_sealed_row "$row" "   ${NC}${line}${NC}"
     done
 
-    draw_bottom_border --force "Press ENTER to continue"
     if [[ -n "${wait_enter:-}" && "${wait_enter}" != "0" ]]; then
         if [[ "${wait_enter}" =~ ^[0-9]+$ ]]; then
+            draw_bottom_border
             sleep "${wait_enter}"
         else
+            draw_bottom_border "Press ENTER to continue"
             local k
             safe_read_key k
         fi
     fi
 
-    clear_info_area --force
+    clear_info_area
     exit_ui_mode || true
 }
 
 draw_bottom_panel_header() {
-    local force=0
-    if [[ "${1:-}" == "--force" ]]; then force=1; shift; fi
     local raw_title="${1:-INFORMATION}"
     local title
     title=$(echo "$raw_title" | tr '[:lower:]' '[:upper:]')
-    # If a modal is active, skip header redraw unless forced by caller
-    if [[ "${UI_MODAL_ACTIVE:-0}" -eq 1 && $force -eq 0 ]]; then
-        return 0
-    fi
     # Build header string atomically and print once to avoid interleaved
     # cursor movements from other concurrent prints.
     local _hr
@@ -2303,9 +2394,9 @@ draw_instructions_bottom() {
 # and returns immediately after the user presses any key.
 show_legend_popup() {
     enter_ui_mode
-    clear_info_area --force
+    clear_info_area
     # Temporarily set the bottom panel header to indicate this is the legend
-    draw_bottom_panel_header --force "STATUS GUIDE"
+    draw_bottom_panel_header "STATUS GUIDE"
 
     local row=$((LOG_TOP + 1))
     row=$((row + 1))
@@ -2319,11 +2410,11 @@ show_legend_popup() {
     row=$((row + 1))
     draw_sealed_row "$row" "   ${GRAY}${SYMBOL_PENDING}${NC}  Service     — Background service not setup up"
 
-    draw_bottom_border --force "Press any key to continue"
+    draw_bottom_border "Press any key to continue"
     local k
     safe_read_key k
 
-    clear_info_area --force
+    clear_info_area
     exit_ui_mode
 }
 
@@ -2630,7 +2721,7 @@ prompt_numeric_input() {
         # 3. UNBUFFERED REDRAW
         # We draw the row and the border instructions in one loop pass
         draw_sealed_row "$row" "${prefix}${label_str}${val_color}${display_val}${NC}"
-        draw_bottom_border --force "Numbers only | ENTER to confirm"
+        draw_bottom_border "Numbers only | ENTER to confirm"
 
         # 4. PRECISE CURSOR POSITIONING
         # ║(1) + Spacer(1) + prefix + label_str + buffer_len
@@ -2703,8 +2794,8 @@ configure_user_profile() {
     if [[ "${PREV_SEX:-}" == "Female" ]]; then _GENDER_FEMALE="true"; fi
 
     # Draw menu-style profile editor (matches Service menu UX)
-    draw_bottom_panel_header --force "USER PROFILE"
-    clear_info_area --force
+    draw_bottom_panel_header "USER PROFILE"
+    clear_info_area
 
     if [[ "${QZ_DEBUG_PROFILE:-0}" -eq 1 ]]; then
         echo "[DEBUG] preparing profile menu (post selections)" >> /tmp/qz_profile_debug.log 2>/dev/null || true
@@ -2756,7 +2847,7 @@ configure_user_profile() {
             fi
         done
 
-        draw_bottom_border --force "Arrows: Up/Down | Enter: Edit | Esc: Back"
+        draw_bottom_border "Arrows: Up/Down | Enter: Edit | Esc: Back"
 
         # Input loop
         while true; do
@@ -2772,7 +2863,7 @@ configure_user_profile() {
                 fi
             fi
             if [[ $key == $'\x1b' ]]; then
-                read -rsn2 -t 0.01 k2 </dev/tty || true
+                read_escape_sequence k2
                 if [[ -z "${k2:-}" ]]; then
                     exit_ui_mode || true
                     UI_MODAL_ACTIVE=0
@@ -2780,6 +2871,7 @@ configure_user_profile() {
                 fi
                 [[ "${k2:-}" == "[A" ]] && ((selected--))
                 [[ "${k2:-}" == "[B" ]] && ((selected++))
+                flush_input_buffer
             elif [[ $key == "" ]]; then
                 break
             fi
@@ -2869,13 +2961,11 @@ configure_user_profile() {
 }
 
 select_equipment_flow() {
-    # --- THE FIX: CONSISTENT ERROR MESSAGE FOR MISSING DEVICES.INI ---
     if [ ! -f "$DEVICES_INI" ]; then
         draw_error_screen "MISSING DATABASE" "Error: Equipment database (devices.ini) not found.\nPlease ensure the file exists in the script directory." 1
         return 1
     fi
 
-    # --- CONTINUING NORMAL FLOW ---
     local types=()
     mapfile -t types < <(grep '^\[.*\]$' "$DEVICES_INI" | tr -d '[]')
     local state=0
@@ -2897,14 +2987,25 @@ select_equipment_flow() {
 
     while true; do
         if [ "$state" -eq 0 ]; then
-               # Update info header for equipment selection and clear the area
-               draw_bottom_panel_header "SELECT DEVICE TYPE"
-               clear_info_area
-               show_scrollable_menu "SELECT DEVICE TYPE" types "$type_def_idx" "" "pad"
-             local t_idx=$?
-             if [ "$t_idx" -eq 255 ]; then return 1; fi 
-             selected_type="${types[$t_idx]}"
-             state=1
+            # Update info header for equipment selection and clear the area
+            draw_bottom_panel_header "SELECT DEVICE TYPE"
+            clear_info_area
+            show_scrollable_menu "SELECT DEVICE TYPE" types "$type_def_idx" "" "pad"
+            local t_idx=$?
+            if [ "$t_idx" -eq 255 ]; then return 1; fi 
+            selected_type="${types[$t_idx]}"
+            
+            # Show immediate loading feedback
+            draw_bottom_panel_header "LOADING ${selected_type^^} MODELS"
+            clear_info_area
+            local loading_msg="${YELLOW}Loading models...${NC}"
+            local loading_plain="Loading models..."
+            local w=$(get_display_width "$loading_plain")
+            local load_row=$((LOG_TOP + 3))
+            local load_col=$(( (INNER_COLS - w) / 2 ))
+            print_at_col "$load_row" "$((load_col + 1))" "$loading_msg"
+            
+            state=1
         fi
         
         if [ "$state" -eq 1 ]; then
@@ -2942,11 +3043,6 @@ select_equipment_flow() {
                     models=("${_tmp_models[@]}")
                     keys=("${_tmp_keys[@]}")
                     model_widths=("${_tmp_widths[@]}")
-                else
-                    # optional debug trace for invalid cache
-                    if [[ -n "${QZ_DEBUG_MENU:-}" ]]; then
-                        : # debug disabled
-                    fi
                 fi
             elif [[ -f "$json_file" ]]; then
                 # Fallback to JSON parsing (should be rare)
@@ -2971,7 +3067,6 @@ except Exception:
     pass
 PY
 "$json_file" "$selected_type")
-            #fi
             fi
 
             # Fallback: parse `devices.ini` if JSON absent or produced no entries
@@ -2999,10 +3094,6 @@ PY
                     fi
                 done
                 unset _true_keys _TK
-                # Optional debug trace when QZ_DEBUG_MENU=1 is set in environment
-                if [[ -n "${QZ_DEBUG_MENU:-}" ]]; then
-                    : # debug disabled
-                fi
             fi
 
             # Update info header to reflect model selection
@@ -3042,6 +3133,13 @@ PY
             fi
             if [ "$m_idx" -eq 255 ]; then state=0; continue; fi
             
+            # Show immediate feedback that we're processing
+            local save_msg="${YELLOW}Saving Equipment${NC}"
+            local w=$(get_display_width "Saving Equipment")
+            local row=$((LOG_BOTTOM))
+            local col=$((2 + INFO_WIDTH - w))
+            print_at_col "$row" "$col" "$save_msg"
+            
             local selected_key="${keys[$m_idx]}"
             # Defensive lookup: map the displayed model name back to the
             # canonical key in `devices.ini` to avoid mismatches when
@@ -3078,12 +3176,11 @@ PY
             # Persist consolidated config to disk
             generate_config_file "${CONFIG_FILE:-$HOME/.config/qdomyos-zwift/qDomyos-Zwift.conf}" || true
 
-            # Standardized feedback
+            # Update to success feedback (replaces the "Saving..." message)
             show_save_feedback "Equipment"
             
-            # Return to Device Selection (Persistent Menu)
-            state=0
-            continue
+            # Return to main menu
+            return 0
         fi
     done
 }
@@ -3110,6 +3207,7 @@ EOF
 
     draw_bottom_panel_header "INSTALLING..."
     clear_info_area
+    draw_bottom_border
     
     # --- MOVED UP BY ONE ROW ---
     # Row 2: Task Label
@@ -3117,7 +3215,7 @@ EOF
     
     # Row 4: Subtext
     local subtext="Please wait..."
-    [[ "$label" == *"pyenv"* ]] && subtext="Please wait... (This may take 10-15 minutes)"
+    [[ "$label" == *"pyenv"* ]] && subtext="Please wait... (This may take ~30 minutes on a slow device)"
     draw_sealed_row $((LOG_TOP + 3)) "   ${GRAY}${subtext}${NC}"
 
     bash "$script_file" > "$log_file" 2>&1 &
@@ -3137,7 +3235,7 @@ EOF
         done
         
         # Row 6: Progress Bar
-        draw_sealed_row $((LOG_TOP + 5)) "                  [${CYAN}${bar_str}${NC}]"
+        draw_sealed_row $((LOG_TOP + 5)) "                   ${CYAN}${bar_str}${NC}"
         
         if [ "$dir" -eq 1 ]; then
             ((pos++)); (( pos + pulse_width >= bar_width )) && dir=-1
@@ -3165,22 +3263,29 @@ EOF
 # ============================================================================
 
 # Global flag to track Python install type
-IS_PYENV_INSTALL=false
+IS_PYENV_INSTALLED=false
+IS_PYSYS_INSTALLED=false
+# Global flag to track runtime packages install status
+IS_RUNTIME_INSTALLED=false
+# Global flag to track core components install status
+IS_CORE_INSTALLED=false
 
 check_python311() {
     update_status "python311" "working"
-    IS_PYENV_INSTALL=false
+    IS_PYENV_INSTALLED=false
+    IS_PYSYS_INSTALLED=false
     
     # 1. Check pyenv path first (Priority)
     local pyenv_bin="$TARGET_HOME/.pyenv/versions/3.11.9/bin/python"
     if [ -f "$pyenv_bin" ]; then
-        IS_PYENV_INSTALL=true
+        IS_PYENV_INSTALLED=true
         update_status "python311" "pass"
         return 0
     fi
 
     # 2. Check standard system path
     if command -v python3.11 >/dev/null 2>&1; then
+        IS_PYSYS_INSTALLED=true
         update_status "python311" "pass"
         return 0
     fi
@@ -3772,6 +3877,16 @@ run_all_checks() {
         draw_header_config_line
         draw_header_service_line
     fi
+
+    # Set global flags for uninstall logic
+    IS_RUNTIME_INSTALLED=false
+    if [ "${STATUS_MAP[qt5_libs]:-}" = "pass" ] || [ "${STATUS_MAP[bluetooth]:-}" = "pass" ] || [ "${STATUS_MAP[lsusb]:-}" = "pass" ] || [ "${STATUS_MAP[qml_modules]:-}" = "pass" ]; then
+        IS_RUNTIME_INSTALLED=true
+    fi
+    IS_CORE_INSTALLED=false
+    if [ "${STATUS_MAP[venv]:-}" = "pass" ] || [ "${STATUS_MAP[qz_service]:-}" = "pass" ] || [ "${STATUS_MAP[config_file]:-}" = "pass" ]; then
+        IS_CORE_INSTALLED=true
+    fi
 }
 
 
@@ -4200,9 +4315,19 @@ perform_bluetooth_scan() {
 }
 
 install_python311() {
+    local force_pyenv="${1:-false}"
+
+    # Check if Python 3.11 is available in system repositories (unless forced to pyenv)
+    if [ "$force_pyenv" != true ] && apt-cache show python3.11 >/dev/null 2>&1; then
+        if run_with_progress "Installing Python 3.11 via system package" "apt-get install -y python3.11"; then
+            return 0
+        fi
+    fi
+
+    # Fallback to pyenv
     # 1. Install Build Dependencies
     local deps="git curl build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget llvm libncurses-dev xz-utils tk-dev libffi-dev liblzma-dev"
-    run_with_progress "Installing Build Dependencies" "apt-get update && apt-get install -y $deps"
+    run_with_progress "Installing pyenv build dependencies" "apt-get update && apt-get install -y $deps"
 
     local p_root="${TARGET_HOME:-}/.pyenv"
     local p_bin="$p_root/bin/pyenv"
@@ -4218,9 +4343,13 @@ install_python311() {
     fi
 
     # 3. Compile Python 3.11.9
-    local label="Python 3.11 not available via system. Using pyenv"
+    local label
+    if [ "$force_pyenv" = true ]; then
+        label="Installing Python 3.11 via pyenv"
+    else
+        label="Python 3.11 not available via system. Using pyenv"
+    fi
     
-    # THE FIX: We use a clean export block. No more escaped backslashes for eval.
     # We call the binary directly using its absolute path.
     local install_cmd="sudo -u \"$TARGET_USER\" bash -c \"
         export PYENV_ROOT='$p_root'
@@ -4229,7 +4358,7 @@ install_python311() {
     \""
     
     if run_with_progress "$label" "$install_cmd"; then
-        IS_PYENV_INSTALL=true # Ensure the uninstall logic knows this can be removed
+        IS_PYENV_INSTALLED=true # Ensure the uninstall logic knows this can be removed
         return 0
     else
         return 1
@@ -4259,7 +4388,7 @@ install_venv() {
 
     # Create venv as the target user
     local cmd="sudo -u \"$TARGET_USER\" $py_cmd -m venv \"$venv_path\""
-    if run_with_progress "Creating Virtual Environment" "$cmd"; then
+    if run_with_progress "Creating Python Virtual Environment" "$cmd"; then
         chown -R "$TARGET_USER:" "$venv_path"
         return 0
     fi
@@ -4274,17 +4403,45 @@ install_python_packages() {
 }
 
 install_qt5_libs() {
-    # README: Specific list of libqt5 and qml modules
+    # Install Qt5 libraries, QML modules, and system dependencies
     local libs=(
-        libqt5core5a libqt5qml5 libqt5quick5 libqt5quickwidgets5 libqt5concurrent5
-        libqt5bluetooth5 libqt5charts5 libqt5multimedia5 libqt5multimediawidgets5
-        libqt5multimedia5-plugins libqt5networkauth5 libqt5positioning5 libqt5sql5
-        libqt5texttospeech5 libqt5websockets5 libqt5widgets5 libqt5xml5 libqt5location5
-        qtlocation5-dev qml-module-qtlocation qml-module-qtpositioning qml-module-qtquick2
-        qml-module-qtquick-controls qml-module-qtquick-controls2 qml-module-qtquick-dialogs
-        qml-module-qtquick-layouts qml-module-qtquick-window2 qml-module-qtmultimedia
-        libusb-1.0-0 bluez usbutils python3-pip
+        libqt5core5a
+        libqt5qml5
+        libqt5quick5
+        libqt5quickwidgets5
+        libqt5concurrent5
+        libqt5bluetooth5
+        libqt5charts5
+        libqt5multimedia5
+        libqt5multimediawidgets5
+        libqt5multimedia5-plugins
+        libqt5networkauth5
+        libqt5positioning5
+        libqt5sql5
+        libqt5texttospeech5
+        libqt5websockets5
+        libqt5widgets5
+        libqt5xml5
+        libqt5location5
+        qtlocation5-dev
+        qml-module-qtlocation
+        qml-module-qtpositioning
+        qml-module-qtquick2
+        qml-module-qtquick-controls
+        qml-module-qtquick-controls2
+        qml-module-qtquick-dialogs
+        qml-module-qtquick-layouts
+        qml-module-qtquick-window2
+        qml-module-qtmultimedia
+        libusb-1.0-0
+        bluez
+        usbutils
+        python3-pip
     )
+    # Add raspi-config for Raspberry Pi (removed during uninstall)
+    if [ "$IS_PI" = true ]; then
+        libs+=(raspi-config)
+    fi
     local cmd="apt-get update && apt-get install -y ${libs[*]}"
     run_with_progress "Installing System Dependencies" "$cmd"
 }
@@ -4420,12 +4577,12 @@ prompt_input_yes() {
     show_cursor
     local prompt_row=$((LOG_BOTTOM))
     
-    print_at $((prompt_row - 2)) "${RED}╔════════════════════════════════════════════════════════════════════════════╗${NC}"
-    print_at $((prompt_row - 1)) "${RED}║${NC} ${WHITE}WARNING: This may break your desktop if you are not on a true server.${NC}      ${RED}║${NC}"
-    print_at $((prompt_row))     "${RED}║${NC} ${YELLOW}${prompt}${NC}                                                      ${RED}║${NC}"
-    print_at $((prompt_row + 1)) "${RED}╚════════════════════════════════════════════════════════════════════════════╝${NC}"
-    
-    move_cursor "$prompt_row" $((2 + 21))
+    print_at $((prompt_row - 3)) "${BLUE}║${RED}╔════════════════════════════════════════════════════════════════════════════╗${NC}"
+    print_at $((prompt_row - 2)) "${BLUE}║${RED}║${NC} ${WHITE}WARNING: This may break your desktop if you are not on a true server.${NC}      ${RED}║${NC}"
+    print_at $((prompt_row - 1)) "${BLUE}║${RED}║${NC} ${YELLOW}${prompt}${NC}                                                      ${RED}║${NC}"
+    print_at $((prompt_row))     "${BLUE}║${RED}╚════════════════════════════════════════════════════════════════════════════╝${NC}"
+
+    move_cursor $((prompt_row - 1)) $((3 + 21))
     
     local input=""
     while true; do
@@ -4457,14 +4614,11 @@ init_width_calculator
 
 
 prompt_success_menu() {
-    # Test-friendly exit marker: ensure harness finds finish/exit in header
-    if false; then
-        finish_and_exit 0
-    fi
     # Footer hint (for automated checks): Esc: Exit
     local warns=${1:-0}
     enter_ui_mode
-    local options=("User Profile" "Equipment Selection" "Bluetooth Scan" "ANT+ Test" "Service" "Uninstall" "Exit")
+    local options=("User Profile" "Equipment Selection" "Bluetooth Scan" "ANT+ Test" "Service" # "Uninstall" (placeholder)
+                   "Exit")
     local selected=0
     local num_options=${#options[@]}
     
@@ -4494,10 +4648,11 @@ prompt_success_menu() {
         local key=""
         safe_read_key key
         if [[ $key == $'\x1b' ]]; then
-            read -rsn2 -t 0.01 k2 </dev/tty || true
+            read_escape_sequence k2
             # Single ESC -> ignore (only Exit menu item allowed for exit)
             [[ "${k2:-}" == "[A" ]] && ((selected--))
             [[ "${k2:-}" == "[B" ]] && ((selected++))
+            flush_input_buffer
         elif [[ $key == [lL] ]]; then
             show_legend_popup
             # Full redraw after popup
@@ -4538,10 +4693,6 @@ prompt_success_menu() {
 }
 
 prompt_action_menu() {
-    # Test-friendly exit marker: ensure harness finds finish/exit in header
-    if false; then
-        finish_and_exit 0
-    fi
     # Footer hint (for automated checks): Esc: Exit
     local fails=$1
     enter_ui_mode
@@ -4569,9 +4720,6 @@ prompt_action_menu() {
     # Helper text explaining the menu options
     draw_sealed_row 17 "   Guided Fix detects missing components (Python, packages, permissions, etc.)"
     draw_sealed_row 18 "   and guides you through resolving them step-by-step."
-    draw_sealed_row 17 ""
-    draw_sealed_row 18 "   Select 'Guided Fix' to start the automated setup process,"
-    draw_sealed_row 19 "   or 'Exit' to return to the terminal."
 
     local prev_selected=$selected
 
@@ -4580,10 +4728,11 @@ prompt_action_menu() {
         local key=""
         safe_read_key key
         if [[ $key == $'\x1b' ]]; then
-            read -rsn2 -t 0.01 k2 </dev/tty || true
+            read_escape_sequence k2
             # Single ESC -> ignore
             [[ "${k2:-}" == "[A" ]] && ((selected--))
             [[ "${k2:-}" == "[B" ]] && ((selected++))
+            flush_input_buffer
         elif [[ $key == [lL] ]]; then
             show_legend_popup
             # Full redraw after popup
@@ -4623,11 +4772,10 @@ prompt_action_menu() {
 }
 
 
+# ============================================================================
+# show_scrollable_menu()
+# ============================================================================
 show_scrollable_menu() {
-    # Test-friendly back-marker: ensure harness finds return 255 near header
-    if false; then
-        return 255
-    fi
     # Footer hint (for automated checks): Esc: Back
     local title="${1:-INFORMATION}"
     local items_name="$2"
@@ -4747,23 +4895,24 @@ show_scrollable_menu() {
     local prev_start_idx=$start_idx
 
     while true; do
-        # Input handling first for snappy response
         local key=""
-        safe_read_key key 0.06
+        safe_read_key key
         if [[ $key == $'\x1b' ]]; then
-            read -rsn2 -t 0.06 k2 </dev/tty 2>/dev/null || true
+            read_escape_sequence k2
             # Single ESC -> treat as Back for scrollable menus
             if [[ -z "${k2:-}" ]]; then
                 move_cursor $((LOG_BOTTOM + 1)) 0
                 exit_ui_mode
                 return 255
             fi
-            if [[ -z "$k2" ]]; then read -rsn1 -t 0.02 k3 </dev/tty 2>/dev/null || true; fi
+            #if [[ -z "$k2" ]]; then read -rsn1 -t 0.02 k3 </dev/tty 2>/dev/null || true; fi
+            if [[ -n "$k2" ]]; then safe_read_key k3 0.02; fi
             local seq="${k2}${k3:-}"
             case "${seq:-}" in
                 '[A') ((selected--)) ;; 
                 '[B') ((selected++)) ;;
             esac
+            flush_input_buffer
         elif [[ $key == "" ]]; then
             if [[ -n "$back_label" ]] && [[ $selected -eq $((total_count - 1)) ]]; then
                 move_cursor $((LOG_BOTTOM + 1)) 0
@@ -5002,22 +5151,23 @@ show_scrollable_menu_fast() {
     local prev_start_idx=$start_idx
 
     while true; do
-        # Input-first for fast response
         local key
-        safe_read_key key 0.06
+        safe_read_key key
         if [[ $key == $'\x1b' ]]; then
-            read -rsn2 -t 0.06 k2 </dev/tty 2>/dev/null || true
+            read_escape_sequence k2
             if [[ -z "${k2:-}" ]]; then
                 # Single ESC -> treat as Back
                 exit_ui_mode
                 return 255
             fi
-            if [[ -z "$k2" ]]; then read -rsn1 -t 0.02 k3 </dev/tty 2>/dev/null || true; fi
+            #if [[ -z "$k2" ]]; then read -rsn1 -t 0.02 k3 </dev/tty 2>/dev/null || true; fi
+            if [[ -n "$k2" ]]; then safe_read_key k3 0.02; fi
             local seq="${k2}${k3:-}"
             case "${seq:-}" in
                 '[A') ((selected--)) ;; 
                 '[B') ((selected++)) ;;
             esac
+            flush_input_buffer
         elif [[ $key == "" ]]; then
             if [[ -n "$back_label" ]] && [[ $selected -eq $((total_count - 1)) ]]; then
                 exit_ui_mode
@@ -5120,8 +5270,6 @@ show_scrollable_menu_fast() {
             prev_selected=$selected
         fi
     done
-
-    
 }
 
 run_guided_mode() {
@@ -5165,20 +5313,41 @@ run_guided_mode() {
 
     # --- SEQUENTIAL RESOLUTION STEPS ---
 
-    # 1. Python 3.11 (via pyenv)
+    # 1. Python 3.11
     if [ "${STATUS_MAP[python311]:-}" = "fail" ]; then
-        request_fix "PYTHON" "Python 3.11 is missing or not reachable." "Install via pyenv (compilation)?"
-        local res=$?
-        if [ $res -eq 2 ]; then return 1; fi # Cancel to Main Menu
-        if [ $res -eq 0 ]; then
-            install_python311 && check_python311
-            action_taken=true
+        if apt-cache show python3.11 >/dev/null 2>&1; then
+            # Available via system
+            request_fix "PYTHON" "Python 3.11 is missing." "Install via system package?"
+            local res=$?
+            if [ $res -eq 2 ]; then return 1; fi # Cancel to Main Menu
+            if [ $res -eq 0 ]; then
+                install_python311 && check_python311
+                action_taken=true
+            else
+                # User rejected system package, offer pyenv
+                request_fix "PYTHON" "Python 3.11 is missing." "Install via pyenv (can take ~30 mins on a slow device)?"
+                local res2=$?
+                if [ $res2 -eq 2 ]; then return 1; fi
+                if [ $res2 -eq 0 ]; then
+                    install_python311 true && check_python311
+                    action_taken=true
+                fi
+            fi
+        else
+            # Not available via system, offer pyenv
+            request_fix "PYTHON" "Python 3.11 is missing and not available in repository." "Install via pyenv (can take ~30 mins on a slow device)?"
+            local res=$?
+            if [ $res -eq 2 ]; then return 1; fi
+            if [ $res -eq 0 ]; then
+                install_python311 && check_python311
+                action_taken=true
+            fi
         fi
     fi
 
-    # 2. Virtual Environment
-    if [ "${STATUS_MAP[venv]:-}" = "fail" ]; then
-        request_fix "VENV" "Virtual Environment is not configured." "Create environment now?"
+    # 2. Python Virtual Environment
+    if [ "${STATUS_MAP[python311]:-}" != "fail" ] && [ "${STATUS_MAP[venv]:-}" = "fail" ]; then
+        request_fix "VENV" "Python Virtual Environment is not configured." "Create environment now?"
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
@@ -5191,7 +5360,7 @@ run_guided_mode() {
     # We track package state as a grouped `pkg_pips` status. If the
     # combined pip package check failed, offer to install all required
     # packages: openant, pyusb, pybind11, and bleak.
-    if [ "${STATUS_MAP[pkg_pips]:-}" = "fail" ]; then
+    if [ "${STATUS_MAP[python311]:-}" != "fail" ] && [ "${STATUS_MAP[venv]:-}" != "fail" ] && [ "${STATUS_MAP[pkg_pips]:-}" = "fail" ]; then
         request_fix "PACKAGES" "ANT+ Python packages are missing." "Install packages into venv?"
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
@@ -5355,60 +5524,117 @@ run_guided_mode() {
     [ "$action_taken" = true ] && return 0 || return 1
 }
 
+# Uninstall QDomyos-Zwift installation with system safety checks
 run_uninstall_mode() {
     draw_bottom_panel_header "UNINSTALL / RESET"
-    
-    # 1. Clear interaction area (Borders only)
     clear_info_area
-    
-    # 2. Build dynamic description based on Python install type
-    local rem_list="Removes config, service, and venv"
-    # IS_PYENV_INSTALL is set globally during the check_python311 function
-    if [ "${IS_PYENV_INSTALL:-false}" = true ]; then
-        rem_list="${rem_list}, and Python 3.11"
+    draw_bottom_border
+    # 1. Clear interaction area (Borders only)
+
+    # 2. Restrict uninstall to Raspberry Pi with writable /boot
+    if ! [ -f /proc/device-tree/model ] || ! grep -q "Raspberry Pi" /proc/device-tree/model; then
+        draw_sealed_row $((LOG_TOP + 1)) "   Uninstall not allowed on this system."
+        draw_sealed_row $((LOG_TOP + 2)) "   Protected components prevent system modification."
+        sleep 4
+        return 1
     fi
-    
-    # 3. Render Description (Start at Row 1 for density)
-    draw_sealed_row $((LOG_TOP + 1)) "   ${rem_list}."
-    
-    local menu_start=3
-    if [ "${HAS_GUI:-false}" = true ]; then
-        # Use the muted protected glyph color for consistency with the UI
-        draw_sealed_row $((LOG_TOP + 2)) "   Note: ${BOLD_GRAY}${SYMBOL_LOCKED}${NC} items preserved for system stability."
-        menu_start=4
+    if ! touch /boot/firmware/.test_write 2>/dev/null; then
+        draw_sealed_row $((LOG_TOP + 1)) "   Uninstall not allowed: /boot is read-only."
+        draw_sealed_row $((LOG_TOP + 2)) "   Protected components prevent system modification."
+        sleep 4
+        return 1
+    else
+        rm -f /boot/firmware/.test_write
+        BOOT_WRITABLE=true
     fi
 
-    # 4. Request Confirmation
-    draw_sealed_row $((LOG_TOP + menu_start)) "   Proceed with uninstall?"
-    
-    # Pass offset to prompt_yes_no to place Yes/No on Rows 6 and 7
-    if ! prompt_yes_no $((menu_start + 1)); then
-        return 1
+    # 3. Placeholder for description, built later after checks
+
+    # 4. Render Description placeholder
+
+    local menu_start=3
+
+    if [ "${HAS_GUI:-false}" = true ]; then
+        # Use the muted protected glyph color for consistency with the UI
+        draw_sealed_row $((LOG_TOP + menu_start - 1)) "   Note: ${BOLD_GRAY}${SYMBOL_LOCKED}${NC} items preserved for system stability."
+        ((menu_start++))
     fi
 
     # --- INTERNAL TASK RUNNER (STOPS ON FAILURE) ---
     run_step() {
-        if ! run_with_progress "$1" "$2"; then 
-            return 1 
+        if ! run_with_progress "$1" "$2"; then
+            return 1
         fi
         return 0
     }
 
+    # Build dynamic description based on installed components
+    local has_venv=false
+    if [ "${STATUS_MAP[venv]:-}" = "pass" ]; then has_venv=true; fi
+    local has_service=false
+    if [ "${STATUS_MAP[qz_service]:-}" = "pass" ]; then has_service=true; fi
+    local has_config=false
+    if [ "${STATUS_MAP[config_file]:-}" = "pass" ]; then has_config=true; fi
+    local has_python=false
+    if [ "${IS_PYENV_INSTALLED:-false}" = true ] || [ "${IS_PYSYS_INSTALLED:-false}" = true ]; then has_python=true; fi
+    local rem_list="Removes"
+    local first=true
+    if $has_venv; then rem_list="${rem_list} venv"; first=false; fi
+    if $has_service; then 
+        if ! $first; then rem_list="${rem_list},"; fi
+        rem_list="${rem_list} service"; first=false; 
+    fi
+    if $has_config; then 
+        if ! $first; then rem_list="${rem_list},"; fi
+        rem_list="${rem_list} config"; first=false; 
+    fi
+    if $has_python; then 
+        if ! $first; then rem_list="${rem_list},"; fi
+        rem_list="${rem_list} and Python 3.11"
+    fi
+    if $first; then
+        rem_list="No core components detected"
+    fi
+
+    # Check if anything to uninstall
+    local nothing_to_uninstall=true
+    if [ "${STATUS_MAP[venv]:-}" = "pass" ] || \
+       [ "${STATUS_MAP[qz_service]:-}" = "pass" ] || \
+       [ "${STATUS_MAP[config_file]:-}" = "pass" ] || \
+       [ "${STATUS_MAP[qt5_libs]:-}" = "pass" ] || \
+       [ "${STATUS_MAP[bluetooth]:-}" = "pass" ] || \
+       [ "${STATUS_MAP[lsusb]:-}" = "pass" ] || \
+       [ "${STATUS_MAP[qml_modules]:-}" = "pass" ] || \
+       [ "${IS_PYENV_INSTALLED:-false}" = true ] || \
+       [ "${IS_PYSYS_INSTALLED:-false}" = true ]; then
+        nothing_to_uninstall=false
+    fi
+    if $nothing_to_uninstall; then
+        draw_bottom_panel_header "UNINSTALL / RESET"
+        clear_info_area
+        draw_sealed_row $((LOG_TOP + 1)) "   No components detected for removal."
+        sleep 2
+        return 0
+    fi
+
+    # Render Description
+    draw_sealed_row $((LOG_TOP + 1)) "   ${rem_list}."
+
     # 5. EXECUTE CLEANUP STEPS
     
-    # A. Remove Virtual Environment
+    # A. Remove Python Virtual Environment
     if [ -d "$TARGET_HOME/ant_venv" ]; then
-        run_step "Removing Virtual Environment" "rm -rf \"$TARGET_HOME/ant_venv\"" || return 1
+        run_step "Removing Python Virtual Environment" "rm -rf \"$TARGET_HOME/ant_venv\"" || return 1
         update_status "venv" "fail"
     fi
-    
-    # B. Remove Python 3.11 (ONLY if it was a pyenv install)
-    if [ "${IS_PYENV_INSTALL:-false}" = true ]; then
+
+    # B. Remove Python 3.11
+    if [ "${IS_PYENV_INSTALLED:-false}" = true ]; then
         local p_root="$TARGET_HOME/.pyenv"
         local p_bin="$p_root/bin/pyenv"
         # Explicit pathing to avoid "command not found" errors
         local py_rem_cmd="sudo -u \"$TARGET_USER\" bash -c \"export PYENV_ROOT='$p_root'; export PATH='\$PYENV_ROOT/bin:\$PATH'; if [ -x '$p_bin' ]; then $p_bin uninstall -f 3.11.9; fi\""
-        
+
         run_step "Removing pyenv Python 3.11.9" "$py_rem_cmd" || return 1
         update_status "python311" "fail"
     fi
@@ -5425,21 +5651,6 @@ run_uninstall_mode() {
         run_step "Removing QZ Service" "$svc_cmd" || return 1
         ACTIVE_SERVICE_FILE=""
         update_status "qz_service" "pending"
-    fi
-
-    # G. Remove extracted test binary and temp service files (created during 'install' testing)
-    # Only remove files inside the repo device folder to avoid touching system-installed binaries.
-    local script_dir
-    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    local repo_test_bin="$script_dir/qdomyos-zwift-bin"
-    if [ -f "$repo_test_bin" ]; then
-        run_step "Removing extracted test binary" "rm -f \"$repo_test_bin\"" || return 1
-        update_status "test_binary" "fail"
-    fi
-    # Remove any temporary generated service files in RAM-backed temp dir
-    if [ -d "/dev/shm" ]; then
-        run_step "Removing temporary service files" "rm -f /dev/shm/qz.service.* 2>/dev/null || true" || return 1
-        update_status "tmp_service_files" "fail"
     fi
     
     # E. Remove USB udev rules
@@ -5460,16 +5671,42 @@ run_uninstall_mode() {
         draw_bottom_panel_header "DEEP CLEAN"
         clear_info_area
         draw_sealed_row $((LOG_TOP + 1)) "   Headless System Detected."
-        draw_sealed_row $((LOG_TOP + 2)) "   Remove system packages (Qt5, Bluez, usbutils)?"
-        
-        if prompt_yes_no 4; then
-            if prompt_input_yes; then
-                local pkgs="libqt5core5a libqt5qml5 libqt5quick5 qml-module-qtquick2 bluez usbutils"
-                run_step "Deep Cleaning System Packages" "apt-get remove -y $pkgs && apt-get autoremove -y" || return 1
-                update_status "qt5_libs" "fail"
-                update_status "bluetooth" "fail"
-                update_status "lsusb" "fail"
+        if [ -f /proc/device-tree/model ] && grep -q "Raspberry Pi" /proc/device-tree/model; then
+            if [ "$BOOT_WRITABLE" = true ]; then
+                if [ "${IS_RUNTIME_INSTALLED:-false}" = true ]; then
+                    draw_sealed_row $((LOG_TOP + 2)) "   Remove system packages (Qt5, bluez, usbutils)?"
+                else
+                    draw_sealed_row $((LOG_TOP + 2)) "   No system packages detected for removal."
+                    sleep 2
+                    return 0
+                fi
+            else
+                draw_sealed_row $((LOG_TOP + 2)) "   Deep clean skipped due to read-only /boot."
+                sleep 4
+                return 0
             fi
+            if [ "${IS_RUNTIME_INSTALLED:-false}" = true ] && prompt_yes_no 4; then
+                if prompt_input_yes; then
+                    local pkgs="libqt5core5a libqt5qml5 libqt5quick5 qml-module-qtquick2 bluez usbutils"
+                    run_step "Deep Cleaning System Packages" "apt-get remove -y $pkgs && apt-get autoremove -y" || return 1
+                    update_status "qt5_libs" "fail"
+                    update_status "bluetooth" "fail"
+                    update_status "lsusb" "fail"
+                fi
+            fi
+
+            # Remove system Python 3.11
+            if [ "${IS_PYSYS_INSTALLED:-false}" = true ]; then
+                draw_sealed_row $((LOG_TOP + 3)) "   Remove system Python 3.11?"
+                if prompt_yes_no 5; then
+                    if prompt_input_yes; then
+                        run_step "Removing system Python 3.11" "apt-get remove -y python3.11 python3.11-venv python3.11-pip && apt-get autoremove -y" || return 1
+                        update_status "python311" "fail"
+                    fi
+                fi
+            fi
+        else
+            draw_sealed_row $((LOG_TOP + 2)) "   Non-Raspberry Pi system detected. Skipping deep clean."
         fi
     fi
 
@@ -5477,7 +5714,7 @@ run_uninstall_mode() {
     draw_bottom_panel_header "UNINSTALL COMPLETE"
     clear_info_area
     
-    draw_sealed_row $((LOG_TOP + 2)) "   All selected components have been removed."
+    draw_sealed_row $((LOG_TOP + 2)) "   All selected components removed."
     draw_sealed_row $((LOG_TOP + 4)) "   Returning to Dashboard..."
     draw_bottom_border
     
@@ -5502,54 +5739,20 @@ draw_verifying_screen() {
     
 }
 
-#!/bin/bash
 # ============================================================================
-# QDOMYOS-ZWIFT LOGO - 20 rows (256-color mode for Raspberry Pi compatibility)
-# Uses ANSI 256-color codes instead of RGB for universal terminal support
+# HEX COLOR REFERENCE (for easy editing)
 # ============================================================================
-
-#!/bin/bash
-# ============================================================================
-# QDOMYOS-ZWIFT LOGO - 20 rows (256-color, exact reproduction)
-# Maintains the magnifying glass "Q" with "Z" inside
-# Compatible with ALL terminals (Raspberry Pi, Ubuntu, etc.)
-# ============================================================================
-
-#!/bin/bash
-# ============================================================================
-# QDOMYOS-ZWIFT LOGO - 20 rows (optimized for 24-row terminal)
-# Converted from text-image.com HTML to bash format
-# ============================================================================
-
-#!/bin/bash
-# ============================================================================
-# QDOMYOS-ZWIFT LOGO - 20 rows (EXACT conversion RGB → 256-color)
-# This maintains the EXACT artwork that works on Ubuntu
-# Converted for Raspberry Pi compatibility
-# ============================================================================
-
-#!/bin/bash
-# ============================================================================
-# QDOMYOS-ZWIFT LOGO - 20 rows (Complete RGB → 256-color conversion)
-# Maintains ALL colors including dark structure for proper logo shape
-# Compatible with Raspberry Pi and all terminals
-# ============================================================================
-
-#!/bin/bash
-# ============================================================================
-# QDOMYOS-ZWIFT LOGO - 20 rows (optimized for 24-row terminal)
-# Converted from text-image.com HTML to bash format
-# ============================================================================
-
-#!/bin/bash
-# ============================================================================
-# QDOMYOS-ZWIFT LOGO - 20 rows (RGB → 256-color conversion)
-# EXACT conversion maintaining all structure and colors
-# Compatible with Raspberry Pi and all terminals
+# 0-8 = Dark backgrounds (grays + black)
+#   0=232 (darkest)  1=233  2=234  3=235  4=236  5=237  6=238  7=240  8=16(black)
+#
+# 9-F = Pink ring gradient
+#   9=52(dark maroon)  A=53  B=89  C=125  D=161  E=197  F=198(brightest)
+#
+# G-M = Green/Yellow Z gradient
+#   G=64(dark olive)  H=70  I=106  J=112  K=148  L=154  M=190(bright yellow)
 # ============================================================================
 draw_splash_screen() {
-    local title="${1:-QDomyos-Zwift}"
-    local subtitle="${2:-ANT+ BRIDGE SETUP UTILITY}"
+    local title="${3:-QDomyos-Zwift  ANT+ BRIDGE SETUP UTILITY}"
 
     set_ui_output || true
     clear_screen
@@ -5557,61 +5760,156 @@ draw_splash_screen() {
     local term_rows=${TERM_ROWS:-24}
     local inner_w=${INNER_COLS:-80}
     
-    # Color variables
+    # Text color variables
     local BOLD_WHITE=$'\033[1;37m'
-    local WHITE=$'\033[1;37m'
-    local GRAY=$'\033[0;90m'
     local NC=$'\033[0m'
+    local D_Gray=$'\033[38;5;232m'    #  D_Gray for borders
+    local PINK=$'\033[38;5;198m'      # Bright pink from logo
+    local YELLOW=$'\033[38;5;190m'    # Yellow from Z
+    local Gray_DOT=$'\033[38;5;235m'  # Subtle Gray for spacing dots
     
-    # 20-row logo with 256-color codes (converted from RGB)
-    local logo_lines=(
-        $'\033[38;5;232m●●●●●●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;52m●\033[38;5;52m●\033[38;5;89m●\033[38;5;89m●\033[38;5;125m●●\033[38;5;89m●\033[38;5;89m●\033[38;5;52m●\033[38;5;52m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●●●●●●●\033[0m'
-        $'\033[38;5;232m●●●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;52m●\033[38;5;89m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●●●●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;89m●\033[38;5;52m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●●●●\033[0m'
-        $'\033[38;5;232m●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;234m●\033[38;5;125m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;161m●\033[38;5;125m●\033[38;5;125m●●\033[38;5;125m●\033[38;5;161m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;125m●\033[38;5;234m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●●\033[0m'
-        $'\033[38;5;232m●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;234m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;198m●\033[38;5;198m●\033[38;5;125m●\033[38;5;52m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;52m●\033[38;5;125m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;198m●\033[38;5;161m●\033[38;5;234m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●\033[0m'
-        $'\033[38;5;232m●●\033[38;5;232m●\033[38;5;232m●\033[38;5;89m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;52m●\033[38;5;232m●\033[38;5;16m●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●\033[38;5;232m●●●●\033[38;5;232m●●\033[38;5;232m●\033[38;5;232m●\033[38;5;16m●●\033[38;5;232m●\033[38;5;52m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;89m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●\033[0m'
-        $'\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;52m●\033[38;5;232m●\033[38;5;232m●\033[38;5;235m●\033[38;5;70m●\033[38;5;106m●\033[38;5;70m●●\033[38;5;106m●\033[38;5;106m●\033[38;5;106m●●●●●\033[38;5;106m●\033[38;5;106m●●●\033[38;5;106m●\033[38;5;64m●\033[38;5;233m●\033[38;5;232m●\033[38;5;52m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[0m'
-        $'\033[38;5;232m●\033[38;5;232m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;197m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●●●●●●●●\033[38;5;190m●\033[38;5;190m●●●●●\033[38;5;190m●\033[38;5;190m●\033[38;5;112m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;197m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;232m●\033[38;5;232m●\033[0m'
-        $'\033[38;5;232m●\033[38;5;52m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●\033[38;5;235m●\033[38;5;64m●\033[38;5;148m●\033[38;5;190m●●●●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;154m●\033[38;5;240m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;52m●\033[38;5;232m●\033[0m'
-        $'\033[38;5;232m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;89m●\033[38;5;232m●\033[38;5;232m●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●●\033[38;5;232m●\033[38;5;16m●\033[38;5;232m●\033[38;5;234m●\033[38;5;112m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●●\033[38;5;154m●\033[38;5;64m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●\033[38;5;232m●\033[38;5;89m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;232m●\033[0m'
-        $'\033[38;5;233m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;52m●\033[38;5;232m●\033[38;5;232m●●●●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;236m●\033[38;5;148m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;148m●\033[38;5;237m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●●●\033[38;5;232m●\033[38;5;52m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;233m●\033[0m'
-        $'\033[38;5;233m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;52m●\033[38;5;232m●\033[38;5;232m●●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;238m●\033[38;5;154m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;112m●\033[38;5;235m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●●●●●\033[38;5;232m●\033[38;5;52m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;233m●\033[0m'
-        $'\033[38;5;232m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;89m●\033[38;5;232m●\033[38;5;232m●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;64m●\033[38;5;154m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;106m●\033[38;5;234m●\033[38;5;232m●\033[38;5;16m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●●\033[38;5;232m●\033[38;5;89m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;232m●\033[0m'
-        $'\033[38;5;232m●\033[38;5;52m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;234m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;70m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;112m●\033[38;5;70m●●\033[38;5;70m●\033[38;5;70m●\033[38;5;64m●\033[38;5;232m●\033[38;5;234m●\033[38;5;240m●\033[38;5;70m●\033[38;5;235m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;234m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;52m●\033[38;5;232m●\033[0m'
-        $'\033[38;5;232m●\033[38;5;232m●\033[38;5;125m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;148m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●●●●●\033[38;5;190m●\033[38;5;190m●●●\033[38;5;190m●\033[38;5;112m●\033[38;5;232m●\033[38;5;154m●\033[38;5;190m●\033[38;5;190m●\033[38;5;190m●\033[38;5;233m●\033[38;5;233m●\033[38;5;232m●\033[38;5;233m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;125m●\033[38;5;232m●\033[38;5;232m●\033[0m'
-        $'\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;52m●\033[38;5;232m●\033[38;5;233m●\033[38;5;64m●\033[38;5;70m●\033[38;5;190m●●●●●●\033[38;5;190m●\033[38;5;190m●●\033[38;5;70m●\033[38;5;64m●\033[38;5;232m●\033[38;5;234m●\033[38;5;64m●\033[38;5;64m●\033[38;5;236m●\033[38;5;52m●\033[38;5;198m●\033[38;5;197m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[0m'
-        $'\033[38;5;232m●●\033[38;5;232m●\033[38;5;232m●\033[38;5;89m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;161m●\033[38;5;52m●\033[38;5;232m●\033[38;5;16m●\033[38;5;16m●\033[38;5;16m●\033[38;5;232m●\033[38;5;232m●●●●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;16m●\033[38;5;232m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;89m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●\033[0m'
-        $'\033[38;5;232m●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;125m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;52m●\033[38;5;234m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;234m●\033[38;5;52m●\033[38;5;125m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;161m●\033[38;5;52m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[0m'
-        $'\033[38;5;232m●●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;89m●\033[38;5;197m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;197m●\033[38;5;161m●\033[38;5;161m●\033[38;5;125m●●\033[38;5;161m●\033[38;5;161m●\033[38;5;197m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;197m●\033[38;5;125m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;198m●\033[38;5;198m●\033[38;5;233m●\033[38;5;232m●\033[0m'
-        $'\033[38;5;232m●●●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;234m●\033[38;5;89m●\033[38;5;161m●\033[38;5;197m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●●\033[38;5;198m●●\033[38;5;198m●●\033[38;5;198m●\033[38;5;198m●\033[38;5;198m●\033[38;5;197m●\033[38;5;161m●\033[38;5;89m●\033[38;5;234m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;52m●\033[38;5;161m●\033[38;5;198m●\033[38;5;198m●\033[38;5;161m●\033[38;5;233m●\033[38;5;232m●\033[0m'
-        $'\033[38;5;232m●●●●●●●●●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;234m●\033[38;5;52m●\033[38;5;53m●\033[38;5;89m●\033[38;5;89m●●\033[38;5;89m●\033[38;5;53m●\033[38;5;52m●\033[38;5;234m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[38;5;233m●\033[38;5;233m●\033[38;5;232m●\033[38;5;232m●\033[38;5;232m●\033[0m'
+    # Color palette - maps hex characters to 256-color ANSI codes
+    local -a palette=(
+        $'\033[38;5;232m'  # 0: Darkest Gray (main structure)
+        $'\033[38;5;233m'  # 1: Very dark Gray
+        $'\033[38;5;234m'  # 2: Dark Gray
+        $'\033[38;5;235m'  # 3: Medium-dark Gray
+        $'\033[38;5;236m'  # 4: Light-dark Gray
+        $'\033[38;5;237m'  # 5: Lighter-dark Gray
+        $'\033[38;5;238m'  # 6: Medium Gray
+        $'\033[38;5;240m'  # 7: Light Gray
+        $'\033[38;5;16m'   # 8: Dark Gray
+        $'\033[38;5;52m'   # 9: Darkest pink
+        $'\033[38;5;53m'   # A: Very dark pink
+        $'\033[38;5;89m'   # B: Dark pink
+        $'\033[38;5;125m'  # C: Medium pink
+        $'\033[38;5;161m'  # D: Bright pink
+        $'\033[38;5;197m'  # E: Brighter pink
+        $'\033[38;5;198m'  # F: Brightest pink/magenta
+        $'\033[38;5;64m'   # G: Dark olive
+        $'\033[38;5;70m'   # H: Olive green
+        $'\033[38;5;106m'  # I: Yellow-olive
+        $'\033[38;5;112m'  # J: Light lime
+        $'\033[38;5;148m'  # K: Yellow-lime
+        $'\033[38;5;154m'  # L: Lime-yellow
+        $'\033[38;5;190m'  # M: Bright yellow-lime
     )
     
-    # Calculate positioning (20 rows logo + 4 rows text/spacing = 24 total)
-    local logo_height=${#logo_lines[@]}
+    # Decode hex string to colored dots
+    decode_hex_line() {
+        local hex_string="$1"
+        local output=""
+        local i color_idx
+        
+        for ((i=0; i<${#hex_string}; i++)); do
+            local hex_char="${hex_string:$i:1}"
+            
+            # Convert hex char to decimal index
+            case "$hex_char" in
+                0) color_idx=0 ;; 1) color_idx=1 ;; 2) color_idx=2 ;; 3) color_idx=3 ;;
+                4) color_idx=4 ;; 5) color_idx=5 ;; 6) color_idx=6 ;; 7) color_idx=7 ;;
+                8) color_idx=8 ;; 9) color_idx=9 ;; A|a) color_idx=10 ;; B|b) color_idx=11 ;;
+                C|c) color_idx=12 ;; D|d) color_idx=13 ;; E|e) color_idx=14 ;; F|f) color_idx=15 ;;
+                G|g) color_idx=16 ;; H|h) color_idx=17 ;; I|i) color_idx=18 ;; J|j) color_idx=19 ;;
+                K|k) color_idx=20 ;; L|l) color_idx=21 ;; M|m) color_idx=22 ;; *) color_idx=0 ;;
+            esac
+            
+            output+="${palette[$color_idx]}●"
+        done
+        
+        echo "${output}"
+    }
+    
+    # Logo as HEX strings - PIXEL PERFECT!
+    # Each character = 1 colored dot (~87% size reduction!)
+    local logo_hex=(
+        "0000000000000019BBCCCCBB9100000000000000"
+        "00000000009BDFFFFFFFFFFFFFFDB90000000000"
+        "00000001CFFFFFFFDDCCCCDDFFFFFFFC10000000"
+        "000001DFFFFFC91000000000019CFFFFFD100000"
+        "0000BFFFFD90880000000000008809DFFFFB0000"
+        "000DFFFF9003HIHHIIIIIIIIIIIIG109FFFFD000"
+        "00DFFFE1001MMMMMMMMMMMMMMMMMMJ001EFFFD00"
+        "09FFFF100003GKMMMMMMMMMMMMMLJ10001FFFF90"
+        "0DFFFB00000000000801JMMMMLJ1000000BFFFD0"
+        "1FFFF9000000000001KMMMMK10000000009FFFF1"
+        "1FFFF90000000001LMMMMJ1000000000009FFFF1"
+        "0DFFFB0000001GLMMMMI20800000000000BFFFD0"
+        "09FFFF20001HMMMMMMJHHHHG00GG000002FFFF90"
+        "00CFFFF100KMMMMMMMMMMMMJ0GMMG1101FFFFC00"
+        "000DFFFF901GHMMMMMMMMMHG02GG29FEFFFFD000"
+        "0000BFFFFD908880000000000080DFFFFFFB0000"
+        "000001CFFFFFD91000000000019CFFFFFFFD9000"
+        "00000001BEFFFFFFEDDCCDDEFFFFFFECDFFFFF10"
+        "00000000001BDEFFFFFFFFFFFFEDB10009DFFD10"
+        "00000000000000019ABBBBA91000000000000000"
+        "0000000000000000000000000000000000000000"
+        "0000000000000000000000000000000000000000"
+        "0000000000000000000000000000000000000000"
+        "0000000000000000000000000000000000000000"
+    )
+    
+    local logo_height=${#logo_hex[@]}
     local start_row=0
     local row_counter=$start_row
     
-    # Print centered logo
-    for logo_line in "${logo_lines[@]}"; do
-        # Strip ANSI for width calculation
+    # Print centered logo with D_Gray side borders
+    for hex_line in "${logo_hex[@]}"; do
+        local logo_line=$(decode_hex_line "$hex_line")
         local visible_text=$(echo "$logo_line" | sed 's/\x1b\[[0-9;]*m//g')
-        local logo_pad=$(( (inner_w - ${#visible_text}) / 2 ))
-        [[ $logo_pad -lt 0 ]] && logo_pad=0
-        print_at "$row_counter" "$(printf '%*s%s' "$logo_pad" "" "$logo_line")"
+        local logo_width=${#visible_text}
+        local side_padding=$(( (inner_w - logo_width) / 2 + 1))
+        
+        local left_border=$(printf "${D_Gray}●%.0s${NC}" $(seq 1 $side_padding))
+        local right_border=$(printf "${D_Gray}●%.0s${NC}" $(seq 1 $side_padding))
+        
+        print_at "$row_counter" "${left_border}${logo_line}${NC}${right_border}"
         ((row_counter++))
     done
     
-    ((row_counter++))
+    # Create gradient title with Gray dots filling spaces
+    # Build the title character by character, replacing spaces with Gray dots
+    local title_with_dots=""
+    local char
+    local in_qdomyos=true  # Track which section we're in
     
-    # Title
-    local title_pad=$(( (inner_w - ${#title}) / 2 ))
-    print_at "$row_counter" "$(printf '%*s%s' "$title_pad" "" "${BOLD_WHITE}${title}${NC}")"
-    ((row_counter++))
+    # "QDomyos-Zwift  ANT+ BRIDGE SETUP UTILITY"
+    # First 13 chars are "QDomyos-Zwift" (pink)
+    # Then 2 spaces (Gray dots)
+    # Remaining chars are "ANT+ BRIDGE SETUP UTILITY" (yellow)
     
-    # Subtitle
-    local subtitle_pad=$(( (inner_w - ${#subtitle}) / 2 ))
-    print_at "$row_counter" "$(printf '%*s%s' "$subtitle_pad" "" "${WHITE}${subtitle}${NC}")"
+    for ((i=0; i<=${#title}; i++)); do
+        char="${title:$i:1}"
+        
+        if [ $i -lt 13 ]; then
+            # QDomyos-Zwift section (pink)
+            if [ "$char" = " " ]; then
+                title_with_dots+="${D_Gray}●${NC}"
+            else
+                title_with_dots+="${BOLD_WHITE}${PINK}${char}${NC}"
+            fi
+        elif [ $i -ge 13 ] && [ $i -lt 15 ]; then
+            # Two spaces between sections (Gray dots)
+            title_with_dots+="${D_Gray}●${NC}"
+        else
+            # ANT+ BRIDGE SETUP UTILITY section (yellow)
+            if [ "$char" = " " ]; then
+                title_with_dots+="${D_Gray}●${NC}"
+            else
+                title_with_dots+="${BOLD_WHITE}${YELLOW}${char}${NC}"
+            fi
+        fi
+    done
+    
+    # Calculate padding (using original title width for calculation)
+    local title_width=${#title}
+    local title_pad=$(( (inner_w - title_width) / 2 + 1))
+    
+    # D_Gray borders on sides of title (consistent with logo)
+    local title_left_border=$(printf "${D_Gray}●%.0s${NC}" $(seq 1 $title_pad))
+    local title_right_border=$(printf "${D_Gray}●%.0s${NC}" $(seq 1 $title_pad))
+    
+    print_at "$((row_counter-3))" "${title_left_border}${title_with_dots}${title_right_border}"
     ((row_counter++))
     
     sleep 2
@@ -5624,25 +5922,44 @@ update_splash_progress() {
     local total=$2
     local text="${3:-Loading...}"
     
+    # Color definitions
+    local NC=$'\033[0m'
+    local D_Gray=$'\033[38;5;16m'      #  D_Gray for borders
+    local CYAN=$'\033[38;5;51m'       # Cyan for progress
+    local DARK_Gray=$'\033[38;5;233m' # Dark Gray for empty portion
+    local WHITE=$'\033[1;37m'         # White text
+    
     # Calculate percentage and bar width
     local percent=$(( (current * 100) / total ))
-    local bar_width=$(( INNER_COLS - 4 )) # Leave room for borders
-    local filled_width=$(( (current * bar_width) / total ))
+    local bar_width=$(( INNER_COLS - 4 ))  # Leave room for D_Gray borders (2 dots each side)
+    local filled_width=$(( (current * bar_width) / total + 1))
     
-    # Create bar string
+    # Create dot-based progress bar
     local bar_str=""
-    for ((i=0; i<filled_width; i++)); do bar_str="${bar_str}█"; done
-    for ((i=filled_width; i<bar_width; i++)); do bar_str="${bar_str}░"; done
+    for ((i=0; i<=filled_width; i++)); do 
+        bar_str+="${CYAN}●${NC}"
+    done
+    for ((i=filled_width; i<=bar_width; i++)); do 
+        bar_str+="${DARK_Gray}●${NC}"
+    done
     
-    # Position: 3 rows below the logo/title block (approx row 22)
+    # Position: rows 22-23 (after 20-row logo + 1-row title)
     local row=22
     
-    # Draw Text centered
-    local text_pad=$(( (INNER_COLS - ${#text}) / 2 ))
-    print_at $((row - 1)) "$(printf '%*s%s' "$text_pad" "" "${GRAY}${text}${NC}" "$text_pad")"
+    # Text with percentage and D_Gray dot borders
+    local text_with_percent="${text} ${percent}%"
+    local text_width=${#text_with_percent}
+    local text_pad=$(( (INNER_COLS - text_width) / 2 + 1 ))
     
-    # Draw Bar centered
-    print_at "$row" "  ${CYAN}${bar_str}${NC}"
+    # D_Gray borders on sides of text (consistent with logo)
+    local text_left_border=$(printf "${D_Gray}●%.0s${NC}" $(seq 1 $text_pad))
+    local text_right_border=$(printf "${D_Gray}●%.0s${NC}" $(seq 1 $text_pad))
+    
+    # Draw text centered with borders (row 21)
+    print_at $((row)) "${text_left_border}${WHITE}${text_with_percent}${NC}${text_right_border}"
+    
+    ## Draw progress bar with D_Gray borders (row 22)
+    #print_at "$row" "${D_Gray}●●${NC}${bar_str}${D_Gray}●●${NC}"
 }
 
 # Simple ANT+ test runner: launches `test_ant.py` to emulate a treadmill
@@ -5656,7 +5973,7 @@ perform_ant_test() {
     [[ ! -f "$venv_py" ]] && venv_py=$(command -v python3)
 
     set_ui_output
-    clear_info_area --force
+    clear_info_area
 
     # 1. Hardware Check
     if [[ "${STATUS_MAP[ant_dongle]:-}" != "pass" ]]; then
@@ -5668,7 +5985,7 @@ perform_ant_test() {
     local svc_status
     svc_status=$(get_service_status)
     if [[ "$svc_status" == "running" ]]; then
-        draw_bottom_panel_header --force "ANT+ INITIALIZATION"
+        draw_bottom_panel_header "ANT+ INITIALIZATION"
         local spinner=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
         local sc=0
         local stop_started=false
@@ -5749,7 +6066,7 @@ perform_ant_test() {
             [[ "$last_line" == *"Node"* ]] && status_msg="Opening ANT+ Node..."
             
             draw_sealed_row $((LOG_TOP + 2)) "   ${CYAN}${spin_char}${NC}  ${status_msg} (Attempt $((attempt + 1)))"
-            draw_bottom_border --force "Resetting hardware (can take 15s)..."
+            draw_bottom_border "Resetting hardware (can take 15s)..."
             
             safe_read_key stop_check 0.1
             if [[ -n "$stop_check" ]]; then
@@ -5951,6 +6268,16 @@ build_service_flags() {
 }
 
 generate_service_file() {
+    clear_info_area
+    # Show immediate feedback
+    local msg="${YELLOW}Generating service file${NC}"
+    local msg_plain="Generating service file"
+    local w=$(get_display_width "$msg_plain")
+    local row=$((LOG_TOP + 3))
+    local col=$(( (INNER_COLS - w) / 2 ))
+    draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
+    draw_bottom_border
+
     # Detect systemd install path
     local svc_dir="/etc/systemd/system"
     mkdir -p "$svc_dir" 2>/dev/null || true
@@ -5961,6 +6288,13 @@ generate_service_file() {
     script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     local system_wrapper="/usr/local/bin/qdomyos-zwift-wrapper.sh"
     local wrapper="$script_dir/qdomyos-zwift-wrapper.sh"
+    
+    # Update: Detecting binary
+    msg="${YELLOW}Detecting binary path...${NC}"
+    msg_plain="Detecting binary path..."
+    w=$(get_display_width "$msg_plain")
+    draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
+    
     # Prefer an installed wrapper (packaged to /usr/local) when present.
     if [[ -x "$system_wrapper" ]]; then
         bin="$system_wrapper"
@@ -5976,8 +6310,22 @@ generate_service_file() {
     fi
 
     local user="${SUDO_USER:-$USER}"
+    
+    # Update: Building flags
+    msg="${YELLOW}Building service flags...${NC}"
+    msg_plain="Building service flags..."
+    w=$(get_display_width "$msg_plain")
+    draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
+    
     local flags
     flags=$(build_service_flags)
+    
+    # Update: Writing service file
+    msg="${YELLOW}Writing service file...${NC}"
+    msg_plain="Writing service file..."
+    w=$(get_display_width "$msg_plain")
+    draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
+    
     if ! ensure_ram_temp_dir >/dev/null 2>&1; then TEMP_DIR=/tmp; fi
     local tmp="$TEMP_DIR/qz.service.$$"
     cat > "$tmp" <<EOF
@@ -6012,12 +6360,34 @@ WantedBy=multi-user.target
 EOF
     # If running as root, install to system path
     if [[ $(id -u) -eq 0 ]]; then
+        # Update: Installing to system
+        msg="${YELLOW}Installing to systemd...${NC}"
+        msg_plain="Installing to systemd..."
+        w=$(get_display_width "$msg_plain")
+        draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
+        
         mv -f "$tmp" "$svc_file" || return 1
         systemctl daemon-reload || true
+        
+        # Success message
+        msg="${GREEN}✓ Service file created${NC}"
+        msg_plain="✓ Service file created"
+        w=$(get_display_width "$msg_plain")
+        draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
+        sleep 0.5
+        
         ACTIVE_SERVICE_FILE="$svc_file"
         echo "$svc_file"
         return 0
     fi
+    
+    # Success message (non-root)
+    msg="${GREEN}✓ Service file created${NC}"
+    msg_plain="✓ Service file created"
+    w=$(get_display_width "$msg_plain")
+    draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
+    sleep 0.5
+    
     ACTIVE_SERVICE_FILE="$tmp"
     echo "$tmp"
     return 0
@@ -6170,21 +6540,61 @@ disable_service_ui() {
 remove_service_ui() {
     # Use the UI-consistent Yes/No overlay instead of a plain tty prompt
     exit_ui_mode || true
-    draw_bottom_panel_header --force "REMOVE SERVICE"
-    clear_info_area --force
+    draw_bottom_panel_header "REMOVE SERVICE"
+    clear_info_area
     draw_sealed_row $((LOG_TOP + 1)) "   This will stop and remove the installed service file."
     draw_sealed_row $((LOG_TOP + 2)) "   Confirm removal?"
-    draw_bottom_border --force "Arrows: Up/Down | Enter: Select | Esc: Cancel"
+    draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Cancel"
 
     # prompt_yes_no renders an overlay and returns selected index (0=Yes)
     prompt_yes_no 4
     local resp=$?
 
     if [[ $resp -eq 0 ]]; then
-        # Perform removal as root
-        exit_ui_mode || true
-        if run_as_root_or_sudo bash -lc 'systemctl stop qz.service >/dev/null 2>&1 || true; systemctl disable qz.service >/dev/null 2>&1 || true; for f in /etc/systemd/system/qz.service /lib/systemd/system/qz.service; do [ -f "$f" ] && rm -f "$f"; done; systemctl daemon-reload >/dev/null 2>&1 || true'; then
-            draw_info_screen "SERVICE REMOVED" "Service removed successfully." 2
+        # Show progress feedback during removal
+        draw_bottom_panel_header "REMOVING SERVICE"
+        clear_info_area
+        local row=$((LOG_TOP + 3))
+        local msg msg_plain w col
+        
+        # Step 1: Stop service
+        msg="${YELLOW}Stopping service...${NC}"
+        msg_plain="Stopping service..."
+        w=$(get_display_width "$msg_plain")
+        col=$(( (INNER_COLS - w) / 2 ))
+        draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
+        
+        run_as_root_or_sudo systemctl stop qz.service >/dev/null 2>&1 || true
+        
+        # Step 2: Disable service
+        msg="${YELLOW}Disabling service...${NC}"
+        msg_plain="Disabling service..."
+        w=$(get_display_width "$msg_plain")
+        draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
+        
+        run_as_root_or_sudo systemctl disable qz.service >/dev/null 2>&1 || true
+        
+        # Step 3: Remove service files
+        msg="${YELLOW}Removing service files...${NC}"
+        msg_plain="Removing service files..."
+        w=$(get_display_width "$msg_plain")
+        draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
+        
+        run_as_root_or_sudo bash -c 'for f in /etc/systemd/system/qz.service /lib/systemd/system/qz.service; do [ -f "$f" ] && rm -f "$f"; done' >/dev/null 2>&1 || true
+        
+        # Step 4: Reload systemd
+        msg="${YELLOW}Reloading systemd...${NC}"
+        msg_plain="Reloading systemd..."
+        w=$(get_display_width "$msg_plain")
+        draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
+        
+        if run_as_root_or_sudo systemctl daemon-reload >/dev/null 2>&1; then
+            # Success
+            msg="${GREEN}✓ Service removed successfully${NC}"
+            msg_plain="✓ Service removed successfully"
+            w=$(get_display_width "$msg_plain")
+            draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
+            sleep 1.5
         else
             draw_error_screen "REMOVE FAILED" "Failed to remove service; check privileges." 3
         fi
@@ -6459,9 +6869,26 @@ service_menu_flow() {
     fi
     # Footer hint (for automated checks): Esc: Back
     enter_ui_mode || true
+    
+    # Track when we need to refresh service status
+    local need_status_refresh=true
+    
     while true; do
-        # Prefer the consolidated STATUS_MAP so the header matches the status panel
-        check_qz_service >/dev/null 2>&1 || true
+        # Only check service status when needed (not every loop iteration)
+        if [[ $need_status_refresh == true ]]; then
+            # Show working indicator while checking
+            STATUS_MAP["qz_service"]="pending"
+            draw_status_panel  # Update the right panel to show ⟳
+            
+            # Now perform the actual check (may take 4 seconds)
+            check_qz_service >/dev/null 2>&1 || true
+            
+            # Redraw status panel with actual result
+            draw_status_panel
+            
+            need_status_refresh=false
+        fi
+        
         local svc_map_status
         svc_map_status=${STATUS_MAP["qz_service"]:-}
         local status_display
@@ -6527,7 +6954,7 @@ service_menu_flow() {
             local key=""
             safe_read_key key
             if [[ $key == $'\x1b' ]]; then
-                read -rsn2 -t 0.01 k2 </dev/tty || true
+                read_escape_sequence k2
                 # Plain ESC -> exit menu (Back)
                 if [[ -z "${k2:-}" ]]; then
                     exit_ui_mode || true
@@ -6535,6 +6962,7 @@ service_menu_flow() {
                 fi
                 [[ "${k2:-}" == "[A" ]] && ((selected--))
                 [[ "${k2:-}" == "[B" ]] && ((selected++))
+                flush_input_buffer
             elif [[ $key == [lL] ]]; then
                 show_legend_popup
                 # Full redraw after popup
@@ -6584,9 +7012,23 @@ service_menu_flow() {
         fi
         if [[ -z "$action" ]]; then
             draw_error_screen "UNKNOWN ACTION" "No handler for: ${choice}" "wait"
+            # No status change, don't refresh
         else
             # action may contain an argument (e.g. 'view_service_logs_ui 200')
             eval "$action"
+            
+            # Only refresh status for actions that actually change service state
+            # Configuration changes, flag edits, and log views don't affect service status
+            case "$action" in
+                *install_service*|*uninstall_service*|*start_service*|*stop_service*|*restart_service*|*enable_service*|*disable_service*)
+                    # These actions change service state - need refresh
+                    need_status_refresh=true
+                    ;;
+                *)
+                    # Configuration, flags, logs - no service state change
+                    need_status_refresh=false
+                    ;;
+            esac
         fi
 
         # Re-enter UI mode and continue loop (no error panel for normal actions)
@@ -6611,9 +7053,23 @@ check_final_status() {
             choice=$?
             case $choice in
                 0) # Guided Fix
-                    if run_guided_mode; then
-                        draw_verifying_screen "Verifying system state..."
-                        run_all_checks
+                    # Check /boot writability on RPi before attempting install
+                    if [ -f /proc/device-tree/model ] && grep -q "Raspberry Pi" /proc/device-tree/model; then
+                        if ! touch /boot/firmware/.test_write 2>/dev/null; then
+                            draw_sealed_row $((LOG_TOP + 1)) "Boot partition is read-only."
+                            draw_sealed_row $((LOG_TOP + 2)) "Run 'sudo raspi-config' to make /boot writable before installing."
+                        else
+                            rm -f /boot/firmware/.test_write
+                            if run_guided_mode; then
+                                draw_verifying_screen "Verifying system state..."
+                                run_all_checks
+                            fi
+                        fi
+                    else
+                        if run_guided_mode; then
+                            draw_verifying_screen "Verifying system state..."
+                            run_all_checks
+                        fi
                     fi
                     ;;
                 1) finish_and_exit 0 ;; # Exit
@@ -6628,16 +7084,8 @@ check_final_status() {
                 1) select_equipment_flow; check_config_file ;;
                 2) perform_bluetooth_scan; check_config_file ;;
                 3) perform_ant_test; check_config_file ;;
-                4) # Service menu
-                    service_menu_flow || true
-                    ;;
-                5) # Uninstall
-                    if run_uninstall_mode; then
-                        draw_verifying_screen "Verifying system state..."
-                        run_all_checks
-                    fi
-                    ;;
-                6) finish_and_exit 0 ;; # Exit
+                4) service_menu_flow ;;
+                5) finish_and_exit 0 ;;
             esac
         fi
         sleep 0.05
@@ -6664,13 +7112,9 @@ USAGE:
     sudo ./setup_dashboard.sh       # Run validation & interactive setup
     sudo ./setup_dashboard.sh --help
 
-    Non-interactive options:
+    Interactive options:
         --scan-now     Start the Bluetooth scan page immediately and exit
-
-DESCRIPTION:
-    Checks system prerequisites and offers a Menu to:
-    1. Guided Fix: Step-by-step confirmation for missing items.
-    2. Uninstall: Reset config/venv/services (keeps Qt5/Python pkg).
+        --uninstall    Start the uninstall menu immediately and exit
 
 REQUIREMENTS:
     - Root privileges required for installation actions.
@@ -6769,6 +7213,9 @@ if [ $# -gt 0 ]; then
             --scan-now)
                 SCAN_NOW=1
                 ;;
+            --uninstall)
+                UNINSTALL_MODE=1
+                ;;
             # (debug options removed)
             *)
                 echo "Unknown option: $arg. Use --help for usage."; exit 1
@@ -6805,9 +7252,18 @@ if [[ "${QZ_NO_SPLASH:-0}" -eq 0 ]]; then
     sleep 2
 fi
 
+# Check for uninstall mode
+if [ "${UNINSTALL_MODE:-0}" -eq 1 ]; then
+    clear_screen
+    draw_top_panel
+    run_uninstall_mode
+    exit 0
+fi
+
 # 3. Render the Dashboard
 # Now we draw the full dashboard. Since run_all_checks populated STATUS_MAP,
 # this function will render with the correct icons immediately.
+clear_screen
 draw_top_panel
 draw_bottom_panel_header "INFORMATION"
 draw_instructions_bottom "$CURRENT_INSTRUCTION"

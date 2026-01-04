@@ -20,12 +20,10 @@ import os
 import signal
 import functools
 
-# --- CRITICAL FIX START ---
 # Force all print statements to flush immediately to stdout.
 # This ensures the bash dashboard receives "Signal:Startup" and workout data
 # instantly, preventing the "HARDWARE TIMEOUT" error.
 print = functools.partial(print, flush=True)
-# --- CRITICAL FIX END ---
 
 def write_pidfile(path: str) -> None:
     """Write current process PID to `path` (best-effort)."""
