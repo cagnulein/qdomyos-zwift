@@ -878,16 +878,6 @@ void trainprogram::scheduler() {
         rows[currentStep].started = QDateTime::currentDateTime();
         currentStepDistance = 0;
         lastOdometer = odometerFromTheDevice;
-
-        // Emit toast with interval name
-        QString intervalMessage;
-        if (!rows.at(currentStep).name.isEmpty()) {
-            intervalMessage = rows.at(currentStep).name;
-        } else {
-            intervalMessage = QStringLiteral("Interval ") + QString::number(currentStep + 1);
-        }
-        emit toastRequest(intervalMessage);
-
         if (bluetoothManager->device()->deviceType() == TREADMILL) {
             if (rows.at(0).forcespeed && rows.at(0).speed) {
                 qDebug() << QStringLiteral("trainprogram change speed") + QString::number(rows.at(0).speed);
@@ -1055,15 +1045,6 @@ void trainprogram::scheduler() {
                 calculatedLine = currentStep;
 
                 rows[currentStep].started = QDateTime::currentDateTime();
-
-                // Emit toast with interval name
-                QString intervalMessage;
-                if (!rows.at(currentStep).name.isEmpty()) {
-                    intervalMessage = rows.at(currentStep).name;
-                } else {
-                    intervalMessage = QStringLiteral("Interval ") + QString::number(currentStep + 1);
-                }
-                emit toastRequest(intervalMessage);
 
                 currentStepDistance = 0;
                 if (bluetoothManager->device()->deviceType() == TREADMILL) {
@@ -1386,9 +1367,6 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
         stream.writeStartElement(QStringLiteral("rows"));
         for (const trainrow &row : qAsConst(rows)) {
             stream.writeStartElement(QStringLiteral("row"));
-            if (!row.name.isEmpty()) {
-                stream.writeAttribute(QStringLiteral("name"), row.name);
-            }
             stream.writeAttribute(QStringLiteral("duration"), row.duration.toString());
             if (row.distance >= 0) {
                 stream.writeAttribute(QStringLiteral("distance"), QString::number(row.distance));
@@ -1476,6 +1454,17 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
             if (row.loopTimeHR >= 0) {
                 stream.writeAttribute(QStringLiteral("looptimehr"), QString::number(row.loopTimeHR));
             }
+
+            // Write text events as child elements
+            if (!row.textEvents.isEmpty()) {
+                for (const trainrow::TextEvent &evt : row.textEvents) {
+                    stream.writeStartElement(QStringLiteral("textevent"));
+                    stream.writeAttribute(QStringLiteral("timeoffset"), QString::number(evt.timeoffset));
+                    stream.writeAttribute(QStringLiteral("message"), evt.message);
+                    stream.writeEndElement();
+                }
+            }
+
             stream.writeEndElement();
         }
         stream.writeEndElement();
@@ -1578,9 +1567,6 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
         QXmlStreamAttributes atts = stream.attributes();
         bool ramp = false;
         if (!atts.isEmpty()) {
-            if (atts.hasAttribute(QStringLiteral("name"))) {
-                row.name = atts.value(QStringLiteral("name")).toString();
-            }
             if (atts.hasAttribute(QStringLiteral("duration"))) {
                 row.duration = QTime::fromString(atts.value(QStringLiteral("duration")).toString(), QStringLiteral("hh:mm:ss"));
             }
@@ -1793,6 +1779,24 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
             }
 
             if(!ramp) {
+                // Read any child textEvent elements
+                while (stream.readNextStartElement()) {
+                    if (stream.name().toString().toLower() == QStringLiteral("textevent")) {
+                        QXmlStreamAttributes textEventAtts = stream.attributes();
+                        if (textEventAtts.hasAttribute(QStringLiteral("timeoffset")) &&
+                            textEventAtts.hasAttribute(QStringLiteral("message"))) {
+                            trainrow::TextEvent evt;
+                            evt.timeoffset = textEventAtts.value(QStringLiteral("timeoffset")).toUInt();
+                            evt.message = textEventAtts.value(QStringLiteral("message")).toString();
+                            row.textEvents.append(evt);
+                            qDebug() << "Loaded textevent: timeoffset=" << evt.timeoffset << " message=" << evt.message;
+                        }
+                        stream.skipCurrentElement();
+                    } else {
+                        stream.skipCurrentElement();
+                    }
+                }
+
                 if (insideRepeat) {
                     repeatRows.append(row);
                 } else {

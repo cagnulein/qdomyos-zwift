@@ -1179,9 +1179,12 @@
             const row = {
                 duration: formatDuration(durationSec)
             };
-            // Add interval name/label if present
+            // Add interval name/label as textEvent with timeoffset=0 if present
             if (interval.name && interval.name.trim() !== '') {
-                row.name = interval.name.trim();
+                row.textEvents = [{
+                    timeoffset: 0,
+                    message: interval.name.trim()
+                }];
             }
             FIELD_DEFS.forEach(field => {
                 if (field.key === 'name' || field.key === 'duration') {
