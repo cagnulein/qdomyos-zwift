@@ -120,6 +120,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     } else if(fit_file_garmin_device_training_effect) {
         deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
         deviceInfoMesg.SetSerialNumber(3313379353);
+        deviceInfoMesg.SetDeviceType(FIT_UINT8_INVALID);
         deviceInfoMesg.SetProduct(fit_file_garmin_device_training_effect_device);
         deviceInfoMesg.SetGarminProduct(fit_file_garmin_device_training_effect_device);
         deviceInfoMesg.SetSoftwareVersion(21.19);
@@ -462,7 +463,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         fit::DeviceInfoMesg deviceInfoMesg1;
         deviceInfoMesg1.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
         deviceInfoMesg1.SetDeviceIndex(1);
-        deviceInfoMesg1.SetLocalDeviceType(FIT_LOCAL_DEVICE_TYPE_BAROMETER);
+        deviceInfoMesg1.SetDeviceType(FIT_LOCAL_DEVICE_TYPE_BAROMETER);
         deviceInfoMesg1.SetManufacturer(FIT_MANUFACTURER_GARMIN);
         deviceInfoMesg1.SetProduct(fit_file_garmin_device_training_effect_device);
         deviceInfoMesg1.SetSoftwareVersion(21.12);
@@ -473,7 +474,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         fit::DeviceInfoMesg deviceInfoMesg2;
         deviceInfoMesg2.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
         deviceInfoMesg2.SetDeviceIndex(2);
-        deviceInfoMesg2.SetLocalDeviceType(FIT_LOCAL_DEVICE_TYPE_ACCELEROMETER);
+        deviceInfoMesg2.SetDeviceType(FIT_LOCAL_DEVICE_TYPE_ACCELEROMETER);
         deviceInfoMesg2.SetSourceType(FIT_SOURCE_TYPE_LOCAL);
         encode.Write(deviceInfoMesg2);
 
@@ -481,7 +482,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         fit::DeviceInfoMesg deviceInfoMesg3;
         deviceInfoMesg3.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
         deviceInfoMesg3.SetDeviceIndex(3);
-        deviceInfoMesg3.SetLocalDeviceType(8);
+        deviceInfoMesg3.SetDeviceType(8);
         deviceInfoMesg3.SetSourceType(FIT_SOURCE_TYPE_LOCAL);
         encode.Write(deviceInfoMesg3);
 
@@ -489,7 +490,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         fit::DeviceInfoMesg deviceInfoMesg4;
         deviceInfoMesg4.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
         deviceInfoMesg4.SetDeviceIndex(4);
-        deviceInfoMesg4.SetLocalDeviceType(FIT_LOCAL_DEVICE_TYPE_WHR);
+        deviceInfoMesg4.SetDeviceType(FIT_LOCAL_DEVICE_TYPE_WHR);
         deviceInfoMesg4.SetSoftwareVersion(0.02);
         deviceInfoMesg4.SetSourceType(FIT_SOURCE_TYPE_LOCAL);
         encode.Write(deviceInfoMesg4);
@@ -498,7 +499,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         fit::DeviceInfoMesg deviceInfoMesg5;
         deviceInfoMesg5.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
         deviceInfoMesg5.SetDeviceIndex(5);
-        deviceInfoMesg5.SetLocalDeviceType(FIT_LOCAL_DEVICE_TYPE_SENSOR_HUB);
+        deviceInfoMesg5.SetDeviceType(FIT_LOCAL_DEVICE_TYPE_SENSOR_HUB);
         deviceInfoMesg5.SetManufacturer(FIT_MANUFACTURER_GARMIN);
         deviceInfoMesg5.SetProduct(fit_file_garmin_device_training_effect_device);
         deviceInfoMesg5.SetSoftwareVersion(38.04);
@@ -509,7 +510,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         fit::DeviceInfoMesg deviceInfoMesg6;
         deviceInfoMesg6.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
         deviceInfoMesg6.SetDeviceIndex(6);
-        deviceInfoMesg6.SetLocalDeviceType(FIT_LOCAL_DEVICE_TYPE_GPS);
+        deviceInfoMesg6.SetDeviceType(FIT_LOCAL_DEVICE_TYPE_GPS);
         deviceInfoMesg6.SetManufacturer(FIT_MANUFACTURER_GARMIN);
         deviceInfoMesg6.SetProduct(fit_file_garmin_device_training_effect_device);
         deviceInfoMesg6.SetSoftwareVersion(7.11);
