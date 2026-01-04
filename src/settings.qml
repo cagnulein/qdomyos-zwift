@@ -1259,7 +1259,7 @@ import Qt.labs.platform 1.1
             property string garmin_oauth1_token_secret: ""
 
 			property bool domyos_treadmill_sync_start: false
-			property int garmin_device_serial: 3313379353
+			property string garmin_device_serial: "3313379353"
         }
 
 
@@ -6879,10 +6879,7 @@ import Qt.labs.platform 1.1
                             horizontalAlignment: Text.AlignLeft
                             inputMethodHints: Qt.ImhDigitsOnly
                             onTextChanged: {
-                                var value = parseInt(text);
-                                if (!isNaN(value)) {
-                                    settings.garmin_device_serial = value;
-                                }
+                                settings.garmin_device_serial = text;
                             }
                         }
                     }
