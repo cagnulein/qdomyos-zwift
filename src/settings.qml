@@ -1254,6 +1254,7 @@ import Qt.labs.platform 1.1
             property string garmin_last_refresh: ""
             
             property bool power_sensor_cadence_instead_treadmill: false
+            property bool domyos_treadmill_sync_start: false
             
             property string garmin_oauth1_token: ""
             property string garmin_oauth1_token_secret: ""            
@@ -8520,7 +8521,21 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: settings.domyos_treadmill_t900a = checked
-                            }                        
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Sync Start (Old Behavior)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_treadmill_sync_start
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.domyos_treadmill_sync_start = checked
+                            }
 
                             IndicatorOnlySwitch {
                                 id: domyosTreadmillDistanceDisplayDelegate
