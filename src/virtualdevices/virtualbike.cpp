@@ -550,28 +550,72 @@ virtualbike::VarintResult virtualbike::decodeVarint(const QByteArray& bytes, int
 }
 
 // Decode a protobuf sint value from a byte array
-// Expects a field header (0x22), length byte, inner header (0x10) and varint value
+// Expects a field header (0x22), length byte, and searches for field 2 (0x10) within the embedded message
 qint32 virtualbike::decodeSInt(const QByteArray& bytes) {
    // Check field header (0x22 = field number 4, wire type 2)
-   if (static_cast<quint8>(bytes.at(0)) != 0x22) {
-       qFatal("Invalid field header");
+   if (bytes.size() < 3 || static_cast<quint8>(bytes.at(0)) != 0x22) {
+       qWarning() << "Invalid field header in decodeSInt, expected 0x22, got:" << bytes.toHex(' ');
+       return 0;
    }
-   
+
    // Get content length
    int length = static_cast<quint8>(bytes.at(1));
-   
-   // Check inner header (0x10 = field number 2, wire type 0)
-   if (static_cast<quint8>(bytes.at(2)) != 0x10) {
-       qFatal("Invalid inner header");
+
+   if (bytes.size() < 2 + length) {
+       qWarning() << "Insufficient data in decodeSInt, expected" << (2 + length) << "bytes, got:" << bytes.size();
+       return 0;
    }
-   
-   // Decode the varint value
-   VarintResult varint = decodeVarint(bytes, 3);
-   
-   // Apply ZigZag decoding to get the original signed value
-   qint32 decoded = (varint.value >> 1) ^ -(varint.value & 1);
-   
-   return decoded;
+
+   // Parse the embedded message to find field 2 (0x10)
+   int pos = 2; // Start after field header and length
+   int endPos = 2 + length;
+
+   while (pos < endPos) {
+       if (pos >= bytes.size()) {
+           qWarning() << "Unexpected end of data while parsing embedded message in decodeSInt";
+           return 0;
+       }
+
+       quint8 fieldHeader = static_cast<quint8>(bytes.at(pos));
+       int fieldNumber = fieldHeader >> 3;
+       int wireType = fieldHeader & 0x07;
+
+       pos++; // Move past field header
+
+       if (fieldNumber == 2 && wireType == 0) {
+           // Found field 2 with varint wire type
+           if (pos >= bytes.size()) {
+               qWarning() << "Unexpected end of data while reading field 2 varint in decodeSInt";
+               return 0;
+           }
+
+           // Decode the varint value
+           VarintResult varint = decodeVarint(bytes, pos);
+
+           // Apply ZigZag decoding to get the original signed value
+           qint32 decoded = (varint.value >> 1) ^ -(varint.value & 1);
+
+           return decoded;
+       } else if (wireType == 0) {
+           // Varint wire type - skip it
+           VarintResult varint = decodeVarint(bytes, pos);
+           pos += varint.bytesRead;
+       } else if (wireType == 2) {
+           // Length-delimited wire type - skip it
+           if (pos >= bytes.size()) {
+               qWarning() << "Unexpected end of data while reading length-delimited field in decodeSInt";
+               return 0;
+           }
+           int fieldLength = static_cast<quint8>(bytes.at(pos));
+           pos += 1 + fieldLength;
+       } else {
+           qWarning() << "Unsupported wire type" << wireType << "in decodeSInt";
+           return 0;
+       }
+   }
+
+   qWarning() << "Field 2 not found in embedded message in decodeSInt";
+   return 0;
 }
 
 void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
