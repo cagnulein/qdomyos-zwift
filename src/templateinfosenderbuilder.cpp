@@ -948,6 +948,20 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             if (row.contains(QStringLiteral("azimuth"))) {
                 tR.azimuth = row[QStringLiteral("azimuth")].toDouble();
             }
+            // Load textEvents if present
+            if (row.contains(QStringLiteral("textEvents"))) {
+                QJsonArray textEventsArray = row[QStringLiteral("textEvents")].toArray();
+                for (const auto &te : qAsConst(textEventsArray)) {
+                    QJsonObject textEvent = te.toObject();
+                    if (textEvent.contains(QStringLiteral("timeoffset")) &&
+                        textEvent.contains(QStringLiteral("message"))) {
+                        trainrow::TextEvent evt;
+                        evt.timeoffset = textEvent[QStringLiteral("timeoffset")].toInt();
+                        evt.message = textEvent[QStringLiteral("message")].toString();
+                        tR.textEvents.append(evt);
+                    }
+                }
+            }
             trainRows.append(tR);
         }
     }
