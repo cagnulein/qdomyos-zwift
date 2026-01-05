@@ -587,54 +587,54 @@ void deerruntreadmill::serviceScanDone(void) {
         emit debug(s.toString());
     }
 
-    // Try to create service objects for each variant
-    // On iOS, createServiceObject() may return non-null even for non-existent services,
-    // so we need to verify the service UUID is actually in the discovered services list
-    QLowEnergyService* pitpat_service = nullptr;
-    QLowEnergyService* superun_service = nullptr;
-    QLowEnergyService* default_service = nullptr;
+    // On iOS, services_list.contains() doesn't work reliably
+    // So we manually check which services are present by iterating the list
+    bool hasPitPat = false;
+    bool hasSuperun = false;
+    bool hasDefault = false;
+    bool hasUnlock = false;
 
-    // Only create service objects if the service UUID was actually discovered
-    if (services_list.contains(_pitpatServiceId)) {
-        pitpat_service = m_control->createServiceObject(_pitpatServiceId);
-        emit debug(QStringLiteral("Creating PitPat service object"));
-    }
-    if (services_list.contains(_superunServiceId)) {
-        superun_service = m_control->createServiceObject(_superunServiceId);
-        emit debug(QStringLiteral("Creating Superun service object"));
-    }
-    if (services_list.contains(_gattCommunicationChannelServiceId)) {
-        default_service = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-        emit debug(QStringLiteral("Creating default service object"));
+    for (const QBluetoothUuid &s : qAsConst(services_list)) {
+        if (s == _pitpatServiceId) {
+            hasPitPat = true;
+            emit debug(QStringLiteral("Found PitPat service"));
+        }
+        if (s == _superunServiceId) {
+            hasSuperun = true;
+            emit debug(QStringLiteral("Found Superun service"));
+        }
+        if (s == _gattCommunicationChannelServiceId) {
+            hasDefault = true;
+            emit debug(QStringLiteral("Found default service"));
+        }
+        if (s == _unlockServiceId) {
+            hasUnlock = true;
+            emit debug(QStringLiteral("Found unlock service"));
+        }
     }
 
-    // Check which service was successfully created
-    if (pitpat_service) {
+    // Create service objects only for services that were found
+    if (hasPitPat) {
         pitpat = true;
         emit debug(QStringLiteral("Detected pitpat treadmill variant"));
-        gattCommunicationChannelService = pitpat_service;
+        gattCommunicationChannelService = m_control->createServiceObject(_pitpatServiceId);
 
-        // Try to get unlock service if available
-        if (services_list.contains(_unlockServiceId)) {
+        // Only create unlock service if it was actually discovered
+        if (hasUnlock) {
             unlock_service = m_control->createServiceObject(_unlockServiceId);
             emit debug(QStringLiteral("Creating unlock service object"));
+        } else {
+            emit debug(QStringLiteral("Unlock service not found - skipping"));
         }
-
-        // Clean up unused services
-        if (superun_service) delete superun_service;
-        if (default_service) delete default_service;
-    } else if (superun_service) {
+    } else if (hasSuperun) {
         superun_ba04 = true;
         pitpat = false;
         emit debug(QStringLiteral("Detected Superun BA04 treadmill variant"));
-        gattCommunicationChannelService = superun_service;
-
-        // Clean up unused services
-        if (default_service) delete default_service;
-    } else if (default_service) {
+        gattCommunicationChannelService = m_control->createServiceObject(_superunServiceId);
+    } else if (hasDefault) {
         pitpat = false;
         emit debug(QStringLiteral("Detected default treadmill variant"));
-        gattCommunicationChannelService = default_service;
+        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     }
 
     if (gattCommunicationChannelService) {
