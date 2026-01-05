@@ -1260,6 +1260,7 @@ import Qt.labs.platform 1.1
 
 			property bool domyos_treadmill_sync_start: false
 			property string garmin_device_serial: "3313379353"
+			property real treadmill_speed_min: 0
         }
 
 
@@ -7861,6 +7862,42 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Min. Speed:") + "(" + (settings.miles_unit?"mph":"km/h") + ")"
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: treadmillSpeedMinTextField
+                            text: (settings.miles_unit?settings.treadmill_speed_min * 0.621371:settings.treadmill_speed_min).toFixed(1)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.treadmill_speed_min = (settings.miles_unit?text * 1.60934:text)
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.treadmill_speed_min = (settings.miles_unit?treadmillSpeedMinTextField.text * 1.60934:treadmillSpeedMinTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("This overrides the minimum speed value of your treadmill (in order to limit the min speed). Default is 0 km/h (0 mph)")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
