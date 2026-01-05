@@ -19,12 +19,6 @@
 
 set -uo pipefail
 
-# ==========================================================================
-# CONFIG GENERATION - Type-Safe Storage (Milestone 1)
-# Pure Bash associative arrays and setter functions for type-safe values.
-# These are used by the config generator to ensure exact formatting.
-# ==========================================================================
-
 # Declare config storage arrays
 declare -A CONFIG_BOOL    # Boolean values (true/false)
 declare -A CONFIG_INT     # Integer values
@@ -48,6 +42,16 @@ declare -A SYMBOL_CACHE
 # shellcheck disable=SC2034
 SYMBOL_CACHE_INIT=0
 declare -A LAST_SAVED
+
+# Detect systemd system directory by checking which exists
+if [[ -d "/etc/systemd/system" ]]; then
+    SYSTEMD_SYSTEM_DIR="/etc/systemd/system"
+elif [[ -d "/lib/systemd/system" ]]; then
+    SYSTEMD_SYSTEM_DIR="/lib/systemd/system"
+else
+    # Fallback if neither exists (shouldn't happen on systemd systems)
+    SYSTEMD_SYSTEM_DIR="/etc/systemd/system"
+fi
 
 # Safe single-key read helper with conditional timeout logic.
 # Usage: safe_read_key VAR [timeout]
@@ -965,16 +969,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$TARGET_HOME/.config/Roberto Viola"
 CONFIG_FILE="$CONFIG_DIR/qDomyos-Zwift.conf"
 DEVICES_INI="$SCRIPT_DIR/devices.ini"  # absolute path for menus
-SERVICE_FILE_1="/etc/systemd/system/qz.service"
-SERVICE_FILE_2="/lib/systemd/system/qz.service"
+SERVICE_FILE_QZ="$SYSTEMD_SYSTEM_DIR/qz.service"
 
 # Determine active service file
-ACTIVE_SERVICE_FILE=""
-if [ -f "$SERVICE_FILE_1" ]; then
-    ACTIVE_SERVICE_FILE="$SERVICE_FILE_1"
-elif [ -f "$SERVICE_FILE_2" ]; then
-    ACTIVE_SERVICE_FILE="$SERVICE_FILE_2"
-fi
+ACTIVE_SERVICE_FILE="$SERVICE_FILE_QZ"
 
 # Defaults (Initialize as empty so we can detect if the file load fails)
 PREV_WEIGHT=""
@@ -1929,7 +1927,7 @@ draw_header_service_line() {
     # 1. Initialize variables with defaults to prevent 'unbound variable' errors
     local svc_sym="●"
     local svc_color="$GRAY"
-    local svc_path="/etc/systemd/system/qz.service"
+    local svc_path="$SERVICE_FILE_QZ"
 
     # 2. Prefer STATUS_MAP if available so header matches status panel
     local svc_map_status
@@ -1952,10 +1950,8 @@ draw_header_service_line() {
         # Determine path if present
         if [[ -n "${ACTIVE_SERVICE_FILE:-}" && -f "$ACTIVE_SERVICE_FILE" ]]; then
             svc_path="$ACTIVE_SERVICE_FILE"
-        elif [[ -f "/etc/systemd/system/qz.service" ]]; then
-            svc_path="/etc/systemd/system/qz.service"
-        elif [[ -f "/lib/systemd/system/qz.service" ]]; then
-            svc_path="/lib/systemd/system/qz.service"
+        elif [[ -f "$SERVICE_FILE_QZ" ]]; then
+            svc_path="$SERVICE_FILE_QZ"
         fi
     else
         # Fallback to runtime check
@@ -1975,10 +1971,8 @@ draw_header_service_line() {
                 svc_color="$GRAY"
                 ;;
         esac
-        if [[ -f "/etc/systemd/system/qz.service" ]]; then
-            svc_path="/etc/systemd/system/qz.service"
-        elif [[ -f "/lib/systemd/system/qz.service" ]]; then
-            svc_path="/lib/systemd/system/qz.service"
+        if [[ -f "$SERVICE_FILE_QZ" ]]; then
+            svc_path="$SERVICE_FILE_QZ"
         fi
     fi
     
@@ -3760,7 +3754,7 @@ check_qz_service_fast() {
             status="pass"
         elif systemctl is-failed --quiet qz.service 2>/dev/null; then
             status="fail"
-        elif [[ -f "/etc/systemd/system/qz.service" || -f "/lib/systemd/system/qz.service" ]]; then
+        elif [[ -f "$SERVICE_FILE_QZ" ]]; then
             status="pending"
         else
             status="warn"
@@ -4518,47 +4512,6 @@ install_lsusb() {
     run_with_progress "Installing USB Utilities" "$cmd"
 }
 
-create_systemd_service() {
-    [ "$SETUP_MODE" != "headless" ] && return 0
-    
-    local script_dir
-    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    local install_dir
-    install_dir="$(cd "$script_dir/../../.." && pwd)"
-    
-    local arch
-    arch=$(uname -m)
-    local bin_dir
-    local service_file
-    if [ "$arch" = "aarch64" ]; then
-        bin_dir="$install_dir/qdomyos-zwift-arm64-ant"
-        service_file="/etc/systemd/system/qz.service"
-    else
-        bin_dir="$install_dir/qdomyos-zwift-x86-64-ant"
-        service_file="/lib/systemd/system/qz.service"
-    fi
-    
-    local cmd="cat > \"$service_file\" <<EOF
-[Unit]
-Description=qdomyos-zwift service
-After=multi-user.target
-
-[Service]
-User=root
-Group=plugdev
-Environment=\"QZ_USER=${TARGET_USER}\"
-WorkingDirectory=${bin_dir}
-ExecStart=${bin_dir}/qdomyos-zwift -no-gui -log -ant-footpod
-KillSignal=SIGINT
-
-[Install]
-WantedBy=multi-user.target
-EOF
-    systemctl daemon-reload"
-    
-    run_with_progress "Creating systemd service..." "$cmd"
-    ACTIVE_SERVICE_FILE="$service_file"
-}
 
 # ============================================================================
 # MENUS & PROMPTS
@@ -4659,7 +4612,7 @@ prompt_success_menu() {
     # Footer hint (for automated checks): Esc: Exit
     local warns=${1:-0}
     enter_ui_mode
-    local options=("User Profile" "Equipment Selection" "Bluetooth Scan" "ANT+ Test" "Service" # "Uninstall" (placeholder)
+    local options=("User Profile" "Equipment Selection" "Bluetooth Scan" "ANT+ Test" "QZ Service" # "Uninstall" (placeholder)
                    "Exit")
     local selected=0
     local num_options=${#options[@]}
@@ -4738,7 +4691,7 @@ prompt_action_menu() {
     # Footer hint (for automated checks): Esc: Exit
     local fails=$1
     enter_ui_mode
-    local options=("Guided Fix" "Exit")
+    local options=("Guided Setup" "Exit")
     local selected=0
     local num_options=${#options[@]}
     
@@ -4760,7 +4713,7 @@ prompt_action_menu() {
     done
 
     # Helper text explaining the menu options
-    draw_sealed_row 17 "   Guided Fix detects missing components (Python, packages, permissions, etc.)"
+    draw_sealed_row 17 "   Guided setup detects missing components (Python, packages, permissions, etc.)"
     draw_sealed_row 18 "   and guides you through resolving them step-by-step."
 
     local prev_selected=$selected
@@ -5532,18 +5485,10 @@ run_guided_mode() {
             check_qz_service >/dev/null 2>&1 || true
             enter_ui_mode || true
         else
-            # Non-130 failures: show a short summary (avoid dumping logs here)
-            exit_ui_mode || true
-            local msg="qz.service failed with exit code ${exit_code:-unknown}.\nSee 'Service -> View Service Error' for details."
-            draw_info_screen "SERVICE ERROR" "$msg" 3
-            draw_bottom_panel_header "SERVICE: ATTEMPT RESTART"
-            clear_info_area
-            draw_sealed_row $((LOG_TOP + 1)) "   Attempt to restart the qz.service now?"
-            if prompt_yes_no 4; then
-                restart_service_ui
-                action_taken=true
-                check_qz_service
-            fi
+            # Non-130 failures: offer service menu for regeneration or removal
+            service_menu_flow
+            action_taken=true
+            check_qz_service
         fi
     fi
 
@@ -5556,7 +5501,7 @@ run_guided_mode() {
             # Force headless semantics for service creation/installation
             local __prev_setup_mode="$SETUP_MODE"
             SETUP_MODE="headless"
-            create_systemd_service && check_qz_service
+            generate_service_file >/dev/null 2>&1 && check_qz_service
             SETUP_MODE="$__prev_setup_mode"
             action_taken=true
         fi
@@ -5688,8 +5633,8 @@ run_uninstall_mode() {
     fi
     
     # D. Remove Systemd Service
-    if [ -f "/etc/systemd/system/qz.service" ] || [ -f "/lib/systemd/system/qz.service" ]; then
-        local svc_cmd="systemctl disable qz.service 2>/dev/null && rm -f /etc/systemd/system/qz.service /lib/systemd/system/qz.service && systemctl daemon-reload"
+    if [ -f "$SERVICE_FILE_QZ" ]; then
+        local svc_cmd="systemctl disable qz.service 2>/dev/null && rm -f \"$SERVICE_FILE_QZ\" && systemctl daemon-reload"
         run_step "Removing QZ Service" "$svc_cmd" || return 1
         ACTIVE_SERVICE_FILE=""
         update_status "qz_service" "pending"
@@ -6331,30 +6276,31 @@ build_service_flags() {
     if [[ "${SERVICE_FLAGS[console]}" == "true" ]]; then :; else flags+=("-no-console"); fi
     [[ "${SERVICE_FLAGS[bluetooth_relaxed]}" == "true" ]] && flags+=("-bluetooth_relaxed")
     if [[ "${SERVICE_FLAGS[ant_footpod]}" == "true" ]]; then
-        flags+=("-ant-footpod" "-ant-device" "${SERVICE_FLAGS[ant_device]:-54321}")
+        flags+=("-ant-footpod" "-ant-device" "$(strip_ansi "${SERVICE_FLAGS[ant_device]:-54321}")")
         [[ "${SERVICE_FLAGS[ant_verbose]}" == "true" ]] && flags+=("-ant-verbose")
     fi
-    [[ -n "${SERVICE_FLAGS[profile]:-}" ]] && flags+=("-profile" "${SERVICE_FLAGS[profile]}")
-    [[ -n "${SERVICE_FLAGS[poll_time]:-}" ]] && flags+=("-poll-device-time" "${SERVICE_FLAGS[poll_time]}")
+    [[ -n "${SERVICE_FLAGS[profile]:-}" ]] && flags+=("-profile" "$(strip_ansi "${SERVICE_FLAGS[profile]}")")
+    [[ -n "${SERVICE_FLAGS[poll_time]:-}" ]] && flags+=("-poll-device-time" "$(strip_ansi "${SERVICE_FLAGS[poll_time]}")")
     [[ "${SERVICE_FLAGS[heart_service]}" == "true" ]] && flags+=("-heart-service")
     printf '%s ' "${flags[@]}" | sed -e 's/ $//'
 }
 
 generate_service_file() {
-    clear_info_area
-    # Show immediate feedback
-    local msg="${YELLOW}Generating service file${NC}"
-    local msg_plain="Generating service file"
-    local w=$(get_display_width "$msg_plain")
-    local row=$((LOG_TOP + 3))
-    local col=$(( (INNER_COLS - w) / 2 ))
-    draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
-    draw_bottom_border
+    if [ "$SETUP_MODE" != "headless" ]; then
+        clear_info_area
+        # Show immediate feedback
+        local msg="${YELLOW}Generating service file${NC}"
+        local msg_plain="Generating service file"
+        local w=$(get_display_width "$msg_plain")
+        local row=$((LOG_TOP + 3))
+        local col=$(( (INNER_COLS - w) / 2 ))
+        draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
+        draw_bottom_border
+    fi
 
     # Detect systemd install path
-    local svc_dir="/etc/systemd/system"
-    mkdir -p "$svc_dir" 2>/dev/null || true
-    local svc_file="$svc_dir/qz.service"
+    mkdir -p "$SYSTEMD_SYSTEM_DIR" 2>/dev/null || true
+    local svc_file="$SERVICE_FILE_QZ"
     local bin
     # Prefer using the runtime wrapper (which sets LD_LIBRARY_PATH etc.)
     local script_dir
@@ -6362,7 +6308,6 @@ generate_service_file() {
     local system_wrapper="/usr/local/bin/qdomyos-zwift-wrapper.sh"
     local wrapper="$script_dir/qdomyos-zwift-wrapper.sh"
     
-    # Update: Detecting binary
     msg="${YELLOW}Detecting binary path...${NC}"
     msg_plain="Detecting binary path..."
     w=$(get_display_width "$msg_plain")
@@ -6380,6 +6325,11 @@ generate_service_file() {
         bin="$wrapper"
     else
         bin=$(detect_binary_path 2>/dev/null) || bin="<binary-not-found>"
+    fi
+
+    # Ensure bin is an absolute path for systemd
+    if [[ "$bin" != /* ]]; then
+        bin="$(cd "$script_dir" && pwd)/${bin#./}"
     fi
 
     local user="${SUDO_USER:-$USER}"
@@ -6407,7 +6357,6 @@ Description=qdomyos-zwift service
 After=multi-user.target
 
 [Service]
-Type=simple
 User=root
 Group=plugdev
 Environment="QZ_USER=${user}"
@@ -6418,15 +6367,7 @@ Environment="LD_LIBRARY_PATH=/usr/local/lib:/usr/lib"
 # Use /bin/bash -c to preserve argument parsing and avoid systemd exec quoting pitfalls
 ExecStart=/bin/bash -c '${bin} ${flags}'
 KillSignal=SIGINT
-KillMode=control-group
-TimeoutStopSec=20
-Restart=on-failure
-RestartSec=5
 SuccessExitStatus=130
-StartLimitBurst=5
-StartLimitIntervalSec=60
-StandardOutput=journal
-StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
@@ -6438,10 +6379,10 @@ EOF
         msg_plain="Installing to systemd..."
         w=$(get_display_width "$msg_plain")
         draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
-        
+
         mv -f "$tmp" "$svc_file" || return 1
         systemctl daemon-reload || true
-        
+
         # Success message
         msg="${GREEN}✓ Service file created${NC}"
         msg_plain="✓ Service file created"
@@ -6497,14 +6438,14 @@ install_service_ui() {
     # Attempt installation as root (using sudo if needed).
     # We previously generated a temp service file as non-root (in $tmp).
     # Move that file into the systemd unit path under root and reload.
-    local svc_target="/etc/systemd/system/qz.service"
+    local svc_target="$SERVICE_FILE_QZ"
     # Attempt to move the generated service file into place as root. Treat
     # installation as successful if the file exists at the target path after
     # the move; do not treat a daemon-reload failure as an installation failure.
     local mv_ok=1
     if run_as_root_or_sudo bash -lc "
         set -e
-        mkdir -p /etc/systemd/system >/dev/null 2>&1 || true
+        mkdir -p \"$SYSTEMD_SYSTEM_DIR\" >/dev/null 2>&1 || true
         if [ -f '${tmp}' ]; then
             mv -f '${tmp}' '${svc_target}' || exit 2
         fi
@@ -6549,10 +6490,10 @@ start_service_ui() {
         if systemctl is-active --quiet qz.service 2>/dev/null; then
             draw_info_screen "SERVICE STARTED" "Service started successfully.\nStatus: ACTIVE" "wait"
         else
-            draw_error_screen "SERVICE FAILED" "Service did not become active. Check logs." "wait"
+            draw_error_screen "SERVICE FAILED" "Service did not become active. Check systemd status." "wait"
         fi
     else
-        draw_error_screen "ERROR" "Failed to start service (sudo may be required)." "wait"
+        draw_error_screen "ERROR" "Failed to start service." "wait"
     fi
     enter_ui_mode || true
 }
@@ -6566,7 +6507,7 @@ stop_service_ui() {
             # Unit entered failed state after stop — capture concise failure info
             capture_service_failure_info "qz_service" || true
             STATUS_MAP["qz_service"]="fail"
-            draw_error_screen "STOP FAILED" "Stopping qz.service resulted in a failure.\nSee 'View Service Error' in the Service menu." "wait"
+            draw_error_screen "STOP FAILED" "Stopping qz.service resulted in a failure. Check systemd status." "wait"
         else
             STATUS_MAP["qz_service"]="pending"
             draw_info_screen "SERVICE STOPPED" "Service stopped successfully." "wait"
@@ -6575,7 +6516,7 @@ stop_service_ui() {
         # Stop command itself failed (permission or systemctl error)
         capture_service_failure_info "qz_service" || true
         STATUS_MAP["qz_service"]="fail"
-        draw_error_screen "ERROR" "Failed to stop service (check privileges).\nSee 'View Service Error'." "wait"
+        draw_error_screen "ERROR" "Failed to stop service (check privileges). Check systemd status'." "wait"
     fi
     enter_ui_mode || true
 }
@@ -6653,7 +6594,7 @@ remove_service_ui() {
         w=$(get_display_width "$msg_plain")
         draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
         
-        run_as_root_or_sudo bash -c 'for f in /etc/systemd/system/qz.service /lib/systemd/system/qz.service; do [ -f "$f" ] && rm -f "$f"; done' >/dev/null 2>&1 || true
+        run_as_root_or_sudo rm -f "$SYSTEMD_SYSTEM_DIR/qz.service" >/dev/null 2>&1 || true
         
         # Step 4: Reload systemd
         msg="${YELLOW}Reloading systemd...${NC}"
@@ -6710,7 +6651,7 @@ view_service_error_ui() {
 view_service_config_ui() {
     local cfg="${SERVICE_CONF_PATH:-$HOME/.config/qdomyos-zwift/service.conf}"
     if [[ ! -f "$cfg" ]]; then
-        draw_error_screen "SERVICE CONFIGURATION" "Configuration file not found:\n\n$cfg\n\nRun 'Configure Service Flags' first." "wait"
+        draw_error_screen "SERVICE CONFIGURATION" "Configuration file not found:\n\n$cfg" "wait"
         return 1
     fi
 
@@ -6751,11 +6692,8 @@ show_service_status_ui() {
 ## Service status helpers (STEP 1)
 # Returns: not-installed | stopped | running | failed
 get_service_status() {
-    local svc_file
-    if [[ -f "/etc/systemd/system/qz.service" ]]; then
-        svc_file="/etc/systemd/system/qz.service"
-    elif [[ -f "/lib/systemd/system/qz.service" ]]; then
-        svc_file="/lib/systemd/system/qz.service"
+    if [[ -f "$SERVICE_FILE_QZ" ]]; then
+        :
     else
         printf "not-installed"
         return 0
@@ -6791,15 +6729,12 @@ get_service_exit_code() {
 
 # Check whether the installed service unit is missing SuccessExitStatus=130
 service_needs_exit_130_check() {
-    local svc=""
-    if [[ -f "/etc/systemd/system/qz.service" ]]; then
-        svc="/etc/systemd/system/qz.service"
-    elif [[ -f "/lib/systemd/system/qz.service" ]]; then
-        svc="/lib/systemd/system/qz.service"
+    if [[ -f "$SERVICE_FILE_QZ" ]]; then
+        :
     else
         return 1
     fi
-    if grep -q '^\s*SuccessExitStatus\s*=\s*130' "$svc" 2>/dev/null; then
+    if grep -q '^\s*SuccessExitStatus\s*=\s*130' "$SERVICE_FILE_QZ" 2>/dev/null; then
         return 1
     fi
     return 0
@@ -6807,10 +6742,7 @@ service_needs_exit_130_check() {
 
 # Apply SuccessExitStatus=130 to the installed unit (returns 0 on success)
 apply_exit_130_fix() {
-    local svc_target="/etc/systemd/system/qz.service"
-    if [[ ! -f "$svc_target" && -f "/lib/systemd/system/qz.service" ]]; then
-        svc_target="/lib/systemd/system/qz.service"
-    fi
+    local svc_target="$SERVICE_FILE_QZ"
     if [[ ! -f "$svc_target" ]]; then
         return 2
     fi
@@ -6878,12 +6810,12 @@ build_service_menu_options() {
         running)
             opts+=("Restart Service")
             opts+=("Stop Service")
-            opts+=("View Service Logs")
+            #opts+=("View Service Logs")
             opts+=("Regenerate Service File")
             ;;
         failed)
-            opts+=("View Service Error")
-            opts+=("View Service Logs")
+            #opts+=("View Service Error")
+            #opts+=("View Service Logs")
             opts+=("Restart Service")
             opts+=("Regenerate Service File")
             # If the installed unit is missing SuccessExitStatus=130 offer an Update action
@@ -6936,13 +6868,14 @@ build_service_menu_options() {
     }
 
 service_menu_flow() {
-    # Test-friendly ESC handler marker (not executed):
-    if false; then
-        if [[ -z "${k2:-}" ]]; then :; fi
-    fi
-    # Footer hint (for automated checks): Esc: Back
+
     enter_ui_mode || true
-    
+    if [[ ! -f "./qdomyos-zwift-bin" ]]; then
+        draw_error_screen "MISSING BINARY" "Cannot configure service: qdomyos-zwift-bin not found in current direcory\n$PWD/qdomyos-zwift-bin\nPlease ensure the binary is in this location." "wait"
+        exit_ui_mode || true
+        return 1
+    fi
+
     # Track when we need to refresh service status
     local need_status_refresh=true
     
@@ -7005,7 +6938,7 @@ service_menu_flow() {
         fi
 
         # Initial render
-        draw_bottom_panel_header "SERVICE CONFIGURATION - ${status_display}"
+        draw_bottom_panel_header "SERVICE CONFIGURATION"
         clear_info_area
         draw_sealed_row $((LOG_TOP)) ""
 
@@ -7039,7 +6972,7 @@ service_menu_flow() {
             elif [[ $key == [lL] ]]; then
                 show_legend_popup
                 # Full redraw after popup
-                draw_bottom_panel_header "SERVICE CONFIGURATION - ${status_display}"
+                draw_bottom_panel_header "SERVICE CONFIGURATION"
                 clear_info_area
                 draw_sealed_row $((LOG_TOP)) ""
                 for i in "${!options[@]}"; do
@@ -7125,7 +7058,7 @@ check_final_status() {
             prompt_action_menu "$fails"
             choice=$?
             case $choice in
-                0) # Guided Fix
+                0) # Guided Setup
                     # Check /boot writability on RPi before attempting install
                     if [ -f /proc/device-tree/model ] && grep -q "Raspberry Pi" /proc/device-tree/model; then
                         if ! touch /boot/firmware/.test_write 2>/dev/null; then

@@ -50,7 +50,7 @@ case "$ARCH_TYPE" in
         ;;
 esac
 
-# Determine the actual user's home (mirror setup.sh logic for systemd compatibility)
+# Determine the actual user's home
 # Priority:
 #  1) SUDO_USER (when run via sudo)
 #  2) QZ_USER env var (recommended for systemd: Environment=QZ_USER=pi)
@@ -308,9 +308,6 @@ if [[ ${#ERRORS[@]} -gt 0 ]]; then
     for err in "${ERRORS[@]}"; do
         echo -e "${C_RED}  $err${C_RESET}" >&2
     done
-    echo "" >&2
-    echo -e "${C_RED}Run: sudo ./setup.sh --gui (or --headless)${C_RESET}" >&2
-    echo "" >&2
     exit 1
 fi
 
@@ -320,9 +317,6 @@ if [[ ${#WARNINGS[@]} -gt 0 ]]; then
     for warn in "${WARNINGS[@]}"; do
         echo -e "${C_YELLOW}  $warn${C_RESET}" >&2
     done
-    echo "" >&2
-    echo -e "${C_YELLOW}Run: ./setup.sh --check${C_RESET}" >&2
-    echo "" >&2
 fi
 
 # All checks passed or warnings only - execute the binary with clean environment
