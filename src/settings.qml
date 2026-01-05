@@ -7081,7 +7081,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Garmin device serial number")
+                        text: qsTr("Garmin device UNIT ID")
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                     }
@@ -7102,7 +7102,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("IMPORTANT: You must set your real Garmin device serial number here to see your actual device in Garmin Connect. You can find your device serial number in the Garmin Connect app or on the back of your Garmin device. The default value (3313379353) is just a placeholder.")
+                        text: qsTr("IMPORTANT: You must set your real Garmin device UNIT ID here to see your actual device in Garmin Connect. You can find your device UNIT ID in the Garmin Connect app. The default value (3313379353) is just a placeholder.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
