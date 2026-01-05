@@ -241,11 +241,19 @@ void sportsplusrower::stateChanged(QLowEnergyService::ServiceState state) {
         // QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("0000fff2-0000-1000-8000-00805f9b34fb"));
         QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb"));
         QBluetoothUuid _gattNotify2CharacteristicId(QStringLiteral("0000fff2-0000-1000-8000-00805f9b34fb"));
+        QBluetoothUuid _gattNotify2AltCharacteristicId(QStringLiteral("0000ffe2-0000-1000-8000-00805f9b34fb"));
         QBluetoothUuid _gattNotify3CharacteristicId(QStringLiteral("0000fff3-0000-1000-8000-00805f9b34fb"));
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
+        // Some devices use ffe2 instead of fff2
+        if (!gattWriteCharacteristic.isValid()) {
+            gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattNotify2AltCharacteristicId);
+        }
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
         gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
+        if (!gattNotify2Characteristic.isValid()) {
+            gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2AltCharacteristicId);
+        }
         gattNotify3Characteristic = gattCommunicationChannelService->characteristic(_gattNotify3CharacteristicId);
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotify1Characteristic.isValid());
