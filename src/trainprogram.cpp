@@ -998,9 +998,16 @@ void trainprogram::scheduler() {
             break;
         }
 
-        if (calculatedElapsedTime > static_cast<uint32_t>(ticks) && calculatedLine >= currentStep) {
+        if (calculatedElapsedTime >= static_cast<uint32_t>(ticks) && calculatedLine >= currentStep) {
             break;
         }
+    }
+
+    // Check if we've completed all rows
+    if (calculatedLine >= rows.length()) {
+        qDebug() << "completed all rows" << calculatedLine << rows.length();
+        end();
+        return;
     }
 
     bool distanceEvaluation = false;
