@@ -45,6 +45,7 @@
 #include <QFile>
 #include <QUrlQuery>
 #include <QRegularExpression>
+#include <algorithm>
 #include <chrono>
 
 homeform *homeform::m_singleton = 0;
@@ -7167,7 +7168,7 @@ void homeform::update() {
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
                         } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
                                    currentResistance < maxResistance) {
-                            resistance_t newResistance = std::min(currentResistance + step, maxResistance);
+                            resistance_t newResistance = std::min(static_cast<resistance_t>(currentResistance + step), static_cast<resistance_t>(maxResistance));
                             qDebug() << QStringLiteral("BIKE PID HR - HR < HRmin, INCREASING resistance from")
                                      << currentResistance << QStringLiteral("to") << newResistance;
                             ((bike *)bluetoothManager->device())->changeResistance(newResistance);
