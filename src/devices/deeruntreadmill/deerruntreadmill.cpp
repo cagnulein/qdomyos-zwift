@@ -588,26 +588,30 @@ void deerruntreadmill::serviceScanDone(void) {
     }
 
     // On iOS, services_list.contains() doesn't work reliably
-    // So we manually check which services are present by iterating the list
+    // Also, comparing 16-bit vs 128-bit UUIDs may fail, so we compare using toString()
     bool hasPitPat = false;
     bool hasSuperun = false;
     bool hasDefault = false;
     bool hasUnlock = false;
 
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
-        if (s == _pitpatServiceId) {
+        QString serviceStr = s.toString();
+        emit debug(QStringLiteral("Checking service: ") + serviceStr);
+
+        // Compare using toString() to handle 16-bit vs 128-bit UUID comparison on iOS
+        if (serviceStr == _pitpatServiceId.toString() || serviceStr.toLower().contains("fba0")) {
             hasPitPat = true;
             emit debug(QStringLiteral("Found PitPat service"));
         }
-        if (s == _superunServiceId) {
+        if (serviceStr == _superunServiceId.toString() || serviceStr.toLower().contains("ffff")) {
             hasSuperun = true;
             emit debug(QStringLiteral("Found Superun service"));
         }
-        if (s == _gattCommunicationChannelServiceId) {
+        if (serviceStr == _gattCommunicationChannelServiceId.toString() || serviceStr.toLower().contains("fff0")) {
             hasDefault = true;
             emit debug(QStringLiteral("Found default service"));
         }
-        if (s == _unlockServiceId) {
+        if (serviceStr == _unlockServiceId.toString() || serviceStr.toLower().contains("1801")) {
             hasUnlock = true;
             emit debug(QStringLiteral("Found unlock service"));
         }
