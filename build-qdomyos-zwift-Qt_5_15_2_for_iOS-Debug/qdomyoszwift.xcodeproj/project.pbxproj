@@ -403,7 +403,6 @@
 		8785D5432B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8785D5412B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp */; };
 		8785D5442B3DD105005A2EB7 /* moc_zwift_client_auth.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8785D5422B3DD105005A2EB7 /* moc_zwift_client_auth.cpp */; };
 		87873AEE2D09A8AA005F86B4 /* moc_sportsplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87873AED2D09A8AA005F86B4 /* moc_sportsplusrower.cpp */; };
-		87873AF12D09A8CE005F86B4 /* sportsplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87873AF02D09A8CE005F86B4 /* sportsplusrower.cpp */; };
 		878895DB2DD48AB100BF5162 /* moc_inclinationresistancetable.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878895DA2DD48AB100BF5162 /* moc_inclinationresistancetable.cpp */; };
 		878A331A25AB4FF800BD13E1 /* yesoulbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878A331725AB4FF800BD13E1 /* yesoulbike.cpp */; };
 		878A331D25AB50C300BD13E1 /* moc_yesoulbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878A331B25AB50C200BD13E1 /* moc_yesoulbike.cpp */; };
@@ -463,6 +462,7 @@
 		87A6825A2CE3AB3100586A2A /* moc_sramAXSController.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A682592CE3AB3100586A2A /* moc_sramAXSController.cpp */; };
 		87A6825D2CE3AB4000586A2A /* sramAXSController.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A6825C2CE3AB4000586A2A /* sramAXSController.cpp */; };
 		87A892562F0C12EB00811D95 /* deerruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A892552F0C12EB00811D95 /* deerruntreadmill.cpp */; };
+		87A892582F0C173600811D95 /* sportsplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A892572F0C173600811D95 /* sportsplusrower.cpp */; };
 		87ACBE9E2E250F7D00F1B6EA /* moc_androidstatusbar.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87ACBE9D2E250F7D00F1B6EA /* moc_androidstatusbar.cpp */; };
 		87ACBE9F2E250F7D00F1B6EA /* androidstatusbar.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87ACBE9C2E250F7D00F1B6EA /* androidstatusbar.cpp */; };
 		87ADD2BB27634C1500B7A0AB /* technogymmyruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87ADD2B927634C1400B7A0AB /* technogymmyruntreadmill.cpp */; };
@@ -1431,7 +1431,6 @@
 		8785D5412B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_PlayerStateWrapper.cpp; sourceTree = "<group>"; };
 		8785D5422B3DD105005A2EB7 /* moc_zwift_client_auth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_zwift_client_auth.cpp; sourceTree = "<group>"; };
 		87873AED2D09A8AA005F86B4 /* moc_sportsplusrower.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sportsplusrower.cpp; sourceTree = "<group>"; };
-		87873AF02D09A8CE005F86B4 /* sportsplusrower.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sportsplusrower.cpp; sourceTree = "<group>"; };
 		87873AF22D09AADF005F86B4 /* sportsplusrower.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sportsplusrower.h; path = ../src/devices/sportsplusrower/sportsplusrower.h; sourceTree = SOURCE_ROOT; };
 		878895D92DD48AB100BF5162 /* inclinationresistancetable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = inclinationresistancetable.h; path = ../src/inclinationresistancetable.h; sourceTree = SOURCE_ROOT; };
 		878895DA2DD48AB100BF5162 /* moc_inclinationresistancetable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inclinationresistancetable.cpp; sourceTree = "<group>"; };
@@ -1527,6 +1526,7 @@
 		87A6825B2CE3AB4000586A2A /* sramAXSController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sramAXSController.h; path = ../src/devices/sramAXSController/sramAXSController.h; sourceTree = SOURCE_ROOT; };
 		87A6825C2CE3AB4000586A2A /* sramAXSController.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sramAXSController.cpp; path = ../src/devices/sramAXSController/sramAXSController.cpp; sourceTree = SOURCE_ROOT; };
 		87A892552F0C12EB00811D95 /* deerruntreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = deerruntreadmill.cpp; path = ../src/devices/deeruntreadmill/deerruntreadmill.cpp; sourceTree = SOURCE_ROOT; };
+		87A892572F0C173600811D95 /* sportsplusrower.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sportsplusrower.cpp; path = ../src/devices/sportsplusrower/sportsplusrower.cpp; sourceTree = SOURCE_ROOT; };
 		87ACBE9B2E250F7D00F1B6EA /* androidstatusbar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = androidstatusbar.h; path = ../src/androidstatusbar.h; sourceTree = SOURCE_ROOT; };
 		87ACBE9C2E250F7D00F1B6EA /* androidstatusbar.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = androidstatusbar.cpp; path = ../src/androidstatusbar.cpp; sourceTree = SOURCE_ROOT; };
 		87ACBE9D2E250F7D00F1B6EA /* moc_androidstatusbar.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_androidstatusbar.cpp; sourceTree = "<group>"; };
@@ -2340,6 +2340,7 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87A892572F0C173600811D95 /* sportsplusrower.cpp */,
 				87A892552F0C12EB00811D95 /* deerruntreadmill.cpp */,
 				87CBCF0F2EFAA2F8004F5ECE /* garminconnect.h */,
 				87CBCF102EFAA2F8004F5ECE /* garminconnect.cpp */,
@@ -2421,7 +2422,6 @@
 				875CA9482D0C742500667EE6 /* kineticinroadbike.cpp */,
 				875CA9452D0C740000667EE6 /* moc_kineticinroadbike.cpp */,
 				87873AF22D09AADF005F86B4 /* sportsplusrower.h */,
-				87873AF02D09A8CE005F86B4 /* sportsplusrower.cpp */,
 				87873AED2D09A8AA005F86B4 /* moc_sportsplusrower.cpp */,
 				870A5DB42CEF8FD200839641 /* technogymbike.cpp */,
 				870A5DB22CEF8FB100839641 /* moc_technogymbike.cpp */,
@@ -3855,7 +3855,6 @@
 				87BE6FDE272D2A3E00C35795 /* moc_horizongr7bike.cpp in Compile Sources */,
 				A4BD6DF51CFFF867B7B5AED4 /* fit_developer_field_definition.cpp in Compile Sources */,
 				87EB918B27EE5FE7002535E1 /* moc_inappproductqmltype.cpp in Compile Sources */,
-				87873AF12D09A8CE005F86B4 /* sportsplusrower.cpp in Compile Sources */,
 				8762D5132601F89500F6F049 /* scanrecordresult.cpp in Compile Sources */,
 				3015F9B9FF4CA6D653D46CCA /* fit_developer_field_description.cpp in Compile Sources */,
 				878521D42E44B26600922796 /* moc_nordictrackifitadbrower.cpp in Compile Sources */,
@@ -3871,6 +3870,7 @@
 				87DC27F32D9BDC43007A1B9D /* moc_moxy5sensor.cpp in Compile Sources */,
 				87DC27F42D9BDC43007A1B9D /* moxy5sensor.cpp in Compile Sources */,
 				87EB918C27EE5FE7002535E1 /* moc_inappproduct.cpp in Compile Sources */,
+				87A892582F0C173600811D95 /* sportsplusrower.cpp in Compile Sources */,
 				87E34C2D2886F99A00CEDE4B /* moc_octanetreadmill.cpp in Compile Sources */,
 				87D91F9A2800B9970026D43C /* proformwifibike.cpp in Compile Sources */,
 				873CD22327EF8E18000131BC /* inappstoreqmltype.cpp in Compile Sources */,
