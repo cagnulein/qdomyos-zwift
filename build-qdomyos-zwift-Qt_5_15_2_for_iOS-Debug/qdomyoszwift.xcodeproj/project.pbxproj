@@ -375,7 +375,6 @@
 		8772A0E625E43ADB0080718C /* trxappgateusbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772A0E525E43ADA0080718C /* trxappgateusbbike.cpp */; };
 		8772A0E825E43AE70080718C /* moc_trxappgateusbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772A0E725E43AE70080718C /* moc_trxappgateusbbike.cpp */; };
 		8772B7F42CB55E80004AB8E9 /* moc_deerruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772B7F32CB55E80004AB8E9 /* moc_deerruntreadmill.cpp */; };
-		8772B7F72CB55E98004AB8E9 /* deerruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772B7F62CB55E98004AB8E9 /* deerruntreadmill.cpp */; };
 		877350F72D1C08E60070CBD8 /* SmartControl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 877350F62D1C08E50070CBD8 /* SmartControl.cpp */; };
 		8775008329E876F8008E48B7 /* iconceptelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8775008129E876F7008E48B7 /* iconceptelliptical.cpp */; };
 		8775008529E87713008E48B7 /* moc_iconceptelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8775008429E87712008E48B7 /* moc_iconceptelliptical.cpp */; };
@@ -1389,7 +1388,6 @@
 		8772A0E525E43ADA0080718C /* trxappgateusbbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = trxappgateusbbike.cpp; path = ../src/devices/trxappgateusbbike/trxappgateusbbike.cpp; sourceTree = "<group>"; };
 		8772A0E725E43AE70080718C /* moc_trxappgateusbbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_trxappgateusbbike.cpp; sourceTree = "<group>"; };
 		8772B7F32CB55E80004AB8E9 /* moc_deerruntreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_deerruntreadmill.cpp; sourceTree = "<group>"; };
-		8772B7F62CB55E98004AB8E9 /* deerruntreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = deerruntreadmill.cpp; sourceTree = "<group>"; };
 		8772B7F92CB5603A004AB8E9 /* deerruntreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = deerruntreadmill.h; path = ../src/devices/deeruntreadmill/deerruntreadmill.h; sourceTree = SOURCE_ROOT; };
 		877350F52D1C08E50070CBD8 /* SmartControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SmartControl.h; path = ../src/devices/kineticinroadbike/SmartControl.h; sourceTree = SOURCE_ROOT; };
 		877350F62D1C08E50070CBD8 /* SmartControl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SmartControl.cpp; path = ../src/devices/kineticinroadbike/SmartControl.cpp; sourceTree = SOURCE_ROOT; };
@@ -2467,7 +2465,6 @@
 				87A682592CE3AB3100586A2A /* moc_sramAXSController.cpp */,
 				87A083062C73361C00567A4E /* characteristicnotifier2ad9.h */,
 				8772B7F92CB5603A004AB8E9 /* deerruntreadmill.h */,
-				8772B7F62CB55E98004AB8E9 /* deerruntreadmill.cpp */,
 				8772B7F32CB55E80004AB8E9 /* moc_deerruntreadmill.cpp */,
 				877758B52C98629B00BB1697 /* sportstechelliptical.cpp */,
 				877758B42C98629B00BB1697 /* sportstechelliptical.h */,
@@ -3745,7 +3742,6 @@
 				871235BF26B297670012D0F2 /* kingsmithr1protreadmill.cpp in Compile Sources */,
 				87DA62AA2D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp in Compile Sources */,
 				87DA62AB2D2305F5008ADA0F /* characteristicnotifier0002.cpp in Compile Sources */,
-				8772B7F72CB55E98004AB8E9 /* deerruntreadmill.cpp in Compile Sources */,
 				20A50533946A39CBD2C89104 /* bluetoothdevice.cpp in Compile Sources */,
 				87C5F0D126285E7E0067A1B5 /* moc_stagesbike.cpp in Compile Sources */,
 				873824E927E647A8004F1B46 /* mdns.cpp in Compile Sources */,
