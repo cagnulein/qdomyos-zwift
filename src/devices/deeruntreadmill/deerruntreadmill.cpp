@@ -588,17 +588,37 @@ void deerruntreadmill::serviceScanDone(void) {
     }
 
     // Try to create service objects for each variant
-    // On iOS, services_list.contains() doesn't work reliably, so we try to create the service directly
-    QLowEnergyService* pitpat_service = m_control->createServiceObject(_pitpatServiceId);
-    QLowEnergyService* superun_service = m_control->createServiceObject(_superunServiceId);
-    QLowEnergyService* default_service = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    // On iOS, createServiceObject() may return non-null even for non-existent services,
+    // so we need to verify the service UUID is actually in the discovered services list
+    QLowEnergyService* pitpat_service = nullptr;
+    QLowEnergyService* superun_service = nullptr;
+    QLowEnergyService* default_service = nullptr;
+
+    // Only create service objects if the service UUID was actually discovered
+    if (services_list.contains(_pitpatServiceId)) {
+        pitpat_service = m_control->createServiceObject(_pitpatServiceId);
+        emit debug(QStringLiteral("Creating PitPat service object"));
+    }
+    if (services_list.contains(_superunServiceId)) {
+        superun_service = m_control->createServiceObject(_superunServiceId);
+        emit debug(QStringLiteral("Creating Superun service object"));
+    }
+    if (services_list.contains(_gattCommunicationChannelServiceId)) {
+        default_service = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+        emit debug(QStringLiteral("Creating default service object"));
+    }
 
     // Check which service was successfully created
     if (pitpat_service) {
         pitpat = true;
         emit debug(QStringLiteral("Detected pitpat treadmill variant"));
         gattCommunicationChannelService = pitpat_service;
-        unlock_service = m_control->createServiceObject(_unlockServiceId);
+
+        // Try to get unlock service if available
+        if (services_list.contains(_unlockServiceId)) {
+            unlock_service = m_control->createServiceObject(_unlockServiceId);
+            emit debug(QStringLiteral("Creating unlock service object"));
+        }
 
         // Clean up unused services
         if (superun_service) delete superun_service;
