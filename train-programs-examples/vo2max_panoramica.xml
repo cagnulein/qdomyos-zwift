@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rows>
+    <!-- Riscaldamento (Warmup) -->
+    <row duration="00:10:00" hrmin="128" hrmax="153" looptimehr="10" maxspeed="12"/>
+
+    <!-- Intervallo 1 -->
+    <row duration="00:03:00" hrmin="170" hrmax="189" looptimehr="10" maxspeed="15"/>
+    <row duration="00:02:00" hrmin="119" hrmax="136" looptimehr="10" maxspeed="10"/>
+
+    <!-- Intervallo 2 -->
+    <row duration="00:03:00" hrmin="170" hrmax="189" looptimehr="10" maxspeed="15"/>
+    <row duration="00:02:00" hrmin="119" hrmax="136" looptimehr="10" maxspeed="10"/>
+
+    <!-- Intervallo 3 -->
+    <row duration="00:03:00" hrmin="170" hrmax="189" looptimehr="10" maxspeed="15"/>
+    <row duration="00:02:00" hrmin="119" hrmax="136" looptimehr="10" maxspeed="10"/>
+
+    <!-- Intervallo 4 -->
+    <row duration="00:03:00" hrmin="170" hrmax="189" looptimehr="10" maxspeed="15"/>
+    <row duration="00:02:00" hrmin="119" hrmax="136" looptimehr="10" maxspeed="10"/>
+
+    <!-- Intervallo 5 -->
+    <row duration="00:03:00" hrmin="170" hrmax="189" looptimehr="10" maxspeed="15"/>
+    <row duration="00:02:00" hrmin="119" hrmax="136" looptimehr="10" maxspeed="10"/>
+
+    <!-- Defaticamento (Cool down) -->
+    <row duration="00:10:00" hrmin="128" hrmax="153" looptimehr="10" maxspeed="12"/>
+</rows>
