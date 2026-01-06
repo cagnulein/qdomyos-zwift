@@ -46,10 +46,11 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     bool ios_peloton_workaround =
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     bool garmin_bluetooth_compatibility = settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool();
+    bool bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
     if (ios_peloton_workaround) {
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
-        h->virtualtreadmill_zwift_ios(garmin_bluetooth_compatibility);
+        h->virtualtreadmill_zwift_ios(garmin_bluetooth_compatibility, bike_cadence_sensor);
     } else
 #endif
 #endif
@@ -555,7 +556,9 @@ void virtualtreadmill::treadmillProvider() {
     uint8_t swiftResistance = 0;
     uint16_t swiftWatt = (uint16_t)((treadmill *)treadMill)->wattsMetric().value();
     uint16_t swiftInclination = (uint16_t)(inclination * 10.0);
-    uint64_t swiftDistance = (uint64_t)(((treadmill *)treadMill)->odometerFromStartup() * 1000.0);
+    uint64_t swiftDistance = bike_cadence_sensor ?
+        (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0) :  // old behavior
+        (uint64_t)(((treadmill *)treadMill)->odometerFromStartup() * 1000.0);  // new behavior
     uint16_t swiftCalories = ((treadmill *)treadMill)->calories().value();
     qint32 swiftSteps = ((treadmill *)treadMill)->currentStepCount().value();
 
