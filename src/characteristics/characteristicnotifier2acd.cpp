@@ -67,7 +67,6 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
         
         uint16_t normalizeIncline = 0;
 
-        QSettings settings;
         bool real_inclination_to_virtual_treamill_bridge = settings.value(QZSettings::real_inclination_to_virtual_treamill_bridge, QZSettings::default_real_inclination_to_virtual_treamill_bridge).toBool();
         double inclination = ((treadmill *)Bike)->currentInclination().value();
         if(real_inclination_to_virtual_treamill_bridge) {

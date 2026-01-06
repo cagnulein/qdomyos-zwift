@@ -5689,7 +5689,7 @@ import Qt.labs.platform 1.1
 
                     IndicatorOnlySwitch {
                         id: cadenceSensorDelegate
-                        text: qsTr("Cycling Cadence Sensor (Peloton compatibility)")
+                        text: qsTr("Cycling/Running Sensor (Peloton compatibility)")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -5703,7 +5703,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Turn this on to send cadence to Peloton over Bluetooth. Default is off.")
+                        text: qsTr("Turn this on compatibility to Peloton over Bluetooth. Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
