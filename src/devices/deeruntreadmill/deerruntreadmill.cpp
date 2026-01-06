@@ -86,6 +86,11 @@ void deerruntreadmill::waitForAPacket() {
 void deerruntreadmill::writeUnlockCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log) {
     QEventLoop loop;
     QTimer timeout;
+    
+    if(!unlock_service) {
+        qDebug() << "ERROR! Unlock service not found!";
+        return;
+    }
 
     connect(unlock_service, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
     timeout.singleShot(300ms, &loop, &QEventLoop::quit);
@@ -500,6 +505,7 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _superunWriteCharacteristicId((quint16)0xff01);
     QBluetoothUuid _superunNotifyCharacteristicId((quint16)0xff02);
     QBluetoothUuid _unlockCharacteristicId((quint16)0x2b2a);
+    QBluetoothUuid _unlockCharacteristicId2((quint16)0x2b11);
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -517,7 +523,12 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             unlock_characteristic = unlock_service->characteristic(_unlockCharacteristicId);
             if (unlock_characteristic.isValid()) {
                 emit debug(QStringLiteral("unlock characteristic found"));
+            } else {
+                qDebug() << "unlock char not found, let's try the other one";
+                unlock_characteristic = unlock_service->characteristic(_unlockCharacteristicId2);
             }
+            
+            qDebug() << "unlock_characteristic" << unlock_characteristic.isValid();
             return;
         }
 
@@ -579,6 +590,7 @@ void deerruntreadmill::serviceScanDone(void) {
     QBluetoothUuid _pitpatServiceId((quint16)0xfba0);
     QBluetoothUuid _superunServiceId((quint16)0xffff);
     QBluetoothUuid _unlockServiceId((quint16)0x1801);
+    QBluetoothUuid _unlockServiceId2((quint16)0x1910);
     emit debug(QStringLiteral("serviceScanDone"));
 
     auto services_list = m_control->services();
@@ -599,6 +611,12 @@ void deerruntreadmill::serviceScanDone(void) {
         emit debug(QStringLiteral("Detected pitpat treadmill variant"));
         gattCommunicationChannelService = pitpat_service;
         unlock_service = m_control->createServiceObject(_unlockServiceId);
+        if(!unlock_service) {
+            qDebug() << "unlock service not found, let's try with another one";
+            unlock_service = m_control->createServiceObject(_unlockServiceId2);
+        }
+        
+        qDebug() << "unlock service " << unlock_service;
 
         // Clean up unused services
         if (superun_service) delete superun_service;
