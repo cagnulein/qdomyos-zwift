@@ -14,8 +14,13 @@
 #
 # Usage:
 #   sudo ./setup-dashboard.sh
-#   sudo ./setup-dashboard.sh --scan-now
 ################################################################################
+
+# Check if running as root
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root to install packages. Please use: sudo $0"
+    exit 1
+fi
 
 set -uo pipefail
 
@@ -460,97 +465,6 @@ configure_service_flags_ui() {
     done
 }
 
-# Parse an existing INI file into the typed arrays
-parse_reference_config() {
-    local file="$1"
-    if [[ -z "$file" || ! -f "$file" ]]; then
-        echo "ERROR: Reference config not found: $file" >&2
-        return 1
-    fi
-
-    local line section key value
-    while IFS= read -r line || [[ -n "$line" ]]; do
-        # Skip comments and empty lines
-        [[ -z "$line" ]] && continue
-        [[ "$line" =~ ^[[:space:]]*# ]] && continue
-
-        # Section header (we only care about [General] for now)
-        if [[ "$line" =~ ^[[:space:]]*\[([^]]+)\][[:space:]]*$ ]]; then
-            section="${BASH_REMATCH[1]}"
-            continue
-        fi
-
-        # Only parse lines in [General] or no-section files
-        if [[ -n "$section" && "$section" != "General" ]]; then
-            continue
-        fi
-
-        # Key=Value lines
-        if [[ "$line" =~ ^[[:space:]]*([^=]+)=(.*)$ ]]; then
-            key="${BASH_REMATCH[1]}"
-            value="${BASH_REMATCH[2]}"
-            classify_and_store "$key" "$value"
-        fi
-    done < "$file"
-
-    return 0
-}
-
-
-# Load defaults from reference template or hardcoded minimal defaults
-initialize_default_config() {
-    local reference_file="${1:-qDomyos-Zwift.conf}"
-    if [[ -f "$reference_file" ]]; then
-        parse_reference_config "$reference_file" || return 1
-        return 0
-    fi
-
-    # Fallback to minimal hardcoded defaults
-    load_hardcoded_defaults
-    return 0
-}
-
-
-# Minimal hardcoded defaults (used if no reference template found)
-load_hardcoded_defaults() {
-    config_set_int "age" 54 || true
-    config_set_int "weight" 78 || true
-    config_set_int "height" 175 || true
-    config_set_int "ftp" 200 || true
-    config_set_bool "dircon_yes" true || true
-    config_set_int "dircon_server_base_port" 36866 || true
-    config_set_string "filter_device" "I_TL" || true
-    config_set_bool "virtual_device_enabled" true || true
-    config_set_bool "virtual_device_force_treadmill" true || true
-    config_set_bool "bluetooth_30m_hangs" false || true
-    config_set_bool "bluetooth_no_reconnection" false || true
-    config_set_bool "bluetooth_relaxed" false || true
-    config_set_bool "fakedevice_elliptical" false || true
-    config_set_bool "fakedevice_rower" false || true
-    config_set_bool "fakedevice_treadmill" false || true
-    config_set_bool "treadmill_difficulty_gain_or_offset" false || true
-    config_set_bool "treadmill_follow_wattage" false || true
-    config_set_bool "treadmill_force_speed" true || true
-    config_set_int  "treadmill_incline_max" 100 || true
-    config_set_int  "treadmill_incline_min" -100 || true
-    config_set_int  "treadmill_pid_heart_max" 0 || true
-    config_set_int  "treadmill_pid_heart_min" 0 || true
-    config_set_string "treadmill_pid_heart_zone" "Disabled" || true
-    config_set_bool "treadmill_simulate_inclination_with_speed" false || true
-    config_set_int  "treadmill_speed_max" 100 || true
-    config_set_float "treadmill_step_incline" 0.5 || true
-    config_set_float "treadmill_step_speed" 0.5 || true
-    config_set_bool "virtual_device_bluetooth" true || true
-    config_set_bool "virtual_device_echelon" false || true
-    config_set_bool "virtual_device_force_bike" false || true
-    config_set_bool "virtual_device_ifit" false || true
-    config_set_bool "virtual_device_onlyheart" false || true
-    config_set_bool "virtual_device_rower" false || true
-    config_set_bool "virtualbike_forceresistance" true || true
-
-    return 0
-}
-
 config_set_float() {
     local key=$1
     local value=$2
@@ -768,29 +682,6 @@ generate_config_file() {
 
     return 0
 }
-
-# Simple CLI flags: support --version (non-intrusive)
-while [ "$#" -gt 0 ]; do
-    case "$1" in
-        --help|-h)
-                printf 'Usage: %s [--version|--scan-now]\n' "${0##*/}"
-            exit 0
-            ;;
-            --scan-now)
-                SCAN_NOW=1
-                NONINTERACTIVE_SHOW_CURSOR=1
-                shift
-                ;;
-            --no-extract)
-                export SKIP_TEST_EXTRACT=1
-                shift
-                ;;
-    esac
-    # Leave unknown flags for later parsing
-    break
-done
-
-    # Unknown flags are ignored; the dashboard will continue normally
 
 # Emergency crash catcher
 trap 'echo "SCRIPT CRASHED on line $LINENO! (Check for unbound variables if set -u is on)" >&2' ERR
@@ -1016,18 +907,8 @@ enter_ui_mode() {
         _QZ_OLD_STTY=""
     fi
     # Disable local echo and hide the cursor for the UI
-    # If requested (non-interactive scan), keep cursor visible and enable echo
-    if [ "${NONINTERACTIVE_SHOW_CURSOR:-0}" -eq 1 ]; then
-        stty echo 2>/dev/null || true
-        if command -v show_cursor >/dev/null 2>&1; then
-            show_cursor || true
-        else
-            printf '\033[?25h' 2>/dev/null || true
-        fi
-    else
-        stty -echo 2>/dev/null || true
-        hide_cursor
-    fi
+    stty -echo 2>/dev/null || true
+    hide_cursor
 
     # RETURN should restore UI mode; SIGINT/SIGTERM should perform a full
     # immediate exit so user interrupts abort long-running checks instead of
@@ -1069,7 +950,6 @@ require_command() {
     done
     return 0
 }
-
 
 # ============================================================================
 # WIDTH CALCULATION OPTIMIZATION
@@ -1190,208 +1070,6 @@ EOF
         exit 1
     fi
 fi
-
-# Optional Python provider integration (minimal, safe wrappers).
-# Note: debug logging removed; `bt_debug` calls were stripped from this file.
-# Prefer FIFO in shared memory to avoid SD card writes.
-BT_PROVIDER_SUPERVISOR_PID=0
-BT_PROVIDER_PIDFILE=""
-BT_PROVIDER_STOP_FILE=""
-BT_PROVIDER_HEARTBEAT=""
-
-# Standardized temp paths (inside validated TEMP_DIR)
-BT_PROVIDER_FIFO="${BT_PROVIDER_FIFO:-$TEMP_DIR/qz_bt_fifo_$$}"
-BT_PROVIDER_PIDFILE=${BT_PROVIDER_PIDFILE:-$TEMP_DIR/qz_bt_provider_$$.pid}
-BT_PROVIDER_STOP_FILE=${BT_PROVIDER_STOP_FILE:-$TEMP_DIR/qz_bt_provider.stop}
-BT_PROVIDER_HEARTBEAT=${BT_PROVIDER_HEARTBEAT:-$TEMP_DIR/qz_bt_heartbeat_$$}
-
-# Resolve BT IPC paths; prefer TEMP_DIR (RAM). Disable stream if unwritable.
-resolve_bt_paths() {
-    # Resolve provider stream
-    BT_PROVIDER_STREAM=${BT_PROVIDER_STREAM:-$TEMP_DIR/qz_bt_stream.log}
-    local stream="$BT_PROVIDER_STREAM"
-    # Prefer TEMP_DIR (RAM-backed). Only fall back to per-user cache if
-    # TEMP_DIR is not writable for some reason.
-    mkdir -p "$(dirname "$stream")" 2>/dev/null || true
-    : > "$stream" 2>/dev/null || true
-    if [ ! -w "$stream" ]; then
-        # TEMP_DIR not writable — disable stream file to avoid disk writes
-        BT_PROVIDER_STREAM="/dev/null"
-    fi
-
-}
-
-# ============================================================================
-# ROBUST BLUETOOTH PROVIDER PROCESS MANAGEMENT
-# ============================================================================
-
-# Check if a process is the actual bt_provider (not a false positive)
-is_bt_provider_process() {
-    local pid="$1"
-    [[ -z "$pid" ]] && return 1
-
-    # Verify process exists and command matches
-    if ps -p "$pid" -o cmd= 2>/dev/null | grep -q "[b]t_provider.py"; then
-        return 0
-    fi
-    return 1
-}
-
-# Kill process with graceful fallback to SIGKILL
-kill_gracefully() {
-    local pid="$1"
-    local max_wait="${2:-2}"  # Wait up to 2 seconds
-
-    [[ -z "$pid" ]] && return 0
-
-    # Send SIGTERM first
-    kill -TERM "$pid" 2>/dev/null || return 0
-
-    # Wait for graceful shutdown
-    local waited=0
-    while [[ $waited -lt $((max_wait * 10)) ]]; do
-        if ! kill -0 "$pid" 2>/dev/null; then
-            return 0  # Process exited cleanly
-        fi
-        sleep 0.1
-        ((waited++))
-    done
-
-    # Force kill if still alive
-    kill -KILL "$pid" 2>/dev/null || true
-    sleep 0.1
-    return 0
-}
-
-# Override start/stop provider with atomic, robust implementations
-start_bt_provider() {
-    # Choose python binary inside venv if available
-    local pybin="$TARGET_HOME/ant_venv/bin/python3"
-    if [ ! -x "$pybin" ]; then
-        pybin=$(command -v python3 || true)
-    fi
-    [ -n "$pybin" ] || return 1
-
-    # Provider path relative to this script
-    local prov
-    prov="$(dirname "$0")/bt_provider.py"
-    if [ ! -f "$prov" ]; then
-        prov="$(dirname "${BASH_SOURCE[0]}")/bt_provider.py"
-    fi
-    if [ ! -f "$prov" ]; then
-        return 1
-    fi
-
-    # Record absolute provider path for stop logic
-    # shellcheck disable=SC2034
-    BT_PROVIDER_PROV_PATH=$(readlink -f "$prov" 2>/dev/null || echo "$prov")
-
-    # Pick writable paths for stream/debug
-    resolve_bt_paths
-
-    # Prepare IPC in TEMP_DIR (RAM-first)
-    BT_PROVIDER_FIFO="${BT_PROVIDER_FIFO:-$TEMP_DIR/qz_bt_fifo_$$}"
-    BT_PROVIDER_PIDFILE="${BT_PROVIDER_PIDFILE:-$TEMP_DIR/qz_bt_provider_$$.pid}"
-    BT_PROVIDER_HEARTBEAT="${BT_PROVIDER_HEARTBEAT:-$TEMP_DIR/qz_bt_heartbeat_$$}"
-    BT_PROVIDER_STOP_FILE="${BT_PROVIDER_STOP_FILE:-$TEMP_DIR/qz_bt_provider.stop}"
-    mkdir -p "$(dirname "$BT_PROVIDER_FIFO")" 2>/dev/null || true
-
-    # Ensure old IPC artifacts removed
-    rm -f "$BT_PROVIDER_FIFO" "$BT_PROVIDER_HEARTBEAT" "$BT_PROVIDER_STOP_FILE" 2>/dev/null || true
-
-    # Create FIFO (if creation fails, fall back to regular file)
-    if ! mkfifo "$BT_PROVIDER_FIFO" 2>/dev/null; then
-        : > "$BT_PROVIDER_FIFO" 2>/dev/null || true
-    fi
-    chmod 0666 "$BT_PROVIDER_FIFO" 2>/dev/null || true
-
-    # If running as root, chown to target user
-    if [ "$(id -u)" -eq 0 ] && [ -n "${TARGET_USER:-}" ]; then
-        chown "$TARGET_USER":"$TARGET_USER" "$BT_PROVIDER_STREAM" 2>/dev/null || true
-    fi
-
-    # Check if supervisor already running
-    if [ -n "${BT_PROVIDER_SUPERVISOR_PID:-}" ] && ps -p "${BT_PROVIDER_SUPERVISOR_PID}" >/dev/null 2>&1; then
-        return 0
-    fi
-
-    # Ensure old stop file removed
-    rm -f "$BT_PROVIDER_PIDFILE" 2>/dev/null || true
-
-    # ATOMIC START: Launch provider with supervisor in single subshell
-    (
-        # Launch provider
-        "$pybin" "$prov" --heartbeat="$BT_PROVIDER_HEARTBEAT" >"$BT_PROVIDER_FIFO" 2>/dev/null &
-        local pp=$!
-        echo "$pp" > "$BT_PROVIDER_PIDFILE" 2>/dev/null || true
-
-        # Watchdog loop with stop-file check
-        while true; do
-            sleep 5
-
-            # Stop requested via file flag?
-            if [ -f "$BT_PROVIDER_STOP_FILE" ]; then
-                kill_gracefully "$pp" 2
-                break
-            fi
-
-            # Provider died unexpectedly?
-            if ! is_bt_provider_process "$pp"; then
-                break
-            fi
-
-            # Heartbeat stale (>15s old)?
-            if [ -f "$BT_PROVIDER_HEARTBEAT" ]; then
-                local age
-                age=$(( $(date +%s) - $(stat -c %Y "$BT_PROVIDER_HEARTBEAT" 2>/dev/null || echo 0) ))
-                if [ "$age" -gt 15 ]; then
-                    kill_gracefully "$pp" 2
-                    break
-                fi
-            fi
-        done
-
-        # Cleanup
-        rm -f "$BT_PROVIDER_PIDFILE" "$BT_PROVIDER_HEARTBEAT" "$BT_PROVIDER_FIFO" 2>/dev/null || true
-    ) &
-
-    BT_PROVIDER_SUPERVISOR_PID=$!
-    return 0
-}
-
-stop_bt_provider() {
-    # Signal supervisor to stop via file flag (atomic operation)
-    touch "$BT_PROVIDER_STOP_FILE" 2>/dev/null || true
-
-    # Kill provider process if pidfile exists
-    if [ -f "$BT_PROVIDER_PIDFILE" ]; then
-        local ppid
-        ppid=$(cat "$BT_PROVIDER_PIDFILE" 2>/dev/null || true)
-        if [ -n "$ppid" ] && is_bt_provider_process "$ppid"; then
-            kill_gracefully "$ppid" 2
-        fi
-        rm -f "$BT_PROVIDER_PIDFILE" 2>/dev/null || true
-    fi
-
-    # Kill supervisor if present
-    if [ -n "${BT_PROVIDER_SUPERVISOR_PID:-}" ]; then
-        if ps -p "$BT_PROVIDER_SUPERVISOR_PID" >/dev/null 2>&1; then
-            kill_gracefully "$BT_PROVIDER_SUPERVISOR_PID" 1
-        fi
-        BT_PROVIDER_SUPERVISOR_PID=0
-    fi
-
-    # Clean up IPC artifacts
-    rm -f "$BT_PROVIDER_STOP_FILE" "$BT_PROVIDER_PIDFILE" "$BT_PROVIDER_FIFO" "$BT_PROVIDER_HEARTBEAT" 2>/dev/null || true
-}
-
-
-# Optional delay between status/UI checks (seconds). Set via env var `CHECK_DELAY`.
-# Default is 0 (no artificial delays). Use fractional values like 0.1 if desired.
-
-# ============================================================================
-# DISPLAY WIDTH CALCULATION
-# ============================================================================
 
 # shellcheck disable=SC2034
 # Unified cache: raw_string -> "stripped_text|width"
@@ -3397,17 +3075,6 @@ check_lsusb() {
     update_status "lsusb" "working"
     
     if command -v lsusb >/dev/null 2>&1; then update_status "lsusb" "pass"; return 0; else update_status "lsusb" "fail"; return 1; fi
-}
-
-check_ant_dongle() {
-    update_status "ant_dongle" "working"
-    
-    if ! command -v lsusb >/dev/null 2>&1; then update_status "ant_dongle" "warn"; return 1; fi
-    if lsusb 2>/dev/null | grep -qE '0fcf:1009|0fcf:1008|0fcf:100c|0fcf:88a4'; then
-        update_status "ant_dongle" "pass"; return 0;
-    else
-        update_status "ant_dongle" "warn"; return 1;
-    fi
 }
 
 check_config_file() {
@@ -6248,21 +5915,6 @@ save_service_config() {
     return 0
 }
 
-# Validators
-validate_ant_device_id() {
-    local id=$1
-    [[ "$id" =~ ^[0-9]+$ ]] || return 1
-    (( id>=1 && id<=65535 )) || return 1
-    return 0
-}
-
-validate_poll_time() {
-    local t=$1
-    [[ "$t" =~ ^[0-9]+$ ]] || return 1
-    (( t>=50 && t<=5000 )) || return 1
-    return 0
-}
-
 # Binary detection and flags builder
 detect_binary_path() {
     local candidates=("./qdomyos-zwift" "$(pwd)/qdomyos-zwift" "/usr/local/bin/qdomyos-zwift" "/usr/bin/qdomyos-zwift")
@@ -6678,14 +6330,6 @@ regenerate_service_file_ui() {
     gen_out=$(generate_service_file 2>&1) || true
     # Use informational panel for successful generation
     draw_info_screen "SERVICE FILE GENERATED" "${ACTIVE_SERVICE_FILE:-$gen_out}" 2
-    enter_ui_mode || true
-}
-
-show_service_status_ui() {
-    exit_ui_mode || true
-    if systemctl status qz.service --no-pager; then
-        :
-    fi
     enter_ui_mode || true
 }
 
@@ -7119,7 +6763,6 @@ USAGE:
     sudo ./setup_dashboard.sh --help
 
     Interactive options:
-        --scan-now     Start the Bluetooth scan page immediately and exit
         --uninstall    Start the uninstall menu immediately and exit
 
 REQUIREMENTS:
@@ -7216,9 +6859,6 @@ if [ $# -gt 0 ]; then
             --help)
                 show_help; exit 0
                 ;;
-            --scan-now)
-                SCAN_NOW=1
-                ;;
             --uninstall)
                 UNINSTALL_MODE=1
                 ;;
@@ -7275,11 +6915,5 @@ draw_bottom_panel_header "INFORMATION"
 draw_instructions_bottom "$CURRENT_INSTRUCTION"
 draw_bottom_border
 
-# 4. Handle CLI Scan-Now
-if [ "${SCAN_NOW:-0}" -eq 1 ]; then
-    perform_bluetooth_scan
-    finish_and_exit
-fi
-
-# 5. Enter the main menu loop
+# 4. Enter the main menu loop
 check_final_status
