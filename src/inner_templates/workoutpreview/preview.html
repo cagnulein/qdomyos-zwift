@@ -61,7 +61,7 @@
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     borderWidth: 2,
                     fill: true,
-                    tension: 0.1,
+                    stepped: true,
                     pointRadius: 0,
                     yAxisID: 'y'
                 });
@@ -76,7 +76,7 @@
                     backgroundColor: 'rgba(245, 158, 11, 0.1)',
                     borderWidth: 2,
                     fill: true,
-                    tension: 0.1,
+                    stepped: true,
                     pointRadius: 0,
                     yAxisID: 'y1'
                 });
@@ -91,7 +91,7 @@
                     backgroundColor: 'rgba(16, 185, 129, 0.1)',
                     borderWidth: 2,
                     fill: true,
-                    tension: 0.1,
+                    stepped: true,
                     pointRadius: 0,
                     yAxisID: 'y1'
                 });
@@ -326,26 +326,24 @@
                 if (!sourceArr) return;
 
                 let lastValue = null;
+                let lastIndex = -1;
+
                 for (let i = 0; i < points; i++) {
                     const value = sourceArr[i];
                     if (value === undefined) continue;
 
                     const scaledValue = value * multiplier;
 
-                    // Add point if value changed or it's the first point
+                    // Add point only when value changes or it's the first point
                     if (lastValue === null || scaledValue !== lastValue) {
-                        // Add end point of previous value (for step effect)
-                        if (lastValue !== null && i > 0) {
-                            targetArr.push({ x: i, y: lastValue });
-                        }
-                        // Add start point of new value
                         targetArr.push({ x: i, y: scaledValue });
                         lastValue = scaledValue;
+                        lastIndex = i;
                     }
                 }
 
-                // Add final point to complete the graph
-                if (lastValue !== null && points > 0) {
+                // Add final point to extend graph to the end (only if not already there)
+                if (lastValue !== null && lastIndex < points - 1) {
                     targetArr.push({ x: points - 1, y: lastValue });
                 }
             }
