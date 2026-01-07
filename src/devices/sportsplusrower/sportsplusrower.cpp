@@ -214,13 +214,18 @@ double sportsplusrower::GetWattFromPacket(const QByteArray &packet) {
 void sportsplusrower::btinit(bool startTape) {
     Q_UNUSED(startTape);
 
-    const uint8_t initData1[] = {0x40, 0x00, 0x9a, 0x56, 0x30};
-    writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    if(XM_FITNESS) {
+        const uint8_t initData1[] = {0x40, 0x00, 0xd1, 0x5f, 0x70};    
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    } else {
+        const uint8_t initData1[] = {0x40, 0x00, 0x9a, 0x56, 0x30};    
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    }
 
     initDone = true;
 }
@@ -247,6 +252,7 @@ void sportsplusrower::stateChanged(QLowEnergyService::ServiceState state) {
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
         // Some devices use ffe2 instead of fff2
         if (!gattWriteCharacteristic.isValid()) {
+            XM_FITNESS = true;
             gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattNotify2AltCharacteristicId);
         }
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
