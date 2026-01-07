@@ -1040,7 +1040,9 @@ void trainprogram::scheduler() {
 
                 // Emit lap for each completed row, but skip intermediate ramp steps
                 // Only emit lap when rampDuration is 0 (standalone row or end of ramp)
-                if (QTime(0, 0, 0).secsTo(rows.at(currentStep).rampDuration) == 0) {
+                if (settings.value(QZSettings::trainprogram_auto_lap_on_segment,
+                                   QZSettings::default_trainprogram_auto_lap_on_segment).toBool() &&
+                    QTime(0, 0, 0).secsTo(rows.at(currentStep).rampDuration) == 0) {
                     qDebug() << "Emitting lap for completed row" << currentStep;
                     emit lap();
                 }
