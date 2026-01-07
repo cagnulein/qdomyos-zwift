@@ -132,9 +132,6 @@ void flywheelbike::decodeReceivedData(QByteArray buffer) {
                 flushDataframe(&bikeData);
                 errorState = MSG_NO_ERROR;
                 rxState = WFLENGTH;
-            } else {
-                errorState = MSG_NO_ERROR;
-                rxState = WFSYNC_1;
             }
             break;
         case WFLENGTH:
@@ -149,37 +146,37 @@ void flywheelbike::decodeReceivedData(QByteArray buffer) {
             }
             break;
         case WFID:
-            if (b >= 0) {
-                bikeData.message_id = b;
-                if (dataPacketLength != 0) {
-                    rxState = DATA;
-                } else {
-                    rxState = CHECKSUM;
-                }
+            bikeData.message_id = b;
+            dataPacketLength--;
+            if (dataPacketLength > 1) {
+                rxState = DATA;
+            } else if (dataPacketLength == 1) {
+                rxState = CHECKSUM;
             } else {
-                errorState = MSG_UNKNOWN_ID;
-                rxState = WFSYNC_1;
+                rxState = EOF_1;
             }
             break;
         case DATA:
-            if (dataPacketLength == 0) {
-                rxState = CHECKSUM;
-            }
-
             bikeData.buffer[dataPacketIndex] = b;
             dataPacketIndex++;
             dataPacketLength--;
+            if (dataPacketLength == 1) {
+                rxState = CHECKSUM;
+            }
             break;
         case CHECKSUM:
             /* TODO: Implement checksum */
+            bikeData.crc = b;
             rxState = EOF_1;
             break;
         case EOF_1:
             /* End of frame byte is 0x55 */
             if (b == 0x55) {
                 errorState = MSG_COMPLETE;
-                rxState = WFSYNC_1;
+            } else {
+                errorState = MSG_BAD_EOF;
             }
+            rxState = WFSYNC_1;
             break;
         }
     }

@@ -52,6 +52,7 @@ class flywheelbike : public bike {
         MSG_UNKNOWN_ID
     } DecoderErrorState;
 
+#pragma pack(push, 1)
     typedef struct BikeDataframe {
         uint8_t buffer[256];
         uint8_t crc;
@@ -78,6 +79,7 @@ class flywheelbike : public bike {
         uint16_t distance;
         uint16_t calories;
     } ICGLiveStreamData;
+#pragma pack(pop)
 
     typedef enum ICGMessageType {
         ID_NULL = 0,
