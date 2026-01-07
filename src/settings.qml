@@ -1261,6 +1261,7 @@ import Qt.labs.platform 1.1
 			property bool domyos_treadmill_sync_start: false
 			property string garmin_device_serial: "3313379353"
 			property real treadmill_speed_min: 0
+			property bool trainprogram_auto_lap_on_segment: false
         }
 
 
@@ -7155,7 +7156,35 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }                    
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: trainprogramAutoLapOnSegmentDelegate
+                        text: qsTr("Auto Lap on Segment")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.trainprogram_auto_lap_on_segment
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.trainprogram_auto_lap_on_segment = checked
+                    }
+
+                    Label {
+                        text: qsTr("Automatically trigger a lap when completing each workout segment/row. For ramp segments, lap is triggered only at the end of the ramp to avoid creating a lap every second.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
 
                     IndicatorOnlySwitch {
                         text: qsTr("Treadmill Auto-adjust speed by power")
