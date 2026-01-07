@@ -66,7 +66,7 @@ cd qdomyos-zwift-$ARCH-ant
 
 ## Step 2: Check Your System
 
-Before installing anything, see what's needed by running the script.
+Before installing anything, see what's needed by running the setup script.
 
 ```bash
 sudo ./setup-dashboard.sh
@@ -369,7 +369,7 @@ The `setup-dashboard.sh` script can create and enable the systemd service file t
 **Create the service file:**
 
 ```bash
-sudo nano <SERVICE_LOCATION>
+sudo nano <SERVICE_LOCATION>   # eg: nano /etc/systemd/system/qz.service
 ```
 
 ```ini
