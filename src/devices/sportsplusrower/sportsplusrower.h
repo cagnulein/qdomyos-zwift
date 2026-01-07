@@ -71,6 +71,8 @@ class sportsplusrower : public rower {
     bool initRequest = false;
     bool readyToStart = false;
 
+    bool XM_FITNESS = false;
+
     const resistance_t max_resistance = 24;
 
   signals:

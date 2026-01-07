@@ -1674,7 +1674,11 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                                                        QZSettings::default_peloton_treadmill_level).toInt() - 1;
             int peloton_treadmill_walk_level = settings.value(QZSettings::peloton_treadmill_walk_level,
                                                        QZSettings::default_peloton_treadmill_walk_level).toInt() - 1;
-            
+            double peloton_treadmill_walking_min_speed = settings.value(QZSettings::peloton_treadmill_walking_min_speed,
+                                                       QZSettings::default_peloton_treadmill_walking_min_speed).toDouble();
+            double peloton_treadmill_running_min_speed = settings.value(QZSettings::peloton_treadmill_running_min_speed,
+                                                       QZSettings::default_peloton_treadmill_running_min_speed).toDouble();
+
             if (peloton_treadmill_level < 0 || peloton_treadmill_level > 9)
                 peloton_treadmill_level = 0;
             if (peloton_treadmill_walk_level < 0 || peloton_treadmill_walk_level > 9)
@@ -1719,9 +1723,25 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         if (isWalkingWorkout()) {
                             speed_lower = walking_pace[pace_intensity_lower].levels[peloton_treadmill_walk_level].slow_pace;
                             speed_upper = walking_pace[pace_intensity_upper].levels[peloton_treadmill_walk_level].fast_pace;
+
+                            // Apply walking min speed if set
+                            if (peloton_treadmill_walking_min_speed > 0.0) {
+                                if (speed_lower < peloton_treadmill_walking_min_speed)
+                                    speed_lower = peloton_treadmill_walking_min_speed;
+                                if (speed_upper < peloton_treadmill_walking_min_speed)
+                                    speed_upper = peloton_treadmill_walking_min_speed;
+                            }
                         } else {
                             speed_lower = treadmill_pace[pace_intensity_lower].levels[peloton_treadmill_level].slow_pace;
                             speed_upper = treadmill_pace[pace_intensity_upper].levels[peloton_treadmill_level].fast_pace;
+
+                            // Apply running min speed if set
+                            if (peloton_treadmill_running_min_speed > 0.0) {
+                                if (speed_lower < peloton_treadmill_running_min_speed)
+                                    speed_lower = peloton_treadmill_running_min_speed;
+                                if (speed_upper < peloton_treadmill_running_min_speed)
+                                    speed_upper = peloton_treadmill_running_min_speed;
+                            }
                         }
 
                         miles = 1; // the pace intensity are always in km/h
@@ -1729,6 +1749,19 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                     else if (metricName == "speed") {
                         speed_lower = metricObj["lower"].toDouble();
                         speed_upper = metricObj["upper"].toDouble();
+
+                        // Apply min speed based on workout type
+                        if (isWalkingWorkout() && peloton_treadmill_walking_min_speed > 0.0) {
+                            if (speed_lower < peloton_treadmill_walking_min_speed)
+                                speed_lower = peloton_treadmill_walking_min_speed;
+                            if (speed_upper < peloton_treadmill_walking_min_speed)
+                                speed_upper = peloton_treadmill_walking_min_speed;
+                        } else if (!isWalkingWorkout() && peloton_treadmill_running_min_speed > 0.0) {
+                            if (speed_lower < peloton_treadmill_running_min_speed)
+                                speed_lower = peloton_treadmill_running_min_speed;
+                            if (speed_upper < peloton_treadmill_running_min_speed)
+                                speed_upper = peloton_treadmill_running_min_speed;
+                        }
                     }
                     else if (metricName == "incline") {
                         inc_lower = metricObj["lower"].toDouble();
@@ -2086,6 +2119,11 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         int peloton_treadmill_walk_level =
             settings.value(QZSettings::peloton_treadmill_walk_level, QZSettings::default_peloton_treadmill_walk_level).toInt() -
             1;
+        double peloton_treadmill_walking_min_speed = settings.value(QZSettings::peloton_treadmill_walking_min_speed,
+                                                   QZSettings::default_peloton_treadmill_walking_min_speed).toDouble();
+        double peloton_treadmill_running_min_speed = settings.value(QZSettings::peloton_treadmill_running_min_speed,
+                                                   QZSettings::default_peloton_treadmill_running_min_speed).toDouble();
+
         if(peloton_treadmill_level < 0 || peloton_treadmill_level > 9)
             peloton_treadmill_level = 0;
         if(peloton_treadmill_walk_level < 0 || peloton_treadmill_walk_level > 9)
@@ -2117,6 +2155,20 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                     if(oo[QStringLiteral("name")].toString().toLower() == "speed") {
                         speed_lower = oo[QStringLiteral("lower")].toDouble();
                         speed_upper = oo[QStringLiteral("upper")].toDouble();
+
+                        // Apply min speed based on workout type
+                        if (isWalkingWorkout() && peloton_treadmill_walking_min_speed > 0.0) {
+                            if (speed_lower < peloton_treadmill_walking_min_speed)
+                                speed_lower = peloton_treadmill_walking_min_speed;
+                            if (speed_upper < peloton_treadmill_walking_min_speed)
+                                speed_upper = peloton_treadmill_walking_min_speed;
+                        } else if (!isWalkingWorkout() && peloton_treadmill_running_min_speed > 0.0) {
+                            if (speed_lower < peloton_treadmill_running_min_speed)
+                                speed_lower = peloton_treadmill_running_min_speed;
+                            if (speed_upper < peloton_treadmill_running_min_speed)
+                                speed_upper = peloton_treadmill_running_min_speed;
+                        }
+
                         speed_average = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
                     } else if(oo[QStringLiteral("name")].toString().toLower() == "incline") {
                         inc_lower = oo[QStringLiteral("lower")].toDouble();
@@ -2130,9 +2182,25 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                             if (isWalkingWorkout()) {
                                 speed_lower = walking_pace[paceintensity_lower].levels[peloton_treadmill_walk_level].slow_pace;
                                 speed_upper = walking_pace[paceintensity_upper].levels[peloton_treadmill_walk_level].fast_pace;
+
+                                // Apply walking min speed if set
+                                if (peloton_treadmill_walking_min_speed > 0.0) {
+                                    if (speed_lower < peloton_treadmill_walking_min_speed)
+                                        speed_lower = peloton_treadmill_walking_min_speed;
+                                    if (speed_upper < peloton_treadmill_walking_min_speed)
+                                        speed_upper = peloton_treadmill_walking_min_speed;
+                                }
                             } else {
                                 speed_lower = treadmill_pace[paceintensity_lower].levels[peloton_treadmill_level].slow_pace;
                                 speed_upper = treadmill_pace[paceintensity_upper].levels[peloton_treadmill_level].fast_pace;
+
+                                // Apply running min speed if set
+                                if (peloton_treadmill_running_min_speed > 0.0) {
+                                    if (speed_lower < peloton_treadmill_running_min_speed)
+                                        speed_lower = peloton_treadmill_running_min_speed;
+                                    if (speed_upper < peloton_treadmill_running_min_speed)
+                                        speed_upper = peloton_treadmill_running_min_speed;
+                                }
                             }
                             speed_average = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
                             miles = 1; // the pace intensity are always in km/h
