@@ -1261,6 +1261,8 @@ import Qt.labs.platform 1.1
 			property bool domyos_treadmill_sync_start: false
 			property string garmin_device_serial: "3313379353"
 			property real treadmill_speed_min: 0
+			property real peloton_treadmill_walking_min_speed: 0.0
+			property real peloton_treadmill_running_min_speed: 0.0
         }
 
 
@@ -5486,6 +5488,74 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Difficulty level for Peloton treadmill walking classes. 1 is easy 10 is hard.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Walking Min Speed:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pelotonTreadmillWalkingMinSpeedTextField
+                            text: (settings.miles_unit ? settings.peloton_treadmill_walking_min_speed * 0.621371 : settings.peloton_treadmill_walking_min_speed).toFixed(1)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_treadmill_walking_min_speed = (settings.miles_unit ? pelotonTreadmillWalkingMinSpeedTextField.text / 0.621371 : pelotonTreadmillWalkingMinSpeedTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Running Min Speed:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pelotonTreadmillRunningMinSpeedTextField
+                            text: (settings.miles_unit ? settings.peloton_treadmill_running_min_speed * 0.621371 : settings.peloton_treadmill_running_min_speed).toFixed(1)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_treadmill_running_min_speed = (settings.miles_unit ? pelotonTreadmillRunningMinSpeedTextField.text / 0.621371 : pelotonTreadmillRunningMinSpeedTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Minimum speed for Peloton running sessions. Set to 0 to disable. Applied to all speed targets in running workouts.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

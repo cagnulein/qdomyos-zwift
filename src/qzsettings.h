@@ -2223,6 +2223,12 @@ class QZSettings {
     static const QString peloton_treadmill_walk_level;
     static constexpr int default_peloton_treadmill_walk_level = 1;
 
+    static const QString peloton_treadmill_walking_min_speed;
+    static constexpr double default_peloton_treadmill_walking_min_speed = 0.0;
+
+    static const QString peloton_treadmill_running_min_speed;
+    static constexpr double default_peloton_treadmill_running_min_speed = 0.0;
+
     static const QString nordictrackadbbike_resistance;
     static constexpr bool default_nordictrackadbbike_resistance = false;
 
