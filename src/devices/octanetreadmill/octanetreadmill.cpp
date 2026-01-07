@@ -366,9 +366,31 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         bool isValidSpeedPacket = ((uint8_t)newValue[0] == 0xa5);
         if (!isValidSpeedPacket) {
             if (newValue.contains(actualPaceSign) || newValue.contains(actualPace2Sign)) {
-                emit debug(QStringLiteral("ZR8: Ignoring non-speed packet with pace signature"));
+                // Try to extract speed and check coherence
+                int16_t idx = newValue.indexOf(actualPaceSign) + 2;
+                if (idx <= 1)
+                    idx = newValue.indexOf(actualPace2Sign) + 3;
+
+                if (idx + 1 < newValue.length()) {
+                    double candidateSpeed = GetSpeedFromPacket(value, idx);
+                    // Allow if coherent (e.g. within 3km/h) or if we are starting (lastSpeed approx 0)
+                    if (std::abs(candidateSpeed - Speed.value()) < 3.0 || Speed.value() < 0.5) {
+                        // Coherent, let it pass to the main extraction logic below
+                        // Do NOT return
+                        emit debug(QStringLiteral("ZR8: Recovering non-standard speed packet: ") +
+                                   QString::number(candidateSpeed));
+                    } else {
+                        emit debug(QStringLiteral("ZR8: Ignoring incoherent speed packet: ") +
+                                   QString::number(candidateSpeed) + QStringLiteral(" vs ") +
+                                   QString::number(Speed.value()));
+                        return;
+                    }
+                } else {
+                    return;
+                }
+            } else {
+                return; // Not a speed packet, ignore
             }
-            return;  // Not a speed packet, ignore
         }
     }
 
