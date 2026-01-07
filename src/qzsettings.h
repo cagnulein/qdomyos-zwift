@@ -2832,6 +2832,12 @@ class QZSettings {
     static constexpr bool default_skandika_wiri_x2000_protocol = true;
 
     /**
+     * @brief Automatically trigger a lap when completing each workout segment/row in TrainProgram
+     */
+    static const QString trainprogram_auto_lap_on_segment;
+    static constexpr bool default_trainprogram_auto_lap_on_segment = false;
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */
