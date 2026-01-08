@@ -175,7 +175,7 @@ octanetreadmill::octanetreadmill(uint32_t pollDeviceTime, bool noConsole, bool n
     actualPaceSign.append(0x23);
     actualPace2Sign.append(0x01);
     actualPace2Sign.append(0x23);
-    actualPace3Sign.append(0x00);
+    actualPace3Sign.append((char)0x00);
     actualPace3Sign.append(0x23);    
     cadenceSign.append(0x3A);
 
