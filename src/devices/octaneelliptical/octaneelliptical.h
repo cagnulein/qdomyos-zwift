@@ -59,7 +59,6 @@ class octaneelliptical : public elliptical {
 
     QByteArray actualPaceSign;
     QByteArray actualPace2Sign;
-    QByteArray actualPace3Sign;
     QByteArray actualHR;
     QByteArray actualResistance;
     QByteArray actualOdometer;
