@@ -37,13 +37,6 @@ jobs:
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
 
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
-        with:
-          repository: cagnulein/qmdnsengine
-          path: "src/qmdnsengine/"
-          ref: "cagnulein-patch-1"   
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -272,13 +265,6 @@ jobs:
 #          path: "src/smtpclient/"
 #          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
 #
-#      - uses: actions/checkout@v2
-#      - name: Checkout submodule repo
-#        uses: actions/checkout@v2
-#        with:
-#          repository: cagnulein/qmdnsengine
-#          path: "src/qmdnsengine/"
-#          ref: "cagnulein-patch-1"
 #
 #      - uses: msys2/setup-msys2@v2
 #        with:
@@ -387,13 +373,6 @@ jobs:
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
 
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
-        with:
-          repository: cagnulein/qmdnsengine
-          path: "src/qmdnsengine/"
-          ref: "cagnulein-patch-1"
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -546,11 +525,6 @@ jobs:
           git submodule init
           git submodule update --init --recursive 
 
-      - name: Fix qmdnsengine submodule
-        run: |
-          cd src/qmdnsengine
-          git fetch
-          git checkout 16cf29108dfaf9c26d21038a620332c103a5b4f8
 
       - name: Install packages required to run QZ inside workflow
         run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
@@ -856,13 +830,6 @@ jobs:
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
 
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
-        with:
-          repository: cagnulein/qmdnsengine
-          path: "src/qmdnsengine/"
-          ref: "cagnulein-patch-1"
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -934,13 +901,6 @@ jobs:
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
 
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
-        with:
-          repository: cagnulein/qmdnsengine
-          path: "src/qmdnsengine/"
-          ref: "cagnulein-patch-1"   
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -1139,13 +1099,6 @@ jobs:
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
 
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
-        with:
-          repository: cagnulein/qmdnsengine
-          path: "src/qmdnsengine/"
-          ref: "cagnulein-patch-1"   
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -1623,11 +1576,6 @@ jobs:
           git submodule init
           git submodule update --init --recursive 
 
-      - name: Fix qmdnsengine submodule
-        run: |
-          cd src/qmdnsengine
-          git fetch
-          git checkout 16cf29108dfaf9c26d21038a620332c103a5b4f8
 
       - name: Install packages required to run QZ inside workflow
         run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
@@ -1730,11 +1678,6 @@ jobs:
           git submodule init
           git submodule update --init --recursive 
 
-      - name: Fix qmdnsengine submodule
-        run: |
-          cd src/qmdnsengine
-          git fetch
-          git checkout 16cf29108dfaf9c26d21038a620332c103a5b4f8
 
       - name: Install packages required to run QZ inside workflow
         run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
@@ -1835,11 +1778,6 @@ jobs:
           git submodule init
           git submodule update --init --recursive 
 
-      - name: Fix qmdnsengine submodule
-        run: |
-          cd src/qmdnsengine
-          git fetch
-          git checkout 16cf29108dfaf9c26d21038a620332c103a5b4f8
 
       - name: Install packages required to run QZ inside workflow
         run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
