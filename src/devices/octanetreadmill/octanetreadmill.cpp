@@ -168,15 +168,15 @@ octanetreadmill::octanetreadmill(uint32_t pollDeviceTime, bool noConsole, bool n
 
     actualPaceSign.clear();
     actualPace2Sign.clear();
+    actualPace3Sign.clear();
 
     // ZR_PACE
     actualPaceSign.append(0x02);
     actualPaceSign.append(0x23);
-    actualPace2Sign.append(0x03);
     actualPace2Sign.append(0x01);
     actualPace2Sign.append(0x23);
-    cadenceSign.append(0x2c);
-    cadenceSign.append(0x01);
+    actualPace3Sign.append((char)0x00);
+    actualPace3Sign.append(0x23);    
     cadenceSign.append(0x3A);
 
     m_watt.setType(metric::METRIC_WATT, deviceType());
@@ -350,34 +350,98 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         emit debug(QStringLiteral("resetting speed"));
         Speed = 0;
         Cadence = 0;
-    } else if (ZR8 == true && Speed.lastChanged().secsTo(QDateTime::currentDateTime()) > 15 &&
-               Cadence.lastChanged().secsTo(QDateTime::currentDateTime()) > 15) {
-        emit debug(QStringLiteral("resetting speed"));
-        Speed = 0;
-        Cadence = 0;
     }
 
     if ((newValue.length() != 20))
         return;
 
+    if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
+        return;
+
+    // ZR8: Speed data is only in packets starting with a5 2[0123] 06
+    // Other packets containing 02 23 signature do not have valid speed data
+    if (ZR8) {
+        if (newValue.length() < 18)
+            return;
+
+        // Check for valid speed packet header: a5 20 06, a5 21 06, or a5 23 06
+        bool isValidSpeedPacket = ((uint8_t)newValue[0] == 0xa5);
+        if (!isValidSpeedPacket) {
+            if (newValue.contains(actualPaceSign) || newValue.contains(actualPace2Sign) || newValue.contains(actualPace3Sign)) {
+                // Try to extract speed and check coherence
+                int16_t idx = newValue.indexOf(actualPaceSign) + 2;
+                if (idx <= 1)
+                    idx = newValue.indexOf(actualPace2Sign) + 2;
+                if (idx <= 1)
+                    idx = newValue.indexOf(actualPace3Sign) + 2;
+
+                if (idx + 1 < newValue.length()) {
+                    double candidateSpeed = GetSpeedFromPacket(value, idx);
+                    // Allow if coherent (e.g. within 3km/h) or if we are starting (lastSpeed approx 0)
+                    if (std::abs(candidateSpeed - Speed.value()) < 3.0 || Speed.value() < 0.5) {
+                        // Coherent, let it pass to the main extraction logic below
+                        // Do NOT return
+                        emit debug(QStringLiteral("ZR8: Recovering non-standard speed packet: ") +
+                                   QString::number(candidateSpeed));
+                    } else {
+                        emit debug(QStringLiteral("ZR8: Ignoring incoherent speed packet: ") +
+                                   QString::number(candidateSpeed) + QStringLiteral(" vs ") +
+                                   QString::number(Speed.value()));
+                        return;
+                    }
+                } else {
+                    return;
+                }
+            } else {
+                return; // Not a speed packet, ignore
+            }
+        }
+    }
+
     if (ZR8 && newValue.contains(cadenceSign)) {
-        int16_t i = newValue.indexOf(cadenceSign) + 3;
+        int16_t i = newValue.indexOf(cadenceSign) + 1;
 
         if (i >= newValue.length())
             return;
 
-        Cadence = ((uint8_t)newValue.at(i));
+        uint8_t currentCadence = (uint8_t)newValue.at(i);
+
+        // Update Cadence only if >= 30 to filter noise
+        if (currentCadence >= 30) {
+            Cadence = currentCadence;
+        }
+
+        // Track cadence = 0 to detect when user actually stops (after 5 seconds)
+        if (currentCadence == 0) {
+            if (lastCadenceZeroTime.isNull()) {
+                lastCadenceZeroTime = QDateTime::currentDateTime();
+                emit debug(QStringLiteral("ZR8: Cadence dropped to 0, starting 5-second timer"));
+            } else {
+                qint64 secondsSinceCadenceZero = lastCadenceZeroTime.secsTo(QDateTime::currentDateTime());
+                if (secondsSinceCadenceZero >= 5 && Speed.value() > 0) {
+                    emit debug(QStringLiteral("ZR8: Cadence = 0 for 5+ seconds, resetting speed to 0"));
+                    Speed = 0;
+                    emit speedChanged(0);
+                }
+            }
+        } else {
+            // Cadence is non-zero - reset the timer
+            if (!lastCadenceZeroTime.isNull()) {
+                emit debug(QStringLiteral("ZR8: Cadence resumed (") + QString::number(currentCadence) +
+                           QStringLiteral("), canceling speed reset"));
+                lastCadenceZeroTime = QDateTime();
+            }
+        }
     }
 
-    if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
-        return;
-
-    if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
+    if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign) && !newValue.contains(actualPace3Sign))
         return;
 
     int16_t i = newValue.indexOf(actualPaceSign) + 2;
     if (i <= 1)
-        i = newValue.indexOf(actualPace2Sign) + 3;
+        i = newValue.indexOf(actualPace2Sign) + 2;
+    if (i <= 1)
+        i = newValue.indexOf(actualPace3Sign) + 2;
 
     if (i + 1 >= newValue.length())
         return;
@@ -433,6 +497,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
