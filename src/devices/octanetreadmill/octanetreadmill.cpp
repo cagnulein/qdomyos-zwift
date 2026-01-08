@@ -168,13 +168,15 @@ octanetreadmill::octanetreadmill(uint32_t pollDeviceTime, bool noConsole, bool n
 
     actualPaceSign.clear();
     actualPace2Sign.clear();
+    actualPace3Sign.clear();
 
     // ZR_PACE
     actualPaceSign.append(0x02);
     actualPaceSign.append(0x23);
-    actualPace2Sign.append(0x03);
     actualPace2Sign.append(0x01);
     actualPace2Sign.append(0x23);
+    actualPace3Sign.append(0x00);
+    actualPace3Sign.append(0x23);    
     cadenceSign.append(0x3A);
 
     m_watt.setType(metric::METRIC_WATT, deviceType());
@@ -365,11 +367,13 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         // Check for valid speed packet header: a5 20 06, a5 21 06, or a5 23 06
         bool isValidSpeedPacket = ((uint8_t)newValue[0] == 0xa5);
         if (!isValidSpeedPacket) {
-            if (newValue.contains(actualPaceSign) || newValue.contains(actualPace2Sign)) {
+            if (newValue.contains(actualPaceSign) || newValue.contains(actualPace2Sign) || newValue.contains(actualPace3Sign)) {
                 // Try to extract speed and check coherence
                 int16_t idx = newValue.indexOf(actualPaceSign) + 2;
                 if (idx <= 1)
-                    idx = newValue.indexOf(actualPace2Sign) + 3;
+                    idx = newValue.indexOf(actualPace2Sign) + 2;
+                if (idx <= 1)
+                    idx = newValue.indexOf(actualPace3Sign) + 2;
 
                 if (idx + 1 < newValue.length()) {
                     double candidateSpeed = GetSpeedFromPacket(value, idx);
@@ -430,12 +434,14 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         }
     }
 
-    if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
+    if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign) && !newValue.contains(actualPace3Sign))
         return;
 
     int16_t i = newValue.indexOf(actualPaceSign) + 2;
     if (i <= 1)
-        i = newValue.indexOf(actualPace2Sign) + 3;
+        i = newValue.indexOf(actualPace2Sign) + 2;
+    if (i <= 1)
+        i = newValue.indexOf(actualPace3Sign) + 2;
 
     if (i + 1 >= newValue.length())
         return;
