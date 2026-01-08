@@ -148,17 +148,19 @@ void ypooelliptical::update() {
             // updateDisplay(elapsed);
         }
 
-        uint8_t init1[] = {0x02, 0x42, 0x42, 0x03};
-        uint8_t init3[] = {0x02, 0x43, 0x01, 0x42, 0x03};
+        if(!E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !TRUE_ELLIPTICAL && !FTMS) {
+            uint8_t init1[] = {0x02, 0x42, 0x42, 0x03};
+            uint8_t init3[] = {0x02, 0x43, 0x01, 0x42, 0x03};
 
-        if (counterPoll == 0)
-            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
-        else
-            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init3, sizeof(init3), QStringLiteral("init"), false, true);
+            if (counterPoll == 0)
+                writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
+            else
+                writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init3, sizeof(init3), QStringLiteral("init"), false, true);
 
-        counterPoll++;
-        if (counterPoll > 1)
-            counterPoll = 0;
+            counterPoll++;
+            if (counterPoll > 1)
+                counterPoll = 0;
+        }
 
         if (requestResistance != -1) {
             if (requestResistance > max_resistance) {
@@ -325,16 +327,19 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                 
                 // For devices that don't send cumulative stride count (like TRUE_ELLIPTICAL),
                 // calculate step count from cadence changes BEFORE updating cadence
-                if(TRUE_ELLIPTICAL) {
+                if(TRUE_ELLIPTICAL && !Flags.strideCount) {
                     evaluateStepCount();
                 }
                 
-                Cadence = (((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
-                                    (uint16_t)((uint8_t)lastPacket.at(index))))) / divisor;
+                uint16_t readCadence = ((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                       (uint16_t)((uint8_t)lastPacket.at(index));
+
+                if(!TRUE_ELLIPTICAL || readCadence != 0xFFFF) {
+                     Cadence = (double)readCadence / divisor;
+                }
             }
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
-            index += 2;
             index += 2;
         }
 
@@ -356,11 +361,15 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                 if (currentStrideCount != lastStrideCount) {
                     if (lastStrideCount > 0) {
                         // Handle overflow: uint16_t subtraction automatically wraps correctly
-                        uint16_t stridesDiff = currentStrideCount - lastStrideCount;
+                        uint16_t stridesDiffRaw = currentStrideCount - lastStrideCount;
+                        double stridesDiff = (double)stridesDiffRaw;
+                        if (TRUE_ELLIPTICAL) {
+                            stridesDiff /= 10.0;
+                        }
                         double timeInMinutes = lastStrideCountChanged.msecsTo(now) / 60000.0;
 
-                        // Sanity check: reject unrealistic values and require minimum 5 strides for stable calculation
-                        if (timeInMinutes > 0 && stridesDiff >= 5 && stridesDiff < 1000) {
+                        // Sanity check: reject unrealistic values and require minimum 5 strides (or 0.5 for TRUE_ELLIPTICAL) for stable calculation
+                        if (timeInMinutes > 0 && ((!TRUE_ELLIPTICAL && stridesDiff >= 5) || (TRUE_ELLIPTICAL && stridesDiff >= 0.5)) && stridesDiff < 1000) {
                             // strides per minute, then divide by 2 to get RPM
                             double stridesPerMinute = stridesDiff / timeInMinutes;
                             instantCadence = stridesPerMinute / 2.0;
@@ -514,14 +523,13 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.metabolicEq) {
-            // FTMS metabolic equivalent is uint16 with 0.1 resolution
+            // FTMS metabolic equivalent is uint8 with 0.1 resolution
             if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || TRUE_ELLIPTICAL || FTMS) {
-                uint16_t metabolicValue = ((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
-                                        (uint16_t)((uint8_t)lastPacket.at(index));
+                uint8_t metabolicValue = (uint8_t)lastPacket.at(index);
                 METS = metabolicValue / 10.0; // Convert from 0.1 resolution to actual METs value
                 emit debug(QStringLiteral("Current METs: ") + QString::number(METS.value()));
             }
-            index += 2;
+            index += 1;
         }
 
         if (Flags.elapsedTime) {
