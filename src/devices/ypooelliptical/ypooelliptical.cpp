@@ -506,6 +506,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                     emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
                 } else {
                     emit debug(QStringLiteral("Heart rate not available from device (0xFF)"));
+                    Flags.heartRate = false;
                 }
             } else {
                 Flags.heartRate = false;
