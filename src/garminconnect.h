@@ -172,7 +172,7 @@ private:
     QString m_pendingTicket;
 
     // Constants
-    static constexpr const char* USER_AGENT = "com.garmin.android.apps.connectmobile";
+    static constexpr const char* USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
     static constexpr const char* SSO_URL_PATH = "/sso/signin";
     static constexpr const char* SSO_EMBED_PATH = "/sso/embed";
     static constexpr const char* OAUTH_CONSUMER_URL = "https://thegarth.s3.amazonaws.com/oauth_consumer.json";
