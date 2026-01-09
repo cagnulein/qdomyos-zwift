@@ -70,7 +70,7 @@ void iconsolebike::serviceFinished(void) {
         connect(socket, &QBluetoothSocket::connected, this,
                 QOverload<>::of(&iconsolebike::rfCommConnected));
         connect(socket, &QBluetoothSocket::disconnected, this, &iconsolebike::disconnected);
-        connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::errorOccurred), this,
+        connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
                 &iconsolebike::onSocketErrorOccurred);
 
 #ifdef Q_OS_ANDROID
@@ -221,7 +221,6 @@ void iconsolebike::update() {
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
                 auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-                connect(virtualBike, &virtualbike::debug, this, &iconsolebike::debug);
                 this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
@@ -240,8 +239,8 @@ void iconsolebike::update() {
 
         // Handle resistance change requests
         if (requestResistance != -1) {
-            if (requestResistance > max_resistance) {
-                requestResistance = max_resistance;
+            if (requestResistance > maxResistance) {
+                requestResistance = maxResistance;
             } else if (requestResistance < 0) {
                 requestResistance = 0;
             }
