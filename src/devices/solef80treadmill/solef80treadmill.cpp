@@ -272,6 +272,9 @@ void solef80treadmill::update() {
     bool f63 = settings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63).toBool();
     bool tt8 = settings.value(QZSettings::sole_treadmill_tt8, QZSettings::default_sole_treadmill_tt8).toBool();
 
+    if (!m_control)
+        return;
+    
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
         emit disconnected();
