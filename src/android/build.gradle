@@ -1,11 +1,11 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.0'
+        classpath 'com.android.tools.build:gradle:7.2.2'
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.4'
     }
 }
@@ -16,7 +16,7 @@ plugins {
 
 repositories {
     google()
-    jcenter()
+    mavenCentral()
     maven { url 'https://jitpack.io' }
 }
 
@@ -27,8 +27,8 @@ def amazon = System.getenv('AMAZON')
 println(amazon)
 
 dependencies {
-    implementation "androidx.core:core:1.12.0"
-    implementation "androidx.core:core-ktx:1.12.0"
+    implementation "androidx.core:core:1.10.1"
+    implementation "androidx.core:core-ktx:1.10.1"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
     implementation 'com.google.protobuf:protobuf-javalite:3.25.1'
 		
@@ -93,9 +93,10 @@ android {
      * Changing them manually might break the compilation!
      *******************************************************/
 
+    namespace 'org.cagnulen.qdomyoszwift'
     compileSdkVersion androidCompileSdkVersion.toInteger()
 
-    buildToolsVersion '29.0.2'
+    buildToolsVersion '33.0.0'
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -120,9 +121,15 @@ android {
 		  checkReleaseBuilds false
     }
 
-    // Do not compress Qt binary resources file
+    // Do not compress Qt binary resources file and native libraries
+    // Native libraries (.so) must not be compressed to preserve 16k page alignment
     aaptOptions {
-        noCompress 'rcc'
+        noCompress 'rcc', '.so'
+    }
+
+    // Do not strip native libraries - they are already stripped with 16k alignment verification
+    packagingOptions {
+        doNotStrip "**/*.so"
     }
 
     defaultConfig {

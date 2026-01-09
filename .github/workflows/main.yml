@@ -512,7 +512,7 @@ jobs:
   # This workflow contains a single job called "build"
   android-build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-22.04
+    runs-on: macos-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -530,21 +530,21 @@ jobs:
 #          path: '${{ github.workspace }}/output/android/'
 #          key: ${{ runner.os }}-QtCache-Android
 
-      - name: Xvfb install and run
-        run: |
-          sudo apt-get install -y xvfb
-          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
+#      - name: Xvfb install and run (Linux only - not needed on macOS)
+#        run: |
+#          sudo apt-get install -y xvfb
+#          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
 
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
-        
+
       - name: Checkout submodules with specific branches
         run: |
           git submodule init
-          git submodule update --init --recursive 
+          git submodule update --init --recursive
 
       - name: Fix qmdnsengine submodule
         run: |
@@ -552,8 +552,8 @@ jobs:
           git fetch
           git checkout 602da51dc43c55bd9aa8a83c47ea3594a9b01b98
 
-      - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+#      - name: Install packages required to run QZ inside workflow (Linux only - not needed on macOS)
+#        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
 
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
@@ -583,40 +583,81 @@ jobs:
 #        with:
 #          ndk-version: r21d
 
-# waiting github.com/jurplel/install-qt-action/issues/63
-      - name: Install Qt Android
+      - name: Install Qt 5.15.0 standard (for qthttpserver)
         uses: jdpurcell/install-qt-action@v5
         with:
           version: '5.15.0'
-          host: 'linux'
+          host: 'mac'
           target: 'android'
           arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
-          dir: '${{ github.workspace }}/output/android/'
+          modules: 'qtcharts qtnetworkauth'
+          dir: '${{ github.workspace }}/output/qt-standard/'
           cache: 'true'
-          cache-key-prefix: 'install-qt-action-android'                    
+          cache-key-prefix: 'install-qt-action-standard'
 
       - name: Install Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
-          
-      - name: patching qt for bluetooth
-        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
+          java-version: '17'
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
+      - name: Build qthttpserver with standard Qt
+        run: |
+          # QTHTTPSERVER uses standard Qt 5.15.0 (has all required modules including websockets-private)
+          cd src/qthttpserver
+          qmake
+          make -j8
+          make install
+          cd ../..
+
+      - name: Install Qt Android (custom build with 16k page support)
+        run: |
+          mkdir -p ${{ github.workspace }}/Qt-5.15.0-custom
+          cd ${{ github.workspace }}
+          # Use curl on macOS instead of wget
+          curl -L -o qt5.15.0-android-page16.zip https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.0/qt5.15.0-android-page16.zip
+          unzip -q qt5.15.0-android-page16.zip -d Qt-5.15.0-custom
+
+          echo "=== Checking Qt custom directory structure ==="
+          ls -la Qt-5.15.0-custom/ | head -20
+          echo "Searching for qmake..."
+          find Qt-5.15.0-custom -name qmake -type f 2>/dev/null | head -5
+          echo "Searching for Qt directories..."
+          find Qt-5.15.0-custom -maxdepth 3 -type d -name "Qt*" 2>/dev/null | head -10
+          echo "============================================"
+
       - name: Set Android NDK 21 && build
         run: |
-          # Install NDK 21 after GitHub update
+          # Completely remove all Qt installations from PATH to ensure only custom Qt is used
+          # This prevents moc, qmake, and other Qt tools from the standard installation being used
+          export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "Qt" | grep -v "qt" | tr '\n' ':' | sed 's/:$//')
+
+          # Setup custom Qt installation for Android build (with 16k page support)
+          export QT_ROOT="${{ github.workspace }}/Qt-5.15.0-custom/qt5.15.0-android-page16/usr/local/Qt-5.15.0"
+          export PATH="${QT_ROOT}/bin:$PATH"
+          export Qt5_DIR="${QT_ROOT}"
+          export QT_HOST_PATH="${QT_ROOT}"
+
+          # Verify we're using the correct Qt installation
+          echo "=== Qt Installation Verification ==="
+          echo "QT_ROOT: $QT_ROOT"
+          echo "PATH (first 5 entries): $(echo $PATH | tr ':' '\n' | head -5 | tr '\n' ':')"
+          echo "qmake location: $(which qmake)"
+          echo "qmake version: $(qmake -version)"
+          echo "moc location: $(which moc)"
+          echo "androiddeployqt location: $(which androiddeployqt)"
+          echo "===================================="
+
+          # Install NDK 25 on macOS (for compatibility with custom Qt build)
           # https://github.com/actions/virtual-environments/issues/5595
-          ANDROID_ROOT="/usr/local/lib/android"
-          ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
+          # On macOS, Android SDK is in $ANDROID_HOME
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
-          export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
+          echo "y" | $SDKMANAGER "ndk;25.1.8937393"
+          export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk/25.1.8937393"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
@@ -630,22 +671,370 @@ jobs:
           echo "#define LICENSE" >> secret.h
           cd ..
 
-          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
-          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+          # Build Android app with custom Qt (16k page support) - arm64-v8a only
+          cd src
+          qmake qdomyos-zwift.pro -spec android-clang 'ANDROID_ABIS=arm64-v8a' "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/25.1.8937393"
+          make -f Makefile.qdomyos-zwift.Arm64-v8a all -j4
+          cd ..
+          make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
 
-          # QTHTTPSERVER must use the same NDK
-          cd src/qthttpserver 
-          qmake
-          make -j8
-          make install
-          cd ../..          
-          
-          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
-          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
+          # Show original deployment settings
+          echo "=== Original deployment settings (generated by qmake) ==="
           cat src/android-qdomyos-zwift-deployment-settings.json
+          echo ""
 
-      - name: Build APK (not usable for production due to unpatched QT library)
-        run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+          # Add android-extra-libs (SSL libraries) - arm64 only
+          sed -i.bak '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
+
+          # Force androiddeployqt to use custom Qt with 16k page support
+          # Replace qt5AndroidDir path with custom Qt path
+          CUSTOM_QT_PATH="${{ github.workspace }}/Qt-5.15.0-custom/qt5.15.0-android-page16/usr/local/Qt-5.15.0"
+          sed -i.bak2 "s|\"qt5AndroidDir\": \"[^\"]*\"|\"qt5AndroidDir\": \"$CUSTOM_QT_PATH\"|g" src/android-qdomyos-zwift-deployment-settings.json
+
+          rm -f src/android-qdomyos-zwift-deployment-settings.json.bak*
+
+          echo "=== Modified deployment settings (using custom Qt) ==="
+          cat src/android-qdomyos-zwift-deployment-settings.json
+          echo ""
+
+      - name: Verify Custom Qt Libraries (Before APK Build)
+        run: |
+          echo "========================================================"
+          echo "  Verifying Custom Qt 5.15.0 Libraries (16k alignment)"
+          echo "========================================================"
+          echo ""
+
+          QT_LIB_DIR="${{ github.workspace }}/Qt-5.15.0-custom/qt5.15.0-android-page16/usr/local/Qt-5.15.0/lib"
+
+          echo "Qt library directory: $QT_LIB_DIR"
+          echo ""
+
+          # Check if directory exists
+          if [ ! -d "$QT_LIB_DIR" ]; then
+            echo "ERROR: Qt library directory not found!"
+            exit 1
+          fi
+
+          # List and check a few key Qt libraries for arm64-v8a
+          echo "=== Key Qt Libraries (arm64-v8a) ==="
+          echo ""
+
+          for lib in libQt5Core_arm64-v8a.so libQt5Gui_arm64-v8a.so libQt5Network_arm64-v8a.so libQt5Bluetooth_arm64-v8a.so; do
+            if [ -f "$QT_LIB_DIR/$lib" ]; then
+              SIZE=$(ls -lh "$QT_LIB_DIR/$lib" | awk '{print $5}')
+              MD5=$(md5 -q "$QT_LIB_DIR/$lib" 2>/dev/null || md5sum "$QT_LIB_DIR/$lib" | awk '{print $1}')
+              echo "✓ $lib"
+              echo "  Size: $SIZE"
+              echo "  MD5:  $MD5"
+              echo ""
+            else
+              echo "✗ $lib - NOT FOUND!"
+            fi
+          done
+
+          echo "========================================================"
+          echo ""
+
+          # Check what Qt libraries will be deployed by androiddeployqt
+          echo "=== Checking android-qdomyos-zwift-deployment-settings.json ==="
+          cat src/android-qdomyos-zwift-deployment-settings.json | grep -A5 -B5 "qt5AndroidDir" || true
+          echo ""
+          echo "========================================================"
+
+      - name: Build APK (using Qt 5.15.0 with 16k page support)
+        run: |
+          # Remove standard Qt from PATH (for androiddeployqt)
+          export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "output/qt-standard" | tr '\n' ':' | sed 's/:$//')
+
+          # Set custom Qt path
+          export QT_ROOT="${{ github.workspace }}/Qt-5.15.0-custom/qt5.15.0-android-page16/usr/local/Qt-5.15.0"
+          export PATH="${QT_ROOT}/bin:$PATH"
+
+          # CRITICAL: Override ALL Qt environment variables to point to custom Qt
+          # install-qt-action sets these to qt-standard, causing androiddeployqt to use wrong Qt
+          export Qt5_DIR="${QT_ROOT}/lib/cmake"
+          export QT_ROOT_DIR="${QT_ROOT}"
+          export QT_PLUGIN_PATH="${QT_ROOT}/plugins"
+          export QML2_IMPORT_PATH="${QT_ROOT}/qml"
+          export PKG_CONFIG_PATH="${QT_ROOT}/lib/pkgconfig"
+
+          echo "=== Qt Environment Variables (for androiddeployqt) ==="
+          echo "QT_ROOT: $QT_ROOT"
+          echo "Qt5_DIR: $Qt5_DIR"
+          echo "QT_ROOT_DIR: $QT_ROOT_DIR"
+          echo "QT_PLUGIN_PATH: $QT_PLUGIN_PATH"
+          echo "QML2_IMPORT_PATH: $QML2_IMPORT_PATH"
+          echo "androiddeployqt: $(which androiddeployqt)"
+          echo "======================================================"
+          echo ""
+
+          cd src
+          # Run androiddeployqt WITHOUT --gradle to just copy files, we'll run gradle manually after
+          androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31
+
+      - name: Copy Custom Qt Libraries (Force Override)
+        run: |
+          echo "========================================================"
+          echo "  Copying Custom Qt Libraries to Override Standard Ones"
+          echo "========================================================"
+          echo ""
+
+          CUSTOM_QT_LIB="${{ github.workspace }}/Qt-5.15.0-custom/qt5.15.0-android-page16/usr/local/Qt-5.15.0/lib"
+          OUTPUT_LIBS="${{ github.workspace }}/output/android/libs"
+
+          # Copy Qt libraries for arm64-v8a only (16k page support)
+          echo "Copying Qt libraries from custom Qt to output directory..."
+          echo "Source: $CUSTOM_QT_LIB"
+          echo "Destination: $OUTPUT_LIBS"
+          echo ""
+
+          ARCH="arm64-v8a"
+          echo "Processing architecture: $ARCH"
+          mkdir -p "$OUTPUT_LIBS/$ARCH"
+
+          # Copy all Qt .so files for arm64-v8a
+          echo "Copying Qt libraries..."
+          cp -v "$CUSTOM_QT_LIB"/libQt*_${ARCH}.so "$OUTPUT_LIBS/$ARCH/"
+
+          # Verify key libraries were copied
+          echo ""
+          echo "Verifying copied libraries:"
+          for lib in libQt5Core libQt5Gui libQt5Network libQt5Bluetooth; do
+            if [ -f "$OUTPUT_LIBS/$ARCH/${lib}_${ARCH}.so" ]; then
+              SIZE=$(ls -lh "$OUTPUT_LIBS/$ARCH/${lib}_${ARCH}.so" | awk '{print $5}')
+              echo "  ✓ $lib copied (size: $SIZE)"
+            else
+              echo "  ✗ $lib NOT found!"
+            fi
+          done
+
+          echo ""
+          echo "Custom Qt libraries copied successfully!"
+          echo "========================================================"
+          echo ""
+
+      - name: Strip Qt Libraries (Preserve 16k Alignment)
+        run: |
+          echo "========================================================"
+          echo "  Stripping Qt Libraries (Preserve 16k Alignment)"
+          echo "========================================================"
+          echo ""
+
+          NDK_ROOT="${ANDROID_SDK_ROOT}/ndk/25.1.8937393"
+          LLVM_STRIP="${NDK_ROOT}/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-strip"
+          LLVM_READELF="${NDK_ROOT}/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-readelf"
+          OUTPUT_LIBS="${{ github.workspace }}/output/android/libs/arm64-v8a"
+
+          # Verify tools exist
+          if [ ! -f "$LLVM_STRIP" ]; then
+            echo "ERROR: llvm-strip not found at $LLVM_STRIP"
+            exit 1
+          fi
+
+          if [ ! -f "$LLVM_READELF" ]; then
+            echo "ERROR: llvm-readelf not found at $LLVM_READELF"
+            exit 1
+          fi
+
+          echo "Using NDK tools:"
+          echo "  Strip: $LLVM_STRIP"
+          echo "  Readelf: $LLVM_READELF"
+          echo ""
+
+          # Process all Qt libraries
+          for lib in "$OUTPUT_LIBS"/libQt*.so; do
+            if [ -f "$lib" ]; then
+              LIBNAME=$(basename "$lib")
+              SIZE_BEFORE=$(ls -lh "$lib" | awk '{print $5}')
+
+              echo "Processing: $LIBNAME"
+              echo "  Size before strip: $SIZE_BEFORE"
+
+              # Strip with --strip-unneeded (preserves dynamic symbol table)
+              "$LLVM_STRIP" --strip-unneeded "$lib"
+
+              SIZE_AFTER=$(ls -lh "$lib" | awk '{print $5}')
+              echo "  Size after strip:  $SIZE_AFTER"
+
+              # Verify 16k alignment is preserved
+              ALIGNMENT=$("$LLVM_READELF" -W -l "$lib" | grep "LOAD" | head -1 | awk '{print $NF}')
+
+              if [ "$ALIGNMENT" = "0x4000" ]; then
+                echo "  ✓ 16k alignment preserved (0x4000)"
+              else
+                echo "  ✗ ERROR: Alignment is $ALIGNMENT, expected 0x4000"
+                echo ""
+                echo "Full segment info:"
+                "$LLVM_READELF" -W -l "$lib" | grep -A 5 "LOAD"
+                exit 1
+              fi
+
+              echo ""
+            fi
+          done
+
+          echo "All Qt libraries stripped successfully with 16k alignment!"
+          echo "========================================================"
+          echo ""
+
+      - name: Build APK with Gradle (After Qt Override)
+        run: |
+          cd ${{ github.workspace }}/output/android
+
+          # Clean Gradle cache and build artifacts
+          echo "Cleaning Gradle cache..."
+          ./gradlew clean
+
+          # Increase Gradle heap size for custom Qt libraries (stripped, uncompressed)
+          export GRADLE_OPTS="-Xmx8192m -XX:+HeapDumpOnOutOfMemoryError"
+
+          echo "Building APK with custom Qt libraries..."
+          ./gradlew assembleDebug
+
+      - name: Verify Qt Libraries in APK (After Build)
+        run: |
+          APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
+          EXTRACT_DIR="${{ github.workspace }}/apk_verify"
+          QT_LIB_DIR="${{ github.workspace }}/Qt-5.15.0-custom/qt5.15.0-android-page16/usr/local/Qt-5.15.0/lib"
+
+          echo "========================================================"
+          echo "  Verifying Qt Libraries Inside APK"
+          echo "========================================================"
+          echo ""
+
+          # Extract APK
+          rm -rf "$EXTRACT_DIR"
+          mkdir -p "$EXTRACT_DIR"
+          unzip -q "$APK_PATH" -d "$EXTRACT_DIR"
+
+          echo "=== Comparing Qt Libraries: Custom vs APK ==="
+          echo ""
+
+          for lib in libQt5Core_arm64-v8a.so libQt5Gui_arm64-v8a.so libQt5Network_arm64-v8a.so libQt5Bluetooth_arm64-v8a.so; do
+            CUSTOM_LIB="$QT_LIB_DIR/$lib"
+            APK_LIB="$EXTRACT_DIR/lib/arm64-v8a/$lib"
+
+            if [ -f "$APK_LIB" ]; then
+              CUSTOM_SIZE=$(ls -lh "$CUSTOM_LIB" 2>/dev/null | awk '{print $5}' || echo "N/A")
+              APK_SIZE=$(ls -lh "$APK_LIB" | awk '{print $5}')
+
+              CUSTOM_MD5=$(md5 -q "$CUSTOM_LIB" 2>/dev/null || md5sum "$CUSTOM_LIB" 2>/dev/null | awk '{print $1}' || echo "N/A")
+              APK_MD5=$(md5 -q "$APK_LIB" 2>/dev/null || md5sum "$APK_LIB" | awk '{print $1}')
+
+              echo "Library: $lib"
+              echo "  Custom Qt:  Size=$CUSTOM_SIZE  MD5=$CUSTOM_MD5"
+              echo "  Inside APK: Size=$APK_SIZE     MD5=$APK_MD5"
+
+              if [ "$CUSTOM_MD5" = "$APK_MD5" ]; then
+                echo "  ✓ MATCH - Using custom Qt library"
+              else
+                echo "  ✗ MISMATCH - APK contains different library!"
+              fi
+              echo ""
+            else
+              echo "✗ $lib - NOT FOUND in APK!"
+              echo ""
+            fi
+          done
+
+          # Cleanup
+          rm -rf "$EXTRACT_DIR"
+
+          echo "========================================================"
+          echo ""
+
+      - name: Verify APK 16k alignment
+        run: |
+          APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
+
+          # Find zipalign in Android SDK (macOS path)
+          ZIPALIGN=$(find $ANDROID_HOME/build-tools -name zipalign | head -n 1)
+
+          if [ -z "$ZIPALIGN" ]; then
+            echo "ERROR: zipalign not found in Android SDK"
+            exit 1
+          fi
+
+          echo "Using zipalign: $ZIPALIGN"
+          echo "APK path: $APK_PATH"
+          echo ""
+          echo "========================================================"
+          echo "  Detailed 16k Alignment Check for All Native Libraries"
+          echo "========================================================"
+          echo ""
+
+          # Check overall APK alignment
+          if $ZIPALIGN -c -v 16384 "$APK_PATH" 2>&1 | tee alignment_check.log; then
+            echo ""
+            echo "✓ SUCCESS: APK is correctly aligned to 16k (16384 bytes)"
+            echo "All files in the APK are properly aligned for 16k page devices"
+          else
+            echo ""
+            echo "⚠ WARNING: APK is NOT fully aligned to 16k (16384 bytes)"
+            echo ""
+
+            # Extract APK for detailed analysis
+            EXTRACT_DIR="${{ github.workspace }}/apk_extracted"
+            rm -rf "$EXTRACT_DIR"
+            mkdir -p "$EXTRACT_DIR"
+            unzip -q "$APK_PATH" -d "$EXTRACT_DIR"
+
+            echo "=== Analyzing .so files in APK ==="
+            echo ""
+
+            # Find all .so files and check their alignment
+            ALIGNED_COUNT=0
+            UNALIGNED_COUNT=0
+
+            echo "Checking all .so libraries:"
+            echo "-----------------------------------------------------------"
+
+            find "$EXTRACT_DIR" -name "*.so" -type f | sort | while read so_file; do
+              RELATIVE_PATH=$(echo "$so_file" | sed "s|$EXTRACT_DIR/||")
+
+              # Get file offset in APK using unzip -l -v
+              OFFSET=$(unzip -l -v "$APK_PATH" | grep -F "$RELATIVE_PATH" | awk '{print $7}')
+
+              # Check if offset is divisible by 16384
+              if [ -n "$OFFSET" ]; then
+                REMAINDER=$((OFFSET % 16384))
+                if [ $REMAINDER -eq 0 ]; then
+                  echo "✓ ALIGNED   (16k): $RELATIVE_PATH (offset: $OFFSET)"
+                  ALIGNED_COUNT=$((ALIGNED_COUNT + 1))
+                else
+                  echo "✗ UNALIGNED (16k): $RELATIVE_PATH (offset: $OFFSET, remainder: $REMAINDER)"
+                  UNALIGNED_COUNT=$((UNALIGNED_COUNT + 1))
+                fi
+              fi
+            done > so_alignment_report.txt
+
+            cat so_alignment_report.txt
+
+            echo ""
+            echo "-----------------------------------------------------------"
+            echo "Summary:"
+
+            ALIGNED_COUNT=$(grep "✓ ALIGNED" so_alignment_report.txt | wc -l | tr -d ' ')
+            UNALIGNED_COUNT=$(grep "✗ UNALIGNED" so_alignment_report.txt | wc -l | tr -d ' ')
+
+            echo "  Aligned to 16k:   $ALIGNED_COUNT libraries"
+            echo "  NOT aligned:      $UNALIGNED_COUNT libraries"
+            echo ""
+
+            if [ "$UNALIGNED_COUNT" -gt 0 ]; then
+              echo "⚠ WARNING: Some libraries are NOT aligned to 16k page boundaries"
+              echo "This APK may have issues on devices with 16k page size."
+              echo ""
+              echo "Unaligned libraries:"
+              grep "✗ UNALIGNED" so_alignment_report.txt | sed 's/^/  /'
+            fi
+
+            # Cleanup
+            rm -rf "$EXTRACT_DIR"
+          fi
+
+          echo ""
+          echo "========================================================"
 
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
@@ -1648,7 +2037,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
+          java-version: '17'
           
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
@@ -1755,7 +2144,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
+          java-version: '17'
           
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
@@ -1860,7 +2249,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
+          java-version: '17'
           
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
