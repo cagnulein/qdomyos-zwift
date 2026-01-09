@@ -889,7 +889,6 @@ jobs:
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
-          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
