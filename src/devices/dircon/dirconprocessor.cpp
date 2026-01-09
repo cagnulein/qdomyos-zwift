@@ -9,6 +9,8 @@ DirconProcessor::DirconProcessor(const QList<DirconProcessorService *> &my_servi
     : QObject(parent), services(my_services), mac(my_mac), serverPort(serv_port), serialN(serv_sn),
       serverName(serv_name) {
     qDebug() << "In the constructor of dircon processor for" << serverName;
+    QSettings settings;
+    rouvy_compatibility = settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool();
     foreach (DirconProcessorService *my_service, my_services) { my_service->setParent(this); }
 }
 
@@ -33,7 +35,8 @@ bool DirconProcessor::initServer() {
     }
     if (!server->isListening()) {
         qDebug() << "Dircon TCP Server trying to listen" << serverPort;
-        return server->listen(QHostAddress::Any, serverPort);
+        // Listen only on IPv4 for Apple TV/Windows compatibility (like Elite Avanti) when Rouvy compatibility is enabled
+        return server->listen(rouvy_compatibility ? QHostAddress::AnyIPv4 : QHostAddress::Any, serverPort);
     } else
         return true;
 }
@@ -59,20 +62,39 @@ void DirconProcessor::initAdvertising() {
         mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, serverName.toUtf8() + QByteArrayLiteral("H"), this);
         mdnsProvider = new QMdnsEngine::Provider(mdnsServer, mdnsHostname, this);
         QMdnsEngine::Service mdnsService;
-        mdnsService.setType("_wahoo-fitness-tnp._tcp.local.");
+        mdnsService.setType(rouvy_compatibility ? "_wahoo-fitness-tnp._tcp.local" : "_wahoo-fitness-tnp._tcp.local.");
         mdnsService.setName(serverName.toUtf8());
         mdnsService.addAttribute(QByteArrayLiteral("mac-address"), mac.toUtf8());
         mdnsService.addAttribute(QByteArrayLiteral("serial-number"), serialN.toUtf8());
         QString ble_uuids;
-        int i = 0;
-        foreach (DirconProcessorService *service, services) {
-            if(service->uuid == ZWIFT_PLAY_ENUM_VALUE) {
-                ble_uuids += ZWIFT_PLAY_UUID_STRING +
-                ((i++ < services.size() - 1) ? QStringLiteral(",") : QStringLiteral(""));
-            } else {
-                ble_uuids += QString(QStringLiteral(DP_BASE_UUID))
-                    .replace("u", QString(QStringLiteral("%1")).arg(service->uuid, 4, 16, QLatin1Char('0'))) +
-                ((i++ < services.size() - 1) ? QStringLiteral(",") : QStringLiteral(""));
+        if (rouvy_compatibility) {
+            QStringList uuid_list;
+            foreach (DirconProcessorService *service, services) {
+                // Filter: only advertise 0x1826 for KICKR (skip 0x1818, 0x1816)
+                if(service->uuid == 0x1818 || service->uuid == 0x1816) {
+                    continue;
+                }
+
+                if(service->uuid == ZWIFT_PLAY_ENUM_VALUE) {
+                    uuid_list.append(ZWIFT_PLAY_UUID_STRING);
+                } else {
+                    // Use short format with 0x prefix (Apple TV/Windows compatibility)
+                    uuid_list.append(QString(QStringLiteral("0x%1"))
+                        .arg(service->uuid, 4, 16, QLatin1Char('0')));
+                }
+            }
+            ble_uuids = uuid_list.join(",");
+        } else {
+            int i = 0;
+            foreach (DirconProcessorService *service, services) {
+                if(service->uuid == ZWIFT_PLAY_ENUM_VALUE) {
+                    ble_uuids += ZWIFT_PLAY_UUID_STRING +
+                        ((i++ < services.size() - 1) ? QStringLiteral(",") : QStringLiteral(""));
+                } else {
+                    ble_uuids += QString(QStringLiteral(DP_BASE_UUID))
+                        .replace("u", QString(QStringLiteral("%1")).arg(service->uuid, 4, 16, QLatin1Char('0'))) +
+                    ((i++ < services.size() - 1) ? QStringLiteral(",") : QStringLiteral(""));
+                }
             }
         }
         mdnsService.addAttribute(QByteArrayLiteral("ble-service-uuids"), ble_uuids.toUtf8());
@@ -101,6 +123,21 @@ void DirconProcessor::tcpNewConnection() {
     connect(socket, SIGNAL(readyRead()), this, SLOT(tcpDataAvailable()));
     DirconProcessorClient *client = new DirconProcessorClient(socket);
     clientsMap.insert(socket, client);
+
+    if (rouvy_compatibility) {
+        // Send initial notification for 0x2AD2 (Indoor Bike Data) - Apple TV/Windows compatibility
+        // Elite Avanti sends this immediately after connection
+        DirconPacket initPkt;
+        initPkt.isRequest = false;
+        initPkt.Identifier = DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION;
+        initPkt.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
+        initPkt.uuid = 0x2AD2;
+        initPkt.additional_data = QByteArray(29, 0x00); // Empty data for now
+        QByteArray initData = initPkt.encode(0);
+        socket->write(initData);
+        socket->flush();
+        qDebug() << "Sent initial notification for 0x2AD2 to" << socket->peerAddress().toString();
+    }
 }
 
 void DirconProcessor::tcpDisconnected() {
@@ -228,7 +265,7 @@ bool DirconProcessor::sendCharacteristicNotification(quint16 uuid, const QByteAr
     pkt.uuid = uuid;
     for (QHash<QTcpSocket *, DirconProcessorClient *>::iterator i = clientsMap.begin(); i != clientsMap.end(); ++i) {
         client = i.value();
-        /*if (client->char_notify.indexOf(uuid) >= 0 || !settings.value(QZSettings::wahoo_rgt_dircon, QZSettings::default_wahoo_rgt_dircon).toBool())*/ {
+        if (client->char_notify.indexOf(uuid) >= 0 || settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool()) {
             socket = i.key();
             rvs = socket->write(pkt.encode(0)) < 0;
             if (rvs)

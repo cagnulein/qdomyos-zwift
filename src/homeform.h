@@ -8,6 +8,7 @@
 #include "gpx.h"
 #include "OAuth2.h"
 #include "peloton.h"
+#include "garminconnect.h"
 #include "qmdnsengine/browser.h"
 #include "qmdnsengine/cache.h"
 #include "qmdnsengine/resolver.h"
@@ -189,12 +190,18 @@ class homeform : public QObject {
     Q_PROPERTY(bool startRequested READ startRequested NOTIFY startRequestedChanged WRITE setStartRequestedChanged)
     Q_PROPERTY(QString toastRequested READ toastRequested NOTIFY toastRequestedChanged WRITE setToastRequested)
     Q_PROPERTY(bool stravaUploadRequested READ stravaUploadRequested NOTIFY stravaUploadRequestedChanged WRITE setStravaUploadRequested)
+    Q_PROPERTY(bool garminMfaRequested READ garminMfaRequested NOTIFY garminMfaRequestedChanged WRITE setGarminMfaRequested)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
     Q_PROPERTY(QList<double> preview_workout_watt READ preview_workout_watt)
+    Q_PROPERTY(QList<double> preview_workout_speed READ preview_workout_speed)
+    Q_PROPERTY(QList<double> preview_workout_inclination READ preview_workout_inclination)
+    Q_PROPERTY(QList<double> preview_workout_resistance READ preview_workout_resistance)
+    Q_PROPERTY(QList<double> preview_workout_cadence READ preview_workout_cadence)
     Q_PROPERTY(QString previewWorkoutDescription READ previewWorkoutDescription NOTIFY previewWorkoutDescriptionChanged)
     Q_PROPERTY(QString previewWorkoutTags READ previewWorkoutTags NOTIFY previewWorkoutTagsChanged)
+    Q_PROPERTY(bool miles_unit READ miles_unit)
 
     Q_PROPERTY(bool currentCoordinateValid READ currentCoordinateValid)
     Q_PROPERTY(bool trainProgramLoadedWithVideo READ trainProgramLoadedWithVideo)
@@ -207,9 +214,15 @@ class homeform : public QObject {
     Q_PROPERTY(QString getPelotonAuthUrl READ getPelotonAuthUrl NOTIFY pelotonAuthUrlChanged)
     Q_PROPERTY(bool pelotonWebVisible READ pelotonWebVisible NOTIFY pelotonWebVisibleChanged)
 
+    QString getIntervalsICUAuthUrl() { return intervalsicuAuthUrl; }
+    bool intervalsicuWebVisible() { return intervalsicuAuthWebVisible; }
+    Q_PROPERTY(QString getIntervalsICUAuthUrl READ getIntervalsICUAuthUrl NOTIFY intervalsicuAuthUrlChanged)
+    Q_PROPERTY(bool intervalsicuWebVisible READ intervalsicuWebVisible NOTIFY intervalsicuWebVisibleChanged)
+
   public:
     static homeform *singleton() { return m_singleton; }
     bluetooth *bluetoothManager;
+    QQmlApplicationEngine *getEngine() { return engine; }
 
     QByteArray currentPelotonImage();
     Q_INVOKABLE void save_screenshot() {
@@ -464,6 +477,7 @@ class homeform : public QObject {
     QString pelotonProvider() { return m_pelotonProvider; }
     QString toastRequested() { return m_toastRequested; }
     bool stravaUploadRequested() { return m_stravaUploadRequested; }
+    bool garminMfaRequested() { return m_garminMfaRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool pelotonPopupVisible();
@@ -521,6 +535,14 @@ class homeform : public QObject {
     void setStravaUploadRequested(bool value) {
         m_stravaUploadRequested = value;
     }
+    void setGarminMfaRequested(bool value) {
+        m_garminMfaRequested = value;
+        emit garminMfaRequestedChanged(value);
+    }
+    Q_INVOKABLE void garmin_connect_login();
+    Q_INVOKABLE void garmin_submit_mfa_code(const QString &mfaCode);
+    Q_INVOKABLE void garmin_connect_logout();
+
     void setGeneralPopupVisible(bool value);
     void setPelotonPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
@@ -533,6 +555,7 @@ class homeform : public QObject {
     Q_INVOKABLE static QString getWritableAppDir();
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
+    Q_INVOKABLE bool startTrainingProgramFromFile(const QString &filePath);
 
     double wattMaxChart() {
         QSettings settings;
@@ -606,6 +629,62 @@ class homeform : public QObject {
         return l;
     }
 
+    QList<double> preview_workout_speed() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.speed);
+            }
+        }
+        return l;
+    }
+
+    QList<double> preview_workout_inclination() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.inclination);
+            }
+        }
+        return l;
+    }
+
+    QList<double> preview_workout_resistance() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.resistance);
+            }
+        }
+        return l;
+    }
+
+    QList<double> preview_workout_cadence() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.cadence);
+            }
+        }
+        return l;
+    }
+
     QString previewWorkoutDescription() {
         if (previewTrainProgram) {
             return previewTrainProgram->description;
@@ -618,6 +697,11 @@ class homeform : public QObject {
             return previewTrainProgram->tags;
         }
         return "";
+    }
+
+    bool miles_unit() {
+        QSettings settings;
+        return settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     }
 
     bool currentCoordinateValid() {
@@ -636,11 +720,13 @@ class homeform : public QObject {
     
     DataObject *speed;
     DataObject *inclination;
+    DataObject *negative_inclination;
     DataObject *cadence;
     DataObject *elevation;
     DataObject *calories;
     DataObject *odometer;
     DataObject *pace;
+    DataObject *avg_pace;
     DataObject *datetime;
     DataObject *resistance;
     DataObject *watt;
@@ -751,6 +837,15 @@ class homeform : public QObject {
     QOAuth2AuthorizationCodeFlow *strava = nullptr;
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
+    GarminConnect *garminConnect = nullptr;
+
+    // Intervals.icu OAuth and upload
+    QOAuth2AuthorizationCodeFlow *intervalsicu = nullptr;
+    QNetworkAccessManager *intervalsicuManager = nullptr;
+    QOAuthHttpServerReplyHandler *intervalsicuReplyHandler = nullptr;
+    QNetworkReply *replyIntervalsICU = nullptr;
+    QString intervalsicuAthleteId;
+    QString intervalsicuAuthCode;
 
     bool paused = false;
     bool stopped = false;
@@ -769,6 +864,7 @@ class homeform : public QObject {
     QString m_pelotonProvider = "";
     QString m_toastRequested = "";
     bool m_stravaUploadRequested = false;
+    bool m_garminMfaRequested = false;
     FitDatabaseProcessor *fitProcessor = nullptr;
     WorkoutModel *workoutModel = nullptr;
     int m_pelotonLoginState = -1;
@@ -812,6 +908,15 @@ class homeform : public QObject {
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
     QString stravaAuthUrl;
     bool stravaAuthWebVisible;
+
+    // Intervals.icu methods
+    QOAuth2AuthorizationCodeFlow *intervalsicu_connect();
+    void intervalsicu_refreshtoken();
+    bool intervalsicu_upload_file(const QByteArray &data, const QString &remotename);
+    void intervalsicu_download_todays_workout();
+    void intervalsicu_download_workout_completed(QNetworkReply *reply);
+    QString intervalsicuAuthUrl;
+    bool intervalsicuAuthWebVisible;
 
     static quint64 cryptoKeySettingsProfiles();
 
@@ -872,6 +977,7 @@ class homeform : public QObject {
     void Minus(const QString &);
     void Plus(const QString &);
     void trainprogram_open_clicked(const QUrl &fileName);
+    void trainprogram_autostart_requested();
 
   private slots:
     void Start();
@@ -912,6 +1018,16 @@ class homeform : public QObject {
     void callbackReceived(const QVariantMap &values);
     void writeFileCompleted();
     void errorOccurredUploadStrava(QNetworkReply::NetworkError code);
+    // Intervals.icu slots
+    void intervalsicu_connect_clicked();
+    void intervalsicu_upload_file_prepare();
+    void intervalsicu_download_todays_workout_clicked();
+    void onIntervalsICUGranted();
+    void onIntervalsICUAuthorizeWithBrowser(const QUrl &url);
+    void replyDataReceivedIntervalsICU(const QByteArray &v);
+    void callbackReceivedIntervalsICU(const QVariantMap &values);
+    void writeFileCompletedIntervalsICU();
+    void errorOccurredUploadIntervalsICU(QNetworkReply::NetworkError code);
     void pelotonWorkoutStarted(const QString &name, const QString &instructor);
     void pelotonWorkoutChanged(const QString &name, const QString &instructor);
     void pelotonLoginState(bool ok);
@@ -933,6 +1049,7 @@ class homeform : public QObject {
     void bluetoothDeviceDisconnected();
     void onToastRequested(QString message);
     void strava_upload_file_prepare();
+    void garmin_upload_file_prepare();
     void handleRestoreDefaultWheelDiameter();
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
@@ -962,6 +1079,7 @@ class homeform : public QObject {
     void changePelotonProvider(QString value);
     void toastRequestedChanged(QString value);
     void stravaUploadRequestedChanged(bool value);
+    void garminMfaRequestedChanged(bool value);
     void generalPopupVisibleChanged(bool value);
     void pelotonPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
@@ -995,6 +1113,8 @@ class homeform : public QObject {
     void stravaWebVisibleChanged(bool value);
     void pelotonAuthUrlChanged(QString value);
     void pelotonWebVisibleChanged(bool value);
+    void intervalsicuAuthUrlChanged(QString value);
+    void intervalsicuWebVisibleChanged(bool value);
 
     void restoreDefaultWheelDiameter();
 

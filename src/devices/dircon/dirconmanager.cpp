@@ -27,6 +27,9 @@ using namespace std::chrono_literals;
     OP(WAHOO_RPM_SPEED, "Wahoo SPEED $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)                                    \
     OP(WAHOO_TREADMILL, "Wahoo TREAD $uuid_hex$", DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)
 
+#define DM_MACHINE_OP_ROUVY(OP, P1, P2, P3)                                                                            \
+    OP(WAHOO_KICKR, "ELITE AVANTI $uuid_hex$ W", DM_MACHINE_TYPE_TREADMILL | DM_MACHINE_TYPE_BIKE, P1, P2, P3)
+
 #define DP_PROCESS_WRITE_0003() (zwift_play_emulator ? writeP0003 : 0)
 #define DP_PROCESS_WRITE_2AD9() writeP2AD9
 #define DP_PROCESS_WRITE_2AD9T() writeP2AD9
@@ -128,12 +131,12 @@ enum {
         }                                                                                                              \
         if (P2.size()) {                                                                                               \
             QString dircon_id = QString("%1").arg(settings.value(QZSettings::dircon_id,                                \
-            QZSettings::default_dircon_id).toInt(), 4, 10, QChar('0'));                                                \
+            QZSettings::default_dircon_id).toInt(), rouvy_compatibility ? 5 : 4, 10, QChar('0'));                     \
             DirconProcessor *processor = new DirconProcessor(                                                          \
                 P2,                                                                                                    \
                 QString(QStringLiteral(NAME))                                                                          \
                     .replace(QStringLiteral("$uuid_hex$"), dircon_id),                                                 \
-                server_base_port + DM_MACHINE_##DESC, QString(QStringLiteral("%1")).arg(DM_MACHINE_##DESC), mac,       \
+                server_base_port + DM_MACHINE_##DESC, rouvy_compatibility ? dircon_id : QString(QStringLiteral("%1")).arg(DM_MACHINE_##DESC), mac,       \
                 this);                                                                                                 \
             QString servdesc;                                                                                          \
             foreach (DirconProcessorService *s, P2) { servdesc += *s + QStringLiteral(","); }                          \
@@ -146,6 +149,19 @@ enum {
     }
 
 QString DirconManager::getMacAddress() {
+    QSettings settings;
+    bool rouvy_compatibility = settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool();
+    int dircon_id = settings.value(QZSettings::dircon_id, QZSettings::default_dircon_id).toInt();
+
+    // When Rouvy compatibility is enabled, use a specific MAC address with the last byte set to dircon_id
+    /*if (rouvy_compatibility) {
+        // Use base MAC address "24:DC:C3:E3:B5:XX" where XX is the dircon_id
+        // Ensure dircon_id is in the valid range 0-255
+        int last_byte = dircon_id & 0xFF;
+        return QString("24:DC:C3:E3:B5:%1").arg(last_byte, 2, 16, QChar('0')).toUpper();
+    }*/
+
+    // Default behavior: get MAC address from network interfaces
     QString addr;
     foreach (QNetworkInterface netInterface, QNetworkInterface::allInterfaces()) {
         // Return only the first non-loopback MAC Address
@@ -180,6 +196,7 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
         settings.value(QZSettings::dircon_server_base_port, QZSettings::default_dircon_server_base_port).toUInt();
     bool bike_wheel_revs = settings.value(QZSettings::bike_wheel_revs, QZSettings::default_bike_wheel_revs).toBool();
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
+    bool rouvy_compatibility = settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool();
     
     DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_BUILD_OP, Bike, 0, 0)
     
@@ -209,7 +226,11 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
     
     QObject::connect(&bikeTimer, &QTimer::timeout, this, &DirconManager::bikeProvider);
     QString mac = getMacAddress();
-    DM_MACHINE_OP(DM_MACHINE_INIT_OP, services, proc_services, type)
+    if (rouvy_compatibility) {
+        DM_MACHINE_OP_ROUVY(DM_MACHINE_INIT_OP, services, proc_services, type)
+    } else {
+        DM_MACHINE_OP(DM_MACHINE_INIT_OP, services, proc_services, type)
+    }
     
     if (zwift_play_emulator || settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
         bikeTimer.start(50ms);
