@@ -998,9 +998,16 @@ void trainprogram::scheduler() {
             break;
         }
 
-        if (calculatedElapsedTime > static_cast<uint32_t>(ticks) && calculatedLine >= currentStep) {
+        if (calculatedElapsedTime >= static_cast<uint32_t>(ticks) && calculatedLine >= currentStep) {
             break;
         }
+    }
+
+    // Check if we've completed all rows
+    if (calculatedLine >= rows.length()) {
+        qDebug() << "completed all rows" << calculatedLine << rows.length();
+        end();
+        return;
     }
 
     bool distanceEvaluation = false;
@@ -1030,6 +1037,15 @@ void trainprogram::scheduler() {
                     lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
 
                 rows[currentStep].ended = QDateTime::currentDateTime();
+
+                // Emit lap for each completed row, but skip intermediate ramp steps
+                // Only emit lap when rampDuration is 0 (standalone row or end of ramp)
+                if (settings.value(QZSettings::trainprogram_auto_lap_on_segment,
+                                   QZSettings::default_trainprogram_auto_lap_on_segment).toBool() &&
+                    QTime(0, 0, 0).secsTo(rows.at(currentStep).rampDuration) == 0) {
+                    qDebug() << "Emitting lap for completed row" << currentStep;
+                    emit lap();
+                }
 
                 if (!distanceStep)
                     currentStep = calculatedLine;
@@ -1454,6 +1470,17 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
             if (row.loopTimeHR >= 0) {
                 stream.writeAttribute(QStringLiteral("looptimehr"), QString::number(row.loopTimeHR));
             }
+
+            // Write text events as child elements
+            if (!row.textEvents.isEmpty()) {
+                for (const trainrow::TextEvent &evt : row.textEvents) {
+                    stream.writeStartElement(QStringLiteral("textevent"));
+                    stream.writeAttribute(QStringLiteral("timeoffset"), QString::number(evt.timeoffset));
+                    stream.writeAttribute(QStringLiteral("message"), evt.message);
+                    stream.writeEndElement();
+                }
+            }
+
             stream.writeEndElement();
         }
         stream.writeEndElement();
@@ -1768,6 +1795,24 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
             }
 
             if(!ramp) {
+                // Read any child textEvent elements
+                while (stream.readNextStartElement()) {
+                    if (stream.name().toString().toLower() == QStringLiteral("textevent")) {
+                        QXmlStreamAttributes textEventAtts = stream.attributes();
+                        if (textEventAtts.hasAttribute(QStringLiteral("timeoffset")) &&
+                            textEventAtts.hasAttribute(QStringLiteral("message"))) {
+                            trainrow::TextEvent evt;
+                            evt.timeoffset = textEventAtts.value(QStringLiteral("timeoffset")).toUInt();
+                            evt.message = textEventAtts.value(QStringLiteral("message")).toString();
+                            row.textEvents.append(evt);
+                            qDebug() << "Loaded textevent: timeoffset=" << evt.timeoffset << " message=" << evt.message;
+                        }
+                        stream.skipCurrentElement();
+                    } else {
+                        stream.skipCurrentElement();
+                    }
+                }
+
                 if (insideRepeat) {
                     repeatRows.append(row);
                 } else {
