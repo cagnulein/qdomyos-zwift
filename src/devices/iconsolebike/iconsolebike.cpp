@@ -239,8 +239,8 @@ void iconsolebike::update() {
 
         // Handle resistance change requests
         if (requestResistance != -1) {
-            if (requestResistance > maxResistance) {
-                requestResistance = maxResistance;
+            if (requestResistance > maxResistance()) {
+                requestResistance = maxResistance();
             } else if (requestResistance < 0) {
                 requestResistance = 0;
             }
