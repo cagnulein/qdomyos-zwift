@@ -19,6 +19,7 @@ SOURCES += \
         Devices/devicenamepatterngroup.cpp \
         Devices/devicetestdataindex.cpp \
         Erg/ergtabletestsuite.cpp \
+        GarminConnect/garminconnecttestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
         Tools/testsettings.cpp \
         Tools/typeidgenerator.cpp \
@@ -51,6 +52,7 @@ HEADERS += \
     Devices/devicenamepatterngroup.h \
     Devices/devicetestdataindex.h \
     Erg/ergtabletestsuite.h \
+    GarminConnect/garminconnecttestsuite.h \
     ToolTests/testsettingstestsuite.h \
     Tools/devicetypeid.h \
     Tools/testsettings.h \

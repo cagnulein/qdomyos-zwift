@@ -8,6 +8,7 @@
 #include "gpx.h"
 #include "OAuth2.h"
 #include "peloton.h"
+#include "garminconnect.h"
 #include "qmdnsengine/browser.h"
 #include "qmdnsengine/cache.h"
 #include "qmdnsengine/resolver.h"
@@ -193,6 +194,7 @@ class homeform : public QObject {
     Q_PROPERTY(bool startRequested READ startRequested NOTIFY startRequestedChanged WRITE setStartRequestedChanged)
     Q_PROPERTY(QString toastRequested READ toastRequested NOTIFY toastRequestedChanged WRITE setToastRequested)
     Q_PROPERTY(bool stravaUploadRequested READ stravaUploadRequested NOTIFY stravaUploadRequestedChanged WRITE setStravaUploadRequested)
+    Q_PROPERTY(bool garminMfaRequested READ garminMfaRequested NOTIFY garminMfaRequestedChanged WRITE setGarminMfaRequested)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -224,6 +226,7 @@ class homeform : public QObject {
   public:
     static homeform *singleton() { return m_singleton; }
     bluetooth *bluetoothManager;
+    QQmlApplicationEngine *getEngine() { return engine; }
 
     QByteArray currentPelotonImage();
     Q_INVOKABLE void save_screenshot() {
@@ -479,6 +482,7 @@ class homeform : public QObject {
     QString pelotonProvider() { return m_pelotonProvider; }
     QString toastRequested() { return m_toastRequested; }
     bool stravaUploadRequested() { return m_stravaUploadRequested; }
+    bool garminMfaRequested() { return m_garminMfaRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool pelotonPopupVisible();
@@ -536,6 +540,14 @@ class homeform : public QObject {
     void setStravaUploadRequested(bool value) {
         m_stravaUploadRequested = value;
     }
+    void setGarminMfaRequested(bool value) {
+        m_garminMfaRequested = value;
+        emit garminMfaRequestedChanged(value);
+    }
+    Q_INVOKABLE void garmin_connect_login();
+    Q_INVOKABLE void garmin_submit_mfa_code(const QString &mfaCode);
+    Q_INVOKABLE void garmin_connect_logout();
+
     void setGeneralPopupVisible(bool value);
     void setPelotonPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
@@ -713,11 +725,13 @@ class homeform : public QObject {
     
     DataObject *speed;
     DataObject *inclination;
+    DataObject *negative_inclination;
     DataObject *cadence;
     DataObject *elevation;
     DataObject *calories;
     DataObject *odometer;
     DataObject *pace;
+    DataObject *avg_pace;
     DataObject *datetime;
     DataObject *resistance;
     DataObject *watt;
@@ -828,6 +842,7 @@ class homeform : public QObject {
     QOAuth2AuthorizationCodeFlow *strava = nullptr;
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
+    GarminConnect *garminConnect = nullptr;
 
     // Intervals.icu OAuth and upload
     QOAuth2AuthorizationCodeFlow *intervalsicu = nullptr;
@@ -854,6 +869,7 @@ class homeform : public QObject {
     QString m_pelotonProvider = "";
     QString m_toastRequested = "";
     bool m_stravaUploadRequested = false;
+    bool m_garminMfaRequested = false;
     FitDatabaseProcessor *fitProcessor = nullptr;
     WorkoutModel *workoutModel = nullptr;
     int m_pelotonLoginState = -1;
@@ -1040,6 +1056,7 @@ class homeform : public QObject {
     void bluetoothDeviceDisconnected();
     void onToastRequested(QString message);
     void strava_upload_file_prepare();
+    void garmin_upload_file_prepare();
     void handleRestoreDefaultWheelDiameter();
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
@@ -1069,6 +1086,7 @@ class homeform : public QObject {
     void changePelotonProvider(QString value);
     void toastRequestedChanged(QString value);
     void stravaUploadRequestedChanged(bool value);
+    void garminMfaRequestedChanged(bool value);
     void generalPopupVisibleChanged(bool value);
     void pelotonPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);

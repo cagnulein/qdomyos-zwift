@@ -351,7 +351,12 @@ void nautilustreadmill::serviceScanDone(void) {
 
             gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
             if (!gattCommunicationChannelService) {
-                return;
+                _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("4b2387a0-be8e-11e3-8039-0002a5d5c51b"));
+
+                gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+                if (!gattCommunicationChannelService) {
+                    return;
+                }
             }
         }
     }

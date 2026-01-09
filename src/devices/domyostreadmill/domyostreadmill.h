@@ -57,6 +57,7 @@ class domyostreadmill : public treadmill {
     volatile bool incompletePackets = false;
     bool noConsole = false;
     bool noHeartService = false;
+    bool domyos_treadmill_sync_start = false;
     uint32_t pollDeviceTime = 200;
     bool searchStopped = false;
     uint8_t sec1Update = 0;
