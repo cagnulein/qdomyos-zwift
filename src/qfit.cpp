@@ -265,11 +265,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     sessionMesg.SetTrigger(FIT_SESSION_TRIGGER_ACTIVITY_END);
     sessionMesg.SetMessageIndex(FIT_MESSAGE_INDEX_RESERVED);
 
-    if (overrideSport != FIT_SPORT_INVALID) {
-        sessionMesg.SetSport(overrideSport);
-        sessionMesg.SetSubSport(FIT_SUB_SPORT_GENERIC);
-        qDebug() << "overriding FIT sport " << overrideSport;
-    } else if (type == TREADMILL) {
+    // First, set sport and subsport based on device type
+    if (type == TREADMILL) {
         if(session.last().stepCount > 0)
             sessionMesg.SetTotalStrides(session.last().stepCount);
 
@@ -323,6 +320,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         if (strava_virtual_activity) {
             sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
         }
+    }
+
+    // Then, override the sport if requested (keeping the subsport from above)
+    if (overrideSport != FIT_SPORT_INVALID) {
+        sessionMesg.SetSport(overrideSport);
+        qDebug() << "overriding FIT sport to" << overrideSport << "keeping subsport from device type";
     }
 
     fit::DeveloperDataIdMesg devIdMesg;
