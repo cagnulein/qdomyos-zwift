@@ -1921,6 +1921,12 @@ QTime trainprogram::remainingTime() {
     for (calculatedLine = 0; calculatedLine < static_cast<uint32_t>(rows.length()); calculatedLine++) {
         calculatedTotalTime += calculateTimeForRow(calculatedLine);
     }
+
+    // Prevent underflow when workout is complete
+    if (ticks >= calculatedTotalTime) {
+        return QTime(0, 0, 0);
+    }
+
     return QTime(0, 0, 0).addSecs(calculatedTotalTime - ticks);
 }
 
