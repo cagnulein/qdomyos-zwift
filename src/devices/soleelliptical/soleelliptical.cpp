@@ -76,20 +76,20 @@ void soleelliptical::forceResistanceAndInclination(resistance_t requestResistanc
     if (currentResistance().value() < requestResistance) {
         writeCharacteristic(write, sizeof(write),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance) +
-                                QStringLiteral(" Inclination ") + inclination,
+                                QStringLiteral(" Inclination ") + QString::number(inclination),
                             false, true);
         writeCharacteristic(writeUp, sizeof(writeUp),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance) +
-                                QStringLiteral(" Inclination ") + inclination,
+                                QStringLiteral(" Inclination ") + QString::number(inclination),
                             false, true);
     } else if (currentResistance().value() > requestResistance) {
         writeCharacteristic(writeDown, sizeof(writeDown),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance) +
-                                QStringLiteral(" Inclination ") + inclination,
+                                QStringLiteral(" Inclination ") + QString::number(inclination),
                             false, true);
         writeCharacteristic(write, sizeof(write),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance) +
-                                QStringLiteral(" Inclination ") + inclination,
+                                QStringLiteral(" Inclination ") + QString::number(inclination),
                             false, true);
     }
 }
@@ -102,12 +102,12 @@ void soleelliptical::forceInclination(uint8_t inclination) {
     uint8_t writeDown[] = {0x5b, 0x02, 0xf1, 0x05, 0x5d};
 
     if (currentInclination().value() < inclination) {
-        writeCharacteristic(write, sizeof(write), QStringLiteral("forceInclination ") + inclination, false, true);
-        writeCharacteristic(writeUp, sizeof(writeUp), QStringLiteral("forceInclination ") + inclination, false, true);
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceInclination ") + QString::number(inclination), false, true);
+        writeCharacteristic(writeUp, sizeof(writeUp), QStringLiteral("forceInclination ") + QString::number(inclination), false, true);
     } else if (currentInclination().value() > inclination) {
-        writeCharacteristic(writeDown, sizeof(writeDown), QStringLiteral("forceInclination ") + inclination, false,
+        writeCharacteristic(writeDown, sizeof(writeDown), QStringLiteral("forceInclination ") + QString::number(inclination), false,
                             true);
-        writeCharacteristic(write, sizeof(write), QStringLiteral("forceInclination ") + inclination, false, true);
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceInclination ") + QString::number(inclination), false, true);
     }
 }
 
@@ -118,6 +118,12 @@ void soleelliptical::changeInclinationRequested(double grade, double percentage)
 }
 
 void soleelliptical::update() {
+
+
+if (!m_control)
+
+    return;
+
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
@@ -495,7 +501,7 @@ void soleelliptical::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
 
         // qDebug() << gattCommunicationChannelService->characteristics();
 
@@ -510,7 +516,7 @@ void soleelliptical::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &soleelliptical::characteristicWritten);
         connect(gattCommunicationChannelService,
-                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                &QLowEnergyService::errorOccurred,
                 this, &soleelliptical::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &soleelliptical::descriptorWritten);
@@ -519,7 +525,7 @@ void soleelliptical::stateChanged(QLowEnergyService::ServiceState state) {
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
-            gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattNotifyCharacteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
     }
 }
 
@@ -572,12 +578,12 @@ void soleelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &soleelliptical::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &soleelliptical::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, &soleelliptical::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &soleelliptical::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

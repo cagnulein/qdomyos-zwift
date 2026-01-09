@@ -3,8 +3,8 @@
 	url = https://github.com/KDAB/android_openssl.git
 [submodule "src/smtpclient"]
 	path = src/smtpclient
-	url = https://github.com/cagnulein/SmtpClient-for-Qt.git
-	branch = cagnulein-patch-2
+	url = https://github.com/bluetiger9/SmtpClient-for-Qt
+	branch = v2.0
 [submodule "tst/googletest"]
 	path = tst/googletest
 	url = https://github.com/google/googletest.git
