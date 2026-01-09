@@ -71,6 +71,10 @@ void skandikawiribike::forceResistance(resistance_t requestResistance)
 }
 */
 void skandikawiribike::update() {
+
+    if (!m_control)
+        return;
+
     uint8_t noOpData[] = {0x20, 0x00, 0x00, 0x00, 0x00};
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {

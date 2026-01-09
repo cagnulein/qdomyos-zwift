@@ -88,6 +88,10 @@ void horizongr7bike::forceResistance(resistance_t requestResistance) {
 }
 
 void horizongr7bike::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;

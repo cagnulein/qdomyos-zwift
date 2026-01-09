@@ -110,6 +110,12 @@ void keepbike::forceResistance(resistance_t requestResistance) {
 
 void keepbike::update() {
 
+
+if (!m_control)
+
+    return;
+
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;

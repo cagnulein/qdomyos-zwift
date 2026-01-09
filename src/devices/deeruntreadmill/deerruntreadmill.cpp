@@ -207,6 +207,10 @@ void deerruntreadmill::changeInclinationRequested(double grade, double percentag
 }
 
 void deerruntreadmill::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;

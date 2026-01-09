@@ -113,6 +113,10 @@ void bkoolbike::forceInclination(double inclination) {
 }
 
 void bkoolbike::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;

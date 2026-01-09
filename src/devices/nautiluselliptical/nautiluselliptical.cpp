@@ -105,6 +105,12 @@ void nautiluselliptical::changeInclinationRequested(double grade, double percent
 
 void nautiluselliptical::update() {
 
+
+if (!m_control)
+
+    return;
+
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
         emit disconnected();

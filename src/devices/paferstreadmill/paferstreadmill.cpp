@@ -104,6 +104,10 @@ void paferstreadmill::changeInclinationRequested(double grade, double percentage
 }
 
 void paferstreadmill::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;

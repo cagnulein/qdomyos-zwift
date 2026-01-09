@@ -59,6 +59,10 @@ data_len));
 }*/
 
 void schwinnic4bike::update() {
+
+    if (!m_control)
+        return;
+
     qDebug() << gattNotify1Characteristic.isValid();
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {

@@ -56,6 +56,10 @@ data_len));
 }*/
 
 void cscbike::update() {
+
+    if (!m_control)
+        return;
+
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();

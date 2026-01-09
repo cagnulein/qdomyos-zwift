@@ -62,6 +62,10 @@ void inspirebike::connection_timeout() {
 }
 
 void inspirebike::update() {
+
+    if (!m_control)
+        return;
+
     qDebug() << m_control->state() << bluetoothDevice.isValid() << gattCommunicationChannelService <<
         // gattWriteCharacteristic.isValid() <<
         gattNotify1Characteristic.isValid() /*<<

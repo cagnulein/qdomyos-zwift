@@ -61,6 +61,10 @@ void chronobike::connection_timeout() {
 }
 
 void chronobike::update() {
+
+    if (!m_control)
+        return;
+
     qDebug() << m_control->state() << bluetoothDevice.isValid() << gattCommunicationChannelService <<
         // gattWriteCharacteristic.isValid() <<
         gattNotify1Characteristic.isValid() /*<<
@@ -70,6 +74,7 @@ void chronobike::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
+
     }
 
     /*if(initRequest)
@@ -367,6 +372,7 @@ void chronobike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         // Connect
         m_control->connectToDevice();
         return;
+
     }
 }
 

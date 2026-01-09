@@ -146,6 +146,10 @@ uint32_t lifespantreadmill::GetStepsFromPacket(const QByteArray& packet) {
 }
 
 void lifespantreadmill::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;

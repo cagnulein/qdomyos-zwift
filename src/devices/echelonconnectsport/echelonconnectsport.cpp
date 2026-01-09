@@ -125,6 +125,10 @@ void echelonconnectsport::sendPoll() {
 }
 
 void echelonconnectsport::update() {
+
+    if (!m_control)
+        return;
+
     QSettings settings;
     bool useNativeIOS = false;
 

@@ -146,6 +146,9 @@ void domyoselliptical::forceResistance(resistance_t requestResistance) {
 
 void domyoselliptical::update() {
 
+    if (!m_control)
+        return;
+
     uint8_t noOpData[] = {0xf0, 0xac, 0x9c};
 
     // stop tape

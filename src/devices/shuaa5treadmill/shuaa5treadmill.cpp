@@ -75,6 +75,10 @@ void shuaa5treadmill::waitForAPacket() {
 }
 
 void shuaa5treadmill::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
         emit disconnected();

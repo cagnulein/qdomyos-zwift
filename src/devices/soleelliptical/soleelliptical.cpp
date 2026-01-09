@@ -119,6 +119,12 @@ void soleelliptical::changeInclinationRequested(double grade, double percentage)
 
 void soleelliptical::update() {
 
+
+if (!m_control)
+
+    return;
+
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
         emit disconnected();

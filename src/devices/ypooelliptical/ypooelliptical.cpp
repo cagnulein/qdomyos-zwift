@@ -98,6 +98,10 @@ void ypooelliptical::forceResistance(resistance_t requestResistance) {
 }
 
 void ypooelliptical::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;

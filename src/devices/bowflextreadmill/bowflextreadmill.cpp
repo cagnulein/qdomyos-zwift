@@ -83,6 +83,10 @@ double bowflextreadmill::minStepInclination() { return 1.0; }
 void bowflextreadmill::forceSpeed(double requestSpeed) {}
 
 void bowflextreadmill::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;

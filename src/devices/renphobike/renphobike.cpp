@@ -91,6 +91,10 @@ void renphobike::forceResistance(resistance_t requestResistance) {
 }
 
 void renphobike::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;

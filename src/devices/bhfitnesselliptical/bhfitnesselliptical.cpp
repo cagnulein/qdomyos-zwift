@@ -75,6 +75,10 @@ void bhfitnesselliptical::forceResistance(resistance_t requestResistance) {
 }
 
 void bhfitnesselliptical::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;

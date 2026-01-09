@@ -92,6 +92,10 @@ void ziprotreadmill::changeInclinationRequested(double grade, double percentage)
 }
 
 void ziprotreadmill::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;

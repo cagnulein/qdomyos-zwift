@@ -53,6 +53,7 @@ void kingsmithr1protreadmill::writeCharacteristic(uint8_t *data, uint8_t data_le
         emit debug(QStringLiteral("writeCharacteristic error because the connection is closed"));
 
         return;
+
     }
 
     if (writeBuffer) {
@@ -96,9 +97,14 @@ void kingsmithr1protreadmill::changeInclinationRequested(double grade, double pe
 }
 
 void kingsmithr1protreadmill::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
+
     }
 
     if (initRequest) {
@@ -257,6 +263,7 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
         ignoreFirstPackage = false;
         emit debug(QStringLiteral("packet ignored"));
         return;
+
     }
 
     if (newValue.at(2) == 0x05) {
@@ -546,6 +553,7 @@ void kingsmithr1protreadmill::deviceDiscovered(const QBluetoothDeviceInfo &devic
         // Connect
         m_control->connectToDevice();
         return;
+
     }
 }
 

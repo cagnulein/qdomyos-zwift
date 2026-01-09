@@ -24,6 +24,10 @@ heartratebelt::~heartratebelt() {
 }
 
 void heartratebelt::update() {
+
+    if (!m_control)
+        return;
+
     QSettings settings;
     
     // Check if we are in connecting state and more than 10 seconds have passed

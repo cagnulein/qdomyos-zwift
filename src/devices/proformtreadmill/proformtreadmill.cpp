@@ -123,6 +123,10 @@ void proformtreadmill::forceSpeed(double speed) {
 }
 
 void proformtreadmill::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;

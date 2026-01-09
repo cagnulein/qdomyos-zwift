@@ -257,6 +257,10 @@ void octaneelliptical::changeInclinationRequested(double grade, double percentag
 }
 
 void octaneelliptical::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;

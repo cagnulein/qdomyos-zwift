@@ -55,6 +55,10 @@ void elitesterzosmart::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
 }
 
 void elitesterzosmart::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
         emit disconnected();

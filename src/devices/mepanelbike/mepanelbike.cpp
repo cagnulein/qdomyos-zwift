@@ -77,6 +77,10 @@ void mepanelbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
 void mepanelbike::forceResistance(resistance_t requestResistance) {}
 
 void mepanelbike::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;

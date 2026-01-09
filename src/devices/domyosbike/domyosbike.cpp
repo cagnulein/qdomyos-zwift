@@ -167,6 +167,10 @@ void domyosbike::forceResistance(resistance_t requestResistance) {
 }
 
 void domyosbike::update() {
+
+    if (!m_control)
+        return;
+
     uint8_t noOpData[] = {0xf0, 0xac, 0x9c};
 
     // stop tape

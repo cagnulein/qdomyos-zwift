@@ -98,6 +98,10 @@ void cycleopsphantombike::forceInclination(double inclination) {
 }
 
 void cycleopsphantombike::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;

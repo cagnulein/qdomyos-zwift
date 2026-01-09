@@ -53,6 +53,10 @@ void proformelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, con
 }
 
 void proformelliptical::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;

@@ -55,6 +55,10 @@ void yesoulbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStr
 }
 
 void yesoulbike::update() {
+
+    if (!m_control)
+        return;
+
     qDebug() << m_control->state() << bluetoothDevice.isValid() << gattCommunicationChannelService
              << gattWriteCharacteristic.isValid() << gattNotify1Characteristic.isValid() << initDone;
 

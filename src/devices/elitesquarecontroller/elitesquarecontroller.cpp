@@ -36,6 +36,10 @@ elitesquarecontroller::elitesquarecontroller(bluetoothdevice *parentDevice) {
 }
 
 void elitesquarecontroller::update() {
+
+    if (!m_control)
+        return;
+
     // Just a simple heartbeat check - no handshake needed for Elite Square
     if (m_control && m_control->state() == QLowEnergyController::UnconnectedState) {
         // Try to reconnect if disconnected
@@ -80,6 +84,7 @@ void elitesquarecontroller::parseButtonData(const QByteArray &data) {
     if (data.size() < 11) {
         qDebug() << QStringLiteral("Invalid button data size: ") << data.size();
         return;
+
     }
 
     // Log the hex data for better debugging
@@ -164,12 +169,14 @@ void elitesquarecontroller::stateChanged(QLowEnergyService::ServiceState state) 
         if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
-        }
+
+    }
     }
 
     if (state != QLowEnergyService::ServiceState::RemoteServiceDiscovered) {
         qDebug() << QStringLiteral("ignoring this state");
         return;
+
     }
 
     qDebug() << QStringLiteral("all services discovered!");

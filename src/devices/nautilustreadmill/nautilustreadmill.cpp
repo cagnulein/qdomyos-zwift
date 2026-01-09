@@ -81,6 +81,10 @@ double nautilustreadmill::minStepInclination() { return 1.0; }
 void nautilustreadmill::forceSpeed(double requestSpeed) {}
 
 void nautilustreadmill::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
