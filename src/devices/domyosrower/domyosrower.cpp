@@ -150,13 +150,6 @@ void domyosrower::forceResistance(resistance_t requestResistance) {
 }
 
 void domyosrower::update() {
-
-
-if (!m_control)
-
-    return;
-
-
     if (!m_control)
         return;
 
