@@ -257,7 +257,6 @@ import Qt.labs.platform 1.1
 
             property real watt_offset: 0
             property real watt_gain: 1
-            property bool power_avg_5s: false
             property bool instant_power_on_pause: false
 
             property real speed_offset: 0
@@ -1264,6 +1263,10 @@ import Qt.labs.platform 1.1
 			property real peloton_treadmill_walking_min_speed: 0.0
 			property real peloton_treadmill_running_min_speed: 0.0
 			property bool trainprogram_auto_lap_on_segment: false
+			property bool power_avg_5s: false
+			property bool power_avg_3s: false
+			property bool tile_power_avg_enabled: false
+			property int tile_power_avg_order: 77
         }
 
 
@@ -10909,23 +10912,40 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
-                    IndicatorOnlySwitch {
-                        id: powerAvg5s
-                        text: qsTr("Power Average 5 sec.")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.power_avg_5s
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.power_avg_5s = checked
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPowerAvg
+                            text: qsTr("Power Averaging Mode:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: powerAvgCombo
+                            model: ["Off", "3 seconds", "5 seconds"]
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            currentIndex: {
+                                if (settings.power_avg_3s) return 1;
+                                if (settings.power_avg_5s) return 2;
+                                return 0;
+                            }
+                            onActivated: {
+                                if (currentIndex === 0) {
+                                    settings.power_avg_3s = false;
+                                    settings.power_avg_5s = false;
+                                } else if (currentIndex === 1) {
+                                    settings.power_avg_3s = true;
+                                    settings.power_avg_5s = false;
+                                } else if (currentIndex === 2) {
+                                    settings.power_avg_3s = false;
+                                    settings.power_avg_5s = true;
+                                }
+                            }
+                        }
                     }
 
                     Label {
-                        text: qsTr("If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Default is off.")
+                        text: qsTr("If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Uses harmonic averaging which smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is Off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
