@@ -11,6 +11,7 @@
 #include "qzsettings.h"
 
 class bluetoothdevice;
+class bluetooth;
 
 class MyWhooshLink : public QObject {
     Q_OBJECT
@@ -29,12 +30,13 @@ public:
     };
     Q_ENUM(Action)
 
-    explicit MyWhooshLink(bluetoothdevice *parentDevice, QObject *parent = nullptr);
+    explicit MyWhooshLink(bluetooth *manager = nullptr, QObject *parent = nullptr);
     ~MyWhooshLink();
 
     bool isRunning() const;
     void start();
     void stop();
+    void setDevice(bluetoothdevice *device);
 
 public slots:
     // Zwift Play button handlers
@@ -70,6 +72,7 @@ private:
     QTcpServer *tcpServer;
     QList<QTcpSocket *> clients;
     bluetoothdevice *device;
+    bluetooth *bluetoothManager;
     QSettings settings;
 
     bool enabled;

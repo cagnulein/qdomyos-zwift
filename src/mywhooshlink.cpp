@@ -1,14 +1,16 @@
 #include "mywhooshlink.h"
 #include "devices/bluetoothdevice.h"
+#include "bluetooth.h"
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QHostAddress>
 #include <QDebug>
 
-MyWhooshLink::MyWhooshLink(bluetoothdevice *parentDevice, QObject *parent)
+MyWhooshLink::MyWhooshLink(bluetooth *manager, QObject *parent)
     : QObject(parent)
     , tcpServer(nullptr)
-    , device(parentDevice)
+    , device(nullptr)
+    , bluetoothManager(manager)
     , enabled(false)
     , overrideGears(false)
     , currentCameraAngle(1)
@@ -18,9 +20,16 @@ MyWhooshLink::MyWhooshLink(bluetoothdevice *parentDevice, QObject *parent)
 {
     loadSettings();
 
-    if (enabled) {
+    if (enabled && bluetoothManager) {
+        // Connect to bluetooth manager to get device when connected
+        connect(bluetoothManager, &bluetooth::deviceConnected, this, &MyWhooshLink::setDevice);
         start();
     }
+}
+
+void MyWhooshLink::setDevice(bluetoothdevice *newDevice) {
+    device = newDevice;
+    qDebug() << "MyWhooshLink: Device connected:" << (device ? device->deviceName() : "null");
 }
 
 MyWhooshLink::~MyWhooshLink() {
