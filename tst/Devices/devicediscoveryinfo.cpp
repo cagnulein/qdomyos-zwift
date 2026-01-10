@@ -52,6 +52,17 @@ void InitializeTrackedSettings()
     trackedSettings.insert(QZSettings::toorx_bike, QZSettings::default_toorx_bike);
     trackedSettings.insert(QZSettings::toorx_ftms, QZSettings::default_toorx_ftms);
     trackedSettings.insert(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill);
+    trackedSettings.insert(QZSettings::trixter_xdream_bike_enabled, QZSettings::default_trixter_xdream_bike_enabled );
+    trackedSettings.insert(QZSettings::trixter_xdream_bike_heartrate_enabled, QZSettings::default_trixter_xdream_bike_heartrate_enabled );
+    trackedSettings.insert(QZSettings::trixter_xdream_bike_steering_enabled, QZSettings::default_trixter_xdream_bike_steering_enabled);
+    trackedSettings.insert(QZSettings::trixter_xdream_bike_steering_l, QZSettings::default_trixter_xdream_bike_steering_l);
+    trackedSettings.insert(QZSettings::trixter_xdream_bike_steering_cl, QZSettings::default_trixter_xdream_bike_steering_cl);
+    trackedSettings.insert(QZSettings::trixter_xdream_bike_steering_cr, QZSettings::default_trixter_xdream_bike_steering_cr);
+    trackedSettings.insert(QZSettings::trixter_xdream_bike_steering_r, QZSettings::default_trixter_xdream_bike_steering_r);
+    trackedSettings.insert(QZSettings::trixter_xdream_bike_steering_max, QZSettings::default_trixter_xdream_bike_steering_max);
+    trackedSettings.insert(QZSettings::trixter_xdream_bike_connection_timeout_ms, QZSettings::default_trixter_xdream_bike_connection_timeout_ms);
+
+
 };
 
 static void AssertKeyIsTracked(const QString& key) {

@@ -5,12 +5,15 @@ include(gtest_dependency.pri)
 
 TEMPLATE = app
 
-CONFIG += console c++11
+CONFIG += console c++17
 CONFIG -= app_bundle
 CONFIG += thread
 CONFIG += androidextras
 
 SOURCES += \
+        Devices/trixterxdreambike/TrixterXDreamPacketInterpreterTests.cpp \
+        Devices/trixterxdreambike/trixterxdreambikestub.cpp \
+        Devices/trixterxdreambike/trixterxdreambiketestsuite.cpp \
         Devices/bluetoothdevicetestdata.cpp \
         Devices/bluetoothdevicetestdatabuilder.cpp \
         Devices/bluetoothdevicetestsuite.cpp \
@@ -44,6 +47,10 @@ else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../src/libqdomyos-zwift.a
 
 HEADERS += \
+    Devices/trixterxdreambike/ActivationMonitorTests.h \
+    Devices/trixterxdreambike/TrixterXDreamPacketInterpreterTests.h \
+    Devices/trixterxdreambike/trixterxdreambikestub.h \
+    Devices/trixterxdreambike/trixterxdreambiketestsuite.h \
     Devices/bluetoothdevicetestdata.h \
     Devices/bluetoothdevicetestdatabuilder.h \
     Devices/bluetoothdevicetestsuite.h \

@@ -106,6 +106,11 @@ SOURCES += \
     $$PWD/devices/stairclimber.cpp \
     $$PWD/devices/echelonstairclimber/echelonstairclimber.cpp \
     $$PWD/devices/technogymbike/technogymbike.cpp \
+    $$PWD/devices/trixterxdreambike/activationmonitor.cpp \
+    $$PWD/devices/trixterxdreambike/trixterxdreambike.cpp \
+    $$PWD/devices/trixterxdreambike/trixterxdreamclient.cpp \
+    $$PWD/devices/trixterxdreambike/trixterxdreamserial.cpp \
+    $$PWD/devices/trixterxdreambike/trixterxdreamsettings.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
     $$PWD/fitdatabaseprocessor.cpp \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.cpp \
@@ -328,6 +333,8 @@ devices/ultrasportbike/ultrasportbike.cpp \
 virtualdevices/virtualrower.cpp \
 devices/wahookickrsnapbike/wahookickrsnapbike.cpp \
 devices/yesoulbike/yesoulbike.cpp \
+devices/trixterxdreambike/qserialdatasource.cpp \
+devices/trixterxdreambike/serialdatasource.cpp \
 trainprogram.cpp \
 devices/trxappgateusbtreadmill/trxappgateusbtreadmill.cpp \
 virtualdevices/virtualbike.cpp \
@@ -382,6 +389,11 @@ HEADERS += \
     $$PWD/devices/sramAXSController/sramAXSController.h \
     $$PWD/devices/stairclimber.h \
     $$PWD/devices/technogymbike/technogymbike.h \
+    $$PWD/devices/trixterxdreambike/activationmonitor.h \
+    $$PWD/devices/trixterxdreambike/trixterxdreambike.h \
+    $$PWD/devices/trixterxdreambike/trixterxdreamclient.h \
+    $$PWD/devices/trixterxdreambike/trixterxdreamserial.h \
+    $$PWD/devices/trixterxdreambike/trixterxdreamsettings.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.h \
     $$PWD/ergtable.h \
@@ -457,6 +469,8 @@ devices/wahookickrheadwind/wahookickrheadwind.h \
 devices/ypooelliptical/ypooelliptical.h \
 devices/ziprotreadmill/ziprotreadmill.h \
 devices/computrainerbike/Computrainer.h \
+devices/trixterxdreambike/qserialdatasource.h \
+devices/trixterxdreambike/serialdatasource.h \
 devices/kettlerusbbike/KettlerUSB.h \
 PathController.h \
 characteristics/characteristicnotifier2a53.h \
