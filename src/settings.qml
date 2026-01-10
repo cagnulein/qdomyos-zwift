@@ -257,6 +257,7 @@ import Qt.labs.platform 1.1
 
             property real watt_offset: 0
             property real watt_gain: 1
+            property bool power_avg_5s: false
             property bool instant_power_on_pause: false
 
             property real speed_offset: 0
@@ -1263,7 +1264,6 @@ import Qt.labs.platform 1.1
 			property real peloton_treadmill_walking_min_speed: 0.0
 			property real peloton_treadmill_running_min_speed: 0.0
 			property bool trainprogram_auto_lap_on_segment: false
-			property bool power_avg_5s: false
 			property bool power_avg_3s: false
 			property bool tile_power_avg_enabled: false
 			property int tile_power_avg_order: 77
