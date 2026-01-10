@@ -20,16 +20,9 @@ MyWhooshLink::MyWhooshLink(bluetooth *manager, QObject *parent)
 {
     loadSettings();
 
-    if (enabled && bluetoothManager) {
-        // Connect to bluetooth manager to get device when connected
-        connect(bluetoothManager, &bluetooth::deviceConnected, this, &MyWhooshLink::setDevice);
+    if (enabled) {
         start();
     }
-}
-
-void MyWhooshLink::setDevice(bluetoothdevice *newDevice) {
-    device = newDevice;
-    qDebug() << "MyWhooshLink: Device connected:" << (device ? device->deviceName() : "null");
 }
 
 MyWhooshLink::~MyWhooshLink() {
@@ -147,6 +140,12 @@ void MyWhooshLink::onReadyRead() {
 }
 
 void MyWhooshLink::sendJsonMessage(const QJsonObject &message) {
+    // Get device from bluetooth manager if not already set
+    if (!device && bluetoothManager && bluetoothManager->device()) {
+        device = bluetoothManager->device();
+        qDebug() << "MyWhooshLink: Device connected";
+    }
+
     if (!isRunning()) {
         return;
     }
