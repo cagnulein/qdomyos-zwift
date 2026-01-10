@@ -263,7 +263,7 @@ public class SDMChannelController {
                             payload[4] = (byte) ((int)speedM_s & 0x0F);  // speed integer in lower 4 bits only
                             payload[5] = (byte) ((speedM_s - (double)((int)speedM_s)) / (1.0/256.0));
                             payload[6] = (byte) stride_count++;
-                            payload[7] = (byte) ((double)((double)deltaTime * 0.03125);
+                            payload[7] = (byte) ((double)deltaTime * 0.03125);
 
                             if (mIsOpen) {
                                 try {
