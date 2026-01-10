@@ -261,9 +261,10 @@ public class SDMChannelController {
                             payload[1] = (byte) (((lastTime % 256000) / 5) & 0xFF);
                             payload[2] = (byte) ((lastTime % 256000) / 1000);
                             payload[3] = (byte) 0x00;
-                            payload[4] = (byte) speedM_s;
-                            payload[5] = (byte) ((speedM_s - (double)((int)speedM_s)) / (1.0/256.0));
-                            payload[6] = (byte) stride_count;
+                            int speedFixed = (int) Math.round(speedM_s * 256.0);
+                            payload[4] = (byte) (speedFixed & 0xFF);        // low byte
+                            payload[5] = (byte) ((speedFixed >> 8) & 0xFF); // high byte
+                            payload[6] = (byte) stride_count++;
                             payload[7] = (byte) ((double)deltaTime * 0.03125);
 
                             if (mIsOpen) {
