@@ -258,6 +258,7 @@ import Qt.labs.platform 1.1
             property real watt_offset: 0
             property real watt_gain: 1
             property bool power_avg_5s: false
+            property bool power_avg_3s: false
             property bool instant_power_on_pause: false
 
             property real speed_offset: 0
@@ -1240,6 +1241,8 @@ import Qt.labs.platform 1.1
             property int tile_negative_inclination_order: 75
             property bool tile_avg_pace_enabled: false
             property int  tile_avg_pace_order: 76
+            property bool tile_power_avg_enabled: false
+            property int  tile_power_avg_order: 77
 
             // Garmin connect
             property string garmin_email: ""
@@ -10910,6 +10913,34 @@ import Qt.labs.platform 1.1
                     }
 
                     IndicatorOnlySwitch {
+                        id: powerAvg3s
+                        text: qsTr("Power Average 3 sec.")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.power_avg_3s
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.power_avg_3s = checked; if (checked) settings.power_avg_5s = false; }
+                    }
+
+                    Label {
+                        text: qsTr("If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This uses a rolling 3-second harmonic average that updates every second and smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Mutually exclusive with 5 sec. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
                         id: powerAvg5s
                         text: qsTr("Power Average 5 sec.")
                         spacing: 0
@@ -10921,11 +10952,11 @@ import Qt.labs.platform 1.1
                         checked: settings.power_avg_5s
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.power_avg_5s = checked
+                        onClicked: { settings.power_avg_5s = checked; if (checked) settings.power_avg_3s = false; }
                     }
 
                     Label {
-                        text: qsTr("If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. This uses a rolling 5-second harmonic average that updates every second and smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is off.")
+                        text: qsTr("If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This uses a rolling 5-second harmonic average that updates every second and smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Mutually exclusive with 3 sec. Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
