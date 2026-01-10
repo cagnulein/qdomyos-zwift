@@ -274,6 +274,8 @@ ScrollView {
         property int  tile_negative_inclination_order: 75
         property bool tile_avg_pace_enabled: false
         property int  tile_avg_pace_order: 76
+        property bool tile_power_avg_enabled: false
+        property int  tile_power_avg_order: 77
     }
 
 
@@ -5489,6 +5491,49 @@ ScrollView {
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             Layout.fillWidth: true
             color: Material.color(Material.Lime)
-        }        
+        }
+
+        AccordionCheckElement {
+            id: powerAvgEnabledAccordion
+            title: qsTr("Power Averaging")
+            linkedBoolSetting: "tile_power_avg_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: powerAvgOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_power_avg_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = powerAvgOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_power_avg_order = powerAvgOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Button tile to cycle through power averaging modes: Off, 3s avg (harmonic), 5s avg (harmonic). Tap to cycle between modes. Only for bikes.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
     }
 }

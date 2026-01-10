@@ -301,6 +301,7 @@ const QString QZSettings::trainprogram_resistance_max = QStringLiteral("trainpro
 const QString QZSettings::watt_offset = QStringLiteral("watt_offset");
 const QString QZSettings::watt_gain = QStringLiteral("watt_gain");
 const QString QZSettings::power_avg_5s = QStringLiteral("power_avg_5s");
+const QString QZSettings::power_avg_3s = QStringLiteral("power_avg_3s");
 const QString QZSettings::instant_power_on_pause = QStringLiteral("instant_power_on_pause");
 const QString QZSettings::speed_offset = QStringLiteral("speed_offset");
 const QString QZSettings::speed_gain = QStringLiteral("speed_gain");
@@ -1028,6 +1029,8 @@ const QString QZSettings::tile_auto_virtual_shifting_climb_enabled = QStringLite
 const QString QZSettings::tile_auto_virtual_shifting_climb_order = QStringLiteral("tile_auto_virtual_shifting_climb_order");
 const QString QZSettings::tile_auto_virtual_shifting_sprint_enabled = QStringLiteral("tile_auto_virtual_shifting_sprint_enabled");
 const QString QZSettings::tile_auto_virtual_shifting_sprint_order = QStringLiteral("tile_auto_virtual_shifting_sprint_order");
+const QString QZSettings::tile_power_avg_enabled = QStringLiteral("tile_power_avg_enabled");
+const QString QZSettings::tile_power_avg_order = QStringLiteral("tile_power_avg_order");
 const QString QZSettings::tile_negative_inclination_enabled = QStringLiteral("tile_negative_inclination_enabled");
 const QString QZSettings::tile_negative_inclination_order = QStringLiteral("tile_negative_inclination_order");
 const QString QZSettings::chart_display_mode = QStringLiteral("chart_display_mode");
@@ -1041,7 +1044,7 @@ const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandik
 const QString QZSettings::trainprogram_auto_lap_on_segment = QStringLiteral("trainprogram_auto_lap_on_segment");
 
 
-const uint32_t allSettingsCount = 847;
+const uint32_t allSettingsCount = 850;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1288,6 +1291,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::watt_offset, QZSettings::default_watt_offset},
     {QZSettings::watt_gain, QZSettings::default_watt_gain},
     {QZSettings::power_avg_5s, QZSettings::default_power_avg_5s},
+    {QZSettings::power_avg_3s, QZSettings::default_power_avg_3s},
     {QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause},
     {QZSettings::speed_offset, QZSettings::default_speed_offset},
     {QZSettings::speed_gain, QZSettings::default_speed_gain},
@@ -1892,6 +1896,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_auto_virtual_shifting_climb_order, QZSettings::default_tile_auto_virtual_shifting_climb_order},
     {QZSettings::tile_auto_virtual_shifting_sprint_enabled, QZSettings::default_tile_auto_virtual_shifting_sprint_enabled},
     {QZSettings::tile_auto_virtual_shifting_sprint_order, QZSettings::default_tile_auto_virtual_shifting_sprint_order},
+    {QZSettings::tile_power_avg_enabled, QZSettings::default_tile_power_avg_enabled},
+    {QZSettings::tile_power_avg_order, QZSettings::default_tile_power_avg_order},
     {QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled},
     {QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order},
     {QZSettings::chart_display_mode, QZSettings::default_chart_display_mode},
