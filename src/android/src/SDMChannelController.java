@@ -213,7 +213,7 @@ public class SDMChannelController {
                        payload[3] = (byte) 0x00;
                        payload[4] = (byte) speedM_s;
                        payload[5] = (byte) ((speedM_s - (double)((int)speedM_s)) / (1.0/256.0));
-                       payload[6] = (byte) stride_count;
+                       payload[6] = (byte) stride_count++;
                        payload[7] = (byte) ((double)deltaTime * 0.03125);
 
                        if (mIsOpen) {
@@ -262,7 +262,7 @@ public class SDMChannelController {
                             payload[3] = (byte) 0x00;
                             payload[4] = (byte) speedM_s;
                             payload[5] = (byte) ((speedM_s - (double)((int)speedM_s)) / (1.0/256.0));
-                            payload[6] = (byte) stride_count;
+                            payload[6] = (byte) stride_count++;
                             payload[7] = (byte) ((double)deltaTime * 0.03125);
 
                             if (mIsOpen) {
