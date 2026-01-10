@@ -4727,11 +4727,22 @@ void homeform::bluetoothDeviceConnected(bluetoothdevice *b) {
     // heart rate received from apple watch while QZ is running on a different device via TCP socket (iphone_socket)
     connect(this, SIGNAL(heartRate(uint8_t)), b, SLOT(heartRate(uint8_t)));
 #endif
+
+    // Initialize MyWhoosh Link if enabled
+    if (!myWhooshLink) {
+        myWhooshLink = new MyWhooshLink(b, this);
+    }
 }
 
 void homeform::bluetoothDeviceDisconnected() {
     this->innerTemplateManager->stop();
     this->userTemplateManager->stop();
+
+    // Cleanup MyWhoosh Link
+    if (myWhooshLink) {
+        delete myWhooshLink;
+        myWhooshLink = nullptr;
+    }
 }
 
 void homeform::Minus(const QString &name) {

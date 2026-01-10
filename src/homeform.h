@@ -18,6 +18,7 @@
 #include "trainprogram.h"
 #include "workoutmodel.h"
 #include "fitbackupwriter.h"
+#include "mywhooshlink.h"
 #include <QChart>
 #include <QColor>
 #include <QGraphicsScene>
@@ -966,6 +967,8 @@ class homeform : public QObject {
     QMdnsEngine::Service iphone_service;
     QHostAddress iphone_address;
 #endif
+
+    MyWhooshLink *myWhooshLink = nullptr;
 
   public slots:
     void aboutToQuit();
