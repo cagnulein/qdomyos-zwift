@@ -36,7 +36,6 @@ public:
     bool isRunning() const;
     void start();
     void stop();
-    void setDevice(bluetoothdevice *device);
 
 public slots:
     // Zwift Play button handlers
