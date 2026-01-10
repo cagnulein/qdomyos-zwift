@@ -110,6 +110,10 @@ void DataObject::setLargeButtonColor(const QString &color) {
     m_largeButtonColor = color;
     emit largeButtonColorChanged(m_largeButtonColor);
 }
+void DataObject::setLargeButtonLabel(const QString &label) {
+    m_largeButtonLabel = label;
+    emit largeButtonLabelChanged(m_largeButtonLabel);
+}
 void DataObject::setLabelFontSize(int value) {
     m_labelFontSize = value;
     emit labelFontSizeChanged(m_labelFontSize);

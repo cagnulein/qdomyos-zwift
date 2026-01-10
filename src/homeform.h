@@ -85,6 +85,7 @@ class DataObject : public QObject {
     void setVisible(bool visible);
     void setGridId(int id);
     void setLargeButtonColor(const QString &color);
+    void setLargeButtonLabel(const QString &label);
     QString name() { return m_name; }
     QString icon() { return m_icon; }
     QString value() { return m_value; }
