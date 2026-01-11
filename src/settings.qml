@@ -1258,12 +1258,15 @@ import Qt.labs.platform 1.1
             property string garmin_oauth1_token: ""
             property string garmin_oauth1_token_secret: ""
 
-			property bool domyos_treadmill_sync_start: false
-			property string garmin_device_serial: "3313379353"
-			property real treadmill_speed_min: 0
-			property real peloton_treadmill_walking_min_speed: 0.0
-			property real peloton_treadmill_running_min_speed: 0.0
-			property bool trainprogram_auto_lap_on_segment: false
+            property bool domyos_treadmill_sync_start: false
+            property string garmin_device_serial: "3313379353"
+            property real treadmill_speed_min: 0
+            property real peloton_treadmill_walking_min_speed: 0.0
+            property real peloton_treadmill_running_min_speed: 0.0
+            property bool trainprogram_auto_lap_on_segment: false
+            property bool power_avg_3s: false
+            property bool tile_power_avg_enabled: false
+            property int tile_power_avg_order: 77
             
             // from version ?
             property bool trixter_xdream_bike_enabled: false
@@ -11103,23 +11106,40 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
-                    IndicatorOnlySwitch {
-                        id: powerAvg5s
-                        text: qsTr("Power Average 5 sec.")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.power_avg_5s
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.power_avg_5s = checked
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPowerAvg
+                            text: qsTr("Power Averaging Mode:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: powerAvgCombo
+                            model: ["Off", "3 seconds", "5 seconds"]
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            currentIndex: {
+                                if (settings.power_avg_3s) return 1;
+                                if (settings.power_avg_5s) return 2;
+                                return 0;
+                            }
+                            onActivated: {
+                                if (currentIndex === 0) {
+                                    settings.power_avg_3s = false;
+                                    settings.power_avg_5s = false;
+                                } else if (currentIndex === 1) {
+                                    settings.power_avg_3s = true;
+                                    settings.power_avg_5s = false;
+                                } else if (currentIndex === 2) {
+                                    settings.power_avg_3s = false;
+                                    settings.power_avg_5s = true;
+                                }
+                            }
+                        }
                     }
 
                     Label {
-                        text: qsTr("If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Default is off.")
+                        text: qsTr("If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Uses harmonic averaging which smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is Off.\n\nIMPORTANT NOTES:\n- No Average/smooth in Hometrainer config for standard home trainers which work at 1hz (No race mode available)\n- Disable Average on 3rd party apps (Rouvy/Zwift/MyWhoosh etc) or select 1sec in the app!\n- Need to use QZ in bridge mode!\n- For Elite home trainers or those who have a race mode (10hz), if it's not sufficient for some users, using Elite/Hometrainer smoothing in addition to QZ smoothing will improve it.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

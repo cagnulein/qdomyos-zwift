@@ -1563,6 +1563,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->signalBluetoothDeviceConnected(lifefitnessTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("HZ_T101-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && (gem_module_inclination || deviceHasService(b, QBluetoothUuid((quint16)0x1826)))) ||
@@ -1803,7 +1804,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("YS_G1_")) ||                       // Yesoul S3
                         (b.name().toUpper().startsWith("YS_G1MPLUS")) ||                   // Yesoul G1M Plus
                         (b.name().toUpper().startsWith("YS_G1MMAX")) ||                    // Yesoul G1M Max
-                        (b.name().toUpper().startsWith("YS_A6_")) ||                       // Yesoul A6
+                        (b.name().toUpper().startsWith("YS_A")) ||                         // Yesoul A6 and A1
                         (b.name().toUpper().startsWith("DS25-")) ||                        // Bodytone DS25
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
                         (b.name().toUpper().startsWith("3G CARDIO ")) ||

@@ -886,6 +886,9 @@ class QZSettings {
     static const QString power_avg_5s;
     static constexpr bool default_power_avg_5s = false;
 
+    static const QString power_avg_3s;
+    static constexpr bool default_power_avg_3s = false;
+
     static const QString instant_power_on_pause;
     static constexpr bool default_instant_power_on_pause = false;
 
@@ -2804,6 +2807,18 @@ class QZSettings {
      */
     static const QString tile_auto_virtual_shifting_sprint_order;
     static constexpr int default_tile_auto_virtual_shifting_sprint_order = 57;
+
+    /**
+     * @brief Enable power averaging tile
+     */
+    static const QString tile_power_avg_enabled;
+    static constexpr bool default_tile_power_avg_enabled = false;
+
+    /**
+     * @brief Order of power averaging tile
+     */
+    static const QString tile_power_avg_order;
+    static constexpr int default_tile_power_avg_order = 77;
 
     /**
      * @brief Enable negative inclination tile
