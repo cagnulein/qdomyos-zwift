@@ -214,7 +214,7 @@ public class SDMChannelController {
                        payload[4] = (byte) ((int)speedM_s & 0x0F);  // speed integer in lower 4 bits only
                        payload[5] = (byte) Math.round((speedM_s - (double)((int)speedM_s)) * 256.0);
                        payload[6] = (byte) stride_count++;
-                       payload[7] = (byte) ((double)deltaTime * 0.03125);
+                       payload[7] = (byte) (deltaTime * 32.0 / 1000.0);  // update latency in 1/32 sec units
 
                        if (mIsOpen) {
                            try {
@@ -263,7 +263,7 @@ public class SDMChannelController {
                             payload[4] = (byte) ((int)speedM_s & 0x0F);  // speed integer in lower 4 bits only
                             payload[5] = (byte) Math.round((speedM_s - (double)((int)speedM_s)) * 256.0);
                             payload[6] = (byte) stride_count++;
-                            payload[7] = (byte) ((double)deltaTime * 0.03125);
+                            payload[7] = (byte) (deltaTime * 32.0 / 1000.0);  // update latency in 1/32 sec units
 
                             if (mIsOpen) {
                                 try {
