@@ -195,6 +195,10 @@ double metric::average5s() {
 }
 
 double metric::average5sHarmonic() {
+    // If current value is 0, return 0 immediately (user stopped pedaling)
+    if (m_value == 0.0)
+        return 0.0;
+
     if (m_last5.count() == 0)
         return 0;
     else {
@@ -203,7 +207,7 @@ double metric::average5sHarmonic() {
         QMutableListIterator<double> i(m_last5);
         while (i.hasNext()) {
             double b = i.next();
-            // If any value is 0, return 0 immediately
+            // If any value in buffer is 0, return 0 immediately
             if (b == 0.0)
                 return 0.0;
             reciprocalSum += (1.0 / b);
@@ -218,6 +222,10 @@ double metric::average5sHarmonic() {
 }
 
 double metric::average3sHarmonic() {
+    // If current value is 0, return 0 immediately (user stopped pedaling)
+    if (m_value == 0.0)
+        return 0.0;
+
     if (m_last3.count() == 0)
         return 0;
     else {
@@ -226,7 +234,7 @@ double metric::average3sHarmonic() {
         QMutableListIterator<double> i(m_last3);
         while (i.hasNext()) {
             double b = i.next();
-            // If any value is 0, return 0 immediately
+            // If any value in buffer is 0, return 0 immediately
             if (b == 0.0)
                 return 0.0;
             reciprocalSum += (1.0 / b);
