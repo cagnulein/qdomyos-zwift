@@ -9,7 +9,9 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app{argc, argv};
 
+    qDebug() << "Initializing test data index";
     DeviceTestDataIndex::Initialize();
+    qDebug() << "Initialized test data index";
 
     QTimer::singleShot(0, [&]()
                        {

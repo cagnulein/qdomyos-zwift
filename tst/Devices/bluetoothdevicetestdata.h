@@ -13,6 +13,7 @@
 
 typedef std::function<void(const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations)> ConfigurationApplicatorMultiple;
 typedef std::function<void(DeviceDiscoveryInfo &info, bool enable)> ConfigurationApplicatorSingle;
+typedef std::function<void()> DeviceTestInitializer;
 
 class BluetoothDeviceTestData
 {
@@ -27,6 +28,8 @@ protected:
     DeviceNamePatternGroup * deviceNamePatternGroup=nullptr;
     ConfigurationApplicatorMultiple applicatorMultiple=nullptr;
     ConfigurationApplicatorSingle applicatorSingle=nullptr;
+    DeviceTestInitializer initializer=nullptr;
+    bool usingNonBluetoothDiscovery = false;
     std::function<bool(bluetoothdevice*)> isExpectedDevice=nullptr;
     DeviceTypeId expectedDeviceType=-1;
     BluetoothDeviceTestData();
@@ -36,6 +39,12 @@ public:
      * @return
      */
     QString Name() const;
+
+    /**
+     * @brief Indicates if non-bluetooth discovery should be used. Default: false
+     * @return
+     */
+    bool UseNonBluetoothDiscovery() const;
 
     /**
      * @brief Gets a unique identifier
@@ -91,6 +100,11 @@ public:
      * @param info
      */
     std::vector<DeviceDiscoveryInfo> ApplyConfigurations(const DeviceDiscoveryInfo& info, bool enable) const;
+
+    /**
+     * @brief Calls the initializer for the device if it is defined.
+     */
+    void InitializeDevice() const;
 
     virtual ~BluetoothDeviceTestData();
 };

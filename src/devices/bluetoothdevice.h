@@ -652,7 +652,7 @@ class bluetoothdevice : public QObject {
     metric m_rawWatt;
 
     /**
-     * @brief WattKg Metric to get and set the watt kg for the session (what's this?). Unit: watt kg
+     * @brief WattKg Metric to get and set the current watts per kg. E.g. power / mass. Unit: watt/kg
      */
     metric WattKg;
 

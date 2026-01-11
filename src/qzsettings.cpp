@@ -1,6 +1,7 @@
 #include "qzsettings.h"
 #include <QDebug>
 #include <QSettings>
+
 const QString QZSettings::cryptoKeySettingsProfiles = QStringLiteral("cryptoKeySettingsProfiles");
 const QString QZSettings::bluetooth_no_reconnection = QStringLiteral("bluetooth_no_reconnection");
 const QString QZSettings::bike_wheel_revs = QStringLiteral("bike_wheel_revs");
@@ -893,6 +894,15 @@ const QString QZSettings::proform_treadmill_705_cst_V80_44 = QStringLiteral("pro
 const QString QZSettings::nordictrack_treadmill_1750_adb = QStringLiteral("nordictrack_treadmill_1750_adb");
 const QString QZSettings::proform_trainer_9_0 = QStringLiteral("proform_trainer_9_0");
 
+const QString QZSettings::trixter_xdream_bike_enabled = QStringLiteral("trixter_xdream_bike_enabled");
+const QString QZSettings::trixter_xdream_bike_heartrate_enabled = QStringLiteral("trixter_xdream_bike_heartrate_enabled");
+const QString QZSettings::trixter_xdream_bike_steering_enabled = QStringLiteral("trixter_xdream_bike_steering_enabled");
+const QString QZSettings::trixter_xdream_bike_steering_l = QStringLiteral("trixter_xdream_bike_steering_l");
+const QString QZSettings::trixter_xdream_bike_steering_cl = QStringLiteral("trixter_xdream_bike_steering_cl");
+const QString QZSettings::trixter_xdream_bike_steering_cr = QStringLiteral("trixter_xdream_bike_steering_cr");
+const QString QZSettings::trixter_xdream_bike_steering_r = QStringLiteral("trixter_xdream_bike_steering_r");
+const QString QZSettings::trixter_xdream_bike_steering_max = QStringLiteral("trixter_xdream_bike_steering_max");
+const QString QZSettings::trixter_xdream_bike_connection_timeout_ms = QStringLiteral("trixter_xdream_bike_connection_timeout_ms");
 const QString QZSettings::tile_preset_powerzone_1_enabled = QStringLiteral("tile_preset_powerzone_1_enabled");
 const QString QZSettings::tile_preset_powerzone_1_order = QStringLiteral("tile_preset_powerzone_1_order");
 const QString QZSettings::tile_preset_powerzone_1_value = QStringLiteral("tile_preset_powerzone_1_value");
@@ -1614,8 +1624,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwift_ocr, QZSettings::default_zwift_ocr},
     {QZSettings::fit_file_saved_on_quit, QZSettings::default_fit_file_saved_on_quit},
     {QZSettings::gem_module_inclination, QZSettings::default_gem_module_inclination},
-    {QZSettings::treadmill_simulate_inclination_with_speed,
-     QZSettings::default_treadmill_simulate_inclination_with_speed},
+    {QZSettings::treadmill_simulate_inclination_with_speed, QZSettings::default_treadmill_simulate_inclination_with_speed},
     {QZSettings::garmin_companion, QZSettings::default_garmin_companion},
     {QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr},
     {QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical},
