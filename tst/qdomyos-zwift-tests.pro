@@ -11,9 +11,9 @@ CONFIG += thread
 CONFIG += androidextras
 
 SOURCES += \
-        Devices/trixterxdreambike/TrixterXDreamPacketInterpreterTests.cpp \
-        Devices/trixterxdreambike/trixterxdreambikestub.cpp \
-        Devices/trixterxdreambike/trixterxdreambiketestsuite.cpp \
+        Devices/TrixterXDreamBike/TrixterXDreamPacketInterpreterTests.cpp \
+        Devices/TrixterXDreamBike/trixterxdreambikestub.cpp \
+        Devices/TrixterXDreamBike/trixterxdreambiketestsuite.cpp \
         Devices/bluetoothdevicetestdata.cpp \
         Devices/bluetoothdevicetestdatabuilder.cpp \
         Devices/bluetoothdevicetestsuite.cpp \
@@ -47,10 +47,10 @@ else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../src/libqdomyos-zwift.a
 
 HEADERS += \
-    Devices/trixterxdreambike/ActivationMonitorTests.h \
-    Devices/trixterxdreambike/TrixterXDreamPacketInterpreterTests.h \
-    Devices/trixterxdreambike/trixterxdreambikestub.h \
-    Devices/trixterxdreambike/trixterxdreambiketestsuite.h \
+    Devices/TrixterXDreamBike/ActivationMonitorTests.h \
+    Devices/TrixterXDreamBike/TrixterXDreamPacketInterpreterTests.h \
+    Devices/TrixterXDreamBike/trixterxdreambikestub.h \
+    Devices/TrixterXDreamBike/trixterxdreambiketestsuite.h \
     Devices/bluetoothdevicetestdata.h \
     Devices/bluetoothdevicetestdatabuilder.h \
     Devices/bluetoothdevicetestsuite.h \
