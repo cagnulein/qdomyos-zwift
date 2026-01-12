@@ -71,6 +71,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
     bool fit_file_garmin_device_training_effect = settings.value(QZSettings::fit_file_garmin_device_training_effect, QZSettings::default_fit_file_garmin_device_training_effect).toBool();
     int fit_file_garmin_device_training_effect_device = settings.value(QZSettings::fit_file_garmin_device_training_effect_device, QZSettings::default_fit_file_garmin_device_training_effect_device).toInt();
+    uint32_t garmin_device_serial = settings.value(QZSettings::garmin_device_serial, QZSettings::default_garmin_device_serial).toUInt();
     bool is_zwift_device = (fit_file_garmin_device_training_effect_device == 99999);
     fit::FileIdMesg fileIdMesg; // Every FIT file requires a File ID message
     fileIdMesg.SetType(FIT_FILE_ACTIVITY);
@@ -86,7 +87,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     }
     if(fit_file_garmin_device_training_effect || is_zwift_device) {
         fileIdMesg.SetProduct(is_zwift_device ? 3288 : fit_file_garmin_device_training_effect_device);
-        fileIdMesg.SetSerialNumber(3313379353);
+        fileIdMesg.SetSerialNumber(garmin_device_serial);
     } else {
         fileIdMesg.SetProduct(1);
         fileIdMesg.SetSerialNumber(12345);
@@ -113,12 +114,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     deviceInfoMesg.SetDeviceIndex(FIT_DEVICE_INDEX_CREATOR);
     if(is_zwift_device) {
         deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_ZWIFT);
-        deviceInfoMesg.SetSerialNumber(3313379353);
+        deviceInfoMesg.SetSerialNumber(garmin_device_serial);
         deviceInfoMesg.SetProduct(3288);
         deviceInfoMesg.SetSoftwareVersion(21.19);
     } else if(fit_file_garmin_device_training_effect) {
         deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
-        deviceInfoMesg.SetSerialNumber(3313379353);
+        deviceInfoMesg.SetSerialNumber(garmin_device_serial);
         deviceInfoMesg.SetProduct(fit_file_garmin_device_training_effect_device);
         deviceInfoMesg.SetGarminProduct(fit_file_garmin_device_training_effect_device);
         deviceInfoMesg.SetSoftwareVersion(21.19);
@@ -264,11 +265,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     sessionMesg.SetTrigger(FIT_SESSION_TRIGGER_ACTIVITY_END);
     sessionMesg.SetMessageIndex(FIT_MESSAGE_INDEX_RESERVED);
 
-    if (overrideSport != FIT_SPORT_INVALID) {
-        sessionMesg.SetSport(overrideSport);
-        sessionMesg.SetSubSport(FIT_SUB_SPORT_GENERIC);
-        qDebug() << "overriding FIT sport " << overrideSport;
-    } else if (type == TREADMILL) {
+    // First, set sport and subsport based on device type
+    if (type == TREADMILL) {
         if(session.last().stepCount > 0)
             sessionMesg.SetTotalStrides(session.last().stepCount);
 
@@ -322,6 +320,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         if (strava_virtual_activity) {
             sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
         }
+    }
+
+    // Then, override the sport if requested (keeping the subsport from above)
+    if (overrideSport != FIT_SPORT_INVALID) {
+        sessionMesg.SetSport(overrideSport);
+        qDebug() << "overriding FIT sport to" << overrideSport << "keeping subsport from device type";
     }
 
     fit::DeveloperDataIdMesg devIdMesg;

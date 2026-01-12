@@ -457,6 +457,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     bool domyos_treadmill_buttons =
         settings.value(QZSettings::domyos_treadmill_buttons, QZSettings::default_domyos_treadmill_buttons).toBool();
     bool domyos_treadmill_t900a = settings.value(QZSettings::domyos_treadmill_t900a, QZSettings::default_domyos_treadmill_t900a).toBool();
+    domyos_treadmill_sync_start = settings.value(QZSettings::domyos_treadmill_sync_start, QZSettings::default_domyos_treadmill_sync_start).toBool();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -809,13 +810,27 @@ void domyostreadmill::btinit(bool startTape) {
     writeCharacteristic(initDataStart4, sizeof(initDataStart4), QStringLiteral("init"), false, true);
     writeCharacteristic(initDataStart5, sizeof(initDataStart5), QStringLiteral("init"), false, true);
 
-    if (startTape) {
-        // writeCharacteristic(initDataStart6, sizeof(initDataStart6), "init", false, false);
-        // writeCharacteristic(initDataStart7, sizeof(initDataStart7), "init", false, true);
+    // Old behavior (before commit c90093046): these lines were always executed
+    // New behavior (after commit c90093046): these lines are only executed if startTape is true
+    if (domyos_treadmill_sync_start) {
+        // Old behavior: always execute these lines
         forceSpeedOrIncline(lastSpeed, lastInclination);
 
         writeCharacteristic(initDataStart8, sizeof(initDataStart8), QStringLiteral("init"), false, false);
         writeCharacteristic(initDataStart9, sizeof(initDataStart9), QStringLiteral("init"), false, true);
+    }
+
+    if (startTape) {
+        // writeCharacteristic(initDataStart6, sizeof(initDataStart6), "init", false, false);
+        // writeCharacteristic(initDataStart7, sizeof(initDataStart7), "init", false, true);
+
+        if (!domyos_treadmill_sync_start) {
+            // New behavior: only execute if startTape is true
+            forceSpeedOrIncline(lastSpeed, lastInclination);
+
+            writeCharacteristic(initDataStart8, sizeof(initDataStart8), QStringLiteral("init"), false, false);
+            writeCharacteristic(initDataStart9, sizeof(initDataStart9), QStringLiteral("init"), false, true);
+        }
 
         writeCharacteristic(initDataStart10, sizeof(initDataStart10), QStringLiteral("init"), false, false);
         writeCharacteristic(initDataStart11, sizeof(initDataStart11), QStringLiteral("init"), false, true);

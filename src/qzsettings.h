@@ -2077,6 +2077,9 @@ class QZSettings {
     static const QString treadmill_speed_max;
     static constexpr float default_treadmill_speed_max = 100.0;
 
+    static const QString treadmill_speed_min;
+    static constexpr float default_treadmill_speed_min = 0.0;
+
     static const QString proform_2000_treadmill;
     static constexpr bool default_proform_2000_treadmill = false;
 
@@ -2103,6 +2106,9 @@ class QZSettings {
 
     static const QString domyos_treadmill_t900a;
     static constexpr bool default_domyos_treadmill_t900a = false;
+
+    static const QString domyos_treadmill_sync_start;
+    static constexpr bool default_domyos_treadmill_sync_start = false;
 
     static const QString enerfit_SPX_9500;
     static constexpr bool default_enerfit_SPX_9500 = false;
@@ -2216,6 +2222,12 @@ class QZSettings {
 
     static const QString peloton_treadmill_walk_level;
     static constexpr int default_peloton_treadmill_walk_level = 1;
+
+    static const QString peloton_treadmill_walking_min_speed;
+    static constexpr double default_peloton_treadmill_walking_min_speed = 0.0;
+
+    static const QString peloton_treadmill_running_min_speed;
+    static constexpr double default_peloton_treadmill_running_min_speed = 0.0;
 
     static const QString nordictrackadbbike_resistance;
     static constexpr bool default_nordictrackadbbike_resistance = false;
@@ -2409,6 +2421,9 @@ class QZSettings {
 
     static const QString fit_file_garmin_device_training_effect_device;
     static constexpr int default_fit_file_garmin_device_training_effect_device = FIT_GARMIN_PRODUCT_EDGE_830;
+
+    static const QString garmin_device_serial;
+    static constexpr uint32_t default_garmin_device_serial = 3313379353;
 
     static const QString proform_treadmill_705_cst_V80_44;
     static constexpr bool default_proform_treadmill_705_cst_V80_44 = false;
@@ -2815,6 +2830,12 @@ class QZSettings {
      */
     static const QString skandika_wiri_x2000_protocol;
     static constexpr bool default_skandika_wiri_x2000_protocol = true;
+
+    /**
+     * @brief Automatically trigger a lap when completing each workout segment/row in TrainProgram
+     */
+    static const QString trainprogram_auto_lap_on_segment;
+    static constexpr bool default_trainprogram_auto_lap_on_segment = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

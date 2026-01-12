@@ -45,6 +45,7 @@
 #include <QFile>
 #include <QUrlQuery>
 #include <QRegularExpression>
+#include <algorithm>
 #include <chrono>
 
 homeform *homeform::m_singleton = 0;
@@ -669,8 +670,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QDir().mkdir(getWritableAppDir() + "training/");
     while (itZwo.hasNext()) {
         qDebug() << itZwo.next() << itZwo.fileName();
-        if (!QFile(getWritableAppDir() + "training/" + itZwo.fileName()).exists()) {
-            QFile::copy(":/zwo/" + itZwo.fileName(), getWritableAppDir() + "training/" + itZwo.fileName());
+        QString targetPath = getWritableAppDir() + "training/" + itZwo.fileName();
+        QString markerPath = getWritableAppDir() + "training/.deleted_" + itZwo.fileName();
+        // Only copy if file doesn't exist AND no deletion marker exists
+        if (!QFile(targetPath).exists() && !QFile(markerPath).exists()) {
+            QFile::copy(":/zwo/" + itZwo.fileName(), targetPath);
         }
     }
 
@@ -678,8 +682,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QDir().mkdir(getWritableAppDir() + "gpx/");
     while (itGpx.hasNext()) {
         qDebug() << itGpx.next() << itGpx.fileName();
-        if (!QFile(getWritableAppDir() + "gpx/" + itGpx.fileName()).exists()) {
-            QFile::copy(":/gpx/" + itGpx.fileName(), getWritableAppDir() + "gpx/" + itGpx.fileName());
+        QString targetPath = getWritableAppDir() + "gpx/" + itGpx.fileName();
+        QString markerPath = getWritableAppDir() + "gpx/.deleted_" + itGpx.fileName();
+        // Only copy if file doesn't exist AND no deletion marker exists
+        if (!QFile(targetPath).exists() && !QFile(markerPath).exists()) {
+            QFile::copy(":/gpx/" + itGpx.fileName(), targetPath);
         }
     }
 
@@ -7109,35 +7116,38 @@ void homeform::update() {
                                  << QStringLiteral("minSpeed:") << minSpeed << QStringLiteral("maxSpeed:") << maxSpeed;
 
                         if (hrmax < bluetoothManager->device()->currentHeart().average20s() &&
-                            minSpeed <= currentSpeed - step) {
+                            currentSpeed > minSpeed) {
+                            double newSpeed = std::max(currentSpeed - step, minSpeed);
                             qDebug() << QStringLiteral("TREADMILL PID HR - HR > HRmax, DECREASING speed from")
-                                     << currentSpeed << QStringLiteral("to") << (currentSpeed - step);
+                                     << currentSpeed << QStringLiteral("to") << newSpeed;
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
-                                    currentSpeed - step,
+                                    newSpeed,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
                         } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
-                                   maxSpeed >= currentSpeed + step) {
+                                   currentSpeed < maxSpeed) {
+                            double newSpeed = std::min(currentSpeed + step, maxSpeed);
                             qDebug() << QStringLiteral("TREADMILL PID HR - HR < HRmin, INCREASING speed from")
-                                     << currentSpeed << QStringLiteral("to") << (currentSpeed + step);
+                                     << currentSpeed << QStringLiteral("to") << newSpeed;
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
 
-                                    currentSpeed + step,
+                                    newSpeed,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else if (maxSpeed >= currentSpeed + step &&
+                        } else if (currentSpeed < maxSpeed &&
                                    hrmax >= bluetoothManager->device()->currentHeart().average20s() && trainprogram_pid_pushy) {
                             qDebug() << QStringLiteral("TREADMILL PID HR - PUSHY mode, counter:") << pid_heart_zone_small_inc_counter
                                      << QStringLiteral("threshold:") << (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average20s()));
                             pid_heart_zone_small_inc_counter++;
                             if (pid_heart_zone_small_inc_counter > (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average20s()))) {
+                                double newSpeed = std::min(currentSpeed + step, maxSpeed);
                                 qDebug() << QStringLiteral("TREADMILL PID HR - PUSHY triggered, INCREASING speed from")
-                                         << currentSpeed << QStringLiteral("to") << (currentSpeed + step);
+                                         << currentSpeed << QStringLiteral("to") << newSpeed;
                                 ((treadmill *)bluetoothManager->device())
                                     ->changeSpeedAndInclination(
-                                        currentSpeed + step,
+                                        newSpeed,
                                         ((treadmill *)bluetoothManager->device())->currentInclination().value());
                                 pid_heart_zone_small_inc_counter = 0;
                             }
@@ -7157,10 +7167,11 @@ void homeform::update() {
                                      << currentResistance << QStringLiteral("to") << (currentResistance - step);
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
                         } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
-                                   maxResistance >= currentResistance + step) {
+                                   currentResistance < maxResistance) {
+                            resistance_t newResistance = std::min(static_cast<resistance_t>(currentResistance + step), static_cast<resistance_t>(maxResistance));
                             qDebug() << QStringLiteral("BIKE PID HR - HR < HRmin, INCREASING resistance from")
-                                     << currentResistance << QStringLiteral("to") << (currentResistance + step);
-                            ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
+                                     << currentResistance << QStringLiteral("to") << newResistance;
+                            ((bike *)bluetoothManager->device())->changeResistance(newResistance);
                         } else {
                             qDebug() << QStringLiteral("BIKE PID HR - No action taken (in zone or at limits)");
                         }
