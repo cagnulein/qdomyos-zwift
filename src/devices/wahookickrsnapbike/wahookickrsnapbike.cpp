@@ -963,6 +963,9 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     QSettings settings;
     
     if (settings.value(QZSettings::wahoo_without_wheel_diameter, QZSettings::default_wahoo_without_wheel_diameter).toBool()) {
+        if (lastGrade == grade && lastGearValue == gears()) {
+            return;
+        }
         lastGrade = grade;
         emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
         double g = grade;
