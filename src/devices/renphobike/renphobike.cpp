@@ -91,6 +91,10 @@ void renphobike::forceResistance(resistance_t requestResistance) {
 }
 
 void renphobike::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -395,7 +399,7 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
         if (s->serviceUuid() == ftmsService)
 #endif
         {
-            if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+            if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
                 qDebug() << "not all services discovered";
                 return;
             }
@@ -405,7 +409,7 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << "all services discovered!";
 
     foreach (QLowEnergyService *s, gattCommunicationChannelService) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+        if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
             // establish hook into notifications
             connect(s, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
                     SLOT(characteristicChanged(QLowEnergyCharacteristic, QByteArray)));
@@ -430,20 +434,20 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
             }
 
             foreach (QLowEnergyCharacteristic c, s->characteristics()) {
-                qDebug() << "char uuid" << c.uuid() << "handle" << c.handle();
+                qDebug() << "char uuid" << c.uuid();
                 foreach (QLowEnergyDescriptor d, c.descriptors())
-                    qDebug() << "descriptor uuid" << d.uuid() << "handle" << d.handle();
+                    qDebug() << "descriptor uuid" << d.uuid();
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
-                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid())
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    if (c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).isValid())
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
                     else
                         qDebug() << "ClientCharacteristicConfiguration" << c.uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                 << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
+                                 
                                  << " is not valid";
 
                     qDebug() << s->serviceUuid() << c.uuid() << "notification subscribed!";
@@ -452,12 +456,12 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
                     QByteArray descriptor;
                     descriptor.append((char)0x02);
                     descriptor.append((char)0x00);
-                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid())
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    if (c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).isValid())
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
                     else
                         qDebug() << "ClientCharacteristicConfiguration" << c.uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                 << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
+                                 
                                  << " is not valid";
 
                     qDebug() << s->serviceUuid() << c.uuid() << "indication subscribed!";
@@ -664,7 +668,7 @@ void renphobike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
