@@ -43,7 +43,7 @@ public class SDMChannelController {
     private static final int CHANNEL_SPEED_TRANSMISSION_TYPE = 1;
 
     // The period and frequency values the channel will be configured to
-    private static final int CHANNEL_SPEED_PERIOD = 8070; // 4.06 Hz (Standard for SDM)
+    private static final int CHANNEL_SPEED_PERIOD = 8134; // 1 Hz
     private static final int CHANNEL_SPEED_FREQUENCY = 57;
 
     private static final String TAG = SDMChannelController.class.getSimpleName();
@@ -58,6 +58,7 @@ public class SDMChannelController {
     private boolean mIsOpen;
     double speed = 0.0;
     int cadence = 0;
+    byte stride_count = 0;
 
     public SDMChannelController(AntChannel antChannel) {
         mAntChannel = antChannel;
@@ -173,7 +174,7 @@ public class SDMChannelController {
     public class ChannelEventCallback implements IAntChannelEventHandler {
         long lastTime = 0;
         double totalWay = 0.0;
-        double totalStrides = 0.0;
+        double totalRotations = 0.0;
         long lastSpeedEventTime = 0;
         long lastCadenceEventTime = 0;
         long elapsedMillis = 0;
@@ -188,63 +189,44 @@ public class SDMChannelController {
             QLog.e(TAG, "Channel Death");
         }
 
-        private void sendPayload() {
-            long realtimeMillis = SystemClock.elapsedRealtime();
-            if (lastTime == 0) {
-                lastTime = realtimeMillis;
-                return;
-            }
-            double speedM_s = speed / 3.6;
-            long deltaTime = (realtimeMillis - lastTime);
-            lastTime = realtimeMillis;
-
-            // Accumulate distance and strides
-            totalWay += speedM_s * (deltaTime / 1000.0);
-            // Assuming 2 steps per stride (standard running cadence is usually reported in steps/min)
-            totalStrides += (cadence / 120.0) * (deltaTime / 1000.0);
-
-            byte[] payload = new byte[8];
-
-            payload[0] = (byte) 0x01; // Data Page 1
-            payload[1] = (byte) ((lastTime % 1000) / 5);      // time fractional: 0-199 in 1/200 sec units
-            payload[2] = (byte) ((lastTime / 1000) % 256);    // time integer: seconds mod 256
-            payload[3] = (byte) ((int)totalWay & 0xFF);       // distance integer: meters mod 256
-            
-            // Byte 4 bits 0-3: Distance fractional (1/16m units)
-            // Byte 4 bits 4-7: Speed integer (1m/s units)
-            payload[4] = (byte) ((((int)speedM_s & 0x0F) << 4) | ((int)((totalWay - (int)totalWay) * 16.0) & 0x0F));
-            
-            // Byte 5: Speed fractional (1/256m/s units)
-            payload[5] = (byte) Math.round((speedM_s - (double)((int)speedM_s)) * 256.0);
-            
-            payload[6] = (byte) ((int)totalStrides & 0xFF);   // Stride count: accumulated mod 256
-            payload[7] = (byte) 0;  // update latency: no delay in real-time system
-
-            if (mIsOpen) {
-                try {
-                    // Setting the data to be broadcast on the next channel period
-                    mAntChannel.setBroadcastData(payload);
-                } catch (RemoteException e) {
-                    channelError(e);
-                }
-            }
-        }
-
         @Override
         public void onReceiveMessage(MessageFromAntType messageType, AntMessageParcel antParcel) {
             QLog.d(TAG, "Rx: " + antParcel);
             QLog.d(TAG, "Message Type: " + messageType);
 
             if(carousalTimer == null) {
-                carousalTimer = new Timer(); // At this line a new Thread will be created
-                carousalTimer.scheduleAtFixedRate(new TimerTask() {
-                    @Override
-                    public void run() {
-                        QLog.d(TAG, "Tx Unsollicited");
-                        sendPayload();
-                    }
-                }, 0, 250); // delay
-            }
+               carousalTimer = new Timer(); // At this line a new Thread will be created
+               carousalTimer.scheduleAtFixedRate(new TimerTask() {
+                   @Override
+                   public void run() {
+                       QLog.d(TAG, "Tx Unsollicited");
+                       long realtimeMillis = SystemClock.elapsedRealtime();
+                       double speedM_s = speed / 3.6;
+                       long deltaTime = (realtimeMillis - lastTime);
+                       lastTime = realtimeMillis;
+
+                       byte[] payload = new byte[8];
+
+                       payload[0] = (byte) 0x01;
+                       payload[1] = (byte) ((lastTime % 1000) / 5);      // time fractional: 0-199 in 1/200 sec units
+                       payload[2] = (byte) ((lastTime / 1000) % 256);    // time integer: seconds mod 256
+                       payload[3] = (byte) 0x00;
+                       payload[4] = (byte) ((int)speedM_s & 0x0F);  // speed integer in lower 4 bits only
+                       payload[5] = (byte) Math.round((speedM_s - (double)((int)speedM_s)) * 256.0);
+                       payload[6] = (byte) stride_count++;
+                       payload[7] = (byte) 0;  // update latency: no delay in real-time system
+
+                       if (mIsOpen) {
+                           try {
+                               // Setting the data to be broadcast on the next channel period
+                               mAntChannel.setBroadcastData(payload);
+                           } catch (RemoteException e) {
+                               channelError(e);
+                           }
+                       }
+                   }
+               }, 0, 250); // delay
+           }
 
             // Switching on message type to handle different types of messages
             switch (messageType) {
@@ -266,7 +248,31 @@ public class SDMChannelController {
                     // Switching on event code to handle the different types of channel events
                     switch (code) {
                         case TX:
-                            sendPayload();
+                            long realtimeMillis = SystemClock.elapsedRealtime();
+                            double speedM_s = speed / 3.6;
+                            long deltaTime = (realtimeMillis - lastTime);
+                            // in case the treadmill doesn't provide cadence, I have to force it. ANT+ requires cadence
+                            lastTime = realtimeMillis;
+    
+                            byte[] payload = new byte[8];
+    
+                            payload[0] = (byte) 0x01;
+                            payload[1] = (byte) ((lastTime % 1000) / 5);      // time fractional: 0-199 in 1/200 sec units
+                            payload[2] = (byte) ((lastTime / 1000) % 256);    // time integer: seconds mod 256
+                            payload[3] = (byte) 0x00;
+                            payload[4] = (byte) ((int)speedM_s & 0x0F);  // speed integer in lower 4 bits only
+                            payload[5] = (byte) Math.round((speedM_s - (double)((int)speedM_s)) * 256.0);
+                            payload[6] = (byte) stride_count++;
+                            payload[7] = (byte) 0;  // update latency: no delay in real-time system
+
+                            if (mIsOpen) {
+                                try {
+                                    // Setting the data to be broadcast on the next channel period
+                                    mAntChannel.setBroadcastData(payload);
+                                } catch (RemoteException e) {
+                                    channelError(e);
+                                }
+                            }
                             break;
                         case CHANNEL_COLLISION:
                             break;
