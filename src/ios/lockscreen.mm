@@ -14,7 +14,6 @@
 #include "ios/AdbClient.h"
 #include "ios/ios_eliteariafan.h"
 #include "ios/ios_echelonconnectsport.h"
-#include "ios/ios_wahookickrsnapbike.h"
 #include "ios/ios_zwiftclickremote.h"
 #include "ios/ios_liveactivity.h"
 
@@ -591,19 +590,6 @@ uint32_t lockscreen::zwift_hub_getCadenceFromBuffer(const QByteArray& buffer) {
     
     uint32_t cadence = [ZwiftHubBike getCadenceFromBufferWithBuffer:data];
     return cadence;
-}
-
-static ios_wahookickrsnapbike* ios_wahooKickrSnapBike = nil;
-
-void lockscreen::wahooKickrSnapBike(const char* Name, void* deviceClass) {
-    NSString *deviceName = [NSString stringWithCString:Name encoding:NSASCIIStringEncoding];
-    ios_wahooKickrSnapBike = [[ios_wahookickrsnapbike alloc] init:deviceName qtDevice:deviceClass];
-}
-
-void lockscreen::writeCharacteristic(unsigned char* qdata, unsigned char length) {
-    if(ios_wahooKickrSnapBike) {
-        [ios_wahooKickrSnapBike writeCharacteristic:qdata length:length];
-    }
 }
 
 static NSMutableDictionary<NSValue*, ios_zwiftclickremote*>* ios_zwiftClickRemotes = nil;
