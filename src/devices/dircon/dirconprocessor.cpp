@@ -133,7 +133,7 @@ void DirconProcessor::tcpNewConnection() {
         initPkt.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
         initPkt.uuid = 0x2AD2;
         initPkt.additional_data = QByteArray(29, 0x00); // Empty data for now
-        QByteArray initData = initPkt.encode(0);
+        QByteArray initData = initPkt.encode(0, rouvy_compatibility);
         socket->write(initData);
         socket->flush();
         qDebug() << "Sent initial notification for 0x2AD2 to" << socket->peerAddress().toString();
@@ -224,7 +224,12 @@ DirconPacket DirconProcessor::processPacket(DirconProcessorClient *client, const
                 foreach (cc, service->chars) {
                     if (cc->uuid == pkt.uuid) {
                         cfound = true;
-                        if (cc->type & (DPKT_CHAR_PROP_FLAG_NOTIFY | DPKT_CHAR_PROP_FLAG_INDICATE)) {
+                        // Check for INDICATE only when Rouvy compatibility is enabled
+                        quint8 notify_flags = DPKT_CHAR_PROP_FLAG_NOTIFY;
+                        if (rouvy_compatibility) {
+                            notify_flags |= DPKT_CHAR_PROP_FLAG_INDICATE;
+                        }
+                        if (cc->type & notify_flags) {
                             int idx;
                             char notif = pkt.additional_data.at(0);
                             out.uuid = pkt.uuid;
@@ -267,7 +272,7 @@ bool DirconProcessor::sendCharacteristicNotification(quint16 uuid, const QByteAr
         client = i.value();
         if (client->char_notify.indexOf(uuid) >= 0 || settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool()) {
             socket = i.key();
-            rvs = socket->write(pkt.encode(0)) < 0;
+            rvs = socket->write(pkt.encode(0, rouvy_compatibility)) < 0;
             if (rvs)
                 rv = false;
             qDebug() << serverName << "sending to" << socket->peerAddress().toString() << ":" << socket->peerPort()
@@ -288,7 +293,7 @@ void DirconProcessor::tcpDataAvailable() {
         client->buffer.append(data);
         while (1) {
             DirconPacket pkt;
-            buflimit = pkt.parse(client->buffer, client->seq);
+            buflimit = pkt.parse(client->buffer, client->seq, rouvy_compatibility);
             qDebug() << "Pkt for uuid" << serverName << "parsed rv=" << buflimit << " ->" << pkt;
             if (buflimit > 0) {
                 rembuf = buflimit;
@@ -307,7 +312,7 @@ void DirconProcessor::tcpDataAvailable() {
                 DirconPacket resp = processPacket(client, pkt);
                 qDebug() << "Sending resp for uuid" << serverName << ":" << resp;
                 if (resp.Identifier != DPKT_MSGID_ERROR) {
-                    QByteArray byteout = resp.encode(pkt.SequenceNumber);
+                    QByteArray byteout = resp.encode(pkt.SequenceNumber, rouvy_compatibility);
                     if (byteout.size() && client && client->sock)
                         client->sock->write(byteout);
                 }
@@ -316,7 +321,7 @@ void DirconProcessor::tcpDataAvailable() {
                 resp.isRequest = false;
                 resp.ResponseCode = DPKT_RESPCODE_UNEXPECTED_ERROR;
                 resp.Identifier = pkt.Identifier;
-                QByteArray byteout = resp.encode(pkt.SequenceNumber);
+                QByteArray byteout = resp.encode(pkt.SequenceNumber, rouvy_compatibility);
                 if (byteout.size() && client && client->sock)
                     client->sock->write(byteout);
             } else

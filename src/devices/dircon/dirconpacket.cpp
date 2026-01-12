@@ -17,7 +17,7 @@ DirconPacket::operator QString() const {
         .arg(us);
 }
 
-int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
+int DirconPacket::parse(const QByteArray &buf, int last_seq_number, bool rouvy_compatibility) {
     if (buf.size() >= DPKT_MESSAGE_HEADER_LENGTH) {
         this->MessageVersion = ((quint8)buf.at(0));
         this->Identifier = ((quint8)buf.at(1));
@@ -96,11 +96,14 @@ int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
             } else
                 return DPKT_PARSE_ERROR - rembuf;
         } else if (this->Identifier == DPKT_MSGID_ENABLE_CHARACTERISTIC_NOTIFICATIONS) {
-            if (this->Length >= 16) {
+            // Rouvy compatibility: relaxed validation (>=), standard: strict validation (==)
+            bool length_valid = rouvy_compatibility ? (this->Length >= 16) : (this->Length == 16 || this->Length == 17);
+            if (length_valid) {
                 quint16 uuid = ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8;
                 uuid |= ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0)) & 0x00FF;
                 this->uuid = uuid;
-                if (this->Length >= 17) {
+                bool has_data = rouvy_compatibility ? (this->Length >= 17) : (this->Length == 17);
+                if (has_data) {
                     this->isRequest = true;
                     this->additional_data = buf.mid(DPKT_MESSAGE_HEADER_LENGTH + 16, 1);
                 }
@@ -118,9 +121,13 @@ int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
             } else
                 return DPKT_PARSE_ERROR - rembuf;
         } else if (this->Identifier == DPKT_MSGID_UNKNOWN_0x07) {
-            if (this->Length == 0) {
-                this->isRequest = this->checkIsRequest(last_seq_number);
-                return DPKT_MESSAGE_HEADER_LENGTH;
+            // Only handle 0x07 message when Rouvy compatibility is enabled
+            if (rouvy_compatibility) {
+                if (this->Length == 0) {
+                    this->isRequest = this->checkIsRequest(last_seq_number);
+                    return DPKT_MESSAGE_HEADER_LENGTH;
+                } else
+                    return DPKT_PARSE_ERROR - rembuf;
             } else
                 return DPKT_PARSE_ERROR - rembuf;
         } else
@@ -149,7 +156,7 @@ DirconPacket &DirconPacket::operator=(const DirconPacket &cp) {
     return *this;
 }
 
-QByteArray DirconPacket::encode(int last_seq_number) {
+QByteArray DirconPacket::encode(int last_seq_number, bool rouvy_compatibility) {
     quint16 u;
     int i = 0;
     if (this->Identifier == DPKT_MSGID_ERROR)
@@ -188,8 +195,8 @@ QByteArray DirconPacket::encode(int last_seq_number) {
                 }
             }
         }
-    } else if (this->Identifier == DPKT_MSGID_UNKNOWN_0x07) {
-        // Unknown message 0x07 - always respond with empty payload
+    } else if (this->Identifier == DPKT_MSGID_UNKNOWN_0x07 && rouvy_compatibility) {
+        // Unknown message 0x07 - only encode when Rouvy compatibility enabled
         this->Length = 0;
         byteout.append(2, 0);
     } else if (this->Identifier == DPKT_MSGID_DISCOVER_CHARACTERISTICS && !this->isRequest) {
