@@ -55,8 +55,8 @@ class DirconPacket {
     bool isRequest = false;
     DirconPacket(const DirconPacket &cp);
     DirconPacket &operator=(const DirconPacket &cp);
-    QByteArray encode(int last_seq_number);
-    int parse(const QByteArray &buf, int last_seq_number);
+    QByteArray encode(int last_seq_number, bool rouvy_compatibility = false);
+    int parse(const QByteArray &buf, int last_seq_number, bool rouvy_compatibility = false);
     operator QString() const;
 
   private:
