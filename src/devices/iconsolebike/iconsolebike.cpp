@@ -175,17 +175,7 @@ void iconsolebike::readSocket() {
     // Check if we're in init phase
     if (!initDone && data.length() >= 5) {
         // Check for init responses
-        if (data[0] == (char)0xF0) {
-            if (data[1] == (char)0xB7 && initPhase == 1) {
-                // Response to hello, continue init
-                QThread::msleep(100);
-                btinit();
-            } else if ((data[1] == (char)0xB0 || data[0] == (char)0x03) && initPhase == 2) {
-                // Response to init confirm, complete init
-                QThread::msleep(100);
-                btinit();
-            }
-        }
+        btinit();
         return;
     }
 
