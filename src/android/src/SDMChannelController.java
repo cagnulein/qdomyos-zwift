@@ -208,8 +208,8 @@ public class SDMChannelController {
                        byte[] payload = new byte[8];
 
                        payload[0] = (byte) 0x01;
-                       payload[1] = (byte) (((lastTime % 256000) / 5) & 0xFF);
-                       payload[2] = (byte) ((lastTime % 256000) / 1000);
+                       payload[1] = (byte) ((lastTime % 1000) / 5);      // time fractional: 0-199 in 1/200 sec units
+                       payload[2] = (byte) ((lastTime / 1000) % 256);    // time integer: seconds mod 256
                        payload[3] = (byte) 0x00;
                        payload[4] = (byte) ((int)speedM_s & 0x0F);  // speed integer in lower 4 bits only
                        payload[5] = (byte) Math.round((speedM_s - (double)((int)speedM_s)) * 256.0);
@@ -257,8 +257,8 @@ public class SDMChannelController {
                             byte[] payload = new byte[8];
     
                             payload[0] = (byte) 0x01;
-                            payload[1] = (byte) (((lastTime % 256000) / 5) & 0xFF);
-                            payload[2] = (byte) ((lastTime % 256000) / 1000);
+                            payload[1] = (byte) ((lastTime % 1000) / 5);      // time fractional: 0-199 in 1/200 sec units
+                            payload[2] = (byte) ((lastTime / 1000) % 256);    // time integer: seconds mod 256
                             payload[3] = (byte) 0x00;
                             payload[4] = (byte) ((int)speedM_s & 0x0F);  // speed integer in lower 4 bits only
                             payload[5] = (byte) Math.round((speedM_s - (double)((int)speedM_s)) * 256.0);
