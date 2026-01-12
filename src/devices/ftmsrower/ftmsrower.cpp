@@ -423,12 +423,14 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         index += 2;
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
 
-        if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R) {
-            if(instantPace == 0 || instantPace == 65535)
-                Speed = 0;
-            else
+        // Always handle invalid pace values to prevent division by zero
+        if(instantPace == 0 || instantPace == 65535) {
+            Speed = 0;
+        } else {
+            if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
                 Speed = (60.0 / instantPace) * 30.0; // translating pace (min/500m) to km/h in order to match the pace function in the rower.cpp
         }
+
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
 
@@ -448,9 +450,15 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         if (!filterWattNull || watt != 0) {
             if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
                 m_watt = watt;
-        }
-        emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+        }        
+    } else {
+        if(Speed.value() > 0)
+            m_watt = rower::calculateWattsFromPace(instantPace);
+        else
+            m_watt = 0;
     }
+
+    emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
     if (Flags.avgPower) {
 
