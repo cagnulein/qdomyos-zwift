@@ -210,11 +210,10 @@ public class SDMChannelController {
             payload[2] = (byte) ((lastTime / 1000) % 256);    // time integer: seconds mod 256
             payload[3] = (byte) ((int)totalWay & 0xFF);       // distance integer: meters mod 256
             
-            // Byte 4 bits 0-3: Distance fractional (1/16m units)
-            // Byte 4 bits 4-7: Speed integer (1m/s units)
-            payload[4] = (byte) ((((int)speedM_s & 0x0F) << 4) | ((int)((totalWay - (int)totalWay) * 16.0) & 0x0F));
-            
+            // Reverted to original encoding as requested:
+            // Byte 4: Speed integer (lower 4 bits)
             // Byte 5: Speed fractional (1/256m/s units)
+            payload[4] = (byte) ((int)speedM_s & 0x0F);
             payload[5] = (byte) Math.round((speedM_s - (double)((int)speedM_s)) * 256.0);
             
             payload[6] = (byte) ((int)totalStrides & 0xFF);   // Stride count: accumulated mod 256
