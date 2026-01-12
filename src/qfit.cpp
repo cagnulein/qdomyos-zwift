@@ -15,6 +15,7 @@
 #include "fit_field_description_mesg.hpp"
 #include "fit_developer_field.hpp"
 #include "fit_mesg_broadcaster.hpp"
+#include "fit_timestamp_correlation_mesg.hpp"
 
 #ifdef _WIN32
 #include <io.h>
@@ -458,6 +459,24 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     encode.Write(skinTemperatureFieldDesc);
     encode.Write(heatStrainIndexFieldDesc);
     encode.Write(deviceInfoMesg);
+
+    // Add Timestamp Correlation record
+    // This correlates the UTC timestamp with the system timestamp and local timestamp
+    fit::TimestampCorrelationMesg timestampCorrelationMesg;
+    FIT_DATE_TIME sessionStartTimestamp = session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L;
+
+    // Timestamp: UTC timestamp at session start
+    timestampCorrelationMesg.SetTimestamp(sessionStartTimestamp);
+
+    // System Timestamp: Same as timestamp (session start)
+    timestampCorrelationMesg.SetSystemTimestamp(sessionStartTimestamp);
+
+    // Local Timestamp: User's local time at session start
+    // Convert the local time to FIT format
+    fit::DateTime localDateTime((time_t)session.at(firstRealIndex).time.toSecsSinceEpoch());
+    timestampCorrelationMesg.SetLocalTimestamp(localDateTime.GetTimeStamp());
+
+    encode.Write(timestampCorrelationMesg);
 
     if (workoutName.length() > 0) {
         fit::TrainingFileMesg trainingFile;
