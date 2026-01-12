@@ -415,9 +415,9 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
+    double instantPace = 0;
+    
     if (Flags.instantPace) {
-
-        double instantPace;
         instantPace =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
@@ -452,6 +452,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
                 m_watt = watt;
         }        
     } else {
+        qDebug() << "rower doesn't send wattage, let's calculate it...";
         if(Speed.value() > 0)
             m_watt = rower::calculateWattsFromPace(instantPace);
         else
