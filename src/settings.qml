@@ -1262,6 +1262,7 @@ import Qt.labs.platform 1.1
 			property string garmin_device_serial: "3313379353"
 			property real treadmill_speed_min: 0
 			property bool life_fitness_ic5: false
+			property bool technogym_bike: false
         }
 
 
@@ -4557,6 +4558,20 @@ import Qt.labs.platform 1.1
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             spacing: 0
+                            IndicatorOnlySwitch {
+                                id: technogymBikeDelegate
+                                text: qsTr("Technogym Bike (BIKE 1, BIKE 2, etc)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.technogym_bike
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.technogym_bike = checked; window.settings_restart_to_apply = true; }
+                            }
                             IndicatorOnlySwitch {
                                 id: technogymGroupCycleDelegate
                                 text: qsTr("Group Cycle")

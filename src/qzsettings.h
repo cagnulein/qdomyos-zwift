@@ -814,6 +814,9 @@ class QZSettings {
     static const QString life_fitness_ic5;
     static constexpr bool default_life_fitness_ic5 = false;
 
+    static const QString technogym_bike;
+    static constexpr bool default_technogym_bike = false;
+
     static const QString sole_treadmill_inclination;
     static constexpr bool default_sole_treadmill_inclination = false;
 
