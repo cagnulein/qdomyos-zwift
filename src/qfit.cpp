@@ -15,6 +15,7 @@
 #include "fit_field_description_mesg.hpp"
 #include "fit_developer_field.hpp"
 #include "fit_mesg_broadcaster.hpp"
+#include "fit_timestamp_correlation_mesg.hpp"
 
 #ifdef _WIN32
 #include <io.h>
@@ -265,11 +266,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     sessionMesg.SetTrigger(FIT_SESSION_TRIGGER_ACTIVITY_END);
     sessionMesg.SetMessageIndex(FIT_MESSAGE_INDEX_RESERVED);
 
-    if (overrideSport != FIT_SPORT_INVALID) {
-        sessionMesg.SetSport(overrideSport);
-        sessionMesg.SetSubSport(FIT_SUB_SPORT_GENERIC);
-        qDebug() << "overriding FIT sport " << overrideSport;
-    } else if (type == TREADMILL) {
+    // First, set sport and subsport based on device type
+    if (type == TREADMILL) {
         if(session.last().stepCount > 0)
             sessionMesg.SetTotalStrides(session.last().stepCount);
 
@@ -323,6 +321,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         if (strava_virtual_activity) {
             sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
         }
+    }
+
+    // Then, override the sport if requested (keeping the subsport from above)
+    if (overrideSport != FIT_SPORT_INVALID) {
+        sessionMesg.SetSport(overrideSport);
+        qDebug() << "overriding FIT sport to" << overrideSport << "keeping subsport from device type";
     }
 
     fit::DeveloperDataIdMesg devIdMesg;
@@ -455,6 +459,24 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     encode.Write(skinTemperatureFieldDesc);
     encode.Write(heatStrainIndexFieldDesc);
     encode.Write(deviceInfoMesg);
+
+    // Add Timestamp Correlation record
+    // This correlates the UTC timestamp with the system timestamp and local timestamp
+    fit::TimestampCorrelationMesg timestampCorrelationMesg;
+    FIT_DATE_TIME sessionStartTimestamp = session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L;
+
+    // Timestamp: UTC timestamp at session start
+    timestampCorrelationMesg.SetTimestamp(sessionStartTimestamp);
+
+    // System Timestamp: Same as timestamp (session start)
+    timestampCorrelationMesg.SetSystemTimestamp(sessionStartTimestamp);
+
+    // Local Timestamp: User's local time at session start
+    // Convert the local time to FIT format
+    fit::DateTime localDateTime((time_t)session.at(firstRealIndex).time.toSecsSinceEpoch());
+    timestampCorrelationMesg.SetLocalTimestamp(localDateTime.GetTimeStamp());
+
+    encode.Write(timestampCorrelationMesg);
 
     if (workoutName.length() > 0) {
         fit::TrainingFileMesg trainingFile;

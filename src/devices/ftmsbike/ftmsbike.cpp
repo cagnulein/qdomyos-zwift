@@ -587,6 +587,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         flags Flags;
         int index = 0;
+
+        // potential bug, a casting to uint8 is required for the single byte values to avoid negative values
         Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
         index += 2;
 
@@ -751,6 +753,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             } else if (MRK_S26C) {
                 m_watt = Cadence.value() * (Resistance.value() * 1.16);
                 emit debug(QStringLiteral("Current Watt (MRK-S26C formula): ") + QString::number(m_watt.value()));
+            } else if (JFICCYCLE) {
+                // JFICCYCLE sends power but always at 0, so calculate from cadence or heart rate
+                m_watt = wattFromHR(true);
+                emit debug(QStringLiteral("Current Watt (JFICCYCLE calculated): ") + QString::number(m_watt.value()));
             } else if (LYDSTO && watt_ignore_builtin) {
                 m_watt = wattFromHR(true);
                 emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
@@ -1786,6 +1792,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("S18 found");
             S18 = true;
             max_resistance = 24;
+        } else if(device.name().toUpper().startsWith("JFICCYCLE")) {
+            qDebug() << QStringLiteral("JFICCYCLE found");
+            JFICCYCLE = true;
         }
 
 

@@ -1261,6 +1261,12 @@ import Qt.labs.platform 1.1
 			property bool domyos_treadmill_sync_start: false
 			property string garmin_device_serial: "3313379353"
 			property real treadmill_speed_min: 0
+			property real peloton_treadmill_walking_min_speed: 0.0
+			property real peloton_treadmill_running_min_speed: 0.0
+			property bool trainprogram_auto_lap_on_segment: false
+			property bool power_avg_3s: false
+			property bool tile_power_avg_enabled: false
+			property int tile_power_avg_order: 77
 			property bool life_fitness_ic5: false
 			property bool technogym_bike: false
         }
@@ -5530,6 +5536,74 @@ import Qt.labs.platform 1.1
                     RowLayout {
                         spacing: 10
                         Label {
+                            text: qsTr("Walking Min Speed:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pelotonTreadmillWalkingMinSpeedTextField
+                            text: (settings.miles_unit ? settings.peloton_treadmill_walking_min_speed * 0.621371 : settings.peloton_treadmill_walking_min_speed).toFixed(1)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_treadmill_walking_min_speed = (settings.miles_unit ? pelotonTreadmillWalkingMinSpeedTextField.text / 0.621371 : pelotonTreadmillWalkingMinSpeedTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Running Min Speed:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pelotonTreadmillRunningMinSpeedTextField
+                            text: (settings.miles_unit ? settings.peloton_treadmill_running_min_speed * 0.621371 : settings.peloton_treadmill_running_min_speed).toFixed(1)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_treadmill_running_min_speed = (settings.miles_unit ? pelotonTreadmillRunningMinSpeedTextField.text / 0.621371 : pelotonTreadmillRunningMinSpeedTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Minimum speed for Peloton running sessions. Set to 0 to disable. Applied to all speed targets in running workouts.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
                             text: qsTr("Rower Level:")
                             Layout.fillWidth: true
                         }
@@ -5719,7 +5793,7 @@ import Qt.labs.platform 1.1
 
                     IndicatorOnlySwitch {
                         id: cadenceSensorDelegate
-                        text: qsTr("Cycling Cadence Sensor (Peloton compatibility)")
+                        text: qsTr("Cycling/Running Sensor (Peloton compatibility)")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -5733,7 +5807,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Turn this on to send cadence to Peloton over Bluetooth. Default is off.")
+                        text: qsTr("Turn this on compatibility to Peloton over Bluetooth. Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -7185,7 +7259,35 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }                    
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: trainprogramAutoLapOnSegmentDelegate
+                        text: qsTr("Auto Lap on Segment")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.trainprogram_auto_lap_on_segment
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.trainprogram_auto_lap_on_segment = checked
+                    }
+
+                    Label {
+                        text: qsTr("Automatically trigger a lap when completing each workout segment/row. For ramp segments, lap is triggered only at the end of the ramp to avoid creating a lap every second.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
 
                     IndicatorOnlySwitch {
                         text: qsTr("Treadmill Auto-adjust speed by power")
@@ -10840,23 +10942,40 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
-                    IndicatorOnlySwitch {
-                        id: powerAvg5s
-                        text: qsTr("Power Average 5 sec.")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.power_avg_5s
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.power_avg_5s = checked
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPowerAvg
+                            text: qsTr("Power Averaging Mode:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: powerAvgCombo
+                            model: ["Off", "3 seconds", "5 seconds"]
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            currentIndex: {
+                                if (settings.power_avg_3s) return 1;
+                                if (settings.power_avg_5s) return 2;
+                                return 0;
+                            }
+                            onActivated: {
+                                if (currentIndex === 0) {
+                                    settings.power_avg_3s = false;
+                                    settings.power_avg_5s = false;
+                                } else if (currentIndex === 1) {
+                                    settings.power_avg_3s = true;
+                                    settings.power_avg_5s = false;
+                                } else if (currentIndex === 2) {
+                                    settings.power_avg_3s = false;
+                                    settings.power_avg_5s = true;
+                                }
+                            }
+                        }
                     }
 
                     Label {
-                        text: qsTr("If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Default is off.")
+                        text: qsTr("If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Uses harmonic averaging which smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is Off.\n\nIMPORTANT NOTES:\n- No Average/smooth in Hometrainer config for standard home trainers which work at 1hz (No race mode available)\n- Disable Average on 3rd party apps (Rouvy/Zwift/MyWhoosh etc) or select 1sec in the app!\n- Need to use QZ in bridge mode!\n- For Elite home trainers or those who have a race mode (10hz), if it's not sufficient for some users, using Elite/Hometrainer smoothing in addition to QZ smoothing will improve it.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

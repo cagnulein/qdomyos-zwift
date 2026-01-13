@@ -892,6 +892,9 @@ class QZSettings {
     static const QString power_avg_5s;
     static constexpr bool default_power_avg_5s = false;
 
+    static const QString power_avg_3s;
+    static constexpr bool default_power_avg_3s = false;
+
     static const QString instant_power_on_pause;
     static constexpr bool default_instant_power_on_pause = false;
 
@@ -2229,6 +2232,12 @@ class QZSettings {
     static const QString peloton_treadmill_walk_level;
     static constexpr int default_peloton_treadmill_walk_level = 1;
 
+    static const QString peloton_treadmill_walking_min_speed;
+    static constexpr double default_peloton_treadmill_walking_min_speed = 0.0;
+
+    static const QString peloton_treadmill_running_min_speed;
+    static constexpr double default_peloton_treadmill_running_min_speed = 0.0;
+
     static const QString nordictrackadbbike_resistance;
     static constexpr bool default_nordictrackadbbike_resistance = false;
 
@@ -2778,6 +2787,18 @@ class QZSettings {
     static constexpr int default_tile_auto_virtual_shifting_sprint_order = 57;
 
     /**
+     * @brief Enable power averaging tile
+     */
+    static const QString tile_power_avg_enabled;
+    static constexpr bool default_tile_power_avg_enabled = false;
+
+    /**
+     * @brief Order of power averaging tile
+     */
+    static const QString tile_power_avg_order;
+    static constexpr int default_tile_power_avg_order = 77;
+
+    /**
      * @brief Enable negative inclination tile
      */
     static const QString tile_negative_inclination_enabled;
@@ -2830,6 +2851,12 @@ class QZSettings {
      */
     static const QString skandika_wiri_x2000_protocol;
     static constexpr bool default_skandika_wiri_x2000_protocol = true;
+
+    /**
+     * @brief Automatically trigger a lap when completing each workout segment/row in TrainProgram
+     */
+    static const QString trainprogram_auto_lap_on_segment;
+    static constexpr bool default_trainprogram_auto_lap_on_segment = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

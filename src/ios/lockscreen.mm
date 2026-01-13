@@ -14,7 +14,6 @@
 #include "ios/AdbClient.h"
 #include "ios/ios_eliteariafan.h"
 #include "ios/ios_echelonconnectsport.h"
-#include "ios/ios_wahookickrsnapbike.h"
 #include "ios/ios_zwiftclickremote.h"
 #include "ios/ios_liveactivity.h"
 
@@ -291,9 +290,9 @@ void lockscreen::virtualrower_setHeartRate(unsigned char heartRate)
 
 
 // virtual treadmill
-void lockscreen::virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility)
+void lockscreen::virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility, bool bike_cadence_sensor)
 {
-    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] initWithGarmin_bluetooth_compatibility:garmin_bluetooth_compatibility];
+    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] initWithGarmin_bluetooth_compatibility:garmin_bluetooth_compatibility bike_cadence_sensor:bike_cadence_sensor];
 }
 
 void lockscreen::virtualtreadmill_setHeartRate(unsigned char heartRate)
@@ -591,19 +590,6 @@ uint32_t lockscreen::zwift_hub_getCadenceFromBuffer(const QByteArray& buffer) {
     
     uint32_t cadence = [ZwiftHubBike getCadenceFromBufferWithBuffer:data];
     return cadence;
-}
-
-static ios_wahookickrsnapbike* ios_wahooKickrSnapBike = nil;
-
-void lockscreen::wahooKickrSnapBike(const char* Name, void* deviceClass) {
-    NSString *deviceName = [NSString stringWithCString:Name encoding:NSASCIIStringEncoding];
-    ios_wahooKickrSnapBike = [[ios_wahookickrsnapbike alloc] init:deviceName qtDevice:deviceClass];
-}
-
-void lockscreen::writeCharacteristic(unsigned char* qdata, unsigned char length) {
-    if(ios_wahooKickrSnapBike) {
-        [ios_wahooKickrSnapBike writeCharacteristic:qdata length:length];
-    }
 }
 
 static NSMutableDictionary<NSValue*, ios_zwiftclickremote*>* ios_zwiftClickRemotes = nil;

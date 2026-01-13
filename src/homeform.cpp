@@ -110,6 +110,10 @@ void DataObject::setLargeButtonColor(const QString &color) {
     m_largeButtonColor = color;
     emit largeButtonColorChanged(m_largeButtonColor);
 }
+void DataObject::setLargeButtonLabel(const QString &label) {
+    m_largeButtonLabel = label;
+    emit largeButtonLabelChanged(m_largeButtonLabel);
+}
 void DataObject::setLabelFontSize(int value) {
     m_labelFontSize = value;
     emit labelFontSizeChanged(m_labelFontSize);
@@ -306,6 +310,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                              QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingClimb"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Climb", QStringLiteral("red"));
     autoVirtualShiftingSprint = new DataObject(QStringLiteral("Sprint"), QStringLiteral("icons/icons/watt.png"),
                                               QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingSprint"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Sprint", QStringLiteral("red"));
+    powerAvg = new DataObject(QStringLiteral("Power Avg"), QStringLiteral("icons/icons/watt.png"),
+                             QStringLiteral("0"), true, QStringLiteral("powerAvg"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Off", QStringLiteral("grey"));
     pidHR = new DataObject(QStringLiteral("PID Heart"), QStringLiteral("icons/icons/heart_red.png"),
                            QStringLiteral("0"), true, QStringLiteral("pid_hr"), 48, labelFontSize);
     extIncline = new DataObject(QStringLiteral("Ext.Inclin.(%)"), QStringLiteral("icons/icons/inclination.png"),
@@ -2751,6 +2757,12 @@ void homeform::sortTiles() {
                 dataList.append(autoVirtualShiftingSprint);
             }
 
+            if (settings.value(QZSettings::tile_power_avg_enabled, QZSettings::default_tile_power_avg_enabled).toBool() &&
+                settings.value(QZSettings::tile_power_avg_order, QZSettings::default_tile_power_avg_order).toInt() == i) {
+                powerAvg->setGridId(i);
+                dataList.append(powerAvg);
+            }
+
             if (settings.value(QZSettings::tile_preset_powerzone_1_enabled, QZSettings::default_tile_preset_powerzone_1_enabled).toBool() &&
                 settings.value(QZSettings::tile_preset_powerzone_1_order, QZSettings::default_tile_preset_powerzone_1_order).toInt() == i) {
                 preset_powerzone_1->setGridId(i);
@@ -4397,6 +4409,24 @@ void homeform::LargeButton(const QString &name) {
     } else if(name.contains(QStringLiteral("autoVirtualShiftingSprint"))) {
         // Switch to Sprint profile (2)
         settings.setValue(QZSettings::automatic_virtual_shifting_profile, 2);
+    } else if(name.contains(QStringLiteral("powerAvg"))) {
+        // Cycle through power averaging modes: Off -> 3s -> 5s -> Off
+        bool power3s = settings.value(QZSettings::power_avg_3s, QZSettings::default_power_avg_3s).toBool();
+        bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
+
+        if (!power3s && !power5s) {
+            // Currently Off, switch to 3s
+            settings.setValue(QZSettings::power_avg_3s, true);
+            settings.setValue(QZSettings::power_avg_5s, false);
+        } else if (power3s) {
+            // Currently 3s, switch to 5s
+            settings.setValue(QZSettings::power_avg_3s, false);
+            settings.setValue(QZSettings::power_avg_5s, true);
+        } else {
+            // Currently 5s, switch to Off
+            settings.setValue(QZSettings::power_avg_3s, false);
+            settings.setValue(QZSettings::power_avg_5s, false);
+        }
     }
 }
 
@@ -5992,6 +6022,21 @@ void homeform::update() {
             autoVirtualShiftingCruise->setLargeButtonColor(currentProfile == 0 ? QStringLiteral("green") : QStringLiteral("red"));
             autoVirtualShiftingClimb->setLargeButtonColor(currentProfile == 1 ? QStringLiteral("green") : QStringLiteral("red"));
             autoVirtualShiftingSprint->setLargeButtonColor(currentProfile == 2 ? QStringLiteral("green") : QStringLiteral("red"));
+
+            // Update power averaging tile text and color based on active mode
+            bool power3s = settings.value(QZSettings::power_avg_3s, QZSettings::default_power_avg_3s).toBool();
+            bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
+            if (!power3s && !power5s) {
+                powerAvg->setLargeButtonLabel(QStringLiteral("Off"));
+                powerAvg->setLargeButtonColor(QStringLiteral("grey"));
+            } else if (power3s) {
+                powerAvg->setLargeButtonLabel(QStringLiteral("3s avg"));
+                powerAvg->setLargeButtonColor(QStringLiteral("green"));
+            } else {
+                powerAvg->setLargeButtonLabel(QStringLiteral("5s avg"));
+                powerAvg->setLargeButtonColor(QStringLiteral("blue"));
+            }
+
             extIncline->setSecondLine(QStringLiteral("Gain: ") + QString::number(elite_rizer_gain, 'f', 1));
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             resistance = ((bike *)bluetoothManager->device())->currentResistance().value();
