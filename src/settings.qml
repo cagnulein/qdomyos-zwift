@@ -1267,6 +1267,8 @@ import Qt.labs.platform 1.1
 			property bool power_avg_3s: false
 			property bool tile_power_avg_enabled: false
 			property int tile_power_avg_order: 77
+			property bool life_fitness_ic5: false
+			property bool technogym_bike: false
         }
 
 
@@ -3915,6 +3917,20 @@ import Qt.labs.platform 1.1
                                 Layout.fillWidth: true
                                 onClicked: { settings.flywheel_life_fitness_ic8 = checked; window.settings_restart_to_apply = true; }
                             }
+                            IndicatorOnlySwitch {
+                                id: lifeFitnessIC5Delegate
+                                text: qsTr("Life Fitness IC5")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.life_fitness_ic5
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.life_fitness_ic5 = checked; window.settings_restart_to_apply = true; }
+                            }
                         }
                     }
                     AccordionElement {
@@ -4548,6 +4564,20 @@ import Qt.labs.platform 1.1
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             spacing: 0
+                            IndicatorOnlySwitch {
+                                id: technogymBikeDelegate
+                                text: qsTr("Technogym Bike (BIKE 1, BIKE 2, etc)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.technogym_bike
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.technogym_bike = checked; window.settings_restart_to_apply = true; }
+                            }
                             IndicatorOnlySwitch {
                                 id: technogymGroupCycleDelegate
                                 text: qsTr("Group Cycle")
