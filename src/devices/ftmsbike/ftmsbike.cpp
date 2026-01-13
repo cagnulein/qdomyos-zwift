@@ -587,6 +587,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         flags Flags;
         int index = 0;
+
+        // potential bug, a casting to uint8 is required for the single byte values to avoid negative values
         Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
         index += 2;
 
