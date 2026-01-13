@@ -3910,6 +3910,20 @@ import Qt.labs.platform 1.1
                                 Layout.fillWidth: true
                                 onClicked: { settings.flywheel_life_fitness_ic8 = checked; window.settings_restart_to_apply = true; }
                             }
+                            IndicatorOnlySwitch {
+                                id: lifeFitnessIC5Delegate
+                                text: qsTr("Life Fitness IC5")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.life_fitness_ic5
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.life_fitness_ic5 = checked; window.settings_restart_to_apply = true; }
+                            }
                         }
                     }
                     AccordionElement {

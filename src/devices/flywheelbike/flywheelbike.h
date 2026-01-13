@@ -157,6 +157,7 @@ class flywheelbike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool life_fitness_ic5 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
