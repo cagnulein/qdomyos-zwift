@@ -277,6 +277,7 @@ const QString QZSettings::fitplus_bike = QStringLiteral("fitplus_bike");
 const QString QZSettings::virtufit_etappe = QStringLiteral("virtufit_etappe");
 const QString QZSettings::flywheel_filter = QStringLiteral("flywheel_filter");
 const QString QZSettings::flywheel_life_fitness_ic8 = QStringLiteral("flywheel_life_fitness_ic8");
+const QString QZSettings::life_fitness_ic5 = QStringLiteral("life_fitness_ic5");
 const QString QZSettings::sole_treadmill_inclination = QStringLiteral("sole_treadmill_inclination");
 const QString QZSettings::sole_treadmill_miles = QStringLiteral("sole_treadmill_miles");
 const QString QZSettings::sole_treadmill_f65 = QStringLiteral("sole_treadmill_f65");
@@ -1038,7 +1039,7 @@ const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 
 
-const uint32_t allSettingsCount = 844;
+const uint32_t allSettingsCount = 845;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1262,6 +1263,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe},
     {QZSettings::flywheel_filter, QZSettings::default_flywheel_filter},
     {QZSettings::flywheel_life_fitness_ic8, QZSettings::default_flywheel_life_fitness_ic8},
+    {QZSettings::life_fitness_ic5, QZSettings::default_life_fitness_ic5},
     {QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination},
     {QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles},
     {QZSettings::sole_treadmill_f65, QZSettings::default_sole_treadmill_f65},

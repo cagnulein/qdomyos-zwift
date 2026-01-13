@@ -1261,6 +1261,7 @@ import Qt.labs.platform 1.1
 			property bool domyos_treadmill_sync_start: false
 			property string garmin_device_serial: "3313379353"
 			property real treadmill_speed_min: 0
+			property bool life_fitness_ic5: false
         }
 
 
