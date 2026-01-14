@@ -261,6 +261,7 @@ void wahookickrsnapbike::update() {
         // required to the SS2K only one time
         Resistance = 0;
         emit resistanceRead(Resistance.value());
+        lastGearValue = gears(); // Initialize to prevent false gear change detection on first update
         initRequest = false;
     } else if (m_control &&
                (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState)
