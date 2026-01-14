@@ -111,6 +111,11 @@ bool GarminConnect::uploadFitFile(const QString &fitFilePath)
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", USER_AGENT);
 
+    // CRITICAL: Force connection close to prevent SSL connection reuse issues
+    // Without this, consecutive uploads fail with "SSL routines:ssl3_read_bytes:sslv3 alert bad record mac"
+    // because QNetworkAccessManager tries to reuse a stale SSL connection
+    request.setRawHeader("Connection", "close");
+
     // Use OAuth2 Bearer token for authorization
     QString authHeader = "Bearer " + m_oauth2Token.access_token;
     request.setRawHeader("Authorization", authHeader.toUtf8());
@@ -1334,6 +1339,12 @@ bool GarminConnect::uploadActivity(const QByteArray &fitData, const QString &fil
     QUrl url(connectApiUrl() + "/upload-service/upload");
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", "GCM-iOS-5.7.2.1");
+
+    // CRITICAL: Force connection close to prevent SSL connection reuse issues
+    // Without this, consecutive uploads fail with "SSL routines:ssl3_read_bytes:sslv3 alert bad record mac"
+    // because QNetworkAccessManager tries to reuse a stale SSL connection
+    request.setRawHeader("Connection", "close");
+
     request.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
 
     // Perform upload
