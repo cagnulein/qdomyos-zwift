@@ -2311,7 +2311,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
 
-        if(s->serviceUuid() == _DomyosServiceId && DOMYOS && !DOMYOS_TC) {
+        if(s->serviceUuid() == _DomyosServiceId && DOMYOS) {
             settings.setValue(QZSettings::domyostreadmill_notfmts, true);
             settings.sync();
             if(homeform::singleton())
@@ -2613,9 +2613,6 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if(homeform::singleton())
                     homeform::singleton()->setToastRequested(QStringLiteral("T01_ device detected. If you see strange inclination values, enable 'IConcept FTMS Treadmill' in Treadmill Options settings."));
             }
-        } else if (device.name().toUpper().startsWith(QStringLiteral("DOMYOS-TC"))) {
-            qDebug() << QStringLiteral("DOMYOS-TC found (FTMS compatible)");
-            DOMYOS_TC = true;
         } else if ((device.name().toUpper().startsWith("DOMYOS"))) {
             qDebug() << QStringLiteral("DOMYOS found");
             DOMYOS = true;
