@@ -265,21 +265,29 @@ double treadmill::requestedInclination() { return requestInclination; }
 double treadmill::currentTargetSpeed() { return targetSpeed; }
 
 void treadmill::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
-void treadmill::powerSensor(uint16_t power) { 
+void treadmill::powerSensor(uint16_t power) {
     double vwatts = 0;
     if(power > 0) {
         powerReceivedFromPowerSensor = true;
         qDebug() << "powerReceivedFromPowerSensor" << powerReceivedFromPowerSensor << power;
         QSettings settings;
         if(currentInclination().value() != 0 && settings.value(QZSettings::stryd_add_inclination_gain, QZSettings::default_stryd_add_inclination_gain).toBool()) {
-            QSettings settings;
-            double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
-            // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
-            vwatts = ((9.8 * w) * (currentInclination().value() / 100.0));
-            qDebug() << QStringLiteral("overrding power read from the sensor of ") << power << QStringLiteral("with ") << vwatts << QStringLiteral(" for the treadmill inclination");
+            double factor = settings.value(QZSettings::power_sensor_inclination_gain_factor, QZSettings::default_power_sensor_inclination_gain_factor).toDouble();
+
+            if(factor != 0.0) {
+                // Use custom factor: watts per 1% grade
+                vwatts = factor * currentInclination().value();
+                qDebug() << QStringLiteral("Using custom inclination gain factor ") << factor << QStringLiteral(" W/%, power: ") << power << QStringLiteral(" + ") << vwatts << QStringLiteral(" W for ") << currentInclination().value() << QStringLiteral("% incline");
+            } else {
+                // Use default formula
+                double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+                // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
+                vwatts = ((9.8 * w) * (currentInclination().value() / 100.0));
+                qDebug() << QStringLiteral("Using default formula, overriding power read from the sensor of ") << power << QStringLiteral(" with ") << vwatts << QStringLiteral(" W for the treadmill inclination");
+            }
         }
     }
-    m_watt.setValue(power + vwatts, false); 
+    m_watt.setValue(power + vwatts, false);
 }
 
 void treadmill::speedSensor(double speed) {

@@ -1269,6 +1269,7 @@ import Qt.labs.platform 1.1
 			property int tile_power_avg_order: 77
 			property bool life_fitness_ic5: false
 			property bool technogym_bike: false
+			property double power_sensor_inclination_gain_factor: 0.0
         }
 
 
@@ -11749,7 +11750,41 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
-                            }                            
+                            }
+
+                            Label {
+                                text: qsTr("Power Sensor Inclination Gain Factor (watts per 1% grade):")
+                                Layout.fillWidth: true
+                            }
+                            RowLayout {
+                                spacing: 10
+                                TextField {
+                                    id: powerSensorInclinationGainFactorTextField
+                                    text: settings.power_sensor_inclination_gain_factor
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.power_sensor_inclination_gain_factor = powerSensorInclinationGainFactorTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Custom inclination gain factor for power sensors (watts per 1% grade). If set to 0, QZ will use the default formula: 9.8 * weight * (inclination/100). Example: factor=15.0 means 1% incline adds 15W, 6% adds 90W. Default: 0.0 (use formula).")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
 
                             Label {
                                 id: labelPowerSensorName

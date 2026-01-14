@@ -955,6 +955,9 @@ class QZSettings {
     static const QString power_sensor_as_treadmill;
     static constexpr bool default_power_sensor_as_treadmill = false;
 
+    static const QString power_sensor_inclination_gain_factor;
+    static constexpr double default_power_sensor_inclination_gain_factor = 0.0;
+
     static const QString powr_sensor_running_cadence_double;
     static constexpr bool default_powr_sensor_running_cadence_double = false;
 
