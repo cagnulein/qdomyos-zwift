@@ -40,6 +40,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
     bool fake_treadmill =
     settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
+	QString proformtdf4ip = settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString();
 
     if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() && !pelotonBike) {
         pelotonBike = new pelotonbike(noWriteResistance, noHeartService);
@@ -74,6 +75,23 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         this->signalBluetoothDeviceConnected(fakeBike);
         return;
     }*/
+
+	if (!proformtdf4ip.isEmpty() && !proformWifiBike) {
+                this->stopDiscovery();
+                proformWifiBike =
+                    new proformwifibike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(proformWifiBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(proformWifiBike, &proformwifibike::debug, this, &bluetooth::debug);
+                proformWifiBike->deviceDiscovered(b);
+                // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(proformWifiBike);
+}
 
 #ifdef TEST
     schwinnIC4Bike = (schwinnic4bike *)new bike();
