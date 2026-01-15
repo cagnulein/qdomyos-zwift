@@ -246,17 +246,22 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         uint8_t resting_hr = settings.value(QZSettings::heart_rate_resting,
                                             QZSettings::default_heart_rate_resting).toUInt();
 
-        // Bannister's TRIMP formula: D * exp(b * HR_ratio)
+        // Bannister's TRIMP formula: D * HR_ratio * exp(b * HR_ratio)
         // where HR_ratio = (avg_hr - resting_hr) / (max_hr - resting_hr)
-        // b = 1.92 for men, 1.67 for women
+        //
+        // COEFFICIENT SELECTION:
+        // Standard Bannister formula uses b = 1.92 (men) and b = 1.67 (women)
+        // However, Garmin devices (Fenix, etc.) appear to use b ≈ 1.67 for all users
+        // to match Garmin's training load calculations more closely.
+        // We use b = 1.67 for everyone to ensure compatibility with Garmin Connect's
+        // acute training load and training status features.
         double hr_ratio = 0;
         if (max_hr > resting_hr) {
             hr_ratio = (avg_hr - resting_hr) / (double)(max_hr - resting_hr);
         }
 
-        // Gender factor (b coefficient)
-        bool is_male = settings.value(QZSettings::sex, QZSettings::default_sex).toString().startsWith(QZSettings::default_sex);
-        double b = is_male ? 1.92 : 1.67;
+        // Use coefficient 1.67 (matches Garmin implementation)
+        double b = 1.67;
 
         // Calculate TRIMP
         if (hr_ratio > 0 && hr_ratio < 2.0) {  // Sanity check
