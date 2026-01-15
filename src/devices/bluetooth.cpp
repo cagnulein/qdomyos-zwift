@@ -80,7 +80,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
                 this->stopDiscovery();
                 proformWifiBike =
                     new proformwifibike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-                emit deviceConnected(b);
+                emit deviceConnected(QBluetoothDeviceInfo());
                 connect(proformWifiBike, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
                 // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
