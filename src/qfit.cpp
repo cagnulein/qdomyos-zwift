@@ -75,20 +75,28 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     int fit_file_garmin_device_training_effect_device = settings.value(QZSettings::fit_file_garmin_device_training_effect_device, QZSettings::default_fit_file_garmin_device_training_effect_device).toInt();
     uint32_t garmin_device_serial = settings.value(QZSettings::garmin_device_serial, QZSettings::default_garmin_device_serial).toUInt();
     bool is_zwift_device = (fit_file_garmin_device_training_effect_device == 99999);
+    bool is_tacx_device = (fit_file_garmin_device_training_effect_device == 88888);
     fit::FileIdMesg fileIdMesg; // Every FIT file requires a File ID message
     fileIdMesg.SetType(FIT_FILE_ACTIVITY);
-    if(bluetooth_device_name.toUpper().startsWith("DOMYOS") && !is_zwift_device && !fit_file_garmin_device_training_effect)
+    if(bluetooth_device_name.toUpper().startsWith("DOMYOS") && !is_zwift_device && !is_tacx_device && !fit_file_garmin_device_training_effect)
         fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DECATHLON);
     else {
         if(is_zwift_device)
             fileIdMesg.SetManufacturer(FIT_MANUFACTURER_ZWIFT);
+        else if(is_tacx_device)
+            fileIdMesg.SetManufacturer(FIT_MANUFACTURER_TACX);
         else if(fit_file_garmin_device_training_effect)
             fileIdMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
         else
             fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
     }
-    if(fit_file_garmin_device_training_effect || is_zwift_device) {
-        fileIdMesg.SetProduct(is_zwift_device ? 3288 : fit_file_garmin_device_training_effect_device);
+    if(fit_file_garmin_device_training_effect || is_zwift_device || is_tacx_device) {
+        if(is_zwift_device)
+            fileIdMesg.SetProduct(3288);
+        else if(is_tacx_device)
+            fileIdMesg.SetProduct(20533);
+        else
+            fileIdMesg.SetProduct(fit_file_garmin_device_training_effect_device);
         fileIdMesg.SetSerialNumber(garmin_device_serial);
     } else {
         fileIdMesg.SetProduct(1);
@@ -119,6 +127,11 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         deviceInfoMesg.SetSerialNumber(garmin_device_serial);
         deviceInfoMesg.SetProduct(3288);
         deviceInfoMesg.SetSoftwareVersion(21.19);
+    } else if(is_tacx_device) {
+        deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_TACX);
+        deviceInfoMesg.SetSerialNumber(garmin_device_serial);
+        deviceInfoMesg.SetProduct(20533);
+        deviceInfoMesg.SetSoftwareVersion(1.30);
     } else if(fit_file_garmin_device_training_effect) {
         deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
         deviceInfoMesg.SetSerialNumber(garmin_device_serial);
