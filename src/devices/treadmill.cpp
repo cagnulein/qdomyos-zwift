@@ -272,12 +272,14 @@ void treadmill::powerSensor(uint16_t power) {
         qDebug() << "powerReceivedFromPowerSensor" << powerReceivedFromPowerSensor << power;
         QSettings settings;
         if(currentInclination().value() != 0 && settings.value(QZSettings::stryd_add_inclination_gain, QZSettings::default_stryd_add_inclination_gain).toBool()) {
-            double factor = settings.value(QZSettings::power_sensor_inclination_gain_factor, QZSettings::default_power_sensor_inclination_gain_factor).toDouble();
+            double coeff_a = settings.value(QZSettings::power_sensor_speed_inclination_coeff_a, QZSettings::default_power_sensor_speed_inclination_coeff_a).toDouble();
+            double coeff_b = settings.value(QZSettings::power_sensor_speed_inclination_coeff_b, QZSettings::default_power_sensor_speed_inclination_coeff_b).toDouble();
 
-            if(factor != 0.0) {
-                // Use custom factor: watts per 1% grade
-                vwatts = factor * currentInclination().value();
-                qDebug() << QStringLiteral("Using custom inclination gain factor ") << factor << QStringLiteral(" W/%, power: ") << power << QStringLiteral(" + ") << vwatts << QStringLiteral(" W for ") << currentInclination().value() << QStringLiteral("% incline");
+            if(coeff_a != 0.0 || coeff_b != 0.0) {
+                // Use custom formula: vwatts = (A + B * speed) * inclination
+                double speed = currentSpeed().value(); // km/h
+                vwatts = (coeff_a + coeff_b * speed) * currentInclination().value();
+                qDebug() << QStringLiteral("Using custom speed/inclination formula: (") << coeff_a << QStringLiteral(" + ") << coeff_b << QStringLiteral(" × ") << speed << QStringLiteral(" km/h) × ") << currentInclination().value() << QStringLiteral("% = ") << vwatts << QStringLiteral(" W");
             } else {
                 // Use default formula
                 double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();

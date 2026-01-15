@@ -1269,7 +1269,8 @@ import Qt.labs.platform 1.1
 			property int tile_power_avg_order: 77
 			property bool life_fitness_ic5: false
 			property bool technogym_bike: false
-			property double power_sensor_inclination_gain_factor: 0.0
+			property double power_sensor_speed_inclination_coeff_a: -0.96
+			property double power_sensor_speed_inclination_coeff_b: 1.33
         }
 
 
@@ -11753,14 +11754,14 @@ import Qt.labs.platform 1.1
                             }
 
                             Label {
-                                text: qsTr("Power Sensor Inclination Gain Factor (watts per 1% grade):")
+                                text: qsTr("Power Sensor Speed/Incline Coefficient A:")
                                 Layout.fillWidth: true
                             }
                             RowLayout {
                                 spacing: 10
                                 TextField {
-                                    id: powerSensorInclinationGainFactorTextField
-                                    text: settings.power_sensor_inclination_gain_factor
+                                    id: powerSensorSpeedInclinationCoeffATextField
+                                    text: settings.power_sensor_speed_inclination_coeff_a
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -11769,12 +11770,33 @@ import Qt.labs.platform 1.1
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_inclination_gain_factor = powerSensorInclinationGainFactorTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.power_sensor_speed_inclination_coeff_a = powerSensorSpeedInclinationCoeffATextField.text; toast.show("Setting saved!"); }
                                 }
                             }
 
                             Label {
-                                text: qsTr("Custom inclination gain factor for power sensors (watts per 1% grade). If set to 0, QZ will use the default formula: 9.8 * weight * (inclination/100). Example: factor=15.0 means 1% incline adds 15W, 6% adds 90W. Default: 0.0 (use formula).")
+                                text: qsTr("Power Sensor Speed/Incline Coefficient B:")
+                                Layout.fillWidth: true
+                            }
+                            RowLayout {
+                                spacing: 10
+                                TextField {
+                                    id: powerSensorSpeedInclinationCoeffBTextField
+                                    text: settings.power_sensor_speed_inclination_coeff_b
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.power_sensor_speed_inclination_coeff_b = powerSensorSpeedInclinationCoeffBTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Custom coefficients for power sensor inclination calculation using formula: vwatts = (A + B × speed) × inclination.\n\nFor Stryd sensors use: A = -0.96, B = 1.33\n\nExamples with these values:\n• 8 km/h, 10% incline: (-0.96 + 1.33×8) × 10 = 97W added\n• 11 km/h, 10% incline: (-0.96 + 1.33×11) × 10 = 137W added\n\nIf both A and B are 0, QZ will use the default formula: 9.8 × weight × (inclination/100).\n\nDefault: A = -0.96, B = 1.33")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
