@@ -161,6 +161,7 @@ import Qt.labs.platform 1.1
             property real heart_rate_zone4: 100.0
             property bool heart_max_override_enable: false
             property real heart_max_override_value: 195.0
+            property int heart_rate_resting: 60
 
             property real peloton_gain: 1.0
             property real peloton_offset: 0
@@ -2150,20 +2151,58 @@ import Qt.labs.platform 1.1
                                             onClicked: { settings.heart_max_override_value = heartRateMaxOverrideValueTextField.text; toast.show("Setting saved!"); }
                                         }
                                     }
-                                }
-                            }
 
-                            Label {
-                                text: qsTr("QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.")
-                                font.bold: true
-                                font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
-                                textFormat: Text.PlainText
-                                wrapMode: Text.WordWrap
-                                verticalAlignment: Text.AlignVCenter
-                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                                Layout.fillWidth: true
-                                color: Material.color(Material.Lime)
+                                    Label {
+                                        text: qsTr("QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
+                                    RowLayout {
+                                        spacing: 10
+                                        Label {
+                                            id: labelHeartRateRestingValue
+                                            text: qsTr("Resting Heart Rate")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: heartRateRestingValueTextField
+                                            text: settings.heart_rate_resting
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.heart_rate_resting = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okHeartRateRestingValue
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: { settings.heart_rate_resting = heartRateRestingValueTextField.text; toast.show("Setting saved!"); }
+                                        }
+                                    }
+
+                                    Label {
+                                        text: qsTr("Enter your resting heart rate (the lowest your heart rate reaches when fully rested). This is used for accurate training load calculations. Default is 60 bpm.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+                                }
                             }
 
                             AccordionElement {

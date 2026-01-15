@@ -622,6 +622,9 @@ class QZSettings {
     static const QString heart_max_override_value;
     static constexpr float default_heart_max_override_value = 195.0;
 
+    static const QString heart_rate_resting;
+    static constexpr uint8_t default_heart_rate_resting = 60;
+
     static const QString peloton_gain;
     static constexpr float default_peloton_gain = 1.0;
 
