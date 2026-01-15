@@ -215,6 +215,7 @@ const QString QZSettings::heart_rate_zone3 = QStringLiteral("heart_rate_zone3");
 const QString QZSettings::heart_rate_zone4 = QStringLiteral("heart_rate_zone4");
 const QString QZSettings::heart_max_override_enable = QStringLiteral("heart_max_override_enable");
 const QString QZSettings::heart_max_override_value = QStringLiteral("heart_max_override_value");
+const QString QZSettings::heart_rate_resting = QStringLiteral("heart_rate_resting");
 const QString QZSettings::peloton_gain = QStringLiteral("peloton_gain");
 const QString QZSettings::peloton_offset = QStringLiteral("peloton_offset");
 const QString QZSettings::treadmill_pid_heart_zone = QStringLiteral("treadmill_pid_heart_zone");
@@ -1046,7 +1047,7 @@ const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandik
 const QString QZSettings::trainprogram_auto_lap_on_segment = QStringLiteral("trainprogram_auto_lap_on_segment");
 
 
-const uint32_t allSettingsCount = 852;
+const uint32_t allSettingsCount = 853;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1215,6 +1216,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4},
     {QZSettings::heart_max_override_enable, QZSettings::default_heart_max_override_enable},
     {QZSettings::heart_max_override_value, QZSettings::default_heart_max_override_value},
+    {QZSettings::heart_rate_resting, QZSettings::default_heart_rate_resting},
     {QZSettings::peloton_gain, QZSettings::default_peloton_gain},
     {QZSettings::peloton_offset, QZSettings::default_peloton_offset},
     {QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone},

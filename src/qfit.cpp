@@ -230,19 +230,28 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         double avg_hr = hr_sum / hr_count;
         uint32_t duration_minutes = duration_seconds / 60;
 
-        // Get user age for max HR calculation (220 - age formula)
-        uint8_t user_age = settings.value(QZSettings::age, QZSettings::default_age).toUInt();
-        uint8_t estimated_max_hr = 220 - user_age;
+        // Get max HR: use override if enabled, otherwise calculate from age
+        bool max_hr_override_enabled = settings.value(QZSettings::heart_max_override_enable,
+                                                       QZSettings::default_heart_max_override_enable).toBool();
+        uint8_t max_hr;
+        if (max_hr_override_enabled) {
+            max_hr = settings.value(QZSettings::heart_max_override_value,
+                                   QZSettings::default_heart_max_override_value).toUInt();
+        } else {
+            uint8_t user_age = settings.value(QZSettings::age, QZSettings::default_age).toUInt();
+            max_hr = 220 - user_age;
+        }
 
-        // Use minimum HR from session as resting HR estimate, or default to 60 if too high
-        uint8_t resting_hr = (min_hr < 100) ? min_hr : 60;
+        // Get resting HR from settings
+        uint8_t resting_hr = settings.value(QZSettings::heart_rate_resting,
+                                            QZSettings::default_heart_rate_resting).toUInt();
 
         // Bannister's TRIMP formula: D * exp(b * HR_ratio)
         // where HR_ratio = (avg_hr - resting_hr) / (max_hr - resting_hr)
         // b = 1.92 for men, 1.67 for women
         double hr_ratio = 0;
-        if (estimated_max_hr > resting_hr) {
-            hr_ratio = (avg_hr - resting_hr) / (double)(estimated_max_hr - resting_hr);
+        if (max_hr > resting_hr) {
+            hr_ratio = (avg_hr - resting_hr) / (double)(max_hr - resting_hr);
         }
 
         // Gender factor (b coefficient)
@@ -255,7 +264,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             qDebug() << "Training Load (TRIMP) calculated:" << training_load
                      << "Duration:" << duration_minutes << "min"
                      << "Avg HR:" << avg_hr
-                     << "Est Max HR:" << estimated_max_hr
+                     << "Max HR:" << max_hr << (max_hr_override_enabled ? "(override)" : "(calculated)")
                      << "Resting HR:" << resting_hr;
         }
     }
