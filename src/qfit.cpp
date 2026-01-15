@@ -214,7 +214,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             // where IF (Intensity Factor) = average_power / FTP
             double intensity_factor = avg_watt / ftp;
             tss = (duration_seconds * avg_watt * intensity_factor) / (ftp * 36.0);
-            training_load = tss;  // Use TSS as training load
+            training_load = tss;  // Use TSS as training load in the worst scenario
             has_tss = true;
 
             qDebug() << "Training Load (TSS) calculated:" << tss
@@ -226,7 +226,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     }
 
     // Always calculate TRIMP if we have HR data (fallback or additional metric)
-    if (hr_count > 0 && training_load == 0) {
+    if (hr_count > 0) {
         double avg_hr = hr_sum / hr_count;
         uint32_t duration_minutes = duration_seconds / 60;
 
@@ -375,12 +375,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     if (training_load > 0) {
         sessionMesg.SetTrainingLoadPeak(training_load);
         qDebug() << "Setting training_load_peak in FIT file:" << training_load;
-
-        // For cycling with power, also set training_stress_score (TSS)
-        if (has_tss) {
-            sessionMesg.SetTrainingStressScore(tss);
-            qDebug() << "Setting training_stress_score (TSS) in FIT file:" << tss;
-        }
+    }
+    
+    // For cycling with power, also set training_stress_score (TSS)
+    if (has_tss) {
+        sessionMesg.SetTrainingStressScore(tss);
+        qDebug() << "Setting training_stress_score (TSS) in FIT file:" << tss;
     }
 
     // First, set sport and subsport based on device type
