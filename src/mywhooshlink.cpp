@@ -4,6 +4,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QHostAddress>
+#include <QNetworkInterface>
 #include <QDebug>
 
 MyWhooshLink::MyWhooshLink(bluetooth *manager, QObject *parent)
@@ -78,13 +79,40 @@ void MyWhooshLink::start() {
         return;
     }
 
+    // Print all available network addresses
+    qDebug() << "MyWhooshLink: Available network interfaces:";
+    foreach (const QNetworkInterface &interface, QNetworkInterface::allInterfaces()) {
+        if (interface.flags().testFlag(QNetworkInterface::IsUp) &&
+            !interface.flags().testFlag(QNetworkInterface::IsLoopBack)) {
+            foreach (const QNetworkAddressEntry &entry, interface.addressEntries()) {
+                if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
+                    qDebug() << "  " << interface.name() << ":" << entry.ip().toString();
+                }
+            }
+        }
+    }
+
     tcpServer = new QTcpServer(this);
     connect(tcpServer, &QTcpServer::newConnection, this, &MyWhooshLink::onNewConnection);
 
-    if (tcpServer->listen(QHostAddress::AnyIPv6, PORT)) {
-        // AnyIPv6 with v6Only=false allows dual-stack (IPv4 + IPv6)
+    // Try binding to all IPv4 addresses first
+    bool success = false;
+    if (tcpServer->listen(QHostAddress::Any, PORT)) {
+        success = true;
+        qDebug() << "MyWhooshLink: Server started on 0.0.0.0:" << PORT;
+    } else {
+        qDebug() << "MyWhooshLink: Failed to bind to IPv4:" << tcpServer->errorString();
+        // Try IPv6 dual-stack
+        if (tcpServer->listen(QHostAddress::AnyIPv6, PORT)) {
+            success = true;
+            qDebug() << "MyWhooshLink: Server started on [::]:" << PORT << "(dual-stack)";
+        }
+    }
+
+    if (success) {
         tcpServer->setMaxPendingConnections(10);
-        qDebug() << "MyWhooshLink: Server started on port" << PORT;
+        qDebug() << "MyWhooshLink: Server listening on port" << PORT;
+        qDebug() << "MyWhooshLink: MyWhoosh should connect to one of the IPs above";
     } else {
         qDebug() << "MyWhooshLink: Failed to start server:" << tcpServer->errorString();
         delete tcpServer;
