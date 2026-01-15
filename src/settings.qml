@@ -6981,6 +6981,7 @@ import Qt.labs.platform 1.1
                             "Vivoactive 4 Small",
                             "Vivoactive 5",
                             "Vivoactive 6",
+                            "Tacx",
                             "Zwift"
                         ]
                         currentIndex: {
@@ -7098,7 +7099,8 @@ import Qt.labs.platform 1.1
                             if (settings.fit_file_garmin_device_training_effect_device === 3224) return 111;  // VIVOACTIVE4_SMALL
                             if (settings.fit_file_garmin_device_training_effect_device === 4426) return 112;  // VIVOACTIVE5
                             if (settings.fit_file_garmin_device_training_effect_device === 4625) return 113;  // VIVOACTIVE6
-                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 114;  // Zwift
+                            if (settings.fit_file_garmin_device_training_effect_device === 88888) return 114;  // Tacx
+                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 115;  // Zwift
                             return 20;  // Default to Edge 830
                         }
                         onCurrentIndexChanged: {
@@ -7217,7 +7219,8 @@ import Qt.labs.platform 1.1
                                 case 111: settings.fit_file_garmin_device_training_effect_device = 3224; break;  // VIVOACTIVE4_SMALL
                                 case 112: settings.fit_file_garmin_device_training_effect_device = 4426; break;  // VIVOACTIVE5
                                 case 113: settings.fit_file_garmin_device_training_effect_device = 4625; break;  // VIVOACTIVE6
-                                case 114: settings.fit_file_garmin_device_training_effect_device = 99999; break;  // Zwift
+                                case 114: settings.fit_file_garmin_device_training_effect_device = 88888; break;  // Tacx
+                                case 115: settings.fit_file_garmin_device_training_effect_device = 99999; break;  // Zwift
                             }
                         }
                         Layout.fillWidth: true
