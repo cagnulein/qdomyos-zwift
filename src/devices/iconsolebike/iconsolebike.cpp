@@ -139,7 +139,67 @@ void iconsolebike::btinit() {
         initPhase++;
         break;
     }
-    case 2: {
+    case 2: { // Data: f0a1010193
+        uint8_t frame[] = {0xF0, 0xA1, 0x01, 0x01, 0x93};
+        send(frame, sizeof(frame));
+        initPhase++;
+        break;
+    }
+    case 3: { // Data: f0a50101049b
+        uint8_t frame[] = {0xF0, 0xA5, 0x01, 0x01, 0x04, 0x9B};
+        send(frame, sizeof(frame));
+        initPhase++;
+        break;
+    }
+    case 4: { // Data: f0a501010299
+        uint8_t frame[] = {0xF0, 0xA5, 0x01, 0x01, 0x02, 0x99};
+        send(frame, sizeof(frame));
+        initPhase++;
+        break;
+    }
+    case 5: { // Data: f0a60101079f
+        uint8_t frame[] = {0xF0, 0xA6, 0x01, 0x01, 0x07, 0x9F};
+        send(frame, sizeof(frame));
+        initPhase++;
+        break;
+    }
+    case 6: { // Data: f0a50101049b
+        uint8_t frame[] = {0xF0, 0xA5, 0x01, 0x01, 0x04, 0x9B};
+        send(frame, sizeof(frame));
+        initPhase++;
+        break;
+    }
+    case 7: { // Data: f0a501010299
+        uint8_t frame[] = {0xF0, 0xA5, 0x01, 0x01, 0x02, 0x99};
+        send(frame, sizeof(frame));
+        initPhase++;
+        break;
+    }
+    case 8: { // Data: f0a60101079f
+        uint8_t frame[] = {0xF0, 0xA6, 0x01, 0x01, 0x07, 0x9F};
+        send(frame, sizeof(frame));
+        initPhase++;
+        break;
+    }
+    case 9: { // Data: f0a2010194
+        uint8_t frame[] = {0xF0, 0xA2, 0x01, 0x01, 0x94};
+        send(frame, sizeof(frame));
+        initPhase++;
+        break;
+    }
+    case 10: { // Data: f0a2010194
+        uint8_t frame[] = {0xF0, 0xA2, 0x01, 0x01, 0x94};
+        send(frame, sizeof(frame));
+        initPhase++;
+        break;
+    }
+    case 11: { // Data: f0a6010108a0
+        uint8_t frame[] = {0xF0, 0xA6, 0x01, 0x01, 0x08, 0xA0};
+        send(frame, sizeof(frame));
+        initPhase++;
+        break;
+    }
+    case 12: {
         // Initialization complete
         initDone = true;
         emit debug(QStringLiteral("Init complete"));
