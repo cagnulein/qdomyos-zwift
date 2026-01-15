@@ -10,6 +10,7 @@
 MyWhooshLink::MyWhooshLink(bluetooth *manager, QObject *parent)
     : QObject(parent)
     , tcpServer(nullptr)
+    , statusTimer(nullptr)
     , device(nullptr)
     , bluetoothManager(manager)
     , enabled(false)
@@ -19,10 +20,20 @@ MyWhooshLink::MyWhooshLink(bluetooth *manager, QObject *parent)
     , leftPaddlePressed(false)
     , rightPaddlePressed(false)
 {
+    qDebug() << "MyWhooshLink: Constructor called";
     loadSettings();
 
     if (enabled) {
+        qDebug() << "MyWhooshLink: Enabled=true, starting server...";
         start();
+
+        // Start status check timer
+        statusTimer = new QTimer(this);
+        connect(statusTimer, &QTimer::timeout, this, &MyWhooshLink::checkServerStatus);
+        statusTimer->start(10000); // Check every 10 seconds
+        qDebug() << "MyWhooshLink: Status timer started";
+    } else {
+        qDebug() << "MyWhooshLink: Enabled=false, not starting server";
     }
 }
 
@@ -368,5 +379,14 @@ void MyWhooshLink::handleRightPaddle(int value) {
         // Released
         rightPaddlePressed = false;
         sendSteering(0);
+    }
+}
+
+void MyWhooshLink::checkServerStatus() {
+    if (tcpServer && tcpServer->isListening()) {
+        qDebug() << "MyWhooshLink: Server is ACTIVE on port" << PORT
+                 << "- Clients connected:" << clients.size();
+    } else {
+        qDebug() << "MyWhooshLink: WARNING - Server is NOT listening!";
     }
 }

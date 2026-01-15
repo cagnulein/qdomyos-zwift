@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QSettings>
+#include <QTimer>
 #include "qzsettings.h"
 
 class bluetoothdevice;
@@ -59,6 +60,7 @@ private slots:
     void onNewConnection();
     void onClientDisconnected();
     void onReadyRead();
+    void checkServerStatus();
 
 private:
     void sendAction(Action action, bool keyDown = true);
@@ -70,6 +72,7 @@ private:
 
     QTcpServer *tcpServer;
     QList<QTcpSocket *> clients;
+    QTimer *statusTimer;
     bluetoothdevice *device;
     bluetooth *bluetoothManager;
     QSettings settings;
