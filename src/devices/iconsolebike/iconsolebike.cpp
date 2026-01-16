@@ -19,6 +19,7 @@ iconsolebike::iconsolebike(bool noWriteResistance, bool noHeartService, int8_t b
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
+    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     connect(refresh, &QTimer::timeout, this, &iconsolebike::update);
     refresh->start(1s);
 }
@@ -242,16 +243,43 @@ void iconsolebike::readSocket() {
     // Parse metrics if this is a polling response
     if (initDone && data.length() >= 20 && data[0] == (char)0xF0 && data[1] == (char)0xB2) {
         // Metrics packet received
+        QSettings settings;
         Cadence = GetCadenceFromPacket(data);
         Speed = GetSpeedFromPacket(data);
         m_watt = GetPowerFromPacket(data);
         Resistance = GetResistanceFromPacket(data);
 
-        emit debug(QStringLiteral("Metrics - Cadence: %1, Speed: %2, Power: %3, Resistance: %4")
+        // Calculate KCal based on watts and body weight
+        if (watts()) {
+            KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                     QDateTime::currentDateTime()))));
+        }
+
+        // Calculate distance based on speed
+        Distance += ((Speed.value() / 3600000.0) *
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+
+        // Update crank revolutions and event time for cadence sensor
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
+
+        // Update peloton resistance
+        m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
+
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+
+        emit debug(QStringLiteral("Metrics - Cadence: %1, Speed: %2, Power: %3, Resistance: %4, Distance: %5, KCal: %6")
                        .arg(Cadence.value())
                        .arg(Speed.value())
                        .arg(m_watt.value())
-                       .arg(Resistance.value()));
+                       .arg(Resistance.value())
+                       .arg(Distance.value())
+                       .arg(KCal.value()));
     }
 }
 
@@ -347,41 +375,32 @@ uint16_t iconsolebike::GetCadenceFromPacket(const QByteArray &packet) {
 }
 
 double iconsolebike::GetSpeedFromPacket(const QByteArray &packet) {
-    if (packet.length() < 10) {
+    if (packet.length() < 18) {
         return 0.0;
     }
 
-    // Bytes 8-9: Speed (16-bit big-endian)
-    uint16_t raw = ((uint8_t)packet[8] << 8) | (uint8_t)packet[9];
+    // Bytes 16-17: Speed (16-bit big-endian, units of 0.01 km/h)
+    uint16_t raw = ((uint8_t)packet[16] << 8) | (uint8_t)packet[17];
 
-    // Idle value: 0x0101 (257)
-    // Active values: 0x0141-0x0142 (321-322)
-    // Formula TBD - need more data points
-    if (raw <= 257) {
-        return 0.0;
-    }
-
-    // Temporary formula: (raw - 257) / 10
-    return (raw - 257) / 10.0;
+    // Formula: raw / 100.0 to get km/h
+    return raw / 100.0;
 }
 
 uint16_t iconsolebike::GetPowerFromPacket(const QByteArray &packet) {
-    if (packet.length() < 18) {
+    if (packet.length() < 10) {
         return 0;
     }
 
-    // Bytes 16-17: Power or accumulated distance (16-bit big-endian)
-    uint16_t raw = ((uint8_t)packet[16] << 8) | (uint8_t)packet[17];
+    // Bytes 8-9: Power (16-bit big-endian)
+    uint16_t raw = ((uint8_t)packet[8] << 8) | (uint8_t)packet[9];
 
-    // Values seen: 0x0A3E-0x0A58 (2622-2648)
-    // Could be instantaneous power or accumulated distance
-    // For now, treat as power in watts
+    // Idle value: 0x0101 (257)
+    // Formula: raw - 257 = power in watts
     if (raw <= 257) {
         return 0;
     }
 
-    // Temporary formula - needs calibration
-    return raw / 10;
+    return raw - 257;
 }
 
 uint8_t iconsolebike::GetResistanceFromPacket(const QByteArray &packet) {

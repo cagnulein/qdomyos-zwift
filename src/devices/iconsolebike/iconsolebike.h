@@ -70,6 +70,11 @@ class iconsolebike : public bike {
     bool noHeartService = false;
     int initPhase = 0;
 
+    // Timing for metric calculations
+    QDateTime lastRefreshCharacteristicChanged;
+    uint64_t CrankRevs = 0;
+    uint16_t LastCrankEventTime = 0;
+
     void send(const uint8_t *buffer, int size);
     void btinit();
     void forceResistance(resistance_t requestResistance);
