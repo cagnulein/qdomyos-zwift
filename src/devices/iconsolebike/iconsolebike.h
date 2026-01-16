@@ -85,6 +85,9 @@ class iconsolebike : public bike {
     uint16_t GetPowerFromPacket(const QByteArray &packet);
     uint8_t GetResistanceFromPacket(const QByteArray &packet);
 
+    // Resistance conversions
+    double bikeResistanceToPeloton(double bikeResistance);
+
   signals:
     void disconnected();
     void debug(QString string);

@@ -429,3 +429,17 @@ resistance_t iconsolebike::pelotonToBikeResistance(int pelotonResistance) {
     // Linear interpolation
     return 1 + ((pelotonResistance * 31) / 100);
 }
+
+double iconsolebike::bikeResistanceToPeloton(double bikeResistance) {
+    // Map bike resistance (1-32) to Peloton resistance (0-100)
+    // Inverse of pelotonToBikeResistance
+    if (bikeResistance <= 1) {
+        return 0;
+    }
+    if (bikeResistance >= 32) {
+        return 100;
+    }
+
+    // Linear interpolation: pelotonRes = (bikeRes - 1) * 100 / 31
+    return ((bikeResistance - 1) * 100) / 31.0;
+}
