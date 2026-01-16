@@ -341,6 +341,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
             index += 2;
+            // Skip Average Step Rate (second field when stepCount flag is present)
+            index += 2;
         }
 
         if (Flags.strideCount) {
@@ -399,10 +401,13 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.rampAngle) {
+            // Read Inclination (first field)
             Inclination = (((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)lastPacket.at(index))))) / 10.0;
-            emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));            
+            emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
             index += 2;
+
+            // Skip Ramp Angle Setting (second field - value 0x7FFF or 0xFFFF indicates unavailable)
             index += 2;
         }
 
