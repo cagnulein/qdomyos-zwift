@@ -7,22 +7,43 @@
 #include <QString>
 #include <QCoreApplication>
 #include <QTimer>
+#include <QObject>
+#include <QtBluetooth/qlowenergycharacteristic.h>
 #include <cmath>
 
-#include "src/devices/octanetreadmill/octanetreadmill.h"
+#include "octanetreadmill/octanetreadmill.h"
 #include "octane_test_dataset.cpp"
 
-class MockQLowEnergyCharacteristic {
+// Helper class to capture Qt signals
+class SignalCapture : public QObject {
+    Q_OBJECT
 public:
-    QString uuid() const { return "mock"; }
+    QVector<QString> capturedDebugMessages;
+    QVector<double> capturedSpeeds;
+    QVector<uint8_t> capturedCadences;
+
+public slots:
+    void onDebug(const QString &msg) {
+        capturedDebugMessages.append(msg);
+        if (msg.contains("ZR8: Cadence parsed:")) {
+            QString numStr = msg.split(':').last().trimmed();
+            bool ok;
+            uint8_t cadence = numStr.toUInt(&ok);
+            if (ok) {
+                capturedCadences.append(cadence);
+            }
+        }
+    }
+
+    void onSpeedChanged(double speed) {
+        capturedSpeeds.append(speed);
+    }
 };
 
 class OctaneTreadmillZR8CadenceTest : public testing::Test {
 protected:
     octanetreadmill *device;
-    QVector<QByteArray> capturedDebugMessages;
-    QVector<double> capturedSpeeds;
-    QVector<uint8_t> capturedCadences;
+    SignalCapture *signalCapture;
 
     struct PacketMetrics {
         uint8_t cadence;
@@ -32,34 +53,39 @@ protected:
 
     QVector<PacketMetrics> extractedMetrics;
 
+    // Convenience accessors
+    QVector<QString>& capturedDebugMessages() {
+        return signalCapture->capturedDebugMessages;
+    }
+
+    QVector<double>& capturedSpeeds() {
+        return signalCapture->capturedSpeeds;
+    }
+
+    QVector<uint8_t>& capturedCadences() {
+        return signalCapture->capturedCadences;
+    }
+
     void SetUp() override {
+        // Create signal capture helper
+        signalCapture = new SignalCapture();
+
         // Initialize test device
         device = new octanetreadmill(200, true, true, 0.0, 0.0);
 
-        // Connect to device signals to capture metrics
-        connect(device, &octanetreadmill::debug, this, [this](const QString &msg) {
-            capturedDebugMessages.append(msg);
-
-            // Extract cadence from debug messages like "ZR8: Cadence parsed: 126"
-            if (msg.contains("ZR8: Cadence parsed:")) {
-                QString numStr = msg.split(':').last().trimmed();
-                bool ok;
-                uint8_t cadence = numStr.toUInt(&ok);
-                if (ok) {
-                    capturedCadences.append(cadence);
-                }
-            }
-        });
-
-        connect(device, &octanetreadmill::speedChanged, this, [this](double speed) {
-            capturedSpeeds.append(speed);
-        });
+        // Connect to device signals via the helper object
+        QObject::connect(device, &octanetreadmill::debug, signalCapture, &SignalCapture::onDebug);
+        QObject::connect(device, &octanetreadmill::speedChanged, signalCapture, &SignalCapture::onSpeedChanged);
     }
 
     void TearDown() override {
         if (device) {
             delete device;
             device = nullptr;
+        }
+        if (signalCapture) {
+            delete signalCapture;
+            signalCapture = nullptr;
         }
     }
 
@@ -80,8 +106,11 @@ protected:
         }
 
         if (!packet.isEmpty()) {
-            MockQLowEnergyCharacteristic mockChar;
-            device->characteristicChanged(mockChar, packet);
+            // Create a minimal QLowEnergyCharacteristic for testing
+            QLowEnergyCharacteristic mockChar;
+            QMetaObject::invokeMethod(device, "characteristicChanged", Qt::DirectConnection,
+                                     Q_ARG(QLowEnergyCharacteristic, mockChar),
+                                     Q_ARG(QByteArray, packet));
         }
     }
 
@@ -91,7 +120,7 @@ protected:
     void extractMetricsFromDebug() {
         extractedMetrics.clear();
 
-        for (const QString &msg : capturedDebugMessages) {
+        for (const QString &msg : capturedDebugMessages()) {
             PacketMetrics metric = {0, 0.0, false};
 
             // Extract cadence
@@ -203,7 +232,7 @@ TEST_F(OctaneTreadmillZR8CadenceTest, TestPacketReassemblyLogic) {
     // After first fragment, should be waiting for more (packet buffer not empty)
 
     // No complete packet should be processed yet
-    EXPECT_EQ(capturedCadences.size(), 0)
+    EXPECT_EQ(capturedCadences().size(), 0)
         << "Cadence should not be extracted from incomplete packet";
 
     // Inject completion fragment
@@ -222,17 +251,17 @@ TEST_F(OctaneTreadmillZR8CadenceTest, TestCadenceMarkerExtraction) {
     // Packet with 0x3A marker at position 2, cadence value 0x7E (126 RPM)
     QString packetWithCadence = "a5 1d 3a 7e 00 24 42 02 23 24 02 0b 14 00 df 77 01 0e 77 01";
 
-    capturedCadences.clear();
+    capturedCadences().clear();
     injectPacketFragment(packetWithCadence);
 
     // Process events to allow signal emission
     QCoreApplication::processEvents();
 
-    EXPECT_GE(capturedCadences.size(), 0)
+    EXPECT_GE(capturedCadences().size(), 0)
         << "Should extract cadence from 0x3A marker";
 
-    if (!capturedCadences.isEmpty()) {
-        EXPECT_EQ(capturedCadences[0], 0x7E)
+    if (!capturedCadences().isEmpty()) {
+        EXPECT_EQ(capturedCadences()[0], 0x7E)
             << "Cadence should be 0x7E (126 RPM)";
     }
 }
@@ -249,8 +278,8 @@ TEST_F(OctaneTreadmillZR8CadenceTest, TestAnomalyFiltering) {
     // Valid cadence value (126 RPM)
     QString valid = "a5 1d 3a 7e 00 24 42 02 23 24 02 0b 14 00 df 77 01 0e 77 01";
 
-    capturedCadences.clear();
-    capturedDebugMessages.clear();
+    capturedCadences().clear();
+    capturedDebugMessages().clear();
 
     // Inject anomalous packets
     injectPacketFragment(anomalousHigh);
@@ -258,7 +287,7 @@ TEST_F(OctaneTreadmillZR8CadenceTest, TestAnomalyFiltering) {
 
     // Should see "Cadence anomaly filtered" message
     bool foundAnomalyMessage = false;
-    for (const QString &msg : capturedDebugMessages) {
+    for (const QString &msg : capturedDebugMessages()) {
         if (msg.contains("Cadence anomaly filtered")) {
             foundAnomalyMessage = true;
             break;
@@ -273,7 +302,7 @@ TEST_F(OctaneTreadmillZR8CadenceTest, TestAnomalyFiltering) {
 
     // Should see valid cadence parsed
     bool foundValidMessage = false;
-    for (const QString &msg : capturedDebugMessages) {
+    for (const QString &msg : capturedDebugMessages()) {
         if (msg.contains("ZR8: Cadence parsed:")) {
             foundValidMessage = true;
             break;
@@ -297,14 +326,14 @@ TEST_F(OctaneTreadmillZR8CadenceTest, TestPacketFormatDetection) {
     // A5 26 packet (38 bytes) - should expect 38 bytes total
     QString a5_26_header = "a5 26 06 10 00 00 00 00 00 00 00 3a 6e 00 24 5a 02 23 1c 02";
 
-    capturedDebugMessages.clear();
+    capturedDebugMessages().clear();
 
     injectPacketFragment(a5_1d_header);
     QCoreApplication::processEvents();
 
     // Check that format was recognized
     bool foundFormat = false;
-    for (const QString &msg : capturedDebugMessages) {
+    for (const QString &msg : capturedDebugMessages()) {
         if (msg.contains("ZR8") && msg.contains("packet")) {
             foundFormat = true;
             break;
