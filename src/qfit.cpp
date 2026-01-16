@@ -437,28 +437,35 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
     // Calculate Aerobic Training Effect based on HR zones
     if (hr_count > 0 && user_max_hr > resting_hr) {
-        // Define HR zones (5 zones based on % of HRR - Heart Rate Reserve)
-        // HRR = max_hr - resting_hr
-        // Zone 1: 50-60% HRR
-        // Zone 2: 60-70% HRR
-        // Zone 3: 70-80% HRR
-        // Zone 4: 80-90% HRR
-        // Zone 5: 90-100% HRR
+        // Get user-configured HR zones (as % of max HR)
+        float zone1_percent = settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toFloat();
+        float zone2_percent = settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toFloat();
+        float zone3_percent = settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toFloat();
+        float zone4_percent = settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toFloat();
 
-        double hrr = user_max_hr - resting_hr;
+        // Convert percentages to actual HR values
+        double zone1_hr = (zone1_percent / 100.0) * user_max_hr;
+        double zone2_hr = (zone2_percent / 100.0) * user_max_hr;
+        double zone3_hr = (zone3_percent / 100.0) * user_max_hr;
+        double zone4_hr = (zone4_percent / 100.0) * user_max_hr;
 
-        // Calculate time in each zone
+        // Calculate time in each zone using user-configured zones
+        // Zone 1: < zone1_hr
+        // Zone 2: zone1_hr - zone2_hr
+        // Zone 3: zone2_hr - zone3_hr
+        // Zone 4: zone3_hr - zone4_hr
+        // Zone 5: > zone4_hr
         for (int i = firstRealIndex; i < session.length(); i++) {
             if (session.at(i).heart > 0) {
-                double hr_percent = (session.at(i).heart - resting_hr) / hrr;
+                double current_hr = session.at(i).heart;
 
-                if (hr_percent < 0.60) {
+                if (current_hr < zone1_hr) {
                     time_in_hr_zone[0] += 1.0;  // Zone 1
-                } else if (hr_percent < 0.70) {
+                } else if (current_hr < zone2_hr) {
                     time_in_hr_zone[1] += 1.0;  // Zone 2
-                } else if (hr_percent < 0.80) {
+                } else if (current_hr < zone3_hr) {
                     time_in_hr_zone[2] += 1.0;  // Zone 3
-                } else if (hr_percent < 0.90) {
+                } else if (current_hr < zone4_hr) {
                     time_in_hr_zone[3] += 1.0;  // Zone 4
                 } else {
                     time_in_hr_zone[4] += 1.0;  // Zone 5
@@ -486,7 +493,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
             qDebug() << "Aerobic Training Effect calculated:" << aerobic_training_effect
                      << "Duration:" << duration_minutes << "min"
-                     << "Avg HR:" << avg_hr << "Max HR:" << user_max_hr;
+                     << "Avg HR:" << avg_hr << "Max HR:" << user_max_hr
+                     << "Zone times (min):" << "Z1=" << (time_in_hr_zone[0]/60.0)
+                     << "Z2=" << (time_in_hr_zone[1]/60.0)
+                     << "Z3=" << (time_in_hr_zone[2]/60.0)
+                     << "Z4=" << (time_in_hr_zone[3]/60.0)
+                     << "Z5=" << (time_in_hr_zone[4]/60.0);
         }
     }
 
