@@ -1105,6 +1105,8 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         if ((uint8_t)newValue.at(0) == 0xFF) {
             emit debug(QStringLiteral("SE7i: Received 0xFF marker - end of response frame detected"));
             se7i_waiting_for_response = false;
+            se7i_duplicate_count = 0;
+            se7i_last_non_ff_packet.clear();
             // Schedule next frame send in the next event loop iteration to avoid reentrancy issues
             QTimer::singleShot(0, this, [this]() {
                 se7i_send_next_frame();
@@ -1112,6 +1114,19 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
             return;
         } else {
             emit debug(QStringLiteral("SE7i: Received packet (waiting for 0xFF): ") + QString::number((uint8_t)newValue.at(0), 16));
+            // Detect anomalies: same packet received multiple times indicates handshake issue
+            if (newValue == se7i_last_non_ff_packet) {
+                se7i_duplicate_count++;
+                emit debug(QStringLiteral("SE7i: Duplicate packet detected (count: ") + QString::number(se7i_duplicate_count) + QStringLiteral(")"));
+                if (se7i_duplicate_count >= 3) {
+                    emit debug(QStringLiteral("SE7i: Anomaly detected - same packet received 3+ times, disconnecting for auto-recovery"));
+                    m_control->disconnectFromDevice();
+                    return;
+                }
+            } else {
+                se7i_duplicate_count = 1;
+                se7i_last_non_ff_packet = newValue;
+            }
         }
     }
 
@@ -1403,6 +1418,8 @@ void nordictrackelliptical::btinit() {
             // Initialize frame-based communication state machine
             se7i_init_state = 0;
             se7i_waiting_for_response = false;
+            se7i_duplicate_count = 0;
+            se7i_last_non_ff_packet.clear();
 
             // Start frame-based initialization sequence
             emit debug(QStringLiteral("SE7i: Starting frame-based initialization (no sleep mode)"));

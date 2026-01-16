@@ -1181,7 +1181,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 emit deviceConnected(b);
                 connect(nordictrackElliptical, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
-                // connect(nordictrackElliptical, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(nordictrackElliptical, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(nordictrackElliptical, &nordictrackelliptical::debug, this, &bluetooth::debug);
                 nordictrackElliptical->deviceDiscovered(b);
                 // connect(this, &bluetooth::searchingStop, proformElliptical, &proformelliptical::searchingStop);
