@@ -764,10 +764,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     if (aerobic_training_effect > 0) {
         sessionMesg.SetTotalTrainingEffect(aerobic_training_effect);
         qDebug() << "Setting total_training_effect (aerobic):" << aerobic_training_effect;
-    }
-    if (anaerobic_training_effect > 0) {
+
         sessionMesg.SetTotalAnaerobicTrainingEffect(anaerobic_training_effect);
-        qDebug() << "Setting total_anaerobic_training_effect:" << anaerobic_training_effect;
+        qDebug() << "Setting total_anaerobic_training_effect:" << anaerobic_training_effect;      
     }
 
     // Lap count
