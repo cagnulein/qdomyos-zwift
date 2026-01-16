@@ -203,11 +203,14 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         index += 2;
 
         if (!Flags.moreData) {
-            /*Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+            Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)newValue.at(index)))) /
-                    100.0;*/
+                    100.0;
             index += 2;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+            bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
+            if(stryd_speed_instead_treadmill)
+                emit speedChanged(Speed.value());
         }
 
         if (Flags.avgSpeed) {
