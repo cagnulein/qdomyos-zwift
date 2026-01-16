@@ -162,6 +162,31 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     double watt_sum = 0;
     int watt_count = 0;
 
+    // Additional statistics variables
+    double cadence_sum = 0;
+    int cadence_count = 0;
+    uint8_t max_cadence = 0;
+    double total_cycles = 0;
+    double fractional_cadence_sum = 0;
+
+    uint16_t max_watt = 0;
+    double total_work = 0;  // Joules
+    std::vector<double> power_samples_for_np;  // For normalized power calculation
+
+    double max_speed = 0;
+    double altitude_sum = 0;
+    int altitude_count = 0;
+
+    // Treadmill specific
+    double step_length_sum = 0;
+    int step_length_count = 0;
+    double vertical_oscillation_sum = 0;
+    int vertical_oscillation_count = 0;
+
+    // HR zones for training effect calculation (5 zones)
+    double time_in_hr_zone[5] = {0, 0, 0, 0, 0};
+    int num_laps_count = 0;
+
     for (int i = firstRealIndex; i < session.length(); i++) {
         if (session.at(i).coordinate.isValid()) {
             gps_data = true;
@@ -185,6 +210,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         if (session.at(i).speed > 0) {
             speed_count++;
             speed_acc += session.at(i).speed;
+            if (session.at(i).speed > max_speed) {
+                max_speed = session.at(i).speed;
+            }
         }
 
         // Collect heart rate data for training load
@@ -203,12 +231,114 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         if (session.at(i).watt > 0) {
             watt_sum += session.at(i).watt;
             watt_count++;
+            if (session.at(i).watt > max_watt) {
+                max_watt = session.at(i).watt;
+            }
+            power_samples_for_np.push_back(session.at(i).watt);
+            // total_work in Joules = watts * seconds (assuming 1 second per sample)
+            total_work += session.at(i).watt;
+        }
+
+        // Collect cadence data
+        if (session.at(i).cadence > 0) {
+            cadence_sum += session.at(i).cadence;
+            cadence_count++;
+            if (session.at(i).cadence > max_cadence) {
+                max_cadence = session.at(i).cadence;
+            }
+            fractional_cadence_sum += session.at(i).cadence;
+            // total_cycles += cadence / 60.0 (cadence is rpm, we want cycles per second)
+            total_cycles += session.at(i).cadence / 60.0;
+        }
+
+        // Collect altitude data (if not from GPS)
+        if (!gps_data && session.at(i).elevationGain > 0) {
+            altitude_sum += session.at(i).elevationGain;
+            altitude_count++;
+        }
+
+        // Collect treadmill-specific data
+        if (type == TREADMILL) {
+            if (session.at(i).instantaneousStrideLengthCM > 0) {
+                step_length_sum += session.at(i).instantaneousStrideLengthCM;
+                step_length_count++;
+            }
+            if (session.at(i).verticalOscillationMM > 0) {
+                vertical_oscillation_sum += session.at(i).verticalOscillationMM;
+                vertical_oscillation_count++;
+            }
+        }
+
+        // Count laps
+        if (session.at(i).lapTrigger) {
+            num_laps_count++;
         }
     }
 
     if (speed_count > 0) {
         speed_avg = speed_acc / ((double)speed_count);
         qDebug() << "average speed from the fit file" << speed_avg;
+    }
+
+    // Calculate additional statistics
+    double avg_hr = 0;
+    if (hr_count > 0) {
+        avg_hr = hr_sum / hr_count;
+    }
+
+    double avg_cadence = 0;
+    double avg_fractional_cadence = 0;
+    if (cadence_count > 0) {
+        avg_cadence = cadence_sum / cadence_count;
+        avg_fractional_cadence = fractional_cadence_sum / cadence_count;
+    }
+
+    double avg_watt = 0;
+    if (watt_count > 0) {
+        avg_watt = watt_sum / watt_count;
+    }
+
+    // Calculate Normalized Power (NP) using 30-second rolling average
+    uint16_t normalized_power = 0;
+    if (power_samples_for_np.size() >= 30) {
+        std::vector<double> rolling_avg_30s;
+        for (size_t i = 0; i < power_samples_for_np.size(); i++) {
+            double sum = 0;
+            int count = 0;
+            for (size_t j = (i >= 29 ? i - 29 : 0); j <= i; j++) {
+                sum += power_samples_for_np[j];
+                count++;
+            }
+            rolling_avg_30s.push_back(sum / count);
+        }
+
+        // NP = fourth root of average of fourth powers
+        double sum_fourth_power = 0;
+        for (double avg : rolling_avg_30s) {
+            sum_fourth_power += std::pow(avg, 4);
+        }
+        normalized_power = static_cast<uint16_t>(std::pow(sum_fourth_power / rolling_avg_30s.size(), 0.25));
+        qDebug() << "Normalized Power calculated:" << normalized_power << "W";
+    }
+
+    double avg_altitude = 0;
+    if (altitude_count > 0) {
+        avg_altitude = altitude_sum / altitude_count;
+    }
+
+    double avg_step_length = 0;
+    if (step_length_count > 0) {
+        avg_step_length = step_length_sum / step_length_count;  // in cm
+    }
+
+    double avg_vertical_ratio = 0;
+    if (vertical_oscillation_count > 0 && step_length_count > 0) {
+        double avg_vertical_oscillation = vertical_oscillation_sum / vertical_oscillation_count;  // in mm
+        // Vertical ratio = vertical oscillation / step length (both need same units)
+        // avg_step_length is in cm, avg_vertical_oscillation is in mm
+        if (avg_step_length > 0) {
+            avg_vertical_ratio = (avg_vertical_oscillation / 10.0) / avg_step_length;  // convert mm to cm
+        }
     }
 
     // Calculate training load: TSS for cycling with power, TRIMP otherwise
@@ -284,6 +414,145 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
                      << "Avg HR:" << avg_hr
                      << "Max HR:" << max_hr << (max_hr_override_enabled ? "(override)" : "(calculated)")
                      << "Resting HR:" << resting_hr;
+        }
+    }
+
+    // Calculate Training Effect (Aerobic and Anaerobic)
+    float aerobic_training_effect = 0.0f;
+    float anaerobic_training_effect = 0.0f;
+
+    // Get max HR for zone calculation (same logic as TRIMP)
+    bool max_hr_override_enabled = settings.value(QZSettings::heart_max_override_enable,
+                                                   QZSettings::default_heart_max_override_enable).toBool();
+    uint8_t user_max_hr;
+    if (max_hr_override_enabled) {
+        user_max_hr = settings.value(QZSettings::heart_max_override_value,
+                               QZSettings::default_heart_max_override_value).toUInt();
+    } else {
+        uint8_t user_age = settings.value(QZSettings::age, QZSettings::default_age).toUInt();
+        user_max_hr = 220 - user_age;
+    }
+    uint8_t resting_hr = settings.value(QZSettings::heart_rate_resting,
+                                        QZSettings::default_heart_rate_resting).toUInt();
+
+    // Calculate Aerobic Training Effect based on HR zones
+    if (hr_count > 0 && user_max_hr > resting_hr) {
+        // Define HR zones (5 zones based on % of HRR - Heart Rate Reserve)
+        // HRR = max_hr - resting_hr
+        // Zone 1: 50-60% HRR
+        // Zone 2: 60-70% HRR
+        // Zone 3: 70-80% HRR
+        // Zone 4: 80-90% HRR
+        // Zone 5: 90-100% HRR
+
+        double hrr = user_max_hr - resting_hr;
+
+        // Calculate time in each zone
+        for (int i = firstRealIndex; i < session.length(); i++) {
+            if (session.at(i).heart > 0) {
+                double hr_percent = (session.at(i).heart - resting_hr) / hrr;
+
+                if (hr_percent < 0.60) {
+                    time_in_hr_zone[0] += 1.0;  // Zone 1
+                } else if (hr_percent < 0.70) {
+                    time_in_hr_zone[1] += 1.0;  // Zone 2
+                } else if (hr_percent < 0.80) {
+                    time_in_hr_zone[2] += 1.0;  // Zone 3
+                } else if (hr_percent < 0.90) {
+                    time_in_hr_zone[3] += 1.0;  // Zone 4
+                } else {
+                    time_in_hr_zone[4] += 1.0;  // Zone 5
+                }
+            }
+        }
+
+        // Calculate Aerobic TE using zone-based formula
+        // Weights based on Firstbeat/Garmin research (approximation)
+        double zone_weights[5] = {0.2, 0.5, 1.0, 1.5, 2.0};
+        double weighted_time = 0;
+        for (int z = 0; z < 5; z++) {
+            weighted_time += (time_in_hr_zone[z] / 60.0) * zone_weights[z];  // convert to minutes
+        }
+
+        double duration_minutes = duration_seconds / 60.0;
+        if (duration_minutes > 0) {
+            // Scale to 0-5.0 range (Garmin scale)
+            aerobic_training_effect = (weighted_time / duration_minutes) * 2.0;
+
+            // Cap at 5.0 (max Garmin scale)
+            if (aerobic_training_effect > 5.0) {
+                aerobic_training_effect = 5.0;
+            }
+
+            qDebug() << "Aerobic Training Effect calculated:" << aerobic_training_effect
+                     << "Duration:" << duration_minutes << "min"
+                     << "Avg HR:" << avg_hr << "Max HR:" << user_max_hr;
+        }
+    }
+
+    // Calculate Anaerobic Training Effect
+    if (watt_count > 0) {
+        // For activities with power data
+        float ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toFloat();
+
+        if (ftp > 0 && avg_watt > 0) {
+            // Count time above anaerobic threshold (typically ~105% FTP)
+            double anaerobic_threshold = ftp * 1.05;
+            double time_above_threshold = 0;
+            double intensity_above_threshold = 0;
+
+            for (int i = firstRealIndex; i < session.length(); i++) {
+                if (session.at(i).watt > anaerobic_threshold) {
+                    time_above_threshold += 1.0;  // seconds
+                    // Weight by intensity above threshold
+                    double intensity_factor = session.at(i).watt / anaerobic_threshold;
+                    intensity_above_threshold += intensity_factor;
+                }
+            }
+
+            // Calculate anaerobic TE
+            double duration_minutes = duration_seconds / 60.0;
+            if (duration_minutes > 0 && time_above_threshold > 0) {
+                double avg_intensity = intensity_above_threshold / time_above_threshold;
+                double percent_time_above = (time_above_threshold / duration_seconds) * 100.0;
+
+                // Scale based on time above threshold and intensity
+                anaerobic_training_effect = (percent_time_above / 20.0) * avg_intensity;
+
+                // Cap at 5.0
+                if (anaerobic_training_effect > 5.0) {
+                    anaerobic_training_effect = 5.0;
+                }
+
+                qDebug() << "Anaerobic Training Effect calculated:" << anaerobic_training_effect
+                         << "Time above threshold:" << (time_above_threshold / 60.0) << "min"
+                         << "Avg intensity:" << avg_intensity;
+            }
+        }
+    } else if (hr_count > 0 && user_max_hr > resting_hr) {
+        // For activities without power (e.g., running), use HR-based anaerobic estimate
+        // Time in high intensity zones (Zone 4 and 5)
+        double high_intensity_time = time_in_hr_zone[3] + time_in_hr_zone[4];  // seconds
+        double duration_minutes = duration_seconds / 60.0;
+
+        if (duration_minutes > 0 && high_intensity_time > 0) {
+            double percent_high_intensity = (high_intensity_time / duration_seconds) * 100.0;
+
+            // Scale to 0-5.0 range
+            anaerobic_training_effect = (percent_high_intensity / 25.0) * 2.0;
+
+            // Boost if mostly in Zone 5
+            if (time_in_hr_zone[4] > time_in_hr_zone[3]) {
+                anaerobic_training_effect *= 1.3;
+            }
+
+            // Cap at 5.0
+            if (anaerobic_training_effect > 5.0) {
+                anaerobic_training_effect = 5.0;
+            }
+
+            qDebug() << "Anaerobic Training Effect (HR-based) calculated:" << anaerobic_training_effect
+                     << "High intensity time:" << (high_intensity_time / 60.0) << "min";
         }
     }
 
@@ -394,6 +663,126 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     if (has_tss) {
         sessionMesg.SetTrainingStressScore(tss);
         qDebug() << "Setting training_stress_score (TSS) in FIT file:" << tss;
+    }
+
+    // Add all new session statistics (only if > 0)
+
+    // Heart Rate statistics
+    if (hr_count > 0) {
+        sessionMesg.SetAvgHeartRate(static_cast<uint8_t>(avg_hr));
+        qDebug() << "Setting avg_heart_rate:" << static_cast<uint8_t>(avg_hr);
+    }
+    if (max_hr > 0) {
+        sessionMesg.SetMaxHeartRate(max_hr);
+        qDebug() << "Setting max_heart_rate:" << max_hr;
+    }
+    if (min_hr < 255) {
+        sessionMesg.SetMinHeartRate(min_hr);
+        qDebug() << "Setting min_heart_rate:" << min_hr;
+    }
+
+    // Cadence statistics (skip for ROWING, which uses stroke-specific fields)
+    if (cadence_count > 0 && type != ROWING) {
+        sessionMesg.SetAvgCadence(static_cast<uint8_t>(avg_cadence));
+        qDebug() << "Setting avg_cadence:" << static_cast<uint8_t>(avg_cadence);
+
+        if (avg_fractional_cadence > 0) {
+            sessionMesg.SetAvgFractionalCadence(static_cast<float>(avg_fractional_cadence));
+            qDebug() << "Setting avg_fractional_cadence:" << static_cast<float>(avg_fractional_cadence);
+        }
+    }
+    if (max_cadence > 0 && type != ROWING) {
+        sessionMesg.SetMaxCadence(max_cadence);
+        sessionMesg.SetMaxFractionalCadence(static_cast<float>(max_cadence));
+        qDebug() << "Setting max_cadence:" << max_cadence;
+    }
+    if (total_cycles > 0) {
+        sessionMesg.SetTotalCycles(static_cast<uint32_t>(total_cycles));
+        qDebug() << "Setting total_cycles:" << static_cast<uint32_t>(total_cycles);
+    }
+
+    // Power statistics (for all device types with power data)
+    if (watt_count > 0) {
+        sessionMesg.SetAvgPower(static_cast<uint16_t>(avg_watt));
+        qDebug() << "Setting avg_power:" << static_cast<uint16_t>(avg_watt);
+    }
+    if (max_watt > 0) {
+        sessionMesg.SetMaxPower(max_watt);
+        qDebug() << "Setting max_power:" << max_watt;
+    }
+    if (normalized_power > 0) {
+        sessionMesg.SetNormalizedPower(normalized_power);
+        qDebug() << "Setting normalized_power:" << normalized_power;
+    }
+    if (total_work > 0) {
+        sessionMesg.SetTotalWork(static_cast<uint32_t>(total_work));
+        qDebug() << "Setting total_work:" << static_cast<uint32_t>(total_work) << "J";
+    }
+
+    // Speed statistics (enhanced)
+    if (speed_avg > 0) {
+        sessionMesg.SetEnhancedAvgSpeed(static_cast<float>(speed_avg / 3.6));  // convert km/h to m/s
+        qDebug() << "Setting enhanced_avg_speed:" << static_cast<float>(speed_avg / 3.6) << "m/s";
+    }
+    if (max_speed > 0) {
+        sessionMesg.SetEnhancedMaxSpeed(static_cast<float>(max_speed / 3.6));  // convert km/h to m/s
+        qDebug() << "Setting enhanced_max_speed:" << static_cast<float>(max_speed / 3.6) << "m/s";
+    }
+
+    // Altitude statistics (if not GPS)
+    if (!gps_data && avg_altitude > 0) {
+        sessionMesg.SetEnhancedAvgAltitude(static_cast<float>(avg_altitude));
+        qDebug() << "Setting enhanced_avg_altitude:" << static_cast<float>(avg_altitude) << "m";
+    }
+
+    // Treadmill-specific statistics
+    if (type == TREADMILL) {
+        if (avg_step_length > 0) {
+            // Convert cm to mm (FIT expects mm)
+            sessionMesg.SetAvgStepLength(static_cast<float>(avg_step_length * 10.0));
+            qDebug() << "Setting avg_step_length:" << static_cast<float>(avg_step_length * 10.0) << "mm";
+        }
+        if (avg_vertical_ratio > 0) {
+            sessionMesg.SetAvgVerticalRatio(static_cast<float>(avg_vertical_ratio));
+            qDebug() << "Setting avg_vertical_ratio:" << static_cast<float>(avg_vertical_ratio);
+        }
+    }
+
+    // Training Effects
+    if (aerobic_training_effect > 0) {
+        sessionMesg.SetTotalTrainingEffect(aerobic_training_effect);
+        qDebug() << "Setting total_training_effect (aerobic):" << aerobic_training_effect;
+    }
+    if (anaerobic_training_effect > 0) {
+        sessionMesg.SetTotalAnaerobicTrainingEffect(anaerobic_training_effect);
+        qDebug() << "Setting total_anaerobic_training_effect:" << anaerobic_training_effect;
+    }
+
+    // Lap count
+    if (num_laps_count > 0) {
+        sessionMesg.SetNumLaps(num_laps_count + 1);  // +1 for the final lap
+        qDebug() << "Setting num_laps:" << (num_laps_count + 1);
+    }
+
+    // Sport profile name (based on device type and sport)
+    std::wstring sport_profile_name;
+    if (type == TREADMILL) {
+        sport_profile_name = L"Treadmill Running";
+    } else if (type == BIKE) {
+        sport_profile_name = L"Indoor Cycling";
+    } else if (type == ROWING) {
+        sport_profile_name = L"Indoor Rowing";
+    } else if (type == ELLIPTICAL) {
+        sport_profile_name = L"Elliptical";
+    } else if (type == STAIRCLIMBER) {
+        sport_profile_name = L"Stair Climber";
+    } else if (type == JUMPROPE) {
+        sport_profile_name = L"Jump Rope";
+    }
+
+    if (!sport_profile_name.empty()) {
+        sessionMesg.SetSportProfileName(sport_profile_name);
+        qDebug() << "Setting sport_profile_name:" << QString::fromStdWString(sport_profile_name);
     }
 
     // First, set sport and subsport based on device type
