@@ -269,7 +269,13 @@ ScrollView {
         property bool tile_auto_virtual_shifting_climb_enabled: false
         property int  tile_auto_virtual_shifting_climb_order: 73
         property bool tile_auto_virtual_shifting_sprint_enabled: false
-        property int  tile_auto_virtual_shifting_sprint_order: 74               
+        property int  tile_auto_virtual_shifting_sprint_order: 74
+        property bool tile_negative_inclination_enabled: false
+        property int  tile_negative_inclination_order: 75
+        property bool tile_avg_pace_enabled: false
+        property int  tile_avg_pace_order: 76
+        property bool tile_power_avg_enabled: false
+        property int  tile_power_avg_order: 77
     }
 
 
@@ -431,7 +437,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: elevationEnabledAccordion
-            title: qsTr("Elevation")
+            title: qsTr("Elevation Gain")
             linkedBoolSetting: "tile_elevation_enabled"
             settings: settings
             accordionContent: RowLayout {
@@ -460,6 +466,49 @@ ScrollView {
                 }
             }
         }            
+
+        AccordionCheckElement {
+            id: negativeInclinationEnabledAccordion
+            title: qsTr("Negative Elevation Gain (Descent)")
+            linkedBoolSetting: "tile_negative_inclination_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: negativeInclinationOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_negative_inclination_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = negativeInclinationOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_negative_inclination_order = negativeInclinationOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Displays the total negative elevation gain (descent) in meters or feet accumulated during the workout.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
 
         AccordionCheckElement {
             id: caloriesEnabledAccordion
@@ -579,6 +628,38 @@ ScrollView {
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_pace_order = paceOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        AccordionCheckElement {
+            id: avgPaceEnabledAccordion
+            title: qsTr("Average Pace")
+            linkedBoolSetting: "tile_avg_pace_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelavgpaceOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: avgpaceOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_avg_pace_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = avgpaceOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okavgpaceOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_avg_pace_order = avgpaceOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -5401,6 +5482,49 @@ ScrollView {
 
         Label {
             text: qsTr("Button tile to switch automatic virtual shifting to Sprint profile.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: powerAvgEnabledAccordion
+            title: qsTr("Power Averaging")
+            linkedBoolSetting: "tile_power_avg_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: powerAvgOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_power_avg_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = powerAvgOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_power_avg_order = powerAvgOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Button tile to cycle through power averaging modes: Off, 3s avg (harmonic), 5s avg (harmonic). Tap to cycle between modes. Only for bikes.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2

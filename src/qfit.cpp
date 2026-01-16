@@ -1,6 +1,7 @@
 #include "qfit.h"
 
 #include <QSettings>
+#include <cmath>
 #include <cstdlib>
 #include <fstream>
 #include <ostream>
@@ -15,6 +16,7 @@
 #include "fit_field_description_mesg.hpp"
 #include "fit_developer_field.hpp"
 #include "fit_mesg_broadcaster.hpp"
+#include "fit_timestamp_correlation_mesg.hpp"
 
 #ifdef _WIN32
 #include <io.h>
@@ -71,19 +73,31 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
     bool fit_file_garmin_device_training_effect = settings.value(QZSettings::fit_file_garmin_device_training_effect, QZSettings::default_fit_file_garmin_device_training_effect).toBool();
     int fit_file_garmin_device_training_effect_device = settings.value(QZSettings::fit_file_garmin_device_training_effect_device, QZSettings::default_fit_file_garmin_device_training_effect_device).toInt();
+    uint32_t garmin_device_serial = settings.value(QZSettings::garmin_device_serial, QZSettings::default_garmin_device_serial).toUInt();
+    bool is_zwift_device = (fit_file_garmin_device_training_effect_device == 99999);
+    bool is_tacx_device = (fit_file_garmin_device_training_effect_device == 88888);
     fit::FileIdMesg fileIdMesg; // Every FIT file requires a File ID message
     fileIdMesg.SetType(FIT_FILE_ACTIVITY);
-    if(bluetooth_device_name.toUpper().startsWith("DOMYOS"))
+    if(bluetooth_device_name.toUpper().startsWith("DOMYOS") && !is_zwift_device && !is_tacx_device && !fit_file_garmin_device_training_effect)
         fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DECATHLON);
     else {
-        if(fit_file_garmin_device_training_effect)
+        if(is_zwift_device)
+            fileIdMesg.SetManufacturer(FIT_MANUFACTURER_ZWIFT);
+        else if(is_tacx_device)
+            fileIdMesg.SetManufacturer(FIT_MANUFACTURER_TACX);
+        else if(fit_file_garmin_device_training_effect)
             fileIdMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
         else
             fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
     }
-    if(fit_file_garmin_device_training_effect) {
-        fileIdMesg.SetProduct(fit_file_garmin_device_training_effect_device);
-        fileIdMesg.SetSerialNumber(3313379353);
+    if(fit_file_garmin_device_training_effect || is_zwift_device || is_tacx_device) {
+        if(is_zwift_device)
+            fileIdMesg.SetProduct(3288);
+        else if(is_tacx_device)
+            fileIdMesg.SetProduct(20533);
+        else
+            fileIdMesg.SetProduct(fit_file_garmin_device_training_effect_device);
+        fileIdMesg.SetSerialNumber(garmin_device_serial);
     } else {
         fileIdMesg.SetProduct(1);
         fileIdMesg.SetSerialNumber(12345);
@@ -108,9 +122,19 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
     fit::DeviceInfoMesg deviceInfoMesg;
     deviceInfoMesg.SetDeviceIndex(FIT_DEVICE_INDEX_CREATOR);
-    if(fit_file_garmin_device_training_effect) {
+    if(is_zwift_device) {
+        deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_ZWIFT);
+        deviceInfoMesg.SetSerialNumber(garmin_device_serial);
+        deviceInfoMesg.SetProduct(3288);
+        deviceInfoMesg.SetSoftwareVersion(21.19);
+    } else if(is_tacx_device) {
+        deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_TACX);
+        deviceInfoMesg.SetSerialNumber(garmin_device_serial);
+        deviceInfoMesg.SetProduct(20533);
+        deviceInfoMesg.SetSoftwareVersion(1.30);
+    } else if(fit_file_garmin_device_training_effect) {
         deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
-        deviceInfoMesg.SetSerialNumber(3313379353);
+        deviceInfoMesg.SetSerialNumber(garmin_device_serial);
         deviceInfoMesg.SetProduct(fit_file_garmin_device_training_effect_device);
         deviceInfoMesg.SetGarminProduct(fit_file_garmin_device_training_effect_device);
         deviceInfoMesg.SetSoftwareVersion(21.19);
@@ -129,6 +153,15 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     int speed_count = 0;
     int lap_index = 0;
     double speed_avg = 0;
+
+    // Variables for training load calculation
+    double hr_sum = 0;
+    int hr_count = 0;
+    uint8_t min_hr = 255;
+    uint8_t max_hr = 0;
+    double watt_sum = 0;
+    int watt_count = 0;
+
     for (int i = firstRealIndex; i < session.length(); i++) {
         if (session.at(i).coordinate.isValid()) {
             gps_data = true;
@@ -153,11 +186,105 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             speed_count++;
             speed_acc += session.at(i).speed;
         }
+
+        // Collect heart rate data for training load
+        if (session.at(i).heart > 0) {
+            hr_sum += session.at(i).heart;
+            hr_count++;
+            if (session.at(i).heart < min_hr) {
+                min_hr = session.at(i).heart;
+            }
+            if (session.at(i).heart > max_hr) {
+                max_hr = session.at(i).heart;
+            }
+        }
+
+        // Collect power data for TSS calculation
+        if (session.at(i).watt > 0) {
+            watt_sum += session.at(i).watt;
+            watt_count++;
+        }
     }
 
     if (speed_count > 0) {
         speed_avg = speed_acc / ((double)speed_count);
         qDebug() << "average speed from the fit file" << speed_avg;
+    }
+
+    // Calculate training load: TSS for cycling with power, TRIMP otherwise
+    float training_load = 0.0f;
+    float tss = 0.0f;  // Training Stress Score (for cycling with power)
+    uint32_t duration_seconds = session.last().elapsedTime;
+    bool has_tss = false;
+
+    // For cycling with power data, calculate TSS (Training Stress Score)
+    if (type == BIKE && watt_count > 0) {
+        double avg_watt = watt_sum / watt_count;
+        float ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toFloat();
+
+        if (ftp > 0 && avg_watt > 0) {
+            // TSS formula: (duration_seconds × average_power × IF) / (FTP × 36)
+            // where IF (Intensity Factor) = average_power / FTP
+            double intensity_factor = avg_watt / ftp;
+            tss = (duration_seconds * avg_watt * intensity_factor) / (ftp * 36.0);
+            training_load = tss;  // Use TSS as training load in the worst scenario
+            has_tss = true;
+
+            qDebug() << "Training Load (TSS) calculated:" << tss
+                     << "Duration:" << (duration_seconds / 60) << "min"
+                     << "Avg Power:" << avg_watt << "W"
+                     << "FTP:" << ftp << "W"
+                     << "IF:" << intensity_factor;
+        }
+    }
+
+    // Always calculate TRIMP if we have HR data (fallback or additional metric)
+    if (hr_count > 0) {
+        double avg_hr = hr_sum / hr_count;
+        uint32_t duration_minutes = duration_seconds / 60;
+
+        // Get max HR: use override if enabled, otherwise calculate from age
+        bool max_hr_override_enabled = settings.value(QZSettings::heart_max_override_enable,
+                                                       QZSettings::default_heart_max_override_enable).toBool();
+        uint8_t max_hr;
+        if (max_hr_override_enabled) {
+            max_hr = settings.value(QZSettings::heart_max_override_value,
+                                   QZSettings::default_heart_max_override_value).toUInt();
+        } else {
+            uint8_t user_age = settings.value(QZSettings::age, QZSettings::default_age).toUInt();
+            max_hr = 220 - user_age;
+        }
+
+        // Get resting HR from settings
+        uint8_t resting_hr = settings.value(QZSettings::heart_rate_resting,
+                                            QZSettings::default_heart_rate_resting).toUInt();
+
+        // Bannister's TRIMP formula: D * HR_ratio * exp(b * HR_ratio)
+        // where HR_ratio = (avg_hr - resting_hr) / (max_hr - resting_hr)
+        //
+        // COEFFICIENT SELECTION:
+        // Standard Bannister formula uses b = 1.92 (men) and b = 1.67 (women)
+        // However, Garmin devices (Fenix, etc.) appear to use b ≈ 1.67 for all users
+        // to match Garmin's training load calculations more closely.
+        // We use b = 1.67 for everyone to ensure compatibility with Garmin Connect's
+        // acute training load and training status features.
+        double hr_ratio = 0;
+        if (max_hr > resting_hr) {
+            hr_ratio = (avg_hr - resting_hr) / (double)(max_hr - resting_hr);
+        }
+
+        // Use coefficient 1.67 (matches Garmin implementation)
+        double b = 1.67;
+
+        // Calculate TRIMP
+        if (hr_ratio > 0 && hr_ratio < 2.0) {  // Sanity check
+            training_load = duration_minutes * hr_ratio * std::exp(b * hr_ratio);
+            qDebug() << "Training Load (TRIMP) calculated:" << training_load
+                     << "Duration:" << duration_minutes << "min"
+                     << "Avg HR:" << avg_hr
+                     << "Max HR:" << max_hr << (max_hr_override_enabled ? "(override)" : "(calculated)")
+                     << "Resting HR:" << resting_hr;
+        }
     }
 
     encode.Open(file);
@@ -241,14 +368,13 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     fit::SessionMesg sessionMesg;
     sessionMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     sessionMesg.SetStartTime(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
-    // Fixed: According to FIT spec, total_elapsed_time includes pauses (real-time duration)
-    // and total_timer_time excludes pauses (active time only)
-    sessionMesg.SetTotalElapsedTime(session.last().time.toSecsSinceEpoch() -
-                                    session.at(firstRealIndex).time.toSecsSinceEpoch());
+    sessionMesg.SetTotalElapsedTime(session.last().elapsedTime);
     sessionMesg.SetTotalTimerTime(session.last().elapsedTime);
     sessionMesg.SetTotalDistance((session.last().distance - startingDistanceOffset) * 1000.0); // meters
     sessionMesg.SetTotalCalories(session.last().calories);
     sessionMesg.SetTotalMovingTime(session.last().elapsedTime);
+    sessionMesg.SetTotalAscent(session.last().elevationGain);  // Total elevation gain (meters)
+    sessionMesg.SetTotalDescent(session.last().negativeElevationGain);  // Total elevation loss/descent (meters)
     sessionMesg.SetMinAltitude(min_alt);
     sessionMesg.SetMaxAltitude(max_alt);
     sessionMesg.SetEvent(FIT_EVENT_SESSION);
@@ -257,11 +383,21 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     sessionMesg.SetTrigger(FIT_SESSION_TRIGGER_ACTIVITY_END);
     sessionMesg.SetMessageIndex(FIT_MESSAGE_INDEX_RESERVED);
 
-    if (overrideSport != FIT_SPORT_INVALID) {
-        sessionMesg.SetSport(overrideSport);
-        sessionMesg.SetSubSport(FIT_SUB_SPORT_GENERIC);
-        qDebug() << "overriding FIT sport " << overrideSport;
-    } else if (type == TREADMILL) {
+    // Set training load in FIT file
+    // Always set training_load_peak (Garmin uses this for acute training load)
+    if (training_load > 0) {
+        sessionMesg.SetTrainingLoadPeak(training_load);
+        qDebug() << "Setting training_load_peak in FIT file:" << training_load;
+    }
+    
+    // For cycling with power, also set training_stress_score (TSS)
+    if (has_tss) {
+        sessionMesg.SetTrainingStressScore(tss);
+        qDebug() << "Setting training_stress_score (TSS) in FIT file:" << tss;
+    }
+
+    // First, set sport and subsport based on device type
+    if (type == TREADMILL) {
         if(session.last().stepCount > 0)
             sessionMesg.SetTotalStrides(session.last().stepCount);
 
@@ -315,6 +451,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         if (strava_virtual_activity) {
             sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
         }
+    }
+
+    // Then, override the sport if requested (keeping the subsport from above)
+    if (overrideSport != FIT_SPORT_INVALID) {
+        sessionMesg.SetSport(overrideSport);
+        qDebug() << "overriding FIT sport to" << overrideSport << "keeping subsport from device type";
     }
 
     fit::DeveloperDataIdMesg devIdMesg;
@@ -447,6 +589,24 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     encode.Write(skinTemperatureFieldDesc);
     encode.Write(heatStrainIndexFieldDesc);
     encode.Write(deviceInfoMesg);
+
+    // Add Timestamp Correlation record
+    // This correlates the UTC timestamp with the system timestamp and local timestamp
+    fit::TimestampCorrelationMesg timestampCorrelationMesg;
+    FIT_DATE_TIME sessionStartTimestamp = session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L;
+
+    // Timestamp: UTC timestamp at session start
+    timestampCorrelationMesg.SetTimestamp(sessionStartTimestamp);
+
+    // System Timestamp: Same as timestamp (session start)
+    timestampCorrelationMesg.SetSystemTimestamp(sessionStartTimestamp);
+
+    // Local Timestamp: User's local time at session start
+    // Convert the local time to FIT format
+    fit::DateTime localDateTime((time_t)session.at(firstRealIndex).time.toSecsSinceEpoch());
+    timestampCorrelationMesg.SetLocalTimestamp(localDateTime.GetTimeStamp());
+
+    encode.Write(timestampCorrelationMesg);
 
     if (workoutName.length() > 0) {
         fit::TrainingFileMesg trainingFile;

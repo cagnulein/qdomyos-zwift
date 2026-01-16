@@ -38,6 +38,7 @@
 
 #include "KettlerUSB.h"
 #include "devices/bike.h"
+#include "devices/ftmsbike/ftmsbike.h"
 #include "virtualdevices/virtualbike.h"
 
 #ifdef Q_OS_IOS
@@ -89,6 +90,9 @@ class kettlerusbbike : public bike {
 
     KettlerUSB *myKettler = nullptr;
 
+    // Store last FTMS command received
+    FtmsControlPointCommand m_lastFtmsCommand = FTMS_REQUEST_CONTROL;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
@@ -102,6 +106,7 @@ class kettlerusbbike : public bike {
 
   private slots:
     void update();
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };
 
 #endif // KETTLERUSBBIKE_H

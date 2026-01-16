@@ -235,9 +235,12 @@ class bluetoothdevice : public QObject {
      */
     double wattsMetricforUI() {
         QSettings settings;
+        bool power3s = settings.value(QZSettings::power_avg_3s, QZSettings::default_power_avg_3s).toBool();
         bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
-        if (power5s)
-            return wattsMetric().average5s();
+        if (power3s)
+            return wattsMetric().average3sHarmonic();
+        else if (power5s)
+            return wattsMetric().average5sHarmonic();
         else
             return wattsMetric().value();
     }
@@ -252,6 +255,11 @@ class bluetoothdevice : public QObject {
      * @brief elevationGain Gets a metric object to get and set the elevation gain. Units: ?
      */
     virtual metric elevationGain();
+
+    /**
+     * @brief negativeElevationGain Gets a metric object to get and set the negative elevation gain (descents). Units: ?
+     */
+    virtual metric negativeElevationGain();
 
     /**
      * @brief clearStats Clear the statistics.
@@ -627,6 +635,11 @@ class bluetoothdevice : public QObject {
      * @brief elevationAcc The elevation gain. Units: meters
      */
     metric elevationAcc;
+
+    /**
+     * @brief negativeElevationAcc The negative elevation gain (descents). Units: meters
+     */
+    metric negativeElevationAcc;
 
     /**
      * @brief m_watt Metric to get and set the power read from the trainer or from the power sensor Unit: watts

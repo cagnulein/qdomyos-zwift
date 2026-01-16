@@ -87,6 +87,7 @@ kettlerusbbike::kettlerusbbike(bool noWriteResistance, bool noHeartService, int8
             auto virtualBike =
                 new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             connect(virtualBike, &virtualbike::changeInclination, this, &kettlerusbbike::changeInclination);
+            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &kettlerusbbike::ftmsCharacteristicChanged);
             this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
@@ -147,16 +148,12 @@ void kettlerusbbike::innerWriteResistance() {
         requestResistance = -1;
     }
 
-    // ERG mode takes priority: if requestPower is active, use it and disable slope control
     if (requestPower > 0) {
         myKettler->setPower(requestPower);
-        qDebug() << "setting power (ERG mode) = " << requestPower;
-        // Disable slope control to prevent interference from SIM mode
-        m_slopeControlEnabled = false;
-        requestInclination = -100;
-        requestPower = -1;  // Reset after use to allow switching back to SIM mode
-    } else if (requestInclination != -100) {
-        // SIM mode: only apply inclination when NOT in ERG mode
+        qDebug() << "setting power = " << requestPower;
+    }
+
+    if (requestInclination != -100) {
         // Kettler USB doesn't support native inclination, but we use sim mode
         // to convert inclination to power (handled by forceInclination)
         emit debug(QStringLiteral("inclination change handled via sim mode: ") +
@@ -246,8 +243,14 @@ void kettlerusbbike::update() {
         }
 
         // Update slope-based power if sim mode is active
+        // Only allow slope control if the last FTMS command was FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS
         if (m_slopeControlEnabled && initDone) {
-            updateSlopeTargetPower();
+            if (m_lastFtmsCommand == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
+                updateSlopeTargetPower();
+            } else {
+                m_slopeControlEnabled = false;
+                qDebug() << "kettlerusbbike: disabling slope control, last FTMS command was not FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS";
+            }
         }
 
         innerWriteResistance();
@@ -312,4 +315,15 @@ void kettlerusbbike::forceInclination(double inclination) {
 
     // Force immediate power update
     updateSlopeTargetPower(true);
+}
+
+void kettlerusbbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                                const QByteArray &newValue) {
+    Q_UNUSED(characteristic)
+
+    // Parse the first byte as the FTMS command
+    if (newValue.length() > 0) {
+        m_lastFtmsCommand = static_cast<FtmsControlPointCommand>(newValue.at(0));
+        qDebug() << "kettlerusbbike::ftmsCharacteristicChanged - received command:" << m_lastFtmsCommand;
+    }
 }
