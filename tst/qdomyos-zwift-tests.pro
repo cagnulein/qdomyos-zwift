@@ -19,6 +19,7 @@ SOURCES += \
         Devices/deviceindex.cpp \
         Devices/devicenamepatterngroup.cpp \
         Devices/devicetestdataindex.cpp \
+        Devices/TestOctaneTreadmillZR8.cpp \
         Erg/ergtabletestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
         Tools/testsettings.cpp \
@@ -51,6 +52,7 @@ HEADERS += \
     Devices/deviceindex.h \
     Devices/devicenamepatterngroup.h \
     Devices/devicetestdataindex.h \
+    Devices/TestOctaneTreadmillZR8.h \
     Erg/ergtabletestsuite.h \
     ToolTests/testsettingstestsuite.h \
     Tools/devicetypeid.h \

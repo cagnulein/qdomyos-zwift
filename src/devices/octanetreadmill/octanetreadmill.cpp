@@ -352,11 +352,67 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         Cadence = 0;
     }
 
-    if ((newValue.length() != 20))
-        return;
+    // ZR8: Packet reassembly logic for fragmented BLE messages
+    if (ZR8 && (uint8_t)newValue[0] == 0xa5) {
+        // Start of a new ZR8 packet
+        if (newValue.length() >= 2) {
+            uint8_t lengthByte = (uint8_t)newValue[1];
 
-    if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
-        return;
+            // Map length byte to expected packet size
+            int expectedLen = 0;
+            if (lengthByte == 0x1d) {
+                expectedLen = 29;  // A5 1D format
+            } else if (lengthByte == 0x26) {
+                expectedLen = 38;  // A5 26 format (Gait Analysis)
+            } else if (lengthByte == 0x23) {
+                expectedLen = 35;  // A5 23 format
+            } else if (lengthByte == 0x20 || lengthByte == 0x21) {
+                expectedLen = 32;  // A5 20/21 format
+            }
+
+            if (expectedLen > 0) {
+                packetBuffer.clear();
+                packetBuffer.append(newValue);
+                expectedPacketLength = expectedLen;
+
+                if (packetBuffer.length() >= expectedPacketLength) {
+                    // Complete packet received
+                    value = packetBuffer.mid(0, expectedPacketLength);
+                    packetBuffer.clear();
+                    expectedPacketLength = 0;
+                    emit debug(QStringLiteral("ZR8: Complete packet assembled: ") +
+                               QString::number(expectedLen) + QStringLiteral(" bytes"));
+                } else {
+                    // Incomplete, need more fragments
+                    return;
+                }
+            } else {
+                return;
+            }
+        } else {
+            return;
+        }
+    } else if (ZR8 && expectedPacketLength > 0) {
+        // Continuation of a fragmented packet
+        packetBuffer.append(newValue);
+
+        if (packetBuffer.length() >= expectedPacketLength) {
+            // Complete packet now assembled
+            value = packetBuffer.mid(0, expectedPacketLength);
+            packetBuffer.clear();
+            expectedPacketLength = 0;
+            emit debug(QStringLiteral("ZR8: Complete packet assembled from fragments"));
+        } else {
+            return;
+        }
+    } else {
+        // Non-ZR8 or non-A5 packet
+        if ((value.length() != 20))
+            return;
+
+        if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
+            return;
+    }
 
     // ZR8: Speed data is only in packets starting with a5 2[0123] 06
     // Other packets containing 02 23 signature do not have valid speed data
@@ -398,52 +454,66 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         }
     }
 
-    if (ZR8 && newValue.contains(cadenceSign)) {
-        int16_t i = newValue.indexOf(cadenceSign) + 1;
+    // ZR8: Cadence parsing from 0x3A marker with anomaly filtering
+    if (ZR8 && value.contains(cadenceSign)) {
+        int16_t cadenceIdx = value.indexOf(cadenceSign) + 1;
 
-        if (i >= newValue.length())
-            return;
-
-        uint8_t currentCadence = (uint8_t)newValue.at(i);
-
-        // Update Cadence only if >= 30 to filter noise
-        if (currentCadence >= 30) {
-            Cadence = currentCadence;
-        }
-
-        // Track cadence = 0 to detect when user actually stops (after 5 seconds)
-        if (currentCadence == 0) {
-            if (lastCadenceZeroTime.isNull()) {
-                lastCadenceZeroTime = QDateTime::currentDateTime();
-                emit debug(QStringLiteral("ZR8: Cadence dropped to 0, starting 5-second timer"));
-            } else {
-                qint64 secondsSinceCadenceZero = lastCadenceZeroTime.secsTo(QDateTime::currentDateTime());
-                if (secondsSinceCadenceZero >= 5 && Speed.value() > 0) {
-                    emit debug(QStringLiteral("ZR8: Cadence = 0 for 5+ seconds, resetting speed to 0"));
-                    Speed = 0;
-                    emit speedChanged(0);
-                }
-            }
+        if (cadenceIdx >= value.length() || cadenceIdx < 1) {
+            // Marker not found or invalid position
+            emit debug(QStringLiteral("ZR8: Cadence marker (0x3A) not found or invalid"));
         } else {
-            // Cadence is non-zero - reset the timer
-            if (!lastCadenceZeroTime.isNull()) {
-                emit debug(QStringLiteral("ZR8: Cadence resumed (") + QString::number(currentCadence) +
-                           QStringLiteral("), canceling speed reset"));
-                lastCadenceZeroTime = QDateTime();
+            uint8_t rawCadence = (uint8_t)value.at(cadenceIdx);
+
+            // Anomaly filtering: accept values in realistic range (20-200 RPM)
+            // Values outside this range are likely parsing errors from packet format shifts
+            if (rawCadence >= 20 && rawCadence <= 200) {
+                Cadence = rawCadence;
+                emit debug(QStringLiteral("ZR8: Cadence parsed: ") + QString::number(rawCadence));
+
+                // Reset cadence zero timer when valid cadence is received
+                if (!lastCadenceZeroTime.isNull()) {
+                    lastCadenceZeroTime = QDateTime();
+                }
+            } else {
+                // Anomalous cadence value - likely from packet format shift
+                emit debug(QStringLiteral("ZR8: Cadence anomaly filtered: ") + QString::number(rawCadence) +
+                           QStringLiteral(" RPM (outside 20-200 range)"));
+
+                // Track time when cadence drops below 20 (potential stop condition)
+                if (rawCadence < 20 && rawCadence > 0) {
+                    if (lastCadenceZeroTime.isNull()) {
+                        lastCadenceZeroTime = QDateTime::currentDateTime();
+                        emit debug(QStringLiteral("ZR8: Cadence low (< 20 RPM), starting 5-second timer"));
+                    } else {
+                        qint64 secondsSinceLowCadence = lastCadenceZeroTime.secsTo(QDateTime::currentDateTime());
+                        if (secondsSinceLowCadence >= 5 && Speed.value() > 0) {
+                            emit debug(QStringLiteral("ZR8: Cadence < 20 for 5+ seconds, resetting speed to 0"));
+                            Speed = 0;
+                            emit speedChanged(0);
+                        }
+                    }
+                } else if (rawCadence == 0) {
+                    // Cadence explicitly zero - reset speed immediately
+                    if (Speed.value() > 0) {
+                        emit debug(QStringLiteral("ZR8: Cadence = 0, resetting speed"));
+                        Speed = 0;
+                        emit speedChanged(0);
+                    }
+                }
             }
         }
     }
 
-    if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign) && !newValue.contains(actualPace3Sign))
+    if (!value.contains(actualPaceSign) && !value.contains(actualPace2Sign) && !value.contains(actualPace3Sign))
         return;
 
-    int16_t i = newValue.indexOf(actualPaceSign) + 2;
+    int16_t i = value.indexOf(actualPaceSign) + 2;
     if (i <= 1)
-        i = newValue.indexOf(actualPace2Sign) + 2;
+        i = value.indexOf(actualPace2Sign) + 2;
     if (i <= 1)
-        i = newValue.indexOf(actualPace3Sign) + 2;
+        i = value.indexOf(actualPace3Sign) + 2;
 
-    if (i + 1 >= newValue.length())
+    if (i + 1 >= value.length())
         return;
 
     double speed = GetSpeedFromPacket(value, i);
