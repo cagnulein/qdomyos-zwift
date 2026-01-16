@@ -733,6 +733,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (newvalue.length() == 15) {
             Speed = (double)((((uint8_t)newvalue.at(10)) << 8) | ((uint8_t)newvalue.at(9))) / 100.0;
             Cadence = newvalue.at(6);
+            m_watt = elliptical::watts();
 
             Distance += ((Speed.value() / 3600000.0) *
                          ((double)lastRefreshCharacteristicChanged.msecsTo(now)));

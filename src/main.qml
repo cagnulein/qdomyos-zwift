@@ -739,6 +739,7 @@ ApplicationWindow {
 
             Column {
                 anchors.fill: parent
+                spacing: 3
 
                 ItemDelegate {
                     text: qsTr("Profile: ") + settings.profile_name
@@ -835,7 +836,17 @@ ApplicationWindow {
                     text: qsTr("Workout Editor")
                     width: parent.width
                     onClicked: {
-                        stackView.push("WorkoutEditor.qml")
+                        var editorPage = stackView.push("WorkoutEditor.qml")
+                        if (editorPage) {
+                            editorPage.closeRequested.connect(function() {
+                                stackView.pop()
+                            })
+                            // Close editor when workout is started from Save & Start
+                            trainprogram_autostart_requested.connect(function() {
+                                console.log("[main.qml] trainprogram_autostart_requested received, closing editor")
+                                editorPage.closeRequested()
+                            })
+                        }
                         drawer.close()
                     }
                 }
@@ -914,7 +925,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.20.17"
+                    text: "version 2.20.21"
                     width: parent.width
                 }
 
@@ -952,6 +963,35 @@ ApplicationWindow {
                             stackView.pop();
                         })
                         peloton_connect_clicked()
+                        drawer.close()
+                    }
+                }
+
+                ItemDelegate {
+                    Image {
+                        anchors.left: parent.left;
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "icons/icons/garmin-connect-badge.png"
+                        fillMode: Image.PreserveAspectFit
+                        visible: true
+                        width: parent.width
+                        height: 48
+                    }
+                    width: parent.width
+                    onClicked: {
+                        toolButtonLoadSettings.visible = true;
+                        toolButtonSaveSettings.visible = true;
+                        stackView.push("settings.qml")
+                        if (stackView.currentItem) {
+                            if (stackView.currentItem.openGarminSection) {
+                                stackView.currentItem.openGarminSection()
+                            }
+                            if (stackView.currentItem.peloton_connect_clicked) {
+                                stackView.currentItem.peloton_connect_clicked.connect(function() {
+                                    peloton_connect_clicked()
+                                });
+                            }
+                        }
                         drawer.close()
                     }
                 }

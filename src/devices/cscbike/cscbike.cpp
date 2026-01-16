@@ -78,7 +78,12 @@ void cscbike::update() {
         double rpm = currentCadence().value();
         m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404;
     } else {
-        m_watt = wattFromHR(false);
+        // When cadence is zero, watts should be zero regardless of HR
+        if (currentCadence().value() == 0) {
+            m_watt = 0;
+        } else {
+            m_watt = wattFromHR(false);
+        }
     }
     emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
