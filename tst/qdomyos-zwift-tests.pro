@@ -19,7 +19,6 @@ SOURCES += \
         Devices/deviceindex.cpp \
         Devices/devicenamepatterngroup.cpp \
         Devices/devicetestdataindex.cpp \
-        Devices/TestOctaneTreadmillZR8.cpp \
         Erg/ergtabletestsuite.cpp \
         GarminConnect/garminconnecttestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \

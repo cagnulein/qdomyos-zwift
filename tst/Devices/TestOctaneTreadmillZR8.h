@@ -12,7 +12,7 @@
 #include <cmath>
 
 #include "octanetreadmill/octanetreadmill.h"
-#include "octane_test_dataset.cpp"
+#include "octane_test_dataset.h"
 
 // Helper class to capture Qt signals
 class SignalCapture : public QObject {
