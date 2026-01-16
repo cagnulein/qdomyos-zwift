@@ -61,7 +61,15 @@ class octanetreadmill : public treadmill {
 
     QByteArray actualPaceSign;
     QByteArray actualPace2Sign;
+    QByteArray actualPace3Sign;
     QByteArray cadenceSign;
+
+    QDateTime lastValidSpeedTime;
+    QDateTime lastCadenceZeroTime;
+
+    // Packet reassembly buffer for fragmented BLE messages
+    QByteArray packetBuffer;
+    int expectedPacketLength = 0;
 
     QTimer *refresh;
 
