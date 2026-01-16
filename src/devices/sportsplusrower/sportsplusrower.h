@@ -27,6 +27,7 @@
 
 #include "devices/rower.h"
 #include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualrower.h"
 
 class sportsplusrower : public rower {
     Q_OBJECT
@@ -70,6 +71,8 @@ class sportsplusrower : public rower {
     bool initDone = false;
     bool initRequest = false;
     bool readyToStart = false;
+
+    bool XM_FITNESS = false;
 
     const resistance_t max_resistance = 24;
 

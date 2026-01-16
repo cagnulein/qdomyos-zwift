@@ -73,6 +73,113 @@
         mets: -1
     };
 
+    // Custom dialog system for iOS WebView compatibility
+    // iOS WebView doesn't properly support prompt() and confirm()
+    const dialog = {
+        elements: {},
+
+        init() {
+            this.elements.container = document.getElementById('customDialog');
+            this.elements.title = document.getElementById('customDialogTitle');
+            this.elements.message = document.getElementById('customDialogMessage');
+            this.elements.input = document.getElementById('customDialogInput');
+            this.elements.cancelBtn = document.getElementById('customDialogCancel');
+            this.elements.confirmBtn = document.getElementById('customDialogConfirm');
+        },
+
+        show(title, message, options = {}) {
+            return new Promise((resolve) => {
+                console.log('[dialog.show] Title:', title, 'Message:', message, 'Options:', options);
+
+                // Set content
+                this.elements.title.textContent = title;
+                this.elements.message.textContent = message;
+
+                // Configure input field
+                if (options.input) {
+                    this.elements.input.classList.remove('hidden');
+                    this.elements.input.value = options.defaultValue || '';
+                    this.elements.input.placeholder = options.placeholder || '';
+                } else {
+                    this.elements.input.classList.add('hidden');
+                }
+
+                // Configure cancel button
+                if (options.showCancel !== false) {
+                    this.elements.cancelBtn.classList.remove('hidden');
+                } else {
+                    this.elements.cancelBtn.classList.add('hidden');
+                }
+
+                // Set button labels
+                this.elements.cancelBtn.textContent = options.cancelLabel || 'Cancel';
+                this.elements.confirmBtn.textContent = options.confirmLabel || 'OK';
+
+                // Show dialog
+                this.elements.container.classList.remove('hidden');
+
+                // Focus input if present
+                if (options.input) {
+                    setTimeout(() => this.elements.input.focus(), 100);
+                }
+
+                // Handle buttons
+                const handleConfirm = () => {
+                    cleanup();
+                    const result = options.input ? this.elements.input.value : true;
+                    console.log('[dialog.show] Confirmed with result:', result);
+                    resolve(result);
+                };
+
+                const handleCancel = () => {
+                    cleanup();
+                    console.log('[dialog.show] Cancelled');
+                    resolve(null);
+                };
+
+                const handleKeyPress = (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleConfirm();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        handleCancel();
+                    }
+                };
+
+                const cleanup = () => {
+                    this.elements.confirmBtn.removeEventListener('click', handleConfirm);
+                    this.elements.cancelBtn.removeEventListener('click', handleCancel);
+                    this.elements.input.removeEventListener('keypress', handleKeyPress);
+                    this.elements.container.classList.add('hidden');
+                };
+
+                this.elements.confirmBtn.addEventListener('click', handleConfirm);
+                this.elements.cancelBtn.addEventListener('click', handleCancel);
+                this.elements.input.addEventListener('keypress', handleKeyPress);
+            });
+        },
+
+        confirm(message, title = 'Confirm') {
+            console.log('[dialog.confirm] Message:', message);
+            return this.show(title, message, { showCancel: true });
+        },
+
+        prompt(message, defaultValue = '', title = 'Input') {
+            console.log('[dialog.prompt] Message:', message, 'Default:', defaultValue);
+            return this.show(title, message, {
+                input: true,
+                defaultValue,
+                showCancel: true
+            });
+        },
+
+        alert(message, title = 'Alert') {
+            console.log('[dialog.alert] Message:', message);
+            return this.show(title, message, { showCancel: false });
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
         cacheDom();
         bindEvents();
@@ -96,11 +203,15 @@
         selectors.saveStartWorkout = document.getElementById('saveStartWorkout');
         selectors.programSelect = document.getElementById('programSelect');
         selectors.loadProgram = document.getElementById('loadProgram');
+        selectors.deleteProgram = document.getElementById('deleteProgram');
         selectors.refreshPrograms = document.getElementById('refreshPrograms');
         selectors.statusDuration = document.getElementById('statusDuration');
         selectors.statusIntervals = document.getElementById('statusIntervals');
         selectors.statusMessage = document.getElementById('statusMessage');
         selectors.offlineBanner = document.getElementById('offlineBanner');
+
+        // Initialize custom dialog system for iOS WebView compatibility
+        dialog.init();
     }
 
     function bindEvents() {
@@ -122,10 +233,16 @@
             addInterval();
             announce('Interval added');
         });
-        selectors.repeatSelection.addEventListener('click', repeatSelection);
-        selectors.clearIntervals.addEventListener('click', () => {
-            if (state.intervals.length && !confirm('Remove all intervals?')) {
-                return;
+        selectors.repeatSelection.addEventListener('click', () => {
+            console.log('[button] Repeat Selection button clicked');
+            repeatSelection();
+        });
+        selectors.clearIntervals.addEventListener('click', async () => {
+            if (state.intervals.length) {
+                const confirmed = await dialog.confirm('Remove all intervals?');
+                if (!confirmed) {
+                    return;
+                }
             }
             state.intervals = [];
             addInterval();
@@ -158,6 +275,18 @@
                 return;
             }
             loadProgram(name);
+        });
+        selectors.deleteProgram.addEventListener('click', () => {
+            if (window.QZ_OFFLINE) {
+                announce('Offline: cannot delete workouts', true);
+                return;
+            }
+            const name = selectors.programSelect.value;
+            if (!name) {
+                announce('Select a workout to delete', true);
+                return;
+            }
+            deleteProgram(name);
         });
         selectors.refreshPrograms.addEventListener('click', () => {
             if (window.QZ_OFFLINE) {
@@ -296,6 +425,46 @@
         }, 300); // Give backend time to load the file
     }
 
+    async function deleteProgram(name) {
+        const confirmed = await dialog.confirm(`Are you sure you want to delete "${name}"? This cannot be undone.`, 'Delete Workout');
+        if (!confirmed) {
+            return;
+        }
+        setWorking(true);
+        console.log('[deleteProgram] Deleting workout:', name);
+
+        // Get file URL from stored program files
+        const fileObj = state.programFiles[name];
+        if (!fileObj || !fileObj.url) {
+            announce('Cannot find workout file', true);
+            setWorking(false);
+            return;
+        }
+
+        // Send delete message to backend
+        sendMessage('deletetrainingprogram', { url: fileObj.url }, 'R_deletetrainingprogram')
+            .then(content => {
+                console.log('[deleteProgram] Delete response:', content);
+                if (content && content.success) {
+                    announce(`Deleted ${name}`);
+                    // Clear the name field if it matches the deleted workout
+                    if (state.lastSaved === name) {
+                        state.lastSaved = '';
+                        selectors.name.value = '';
+                    }
+                    // Refresh the program list
+                    return refreshProgramList();
+                } else {
+                    announce('Failed to delete workout', true);
+                }
+            })
+            .catch(err => {
+                console.error('[deleteProgram] Error:', err);
+                announce('Unable to delete workout', true);
+            })
+            .finally(() => setWorking(false));
+    }
+
     function convertRow(row, idx) {
         const out = {};
         out.name = row.name || `Interval ${idx + 1}`;
@@ -330,6 +499,11 @@
                     // Only convert if NOT a disabled value
                     if ((def.unitKey === 'distance' || def.unitKey === 'speed') && state.miles && !isDefaultValue) {
                         value = value / 1.60934;
+                    }
+
+                    // Truncate speed values to 1 decimal place to avoid floating-point precision issues
+                    if (def.unitKey === 'speed' && !isDefaultValue) {
+                        value = Math.round(value * 10) / 10;
                     }
 
                     if (!isDefaultValue) {
@@ -467,11 +641,13 @@
             base.__enabled_cadence = true;
             break;
         default:
-            // treadmill
+            // treadmill - duration is enabled by default, distance is disabled (mutually exclusive)
             base.speed = state.miles ? 6.0 : 9.5;
             base.__enabled_speed = true;
             base.inclination = 1.0;
             base.__enabled_inclination = true;
+            base.__enabled_duration = true;
+            base.__enabled_distance = false;
             break;
         }
         base.__selected = false;
@@ -507,6 +683,7 @@
             selectBox.addEventListener('change', event => {
                 row.__selected = event.target.checked;
                 card.classList.toggle('selected', row.__selected);
+                console.log('[checkbox] Interval', index, 'selected:', row.__selected);
                 updateControls();
             });
             headerLeft.appendChild(selectBox);
@@ -547,11 +724,13 @@
                     fieldWrap.classList.add('disabled');
                 }
 
-                // Create label with enable/disable checkbox (except for name, duration, linked fields, and synced fields like pace)
+                // Create label with enable/disable checkbox (except for name, linked fields, and synced fields like pace)
+                // Duration can be disabled for treadmill (mutually exclusive with distance)
                 const labelWrap = document.createElement('label');
                 labelWrap.className = 'field-label';
 
-                if (field.key !== 'name' && field.key !== 'duration' && !field.linkedTo && !field.syncWith) {
+                const allowToggle = field.key !== 'name' && !field.linkedTo && !field.syncWith;
+                if (allowToggle) {
                     const enableCheckbox = document.createElement('input');
                     enableCheckbox.type = 'checkbox';
                     enableCheckbox.checked = isEnabled;
@@ -573,6 +752,14 @@
                             if (field.key === 'speed') {
                                 row['__enabled_forcespeed'] = true;
                                 row['forcespeed'] = false; // default to false
+                            }
+                            // For treadmill: duration and distance are mutually exclusive
+                            if (state.device === 'treadmill') {
+                                if (field.key === 'distance') {
+                                    row['__enabled_duration'] = false;
+                                } else if (field.key === 'duration') {
+                                    row['__enabled_distance'] = false;
+                                }
                             }
                         } else {
                             fieldWrap.classList.add('disabled');
@@ -863,16 +1050,20 @@
     }
 
     function saveWorkflow(startAfter) {
+        console.log('[saveWorkflow] Called with startAfter:', startAfter);
         if (window.QZ_OFFLINE) {
             announce('Offline: cannot save workouts', true);
             return;
         }
         const payload = buildPayload();
         if (!payload) {
+            console.error('[saveWorkflow] No payload generated');
             return;
         }
+        console.log('[saveWorkflow] Payload name:', payload.name);
         setWorking(true);
         sendMessage('savetrainingprogram', payload, 'R_savetrainingprogram').then(content => {
+            console.log('[saveWorkflow] Save response:', content);
             if (!content) {
                 announce('Save failed', true);
                 return;
@@ -881,40 +1072,94 @@
             selectors.name.value = payload.name;
             announce(`Saved ${payload.name}`);
 
+            console.log('[saveWorkflow] Refreshing program list...');
             return refreshProgramList().then(() => {
+                console.log('[saveWorkflow] Program list refreshed. programFiles:', Object.keys(state.programFiles));
                 selectors.programSelect.value = payload.name;
                 if (startAfter) {
-                    // Verify file exists in program list before starting
-                    if (state.programs.includes(payload.name)) {
-                        console.log('File verified in list, starting workout');
-                        return startProgram(payload.name);
-                    } else {
-                        announce('Workout file not ready, please try again', true);
-                        console.error('File not found in programs list after save');
+                    console.log('[saveWorkflow] startAfter is true, checking for file:', payload.name);
+
+                    // Try to find file with exact name or with common extensions
+                    let foundFileName = null;
+                    if (state.programFiles[payload.name]) {
+                        foundFileName = payload.name;
+                    } else if (state.programFiles[payload.name + '.xml']) {
+                        foundFileName = payload.name + '.xml';
+                    } else if (state.programFiles[payload.name + '.zwo']) {
+                        foundFileName = payload.name + '.zwo';
                     }
+
+                    // Verify file exists in program files map before starting
+                    if (foundFileName) {
+                        console.log('[saveWorkflow] File verified in list as:', foundFileName);
+                        return startProgram(foundFileName);
+                    } else {
+                        // If not found immediately, wait a bit and try again
+                        console.log('[saveWorkflow] File not immediately available, retrying...');
+                        return new Promise(resolve => setTimeout(resolve, 300)).then(() => {
+                            console.log('[saveWorkflow] Retry: refreshing program list again...');
+                            return refreshProgramList();
+                        }).then(() => {
+                            console.log('[saveWorkflow] Retry: programFiles:', Object.keys(state.programFiles));
+
+                            // Try again with extensions
+                            let retryFileName = null;
+                            if (state.programFiles[payload.name]) {
+                                retryFileName = payload.name;
+                            } else if (state.programFiles[payload.name + '.xml']) {
+                                retryFileName = payload.name + '.xml';
+                            } else if (state.programFiles[payload.name + '.zwo']) {
+                                retryFileName = payload.name + '.zwo';
+                            }
+
+                            if (retryFileName) {
+                                console.log('[saveWorkflow] File found after retry as:', retryFileName);
+                                return startProgram(retryFileName);
+                            } else {
+                                announce('Workout file not ready, please try again', true);
+                                console.error('[saveWorkflow] File not found in programs list after save and retry');
+                                console.error('[saveWorkflow] Available files:', Object.keys(state.programFiles));
+                                console.error('[saveWorkflow] Looking for:', payload.name, 'or', payload.name + '.xml', 'or', payload.name + '.zwo');
+                            }
+                        });
+                    }
+                } else {
+                    console.log('[saveWorkflow] startAfter is false, not starting workout');
                 }
             });
         }).catch(err => {
-            console.error(err);
+            console.error('[saveWorkflow] Error:', err);
             announce('Unable to save workout', true);
         }).finally(() => setWorking(false));
     }
 
     function startProgram(name) {
+        console.log('[startProgram] Called with name:', name);
         if (window.QZ_OFFLINE) {
             announce('Offline: cannot start workouts', true);
             return Promise.resolve();
         }
-        return sendMessage('workouteditor_start', { name }, 'R_workouteditor_start').then(resp => {
-            if (!resp || !resp.ok) {
-                announce('Unable to start workout', true);
-                return;
-            }
+
+        // Get the file object for the saved workout
+        const fileObj = state.programFiles[name];
+        console.log('[startProgram] fileObj:', fileObj);
+        if (!fileObj || !fileObj.url) {
+            console.error('[startProgram] Cannot find workout file for:', name);
+            announce('Cannot find workout file', true);
+            return Promise.resolve();
+        }
+
+        // Use the same pattern as training browser: open then autostart
+        console.log('[startProgram] Sending trainprogram_open_clicked with url:', fileObj.url);
+        sendMessage('trainprogram_open_clicked', { url: fileObj.url });
+
+        setTimeout(() => {
+            console.log('[startProgram] Sending trainprogram_autostart_requested');
+            sendMessage('trainprogram_autostart_requested', {});
             announce('Workout started');
-        }).catch(err => {
-            console.error(err);
-            announce('Unable to start workout', true);
-        });
+        }, 100);
+
+        return Promise.resolve();
     }
 
     function buildPayload() {
@@ -934,6 +1179,13 @@
             const row = {
                 duration: formatDuration(durationSec)
             };
+            // Add interval name/label as textEvent with timeoffset=0 if present
+            if (interval.name && interval.name.trim() !== '') {
+                row.textEvents = [{
+                    timeoffset: 0,
+                    message: interval.name.trim()
+                }];
+            }
             FIELD_DEFS.forEach(field => {
                 if (field.key === 'name' || field.key === 'duration') {
                     return;
@@ -985,7 +1237,14 @@
     }
 
     function sanitizeName(name) {
-        return name.replace(/\s+/g, '_').replace(/[^A-Za-z0-9_\-]/g, '_');
+        // Remove common file extensions before sanitizing to prevent duplicate files
+        let baseName = name;
+        if (baseName.toLowerCase().endsWith('.xml')) {
+            baseName = baseName.slice(0, -4);
+        } else if (baseName.toLowerCase().endsWith('.zwo')) {
+            baseName = baseName.slice(0, -4);
+        }
+        return baseName.replace(/\s+/g, '_').replace(/[^A-Za-z0-9_\-]/g, '_');
     }
 
     function isFieldValidForDevice(field, deviceType) {
@@ -1025,7 +1284,19 @@
         }));
 
         state.intervals.forEach(interval => {
-            const duration = parseDuration(interval.duration);
+            // For treadmill: if distance is used instead of duration, calculate duration from speed
+            let duration;
+            const hasDistance = interval.__enabled_distance !== false && interval.distance > 0;
+            const hasSpeed = interval.__enabled_speed !== false && interval.speed > 0;
+
+            if (state.device === 'treadmill' && hasDistance && hasSpeed) {
+                // Calculate duration from distance and speed: duration (sec) = distance (km) / speed (km/h) * 3600
+                duration = (parseFloat(interval.distance) / parseFloat(interval.speed)) * 3600;
+            } else {
+                // Use duration field
+                duration = parseDuration(interval.duration);
+            }
+
             if (!duration) {
                 return;
             }
@@ -1176,7 +1447,7 @@
 
     function setWorking(active) {
         state.loading = active;
-        [selectors.saveWorkout, selectors.saveStartWorkout, selectors.loadProgram, selectors.refreshPrograms, selectors.addInterval, selectors.clearIntervals]
+        [selectors.saveWorkout, selectors.saveStartWorkout, selectors.loadProgram, selectors.deleteProgram, selectors.refreshPrograms, selectors.addInterval, selectors.clearIntervals]
             .forEach(btn => btn && (btn.disabled = active));
         updateControls();
     }
@@ -1194,56 +1465,87 @@
         return el.enqueue();
     }
 
-    function repeatSelection() {
-        const selected = [];
-        state.intervals.forEach((row, idx) => {
-            if (row.__selected) {
-                selected.push(idx);
-            }
-        });
-        if (!selected.length) {
-            announce('Select one or more consecutive intervals first', true);
-            return;
-        }
-        selected.sort((a, b) => a - b);
-        for (let i = 1; i < selected.length; i++) {
-            if (selected[i] !== selected[i - 1] + 1) {
-                announce('Selection must be consecutive', true);
+    async function repeatSelection() {
+        try {
+            console.log('[repeatSelection] Starting repeat selection');
+            const selected = [];
+            state.intervals.forEach((row, idx) => {
+                if (row.__selected) {
+                    selected.push(idx);
+                }
+            });
+            console.log('[repeatSelection] Selected indices:', selected);
+
+            if (!selected.length) {
+                announce('Select one or more consecutive intervals first', true);
+                console.log('[repeatSelection] No intervals selected');
                 return;
             }
-        }
 
-        const promptValue = prompt('Repeat block how many times (total cycles)?', '2');
-        if (promptValue === null) {
-            return;
-        }
-        const times = parseInt(promptValue, 10);
-        if (Number.isNaN(times) || times < 2) {
-            announce('Enter a number greater than 1', true);
-            return;
-        }
+            selected.sort((a, b) => a - b);
+            for (let i = 1; i < selected.length; i++) {
+                if (selected[i] !== selected[i - 1] + 1) {
+                    announce('Selection must be consecutive', true);
+                    console.log('[repeatSelection] Selection not consecutive');
+                    return;
+                }
+            }
 
-        const start = selected[0];
-        const end = selected[selected.length - 1];
-        const block = state.intervals.slice(start, end + 1).map(cloneInterval);
+            console.log('[repeatSelection] Prompting for repeat count');
+            const promptValue = await dialog.prompt('Repeat block how many times (total cycles)?', '2', 'Repeat Selection');
+            console.log('[repeatSelection] Prompt returned:', promptValue);
 
-        let insertAt = end + 1;
-        for (let t = 1; t < times; t++) {
-            const clones = block.map(cloneInterval);
-            state.intervals.splice(insertAt, 0, ...clones);
-            insertAt += clones.length;
+            if (promptValue === null || promptValue === '') {
+                announce('Repeat cancelled', false);
+                console.log('[repeatSelection] User cancelled or empty input');
+                return;
+            }
+
+            const times = parseInt(promptValue, 10);
+            console.log('[repeatSelection] Parsed times:', times);
+
+            if (Number.isNaN(times) || times < 2) {
+                announce('Enter a number greater than 1', true);
+                console.log('[repeatSelection] Invalid repeat count:', times);
+                return;
+            }
+
+            const start = selected[0];
+            const end = selected[selected.length - 1];
+            console.log('[repeatSelection] Repeating intervals from', start, 'to', end, 'for', times, 'total cycles');
+
+            const block = state.intervals.slice(start, end + 1).map(cloneInterval);
+            console.log('[repeatSelection] Created block with', block.length, 'intervals');
+
+            let insertAt = end + 1;
+            for (let t = 1; t < times; t++) {
+                const clones = block.map(cloneInterval);
+                console.log('[repeatSelection] Iteration', t, '- Inserting', clones.length, 'clones at position', insertAt);
+                state.intervals.splice(insertAt, 0, ...clones);
+                insertAt += clones.length;
+            }
+
+            console.log('[repeatSelection] After repeat, total intervals:', state.intervals.length);
+
+            state.intervals.forEach(row => { row.__selected = false; });
+            renderIntervals();
+            updateChart();
+            updateStatus();
+            updateControls();
+
+            const message = `Block repeated ${times} times`;
+            announce(message);
+            console.log('[repeatSelection]', message);
+        } catch (error) {
+            console.error('[repeatSelection] Error:', error);
+            announce('Error repeating selection: ' + error.message, true);
         }
-
-        state.intervals.forEach(row => { row.__selected = false; });
-        renderIntervals();
-        updateChart();
-        updateStatus();
-        updateControls();
-        announce(`Block repeated ${times} times`);
     }
 
     function hasSelection() {
-        return state.intervals.some(row => row.__selected);
+        const result = state.intervals.some(row => row.__selected);
+        console.log('[hasSelection] Result:', result, 'Total intervals:', state.intervals.length);
+        return result;
     }
 
     function updateControls() {
@@ -1257,6 +1559,9 @@
         if (selectors.loadProgram) {
             selectors.loadProgram.disabled = state.loading || offline || !state.programs.length;
         }
+        if (selectors.deleteProgram) {
+            selectors.deleteProgram.disabled = state.loading || offline || !state.programs.length;
+        }
         if (selectors.refreshPrograms) {
             selectors.refreshPrograms.disabled = state.loading || offline;
         }
@@ -1264,7 +1569,9 @@
             selectors.programSelect.disabled = offline || state.loading || !state.programs.length;
         }
         if (selectors.repeatSelection) {
-            selectors.repeatSelection.disabled = state.loading || !hasSelection();
+            const shouldDisable = state.loading || !hasSelection();
+            selectors.repeatSelection.disabled = shouldDisable;
+            console.log('[updateControls] Repeat selection button disabled:', shouldDisable);
         }
         if (selectors.offlineBanner) {
             selectors.offlineBanner.classList.toggle('hidden', !offline);
