@@ -277,7 +277,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         index += 3;
 
         if (!Flags.moreData) {
-            if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || TRUE_ELLIPTICAL || FTMS) {
+            // For TRUE_ELLIPTICAL, skip instantaneous speed (will use avgSpeed instead)
+            if(!TRUE_ELLIPTICAL && (E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)) {
                 Speed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                 (uint16_t)((uint8_t)lastPacket.at(index)))) /
                         100.0;
@@ -288,11 +289,17 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
         // this particular device, seems to send the actual speed here
         if (Flags.avgSpeed) {
-            // double avgSpeed;
-            if(!E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !TRUE_ELLIPTICAL && !FTMS) {
-                Speed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+            double avgSpeed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)lastPacket.at(index)))) /
                     100.0;
+
+            // For TRUE_ELLIPTICAL, use avgSpeed as the main speed metric (not instantaneous)
+            // since ellipticals don't have a true instantaneous forward speed
+            if(TRUE_ELLIPTICAL) {
+                Speed = avgSpeed;
+                emit debug(QStringLiteral("Current Average Speed (TRUE_ELLIPTICAL): ") + QString::number(Speed.value()));
+            } else if(!E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !FTMS) {
+                Speed = avgSpeed;
                 emit debug(QStringLiteral("Current Average Speed: ") + QString::number(Speed.value()));
             }
             index += 2;
