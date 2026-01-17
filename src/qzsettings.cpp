@@ -257,6 +257,7 @@ const QString QZSettings::proform_treadmill_995i = QStringLiteral("proform_tread
 const QString QZSettings::nordictrack_series_7 = QStringLiteral("nordictrack_series_7");
 const QString QZSettings::nordictrack_se7i = QStringLiteral("nordictrack_se7i");
 const QString QZSettings::proform_treadmill_sport_3_0 = QStringLiteral("proform_treadmill_sport_3_0");
+const QString QZSettings::proform_power_595i = QStringLiteral("proform_power_595i");
 const QString QZSettings::toorx_3_0 = QStringLiteral("toorx_3_0");
 const QString QZSettings::toorx_65s_evo = QStringLiteral("toorx_65s_evo");
 const QString QZSettings::jtx_fitness_sprint_treadmill = QStringLiteral("jtx_fitness_sprint_treadmill");
@@ -1047,7 +1048,7 @@ const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandik
 const QString QZSettings::trainprogram_auto_lap_on_segment = QStringLiteral("trainprogram_auto_lap_on_segment");
 
 
-const uint32_t allSettingsCount = 853;
+const uint32_t allSettingsCount = 854;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1918,6 +1919,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::trainprogram_auto_lap_on_segment, QZSettings::default_trainprogram_auto_lap_on_segment},
     {QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed},
     {QZSettings::proform_treadmill_sport_3_0, QZSettings::default_proform_treadmill_sport_3_0},
+    {QZSettings::proform_power_595i, QZSettings::default_proform_power_595i},
     {QZSettings::garmin_oauth1_token, QZSettings::default_garmin_oauth1_token},
     {QZSettings::garmin_oauth1_token_secret, QZSettings::default_garmin_oauth1_token_secret},
 };
