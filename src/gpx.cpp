@@ -7,12 +7,12 @@
 
 gpx::gpx(QObject *parent) : QObject(parent) {}
 
-QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx, BLUETOOTH_TYPE device_type) {
+QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx, BLUETOOTH_TYPE device_type, bool forceNoLoop) {
     QSettings settings;
     const double meter_limit_for_auto_loop = 300;
     bool treadmill_force_speed =
         settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool();
-    bool gpx_loop = settings.value(QZSettings::gpx_loop, QZSettings::default_gpx_loop).toBool();
+    bool gpx_loop = forceNoLoop ? false : settings.value(QZSettings::gpx_loop, QZSettings::default_gpx_loop).toBool();
     
     if(device_type == BIKE)
         treadmill_force_speed = false;
