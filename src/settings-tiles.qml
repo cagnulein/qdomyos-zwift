@@ -366,7 +366,7 @@ ScrollView {
             linkedBoolSetting: "tile_cadence_enabled"
             settings: settings
             accordionContent:  ColumnLayout {
-                SwitchDelegate {
+                IndicatorOnlySwitch {
                     id: cadenceColorEnabled
                     text: qsTr("Enable Cadence color")
                     spacing: 0
@@ -1309,7 +1309,7 @@ ScrollView {
             linkedBoolSetting: "tile_peloton_resistance_enabled"
             settings: settings
             accordionContent: ColumnLayout {
-                SwitchDelegate {
+                IndicatorOnlySwitch {
                     id: pelotonResistanceColorEnabled
                     text: qsTr("Enable Peloton Resistance color")
                     spacing: 0
@@ -1804,7 +1804,7 @@ ScrollView {
                         onClicked: {settings.tile_biggears_order = biggearsOrderTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
-                SwitchDelegate {
+                IndicatorOnlySwitch {
                     text: qsTr("Swap Buttons")
                     spacing: 0
                     bottomPadding: 0
