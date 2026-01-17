@@ -788,7 +788,7 @@ Page {
                         color: "white"
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Zwift Click")
                         spacing: 0
                         bottomPadding: 0
@@ -804,7 +804,7 @@ Page {
                         onClicked: { settings.zwift_click = checked;  }
                     }
 
-                    SwitchDelegate {
+                    IndicatorOnlySwitch {
                         text: qsTr("Zwift Play")
                         spacing: 0
                         bottomPadding: 0
