@@ -368,6 +368,80 @@ The ProForm 995i implementation serves as the reference example:
 - Test device detection thoroughly using the existing test infrastructure
 - Consider platform differences when adding new features
 
+## Adding ProForm Bike Models
+
+This section documents the process for adding new ProForm bike models to the `proformbike` class.
+
+### Protocol Overview
+
+ProForm bikes use a proprietary Bluetooth protocol similar to NordicTrack iFit devices. The protocol consists of:
+- **Initialization sequence**: Device-specific frames sent during connection
+- **Polling cycle**: Repeating sequence of frames sent periodically
+- **Resistance commands**: Frames to change bike resistance (each model has unique frames)
+
+### Key Implementation Points
+
+1. **Frame extraction**: Use `tshark` to extract frames from `btsnoop_hci.log`
+2. **BLE header removal**: Remove exactly 11 bytes from each frame before use
+3. **Resistance mapping**: QZ internal levels (e.g., 1-10) map to physical resistance values
+4. **Unique resistance packets**: Each ProForm bike model has different resistance packets
+
+### Example: ProForm 325 CSX PFEX439210INT.0
+
+**Resistance Mapping** (10 QZ levels):
+- QZ Level 1 → Physical Resistance 4
+- QZ Level 2 → Physical Resistance 6
+- ...
+- QZ Level 10 → Physical Resistance 22
+
+The iFit app changes resistance from 4 to 22 in increments of 2, mapping to 10 QZ internal levels.
+
+## Adding ESLinker/Treadmill Linker Devices
+
+The `eslinkertreadmill` class supports multiple treadmill variants using a type enum system.
+
+### Supported Protocol Types
+
+```cpp
+typedef enum TYPE {
+    RHYTHM_FUN = 0,
+    CADENZA_FITNESS_T45 = 1,
+    YPOO_MINI_CHANGE = 2,
+    COSTAWAY = 3,
+    ESANGLINKER = 4,
+    TREADMILL_LINKER = 5,    // Similar to ESANGLINKER but uses km/h instead of mph
+} TYPE;
+```
+
+### Key Protocol Differences
+
+| Feature | ESANGLINKER | TREADMILL_LINKER |
+|---------|-------------|------------------|
+| Speed units | mph (multiply by 0.621371) | km/h (no conversion) |
+| minStepSpeed | 0.160934 (0.1 mi) | 0.1 (km/h) |
+| Initialization | 13 frames with handshake/pairing | 6 frames with pairing |
+
+### Adding a New Variant
+
+1. **Add enum type** to `eslinkertreadmill.h`
+2. **Add device name detection** in `deviceDiscovered()` and `bluetooth.cpp`
+3. **Implement btinit()** with device-specific initialization frames
+4. **Implement forceSpeed()** - verify if device uses mph or km/h
+5. **Update characteristicChanged()** parser for telemetry data
+6. **Update helper functions** (`minStepSpeed()`, `updateDisplay()`)
+
+### Common Frame Patterns
+
+Frames starting with `0xa9`:
+- `0xa9 0xf2`: Initialization/wakeup
+- `0xa9 0x08`: Pairing/handshake
+- `0xa9 0x01`: Speed command
+- `0xa9 0xa0`: Polling/keep-alive
+- `0xa9 0xa3`: Start/stop command
+- `0xa9 0xe0`: Telemetry data
+
+**Checksum**: Most commands use XOR checksum as last byte
+
 ## Additional Memories
 
 - When adding a new setting in QML (setting-tiles.qml), you must:

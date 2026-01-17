@@ -134,8 +134,8 @@ void eslinkertreadmill::updateDisplay(uint16_t elapsed) {
 
         writeCharacteristic(display, sizeof(display),
                             QStringLiteral("updateDisplay elapsed=") + QString::number(elapsed), false, false);
-    } else if (treadmill_type == ESANGLINKER){
-
+    } else if (treadmill_type == ESANGLINKER || treadmill_type == TREADMILL_LINKER){
+        // No updateDisplay needed for ESANGLINKER and TREADMILL_LINKER
     }
 }
 
@@ -190,6 +190,17 @@ void eslinkertreadmill::forceSpeed(double requestSpeed) {
         writeCharacteristic(display, sizeof(display),
                             QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, true);
 
+    } else if(treadmill_type == TREADMILL_LINKER) {
+        // Treadmill Linker uses km/h directly (no mph conversion)
+        uint8_t display[] = {0xa9, 0x01, 0x01, 0x0b, 0x00};
+        display[3] = (int)qRound(requestSpeed * 10);
+        for (int i = 0; i < 4; i++) {
+            display[4] = display[4] ^ display[i];
+        }
+
+        writeCharacteristic(display, sizeof(display),
+                            QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, true);
+
     }
 }
 
@@ -233,7 +244,7 @@ void eslinkertreadmill::update() {
         }
 
         if (treadmill_type == TYPE::RHYTHM_FUN || treadmill_type == TYPE::YPOO_MINI_CHANGE ||
-            treadmill_type == TYPE::COSTAWAY || treadmill_type == TYPE::ESANGLINKER) {
+            treadmill_type == TYPE::COSTAWAY || treadmill_type == TYPE::ESANGLINKER || treadmill_type == TYPE::TREADMILL_LINKER) {
 
             if (requestSpeed != -1) {
                 if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
@@ -351,7 +362,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     emit packetReceived();
 
-    if(treadmill_type == TYPE::ESANGLINKER) {
+    if(treadmill_type == TYPE::ESANGLINKER || treadmill_type == TYPE::TREADMILL_LINKER) {
         if((uint8_t)newValue.at(0) == 0xa9 && (uint8_t)newValue.at(1) == 0x08 && (uint8_t)newValue.at(2) == 0x04) { // pair request
             lastPairFrame = newValue;
             qDebug() << "lastPairFrame" << lastPairFrame;
@@ -467,7 +478,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     if ((newValue.length() != 17 && (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE))) {
 
-    } else if (newValue.length() != 5 && (treadmill_type == COSTAWAY || treadmill_type == TYPE::ESANGLINKER)) {
+    } else if (newValue.length() != 5 && (treadmill_type == COSTAWAY || treadmill_type == TYPE::ESANGLINKER || treadmill_type == TYPE::TREADMILL_LINKER)) {
 
     } else if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
         double speed = GetSpeedFromPacket(value);
@@ -505,12 +516,18 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             lastSpeed = speed;
             lastInclination = incline;
         }
-    } else if (treadmill_type == COSTAWAY || (treadmill_type == TYPE::ESANGLINKER && (uint8_t)newValue.at(1) == 0xe0)) {
-        const double miles = 1.60934;
-        if(((uint8_t)newValue.at(3)) == 0xFF && treadmill_type == COSTAWAY)
-            Speed = 0;
-        else
-            Speed = (double)((uint8_t)newValue.at(3)) / 10.0 * miles;
+    } else if (treadmill_type == COSTAWAY || (treadmill_type == TYPE::ESANGLINKER && (uint8_t)newValue.at(1) == 0xe0) ||
+               (treadmill_type == TYPE::TREADMILL_LINKER && (uint8_t)newValue.at(1) == 0xe0)) {
+        if(treadmill_type == TREADMILL_LINKER) {
+            // Treadmill Linker uses km/h directly (no miles conversion)
+            Speed = (double)((uint8_t)newValue.at(3)) / 10.0;
+        } else {
+            const double miles = 1.60934;
+            if(((uint8_t)newValue.at(3)) == 0xFF && treadmill_type == COSTAWAY)
+                Speed = 0;
+            else
+                Speed = (double)((uint8_t)newValue.at(3)) / 10.0 * miles;
+        }
         Inclination = 0; // this treadmill doesn't have inclination
         emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
     }
@@ -627,6 +644,38 @@ void eslinkertreadmill::btinit(bool startTape) {
 
         uint8_t initData13[] = {0xa9, 0xae, 0x01, 0xfe, 0xf8};
         writeCharacteristic(initData13, sizeof(initData13), QStringLiteral("init"), false, true);
+
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("Init completed, you can use the treadmill now!");
+
+    } else if (treadmill_type == TREADMILL_LINKER) {
+        // Treadmill Linker initialization sequence (similar to ESANGLINKER but with differences)
+        uint8_t initData1[] = {0xa9, 0xf2, 0x01, 0x2f, 0x75};
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+
+        waitForPairPacket();
+
+        QThread::sleep(1);
+
+        // Repeat initData1
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+
+        QThread::sleep(1);
+
+        uint8_t initData2[] = {0xa9, 0x1e, 0x01, 0xfe, 0x48};
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+
+        uint8_t initData3[] = {0xa9, 0x0a, 0x01, 0xd5, 0x77};
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+
+        uint8_t initData4[] = {0xa9, 0xae, 0x01, 0xfe, 0xf8};
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+
+        uint8_t initData5[] = {0xa9, 0x9e, 0x01, 0xfe, 0xc8};
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+
+        uint8_t initData6[] = {0xa9, 0xa3, 0x01, 0x01, 0x0a};
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
 
         if(homeform::singleton())
             homeform::singleton()->setToastRequested("Init completed, you can use the treadmill now!");
@@ -804,6 +853,9 @@ void eslinkertreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if(device.name().toUpper().startsWith(QStringLiteral("ESANGLINKER"))) {
             treadmill_type = ESANGLINKER;
             qDebug() << "ESANGLINKER workaround ENABLED!";
+        } else if(device.name().toUpper().startsWith(QStringLiteral("TREADMILL LINKER"))) {
+            treadmill_type = TREADMILL_LINKER;
+            qDebug() << "TREADMILL LINKER detected!";
         } else if (eslinker_cadenza) {
             treadmill_type = CADENZA_FITNESS_T45;
         } else if (eslinker_ypoo) {
@@ -918,6 +970,8 @@ void eslinkertreadmill::waitForHandshakePacket() {
 double eslinkertreadmill::minStepSpeed() {
     if(treadmill_type == ESANGLINKER)
         return 0.160934;  // 0.1 mi
+    else if(treadmill_type == TREADMILL_LINKER)
+        return 0.1;  // 0.1 km/h
     else
         return 0.5;
 }
