@@ -1732,6 +1732,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             max_resistance = 32;
             resistance_lvl_mode = true;
             ergModeSupported = false;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("RAVE"))) {
+            qDebug() << QStringLiteral("Zipro Rave found");
+            max_resistance = 32;
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
         } else if ((bluetoothDevice.name().toUpper().startsWith("TITAN 7000"))) {
             qDebug() << QStringLiteral("Titan 7000 found");
             TITAN_7000 = true;
