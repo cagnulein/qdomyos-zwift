@@ -71,6 +71,7 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx, BLUETOOTH_
     gpx_point pP = this->points.constFirst();
 
     if (treadmill_force_speed) {
+        double totDistance = 0;
 
         // starting point
         gpx_altitude_point_for_treadmill g;
@@ -97,6 +98,7 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx, BLUETOOTH_
             gpx_altitude_point_for_treadmill g;
             g.seconds = this->points.constFirst().time.secsTo(pP.time);
             g.distance = distance / 1000.0;
+            totDistance += g.distance;
             g.speed = (distance / 1000.0) * (3600 / dT);
             g.inclination = (elevation / distance) * 100;
             g.elevation = this->points.at(i).p.altitude();
@@ -104,6 +106,7 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx, BLUETOOTH_
             g.longitude = pP.p.longitude();
             inclinationList.append(g);
         }
+        this->totalDistance = totDistance;
     }
     if (inclinationList.empty()) {
         gpx_point pP = this->points.constFirst();
@@ -151,6 +154,7 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx, BLUETOOTH_
              << g.longitude << totDistance << pP.time;*/
             inclinationList.append(g);
         }
+        this->totalDistance = totDistance;
     }
 
     return inclinationList;

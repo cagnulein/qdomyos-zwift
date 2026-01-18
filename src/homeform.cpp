@@ -8153,6 +8153,7 @@ void homeform::gpxpreview_open_clicked(const QUrl &fileName) {
         }
         pathController.setGeoPath(gpx_preview);
         pathController.setCenter(gpx_preview.center());
+        pathController.setDistance(g.getTotalDistance());
     }
 }
 
