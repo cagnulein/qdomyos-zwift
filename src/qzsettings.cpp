@@ -632,6 +632,10 @@ const QString QZSettings::sole_elliptical_inclination = QStringLiteral("sole_ell
 const QString QZSettings::proform_hybrid_trainer_xt = QStringLiteral("proform_hybrid_trainer_xt");
 const QString QZSettings::gears_restore_value = QStringLiteral("gears_restore_value");
 const QString QZSettings::gears_current_value = QStringLiteral("gears_current_value_f");
+const QString QZSettings::ios_volume_gears_sync = QStringLiteral("ios_volume_gears_sync");
+const QString QZSettings::ios_volume_gears_range = QStringLiteral("ios_volume_gears_range");
+const QString QZSettings::ios_volume_gears_min = QStringLiteral("ios_volume_gears_min");
+const QString QZSettings::ios_volume_gears_max = QStringLiteral("ios_volume_gears_max");
 const QString QZSettings::tile_pace_last500m_enabled = QStringLiteral("tile_pace_last500m_enabled");
 const QString QZSettings::tile_pace_last500m_order = QStringLiteral("tile_pace_last500m_order");
 const QString QZSettings::treadmill_difficulty_gain_or_offset = QStringLiteral("treadmill_difficulty_gain_or_offset");
@@ -1047,7 +1051,7 @@ const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandik
 const QString QZSettings::trainprogram_auto_lap_on_segment = QStringLiteral("trainprogram_auto_lap_on_segment");
 
 
-const uint32_t allSettingsCount = 853;
+const uint32_t allSettingsCount = 857;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1559,6 +1563,10 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt},
     {QZSettings::gears_restore_value, QZSettings::default_gears_restore_value},
     {QZSettings::gears_current_value, QZSettings::default_gears_current_value},
+    {QZSettings::ios_volume_gears_sync, QZSettings::default_ios_volume_gears_sync},
+    {QZSettings::ios_volume_gears_range, QZSettings::default_ios_volume_gears_range},
+    {QZSettings::ios_volume_gears_min, QZSettings::default_ios_volume_gears_min},
+    {QZSettings::ios_volume_gears_max, QZSettings::default_ios_volume_gears_max},
     {QZSettings::tile_pace_last500m_enabled, QZSettings::default_tile_pace_last500m_enabled},
     {QZSettings::tile_pace_last500m_order, QZSettings::default_tile_pace_last500m_order},
     {QZSettings::treadmill_difficulty_gain_or_offset, QZSettings::default_treadmill_difficulty_gain_or_offset},

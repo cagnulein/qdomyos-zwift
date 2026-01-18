@@ -995,7 +995,34 @@ void homeform::volumeUp() {
     if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == TREADMILL) {
         Plus(QStringLiteral("speed"));
     } else if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
+#ifdef Q_OS_IOS
+        // iOS Volume Gears Range mapping
+        if (settings.value(QZSettings::ios_volume_gears_range, QZSettings::default_ios_volume_gears_range).toBool()) {
+            double currentVolume = lockscreen::getVolume();
+            int volumeLevel = qRound(currentVolume * 16.0); // iOS has 17 levels: 0-16
+            double minGear = settings.value(QZSettings::ios_volume_gears_min, QZSettings::default_ios_volume_gears_min).toDouble();
+            double maxGear = settings.value(QZSettings::ios_volume_gears_max, QZSettings::default_ios_volume_gears_max).toDouble();
+
+            // Map volume level (0-16) to gear range (min-max)
+            double mappedGear = minGear + (volumeLevel / 16.0) * (maxGear - minGear);
+
+            qDebug() << "iOS Volume Gears Range: volume =" << currentVolume
+                     << "level =" << volumeLevel
+                     << "mapped gear =" << mappedGear;
+
+            if (bluetoothManager->device()->deviceType() == BIKE) {
+                ((bike *)bluetoothManager->device())->setGears(mappedGear);
+            } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
+                ((elliptical *)bluetoothManager->device())->setGears(mappedGear);
+            } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                ((rower *)bluetoothManager->device())->setGears(mappedGear);
+            }
+        } else {
+            Plus(QStringLiteral("gears"));
+        }
+#else
         Plus(QStringLiteral("gears"));
+#endif
     }
 }
 
@@ -1005,7 +1032,34 @@ void homeform::volumeDown() {
     if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == TREADMILL) {
         Minus(QStringLiteral("speed"));
     } else if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
+#ifdef Q_OS_IOS
+        // iOS Volume Gears Range mapping
+        if (settings.value(QZSettings::ios_volume_gears_range, QZSettings::default_ios_volume_gears_range).toBool()) {
+            double currentVolume = lockscreen::getVolume();
+            int volumeLevel = qRound(currentVolume * 16.0); // iOS has 17 levels: 0-16
+            double minGear = settings.value(QZSettings::ios_volume_gears_min, QZSettings::default_ios_volume_gears_min).toDouble();
+            double maxGear = settings.value(QZSettings::ios_volume_gears_max, QZSettings::default_ios_volume_gears_max).toDouble();
+
+            // Map volume level (0-16) to gear range (min-max)
+            double mappedGear = minGear + (volumeLevel / 16.0) * (maxGear - minGear);
+
+            qDebug() << "iOS Volume Gears Range: volume =" << currentVolume
+                     << "level =" << volumeLevel
+                     << "mapped gear =" << mappedGear;
+
+            if (bluetoothManager->device()->deviceType() == BIKE) {
+                ((bike *)bluetoothManager->device())->setGears(mappedGear);
+            } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
+                ((elliptical *)bluetoothManager->device())->setGears(mappedGear);
+            } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                ((rower *)bluetoothManager->device())->setGears(mappedGear);
+            }
+        } else {
+            Minus(QStringLiteral("gears"));
+        }
+#else
         Minus(QStringLiteral("gears"));
+#endif
     }
 }
 
@@ -4098,6 +4152,24 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
         }
 
     }
+
+#ifdef Q_OS_IOS
+    // iOS Volume Gears Sync on startup
+    if (settings.value(QZSettings::ios_volume_gears_sync, QZSettings::default_ios_volume_gears_sync).toBool()) {
+        double currentVolume = lockscreen::getVolume();
+        int volumeLevel = qRound(currentVolume * 16.0); // iOS has 17 levels: 0-16
+        qDebug() << "iOS Volume Gears Sync: current volume =" << currentVolume
+                 << "level =" << volumeLevel;
+
+        if (bluetoothManager->device()->deviceType() == BIKE) {
+            ((bike *)bluetoothManager->device())->setGears(volumeLevel);
+        } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
+            ((elliptical *)bluetoothManager->device())->setGears(volumeLevel);
+        } else if (bluetoothManager->device()->deviceType() == ROWING) {
+            ((rower *)bluetoothManager->device())->setGears(volumeLevel);
+        }
+    }
+#endif
 }
 
 void homeform::deviceFound(const QString &name) {

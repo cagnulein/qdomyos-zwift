@@ -1770,6 +1770,18 @@ class QZSettings {
     static const QString gears_current_value;
     static constexpr double default_gears_current_value = 0;
 
+    static const QString ios_volume_gears_sync;
+    static constexpr bool default_ios_volume_gears_sync = false;
+
+    static const QString ios_volume_gears_range;
+    static constexpr bool default_ios_volume_gears_range = false;
+
+    static const QString ios_volume_gears_min;
+    static constexpr double default_ios_volume_gears_min = 1.0;
+
+    static const QString ios_volume_gears_max;
+    static constexpr double default_ios_volume_gears_max = 24.0;
+
     static const QString tile_pace_last500m_enabled;
     static constexpr bool default_tile_pace_last500m_enabled = true;
 
