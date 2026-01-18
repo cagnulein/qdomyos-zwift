@@ -8151,9 +8151,10 @@ void homeform::gpxpreview_open_clicked(const QUrl &fileName) {
         for (const auto &p : g_list) {
             gpx_preview.addCoordinate(QGeoCoordinate(p.latitude, p.longitude, p.elevation));
         }
+        // Set distance BEFORE setGeoPath to ensure QML onGeopathChanged has correct value
+        pathController.setDistance(g.getTotalDistance());
         pathController.setGeoPath(gpx_preview);
         pathController.setCenter(gpx_preview.center());
-        pathController.setDistance(g.getTotalDistance());
     }
 }
 
