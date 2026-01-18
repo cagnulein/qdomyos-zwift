@@ -998,7 +998,7 @@ void homeform::volumeUp() {
 #ifdef Q_OS_IOS
         // iOS Volume Gears Range mapping
         if (settings.value(QZSettings::ios_volume_gears_range, QZSettings::default_ios_volume_gears_range).toBool()) {
-            double currentVolume = lockscreen::getVolume();
+            double currentVolume = h->getVolume();
             int volumeLevel = qRound(currentVolume * 16.0); // iOS has 17 levels: 0-16
             double minGear = settings.value(QZSettings::ios_volume_gears_min, QZSettings::default_ios_volume_gears_min).toDouble();
             double maxGear = settings.value(QZSettings::ios_volume_gears_max, QZSettings::default_ios_volume_gears_max).toDouble();
@@ -1035,7 +1035,7 @@ void homeform::volumeDown() {
 #ifdef Q_OS_IOS
         // iOS Volume Gears Range mapping
         if (settings.value(QZSettings::ios_volume_gears_range, QZSettings::default_ios_volume_gears_range).toBool()) {
-            double currentVolume = lockscreen::getVolume();
+            double currentVolume = h->getVolume();
             int volumeLevel = qRound(currentVolume * 16.0); // iOS has 17 levels: 0-16
             double minGear = settings.value(QZSettings::ios_volume_gears_min, QZSettings::default_ios_volume_gears_min).toDouble();
             double maxGear = settings.value(QZSettings::ios_volume_gears_max, QZSettings::default_ios_volume_gears_max).toDouble();
@@ -4156,7 +4156,7 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
 #ifdef Q_OS_IOS
     // iOS Volume Gears Sync on startup
     if (settings.value(QZSettings::ios_volume_gears_sync, QZSettings::default_ios_volume_gears_sync).toBool()) {
-        double currentVolume = lockscreen::getVolume();
+        double currentVolume = h->getVolume();
         int volumeLevel = qRound(currentVolume * 16.0); // iOS has 17 levels: 0-16
         qDebug() << "iOS Volume Gears Sync: current volume =" << currentVolume
                  << "level =" << volumeLevel;
