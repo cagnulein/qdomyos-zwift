@@ -304,7 +304,6 @@
 		87646C2227B5065100F82131 /* moc_bhfitnesselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87646C2127B5065100F82131 /* moc_bhfitnesselliptical.cpp */; };
 		8767CA552DA3C1FD0003001F /* elitesquarecontroller.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA532DA3C1FD0003001F /* elitesquarecontroller.cpp */; };
 		8767CA562DA3C1FD0003001F /* moc_elitesquarecontroller.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA542DA3C1FD0003001F /* moc_elitesquarecontroller.cpp */; };
-		8767CA5D2DA7F5170003001F /* ios_wahookickrsnapbike.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA5C2DA7F5170003001F /* ios_wahookickrsnapbike.mm */; };
 		8767CA602DA800590003001F /* ios_zwiftclickremote.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA5F2DA800590003001F /* ios_zwiftclickremote.mm */; };
 		8767EF1E29448D6700810C0F /* characteristicwriteprocessor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767EF1D29448D6700810C0F /* characteristicwriteprocessor.cpp */; };
 		8768C8BA2BBC11C80099DBE1 /* file_sync_client.c in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8768C89C2BBC11C70099DBE1 /* file_sync_client.c */; };
@@ -1273,8 +1272,6 @@
 		8767CA522DA3C1FD0003001F /* elitesquarecontroller.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = elitesquarecontroller.h; path = ../src/devices/elitesquarecontroller/elitesquarecontroller.h; sourceTree = SOURCE_ROOT; };
 		8767CA532DA3C1FD0003001F /* elitesquarecontroller.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = elitesquarecontroller.cpp; path = ../src/devices/elitesquarecontroller/elitesquarecontroller.cpp; sourceTree = SOURCE_ROOT; };
 		8767CA542DA3C1FD0003001F /* moc_elitesquarecontroller.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_elitesquarecontroller.cpp; sourceTree = "<group>"; };
-		8767CA5B2DA7F5170003001F /* ios_wahookickrsnapbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_wahookickrsnapbike.h; path = ../src/ios/ios_wahookickrsnapbike.h; sourceTree = SOURCE_ROOT; };
-		8767CA5C2DA7F5170003001F /* ios_wahookickrsnapbike.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_wahookickrsnapbike.mm; path = ../src/ios/ios_wahookickrsnapbike.mm; sourceTree = SOURCE_ROOT; };
 		8767CA5E2DA800590003001F /* ios_zwiftclickremote.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_zwiftclickremote.h; path = ../src/ios/ios_zwiftclickremote.h; sourceTree = SOURCE_ROOT; };
 		8767CA5F2DA800590003001F /* ios_zwiftclickremote.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_zwiftclickremote.mm; path = ../src/ios/ios_zwiftclickremote.mm; sourceTree = SOURCE_ROOT; };
 		8767EF1D29448D6700810C0F /* characteristicwriteprocessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicwriteprocessor.cpp; path = ../src/characteristics/characteristicwriteprocessor.cpp; sourceTree = "<group>"; };
@@ -2376,8 +2373,6 @@
 				87F1BD702DC0D59600416506 /* moc_coresensor.cpp */,
 				8767CA5E2DA800590003001F /* ios_zwiftclickremote.h */,
 				8767CA5F2DA800590003001F /* ios_zwiftclickremote.mm */,
-				8767CA5B2DA7F5170003001F /* ios_wahookickrsnapbike.h */,
-				8767CA5C2DA7F5170003001F /* ios_wahookickrsnapbike.mm */,
 				87BFEA2D2CEDDEEE00BDD759 /* ios_echelonconnectsport.h */,
 				87BFEA2E2CEDDEEE00BDD759 /* ios_echelonconnectsport.mm */,
 				8767CA522DA3C1FD0003001F /* elitesquarecontroller.h */,
@@ -3894,7 +3889,6 @@
 				87EFB56E25BD703D0039DD5A /* proformtreadmill.cpp in Compile Sources */,
 				87DA8465284933D200B550E9 /* fakeelliptical.cpp in Compile Sources */,
 				876E50F52B701C050080FAAF /* moc_zwiftclickremote.cpp in Compile Sources */,
-				8767CA5D2DA7F5170003001F /* ios_wahookickrsnapbike.mm in Compile Sources */,
 				87FE5BAF2692F3130056EFC8 /* tacxneo2.cpp in Compile Sources */,
 				8718CBAC263063CE004BF4EE /* moc_tcpclientinfosender.cpp in Compile Sources */,
 				873824B527E64707004F1B46 /* moc_provider_p.cpp in Compile Sources */,
@@ -4579,7 +4573,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1251;
+				CURRENT_PROJECT_VERSION = 1257;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
@@ -4780,7 +4774,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1251;
+				CURRENT_PROJECT_VERSION = 1257;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 6335M7T29D;
@@ -5017,7 +5011,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1251;
+				CURRENT_PROJECT_VERSION = 1257;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -5113,7 +5107,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1251;
+				CURRENT_PROJECT_VERSION = 1257;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -5205,7 +5199,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1251;
+				CURRENT_PROJECT_VERSION = 1257;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
@@ -5321,7 +5315,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1251;
+				CURRENT_PROJECT_VERSION = 1257;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
@@ -5431,7 +5425,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = QZWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1251;
+				CURRENT_PROJECT_VERSION = 1257;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -5522,7 +5516,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = QZWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1251;
+				CURRENT_PROJECT_VERSION = 1257;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_NS_ASSERTIONS = NO;

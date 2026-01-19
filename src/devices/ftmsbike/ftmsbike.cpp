@@ -587,6 +587,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         flags Flags;
         int index = 0;
+
+        // potential bug, a casting to uint8 is required for the single byte values to avoid negative values
         Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
         index += 2;
 
@@ -1182,8 +1184,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         if (Flags.expEnergy && newValue.length() > index + 1) {
-            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint16_t)((uint8_t)newValue.at(index))));
+            /*KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));*/
             index += 2;
 
             // energy per hour
@@ -1191,16 +1193,16 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
             // energy per minute
             index += 1;
-        } else {
-            if (watts())
-                KCal += ((((0.048 * ((double)watts()) + 1.19) *
-                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                          200.0) /
-                         (60000.0 /
-                          ((double)lastRefreshCharacteristicChanged2ACE.msecsTo(
-                              now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                // kg * 3.5) / 200 ) / 60
         }
+
+        if (watts())
+            KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                        settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                        200.0) /
+                        (60000.0 /
+                        ((double)lastRefreshCharacteristicChanged2ACE.msecsTo(
+                            now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                            // kg * 3.5) / 200 ) / 60
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 

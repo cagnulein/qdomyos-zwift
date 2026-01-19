@@ -622,6 +622,9 @@ class QZSettings {
     static const QString heart_max_override_value;
     static constexpr float default_heart_max_override_value = 195.0;
 
+    static const QString heart_rate_resting;
+    static constexpr uint8_t default_heart_rate_resting = 60;
+
     static const QString peloton_gain;
     static constexpr float default_peloton_gain = 1.0;
 
@@ -811,6 +814,12 @@ class QZSettings {
     static const QString flywheel_life_fitness_ic8;
     static constexpr bool default_flywheel_life_fitness_ic8 = false;
 
+    static const QString life_fitness_ic5;
+    static constexpr bool default_life_fitness_ic5 = false;
+
+    static const QString technogym_bike;
+    static constexpr bool default_technogym_bike = false;
+
     static const QString sole_treadmill_inclination;
     static constexpr bool default_sole_treadmill_inclination = false;
 
@@ -885,6 +894,9 @@ class QZSettings {
 
     static const QString power_avg_5s;
     static constexpr bool default_power_avg_5s = false;
+
+    static const QString power_avg_3s;
+    static constexpr bool default_power_avg_3s = false;
 
     static const QString instant_power_on_pause;
     static constexpr bool default_instant_power_on_pause = false;
@@ -2778,6 +2790,18 @@ class QZSettings {
      */
     static const QString tile_auto_virtual_shifting_sprint_order;
     static constexpr int default_tile_auto_virtual_shifting_sprint_order = 57;
+
+    /**
+     * @brief Enable power averaging tile
+     */
+    static const QString tile_power_avg_enabled;
+    static constexpr bool default_tile_power_avg_enabled = false;
+
+    /**
+     * @brief Order of power averaging tile
+     */
+    static const QString tile_power_avg_order;
+    static constexpr int default_tile_power_avg_order = 77;
 
     /**
      * @brief Enable negative inclination tile
