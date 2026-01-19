@@ -130,8 +130,12 @@ enum {
             }                                                                                                          \
         }                                                                                                              \
         if (P2.size()) {                                                                                               \
-            QString dircon_id = QString("%1").arg(settings.value(QZSettings::dircon_id,                                \
-            QZSettings::default_dircon_id).toInt(), rouvy_compatibility ? 5 : 4, 10, QChar('0'));                     \
+            int dircon_id_int = settings.value(QZSettings::dircon_id,                                                  \
+            QZSettings::default_dircon_id).toInt();                                                                    \
+            if (rouvy_compatibility && dircon_id_int == 0) {                                                           \
+                dircon_id_int = 1234;                                                                                  \
+            }                                                                                                          \
+            QString dircon_id = QString("%1").arg(dircon_id_int, rouvy_compatibility ? 5 : 4, 10, QChar('0'));         \
             DirconProcessor *processor = new DirconProcessor(                                                          \
                 P2,                                                                                                    \
                 QString(QStringLiteral(NAME))                                                                          \
@@ -152,6 +156,11 @@ QString DirconManager::getMacAddress() {
     QSettings settings;
     bool rouvy_compatibility = settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool();
     int dircon_id = settings.value(QZSettings::dircon_id, QZSettings::default_dircon_id).toInt();
+
+    // When Rouvy compatibility is enabled and dircon_id is 0, use 1234 instead
+    if (rouvy_compatibility && dircon_id == 0) {
+        dircon_id = 1234;
+    }
 
     // When Rouvy compatibility is enabled, use a specific MAC address with the last byte set to dircon_id
     if (rouvy_compatibility) {
