@@ -369,16 +369,35 @@ console.error('Error is ' + err);
               let high = maxFontSize;
               let bestFit = minFontSize;
 
+              // Count number of lines in the content
+              function countLines() {
+                  const html = metricsText.innerHTML;
+                  const brCount = (html.match(/<br>/gi) || []).length;
+                  return brCount + 1; // +1 for the first line
+              }
+
               // Check if content fits with current font size
               function contentFits() {
-                  // Force reflow multiple times
-                  void metricsText.offsetHeight;
-                  void metricsText.scrollHeight;
-                  void metricsText.clientHeight;
+                  // Force reflow
                   void metricsText.offsetHeight;
 
-                  // Check both vertical and horizontal fit - use <= to allow equal size
-                  const fitsVertically = metricsText.scrollHeight <= metricsText.clientHeight;
+                  // Get computed line height
+                  const computedStyle = window.getComputedStyle(metricsText);
+                  const lineHeight = parseFloat(computedStyle.lineHeight);
+
+                  // Calculate total height needed
+                  const numLines = countLines();
+                  const totalHeightNeeded = numLines * lineHeight;
+
+                  // Get available height (parent's clientHeight minus padding)
+                  const metricsDiv = metricsText.parentElement;
+                  const parentStyle = window.getComputedStyle(metricsDiv);
+                  const paddingTop = parseFloat(parentStyle.paddingTop);
+                  const paddingBottom = parseFloat(parentStyle.paddingBottom);
+                  const availableHeight = metricsDiv.clientHeight - paddingTop - paddingBottom;
+
+                  // Check if it fits
+                  const fitsVertically = totalHeightNeeded <= availableHeight;
                   const fitsHorizontally = metricsText.scrollWidth <= metricsText.clientWidth;
 
                   return fitsVertically && fitsHorizontally;
@@ -397,28 +416,8 @@ console.error('Error is ' + err);
                   }
               }
 
-              // Apply best fit minus small safety margin (1px) to ensure last line is always visible
-              const safeSize = Math.max(minFontSize, bestFit - 1);
-              metricsText.style.fontSize = safeSize + 'px';
-
-              // Final verification loop - keep reducing only if there's actual overflow
-              let iterations = 0;
-              while (iterations < 10) {
-                  void metricsText.offsetHeight;
-                  void metricsText.scrollHeight;
-                  void metricsText.offsetHeight;
-
-                  // Check for actual overflow - if scrollHeight is greater, we have overflow
-                  if (metricsText.scrollHeight <= metricsText.clientHeight &&
-                      metricsText.scrollWidth <= metricsText.clientWidth) {
-                      break; // All content fits
-                  }
-
-                  // Reduce font size and try again
-                  const currentSize = parseInt(metricsText.style.fontSize);
-                  metricsText.style.fontSize = Math.max(minFontSize, currentSize - 1) + 'px';
-                  iterations++;
-              }
+              // Apply the best fit size
+              metricsText.style.fontSize = bestFit + 'px';
           }
 
           // Debounced version of updateFontSize (only during resize)
