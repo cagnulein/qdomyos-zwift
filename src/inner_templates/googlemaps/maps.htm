@@ -374,12 +374,15 @@ console.error('Error is ' + err);
                   const mid = Math.floor((low + high) / 2);
                   metricsText.style.fontSize = mid + 'px';
 
-                  // Force reflow to ensure dimensions are updated
+                  // Force multiple reflows to ensure dimensions are fully updated
+                  void metricsText.offsetHeight;
+                  void metricsText.scrollHeight;
                   void metricsText.offsetHeight;
 
-                  // Check if text fits within the container
-                  const fitsVertically = metricsText.scrollHeight <= metricsText.clientHeight;
-                  const fitsHorizontally = metricsText.scrollWidth <= metricsText.clientWidth;
+                  // Check if text fits within the container with strict comparison
+                  // Need to account for sub-pixel rendering issues, so use a 1px tolerance
+                  const fitsVertically = metricsText.scrollHeight < metricsText.clientHeight + 1;
+                  const fitsHorizontally = metricsText.scrollWidth < metricsText.clientWidth + 1;
 
                   if (fitsVertically && fitsHorizontally) {
                       bestFit = mid;
@@ -391,6 +394,13 @@ console.error('Error is ' + err);
 
               // Apply the best fit size
               metricsText.style.fontSize = bestFit + 'px';
+
+              // Final verification - if content still overflows, reduce by 1px
+              void metricsText.offsetHeight;
+              if (metricsText.scrollHeight > metricsText.clientHeight ||
+                  metricsText.scrollWidth > metricsText.clientWidth) {
+                  metricsText.style.fontSize = Math.max(minFontSize, bestFit - 1) + 'px';
+              }
           }
 
           // Debounced version of updateFontSize (only during resize)
