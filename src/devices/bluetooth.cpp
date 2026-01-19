@@ -999,6 +999,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((((power_as_treadmill && b.name().startsWith(powerSensorName))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && (deviceHasService(b, QBluetoothUuid((quint16)0x1814)))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("S10")) && deviceHasService(b, QBluetoothUuid((quint16)0x1814))) ||
+						(b.name().toUpper().startsWith(QStringLiteral("NOHRD SPRINTBOK"))) ||
                         b.name().toUpper().startsWith(QStringLiteral("ZWIFT RUNPOD"))) &&
                        !powerTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
