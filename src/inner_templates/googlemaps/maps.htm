@@ -369,21 +369,44 @@ console.error('Error is ' + err);
               let high = maxFontSize;
               let bestFit = minFontSize;
 
+              // Count number of lines in the content
+              function getLineCount() {
+                  const content = metricsText.innerHTML;
+                  return (content.match(/<br>/gi) || []).length + 1;
+              }
+
+              // Measure actual height needed for all lines
+              function measureContentHeight() {
+                  // Create a temporary element to measure a single line
+                  const testLine = document.createElement('div');
+                  testLine.style.fontSize = metricsText.style.fontSize;
+                  testLine.style.lineHeight = window.getComputedStyle(metricsText).lineHeight;
+                  testLine.style.fontFamily = window.getComputedStyle(metricsText).fontFamily;
+                  testLine.style.position = 'absolute';
+                  testLine.style.visibility = 'hidden';
+                  testLine.style.whiteSpace = 'nowrap';
+                  testLine.innerHTML = '🏃Speed: 0.00'; // Sample line with emoji
+                  document.body.appendChild(testLine);
+                  const lineHeight = testLine.offsetHeight;
+                  document.body.removeChild(testLine);
+
+                  const lineCount = getLineCount();
+                  return lineHeight * lineCount;
+              }
+
               // Binary search for the maximum font size that fits
               while (low <= high) {
                   const mid = Math.floor((low + high) / 2);
                   metricsText.style.fontSize = mid + 'px';
 
-                  // Force multiple reflows to ensure dimensions are fully updated
-                  void metricsText.offsetHeight;
-                  void metricsText.scrollHeight;
+                  // Force reflow
                   void metricsText.offsetHeight;
 
-                  // Check if text fits within the container - must be strictly less
-                  const fitsVertically = metricsText.scrollHeight <= metricsText.clientHeight;
+                  const estimatedHeight = measureContentHeight();
+                  const availableHeight = metricsText.clientHeight;
                   const fitsHorizontally = metricsText.scrollWidth <= metricsText.clientWidth;
 
-                  if (fitsVertically && fitsHorizontally) {
+                  if (estimatedHeight <= availableHeight && fitsHorizontally) {
                       bestFit = mid;
                       low = mid + 1; // Try larger
                   } else {
@@ -398,11 +421,12 @@ console.error('Error is ' + err);
               let iterations = 0;
               while (iterations < 10) {
                   void metricsText.offsetHeight;
-                  void metricsText.scrollHeight;
-                  void metricsText.offsetHeight;
 
-                  if (metricsText.scrollHeight <= metricsText.clientHeight &&
-                      metricsText.scrollWidth <= metricsText.clientWidth) {
+                  const estimatedHeight = measureContentHeight();
+                  const availableHeight = metricsText.clientHeight;
+                  const fitsHorizontally = metricsText.scrollWidth <= metricsText.clientWidth;
+
+                  if (estimatedHeight <= availableHeight && fitsHorizontally) {
                       break; // All content fits
                   }
 
