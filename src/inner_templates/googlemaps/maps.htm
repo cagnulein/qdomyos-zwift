@@ -369,29 +369,19 @@ console.error('Error is ' + err);
               let high = maxFontSize;
               let bestFit = minFontSize;
 
-              // Count number of lines in the content
-              function getLineCount() {
-                  const content = metricsText.innerHTML;
-                  return (content.match(/<br>/gi) || []).length + 1;
-              }
+              // Check if content fits with current font size
+              function contentFits() {
+                  // Force reflow multiple times
+                  void metricsText.offsetHeight;
+                  void metricsText.scrollHeight;
+                  void metricsText.clientHeight;
+                  void metricsText.offsetHeight;
 
-              // Measure actual height needed for all lines
-              function measureContentHeight() {
-                  // Create a temporary element to measure a single line
-                  const testLine = document.createElement('div');
-                  testLine.style.fontSize = metricsText.style.fontSize;
-                  testLine.style.lineHeight = window.getComputedStyle(metricsText).lineHeight;
-                  testLine.style.fontFamily = window.getComputedStyle(metricsText).fontFamily;
-                  testLine.style.position = 'absolute';
-                  testLine.style.visibility = 'hidden';
-                  testLine.style.whiteSpace = 'nowrap';
-                  testLine.innerHTML = '🏃Speed: 0.00'; // Sample line with emoji
-                  document.body.appendChild(testLine);
-                  const lineHeight = testLine.offsetHeight;
-                  document.body.removeChild(testLine);
+                  // Check both vertical and horizontal fit with strict comparison
+                  const fitsVertically = metricsText.scrollHeight < metricsText.clientHeight;
+                  const fitsHorizontally = metricsText.scrollWidth < metricsText.clientWidth;
 
-                  const lineCount = getLineCount();
-                  return lineHeight * lineCount;
+                  return fitsVertically && fitsHorizontally;
               }
 
               // Binary search for the maximum font size that fits
@@ -399,14 +389,7 @@ console.error('Error is ' + err);
                   const mid = Math.floor((low + high) / 2);
                   metricsText.style.fontSize = mid + 'px';
 
-                  // Force reflow
-                  void metricsText.offsetHeight;
-
-                  const estimatedHeight = measureContentHeight();
-                  const availableHeight = metricsText.clientHeight;
-                  const fitsHorizontally = metricsText.scrollWidth <= metricsText.clientWidth;
-
-                  if (estimatedHeight <= availableHeight && fitsHorizontally) {
+                  if (contentFits()) {
                       bestFit = mid;
                       low = mid + 1; // Try larger
                   } else {
@@ -414,25 +397,26 @@ console.error('Error is ' + err);
                   }
               }
 
-              // Apply the best fit size
-              metricsText.style.fontSize = bestFit + 'px';
+              // Apply best fit minus safety margin to ensure last line is always visible
+              const safeSize = Math.max(minFontSize, bestFit - 3);
+              metricsText.style.fontSize = safeSize + 'px';
 
-              // Final verification loop - keep reducing until no overflow
+              // Final verification loop - keep reducing until definitely no overflow
               let iterations = 0;
-              while (iterations < 10) {
+              while (iterations < 15) {
+                  void metricsText.offsetHeight;
+                  void metricsText.scrollHeight;
                   void metricsText.offsetHeight;
 
-                  const estimatedHeight = measureContentHeight();
-                  const availableHeight = metricsText.clientHeight;
-                  const fitsHorizontally = metricsText.scrollWidth <= metricsText.clientWidth;
-
-                  if (estimatedHeight <= availableHeight && fitsHorizontally) {
-                      break; // All content fits
+                  // Use strict less-than to ensure no overflow
+                  if (metricsText.scrollHeight < metricsText.clientHeight &&
+                      metricsText.scrollWidth < metricsText.clientWidth) {
+                      break; // All content definitely fits
                   }
 
                   // Reduce font size and try again
-                  bestFit = Math.max(minFontSize, bestFit - 1);
-                  metricsText.style.fontSize = bestFit + 'px';
+                  const currentSize = parseInt(metricsText.style.fontSize);
+                  metricsText.style.fontSize = Math.max(minFontSize, currentSize - 1) + 'px';
                   iterations++;
               }
           }
