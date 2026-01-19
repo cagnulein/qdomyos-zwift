@@ -329,6 +329,7 @@ console.error('Error is ' + err);
           let isDragging = false;
           let isResizing = false;
           let startX, startY, startLeft, startTop, startWidth, startHeight;
+          let resizeTimeout = null;
 
           // Load saved position and size
           function loadState() {
@@ -360,22 +361,43 @@ console.error('Error is ' + err);
               localStorage.setItem('metricsContainerState', JSON.stringify(state));
           }
 
-          // Update font size based on container dimensions
+          // Update font size using binary search to find maximum size that fits
           function updateFontSize() {
-              const width = container.offsetWidth;
-              const height = container.offsetHeight;
-              // Calculate font size: base size is 12px for 200x250 container
-              // Scale proportionally with the smaller dimension
-              const baseWidth = 200;
-              const baseHeight = 250;
-              const baseFontSize = 12;
+              const minFontSize = 6;
+              const maxFontSize = 48;
+              let low = minFontSize;
+              let high = maxFontSize;
+              let bestFit = minFontSize;
 
-              const scaleX = width / baseWidth;
-              const scaleY = height / baseHeight;
-              const scale = Math.min(scaleX, scaleY);
+              // Binary search for the maximum font size that fits
+              while (low <= high) {
+                  const mid = Math.floor((low + high) / 2);
+                  metricsText.style.fontSize = mid + 'px';
 
-              const newFontSize = Math.max(8, Math.min(24, baseFontSize * scale));
-              metricsText.style.fontSize = newFontSize + 'px';
+                  // Check if text fits within the container
+                  const fitsVertically = metricsText.scrollHeight <= metricsText.clientHeight;
+                  const fitsHorizontally = metricsText.scrollWidth <= metricsText.clientWidth;
+
+                  if (fitsVertically && fitsHorizontally) {
+                      bestFit = mid;
+                      low = mid + 1; // Try larger
+                  } else {
+                      high = mid - 1; // Try smaller
+                  }
+              }
+
+              // Apply the best fit size
+              metricsText.style.fontSize = bestFit + 'px';
+          }
+
+          // Debounced version of updateFontSize (only during resize)
+          function debouncedUpdateFontSize() {
+              if (resizeTimeout) {
+                  clearTimeout(resizeTimeout);
+              }
+              resizeTimeout = setTimeout(function() {
+                  updateFontSize();
+              }, 500);
           }
 
           // Get touch or mouse coordinates
@@ -429,7 +451,7 @@ console.error('Error is ' + err);
                   const newHeight = Math.max(100, startHeight + deltaY);
                   container.style.width = newWidth + 'px';
                   container.style.height = newHeight + 'px';
-                  updateFontSize();
+                  debouncedUpdateFontSize();
                   e.preventDefault();
               }
           }
@@ -438,6 +460,14 @@ console.error('Error is ' + err);
           function endDragOrResize(e) {
               if (isDragging || isResizing) {
                   saveState();
+                  // If we were resizing, clear pending timeout and update immediately
+                  if (isResizing) {
+                      if (resizeTimeout) {
+                          clearTimeout(resizeTimeout);
+                          resizeTimeout = null;
+                      }
+                      updateFontSize();
+                  }
               }
               isDragging = false;
               isResizing = false;
