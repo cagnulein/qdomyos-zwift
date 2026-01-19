@@ -379,10 +379,9 @@ console.error('Error is ' + err);
                   void metricsText.scrollHeight;
                   void metricsText.offsetHeight;
 
-                  // Check if text fits within the container with strict comparison
-                  // Need to account for sub-pixel rendering issues, so use a 1px tolerance
-                  const fitsVertically = metricsText.scrollHeight < metricsText.clientHeight + 1;
-                  const fitsHorizontally = metricsText.scrollWidth < metricsText.clientWidth + 1;
+                  // Check if text fits within the container - must be strictly less
+                  const fitsVertically = metricsText.scrollHeight <= metricsText.clientHeight;
+                  const fitsHorizontally = metricsText.scrollWidth <= metricsText.clientWidth;
 
                   if (fitsVertically && fitsHorizontally) {
                       bestFit = mid;
@@ -395,11 +394,22 @@ console.error('Error is ' + err);
               // Apply the best fit size
               metricsText.style.fontSize = bestFit + 'px';
 
-              // Final verification - if content still overflows, reduce by 1px
-              void metricsText.offsetHeight;
-              if (metricsText.scrollHeight > metricsText.clientHeight ||
-                  metricsText.scrollWidth > metricsText.clientWidth) {
-                  metricsText.style.fontSize = Math.max(minFontSize, bestFit - 1) + 'px';
+              // Final verification loop - keep reducing until no overflow
+              let iterations = 0;
+              while (iterations < 10) {
+                  void metricsText.offsetHeight;
+                  void metricsText.scrollHeight;
+                  void metricsText.offsetHeight;
+
+                  if (metricsText.scrollHeight <= metricsText.clientHeight &&
+                      metricsText.scrollWidth <= metricsText.clientWidth) {
+                      break; // All content fits
+                  }
+
+                  // Reduce font size and try again
+                  bestFit = Math.max(minFontSize, bestFit - 1);
+                  metricsText.style.fontSize = bestFit + 'px';
+                  iterations++;
               }
           }
 
