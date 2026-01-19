@@ -374,6 +374,9 @@ console.error('Error is ' + err);
                   const mid = Math.floor((low + high) / 2);
                   metricsText.style.fontSize = mid + 'px';
 
+                  // Force reflow to ensure dimensions are updated
+                  void metricsText.offsetHeight;
+
                   // Check if text fits within the container
                   const fitsVertically = metricsText.scrollHeight <= metricsText.clientHeight;
                   const fitsHorizontally = metricsText.scrollWidth <= metricsText.clientWidth;
