@@ -3333,7 +3333,9 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
          ((uint8_t)newValue.at(16)) == 0xFF && ((uint8_t)newValue.at(17)) == 0xFF &&
          ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF) ||
 
-        (((((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF)) && (proform_proshox2 || proform_595i_proshox2)))
+        (((((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF)) && 
+            (proform_proshox2 || proform_595i_proshox2 || proform_treadmill_sport_3_0))
+    )
     {
         return;
     }
@@ -3342,7 +3344,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     m_watts = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
 
     // for the proform_treadmill_se this field is the distance in meters ;)
-    if (m_watts > 3000 && !proform_treadmill_se && !nordictrack_s20i_treadmill && !nordictrack_tseries5_treadmill) {
+    if (m_watts > 3000 && !proform_treadmill_se && !nordictrack_s20i_treadmill && !nordictrack_tseries5_treadmill && !proform_treadmill_sport_3_0) {
         m_watts = 0;
     } else {
         if (!proform_cadence_lt) {
@@ -3373,7 +3375,19 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             }
         }
 
-        cadenceFromAppleWatch();
+        if(!cadenceFromAppleWatch() && Speed.value() > 0) {
+            bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                                    .toString()
+                                    .startsWith(QStringLiteral("Disabled"));
+            if (!hasPowerSensor) {
+                double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
+                if (calculatedCadence > 0) {
+                    evaluateStepCount();
+                    Cadence = calculatedCadence;
+                    emit debug(QStringLiteral("Current Cadence (calculated from speed): ") + QString::number(Cadence.value()));
+                }
+            }
+        }
 
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));

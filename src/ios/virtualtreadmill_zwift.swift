@@ -10,10 +10,10 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
 
 @objc public class virtualtreadmill_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerTreadmillZwift!
-    
-    @objc public init(garmin_bluetooth_compatibility: Bool) {
+
+    @objc public init(garmin_bluetooth_compatibility: Bool, bike_cadence_sensor: Bool) {
       super.init()
-        peripheralManager = BLEPeripheralManagerTreadmillZwift(garmin_bluetooth_compatibility: garmin_bluetooth_compatibility)
+        peripheralManager = BLEPeripheralManagerTreadmillZwift(garmin_bluetooth_compatibility: garmin_bluetooth_compatibility, bike_cadence_sensor: bike_cadence_sensor)
     }
     
     @objc public func updateHeartRate(HeartRate: UInt8)
@@ -56,6 +56,7 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
 
 class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate {
   private var garmin_bluetooth_compatibility: Bool = false
+  private var bike_cadence_sensor: Bool = false
   private var peripheralManager: CBPeripheralManager!
   let SwiftDebug = swiftDebug()
 
@@ -96,9 +97,10 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   private var notificationTimer: Timer! = nil
   //var delegate: BLEPeripheralManagerDelegate?
 
-  init(garmin_bluetooth_compatibility: Bool) {
+  init(garmin_bluetooth_compatibility: Bool, bike_cadence_sensor: Bool) {
     super.init()
       self.garmin_bluetooth_compatibility = garmin_bluetooth_compatibility
+      self.bike_cadence_sensor = bike_cadence_sensor
     peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
   }
   
@@ -351,23 +353,37 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     }
 
     func calculateTreadmillData() -> Data {
-        let flags0:UInt8 = 0x0E // include average speed
+        let flags0:UInt8 = bike_cadence_sensor ? 0x0C : 0x0E // old behavior (0x0C) vs new behavior with average speed (0x0E)
         let flagsMSO:UInt8 = 0x05 // HR (bit 0 of MSO) | ElapsedTime (bit 2 of MSO)
 
-        var avgSpeed: UInt16 = 0
-        if self.ElapsedTimeSeconds > 0 {
-            let distanceMeters = Double(self.CurrentDistance)
-            let kmh = (distanceMeters * 3.6) / Double(self.ElapsedTimeSeconds)
-            avgSpeed = UInt16(min(max(kmh * 100.0, 0), Double(UInt16.max)))
+        var treadmillData: [UInt8]
+
+        if bike_cadence_sensor {
+            // Old behavior: no average speed
+            treadmillData = [flags0, flagsMSO, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
+                            (UInt8)(self.CurrentDistance & 0xFF), (UInt8)((self.CurrentDistance >> 8) & 0xFF), (UInt8)((self.CurrentDistance >> 16) & 0xFF),
+                            (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
+                            (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
+                            self.heartRate,
+                            (UInt8)(self.ElapsedTimeSeconds & 0xFF), (UInt8)((self.ElapsedTimeSeconds >> 8) & 0xFF)]
+        } else {
+            // New behavior: include average speed
+            var avgSpeed: UInt16 = 0
+            if self.ElapsedTimeSeconds > 0 {
+                let distanceMeters = Double(self.CurrentDistance)
+                let kmh = (distanceMeters * 3.6) / Double(self.ElapsedTimeSeconds)
+                avgSpeed = UInt16(min(max(kmh * 100.0, 0), Double(UInt16.max)))
+            }
+
+            treadmillData = [flags0, flagsMSO, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
+                            (UInt8)(avgSpeed & 0xFF), (UInt8)((avgSpeed >> 8) & 0xFF),
+                            (UInt8)(self.CurrentDistance & 0xFF), (UInt8)((self.CurrentDistance >> 8) & 0xFF), (UInt8)((self.CurrentDistance >> 16) & 0xFF),
+                            (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
+                            (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
+                            self.heartRate,
+                            (UInt8)(self.ElapsedTimeSeconds & 0xFF), (UInt8)((self.ElapsedTimeSeconds >> 8) & 0xFF)]
         }
 
-        var treadmillData: [UInt8] = [flags0, flagsMSO, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
-                                      (UInt8)(avgSpeed & 0xFF), (UInt8)((avgSpeed >> 8) & 0xFF),
-                                      (UInt8)(self.CurrentDistance & 0xFF), (UInt8)((self.CurrentDistance >> 8) & 0xFF), (UInt8)((self.CurrentDistance >> 16) & 0xFF),
-                                      (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
-                                      (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
-                                      self.heartRate,
-                      (UInt8)(self.ElapsedTimeSeconds & 0xFF), (UInt8)((self.ElapsedTimeSeconds >> 8) & 0xFF)]
       let treadmillDataData = Data(bytes: &treadmillData, count: treadmillData.count)
       return treadmillDataData
     }

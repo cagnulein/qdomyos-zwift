@@ -3,6 +3,7 @@
 #include "keepawakehelper.h"
 #endif
 #include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualrower.h"
 #include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -189,7 +190,7 @@ void trxappgateusbrower::characteristicChanged(const QLowEnergyCharacteristic &c
         Cadence = ((newValue.at(8) - 1) * 99 + (newValue.at(9) - 1)) * cadence_gain + cadence_offset;
 
         // distance = (values[10] - 1) * 99 + (values[11] - 1)
-        Distance = (newValue.at(10) - 1) * 99 + (newValue.at(11) - 1);
+        Distance = ((newValue.at(10) - 1) * 99 + (newValue.at(11) - 1)) / 1000.0; // convert to km
 
         // calories = (values[12] - 1) * 99 + (values[13] - 1)
         KCal = (newValue.at(12) - 1) * 99 + (newValue.at(13) - 1);
@@ -345,28 +346,31 @@ void trxappgateusbrower::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &trxappgateusbrower::descriptorWritten);
 
-               // ******************************************* virtual treadmill init *************************************
+               // ******************************************* virtual rower init *************************************
         QSettings settings;
         if (!firstStateChanged && !this->hasVirtualDevice()) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike =
-                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
-                    .toBool();
+            bool virtual_device_rower =
+                settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
+            bool virtual_device_force_treadmill =
+                settings.value(QZSettings::virtual_device_force_treadmill, QZSettings::default_virtual_device_force_treadmill).toBool();
             if (virtual_device_enabled) {
-                if (!virtual_device_force_bike) {
+                if (virtual_device_force_treadmill) {
                     debug("creating virtual treadmill interface...");
                     auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &trxappgateusbrower::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &trxappgateusbrower::changeInclinationRequested);
                     this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
-                } else {
+                } else if (!virtual_device_rower) {
                     debug("creating virtual bike interface...");
-                    auto virtualBike = new virtualbike(this);
-                    connect(virtualBike, &virtualbike::changeInclination, this,
-                            &trxappgateusbrower::changeInclinationRequested);
-                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
+                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                } else {
+                    debug("creating virtual rower interface...");
+                    auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                    this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::PRIMARY);
                 }
                 firstStateChanged = 1;
             }

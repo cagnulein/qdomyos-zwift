@@ -258,6 +258,7 @@ gpx.cpp \
 devices/heartratebelt/heartratebelt.cpp \
 homefitnessbuddy.cpp \
 homeform.cpp \
+garminconnect.cpp \
 devices/horizongr7bike/horizongr7bike.cpp \
 devices/horizontreadmill/horizontreadmill.cpp \
 devices/iconceptbike/iconceptbike.cpp \
@@ -771,6 +772,7 @@ devices/flywheelbike/flywheelbike.h \
 devices/ftmsbike/ftmsbike.h \
 devices/heartratebelt/heartratebelt.h \
 homeform.h \
+garminconnect.h \
 devices/horizontreadmill/horizontreadmill.h \
 devices/inspirebike/inspirebike.h \
 ios/lockscreen.h \
@@ -1177,4 +1179,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.20.17
+VERSION = 2.20.21
