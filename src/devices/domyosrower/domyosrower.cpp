@@ -6,6 +6,8 @@
 #include "virtualdevices/virtualbike.h"
 #include "virtualdevices/virtualrower.h"
 #include "virtualdevices/virtualtreadmill.h"
+#include "homeform.h"
+#include "qzsettings.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -883,6 +885,18 @@ void domyosrower::serviceScanDone(void) {
         connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &domyosrower::stateChanged);
         gattCommunicationChannelService->discoverDetails();
     } else {
+        // Main service not found, check if FTMS service is available
+        QBluetoothUuid ftmsServiceId((quint16)0x1826);
+        QLowEnergyService *ftmsService = m_control->createServiceObject(ftmsServiceId);
+        if(ftmsService) {
+            QSettings settings;
+            settings.setValue(QZSettings::ftms_rower, bluetoothDevice.name());
+            qDebug() << "forcing FTMS rower since it has FTMS service but not the main domyos service";
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested("FTMS rower found, restart the app to apply the change");
+            delete ftmsService;
+        }
+
         ftmsRower = true;
         auto services_list = m_control->services();
         for (const QBluetoothUuid &s : qAsConst(services_list)) {
