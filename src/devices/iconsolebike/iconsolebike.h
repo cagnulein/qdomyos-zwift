@@ -88,6 +88,8 @@ class iconsolebike : public bike {
     // Resistance conversions
     double bikeResistanceToPeloton(double bikeResistance);
 
+    uint16_t watts() override;
+
   signals:
     void disconnected();
     void debug(QString string);

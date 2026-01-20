@@ -283,6 +283,14 @@ void iconsolebike::readSocket() {
     }
 }
 
+uint16_t iconsolebike::watts() {
+    if (currentCadence().value() == 0) {
+        return 0;
+    }
+
+    return m_watt.value();
+}
+
 void iconsolebike::update() {
     if (!socket || !socket->isOpen()) {
         emit disconnected();
