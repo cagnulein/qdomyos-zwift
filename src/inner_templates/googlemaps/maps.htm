@@ -18,6 +18,14 @@
       -webkit-user-select: none;
       -ms-user-select: none;
   }
+  body, html {
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: none;
+  }
   </style>
 </head>
 <body>
@@ -449,6 +457,7 @@ console.error('Error is ' + err);
               startTop = container.offsetTop;
               container.style.right = 'auto';
               container.style.bottom = 'auto';
+              e.stopPropagation();
               e.preventDefault();
           }
 
@@ -473,6 +482,7 @@ console.error('Error is ' + err);
                   const deltaY = coords.y - startY;
                   container.style.left = (startLeft + deltaX) + 'px';
                   container.style.top = (startTop + deltaY) + 'px';
+                  e.stopPropagation();
                   e.preventDefault();
               } else if (isResizing) {
                   const deltaX = coords.x - startX;
@@ -482,6 +492,7 @@ console.error('Error is ' + err);
                   container.style.width = newWidth + 'px';
                   container.style.height = newHeight + 'px';
                   debouncedUpdateFontSize();
+                  e.stopPropagation();
                   e.preventDefault();
               }
           }
@@ -509,11 +520,11 @@ console.error('Error is ' + err);
           });
           container.addEventListener('touchstart', function(e) {
               if (e.target !== resizeHandle) startDrag(e);
-          });
+          }, { passive: false });
 
           // Add event listeners for resizing (on resize handle)
           resizeHandle.addEventListener('mousedown', startResize);
-          resizeHandle.addEventListener('touchstart', startResize);
+          resizeHandle.addEventListener('touchstart', startResize, { passive: false });
 
           // Add global move and end listeners
           document.addEventListener('mousemove', handleMove);
