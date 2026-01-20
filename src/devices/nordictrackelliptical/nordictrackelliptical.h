@@ -89,8 +89,6 @@ class nordictrackelliptical : public elliptical {
     // SE7i frame-based initialization state management
     int se7i_init_state = 0;
     bool se7i_waiting_for_response = false;
-    int se7i_duplicate_count = 0;
-    QByteArray se7i_last_non_ff_packet;
     void se7i_send_next_frame();
 
 #ifdef Q_OS_IOS
