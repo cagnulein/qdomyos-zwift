@@ -1664,6 +1664,101 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     m_pelotonResistance = 100;
                     break;                   
                 }
+            } else if(proform_bike_325_csx_PFEX439210INT_0) {
+                switch ((uint8_t)newValue.at(11)) {
+                case 0:
+                case 1:
+                    Resistance = 1;
+                    m_pelotonResistance = 1;
+                    break;
+                case 3:
+                    Resistance = 2;
+                    m_pelotonResistance = 4;
+                    break;                 
+                case 5:
+                    Resistance = 3;
+                    m_pelotonResistance = 9;
+                    break;                 
+                case 6:
+                case 7:
+                    Resistance = 4;
+                    m_pelotonResistance = 13;
+                    break;                                  
+                case 8:
+                    Resistance = 5;
+                    m_pelotonResistance = 18;
+                    break;                  
+                case 0x0a:
+                    Resistance = 6;
+                    m_pelotonResistance = 23;
+                    break;                   
+                case 0x0c:
+                    Resistance = 7;
+                    m_pelotonResistance = 27;
+                    break;                  
+                case 0x0e:
+                    Resistance = 8;
+                    m_pelotonResistance = 32;
+                    break;                  
+                case 0x0f:
+                    Resistance = 9;
+                    m_pelotonResistance = 37;
+                    break;                  
+                case 0x11:
+                    Resistance = 10;
+                    m_pelotonResistance = 42;
+                    break;                  
+                case 0x13:
+                    Resistance = 11;
+                    m_pelotonResistance = 46;
+                    break;                  
+                case 0x15:
+                    Resistance = 12;
+                    m_pelotonResistance = 50;
+                    break;                  
+                case 0x16:
+                case 0x17:
+                    Resistance = 13;
+                    m_pelotonResistance = 55;
+                    break;                  
+                case 0x18:
+                    Resistance = 14;
+                    m_pelotonResistance = 59;
+                    break;                  
+                case 0x1a:
+                    Resistance = 15;
+                    m_pelotonResistance = 63;
+                    break;                  
+                case 0x1c:
+                    Resistance = 16;
+                    m_pelotonResistance = 68;
+                    break;                  
+                case 0x1e:
+                    Resistance = 17;
+                    m_pelotonResistance = 73;
+                    break;                  
+                case 0x1f:
+                    Resistance = 18;
+                    m_pelotonResistance = 77;
+                    break;                  
+                case 0x21:
+                    Resistance = 19;
+                    m_pelotonResistance = 82;
+                    break;                  
+                case 0x23:
+                    Resistance = 20;
+                    m_pelotonResistance = 86;
+                    break;                  
+                case 0x25:
+                    Resistance = 21;
+                    m_pelotonResistance = 90;
+                    break;                  
+                case 0x26:
+                case 0x27:
+                    Resistance = 22;
+                    m_pelotonResistance = 100;
+                    break;                 
+                }       
             } else if(proform_bike_325_csx) {
                 switch ((uint8_t)newValue.at(11)) {
                 case 0:
