@@ -58,6 +58,7 @@ class nordictrackifitadbbikeLogcatAdbThread : public QThread {
         QDateTime date;
         QString name;
     };
+    QProcess *logcatProcess = nullptr;
 
     void runAdbTailCommand(QString command);
 };

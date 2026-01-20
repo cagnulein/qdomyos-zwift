@@ -63,7 +63,52 @@ bool nordictrackifitadbbikeLogcatAdbThread::runCommand(QString command) {
 }
 
 void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
-#ifdef Q_OS_WINDOWS
+#ifdef Q_OS_ANDROID
+    // If process is already running, do nothing
+    if (logcatProcess && logcatProcess->state() == QProcess::Running) {
+        return;
+    }
+
+    // If process has terminated, cleanup
+    if (logcatProcess && logcatProcess->state() != QProcess::Running) {
+        logcatProcess->deleteLater();
+        logcatProcess = nullptr;
+    }
+
+    // If process doesn't exist, create it
+    if (!logcatProcess) {
+        logcatProcess = new QProcess;
+
+        QObject::connect(logcatProcess, &QProcess::readyReadStandardOutput, [this]() {
+            if (!logcatProcess) return;
+            QString output = logcatProcess->readAllStandardOutput();
+            // Log ALL logcat output via qDebug
+            qDebug() << "[LOGCAT]" << output;
+        });
+
+        QObject::connect(logcatProcess, &QProcess::readyReadStandardError, [this]() {
+            if (!logcatProcess) return;
+            auto output = logcatProcess->readAllStandardError();
+            qDebug() << "[LOGCAT_ERROR]" << output;
+        });
+
+        QObject::connect(logcatProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            [this](int exitCode, QProcess::ExitStatus exitStatus) {
+                qDebug() << "[LOGCAT] Process exited with code:" << exitCode << "status:" << exitStatus << "- will restart on next cycle";
+            });
+
+        qDebug() << "[LOGCAT] Starting logcat";
+        // Don't use waitForFinished() to keep the loop non-blocking
+        logcatProcess->start("logcat", QStringList());
+
+        if (!logcatProcess->waitForStarted(5000)) {
+            qDebug() << "[LOGCAT] Failed to start logcat process";
+            logcatProcess->deleteLater();
+            logcatProcess = nullptr;
+        }
+    }
+
+#elif defined Q_OS_WINDOWS
     auto process = new QProcess;
     QObject::connect(process, &QProcess::readyReadStandardOutput, [process, this]() {
         QString output = process->readAllStandardOutput();
@@ -96,12 +141,12 @@ void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
             emit onWatt(watt);
         if (hrmFound)
             emit onHRM(hrm);
-#ifdef Q_OS_WINDOWS        
+#ifdef Q_OS_WINDOWS
         if(adbCommandPending.length() != 0) {
             runAdbCommand(adbCommandPending);
             adbCommandPending = "";
         }
-#endif                                
+#endif
     });
     QObject::connect(process, &QProcess::readyReadStandardError, [process, this]() {
         auto output = process->readAllStandardError();
