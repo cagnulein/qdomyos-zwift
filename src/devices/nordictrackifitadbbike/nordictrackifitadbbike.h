@@ -10,6 +10,7 @@
 #endif
 #include <QtCore/qlist.h>
 #include <QtCore/qmutex.h>
+#include <QtCore/qprocess.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
