@@ -72,6 +72,7 @@ class eslinkertreadmill : public treadmill {
         YPOO_MINI_CHANGE = 2,    // Similar to RHYTHM_FUN but has no ascension
         COSTAWAY = 3,
         ESANGLINKER = 4,
+        TREADMILL_LINKER = 5,    // Similar to ESANGLINKER but uses km/h instead of mph
     } TYPE;
     volatile TYPE treadmill_type = RHYTHM_FUN;
 
