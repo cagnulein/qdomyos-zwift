@@ -690,7 +690,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             bool filter = true;
             if (!filterDevice.isEmpty() && !filterDevice.startsWith(QStringLiteral("Disabled"))) {
 
-                filter = (b.name().compare(filterDevice, Qt::CaseInsensitive) == 0);
+                filter = (b.name().contains(filterDevice, Qt::CaseInsensitive));
             }
             const QString deviceName = b.name();
             const QString upperDeviceName = deviceName.toUpper();
