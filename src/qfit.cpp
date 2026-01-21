@@ -386,13 +386,13 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     // Set training load in FIT file
     // Always set training_load_peak (Garmin uses this for acute training load)
     if (training_load > 0) {
-        sessionMesg.SetTrainingLoadPeak(training_load);
+        //sessionMesg.SetTrainingLoadPeak(training_load);
         qDebug() << "Setting training_load_peak in FIT file:" << training_load;
     }
     
     // For cycling with power, also set training_stress_score (TSS)
     if (has_tss) {
-        sessionMesg.SetTrainingStressScore(tss);
+        //sessionMesg.SetTrainingStressScore(tss);
         qDebug() << "Setting training_stress_score (TSS) in FIT file:" << tss;
     }
 
@@ -540,6 +540,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         trainingProgramFileField.SetSTRINGValue(trainingProgramFile.toStdWString());
     }
 
+    /*
     sessionMesg.AddDeveloperField(activityTitleField);
     sessionMesg.AddDeveloperField(ftpSessionField);
     sessionMesg.AddDeveloperField(workoutSourceField);
@@ -551,7 +552,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     }
     if (!trainingProgramFile.isEmpty()) {
         sessionMesg.AddDeveloperField(trainingProgramFileField);
-    }
+    }*/
 
     fit::ActivityMesg activityMesg;
     activityMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
