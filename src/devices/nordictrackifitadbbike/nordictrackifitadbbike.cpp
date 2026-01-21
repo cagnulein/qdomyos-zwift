@@ -27,7 +27,7 @@ void nordictrackifitadbbikeLogcatAdbThread::run() {
     runAdbCommand("connect " + ip);
 
     while (1) {
-        runAdbTailCommand("logcat");
+        runAdbTailCommand("logcat -f");
         if(adbCommandPending.length() != 0) {
             runAdbCommand(adbCommandPending);
             adbCommandPending = "";
@@ -226,6 +226,10 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     initializeGrpcService();
     if (grpcInitialized) {
         startGrpcMetricsUpdates();
+        logcatAdbThread = new nordictrackifitadbbikeLogcatAdbThread("logcatAdbThread");
+        connect(logcatAdbThread, &nordictrackifitadbbikeLogcatAdbThread::debug, this, &nordictrackifitadbbike::debug);
+        logcatAdbThread->start();
+
     }
 #endif
 
