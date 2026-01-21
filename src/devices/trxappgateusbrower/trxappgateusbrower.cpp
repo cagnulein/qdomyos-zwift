@@ -2,6 +2,7 @@
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
+#include "qzsettings.h"
 #include "virtualdevices/virtualbike.h"
 #include "virtualdevices/virtualrower.h"
 #include "virtualdevices/virtualtreadmill.h"
@@ -18,6 +19,7 @@ using namespace std::chrono_literals;
 
 trxappgateusbrower::trxappgateusbrower(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                                  double bikeResistanceGain) {
+    QSettings settings;
     m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -25,6 +27,7 @@ trxappgateusbrower::trxappgateusbrower(bool noWriteResistance, bool noHeartServi
     this->noHeartService = noHeartService;
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
+    mearch_novarow_r50 = settings.value(QZSettings::merach_novarow_r50, QZSettings::default_merach_novarow_r50).toBool();
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &trxappgateusbrower::update);
     refresh->start(200ms);
@@ -261,10 +264,8 @@ void trxappgateusbrower::characteristicChanged(const QLowEnergyCharacteristic &c
 
 void trxappgateusbrower::btinit() {
 
-    // Check if device is Mearch NovaRow R50 based on Bluetooth name
-    if (bluetoothDevice.name().toUpper().startsWith(QStringLiteral("MRK-R11S-"))) {
-        mearch_novarow_r50 = true;
-
+    // Check if Mearch NovaRow R50 setting is enabled
+    if (mearch_novarow_r50) {
         // Mearch NovaRow R50 initialization sequence to switch to Bluetooth mode
         uint8_t initData1[] = {0xf0, 0xa5, 0x44, 0x01, 0x04, 0xde};
         uint8_t initData2[] = {0xf0, 0xa0, 0x44, 0x01, 0xd5};
