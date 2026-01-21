@@ -451,7 +451,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
                 m_watt = watt;
         }        
-    } else {
+    } else if(!PM5) {
         qDebug() << "rower doesn't send wattage, let's calculate it...";
         if(Speed.value() > 0)
             m_watt = rower::calculateWattsFromPace(instantPace);
