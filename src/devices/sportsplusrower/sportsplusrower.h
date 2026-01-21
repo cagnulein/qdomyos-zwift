@@ -27,6 +27,7 @@
 
 #include "devices/rower.h"
 #include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualrower.h"
 
 class sportsplusrower : public rower {
     Q_OBJECT

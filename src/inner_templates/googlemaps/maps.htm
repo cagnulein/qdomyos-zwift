@@ -71,7 +71,12 @@ viewer.trackedEntity = bike;
 </body>
   <body>
     <div id="cesiumContainer" class="cesiumContainer"></div>
-	 <div><p class="metrics" style="color: #FFFFFF; position: absolute; bottom: 0px; right: 0px; margin-bottom: 0px; border-radius: 25px; border: 2px solid #73AD21; background: #73AD21; padding: 2px;">🏃Speed: 0.00<br>🚴Cadence:0<br>💓Heart:0<br>🔥Calories:0.0<br>📏Odometer:0.00<br>⚡Watt:0<br>⏲️Elapsed:0:00:00<br>📐Inclination:0.0<br>🧲Resistance:0<br>✈️Altitude:0.0<br>⛰️Elevation:0.0</p></div>
+	 <div id="metricsContainer" style="position: absolute; bottom: 0px; right: 0px; width: 200px; height: 250px; touch-action: none; user-select: none;">
+        <div class="metrics" style="color: #FFFFFF; width: 100%; height: 100%; margin: 0; border-radius: 25px; border: 2px solid #73AD21; background: #73AD21; padding: 8px; box-sizing: border-box; overflow: hidden; position: relative;">
+            <div id="metricsText" style="font-size: 12px; line-height: 1.4;">🏃Speed: 0.00<br>🚴Cadence:0<br>💓Heart:0<br>🔥Calories:0.0<br>📏Odometer:0.00<br>⚡Watt:0<br>⏲️Elapsed:0:00:00<br>📐Inclination:0.0<br>🧲Resistance:0<br>✈️Altitude:0.0<br>⛰️Elevation:0.0</div>
+            <div id="resizeHandle" style="position: absolute; bottom: 0; right: 0; width: 20px; height: 20px; background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.5) 50%); cursor: nwse-resize; border-bottom-right-radius: 23px;"></div>
+        </div>
+    </div>
 	      <div style="border: 0px solid #aaa; border-radius: 10px; overflow: hidden; position:absolute; bottom: 0px; right: 150px; width=150px; height=75px"><canvas id="canvasChart" style="width=150px; height=75px; border-right: 0pt solid #ffff00;"></canvas></div>
     <script type="text/javascript">
     let cameraComplete = true
@@ -147,7 +152,7 @@ viewer.trackedEntity = bike;
 																}
 				}
 
-            $('.metrics').html("🏃Speed: " + speed.toFixed(2) + "<br>🚴Cadence:" + cadence.toFixed(0) + "<br>💓Heart:"+ hr.toFixed(0) + "<br>🔥Calories:"+ calories.toFixed(1) + "<br>📏Odometer:"+ odometer.toFixed(2) + "<br>⚡Watt:"+ watt.toFixed(0) + "<br>⏲️Elapsed:"+ elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":"+ elapsed_s.toString().padStart(2, "0") + "<br>📐Inclination:"+ inclination.toFixed(1) + "<br>🧲Resistance:"+ resistance.toFixed(0) + "<br>✈️Altitude:"+ altitude.toFixed(1) + "<br>⛰️Elevation:"+ elevation.toFixed(2));
+            $('#metricsText').html("🏃Speed: " + speed.toFixed(2) + "<br>🚴Cadence:" + cadence.toFixed(0) + "<br>💓Heart:"+ hr.toFixed(0) + "<br>🔥Calories:"+ calories.toFixed(1) + "<br>📏Odometer:"+ odometer.toFixed(2) + "<br>⚡Watt:"+ watt.toFixed(0) + "<br>⏲️Elapsed:"+ elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":"+ elapsed_s.toString().padStart(2, "0") + "<br>📐Inclination:"+ inclination.toFixed(1) + "<br>🧲Resistance:"+ resistance.toFixed(0) + "<br>✈️Altitude:"+ altitude.toFixed(1) + "<br>⛰️Elevation:"+ elevation.toFixed(2));
 		  }
 		  return null;
 		}, 15000, 3);
@@ -314,6 +319,212 @@ el.enqueue().then(process_gpxbase64).catch(function(err) {
 console.error('Error is ' + err);
 });
       setTimeout(a,0);
+
+      // Metrics container drag and resize functionality
+      (function() {
+          const container = document.getElementById('metricsContainer');
+          const resizeHandle = document.getElementById('resizeHandle');
+          const metricsText = document.getElementById('metricsText');
+
+          let isDragging = false;
+          let isResizing = false;
+          let startX, startY, startLeft, startTop, startWidth, startHeight;
+          let resizeTimeout = null;
+
+          // Load saved position and size
+          function loadState() {
+              const saved = localStorage.getItem('metricsContainerState');
+              if (saved) {
+                  try {
+                      const state = JSON.parse(saved);
+                      if (state.left !== undefined) container.style.left = state.left + 'px';
+                      if (state.top !== undefined) container.style.top = state.top + 'px';
+                      if (state.right !== undefined) container.style.right = state.right + 'px';
+                      if (state.bottom !== undefined) container.style.bottom = state.bottom + 'px';
+                      if (state.width) container.style.width = state.width + 'px';
+                      if (state.height) container.style.height = state.height + 'px';
+                      updateFontSize();
+                  } catch (e) {
+                      console.error('Error loading metrics state:', e);
+                  }
+              }
+          }
+
+          // Save position and size
+          function saveState() {
+              const state = {
+                  left: container.offsetLeft,
+                  top: container.offsetTop,
+                  width: container.offsetWidth,
+                  height: container.offsetHeight
+              };
+              localStorage.setItem('metricsContainerState', JSON.stringify(state));
+          }
+
+          // Update font size using binary search to find maximum size that fits
+          function updateFontSize() {
+              const minFontSize = 6;
+              const maxFontSize = 48;
+              let low = minFontSize;
+              let high = maxFontSize;
+              let bestFit = minFontSize;
+
+              // Count number of lines in the content
+              function countLines() {
+                  const html = metricsText.innerHTML;
+                  const brCount = (html.match(/<br>/gi) || []).length;
+                  return brCount + 1; // +1 for the first line
+              }
+
+              // Check if content fits with current font size
+              function contentFits() {
+                  // Force reflow
+                  void metricsText.offsetHeight;
+
+                  // Get computed line height
+                  const computedStyle = window.getComputedStyle(metricsText);
+                  const lineHeight = parseFloat(computedStyle.lineHeight);
+
+                  // Calculate total height needed
+                  const numLines = countLines();
+                  const totalHeightNeeded = numLines * lineHeight;
+
+                  // Get available height (parent's clientHeight minus padding)
+                  const metricsDiv = metricsText.parentElement;
+                  const parentStyle = window.getComputedStyle(metricsDiv);
+                  const paddingTop = parseFloat(parentStyle.paddingTop);
+                  const paddingBottom = parseFloat(parentStyle.paddingBottom);
+                  const availableHeight = metricsDiv.clientHeight - paddingTop - paddingBottom;
+
+                  // Check if it fits
+                  const fitsVertically = totalHeightNeeded <= availableHeight;
+                  const fitsHorizontally = metricsText.scrollWidth <= metricsText.clientWidth;
+
+                  return fitsVertically && fitsHorizontally;
+              }
+
+              // Binary search for the maximum font size that fits
+              while (low <= high) {
+                  const mid = Math.floor((low + high) / 2);
+                  metricsText.style.fontSize = mid + 'px';
+
+                  if (contentFits()) {
+                      bestFit = mid;
+                      low = mid + 1; // Try larger
+                  } else {
+                      high = mid - 1; // Try smaller
+                  }
+              }
+
+              // Apply the best fit size
+              metricsText.style.fontSize = bestFit + 'px';
+          }
+
+          // Debounced version of updateFontSize (only during resize)
+          function debouncedUpdateFontSize() {
+              if (resizeTimeout) {
+                  clearTimeout(resizeTimeout);
+              }
+              resizeTimeout = setTimeout(function() {
+                  updateFontSize();
+              }, 500);
+          }
+
+          // Get touch or mouse coordinates
+          function getCoordinates(e) {
+              if (e.touches && e.touches.length > 0) {
+                  return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+              }
+              return { x: e.clientX, y: e.clientY };
+          }
+
+          // Start dragging
+          function startDrag(e) {
+              if (isResizing) return;
+              isDragging = true;
+              const coords = getCoordinates(e);
+              startX = coords.x;
+              startY = coords.y;
+              startLeft = container.offsetLeft;
+              startTop = container.offsetTop;
+              container.style.right = 'auto';
+              container.style.bottom = 'auto';
+              e.preventDefault();
+          }
+
+          // Start resizing
+          function startResize(e) {
+              isResizing = true;
+              const coords = getCoordinates(e);
+              startX = coords.x;
+              startY = coords.y;
+              startWidth = container.offsetWidth;
+              startHeight = container.offsetHeight;
+              e.stopPropagation();
+              e.preventDefault();
+          }
+
+          // Handle move
+          function handleMove(e) {
+              const coords = getCoordinates(e);
+
+              if (isDragging) {
+                  const deltaX = coords.x - startX;
+                  const deltaY = coords.y - startY;
+                  container.style.left = (startLeft + deltaX) + 'px';
+                  container.style.top = (startTop + deltaY) + 'px';
+                  e.preventDefault();
+              } else if (isResizing) {
+                  const deltaX = coords.x - startX;
+                  const deltaY = coords.y - startY;
+                  const newWidth = Math.max(100, startWidth + deltaX);
+                  const newHeight = Math.max(100, startHeight + deltaY);
+                  container.style.width = newWidth + 'px';
+                  container.style.height = newHeight + 'px';
+                  debouncedUpdateFontSize();
+                  e.preventDefault();
+              }
+          }
+
+          // End drag or resize
+          function endDragOrResize(e) {
+              if (isDragging || isResizing) {
+                  saveState();
+                  // If we were resizing, clear pending timeout and update immediately
+                  if (isResizing) {
+                      if (resizeTimeout) {
+                          clearTimeout(resizeTimeout);
+                          resizeTimeout = null;
+                      }
+                      updateFontSize();
+                  }
+              }
+              isDragging = false;
+              isResizing = false;
+          }
+
+          // Add event listeners for dragging (on container, but not on resize handle)
+          container.addEventListener('mousedown', function(e) {
+              if (e.target !== resizeHandle) startDrag(e);
+          });
+          container.addEventListener('touchstart', function(e) {
+              if (e.target !== resizeHandle) startDrag(e);
+          });
+
+          // Add event listeners for resizing (on resize handle)
+          resizeHandle.addEventListener('mousedown', startResize);
+          resizeHandle.addEventListener('touchstart', startResize);
+
+          // Add global move and end listeners
+          document.addEventListener('mousemove', handleMove);
+          document.addEventListener('touchmove', handleMove, { passive: false });
+          document.addEventListener('mouseup', endDragOrResize);
+          document.addEventListener('touchend', endDragOrResize);
+
+          // Load saved state and set initial font size
+          loadState();
+          updateFontSize();
+      })();
     </script>
   </body>
 </html>

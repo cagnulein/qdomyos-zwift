@@ -2304,14 +2304,13 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
     QBluetoothUuid _gattInclinationSupported((quint16)0x2AD5);
-    QBluetoothUuid _DomyosServiceId(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
     QBluetoothUuid _YpooMiniProCharId(QStringLiteral("d18d2c10-c44c-11e8-a355-529269fb1459"));
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
 
-        if(s->serviceUuid() == _DomyosServiceId && DOMYOS) {
+        if(s->serviceUuid() == DomyosServiceId && DOMYOS) {
             settings.setValue(QZSettings::domyostreadmill_notfmts, true);
             settings.sync();
             if(homeform::singleton())
@@ -2518,7 +2517,27 @@ void horizontreadmill::serviceScanDone(void) {
     firstStateChanged = 0;
     auto services_list = m_control->services();
 
+    // Check if DOMYOS device has native service
+    QBluetoothUuid _FTMSServiceId((quint16)0x1826);
+    bool hasNativeDomyosService = false;
+
+    if (DOMYOS) {
+        for (const QBluetoothUuid &s : qAsConst(services_list)) {
+            if (s == DomyosServiceId) {
+                hasNativeDomyosService = true;
+                qDebug() << "Native Domyos service found";
+                break;
+            }
+        }
+    }
+
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
+            // If DOMYOS without native service, discover only FTMS (1826)
+            if (DOMYOS && !hasNativeDomyosService && s != _FTMSServiceId) {
+                qDebug() << s << "skipping (DOMYOS-TC will use only FTMS)";
+                continue;
+            }
+
             qDebug() << s << "discovering...";
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
             connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
@@ -2646,6 +2665,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("TM6500-"))) {
             qDebug() << QStringLiteral("TM6500 treadmill found");
             TM6500 = true;
+            minInclination = -3.0;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {

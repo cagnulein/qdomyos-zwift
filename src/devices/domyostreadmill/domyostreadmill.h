@@ -23,6 +23,7 @@
 #include <QtCore/qmutex.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
+#include <QtCore/qqueue.h>
 
 #include <QDateTime>
 #include <QObject>
@@ -43,6 +44,13 @@ class domyostreadmill : public treadmill {
     bool changeFanSpeed(uint8_t speed) override;
 
   private:
+    // Structure for async write queue
+    struct WriteRequest {
+        QByteArray data;
+        QString info;
+        bool disable_log;
+        bool wait_for_response;
+    };
     bool sendChangeFanSpeed(uint8_t speed);
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);
@@ -53,6 +61,7 @@ class domyostreadmill : public treadmill {
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+    void processWriteQueue();
     void startDiscover();
     volatile bool incompletePackets = false;
     bool noConsole = false;
@@ -75,6 +84,12 @@ class domyostreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+
+    // Async write queue management
+    QQueue<WriteRequest> writeQueue;
+    bool isWriting = false;
+    bool currentWriteWaitingForResponse = false;
+    QTimer *writeTimeoutTimer = nullptr;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

@@ -111,6 +111,11 @@ bool GarminConnect::uploadFitFile(const QString &fitFilePath)
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", USER_AGENT);
 
+    // CRITICAL: Force connection close to prevent SSL connection reuse issues
+    // Without this, consecutive uploads fail with "SSL routines:ssl3_read_bytes:sslv3 alert bad record mac"
+    // because QNetworkAccessManager tries to reuse a stale SSL connection
+    request.setRawHeader("Connection", "close");
+
     // Use OAuth2 Bearer token for authorization
     QString authHeader = "Bearer " + m_oauth2Token.access_token;
     request.setRawHeader("Authorization", authHeader.toUtf8());
@@ -407,7 +412,16 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
     postData.addQueryItem("embed", "true");
     postData.addQueryItem("_csrf", m_csrfToken);
 
-    QByteArray data = postData.query(QUrl::FullyEncoded).toUtf8();
+    QString queryString = postData.query(QUrl::FullyEncoded);
+
+    // CRITICAL: Fix '+' character encoding for usernames like "user+tag@example.com"
+    // QUrlQuery doesn't percent-encode '+' in form data (treats it as space character)
+    // but Garmin authentication requires literal '+' to be encoded as '%2B'
+    // This is safe because in URL-encoded form data, '+' always means space,
+    // so any literal '+' must be encoded as '%2B'
+    queryString.replace("+", "%2B");
+
+    QByteArray data = queryString.toUtf8();
 
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", USER_AGENT);
@@ -1325,6 +1339,12 @@ bool GarminConnect::uploadActivity(const QByteArray &fitData, const QString &fil
     QUrl url(connectApiUrl() + "/upload-service/upload");
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", "GCM-iOS-5.7.2.1");
+
+    // CRITICAL: Force connection close to prevent SSL connection reuse issues
+    // Without this, consecutive uploads fail with "SSL routines:ssl3_read_bytes:sslv3 alert bad record mac"
+    // because QNetworkAccessManager tries to reuse a stale SSL connection
+    request.setRawHeader("Connection", "close");
+
     request.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
 
     // Perform upload
