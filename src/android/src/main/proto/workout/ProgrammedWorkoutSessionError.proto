@@ -1,0 +1,20 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "ProgrammedWorkoutSessiontErrorProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum ProgrammedWorkoutSessionErrorCode {
+  PROGRAMMED_SESSION_UNKNOWN_ERROR = 0;
+  PROGRAMMED_SESSION_MISSING_ERROR = 1;
+  PROGRAMMED_SESSION_NOT_RUNNING_ERROR = 2;
+  PROGRAMMED_SESSION_RUNNING_ERROR = 3;
+  PROGRAMMED_SESSION_UNEXPECTED_WORKOUT_ID = 4;
+  PROGRAMMED_SESSION_UNEXPECTED_TARGET_TYPE = 5;
+}
+
+message ProgrammedWorkoutSessionError {
+  ProgrammedWorkoutSessionErrorCode errorCode = 1;
+  string message = 2;
+}

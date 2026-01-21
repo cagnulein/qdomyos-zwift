@@ -1,0 +1,33 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "activitylog/ActivityLogUtils.proto";
+option java_package = "com.ifit.glassos.activitylog";
+option java_outer_classname = "ActivityLogMetadataProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message ActivityLogMetadata {
+  string workoutId = 1;
+  bool shouldUploadLog = 2;
+  string contentId = 3;
+  string title = 4;
+  string heroImageUrl = 5;
+  string socialImageUrl = 6;
+  string programId = 7;
+  string videoId = 8;
+  string listWorkoutId = 9;
+  string liveWorkoutId = 10;
+  string liveWorkoutScheduleId = 11;
+  ActivityLogOrigin origin = 12;
+  ActivityLogContext context = 13;
+  ActivityLogType type = 14;
+  string typeDetail = 15;
+  string externalType = 16;
+  repeated string completedMovements = 17;
+  bool redundant = 18;
+  int32 sleepScore = 19;
+  string seriesId = 20;
+  string challengeId = 21;
+  string workoutDriverFQN = 22;
+  string thirdPartyContentId = 23;
+}

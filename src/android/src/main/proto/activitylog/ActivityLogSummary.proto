@@ -1,0 +1,27 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.activitylog";
+option java_outer_classname = "ActivityLogSummaryProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message ActivityLogSummary {
+  int32 averageBpm = 1;
+  int32 averageFiveHundredSplit = 2;
+  int32 averageResistance = 3;
+  int32 averageRespiration = 4;
+  int32 averageSpm = 5;
+  double averageWatts = 6;
+  int32 maxBpm = 7;
+  int32 maxFiveHundredSplit = 8;
+  int32 maxSpm = 9;
+  int32 maxWatts = 10;
+  int32 minFiveHundredSplit = 11;
+  float totalCalories = 12;
+  float totalElevationGain = 13;
+  float totalMeters = 14;
+  int32 totalMovements = 15;
+  int32 totalSteps = 16;
+  int32 averageCadence = 17;
+  int32 maxCadence = 18;
+}
