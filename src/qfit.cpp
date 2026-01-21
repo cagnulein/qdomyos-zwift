@@ -672,7 +672,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     // Create custom developer data message to hold developer fields
     // This improves Garmin Connect compatibility by separating metadata from session
     fit::Mesg developerDataMesg(0xFF00);  // Manufacturer-specific message number (65280)
-    developerDataMesg.SetField(FIT_FIELD_NUM_TIMESTAMP, session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
 
     // Add all developer fields to the custom message
     developerDataMesg.AddDeveloperField(activityTitleField);
