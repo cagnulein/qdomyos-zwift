@@ -2547,6 +2547,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         upperDeviceName.startsWith(QStringLiteral("PASYOU-")) ||
                         upperDeviceName.startsWith(QStringLiteral("VIRTUFIT")) ||
                         upperDeviceName.startsWith(QStringLiteral("IBIKING+")) ||
+                        upperDeviceName.contains(QStringLiteral("RI009R")) ||
                         ((deviceName.startsWith(QStringLiteral("TOORX")) ||
                           upperDeviceName.startsWith(QStringLiteral("I-CONSOIE+")) ||
                           upperDeviceName.startsWith(QStringLiteral("I-CONSOLE+")) ||
@@ -2554,7 +2555,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                           upperDeviceName.startsWith(QStringLiteral("VIFHTR2.1")) ||
                           (upperDeviceName.startsWith(QStringLiteral("REEBOK"))) ||
                           upperDeviceName.contains(QStringLiteral("CR011R")) ||
-                          upperDeviceName.contains(QStringLiteral("RI009R")) ||
                           (upperDeviceName.startsWith(QStringLiteral("FAL-SPORTS")) && toorx_bike) ||
                           upperDeviceName.startsWith(QStringLiteral("DKN MOTION"))) &&
                          (toorx_bike))) &&
