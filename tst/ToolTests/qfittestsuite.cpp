@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QDebug>
+#include <QCoreApplication>
 
 QFitTestSuite::QFitTestSuite() : tempDir(nullptr) {
 }
@@ -133,7 +134,7 @@ void QFitTestSuite::test_databaseReadability() {
     ASSERT_TRUE(QFile::exists(filename)) << "Failed to create FIT file";
 
     // Create a FIT database processor
-    FITDatabaseProcessor processor;
+    FitDatabaseProcessor processor;
 
     // Create a temporary database
     QString dbPath = tempDir->filePath("test_db.sqlite");
@@ -144,11 +145,11 @@ void QFitTestSuite::test_databaseReadability() {
 
     // Process the FIT file
     bool processed = false;
-    QObject::connect(&processor, &FITDatabaseProcessor::fileProcessed,
+    QObject::connect(&processor, &FitDatabaseProcessor::fileProcessed,
                      [&processed](const QString&) { processed = true; });
 
     bool error = false;
-    QObject::connect(&processor, &FITDatabaseProcessor::error,
+    QObject::connect(&processor, &FitDatabaseProcessor::error,
                      [&error](const QString& msg) {
                          qDebug() << "Database processor error:" << msg;
                          error = true;
