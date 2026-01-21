@@ -1270,6 +1270,7 @@ import Qt.labs.platform 1.1
 			property int tile_power_avg_order: 77
 			property bool life_fitness_ic5: false
 			property bool technogym_bike: false
+			property bool proform_power_595i: false
         }
 
 
@@ -8498,6 +8499,7 @@ import Qt.labs.platform 1.1
                                     "NordicTrack Series 7",
                                     "Proform Trainer 9.0 (PFTL69921-INT.4)",
                                     "Proform Sport 3.0",
+                                    "Proform Power 595i",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -8569,7 +8571,8 @@ import Qt.labs.platform 1.1
                                                     settings.proform_treadmill_995i ? 52 :
                                                     settings.nordictrack_series_7 ? 53 :
                                                     settings.proform_trainer_9_0 ? 54 :
-                                                    settings.proform_treadmill_sport_3_0 ? 55 : 0;
+                                                    settings.proform_treadmill_sport_3_0 ? 55 :
+                                                    settings.proform_power_595i ? 56 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -8639,6 +8642,7 @@ import Qt.labs.platform 1.1
                                     settings.nordictrack_series_7 = false;
                                     settings.proform_trainer_9_0 = false;
                                     settings.proform_treadmill_sport_3_0 = false;
+                                    settings.proform_power_595i = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -8697,6 +8701,7 @@ import Qt.labs.platform 1.1
                                         case 53: settings.nordictrack_series_7 = true; break;
                                         case 54: settings.proform_trainer_9_0 = true; break;
                                         case 55: settings.proform_treadmill_sport_3_0 = true; break;
+                                        case 56: settings.proform_power_595i = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
