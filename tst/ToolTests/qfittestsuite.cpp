@@ -133,15 +133,11 @@ void QFitTestSuite::test_databaseReadability() {
     QString filename = createNewFormatFitFile();
     ASSERT_TRUE(QFile::exists(filename)) << "Failed to create FIT file";
 
-    // Create a FIT database processor
-    FitDatabaseProcessor processor;
-
-    // Create a temporary database
+    // Create a temporary database path
     QString dbPath = tempDir->filePath("test_db.sqlite");
 
-    // Initialize the database
-    bool dbInitialized = processor.initializeDatabase(dbPath);
-    ASSERT_TRUE(dbInitialized) << "Failed to initialize test database";
+    // Create a FIT database processor with the database path
+    FitDatabaseProcessor processor(dbPath);
 
     // Process the FIT file
     bool processed = false;
