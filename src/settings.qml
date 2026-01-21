@@ -1270,6 +1270,7 @@ import Qt.labs.platform 1.1
 			property int tile_power_avg_order: 77
 			property bool life_fitness_ic5: false
 			property bool technogym_bike: false
+			property bool merach_novarow_r50: false
         }
 
 
@@ -10162,6 +10163,28 @@ import Qt.labs.platform 1.1
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proform_rower_ip = proformRowerIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                 }
+                            }
+                        }
+                    }
+
+                    AccordionElement {
+                        title: qsTr("Merach Rower Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            IndicatorOnlySwitch {
+                                text: qsTr("Merach NovaRow R50")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.merach_novarow_r50
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.merach_novarow_r50 = checked; window.settings_restart_to_apply = true; }
                             }
                         }
                     }

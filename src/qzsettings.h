@@ -2413,6 +2413,9 @@ class QZSettings {
     static const QString iconsole_rower;
     static constexpr bool default_iconsole_rower = false;
 
+    static const QString merach_novarow_r50;
+    static constexpr bool default_merach_novarow_r50 = false;
+
     static const QString proform_treadmill_1500_pro;
     static constexpr bool default_proform_treadmill_1500_pro = false;
 
