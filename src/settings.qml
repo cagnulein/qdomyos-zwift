@@ -1270,6 +1270,10 @@ import Qt.labs.platform 1.1
 			property int tile_power_avg_order: 77
 			property bool life_fitness_ic5: false
 			property bool technogym_bike: false
+			property bool ios_volume_gears_sync: false
+			property bool ios_volume_gears_range: false
+			property real ios_volume_gears_min: 1.0
+			property real ios_volume_gears_max: 24.0
         }
 
 
@@ -11006,6 +11010,110 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("iOS: Sync Gears with Volume on Startup")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ios_volume_gears_sync
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.ios_volume_gears_sync = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("iOS only: On startup, align the current gear to the current iOS volume level (0-16). For example, if volume is at level 10, the gear will be set to 10. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("iOS: Map Volume Range to Gear Range")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ios_volume_gears_range
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.ios_volume_gears_range = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("iOS only: Map the 17 iOS volume levels (0-16) to a custom gear range. Volume buttons will jump directly to the mapped gear instead of incrementing by 1. Configure min/max gears below. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        visible: settings.ios_volume_gears_range
+                        spacing: 10
+                        Label {
+                            text: qsTr("iOS Volume Gears Min:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: iosVolumeGearsMinTextField
+                            text: settings.ios_volume_gears_min
+                            horizontalAlignment: Text.AlignHCenter
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            onAccepted: settings.ios_volume_gears_min = text
+                        }
+                        Button {
+                            id: okiosVolumeGearsMinButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.ios_volume_gears_min = iosVolumeGearsMinTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        visible: settings.ios_volume_gears_range
+                        spacing: 10
+                        Label {
+                            text: qsTr("iOS Volume Gears Max:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: iosVolumeGearsMaxTextField
+                            text: settings.ios_volume_gears_max
+                            horizontalAlignment: Text.AlignHCenter
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            onAccepted: settings.ios_volume_gears_max = text
+                        }
+                        Button {
+                            id: okiosVolumeGearsMaxButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.ios_volume_gears_max = iosVolumeGearsMaxTextField.text
+                        }
                     }
 
                     RowLayout {
