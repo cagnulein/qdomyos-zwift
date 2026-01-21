@@ -428,8 +428,9 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     switch (characteristic.uuid().toUInt16()) {
     case 0x2AD9: // Fitness Machine Control Point
         if (writeP2AD9->writeProcess(0x2AD9, newValue, reply) == CP_OK) {
+
             #ifdef ANT_LINUX_ENABLED
-            // TDecodes the FTMS "Set Target Speed" command and relays it
+            // Decodes the FTMS "Set Target Speed" command and relays it
             // to the faketreadmill. This is necessary for the ANT+ broadcaster to get
             // speed data in a virtual treadmill test setup.
             // Op Code 0x03 is "Set Target Speed". Packet must be at least 3 bytes long.
