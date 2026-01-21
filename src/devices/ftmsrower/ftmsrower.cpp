@@ -396,8 +396,8 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 
     if (Flags.totDistance) {
-        if (ICONSOLE_PLUS || FITSHOW) {
-            // For ICONSOLE+, always calculate distance from speed instead of using characteristic data
+        if (ICONSOLE_PLUS || FITSHOW || MRK_R11S) {
+            // For ICONSOLE+/FITSHOW/MRK_R11S, always calculate distance from speed instead of using characteristic data
             Distance += ((Speed.value() / 3600000.0) *
                          ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
         } else {
@@ -837,6 +837,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("MRK-R06-"))) {
             MRK_R06 = true;
             qDebug() << "MRK_R06 found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("MRK-R11S-"))) {
+            MRK_R11S = true;
+            qDebug() << "MRK_R11S found!";
         } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
             PM5 = true;
             qDebug() << "PM5 found!";
