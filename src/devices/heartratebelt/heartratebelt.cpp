@@ -7,46 +7,27 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <QThread>
+#include <chrono>
+
+using namespace std::chrono_literals;
 
 heartratebelt::heartratebelt() {
-    // Initialize the update timer to run every second
-    updateTimer = new QTimer(this);
-    updateTimer->setInterval(1000);  // 1 second
-    connect(updateTimer, &QTimer::timeout, this, &heartratebelt::update);
-    updateTimer->start();
+    refresh = new QTimer(this);
+    connect(refresh, &QTimer::timeout, this, &heartratebelt::update);
+    refresh->start(500ms);
 }
 
 heartratebelt::~heartratebelt() {
-    if (updateTimer) {
-        updateTimer->stop();
-        delete updateTimer;
+    if (refresh) {
+        refresh->stop();
+        delete refresh;
     }
 }
 
 void heartratebelt::update() {
-    QSettings settings;
-    
-    // Check if we are in connecting state and more than 10 seconds have passed
-    if (m_control && 
-        m_control->state() == QLowEnergyController::ConnectingState && 
-        !connectingTime.isNull() &&
-        connectingTime.msecsTo(QDateTime::currentDateTime()) > CONNECTION_TIMEOUT
-#ifdef Q_OS_IOS
-        && !settings.value(QZSettings::ios_cache_heart_device, QZSettings::default_ios_cache_heart_device).toBool()
-#endif
-        ) {
-        
-        emit debug(QStringLiteral("Connection timeout in ConnectingState - disconnecting and retrying..."));
-        disconnectBluetooth();
-        connectingTime = QDateTime();  // Reset the timestamp
-        
-        // Reconnect after 1 second
-        QTimer::singleShot(1000, this, [this]() {
-            if (m_control) {
-                emit debug(QStringLiteral("Attempting to reconnect after timeout..."));
-                m_control->connectToDevice();
-            }
-        });
+    if(m_control->state() == QLowEnergyController::DiscoveredState && gattCommunicationChannelService &&
+            gattNotifyCharacteristic.isValid() && gattCommunicationChannelService->characteristic(QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement)).properties() & QLowEnergyCharacteristic::Read) {
+        gattCommunicationChannelService->readCharacteristic(gattCommunicationChannelService->characteristic(QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement)));
     }
 }
 
