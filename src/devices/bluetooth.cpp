@@ -34,64 +34,66 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
     this->useDiscovery = startDiscovery;
 
-    QString nordictrack_2950_ip =
-        settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
-    bool fake_bike =
-        settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
-    bool fake_treadmill =
-    settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
-	QString proformtdf4ip = settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString();
+    QTimer::singleShot(3000, this, [this]() {
+        QString nordictrack_2950_ip =
+            settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+        bool fake_bike =
+            settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
+        bool fake_treadmill =
+        settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
+        QString proformtdf4ip = settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString();
 
-    if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() && !pelotonBike) {
-        pelotonBike = new pelotonbike(noWriteResistance, noHeartService);
-        emit deviceConnected(QBluetoothDeviceInfo());
-        connect(pelotonBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
-        connect(pelotonBike, &pelotonbike::debug, this, &bluetooth::debug);
-        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
-            emit searchingStop();
-        }
-        // this signal is not associated to anything in this moment, since the homeform is not loaded yet
-        this->signalBluetoothDeviceConnected(pelotonBike);
-    }/* else if (fake_bike) {
-        fakeBike = new fakebike(noWriteResistance, noHeartService, false);
-        emit deviceConnected(QBluetoothDeviceInfo());
-        connect(fakeBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
-        connect(fakeBike, &fakebike::debug, this, &bluetooth::debug);
-        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
-            emit searchingStop();
-        }
-        // this signal is not associated to anything in this moment, since the homeform is not loaded yet
-        this->signalBluetoothDeviceConnected(fakeBike);
-        return;
-    } else if (fake_treadmill) {
-        fakeTreadmill = new faketreadmill(noWriteResistance, noHeartService, false);
-        emit deviceConnected(QBluetoothDeviceInfo());
-        connect(fakeTreadmill, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
-        connect(fakeTreadmill, &faketreadmill::debug, this, &bluetooth::debug);
-        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
-            emit searchingStop();
-        }
-        // this signal is not associated to anything in this moment, since the homeform is not loaded yet
-        this->signalBluetoothDeviceConnected(fakeBike);
-        return;
-    }*/
+        if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() && !pelotonBike) {
+            pelotonBike = new pelotonbike(noWriteResistance, noHeartService);
+            emit deviceConnected(QBluetoothDeviceInfo());
+            connect(pelotonBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+            connect(pelotonBike, &pelotonbike::debug, this, &bluetooth::debug);
+            if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                emit searchingStop();
+            }
+            // this signal is not associated to anything in this moment, since the homeform is not loaded yet
+            this->signalBluetoothDeviceConnected(pelotonBike);
+        }/* else if (fake_bike) {
+            fakeBike = new fakebike(noWriteResistance, noHeartService, false);
+            emit deviceConnected(QBluetoothDeviceInfo());
+            connect(fakeBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+            connect(fakeBike, &fakebike::debug, this, &bluetooth::debug);
+            if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                emit searchingStop();
+            }
+            // this signal is not associated to anything in this moment, since the homeform is not loaded yet
+            this->signalBluetoothDeviceConnected(fakeBike);
+            return;
+        } else if (fake_treadmill) {
+            fakeTreadmill = new faketreadmill(noWriteResistance, noHeartService, false);
+            emit deviceConnected(QBluetoothDeviceInfo());
+            connect(fakeTreadmill, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+            connect(fakeTreadmill, &faketreadmill::debug, this, &bluetooth::debug);
+            if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                emit searchingStop();
+            }
+            // this signal is not associated to anything in this moment, since the homeform is not loaded yet
+            this->signalBluetoothDeviceConnected(fakeBike);
+            return;
+        }*/
 
-	if (!proformtdf4ip.isEmpty() && !proformWifiBike) {
-                this->stopDiscovery();
-                proformWifiBike =
-                    new proformwifibike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-                emit deviceConnected(QBluetoothDeviceInfo());
-                connect(proformWifiBike, &bluetoothdevice::connectedAndDiscovered, this,
-                        &bluetooth::connectedAndDiscovered);
-                // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
-                connect(proformWifiBike, &proformwifibike::debug, this, &bluetooth::debug);
-                proformWifiBike->deviceDiscovered(QBluetoothDeviceInfo());
-                // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
-                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
-                    emit searchingStop();
-                }
-                this->signalBluetoothDeviceConnected(proformWifiBike);
-}
+        if (!proformtdf4ip.isEmpty() && !proformWifiBike) {
+                    this->stopDiscovery();
+                    proformWifiBike =
+                        new proformwifibike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                    emit deviceConnected(QBluetoothDeviceInfo());
+                    connect(proformWifiBike, &bluetoothdevice::connectedAndDiscovered, this,
+                            &bluetooth::connectedAndDiscovered);
+                    // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                    connect(proformWifiBike, &proformwifibike::debug, this, &bluetooth::debug);
+                    proformWifiBike->deviceDiscovered(QBluetoothDeviceInfo());
+                    // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
+                    if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                        emit searchingStop();
+                    }
+                    this->signalBluetoothDeviceConnected(proformWifiBike);
+        }
+    });
 
 #ifdef TEST
     schwinnIC4Bike = (schwinnic4bike *)new bike();
