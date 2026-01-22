@@ -412,6 +412,13 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     }
     if (lastRunState != runState) {
         lastRunState = runState;
+        if (runState == START) {
+            emit debug(QStringLiteral("start button pressed on treadmill!"));
+            emit buttonHWStart();  // Signal for physical hardware button press, it starts the treadmill automatically
+        } else if (runState == STOP) {
+            emit debug(QStringLiteral("stop button pressed on treadmill!"));
+            emit buttonHWStop();   // Signal for physical hardware button press, it stops the treadmill automatically
+        }
     }
     firstCharacteristicChanged = false;
 }
