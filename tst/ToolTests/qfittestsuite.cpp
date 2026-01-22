@@ -6,6 +6,8 @@
 #include <QDir>
 #include <QDebug>
 #include <QCoreApplication>
+#include <QEventLoop>
+#include <QTimer>
 
 QFitTestSuite::QFitTestSuite() : tempDir(nullptr) {
 }
@@ -160,25 +162,42 @@ void QFitTestSuite::test_databaseReadability() {
     // Create a FIT database processor with the database path
     FitDatabaseProcessor processor(dbPath);
 
+    // Setup event loop to wait for async processing
+    QEventLoop loop;
+    QTimer timeout;
+    timeout.setSingleShot(true);
+    timeout.setInterval(5000);  // 5 second timeout
+
     // Process the FIT file
     bool processed = false;
     QObject::connect(&processor, &FitDatabaseProcessor::fileProcessed,
-                     [&processed](const QString&) { processed = true; });
-
-    bool error = false;
-    QObject::connect(&processor, &FitDatabaseProcessor::error,
-                     [&error](const QString& msg) {
-                         qDebug() << "Database processor error:" << msg;
-                         error = true;
+                     [&processed, &loop](const QString&) {
+                         processed = true;
+                         loop.quit();
                      });
 
-    processor.processFile(filename);
+    bool error = false;
+    QString errorMsg;
+    QObject::connect(&processor, &FitDatabaseProcessor::error,
+                     [&error, &errorMsg, &loop](const QString& msg) {
+                         qDebug() << "Database processor error:" << msg;
+                         error = true;
+                         errorMsg = msg;
+                         loop.quit();
+                     });
 
-    // Wait briefly for async processing
-    QCoreApplication::processEvents();
+    QObject::connect(&timeout, &QTimer::timeout, &loop, &QEventLoop::quit);
+
+    processor.processFile(filename);
+    timeout.start();
+
+    // Wait for processing to complete or timeout
+    loop.exec();
+    timeout.stop();
 
     EXPECT_TRUE(processed) << "FIT file should be processed successfully by database";
-    EXPECT_FALSE(error) << "No errors should occur during database processing";
+    EXPECT_FALSE(error) << "No errors should occur during database processing. Error: "
+                        << errorMsg.toStdString();
 
     qDebug() << "✓ Database readability test passed";
 }
