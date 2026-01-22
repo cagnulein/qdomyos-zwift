@@ -198,5 +198,13 @@ void QFitTestSuite::test_databaseReadability() {
     EXPECT_FALSE(error) << "No errors should occur during database processing. Error: "
                         << errorMsg.toStdString();
 
+    // Copy database file to test-artifacts directory for download
+    if (QFile::exists(dbPath)) {
+        QString dbArtifactPath = "test-artifacts/test_database.sqlite";
+        QFile::remove(dbArtifactPath);
+        QFile::copy(dbPath, dbArtifactPath);
+        qDebug() << "Database file saved to:" << dbArtifactPath;
+    }
+
     qDebug() << "✓ Database readability test passed";
 }

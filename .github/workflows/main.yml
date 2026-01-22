@@ -430,12 +430,14 @@ jobs:
           name: test_results_xml
           path: tst/test-results/**/*.xml
 
-      - name: Upload test FIT files
+      - name: Upload test FIT files and database
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test_fit_files
-          path: tst/test-artifacts/*.fit
+          name: test_fit_files_and_db
+          path: |
+            tst/test-artifacts/*.fit
+            tst/test-artifacts/*.sqlite
 
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
