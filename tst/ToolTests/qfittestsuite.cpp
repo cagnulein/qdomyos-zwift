@@ -3,6 +3,7 @@
 #include "../../src/fitdatabaseprocessor.h"
 #include <QDateTime>
 #include <QFile>
+#include <QDir>
 #include <QDebug>
 #include <QCoreApplication>
 
@@ -104,6 +105,16 @@ void QFitTestSuite::test_newFormatDeveloperFields() {
     QString filename = createNewFormatFitFile();
     ASSERT_TRUE(QFile::exists(filename)) << "Failed to create FIT file";
 
+    // Copy to test-artifacts directory for download
+    QDir artifactsDir("test-artifacts");
+    if (!artifactsDir.exists()) {
+        artifactsDir.mkpath(".");
+    }
+    QString artifactPath = "test-artifacts/test_new_format.fit";
+    QFile::remove(artifactPath);
+    QFile::copy(filename, artifactPath);
+    qDebug() << "FIT file saved to:" << artifactPath;
+
     // Read the file back
     QList<SessionLine> session;
     FIT_SPORT sport = FIT_SPORT_INVALID;
@@ -120,10 +131,10 @@ void QFitTestSuite::test_newFormatDeveloperFields() {
     EXPECT_FALSE(session.isEmpty()) << "Session should not be empty";
     EXPECT_EQ(sport, FIT_SPORT_CYCLING) << "Sport should be cycling";
 
-    // Verify all developer fields were read correctly from the new format (message 0xFF00)
+    // Verify all developer fields were read correctly from WorkoutMesg
     EXPECT_TRUE(verifyDeveloperFields(workoutName, workoutSource, pelotonWorkoutId,
                                       pelotonUrl, trainingProgramFile))
-        << "Developer fields should be read correctly from new format (0xFF00)";
+        << "Developer fields should be read correctly from WorkoutMesg";
 
     qDebug() << "✓ New format developer fields test passed";
 }
@@ -132,6 +143,16 @@ void QFitTestSuite::test_databaseReadability() {
     // Create a FIT file with new format
     QString filename = createNewFormatFitFile();
     ASSERT_TRUE(QFile::exists(filename)) << "Failed to create FIT file";
+
+    // Copy to test-artifacts directory for download
+    QDir artifactsDir("test-artifacts");
+    if (!artifactsDir.exists()) {
+        artifactsDir.mkpath(".");
+    }
+    QString artifactPath = "test-artifacts/test_database_readability.fit";
+    QFile::remove(artifactPath);
+    QFile::copy(filename, artifactPath);
+    qDebug() << "FIT file saved to:" << artifactPath;
 
     // Create a temporary database path
     QString dbPath = tempDir->filePath("test_db.sqlite");

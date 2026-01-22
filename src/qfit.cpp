@@ -601,7 +601,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
     encode.Write(timestampCorrelationMesg);
 
-    // Always write workout message to hold developer metadata fields
+    // Write workout message with developer metadata fields when workout name exists
     // This keeps workout-related metadata separate from session/activity for better compatibility
     if (workoutName.length() > 0) {
         fit::TrainingFileMesg trainingFile;
@@ -609,37 +609,31 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         trainingFile.SetTimeCreated(sessionMesg.GetTimestamp());
         trainingFile.SetType(FIT_FILE_WORKOUT);
         encode.Write(trainingFile);
-    }
 
-    fit::WorkoutMesg workout;
-    workout.SetSport(sessionMesg.GetSport());
-    workout.SetSubSport(sessionMesg.GetSubSport());
-    if (workoutName.length() > 0) {
+        fit::WorkoutMesg workout;
+        workout.SetSport(sessionMesg.GetSport());
+        workout.SetSubSport(sessionMesg.GetSubSport());
 #ifndef _WIN32
         workout.SetWktName(workoutName.toStdWString());
 #endif
         workout.SetNumValidSteps(1);
-    } else {
-        workout.SetNumValidSteps(0);  // No steps when no workout name
-    }
 
-    // Add developer fields to workout message
-    workout.AddDeveloperField(activityTitleField);
-    workout.AddDeveloperField(ftpSessionField);
-    workout.AddDeveloperField(workoutSourceField);
-    if (!pelotonWorkoutId.isEmpty()) {
-        workout.AddDeveloperField(pelotonWorkoutIdField);
-    }
-    if (!pelotonUrl.isEmpty()) {
-        workout.AddDeveloperField(pelotonUrlField);
-    }
-    if (!trainingProgramFile.isEmpty()) {
-        workout.AddDeveloperField(trainingProgramFileField);
-    }
+        // Add developer fields to workout message
+        workout.AddDeveloperField(activityTitleField);
+        workout.AddDeveloperField(ftpSessionField);
+        workout.AddDeveloperField(workoutSourceField);
+        if (!pelotonWorkoutId.isEmpty()) {
+            workout.AddDeveloperField(pelotonWorkoutIdField);
+        }
+        if (!pelotonUrl.isEmpty()) {
+            workout.AddDeveloperField(pelotonUrlField);
+        }
+        if (!trainingProgramFile.isEmpty()) {
+            workout.AddDeveloperField(trainingProgramFileField);
+        }
 
-    encode.Write(workout);
+        encode.Write(workout);
 
-    if (workoutName.length() > 0) {
         fit::WorkoutStepMesg workoutStep;
         workoutStep.SetDurationTime(sessionMesg.GetTotalTimerTime());
         workoutStep.SetTargetValue(0);

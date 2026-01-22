@@ -428,7 +428,14 @@ jobs:
         if: failure()
         with:
           name: test_results_xml
-          path: tst/test-results/**/*.xml               
+          path: tst/test-results/**/*.xml
+
+      - name: Upload test FIT files
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test_fit_files
+          path: tst/test-artifacts/*.fit
 
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
