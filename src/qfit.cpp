@@ -673,10 +673,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     // This separates metadata from session/activity for better Garmin Connect compatibility
     fit::Mesg metadataMesg(0xFF00);  // Manufacturer-specific message number (65280)
 
-    // Add a base timestamp field (field 253 is standard timestamp in FIT protocol)
-    // This gives the message a valid base field, preventing decode errors
-    metadataMesg.SetFieldUINT32Value(253, session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
-
     // Add all developer fields to the custom metadata message
     metadataMesg.AddDeveloperField(activityTitleField);
     metadataMesg.AddDeveloperField(ftpSessionField);
