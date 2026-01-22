@@ -1195,7 +1195,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             index += 1;
         }
 
-        if (watts())
+        if (watts() && !ftmsFrameReceived)
             KCal += ((((0.048 * ((double)watts()) + 1.19) *
                         settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                         200.0) /
