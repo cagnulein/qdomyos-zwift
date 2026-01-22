@@ -64,6 +64,8 @@ class horizontreadmill : public treadmill {
     QLowEnergyService *gattCustomService = nullptr;
     volatile int notificationSubscribed = 0;
 
+    static inline const QBluetoothUuid DomyosServiceId{QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455")};
+
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QByteArray lastPacketComplete;
@@ -115,6 +117,7 @@ class horizontreadmill : public treadmill {
     bool TP1 = false;
     bool T01 = false;
     bool TM4800 = false;
+    bool TM6500 = false;
 
     void testProfileCRC();
     void updateProfileCRC();

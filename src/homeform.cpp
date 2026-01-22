@@ -45,6 +45,7 @@
 #include <QFile>
 #include <QUrlQuery>
 #include <QRegularExpression>
+#include <algorithm>
 #include <chrono>
 
 homeform *homeform::m_singleton = 0;
@@ -108,6 +109,10 @@ void DataObject::setValueFontColor(const QString &value) {
 void DataObject::setLargeButtonColor(const QString &color) {
     m_largeButtonColor = color;
     emit largeButtonColorChanged(m_largeButtonColor);
+}
+void DataObject::setLargeButtonLabel(const QString &label) {
+    m_largeButtonLabel = label;
+    emit largeButtonLabelChanged(m_largeButtonLabel);
 }
 void DataObject::setLabelFontSize(int value) {
     m_labelFontSize = value;
@@ -305,6 +310,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                              QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingClimb"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Climb", QStringLiteral("red"));
     autoVirtualShiftingSprint = new DataObject(QStringLiteral("Sprint"), QStringLiteral("icons/icons/watt.png"),
                                               QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingSprint"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Sprint", QStringLiteral("red"));
+    powerAvg = new DataObject(QStringLiteral("Power Avg"), QStringLiteral("icons/icons/watt.png"),
+                             QStringLiteral("0"), true, QStringLiteral("powerAvg"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Off", QStringLiteral("grey"));
     pidHR = new DataObject(QStringLiteral("PID Heart"), QStringLiteral("icons/icons/heart_red.png"),
                            QStringLiteral("0"), true, QStringLiteral("pid_hr"), 48, labelFontSize);
     extIncline = new DataObject(QStringLiteral("Ext.Inclin.(%)"), QStringLiteral("icons/icons/inclination.png"),
@@ -1464,6 +1471,10 @@ void homeform::trainProgramSignals() {
                    ((elliptical *)bluetoothManager->device()), &elliptical::changeRequestedPelotonResistance);
         disconnect(((treadmill *)bluetoothManager->device()), &treadmill::tapeStarted, trainProgram,
                    &trainprogram::onTapeStarted);
+        disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStart, this,
+                   &homeform::StartFromDevice);
+        disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
+                   &homeform::StopFromDevice);
         disconnect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram,
                    &trainprogram::onTapeStarted);
         disconnect(trainProgram, &trainprogram::changeGeoPosition, bluetoothManager->device(),
@@ -1490,6 +1501,10 @@ void homeform::trainProgramSignals() {
                     &treadmill::changeSpeedAndInclination);
             connect(((treadmill *)bluetoothManager->device()), &treadmill::tapeStarted, trainProgram,
                     &trainprogram::onTapeStarted);
+            connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStart, this,
+                    &homeform::StartFromDevice);
+            connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
+                    &homeform::StopFromDevice);
             connect(trainProgram, &trainprogram::changePower, ((treadmill *)bluetoothManager->device()), &treadmill::changePower);
         } else if (bluetoothManager->device()->deviceType() == BIKE) {
             connect(trainProgram, &trainprogram::changeCadence, ((bike *)bluetoothManager->device()),
@@ -2748,6 +2763,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_auto_virtual_shifting_sprint_order, QZSettings::default_tile_auto_virtual_shifting_sprint_order).toInt() == i) {
                 autoVirtualShiftingSprint->setGridId(i);
                 dataList.append(autoVirtualShiftingSprint);
+            }
+
+            if (settings.value(QZSettings::tile_power_avg_enabled, QZSettings::default_tile_power_avg_enabled).toBool() &&
+                settings.value(QZSettings::tile_power_avg_order, QZSettings::default_tile_power_avg_order).toInt() == i) {
+                powerAvg->setGridId(i);
+                dataList.append(powerAvg);
             }
 
             if (settings.value(QZSettings::tile_preset_powerzone_1_enabled, QZSettings::default_tile_preset_powerzone_1_enabled).toBool() &&
@@ -4396,6 +4417,24 @@ void homeform::LargeButton(const QString &name) {
     } else if(name.contains(QStringLiteral("autoVirtualShiftingSprint"))) {
         // Switch to Sprint profile (2)
         settings.setValue(QZSettings::automatic_virtual_shifting_profile, 2);
+    } else if(name.contains(QStringLiteral("powerAvg"))) {
+        // Cycle through power averaging modes: Off -> 3s -> 5s -> Off
+        bool power3s = settings.value(QZSettings::power_avg_3s, QZSettings::default_power_avg_3s).toBool();
+        bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
+
+        if (!power3s && !power5s) {
+            // Currently Off, switch to 3s
+            settings.setValue(QZSettings::power_avg_3s, true);
+            settings.setValue(QZSettings::power_avg_5s, false);
+        } else if (power3s) {
+            // Currently 3s, switch to 5s
+            settings.setValue(QZSettings::power_avg_3s, false);
+            settings.setValue(QZSettings::power_avg_5s, true);
+        } else {
+            // Currently 5s, switch to Off
+            settings.setValue(QZSettings::power_avg_3s, false);
+            settings.setValue(QZSettings::power_avg_5s, false);
+        }
     }
 }
 
@@ -5087,6 +5126,16 @@ void homeform::Start_inner(bool send_event_to_device) {
     }
 }
 
+void homeform::StartFromDevice() {
+    qDebug() << QStringLiteral("Physical start button pressed on device");
+    Start_inner(false);  // false = don't send command back to device (it already started)
+}
+
+void homeform::StopFromDevice() {
+    qDebug() << QStringLiteral("Physical stop button pressed on device - stopping app");
+    Stop();
+}
+
 void homeform::StartRequested() {
     Start();
     m_stopRequested = false;
@@ -5127,6 +5176,17 @@ void homeform::Stop() {
         return;
     }
 
+    if (bluetoothManager->device()) {
+        if (bluetoothManager->device()->deviceType() == TREADMILL) {
+            QTime zero(0, 0, 0, 0);
+            if (bluetoothManager->device()->currentSpeed().value() == 0.0 &&
+                zero.secsTo(bluetoothManager->device()->elapsedTime()) == 0) {
+                qDebug() << QStringLiteral("Stop pressed - nothing to do. Elapsed time is 0 and current speed is 0");
+                return;
+            }
+        }
+    }
+
 #ifdef Q_OS_IOS
     // due to #857
     if (!settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr)
@@ -5138,16 +5198,6 @@ void homeform::Stop() {
         m_speech.say("Stop pressed");
 
     if (bluetoothManager->device()) {
-
-        if (bluetoothManager->device()->deviceType() == TREADMILL) {
-            QTime zero(0, 0, 0, 0);
-            if (bluetoothManager->device()->currentSpeed().value() == 0.0 &&
-                zero.secsTo(bluetoothManager->device()->elapsedTime()) == 0) {
-                qDebug() << QStringLiteral("Stop pressed - nothing to do. Elapsed time is 0 and current speed is 0");
-                return;
-            }
-        }
-
         bluetoothManager->device()->stop(false);
     }
 
@@ -5991,6 +6041,21 @@ void homeform::update() {
             autoVirtualShiftingCruise->setLargeButtonColor(currentProfile == 0 ? QStringLiteral("green") : QStringLiteral("red"));
             autoVirtualShiftingClimb->setLargeButtonColor(currentProfile == 1 ? QStringLiteral("green") : QStringLiteral("red"));
             autoVirtualShiftingSprint->setLargeButtonColor(currentProfile == 2 ? QStringLiteral("green") : QStringLiteral("red"));
+
+            // Update power averaging tile text and color based on active mode
+            bool power3s = settings.value(QZSettings::power_avg_3s, QZSettings::default_power_avg_3s).toBool();
+            bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
+            if (!power3s && !power5s) {
+                powerAvg->setLargeButtonLabel(QStringLiteral("Off"));
+                powerAvg->setLargeButtonColor(QStringLiteral("grey"));
+            } else if (power3s) {
+                powerAvg->setLargeButtonLabel(QStringLiteral("3s avg"));
+                powerAvg->setLargeButtonColor(QStringLiteral("green"));
+            } else {
+                powerAvg->setLargeButtonLabel(QStringLiteral("5s avg"));
+                powerAvg->setLargeButtonColor(QStringLiteral("blue"));
+            }
+
             extIncline->setSecondLine(QStringLiteral("Gain: ") + QString::number(elite_rizer_gain, 'f', 1));
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             resistance = ((bike *)bluetoothManager->device())->currentResistance().value();
@@ -7115,35 +7180,38 @@ void homeform::update() {
                                  << QStringLiteral("minSpeed:") << minSpeed << QStringLiteral("maxSpeed:") << maxSpeed;
 
                         if (hrmax < bluetoothManager->device()->currentHeart().average20s() &&
-                            minSpeed <= currentSpeed - step) {
+                            currentSpeed > minSpeed) {
+                            double newSpeed = std::max(currentSpeed - step, minSpeed);
                             qDebug() << QStringLiteral("TREADMILL PID HR - HR > HRmax, DECREASING speed from")
-                                     << currentSpeed << QStringLiteral("to") << (currentSpeed - step);
+                                     << currentSpeed << QStringLiteral("to") << newSpeed;
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
-                                    currentSpeed - step,
+                                    newSpeed,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
                         } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
-                                   maxSpeed >= currentSpeed + step) {
+                                   currentSpeed < maxSpeed) {
+                            double newSpeed = std::min(currentSpeed + step, maxSpeed);
                             qDebug() << QStringLiteral("TREADMILL PID HR - HR < HRmin, INCREASING speed from")
-                                     << currentSpeed << QStringLiteral("to") << (currentSpeed + step);
+                                     << currentSpeed << QStringLiteral("to") << newSpeed;
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
 
-                                    currentSpeed + step,
+                                    newSpeed,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else if (maxSpeed >= currentSpeed + step &&
+                        } else if (currentSpeed < maxSpeed &&
                                    hrmax >= bluetoothManager->device()->currentHeart().average20s() && trainprogram_pid_pushy) {
                             qDebug() << QStringLiteral("TREADMILL PID HR - PUSHY mode, counter:") << pid_heart_zone_small_inc_counter
                                      << QStringLiteral("threshold:") << (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average20s()));
                             pid_heart_zone_small_inc_counter++;
                             if (pid_heart_zone_small_inc_counter > (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average20s()))) {
+                                double newSpeed = std::min(currentSpeed + step, maxSpeed);
                                 qDebug() << QStringLiteral("TREADMILL PID HR - PUSHY triggered, INCREASING speed from")
-                                         << currentSpeed << QStringLiteral("to") << (currentSpeed + step);
+                                         << currentSpeed << QStringLiteral("to") << newSpeed;
                                 ((treadmill *)bluetoothManager->device())
                                     ->changeSpeedAndInclination(
-                                        currentSpeed + step,
+                                        newSpeed,
                                         ((treadmill *)bluetoothManager->device())->currentInclination().value());
                                 pid_heart_zone_small_inc_counter = 0;
                             }
@@ -7163,10 +7231,11 @@ void homeform::update() {
                                      << currentResistance << QStringLiteral("to") << (currentResistance - step);
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
                         } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
-                                   maxResistance >= currentResistance + step) {
+                                   currentResistance < maxResistance) {
+                            resistance_t newResistance = std::min(static_cast<resistance_t>(currentResistance + step), static_cast<resistance_t>(maxResistance));
                             qDebug() << QStringLiteral("BIKE PID HR - HR < HRmin, INCREASING resistance from")
-                                     << currentResistance << QStringLiteral("to") << (currentResistance + step);
-                            ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
+                                     << currentResistance << QStringLiteral("to") << newResistance;
+                            ((bike *)bluetoothManager->device())->changeResistance(newResistance);
                         } else {
                             qDebug() << QStringLiteral("BIKE PID HR - No action taken (in zone or at limits)");
                         }
@@ -8095,11 +8164,14 @@ void homeform::gpxpreview_open_clicked(const QUrl &fileName) {
 
     if (!file.fileName().isEmpty()) {
         gpx g;
-        auto g_list = g.open(file.fileName(), bluetoothManager->device() ? bluetoothManager->device()->deviceType() : BIKE);
+        // Force no loop for preview to show actual GPX distance
+        auto g_list = g.open(file.fileName(), bluetoothManager->device() ? bluetoothManager->device()->deviceType() : BIKE, true);
         gpx_preview.clearPath();
         for (const auto &p : g_list) {
             gpx_preview.addCoordinate(QGeoCoordinate(p.latitude, p.longitude, p.elevation));
         }
+        // Set distance BEFORE setGeoPath to ensure QML onGeopathChanged has correct value
+        pathController.setDistance(g.getTotalDistance());
         pathController.setGeoPath(gpx_preview);
         pathController.setCenter(gpx_preview.center());
     }

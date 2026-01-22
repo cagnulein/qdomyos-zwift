@@ -85,6 +85,7 @@ class DataObject : public QObject {
     void setVisible(bool visible);
     void setGridId(int id);
     void setLargeButtonColor(const QString &color);
+    void setLargeButtonLabel(const QString &label);
     QString name() { return m_name; }
     QString icon() { return m_icon; }
     QString value() { return m_value; }
@@ -806,6 +807,7 @@ class homeform : public QObject {
     DataObject *autoVirtualShiftingCruise;
     DataObject *autoVirtualShiftingClimb;
     DataObject *autoVirtualShiftingSprint;
+    DataObject *powerAvg;
 
   private:
     static homeform *m_singleton;
@@ -1051,6 +1053,8 @@ class homeform : public QObject {
     void strava_upload_file_prepare();
     void garmin_upload_file_prepare();
     void handleRestoreDefaultWheelDiameter();
+    void StartFromDevice();  // Called when physical start button pressed on hardware
+    void StopFromDevice();   // Called when physical stop button pressed on hardware
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
     void licenseReply(QNetworkReply *reply);
