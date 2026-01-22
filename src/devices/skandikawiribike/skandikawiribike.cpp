@@ -1,5 +1,6 @@
 #include "skandikawiribike.h"
 #include "qzsettings.h"
+#include "homeform.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -406,6 +407,11 @@ void skandikawiribike::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xfff0);
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    if (!gattCommunicationChannelService) {
+        homeform::singleton()->setToastRequested(
+            "no service found, contact me to roberto.viola83@gmail.com!");
+        return;
+    }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &skandikawiribike::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }

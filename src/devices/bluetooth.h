@@ -34,6 +34,7 @@
 #include "devices/coresensor/coresensor.h"
 #ifndef Q_OS_IOS
 #include "devices/computrainerbike/computrainerbike.h"
+#include "devices/kettlerusbbike/kettlerusbbike.h"
 #include "devices/csaferower/csaferower.h"
 #include "devices/csafeelliptical/csafeelliptical.h"
 #endif
@@ -196,6 +197,7 @@ class bluetooth : public QObject, public SignalHandler {
     focustreadmill *focusTreadmill = nullptr;
 #ifndef Q_OS_IOS
     computrainerbike *computrainerBike = nullptr;
+    kettlerusbbike *kettlerUsbBike = nullptr;
     csaferower *csafeRower = nullptr;
     csafeelliptical *csafeElliptical = nullptr;
 #endif

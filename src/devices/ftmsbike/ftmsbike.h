@@ -167,6 +167,9 @@ class ftmsbike : public bike {
     bool YPBM = false;
     bool SPORT01 = false;
     bool FS_YK = false;
+    bool S18 = false;
+    bool JFICCYCLE = false;
+    bool ZIPRO_RAVE = false;
 
     uint8_t secondsToResetTimer = 5;
 

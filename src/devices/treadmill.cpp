@@ -15,12 +15,25 @@ void treadmill::changeSpeed(double speed) {
         targetWatts = -1;
         qDebug() << "External speed change - resetting power following mode";
     }
-    
+
     QSettings settings;
+    double treadmill_speed_max = settings.value(QZSettings::treadmill_speed_max, QZSettings::default_treadmill_speed_max).toDouble();
+    double treadmill_speed_min = settings.value(QZSettings::treadmill_speed_min, QZSettings::default_treadmill_speed_min).toDouble();
     bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
     m_lastRawSpeedRequested = speed;
     speed /= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
-    speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();    
+    speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();
+
+    if(speed > treadmill_speed_max) {
+        speed = treadmill_speed_max;
+        qDebug() << "speed override due to treadmill_speed_max" << speed;
+    }
+
+    if(speed < treadmill_speed_min && speed > 0) {
+        speed = treadmill_speed_min;
+        qDebug() << "speed override due to treadmill_speed_min" << speed;
+    }
+
     if(stryd_speed_instead_treadmill && Speed.value() > 0) {
         double delta = (Speed.value() - rawSpeed.value());
         double maxAllowedDelta = speed * 0.20; // 20% of the speed request
@@ -137,9 +150,14 @@ void treadmill::update_metrics(bool watt_calc, const double watts, const bool fr
     METS = calculateMETS();
     if (currentInclination().value() > 0)
         elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
+    else if (currentInclination().value() < 0)
+        negativeElevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * fabs(currentInclination().value() / 100.0) * deltaTime;
 
     _lastTimeUpdate = current;
     _firstUpdate = false;
+
+    // Update iOS Live Activity with throttling
+    update_ios_live_activity();
 }
 
 uint16_t treadmill::wattsCalc(double weight, double speed, double inclination) {
@@ -177,6 +195,7 @@ void treadmill::clearStats() {
     Heart.clear(false);
     m_jouls.clear(true);
     elevationAcc = 0;
+    negativeElevationAcc = 0;
     m_watt.clear(false);
     WeightLoss.clear(false);
     WattKg.clear(false);
@@ -520,26 +539,30 @@ double treadmill::treadmillInclinationOverride(double Inclination) {
 }
 
 void treadmill::evaluateStepCount() {
-    StepCount += (Cadence.lastChanged().msecsTo(QDateTime::currentDateTime())) * (Cadence.value() / 60000) * 2.0;
+    // Auto-detect cadence format: if < 120, assume it's per-leg and needs doubling for step count
+    double effectiveCadence = (Cadence.value() < 120 && Cadence.value() > 0) ? Cadence.value() * 2 : Cadence.value();
+    StepCount += (Cadence.lastChanged().msecsTo(QDateTime::currentDateTime())) * (effectiveCadence / 60000);
 }
 
-void treadmill::cadenceFromAppleWatch() {
+bool treadmill::cadenceFromAppleWatch() {
     QSettings settings;
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
-        lockscreen h;
+    lockscreen h;
+    if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {        
         evaluateStepCount();
         Cadence = h.getFootCad();
         qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
-    } else if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+        return true;
+    } else if (h.appleWatchAppInstalled() && 
+                settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                    .toString()
                    .startsWith(QStringLiteral("Disabled"))) {
-        lockscreen h;
         evaluateStepCount();
         long appleWatchCadence = h.stepCadence();
         Cadence = appleWatchCadence;
         qDebug() << QStringLiteral("Current Cadence: ") << QString::number(Cadence.value());
+        return true;
     }
 #endif
 #endif
@@ -549,8 +572,51 @@ void treadmill::cadenceFromAppleWatch() {
         evaluateStepCount();
         Cadence = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
         qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
+        return true;
     }
 #endif    
+
+    return false;
+}
+
+double treadmill::calculateCadenceFromSpeed(double speed) {
+    QSettings settings;
+
+    // Return 0 if speed is too low (walking or stopped)
+    if (speed < 0.1) {
+        return 0.0;
+    }
+
+    // Get user height in meters
+    double heightCm = settings.value(QZSettings::height, QZSettings::default_height).toDouble();
+    double heightM = heightCm / 100.0;
+
+    // Get user gender
+    QString gender = settings.value(QZSettings::sex, QZSettings::default_sex).toString();
+
+    // Calculate stride length from height based on gender
+    // Male: height × 0.415, Female: height × 0.413
+    double strideLengthM;
+    if (gender.compare(QStringLiteral("Male"), Qt::CaseInsensitive) == 0) {
+        strideLengthM = heightM * 0.415;
+    } else {
+        strideLengthM = heightM * 0.413;
+    }
+
+    // If stride length is available from external sensor, use that instead
+    if (instantaneousStrideLengthCMAvailableFromDevice && InstantaneousStrideLengthCM.value() > 0) {
+        strideLengthM = InstantaneousStrideLengthCM.value() / 100.0;
+    }
+
+    // Calculate cadence: SPM = (speed_m/s / stride_length_m) × 60
+    // speed is in km/h, convert to m/s
+    double speedMs = speed * 1000.0 / 3600.0;  // km/h to m/s
+    double calculatedCadence = (speedMs / strideLengthM) * 60.0;
+
+    qDebug() << "Calculated Cadence from Speed:" << calculatedCadence
+             << "SPM (speed:" << speed << "km/h, stride:" << (strideLengthM * 100) << "cm)";
+
+    return calculatedCadence;
 }
 
 bool treadmill::simulateInclinationWithSpeed() {
@@ -680,6 +746,16 @@ void treadmill::parseSpeed(double speed) {
         qDebug() << "speed from the treadmill is discarded since we are using the one from the power sensor " << speed;
     }
     rawSpeed = speed;
+}
+
+void treadmill::parseCadence(double cadence) {
+    QSettings settings;
+    bool power_sensor_cadence_instead_treadmill = settings.value(QZSettings::power_sensor_cadence_instead_treadmill, QZSettings::default_power_sensor_cadence_instead_treadmill).toBool();
+    if(!power_sensor_cadence_instead_treadmill) {
+        Cadence = cadence;
+    } else {
+        qDebug() << "cadence from the treadmill is discarded since we are using the one from the power sensor " << cadence;
+    }
 }
 
 /*

@@ -346,21 +346,25 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                         uint16_t stridesDiff = currentStrideCount - lastStrideCount;
                         double timeInMinutes = lastStrideCountChanged.msecsTo(now) / 60000.0;
 
-                        // Sanity check: reject unrealistic values (e.g., > 300 strides in one sample)
-                        if (timeInMinutes > 0 && stridesDiff < 1000) {
+                        // Sanity check: reject unrealistic values and require minimum 5 strides for stable calculation
+                        if (timeInMinutes > 0 && stridesDiff >= 5 && stridesDiff < 1000) {
                             // strides per minute, then divide by 2 to get RPM
                             double stridesPerMinute = stridesDiff / timeInMinutes;
                             instantCadence = stridesPerMinute / 2.0;
-                            if(instantCadence.average5s() < 200) // sanity check
+                            if(instantCadence.value() < 120 && instantCadence.average5s() < 200) // sanity check: reject spikes > 120 RPM
                                 Cadence = instantCadence.average5s();
                             emit debug(QStringLiteral("Current Cadence (from strideCount): ") + QString::number(Cadence.value()) +
                                       QStringLiteral(" (diff: ") + QString::number(stridesDiff) + QStringLiteral(")"));
-                        }
-                    }
 
-                    // Update last stride count and timestamp only when value changes
-                    lastStrideCount = currentStrideCount;
-                    lastStrideCountChanged = now;
+                            // Update last stride count and timestamp only after successful calculation
+                            lastStrideCount = currentStrideCount;
+                            lastStrideCountChanged = now;
+                        }
+                    } else {
+                        // First stride count received, initialize tracking
+                        lastStrideCount = currentStrideCount;
+                        lastStrideCountChanged = now;
+                    }
                 }
             }
 
@@ -689,6 +693,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (newvalue.length() == 15) {
             Speed = (double)((((uint8_t)newvalue.at(10)) << 8) | ((uint8_t)newvalue.at(9))) / 100.0;
             Cadence = newvalue.at(6);
+            m_watt = elliptical::watts();
 
             Distance += ((Speed.value() / 3600000.0) *
                          ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
