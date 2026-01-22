@@ -5127,12 +5127,12 @@ void homeform::Start_inner(bool send_event_to_device) {
 }
 
 void homeform::StartFromDevice() {
-    emit debug(QStringLiteral("Physical start button pressed on device"));
+    qDebug() << QStringLiteral("Physical start button pressed on device");
     Start_inner(false);  // false = don't send command back to device (it already started)
 }
 
 void homeform::StopFromDevice() {
-    emit debug(QStringLiteral("Physical stop button pressed on device - stopping app"));
+    qDebug() << QStringLiteral("Physical stop button pressed on device - stopping app");
     Stop();
 }
 
