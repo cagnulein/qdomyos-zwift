@@ -83,15 +83,23 @@ public class ChannelService extends Service {
                 // If there are channels OR legacy interface in use, allow adding channels
                 if (mChannelAvailable || legacyInterfaceInUse) {
                     mAllowAddChannel = true;
+                    QLog.i(TAG, "ANT+ channels are available - proceeding to open channels");
                 } else {
                     // If no channels available AND legacy interface is not in use, disallow adding channels
                     mAllowAddChannel = false;
+                    QLog.w(TAG, "No ANT+ channels available on this device!");
+                    QLog.w(TAG, "Possible causes:");
+                    QLog.w(TAG, "  1. Device does not have ANT+ hardware");
+                    QLog.w(TAG, "  2. ANT+ Radio Service is not installed or not running");
+                    QLog.w(TAG, "  3. All channels are in use by other applications");
+                    QLog.w(TAG, "  4. ANT+ permissions are not granted");
+                    QLog.w(TAG, "Waiting for channels to become available...");
                 }
 
                 try {
                     openAllChannels();
                 } catch (ChannelNotAvailableException exception) {
-                    QLog.e(TAG, "Channel not available!!");
+                    QLog.e(TAG, "Channel not available!! Exception: " + exception.getMessage());
                 }
             } catch (RemoteException e) {
                 // TODO Auto-generated catch block
@@ -316,6 +324,13 @@ public class ChannelService extends Service {
     }
 
     public void openAllChannels() throws ChannelNotAvailableException {
+        // Check if we're allowed to add channels before attempting to acquire any
+        if (!mAllowAddChannel) {
+            QLog.w(TAG, "openAllChannels: Cannot open channels - no ANT+ channels available on this device");
+            QLog.w(TAG, "openAllChannels: Waiting for ANT+ channels to become available...");
+            return;
+        }
+
         if (Ant.heartRequest && heartChannelController == null)
             heartChannelController = new HeartChannelController(Ant.antHeartDeviceNumber);
 
@@ -335,11 +350,12 @@ public class ChannelService extends Service {
 
         // Add initialization for BikeTransmitterController (transmitter) - only when NOT treadmill
         if (!Ant.treadmill && bikeTransmitterController == null) {
-            QLog.v(TAG, "Initializing BikeTransmitterController (not treadmill mode)");
+            QLog.i(TAG, "Initializing BikeTransmitterController (bike mode)");
             try {
                 // Acquire channel like other controllers
                 AntChannel transmitterChannel = acquireChannel();
                 if (transmitterChannel != null) {
+                    QLog.i(TAG, "ANT+ channel acquired successfully for BikeTransmitterController");
                     bikeTransmitterController = new BikeTransmitterController(transmitterChannel);
                     
                     // Set up control command listener to handle requests from ANT+ devices
@@ -482,10 +498,11 @@ public class ChannelService extends Service {
                     if (numChannels > 0 || legacyInterfaceInUse) {
                         mAllowAddChannel = true;
                         update = true;
+                        QLog.i(TAG, "ANT+ channels are now available! (numChannels=" + numChannels + ") - Opening channels...");
                         try {
                             openAllChannels();
                         } catch (ChannelNotAvailableException exception) {
-                            QLog.e(TAG, "Channel not available!!");
+                            QLog.e(TAG, "Channel not available!! Exception: " + exception.getMessage());
                         }
                     }
                 }
