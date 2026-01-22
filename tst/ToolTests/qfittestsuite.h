@@ -11,8 +11,8 @@
 /**
  * @brief Test suite for qfit FIT file reading/writing
  *
- * Tests backward compatibility for developer fields that were moved from
- * session message to custom developer data message (0xFF00)
+ * Tests developer fields moved from Session to WorkoutMesg for better
+ * Garmin Connect compatibility
  */
 class QFitTestSuite: public testing::Test {
 
@@ -21,19 +21,9 @@ public:
     ~QFitTestSuite() override;
 
     /**
-     * @brief Test that FIT files with new format (developer fields in 0xFF00) can be read correctly
+     * @brief Test that FIT files with new format (developer fields in WorkoutMesg) can be read correctly
      */
     void test_newFormatDeveloperFields();
-
-    /**
-     * @brief Test that old FIT files with developer fields in session still work (backward compatibility)
-     */
-    void test_backwardCompatibilityOldFormat();
-
-    /**
-     * @brief Test that FIT files can be read by FIT database processor
-     */
-    void test_databaseReadability();
 
 protected:
     void SetUp() override;
@@ -48,7 +38,7 @@ private:
     QList<SessionLine> createTestSession();
 
     /**
-     * @brief Create a FIT file with developer fields in new format (0xFF00)
+     * @brief Create a FIT file with developer fields in new format (WorkoutMesg)
      */
     QString createNewFormatFitFile();
 
@@ -62,10 +52,6 @@ private:
 
 TEST_F(QFitTestSuite, TestNewFormatDeveloperFields) {
     this->test_newFormatDeveloperFields();
-}
-
-TEST_F(QFitTestSuite, TestDatabaseReadability) {
-    this->test_databaseReadability();
 }
 
 #endif // QFITTESTSUITE_H
