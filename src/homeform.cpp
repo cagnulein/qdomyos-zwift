@@ -1471,6 +1471,10 @@ void homeform::trainProgramSignals() {
                    ((elliptical *)bluetoothManager->device()), &elliptical::changeRequestedPelotonResistance);
         disconnect(((treadmill *)bluetoothManager->device()), &treadmill::tapeStarted, trainProgram,
                    &trainprogram::onTapeStarted);
+        disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStart, this,
+                   &homeform::StartFromDevice);
+        disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
+                   &homeform::StopFromDevice);
         disconnect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram,
                    &trainprogram::onTapeStarted);
         disconnect(trainProgram, &trainprogram::changeGeoPosition, bluetoothManager->device(),
@@ -1497,6 +1501,10 @@ void homeform::trainProgramSignals() {
                     &treadmill::changeSpeedAndInclination);
             connect(((treadmill *)bluetoothManager->device()), &treadmill::tapeStarted, trainProgram,
                     &trainprogram::onTapeStarted);
+            connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStart, this,
+                    &homeform::StartFromDevice);
+            connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
+                    &homeform::StopFromDevice);
             connect(trainProgram, &trainprogram::changePower, ((treadmill *)bluetoothManager->device()), &treadmill::changePower);
         } else if (bluetoothManager->device()->deviceType() == BIKE) {
             connect(trainProgram, &trainprogram::changeCadence, ((bike *)bluetoothManager->device()),
@@ -5118,6 +5126,16 @@ void homeform::Start_inner(bool send_event_to_device) {
     }
 }
 
+void homeform::StartFromDevice() {
+    emit debug(QStringLiteral("Physical start button pressed on device"));
+    Start_inner(false);  // false = don't send command back to device (it already started)
+}
+
+void homeform::StopFromDevice() {
+    emit debug(QStringLiteral("Physical stop button pressed on device - stopping app"));
+    Stop();
+}
+
 void homeform::StartRequested() {
     Start();
     m_stopRequested = false;
@@ -5158,6 +5176,17 @@ void homeform::Stop() {
         return;
     }
 
+    if (bluetoothManager->device()) {
+        if (bluetoothManager->device()->deviceType() == TREADMILL) {
+            QTime zero(0, 0, 0, 0);
+            if (bluetoothManager->device()->currentSpeed().value() == 0.0 &&
+                zero.secsTo(bluetoothManager->device()->elapsedTime()) == 0) {
+                qDebug() << QStringLiteral("Stop pressed - nothing to do. Elapsed time is 0 and current speed is 0");
+                return;
+            }
+        }
+    }
+
 #ifdef Q_OS_IOS
     // due to #857
     if (!settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr)
@@ -5169,16 +5198,6 @@ void homeform::Stop() {
         m_speech.say("Stop pressed");
 
     if (bluetoothManager->device()) {
-
-        if (bluetoothManager->device()->deviceType() == TREADMILL) {
-            QTime zero(0, 0, 0, 0);
-            if (bluetoothManager->device()->currentSpeed().value() == 0.0 &&
-                zero.secsTo(bluetoothManager->device()->elapsedTime()) == 0) {
-                qDebug() << QStringLiteral("Stop pressed - nothing to do. Elapsed time is 0 and current speed is 0");
-                return;
-            }
-        }
-
         bluetoothManager->device()->stop(false);
     }
 

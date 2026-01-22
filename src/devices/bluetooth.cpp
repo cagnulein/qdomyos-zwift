@@ -694,6 +694,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             }
             const QString deviceName = b.name();
             const QString upperDeviceName = deviceName.toUpper();
+            bool isRI009R = upperDeviceName.contains(QStringLiteral("RI009R"));
             bool isTrxAppGateUsbBikeTC = false;
             if (upperDeviceName.startsWith(QStringLiteral("TC")) && deviceName.length() == 5) {
                 isTrxAppGateUsbBikeTC = true;
@@ -2547,9 +2548,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         upperDeviceName.startsWith(QStringLiteral("PASYOU-")) ||
                         upperDeviceName.startsWith(QStringLiteral("VIRTUFIT")) ||
                         upperDeviceName.startsWith(QStringLiteral("IBIKING+")) ||
+                        isRI009R ||
                         ((deviceName.startsWith(QStringLiteral("TOORX")) ||
                           upperDeviceName.startsWith(QStringLiteral("I-CONSOIE+")) ||
-                          upperDeviceName.startsWith(QStringLiteral("I-CONSOLE+")) ||                          
+                          upperDeviceName.startsWith(QStringLiteral("I-CONSOLE+")) ||
                           upperDeviceName.startsWith(QStringLiteral("ICONSOLE+")) ||
                           upperDeviceName.startsWith(QStringLiteral("VIFHTR2.1")) ||
                           (upperDeviceName.startsWith(QStringLiteral("REEBOK"))) ||
@@ -2557,7 +2559,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                           (upperDeviceName.startsWith(QStringLiteral("FAL-SPORTS")) && toorx_bike) ||
                           upperDeviceName.startsWith(QStringLiteral("DKN MOTION"))) &&
                          (toorx_bike))) &&
-                       !trxappgateusb && !toorx_ftms && !toorx_ftms_treadmill && !trxappgateusbBike && filter && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) && !csc_as_bike) {
+                       !trxappgateusb && !toorx_ftms && !toorx_ftms_treadmill && !trxappgateusbBike && (filter || isRI009R) && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) && !csc_as_bike) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 trxappgateusbBike =

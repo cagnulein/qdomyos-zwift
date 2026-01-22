@@ -78,7 +78,7 @@ void ftmsrower::update() {
     }
 
     if (initRequest) {
-        if(I_ROWER || ROWER || MRK_R06) {
+        if(I_ROWER || SF_RW || ROWER || MRK_R06) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(write, sizeof(write), "start", false, true);
 
@@ -451,7 +451,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
                 m_watt = watt;
         }        
-    } else {
+    } else if(!PM5) {
         qDebug() << "rower doesn't send wattage, let's calculate it...";
         if(Speed.value() > 0)
             m_watt = rower::calculateWattsFromPace(instantPace);
@@ -592,10 +592,10 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::descriptorWritten, this, &ftmsrower::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &ftmsrower::descriptorRead);
 
-            if (I_ROWER || ROWER || MRK_R06) {
+            if (I_ROWER || SF_RW || ROWER || MRK_R06 || DOMYOS) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
-                    qDebug() << QStringLiteral("I-ROWER/ROWER/MRK-R06 wants to be subscribed only to FTMS service in order to send metrics")
+                    qDebug() << QStringLiteral("I-ROWER/SF-RW/ROWER/MRK-R06/DOMYOS wants to be subscribed only to FTMS service in order to send metrics")
                              << s->serviceUuid();
                     continue;
                 }
@@ -774,20 +774,28 @@ void ftmsrower::serviceScanDone(void) {
         QBluetoothUuid concept2InfoService(QStringLiteral("ce060010-43e5-11e4-916c-0800200c9a66"));
         QBluetoothUuid concept2ControlService(QStringLiteral("ce060020-43e5-11e4-916c-0800200c9a66"));
         QBluetoothUuid concept2RowingService(QStringLiteral("ce060030-43e5-11e4-916c-0800200c9a66"));
-        
+
         for (const QBluetoothUuid &s : qAsConst(services_list)) {
             if (s == concept2InfoService || s == concept2ControlService || s == concept2RowingService) {
                 hasConcept2Services = true;
                 break;
             }
         }
-        
+
         if (hasConcept2Services) {
             emit debug(QStringLiteral("PM5 without FTMS service detected, using Concept2 protocol"));
         }
     }
-    
+
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
+        // For DOMYOS, discover only FTMS service (0x1826)
+        if (DOMYOS) {
+            QBluetoothUuid ftmsService((quint16)0x1826);
+            if (s != ftmsService) {
+                continue;
+            }
+        }
+
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &ftmsrower::stateChanged);
@@ -831,6 +839,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("I-ROWER"))) {
             I_ROWER = true;
             qDebug() << "I_ROWER found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("SF-RW"))) {
+            SF_RW = true;
+            qDebug() << "SF-RW found!";
         } else if (device.name().toUpper().startsWith(QStringLiteral("IROWER "))) {
             ROWER = true;
             qDebug() << "ROWER found!";
@@ -852,6 +863,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("FS-"))) {
             FITSHOW = true;
             qDebug() << "FITSHOW found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("DOMYOS-ROW-"))) {
+            DOMYOS = true;
+            qDebug() << "DOMYOS found!";
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
