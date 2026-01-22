@@ -34,7 +34,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
     this->useDiscovery = startDiscovery;
 
-    QTimer::singleShot(3000, this, [this, noWriteResistance, noHeartService, bikeResistanceGain, bikeResistanceOffset() {
+    QTimer::singleShot(3000, this, [this, noWriteResistance, noHeartService, bikeResistanceGain, bikeResistanceOffset]() {
         QSettings settings;
         QString nordictrack_2950_ip =
             settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
