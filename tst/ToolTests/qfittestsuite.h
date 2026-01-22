@@ -25,6 +25,11 @@ public:
      */
     void test_newFormatDeveloperFields();
 
+    /**
+     * @brief Test that FIT files can be processed by the database
+     */
+    void test_databaseReadability();
+
 protected:
     void SetUp() override;
     void TearDown() override;
@@ -52,6 +57,10 @@ private:
 
 TEST_F(QFitTestSuite, TestNewFormatDeveloperFields) {
     this->test_newFormatDeveloperFields();
+}
+
+TEST_F(QFitTestSuite, TestDatabaseReadability) {
+    this->test_databaseReadability();
 }
 
 #endif // QFITTESTSUITE_H

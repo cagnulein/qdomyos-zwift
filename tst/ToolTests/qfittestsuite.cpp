@@ -1,9 +1,12 @@
 #include "qfittestsuite.h"
 #include "../../src/qfit.h"
+#include "../../src/fitdatabaseprocessor.h"
 #include <QDateTime>
 #include <QFile>
 #include <QDir>
 #include <QDebug>
+#include <QEventLoop>
+#include <QTimer>
 
 QFitTestSuite::QFitTestSuite() : tempDir(nullptr) {
 }
@@ -135,4 +138,65 @@ void QFitTestSuite::test_newFormatDeveloperFields() {
         << "Developer fields should be read correctly from WorkoutMesg";
 
     qDebug() << "✓ New format developer fields test passed";
+}
+
+void QFitTestSuite::test_databaseReadability() {
+    // Create a FIT file with new format
+    QString filename = createNewFormatFitFile();
+    ASSERT_TRUE(QFile::exists(filename)) << "Failed to create FIT file";
+
+    // Copy to test-artifacts directory for download
+    QDir artifactsDir("test-artifacts");
+    if (!artifactsDir.exists()) {
+        artifactsDir.mkpath(".");
+    }
+    QString artifactPath = "test-artifacts/test_database_readability.fit";
+    QFile::remove(artifactPath);
+    QFile::copy(filename, artifactPath);
+    qDebug() << "FIT file saved to:" << artifactPath;
+
+    // Create a temporary database path
+    QString dbPath = tempDir->filePath("test_db.sqlite");
+
+    // Create a FIT database processor with the database path
+    FitDatabaseProcessor processor(dbPath);
+
+    // Setup event loop to wait for async processing
+    QEventLoop loop;
+    QTimer timeout;
+    timeout.setSingleShot(true);
+    timeout.setInterval(5000);  // 5 second timeout
+
+    // Process the FIT file
+    bool processed = false;
+    QObject::connect(&processor, &FitDatabaseProcessor::fileProcessed,
+                     [&processed, &loop](const QString&) {
+                         processed = true;
+                         loop.quit();
+                     });
+
+    bool error = false;
+    QString errorMsg;
+    QObject::connect(&processor, &FitDatabaseProcessor::error,
+                     [&error, &errorMsg, &loop](const QString& msg) {
+                         qDebug() << "Database processor error:" << msg;
+                         error = true;
+                         errorMsg = msg;
+                         loop.quit();
+                     });
+
+    QObject::connect(&timeout, &QTimer::timeout, &loop, &QEventLoop::quit);
+
+    processor.processFile(filename);
+    timeout.start();
+
+    // Wait for processing to complete or timeout
+    loop.exec();
+    timeout.stop();
+
+    EXPECT_TRUE(processed) << "FIT file should be processed successfully by database";
+    EXPECT_FALSE(error) << "No errors should occur during database processing. Error: "
+                        << errorMsg.toStdString();
+
+    qDebug() << "✓ Database readability test passed";
 }
