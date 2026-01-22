@@ -78,7 +78,7 @@ void ftmsrower::update() {
     }
 
     if (initRequest) {
-        if(I_ROWER || ROWER || MRK_R06) {
+        if(I_ROWER || SF_RW || ROWER || MRK_R06) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(write, sizeof(write), "start", false, true);
 
@@ -592,10 +592,10 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::descriptorWritten, this, &ftmsrower::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &ftmsrower::descriptorRead);
 
-            if (I_ROWER || ROWER || MRK_R06 || DOMYOS) {
+            if (I_ROWER || SF_RW || ROWER || MRK_R06 || DOMYOS) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
-                    qDebug() << QStringLiteral("I-ROWER/ROWER/MRK-R06/DOMYOS wants to be subscribed only to FTMS service in order to send metrics")
+                    qDebug() << QStringLiteral("I-ROWER/SF-RW/ROWER/MRK-R06/DOMYOS wants to be subscribed only to FTMS service in order to send metrics")
                              << s->serviceUuid();
                     continue;
                 }
@@ -839,6 +839,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("I-ROWER"))) {
             I_ROWER = true;
             qDebug() << "I_ROWER found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("SF-RW"))) {
+            SF_RW = true;
+            qDebug() << "SF-RW found!";
         } else if (device.name().toUpper().startsWith(QStringLiteral("IROWER "))) {
             ROWER = true;
             qDebug() << "ROWER found!";
