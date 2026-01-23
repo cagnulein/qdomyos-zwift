@@ -423,32 +423,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         // Check for valid speed packet header: a5 20 06, a5 21 06, or a5 23 06
         bool isValidSpeedPacket = ((uint8_t)newValue[0] == 0xa5);
         if (!isValidSpeedPacket) {
-            if (newValue.contains(actualPaceSign) || newValue.contains(actualPace2Sign) || newValue.contains(actualPace3Sign)) {
-                // Try to extract speed and check coherence
-                int16_t idx = newValue.indexOf(actualPaceSign) + 2;
-                if (idx <= 1)
-                    idx = newValue.indexOf(actualPace2Sign) + 2;
-                if (idx <= 1)
-                    idx = newValue.indexOf(actualPace3Sign) + 2;
-
-                if (idx + 1 < newValue.length()) {
-                    double candidateSpeed = GetSpeedFromPacket(value, idx);
-                    // Allow if coherent (e.g. within 3km/h) or if we are starting (lastSpeed approx 0)
-                    if (std::abs(candidateSpeed - Speed.value()) < 3.0 || Speed.value() < 0.5) {
-                        // Coherent, let it pass to the main extraction logic below
-                        // Do NOT return
-                        emit debug(QStringLiteral("ZR8: Recovering non-standard speed packet: ") +
-                                   QString::number(candidateSpeed));
-                    } else {
-                        emit debug(QStringLiteral("ZR8: Ignoring incoherent speed packet: ") +
-                                   QString::number(candidateSpeed) + QStringLiteral(" vs ") +
-                                   QString::number(Speed.value()));
-                        return;
-                    }
-                } else {
-                    return;
-                }
-            } else {
+            if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign) && !newValue.contains(actualPace3Sign)) {
                 return; // Not a speed packet, ignore
             }
         }
@@ -579,6 +554,9 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
 double octanetreadmill::GetSpeedFromPacket(const QByteArray &packet, int index) {
     uint16_t convertedData = (packet.at(index + 1) << 8) | ((uint8_t)packet.at(index));
+    if (ZR8) {
+        return (double)convertedData * 0.0036;
+    }
     return (1.0 / ((double)convertedData)) * 3600.0;
 }
 
