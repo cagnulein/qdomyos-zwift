@@ -1471,6 +1471,12 @@ void homeform::trainProgramSignals() {
                    ((elliptical *)bluetoothManager->device()), &elliptical::changeRequestedPelotonResistance);
         disconnect(((treadmill *)bluetoothManager->device()), &treadmill::tapeStarted, trainProgram,
                    &trainprogram::onTapeStarted);
+        disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStart, this,
+                   &homeform::StartFromDevice);
+        disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWPause, this,
+                   &homeform::PauseFromDevice);
+        disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
+                   &homeform::StopFromDevice);
         disconnect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram,
                    &trainprogram::onTapeStarted);
         disconnect(trainProgram, &trainprogram::changeGeoPosition, bluetoothManager->device(),
@@ -1497,6 +1503,12 @@ void homeform::trainProgramSignals() {
                     &treadmill::changeSpeedAndInclination);
             connect(((treadmill *)bluetoothManager->device()), &treadmill::tapeStarted, trainProgram,
                     &trainprogram::onTapeStarted);
+            connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStart, this,
+                    &homeform::StartFromDevice);
+            connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWPause, this,
+                    &homeform::PauseFromDevice);
+            connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
+                    &homeform::StopFromDevice);
             connect(trainProgram, &trainprogram::changePower, ((treadmill *)bluetoothManager->device()), &treadmill::changePower);
         } else if (bluetoothManager->device()->deviceType() == BIKE) {
             connect(trainProgram, &trainprogram::changeCadence, ((bike *)bluetoothManager->device()),
@@ -5118,6 +5130,21 @@ void homeform::Start_inner(bool send_event_to_device) {
     }
 }
 
+void homeform::StartFromDevice() {
+    qDebug() << QStringLiteral("Physical start button pressed on device");
+    Start_inner(false);  // false = don't send command back to device (it already started)
+}
+
+void homeform::PauseFromDevice() {
+    qDebug() << QStringLiteral("Physical pause button pressed on device");
+    Start_inner(false);  // false = don't send command back to device
+}
+
+void homeform::StopFromDevice() {
+    qDebug() << QStringLiteral("Physical stop button pressed on device - stopping app");
+    Stop();
+}
+
 void homeform::StartRequested() {
     Start();
     m_stopRequested = false;
@@ -5158,6 +5185,17 @@ void homeform::Stop() {
         return;
     }
 
+    if (bluetoothManager->device()) {
+        if (bluetoothManager->device()->deviceType() == TREADMILL) {
+            QTime zero(0, 0, 0, 0);
+            if (bluetoothManager->device()->currentSpeed().value() == 0.0 &&
+                zero.secsTo(bluetoothManager->device()->elapsedTime()) == 0) {
+                qDebug() << QStringLiteral("Stop pressed - nothing to do. Elapsed time is 0 and current speed is 0");
+                return;
+            }
+        }
+    }
+
 #ifdef Q_OS_IOS
     // due to #857
     if (!settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr)
@@ -5169,16 +5207,6 @@ void homeform::Stop() {
         m_speech.say("Stop pressed");
 
     if (bluetoothManager->device()) {
-
-        if (bluetoothManager->device()->deviceType() == TREADMILL) {
-            QTime zero(0, 0, 0, 0);
-            if (bluetoothManager->device()->currentSpeed().value() == 0.0 &&
-                zero.secsTo(bluetoothManager->device()->elapsedTime()) == 0) {
-                qDebug() << QStringLiteral("Stop pressed - nothing to do. Elapsed time is 0 and current speed is 0");
-                return;
-            }
-        }
-
         bluetoothManager->device()->stop(false);
     }
 
@@ -8145,11 +8173,14 @@ void homeform::gpxpreview_open_clicked(const QUrl &fileName) {
 
     if (!file.fileName().isEmpty()) {
         gpx g;
-        auto g_list = g.open(file.fileName(), bluetoothManager->device() ? bluetoothManager->device()->deviceType() : BIKE);
+        // Force no loop for preview to show actual GPX distance
+        auto g_list = g.open(file.fileName(), bluetoothManager->device() ? bluetoothManager->device()->deviceType() : BIKE, true);
         gpx_preview.clearPath();
         for (const auto &p : g_list) {
             gpx_preview.addCoordinate(QGeoCoordinate(p.latitude, p.longitude, p.elevation));
         }
+        // Set distance BEFORE setGeoPath to ensure QML onGeopathChanged has correct value
+        pathController.setDistance(g.getTotalDistance());
         pathController.setGeoPath(gpx_preview);
         pathController.setCenter(gpx_preview.center());
     }

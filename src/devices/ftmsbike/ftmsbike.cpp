@@ -260,7 +260,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         if(SL010 || SPORT01)
             Resistance = requestResistance;
         
-        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK) {
+        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -1195,7 +1195,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             index += 1;
         }
 
-        if (watts())
+        if (watts() && !ftmsFrameReceived)
             KCal += ((((0.048 * ((double)watts()) + 1.19) *
                         settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                         200.0) /
@@ -1551,7 +1551,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             if (watt_gain != 1.0 || watt_offset != 0) {
                 uint16_t powerRequested = (((uint8_t)b.at(1)) + (b.at(2) << 8));
                 qDebug() << "applying watt_gain/watt_offset from" << powerRequested;
-                powerRequested = ((powerRequested / watt_gain) - watt_offset);
+                powerRequested = ((powerRequested - watt_offset) / watt_gain);
                 qDebug() << "to" << powerRequested;
 
                 b[1] = powerRequested & 0xFF;
@@ -1732,6 +1732,12 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             max_resistance = 32;
             resistance_lvl_mode = true;
             ergModeSupported = false;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("RAVE"))) {
+            qDebug() << QStringLiteral("Zipro Rave found");
+            max_resistance = 32;
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            ZIPRO_RAVE = true;
         } else if ((bluetoothDevice.name().toUpper().startsWith("TITAN 7000"))) {
             qDebug() << QStringLiteral("Titan 7000 found");
             TITAN_7000 = true;
