@@ -1551,7 +1551,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             if (watt_gain != 1.0 || watt_offset != 0) {
                 uint16_t powerRequested = (((uint8_t)b.at(1)) + (b.at(2) << 8));
                 qDebug() << "applying watt_gain/watt_offset from" << powerRequested;
-                powerRequested = ((powerRequested / watt_gain) - watt_offset);
+                powerRequested = ((powerRequested - watt_offset) / watt_gain);
                 qDebug() << "to" << powerRequested;
 
                 b[1] = powerRequested & 0xFF;

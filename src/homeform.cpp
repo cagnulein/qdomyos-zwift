@@ -1473,6 +1473,8 @@ void homeform::trainProgramSignals() {
                    &trainprogram::onTapeStarted);
         disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStart, this,
                    &homeform::StartFromDevice);
+        disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWPause, this,
+                   &homeform::PauseFromDevice);
         disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
                    &homeform::StopFromDevice);
         disconnect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram,
@@ -1503,6 +1505,8 @@ void homeform::trainProgramSignals() {
                     &trainprogram::onTapeStarted);
             connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStart, this,
                     &homeform::StartFromDevice);
+            connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWPause, this,
+                    &homeform::PauseFromDevice);
             connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
                     &homeform::StopFromDevice);
             connect(trainProgram, &trainprogram::changePower, ((treadmill *)bluetoothManager->device()), &treadmill::changePower);
@@ -5129,6 +5133,11 @@ void homeform::Start_inner(bool send_event_to_device) {
 void homeform::StartFromDevice() {
     qDebug() << QStringLiteral("Physical start button pressed on device");
     Start_inner(false);  // false = don't send command back to device (it already started)
+}
+
+void homeform::PauseFromDevice() {
+    qDebug() << QStringLiteral("Physical pause button pressed on device");
+    Start_inner(false);  // false = don't send command back to device
 }
 
 void homeform::StopFromDevice() {
