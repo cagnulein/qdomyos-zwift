@@ -2636,13 +2636,11 @@ configure_emulation_flow() {
                 ((r++)) # 14
 
                 if [[ "$svc_status" == "running" ]]; then
-                    # --- SERVICE RUNNING ---
                     draw_sealed_row "$r" "   QZ service is running as virtual treadmill '${BOLD_CYAN}KICKR RUN${NC}'."
                     ((r++)) # 15
                     draw_sealed_row "$r" ""
                     ((r++)) # 16
 
-                    # Execution Steps
                     local instr_r=$r
                     draw_sealed_row "$instr_r"       "   ${CYAN}1.${NC} Connect 2nd QZ App to '${BOLD_CYAN}KICKR RUN${NC}'."
                     draw_sealed_row $((instr_r + 1)) "   ${CYAN}2.${NC} App: Set Model to \"Horizon\" and Force FTMS to \"Enabled\"."
@@ -2650,13 +2648,11 @@ configure_emulation_flow() {
                     draw_sealed_row $((instr_r + 3)) "   ${CYAN}4.${NC} Set watch to treadmill."
                     draw_sealed_row $((instr_r + 4)) "   ${CYAN}5.${NC} Control speed from App and see pace updated on watch."
                 else
-                    # --- SERVICE STOPPED ---
                     r=$((LOG_TOP))
                     draw_sealed_row "$r" "   ${YELLOW}Emulation configured but QZ Service is ${RED}${svc_status^^}${YELLOW}.${NC}"
                     ((r++))
                     draw_sealed_row "$r" ""
                     ((r++))
-                    
                     local instr_r=$r
                     draw_sealed_row "$instr_r"       "   ${CYAN}1.${NC} Start QZ Service (Service Menu)."
                     draw_sealed_row $((instr_r + 1)) "   ${CYAN}2.${NC} Connect 2nd QZ App to '${BOLD_CYAN}KICKR RUN${NC}'."
@@ -2671,31 +2667,23 @@ configure_emulation_flow() {
                 return 0
             fi
 
-            # --- 3. SHOW SETUP PROMPT (Description) ---
+            # --- 3. SHOW SETUP PROMPT ---
             draw_bottom_panel_header "EMULATION SETUP (ANT+ TEST)" "false"
             clear_info_area
             
             local r=$((LOG_TOP)) # Row 13
-            
-            # Question (Row 13)
             draw_sealed_row "$r" "   Configure QZ as emulated treadmill '${BOLD_CYAN}KICKR RUN${NC}' for testing ANT+?"
             
-            # Prompt (Rows 14-15) - Offset 1
-            # Row 16 is left blank as a spacer
-            
-            # Description (Rows 17-20)
             local desc_r=$((r + 4))
-            
             draw_sealed_row "$desc_r"       "   • Configures QZ to act as a virtual treadmill broadcasting ANT+."
             draw_sealed_row $((desc_r + 1)) "   • Used to verify ANT+ dongle functionality with watches."
             draw_sealed_row $((desc_r + 2)) "   • Requires a second QZ app (phone/tablet) to control speed."
             draw_sealed_row $((desc_r + 3)) "   ${YELLOW}Note: This disables connection to physical equipment.${NC}"
             
-            # Yes/No Prompt (Offset 1 -> Rows 14-15)
             if prompt_yes_no 1; then
                 draw_bottom_border "${YELLOW}Applying Emulation Config...${NC}"
                 
-                # APPLY CONFIGURATION
+                # Reset all physical device flags
                 if [[ -f "$DEVICES_INI" ]]; then
                     local all_keys
                     all_keys=$(grep '=' "$DEVICES_INI" | cut -d'=' -f2 | xargs)
@@ -2707,6 +2695,7 @@ configure_emulation_flow() {
                 CONFIG_BOOL["virtual_device_force_bike"]="false"
                 CONFIG_BOOL["virtual_device_elliptical"]="false"
 
+                # Enable Emulation
                 CONFIG_BOOL["fakedevice_treadmill"]="true"
                 CONFIG_BOOL["treadmill_force_speed"]="true"
                 CONFIG_BOOL["virtual_device_bluetooth"]="true"
@@ -2724,7 +2713,7 @@ configure_emulation_flow() {
                 show_save_feedback "Emulation"
                 return 0
             else
-                return 0
+                continue
             fi
         fi
     done
@@ -2754,15 +2743,16 @@ ant_menu_flow() {
 
 select_equipment_flow() {
     if [ ! -f "$DEVICES_INI" ]; then
-        draw_error_screen "MISSING DATABASE" "Error: devices.ini not found." 1
+        draw_error_screen "MISSING DATABASE" "Error: devices.ini not found." "wait"
         return 1
     fi
 
     local types=()
     mapfile -t types < <(grep '^\[.*\]$' "$DEVICES_INI" | tr -d '[]')
     
-    # FIX: Removed "Emulate Device" (Moved to ANT+ Menu)
-    # FIX: Removed "Back" (Use ESC)
+    # 1. Add Virtual Option
+    types+=("Virtual / Emulator")
+    types+=("Back")
     
     local state=0
     local selected_type=""
@@ -2771,13 +2761,17 @@ select_equipment_flow() {
 
     # Auto-detect current selection
     if [ -f "$CONFIG_FILE" ]; then
-        if grep -q "virtual_device_force_treadmill=true" "$CONFIG_FILE"; then selected_type="Treadmill"
+        if [[ "${CONFIG_BOOL[fakedevice_treadmill]:-}" == "true" ]]; then
+             for i in "${!types[@]}"; do [[ "${types[$i]}" == "Virtual / Emulator" ]] && type_idx=$i; done
+        elif grep -q "virtual_device_force_treadmill=true" "$CONFIG_FILE"; then selected_type="Treadmill"
         elif grep -q "virtual_device_rower=true" "$CONFIG_FILE"; then selected_type="Rower"
         elif grep -q "virtual_device_elliptical=true" "$CONFIG_FILE"; then selected_type="Elliptical"
         elif grep -q "virtual_device_force_bike=true" "$CONFIG_FILE"; then selected_type="Bike"
         fi
         
-        for i in "${!types[@]}"; do [[ "${types[$i]}" == "$selected_type" ]] && type_idx=$i; done
+        if [[ -n "$selected_type" ]]; then
+            for i in "${!types[@]}"; do [[ "${types[$i]}" == "$selected_type" ]] && type_idx=$i; done
+        fi
     fi
 
     while true; do
@@ -2787,12 +2781,26 @@ select_equipment_flow() {
             show_unified_menu types "$type_idx" "SELECT DEVICE TYPE" "FULL"
             local idx=$?
             
-            # Handle ESC (255)
             if [[ $idx -eq 255 ]]; then return 1; fi
             
-            selected_type="${types[$idx]}"
-            type_idx=$idx
-            state=1
+            local selection="${types[$idx]}"
+            type_idx=$idx 
+
+            if [[ "$selection" == "Back" ]]; then
+                return 1
+            elif [[ "$selection" == "Virtual / Emulator" ]]; then
+                # --- JUMP TO EMULATION FLOW ---
+                if configure_emulation_flow; then
+                    prompt_restart_service
+                    return 0 
+                else
+                    state=0
+                    continue
+                fi
+            else
+                selected_type="$selection"
+                state=1
+            fi
         fi
         
         # --- STATE 1: SELECT MODEL ---
@@ -2813,7 +2821,10 @@ select_equipment_flow() {
             MENU_CACHE_WIDTHS=()
             MENU_CACHE_LOADED=0
             
-            local cache_file="${SCRIPT_DIR}/.menu_cache/${selected_type}.cache"
+            # --- FIX: Sanitize Cache Filename (Spaces/Slashes) ---
+            local safe_type="${selected_type// /_}"
+            safe_type="${safe_type//\//}"
+            local cache_file="${SCRIPT_DIR}/.menu_cache/${safe_type}.cache"
             
             if [[ -f "$cache_file" ]]; then
                 while IFS=$'\x1f' read -r name id width; do
@@ -2844,7 +2855,6 @@ select_equipment_flow() {
                 MENU_CACHE_LOADED=1
             fi
             
-            # Pre-selection Logic
             model_idx=0
             for ((i=0; i<${#keys[@]}; i++)); do
                 local k="${keys[$i]}"
@@ -2854,7 +2864,8 @@ select_equipment_flow() {
                 fi
             done
             
-            # FIX: Removed "Back" option
+            models+=("Back")
+            MENU_CACHE_WIDTHS+=("4")
             
             print_at_col $((LOG_BOTTOM)) 2 "$(printf '%*s' "$INFO_WIDTH" '')"
 
@@ -2865,7 +2876,7 @@ select_equipment_flow() {
             MENU_CACHE_LINES=()
             MENU_CACHE_WIDTHS=()
 
-            if [[ $m_idx -eq 255 ]]; then
+            if [[ $m_idx -eq 255 ]] || [[ "${models[$m_idx]}" == "Back" ]]; then
                 state=0
                 continue
             fi
@@ -2889,7 +2900,6 @@ select_equipment_flow() {
             CONFIG_BOOL["virtual_device_rower"]="false"
             CONFIG_BOOL["virtual_device_force_bike"]="false"
             CONFIG_BOOL["virtual_device_elliptical"]="false"
-            # Disable fake device if selecting real one
             CONFIG_BOOL["fakedevice_treadmill"]="false"
 
             case "$selected_type" in
@@ -2908,6 +2918,10 @@ select_equipment_flow() {
             draw_header_equipment_line
 
             show_save_feedback "Equipment"
+            
+            # PROMPT FOR RESTART (Phase 1 Goal)
+            prompt_restart_service
+            
             return 0
         fi
     done
@@ -4084,6 +4098,7 @@ perform_bluetooth_scan() {
             generate_config_file
             draw_bottom_border ""
             sleep 2
+            prompt_restart_service
             exit_ui_mode
             return 0
         fi
@@ -4587,13 +4602,13 @@ prompt_success_menu() {
     local title="SYSTEM READY"
     [[ "$warns" -gt 0 ]] && title="READY WITH WARNINGS ($warns)"
     
-    # NEW ORDER: Profile -> ANT+ -> Equipment -> Bluetooth -> Service -> Exit
+    # PHASE 1 ORDER: Equipment, Bluetooth, Profile, Service, Diagnostics
     local options=(
+        "Device & Equipment Setup" 
+        "Bluetooth Scanning" 
         "User Profile" 
-        "ANT+ & Virtual Setup Test" 
-        "Equipment Selection" 
-        "Bluetooth Device" 
-        "QZ Service" 
+        "QZ Service Control" 
+        "Diagnostics (ANT+ Test)" 
         "Exit"
     )
     
@@ -4602,7 +4617,6 @@ prompt_success_menu() {
     show_unified_menu options 0 "$title" "FULL" "true"
     local idx=$?
     
-    # ESC Maps to Exit (Index 5)
     if [[ $idx -eq 255 ]]; then return 5; fi
     return "$idx"
 }
@@ -5321,12 +5335,14 @@ perform_ant_test() {
     [[ ! -f "$venv_py" ]] && venv_py=$(command -v python3)
 
     set_ui_output
+    
+    # FIX: Force Unlock immediately
     UI_LOCKED=0
+    
     clear_info_area
 
     # 1. Hardware Check
     if [[ "${STATUS_MAP[ant_dongle]:-}" != "pass" ]]; then
-        # FIX: Wait for user input instead of auto-closing
         draw_error_screen "NO ANT+ DEVICE" "Error: No ANT+ device detected via lsusb." "wait"
         return 1
     fi
@@ -5424,7 +5440,6 @@ perform_ant_test() {
 
     if [[ $launched -ne 1 ]]; then
         local final_err=$(tail -n 10 "$log_file" 2>/dev/null | tr -d '\r')
-        # FIX: Wait for user input
         draw_error_screen "STARTUP FAILED" "Python process failed to initialize.\n\nLog Output:\n$final_err" "wait"
         return 1
     fi
@@ -5451,7 +5466,6 @@ perform_ant_test() {
             if grep -q "Test finished." "$log_file" 2>/dev/null; then
                 draw_info_screen "TEST COMPLETED" "ANT+ test finished successfully.\nAll stages completed including 'Stopping'." "wait"
             else
-                # FIX: Wait for user input
                 draw_error_screen "TEST STOPPED" "Process exited unexpectedly.\nLog:\n$excerpt" "wait"
             fi
             break
@@ -5516,6 +5530,10 @@ perform_ant_test() {
     done
 
     rm -f "$TEMP_DIR/qz_ant_test.pid" 2>/dev/null || true
+    
+    # FIX: Refresh Service Status in STATUS_MAP and Header
+    check_qz_service >/dev/null 2>&1 || true
+    
     exit_ui_mode
     return 0
 }
@@ -5555,15 +5573,41 @@ init_service_config() {
 load_service_config() {
     init_service_config || return 1
     local in_flags=0 line key val
+    
+    # Reset array to ensure no stale data
+    SERVICE_FLAGS=()
+    
     while IFS= read -r line || [[ -n "$line" ]]; do
+        # Strip comments
         line="${line%%\#*}"
+        # Trim leading/trailing whitespace
+        line="${line#"${line%%[![:space:]]*}"}"
+        line="${line%"${line##*[![:space:]]}"}"
+        
         [[ -z "$line" ]] && continue
+        
         if [[ "$line" =~ ^\[flags\] ]]; then in_flags=1; continue; fi
+        
         if [[ $in_flags -eq 1 && "$line" =~ ^([^=]+)=(.*)$ ]]; then
-            key="${BASH_REMATCH[1]}"; val="${BASH_REMATCH[2]}"
+            key="${BASH_REMATCH[1]}"
+            val="${BASH_REMATCH[2]}"
+            
+            # Trim key and val
+            key="${key#"${key%%[![:space:]]*}"}"
+            key="${key%"${key##*[![:space:]]}"}"
+            val="${val#"${val%%[![:space:]]*}"}"
+            val="${val%"${val##*[![:space:]]}"}"
+            
             SERVICE_FLAGS[$key]="$val"
         fi
     done < "$SERVICE_CONF_PATH"
+    
+    # Set defaults if missing
+    [[ -z "${SERVICE_FLAGS[logging]:-}" ]] && SERVICE_FLAGS[logging]="false"
+    [[ -z "${SERVICE_FLAGS[console]:-}" ]] && SERVICE_FLAGS[console]="false"
+    [[ -z "${SERVICE_FLAGS[ant_footpod]:-}" ]] && SERVICE_FLAGS[ant_footpod]="false"
+    [[ -z "${SERVICE_FLAGS[ant_device]:-}" ]] && SERVICE_FLAGS[ant_device]="54321"
+    
     return 0
 }
 
@@ -5592,47 +5636,83 @@ detect_binary_path() {
 build_service_flags() {
     local flags=("-no-gui")
     
-    # 1. Standard Service Flags
-    if [[ "${SERVICE_FLAGS[logging]}" == "true" ]]; then flags+=("-log"); else flags+=("-no-log"); fi
-    if [[ "${SERVICE_FLAGS[console]}" == "true" ]]; then :; else flags+=("-no-console"); fi
-    [[ "${SERVICE_FLAGS[bluetooth_relaxed]}" == "true" ]] && flags+=("-bluetooth_relaxed")
-    
-    # 2. ANT+ Flags
-    if [[ "${SERVICE_FLAGS[ant_footpod]}" == "true" ]]; then
-        flags+=("-ant-footpod" "-ant-device" "$(strip_ansi "${SERVICE_FLAGS[ant_device]:-54321}")")
-        [[ "${SERVICE_FLAGS[ant_verbose]}" == "true" ]] && flags+=("-ant-verbose")
-    fi
-    
-    # 3. Profile & Timing
-    [[ -n "${SERVICE_FLAGS[profile]:-}" ]] && flags+=("-profile" "$(strip_ansi "${SERVICE_FLAGS[profile]}")")
-    [[ -n "${SERVICE_FLAGS[poll_time]:-}" ]] && flags+=("-poll-device-time" "$(strip_ansi "${SERVICE_FLAGS[poll_time]}")")
-    [[ "${SERVICE_FLAGS[heart_service]}" == "true" ]] && flags+=("-heart-service")
-
-    # 4. NEW: Bluetooth Device Name (-name "Device")
-    # Check CONFIG_STRING array first, fallback to grep if array is empty
-    local bt_name="${CONFIG_STRING[bluetooth_lastdevice_name]:-}"
-    if [[ -z "$bt_name" && -f "$CONFIG_FILE" ]]; then
-         bt_name=$(grep -E '^bluetooth_lastdevice_name=' "$CONFIG_FILE" 2>/dev/null | cut -d'=' -f2- | tr -d '\r')
-    fi
-    
-    # Sanitize
-    bt_name=$(strip_ansi "${bt_name:-}")
-    
-    # Add flag if valid name exists
-    if [[ -n "$bt_name" && "$bt_name" != "None" ]]; then
-        flags+=("-name" "$bt_name")
+    # 1. Logging Logic
+    if [[ "${SERVICE_FLAGS[logging]:-false}" =~ ^[Tt][Rr][Uu][Ee]$ ]]; then 
+        flags+=("-log")
+    else 
+        flags+=("-no-log")
     fi
 
-    # Output formatted string
+    # 2. Console Logic
+    if [[ ! "${SERVICE_FLAGS[console]:-false}" =~ ^[Tt][Rr][Uu][Ee]$ ]]; then 
+        flags+=("-no-console")
+    fi
+
+    # 3. Bluetooth Relaxed
+    if [[ "${SERVICE_FLAGS[bluetooth_relaxed]:-false}" =~ ^[Tt][Rr][Uu][Ee]$ ]]; then
+        flags+=("-bluetooth_relaxed")
+    fi
+    
+    # 4. ANT+ Flags
+    if [[ "${SERVICE_FLAGS[ant_footpod]:-false}" =~ ^[Tt][Rr][Uu][Ee]$ ]]; then
+        flags+=("-ant-footpod")
+        
+        local ant_id="$(strip_ansi "${SERVICE_FLAGS[ant_device]:-54321}")"
+        flags+=("-ant-device" "$ant_id")
+        
+        if [[ "${SERVICE_FLAGS[ant_verbose]:-false}" =~ ^[Tt][Rr][Uu][Ee]$ ]]; then
+            flags+=("-ant-verbose")
+        fi
+    fi
+    
+    # 5. Profile & Timing
+    if [[ -n "${SERVICE_FLAGS[profile]:-}" ]]; then
+        flags+=("-profile" "$(strip_ansi "${SERVICE_FLAGS[profile]}")")
+    fi
+    
+    if [[ -n "${SERVICE_FLAGS[poll_time]:-}" ]]; then
+        flags+=("-poll-device-time" "$(strip_ansi "${SERVICE_FLAGS[poll_time]}")")
+    fi
+    
+    if [[ "${SERVICE_FLAGS[heart_service]:-false}" =~ ^[Tt][Rr][Uu][Ee]$ ]]; then
+        flags+=("-heart-service")
+    fi
+
+    # 6. Bluetooth Device Name
+    # FIX: Check if Emulation Mode is active.
+    # If fakedevice_treadmill is true, we are the SERVER, so do NOT connect to a client.
+    if [[ "${CONFIG_BOOL[fakedevice_treadmill]:-false}" == "true" ]]; then
+        : # Skip adding -name
+    else
+        # Standard Mode: Connect to physical equipment
+        local bt_name="${CONFIG_STRING[bluetooth_lastdevice_name]:-}"
+        
+        # Fallback grep if array empty
+        if [[ -z "$bt_name" && -f "$CONFIG_FILE" ]]; then
+             bt_name=$(grep -E '^bluetooth_lastdevice_name=' "$CONFIG_FILE" 2>/dev/null | cut -d'=' -f2- | tr -d '\r')
+        fi
+        
+        bt_name=$(strip_ansi "${bt_name:-}")
+        
+        if [[ -n "$bt_name" && "$bt_name" != "None" ]]; then
+            flags+=("-name" "$bt_name")
+        fi
+    fi
+
     printf '%s ' "${flags[@]}" | sed -e 's/ $//'
 }
 
 generate_service_file() {
+    # 1. Reload Service Config
+    load_service_config >/dev/null 2>&1
+    
+    # 2. FIX: Reload Main Config to check for Emulation Status (fakedevice_treadmill)
+    load_config_into_arrays "$CONFIG_FILE"
+
     if [ "$SETUP_MODE" != "headless" ]; then
         clear_info_area
-        # Show immediate feedback
-        local msg="${YELLOW}Generating service file${NC}"
-        local msg_plain="Generating service file"
+        local msg="${YELLOW}Generating service file...${NC}"
+        local msg_plain="Generating service file..."
         local w=$(get_display_width "$msg_plain")
         local row=$((LOG_TOP + 3))
         local col=$(( (INNER_COLS - w) / 2 ))
@@ -5644,22 +5724,15 @@ generate_service_file() {
     mkdir -p "$SYSTEMD_SYSTEM_DIR" 2>/dev/null || true
     local svc_file="$SERVICE_FILE_QZ"
     local bin
-    # Prefer using the runtime wrapper (which sets LD_LIBRARY_PATH etc.)
+    
     local script_dir
     script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     local system_wrapper="/usr/local/bin/qdomyos-zwift-wrapper.sh"
     local wrapper="$script_dir/qdomyos-zwift-wrapper.sh"
     
-    msg="${YELLOW}Detecting binary path...${NC}"
-    msg_plain="Detecting binary path..."
-    w=$(get_display_width "$msg_plain")
-    draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
-    
-    # Prefer an installed wrapper (packaged to /usr/local) when present.
     if [[ -x "$system_wrapper" ]]; then
         bin="$system_wrapper"
     elif [[ -f "$wrapper" ]]; then
-        # Ensure wrapper has a shebang and is executable
         if ! head -n1 "$wrapper" | grep -q '^#!' >/dev/null 2>&1; then
             sed -i '1i#!/bin/bash' "$wrapper" || true
         fi
@@ -5669,32 +5742,20 @@ generate_service_file() {
         bin=$(detect_binary_path 2>/dev/null) || bin="<binary-not-found>"
     fi
 
-    # Ensure bin is an absolute path for systemd
     if [[ "$bin" != /* ]]; then
         bin="$(cd "$script_dir" && pwd)/${bin#./}"
     fi
 
     local user="${SUDO_USER:-$USER}"
     
-    # Update: Building flags
-    msg="${YELLOW}Building service flags...${NC}"
-    msg_plain="Building service flags..."
-    w=$(get_display_width "$msg_plain")
-    draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
-    
+    # Build flags (now aware of emulation mode)
     local flags
     flags=$(build_service_flags)
     
-    # Update: Writing service file
-    msg="${YELLOW}Writing service file...${NC}"
-    msg_plain="Writing service file..."
-    w=$(get_display_width "$msg_plain")
-    draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
-    
     if ! ensure_ram_temp_dir >/dev/null 2>&1; then TEMP_DIR=/tmp; fi
-    # SEC-01 FIX: Use mktemp for secure temporary file creation
     local tmp
     tmp=$(mktemp "$TEMP_DIR/qz.service.XXXXXX")
+    
     cat > "$tmp" <<EOF
 [Unit]
 Description=qdomyos-zwift service
@@ -5705,10 +5766,7 @@ User=root
 Group=plugdev
 Environment="QZ_USER=${user}"
 WorkingDirectory=$(dirname "$bin")
-# Provide a conservative LD_LIBRARY_PATH fallback to assist systems
-# where libpython/Qt may live in standard locations.
 Environment="LD_LIBRARY_PATH=/usr/local/lib:/usr/lib"
-# Use /bin/bash -c to preserve argument parsing and avoid systemd exec quoting pitfalls
 ExecStart=/bin/bash -c '${bin} ${flags}'
 KillSignal=SIGINT
 SuccessExitStatus=130
@@ -5716,41 +5774,19 @@ SuccessExitStatus=130
 [Install]
 WantedBy=multi-user.target
 EOF
-    # If running as root, install to system path
+    
     if [[ $(id -u) -eq 0 ]]; then
-        # Update: Installing to system
-        msg="${YELLOW}Installing to systemd...${NC}"
-        msg_plain="Installing to systemd..."
-        w=$(get_display_width "$msg_plain")
-        draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
-
         mv -f "$tmp" "$svc_file" || return 1
         systemctl daemon-reload || true
-
-        # Success message
-        msg="${GREEN}✓ Service file created${NC}"
-        msg_plain="✓ Service file created"
-        w=$(get_display_width "$msg_plain")
-        draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
-        sleep 0.5
-        
         ACTIVE_SERVICE_FILE="$svc_file"
         echo "$svc_file"
         return 0
     fi
     
-    # Success message (non-root)
-    msg="${GREEN}✓ Service file created${NC}"
-    msg_plain="✓ Service file created"
-    w=$(get_display_width "$msg_plain")
-    draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
-    sleep 0.5
-    
     ACTIVE_SERVICE_FILE="$tmp"
     echo "$tmp"
     return 0
 }
-
  
 ### Milestone 5: Service lifecycle UI functions
 run_as_root_or_sudo() {
@@ -6184,6 +6220,28 @@ build_service_menu_options() {
 
     opts+=("Configure Service Flags")
     opts+=("View Current Configuration")
+    
+    # --- DIFF CHECK LOGIC ---
+    # Determine if current settings match installed service
+    local regen_label="Regenerate Service File"
+    
+    if [[ -f "$SERVICE_FILE_QZ" ]]; then
+        # 1. Load latest config from disk/memory
+        load_service_config >/dev/null 2>&1
+        
+        # 2. Build what the flags SHOULD be
+        local current_flags
+        current_flags=$(build_service_flags)
+        
+        # 3. Check if installed file contains these exact flags
+        # The service file format is: ExecStart=.../bash -c '... -flags'
+        # We search for the flags followed by the closing quote.
+        if ! grep -Fq " ${current_flags}'" "$SERVICE_FILE_QZ" 2>/dev/null; then
+            # Mismatch found: Alert User
+            regen_label="${YELLOW}! Regenerate Service File${NC}"
+        fi
+    fi
+    # ------------------------
 
     case "$status" in
         not-installed)
@@ -6191,21 +6249,17 @@ build_service_menu_options() {
             ;;
         stopped)
             opts+=("Start Service")
-            opts+=("Regenerate Service File")
+            opts+=("$regen_label")
             opts+=("Remove Service")
             ;;
         running)
             opts+=("Restart Service")
             opts+=("Stop Service")
-            #opts+=("View Service Logs")
-            opts+=("Regenerate Service File")
+            opts+=("$regen_label")
             ;;
         failed)
-            #opts+=("View Service Error")
-            #opts+=("View Service Logs")
             opts+=("Restart Service")
-            opts+=("Regenerate Service File")
-            # If the installed unit is missing SuccessExitStatus=130 offer an Update action
+            opts+=("$regen_label")
             if service_needs_exit_130_check; then
                 opts+=("Update Service Configuration")
             fi
@@ -6221,38 +6275,79 @@ build_service_menu_options() {
         fi
     fi
 
-    # Do not add a dedicated "Back to Main Menu" option; plain ESC exits.
-
-    # Safety: ensure we never return more than 9 options (fits LOG_TOP..LOG_BOTTOM)
-    local max=9
-    if (( ${#opts[@]} > max )); then
-        opts=("${opts[@]:0:max}")
-    fi
-
-        printf '%s\n' "${opts[@]}"
-    }
+    # Return array items one per line
+    printf '%s\n' "${opts[@]}"
+}
 
     # Map a displayed choice to the corresponding action command
-    get_action_for_choice() {
-        local choice="$1"
-        case "$choice" in
-            "View Service Error") printf '%s' "view_service_error_ui" ;; 
-            "Configure Service Flags") printf '%s' "configure_service_flags_ui" ;; 
-            "View Current Configuration") printf '%s' "view_service_config_ui" ;; 
-            "Generate & Install Service") printf '%s' "install_service_ui" ;; 
-            "Start Service") printf '%s' "start_service_ui" ;; 
-            "Stop Service") printf '%s' "stop_service_ui" ;; 
-            "Restart Service") printf '%s' "restart_service_ui" ;; 
-            "View Service Logs") printf '%s' "view_service_logs_ui 200" ;; 
-            "Regenerate Service File") printf '%s' "regenerate_service_file_ui" ;; 
-            "Update Service Configuration") printf '%s' "apply_exit_130_fix_ui" ;; 
-            "Enable Auto-Start") printf '%s' "enable_service_ui" ;; 
-            "Disable Auto-Start") printf '%s' "disable_service_ui" ;; 
-            "Remove Service") printf '%s' "remove_service_ui" ;; 
-            # Back handled via ESC; no explicit menu entry
-            *) printf '%s' "" ;; 
-        esac
-    }
+get_action_for_choice() {
+    local choice="$1"
+    
+    # Use wildcards (*) to match strings even if they have color codes or prefixes
+    case "$choice" in
+        *"View Service Error"*)          printf '%s' "view_service_error_ui" ;; 
+        *"Configure Service Flags"*)     printf '%s' "configure_service_flags_ui" ;; 
+        *"View Current Configuration"*)  printf '%s' "view_service_config_ui" ;; 
+        *"Generate & Install Service"*)  printf '%s' "install_service_ui" ;; 
+        *"Start Service"*)               printf '%s' "start_service_ui" ;; 
+        *"Stop Service"*)                printf '%s' "stop_service_ui" ;; 
+        *"Restart Service"*)             printf '%s' "restart_service_ui" ;; 
+        *"View Service Logs"*)           printf '%s' "view_service_logs_ui 200" ;; 
+        # Match both "Regenerate..." and "! Regenerate..."
+        *"Regenerate Service File"*)     printf '%s' "regenerate_service_file_ui" ;; 
+        *"Update Service Configuration"*) printf '%s' "apply_exit_130_fix_ui" ;; 
+        *"Enable Auto-Start"*)           printf '%s' "enable_service_ui" ;; 
+        *"Disable Auto-Start"*)          printf '%s' "disable_service_ui" ;; 
+        *"Remove Service"*)              printf '%s' "remove_service_ui" ;; 
+        *)                               printf '%s' "" ;; 
+    esac
+}
+
+prompt_restart_service() {
+    # 1. Edge Case: No service file exists -> Do nothing
+    if [[ ! -f "$SERVICE_FILE_QZ" ]]; then return 0; fi
+
+    # 2. Get FRESH status
+    local svc_status
+    svc_status=$(get_service_status)
+    
+    # 3. Draw UI
+    draw_bottom_panel_header "CONFIGURATION CHANGED" "false"
+    clear_info_area
+    
+    local r=$((LOG_TOP + 1))
+    draw_sealed_row "$r" "   ${YELLOW}Configuration saved to disk.${NC}"
+    ((r++))
+    
+    local action_func=""
+    
+    if [[ "$svc_status" == "running" ]]; then
+        draw_sealed_row "$r" "   The QZ Service must be restarted to apply these changes."
+        ((r++))
+        draw_sealed_row "$r" ""
+        ((r++))
+        draw_sealed_row "$r" "   Restart Service now?"
+        action_func="restart_service_ui"
+    else
+        draw_sealed_row "$r" "   The QZ Service is currently ${RED}${svc_status^^}${NC}."
+        ((r++))
+        draw_sealed_row "$r" ""
+        ((r++))
+        draw_sealed_row "$r" "   Start Service now?"
+        action_func="start_service_ui"
+    fi
+    
+    # 4. Prompt (Offset 5)
+    if prompt_yes_no 5; then
+        # Execute the chosen function (Start or Restart)
+        $action_func
+        
+        # Refresh global status map immediately so Header updates
+        check_qz_service >/dev/null 2>&1 || true
+    fi
+    
+    return 0
+}
 
 service_menu_flow() {
     enter_ui_mode || true
@@ -6373,17 +6468,17 @@ check_final_status() {
                 1) finish_and_exit 0 ;; # Exit
             esac
         else
-            # --- SUCCESS MODE (Flattened Setup) ---
+            # --- SUCCESS MODE (Phase 1 Update) ---
             local choice
             prompt_success_menu "$warns"
             choice=$?
             case $choice in
-                0) configure_user_profile ;;                 # User Profile
-                1) ant_menu_flow; check_config_file ;;       # ANT+ & Virtual Setup
-                2) select_equipment_flow; check_config_file ;; # Equipment Selection
-                3) perform_bluetooth_scan; check_config_file ;; # Bluetooth Device
-                4) service_menu_flow ;;                      # QZ Service
-                5) finish_and_exit 0 ;;                      # Exit
+                0) select_equipment_flow; check_config_file ;;  # Equipment
+                1) perform_bluetooth_scan; check_config_file ;; # Bluetooth
+                2) configure_user_profile ;;                    # Profile
+                3) service_menu_flow ;;                         # Service
+                4) perform_ant_test; check_config_file ;;       # Diagnostics (ANT+ Script)
+                5) finish_and_exit 0 ;;                         # Exit
             esac
         fi
         sleep 0.05
