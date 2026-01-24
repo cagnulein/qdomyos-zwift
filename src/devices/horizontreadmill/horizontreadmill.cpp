@@ -1254,7 +1254,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
 
         uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
-        if(TM4800 || TM6500 || T3G_ELITE) {
+        if(BOWFLEX_T9 || TM4800 || TM6500 || T3G_ELITE) {
             bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
             if(miles) {
                 requestSpeed *= miles_conversion;   // these treadmills want the speed in miles when miles_unit is enabled
