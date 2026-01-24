@@ -73,6 +73,12 @@ public class Garmin {
     }
 
     public static void init(Context c) {
+        if (connectIqReady || connectIqInitializing) {
+            QLog.d(TAG, "Garmin already initialized or initializing");
+            return;
+        }
+        connectIqInitializing = true;
+
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -84,6 +90,7 @@ public class Garmin {
                 @Override
                 public void onInitializeError(ConnectIQ.IQSdkErrorStatus errStatus) {
                     QLog.e(TAG, errStatus.toString());
+                    connectIqInitializing = false;
                     connectIqReady = false;
                 }
 

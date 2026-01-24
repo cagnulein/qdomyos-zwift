@@ -72,8 +72,12 @@ void metric::setValue(double v, bool applyGainAndOffset) {
         m_lapCountValue++;
         m_totValue += value();
         m_lapTotValue += value();
+        m_last3.append(value());
         m_last5.append(value());
         m_last20.append(value());
+
+        if (m_last3.count() > 3)
+            m_last3.removeAt(0);
 
         if (m_last5.count() > 5)
             m_last5.removeAt(0);
@@ -107,6 +111,7 @@ void metric::clear(bool accumulator) {
     m_totValue = 0;
     m_countValue = 0;
     m_min = 999999999;
+    m_last3.clear();
     m_last5.clear();
     m_last20.clear();
     clearLap(accumulator);
@@ -184,6 +189,60 @@ double metric::average5s() {
 
         if (c > 0)
             return (sum / c);
+        else
+            return 0;
+    }
+}
+
+double metric::average5sHarmonic() {
+    // If current value is 0, return 0 immediately (user stopped pedaling)
+    if (m_value == 0.0)
+        return 0.0;
+
+    if (m_last5.count() == 0)
+        return 0;
+    else {
+        double reciprocalSum = 0;
+        uint8_t c = 0;
+        QMutableListIterator<double> i(m_last5);
+        while (i.hasNext()) {
+            double b = i.next();
+            // If any value in buffer is 0, return 0 immediately
+            if (b == 0.0)
+                return 0.0;
+            reciprocalSum += (1.0 / b);
+            c++;
+        }
+
+        if (c > 0)
+            return (c / reciprocalSum);  // Harmonic mean: n / (1/x1 + 1/x2 + ... + 1/xn)
+        else
+            return 0;
+    }
+}
+
+double metric::average3sHarmonic() {
+    // If current value is 0, return 0 immediately (user stopped pedaling)
+    if (m_value == 0.0)
+        return 0.0;
+
+    if (m_last3.count() == 0)
+        return 0;
+    else {
+        double reciprocalSum = 0;
+        uint8_t c = 0;
+        QMutableListIterator<double> i(m_last3);
+        while (i.hasNext()) {
+            double b = i.next();
+            // If any value in buffer is 0, return 0 immediately
+            if (b == 0.0)
+                return 0.0;
+            reciprocalSum += (1.0 / b);
+            c++;
+        }
+
+        if (c > 0)
+            return (c / reciprocalSum);  // Harmonic mean: n / (1/x1 + 1/x2 + ... + 1/xn)
         else
             return 0;
     }
