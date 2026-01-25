@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QSettings>
 #include <QTime>
+#include <cmath>
 
 #ifdef Q_OS_ANDROID
 #include <QAndroidJniObject>
@@ -192,6 +193,30 @@ void bluetoothdevice::heartRate(uint8_t heart) {
 void bluetoothdevice::coreBodyTemperature(double coreBodyTemperature) { CoreBodyTemperature.setValue(coreBodyTemperature); }
 void bluetoothdevice::skinTemperature(double skinTemperature) { SkinTemperature.setValue(skinTemperature); }
 void bluetoothdevice::heatStrainIndex(double heatStrainIndex) { HeatStrainIndex.setValue(heatStrainIndex); }
+void bluetoothdevice::rrIntervalReceived(double rrInterval) {
+    // RR-interval is in milliseconds
+    // Add to buffer (keep max 120 samples, approximately 2 minutes of data)
+    rrIntervals.append(rrInterval);
+    while (rrIntervals.size() > 120) {
+        rrIntervals.removeFirst();
+    }
+
+    // Calculate RMSSD when we have at least 5 RR-intervals
+    if (rrIntervals.size() >= 5) {
+        double sumSquaredDiff = 0.0;
+        int count = 0;
+        for (int i = 1; i < rrIntervals.size(); i++) {
+            double diff = rrIntervals.at(i) - rrIntervals.at(i - 1);
+            sumSquaredDiff += diff * diff;
+            count++;
+        }
+        if (count > 0) {
+            double rmssd = sqrt(sumSquaredDiff / count);
+            HRV.setValue(rmssd);
+            qDebug() << "HRV (RMSSD):" << rmssd << "ms from" << rrIntervals.size() << "RR-intervals";
+        }
+    }
+}
 void bluetoothdevice::disconnectBluetooth() {
     if (m_control) {
         m_control->disconnectFromDevice();

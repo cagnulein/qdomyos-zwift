@@ -489,10 +489,16 @@ class bluetoothdevice : public QObject {
     metric SkinTemperature;      // Skin temperature in °C or °F
     metric HeatStrainIndex;      // Heat Strain Index (0-25.4, scaled by 10)
 
+    /**
+     * @brief HRV Heart Rate Variability metric (RMSSD). Unit: milliseconds
+     */
+    metric currentHRV() { return HRV; }
+
   public Q_SLOTS:
     virtual void start();
     virtual void stop(bool pause);
     virtual void heartRate(uint8_t heart);
+    virtual void rrIntervalReceived(double rrInterval);
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
     virtual void speedSensor(double speed);
@@ -592,6 +598,16 @@ class bluetoothdevice : public QObject {
      * @brief Heart rate. Unit: beats per minute
      */
     metric Heart;
+
+    /**
+     * @brief HRV Heart Rate Variability (RMSSD). Unit: milliseconds
+     */
+    metric HRV;
+
+    /**
+     * @brief RR-intervals buffer for HRV calculation
+     */
+    QList<double> rrIntervals;
 
     int8_t requestStart = -1;
     int8_t requestStop = -1;

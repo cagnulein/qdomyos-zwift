@@ -2814,6 +2814,18 @@ class QZSettings {
     static constexpr int default_tile_negative_inclination_order = 75;
 
     /**
+     * @brief Enable HRV (Heart Rate Variability) tile
+     */
+    static const QString tile_hrv_enabled;
+    static constexpr bool default_tile_hrv_enabled = false;
+
+    /**
+     * @brief Order of HRV tile
+     */
+    static const QString tile_hrv_order;
+    static constexpr int default_tile_hrv_order = 78;
+
+    /**
      * @brief Chart display mode: 0 = both charts, 1 = heart rate only, 2 = power only
      */
     static const QString chart_display_mode;

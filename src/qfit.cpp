@@ -514,6 +514,15 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     heatStrainIndexFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
     heatStrainIndexFieldDesc.SetNativeFieldNum(255); // Use invalid field number to indicate custom field
 
+    fit::FieldDescriptionMesg hrvFieldDesc;
+    hrvFieldDesc.SetDeveloperDataIndex(0);
+    hrvFieldDesc.SetFieldDefinitionNumber(12);
+    hrvFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
+    hrvFieldDesc.SetFieldName(0, L"hrv_rmssd");
+    hrvFieldDesc.SetUnits(0, L"ms");
+    hrvFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
+    hrvFieldDesc.SetNativeFieldNum(255); // Use invalid field number to indicate custom field
+
     fit::DeveloperField ftpSessionField(ftpSessionMesg, devIdMesg);
     ftpSessionField.AddValue(settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble());
 
@@ -581,6 +590,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     encode.Write(coreTemperatureFieldDesc);
     encode.Write(skinTemperatureFieldDesc);
     encode.Write(heatStrainIndexFieldDesc);
+    encode.Write(hrvFieldDesc);
     encode.Write(deviceInfoMesg);
 
     // Add Timestamp Correlation record
@@ -759,6 +769,11 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             fit::DeveloperField heatStrainIndexField(heatStrainIndexFieldDesc, devIdMesg);
             heatStrainIndexField.SetFLOAT32Value((float)sl.heatStrainIndex);
             newRecord.AddDeveloperField(heatStrainIndexField);
+        }
+        if (sl.hrv > 0) {
+            fit::DeveloperField hrvField(hrvFieldDesc, devIdMesg);
+            hrvField.SetFLOAT32Value((float)sl.hrv);
+            newRecord.AddDeveloperField(hrvField);
         }
 
                // if a gps track contains a point without the gps information, it has to be discarded, otherwise the database
