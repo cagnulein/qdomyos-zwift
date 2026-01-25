@@ -48,6 +48,7 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
 
     // Device UUID mapped to the CommsApp on that device.
     private var apps: [UUID: IQApp] = [:]
+    private var devices: [UUID: IQDevice] = [:]
 
     @Published private var message = ""
     
@@ -76,9 +77,12 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
     func urlParser(_ url: URL) -> Bool {
         guard url.scheme == GarminConnectSwift.urlScheme,
                  let devices = ConnectIQ.shared?.parseDeviceSelectionResponse(from: url) as? [IQDevice] else { return false }
-             registerForDeviceEvents(devices: devices)
+        for device in devices {
+            self.devices[device.uuid] = device
+        }
+        registerForDeviceEvents(devices: devices)
         SwiftDebug.qtDebug("GarminConnect: urlParser: return true")
-             return true
+        return true
     }
 
     private func registerForDeviceEvents(devices: [IQDevice]) {
@@ -108,6 +112,9 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
 
         case .bluetoothNotReady, .invalidDevice, .notConnected, .notFound:
             print(device.uuid)
+            if let app = apps[device.uuid] {
+                ConnectIQ.shared?.unregister(forAppMessages: app, delegate: self)
+            }
             descriptionStatus = "invalidDevice"
             apps.removeValue(forKey: device.uuid)
 
