@@ -1666,10 +1666,6 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "start TP1", false, false);
         }
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
-        if (isTreadmillDataPresent) {
-            qDebug() << "Ignoring 2AD2 because 2ACD is present";
-            return;
-        }
         union flags {
             struct {
                 uint16_t moreData : 1;
@@ -1830,7 +1826,6 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
-        isTreadmillDataPresent = true;
         bool horizon_treadmill_7_0_at_24 = settings.value(QZSettings::horizon_treadmill_7_0_at_24, QZSettings::default_horizon_treadmill_7_0_at_24).toBool();
         bool horizon_treadmill_7_8 = settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool();
         bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
