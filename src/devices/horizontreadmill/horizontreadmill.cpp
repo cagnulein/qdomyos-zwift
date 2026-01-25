@@ -1254,7 +1254,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
 
         uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
-        if(BOWFLEX_T9 || TM4800 || TM6500 || T3G_ELITE) {
+        if(TM4800 || TM6500 || T3G_ELITE) {
             bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
             if(miles) {
                 requestSpeed *= miles_conversion;   // these treadmills want the speed in miles when miles_unit is enabled
@@ -1867,9 +1867,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             double speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                      (uint16_t)((uint8_t)newValue.at(index)))) /
                            100.0;
-            if(BOWFLEX_T9 || T3G_ELITE) {
+            if(T3G_ELITE) {
                 if(miles) {
-                    // these treadmills send the speed in miles when miles_unit is enabled!
+                    // this treadmill sends the speed in miles when miles_unit is enabled!
                     speed /= miles_conversion;
                 }
             } else if(horizon_treadmill_7_8 && miles) {
