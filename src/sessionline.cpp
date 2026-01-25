@@ -8,6 +8,7 @@ SessionLine::SessionLine(double speed, int8_t inclination, double distance, uint
                          double target_cadence, double target_watt, double target_resistance,
                          double target_inclination, double target_speed,
                          double coreTemp, double bodyTemp, double heatStrainIndex, double hrv,
+                         const QList<double> &rrIntervals,
                          const QDateTime &time) {
     this->speed = speed;
     this->inclination = inclination;
@@ -42,6 +43,7 @@ SessionLine::SessionLine(double speed, int8_t inclination, double distance, uint
     this->bodyTemp = bodyTemp;
     this->heatStrainIndex = heatStrainIndex;
     this->hrv = hrv;
+    this->rrIntervals = rrIntervals;
 }
 
 SessionLine::SessionLine() {}

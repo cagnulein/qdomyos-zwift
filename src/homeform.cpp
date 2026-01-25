@@ -7677,7 +7677,8 @@ void homeform::update() {
                 target_cadence->value().toDouble(), target_power->value().toDouble(), target_resistance->value().toDouble(),
                 target_incline->value().toDouble(), target_speed->value().toDouble(),
                 bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(), bluetoothManager->device()->HeatStrainIndex.value(),
-                bluetoothManager->device()->currentHRV().value());
+                bluetoothManager->device()->currentHRV().value(),
+                bluetoothManager->device()->getRRIntervalsAndClear());
 
             Session.append(s);
 

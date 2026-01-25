@@ -5,6 +5,7 @@
 #include <QGeoCoordinate>
 #include <QTimer>
 #include <QMetaType>
+#include <QList>
 
 #include "definitions.h"
 
@@ -44,6 +45,7 @@ class SessionLine {
     double bodyTemp;
     double heatStrainIndex;
     double hrv;
+    QList<double> rrIntervals;  // RR-intervals in milliseconds for HRV
 
     SessionLine();
     SessionLine(double speed, int8_t inclination, double distance, uint16_t watt, resistance_t resistance,
@@ -54,6 +56,7 @@ class SessionLine {
                 double target_cadence, double target_watt, double target_resistance,
                 double target_inclination, double target_speed,
                 double coreTemp, double bodyTemp, double heatStrainIndex, double hrv,
+                const QList<double> &rrIntervals,
                 const QDateTime &time = QDateTime::currentDateTime());
 };
 

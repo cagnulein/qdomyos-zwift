@@ -195,11 +195,14 @@ void bluetoothdevice::skinTemperature(double skinTemperature) { SkinTemperature.
 void bluetoothdevice::heatStrainIndex(double heatStrainIndex) { HeatStrainIndex.setValue(heatStrainIndex); }
 void bluetoothdevice::rrIntervalReceived(double rrInterval) {
     // RR-interval is in milliseconds
-    // Add to buffer (keep max 120 samples, approximately 2 minutes of data)
+    // Add to buffer for RMSSD calculation (keep max 120 samples, approximately 2 minutes of data)
     rrIntervals.append(rrInterval);
     while (rrIntervals.size() > 120) {
         rrIntervals.removeFirst();
     }
+
+    // Also add to FIT file buffer (will be cleared when SessionLine is created)
+    rrIntervalsForFit.append(rrInterval);
 
     // Calculate RMSSD when we have at least 5 RR-intervals
     if (rrIntervals.size() >= 5) {

@@ -494,6 +494,16 @@ class bluetoothdevice : public QObject {
      */
     metric currentHRV() { return HRV; }
 
+    /**
+     * @brief Get and clear accumulated RR-intervals for FIT file saving
+     * @return List of RR-intervals in milliseconds
+     */
+    QList<double> getRRIntervalsAndClear() {
+        QList<double> intervals = rrIntervalsForFit;
+        rrIntervalsForFit.clear();
+        return intervals;
+    }
+
   public Q_SLOTS:
     virtual void start();
     virtual void stop(bool pause);
@@ -608,6 +618,11 @@ class bluetoothdevice : public QObject {
      * @brief RR-intervals buffer for HRV calculation
      */
     QList<double> rrIntervals;
+
+    /**
+     * @brief RR-intervals buffer for FIT file saving (cleared after each SessionLine)
+     */
+    QList<double> rrIntervalsForFit;
 
     int8_t requestStart = -1;
     int8_t requestStop = -1;
