@@ -1904,7 +1904,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.inclination) {
-            if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill)
+            if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill && !T01)
                 parseInclination(treadmillInclinationOverride((double)(
                                   (int16_t)(
                                       ((int16_t)(int8_t)newValue.at(index + 1) << 8) |
