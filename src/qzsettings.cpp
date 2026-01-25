@@ -215,6 +215,7 @@ const QString QZSettings::heart_rate_zone3 = QStringLiteral("heart_rate_zone3");
 const QString QZSettings::heart_rate_zone4 = QStringLiteral("heart_rate_zone4");
 const QString QZSettings::heart_max_override_enable = QStringLiteral("heart_max_override_enable");
 const QString QZSettings::heart_max_override_value = QStringLiteral("heart_max_override_value");
+const QString QZSettings::heart_rate_resting = QStringLiteral("heart_rate_resting");
 const QString QZSettings::peloton_gain = QStringLiteral("peloton_gain");
 const QString QZSettings::peloton_offset = QStringLiteral("peloton_offset");
 const QString QZSettings::treadmill_pid_heart_zone = QStringLiteral("treadmill_pid_heart_zone");
@@ -277,6 +278,8 @@ const QString QZSettings::fitplus_bike = QStringLiteral("fitplus_bike");
 const QString QZSettings::virtufit_etappe = QStringLiteral("virtufit_etappe");
 const QString QZSettings::flywheel_filter = QStringLiteral("flywheel_filter");
 const QString QZSettings::flywheel_life_fitness_ic8 = QStringLiteral("flywheel_life_fitness_ic8");
+const QString QZSettings::life_fitness_ic5 = QStringLiteral("life_fitness_ic5");
+const QString QZSettings::technogym_bike = QStringLiteral("technogym_bike");
 const QString QZSettings::sole_treadmill_inclination = QStringLiteral("sole_treadmill_inclination");
 const QString QZSettings::sole_treadmill_miles = QStringLiteral("sole_treadmill_miles");
 const QString QZSettings::sole_treadmill_f65 = QStringLiteral("sole_treadmill_f65");
@@ -301,6 +304,7 @@ const QString QZSettings::trainprogram_resistance_max = QStringLiteral("trainpro
 const QString QZSettings::watt_offset = QStringLiteral("watt_offset");
 const QString QZSettings::watt_gain = QStringLiteral("watt_gain");
 const QString QZSettings::power_avg_5s = QStringLiteral("power_avg_5s");
+const QString QZSettings::power_avg_3s = QStringLiteral("power_avg_3s");
 const QString QZSettings::instant_power_on_pause = QStringLiteral("instant_power_on_pause");
 const QString QZSettings::speed_offset = QStringLiteral("speed_offset");
 const QString QZSettings::speed_gain = QStringLiteral("speed_gain");
@@ -754,6 +758,7 @@ const QString QZSettings::proform_8_5_treadmill = QStringLiteral("proform_8_5_tr
 const QString QZSettings::treadmill_incline_min = QStringLiteral("treadmill_incline_min");
 const QString QZSettings::treadmill_incline_max = QStringLiteral("treadmill_incline_max");
 const QString QZSettings::treadmill_speed_max = QStringLiteral("treadmill_speed_max");
+const QString QZSettings::treadmill_speed_min = QStringLiteral("treadmill_speed_min");
 const QString QZSettings::proform_2000_treadmill = QStringLiteral("proform_2000_treadmill");
 const QString QZSettings::android_documents_folder = QStringLiteral("android_documents_folder");
 const QString QZSettings::zwift_api_autoinclination = QStringLiteral("zwift_api_autoinclination");
@@ -763,6 +768,7 @@ const QString QZSettings::domyos_treadmill_button_16kmh = QStringLiteral("domyos
 const QString QZSettings::domyos_treadmill_button_22kmh = QStringLiteral("domyos_treadmill_button_22kmh");
 const QString QZSettings::proform_treadmill_sport_8_5 = QStringLiteral("proform_treadmill_sport_8_5");
 const QString QZSettings::domyos_treadmill_t900a = QStringLiteral("domyos_treadmill_t900a");
+const QString QZSettings::domyos_treadmill_sync_start = QStringLiteral("domyos_treadmill_sync_start");
 const QString QZSettings::enerfit_SPX_9500 = QStringLiteral("enerfit_SPX_9500");
 const QString QZSettings::proform_treadmill_505_cst = QStringLiteral("proform_treadmill_505_cst");
 const QString QZSettings::nordictrack_treadmill_t8_5s = QStringLiteral("nordictrack_treadmill_t8_5s");
@@ -804,6 +810,8 @@ const QString QZSettings::toorxtreadmill_discovery_completed = QStringLiteral("t
 const QString QZSettings::atletica_lightspeed_treadmill = QStringLiteral("atletica_lightspeed_treadmill");
 const QString QZSettings::peloton_treadmill_level = QStringLiteral("peloton_treadmill_level");
 const QString QZSettings::peloton_treadmill_walk_level = QStringLiteral("peloton_treadmill_walk_level");
+const QString QZSettings::peloton_treadmill_walking_min_speed = QStringLiteral("peloton_treadmill_walking_min_speed");
+const QString QZSettings::peloton_treadmill_running_min_speed = QStringLiteral("peloton_treadmill_running_min_speed");
 const QString QZSettings::nordictrackadbbike_resistance = QStringLiteral("nordictrackadbbike_resistance");
 const QString QZSettings::proform_treadmill_carbon_t7 = QStringLiteral("proform_treadmill_carbon_t7");
 const QString QZSettings::nordictrack_treadmill_exp_5i = QStringLiteral("nordictrack_treadmill_exp_5i");
@@ -883,6 +891,7 @@ const QString QZSettings::tile_biggears_swap = QStringLiteral("tile_biggears_swa
 const QString QZSettings::treadmill_follow_wattage = QStringLiteral("treadmill_follow_wattage");
 const QString QZSettings::fit_file_garmin_device_training_effect = QStringLiteral("fit_file_garmin_device_training_effect");
 const QString QZSettings::fit_file_garmin_device_training_effect_device = QStringLiteral("fit_file_garmin_device_training_effect_device");
+const QString QZSettings::garmin_device_serial = QStringLiteral("garmin_device_serial");
 const QString QZSettings::proform_treadmill_705_cst_V80_44 = QStringLiteral("proform_treadmill_705_cst_V80_44");
 const QString QZSettings::nordictrack_treadmill_1750_adb = QStringLiteral("nordictrack_treadmill_1750_adb");
 const QString QZSettings::proform_trainer_9_0 = QStringLiteral("proform_trainer_9_0");
@@ -1023,6 +1032,8 @@ const QString QZSettings::tile_auto_virtual_shifting_climb_enabled = QStringLite
 const QString QZSettings::tile_auto_virtual_shifting_climb_order = QStringLiteral("tile_auto_virtual_shifting_climb_order");
 const QString QZSettings::tile_auto_virtual_shifting_sprint_enabled = QStringLiteral("tile_auto_virtual_shifting_sprint_enabled");
 const QString QZSettings::tile_auto_virtual_shifting_sprint_order = QStringLiteral("tile_auto_virtual_shifting_sprint_order");
+const QString QZSettings::tile_power_avg_enabled = QStringLiteral("tile_power_avg_enabled");
+const QString QZSettings::tile_power_avg_order = QStringLiteral("tile_power_avg_order");
 const QString QZSettings::tile_negative_inclination_enabled = QStringLiteral("tile_negative_inclination_enabled");
 const QString QZSettings::tile_negative_inclination_order = QStringLiteral("tile_negative_inclination_order");
 const QString QZSettings::chart_display_mode = QStringLiteral("chart_display_mode");
@@ -1033,9 +1044,11 @@ const QString QZSettings::height = QStringLiteral("height");
 const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
+const QString QZSettings::trainprogram_auto_lap_on_segment = QStringLiteral("trainprogram_auto_lap_on_segment");
+const QString QZSettings::kingsmith_r2_enable_hw_buttons = QStringLiteral("kingsmith_r2_enable_hw_buttons");
 
 
-const uint32_t allSettingsCount = 841;
+const uint32_t allSettingsCount = 854;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1204,6 +1217,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4},
     {QZSettings::heart_max_override_enable, QZSettings::default_heart_max_override_enable},
     {QZSettings::heart_max_override_value, QZSettings::default_heart_max_override_value},
+    {QZSettings::heart_rate_resting, QZSettings::default_heart_rate_resting},
     {QZSettings::peloton_gain, QZSettings::default_peloton_gain},
     {QZSettings::peloton_offset, QZSettings::default_peloton_offset},
     {QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone},
@@ -1259,6 +1273,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe},
     {QZSettings::flywheel_filter, QZSettings::default_flywheel_filter},
     {QZSettings::flywheel_life_fitness_ic8, QZSettings::default_flywheel_life_fitness_ic8},
+    {QZSettings::life_fitness_ic5, QZSettings::default_life_fitness_ic5},
+    {QZSettings::technogym_bike, QZSettings::default_technogym_bike},
     {QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination},
     {QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles},
     {QZSettings::sole_treadmill_f65, QZSettings::default_sole_treadmill_f65},
@@ -1282,6 +1298,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::watt_offset, QZSettings::default_watt_offset},
     {QZSettings::watt_gain, QZSettings::default_watt_gain},
     {QZSettings::power_avg_5s, QZSettings::default_power_avg_5s},
+    {QZSettings::power_avg_3s, QZSettings::default_power_avg_3s},
     {QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause},
     {QZSettings::speed_offset, QZSettings::default_speed_offset},
     {QZSettings::speed_gain, QZSettings::default_speed_gain},
@@ -1659,6 +1676,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min},
     {QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max},
     {QZSettings::treadmill_speed_max, QZSettings::default_treadmill_speed_max},
+    {QZSettings::treadmill_speed_min, QZSettings::default_treadmill_speed_min},
     {QZSettings::proform_2000_treadmill, QZSettings::default_proform_2000_treadmill},
     {QZSettings::android_documents_folder, QZSettings::default_android_documents_folder},
     {QZSettings::zwift_api_autoinclination, QZSettings::default_zwift_api_autoinclination},
@@ -1668,6 +1686,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::domyos_treadmill_button_22kmh, QZSettings::default_domyos_treadmill_button_22kmh},
     {QZSettings::proform_treadmill_sport_8_5, QZSettings::default_proform_treadmill_sport_8_5},
     {QZSettings::domyos_treadmill_t900a, QZSettings::default_domyos_treadmill_t900a},
+    {QZSettings::domyos_treadmill_sync_start, QZSettings::default_domyos_treadmill_sync_start},
     {QZSettings::enerfit_SPX_9500, QZSettings::default_enerfit_SPX_9500},
     {QZSettings::proform_treadmill_505_cst, QZSettings::default_proform_treadmill_505_cst},
     {QZSettings::nordictrack_treadmill_t8_5s, QZSettings::default_nordictrack_treadmill_t8_5s},    
@@ -1705,6 +1724,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::atletica_lightspeed_treadmill, QZSettings::default_atletica_lightspeed_treadmill},
     {QZSettings::peloton_treadmill_level, QZSettings::default_peloton_treadmill_level},
     {QZSettings::peloton_treadmill_walk_level, QZSettings::default_peloton_treadmill_walk_level},
+    {QZSettings::peloton_treadmill_walking_min_speed, QZSettings::default_peloton_treadmill_walking_min_speed},
+    {QZSettings::peloton_treadmill_running_min_speed, QZSettings::default_peloton_treadmill_running_min_speed},
     {QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance},
     {QZSettings::proform_treadmill_carbon_t7, QZSettings::default_proform_treadmill_carbon_t7},
     {QZSettings::nordictrack_treadmill_exp_5i, QZSettings::default_nordictrack_treadmill_exp_5i},
@@ -1769,6 +1790,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::treadmill_follow_wattage, QZSettings::default_treadmill_follow_wattage},
     {QZSettings::fit_file_garmin_device_training_effect, QZSettings::default_fit_file_garmin_device_training_effect},
     {QZSettings::fit_file_garmin_device_training_effect_device, QZSettings::default_fit_file_garmin_device_training_effect_device},
+    {QZSettings::garmin_device_serial, QZSettings::default_garmin_device_serial},
     {QZSettings::proform_treadmill_705_cst_V80_44, QZSettings::default_proform_treadmill_705_cst_V80_44},
     {QZSettings::nordictrack_treadmill_1750_adb, QZSettings::default_nordictrack_treadmill_1750_adb},
     {QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0},
@@ -1881,6 +1903,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_auto_virtual_shifting_climb_order, QZSettings::default_tile_auto_virtual_shifting_climb_order},
     {QZSettings::tile_auto_virtual_shifting_sprint_enabled, QZSettings::default_tile_auto_virtual_shifting_sprint_enabled},
     {QZSettings::tile_auto_virtual_shifting_sprint_order, QZSettings::default_tile_auto_virtual_shifting_sprint_order},
+    {QZSettings::tile_power_avg_enabled, QZSettings::default_tile_power_avg_enabled},
+    {QZSettings::tile_power_avg_order, QZSettings::default_tile_power_avg_order},
     {QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled},
     {QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order},
     {QZSettings::chart_display_mode, QZSettings::default_chart_display_mode},
@@ -1892,6 +1916,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::taurua_ic90, QZSettings::default_taurua_ic90},
     {QZSettings::proform_csx210, QZSettings::default_proform_csx210},
     {QZSettings::skandika_wiri_x2000_protocol, QZSettings::default_skandika_wiri_x2000_protocol},
+    {QZSettings::trainprogram_auto_lap_on_segment, QZSettings::default_trainprogram_auto_lap_on_segment},
+    {QZSettings::kingsmith_r2_enable_hw_buttons, QZSettings::default_kingsmith_r2_enable_hw_buttons},
     {QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed},
     {QZSettings::proform_treadmill_sport_3_0, QZSettings::default_proform_treadmill_sport_3_0},
     {QZSettings::garmin_oauth1_token, QZSettings::default_garmin_oauth1_token},

@@ -20,7 +20,7 @@ int CharacteristicNotifier2AD2::notify(QByteArray &value) {
         cadence_multiplier = 1.0;
 
 
-    double normalizeWattage = Bike->wattsMetric().value();
+    double normalizeWattage = Bike->wattsMetricforUI();
     if (normalizeWattage < 0)
         normalizeWattage = 0;
 
