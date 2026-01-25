@@ -921,6 +921,8 @@ void horizontreadmill::update() {
             settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool();
         bool horizon_paragon_x =
             settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
+        bool treadmill_direct_distance =
+            settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
         update_metrics(!powerReceivedFromPowerSensor, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         if (firstDistanceCalculated) {
@@ -932,9 +934,11 @@ void horizontreadmill::update() {
             200.0) /
             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                         now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                            // kg * 3.5) / 200 ) / 60    
-            Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+                                                            // kg * 3.5) / 200 ) / 60
+            if (!treadmill_direct_distance) {
+                Distance += ((Speed.value() / 3600000.0) *
+                             ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+            }
 
             lastRefreshCharacteristicChanged = now;
         }
@@ -1533,6 +1537,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool treadmill_direct_distance =
+        settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
 
     QDateTime now = QDateTime::currentDateTime();
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
@@ -1589,7 +1595,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
-        if (firstDistanceCalculated)
+        if (firstDistanceCalculated && !treadmill_direct_distance)
             Distance += ((Speed.value() / 3600000.0) *
                          ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -1615,7 +1621,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
-        if (firstDistanceCalculated)
+        if (firstDistanceCalculated && !treadmill_direct_distance)
             Distance += ((Speed.value() / 3600000.0) *
                          ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -1639,7 +1645,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
-        if (firstDistanceCalculated)
+        if (firstDistanceCalculated && !treadmill_direct_distance)
             Distance += ((Speed.value() / 3600000.0) *
                          ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -1733,19 +1739,19 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
         if (Flags.totDistance) {
-
-            /*
-             * the distance sent from the most trainers is a total distance, so it's useless for QZ
-             *
-            Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                  (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                 (uint32_t)((uint8_t)newValue.at(index)))) /
-                       1000.0;*/
+            if (treadmill_direct_distance) {
+                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                     (uint32_t)((uint8_t)newValue.at(index)))) /
+                           1000.0;
+            }
             index += 3;
         }
 
-        Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+        if (!treadmill_direct_distance) {
+            Distance += ((Speed.value() / 3600000.0) *
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+        }
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
@@ -1888,14 +1894,16 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
         if (Flags.totalDistance) {
-            // ignoring the distance, because it's a total life odometer
-            // Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-            // (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)))) / 1000.0;
+            if (treadmill_direct_distance) {
+                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                     (uint32_t)((uint8_t)newValue.at(index)))) /
+                           1000.0;
+            }
             index += 3;
         }
-        // else
         {
-            if (firstDistanceCalculated && !isPaused())
+            if (firstDistanceCalculated && !isPaused() && !treadmill_direct_distance)
                 Distance += ((Speed.value() / 3600000.0) *
                              ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
             distanceEval = true;
@@ -2094,13 +2102,20 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
         if (Flags.totDistance && newValue.length() > index + 2) {
-            Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                  (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                 (uint32_t)((uint8_t)newValue.at(index)))) /
-                       1000.0;
+            if (treadmill_direct_distance) {
+                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                     (uint32_t)((uint8_t)newValue.at(index)))) /
+                           1000.0;
+            } else {
+                if (firstDistanceCalculated)
+                    Distance += ((Speed.value() / 3600000.0) *
+                                 ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+            }
             index += 3;
+            distanceEval = true;
         } else {
-            if (firstDistanceCalculated)
+            if (firstDistanceCalculated && !treadmill_direct_distance)
                 Distance += ((Speed.value() / 3600000.0) *
                              ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
             distanceEval = true;
