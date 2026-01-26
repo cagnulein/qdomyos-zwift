@@ -9493,20 +9493,6 @@ import Qt.labs.platform 1.1
                                 onClicked: { settings.horizon_paragon_x = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                id: bowflexT9MilesDelegate
-                                text: qsTr("T9 mi/h speed")
-                                spacing: 0
-                                bottomPadding: 0
-                                topPadding: 0
-                                rightPadding: 0
-                                leftPadding: 0
-                                clip: false
-                                checked: settings.fitshow_treadmill_miles
-                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                                Layout.fillWidth: true
-                                onClicked: settings.fitshow_treadmill_miles = checked
-                            }
-                            IndicatorOnlySwitch {
                                 id: horizonFTMSTreadmillCadenzaDelegate
                                 text: qsTr("Force Using FTMS")
                                 spacing: 0
@@ -9704,6 +9690,31 @@ import Qt.labs.platform 1.1
                                 onClicked: { settings.horizon_treadmill_force_ftms = checked; window.settings_restart_to_apply = true; }
                             }
                         }
+                    }
+                }
+            }
+
+            AccordionElement {
+                id: bowflexTreadmillAccordion
+                title: qsTr("Bowflex Treadmill Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Yellow)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 0
+                    IndicatorOnlySwitch {
+                        id: bowflexT9MilesDelegate
+                        text: qsTr("T9 mi/h speed")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.fitshow_treadmill_miles
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.fitshow_treadmill_miles = checked
                     }
                 }
             }
