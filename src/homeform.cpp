@@ -7640,7 +7640,8 @@ void homeform::update() {
                             bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount,
                             target_cadence->value().toDouble(), target_power->value().toDouble(), target_resistance->value().toDouble(),
                             target_incline->value().toDouble(), target_speed->value().toDouble(),
-                            bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(), bluetoothManager->device()->HeatStrainIndex.value());
+                            bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(), bluetoothManager->device()->HeatStrainIndex.value(),
+                            0.0, QList<double>());
                         
                         Session.append(gapFill);
                         qDebug() << "Added gap-filling SessionLine for elapsed time:" << (lastRecordedTime + i);
