@@ -7222,10 +7222,11 @@ void homeform::update() {
                                          << currentResistance << QStringLiteral("to") << (currentResistance - step);
                                 ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
                             } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
-                                       maxResistance >= currentResistance + step) {
+                                       currentResistance < maxResistance) {
+                                resistance_t newResistance = std::min(static_cast<resistance_t>(currentResistance + step), static_cast<resistance_t>(maxResistance));
                                 qDebug() << QStringLiteral("BIKE PID HR - HR < HRmin, INCREASING resistance from")
-                                         << currentResistance << QStringLiteral("to") << (currentResistance + step);
-                                ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
+                                         << currentResistance << QStringLiteral("to") << newResistance;
+                                ((bike *)bluetoothManager->device())->changeResistance(newResistance);
                             } else {
                                 qDebug() << QStringLiteral("BIKE PID HR - No action taken (in zone or at limits)");
                             }

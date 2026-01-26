@@ -1257,7 +1257,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         if(BOWFLEX_T9) {
             requestSpeed *= miles_conversion;   // this treadmill wants the speed in miles, at least seems so!!
         }
-        if(TM4800) {
+        if(TM4800 || TM6500 || T3G_ELITE) {
             bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
             if(miles) {
                 requestSpeed *= miles_conversion;   // this treadmill wants the speed in miles when miles_unit is enabled
@@ -1505,8 +1505,6 @@ void horizontreadmill::forceIncline(double requestIncline) {
                 writeS[2] = 0x00;
             }
         } else {
-            if(HORIZON_78AT_treadmill)
-                requestIncline = requestIncline / 2.0;
             writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
             writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
         }
@@ -1715,9 +1713,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
-                Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                double cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index)))) /
                           2.0;
+                parseCadence(cadence);
                 cadenceAvailable = true;
             }
             index += 2;
@@ -1828,6 +1827,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
         bool horizon_treadmill_7_0_at_24 = settings.value(QZSettings::horizon_treadmill_7_0_at_24, QZSettings::default_horizon_treadmill_7_0_at_24).toBool();
+        bool horizon_treadmill_7_8 = settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool();
+        bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
         lastPacket = newValue;
 
         // default flags for this treadmill is 84 04
@@ -1858,15 +1859,18 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         int index = 0;
         Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
         index += 2;
+        const double miles_conversion = 0.621371;
 
         if (!Flags.moreData) {
             double speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                      (uint16_t)((uint8_t)newValue.at(index)))) /
                            100.0;
-            if(BOWFLEX_T9) {
-                const double miles_conversion = 0.621371;
+            if(BOWFLEX_T9) {                
                 // this treadmill sends the speed in miles!
                 speed *= miles_conversion;
+            } else if(horizon_treadmill_7_8 && miles) {
+                // this treadmill sends the speed in miles!
+                speed /= miles_conversion;
             }
             if(!mobvoi_tmp_treadmill || (mobvoi_tmp_treadmill && !horizonPaused))
                 parseSpeed(speed);
@@ -1900,7 +1904,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.inclination) {
-            if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill)
+            if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill && !T01)
                 parseInclination(treadmillInclinationOverride((double)(
                                   (int16_t)(
                                       ((int16_t)(int8_t)newValue.at(index + 1) << 8) |
@@ -1908,7 +1912,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                                       )
                                   ) /
                                                               10.0));
-            else if(ICONCEPT_FTMS_treadmill) {
+            else if(ICONCEPT_FTMS_treadmill || T01) {
                 uint8_t val1 = (uint8_t)newValue.at(index);
                 uint8_t val2 = (uint8_t)newValue.at(index + 1);
                 if(val1 == 0x3C && val2 == 0x00) {
@@ -2108,8 +2112,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
-                Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                double cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index))));
+                parseCadence(cadence);
                 cadenceAvailable = true;
             }
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
@@ -2243,7 +2248,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             }
         }
 
-        Cadence = cadence;
+        parseCadence(cadence);
         cadenceAvailable = true;
         emit cadenceChanged(cadence);
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(cadence));
@@ -2268,7 +2273,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
             if (calculatedCadence > 0) {
                 evaluateStepCount();
-                Cadence = calculatedCadence;
+                parseCadence(calculatedCadence);
                 emit debug(QStringLiteral("Current Cadence (calculated from speed): ") + QString::number(Cadence.value()));
             }
         }
@@ -2299,14 +2304,13 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
     QBluetoothUuid _gattInclinationSupported((quint16)0x2AD5);
-    QBluetoothUuid _DomyosServiceId(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
     QBluetoothUuid _YpooMiniProCharId(QStringLiteral("d18d2c10-c44c-11e8-a355-529269fb1459"));
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
 
-        if(s->serviceUuid() == _DomyosServiceId && DOMYOS) {
+        if(s->serviceUuid() == DomyosServiceId && DOMYOS) {
             settings.setValue(QZSettings::domyostreadmill_notfmts, true);
             settings.sync();
             if(homeform::singleton())
@@ -2513,7 +2517,27 @@ void horizontreadmill::serviceScanDone(void) {
     firstStateChanged = 0;
     auto services_list = m_control->services();
 
+    // Check if DOMYOS device has native service
+    QBluetoothUuid _FTMSServiceId((quint16)0x1826);
+    bool hasNativeDomyosService = false;
+
+    if (DOMYOS) {
+        for (const QBluetoothUuid &s : qAsConst(services_list)) {
+            if (s == DomyosServiceId) {
+                hasNativeDomyosService = true;
+                qDebug() << "Native Domyos service found";
+                break;
+            }
+        }
+    }
+
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
+            // If DOMYOS without native service, discover only FTMS (1826)
+            if (DOMYOS && !hasNativeDomyosService && s != _FTMSServiceId) {
+                qDebug() << s << "skipping (DOMYOS-TC will use only FTMS)";
+                continue;
+            }
+
             qDebug() << s << "discovering...";
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
             connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
@@ -2638,6 +2662,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("TM4800-"))) {
             qDebug() << QStringLiteral("TM4800 treadmill found");
             TM4800 = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TM6500-"))) {
+            qDebug() << QStringLiteral("TM6500 treadmill found");
+            TM6500 = true;
+            minInclination = -3.0;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {

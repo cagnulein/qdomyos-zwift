@@ -239,11 +239,11 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
         changeSlope(slopefloat, 0 /* TODO */, 0 /* TODO */);
         
         reply = encodeHubRidingData(
-                               Bike->wattsMetric().value(),
+                               Bike->wattsMetricforUI(),
                                Bike->currentCadence().value(),
                                0,
-                               Bike->wattsMetric().value(),
-                               calculateUnknown1(Bike->wattsMetric().value()),
+                               Bike->wattsMetricforUI(),
+                               calculateUnknown1(Bike->wattsMetricforUI()),
                                0
                            );
         notifier0002->addAnswer(reply);
@@ -284,15 +284,15 @@ int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArra
                                      QByteArray::fromHex("05") + power);
 
         reply = encodeHubRidingData(
-                               Bike->wattsMetric().value(),
+                               Bike->wattsMetricforUI(),
                                Bike->currentCadence().value(),
                                0,
-                               Bike->wattsMetric().value(),
-                               calculateUnknown1(Bike->wattsMetric().value()),
+                               Bike->wattsMetricforUI(),
+                               calculateUnknown1(Bike->wattsMetricforUI()),
                                0
                            );
         notifier0002->addAnswer(reply);
-        
+
         changePower(Power.value);
     }
     else if (receivedData.startsWith(expectedHexArray9)) {

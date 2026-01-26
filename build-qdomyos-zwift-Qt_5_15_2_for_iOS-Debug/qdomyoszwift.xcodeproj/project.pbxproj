@@ -304,7 +304,6 @@
 		87646C2227B5065100F82131 /* moc_bhfitnesselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87646C2127B5065100F82131 /* moc_bhfitnesselliptical.cpp */; };
 		8767CA552DA3C1FD0003001F /* elitesquarecontroller.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA532DA3C1FD0003001F /* elitesquarecontroller.cpp */; };
 		8767CA562DA3C1FD0003001F /* moc_elitesquarecontroller.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA542DA3C1FD0003001F /* moc_elitesquarecontroller.cpp */; };
-		8767CA5D2DA7F5170003001F /* ios_wahookickrsnapbike.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA5C2DA7F5170003001F /* ios_wahookickrsnapbike.mm */; };
 		8767CA602DA800590003001F /* ios_zwiftclickremote.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767CA5F2DA800590003001F /* ios_zwiftclickremote.mm */; };
 		8767EF1E29448D6700810C0F /* characteristicwriteprocessor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8767EF1D29448D6700810C0F /* characteristicwriteprocessor.cpp */; };
 		8768C8BA2BBC11C80099DBE1 /* file_sync_client.c in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8768C89C2BBC11C70099DBE1 /* file_sync_client.c */; };
@@ -375,7 +374,6 @@
 		8772A0E625E43ADB0080718C /* trxappgateusbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772A0E525E43ADA0080718C /* trxappgateusbbike.cpp */; };
 		8772A0E825E43AE70080718C /* moc_trxappgateusbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772A0E725E43AE70080718C /* moc_trxappgateusbbike.cpp */; };
 		8772B7F42CB55E80004AB8E9 /* moc_deerruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772B7F32CB55E80004AB8E9 /* moc_deerruntreadmill.cpp */; };
-		8772B7F72CB55E98004AB8E9 /* deerruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772B7F62CB55E98004AB8E9 /* deerruntreadmill.cpp */; };
 		877350F72D1C08E60070CBD8 /* SmartControl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 877350F62D1C08E50070CBD8 /* SmartControl.cpp */; };
 		8775008329E876F8008E48B7 /* iconceptelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8775008129E876F7008E48B7 /* iconceptelliptical.cpp */; };
 		8775008529E87713008E48B7 /* moc_iconceptelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8775008429E87712008E48B7 /* moc_iconceptelliptical.cpp */; };
@@ -403,7 +401,6 @@
 		8785D5432B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8785D5412B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp */; };
 		8785D5442B3DD105005A2EB7 /* moc_zwift_client_auth.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8785D5422B3DD105005A2EB7 /* moc_zwift_client_auth.cpp */; };
 		87873AEE2D09A8AA005F86B4 /* moc_sportsplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87873AED2D09A8AA005F86B4 /* moc_sportsplusrower.cpp */; };
-		87873AF12D09A8CE005F86B4 /* sportsplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87873AF02D09A8CE005F86B4 /* sportsplusrower.cpp */; };
 		878895DB2DD48AB100BF5162 /* moc_inclinationresistancetable.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878895DA2DD48AB100BF5162 /* moc_inclinationresistancetable.cpp */; };
 		878A331A25AB4FF800BD13E1 /* yesoulbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878A331725AB4FF800BD13E1 /* yesoulbike.cpp */; };
 		878A331D25AB50C300BD13E1 /* moc_yesoulbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878A331B25AB50C200BD13E1 /* moc_yesoulbike.cpp */; };
@@ -462,6 +459,8 @@
 		87A4B76125AF27CB0027EF3C /* metric.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A4B75F25AF27CB0027EF3C /* metric.cpp */; };
 		87A6825A2CE3AB3100586A2A /* moc_sramAXSController.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A682592CE3AB3100586A2A /* moc_sramAXSController.cpp */; };
 		87A6825D2CE3AB4000586A2A /* sramAXSController.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A6825C2CE3AB4000586A2A /* sramAXSController.cpp */; };
+		87A892562F0C12EB00811D95 /* deerruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A892552F0C12EB00811D95 /* deerruntreadmill.cpp */; };
+		87A892582F0C173600811D95 /* sportsplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A892572F0C173600811D95 /* sportsplusrower.cpp */; };
 		87ACBE9E2E250F7D00F1B6EA /* moc_androidstatusbar.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87ACBE9D2E250F7D00F1B6EA /* moc_androidstatusbar.cpp */; };
 		87ACBE9F2E250F7D00F1B6EA /* androidstatusbar.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87ACBE9C2E250F7D00F1B6EA /* androidstatusbar.cpp */; };
 		87ADD2BB27634C1500B7A0AB /* technogymmyruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87ADD2B927634C1400B7A0AB /* technogymmyruntreadmill.cpp */; };
@@ -1273,8 +1272,6 @@
 		8767CA522DA3C1FD0003001F /* elitesquarecontroller.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = elitesquarecontroller.h; path = ../src/devices/elitesquarecontroller/elitesquarecontroller.h; sourceTree = SOURCE_ROOT; };
 		8767CA532DA3C1FD0003001F /* elitesquarecontroller.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = elitesquarecontroller.cpp; path = ../src/devices/elitesquarecontroller/elitesquarecontroller.cpp; sourceTree = SOURCE_ROOT; };
 		8767CA542DA3C1FD0003001F /* moc_elitesquarecontroller.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_elitesquarecontroller.cpp; sourceTree = "<group>"; };
-		8767CA5B2DA7F5170003001F /* ios_wahookickrsnapbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_wahookickrsnapbike.h; path = ../src/ios/ios_wahookickrsnapbike.h; sourceTree = SOURCE_ROOT; };
-		8767CA5C2DA7F5170003001F /* ios_wahookickrsnapbike.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_wahookickrsnapbike.mm; path = ../src/ios/ios_wahookickrsnapbike.mm; sourceTree = SOURCE_ROOT; };
 		8767CA5E2DA800590003001F /* ios_zwiftclickremote.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_zwiftclickremote.h; path = ../src/ios/ios_zwiftclickremote.h; sourceTree = SOURCE_ROOT; };
 		8767CA5F2DA800590003001F /* ios_zwiftclickremote.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_zwiftclickremote.mm; path = ../src/ios/ios_zwiftclickremote.mm; sourceTree = SOURCE_ROOT; };
 		8767EF1D29448D6700810C0F /* characteristicwriteprocessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicwriteprocessor.cpp; path = ../src/characteristics/characteristicwriteprocessor.cpp; sourceTree = "<group>"; };
@@ -1388,7 +1385,6 @@
 		8772A0E525E43ADA0080718C /* trxappgateusbbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = trxappgateusbbike.cpp; path = ../src/devices/trxappgateusbbike/trxappgateusbbike.cpp; sourceTree = "<group>"; };
 		8772A0E725E43AE70080718C /* moc_trxappgateusbbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_trxappgateusbbike.cpp; sourceTree = "<group>"; };
 		8772B7F32CB55E80004AB8E9 /* moc_deerruntreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_deerruntreadmill.cpp; sourceTree = "<group>"; };
-		8772B7F62CB55E98004AB8E9 /* deerruntreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = deerruntreadmill.cpp; sourceTree = "<group>"; };
 		8772B7F92CB5603A004AB8E9 /* deerruntreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = deerruntreadmill.h; path = ../src/devices/deeruntreadmill/deerruntreadmill.h; sourceTree = SOURCE_ROOT; };
 		877350F52D1C08E50070CBD8 /* SmartControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SmartControl.h; path = ../src/devices/kineticinroadbike/SmartControl.h; sourceTree = SOURCE_ROOT; };
 		877350F62D1C08E50070CBD8 /* SmartControl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SmartControl.cpp; path = ../src/devices/kineticinroadbike/SmartControl.cpp; sourceTree = SOURCE_ROOT; };
@@ -1430,7 +1426,6 @@
 		8785D5412B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_PlayerStateWrapper.cpp; sourceTree = "<group>"; };
 		8785D5422B3DD105005A2EB7 /* moc_zwift_client_auth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_zwift_client_auth.cpp; sourceTree = "<group>"; };
 		87873AED2D09A8AA005F86B4 /* moc_sportsplusrower.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sportsplusrower.cpp; sourceTree = "<group>"; };
-		87873AF02D09A8CE005F86B4 /* sportsplusrower.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sportsplusrower.cpp; sourceTree = "<group>"; };
 		87873AF22D09AADF005F86B4 /* sportsplusrower.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sportsplusrower.h; path = ../src/devices/sportsplusrower/sportsplusrower.h; sourceTree = SOURCE_ROOT; };
 		878895D92DD48AB100BF5162 /* inclinationresistancetable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = inclinationresistancetable.h; path = ../src/inclinationresistancetable.h; sourceTree = SOURCE_ROOT; };
 		878895DA2DD48AB100BF5162 /* moc_inclinationresistancetable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inclinationresistancetable.cpp; sourceTree = "<group>"; };
@@ -1525,6 +1520,8 @@
 		87A682592CE3AB3100586A2A /* moc_sramAXSController.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sramAXSController.cpp; sourceTree = "<group>"; };
 		87A6825B2CE3AB4000586A2A /* sramAXSController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sramAXSController.h; path = ../src/devices/sramAXSController/sramAXSController.h; sourceTree = SOURCE_ROOT; };
 		87A6825C2CE3AB4000586A2A /* sramAXSController.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sramAXSController.cpp; path = ../src/devices/sramAXSController/sramAXSController.cpp; sourceTree = SOURCE_ROOT; };
+		87A892552F0C12EB00811D95 /* deerruntreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = deerruntreadmill.cpp; path = ../src/devices/deeruntreadmill/deerruntreadmill.cpp; sourceTree = SOURCE_ROOT; };
+		87A892572F0C173600811D95 /* sportsplusrower.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sportsplusrower.cpp; path = ../src/devices/sportsplusrower/sportsplusrower.cpp; sourceTree = SOURCE_ROOT; };
 		87ACBE9B2E250F7D00F1B6EA /* androidstatusbar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = androidstatusbar.h; path = ../src/androidstatusbar.h; sourceTree = SOURCE_ROOT; };
 		87ACBE9C2E250F7D00F1B6EA /* androidstatusbar.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = androidstatusbar.cpp; path = ../src/androidstatusbar.cpp; sourceTree = SOURCE_ROOT; };
 		87ACBE9D2E250F7D00F1B6EA /* moc_androidstatusbar.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_androidstatusbar.cpp; sourceTree = "<group>"; };
@@ -2338,6 +2335,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87A892572F0C173600811D95 /* sportsplusrower.cpp */,
+				87A892552F0C12EB00811D95 /* deerruntreadmill.cpp */,
 				87CBCF0F2EFAA2F8004F5ECE /* garminconnect.h */,
 				87CBCF102EFAA2F8004F5ECE /* garminconnect.cpp */,
 				87CBCF112EFAA2F8004F5ECE /* moc_garminconnect.cpp */,
@@ -2374,8 +2373,6 @@
 				87F1BD702DC0D59600416506 /* moc_coresensor.cpp */,
 				8767CA5E2DA800590003001F /* ios_zwiftclickremote.h */,
 				8767CA5F2DA800590003001F /* ios_zwiftclickremote.mm */,
-				8767CA5B2DA7F5170003001F /* ios_wahookickrsnapbike.h */,
-				8767CA5C2DA7F5170003001F /* ios_wahookickrsnapbike.mm */,
 				87BFEA2D2CEDDEEE00BDD759 /* ios_echelonconnectsport.h */,
 				87BFEA2E2CEDDEEE00BDD759 /* ios_echelonconnectsport.mm */,
 				8767CA522DA3C1FD0003001F /* elitesquarecontroller.h */,
@@ -2418,7 +2415,6 @@
 				875CA9482D0C742500667EE6 /* kineticinroadbike.cpp */,
 				875CA9452D0C740000667EE6 /* moc_kineticinroadbike.cpp */,
 				87873AF22D09AADF005F86B4 /* sportsplusrower.h */,
-				87873AF02D09A8CE005F86B4 /* sportsplusrower.cpp */,
 				87873AED2D09A8AA005F86B4 /* moc_sportsplusrower.cpp */,
 				870A5DB42CEF8FD200839641 /* technogymbike.cpp */,
 				870A5DB22CEF8FB100839641 /* moc_technogymbike.cpp */,
@@ -2464,7 +2460,6 @@
 				87A682592CE3AB3100586A2A /* moc_sramAXSController.cpp */,
 				87A083062C73361C00567A4E /* characteristicnotifier2ad9.h */,
 				8772B7F92CB5603A004AB8E9 /* deerruntreadmill.h */,
-				8772B7F62CB55E98004AB8E9 /* deerruntreadmill.cpp */,
 				8772B7F32CB55E80004AB8E9 /* moc_deerruntreadmill.cpp */,
 				877758B52C98629B00BB1697 /* sportstechelliptical.cpp */,
 				877758B42C98629B00BB1697 /* sportstechelliptical.h */,
@@ -3742,7 +3737,6 @@
 				871235BF26B297670012D0F2 /* kingsmithr1protreadmill.cpp in Compile Sources */,
 				87DA62AA2D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp in Compile Sources */,
 				87DA62AB2D2305F5008ADA0F /* characteristicnotifier0002.cpp in Compile Sources */,
-				8772B7F72CB55E98004AB8E9 /* deerruntreadmill.cpp in Compile Sources */,
 				20A50533946A39CBD2C89104 /* bluetoothdevice.cpp in Compile Sources */,
 				87C5F0D126285E7E0067A1B5 /* moc_stagesbike.cpp in Compile Sources */,
 				873824E927E647A8004F1B46 /* mdns.cpp in Compile Sources */,
@@ -3852,7 +3846,6 @@
 				87BE6FDE272D2A3E00C35795 /* moc_horizongr7bike.cpp in Compile Sources */,
 				A4BD6DF51CFFF867B7B5AED4 /* fit_developer_field_definition.cpp in Compile Sources */,
 				87EB918B27EE5FE7002535E1 /* moc_inappproductqmltype.cpp in Compile Sources */,
-				87873AF12D09A8CE005F86B4 /* sportsplusrower.cpp in Compile Sources */,
 				8762D5132601F89500F6F049 /* scanrecordresult.cpp in Compile Sources */,
 				3015F9B9FF4CA6D653D46CCA /* fit_developer_field_description.cpp in Compile Sources */,
 				878521D42E44B26600922796 /* moc_nordictrackifitadbrower.cpp in Compile Sources */,
@@ -3868,6 +3861,7 @@
 				87DC27F32D9BDC43007A1B9D /* moc_moxy5sensor.cpp in Compile Sources */,
 				87DC27F42D9BDC43007A1B9D /* moxy5sensor.cpp in Compile Sources */,
 				87EB918C27EE5FE7002535E1 /* moc_inappproduct.cpp in Compile Sources */,
+				87A892582F0C173600811D95 /* sportsplusrower.cpp in Compile Sources */,
 				87E34C2D2886F99A00CEDE4B /* moc_octanetreadmill.cpp in Compile Sources */,
 				87D91F9A2800B9970026D43C /* proformwifibike.cpp in Compile Sources */,
 				873CD22327EF8E18000131BC /* inappstoreqmltype.cpp in Compile Sources */,
@@ -3895,7 +3889,6 @@
 				87EFB56E25BD703D0039DD5A /* proformtreadmill.cpp in Compile Sources */,
 				87DA8465284933D200B550E9 /* fakeelliptical.cpp in Compile Sources */,
 				876E50F52B701C050080FAAF /* moc_zwiftclickremote.cpp in Compile Sources */,
-				8767CA5D2DA7F5170003001F /* ios_wahookickrsnapbike.mm in Compile Sources */,
 				87FE5BAF2692F3130056EFC8 /* tacxneo2.cpp in Compile Sources */,
 				8718CBAC263063CE004BF4EE /* moc_tcpclientinfosender.cpp in Compile Sources */,
 				873824B527E64707004F1B46 /* moc_provider_p.cpp in Compile Sources */,
@@ -4150,6 +4143,7 @@
 				E8B499F921FB0AB55C7A8A8B /* moc_gpx.cpp in Compile Sources */,
 				87E6A85825B5C88E00371D28 /* moc_flywheelbike.cpp in Compile Sources */,
 				8754D24C27F786F0003D7054 /* virtualrower.swift in Compile Sources */,
+				87A892562F0C12EB00811D95 /* deerruntreadmill.cpp in Compile Sources */,
 				878D83742A1F33C600D7F004 /* bkoolbike.cpp in Compile Sources */,
 				873824B727E64707004F1B46 /* moc_characteristicwriteprocessor.cpp in Compile Sources */,
 				87310B1F266FBB59008BA0D6 /* homefitnessbuddy.cpp in Compile Sources */,
@@ -4579,7 +4573,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1235;
+				CURRENT_PROJECT_VERSION = 1268;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
@@ -4780,7 +4774,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1235;
+				CURRENT_PROJECT_VERSION = 1268;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 6335M7T29D;
@@ -5017,7 +5011,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1235;
+				CURRENT_PROJECT_VERSION = 1268;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -5113,7 +5107,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1235;
+				CURRENT_PROJECT_VERSION = 1268;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -5205,7 +5199,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1235;
+				CURRENT_PROJECT_VERSION = 1268;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
@@ -5321,7 +5315,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1235;
+				CURRENT_PROJECT_VERSION = 1268;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
@@ -5431,7 +5425,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = QZWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1235;
+				CURRENT_PROJECT_VERSION = 1268;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -5522,7 +5516,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = QZWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1235;
+				CURRENT_PROJECT_VERSION = 1268;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_NS_ASSERTIONS = NO;

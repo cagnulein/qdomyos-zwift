@@ -359,7 +359,7 @@ void bluetoothdevice::update_ios_live_activity() {
         if(kcal < 0)
             kcal = 0;
         bool useMiles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
-        h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(), deviceType(), odometer() * 1000.0, totalCalories().value(), useMiles);
+        h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(), deviceType(), odometer() * 1000.0, totalCalories().value(), useMiles, (uint8_t)Heart.value());
 
         lastUpdate = current;
     }
