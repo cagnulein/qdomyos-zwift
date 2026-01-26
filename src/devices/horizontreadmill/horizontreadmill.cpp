@@ -1870,7 +1870,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             double speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                      (uint16_t)((uint8_t)newValue.at(index)))) /
                            100.0;
-            if(T3G_ELITE) {
+            bool fitshow_treadmill_miles = settings.value(QZSettings::fitshow_treadmill_miles, QZSettings::default_fitshow_treadmill_miles).toBool();
+            if(BOWFLEX_T9 && fitshow_treadmill_miles) {
+                // this treadmill sends the speed in miles!
+                speed *= miles_conversion;
+            } else if(T3G_ELITE) {
                 if(miles) {
                     // this treadmill sends the speed in miles when miles_unit is enabled!
                     speed /= miles_conversion;
