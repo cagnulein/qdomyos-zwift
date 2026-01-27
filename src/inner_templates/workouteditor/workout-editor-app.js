@@ -921,7 +921,7 @@
                     state.intervals[index][field.syncWith] = speed;
                 }
             }
-            // Re-render to update both fields
+            // Re-render to update speed field (pace uses 'change' event so keyboard is already closed)
             renderIntervals();
             updateChart();
             updateStatus();
@@ -929,9 +929,13 @@
         } else if (type === 'number') {
             const raw = target.value;
             state.intervals[index][key] = raw === '' ? undefined : Number(raw);
-            // If this is a speed field, re-render to update pace
+            // If this is a speed field, update pace field directly without re-render to keep focus/keyboard open
             if (key === 'speed') {
-                renderIntervals();
+                const paceInput = document.querySelector(`input[data-index="${index}"][data-key="pace"]`);
+                if (paceInput) {
+                    const speedValue = state.intervals[index][key];
+                    paceInput.value = speedValue ? speedToPace(speedValue) : '';
+                }
             }
         } else {
             const raw = target.value;
