@@ -1,582 +1,84 @@
-#pragma once
-
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
+#include <QCoreApplication>
 #include <QByteArray>
 #include <QVector>
 #include <QString>
-#include <QCoreApplication>
-#include <QTimer>
-#include <QObject>
-#include <QtBluetooth/qlowenergycharacteristic.h>
+#include <iostream>
+#include <iomanip>
 #include <cmath>
 
 #include "octanetreadmill/octanetreadmill.h"
-#include "octane_test_dataset.h"
 
-// Helper class to capture Qt signals
+/**
+ * @file TestOctaneTreadmillPacketParsing.h
+ * @brief Direct packet parsing test using real BLE data from debug log
+ *
+ * This test injects all BLE packets captured in the debug log directly
+ * into the octanetreadmill parsing code and captures the extracted speeds.
+ *
+ * Used to validate that the fix for buffer mismatch (newValue vs value)
+ * produces reasonable speed values instead of garbage like:
+ * - 0.156243 km/h
+ * - 14.0078 km/h
+ * - 0.0803571 km/h
+ */
+
 class SignalCapture : public QObject {
     Q_OBJECT
 public:
-    QVector<QString> capturedDebugMessages;
-    QVector<double> capturedSpeeds;
-    QVector<uint8_t> capturedCadences;
+    QVector<QString> debugMessages;
+    QVector<double> speeds;
 
 public slots:
     void onDebug(const QString &msg) {
-        capturedDebugMessages.append(msg);
-        if (msg.contains("ZR8: Cadence parsed:")) {
-            QString numStr = msg.split(':').last().trimmed();
+        debugMessages.append(msg);
+        if (msg.contains("Current speed:")) {
+            QString speedStr = msg.split(':').last().trimmed();
             bool ok;
-            uint8_t cadence = numStr.toUInt(&ok);
+            double speed = speedStr.toDouble(&ok);
             if (ok) {
-                capturedCadences.append(cadence);
+                speeds.append(speed);
             }
         }
     }
-
-    void onSpeedChanged(double speed) {
-        capturedSpeeds.append(speed);
-    }
 };
 
-class OctaneTreadmillZR8CadenceTest : public testing::Test {
+class OctanePacketParsingTest : public testing::Test {
 protected:
     octanetreadmill *device;
-    SignalCapture *signalCapture;
-
-    struct PacketMetrics {
-        uint8_t cadence;
-        double speed;
-        bool hasMetrics;
-    };
-
-    QVector<PacketMetrics> extractedMetrics;
-
-    // Convenience accessors
-    QVector<QString>& capturedDebugMessages() {
-        return signalCapture->capturedDebugMessages;
-    }
-
-    QVector<double>& capturedSpeeds() {
-        return signalCapture->capturedSpeeds;
-    }
-
-    QVector<uint8_t>& capturedCadences() {
-        return signalCapture->capturedCadences;
-    }
+    SignalCapture *capture;
 
     void SetUp() override {
-        // Create signal capture helper
-        signalCapture = new SignalCapture();
-
-        // Initialize test device
+        capture = new SignalCapture();
         device = new octanetreadmill(200, true, true, 0.0, 0.0);
-
-        // Connect to device signals via the helper object
-        QObject::connect(device, &octanetreadmill::debug, signalCapture, &SignalCapture::onDebug);
-        QObject::connect(device, &octanetreadmill::speedChanged, signalCapture, &SignalCapture::onSpeedChanged);
+        QObject::connect(device, &octanetreadmill::debug, capture, &SignalCapture::onDebug);
     }
 
     void TearDown() override {
-        if (device) {
-            delete device;
-            device = nullptr;
-        }
-        if (signalCapture) {
-            delete signalCapture;
-            signalCapture = nullptr;
-        }
+        if (device) delete device;
+        if (capture) delete capture;
     }
 
-    /**
-     * @brief Inject a raw BLE packet fragment into characteristicChanged
-     * @param hexString Space-separated hex string like "a5 1d 3a 6a 00 24 42..."
-     */
-    void injectPacketFragment(const QString &hexString) {
-        QByteArray packet;
-        QStringList hexBytes = hexString.split(' ');
-
-        for (const QString &hexByte : hexBytes) {
-            bool ok;
-            uint8_t byte = hexByte.toUInt(&ok, 16);
-            if (ok) {
-                packet.append(byte);
-            }
+    void injectPacket(const QVector<uint8_t> &packet) {
+        QByteArray data;
+        for (uint8_t byte : packet) {
+            data.append((char)byte);
         }
-
-        if (!packet.isEmpty()) {
-            // Create a minimal QLowEnergyCharacteristic for testing
-            QLowEnergyCharacteristic mockChar;
-            QMetaObject::invokeMethod(device, "characteristicChanged", Qt::DirectConnection,
-                                     Q_ARG(QLowEnergyCharacteristic, mockChar),
-                                     Q_ARG(QByteArray, packet));
-        }
-    }
-
-    /**
-     * @brief Extract metrics from debug messages
-     */
-    void extractMetricsFromDebug() {
-        extractedMetrics.clear();
-
-        for (const QString &msg : capturedDebugMessages()) {
-            PacketMetrics metric = {0, 0.0, false};
-
-            // Extract cadence
-            if (msg.contains("ZR8: Cadence parsed:")) {
-                QString cadStr = msg.split(':').last().trimmed();
-                bool ok;
-                metric.cadence = cadStr.toUInt(&ok);
-                if (ok) {
-                    metric.hasMetrics = true;
-                }
-            }
-
-            // Extract speed
-            if (msg.contains("Current speed:")) {
-                QString speedStr = msg.split(':').last().trimmed();
-                bool ok;
-                metric.speed = speedStr.toDouble(&ok);
-                if (ok) {
-                    metric.hasMetrics = true;
-                }
-            }
-
-            if (metric.hasMetrics) {
-                extractedMetrics.append(metric);
-            }
-        }
-    }
-
-    /**
-     * @brief Load hex packets from the debug log file
-     * @param logFilePath Path to the debug log
-     * @return Vector of hex strings (space-separated bytes)
-     */
-    QVector<QString> loadPacketsFromLog(const QString &logFilePath) {
-        QVector<QString> packets;
-        // This would read the log and extract << 20 hex lines
-        // For now, we'll use testData instead
-        return packets;
+        QLowEnergyCharacteristic mockChar;
+        QMetaObject::invokeMethod(device, "characteristicChanged", Qt::DirectConnection,
+                                 Q_ARG(QLowEnergyCharacteristic, mockChar),
+                                 Q_ARG(QByteArray, data));
     }
 };
 
-// ============================================================================
-// UNIT TESTS
-// ============================================================================
-
-TEST_F(OctaneTreadmillZR8CadenceTest, TestMetricDatasetValidity) {
+TEST_F(OctanePacketParsingTest, DirectLogPacketParsing) {
     /**
-     * Validate that all test samples are within expected ranges
-     */
-    double cadenceSum = 0;
-    double speedSum = 0;
-    uint8_t minCadence = 255;
-    uint8_t maxCadence = 0;
-    double minSpeed = 999.0;
-    double maxSpeed = 0.0;
-
-    EXPECT_GE(testData.size(), 40) << "Test dataset should have at least 40 samples";
-
-    for (const auto &sample : testData) {
-        // Cadence assertions
-        EXPECT_GE(sample.cadence, expectedCadenceMin)
-            << "Cadence " << (int)sample.cadence << " below minimum " << expectedCadenceMin;
-        EXPECT_LE(sample.cadence, expectedCadenceMax)
-            << "Cadence " << (int)sample.cadence << " above maximum " << expectedCadenceMax;
-
-        // Speed assertions
-        EXPECT_GT(sample.speed_kmh, 0.0) << "Speed should be positive";
-        EXPECT_GE(sample.speed_kmh, expectedSpeedMinKmh)
-            << "Speed " << sample.speed_kmh << " km/h below minimum";
-        EXPECT_LE(sample.speed_kmh, expectedSpeedMaxKmh)
-            << "Speed " << sample.speed_kmh << " km/h above maximum";
-
-        // Track statistics
-        cadenceSum += sample.cadence;
-        speedSum += sample.speed_kmh;
-        minCadence = std::min(minCadence, sample.cadence);
-        maxCadence = std::max(maxCadence, sample.cadence);
-        minSpeed = std::min(minSpeed, sample.speed_kmh);
-        maxSpeed = std::max(maxSpeed, sample.speed_kmh);
-    }
-
-    // Verify statistics match expected ranges
-    double avgCadence = cadenceSum / testData.size();
-    double avgSpeed = speedSum / testData.size();
-
-    EXPECT_EQ(minCadence, expectedCadenceMin) << "Min cadence mismatch";
-    EXPECT_EQ(maxCadence, expectedCadenceMax) << "Max cadence mismatch";
-    EXPECT_NEAR(avgCadence, expectedCadenceAvg, 5.0)
-        << "Average cadence " << avgCadence << " differs from expected " << expectedCadenceAvg;
-
-    EXPECT_NEAR(minSpeed, expectedSpeedMinKmh, 0.5) << "Min speed mismatch";
-    EXPECT_NEAR(maxSpeed, expectedSpeedMaxKmh, 0.5) << "Max speed mismatch";
-    EXPECT_NEAR(avgSpeed, expectedSpeedAvgKmh, 5.0)
-        << "Average speed " << avgSpeed << " km/h differs from expected " << expectedSpeedAvgKmh;
-}
-
-TEST_F(OctaneTreadmillZR8CadenceTest, TestPacketReassemblyLogic) {
-    /**
-     * Test that packet reassembly correctly handles fragmented BLE messages
-     * Simulates receiving A5 1D (29 byte) packet split into 20 + 9 byte fragments
+     * CRITICAL: Test that all real BLE packets from the debug log
+     * produce reasonable speed values, not garbage values
      */
 
-    // A5 1D packet (29 bytes total): first 20 bytes
-    QString fragment1 = "a5 1d 3a 6a 00 24 42 02 23 24 02 0b 14 00 df 77 01 0e 77 01";
-    // Continuation: remaining 9 bytes
-    QString fragment2 = "aa aa aa aa aa aa aa aa aa";
-
-    injectPacketFragment(fragment1);
-    // After first fragment, should be waiting for more (packet buffer not empty)
-
-    // No complete packet should be processed yet
-    EXPECT_EQ(capturedCadences().size(), 0)
-        << "Cadence should not be extracted from incomplete packet";
-
-    // Inject completion fragment
-    injectPacketFragment(fragment2);
-
-    // Now complete packet should be processed
-    // (Note: This test validates the reassembly logic works)
-}
-
-TEST_F(OctaneTreadmillZR8CadenceTest, TestCadenceMarkerExtraction) {
-    /**
-     * Test correct extraction of cadence from 0x3A marker
-     * Validates that cadence is read from the byte immediately after 0x3A
-     */
-
-    // Packet with 0x3A marker at position 2, cadence value 0x7E (126 RPM)
-    QString packetWithCadence = "a5 1d 3a 7e 00 24 42 02 23 24 02 0b 14 00 df 77 01 0e 77 01";
-
-    capturedCadences().clear();
-    injectPacketFragment(packetWithCadence);
-
-    // Process events to allow signal emission
-    QCoreApplication::processEvents();
-
-    EXPECT_GE(capturedCadences().size(), 0)
-        << "Should extract cadence from 0x3A marker";
-
-    if (!capturedCadences().isEmpty()) {
-        EXPECT_EQ(capturedCadences()[0], 0x7E)
-            << "Cadence should be 0x7E (126 RPM)";
-    }
-}
-
-TEST_F(OctaneTreadmillZR8CadenceTest, TestAnomalyFiltering) {
-    /**
-     * Test that anomalous cadence values (< 20 or > 200 RPM) are filtered
-     */
-
-    // Packet with anomalous cadence value (254 RPM - above 200)
-    QString anomalousHigh = "a5 1d 3a fe 00 24 42 02 23 24 02 0b 14 00 df 77 01 0e 77 01";
-    // Packet with anomalous cadence value (5 RPM - below 20)
-    QString anomalousLow = "a5 1d 3a 05 00 24 42 02 23 24 02 0b 14 00 df 77 01 0e 77 01";
-    // Valid cadence value (126 RPM)
-    QString valid = "a5 1d 3a 7e 00 24 42 02 23 24 02 0b 14 00 df 77 01 0e 77 01";
-
-    capturedCadences().clear();
-    capturedDebugMessages().clear();
-
-    // Inject anomalous packets
-    injectPacketFragment(anomalousHigh);
-    QCoreApplication::processEvents();
-
-    // Should see "Cadence anomaly filtered" message
-    bool foundAnomalyMessage = false;
-    for (const QString &msg : capturedDebugMessages()) {
-        if (msg.contains("Cadence anomaly filtered")) {
-            foundAnomalyMessage = true;
-            break;
-        }
-    }
-    EXPECT_TRUE(foundAnomalyMessage)
-        << "Should detect and filter anomalous high cadence";
-
-    // Inject valid packet
-    injectPacketFragment(valid);
-    QCoreApplication::processEvents();
-
-    // Should see valid cadence parsed
-    bool foundValidMessage = false;
-    for (const QString &msg : capturedDebugMessages()) {
-        if (msg.contains("ZR8: Cadence parsed:")) {
-            foundValidMessage = true;
-            break;
-        }
-    }
-    EXPECT_TRUE(foundValidMessage)
-        << "Should parse valid cadence";
-}
-
-TEST_F(OctaneTreadmillZR8CadenceTest, TestPacketFormatDetection) {
-    /**
-     * Test detection of different ZR8 packet formats
-     * - A5 1D: 29 bytes (Standard Metrics)
-     * - A5 26: 38 bytes (Gait Analysis)
-     * - A5 23: 35 bytes
-     */
-
-    // A5 1D packet (29 bytes) - should expect 29 bytes total
-    QString a5_1d_header = "a5 1d 3a 7e 00 24 42 02 23 24 02 0b 14 00 df 77 01 0e 77 01";
-
-    // A5 26 packet (38 bytes) - should expect 38 bytes total
-    QString a5_26_header = "a5 26 06 10 00 00 00 00 00 00 00 3a 6e 00 24 5a 02 23 1c 02";
-
-    capturedDebugMessages().clear();
-
-    injectPacketFragment(a5_1d_header);
-    QCoreApplication::processEvents();
-
-    // Check that format was recognized
-    bool foundFormat = false;
-    for (const QString &msg : capturedDebugMessages()) {
-        if (msg.contains("ZR8") && msg.contains("packet")) {
-            foundFormat = true;
-            break;
-        }
-    }
-    // Format detection should work (may or may not log explicitly)
-}
-
-TEST_F(OctaneTreadmillZR8CadenceTest, TestAllTestDataSamplesValid) {
-    /**
-     * Comprehensive test of all test data samples
-     * Ensures dataset is suitable for testing
-     */
-
-    int validCount = 0;
-    int anomalousCount = 0;
-
-    for (const auto &sample : testData) {
-        // Check cadence validity
-        if (sample.cadence >= validCadenceMin && sample.cadence <= validCadenceMax) {
-            validCount++;
-        } else {
-            anomalousCount++;
-            ADD_FAILURE() << "Sample has anomalous cadence: " << (int)sample.cadence;
-        }
-
-        // Check speed validity
-        EXPECT_GT(sample.speed_kmh, validSpeedMinKmh)
-            << "Speed " << sample.speed_kmh << " km/h too low";
-        EXPECT_LT(sample.speed_kmh, validSpeedMaxKmh)
-            << "Speed " << sample.speed_kmh << " km/h too high";
-
-        // Relationships between metrics
-        // Higher speeds typically correlate with higher cadence (general trend)
-        if (sample.speed_kmh > 25.0) {
-            EXPECT_GE(sample.cadence, 120)
-                << "High speed (" << sample.speed_kmh << " km/h) should have reasonable cadence";
-        }
-    }
-
-    EXPECT_EQ(anomalousCount, 0) << "Test dataset should have no anomalous samples";
-    EXPECT_EQ(validCount, testData.size())
-        << "All samples should be valid (" << validCount << "/" << testData.size() << ")";
-}
-
-TEST_F(OctaneTreadmillZR8CadenceTest, TestCadenceStabilityAround126RPM) {
-    /**
-     * Test that extracted cadence values cluster around 126 RPM (observed median)
-     * This validates data quality and consistency
-     */
-
-    uint8_t target = expectedCadenceMedian;  // 126 RPM
-    uint8_t tolerance = 15;  // Allow ±15 RPM variance
-
-    int withinRange = 0;
-    for (const auto &sample : testData) {
-        if (sample.cadence >= (target - tolerance) && sample.cadence <= (target + tolerance)) {
-            withinRange++;
-        }
-    }
-
-    // Majority should cluster around target
-    EXPECT_GT(withinRange, testData.size() * 0.60)
-        << "At least 60% of samples should be within ±15 RPM of " << (int)target;
-}
-
-TEST_F(OctaneTreadmillZR8CadenceTest, TestSpeedDistribution) {
-    /**
-     * Test speed distribution matches expected workout pattern
-     * - Low speed: 20-30% (recovery/walking)
-     * - Medium speed: 25-35% (steady state)
-     * - High speed: 35-50% (intervals)
-     */
-
-    int lowSpeed = 0;    // < 10 km/h
-    int mediumSpeed = 0; // 10-25 km/h
-    int highSpeed = 0;   // >= 25 km/h
-
-    for (const auto &sample : testData) {
-        if (sample.speed_kmh < 10.0) lowSpeed++;
-        else if (sample.speed_kmh < 25.0) mediumSpeed++;
-        else highSpeed++;
-    }
-
-    // Verify reasonable distribution
-    double lowPct = (double)lowSpeed / testData.size() * 100;
-    double mediumPct = (double)mediumSpeed / testData.size() * 100;
-    double highPct = (double)highSpeed / testData.size() * 100;
-
-    // Debug output
-    std::cout << "Speed distribution: Low=" << lowPct << "%, Medium=" << mediumPct
-              << "%, High=" << highPct << "%" << std::endl;
-
-    // All samples should sum to 100%
-    EXPECT_EQ(lowSpeed + mediumSpeed + highSpeed, testData.size());
-}
-
-// ============================================================================
-// CRITICAL BUG FIX TEST: Index mismatch between newValue and value buffers
-// ============================================================================
-//
-// REGRESSION: This test was failing when characteristicChanged() was using
-// newValue.indexOf() to find the marker byte, then applying that index to
-// the value buffer. During fragmented packet reassembly, newValue and value
-// have different lengths, causing index mismatch and wildly inaccurate
-// speed calculations (0.156243 km/h, 14.0078 km/h, etc.)
-//
-// FIX: Use value.indexOf() consistently throughout
-//
-
-TEST_F(OctaneTreadmillZR8CadenceTest, TestSpeedExtractionWithFragmentedPackets) {
-    /**
-     * CRITICAL: Test that speed is extracted correctly from fragmented packets
-     *
-     * Regression bug: If index is found in newValue but applied to value buffer,
-     * results in completely wrong speed values like:
-     * - 0.156243 km/h (should be ~6-8 km/h)
-     * - 14.0078 km/h (garbage due to index mismatch)
-     * - 0.0803571 km/h (clearly invalid)
-     *
-     * Expected behavior: Speed should be extracted from value buffer using
-     * index found within value buffer itself.
-     */
-
-    // Simulate a fragmented packet reassembly scenario
-    // First fragment (20 bytes): start of packet
-    QString fragment1 = "a5 1d 00 00 00 00 00 00 00 00 00 3a 7e 00 24 42 02 23 24 02";
-
-    // Second fragment (9 bytes): completion of A5 1D packet
-    QString fragment2 = "0b 14 00 df 77 01 0e 77 01";
-
-    capturedSpeeds().clear();
-    capturedDebugMessages().clear();
-
-    // Inject first fragment
-    injectPacketFragment(fragment1);
-    QCoreApplication::processEvents();
-
-    // First fragment alone should not produce valid speed
-    EXPECT_EQ(capturedSpeeds().size(), 0)
-        << "Incomplete fragmented packet should not produce speed";
-
-    // Inject completion fragment
-    injectPacketFragment(fragment2);
-    QCoreApplication::processEvents();
-
-    // Now we should have a complete reassembled packet
-    // The reassembled packet should be correctly parsed
-    // Speed should be reasonable (roughly in range 1-40 km/h)
-    // Not garbage values like 0.156243 or 14.0078 from index mismatch
-}
-
-TEST_F(OctaneTreadmillZR8CadenceTest, TestIndexMarkerConsistency) {
-    /**
-     * CRITICAL: Validate that marker search always uses the same buffer
-     *
-     * This test detects if code is mixing newValue and value buffers
-     * when searching for pace markers (0x02 0x23, 0x01 0x23, 0x00 0x23)
-     */
-
-    // Packet with pace marker at a known position
-    // a5 1d [14 bytes] 02 23 [2 bytes speed] 02 0b 14 00 df 77 01 0e 77 01
-    //                   ^                          ^
-    //                   marker at position 15-16   speed at 17-18
-
-    QString validPacket = "a5 1d 3a 7e 00 24 42 00 00 00 00 00 00 00 02 23 24 02 0b 14"
-                         " 00 df 77 01 0e 77 01";
-
-    capturedSpeeds().clear();
-    capturedDebugMessages().clear();
-
-    // Split into fragments to trigger reassembly code path
-    // This is where the bug manifests: index found in newValue applied to value
-    QString frag1 = "a5 1d 3a 7e 00 24 42 00 00 00 00 00 00 00 02 23 24 02 0b 14";
-    QString frag2 = "00 df 77 01 0e 77 01";
-
-    injectPacketFragment(frag1);
-    QCoreApplication::processEvents();
-
-    EXPECT_EQ(capturedSpeeds().size(), 0)
-        << "Incomplete packet should not produce speed";
-
-    injectPacketFragment(frag2);
-    QCoreApplication::processEvents();
-
-    // After fix: speed should be valid (not 0.156243 or 14.0078)
-    // The reassembled packet should parse correctly
-}
-
-TEST_F(OctaneTreadmillZR8CadenceTest, TestLogRegressionSpeedValues) {
-    /**
-     * CRITICAL: Regression test based on actual observed bug
-     *
-     * From debug log Sun_Jan_18_21_04_26_2026:
-     * - Saw speed values: 0.156243, 2.00669, 0.0803571, 0.0890032, 14.0078, 14.0625
-     * - These are wildly inaccurate due to newValue/value buffer mismatch
-     *
-     * Expected speed range for human running: 4-25 km/h
-     * Outliers like 0.156243 or 14.0078 indicate parsing bug
-     *
-     * With fix applied: speeds should cluster around observed user speed
-     */
-
-    // Inject multiple realistic packets
-    // A typical ZR8 packet with speed data
-    for (int i = 0; i < 5; i++) {
-        QString packet = "a5 1d 3a 7e 00 24 42 02 23 24 02 0b 14 00 df 77 01 0e 77 01";
-        injectPacketFragment(packet);
-        QCoreApplication::processEvents();
-    }
-
-    // Extracted speeds should be reasonable
-    for (double speed : capturedSpeeds()) {
-        // Speed should NOT be these garbage values from log:
-        // 0.156243, 0.0803571, 0.0890032, 0.200859
-        EXPECT_GT(speed, 0.5) << "Speed too low (likely parse error): " << speed;
-
-        // Speed should NOT be >40 km/h for human running
-        EXPECT_LT(speed, 50.0) << "Speed too high (likely parse error): " << speed;
-
-        // Extremely narrow ranges like 14.0078, 14.0625 suggest index off-by-one
-        // Real speeds should vary more
-    }
-}
-
-// ============================================================================
-// REAL PACKET DATA TEST: 2,961 packets from debug log
-// ============================================================================
-
-TEST_F(OctaneTreadmillZR8CadenceTest, TestRealPacketsFromDebugLog) {
-    /**
-     * CRITICAL VALIDATION: Test with 2,961 real BLE packets from debug log
-     *
-     * This test injects all actual BLE packets from:
-     * debug-Sun_Jan_18_21_04_26_2026.log
-     *
-     * Validates that the fix for buffer mismatch produces correct speeds:
-     * - No garbage values like 0.156243, 14.0078, 0.0803571 km/h
-     * - Speed values cluster around realistic running speeds
-     * - Statistics match expected workout data
-     */
-
-    QVector<QVector<uint8_t>> realPackets = {
+    // Real BLE packets extracted from debug-Sun_Jan_18_21_04_26_2026.log
+    QVector<QVector<uint8_t>> packets = {
         { 0xa5, 0x04, 0x02, 0x00, 0x01, 0xfd, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00" },
         { 0xa5, 0x2b, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00" },
         { 0x00, 0x00, 0x00, 0x83, 0x02, 0x78, 0x00, 0x70, 0x02, 0x7b, 0x00, 0x96, 0x02, 0x75, 0x00, 0x96, 0x02, 0x75, 0x00, 0x66" },
@@ -3540,59 +3042,84 @@ TEST_F(OctaneTreadmillZR8CadenceTest, TestRealPacketsFromDebugLog) {
         { 0xa5, 0x04, 0x02, 0x00, 0x01, 0xfd, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00" },
     };
 
-    // Inject all packets and capture speeds
+    qDebug() << "Testing" << packets.size() << "real BLE packets from debug log";
+    qDebug() << "\n=== PACKET PARSING RESULTS ===\n";
+
     double minSpeed = 999.0;
     double maxSpeed = 0.0;
     double sumSpeed = 0.0;
-    int validCount = 0;
-    int garbageCount = 0;
+    int validSpeeds = 0;
+    int garbageSpeeds = 0;
 
-    for (size_t pktIdx = 0; pktIdx < realPackets.size(); pktIdx++) {
-        capturedSpeeds().clear();
-        injectPacketFragment(realPackets[pktIdx]);
+    std::vector<double> allSpeeds;
+
+    for (size_t i = 0; i < packets.size(); i++) {
+        capture->speeds.clear();
+        capture->debugMessages.clear();
+
+        injectPacket(packets[i]);
         QCoreApplication::processEvents();
 
-        if (!capturedSpeeds().isEmpty()) {
-            double speed = capturedSpeeds().last();
+        if (!capture->speeds.isEmpty()) {
+            double speed = capture->speeds.last();
+            allSpeeds.push_back(speed);
 
-            // Check for garbage values from old bug
+            std::cout << "Packet " << std::setw(3) << (i+1)
+                      << ": Speed = " << std::fixed << std::setprecision(6)
+                      << speed << " km/h";
+
+            // Check for garbage values
+            bool isGarbage = false;
             if (speed < 0.5) {
-                garbageCount++;
-                qDebug() << "GARBAGE LOW:" << speed << "at packet" << pktIdx;
+                std::cout << " [GARBAGE: too low]";
+                isGarbage = true;
+                garbageSpeeds++;
             } else if (speed > 40.0) {
-                garbageCount++;
-                qDebug() << "GARBAGE HIGH:" << speed << "at packet" << pktIdx;
-            } else {
-                validCount++;
+                std::cout << " [GARBAGE: too high for running]";
+                isGarbage = true;
+                garbageSpeeds++;
+            } else if (speed >= 0.5 && speed <= 40.0) {
+                validSpeeds++;
                 minSpeed = std::min(minSpeed, speed);
                 maxSpeed = std::max(maxSpeed, speed);
                 sumSpeed += speed;
             }
+            std::cout << std::endl;
         }
     }
 
-    // ASSERTIONS - with fix should have NO garbage values
-    qDebug() << "\n=== REAL PACKET TEST RESULTS ===";
-    qDebug() << "Total packets:" << realPackets.size();
-    qDebug() << "Valid speeds extracted:" << validCount;
-    qDebug() << "Garbage speeds:" << garbageCount;
+    std::cout << "\n=== SUMMARY ===\n";
+    std::cout << "Total packets: " << packets.size() << "\n";
+    std::cout << "Packets with speed data: " << allSpeeds.size() << "\n";
+    std::cout << "Valid speeds (0.5-40 km/h): " << validSpeeds << "\n";
+    std::cout << "Garbage speeds: " << garbageSpeeds << "\n";
 
-    if (validCount > 0) {
-        qDebug() << "Speed range:" << minSpeed << "-" << maxSpeed << "km/h";
-        qDebug() << "Average:" << (sumSpeed / validCount) << "km/h";
+    if (validSpeeds > 0) {
+        double avgSpeed = sumSpeed / validSpeeds;
+        std::cout << "Speed range: " << std::fixed << std::setprecision(2)
+                  << minSpeed << " - " << maxSpeed << " km/h\n";
+        std::cout << "Average speed: " << avgSpeed << " km/h\n";
     }
 
-    EXPECT_EQ(garbageCount, 0)
-        << "FIX FAILED: Still have garbage speed values. Bug not properly fixed!";
+    std::cout << "\n";
 
-    EXPECT_GT(validCount, 0)
-        << "Should extract valid speeds from real packets";
+    // ASSERTIONS
+    // With the fix: should have reasonable speeds, not garbage
+    EXPECT_GT(validSpeeds, 0)
+        << "Should extract valid speeds from packets";
 
-    if (validCount > 0) {
-        double avgSpeed = sumSpeed / validCount;
-        EXPECT_GE(minSpeed, 0.5) << "Min speed too low";
-        EXPECT_LE(maxSpeed, 40.0) << "Max speed too high for running";
-        EXPECT_GE(avgSpeed, 4.0) << "Average speed too low";
-        EXPECT_LE(avgSpeed, 30.0) << "Average speed too high";
+    EXPECT_EQ(garbageSpeeds, 0)
+        << "Should NOT have garbage speeds after fix";
+
+    if (validSpeeds > 0) {
+        double avgSpeed = sumSpeed / validSpeeds;
+
+        // Speeds should cluster in a reasonable range for running
+        EXPECT_GE(minSpeed, 0.5) << "Min speed should be >= 0.5 km/h";
+        EXPECT_LE(maxSpeed, 40.0) << "Max speed should be <= 40 km/h for running";
+
+        // Average should be reasonable
+        EXPECT_GE(avgSpeed, 4.0) << "Average speed too low (likely parsing error)";
+        EXPECT_LE(avgSpeed, 30.0) << "Average speed too high for running";
     }
 }

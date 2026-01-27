@@ -423,13 +423,13 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         // Check for valid speed packet header: a5 20 06, a5 21 06, or a5 23 06
         bool isValidSpeedPacket = ((uint8_t)newValue[0] == 0xa5);
         if (!isValidSpeedPacket) {
-            if (newValue.contains(actualPaceSign) || newValue.contains(actualPace2Sign) || newValue.contains(actualPace3Sign)) {
+            if (value.contains(actualPaceSign) || value.contains(actualPace2Sign) || value.contains(actualPace3Sign)) {
                 // Try to extract speed and check coherence
-                int16_t idx = newValue.indexOf(actualPaceSign) + 2;
+                int16_t idx = value.indexOf(actualPaceSign) + 2;
                 if (idx <= 1)
-                    idx = newValue.indexOf(actualPace2Sign) + 2;
+                    idx = value.indexOf(actualPace2Sign) + 2;
                 if (idx <= 1)
-                    idx = newValue.indexOf(actualPace3Sign) + 2;
+                    idx = value.indexOf(actualPace3Sign) + 2;
 
                 if (idx + 1 < newValue.length()) {
                     double candidateSpeed = GetSpeedFromPacket(value, idx);
