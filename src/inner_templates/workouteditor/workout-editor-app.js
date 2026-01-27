@@ -919,13 +919,10 @@
                 const field = FIELD_DEFS.find(f => f.key === key);
                 if (field && field.syncWith) {
                     state.intervals[index][field.syncWith] = speed;
-                    // Update speed field directly without re-render to keep focus
-                    const speedInput = document.querySelector(`input[data-index="${index}"][data-key="${field.syncWith}"]`);
-                    if (speedInput) {
-                        speedInput.value = speed;
-                    }
                 }
             }
+            // Re-render to update speed field (pace uses 'change' event so keyboard is already closed)
+            renderIntervals();
             updateChart();
             updateStatus();
             return;
