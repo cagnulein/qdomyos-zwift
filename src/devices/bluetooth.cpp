@@ -2851,6 +2851,7 @@ void bluetooth::connectedAndDiscovered() {
 
                 connect(heartRateBelt, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 connect(heartRateBelt, SIGNAL(heartRate(uint8_t)), this->device(), SLOT(heartRate(uint8_t)));
+                connect(heartRateBelt, SIGNAL(rrIntervalReceived(double)), this->device(), SLOT(rrIntervalReceived(double)));
                 QBluetoothDeviceInfo bt;
                 bt.setDeviceUuid(QBluetoothUuid(
                     settings.value(QZSettings::hrm_lastdevice_address, QZSettings::default_hrm_lastdevice_address)
@@ -2875,6 +2876,7 @@ void bluetooth::connectedAndDiscovered() {
 
                 connect(heartRateBelt, &heartratebelt::debug, this, &bluetooth::debug);
                 connect(heartRateBelt, &heartratebelt::heartRate, this->device(), &bluetoothdevice::heartRate);
+                connect(heartRateBelt, &heartratebelt::rrIntervalReceived, this->device(), &bluetoothdevice::rrIntervalReceived);
                 heartRateBelt->deviceDiscovered(b);
                 if(homeform::singleton())
                     homeform::singleton()->setToastRequested(b.name() + " (HR sensor) connected!");

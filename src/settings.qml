@@ -1271,6 +1271,8 @@ import Qt.labs.platform 1.1
 			property bool life_fitness_ic5: false
 			property bool technogym_bike: false
 			property bool kingsmith_r2_enable_hw_buttons: false
+			property bool tile_hrv_enabled: false
+			property int tile_hrv_order: 78
         }
 
 
