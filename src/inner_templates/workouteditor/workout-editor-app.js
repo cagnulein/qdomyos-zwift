@@ -919,19 +919,26 @@
                 const field = FIELD_DEFS.find(f => f.key === key);
                 if (field && field.syncWith) {
                     state.intervals[index][field.syncWith] = speed;
+                    // Update speed field directly without re-render to keep focus
+                    const speedInput = document.querySelector(`input[data-index="${index}"][data-key="${field.syncWith}"]`);
+                    if (speedInput) {
+                        speedInput.value = speed;
+                    }
                 }
             }
-            // Re-render to update both fields
-            renderIntervals();
             updateChart();
             updateStatus();
             return;
         } else if (type === 'number') {
             const raw = target.value;
             state.intervals[index][key] = raw === '' ? undefined : Number(raw);
-            // If this is a speed field, re-render to update pace
+            // If this is a speed field, update pace field directly without re-render to keep focus/keyboard open
             if (key === 'speed') {
-                renderIntervals();
+                const paceInput = document.querySelector(`input[data-index="${index}"][data-key="pace"]`);
+                if (paceInput) {
+                    const speedValue = state.intervals[index][key];
+                    paceInput.value = speedValue ? speedToPace(speedValue) : '';
+                }
             }
         } else {
             const raw = target.value;
