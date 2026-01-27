@@ -7564,10 +7564,17 @@ void homeform::update() {
                 }
             }
 
-            if(bluetoothManager->device()->currentSpeed().value() > 0 && !isinf(bluetoothManager->device()->currentSpeed().value()))
-                bluetoothManager->device()->addCurrentDistance1s((bluetoothManager->device()->currentSpeed().value() / 3600.0));
-            
-            qDebug() << "Current Distance 1s:" << bluetoothManager->device()->currentDistance1s().value() << bluetoothManager->device()->currentSpeed().value() << watts;
+            bool treadmill_direct_distance = settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
+            double distance1s = 0;
+            if (treadmill_direct_distance) {
+                distance1s = bluetoothManager->device()->odometer();
+            } else {
+                if(bluetoothManager->device()->currentSpeed().value() > 0 && !isinf(bluetoothManager->device()->currentSpeed().value()))
+                    bluetoothManager->device()->addCurrentDistance1s((bluetoothManager->device()->currentSpeed().value() / 3600.0));
+                distance1s = bluetoothManager->device()->currentDistance1s().value();
+            }
+
+            qDebug() << "Current Distance 1s:" << distance1s << bluetoothManager->device()->currentSpeed().value() << watts;
 
             // Calculate current elapsed time in seconds
             uint32_t currentElapsedSeconds = bluetoothManager->device()->elapsedTime().second() +
@@ -7589,7 +7596,7 @@ void homeform::update() {
                     uint32_t lastRecordedTime = Session.last().elapsedTime;
                     for (int i = 1; i <= missedSeconds; i++) {
                         SessionLine gapFill(
-                            bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->currentDistance1s().value(),
+                            bluetoothManager->device()->currentSpeed().value(), inclination, distance1s,
                             watts, resistance, peloton_resistance, (uint8_t)bluetoothManager->device()->currentHeart().value(),
                             pace, cadence, bluetoothManager->device()->calories().value(),
                             bluetoothManager->device()->elevationGain().value(),
@@ -7624,7 +7631,7 @@ void homeform::update() {
             }
 
             SessionLine s(
-                bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->currentDistance1s().value(),
+                bluetoothManager->device()->currentSpeed().value(), inclination, distance1s,
                 watts, resistance, peloton_resistance, (uint8_t)bluetoothManager->device()->currentHeart().value(),
                 pace, cadence, bluetoothManager->device()->calories().value(),
                 bluetoothManager->device()->elevationGain().value(),
