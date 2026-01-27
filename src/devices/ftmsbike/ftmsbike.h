@@ -45,7 +45,7 @@ enum FtmsControlPointCommand {
     FTMS_START_RESUME,
     FTMS_STOP_PAUSE,
     FTMS_SET_TARGETED_EXP_ENERGY,
-    FTMS_SET_TARGETED_STEPS,
+  FTMS_SET_TARGETED_STEPS,
     FTMS_SET_TARGETED_STRIDES,
     FTMS_SET_TARGETED_DISTANCE,
     FTMS_SET_TARGETED_TIME,
@@ -176,6 +176,8 @@ class ftmsbike : public bike {
     int16_t T2_lastGear = 0;
 
     uint8_t battery_level = 0;
+
+    bool wattReceived = false;
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;
