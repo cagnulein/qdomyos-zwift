@@ -195,11 +195,9 @@ void bluetoothdevice::skinTemperature(double skinTemperature) { SkinTemperature.
 void bluetoothdevice::heatStrainIndex(double heatStrainIndex) { HeatStrainIndex.setValue(heatStrainIndex); }
 void bluetoothdevice::rrIntervalReceived(double rrInterval) {
     // RR-interval is in milliseconds
-    // Add to buffer for RMSSD calculation (keep max 30 samples for real-time HRV display)
-    // Using 30 samples (~20-30 seconds of data) gives more responsive and accurate HRV
-    // than using longer windows which can include heart rate transitions
+    // Add to buffer for RMSSD calculation (keep max 120 samples, approximately 2 minutes of data)
     rrIntervals.append(rrInterval);
-    while (rrIntervals.size() > 30) {
+    while (rrIntervals.size() > 120) {
         rrIntervals.removeFirst();
     }
 
