@@ -259,7 +259,7 @@ void octanetreadmill::changeInclinationRequested(double grade, double percentage
 }
 
 void octanetreadmill::update() {
-    if (m_control->state() == QLowEnergyController::UnconnectedState) {
+    if (m_control && m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
     }
@@ -569,7 +569,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
     emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
-    if (m_control->error() != QLowEnergyController::NoError) {
+    if (m_control && m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
 
