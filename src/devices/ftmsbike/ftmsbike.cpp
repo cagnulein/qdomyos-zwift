@@ -1547,11 +1547,12 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             // handling watt gain and offset for erg mode
             double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
             double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+            double bike_power_offset = settings.value(QZSettings::bike_power_offset, QZSettings::default_bike_power_offset).toDouble();
 
-            if (watt_gain != 1.0 || watt_offset != 0) {
+            if (watt_gain != 1.0 || watt_offset != 0 || bike_power_offset != 0) {
                 uint16_t powerRequested = (((uint8_t)b.at(1)) + (b.at(2) << 8));
                 qDebug() << "applying watt_gain/watt_offset from" << powerRequested;
-                powerRequested = ((powerRequested / watt_gain) - watt_offset);
+                powerRequested = ((powerRequested / watt_gain) - watt_offset + bike_power_offset);
                 qDebug() << "to" << powerRequested;
 
                 b[1] = powerRequested & 0xFF;
