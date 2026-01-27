@@ -1256,11 +1256,11 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
         if(BOWFLEX_T9) {
             requestSpeed *= miles_conversion;   // this treadmill wants the speed in miles, at least seems so!!
-        }
-        if(TM4800 || TM6500) {
+        }        
+        if(TM4800 || TM6500 || T3G_ELITE) {
             bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
             if(miles) {
-                requestSpeed *= miles_conversion;   // this treadmill wants the speed in miles when miles_unit is enabled
+                requestSpeed *= miles_conversion;   // these treadmills want the speed in miles when miles_unit is enabled
             }
         }
         uint16_t speed_int = round(requestSpeed * 100);
@@ -1865,9 +1865,15 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             double speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                      (uint16_t)((uint8_t)newValue.at(index)))) /
                            100.0;
-            if(BOWFLEX_T9) {                
+            bool fitshow_treadmill_miles = settings.value(QZSettings::fitshow_treadmill_miles, QZSettings::default_fitshow_treadmill_miles).toBool();
+            if(BOWFLEX_T9 && fitshow_treadmill_miles) {
                 // this treadmill sends the speed in miles!
                 speed *= miles_conversion;
+            } else if(T3G_ELITE) {
+                if(miles) {
+                    // this treadmill sends the speed in miles when miles_unit is enabled!
+                    speed /= miles_conversion;
+                }
             } else if(horizon_treadmill_7_8 && miles) {
                 // this treadmill sends the speed in miles!
                 speed /= miles_conversion;
@@ -1904,7 +1910,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.inclination) {
-            if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill)
+            if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill && !T01)
                 parseInclination(treadmillInclinationOverride((double)(
                                   (int16_t)(
                                       ((int16_t)(int8_t)newValue.at(index + 1) << 8) |
@@ -1912,7 +1918,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                                       )
                                   ) /
                                                               10.0));
-            else if(ICONCEPT_FTMS_treadmill) {
+            else if(ICONCEPT_FTMS_treadmill || T01) {
                 uint8_t val1 = (uint8_t)newValue.at(index);
                 uint8_t val2 = (uint8_t)newValue.at(index + 1);
                 if(val1 == 0x3C && val2 == 0x00) {

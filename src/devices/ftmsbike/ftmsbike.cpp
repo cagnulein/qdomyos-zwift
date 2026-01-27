@@ -769,6 +769,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                         .startsWith(QStringLiteral("Disabled"))) {
                     m_watt = ftms_watt;  // Only update watt if no external power sensor
                 }
+
+                if(!wattReceived && m_watt.value() > 0) {
+                    wattReceived = true;
+                }
             }
             index += 2;
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
@@ -785,7 +789,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             index += 2;
             emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
             // Use average power if instant power is zero or not available
-            if ((!Flags.instantPower || m_watt.value() == 0) && avgPower > 0) {
+            if ((!Flags.instantPower || m_watt.value() == 0) && avgPower > 0 && !wattReceived) {
                 if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                         .toString()
                         .startsWith(QStringLiteral("Disabled"))) {
@@ -1195,7 +1199,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             index += 1;
         }
 
-        if (watts())
+        if (watts() && !ftmsFrameReceived)
             KCal += ((((0.048 * ((double)watts()) + 1.19) *
                         settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                         200.0) /
