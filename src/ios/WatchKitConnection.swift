@@ -31,6 +31,7 @@ class WatchKitConnection: NSObject {
     static var power = 0.0
     static var cadence = 0.0
     static var steps = 0
+    static var elevationGain = 0.0
     
     private override init() {
         super.init()
@@ -150,9 +151,10 @@ extension WatchKitConnection: WCSessionDelegate {
         replyValues["power"] = WatchKitConnection.power
         replyValues["speed"] = WatchKitConnection.speed
         replyValues["steps"] = Double(WatchKitConnection.steps)
-        
+        replyValues["elevationGain"] = WatchKitConnection.elevationGain
+
         SwiftDebug.qtDebug(replyValues.debugDescription)
-        
+
         replyHandler(replyValues)
                 
         //LocalNotificationHelper.fireHeartRate(heartReateDouble)

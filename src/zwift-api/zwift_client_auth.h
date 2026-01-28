@@ -48,6 +48,9 @@ public:
         }
     }
 
+signals:
+    void tokenReceived(bool success, const QString& message);
+
 public slots:
     void updateTokenData() {
         if (haveValidRefreshToken()) {
@@ -101,8 +104,10 @@ private slots:
             refresh_token_expiration = now.toMSecsSinceEpoch() + (refresh_expires_in - 5) * 1000;
 
             qDebug() << "Access Token received successfully";
+            emit tokenReceived(true, "Zwift Login OK!");
         } else {
             qDebug() << "Error fetching token: " << reply->errorString();
+            emit tokenReceived(false, "Zwift Auth Failed!");
         }
 
         reply->deleteLater();

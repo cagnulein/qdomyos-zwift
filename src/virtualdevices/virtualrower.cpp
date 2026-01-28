@@ -331,11 +331,34 @@ void virtualrower::rowerProvider() {
     bool heart_only =
         settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
 
-    double normalizeWattage = Rower->wattsMetric().value();
+    double normalizeWattage = Rower->wattsMetricforUI();
     if (normalizeWattage < 0)
         normalizeWattage = 0;
 
     uint16_t normalizeSpeed = (uint16_t)qRound(Rower->currentSpeed().value() * 100);
+
+    // Get stroke count based on device type
+    uint32_t strokeCount = 0;
+    if (Rower->deviceType() == ROWING) {
+        strokeCount = ((rower *)Rower)->currentStrokesCount().value();
+    } else {
+        // For bikes/other devices, estimate strokes from cadence
+        strokeCount = (uint32_t)(Rower->currentCadence().value() * 2 * Rower->movingTime().hour() * 3600 +
+                                 Rower->movingTime().minute() * 60 + Rower->movingTime().second());
+    }
+
+    // Get pace based on device type
+    uint16_t paceSecs = 0;
+    if (Rower->deviceType() == ROWING) {
+        paceSecs = QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace());
+    } else {
+        // For bikes, pace = odometer / moving_time in seconds
+        if (Rower->movingTime().hour() > 0 || Rower->movingTime().minute() > 0 || Rower->movingTime().second() > 0) {
+            double totalSecs = Rower->movingTime().hour() * 3600 + Rower->movingTime().minute() * 60 + Rower->movingTime().second();
+            if (totalSecs > 0)
+                paceSecs = (uint16_t)(Rower->odometer() * 1000.0 / totalSecs);
+        }
+    }
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -344,8 +367,8 @@ void virtualrower::rowerProvider() {
         if (h->virtualrower_updateFTMS(
                 normalizeSpeed, (char)Rower->currentResistance().value(), (uint16_t)Rower->currentCadence().value() * 2,
                 (uint16_t)normalizeWattage, Rower->currentCrankRevolutions(), Rower->lastCrankEventTime(),
-                ((rower *)Rower)->currentStrokesCount().value(), Rower->odometer() * 1000, Rower->calories().value(),
-                QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace()), static_cast<uint8_t>(Rower->deviceType()))) {
+                strokeCount, Rower->odometer() * 1000, Rower->calories().value(),
+                paceSecs, static_cast<uint8_t>(Rower->deviceType()))) {
             h->virtualrower_setHeartRate(Rower->currentHeart().value());
 
             uint8_t ftms_message[255];
@@ -406,18 +429,18 @@ void virtualrower::rowerProvider() {
 
         value.append((char)((uint8_t)(Rower->currentCadence().value() * 2) & 0xFF)); // Stroke Rate
 
-        value.append((char)((uint16_t)(((rower *)Rower)->currentStrokesCount().value()) & 0xFF));        // Stroke Count
-        value.append((char)(((uint16_t)(((rower *)Rower)->currentStrokesCount().value()) >> 8) & 0xFF)); // Stroke Count
+        value.append((char)((uint16_t)(strokeCount & 0xFF)));        // Stroke Count
+        value.append((char)(((uint16_t)(strokeCount >> 8) & 0xFF))); // Stroke Count
 
-        value.append((char)(((uint16_t)(((rower *)Rower)->odometer() * 1000.0)) & 0xFF));       // Distance
-        value.append((char)(((uint16_t)(((rower *)Rower)->odometer() * 1000.0) >> 8) & 0xFF));  // Distance
-        value.append((char)(((uint16_t)(((rower *)Rower)->odometer() * 1000.0) >> 16) & 0xFF)); // Distance
+        value.append((char)(((uint16_t)(Rower->odometer() * 1000.0)) & 0xFF));       // Distance
+        value.append((char)(((uint16_t)(Rower->odometer() * 1000.0) >> 8) & 0xFF));  // Distance
+        value.append((char)(((uint16_t)(Rower->odometer() * 1000.0) >> 16) & 0xFF)); // Distance
 
-        value.append((char)(((uint16_t)QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace())) & 0xFF));      // pace
-        value.append((char)(((uint16_t)QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace())) >> 8) & 0xFF); // pace
+        value.append((char)((uint16_t)(paceSecs & 0xFF)));      // pace
+        value.append((char)(((uint16_t)(paceSecs >> 8) & 0xFF))); // pace
 
-        value.append((char)(((uint16_t)Rower->wattsMetric().value()) & 0xFF));      // watts
-        value.append((char)(((uint16_t)Rower->wattsMetric().value()) >> 8) & 0xFF); // watts
+        value.append((char)(((uint16_t)Rower->wattsMetricforUI()) & 0xFF));      // watts
+        value.append((char)(((uint16_t)Rower->wattsMetricforUI()) >> 8) & 0xFF); // watts
 
         value.append((char)((uint16_t)(Rower->calories().value()) & 0xFF));        // calories
         value.append((char)(((uint16_t)(Rower->calories().value()) >> 8) & 0xFF)); // calories

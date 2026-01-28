@@ -17,8 +17,8 @@ ApplicationWindow {
     visibility: Qt.WindowFullScreen
     visible: true
 	 objectName: "stack"
-    title: qsTr("qDomyos-Zwift")
-    
+    title: Qt.platform.os === "ios" ? "" : qsTr("qDomyos-Zwift")
+
     // Force update on orientation change
     property int currentOrientation: Screen.orientation
     onCurrentOrientationChanged: {
@@ -63,12 +63,15 @@ ApplicationWindow {
     signal gpx_open_other_folder(url name)
     signal trainprogram_preview(url name)
     signal trainprogram_zwo_loaded(string s)
+    signal trainprogram_autostart_requested()
     signal fitfile_preview(string s)
     signal gpx_save_clicked()
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
     signal strava_connect_clicked()
     signal peloton_connect_clicked()
+    signal intervalsicu_connect_clicked()
+    signal intervalsicu_download_todays_workout_clicked()
     signal loadSettings(url name)
     signal saveSettings(url name)
     signal deleteSettings(url name)
@@ -726,6 +729,7 @@ ApplicationWindow {
         bottomPadding: getBottomPadding()
         leftPadding: getLeftPadding()
         rightPadding: getRightPadding()
+        Accessible.ignored: !drawer.opened
 
         ScrollView {
             contentWidth: -1
@@ -735,6 +739,7 @@ ApplicationWindow {
 
             Column {
                 anchors.fill: parent
+                spacing: 3
 
                 ItemDelegate {
                     text: qsTr("Profile: ") + settings.profile_name
@@ -753,12 +758,12 @@ ApplicationWindow {
                     width: parent.width
                     onClicked: {
                         toolButtonLoadSettings.visible = true;
-                        toolButtonSaveSettings.visible = true;
+                        toolButtonSaveSettings.visible = true;                        
                         stackView.push("settings.qml")
                         stackView.currentItem.peloton_connect_clicked.connect(function() {
                             peloton_connect_clicked()
                          });
-                        drawer.close()
+                         drawer.close()
                     }
                 }
 
@@ -813,14 +818,35 @@ ApplicationWindow {
                     text: qsTr("Open Train Program")
                     width: parent.width
                     onClicked: {
-                        stackView.push("TrainingProgramsList.qml")
+                        if(CHARTJS)
+                            stackView.push("TrainingProgramsListJS.qml")
+                        else
+                            stackView.push("TrainingProgramsList.qml")
                         stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
                         stackView.currentItem.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
                         stackView.currentItem.trainprogram_preview.connect(trainprogram_preview)
+                        stackView.currentItem.trainprogram_autostart_requested.connect(trainprogram_autostart_requested)
                         stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
                             stackView.pop();
-                            popup.open();
                          });
+                        drawer.close()
+                    }
+                }
+                ItemDelegate {
+                    text: qsTr("Workout Editor")
+                    width: parent.width
+                    onClicked: {
+                        var editorPage = stackView.push("WorkoutEditor.qml")
+                        if (editorPage) {
+                            editorPage.closeRequested.connect(function() {
+                                stackView.pop()
+                            })
+                            // Close editor when workout is started from Save & Start
+                            trainprogram_autostart_requested.connect(function() {
+                                console.log("[main.qml] trainprogram_autostart_requested received, closing editor")
+                                editorPage.closeRequested()
+                            })
+                        }
                         drawer.close()
                     }
                 }
@@ -899,7 +925,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.20.15"
+                    text: "version 2.20.23"
                     width: parent.width
                 }
 
@@ -941,6 +967,52 @@ ApplicationWindow {
                     }
                 }
 
+                ItemDelegate {
+                    Image {
+                        anchors.left: parent.left;
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "icons/icons/garmin-connect-badge.png"
+                        fillMode: Image.PreserveAspectFit
+                        visible: true
+                        width: parent.width
+                        height: 48
+                    }
+                    width: parent.width
+                    onClicked: {
+                        toolButtonLoadSettings.visible = true;
+                        toolButtonSaveSettings.visible = true;
+                        stackView.push("settings.qml")
+                        if (stackView.currentItem) {
+                            if (stackView.currentItem.openGarminSection) {
+                                stackView.currentItem.openGarminSection()
+                            }
+                            if (stackView.currentItem.peloton_connect_clicked) {
+                                stackView.currentItem.peloton_connect_clicked.connect(function() {
+                                    peloton_connect_clicked()
+                                });
+                            }
+                        }
+                        drawer.close()
+                    }
+                }
+
+				ItemDelegate {
+                    Image {
+                        anchors.left: parent.left;
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "icons/icons/intervals-logo-with-name.png"
+                        fillMode: Image.PreserveAspectFit
+                        visible: true
+                        width: parent.width
+                    }
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("WebIntervalsICUAuth.qml")
+                        intervalsicu_connect_clicked()
+                        drawer.close()
+                    }
+                }
+
                     FileDialog {
                         id: fileDialogGPX
                          title: "Please choose a file"
@@ -958,17 +1030,22 @@ ApplicationWindow {
                         }
             }
         }
-    }    
+    }
 
-    StackView {
-        id: stackView
-        initialItem: "Home.qml"
+    // Wrapper Item to prevent ApplicationWindow from capturing all VoiceOver focus
+    Item {
         anchors.fill: parent
-        anchors.bottomMargin: (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0
-        anchors.rightMargin: getRightPadding()
-        anchors.leftMargin: getLeftPadding()
-        focus: true
-        Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
+        Accessible.ignored: true
+
+        StackView {
+            id: stackView
+            initialItem: "Home.qml"
+            anchors.fill: parent
+            anchors.bottomMargin: (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0
+            anchors.rightMargin: getRightPadding()
+            anchors.leftMargin: getLeftPadding()
+            focus: true
+            Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
         Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
         Keys.onPressed: (event)=> {
             if (event.key === Qt.Key_MediaPrevious)
@@ -981,6 +1058,7 @@ ApplicationWindow {
                 volumeUp();
 
             event.accepted = settings.volume_change_gears;
+        }
         }
     }
 }

@@ -6,6 +6,8 @@
 #include "virtualdevices/virtualbike.h"
 #include "virtualdevices/virtualrower.h"
 #include "virtualdevices/virtualtreadmill.h"
+#include "homeform.h"
+#include "qzsettings.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -299,7 +301,7 @@ void domyosrower::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
-    qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
+    qDebug() << QStringLiteral(" << ") + QString::number(newValue.length()) + QStringLiteral(" ") + newValue.toHex(' ');
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
@@ -641,7 +643,7 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
 
 double domyosrower::GetSpeedFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = (packet.at(6) << 8) | packet.at(7);
+    uint16_t convertedData = (packet.at(6) << 8) | ((uint8_t)packet.at(7));
     if (convertedData > 65000 || convertedData == 0 || currentCadence().value() == 0)
         return 0;
     return (60.0 / (double)(convertedData)) * 30.0;
@@ -655,7 +657,7 @@ double domyosrower::GetKcalFromPacket(const QByteArray &packet) {
 
 double domyosrower::GetDistanceFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = (packet.at(12) << 8) | packet.at(13);
+    uint16_t convertedData = (packet.at(12) << 8) | ((uint8_t)packet.at(13));
     double data = ((double)convertedData) / 10.0f;
     return data;
 }
@@ -883,6 +885,18 @@ void domyosrower::serviceScanDone(void) {
         connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &domyosrower::stateChanged);
         gattCommunicationChannelService->discoverDetails();
     } else {
+        // Main service not found, check if FTMS service is available
+        QBluetoothUuid ftmsServiceId((quint16)0x1826);
+        QLowEnergyService *ftmsService = m_control->createServiceObject(ftmsServiceId);
+        if(ftmsService) {
+            QSettings settings;
+            settings.setValue(QZSettings::ftms_rower, bluetoothDevice.name());
+            qDebug() << "forcing FTMS rower since it has FTMS service but not the main domyos service";
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested("FTMS rower found, restart the app to apply the change");
+            delete ftmsService;
+        }
+
         ftmsRower = true;
         auto services_list = m_control->services();
         for (const QBluetoothUuid &s : qAsConst(services_list)) {

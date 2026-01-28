@@ -64,10 +64,11 @@
 class KettlerUSB : public QThread {
 
   public:
-    KettlerUSB(QObject *parent = 0, QString deviceFilename = 0);
+    KettlerUSB(QObject *parent = 0, QString deviceFilename = 0, int baudrate = 9600);
     ~KettlerUSB();
 
     QObject *parent;
+    int baudrate = 9600;
 
     // HIGH-LEVEL FUNCTIONS
     int start();                           // Calls QThread to start
@@ -126,6 +127,7 @@ class KettlerUSB : public QThread {
     // raw device utils
     int rawWrite(const char *bytes, int size);
     QString rawRead();
+    void flushSerialBuffer(); // Flush any pending data in serial buffer
 
 #ifdef Q_OS_ANDROID
     QByteArray rxBuffer;

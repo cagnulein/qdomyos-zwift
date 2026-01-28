@@ -72,16 +72,22 @@ class ftmsrower : public rower {
     bool PM5 = false;
     bool NORDLYS = false;
     bool ICONSOLE_PLUS = false;
+    bool FITSHOW = false;
+    bool DOMYOS = false;
 
     bool WATER_ROWER = false;
     bool DFIT_L_R = false;
     bool I_ROWER = false;
+    bool SF_RW = false;
     bool ROWER = false;
+    bool MRK_R06 = false;
+    bool MRK_R11S = false;
     QDateTime lastStroke = QDateTime::currentDateTime();
     double lastStrokesCount = 0;
     
     // PM5 specific variables
     uint8_t pm5RowState = 0;
+    bool pm5RowStateReceived = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
