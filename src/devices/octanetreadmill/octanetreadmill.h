@@ -39,7 +39,10 @@ class octanetreadmill : public treadmill {
     bool autoStartWhenSpeedIsGreaterThenZero() override;
     bool canStartStop() override { return false; }
     bool canHandleSpeedChange() override { return false; }
-    bool canHandleInclineChange() override { return false; }    
+    bool canHandleInclineChange() override { return false; }
+
+    // For testing: activate ZR8 parsing mode
+    void activateZR8Mode() { ZR8 = true; }
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet, int index);

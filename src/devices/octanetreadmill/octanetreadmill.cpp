@@ -259,7 +259,10 @@ void octanetreadmill::changeInclinationRequested(double grade, double percentage
 }
 
 void octanetreadmill::update() {
-    if (m_control && m_control->state() == QLowEnergyController::UnconnectedState) {
+    if(!m_control)
+        return;
+
+    if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
     }
@@ -410,6 +413,12 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         if ((value.length() != 20))
             return;
 
+        // ZR8: Reject 20-byte packets that don't start with 0xa5 (incomplete/corrupted)
+        if (ZR8 && (uint8_t)value[0] != 0xa5) {
+            qDebug() << "ZR8: Rejecting 20-byte non-a5 packet:" << value.toHex().left(6);
+            return;
+        }
+
         if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
             return;
     }
@@ -417,40 +426,26 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     // ZR8: Speed data is only in packets starting with a5 2[0123] 06
     // Other packets containing 02 23 signature do not have valid speed data
     if (ZR8) {
-        if (newValue.length() < 18)
+        qDebug() << "ZR8 Check: value.length()=" << value.length() << "value[0]=" << QString::number((uint8_t)value[0], 16);
+        if (value.length() < 18) {
+            qDebug() << "ZR8: Packet too short, rejecting";
             return;
+        }
 
-        // Check for valid speed packet header: a5 20 06, a5 21 06, or a5 23 06
-        bool isValidSpeedPacket = ((uint8_t)newValue[0] == 0xa5);
+        // Check for valid speed packet header: a5 20 06, a5 21 06, a5 23 06, or a5 1d (cadence format)
+        uint8_t byte0 = (uint8_t)value[0];
+        uint8_t byte1 = (uint8_t)value[1];
+        uint8_t byte2 = (uint8_t)value[2];
+        bool isValidSpeedPacket = (byte0 == 0xa5) &&
+                                  (byte1 == 0x20 || byte1 == 0x21 || byte1 == 0x23 || byte1 == 0x1d) &&
+                                  (byte2 == 0x06);
+        qDebug() << "ZR8 Header Check: byte0=" << QString::number(byte0, 16)
+                 << "byte1=" << QString::number(byte1, 16)
+                 << "byte2=" << QString::number(byte2, 16)
+                 << "isValidSpeedPacket=" << isValidSpeedPacket;
         if (!isValidSpeedPacket) {
-            if (value.contains(actualPaceSign) || value.contains(actualPace2Sign) || value.contains(actualPace3Sign)) {
-                // Try to extract speed and check coherence
-                int16_t idx = value.indexOf(actualPaceSign) + 2;
-                if (idx <= 1)
-                    idx = value.indexOf(actualPace2Sign) + 2;
-                if (idx <= 1)
-                    idx = value.indexOf(actualPace3Sign) + 2;
-
-                if (idx + 1 < newValue.length()) {
-                    double candidateSpeed = GetSpeedFromPacket(value, idx);
-                    // Allow if coherent (e.g. within 3km/h) or if we are starting (lastSpeed approx 0)
-                    if (std::abs(candidateSpeed - Speed.value()) < 3.0 || Speed.value() < 0.5) {
-                        // Coherent, let it pass to the main extraction logic below
-                        // Do NOT return
-                        emit debug(QStringLiteral("ZR8: Recovering non-standard speed packet: ") +
-                                   QString::number(candidateSpeed));
-                    } else {
-                        emit debug(QStringLiteral("ZR8: Ignoring incoherent speed packet: ") +
-                                   QString::number(candidateSpeed) + QStringLiteral(" vs ") +
-                                   QString::number(Speed.value()));
-                        return;
-                    }
-                } else {
-                    return;
-                }
-            } else {
-                return; // Not a speed packet, ignore
-            }
+            qDebug() << "ZR8: Invalid header, rejecting packet";
+            return; // Invalid packet header, do not process
         }
     }
 
@@ -515,6 +510,10 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     if (i + 1 >= value.length())
         return;
+
+    qDebug() << "ZR8 Speed Debug: i=" << i << "value.toHex()=" << value.toHex()
+             << "byte[i]=" << QString::number((uint8_t)value.at(i), 16)
+             << "byte[i+1]=" << QString::number((uint8_t)value.at(i+1), 16);
 
     double speed = GetSpeedFromPacket(value, i);
     if (isinf(speed))

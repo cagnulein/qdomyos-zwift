@@ -76,6 +76,9 @@ protected:
         // Connect to device signals via the helper object
         QObject::connect(device, &octanetreadmill::debug, signalCapture, &SignalCapture::onDebug);
         QObject::connect(device, &octanetreadmill::speedChanged, signalCapture, &SignalCapture::onSpeedChanged);
+
+        // Activate ZR8 parsing mode for testing
+        device->activateZR8Mode();
     }
 
     void TearDown() override {
@@ -3533,6 +3536,7 @@ TEST_F(OctaneTreadmillZR8CadenceTest, TestRealPacketsFromDebugLog) {
     for (size_t i = 0; i < realPackets.size(); i++) {
         capturedSpeeds().clear();
         QByteArray packet;
+        qDebug() << packet;
         for (uint8_t byte : realPackets[i]) packet.append((char)byte);
         QLowEnergyCharacteristic mockChar;
         QMetaObject::invokeMethod(device, "characteristicChanged", Qt::DirectConnection,
@@ -3540,7 +3544,8 @@ TEST_F(OctaneTreadmillZR8CadenceTest, TestRealPacketsFromDebugLog) {
         QCoreApplication::processEvents();
         if (!capturedSpeeds().isEmpty()) {
             double speed = capturedSpeeds().last();
-            if (speed < 0.5 || speed > 40.0) garbageCount++;
+            if (speed < 0.5 || speed > 40.0)
+                garbageCount++;
             else validCount++;
         }
     }
