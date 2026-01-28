@@ -40,6 +40,8 @@ const QString QZSettings::strava_lastrefresh = QStringLiteral("strava_lastrefres
 const QString QZSettings::default_strava_lastrefresh = QStringLiteral("");
 const QString QZSettings::strava_expires = QStringLiteral("strava_expires");
 const QString QZSettings::default_strava_expires = QStringLiteral("");
+const QString QZSettings::strava_current_user_id = QStringLiteral("strava_current_user_id");
+const QString QZSettings::default_strava_current_user_id = QStringLiteral("");
 const QString QZSettings::garmin_email = QStringLiteral("garmin_email");
 const QString QZSettings::default_garmin_email = QStringLiteral("");
 const QString QZSettings::garmin_password = QStringLiteral("garmin_password");
@@ -1049,7 +1051,7 @@ const QString QZSettings::trainprogram_auto_lap_on_segment = QStringLiteral("tra
 const QString QZSettings::kingsmith_r2_enable_hw_buttons = QStringLiteral("kingsmith_r2_enable_hw_buttons");
 
 
-const uint32_t allSettingsCount = 855;
+const uint32_t allSettingsCount = 857;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1073,6 +1075,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::strava_refreshtoken, QZSettings::default_strava_refreshtoken},
     {QZSettings::strava_lastrefresh, QZSettings::default_strava_lastrefresh},
     {QZSettings::strava_expires, QZSettings::default_strava_expires},
+    {QZSettings::strava_current_user_id, QZSettings::default_strava_current_user_id},
     {QZSettings::garmin_email, QZSettings::default_garmin_email},
     {QZSettings::garmin_password, QZSettings::default_garmin_password},
     {QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled},

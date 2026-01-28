@@ -1272,6 +1272,7 @@ import Qt.labs.platform 1.1
 			property bool technogym_bike: false
 			property bool kingsmith_r2_enable_hw_buttons: false
 			property bool treadmill_direct_distance: false
+			property string strava_current_user_id: ""
         }
 
 
