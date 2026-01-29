@@ -1918,7 +1918,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.inclination) {
-            if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill && !T01)
+            if(domyos_treadmill_ts100) {
+                // Domyos TS100 has a fixed 15° inclination
+                Inclination = 15;
+            } else if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill && !T01)
                 parseInclination(treadmillInclinationOverride((double)(
                                   (int16_t)(
                                       ((int16_t)(int8_t)newValue.at(index + 1) << 8) |
@@ -2654,8 +2657,13 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     homeform::singleton()->setToastRequested(QStringLiteral("T01_ device detected. If you see strange inclination values, enable 'IConcept FTMS Treadmill' in Treadmill Options settings."));
             }
         } else if ((device.name().toUpper().startsWith("DOMYOS"))) {
+            QSettings settings;
             qDebug() << QStringLiteral("DOMYOS found");
             DOMYOS = true;
+            domyos_treadmill_ts100 = settings.value(QZSettings::domyos_treadmill_ts100, QZSettings::default_domyos_treadmill_ts100).toBool();
+            if(domyos_treadmill_ts100) {
+                qDebug() << QStringLiteral("Domyos TS100 mode ON - Fixed 15° inclination");
+            }
         } else if ((device.name().toUpper().startsWith(QStringLiteral("BFX_T9_")))) {
             qDebug() << QStringLiteral("BOWFLEX T9 found");
             BOWFLEX_T9 = true;

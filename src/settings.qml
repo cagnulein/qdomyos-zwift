@@ -9068,6 +9068,20 @@ import Qt.labs.platform 1.1
                             }
 
                             IndicatorOnlySwitch {
+                                text: qsTr("TS100 (Fixed 15° Inclination)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_treadmill_ts100
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.domyos_treadmill_ts100 = checked
+                            }
+
+                            IndicatorOnlySwitch {
                                 text: qsTr("Sync Start (Old Behavior)")
                                 spacing: 0
                                 bottomPadding: 0

@@ -106,6 +106,7 @@ class horizontreadmill : public treadmill {
     bool ICONCEPT_FTMS_treadmill = false;
     bool iconcept_ftms_treadmill_inclination_table = false;
     bool DOMYOS = false;
+    bool domyos_treadmill_ts100 = false;
     bool SW_TREADMILL = false;
     bool BOWFLEX_T9 = false;
     bool YPOO_MINI_PRO = false;
