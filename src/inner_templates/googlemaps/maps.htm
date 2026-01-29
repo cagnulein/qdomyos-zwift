@@ -71,13 +71,13 @@ viewer.trackedEntity = bike;
 </body>
   <body>
     <div id="cesiumContainer" class="cesiumContainer"></div>
-	 <div id="metricsContainer" style="position: absolute; bottom: 0px; right: 0px; width: 200px; height: 250px; touch-action: none; user-select: none;">
-        <div class="metrics" style="color: #FFFFFF; width: 100%; height: 100%; margin: 0; border-radius: 25px; border: 2px solid #73AD21; background: #73AD21; padding: 8px; box-sizing: border-box; overflow: hidden; position: relative;">
+	 <div id="metricsContainer" style="position: absolute; bottom: 0px; right: 0px; width: 200px; height: 250px; touch-action: none; user-select: none; z-index: 1000;">
+        <div class="metrics" style="color: #FFFFFF; width: 100%; height: 100%; margin: 0; border-radius: 25px; border: 2px solid #73AD21; background: #73AD21; padding: 8px; box-sizing: border-box; overflow: hidden; position: relative; touch-action: none;">
             <div id="metricsText" style="font-size: 12px; line-height: 1.4;">🏃Speed: 0.00<br>🚴Cadence:0<br>💓Heart:0<br>🔥Calories:0.0<br>📏Odometer:0.00<br>⚡Watt:0<br>⏲️Elapsed:0:00:00<br>📐Inclination:0.0<br>🧲Resistance:0<br>✈️Altitude:0.0<br>⛰️Elevation:0.0</div>
             <div id="resizeHandle" style="position: absolute; bottom: 0; right: 0; width: 20px; height: 20px; background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.5) 50%); cursor: nwse-resize; border-bottom-right-radius: 23px;"></div>
         </div>
     </div>
-	      <div style="border: 0px solid #aaa; border-radius: 10px; overflow: hidden; position:absolute; bottom: 0px; right: 150px; width=150px; height=75px"><canvas id="canvasChart" style="width=150px; height=75px; border-right: 0pt solid #ffff00;"></canvas></div>
+	      <div id="chartContainer" style="border: 0px solid #aaa; border-radius: 10px; overflow: hidden; position:absolute; bottom: 0px; right: 150px; width=150px; height=75px; z-index: 999; touch-action: none;"><canvas id="canvasChart" style="width=150px; height=75px; border-right: 0pt solid #ffff00;"></canvas></div>
     <script type="text/javascript">
     let cameraComplete = true
     let lastAzimuth = 0
@@ -325,11 +325,28 @@ console.error('Error is ' + err);
           const container = document.getElementById('metricsContainer');
           const resizeHandle = document.getElementById('resizeHandle');
           const metricsText = document.getElementById('metricsText');
+          const chartContainer = document.getElementById('chartContainer');
 
           let isDragging = false;
           let isResizing = false;
           let startX, startY, startLeft, startTop, startWidth, startHeight;
           let resizeTimeout = null;
+
+          // Update chart position to follow metrics container
+          function updateChartPosition() {
+              // Position chart to the left of metrics container, aligned at bottom
+              const metricsLeft = container.offsetLeft;
+              const metricsTop = container.offsetTop;
+              const metricsHeight = container.offsetHeight;
+              const chartWidth = chartContainer.offsetWidth;
+              const chartHeight = chartContainer.offsetHeight;
+
+              // Position chart: 10px to the left of metrics, aligned at bottom
+              chartContainer.style.left = (metricsLeft - chartWidth - 10) + 'px';
+              chartContainer.style.top = (metricsTop + metricsHeight - chartHeight) + 'px';
+              chartContainer.style.right = 'auto';
+              chartContainer.style.bottom = 'auto';
+          }
 
           // Load saved position and size
           function loadState() {
@@ -343,6 +360,7 @@ console.error('Error is ' + err);
                       if (state.bottom !== undefined) container.style.bottom = state.bottom + 'px';
                       if (state.width) container.style.width = state.width + 'px';
                       if (state.height) container.style.height = state.height + 'px';
+                      updateChartPosition();
                       updateFontSize();
                   } catch (e) {
                       console.error('Error loading metrics state:', e);
@@ -474,6 +492,7 @@ console.error('Error is ' + err);
                   const deltaY = coords.y - startY;
                   container.style.left = (startLeft + deltaX) + 'px';
                   container.style.top = (startTop + deltaY) + 'px';
+                  updateChartPosition();
                   e.stopPropagation();
                   e.preventDefault();
               } else if (isResizing) {
@@ -483,6 +502,7 @@ console.error('Error is ' + err);
                   const newHeight = Math.max(100, startHeight + deltaY);
                   container.style.width = newWidth + 'px';
                   container.style.height = newHeight + 'px';
+                  updateChartPosition();
                   debouncedUpdateFontSize();
                   e.stopPropagation();
                   e.preventDefault();
@@ -527,6 +547,7 @@ console.error('Error is ' + err);
           // Load saved state and set initial font size
           loadState();
           updateFontSize();
+          updateChartPosition();
       })();
     </script>
   </body>
