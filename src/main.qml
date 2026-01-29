@@ -38,7 +38,7 @@ ApplicationWindow {
             var isMultiWindow = (typeof rootItem !== "undefined" && rootItem && rootItem.iPadMultiWindowMode) ||
                                 (window.width < Screen.width - 10);  // Window smaller than screen = multi-window
             if (isMultiWindow) {
-                return 30;  // Space for window control buttons
+                return 15;  // Space for window control buttons
             }
         }
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
