@@ -440,6 +440,13 @@ console.error('Error is ' + err);
 
           // Start dragging
           function startDrag(e) {
+              // Check if click is on resize handle or its children
+              let target = e.target;
+              while (target) {
+                  if (target === resizeHandle) return;
+                  target = target.parentElement;
+              }
+
               if (isResizing) return;
               isDragging = true;
               const coords = getCoordinates(e);
@@ -447,8 +454,13 @@ console.error('Error is ' + err);
               startY = coords.y;
               startLeft = container.offsetLeft;
               startTop = container.offsetTop;
-              container.style.right = 'auto';
-              container.style.bottom = 'auto';
+              // Only change positioning if not already using left/top
+              if (container.style.right !== 'auto') {
+                  container.style.right = 'auto';
+                  container.style.bottom = 'auto';
+                  container.style.left = startLeft + 'px';
+                  container.style.top = startTop + 'px';
+              }
               e.preventDefault();
           }
 
@@ -462,6 +474,7 @@ console.error('Error is ' + err);
               startHeight = container.offsetHeight;
               e.stopPropagation();
               e.preventDefault();
+              return false;
           }
 
           // Handle move
@@ -505,11 +518,23 @@ console.error('Error is ' + err);
 
           // Add event listeners for dragging (on container, but not on resize handle)
           container.addEventListener('mousedown', function(e) {
-              if (e.target !== resizeHandle) startDrag(e);
+              // Check if target is resize handle or child of resize handle
+              let target = e.target;
+              while (target && target !== container) {
+                  if (target === resizeHandle) return;
+                  target = target.parentElement;
+              }
+              startDrag(e);
           });
           container.addEventListener('touchstart', function(e) {
-              if (e.target !== resizeHandle) startDrag(e);
-          });
+              // Check if target is resize handle or child of resize handle
+              let target = e.target;
+              while (target && target !== container) {
+                  if (target === resizeHandle) return;
+                  target = target.parentElement;
+              }
+              startDrag(e);
+          }, { passive: false });
 
           // Add event listeners for resizing (on resize handle)
           resizeHandle.addEventListener('mousedown', startResize);
