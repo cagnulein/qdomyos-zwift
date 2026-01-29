@@ -708,7 +708,11 @@ class homeform : public QObject {
 
     bool iPadMultiWindowMode() {
 #ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
         return lockscreen::isInMultiWindowMode();
+#else
+        return false;
+#endif
 #else
         return false;
 #endif
