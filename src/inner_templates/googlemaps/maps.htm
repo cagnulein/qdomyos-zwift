@@ -456,6 +456,18 @@ console.error('Error is ' + err);
               return { x: e.clientX, y: e.clientY };
           }
 
+          // Check if touch/click is in resize handle area (bottom-right 20x20px)
+          function isInResizeHandle(x, y) {
+              const rect = container.getBoundingClientRect();
+              const handleSize = 20;
+              return (
+                  x >= rect.right - handleSize &&
+                  x <= rect.right &&
+                  y >= rect.bottom - handleSize &&
+                  y <= rect.bottom
+              );
+          }
+
           // Start dragging
           function startDrag(e) {
               if (isResizing) return;
@@ -467,6 +479,13 @@ console.error('Error is ' + err);
               startTop = container.offsetTop;
               container.style.right = 'auto';
               container.style.bottom = 'auto';
+
+              // Add global listeners
+              document.addEventListener('mousemove', handleMove);
+              document.addEventListener('touchmove', handleMove, { passive: false });
+              document.addEventListener('mouseup', endDragOrResize);
+              document.addEventListener('touchend', endDragOrResize);
+
               e.stopPropagation();
               e.preventDefault();
           }
@@ -479,6 +498,13 @@ console.error('Error is ' + err);
               startY = coords.y;
               startWidth = container.offsetWidth;
               startHeight = container.offsetHeight;
+
+              // Add global listeners
+              document.addEventListener('mousemove', handleMove);
+              document.addEventListener('touchmove', handleMove, { passive: false });
+              document.addEventListener('mouseup', endDragOrResize);
+              document.addEventListener('touchend', endDragOrResize);
+
               e.stopPropagation();
               e.preventDefault();
           }
@@ -521,28 +547,34 @@ console.error('Error is ' + err);
                       }
                       updateFontSize();
                   }
+
+                  // Remove global listeners
+                  document.removeEventListener('mousemove', handleMove);
+                  document.removeEventListener('touchmove', handleMove);
+                  document.removeEventListener('mouseup', endDragOrResize);
+                  document.removeEventListener('touchend', endDragOrResize);
               }
               isDragging = false;
               isResizing = false;
           }
 
-          // Add event listeners for dragging (on container, but not on resize handle)
+          // Add event listeners for dragging/resizing on container
           container.addEventListener('mousedown', function(e) {
-              if (e.target !== resizeHandle) startDrag(e);
+              const coords = getCoordinates(e);
+              if (isInResizeHandle(coords.x, coords.y)) {
+                  startResize(e);
+              } else {
+                  startDrag(e);
+              }
           });
           container.addEventListener('touchstart', function(e) {
-              if (e.target !== resizeHandle) startDrag(e);
+              const coords = getCoordinates(e);
+              if (isInResizeHandle(coords.x, coords.y)) {
+                  startResize(e);
+              } else {
+                  startDrag(e);
+              }
           }, { passive: false });
-
-          // Add event listeners for resizing (on resize handle)
-          resizeHandle.addEventListener('mousedown', startResize);
-          resizeHandle.addEventListener('touchstart', startResize, { passive: false });
-
-          // Add global move and end listeners
-          document.addEventListener('mousemove', handleMove);
-          document.addEventListener('touchmove', handleMove, { passive: false });
-          document.addEventListener('mouseup', endDragOrResize);
-          document.addEventListener('touchend', endDragOrResize);
 
           // Load saved state and set initial font size
           loadState();
