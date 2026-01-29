@@ -1968,6 +1968,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             }
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
+        } else if(domyos_treadmill_ts100) {
+            // Domyos TS100 has a fixed 15° inclination (no inclination flag in 2ACD)
+            Inclination = 15;
+            emit debug(QStringLiteral("Current Inclination (TS100 fixed): ") + QString::number(Inclination.value()));
         }
 
         if (Flags.elevation) {
