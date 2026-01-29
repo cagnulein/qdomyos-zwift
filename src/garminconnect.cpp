@@ -391,6 +391,9 @@ bool GarminConnect::fetchCsrfToken()
 bool GarminConnect::performLogin(const QString &email, const QString &password, bool suppressMfaSignal)
 {
     qDebug() << "GarminConnect: Performing login...";
+    qDebug() << "GarminConnect: Using domain:" << m_domain;
+    qDebug() << "GarminConnect: SSO URL:" << ssoUrl();
+    qDebug() << "GarminConnect: Connect API URL:" << connectApiUrl();
 
     QString ssoEmbedUrl = ssoUrl() + SSO_EMBED_PATH;
 
@@ -1401,6 +1404,7 @@ void GarminConnect::loadTokensFromSettings()
     m_oauth1Token.oauth_token = settings.value(QZSettings::garmin_oauth1_token, QZSettings::default_garmin_oauth1_token).toString();
     m_oauth1Token.oauth_token_secret = settings.value(QZSettings::garmin_oauth1_token_secret, QZSettings::default_garmin_oauth1_token_secret).toString();
     m_domain = settings.value(QZSettings::garmin_domain, QZSettings::default_garmin_domain).toString();
+    qDebug() << "GarminConnect: Loaded Garmin domain from settings:" << m_domain;
 
     if (!m_oauth2Token.access_token.isEmpty()) {
         qDebug() << "GarminConnect: Loaded tokens from settings (OAuth1 + OAuth2)";
