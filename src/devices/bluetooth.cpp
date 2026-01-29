@@ -3115,6 +3115,24 @@ void bluetooth::connectedAndDiscovered() {
         }
     }
 
+    if(settings.value(QZSettings::thinkrider_controller, QZSettings::default_thinkrider_controller).toBool()) {
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (((b.name().toUpper().startsWith("VS")) || (b.name().toUpper().startsWith("THINKRIDER"))) && !thinkriderController && this->device() &&
+                    this->device()->deviceType() == BIKE) {
+
+                thinkriderController = new thinkridercontroller(this->device());
+
+                connect(thinkriderController, &thinkridercontroller::debug, this, &bluetooth::debug);
+                connect(thinkriderController, &thinkridercontroller::plus, (bike*)this->device(), &bike::gearUp);
+                connect(thinkriderController, &thinkridercontroller::minus, (bike*)this->device(), &bike::gearDown);
+                thinkriderController->deviceDiscovered(b);
+                if(homeform::singleton())
+                    homeform::singleton()->setToastRequested("Thinkrider Controller Connected!");
+                break;
+            }
+        }
+    }
+
     if(settings.value(QZSettings::zwift_play, QZSettings::default_zwift_play).toBool()) {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (((b.name().toUpper().startsWith("SQUARE"))) && !eliteSquareController && this->device() &&
