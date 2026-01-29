@@ -1871,6 +1871,9 @@ class QZSettings {
     static const QString horizon_treadmill_7_0_at_24;
     static constexpr bool default_horizon_treadmill_7_0_at_24 = false;
 
+    static const QString treadmill_direct_distance;
+    static constexpr bool default_treadmill_direct_distance = false;
+
     static const QString treadmill_pid_heart_min;
     static constexpr int default_treadmill_pid_heart_min = 0;
 
@@ -2862,6 +2865,12 @@ class QZSettings {
      */
     static const QString trainprogram_auto_lap_on_segment;
     static constexpr bool default_trainprogram_auto_lap_on_segment = false;
+
+    /**
+     * @brief Enable hardware button handling (Start/Pause/Stop) for KingSmith R2 Treadmill
+     */
+    static const QString kingsmith_r2_enable_hw_buttons;
+    static constexpr bool default_kingsmith_r2_enable_hw_buttons = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

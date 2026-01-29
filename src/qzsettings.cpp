@@ -677,6 +677,7 @@ const QString QZSettings::treadmill_inclination_override_150 = QStringLiteral("t
 const QString QZSettings::sole_elliptical_e55 = QStringLiteral("sole_elliptical_e55");
 const QString QZSettings::horizon_treadmill_force_ftms = QStringLiteral("horizon_treadmill_force_ftms");
 const QString QZSettings::horizon_treadmill_7_0_at_24 = QStringLiteral("horizon_treadmill_7_0_at_24");
+const QString QZSettings::treadmill_direct_distance = QStringLiteral("treadmill_direct_distance");
 const QString QZSettings::treadmill_pid_heart_min = QStringLiteral("treadmill_pid_heart_min");
 const QString QZSettings::treadmill_pid_heart_max = QStringLiteral("treadmill_pid_heart_max");
 const QString QZSettings::nordictrack_elliptical_c7_5 = QStringLiteral("nordictrack_elliptical_c7_5");
@@ -1046,9 +1047,10 @@ const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 const QString QZSettings::trainprogram_auto_lap_on_segment = QStringLiteral("trainprogram_auto_lap_on_segment");
+const QString QZSettings::kingsmith_r2_enable_hw_buttons = QStringLiteral("kingsmith_r2_enable_hw_buttons");
 
 
-const uint32_t allSettingsCount = 853;
+const uint32_t allSettingsCount = 855;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1604,6 +1606,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::sole_elliptical_e55, QZSettings::default_sole_elliptical_e55},
     {QZSettings::horizon_treadmill_force_ftms, QZSettings::default_horizon_treadmill_force_ftms},
     {QZSettings::horizon_treadmill_7_0_at_24, QZSettings::default_horizon_treadmill_7_0_at_24},
+    {QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance},
     {QZSettings::treadmill_pid_heart_min, QZSettings::default_treadmill_pid_heart_min},
     {QZSettings::treadmill_pid_heart_max, QZSettings::default_treadmill_pid_heart_max},
     {QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5},
@@ -1918,6 +1921,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_csx210, QZSettings::default_proform_csx210},
     {QZSettings::skandika_wiri_x2000_protocol, QZSettings::default_skandika_wiri_x2000_protocol},
     {QZSettings::trainprogram_auto_lap_on_segment, QZSettings::default_trainprogram_auto_lap_on_segment},
+    {QZSettings::kingsmith_r2_enable_hw_buttons, QZSettings::default_kingsmith_r2_enable_hw_buttons},
     {QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed},
     {QZSettings::proform_treadmill_sport_3_0, QZSettings::default_proform_treadmill_sport_3_0},
     {QZSettings::garmin_oauth1_token, QZSettings::default_garmin_oauth1_token},

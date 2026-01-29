@@ -1895,7 +1895,7 @@ QTime trainprogram::currentRowRemainingTime() {
             uint32_t currentLine = calculateTimeForRow(calculatedLine);
             calculatedElapsedTime += currentLine;
 
-            if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
+            if (calculatedElapsedTime >= static_cast<uint32_t>(ticks)) {
                 if (rows.at(calculatedLine).rampDuration != QTime(0, 0, 0)) {
                     calculatedElapsedTime += ((rows.at(calculatedLine).rampDuration.second() +
                                                (rows.at(calculatedLine).rampDuration.minute() * 60) +
