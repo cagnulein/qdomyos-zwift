@@ -2661,7 +2661,6 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     homeform::singleton()->setToastRequested(QStringLiteral("T01_ device detected. If you see strange inclination values, enable 'IConcept FTMS Treadmill' in Treadmill Options settings."));
             }
         } else if ((device.name().toUpper().startsWith("DOMYOS"))) {
-            QSettings settings;
             qDebug() << QStringLiteral("DOMYOS found");
             DOMYOS = true;
             domyos_treadmill_ts100 = settings.value(QZSettings::domyos_treadmill_ts100, QZSettings::default_domyos_treadmill_ts100).toBool();
