@@ -31,18 +31,6 @@ ApplicationWindow {
     
     // Helper functions for cleaner padding calculations
     function getTopPadding() {
-        if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? 
-               AndroidStatusBar.height : AndroidStatusBar.leftInset;
-    }
-    
-    function getBottomPadding() {
-        if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? 
-               AndroidStatusBar.navigationBarHeight : AndroidStatusBar.rightInset;
-    }
-    
-    function getLeftPadding() {
         // Add padding for iPadOS multi-window mode (Stage Manager, Split View, Slide Over)
         // to avoid overlap with window control buttons (red/yellow/green)
         // Check both the native detection and window size comparison for reactivity
@@ -50,9 +38,21 @@ ApplicationWindow {
             var isMultiWindow = (typeof rootItem !== "undefined" && rootItem && rootItem.iPadMultiWindowMode) ||
                                 (window.width < Screen.width - 10);  // Window smaller than screen = multi-window
             if (isMultiWindow) {
-                return 70;  // Space for window control buttons
+                return 30;  // Space for window control buttons
             }
         }
+        if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
+        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
+               AndroidStatusBar.height : AndroidStatusBar.leftInset;
+    }
+
+    function getBottomPadding() {
+        if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
+        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
+               AndroidStatusBar.navigationBarHeight : AndroidStatusBar.rightInset;
+    }
+
+    function getLeftPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
                AndroidStatusBar.leftInset : 0;
