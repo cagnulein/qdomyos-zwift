@@ -111,6 +111,8 @@ class lockscreen {
     static void set_action_profile(const char* profile);
     static const char* get_action_profile();
 
+    // multi-window detection for iPadOS
+    static bool isInMultiWindowMode();
 };
 
 #endif // LOCKSCREEN_H
