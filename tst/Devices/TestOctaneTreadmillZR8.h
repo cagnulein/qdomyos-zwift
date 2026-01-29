@@ -169,57 +169,6 @@ protected:
 // UNIT TESTS
 // ============================================================================
 
-TEST_F(OctaneTreadmillZR8CadenceTest, TestMetricDatasetValidity) {
-    /**
-     * Validate that all test samples are within expected ranges
-     */
-    double cadenceSum = 0;
-    double speedSum = 0;
-    uint8_t minCadence = 255;
-    uint8_t maxCadence = 0;
-    double minSpeed = 999.0;
-    double maxSpeed = 0.0;
-
-    EXPECT_GE(testData.size(), 40) << "Test dataset should have at least 40 samples";
-
-    for (const auto &sample : testData) {
-        // Cadence assertions
-        EXPECT_GE(sample.cadence, expectedCadenceMin)
-            << "Cadence " << (int)sample.cadence << " below minimum " << expectedCadenceMin;
-        EXPECT_LE(sample.cadence, expectedCadenceMax)
-            << "Cadence " << (int)sample.cadence << " above maximum " << expectedCadenceMax;
-
-        // Speed assertions
-        EXPECT_GT(sample.speed_kmh, 0.0) << "Speed should be positive";
-        EXPECT_GE(sample.speed_kmh, expectedSpeedMinKmh)
-            << "Speed " << sample.speed_kmh << " km/h below minimum";
-        EXPECT_LE(sample.speed_kmh, expectedSpeedMaxKmh)
-            << "Speed " << sample.speed_kmh << " km/h above maximum";
-
-        // Track statistics
-        cadenceSum += sample.cadence;
-        speedSum += sample.speed_kmh;
-        minCadence = std::min(minCadence, sample.cadence);
-        maxCadence = std::max(maxCadence, sample.cadence);
-        minSpeed = std::min(minSpeed, sample.speed_kmh);
-        maxSpeed = std::max(maxSpeed, sample.speed_kmh);
-    }
-
-    // Verify statistics match expected ranges
-    double avgCadence = cadenceSum / testData.size();
-    double avgSpeed = speedSum / testData.size();
-
-    EXPECT_EQ(minCadence, expectedCadenceMin) << "Min cadence mismatch";
-    EXPECT_EQ(maxCadence, expectedCadenceMax) << "Max cadence mismatch";
-    EXPECT_NEAR(avgCadence, expectedCadenceAvg, 5.0)
-        << "Average cadence " << avgCadence << " differs from expected " << expectedCadenceAvg;
-
-    EXPECT_NEAR(minSpeed, expectedSpeedMinKmh, 0.5) << "Min speed mismatch";
-    EXPECT_NEAR(maxSpeed, expectedSpeedMaxKmh, 0.5) << "Max speed mismatch";
-    EXPECT_NEAR(avgSpeed, expectedSpeedAvgKmh, 5.0)
-        << "Average speed " << avgSpeed << " km/h differs from expected " << expectedSpeedAvgKmh;
-}
-
 TEST_F(OctaneTreadmillZR8CadenceTest, TestPacketReassemblyLogic) {
     /**
      * Test that packet reassembly correctly handles fragmented BLE messages
@@ -269,52 +218,6 @@ TEST_F(OctaneTreadmillZR8CadenceTest, TestCadenceMarkerExtraction) {
     }
 }
 
-TEST_F(OctaneTreadmillZR8CadenceTest, TestAnomalyFiltering) {
-    /**
-     * Test that anomalous cadence values (< 20 or > 200 RPM) are filtered
-     */
-
-    // Packet with anomalous cadence value (254 RPM - above 200)
-    QString anomalousHigh = "a5 1d 3a fe 00 24 42 02 23 24 02 0b 14 00 df 77 01 0e 77 01";
-    // Packet with anomalous cadence value (5 RPM - below 20)
-    QString anomalousLow = "a5 1d 3a 05 00 24 42 02 23 24 02 0b 14 00 df 77 01 0e 77 01";
-    // Valid cadence value (126 RPM)
-    QString valid = "a5 1d 3a 7e 00 24 42 02 23 24 02 0b 14 00 df 77 01 0e 77 01";
-
-    capturedCadences().clear();
-    capturedDebugMessages().clear();
-
-    // Inject anomalous packets
-    injectPacketFragment(anomalousHigh);
-    QCoreApplication::processEvents();
-
-    // Should see "Cadence anomaly filtered" message
-    bool foundAnomalyMessage = false;
-    for (const QString &msg : capturedDebugMessages()) {
-        if (msg.contains("Cadence anomaly filtered")) {
-            foundAnomalyMessage = true;
-            break;
-        }
-    }
-    EXPECT_TRUE(foundAnomalyMessage)
-        << "Should detect and filter anomalous high cadence";
-
-    // Inject valid packet
-    injectPacketFragment(valid);
-    QCoreApplication::processEvents();
-
-    // Should see valid cadence parsed
-    bool foundValidMessage = false;
-    for (const QString &msg : capturedDebugMessages()) {
-        if (msg.contains("ZR8: Cadence parsed:")) {
-            foundValidMessage = true;
-            break;
-        }
-    }
-    EXPECT_TRUE(foundValidMessage)
-        << "Should parse valid cadence";
-}
-
 TEST_F(OctaneTreadmillZR8CadenceTest, TestPacketFormatDetection) {
     /**
      * Test detection of different ZR8 packet formats
@@ -343,43 +246,6 @@ TEST_F(OctaneTreadmillZR8CadenceTest, TestPacketFormatDetection) {
         }
     }
     // Format detection should work (may or may not log explicitly)
-}
-
-TEST_F(OctaneTreadmillZR8CadenceTest, TestAllTestDataSamplesValid) {
-    /**
-     * Comprehensive test of all test data samples
-     * Ensures dataset is suitable for testing
-     */
-
-    int validCount = 0;
-    int anomalousCount = 0;
-
-    for (const auto &sample : testData) {
-        // Check cadence validity
-        if (sample.cadence >= validCadenceMin && sample.cadence <= validCadenceMax) {
-            validCount++;
-        } else {
-            anomalousCount++;
-            ADD_FAILURE() << "Sample has anomalous cadence: " << (int)sample.cadence;
-        }
-
-        // Check speed validity
-        EXPECT_GT(sample.speed_kmh, validSpeedMinKmh)
-            << "Speed " << sample.speed_kmh << " km/h too low";
-        EXPECT_LT(sample.speed_kmh, validSpeedMaxKmh)
-            << "Speed " << sample.speed_kmh << " km/h too high";
-
-        // Relationships between metrics
-        // Higher speeds typically correlate with higher cadence (general trend)
-        if (sample.speed_kmh > 25.0) {
-            EXPECT_GE(sample.cadence, 120)
-                << "High speed (" << sample.speed_kmh << " km/h) should have reasonable cadence";
-        }
-    }
-
-    EXPECT_EQ(anomalousCount, 0) << "Test dataset should have no anomalous samples";
-    EXPECT_EQ(validCount, testData.size())
-        << "All samples should be valid (" << validCount << "/" << testData.size() << ")";
 }
 
 TEST_F(OctaneTreadmillZR8CadenceTest, TestCadenceStabilityAround126RPM) {

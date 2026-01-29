@@ -267,6 +267,19 @@ void octanetreadmill::update() {
         return;
     }
 
+    // ZR8: Check if cadence has been missing for too long (indicates treadmill stopped)
+    if (ZR8 && !lastValidCadenceTime.isNull()) {
+        qint64 secondsSinceLastCadence = lastValidCadenceTime.secsTo(QDateTime::currentDateTime());
+        if (secondsSinceLastCadence > 5 && Speed.value() > 0) {
+            emit debug(QStringLiteral("ZR8: No cadence received for ") + QString::number(secondsSinceLastCadence) +
+                       QStringLiteral(" seconds, resetting speed and cadence to 0"));
+            Speed = 0;
+            Cadence = 0;
+            emit speedChanged(0);
+            lastValidCadenceTime = QDateTime();  // Reset to avoid repeated logging
+        }
+    }
+
     qDebug() << m_control->state() << bluetoothDevice.isValid() << gattCommunicationChannelService
              << gattWriteCharacteristic.isValid() << initDone << requestSpeed << requestInclination;
 
@@ -463,6 +476,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
             // Values outside this range are likely parsing errors from packet format shifts
             if (rawCadence >= 20 && rawCadence <= 200) {
                 Cadence = rawCadence;
+                lastValidCadenceTime = QDateTime::currentDateTime();
                 emit debug(QStringLiteral("ZR8: Cadence parsed: ") + QString::number(rawCadence));
 
                 // Reset cadence zero timer when valid cadence is received
@@ -484,6 +498,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
                         if (secondsSinceLowCadence >= 5 && Speed.value() > 0) {
                             emit debug(QStringLiteral("ZR8: Cadence < 20 for 5+ seconds, resetting speed to 0"));
                             Speed = 0;
+                            Cadence = 0;
                             emit speedChanged(0);
                         }
                     }
@@ -492,6 +507,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
                     if (Speed.value() > 0) {
                         emit debug(QStringLiteral("ZR8: Cadence = 0, resetting speed"));
                         Speed = 0;
+                        Cadence = 0;
                         emit speedChanged(0);
                     }
                 }
