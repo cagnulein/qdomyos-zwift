@@ -1051,7 +1051,7 @@ const QString QZSettings::trainprogram_auto_lap_on_segment = QStringLiteral("tra
 const QString QZSettings::kingsmith_r2_enable_hw_buttons = QStringLiteral("kingsmith_r2_enable_hw_buttons");
 
 
-const uint32_t allSettingsCount = 856;
+const uint32_t allSettingsCount = 857;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
