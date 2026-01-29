@@ -954,9 +954,9 @@ bool proformbike::innerWriteResistance() {
         if (requestResistance != currentResistance().value()) {
             emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
             forceResistance(requestResistance);
-            return true;
         }
         requestResistance = -1;
+        return true;
     }
     return false;
 }
