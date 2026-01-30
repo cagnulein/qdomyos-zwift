@@ -76,13 +76,7 @@ void sunnyfitstepper::writeCharacteristic(uint8_t *data, uint8_t data_len, const
 
 void sunnyfitstepper::sendPoll() {
     // Alternate between two poll commands
-    if (counterPoll % 2 == 0) {
-        uint8_t poll1[] = {0x5a, 0x02, 0x00, 0x03, 0x02, 0xa6, 0x01, 0xae, 0xa5};
-        writeCharacteristic(poll1, sizeof(poll1), QStringLiteral("poll1"), false, true);
-    } else {
-        uint8_t poll2[] = {0x5a, 0x02, 0x00, 0x03, 0x02, 0xa6, 0x00, 0xad, 0xa5};
-        writeCharacteristic(poll2, sizeof(poll2), QStringLiteral("poll2"), false, true);
-    }
+   
     counterPoll++;
 }
 
@@ -205,7 +199,7 @@ void sunnyfitstepper::update() {
         // Send poll every 2 seconds
         if (sec1Update++ >= (2000 / refresh->interval())) {
             sec1Update = 0;
-            sendPoll();
+            //sendPoll();
         }
     }
 }
