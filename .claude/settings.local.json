@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tshark:*)",
+      "Bash(find:*)",
+      "Bash(python3:*)"
+    ]
+  }
+}
