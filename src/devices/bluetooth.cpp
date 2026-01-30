@@ -2094,6 +2094,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(lifespanTreadmill, &lifespantreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
                 lifespanTreadmill->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(lifespanTreadmill);
+            } else if (b.name().startsWith(QStringLiteral("AT-R")) && !mobiRower && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                mobiRower = new mobirower(noWriteResistance, noHeartService);
+                emit deviceConnected(b);
+                connect(mobiRower, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                mobiRower->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(mobiRower);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("ECH-ROW")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROWSPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROW-S"))) &&
@@ -3605,6 +3614,11 @@ void bluetooth::restart() {
         delete echelonRower;
         echelonRower = nullptr;
     }
+    if (mobiRower) {
+
+        delete mobiRower;
+        mobiRower = nullptr;
+    }
     if (echelonStride) {
 
         delete echelonStride;
@@ -4040,6 +4054,8 @@ bluetoothdevice *bluetooth::device() {
         return echelonConnectSport;
     } else if (echelonRower) {
         return echelonRower;
+    } else if (mobiRower) {
+        return mobiRower;
     } else if (echelonStride) {
         return echelonStride;
     } else if (echelonStairclimber) {
