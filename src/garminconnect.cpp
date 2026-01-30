@@ -585,6 +585,12 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
         responseUrl = reply->url();
     }
 
+    if (DEBUG_GARMIN_VERBOSE) {
+        qDebug() << "GarminConnect: Response URL:" << responseUrl.toString();
+        qDebug() << "GarminConnect: Response length:" << response.length();
+        qDebug() << "GarminConnect: Full response body:" << response;
+    }
+
     QUrlQuery responseQuery(responseUrl);
     QString ticket = responseQuery.queryItemValue("ticket");
 
@@ -602,6 +608,8 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
             if (match.hasMatch()) {
                 ticket = match.captured(1);
                 qDebug() << "GarminConnect: Found ticket with fallback pattern:" << ticket.left(20) << "...";
+            } else if (DEBUG_GARMIN_VERBOSE) {
+                qDebug() << "GarminConnect: No ticket patterns matched in response body";
             }
         }
     }
@@ -611,6 +619,9 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
     if (ticket.isEmpty()) {
         m_lastError = "Failed to extract ticket from login response";
         qDebug() << "GarminConnect:" << m_lastError;
+        if (DEBUG_GARMIN_VERBOSE) {
+            qDebug() << "GarminConnect: Response snippet:" << response.left(1000);
+        }
         return false;
     }
 
@@ -711,8 +722,12 @@ void GarminConnect::handleMfaReplyFinished()
     qDebug() << "GarminConnect: MFA response status code:" << statusCode;
     qDebug() << "GarminConnect: MFA response redirect URL:" << responseUrl.toString();
 
-    // If no redirect, log response body to understand what happened
-    if (responseUrl.isEmpty()) {
+    // Log detailed response information
+    if (DEBUG_GARMIN_VERBOSE) {
+        qDebug() << "GarminConnect: MFA response length:" << response.length();
+        qDebug() << "GarminConnect: Full MFA response body:" << response;
+    } else if (responseUrl.isEmpty()) {
+        // If no redirect, log response body to understand what happened (non-verbose)
         qDebug() << "GarminConnect: MFA response body (first 500 chars):" << response.left(500);
     }
 
@@ -751,6 +766,9 @@ void GarminConnect::handleMfaReplyFinished()
 
     // If not found in redirect URL, try response body
     if (ticket.isEmpty() && !response.isEmpty()) {
+        if (DEBUG_GARMIN_VERBOSE) {
+            qDebug() << "GarminConnect: Attempting to extract ticket from MFA response body";
+        }
         // Try multiple patterns for ticket extraction
         QRegularExpression ticketRegex1("embed\\?ticket=([^\"]+)\"");
         QRegularExpression ticketRegex2("ticket=([^&\"']+)");
@@ -764,6 +782,16 @@ void GarminConnect::handleMfaReplyFinished()
             if (match.hasMatch()) {
                 ticket = match.captured(1);
                 qDebug() << "GarminConnect: Found ticket in response body (pattern 2):" << ticket.left(20) << "...";
+            } else if (DEBUG_GARMIN_VERBOSE) {
+                qDebug() << "GarminConnect: No MFA ticket patterns matched. Checking for other patterns...";
+                // Check for JSON format
+                if (response.contains("ticket")) {
+                    qDebug() << "GarminConnect: Response contains 'ticket' keyword, may be JSON or different format";
+                }
+                // Check for common response patterns
+                if (response.contains("\"")) {
+                    qDebug() << "GarminConnect: Response contains quoted strings (may be JSON)";
+                }
             }
         }
     }
@@ -773,6 +801,9 @@ void GarminConnect::handleMfaReplyFinished()
     if (ticket.isEmpty()) {
         m_lastError = "Failed to extract ticket after MFA";
         qDebug() << "GarminConnect:" << m_lastError;
+        if (DEBUG_GARMIN_VERBOSE) {
+            qDebug() << "GarminConnect: Response snippet:" << response.left(1000);
+        }
         emit authenticationFailed(m_lastError);
         return;
     }
