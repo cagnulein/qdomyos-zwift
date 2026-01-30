@@ -1,0 +1,222 @@
+# iOS App Store Build and Publish Workflow
+# This workflow builds the iOS app and uploads it to App Store Connect
+#
+# Required secrets:
+# - APPLE_CERTIFICATE_P12: Base64 encoded distribution certificate (.p12)
+# - APPLE_CERTIFICATE_PASSWORD: Password for the .p12 certificate
+# - APPLE_PROVISIONING_PROFILE: Base64 encoded provisioning profile (.mobileprovision)
+# - APPLE_PROVISIONING_PROFILE_WATCHKIT: Base64 encoded WatchKit provisioning profile
+# - APPLE_PROVISIONING_PROFILE_WATCHKIT_EXTENSION: Base64 encoded WatchKit Extension provisioning profile
+# - APP_STORE_CONNECT_API_KEY_ID: App Store Connect API Key ID
+# - APP_STORE_CONNECT_API_ISSUER_ID: App Store Connect API Issuer ID
+# - APP_STORE_CONNECT_API_KEY_P8: Base64 encoded App Store Connect API Key (.p8)
+# - KEYCHAIN_PASSWORD: A password for the temporary keychain
+
+name: iOS App Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload_to_testflight:
+        description: 'Upload to TestFlight after build'
+        required: true
+        default: 'true'
+        type: boolean
+      build_number_increment:
+        description: 'Increment build number (leave empty to keep current)'
+        required: false
+        type: string
+
+env:
+  XCODE_PROJECT_PATH: 'build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj'
+  SCHEME_NAME: 'qdomyoszwift'
+  BUNDLE_ID: 'org.cagnulein.qdomyoszwift'
+  TEAM_ID: '6335M7T29D'
+
+jobs:
+  build-and-upload:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Checkout SmtpClient submodule
+        uses: actions/checkout@v4
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          path: "src/smtpclient/"
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+
+      - name: Checkout googletest submodule
+        uses: actions/checkout@v4
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_15.2.app
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      # Install Apple certificates and provisioning profiles
+      - name: Install Apple Certificate
+        env:
+          APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          # Create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # Decode certificate from base64
+          echo -n "$APPLE_CERTIFICATE_P12" | base64 --decode -o $CERTIFICATE_PATH
+
+          # Create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # Import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$APPLE_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+      - name: Install Provisioning Profiles
+        env:
+          APPLE_PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
+          APPLE_PROVISIONING_PROFILE_WATCHKIT: ${{ secrets.APPLE_PROVISIONING_PROFILE_WATCHKIT }}
+          APPLE_PROVISIONING_PROFILE_WATCHKIT_EXTENSION: ${{ secrets.APPLE_PROVISIONING_PROFILE_WATCHKIT_EXTENSION }}
+        run: |
+          # Create Provisioning Profiles directory
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+
+          # Decode and install main app provisioning profile
+          echo -n "$APPLE_PROVISIONING_PROFILE" | base64 --decode -o ~/Library/MobileDevice/Provisioning\ Profiles/main.mobileprovision
+
+          # Decode and install WatchKit provisioning profile (if provided)
+          if [ -n "$APPLE_PROVISIONING_PROFILE_WATCHKIT" ]; then
+            echo -n "$APPLE_PROVISIONING_PROFILE_WATCHKIT" | base64 --decode -o ~/Library/MobileDevice/Provisioning\ Profiles/watchkit.mobileprovision
+          fi
+
+          # Decode and install WatchKit Extension provisioning profile (if provided)
+          if [ -n "$APPLE_PROVISIONING_PROFILE_WATCHKIT_EXTENSION" ]; then
+            echo -n "$APPLE_PROVISIONING_PROFILE_WATCHKIT_EXTENSION" | base64 --decode -o ~/Library/MobileDevice/Provisioning\ Profiles/watchkit_extension.mobileprovision
+          fi
+
+      # Increment build number if requested
+      - name: Increment Build Number
+        if: ${{ inputs.build_number_increment != '' }}
+        run: |
+          # Update CURRENT_PROJECT_VERSION in project.pbxproj
+          NEW_BUILD_NUMBER="${{ inputs.build_number_increment }}"
+          sed -i '' "s/CURRENT_PROJECT_VERSION = [0-9]*;/CURRENT_PROJECT_VERSION = $NEW_BUILD_NUMBER;/g" "$XCODE_PROJECT_PATH/project.pbxproj"
+          echo "Updated build number to: $NEW_BUILD_NUMBER"
+
+      # Create secrets file
+      - name: Create secrets file
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+
+      # Build for Release (App Store)
+      - name: Build Archive
+        run: |
+          xcodebuild archive \
+            -project "$XCODE_PROJECT_PATH" \
+            -scheme "$SCHEME_NAME" \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath $RUNNER_TEMP/qdomyoszwift.xcarchive \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM=$TEAM_ID \
+            CODE_SIGN_IDENTITY="iPhone Distribution" \
+            -allowProvisioningUpdates
+
+      # Create ExportOptions.plist for App Store distribution
+      - name: Create ExportOptions
+        run: |
+          cat > $RUNNER_TEMP/ExportOptions.plist << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store-connect</string>
+              <key>teamID</key>
+              <string>${TEAM_ID}</string>
+              <key>uploadSymbols</key>
+              <true/>
+              <key>destination</key>
+              <string>upload</string>
+          </dict>
+          </plist>
+          EOF
+
+      # Export IPA
+      - name: Export IPA
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath $RUNNER_TEMP/qdomyoszwift.xcarchive \
+            -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
+            -exportPath $RUNNER_TEMP/export \
+            -allowProvisioningUpdates
+
+      # Setup App Store Connect API Key
+      - name: Setup App Store Connect API Key
+        if: ${{ inputs.upload_to_testflight == true }}
+        env:
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo -n "$APP_STORE_CONNECT_API_KEY_P8" | base64 --decode -o ~/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8
+
+      # Upload to App Store Connect / TestFlight
+      - name: Upload to TestFlight
+        if: ${{ inputs.upload_to_testflight == true }}
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+        run: |
+          xcrun altool --upload-app \
+            --type ios \
+            --file "$RUNNER_TEMP/export/qdomyoszwift.ipa" \
+            --apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
+            --apiIssuer "$APP_STORE_CONNECT_API_ISSUER_ID"
+
+      # Upload IPA as artifact (always, for backup)
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: qdomyoszwift-ipa
+          path: ${{ runner.temp }}/export/*.ipa
+          retention-days: 30
+
+      # Upload dSYM for crash reporting
+      - name: Upload dSYM Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: qdomyoszwift-dsym
+          path: ${{ runner.temp }}/qdomyoszwift.xcarchive/dSYMs
+          retention-days: 30
+
+      # Cleanup keychain
+      - name: Cleanup
+        if: always()
+        run: |
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db || true
+          rm -f $RUNNER_TEMP/certificate.p12 || true
+          rm -rf ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision || true
+          rm -rf ~/.appstoreconnect || true
