@@ -154,6 +154,7 @@
 
 #include "zwift_play/zwiftPlayDevice.h"
 #include "zwift_play/zwiftclickremote.h"
+#include "devices/mobirower/mobirower.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -269,6 +270,7 @@ class bluetooth : public QObject, public SignalHandler {
     echelonrower *echelonRower = nullptr;
     ftmsrower *ftmsRower = nullptr;
     smartrowrower *smartrowRower = nullptr;
+    mobirower *mobiRower = nullptr;
     echelonstride *echelonStride = nullptr;
     echelonstairclimber *echelonStairclimber = nullptr;
     lifefitnesstreadmill *lifefitnessTreadmill = nullptr;
