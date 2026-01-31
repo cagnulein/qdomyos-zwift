@@ -6743,65 +6743,7 @@ import Qt.labs.platform 1.1
                                 if (newDomain !== settings.garmin_domain) {
                                     rootItem.garmin_connect_logout();
                                     settings.garmin_domain = newDomain;
-                                    garminServerRestartDialog.open();
-                                }
-                            }
-                        }
-                    }
-
-                    // Garmin Server Change Restart Dialog
-                    Popup {
-                        id: garminServerRestartDialog
-                        modal: true
-                        focus: true
-                        closePolicy: Popup.CloseOnEscape
-                        anchors.centerIn: Overlay.overlay
-                        width: Math.min(parent.width * 0.9, 400)
-
-                        ColumnLayout {
-                            anchors.fill: parent
-                            spacing: 20
-
-                            Label {
-                                text: "Restart Required"
-                                font.pixelSize: 18
-                                font.bold: true
-                                Layout.fillWidth: true
-                                horizontalAlignment: Text.AlignHCenter
-                            }
-
-                            Label {
-                                text: "The application needs to be restarted to apply the Garmin server change."
-                                wrapMode: Text.WordWrap
-                                Layout.fillWidth: true
-                                horizontalAlignment: Text.AlignHCenter
-                            }
-
-                            RowLayout {
-                                spacing: 10
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignHCenter
-
-                                Button {
-                                    text: "Cancel"
-                                    Layout.preferredWidth: 120
-                                    onClicked: {
-                                        garminServerRestartDialog.close();
-                                        // Revert the change
-                                        var currentDomain = settings.garmin_domain;
-                                        garminServerComboBox.currentIndex = currentDomain === "garmin.cn" ? 1 : 0;
-                                    }
-                                }
-
-                                Button {
-                                    text: "Restart App"
-                                    Layout.preferredWidth: 120
-                                    highlighted: true
-                                    onClicked: {
-                                        garminServerRestartDialog.close();
-                                        toast.show("Restarting application...");
-                                        Qt.quit();
-                                    }
+                                    window.settings_restart_to_apply = true;
                                 }
                             }
                         }
