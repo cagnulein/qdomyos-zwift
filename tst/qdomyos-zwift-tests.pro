@@ -54,6 +54,7 @@ HEADERS += \
     Devices/deviceindex.h \
     Devices/devicenamepatterngroup.h \
     Devices/devicetestdataindex.h \
+    Devices/TestSunnyfitStepper.h \
     Erg/ergtabletestsuite.h \
     GarminConnect/garminconnecttestsuite.h \
     ToolTests/qfittestsuite.h \
