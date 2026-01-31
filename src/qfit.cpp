@@ -814,7 +814,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             lapMesg.SetMessageIndex(lap_index++);
             lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_DISTANCE);
             if (type == JUMPROPE)
-                lapMesg.SetRepetitionNum(session.at(i - 1).inclination);
+                lapMesg.SetRepetitionNum(lap_index);
             lastLapTimer = sl.elapsedTime;
             lastLapOdometer = sl.distance;
 

@@ -6727,6 +6727,29 @@ import Qt.labs.platform 1.1
                         }
                     }
 
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Garmin Server:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: garminServerComboBox
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            model: ["Global (garmin.com)", "China (garmin.cn)"]
+                            currentIndex: settings.garmin_domain === "garmin.cn" ? 1 : 0
+                            onCurrentIndexChanged: {
+                                var newDomain = currentIndex === 1 ? "garmin.cn" : "garmin.com";
+                                if (newDomain !== settings.garmin_domain) {
+                                    rootItem.garmin_connect_logout();
+                                    settings.garmin_domain = newDomain;
+                                    window.settings_restart_to_apply = true;
+                                }
+                            }
+                        }
+                    }
+
                     Button {
                         text: "Test Garmin Login"
                         Layout.alignment: Qt.AlignHCenter
