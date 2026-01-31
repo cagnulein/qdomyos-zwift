@@ -455,15 +455,54 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
     qDebug() << "GarminConnect: Login response length:" << response.length();
     qDebug() << "GarminConnect: Response snippet:" << response.left(300);
 
-    // Check for success title (like Python garth library)
+    // Check page title (like Python garth library)
+    // garth checks ONLY the title for MFA detection, not the body
+    // This is important because some servers (like garmin.cn) may have "MFA" text
+    // in their Success page HTML body, which would cause false positives
+    QString pageTitle;
     QRegularExpression titleRegex("<title>(.+?)</title>");
     QRegularExpressionMatch titleMatch = titleRegex.match(response);
     if (titleMatch.hasMatch()) {
-        QString title = titleMatch.captured(1);
-        qDebug() << "GarminConnect: Page title:" << title;
-        if (title == "Success") {
-            qDebug() << "GarminConnect: Login successful (Success page detected)";
+        pageTitle = titleMatch.captured(1);
+        qDebug() << "GarminConnect: Page title:" << pageTitle;
+    }
+
+    // Check if MFA is required by looking at the TITLE (garth approach)
+    // This is more reliable than checking the body which may contain "MFA" in scripts/URLs
+    if (pageTitle.contains("MFA", Qt::CaseInsensitive)) {
+        m_lastError = "MFA Required";
+        qDebug() << "GarminConnect: MFA detected in page title";
+
+        // Extract new CSRF token from MFA page - try multiple patterns
+        QRegularExpression csrfRegex1("name=\"_csrf\"[^>]*value=\"([^\"]+)\"");
+        QRegularExpression csrfRegex2("value=\"([^\"]+)\"[^>]*name=\"_csrf\"");
+
+        QRegularExpressionMatch match = csrfRegex1.match(response);
+        if (!match.hasMatch()) {
+            match = csrfRegex2.match(response);
         }
+        if (match.hasMatch()) {
+            m_csrfToken = match.captured(1);
+            qDebug() << "GarminConnect: CSRF token from MFA page:" << m_csrfToken.left(20) << "...";
+        }
+
+        // Update cookies
+        m_cookies = m_manager->cookieJar()->cookiesForUrl(url);
+
+        if (!suppressMfaSignal) {
+            qDebug() << "GarminConnect: Emitting mfaRequired signal";
+            emit mfaRequired();
+        } else {
+            qDebug() << "GarminConnect: MFA required but signal suppressed (retrying with MFA code)";
+        }
+        reply->deleteLater();
+        return false;
+    }
+
+    // Check if login was successful (title is "Success")
+    if (pageTitle == "Success") {
+        qDebug() << "GarminConnect: Login successful (Success page detected)";
+        // Continue to extract ticket below
     }
 
     // Check for error messages in response
@@ -549,34 +588,6 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
         } else {
             qDebug() << "GarminConnect: MFA required but signal suppressed (retrying with MFA code)";
         }
-        return false;
-    }
-
-    // Check if MFA is required (legacy check for non-redirect MFA)
-    if (response.contains("MFA", Qt::CaseInsensitive) ||
-        response.contains("Enter MFA Code", Qt::CaseInsensitive)) {
-        m_lastError = "MFA Required";
-        qDebug() << "GarminConnect: MFA content detected in response";
-
-        // Extract new CSRF token from MFA page - try multiple patterns
-        QRegularExpression csrfRegex1("name=\"_csrf\"[^>]*value=\"([^\"]+)\"");
-        QRegularExpression csrfRegex2("value=\"([^\"]+)\"[^>]*name=\"_csrf\"");
-
-        QRegularExpressionMatch match = csrfRegex1.match(response);
-        if (!match.hasMatch()) {
-            match = csrfRegex2.match(response);
-        }
-        if (match.hasMatch()) {
-            m_csrfToken = match.captured(1);
-        }
-
-        // Update cookies
-        m_cookies = m_manager->cookieJar()->cookiesForUrl(url);
-
-        if (!suppressMfaSignal) {
-            emit mfaRequired();
-        }
-        reply->deleteLater();
         return false;
     }
 
