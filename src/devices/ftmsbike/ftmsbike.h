@@ -135,9 +135,13 @@ class ftmsbike : public bike {
     bool resistance_received = false;
     inclinationResistanceTable _inclinationResistanceTable;
 
+    // D500V2 workaround: track if we're awaiting start simulation command after request control
+    bool awaiting_start_simulation_after_request_control = false;
+
     bool DU30_bike = false;
     bool ICSE = false;
     bool DOMYOS = false;
+    bool D500V2 = false;
     bool _3G_Cardio_RB = false;
     bool SCH_190U = false;
     bool SCH_290R = false;

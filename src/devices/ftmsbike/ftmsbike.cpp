@@ -1477,6 +1477,29 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 
+        // D500V2 workaround: track request control (0x00) and start simulation (0x07) commands
+        // If we receive simulation params (0x11) without start simulation, inject it first
+        if (D500V2 && b.length() > 0) {
+            uint8_t commandCode = (uint8_t)b.at(0);
+
+            if (commandCode == FTMS_REQUEST_CONTROL) {
+                // Command 0x00: Request Control - expect start simulation next
+                awaiting_start_simulation_after_request_control = true;
+                qDebug() << "D500V2 workaround: received REQUEST_CONTROL (0x00), now awaiting START_RESUME (0x07)";
+            } else if (commandCode == FTMS_START_RESUME) {
+                // Command 0x07: Start Resume - no longer awaiting
+                awaiting_start_simulation_after_request_control = false;
+                qDebug() << "D500V2 workaround: received START_RESUME (0x07), ready for simulation params";
+            } else if (commandCode == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && D500V2 && awaiting_start_simulation_after_request_control) {
+                // Command 0x11: Set Simulation Params - but we're still awaiting start simulation
+                // For D500V2, inject the start simulation command (0x07) first
+                qDebug() << "D500V2 workaround: received SET_INDOOR_BIKE_SIMULATION_PARAMS (0x11) without START_RESUME, injecting 0x07 first";
+                uint8_t startSimulation[] = {FTMS_START_RESUME};
+                writeCharacteristic(startSimulation, sizeof(startSimulation), "injectWrite [D500V2 workaround: start simulation 0x07]", false, true);
+                awaiting_start_simulation_after_request_control = false;
+            }
+        }
+
         // handling gears
         if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && (zwiftPlayService == nullptr || !gears_zwift_ratio)) {
             double min_inclination = settings.value(QZSettings::min_inclination, QZSettings::default_min_inclination).toDouble();
@@ -1684,6 +1707,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             ergModeSupported = false;
             max_resistance = 32;
             DOMYOS = true;
+        } else if (bluetoothDevice.name().toUpper().startsWith("D500V2")) {
+            qDebug() << QStringLiteral("D500V2 found - enabling workaround for start simulation command");
+            D500V2 = true;           
         } else if ((bluetoothDevice.name().toUpper().startsWith("3G Cardio RB"))) {
             qDebug() << QStringLiteral("_3G_Cardio_RB found");
             _3G_Cardio_RB = true;

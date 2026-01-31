@@ -1272,6 +1272,7 @@ import Qt.labs.platform 1.1
 			property bool technogym_bike: false
 			property bool kingsmith_r2_enable_hw_buttons: false
 			property bool treadmill_direct_distance: false
+			property bool domyos_treadmill_ts100: false
         }
 
 
@@ -9149,6 +9150,20 @@ import Qt.labs.platform 1.1
                             }
 
                             IndicatorOnlySwitch {
+                                text: qsTr("TS100 (Fixed 15° Inclination)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_treadmill_ts100
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.domyos_treadmill_ts100 = checked
+                            }
+
+                            IndicatorOnlySwitch {
                                 text: qsTr("Sync Start (Old Behavior)")
                                 spacing: 0
                                 bottomPadding: 0
@@ -9801,33 +9816,33 @@ import Qt.labs.platform 1.1
                             }
                         }
                     }
-                }
-            }
 
-            AccordionElement {
-                id: bowflexTreadmillAccordion
-                title: qsTr("Bowflex Treadmill Options")
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Yellow)
-                color: Material.backgroundColor
-                accordionContent: ColumnLayout {
-                    spacing: 0
-                    IndicatorOnlySwitch {
-                        id: bowflexT9MilesDelegate
-                        text: qsTr("T9 mi/h speed")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.fitshow_treadmill_miles
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.fitshow_treadmill_miles = checked
-                    }
+                    AccordionElement {
+                        id: bowflexTreadmillAccordion
+                        title: qsTr("Bowflex Treadmill Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                id: bowflexT9MilesDelegate
+                                text: qsTr("T9 mi/h speed")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.fitshow_treadmill_miles
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.fitshow_treadmill_miles = checked
+                            }
+                        }
+                    }                    
                 }
-            }
+            }            
 
             AccordionElement {
                 id: toorxTreadmillAccordion
