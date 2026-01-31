@@ -106,6 +106,72 @@ ApplicationWindow {
         property bool volume_change_gears: false
         property string peloton_username: "username"
         property string peloton_password: "password"
+
+        property bool shortcuts_enabled: false
+        property string shortcut_speed_plus: ""
+        property string shortcut_speed_minus: ""
+        property string shortcut_inclination_plus: ""
+        property string shortcut_inclination_minus: ""
+        property string shortcut_resistance_plus: ""
+        property string shortcut_resistance_minus: ""
+        property string shortcut_peloton_resistance_plus: ""
+        property string shortcut_peloton_resistance_minus: ""
+        property string shortcut_target_resistance_plus: ""
+        property string shortcut_target_resistance_minus: ""
+        property string shortcut_target_power_plus: ""
+        property string shortcut_target_power_minus: ""
+        property string shortcut_target_zone_plus: ""
+        property string shortcut_target_zone_minus: ""
+        property string shortcut_target_speed_plus: ""
+        property string shortcut_target_speed_minus: ""
+        property string shortcut_target_incline_plus: ""
+        property string shortcut_target_incline_minus: ""
+        property string shortcut_fan_plus: ""
+        property string shortcut_fan_minus: ""
+        property string shortcut_peloton_offset_plus: ""
+        property string shortcut_peloton_offset_minus: ""
+        property string shortcut_peloton_remaining_plus: ""
+        property string shortcut_peloton_remaining_minus: ""
+        property string shortcut_remaining_time_plus: ""
+        property string shortcut_remaining_time_minus: ""
+        property string shortcut_gears_plus: ""
+        property string shortcut_gears_minus: ""
+        property string shortcut_pid_hr_plus: ""
+        property string shortcut_pid_hr_minus: ""
+        property string shortcut_ext_incline_plus: ""
+        property string shortcut_ext_incline_minus: ""
+        property string shortcut_biggears_plus: ""
+        property string shortcut_biggears_minus: ""
+        property string shortcut_avs_cruise: ""
+        property string shortcut_avs_climb: ""
+        property string shortcut_avs_sprint: ""
+        property string shortcut_power_avg: ""
+        property string shortcut_erg_mode: ""
+        property string shortcut_preset_resistance_1: ""
+        property string shortcut_preset_resistance_2: ""
+        property string shortcut_preset_resistance_3: ""
+        property string shortcut_preset_resistance_4: ""
+        property string shortcut_preset_resistance_5: ""
+        property string shortcut_preset_speed_1: ""
+        property string shortcut_preset_speed_2: ""
+        property string shortcut_preset_speed_3: ""
+        property string shortcut_preset_speed_4: ""
+        property string shortcut_preset_speed_5: ""
+        property string shortcut_preset_inclination_1: ""
+        property string shortcut_preset_inclination_2: ""
+        property string shortcut_preset_inclination_3: ""
+        property string shortcut_preset_inclination_4: ""
+        property string shortcut_preset_inclination_5: ""
+        property string shortcut_preset_powerzone_1: ""
+        property string shortcut_preset_powerzone_2: ""
+        property string shortcut_preset_powerzone_3: ""
+        property string shortcut_preset_powerzone_4: ""
+        property string shortcut_preset_powerzone_5: ""
+        property string shortcut_preset_powerzone_6: ""
+        property string shortcut_preset_powerzone_7: ""
+        property string shortcut_auto_resistance: ""
+        property string shortcut_lap: ""
+        property string shortcut_start_stop: ""
     }
 
 
@@ -1062,10 +1128,80 @@ ApplicationWindow {
                 keyMediaPrevious();
             else if (event.key === Qt.Key_MediaNext)
                 keyMediaNext();
-            else if (OS_VERSION === "Other" && event.key === Qt.Key_Z)
-                volumeDown();
-            else if (OS_VERSION === "Other" && event.key === Qt.Key_X)
-                volumeUp();
+            else if (settings.shortcuts_enabled && event.text !== "") {
+                var keyStr = event.text.toUpperCase();
+                var handled = true;
+                if (keyStr === settings.shortcut_speed_plus) rootItem.Plus("speed");
+                else if (keyStr === settings.shortcut_speed_minus) rootItem.Minus("speed");
+                else if (keyStr === settings.shortcut_inclination_plus) rootItem.Plus("inclination");
+                else if (keyStr === settings.shortcut_inclination_minus) rootItem.Minus("inclination");
+                else if (keyStr === settings.shortcut_resistance_plus) rootItem.Plus("resistance");
+                else if (keyStr === settings.shortcut_resistance_minus) rootItem.Minus("resistance");
+                else if (keyStr === settings.shortcut_peloton_resistance_plus) rootItem.Plus("peloton_resistance");
+                else if (keyStr === settings.shortcut_peloton_resistance_minus) rootItem.Minus("peloton_resistance");
+                else if (keyStr === settings.shortcut_target_resistance_plus) rootItem.Plus("target_resistance");
+                else if (keyStr === settings.shortcut_target_resistance_minus) rootItem.Minus("target_resistance");
+                else if (keyStr === settings.shortcut_target_power_plus) rootItem.Plus("target_power");
+                else if (keyStr === settings.shortcut_target_power_minus) rootItem.Minus("target_power");
+                else if (keyStr === settings.shortcut_target_zone_plus) rootItem.Plus("target_zone");
+                else if (keyStr === settings.shortcut_target_zone_minus) rootItem.Minus("target_zone");
+                else if (keyStr === settings.shortcut_target_speed_plus) rootItem.Plus("target_speed");
+                else if (keyStr === settings.shortcut_target_speed_minus) rootItem.Minus("target_speed");
+                else if (keyStr === settings.shortcut_target_incline_plus) rootItem.Plus("target_inclination");
+                else if (keyStr === settings.shortcut_target_incline_minus) rootItem.Minus("target_inclination");
+                else if (keyStr === settings.shortcut_fan_plus) rootItem.Plus("fan");
+                else if (keyStr === settings.shortcut_fan_minus) rootItem.Minus("fan");
+                else if (keyStr === settings.shortcut_peloton_offset_plus) rootItem.Plus("peloton_offset");
+                else if (keyStr === settings.shortcut_peloton_offset_minus) rootItem.Minus("peloton_offset");
+                else if (keyStr === settings.shortcut_peloton_remaining_plus) rootItem.Plus("peloton_remaining");
+                else if (keyStr === settings.shortcut_peloton_remaining_minus) rootItem.Minus("peloton_remaining");
+                else if (keyStr === settings.shortcut_remaining_time_plus) rootItem.Plus("remainingtimetrainprogramrow");
+                else if (keyStr === settings.shortcut_remaining_time_minus) rootItem.Minus("remainingtimetrainprogramrow");
+                else if (keyStr === settings.shortcut_gears_plus) rootItem.Plus("gears");
+                else if (keyStr === settings.shortcut_gears_minus) rootItem.Minus("gears");
+                else if (keyStr === settings.shortcut_pid_hr_plus) rootItem.Plus("pid_hr");
+                else if (keyStr === settings.shortcut_pid_hr_minus) rootItem.Minus("pid_hr");
+                else if (keyStr === settings.shortcut_ext_incline_plus) rootItem.Plus("external_inclination");
+                else if (keyStr === settings.shortcut_ext_incline_minus) rootItem.Minus("external_inclination");
+                else if (keyStr === settings.shortcut_biggears_plus) rootItem.LargeButton("biggearsplus");
+                else if (keyStr === settings.shortcut_biggears_minus) rootItem.LargeButton("biggearsminus");
+                else if (keyStr === settings.shortcut_avs_cruise) rootItem.LargeButton("autoVirtualShiftingCruise");
+                else if (keyStr === settings.shortcut_avs_climb) rootItem.LargeButton("autoVirtualShiftingClimb");
+                else if (keyStr === settings.shortcut_avs_sprint) rootItem.LargeButton("autoVirtualShiftingSprint");
+                else if (keyStr === settings.shortcut_power_avg) rootItem.LargeButton("powerAvg");
+                else if (keyStr === settings.shortcut_erg_mode) rootItem.LargeButton("erg_mode");
+                else if (keyStr === settings.shortcut_preset_resistance_1) rootItem.LargeButton("preset_resistance_1");
+                else if (keyStr === settings.shortcut_preset_resistance_2) rootItem.LargeButton("preset_resistance_2");
+                else if (keyStr === settings.shortcut_preset_resistance_3) rootItem.LargeButton("preset_resistance_3");
+                else if (keyStr === settings.shortcut_preset_resistance_4) rootItem.LargeButton("preset_resistance_4");
+                else if (keyStr === settings.shortcut_preset_resistance_5) rootItem.LargeButton("preset_resistance_5");
+                else if (keyStr === settings.shortcut_preset_speed_1) rootItem.LargeButton("preset_speed_1");
+                else if (keyStr === settings.shortcut_preset_speed_2) rootItem.LargeButton("preset_speed_2");
+                else if (keyStr === settings.shortcut_preset_speed_3) rootItem.LargeButton("preset_speed_3");
+                else if (keyStr === settings.shortcut_preset_speed_4) rootItem.LargeButton("preset_speed_4");
+                else if (keyStr === settings.shortcut_preset_speed_5) rootItem.LargeButton("preset_speed_5");
+                else if (keyStr === settings.shortcut_preset_inclination_1) rootItem.LargeButton("preset_inclination_1");
+                else if (keyStr === settings.shortcut_preset_inclination_2) rootItem.LargeButton("preset_inclination_2");
+                else if (keyStr === settings.shortcut_preset_inclination_3) rootItem.LargeButton("preset_inclination_3");
+                else if (keyStr === settings.shortcut_preset_inclination_4) rootItem.LargeButton("preset_inclination_4");
+                else if (keyStr === settings.shortcut_preset_inclination_5) rootItem.LargeButton("preset_inclination_5");
+                else if (keyStr === settings.shortcut_preset_powerzone_1) rootItem.LargeButton("preset_powerzone_1");
+                else if (keyStr === settings.shortcut_preset_powerzone_2) rootItem.LargeButton("preset_powerzone_2");
+                else if (keyStr === settings.shortcut_preset_powerzone_3) rootItem.LargeButton("preset_powerzone_3");
+                else if (keyStr === settings.shortcut_preset_powerzone_4) rootItem.LargeButton("preset_powerzone_4");
+                else if (keyStr === settings.shortcut_preset_powerzone_5) rootItem.LargeButton("preset_powerzone_5");
+                else if (keyStr === settings.shortcut_preset_powerzone_6) rootItem.LargeButton("preset_powerzone_6");
+                else if (keyStr === settings.shortcut_preset_powerzone_7) rootItem.LargeButton("preset_powerzone_7");
+                else if (keyStr === settings.shortcut_auto_resistance) rootItem.setAutoResistance(!rootItem.autoResistance);
+                else if (keyStr === settings.shortcut_lap) rootItem.Lap();
+                else if (keyStr === settings.shortcut_start_stop) rootItem.StartRequested();
+                else handled = false;
+
+                if (handled) {
+                    event.accepted = true;
+                    return;
+                }
+            }
 
             event.accepted = settings.volume_change_gears;
         }

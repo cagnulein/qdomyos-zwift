@@ -276,12 +276,87 @@ ScrollView {
         property int  tile_avg_pace_order: 76
         property bool tile_power_avg_enabled: false
         property int  tile_power_avg_order: 77
+
+        property bool shortcuts_enabled: false
+        property string shortcut_speed_plus: ""
+        property string shortcut_speed_minus: ""
+        property string shortcut_inclination_plus: ""
+        property string shortcut_inclination_minus: ""
+        property string shortcut_resistance_plus: ""
+        property string shortcut_resistance_minus: ""
+        property string shortcut_peloton_resistance_plus: ""
+        property string shortcut_peloton_resistance_minus: ""
+        property string shortcut_target_resistance_plus: ""
+        property string shortcut_target_resistance_minus: ""
+        property string shortcut_target_power_plus: ""
+        property string shortcut_target_power_minus: ""
+        property string shortcut_target_zone_plus: ""
+        property string shortcut_target_zone_minus: ""
+        property string shortcut_target_speed_plus: ""
+        property string shortcut_target_speed_minus: ""
+        property string shortcut_target_incline_plus: ""
+        property string shortcut_target_incline_minus: ""
+        property string shortcut_fan_plus: ""
+        property string shortcut_fan_minus: ""
+        property string shortcut_peloton_offset_plus: ""
+        property string shortcut_peloton_offset_minus: ""
+        property string shortcut_peloton_remaining_plus: ""
+        property string shortcut_peloton_remaining_minus: ""
+        property string shortcut_remaining_time_plus: ""
+        property string shortcut_remaining_time_minus: ""
+        property string shortcut_gears_plus: ""
+        property string shortcut_gears_minus: ""
+        property string shortcut_pid_hr_plus: ""
+        property string shortcut_pid_hr_minus: ""
+        property string shortcut_ext_incline_plus: ""
+        property string shortcut_ext_incline_minus: ""
+        property string shortcut_biggears_plus: ""
+        property string shortcut_biggears_minus: ""
+        property string shortcut_avs_cruise: ""
+        property string shortcut_avs_climb: ""
+        property string shortcut_avs_sprint: ""
+        property string shortcut_power_avg: ""
+        property string shortcut_erg_mode: ""
+        property string shortcut_preset_resistance_1: ""
+        property string shortcut_preset_resistance_2: ""
+        property string shortcut_preset_resistance_3: ""
+        property string shortcut_preset_resistance_4: ""
+        property string shortcut_preset_resistance_5: ""
+        property string shortcut_preset_speed_1: ""
+        property string shortcut_preset_speed_2: ""
+        property string shortcut_preset_speed_3: ""
+        property string shortcut_preset_speed_4: ""
+        property string shortcut_preset_speed_5: ""
+        property string shortcut_preset_inclination_1: ""
+        property string shortcut_preset_inclination_2: ""
+        property string shortcut_preset_inclination_3: ""
+        property string shortcut_preset_inclination_4: ""
+        property string shortcut_preset_inclination_5: ""
+        property string shortcut_preset_powerzone_1: ""
+        property string shortcut_preset_powerzone_2: ""
+        property string shortcut_preset_powerzone_3: ""
+        property string shortcut_preset_powerzone_4: ""
+        property string shortcut_preset_powerzone_5: ""
+        property string shortcut_preset_powerzone_6: ""
+        property string shortcut_preset_powerzone_7: ""
+        property string shortcut_auto_resistance: ""
+        property string shortcut_lap: ""
+        property string shortcut_start_stop: ""
     }
 
 
     ColumnLayout {
         spacing: 0
         anchors.fill: parent
+
+        NewPageElement {
+            id: labelShortcutsSettings
+            title: qsTr("Keyboard Shortcuts ⌨️")
+            indicatRectColor: Material.color(Material.Grey)
+            textColor: Material.color(Material.Grey)
+            color: Material.backgroundColor
+            accordionContent: "settings-shortcuts.qml"
+        }
 
         AccordionCheckElement {
             id: speedEnabledAccordion
