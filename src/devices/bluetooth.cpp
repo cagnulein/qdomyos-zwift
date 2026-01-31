@@ -342,7 +342,7 @@ bool bluetooth::sramDeviceAvaiable() {
 bool bluetooth::thinkriderDeviceAvaiable() {
 
     Q_FOREACH (QBluetoothDeviceInfo b, devices) {
-        if (b.name().toUpper().startsWith("VS") || b.name().toUpper().startsWith("THINKRIDER")) {
+        if (b.name().toUpper().startsWith("THINK VS") || b.name().toUpper().startsWith("THINKRIDER")) {
            return true;
         }
     }
@@ -3135,7 +3135,7 @@ void bluetooth::connectedAndDiscovered() {
 
     if(settings.value(QZSettings::thinkrider_controller, QZSettings::default_thinkrider_controller).toBool()) {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
-            if (((b.name().toUpper().startsWith("VS")) || (b.name().toUpper().startsWith("THINKRIDER"))) && !thinkriderController && this->device() &&
+            if (((b.name().toUpper().startsWith("THINK VS")) || (b.name().toUpper().startsWith("THINKRIDER"))) && !thinkriderController && this->device() &&
                     this->device()->deviceType() == BIKE) {
 
                 thinkriderController = new thinkridercontroller(this->device());
