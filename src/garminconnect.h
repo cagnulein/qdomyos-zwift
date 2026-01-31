@@ -176,7 +176,7 @@ private:
     static constexpr const char* SSO_URL_PATH = "/sso/signin";
     static constexpr const char* SSO_EMBED_PATH = "/sso/embed";
     static constexpr const char* OAUTH_CONSUMER_URL = "https://thegarth.s3.amazonaws.com/oauth_consumer.json";
-    static constexpr bool DEBUG_GARMIN_VERBOSE = true; // Set to true for detailed response logging (may contain sensitive data)
+    static constexpr bool DEBUG_GARMIN_VERBOSE = false; // Set to true for detailed response logging (may contain sensitive data)
 
     // Private methods
     QString ssoUrl() const { return QString("https://sso.%1").arg(m_domain); }
