@@ -201,12 +201,15 @@ void bluetooth::finished() {
 
     bool sramDeviceFound = !settings.value(QZSettings::sram_axs_controller, QZSettings::default_sram_axs_controller).toBool();
 
+    bool thinkriderDeviceFound = !settings.value(QZSettings::thinkrider_controller, QZSettings::default_thinkrider_controller).toBool();
+
     if ((!heartRateBeltFound && !heartRateBeltAvaiable()) || (!ftmsAccessoryFound && !ftmsAccessoryAvaiable()) ||
         (!cscFound && !cscSensorAvaiable()) || (!powerSensorFound && !powerSensorAvaiable()) ||
         (!eliteRizerFound && !eliteRizerAvaiable()) || (!eliteSterzoSmartFound && !eliteSterzoSmartAvaiable()) ||
         (!fitmetriaFanfitFound && !fitmetriaFanfitAvaiable()) ||
         (!zwiftDeviceFound && !zwiftDeviceAvaiable()) ||
-        (!sramDeviceFound && !sramDeviceAvaiable())) {
+        (!sramDeviceFound && !sramDeviceAvaiable()) ||
+        (!thinkriderDeviceFound && !thinkriderDeviceAvaiable())) {
 
         // force heartRateBelt off
         forceHeartBeltOffForTimeout = true;
@@ -336,6 +339,16 @@ bool bluetooth::sramDeviceAvaiable() {
     return false;
 }
 
+bool bluetooth::thinkriderDeviceAvaiable() {
+
+    Q_FOREACH (QBluetoothDeviceInfo b, devices) {
+        if (b.name().toUpper().startsWith("THINK VS") || b.name().toUpper().startsWith("THINKRIDER")) {
+           return true;
+        }
+    }
+    return false;
+}
+
 
 bool bluetooth::powerSensorAvaiable() {
 
@@ -437,6 +450,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool sramDeviceFound = !settings.value(QZSettings::sram_axs_controller, QZSettings::default_sram_axs_controller).toBool();
     bool zwiftDeviceFound =
         !settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool() && !settings.value(QZSettings::zwift_play, QZSettings::default_zwift_play).toBool();
+    bool thinkriderDeviceFound = !settings.value(QZSettings::thinkrider_controller, QZSettings::default_thinkrider_controller).toBool();
     bool fitmetriaFanfitFound =
         !settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool();
     bool toorx_ftms = settings.value(QZSettings::toorx_ftms, QZSettings::default_toorx_ftms).toBool();
@@ -548,6 +562,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if(!sramDeviceFound) {
 
         sramDeviceFound = sramDeviceAvaiable();
+    }
+    if(!thinkriderDeviceFound) {
+
+        thinkriderDeviceFound = thinkriderDeviceAvaiable();
     }
     if (!ftmsAccessoryFound) {
 
@@ -681,7 +699,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #endif
 
     bool searchDevices = (heartRateBeltFound && ftmsAccessoryFound && cscFound && powerSensorFound && eliteRizerFound &&
-                          eliteSterzoSmartFound && fitmetriaFanfitFound && zwiftDeviceFound) ||
+                          eliteSterzoSmartFound && fitmetriaFanfitFound && zwiftDeviceFound && sramDeviceFound && thinkriderDeviceFound) ||
                          forceHeartBeltOffForTimeout;
 
     if (searchDevices) {
@@ -3110,6 +3128,24 @@ void bluetooth::connectedAndDiscovered() {
                 zwiftClickRemote->deviceDiscovered(b);
                 if(homeform::singleton())
                     homeform::singleton()->setToastRequested("Zwift Click Connected!");
+                break;
+            }
+        }
+    }
+
+    if(settings.value(QZSettings::thinkrider_controller, QZSettings::default_thinkrider_controller).toBool()) {
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (((b.name().toUpper().startsWith("THINK VS")) || (b.name().toUpper().startsWith("THINKRIDER"))) && !thinkriderController && this->device() &&
+                    this->device()->deviceType() == BIKE) {
+
+                thinkriderController = new thinkridercontroller(this->device());
+
+                connect(thinkriderController, &thinkridercontroller::debug, this, &bluetooth::debug);
+                connect(thinkriderController, &thinkridercontroller::plus, (bike*)this->device(), &bike::gearUp);
+                connect(thinkriderController, &thinkridercontroller::minus, (bike*)this->device(), &bike::gearDown);
+                thinkriderController->deviceDiscovered(b);
+                if(homeform::singleton())
+                    homeform::singleton()->setToastRequested("Thinkrider Controller Connected!");
                 break;
             }
         }
