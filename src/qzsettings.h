@@ -2140,6 +2140,9 @@ class QZSettings {
     static const QString zwift_click;
     static constexpr bool default_zwift_click = false;
 
+    static const QString thinkrider_controller;
+    static constexpr bool default_thinkrider_controller = false;
+
     static const QString proform_treadmill_705_cst;
     static constexpr bool default_proform_treadmill_705_cst = false;
 
