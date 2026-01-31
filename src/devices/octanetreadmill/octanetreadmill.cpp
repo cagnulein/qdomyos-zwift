@@ -545,8 +545,9 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     }
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
 
+    lastValidCadenceTime = QDateTime::currentDateTime();
+
     if (Speed.value() != speed) {
-        lastValidCadenceTime = QDateTime::currentDateTime();
         emit speedChanged(speed);
     }
     Speed = speed;
