@@ -345,6 +345,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool fitmetriaFanfitAvaiable();
     bool zwiftDeviceAvaiable();
     bool sramDeviceAvaiable();
+    bool thinkriderDeviceAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
 #ifdef Q_OS_WIN
