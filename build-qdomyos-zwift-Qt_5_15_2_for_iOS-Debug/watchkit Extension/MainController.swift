@@ -64,6 +64,8 @@ class MainController: WKInterfaceController {
         // This method is called when watch view controller is no longer visible
         super.didDeactivate()
         print("DID DEACTIVE")
+        // Stop pedometer updates when view is not visible to save battery
+        pedometer.stopUpdates()
     }
 }
 
@@ -85,6 +87,8 @@ extension MainController {
             MainController.start = false
             startButton.setTitle("Start")
             WorkoutTracking.shared.stopWorkOut()
+            // Stop pedometer updates when workout ends to save battery
+            pedometer.stopUpdates()
         }
     }
 }
