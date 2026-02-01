@@ -373,7 +373,25 @@
                 <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
                     onclick="GearsPlus()">+</button></td>
               </tr>
-              <tr class="nextrow" sort-order="17">
+              <tr class="speedcontrol" sort-order="18">
+                <td class="icon">🏃</td>
+                <td style="text-align: left">SPEED</td>
+                <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
+                    onclick="SpeedMinus()">-</button></td>
+                <td class="speedcontrol-value values"><b>0.0</b></td>
+                <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
+                    onclick="SpeedPlus()">+</button></td>
+              </tr>
+              <tr class="inclinecontrol" sort-order="19">
+                <td class="icon">📐</td>
+                <td style="text-align: left">INCLINE</td>
+                <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
+                    onclick="InclinationMinus()">-</button></td>
+                <td class="inclinecontrol-value values"><b>0.0</b></td>
+                <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
+                    onclick="InclinationPlus()">+</button></td>
+              </tr>
+              <tr class="nextrow" sort-order="20">
                 <td class="icon">🕶</td>
                 <td style="text-align: left">NEXT</td>
                 <td class="nextrow-value values" colspan="5"><b></b></td>
@@ -817,6 +835,62 @@
                           msg: 'gears_minus',
                         }, function (msg) {
                           if (msg.msg === 'R_gears_minus') {
+                            return msg.content;
+                          }
+                          return null;
+                        }, 15000, 1);
+                        el.enqueue().catch(function (err) {
+                          console.error('Error is ' + err);
+                        });
+                      }
+
+                      function SpeedPlus() {
+                        let el = new MainWSQueueElement({
+                          msg: 'speed_plus',
+                        }, function (msg) {
+                          if (msg.msg === 'R_speed_plus') {
+                            return msg.content;
+                          }
+                          return null;
+                        }, 15000, 1);
+                        el.enqueue().catch(function (err) {
+                          console.error('Error is ' + err);
+                        });
+                      }
+
+                      function SpeedMinus() {
+                        let el = new MainWSQueueElement({
+                          msg: 'speed_minus',
+                        }, function (msg) {
+                          if (msg.msg === 'R_speed_minus') {
+                            return msg.content;
+                          }
+                          return null;
+                        }, 15000, 1);
+                        el.enqueue().catch(function (err) {
+                          console.error('Error is ' + err);
+                        });
+                      }
+
+                      function InclinationPlus() {
+                        let el = new MainWSQueueElement({
+                          msg: 'inclination_plus',
+                        }, function (msg) {
+                          if (msg.msg === 'R_inclination_plus') {
+                            return msg.content;
+                          }
+                          return null;
+                        }, 15000, 1);
+                        el.enqueue().catch(function (err) {
+                          console.error('Error is ' + err);
+                        });
+                      }
+
+                      function InclinationMinus() {
+                        let el = new MainWSQueueElement({
+                          msg: 'inclination_minus',
+                        }, function (msg) {
+                          if (msg.msg === 'R_inclination_minus') {
                             return msg.content;
                           }
                           return null;
@@ -1367,6 +1441,10 @@
                                                                                 }
                                                                                 $('.inclination-avg').html(data.inclination_lapavg.toFixed(1));
                                                                                 $('.inclination-max').html(data.inclination_lapmax.toFixed(1));
+
+                                                                                // Speed and Incline control tiles
+                                                                                $('.speedcontrol-value').html("<b>" + data.speed.toFixed(1) + "</b>");
+                                                                                $('.inclinecontrol-value').html("<b>" + data.inclination.toFixed(1) + "</b>");
 
                                                                                 // Elevation
                                                                                 $('.elevation-value').html("<b>" + data.elevation.toFixed(1) + "</b>");
