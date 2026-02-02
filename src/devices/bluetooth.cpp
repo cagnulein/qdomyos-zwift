@@ -1348,11 +1348,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(kingsmithR2Treadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("R1 PRO")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KINGSMITH")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("DYNAMAX")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("DYNAMAX")) && ftms_treadmill.contains(QZSettings::default_ftms_treadmill)) ||
                         b.name().toUpper().startsWith(QStringLiteral("WALKINGPAD")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KS-ST-A1P")) ||  // KingSmith Walkingpad A1 Pro #2041
                         // Poland-distributed WalkingPad R2 TRR2FB
-                        b.name().toUpper().startsWith(QStringLiteral("KS-SC-BLR2C")) ||                        
+                        b.name().toUpper().startsWith(QStringLiteral("KS-SC-BLR2C")) ||
                         !b.name().toUpper().compare(QStringLiteral("RE")) || // just "RE"
                         b.name().toUpper().startsWith(QStringLiteral("KS-H")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KS-F0")) ||
