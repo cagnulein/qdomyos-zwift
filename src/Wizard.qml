@@ -30,7 +30,7 @@ Page {
         property real weight: 75.0
         property int age: 35
         property string sex: "Male"
-        property bool miles_unit: false        
+        property bool miles_unit: false
         property string heart_rate_belt_name: "Disabled"
         property bool garmin_companion: false
         property string filter_device: "Disabled"
