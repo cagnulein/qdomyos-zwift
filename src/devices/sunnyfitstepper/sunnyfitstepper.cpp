@@ -219,7 +219,7 @@ void sunnyfitstepper::characteristicChanged(const QLowEnergyCharacteristic &char
     }
 
     // Handle main data stream (Notify 4) - SPLIT FRAME LOGIC
-    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("fd710004-e950-458e-8a4d-a1cbc5aa4cce"))) {
+    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("fd710006-e950-458e-8a4d-a1cbc5aa4cce"))) {
         // First part: 20 bytes starting with 0x5a
         if (newValue.length() == 20 && (uint8_t)newValue.at(0) == 0x5a) {
             frameBuffer.clear();
@@ -269,7 +269,7 @@ void sunnyfitstepper::btinit() {
 void sunnyfitstepper::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("fd710002-e950-458e-8a4d-a1cbc5aa4cce"));
     QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("fd710003-e950-458e-8a4d-a1cbc5aa4cce"));
-    QBluetoothUuid _gattNotify4CharacteristicId(QStringLiteral("fd710004-e950-458e-8a4d-a1cbc5aa4cce"));
+    QBluetoothUuid _gattNotify4CharacteristicId(QStringLiteral("fd710006-e950-458e-8a4d-a1cbc5aa4cce"));
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
@@ -300,13 +300,14 @@ void sunnyfitstepper::stateChanged(QLowEnergyService::ServiceState state) {
             gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
         gattCommunicationChannelService->writeDescriptor(
             gattNotify4Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+
+        initRequest = true;
     }
 }
 
 void sunnyfitstepper::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + " " + newValue.toHex(' '));
-
-    initRequest = true;
+    
     emit connectedAndDiscovered();
 }
 
