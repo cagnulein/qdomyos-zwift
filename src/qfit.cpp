@@ -114,7 +114,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
     fit::FileCreatorMesg fileCreatorMesg;
     if(fit_file_garmin_device_training_effect) {
-        fileCreatorMesg.SetSoftwareVersion(975);
+        fileCreatorMesg.SetSoftwareVersion(2024);
         fileCreatorMesg.SetHardwareVersion(255);
     } else {
         fileCreatorMesg.SetSoftwareVersion(2119);
@@ -126,18 +126,18 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_ZWIFT);
         deviceInfoMesg.SetSerialNumber(garmin_device_serial);
         deviceInfoMesg.SetProduct(3288);
-        deviceInfoMesg.SetSoftwareVersion(21.19);
+        deviceInfoMesg.SetSoftwareVersion(20.24);
     } else if(is_tacx_device) {
         deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_TACX);
         deviceInfoMesg.SetSerialNumber(garmin_device_serial);
         deviceInfoMesg.SetProduct(20533);
-        deviceInfoMesg.SetSoftwareVersion(1.30);
+        deviceInfoMesg.SetSoftwareVersion(20.24);
     } else if(fit_file_garmin_device_training_effect) {
         deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_GARMIN);
         deviceInfoMesg.SetSerialNumber(garmin_device_serial);
         deviceInfoMesg.SetProduct(fit_file_garmin_device_training_effect_device);
         deviceInfoMesg.SetGarminProduct(fit_file_garmin_device_training_effect_device);
-        deviceInfoMesg.SetSoftwareVersion(21.19);
+        deviceInfoMesg.SetSoftwareVersion(20.24);
     } else {
         deviceInfoMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
         deviceInfoMesg.SetSerialNumber(12345);
