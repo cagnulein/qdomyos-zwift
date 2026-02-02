@@ -1943,7 +1943,109 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     Resistance = 1;
                     m_pelotonResistance = 10;
                 }
-            } else if (!nordictrack_gx_2_7 && !nordictrack_gx_4_5_pro) {
+            } else if(nordictrack_gx_4_5_pro) {
+                switch ((uint8_t)newValue.at(11)) {
+                case 0x00:
+                case 0x01:
+                    Resistance = 1;
+                    m_pelotonResistance = 10;
+                    break;
+                case 0x02:
+                case 0x03:
+                    Resistance = 2;
+                    m_pelotonResistance = 20;
+                    break;
+                case 0x04:
+                case 0x05:
+                    Resistance = 3;
+                    m_pelotonResistance = 25;
+                    break;
+                case 0x06:
+                case 0x07:
+                    Resistance = 4;
+                    m_pelotonResistance = 30;
+                    break;
+                case 0x08:
+                case 0x09:
+                    Resistance = 5;
+                    m_pelotonResistance = 33;
+                    break;
+                case 0x0A:
+                case 0x0b:
+                    Resistance = 6;
+                    m_pelotonResistance = 35;
+                    break;
+                case 0x0c:
+                case 0x0d:
+                    Resistance = 7;
+                    m_pelotonResistance = 38;
+                    break;
+                case 0x0e:
+                case 0x0f:
+                    Resistance = 8;
+                    m_pelotonResistance = 40;
+                    break;
+                case 0x10:
+                case 0x11:
+                    Resistance = 9;
+                    m_pelotonResistance = 45;
+                    break;
+                case 0x12:
+                case 0x13:
+                    Resistance = 10;
+                    m_pelotonResistance = 50;
+                    break;
+                case 0x14:
+                case 0x15:
+                    Resistance = 11;
+                    m_pelotonResistance = 55;
+                    break;
+                case 0x16:
+                case 0x17:
+                    Resistance = 12;
+                    m_pelotonResistance = 60;
+                    break;
+                case 0x18:
+                case 0x19:
+                    Resistance = 13;
+                    m_pelotonResistance = 63;
+                    break;
+                case 0x1a:
+                case 0x1b:
+                    Resistance = 14;
+                    m_pelotonResistance = 65;
+                    break;
+                case 0x1c:
+                case 0x1d:
+                    Resistance = 15;
+                    m_pelotonResistance = 68;
+                case 0x1e:
+                case 0x1f:
+                    Resistance = 16;
+                    m_pelotonResistance = 70;
+                    break;
+                case 0x20:
+                case 0x21:
+                    Resistance = 17;
+                    m_pelotonResistance = 75;
+                    break;
+                case 0x22:
+                case 0x23:
+                    Resistance = 18;
+                    m_pelotonResistance = 80;
+                    break;
+                case 0x24:
+                case 0x25:
+                    Resistance = 19;
+                    m_pelotonResistance = 85;
+                    break;
+                case 0x26:
+                case 0x27:
+                    Resistance = 20;
+                    m_pelotonResistance = 100;
+                    break;
+                }
+            } else if (!nordictrack_gx_2_7) {
                 switch ((uint8_t)newValue.at(11)) {
                 case 0x00:
                 case 0x02:
