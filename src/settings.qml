@@ -2552,7 +2552,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will "level the playing field" against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable 'Use kg for weight'. Default unit is kilograms (kgs).")
+                        text: qsTr("Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will 'level the playing field' against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable 'Use kg for weight'. Default unit is kilograms (kgs).")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
