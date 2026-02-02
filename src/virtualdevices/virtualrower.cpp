@@ -339,7 +339,7 @@ void virtualrower::rowerProvider() {
 
     // Get stroke count based on device type
     uint32_t strokeCount = 0;
-    if (Rower->deviceType() == ROWER) {
+    if (Rower->deviceType() == ROWING) {
         strokeCount = ((rower *)Rower)->currentStrokesCount().value();
     } else {
         // For bikes/other devices, estimate strokes from cadence
@@ -349,7 +349,7 @@ void virtualrower::rowerProvider() {
 
     // Get pace based on device type
     uint16_t paceSecs = 0;
-    if (Rower->deviceType() == ROWER) {
+    if (Rower->deviceType() == ROWING) {
         paceSecs = QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace());
     } else {
         // For bikes, pace = odometer / moving_time in seconds
@@ -429,15 +429,15 @@ void virtualrower::rowerProvider() {
 
         value.append((char)((uint8_t)(Rower->currentCadence().value() * 2) & 0xFF)); // Stroke Rate
 
-        value.append((char)((uint16_t)(strokeCount & 0xFF));        // Stroke Count
-        value.append((char)(((uint16_t)(strokeCount >> 8) & 0xFF)); // Stroke Count
+        value.append((char)((uint16_t)(strokeCount & 0xFF)));        // Stroke Count
+        value.append((char)(((uint16_t)(strokeCount >> 8) & 0xFF))); // Stroke Count
 
         value.append((char)(((uint16_t)(Rower->odometer() * 1000.0)) & 0xFF));       // Distance
         value.append((char)(((uint16_t)(Rower->odometer() * 1000.0) >> 8) & 0xFF));  // Distance
         value.append((char)(((uint16_t)(Rower->odometer() * 1000.0) >> 16) & 0xFF)); // Distance
 
-        value.append((char)((uint16_t)(paceSecs & 0xFF));      // pace
-        value.append((char)(((uint16_t)(paceSecs >> 8) & 0xFF)); // pace
+        value.append((char)((uint16_t)(paceSecs & 0xFF)));      // pace
+        value.append((char)(((uint16_t)(paceSecs >> 8) & 0xFF))); // pace
 
         value.append((char)(((uint16_t)Rower->wattsMetricforUI()) & 0xFF));      // watts
         value.append((char)(((uint16_t)Rower->wattsMetricforUI()) >> 8) & 0xFF); // watts
