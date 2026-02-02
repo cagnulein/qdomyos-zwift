@@ -15,13 +15,15 @@ If you're using bikes, ellipticals, or rowers, you can still use the main applic
 
 ## Prerequisites
 
+**Easiest Setup Path:** For the simplest installation experience, use a Linux distribution that uses Python 3.11 (such as Debian Bookworm or Ubuntu 22.04), download the appropriate Qdomyos pre-built package, and run the setup-dashboard.sh script. This guides you through all necessary steps and validates your setup automatically."
+
 **Hardware Requirements:**
 - ANT+ USB dongle (Garmin USB2/USB-m/USB3/mini, or Suunto)
 - Garmin watch or compatible ANT+ device
 - Raspberry Pi (Zero 2 W, 3, 4, or 5) **OR** x86-64 PC/Laptop
 
 **Software Requirements:**
-- Linux distribution: Debian/Ubuntu-based (Bookworm or newer recommended)
+- Linux distribution: Debian/Ubuntu-based
 - Linux terminal skills (navigating directories, editing files)
 
 **Tested Configurations:**
@@ -145,46 +147,160 @@ sudo apt-get install -y \
 
 #### 2. Install Python 3.11
 
-The pre-compiled binaries require Python 3.11. Check availability:
+The pre-compiled binaries require **Python 3.11 specifically** (not 3.10, not 3.12+).
 
+**Check if Python 3.11 is available:**
 ```bash
 python3.11 --version
 ```
 
-**If Python 3.11 is available:**
+**Option A: Install via apt (if available)**
 ```bash
-sudo apt-get install -y python3.11 python3.11-venv
+sudo apt-get install -y python3.11 python3.11-venv libpython3.11
 ```
 
-**If Python 3.11 is NOT available**, install via pyenv:
+**Option B: Install via pyenv (if Python 3.11 not available)**
+
+Choose the appropriate method for your system:
+- **Standard systems** (2GB+ RAM): Desktop/laptop/Pi 4/Pi 5
+- **Low-memory systems** (512MB-1GB RAM): Pi Zero, Pi Zero 2 W, Pi 3
+
+---
+
+##### Standard Systems (2GB+ RAM)
+
+**Install pyenv dependencies:**
 ```bash
-# Install pyenv dependencies
+sudo apt-get update
 sudo apt-get install -y \
-	git curl build-essential libssl-dev zlib1g-dev \
-	libbz2-dev libreadline-dev libsqlite3-dev wget \
-	llvm libncurses5-dev libncursesw5-dev xz-utils \
-	tk-dev libffi-dev liblzma-dev
+    git curl build-essential libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev wget \
+    llvm libncurses5-dev libncursesw5-dev xz-utils \
+    tk-dev libffi-dev liblzma-dev
 
-# Note: Ubuntu 24.04+ users should use libncurses-dev instead:
-# sudo apt-get install -y libncurses-dev
+# Note: Ubuntu 24.04+ should use libncurses-dev instead of libncurses5-dev
+```
 
-# Install pyenv
+**Install pyenv:**
+```bash
+# Download and install pyenv
 curl https://pyenv.run | bash
 
-# Add pyenv to shell
-echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
-echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
-echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+# Add pyenv to shell config (only if not already present)
+if ! grep -q "PYENV_ROOT" ~/.bashrc; then
+    cat >> ~/.bashrc << 'EOF'
 
-# Reload shell configuration
+# pyenv configuration
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+EOF
+fi
+
+# Reload configuration
 source ~/.bashrc
+```
 
-# Install Python 3.11
+**Install Python 3.11:**
+```bash
+# Install Python 3.11 (~10-15 minutes)
 pyenv install 3.11.9
 pyenv global 3.11.9
 
-# Verify installation
+# Verify
 python --version  # Should show Python 3.11.9
+```
+
+---
+
+##### Low-Memory Systems (Pi Zero, Pi Zero 2 W, Pi 3)
+
+**Goal:** Successfully build Python 3.11 on devices with 512MB-1GB RAM.
+
+**Step 1: Enable zram swap**
+
+zram provides fast compressed swap without wearing your SD card:
+
+```bash
+sudo apt-get install -y zram-tools
+echo -e 'ALGO=lz4\nPERCENT=50\nPRIORITY=100' | sudo tee /etc/default/zramswap
+sudo systemctl restart zramswap
+
+# Verify zram is active
+swapon -s | grep zram
+```
+
+**Step 2: Install build dependencies**
+
+```bash
+sudo apt-get update
+sudo apt-get install -y \
+    git curl build-essential libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev wget \
+    llvm libncurses5-dev libncursesw5-dev xz-utils \
+    tk-dev libffi-dev liblzma-dev ccache
+```
+
+**Step 3: Install and configure pyenv**
+
+```bash
+# Download and install pyenv
+curl https://pyenv.run | bash
+
+# Add pyenv to shell config (only if not already present)
+if ! grep -q "PYENV_ROOT" ~/.bashrc; then
+    cat >> ~/.bashrc << 'EOF'
+
+# pyenv configuration
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+EOF
+fi
+
+# Reload configuration
+source ~/.bashrc
+```
+
+**Step 4: Build Python 3.11 with low-memory settings**
+
+```bash
+# Detect CPU architecture for optimization flags
+CPU_ARCH=$(lscpu | grep "Model name" | sed 's/.*Cortex-/cortex-/' | awk '{print tolower($1)}')
+if [ -z "$CPU_ARCH" ]; then
+    CPU_ARCH="native"  # Fallback to generic optimization
+fi
+
+# Configure single-threaded build to prevent out-of-memory crashes
+export MAKE_OPTS="-j1"
+export PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations --with-lto=no --with-system-ffi"
+export PROFILE_TASK="-j0"
+export CFLAGS="-O2 -mcpu=$CPU_ARCH -mtune=$CPU_ARCH -pipe -fPIC"
+
+# Install Python 3.11 (~45 minutes on Pi Zero 2 W)
+pyenv install -v 3.11.9
+pyenv global 3.11.9
+
+# Verify
+python --version  # Should show Python 3.11.9
+```
+
+**Build time estimates:**
+- Pi Zero 2 W (1GHz): ~45 minutes
+- Pi 3 (1.2GHz): ~35 minutes
+- Pi 4 (1.5GHz): ~10 minutes
+
+**If the build fails with "virtual memory exhausted":**
+
+Add emergency swap as a last resort:
+```bash
+sudo fallocate -l 512M /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+
+# Retry install
+pyenv install -v 3.11.9
 ```
 
 #### 3. Create Python Virtual Environment with required packages
