@@ -45,7 +45,7 @@ enum FtmsControlPointCommand {
     FTMS_START_RESUME,
     FTMS_STOP_PAUSE,
     FTMS_SET_TARGETED_EXP_ENERGY,
-    FTMS_SET_TARGETED_STEPS,
+  FTMS_SET_TARGETED_STEPS,
     FTMS_SET_TARGETED_STRIDES,
     FTMS_SET_TARGETED_DISTANCE,
     FTMS_SET_TARGETED_TIME,
@@ -135,9 +135,13 @@ class ftmsbike : public bike {
     bool resistance_received = false;
     inclinationResistanceTable _inclinationResistanceTable;
 
+    // D500V2 workaround: track if we're awaiting start simulation command after request control
+    bool awaiting_start_simulation_after_request_control = false;
+
     bool DU30_bike = false;
     bool ICSE = false;
     bool DOMYOS = false;
+    bool D500V2 = false;
     bool _3G_Cardio_RB = false;
     bool SCH_190U = false;
     bool SCH_290R = false;
@@ -168,7 +172,6 @@ class ftmsbike : public bike {
     bool SPORT01 = false;
     bool FS_YK = false;
     bool S18 = false;
-    bool JFICCYCLE = false;
     bool ZIPRO_RAVE = false;
 
     uint8_t secondsToResetTimer = 5;
@@ -176,6 +179,8 @@ class ftmsbike : public bike {
     int16_t T2_lastGear = 0;
 
     uint8_t battery_level = 0;
+
+    bool wattReceived = false;
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;
