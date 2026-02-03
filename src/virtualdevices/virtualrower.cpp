@@ -582,6 +582,14 @@ void virtualrower::rowerProvider() {
                 writeCharacteristic(servicePM5Rowing, charAdditionalStatus2, additionalStatus2);
                 qDebug() << "PM5 Additional Status 2:" << additionalStatus2.toHex(' ');
             }
+
+            // Send Stroke Data (CE060035)
+            QByteArray strokeData = buildPM5StrokeData();
+            QLowEnergyCharacteristic charStrokeData = servicePM5Rowing->characteristic(PM5_STROKE_DATA_UUID);
+            if (charStrokeData.isValid()) {
+                writeCharacteristic(servicePM5Rowing, charStrokeData, strokeData);
+                qDebug() << "PM5 Stroke Data:" << strokeData.toHex(' ');
+            }
         } else {
             // FTMS protocol (original code)
             value.append((char)0x2C);
@@ -1121,6 +1129,112 @@ QByteArray virtualrower::buildPM5AdditionalStatus2() {
     value[17] = 0x00;
     value[18] = 0x00;
     value[19] = 0x00;
+
+    return value;
+}
+
+QByteArray virtualrower::buildPM5StrokeData() {
+    // PM5 Stroke Data - 20 bytes
+    // Bytes 0-2: Elapsed Time (UInt24LE, 0.01 sec)
+    // Bytes 3-5: Distance (UInt24LE, 0.1 m)
+    // Byte 6: Drive Length (0.01 m)
+    // Byte 7: Drive Time (0.01 sec)
+    // Bytes 8-9: Stroke Recovery Time (UInt16LE, 0.01 sec)
+    // Bytes 10-11: Stroke Distance (UInt16LE, 0.01 m)
+    // Bytes 12-13: Peak Drive Force (UInt16LE, 0.1 lbs)
+    // Bytes 14-15: Average Drive Force (UInt16LE, 0.1 lbs)
+    // Bytes 16-17: Work Per Stroke (UInt16LE, Joules)
+    // Bytes 18-19: Stroke Count (UInt16LE)
+
+    QByteArray value(20, 0);
+
+    // Calculate elapsed time in centiseconds (0.01 sec units)
+    uint32_t elapsedCentiseconds = (uint32_t)(
+        (Rower->movingTime().hour() * 3600 +
+         Rower->movingTime().minute() * 60 +
+         Rower->movingTime().second()) * 100 +
+        Rower->movingTime().msec() / 10);
+
+    // Elapsed time (24-bit LE)
+    value[0] = (char)(elapsedCentiseconds & 0xFF);
+    value[1] = (char)((elapsedCentiseconds >> 8) & 0xFF);
+    value[2] = (char)((elapsedCentiseconds >> 16) & 0xFF);
+
+    // Distance in 0.1m units (24-bit LE)
+    uint32_t distanceDecimeters = (uint32_t)(Rower->odometer() * 10000.0); // odometer is in km, convert to 0.1m
+    value[3] = (char)(distanceDecimeters & 0xFF);
+    value[4] = (char)((distanceDecimeters >> 8) & 0xFF);
+    value[5] = (char)((distanceDecimeters >> 16) & 0xFF);
+
+    // Drive Length - typical 1.4m = 140 * 0.01m
+    value[6] = 140;
+
+    // Drive Time - typical 0.8 sec = 80 * 0.01s
+    value[7] = 80;
+
+    // Stroke Recovery Time in 0.01 sec units (16-bit LE)
+    // Calculate from stroke rate: if 24 SPM, stroke time = 2.5s, recovery = 2.5 - 0.8 = 1.7s
+    double strokeRate = Rower->currentCadence().value();
+    uint16_t recoveryTime = 170; // Default 1.7 seconds
+    if (strokeRate > 0) {
+        double strokeTime = 60.0 / strokeRate; // seconds per stroke
+        double driveTime = 0.8; // typical drive time
+        recoveryTime = (uint16_t)((strokeTime - driveTime) * 100.0);
+        if (recoveryTime < 50) recoveryTime = 50; // min 0.5s
+    }
+    value[8] = (char)(recoveryTime & 0xFF);
+    value[9] = (char)((recoveryTime >> 8) & 0xFF);
+
+    // Stroke Distance in 0.01m units (16-bit LE)
+    // Typical stroke distance 8-12m, let's calculate from speed
+    uint16_t strokeDistance = 1000; // Default 10m
+    if (strokeRate > 0 && Rower->currentSpeed().value() > 0) {
+        double speedMs = Rower->currentSpeed().value() / 3.6; // m/s
+        double strokeTime = 60.0 / strokeRate;
+        strokeDistance = (uint16_t)(speedMs * strokeTime * 100.0);
+    }
+    value[10] = (char)(strokeDistance & 0xFF);
+    value[11] = (char)((strokeDistance >> 8) & 0xFF);
+
+    // Peak Drive Force in 0.1 lbs - estimate from power
+    // Approximate: Force = Power / velocity, convert to lbs
+    uint16_t peakForce = 0;
+    double power = Rower->wattsMetricforUI();
+    if (power > 0 && Rower->currentSpeed().value() > 0) {
+        double speedMs = Rower->currentSpeed().value() / 3.6;
+        double forceN = power / speedMs;
+        peakForce = (uint16_t)(forceN * 0.2248 * 10.0 * 1.5); // N to lbs, *10 for 0.1 lbs, *1.5 for peak
+    }
+    value[12] = (char)(peakForce & 0xFF);
+    value[13] = (char)((peakForce >> 8) & 0xFF);
+
+    // Average Drive Force in 0.1 lbs
+    uint16_t avgForce = (uint16_t)(peakForce / 1.5);
+    value[14] = (char)(avgForce & 0xFF);
+    value[15] = (char)((avgForce >> 8) & 0xFF);
+
+    // Work Per Stroke in Joules (16-bit LE)
+    // Work = Power * time_per_stroke
+    uint16_t workPerStroke = 0;
+    if (strokeRate > 0 && power > 0) {
+        double strokeTime = 60.0 / strokeRate;
+        workPerStroke = (uint16_t)(power * strokeTime);
+    }
+    value[16] = (char)(workPerStroke & 0xFF);
+    value[17] = (char)((workPerStroke >> 8) & 0xFF);
+
+    // Stroke Count (16-bit LE)
+    // Use the strokeCount variable or calculate from cadence and time
+    static uint16_t pm5StrokeCount = 0;
+    if (strokeRate > 0) {
+        double totalSeconds = Rower->movingTime().hour() * 3600 +
+                              Rower->movingTime().minute() * 60 +
+                              Rower->movingTime().second() +
+                              Rower->movingTime().msec() / 1000.0;
+        pm5StrokeCount = (uint16_t)(strokeRate * totalSeconds / 60.0);
+    }
+    value[18] = (char)(pm5StrokeCount & 0xFF);
+    value[19] = (char)((pm5StrokeCount >> 8) & 0xFF);
 
     return value;
 }
