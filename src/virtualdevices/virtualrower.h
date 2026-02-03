@@ -42,11 +42,15 @@ class virtualrower : public virtualdevice {
     QLowEnergyService *serviceFIT = nullptr;
     QLowEnergyService *servicePM5Rowing = nullptr;
     QLowEnergyService *servicePM5DeviceInfo = nullptr;
+    QLowEnergyService *servicePM5GAP = nullptr;
+    QLowEnergyService *servicePM5Control = nullptr;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataFIT;
     QLowEnergyServiceData serviceDataPM5Rowing;
     QLowEnergyServiceData serviceDataPM5DeviceInfo;
+    QLowEnergyServiceData serviceDataPM5GAP;
+    QLowEnergyServiceData serviceDataPM5Control;
     QTimer rowerTimer;
     bluetoothdevice *Rower;
 

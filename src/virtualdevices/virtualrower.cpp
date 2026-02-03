@@ -13,12 +13,32 @@
 
 // PM5 Concept2 BLE UUIDs
 // Base UUID: CE06XXXX-43E5-11E4-916C-0800200C9A66
-static const QBluetoothUuid PM5_ROWING_SERVICE_UUID(QStringLiteral("CE060030-43E5-11E4-916C-0800200C9A66"));
+
+// Discovery Service (CE060000) - used for device discovery
+static const QBluetoothUuid PM5_DISCOVERY_SERVICE_UUID(QStringLiteral("CE060000-43E5-11E4-916C-0800200C9A66"));
+
+// Device Information Service (CE060010)
 static const QBluetoothUuid PM5_DEVICE_INFO_SERVICE_UUID(QStringLiteral("CE060010-43E5-11E4-916C-0800200C9A66"));
+static const QBluetoothUuid PM5_MODEL_UUID(QStringLiteral("CE060011-43E5-11E4-916C-0800200C9A66"));
+static const QBluetoothUuid PM5_SERIAL_UUID(QStringLiteral("CE060012-43E5-11E4-916C-0800200C9A66"));
+static const QBluetoothUuid PM5_HARDWARE_REV_UUID(QStringLiteral("CE060013-43E5-11E4-916C-0800200C9A66"));
+static const QBluetoothUuid PM5_FIRMWARE_REV_UUID(QStringLiteral("CE060014-43E5-11E4-916C-0800200C9A66"));
+static const QBluetoothUuid PM5_MANUFACTURER_UUID(QStringLiteral("CE060015-43E5-11E4-916C-0800200C9A66"));
+static const QBluetoothUuid PM5_ERG_MACHINE_TYPE_UUID(QStringLiteral("CE060016-43E5-11E4-916C-0800200C9A66"));
+
+// Control Service (CE060020)
+static const QBluetoothUuid PM5_CONTROL_SERVICE_UUID(QStringLiteral("CE060020-43E5-11E4-916C-0800200C9A66"));
+static const QBluetoothUuid PM5_CONTROL_RECEIVE_UUID(QStringLiteral("CE060021-43E5-11E4-916C-0800200C9A66"));
+static const QBluetoothUuid PM5_CONTROL_TRANSMIT_UUID(QStringLiteral("CE060022-43E5-11E4-916C-0800200C9A66"));
+
+// Rowing Service (CE060030)
+static const QBluetoothUuid PM5_ROWING_SERVICE_UUID(QStringLiteral("CE060030-43E5-11E4-916C-0800200C9A66"));
 static const QBluetoothUuid PM5_GENERAL_STATUS_UUID(QStringLiteral("CE060031-43E5-11E4-916C-0800200C9A66"));
 static const QBluetoothUuid PM5_ADDITIONAL_STATUS_UUID(QStringLiteral("CE060032-43E5-11E4-916C-0800200C9A66"));
 static const QBluetoothUuid PM5_ADDITIONAL_STATUS2_UUID(QStringLiteral("CE060033-43E5-11E4-916C-0800200C9A66"));
 static const QBluetoothUuid PM5_SAMPLE_RATE_UUID(QStringLiteral("CE060034-43E5-11E4-916C-0800200C9A66"));
+static const QBluetoothUuid PM5_STROKE_DATA_UUID(QStringLiteral("CE060035-43E5-11E4-916C-0800200C9A66"));
+static const QBluetoothUuid PM5_ADDITIONAL_STROKE_DATA_UUID(QStringLiteral("CE060036-43E5-11E4-916C-0800200C9A66"));
 static const QBluetoothUuid PM5_MULTIPLEXED_INFO_UUID(QStringLiteral("CE060080-43E5-11E4-916C-0800200C9A66"));
 
 // PM5 Workout states
@@ -104,8 +124,11 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         if (!heart_only) {
             if (pm5Mode) {
                 // PM5 uses Concept2 proprietary services
+                // Advertise the discovery service UUID for PM5 identification
+                services << PM5_DISCOVERY_SERVICE_UUID;
                 services << PM5_ROWING_SERVICE_UUID;
                 services << PM5_DEVICE_INFO_SERVICE_UUID;
+                services << PM5_CONTROL_SERVICE_UUID;
             } else {
                 services << ((QBluetoothUuid::ServiceClassUuid)0x1826);
             }
@@ -227,11 +250,21 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         Q_ASSERT(leController);
 
         if (pm5Mode) {
-            // Add PM5 services
-            servicePM5Rowing = leController->addService(serviceDataPM5Rowing);
+            // Add PM5 services in correct order
+            // GAP service first (standard BLE requirement)
+            servicePM5GAP = leController->addService(serviceDataPM5GAP);
             QThread::msleep(100);
+            // Device Information service
             servicePM5DeviceInfo = leController->addService(serviceDataPM5DeviceInfo);
             QThread::msleep(100);
+            // Control service (for CSAFE commands)
+            servicePM5Control = leController->addService(serviceDataPM5Control);
+            QThread::msleep(100);
+            // Rowing service (main data service)
+            servicePM5Rowing = leController->addService(serviceDataPM5Rowing);
+            QThread::msleep(100);
+
+            qDebug() << "PM5 services added: GAP, DeviceInfo, Control, Rowing";
         } else {
             serviceFIT = leController->addService(serviceDataFIT);
             QThread::msleep(100); // give time to Android to add the service async.ly
@@ -385,9 +418,14 @@ void virtualrower::reconnect() {
     leController->disconnectFromDevice();
 
     if (pm5Mode) {
-        servicePM5Rowing = leController->addService(serviceDataPM5Rowing);
+        // Add PM5 services in correct order
+        servicePM5GAP = leController->addService(serviceDataPM5GAP);
         QThread::msleep(100);
         servicePM5DeviceInfo = leController->addService(serviceDataPM5DeviceInfo);
+        QThread::msleep(100);
+        servicePM5Control = leController->addService(serviceDataPM5Control);
+        QThread::msleep(100);
+        servicePM5Rowing = leController->addService(serviceDataPM5Rowing);
         QThread::msleep(100);
     } else {
         serviceFIT = leController->addService(serviceDataFIT);
@@ -635,11 +673,129 @@ void virtualrower::error(QLowEnergyController::Error newError) {
 void virtualrower::setupPM5Services() {
     qDebug() << "Setting up PM5 Concept2 services";
 
+    // ========================================
+    // Generic Access Service (0x1800) - Standard BLE GAP
+    // ========================================
+    serviceDataPM5GAP.setType(QLowEnergyServiceData::ServiceTypePrimary);
+    serviceDataPM5GAP.setUuid(QBluetoothUuid::GenericAccess);
+
+    // Device Name (0x2A00)
+    QLowEnergyCharacteristicData charDeviceName;
+    charDeviceName.setUuid(QBluetoothUuid::DeviceName);
+    charDeviceName.setProperties(QLowEnergyCharacteristic::Read);
+    charDeviceName.setValue(QByteArray("PM5 430000000"));
+
+    // Appearance (0x2A01) - Generic value
+    QLowEnergyCharacteristicData charAppearance;
+    charAppearance.setUuid(QBluetoothUuid::Appearance);
+    charAppearance.setProperties(QLowEnergyCharacteristic::Read);
+    QByteArray appearanceValue;
+    appearanceValue.append((char)0x00);
+    appearanceValue.append((char)0x00);
+    charAppearance.setValue(appearanceValue);
+
+    // Peripheral Preferred Connection Parameters (0x2A04)
+    QLowEnergyCharacteristicData charConnParams;
+    charConnParams.setUuid(QBluetoothUuid::PeripheralPreferredConnectionParameters);
+    charConnParams.setProperties(QLowEnergyCharacteristic::Read);
+    QByteArray connParamsValue;
+    connParamsValue.append((char)0x18); // Min interval (24 * 1.25ms = 30ms)
+    connParamsValue.append((char)0x00);
+    connParamsValue.append((char)0x18); // Max interval
+    connParamsValue.append((char)0x00);
+    connParamsValue.append((char)0x00); // Slave latency
+    connParamsValue.append((char)0x00);
+    connParamsValue.append((char)0xE8); // Supervision timeout (1000 * 10ms = 10s)
+    connParamsValue.append((char)0x03);
+    charConnParams.setValue(connParamsValue);
+
+    serviceDataPM5GAP.addCharacteristic(charDeviceName);
+    serviceDataPM5GAP.addCharacteristic(charAppearance);
+    serviceDataPM5GAP.addCharacteristic(charConnParams);
+
+    // ========================================
     // PM5 Device Information Service (CE060010)
+    // ========================================
     serviceDataPM5DeviceInfo.setType(QLowEnergyServiceData::ServiceTypePrimary);
     serviceDataPM5DeviceInfo.setUuid(PM5_DEVICE_INFO_SERVICE_UUID);
 
+    // Model (CE060011) - "PM5" padded to 16 bytes
+    QLowEnergyCharacteristicData charModel;
+    charModel.setUuid(PM5_MODEL_UUID);
+    charModel.setProperties(QLowEnergyCharacteristic::Read);
+    QByteArray modelValue = QByteArray("PM5").leftJustified(16, '\0');
+    charModel.setValue(modelValue);
+
+    // Serial Number (CE060012)
+    QLowEnergyCharacteristicData charSerial;
+    charSerial.setUuid(PM5_SERIAL_UUID);
+    charSerial.setProperties(QLowEnergyCharacteristic::Read);
+    charSerial.setValue(QByteArray("430000000"));
+
+    // Hardware Revision (CE060013)
+    QLowEnergyCharacteristicData charHwRev;
+    charHwRev.setUuid(PM5_HARDWARE_REV_UUID);
+    charHwRev.setProperties(QLowEnergyCharacteristic::Read);
+    charHwRev.setValue(QByteArray("000"));
+
+    // Firmware Revision (CE060014)
+    QLowEnergyCharacteristicData charFwRev;
+    charFwRev.setUuid(PM5_FIRMWARE_REV_UUID);
+    charFwRev.setProperties(QLowEnergyCharacteristic::Read);
+    QByteArray fwRevValue = QByteArray("211").leftJustified(20, '\0');
+    charFwRev.setValue(fwRevValue);
+
+    // Manufacturer (CE060015)
+    QLowEnergyCharacteristicData charManufacturer;
+    charManufacturer.setUuid(PM5_MANUFACTURER_UUID);
+    charManufacturer.setProperties(QLowEnergyCharacteristic::Read);
+    QByteArray manufacturerValue = QByteArray("Concept2").leftJustified(16, '\0');
+    charManufacturer.setValue(manufacturerValue);
+
+    // Erg Machine Type (CE060016) - 0 = Rower
+    QLowEnergyCharacteristicData charErgType;
+    charErgType.setUuid(PM5_ERG_MACHINE_TYPE_UUID);
+    charErgType.setProperties(QLowEnergyCharacteristic::Read);
+    QByteArray ergTypeValue;
+    ergTypeValue.append((char)PM5_ERG_ROWER);
+    charErgType.setValue(ergTypeValue);
+
+    serviceDataPM5DeviceInfo.addCharacteristic(charModel);
+    serviceDataPM5DeviceInfo.addCharacteristic(charSerial);
+    serviceDataPM5DeviceInfo.addCharacteristic(charHwRev);
+    serviceDataPM5DeviceInfo.addCharacteristic(charFwRev);
+    serviceDataPM5DeviceInfo.addCharacteristic(charManufacturer);
+    serviceDataPM5DeviceInfo.addCharacteristic(charErgType);
+
+    // ========================================
+    // PM5 Control Service (CE060020)
+    // ========================================
+    serviceDataPM5Control.setType(QLowEnergyServiceData::ServiceTypePrimary);
+    serviceDataPM5Control.setUuid(PM5_CONTROL_SERVICE_UUID);
+
+    // Control Receive (CE060021) - for receiving commands (CSAFE)
+    QLowEnergyCharacteristicData charControlReceive;
+    charControlReceive.setUuid(PM5_CONTROL_RECEIVE_UUID);
+    charControlReceive.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::WriteNoResponse);
+    charControlReceive.setValue(QByteArray(1, 0));
+
+    // Control Transmit (CE060022) - for transmitting responses
+    QLowEnergyCharacteristicData charControlTransmit;
+    charControlTransmit.setUuid(PM5_CONTROL_TRANSMIT_UUID);
+    charControlTransmit.setProperties(QLowEnergyCharacteristic::Indicate);
+    QByteArray descriptorCT;
+    descriptorCT.append((char)0x02); // Indications enabled
+    descriptorCT.append((char)0x00);
+    const QLowEnergyDescriptorData clientConfigCT(QBluetoothUuid::ClientCharacteristicConfiguration, descriptorCT);
+    charControlTransmit.addDescriptor(clientConfigCT);
+    charControlTransmit.setValue(QByteArray(1, 0));
+
+    serviceDataPM5Control.addCharacteristic(charControlReceive);
+    serviceDataPM5Control.addCharacteristic(charControlTransmit);
+
+    // ========================================
     // PM5 Rowing Service (CE060030)
+    // ========================================
     serviceDataPM5Rowing.setType(QLowEnergyServiceData::ServiceTypePrimary);
     serviceDataPM5Rowing.setUuid(PM5_ROWING_SERVICE_UUID);
 
@@ -676,7 +832,37 @@ void virtualrower::setupPM5Services() {
     charAdditionalStatus2.addDescriptor(clientConfigAS2);
     charAdditionalStatus2.setValue(QByteArray(20, 0));
 
-    // Multiplexed Info Characteristic (CE060080) - variable size
+    // Sample Rate Characteristic (CE060034) - Read/Write
+    QLowEnergyCharacteristicData charSampleRate;
+    charSampleRate.setUuid(PM5_SAMPLE_RATE_UUID);
+    charSampleRate.setProperties(QLowEnergyCharacteristic::Read | QLowEnergyCharacteristic::Write);
+    QByteArray sampleRateValue;
+    sampleRateValue.append((char)0x01); // Default sample rate
+    charSampleRate.setValue(sampleRateValue);
+
+    // Stroke Data Characteristic (CE060035) - Notify
+    QLowEnergyCharacteristicData charStrokeData;
+    charStrokeData.setUuid(PM5_STROKE_DATA_UUID);
+    charStrokeData.setProperties(QLowEnergyCharacteristic::Notify);
+    QByteArray descriptorSD;
+    descriptorSD.append((char)0x01);
+    descriptorSD.append((char)0x00);
+    const QLowEnergyDescriptorData clientConfigSD(QBluetoothUuid::ClientCharacteristicConfiguration, descriptorSD);
+    charStrokeData.addDescriptor(clientConfigSD);
+    charStrokeData.setValue(QByteArray(20, 0));
+
+    // Additional Stroke Data Characteristic (CE060036) - Notify
+    QLowEnergyCharacteristicData charAdditionalStrokeData;
+    charAdditionalStrokeData.setUuid(PM5_ADDITIONAL_STROKE_DATA_UUID);
+    charAdditionalStrokeData.setProperties(QLowEnergyCharacteristic::Notify);
+    QByteArray descriptorASD;
+    descriptorASD.append((char)0x01);
+    descriptorASD.append((char)0x00);
+    const QLowEnergyDescriptorData clientConfigASD(QBluetoothUuid::ClientCharacteristicConfiguration, descriptorASD);
+    charAdditionalStrokeData.addDescriptor(clientConfigASD);
+    charAdditionalStrokeData.setValue(QByteArray(20, 0));
+
+    // Multiplexed Info Characteristic (CE060080) - Notify
     QLowEnergyCharacteristicData charMultiplexedInfo;
     charMultiplexedInfo.setUuid(PM5_MULTIPLEXED_INFO_UUID);
     charMultiplexedInfo.setProperties(QLowEnergyCharacteristic::Notify);
@@ -691,6 +877,9 @@ void virtualrower::setupPM5Services() {
     serviceDataPM5Rowing.addCharacteristic(charGeneralStatus);
     serviceDataPM5Rowing.addCharacteristic(charAdditionalStatus);
     serviceDataPM5Rowing.addCharacteristic(charAdditionalStatus2);
+    serviceDataPM5Rowing.addCharacteristic(charSampleRate);
+    serviceDataPM5Rowing.addCharacteristic(charStrokeData);
+    serviceDataPM5Rowing.addCharacteristic(charAdditionalStrokeData);
     serviceDataPM5Rowing.addCharacteristic(charMultiplexedInfo);
 
     qDebug() << "PM5 services setup complete";
