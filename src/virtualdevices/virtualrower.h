@@ -40,11 +40,17 @@ class virtualrower : public virtualdevice {
     QLowEnergyService *serviceHR = nullptr;
     QLowEnergyService *serviceBattery = nullptr;
     QLowEnergyService *serviceFIT = nullptr;
+    QLowEnergyService *servicePM5Rowing = nullptr;
+    QLowEnergyService *servicePM5DeviceInfo = nullptr;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataFIT;
+    QLowEnergyServiceData serviceDataPM5Rowing;
+    QLowEnergyServiceData serviceDataPM5DeviceInfo;
     QTimer rowerTimer;
     bluetoothdevice *Rower;
+
+    bool pm5Mode = false;
 
     uint16_t lastWheelTime = 0;
     uint32_t wheelRevs = 0;
@@ -54,6 +60,10 @@ class virtualrower : public virtualdevice {
 
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);
+    void setupPM5Services();
+    QByteArray buildPM5GeneralStatus();
+    QByteArray buildPM5AdditionalStatus();
+    QByteArray buildPM5AdditionalStatus2();
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
