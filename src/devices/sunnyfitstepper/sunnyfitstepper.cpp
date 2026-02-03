@@ -108,19 +108,14 @@ void sunnyfitstepper::processDataFrame(const QByteArray &completeFrame) {
     uint16_t rawCadence = ((uint8_t)completeFrame.at(7) << 8) | (uint8_t)completeFrame.at(6);
     Cadence = (double)rawCadence;
 
-    // Extract step count (bytes 16-19, little-endian)
-    uint32_t steps = ((uint32_t)(uint8_t)completeFrame.at(19) << 24) |
-                     ((uint32_t)(uint8_t)completeFrame.at(18) << 16) |
-                     ((uint32_t)(uint8_t)completeFrame.at(17) << 8) |
-                     (uint32_t)(uint8_t)completeFrame.at(16);
+    // Extract step count (bytes 10-12, little-endian)
+    uint32_t steps = ((uint32_t)(uint8_t)completeFrame.at(12) << 16) |
+                     ((uint32_t)(uint8_t)completeFrame.at(11) << 8) |
+                     (uint32_t)(uint8_t)completeFrame.at(10);
     StepCount = steps;
 
-    // Extract elevation (bytes 26-29, little-endian)
-    uint32_t elevRaw = ((uint32_t)(uint8_t)completeFrame.at(29) << 24) |
-                       ((uint32_t)(uint8_t)completeFrame.at(28) << 16) |
-                       ((uint32_t)(uint8_t)completeFrame.at(27) << 8) |
-                       (uint32_t)(uint8_t)completeFrame.at(26);
-    elevationAcc = (double)elevRaw / 100.0;
+    // Calculate elevation manually (0.2 meters per step)
+    elevationAcc = (double)steps * 0.20;
 
     // Calculate speed from cadence (stairclimber convention)
     Speed = Cadence.value() / 3.2;
