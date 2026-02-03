@@ -124,11 +124,9 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         if (!heart_only) {
             if (pm5Mode) {
                 // PM5 uses Concept2 proprietary services
-                // Advertise the discovery service UUID for PM5 identification
+                // Only advertise the discovery service UUID (128-bit UUIDs are large)
+                // The other services will be discovered after connection
                 services << PM5_DISCOVERY_SERVICE_UUID;
-                services << PM5_ROWING_SERVICE_UUID;
-                services << PM5_DEVICE_INFO_SERVICE_UUID;
-                services << PM5_CONTROL_SERVICE_UUID;
             } else {
                 services << ((QBluetoothUuid::ServiceClassUuid)0x1826);
             }
@@ -287,8 +285,13 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         }
 
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
-                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+        if (pm5Mode) {
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRowerPM5",
+                                                      "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+        } else {
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
+                                                      "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+        }
 #else
         leController->startAdvertising(pars, advertisingData, advertisingData);
 #endif
@@ -438,8 +441,13 @@ void virtualrower::reconnect() {
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
-                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+    if (pm5Mode) {
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRowerPM5",
+                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+    } else {
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
+                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+    }
 #else
     leController->startAdvertising(pars, advertisingData, advertisingData);
 #endif

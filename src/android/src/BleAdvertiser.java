@@ -37,6 +37,9 @@ import java.util.UUID;
 
 public class BleAdvertiser {
     private static final UUID SERVICE_UUID = UUID.fromString("00001826-0000-1000-8000-00805f9b34fb");
+    // PM5 Concept2 UUIDs
+    private static final UUID PM5_DISCOVERY_SERVICE_UUID = UUID.fromString("CE060000-43E5-11E4-916C-0800200C9A66");
+    private static final UUID PM5_ROWING_SERVICE_UUID = UUID.fromString("CE060030-43E5-11E4-916C-0800200C9A66");
     private static final byte[] SERVICE_DATA_ROWER = {0x01, 0x10, 0x00};
     private static final byte[] SERVICE_DATA_TREADMILL = {0x01, 0x01, 0x00};
 
@@ -58,6 +61,31 @@ public class BleAdvertiser {
                     .build();
 
             if (advertiser != null) {
+                advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
+            }
+        }
+    }
+
+    public static void startAdvertisingRowerPM5(Context context) {
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager != null) {
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser = bluetoothManager.getAdapter().getBluetoothLeAdvertiser();
+
+            AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true)
+                    .build();
+
+            // PM5 advertising - use discovery service UUID
+            // Note: 128-bit UUIDs take more space, so we only advertise the discovery UUID
+            AdvertiseData advertiseData = new AdvertiseData.Builder()
+                    .setIncludeDeviceName(true)
+                    .addServiceUuid(new ParcelUuid(PM5_DISCOVERY_SERVICE_UUID))
+                    .build();
+
+            if (advertiser != null) {
+                QLog.d("BleAdvertiser", "Starting PM5 advertising with UUID: " + PM5_DISCOVERY_SERVICE_UUID.toString());
                 advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
             }
         }
