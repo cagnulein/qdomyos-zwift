@@ -199,22 +199,35 @@ configure_service_flags_ui() {
     while true; do
         # 1. Build Menu Options
         local options=()
+        local help_texts=()
+        
         options+=("Logging: ${_SF[logging]:-false}")
+        help_texts+=("Enable detailed logging to debug-<date>.log for troubleshooting. Required for ANT+ Verbose mode. Press Enter to toggle on/off.")
+        
         options+=("Console: ${_SF[console]:-false}")
+        help_texts+=("Enable console output for debugging. Shows real-time QZ messages in the terminal. Useful for development. Press Enter to toggle.")
+        
         options+=("ANT+ Footpod: ${_SF[ant_footpod]:-false}")
+        help_texts+=("Enable ANT+ footpod sensor support for broadcasting running metrics (speed, cadence, distance) to watches and cycling computers. Press Enter to toggle.")
         
         if [[ "${_SF[ant_footpod]}" == "true" ]]; then
             options+=("ANT+ Device ID: [${_SF[ant_device]:-54321}]")
+            help_texts+=("Set the ANT+ device ID for footpod broadcasting. Default is 54321. Valid range: 1-65535. Press Enter to edit.")
+            
             if [[ "${_SF[logging]}" == "true" ]]; then
                 options+=("ANT+ Verbose: ${_SF[ant_verbose]:-false}")
+                help_texts+=("Enable verbose ANT+ logging for detailed dongle communication debugging. Requires Logging to be enabled. Press Enter to toggle.")
             fi
         fi
         
         options+=("Bluetooth Relaxed: ${_SF[bluetooth_relaxed]:-false}")
+        help_texts+=("Use relaxed Bluetooth pairing mode for devices that don't strictly follow BLE standards. Enable if having connection issues. Press Enter to toggle.")
+        
         options+=("Poll Time (ms): [${_SF[poll_time]:-200}]")
+        help_texts+=("Set sensor polling interval in milliseconds. Lower = more responsive but higher CPU. Default: 200ms. Valid range: 50-5000ms. Press Enter to edit.")
 
-        # 2. Show Menu
-        show_unified_menu options "$selected" "SERVICE CONFIGURATION" "$draw_mode"
+        # 2. Show Menu with Help Panel
+        show_unified_menu options "$selected" "SERVICE CONFIGURATION" "$draw_mode" "false" "" help_texts
         local exit_code=$?
 
         # 3. Handle Exit
@@ -258,8 +271,8 @@ configure_service_flags_ui() {
                 ;;
             ANT+\ Device\ ID:*)
                 local new_id
-                # Call inline editor (Empty unit argument "" ensures safe formatting)
-                if new_id=$(inline_edit_field "$target_row" "ANT+ Device ID" "" "${_SF[ant_device]}" 1 65535); then
+                # Call inline editor with help panel preservation
+                if new_id=$(inline_edit_field "$target_row" "ANT+ Device ID" "" "${_SF[ant_device]}" 1 65535 "true"); then
                     if [[ -n "$new_id" ]]; then
                         _SF[ant_device]="$new_id"
                     fi
@@ -278,7 +291,7 @@ configure_service_flags_ui() {
                 ;;
             Poll\ Time*)
                 local new_poll
-                if new_poll=$(inline_edit_field "$target_row" "Poll Time" "ms" "${_SF[poll_time]}" 50 5000); then
+                if new_poll=$(inline_edit_field "$target_row" "Poll Time" "ms" "${_SF[poll_time]}" 50 5000 "true"); then
                     if [[ -n "$new_poll" ]]; then
                         _SF[poll_time]="$new_poll"
                     fi
@@ -875,16 +888,21 @@ declare -A STATUS_MAP=(
 # Capture detailed failure info for services (populated when a unit reports 'failed')
 declare -A SERVICE_FAILURE_INFO=()
 
+# Set to "true" by check_qz_service when pyenv is installed but the service
+# file is missing PYTHONHOME.  build_service_menu_options uses it to surface
+# "Generate & Install Service" even when the unit is running/stopped.
+SVC_PYTHONHOME_STALE=false
+
 
 
 # Status grid definition: each entry is "Left Label|Left Key|Right Label|Right Key"
 declare -a STATUS_GRID=(
-    "Python 3.11 Library|python311|Python PIPs|pkg_pips"
-    "Qt5 Runtime Libraries|qt5_libs|QML Modules|qml_modules"
-    "Python Virtual Environment|venv|Configuration File|config_file"
-    "User in plugdev Group|plugdev|USB udev Rules|udev_rules"
-    "Bluetooth Service|bluetooth|QZ Service|qz_service"
-    "lsusb Command|lsusb|ANT+ USB Dongle|ant_dongle"
+    "Python 3.11 Library|python311|User in plugdev Group|plugdev"
+    "Python Virtual Environment|venv|USB udev Rules|udev_rules"
+    "Python PIPs|pkg_pips|lsusb Command|lsusb"
+    "Qt5 Runtime Libraries|qt5_libs|Configuration File|config_file"
+    "QML Modules|qml_modules|QZ Service|qz_service"
+    "Bluetooth Service|bluetooth|ANT+ USB Dongle|ant_dongle"
 )
 
 # Render the status grid starting at given row (default 6)
@@ -1165,6 +1183,20 @@ update_sealed_row_content() {
     print_at_col "$row" 2 "$padded"
 }
 
+# Update only the left portion of a row (for help panel compatibility)
+update_sealed_row_content_left() {
+    local row=$1
+    shift
+    local content="$*"
+    local menu_width=$(( INNER_COLS / 2 - 1 ))
+    # Pad content to menu width only
+    local padded
+    padded=$(pad_display "$content" "$menu_width")
+    # content area starts at column 2 (after left border)
+    print_at_col "$row" 2 "$padded"
+}
+
+
 # Canonical display width function: strips ANSI sequences and counts characters
 get_display_width() {
     local text="${1:-}"
@@ -1439,6 +1471,9 @@ draw_status_row() {
             L_label="Python 3.11 Library (pyenv)"
         elif [[ "${IS_PYSYS_INSTALLED:-false}" == "true" ]]; then
             L_label="Python 3.11 Library (system)"
+        else
+            # Neither installed or not yet checked
+            L_label="Python 3.11 Library"
         fi
     fi
     # --------------------------------------
@@ -2146,6 +2181,18 @@ update_status_atomic() {
         local right_w=$(( INNER_COLS - 3 - left_w ))
 
         if [[ "$L_key" == "$key" ]]; then
+            # --- DYNAMIC LABEL LOGIC FOR PYTHON (LEFT COLUMN) ---
+            if [[ "$L_key" == "python311" ]]; then
+                if [[ "${IS_PYENV_INSTALLED:-false}" == "true" ]]; then
+                    L_label="Python 3.11 Library (pyenv)"
+                elif [[ "${IS_PYSYS_INSTALLED:-false}" == "true" ]]; then
+                    L_label="Python 3.11 Library (system)"
+                else
+                    L_label="Python 3.11 Library"
+                fi
+            fi
+            # --------------------------------------
+            
             local L_sym
             L_sym=$(get_symbol "$L_key")
             local L_content="${L_sym} $(get_status_label_color "$L_key")${L_label}${NC}"
@@ -2155,6 +2202,18 @@ update_status_atomic() {
             print_at_col "$target_row" 1 "${BLUE}║${NC} ${L_padded}${BLUE}│${NC}"
             return 0
         elif [[ "$R_key" == "$key" ]]; then
+            # --- DYNAMIC LABEL LOGIC FOR PYTHON (RIGHT COLUMN) ---
+            if [[ "$R_key" == "python311" ]]; then
+                if [[ "${IS_PYENV_INSTALLED:-false}" == "true" ]]; then
+                    R_label="Python 3.11 Library (pyenv)"
+                elif [[ "${IS_PYSYS_INSTALLED:-false}" == "true" ]]; then
+                    R_label="Python 3.11 Library (system)"
+                else
+                    R_label="Python 3.11 Library"
+                fi
+            fi
+            # --------------------------------------
+            
             local R_sym
             R_sym=$(get_symbol "$R_key")
             local R_content="${R_sym} $(get_status_label_color "$R_key")${R_label}${NC}"
@@ -2463,7 +2522,7 @@ prompt_numeric_input() {
 # Inline Numeric Editor
 # Usage: inline_edit_field ROW LABEL UNIT CURRENT_VALUE MIN MAX
 inline_edit_field() {
-    # Args: ROW LABEL UNIT CURRENT_VALUE MIN MAX
+    # Args: ROW LABEL UNIT CURRENT_VALUE MIN MAX [PRESERVE_HELP]
     # Use ${N:-} to prevent 'unbound variable' crashes in strict mode
     local row="${1:-}"
     local label="${2:-}"
@@ -2471,6 +2530,7 @@ inline_edit_field() {
     local current_val="${4:-}"
     local min_val="${5:-0}"
     local max_val="${6:-99999}"
+    local preserve_help="${7:-false}"  # NEW: preserve help panel on right
     
     local buffer="" 
     local display_val
@@ -2494,9 +2554,13 @@ inline_edit_field() {
             display_val="${BOLD_WHITE}${buffer}${NC}"
         fi
         
-        # 4. Draw Row
+        # 4. Draw Row (help-panel aware)
         local row_text="   ${CYAN}► ${BOLD_CYAN}${label_str}: [${display_val}${BOLD_CYAN}]${NC}"
-        update_sealed_row_content "$row" "$row_text"
+        if [[ "$preserve_help" == "true" ]]; then
+            update_sealed_row_content_left "$row" "$row_text"
+        else
+            update_sealed_row_content "$row" "$row_text"
+        fi
         
         # 5. Position Cursor
         local prefix_len=$(( 1 + 3 + 2 + ${#label_str} + 3 ))
@@ -2536,6 +2600,7 @@ inline_edit_field() {
 }
 
 configure_user_profile() {
+    local wizard_mode="${1:-false}"  # Optional parameter for wizard mode
     load_current_profile_values
     UI_MODAL_ACTIVE=1
     
@@ -2557,10 +2622,23 @@ configure_user_profile() {
         options+=("Weight (${w_unit}): [${PREV_WEIGHT:-}]")
         options+=("Age (years): [${PREV_AGE:-}]")
         options+=("Gender: ${gender_label}")
-        # FIX: Removed brackets
-        options+=("${BOLD_GREEN}Save & Continue${NC}")
+        
+        # Help text for each profile field
+        local help_texts=()
+        help_texts+=("Toggle between Metric (kg/km) and Imperial (lbs/mi) units. This affects how weight and distance are displayed throughout QZ. Press Enter to switch.")
+        help_texts+=("Your body weight used for accurate power and calorie calculations. Enter a value between 20-400 ${w_unit}. Press Enter to edit, type your weight, then press Enter to save or Esc to cancel.")
+        help_texts+=("Your age in years, used for heart rate zone calculations and calorie estimates. Valid range is 5-120 years. Press Enter to edit.")
+        help_texts+=("Your biological gender, used for metabolic calculations and calorie burn estimates. Press Enter to toggle between Male and Female.")
+        
+        # Only add "Save & Continue" in wizard mode
+        local save_idx=-1
+        if [[ "$wizard_mode" == "true" ]]; then
+            options+=("${BOLD_GREEN}Save & Continue${NC}")
+            help_texts+=("Save your profile configuration and continue with the setup wizard. All changes are automatically saved as you make them.")
+            save_idx=4
+        fi
 
-        show_unified_menu options "$selected" "USER PROFILE" "$draw_mode"
+        show_unified_menu options "$selected" "USER PROFILE" "$draw_mode" "false" "" help_texts
         local exit_code=$?
 
         if [[ $exit_code -eq 255 ]]; then
@@ -2570,8 +2648,8 @@ configure_user_profile() {
 
         selected=$exit_code
         
-        # Handle Save & Continue (Index 4)
-        if [[ $selected -eq 4 ]]; then
+        # Handle Save & Continue (only in wizard mode)
+        if [[ $save_idx -ge 0 ]] && [[ $selected -eq $save_idx ]]; then
             UI_MODAL_ACTIVE=0
             return 0
         fi
@@ -2600,7 +2678,7 @@ configure_user_profile() {
             Weight*)
                 local target_row=$(( LOG_TOP + 1 + selected ))
                 local new_v
-                if new_v=$(inline_edit_field "$target_row" "Weight" "$w_unit" "${PREV_WEIGHT}" 20 400); then
+                if new_v=$(inline_edit_field "$target_row" "Weight" "$w_unit" "${PREV_WEIGHT}" 20 400 "true"); then
                     if [[ -n "$new_v" ]]; then
                         PREV_WEIGHT="$new_v"
                         update_config_key "weight" "$new_v"
@@ -2614,7 +2692,7 @@ configure_user_profile() {
             Age*)
                 local target_row=$(( LOG_TOP + 1 + selected ))
                 local new_a
-                if new_a=$(inline_edit_field "$target_row" "Age" "years" "${PREV_AGE}" 5 120); then
+                if new_a=$(inline_edit_field "$target_row" "Age" "years" "${PREV_AGE}" 5 120 "true"); then
                     if [[ -n "$new_a" ]]; then
                         PREV_AGE="$new_a"
                         update_config_key "age" "$new_a"
@@ -2703,14 +2781,14 @@ configure_emulation_flow() {
             draw_bottom_panel_header "EMULATION SETUP (ANT+ TEST)" "false"
             clear_info_area
             local r=$((LOG_TOP))
-            draw_sealed_row "$r" "   Configure QZ as emulated treadmill '${BOLD_CYAN}KICKR RUN${NC}' for testing ANT+?"
-            local desc_r=$((r + 4))
+            draw_sealed_row "$r" ""  # Top spacer
+            draw_sealed_row $((r + 1)) "   Configure QZ as emulated treadmill '${BOLD_CYAN}KICKR RUN${NC}' for testing ANT+?"
+            local desc_r=$((r + 5))
             draw_sealed_row "$desc_r"       "   • Configures QZ to act as a virtual treadmill broadcasting ANT+."
             draw_sealed_row $((desc_r + 1)) "   • Used to verify ANT+ dongle functionality with watches."
             draw_sealed_row $((desc_r + 2)) "   • Requires a second QZ app (phone/tablet) to control speed."
-            draw_sealed_row $((desc_r + 3)) "   ${YELLOW}Note: This disables connection to physical equipment.${NC}"
             
-            if prompt_yes_no 1; then
+            if prompt_yes_no 2; then
                 draw_bottom_border "${YELLOW}Applying Emulation Config...${NC}"
                 if [[ -f "$DEVICES_INI" ]]; then
                     local all_keys; all_keys=$(grep '=' "$DEVICES_INI" | cut -d'=' -f2 | xargs)
@@ -3008,8 +3086,8 @@ run_setup_wizard() {
         fi
     fi
 
-    # 4. PROFILE
-    configure_user_profile
+    # 4. PROFILE (with wizard mode enabled)
+    configure_user_profile "true"
 
     # 5. FINALIZE
     # Regenerate service file to ensure all new settings (like -name) are applied
@@ -3048,9 +3126,7 @@ EOF
     draw_bottom_border
     
     draw_sealed_row $((LOG_TOP + 1)) "   ${WHITE}${label}${NC}"
-    local subtext="Please wait..."
-    [[ "$label" == *"pyenv"* ]] && subtext="Please wait... (Compilation may take ~45 minutes on a slow device)"
-    draw_sealed_row $((LOG_TOP + 3)) "   ${GRAY}${subtext}${NC}"
+    draw_sealed_row $((LOG_TOP + 3)) "   ${GRAY}Please wait...${NC}"
 
     bash "$script_file" > "$log_file" 2>&1 &
     local pid=$!
@@ -3393,6 +3469,28 @@ check_qz_service() {
     if [[ "$svc_state" == "failed" ]]; then
         capture_service_failure_info "qz_service" || true
     fi
+
+    # --- PYTHONHOME staleness check ---
+    # If pyenv 3.11.9 is installed but the service file lacks PYTHONHOME,
+    # QZ's embedded Py_Initialize() cannot locate stdlib/lib-dynload and
+    # fails with "No module named '_struct'".  Downgrade to warn and surface
+    # a clear diagnostic so the user knows to regenerate.
+    SVC_PYTHONHOME_STALE=false
+    if [[ -f "$SERVICE_FILE_QZ" ]] && [[ -f "${TARGET_HOME}/.pyenv/versions/3.11.9/bin/python3" ]]; then
+        if ! grep -q 'PYTHONHOME' "$SERVICE_FILE_QZ" 2>/dev/null; then
+            SVC_PYTHONHOME_STALE=true
+            STATUS_MAP["qz_service"]="warn"
+            SERVICE_FAILURE_INFO["qz_service"]="⚠ Service file is missing PYTHONHOME.
+Pyenv Python 3.11.9 is installed but this service file
+was generated before PYTHONHOME support was added.
+
+This causes at runtime:
+  ModuleNotFoundError: No module named '_struct'
+
+Fix: Select 'Generate & Install Service' to regenerate
+the service file with the correct environment."
+        fi
+    fi
     draw_header_service_line
     render_status_grid 6
     [[ "$svc_state" != "failed" ]] && return 0 || return 1
@@ -3480,6 +3578,8 @@ check_python311_fast() {
         if "${TARGET_HOME}/.pyenv/versions/3.11.9/bin/python3" -c "import _struct" 2>/dev/null; then
             IS_PYENV_INSTALLED=true
             IS_PYSYS_INSTALLED=false # Even if system exists, pyenv takes the display priority
+            # Cache the installation type
+            echo "pyenv" > "${CHECK_CACHE_DIR}/python311.type" 2>/dev/null || true
             echo "pass"
             return 0
         fi
@@ -3490,11 +3590,15 @@ check_python311_fast() {
         if python3.11 -c "import _struct" 2>/dev/null; then
             IS_PYENV_INSTALLED=false
             IS_PYSYS_INSTALLED=true
+            # Cache the installation type
+            echo "system" > "${CHECK_CACHE_DIR}/python311.type" 2>/dev/null || true
             echo "pass"
             return 0
         fi
     fi
 
+    # Cache that neither is installed
+    echo "none" > "${CHECK_CACHE_DIR}/python311.type" 2>/dev/null || true
     echo "fail"
     return 1
 }
@@ -3748,14 +3852,14 @@ run_all_checks() {
     
     local -a status_keys=(
         "python311" "venv" "pkg_pips" "qt5_libs" "qml_modules"
-        "bluetooth" "lsusb" "plugdev" "udev_rules"
+        "bluetooth" "plugdev" "udev_rules" "lsusb"
         "config_file" "qz_service" "ant_dongle" "equipment"
     )
     
     # Function names corresponding to keys
     local -a func_names=(
         "python311" "venv" "python_packages" "qt5_libs" "qml_modules"
-        "bluetooth" "lsusb" "plugdev" "udev_rules"
+        "bluetooth" "plugdev" "udev_rules" "lsusb"
         "config_file" "qz_service" "ant_dongle" "equipment"
     )
 
@@ -3829,6 +3933,29 @@ run_all_checks() {
             STATUS_MAP["$key"]="$status"
         else
             STATUS_MAP["$key"]="fail"
+        fi
+        
+        # Special handling for python311 - read installation type
+        if [[ "$key" == "python311" ]]; then
+            local type_file="${CHECK_CACHE_DIR}/python311.type"
+            if [[ -f "$type_file" ]]; then
+                local py_type
+                py_type=$(cat "$type_file" 2>/dev/null || echo "none")
+                case "$py_type" in
+                    pyenv)
+                        IS_PYENV_INSTALLED=true
+                        IS_PYSYS_INSTALLED=false
+                        ;;
+                    system)
+                        IS_PYENV_INSTALLED=false
+                        IS_PYSYS_INSTALLED=true
+                        ;;
+                    *)
+                        IS_PYENV_INSTALLED=false
+                        IS_PYSYS_INSTALLED=false
+                        ;;
+                esac
+            fi
         fi
         
         # If in dashboard mode, update the UI grid atomically
@@ -4277,7 +4404,475 @@ perform_bluetooth_scan() {
     done
 }
 
+# ============================================================================
+# PYENV INSTALLATION SYSTEM
+# Comprehensive Python 3.11 installation via pyenv with RAM detection,
+# zram support, and interactive menus
+# ============================================================================
+
+# Detect total system RAM in MB
+get_total_ram_mb() {
+    local ram_kb
+    ram_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+    echo $((ram_kb / 1024))
+}
+
+# Check if system is low-memory (<2GB RAM)
+is_low_memory_system() {
+    local ram_mb
+    ram_mb=$(get_total_ram_mb)
+    [[ $ram_mb -lt 2048 ]]
+}
+
+# Check if zram is installed and active
+check_zram_status() {
+    if ! command -v zramctl >/dev/null 2>&1; then
+        echo "not_installed"
+        return
+    fi
+    
+    if swapon -s | grep -q zram; then
+        echo "active"
+    else
+        echo "inactive"
+    fi
+}
+
+# Install and configure zram
+install_zram() {
+    draw_bottom_panel_header "INSTALLING ZRAM SWAP" "false"
+    clear_info_area
+    
+    local r=$((LOG_TOP + 1))
+    draw_sealed_row "$r" "   ${CYAN}Installing zram compressed swap...${NC}"
+    ((r++))
+    draw_sealed_row "$r" ""
+    ((r++))
+    draw_sealed_row "$r" "   ${GRAY}This provides fast compressed swap without${NC}"
+    ((r++))
+    draw_sealed_row "$r" "   ${GRAY}wearing your SD card during Python build.${NC}"
+    
+    # Install zram-tools
+    if ! run_with_progress "Installing zram-tools" "apt-get update && apt-get install -y zram-tools"; then
+        draw_error_screen "ZRAM INSTALLATION FAILED" "Failed to install zram-tools package." "wait"
+        return 1
+    fi
+    
+    # Configure zram
+    local config_cmd="echo -e 'ALGO=lz4\nPERCENT=50\nPRIORITY=100' | tee /etc/default/zramswap >/dev/null"
+    if ! run_with_progress "Configuring zram" "$config_cmd"; then
+        draw_error_screen "ZRAM CONFIGURATION FAILED" "Failed to configure zram settings." "wait"
+        return 1
+    fi
+    
+    # Restart zramswap service
+    if ! run_with_progress "Activating zram" "systemctl restart zramswap"; then
+        draw_error_screen "ZRAM ACTIVATION FAILED" "Failed to start zramswap service." "wait"
+        return 1
+    fi
+    
+    # Verify zram is active
+    sleep 1
+    if ! swapon -s | grep -q zram; then
+        draw_error_screen "ZRAM VERIFICATION FAILED" "zram installed but not active. Try rebooting." "wait"
+        return 1
+    fi
+    
+    draw_bottom_panel_header "ZRAM INSTALLED" "false"
+    clear_info_area
+    r=$((LOG_TOP + 2))
+    draw_sealed_row "$r" "   ${GREEN}✓ zram swap activated successfully${NC}"
+    ((r++))
+    ((r++))
+    
+    # Show zram stats
+    local zram_size
+    zram_size=$(swapon -s | grep zram | awk '{print $3}')
+    draw_sealed_row "$r" "   Compressed swap size: ${CYAN}${zram_size}${NC}"
+    
+    draw_bottom_border "Press ENTER to continue"
+    local dummy
+    read -rsn1 dummy </dev/tty
+    
+    return 0
+}
+
+# Prompt user whether to install zram
+prompt_install_zram() {
+    local ram_mb
+    ram_mb=$(get_total_ram_mb)
+    
+    draw_bottom_panel_header "LOW MEMORY DETECTED" "false"
+    clear_info_area
+    
+    local r=$((LOG_TOP))
+    draw_sealed_row "$r" ""
+    ((r++))
+    draw_sealed_row "$r" "   System RAM: ${YELLOW}${ram_mb}MB${NC} (< 2GB threshold)"
+    ((r++))
+    ((r++))
+    draw_sealed_row "$r" "   Building Python 3.11 requires significant memory."
+    ((r++))
+    draw_sealed_row "$r" "   Installing zram provides compressed swap to prevent"
+    ((r++))
+    draw_sealed_row "$r" "   out-of-memory crashes during compilation."
+    
+    if prompt_yes_no 1; then
+        return 0  # User wants to install zram
+    else
+        return 1  # User declined zram
+    fi
+}
+
+# Install pyenv build dependencies
+install_pyenv_dependencies() {
+    local is_low_mem=false
+    if is_low_memory_system; then
+        is_low_mem=true
+    fi
+    
+    draw_bottom_panel_header "INSTALLING BUILD DEPENDENCIES" "false"
+    clear_info_area
+    
+    local r=$((LOG_TOP + 1))
+    draw_sealed_row "$r" "   ${CYAN}Installing compiler and library dependencies...${NC}"
+    ((r++))
+    draw_sealed_row "$r" ""
+    ((r++))
+    if [[ "$is_low_mem" == "true" ]]; then
+        draw_sealed_row "$r" "   ${GRAY}Low-memory mode: including ccache for faster builds${NC}"
+    else
+        draw_sealed_row "$r" "   ${GRAY}Standard mode: optimized for systems with 2GB+ RAM${NC}"
+    fi
+    
+    # Base dependencies (common to both)
+    local deps="git curl build-essential libssl-dev zlib1g-dev"
+    deps="$deps libbz2-dev libreadline-dev libsqlite3-dev wget"
+    deps="$deps llvm xz-utils tk-dev libffi-dev liblzma-dev"
+    
+    # Check if Ubuntu 24.04+ (needs libncurses-dev instead of libncurses5-dev)
+    local ubuntu_version=""
+    if grep -q "Ubuntu" /etc/os-release 2>/dev/null; then
+        ubuntu_version=$(grep "VERSION_ID" /etc/os-release | cut -d'"' -f2)
+    fi
+    
+    if [[ "$ubuntu_version" =~ ^2[4-9]\. ]] || [[ "$ubuntu_version" =~ ^[3-9][0-9]\. ]]; then
+        deps="$deps libncurses-dev libncursesw5-dev"
+    else
+        deps="$deps libncurses5-dev libncursesw5-dev"
+    fi
+    
+    # Add ccache for low-memory systems
+    if [[ "$is_low_mem" == "true" ]]; then
+        deps="$deps ccache"
+    fi
+    sleep 2
+    
+    # Install dependencies
+    if ! run_with_progress "Installing pyenv dependencies" "apt-get update && apt-get install -y $deps"; then
+        draw_error_screen "DEPENDENCY INSTALLATION FAILED" "Failed to install build dependencies." "wait"
+        return 1
+    fi
+    
+    return 0
+}
+
+# Install pyenv itself
+install_pyenv_tool() {
+    # Build the install command as three separate statements so set -e
+    # (inside run_with_progress's script wrapper) catches each one:
+    #   1. Remove any stale .pyenv from a previous failed attempt — the
+    #      pyenv installer hard-exits if the directory already exists.
+    #   2. Download the installer to a file — avoids the pipe in
+    #      "curl | bash" whose exit code set -e can't reliably catch.
+    #   3. Run the installer as TARGET_USER with HOME set explicitly —
+    #      sudo -u does NOT guarantee $HOME is updated, which is how
+    #      pyenv decides where to install.
+    local pyenv_cmd="rm -rf \"$TARGET_HOME/.pyenv\"
+curl -sS -o \"$TEMP_DIR/pyenv_installer.sh\" https://pyenv.run
+sudo -u \"$TARGET_USER\" env HOME=\"$TARGET_HOME\" bash < \"$TEMP_DIR/pyenv_installer.sh\""
+
+    if ! run_with_progress "Installing pyenv" "$pyenv_cmd"; then
+        return 1
+    fi
+
+    # Add pyenv to .bashrc if not already present
+    local bashrc="$TARGET_HOME/.bashrc"
+    if ! grep -q "PYENV_ROOT" "$bashrc" 2>/dev/null; then
+        cat >> "$bashrc" << 'EOF'
+
+# pyenv configuration
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+EOF
+    fi
+
+    return 0
+}
+
+# Build Python 3.11 with pyenv (standard or low-memory mode)
+build_python_with_pyenv() {
+    local is_low_mem=false
+    is_low_memory_system && is_low_mem=true
+
+    # ---------------------------------------------------------------------------
+    # 1. Validate pyenv binary exists
+    # ---------------------------------------------------------------------------
+    export PYENV_ROOT="$TARGET_HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+
+    if [[ ! -f "$PYENV_ROOT/bin/pyenv" ]]; then
+        draw_error_screen "PYENV NOT FOUND" "pyenv binary not found at $PYENV_ROOT/bin/pyenv" "wait"
+        return 1
+    fi
+
+    # ---------------------------------------------------------------------------
+    # 2. Build the environment + command string
+    # ---------------------------------------------------------------------------
+    local build_env=""
+    local mode_label="Standard"
+    local est_time="10-15 minutes"
+
+    if [[ "$is_low_mem" == "true" ]]; then
+        local cpu_arch
+        cpu_arch=$(lscpu | grep "Model name" | sed 's/.*Cortex-/cortex-/' | awk '{print tolower($1)}')
+        [[ -z "$cpu_arch" ]] && cpu_arch="native"
+
+        build_env+="MAKE_OPTS='-j1' "
+        build_env+="PYTHON_CONFIGURE_OPTS='--enable-shared --enable-optimizations --with-lto=no --with-system-ffi' "
+        build_env+="PROFILE_TASK='-j0' "
+        build_env+="CFLAGS='-O2 -mcpu=$cpu_arch -mtune=$cpu_arch -pipe -fPIC' "
+        mode_label="Low-Memory"
+        est_time="60-95 minutes"
+    else
+        build_env+="PYTHON_CONFIGURE_OPTS='--enable-shared --enable-optimizations' "
+    fi
+
+    # ---------------------------------------------------------------------------
+    # 3. Write a self-contained build script (mirrors run_with_progress pattern)
+    # ---------------------------------------------------------------------------
+    local log_file="${TEMP_DIR:-/tmp}/qz_setup.log"
+    local script_file="${TEMP_DIR:-/tmp}/qz_pyenv_build.sh"
+
+    cat > "$script_file" <<EOF
+#!/bin/bash
+export PYENV_ROOT="$PYENV_ROOT"
+export PATH="\$PYENV_ROOT/bin:\$PATH"
+sudo -u "$TARGET_USER" bash -c "$build_env \$PYENV_ROOT/bin/pyenv install -v 3.11.9"
+EOF
+    chmod +x "$script_file"
+
+    # ---------------------------------------------------------------------------
+    # 4. Draw the header — clean, minimal, consistent with other steps
+    # ---------------------------------------------------------------------------
+    draw_bottom_panel_header "BUILDING PYTHON 3.11.9" "false"
+    clear_info_area
+    draw_sealed_row $((LOG_TOP + 1)) "   ${WHITE}Compiling Python 3.11.9 ${GRAY}(${mode_label})${NC}"
+    draw_sealed_row $((LOG_TOP + 3)) "   ${GRAY}Estimated time: ${est_time} — do not interrupt${NC}"
+    draw_bottom_border
+
+    # ---------------------------------------------------------------------------
+    # 5. Launch build and animate: knight-rider bar + elapsed MM:SS timer
+    # ---------------------------------------------------------------------------
+    : > "$log_file"
+    bash "$script_file" > "$log_file" 2>&1 &
+    local pid=$!
+
+    local bar_width=40 pulse_width=6 pos=0 dir=1
+    local start_time=$SECONDS
+    enter_ui_mode
+
+    while kill -0 "$pid" 2>/dev/null; do
+        # --- knight-rider bar ---
+        local bar_str=""
+        for ((i=0; i<bar_width; i++)); do
+            if (( i >= pos && i < pos + pulse_width )); then
+                bar_str="${bar_str}━"
+            else
+                bar_str="${bar_str}─"
+            fi
+        done
+
+        # --- elapsed timer ---
+        local elapsed=$(( SECONDS - start_time ))
+        local mins=$(( elapsed / 60 ))
+        local secs=$(( elapsed % 60 ))
+        printf -v timer_str "%02d:%02d" "$mins" "$secs"
+
+        # --- single row: bar  timer ---
+        draw_sealed_row $((LOG_TOP + 5)) "                   ${CYAN}${bar_str}${NC}  ${GRAY}${timer_str}${NC}"
+
+        # --- advance pulse position ---
+        if (( dir == 1 )); then
+            (( pos++ ))
+            (( pos + pulse_width >= bar_width )) && dir=-1
+        else
+            (( pos-- ))
+            (( pos <= 0 )) && dir=1
+        fi
+
+        read -t 0.1 -N 0 2>/dev/null || true
+    done
+
+    wait "$pid"
+    local exit_code=$?
+
+    # ---------------------------------------------------------------------------
+    # 6. Handle failure (OOM-aware)
+    # ---------------------------------------------------------------------------
+    if [[ $exit_code -ne 0 ]]; then
+        if grep -q "virtual memory exhausted\|Cannot allocate memory" "$log_file" 2>/dev/null; then
+            draw_error_screen "OUT OF MEMORY" \
+                "Python build failed — not enough memory.\n\n  1. Enable zram if not already active\n  2. Add emergency swap (see README)\n  3. Close other applications and retry" "wait"
+        else
+            local log_excerpt
+            log_excerpt=$(grep -a "." "$log_file" 2>/dev/null | tail -n 5 | sed 's/[[:cntrl:]]\+//g')
+            draw_error_screen "PYTHON BUILD FAILED" "Error during compilation:\n${log_excerpt}" "wait"
+        fi
+        return 1
+    fi
+
+    # ---------------------------------------------------------------------------
+    # 7. Post-build: set global version + verify
+    # ---------------------------------------------------------------------------
+    if ! sudo -u "$TARGET_USER" bash -c "$PYENV_ROOT/bin/pyenv global 3.11.9" >>"$log_file" 2>&1; then
+        draw_error_screen "PYENV GLOBAL FAILED" "Failed to set Python 3.11.9 as the default version." "wait"
+        return 1
+    fi
+
+    local python_version
+    python_version=$("$TARGET_HOME/.pyenv/versions/3.11.9/bin/python3" --version 2>&1 | grep -oP '\d+\.\d+\.\d+')
+
+    if [[ "$python_version" != "3.11.9" ]]; then
+        draw_error_screen "VERIFICATION FAILED" \
+            "Version mismatch after install.\n  Expected: 3.11.9\n  Got:      ${python_version:-unknown}" "wait"
+        return 1
+    fi
+
+    # ---------------------------------------------------------------------------
+    # 8. Success screen — show where it lives and how long it took
+    # ---------------------------------------------------------------------------
+    local total_elapsed=$(( SECONDS - start_time ))
+    local total_mins=$(( total_elapsed / 60 ))
+    local total_secs=$(( total_elapsed % 60 ))
+    printf -v total_time "%02d:%02d" "$total_mins" "$total_secs"
+
+    draw_bottom_panel_header "PYTHON BUILD COMPLETE" "false"
+    clear_info_area
+    draw_sealed_row $((LOG_TOP + 2)) "   ${GREEN}✓ Python 3.11.9 installed successfully${NC}"
+    draw_sealed_row $((LOG_TOP + 4)) "   Location:   ${CYAN}$TARGET_HOME/.pyenv/versions/3.11.9${NC}"
+    draw_sealed_row $((LOG_TOP + 5)) "   Build time: ${CYAN}${total_time}${NC}"
+
+    draw_bottom_border "Press ENTER to continue"
+    read -rsn1 </dev/tty
+
+    IS_PYENV_INSTALLED=true
+    update_status "python311" "pass"
+    return 0
+}
+
+# Main pyenv installation flow with interactive menu
+install_python311_via_pyenv() {
+    local ram_mb
+    ram_mb=$(get_total_ram_mb)
+    local is_low_mem=false
+    is_low_memory_system && is_low_mem=true
+
+    # Step 1: Check and offer zram for low-memory systems
+    if [[ "$is_low_mem" == "true" ]]; then
+        local zram_status
+        zram_status=$(check_zram_status)
+        
+        if [[ "$zram_status" == "not_installed" ]]; then
+            if prompt_install_zram; then
+                if ! install_zram; then
+                    draw_error_screen "ZRAM INSTALLATION FAILED" "Cannot proceed without swap on low-memory system.\n\nPlease install zram manually or add swap space." "wait"
+                    return 1
+                fi
+            else
+                # User declined zram - warn about risks
+                draw_bottom_panel_header "WARNING" "false"
+                clear_info_area
+                local r=$((LOG_TOP + 1))
+                draw_sealed_row "$r" "   ${YELLOW}Building Python without additional swap is risky${NC}"
+                ((r++))
+                draw_sealed_row "$r" "   ${YELLOW}on low-memory systems.${NC}"
+                ((r++))
+                ((r++))
+                draw_sealed_row "$r" "   ${WHITE}Continue anyway?${NC}"
+                
+                if ! prompt_yes_no 6; then
+                    return 1
+                fi
+            fi
+        elif [[ "$zram_status" == "inactive" ]]; then
+            # zram installed but not active
+            draw_bottom_panel_header "ZRAM INACTIVE" "false"
+            clear_info_area
+            local r=$((LOG_TOP + 1))
+            draw_sealed_row "$r" "   zram is installed but not currently active."
+            ((r++))
+            ((r++))
+            draw_sealed_row "$r" "   Activate it now?"
+            
+            if prompt_yes_no 4; then
+                if ! run_with_progress "Activating zram" "systemctl restart zramswap"; then
+                    draw_error_screen "ZRAM ACTIVATION FAILED" "Failed to activate zram." "wait"
+                    return 1
+                fi
+            fi
+        fi
+    fi
+    
+    # Step 2: Install pyenv dependencies
+    if ! install_pyenv_dependencies; then
+        return 1
+    fi
+    
+    # Step 3: Install pyenv tool
+    if ! install_pyenv_tool; then
+        return 1
+    fi
+    
+    # Step 4: Build Python 3.11.9
+    if ! build_python_with_pyenv; then
+        return 1
+    fi
+    
+    return 0
+}
+
 install_python311() {
+    # Check for --pyenv flag to force pyenv installation
+    if [[ "${FORCE_PYENV:-0}" -eq 1 ]]; then
+        draw_bottom_panel_header "FORCED PYENV INSTALLATION" "false"
+        clear_info_area
+        
+        local current_os
+        current_os=$(grep PRETTY_NAME /etc/os-release | cut -d'"' -f2)
+        local ram_mb
+        ram_mb=$(get_total_ram_mb)
+        
+        local r=$((LOG_TOP + 1))
+        draw_sealed_row "$r" "   OS: ${CYAN}$current_os${NC}"
+        ((r++))
+        draw_sealed_row "$r" "   RAM: ${CYAN}${ram_mb}MB${NC}"
+        ((r++))
+        ((r++))
+        draw_sealed_row "$r" "   ${WHITE}Install Python 3.11 using pyenv? ${GRAY}(Compilation will take 10-95 minutes)${NC}"
+
+        if prompt_yes_no 5; then
+            # User confirmed pyenv installation
+            install_python311_via_pyenv
+            return $?
+        else
+            # User declined pyenv installation
+            update_status "python311" "fail"
+            return 1
+        fi
+    fi
+    
     # Check if Python 3.11 is specifically available
     local py311_available=false
     local newer_py_available=false
@@ -4305,46 +4900,41 @@ install_python311() {
             return 1
         fi
     else
-        # Not available - determine if too old or too new
+        # Python 3.11 not available via apt - offer pyenv installation
         draw_bottom_panel_header "PYTHON 3.11 REQUIRED" "false"
         clear_info_area
         
-        local current_os=$(grep PRETTY_NAME /etc/os-release | cut -d'"' -f2)
+        local current_os
+        current_os=$(grep PRETTY_NAME /etc/os-release | cut -d'"' -f2)
+        local ram_mb
+        ram_mb=$(get_total_ram_mb)
         
-        # Row 1: Status
-        draw_sealed_row $((LOG_TOP + 1)) "   Python 3.11 not found (Required for C++ embedding)"
-        # Row 2: OS Info
-        draw_sealed_row $((LOG_TOP + 2)) "   OS: $current_os"
+        local r=$((LOG_TOP + 1))
+        draw_sealed_row "$r" "   Python 3.11 not available via apt on this system"
+        ((r++))
+        draw_sealed_row "$r" "   OS: ${CYAN}$current_os${NC}"
+        ((r++))
+        draw_sealed_row "$r" "   RAM: ${CYAN}${ram_mb}MB${NC}"
+        ((r++))
         
-        if [ "$newer_py_available" = true ]; then
-            # Row 3: Issue (Too new)
-            draw_sealed_row $((LOG_TOP + 3)) "   Issue: Has Python $system_py_version (need 3.11)"
-            # Row 4: Empty
-            draw_sealed_row $((LOG_TOP + 4)) " "
-            # Row 5-6: Solutions
-            draw_sealed_row $((LOG_TOP + 5)) "   Solutions: 1) Install pyenv + Python 3.11"
-            draw_sealed_row $((LOG_TOP + 6)) "             2) Use Debian 12/Ubuntu 22.04"
+        if [[ "$newer_py_available" == "true" ]]; then
+            draw_sealed_row "$r" "   ${YELLOW}System has Python $system_py_version (QZ needs 3.11)${NC}"
         else
-            # Row 3: Issue (Too old)
-            draw_sealed_row $((LOG_TOP + 3)) "   Issue: OS too old (no Python 3.11 packages)"
-            # Row 4: Empty
-            draw_sealed_row $((LOG_TOP + 4)) " "
-            # Row 5-6: Solutions  
-            draw_sealed_row $((LOG_TOP + 5)) "   Solutions: 1) Upgrade to Debian 12/Bookworm"
-            draw_sealed_row $((LOG_TOP + 6)) "             2) Install pyenv (see README)"
+            draw_sealed_row "$r" "   ${YELLOW}System Python is too old (QZ needs 3.11)${NC}"
         fi
+        ((r++))
+        ((r++))
+        draw_sealed_row "$r" "   ${WHITE}Install Python 3.11 using pyenv? ${GRAY}(Compilation will take 10-95 minutes)${NC}"
         
-        # Row 7: Empty separator
-        draw_sealed_row $((LOG_TOP + 7)) " "
-        # Row 8: Action
-        draw_sealed_row $((LOG_TOP + 8)) "   See README.md: 'Manual Installation' section"
-        
-        # Wait for user acknowledgment (drawn below the 9-row panel)
-        local dummy
-        read -rs -n1 -p "   Press any key to exit..." dummy
-        
-        update_status "python311" "fail"
-        return 1
+        if prompt_yes_no 7; then
+            # User chose to install via pyenv
+            install_python311_via_pyenv
+            return $?
+        else
+            # User declined pyenv installation
+            update_status "python311" "fail"
+            return 1
+        fi
     fi
 }
 
@@ -4647,20 +5237,19 @@ init_width_calculator
 
 # Global helper for the action menu context
 # Defined outside to ensure visibility to show_unified_menu
-_render_action_context() {
-    # Draw text below the menu items (Rows 18 and 19 approx)
-    local r=$((LOG_TOP + 5))
-    draw_sealed_row "$r" "   Guided setup detects missing components (Python, packages, permissions, etc)"
-    draw_sealed_row $((r + 1)) "   and guides you through resolving them step-by-step."
-}
-
+# OBSOLETE: Context rendering replaced by help panel system
+# _render_action_context() was removed as help text is now shown in the right panel
 
 prompt_action_menu() {
     local fails=$1
     local options=("Guided Setup" "Exit")
+    local help_texts=(
+        "Run an interactive wizard that will automatically fix detected issues step-by-step. Recommended for first-time setup or when multiple components need attention."
+        "Exit the setup dashboard without making changes. You can run this tool again later to resolve the issues."
+    )
     
-    # 5th Arg = "true" (Enable Legend)
-    show_unified_menu options 0 "ISSUES DETECTED ($fails)" "FULL" "true" "_render_action_context"
+    # 5th Arg = "true" (Enable Legend), 6th Arg = empty (no context callback), 7th Arg = Help Text Array
+    show_unified_menu options 0 "ISSUES DETECTED ($fails)" "FULL" "true" "" help_texts
     local idx=$?
     
     if [[ $idx -eq 255 ]]; then return 1; fi
@@ -4675,6 +5264,7 @@ show_unified_menu() {
     # $4: Draw Strategy
     # $5: Show Legend ("true"/"false")
     # $6: Context Callback Function Name
+    # $7: Help Text Array Name (optional)
     
     local -n _ref_items=$1
     local selected=${2:-0}
@@ -4682,16 +5272,39 @@ show_unified_menu() {
     local draw_strategy=${4:-"FULL"}
     local show_legend_hint=${5:-"false"}
     local context_callback=${6:-}
+    local help_array_name=${7:-}
 
     local total_count=${#_ref_items[@]}
     
-    local pad_top=1
+    # Clamp selected to valid range — the caller's index may be stale if the
+    # menu was rebuilt with fewer items (e.g. after removing the service).
+    if (( selected >= total_count )); then selected=$(( total_count - 1 )); fi
+    if (( selected < 0 )); then selected=0; fi
     local pad_bottom=1
     local top_row=${LOG_TOP:-13}
     local bottom_row=${LOG_BOTTOM:-21}
     local full_height=$(( bottom_row - top_row + 1 ))
     local content_height=$(( full_height - 2 ))
     local inner_cols=${INNER_COLS:-80}
+    
+    # Help panel configuration
+    local has_help=false
+    if [[ -n "$help_array_name" ]]; then
+        local -n _ref_help=$help_array_name
+        if [[ ${#_ref_help[@]} -gt 0 ]]; then
+            has_help=true
+        fi
+    fi
+    
+    # Calculate column widths
+    local menu_width help_width
+    if [[ "$has_help" == "true" ]]; then
+        menu_width=$(( inner_cols / 2 - 1 ))  # Left half
+        help_width=$(( inner_cols - menu_width ))  # Right half (no separator)
+    else
+        menu_width=$inner_cols
+        help_width=0
+    fi
     
     if [[ $total_count -eq 0 ]]; then return 255; fi
 
@@ -4727,14 +5340,22 @@ show_unified_menu() {
     fi
 
     local empty_space
-    printf -v empty_space "%*s" "$inner_cols" ""
-    local empty_line="${BLUE}║${NC}${empty_space}${BLUE}║${NC}"
+    printf -v empty_space "%*s" "$menu_width" ""
+    local empty_line_menu="${BLUE}║${NC}${empty_space}"
+    
+    if [[ "$has_help" == "true" ]]; then
+        local help_empty_space
+        printf -v help_empty_space "%*s" "$help_width" ""
+        empty_line_menu="${empty_line_menu}${help_empty_space}${BLUE}║${NC}"
+    else
+        empty_line_menu="${empty_line_menu}${BLUE}║${NC}"
+    fi
 
-    # Helper to Build Row
+    # Helper to Build Menu Row
     _build_menu_row() {
         local _r=$1; local _s_idx=$2; local _sel=$3
         if (( _r == 0 )) || (( _r == full_height - 1 )); then
-             _row_out="$empty_line"
+             _row_out="$empty_line_menu"
              return
         fi
         local _rel_item=$(( _r - 1 ))
@@ -4743,7 +5364,7 @@ show_unified_menu() {
         if (( _abs_idx < total_count )); then
             local _txt="${_ref_items[_abs_idx]}"
             local _w=${_local_widths[_abs_idx]:-0}
-            local _mw=$(( inner_cols - 5 ))
+            local _mw=$(( menu_width - 5 ))
             if (( _w > _mw )); then _txt="${_txt:0:$_mw}"; _w=$_mw; fi
             
             if (( _abs_idx == _sel )); then
@@ -4751,13 +5372,80 @@ show_unified_menu() {
             else
                 _content="     ${GRAY}${_txt}${NC}"
             fi
-            local _pl=$(( inner_cols - 5 - _w ))
+            local _pl=$(( menu_width - 5 - _w ))
             [[ $_pl -lt 0 ]] && _pl=0
             printf -v _content "%s%*s" "$_content" "$_pl" ""
         else
-            printf -v _content "%*s" "$inner_cols" ""
+            printf -v _content "%*s" "$menu_width" ""
         fi
-        _row_out="${BLUE}║${NC}${_content}${BLUE}║${NC}"
+        
+        if [[ "$has_help" == "true" ]]; then
+            local help_empty
+            printf -v help_empty "%*s" "$help_width" ""
+            _row_out="${BLUE}║${NC}${_content}${help_empty}${BLUE}║${NC}"
+        else
+            _row_out="${BLUE}║${NC}${_content}${BLUE}║${NC}"
+        fi
+    }
+    
+    # Helper to Draw Help Panel
+    _draw_help_panel() {
+        local _sel=$1
+        if [[ "$has_help" != "true" ]]; then return; fi
+        if [[ $_sel -ge ${#_ref_help[@]} ]]; then return; fi
+        
+        local help_text="${_ref_help[_sel]}"
+        local -a help_lines=()
+        
+        # Word wrap help text to fit help panel width
+        local max_width=$(( help_width - 4 ))  # Leave some padding
+        while IFS= read -r line; do
+            if [[ ${#line} -le $max_width ]]; then
+                help_lines+=("$line")
+            else
+                # Simple word wrap
+                local remaining="$line"
+                while [[ -n "$remaining" ]]; do
+                    if [[ ${#remaining} -le $max_width ]]; then
+                        help_lines+=("$remaining")
+                        remaining=""
+                    else
+                        local cut_pos=$max_width
+                        # Try to break at a space
+                        local substr="${remaining:0:$max_width}"
+                        if [[ "$substr" =~ \  ]]; then
+                            cut_pos="${substr% *}"
+                            cut_pos=${#cut_pos}
+                        fi
+                        help_lines+=("${remaining:0:$cut_pos}")
+                        remaining="${remaining:$cut_pos}"
+                        remaining="${remaining# }"  # Trim leading space
+                    fi
+                done
+            fi
+        done <<< "$help_text"
+        
+        # Draw help panel
+        local help_row=0
+        local col_offset=$(( menu_width + 2 ))  # Position after menu (no separator)
+        
+        for ((r=1; r<full_height-1; r++)); do
+            local screen_row=$(( top_row + r ))
+            local line_text=""
+            
+            if [[ $help_row -lt ${#help_lines[@]} ]]; then
+                line_text="${help_lines[help_row]}"
+                ((help_row++))
+            fi
+            
+            # Pad and draw
+            local line_len=${#line_text}
+            local pad_len=$(( help_width - 2 - line_len ))
+            [[ $pad_len -lt 0 ]] && pad_len=0
+            
+            printf -v padded_line "  %s%*s" "$line_text" "$pad_len" ""
+            print_at_col "$screen_row" "$col_offset" "${GRAY}${padded_line}${NC}"
+        done
     }
 
     # --- LOOP ---
@@ -4777,6 +5465,9 @@ show_unified_menu() {
             done
             local ui_fd; ui_fd=$(get_safe_ui_fd)
             printf %b "$buffer" >&"${ui_fd}" 2>/dev/null || true
+            
+            # Draw help panel for current selection
+            _draw_help_panel "$selected"
             
             if [[ -n "$context_callback" ]] && [[ "$(type -t "$context_callback")" == "function" ]]; then
                 "$context_callback"
@@ -4805,6 +5496,10 @@ show_unified_menu() {
             fi
             local ui_fd; ui_fd=$(get_safe_ui_fd)
             printf %b "$buffer" >&"${ui_fd}" 2>/dev/null || true
+            
+            # Update help panel for new selection
+            _draw_help_panel "$selected"
+            
             prev_selected=$selected
         fi
 
@@ -4874,9 +5569,19 @@ prompt_success_menu() {
         "Exit"
     )
     
+    local help_texts=(
+        "Run a streamlined configuration wizard to set up your equipment, scan for Bluetooth devices, configure user profile, and test ANT+ connectivity in one guided flow."
+        "Select and configure your fitness equipment type (bike, treadmill, rower, elliptical). This determines which sensors and features will be enabled for your workouts."
+        "Scan for nearby Bluetooth devices and save detected equipment to your configuration. Useful for finding your bike trainer, heart rate monitor, or other BLE sensors."
+        "Configure your personal training profile including weight, age, gender, and distance unit preferences. This data is used for accurate power and calorie calculations."
+        "Manage the QZ systemd service: start, stop, restart, enable auto-start on boot, or configure service flags like logging and ANT+ footpod support."
+        "Run ANT+ dongle diagnostics to verify USB communication, check signal quality, and test footpod detection. Helps troubleshoot connectivity issues with your ANT+ sensors."
+        "Exit the setup dashboard and return to the shell. All configuration changes are saved automatically."
+    )
+    
     enter_ui_mode
     
-    show_unified_menu options 0 "$title" "FULL" "true"
+    show_unified_menu options 0 "$title" "FULL" "true" "" help_texts
     local idx=$?
     
     if [[ $idx -eq 255 ]]; then return 6; fi # Exit is now index 6
@@ -5043,8 +5748,8 @@ run_guided_mode() {
         if [ $res -eq 0 ]; then
             # A. Select Equipment
             if select_equipment_flow "true"; then
-                # B. Configure Profile
-                configure_user_profile
+                # B. Configure Profile (with wizard mode enabled)
+                configure_user_profile "true"
                 
                 # C. Conditional Bluetooth Scan
                 # If Emulation mode is selected, we DO NOT scan for Bluetooth hardware
@@ -5129,10 +5834,23 @@ run_uninstall_mode() {
         items+=("Application System Runtime Packages (Deep Clean)")
     fi
     
+    # Detect Python installation type
     local core_sys_python_present=false
-    if command -v python3.11 >/dev/null 2>&1; then
-         core_sys_python_present=true
-         items+=("${RED}Core System Python 3.11${NC}")
+    local pyenv_python_present=false
+    
+    # Check if system Python 3.11 is installed via apt
+    if command -v python3.11 &> /dev/null; then
+        core_sys_python_present=true
+        items+=("${RED}Core System Python 3.11${NC}")
+    fi
+
+    # Check if pyenv Python 3.11 is installed
+    if [[ -d "$TARGET_HOME/.pyenv/versions/3.11.9" ]]; then
+        pyenv_python_present=true
+        # Only add to list if not already added via IS_PYENV_INSTALLED check above
+        if [[ "${IS_PYENV_INSTALLED:-false}" != "true" ]]; then
+            items+=("Pyenv Python 3.11")
+        fi
     fi
 
     # 4. SHOW MENU PROMPT
@@ -5171,10 +5889,13 @@ run_uninstall_mode() {
         draw_sealed_row "$warning_row" ""
         warning_row=$((warning_row + 1))
     done
-    
+
     local prompt_row=$((warning_row))
-    update_sealed_row_content "$prompt_row" "   ${YELLOW}WARNING:${NC} Removing Core System Python is HIGH-RISK."
-    ((prompt_row++))
+    # Only show high-risk warning if removing core system Python
+    if [[ "$core_sys_python_present" == "true" ]]; then
+        update_sealed_row_content "$prompt_row" "   ${YELLOW}WARNING:${NC} Removing Core System Python is HIGH-RISK."
+        ((prompt_row++))
+    fi
     update_sealed_row_content "$prompt_row" "   Proceed with removal of ALL components listed above?"
     ((prompt_row++)) # Move prompt_row down one more time for spacing
     
@@ -5187,18 +5908,21 @@ run_uninstall_mode() {
 
     # 5. EXECUTE CLEANUP STEPS
 
-    # A. Core System Python (EXTREME RISK)
+    # A. Core System Python (EXTREME RISK) - Only if system Python detected
     if [[ "$core_sys_python_present" == "true" ]]; then
         draw_bottom_panel_header "CONFIRM HIGH-RISK REMOVAL" "false"
         clear_info_area
         draw_sealed_row $((LOG_TOP + 2)) "   ${BOLD_RED}FINAL WARNING:${NC} You are about to remove the OS's core python3.11."
-        draw_sealed_row $((LOG_TOP + 3)) "   This may break 'apt', 'sudo', and other system tools."
         
         exit_ui_mode
         
         if prompt_input_yes; then
             enter_ui_mode
             run_step "Removing Core System Python" "apt-get purge -y python3.11" || return 1
+            # Update status after removal
+            STATUS_MAP["python311"]="fail"
+            IS_PYSYS_INSTALLED=false
+            draw_status_panel
         else
             enter_ui_mode
             draw_info_screen "HIGH-RISK REMOVAL ABORTED" "Core system Python will be kept." 1
@@ -5209,41 +5933,71 @@ run_uninstall_mode() {
     if [[ "$sys_pkgs_cleanable" == "true" ]]; then
         local pkgs_to_remove="python3.11-venv python3-pip-whl python3-setuptools-whl libpython3.11"
         run_step "Removing Python Artifacts" "apt-get purge -y $pkgs_to_remove" || return 1
+        draw_status_panel
     fi
     
     # C. Pyenv Python (The Isolated Build)
-    if [[ "${IS_PYENV_INSTALLED:-false}" == "true" ]]; then
+    if [[ "${IS_PYENV_INSTALLED:-false}" == "true" ]] || [[ "$pyenv_python_present" == "true" ]]; then
         local p_root="$TARGET_HOME/.pyenv"
         local p_bin="$p_root/bin/pyenv"
         local py_rem_cmd="sudo -u \"$TARGET_USER\" bash -c \"export PYENV_ROOT='$p_root'; export PATH='\$PYENV_ROOT/bin:\$PATH'; if [ -x '$p_bin' ]; then $p_bin uninstall -f 3.11.9; fi; rm -rf '$p_root'\""
-        run_step "Removing Pyenv Tool and Python" "$py_rem_cmd" || return 1
+        run_step "Removing Pyenv Python" "$py_rem_cmd" || return 1
+        # Update status after removal
+        STATUS_MAP["python311"]="fail"
+        IS_PYENV_INSTALLED=false
+        draw_status_panel
     fi
     
     # D. Virtual Environment
-    if [[ -d "$TARGET_HOME/ant_venv" ]]; then run_step "Removing Virtual Environment" "rm -rf \"$TARGET_HOME/ant_venv\"" || return 1; fi
+    if [[ -d "$TARGET_HOME/ant_venv" ]]; then 
+        run_step "Removing Virtual Environment" "rm -rf \"$TARGET_HOME/ant_venv\"" || return 1
+        # Update status after removal
+        STATUS_MAP["venv"]="fail"
+        draw_status_panel
+    fi
+    
+    # E. Python Packages
+    # Update PIPs status
+    STATUS_MAP["pips"]="fail"
+    draw_status_panel
 
-    # E. Deep Clean Execution (System Runtime Packages)
+    # F. Deep Clean Execution (System Runtime Packages)
     if [[ "$deep_clean_available" == "true" ]]; then
         local pkgs_to_remove="libqt5core5a libqt5qml5 libqt5quick5 libqt5bluetooth5 libusb-1.0-0 bluez usbutils"
         
         run_step "Deep Cleaning System Packages" "apt-get purge -y $pkgs_to_remove" || return 1
+        # Update status after removal
+        STATUS_MAP["qt5_libs"]="fail"
+        STATUS_MAP["qml_modules"]="fail"
+        STATUS_MAP["bluetooth"]="fail"
+        STATUS_MAP["lsusb"]="fail"
+        draw_status_panel
         
         if groups "$TARGET_USER" 2>/dev/null | grep -q plugdev; then
             run_step "Removing User from plugdev Group" "gpasswd -d $TARGET_USER plugdev" || return 1
+            STATUS_MAP["plugdev"]="fail"
+            draw_status_panel
         fi
     fi
 
-    # F. Services and Config
+    # G. Services and Config
     if [[ -f "$SERVICE_FILE_QZ" ]] || [[ -f "/etc/systemd/system/qz.service" ]]; then
         local svc_cmd="systemctl stop qz.service 2>/dev/null; systemctl disable qz.service 2>/dev/null; rm -f \"$SERVICE_FILE_QZ\" /etc/systemd/system/qz.service; systemctl daemon-reload"
         run_step "Removing QZ Service" "$svc_cmd" || return 1
+        STATUS_MAP["qz_service"]="fail"
+        draw_status_panel
     fi
     if [[ -f "/etc/udev/rules.d/99-ant-usb.rules" ]]; then
         run_step "Removing USB udev rules" "rm -f /etc/udev/rules.d/99-ant-usb.rules && udevadm control --reload-rules" || return 1
+        STATUS_MAP["udev_rules"]="fail"
+        draw_status_panel
     fi
-    if [[ -d "$CONFIG_DIR" ]]; then run_step "Removing Config Files" "rm -rf \"$CONFIG_DIR\"" || return 1; fi
+    if [[ -d "$CONFIG_DIR" ]]; then 
+        run_step "Removing Config Files" "rm -rf \"$CONFIG_DIR\"" || return 1
+        draw_status_panel
+    fi
 
-    # G. Final Autoremove
+    # H. Final Autoremove
     run_step "Running Final System Autoremove" "apt-get autoremove -y" || return 1
 
     # 6. FINAL STATUS CHECK AND EXIT (New)
@@ -5857,7 +6611,7 @@ generate_service_file() {
     # 2. FIX: Reload Main Config to check for Emulation Status (fakedevice_treadmill)
     load_config_into_arrays "$CONFIG_FILE"
 
-    if [ "$SETUP_MODE" != "headless" ]; then
+    if [ "$SETUP_MODE" != "headless" ] && [ -z "${_GEN_SVC_SILENT:-}" ]; then
         clear_info_area
         local msg="${YELLOW}Generating service file...${NC}"
         local msg_plain="Generating service file..."
@@ -5900,9 +6654,31 @@ generate_service_file() {
     local flags
     flags=$(build_service_flags)
     
+    # Detect pyenv vs system Python — embedded interpreters (like QZ's
+    # Py_Initialize) need PYTHONHOME to locate the stdlib and lib-dynload
+    # C-extension modules (e.g. _struct).  Without it they default to /usr
+    # which is wrong for pyenv.
+    local python_home=""
+    local ld_path="/usr/local/lib:/usr/lib"
+    local pyenv_ver="${TARGET_HOME}/.pyenv/versions/3.11.9"
+    if [[ -f "$pyenv_ver/bin/python3" ]]; then
+        python_home="$pyenv_ver"
+        ld_path="${pyenv_ver}/lib:/usr/local/lib:/usr/lib"
+    fi
+
     if ! ensure_ram_temp_dir >/dev/null 2>&1; then TEMP_DIR=/tmp; fi
     local tmp
     tmp=$(mktemp "$TEMP_DIR/qz.service.XXXXXX")
+
+    # Build the ExecStart command.  The critical env vars (PYTHONHOME,
+    # LD_LIBRARY_PATH) are exported inside the bash -c string as
+    # belt-and-suspenders: the wrapper's own env -i / LAUNCH_ENV logic is the
+    # primary delivery path, but these exports cover the case where someone
+    # runs the binary directly without the wrapper.
+    local exec_cmd="${bin} ${flags}"
+    if [[ -n "$python_home" ]]; then
+        exec_cmd="export PYTHONHOME=${python_home}; export LD_LIBRARY_PATH=${ld_path}; ${exec_cmd}"
+    fi
     
     cat > "$tmp" <<EOF
 [Unit]
@@ -5914,8 +6690,9 @@ User=root
 Group=plugdev
 Environment="QZ_USER=${user}"
 WorkingDirectory=$(dirname "$bin")
-Environment="LD_LIBRARY_PATH=/usr/local/lib:/usr/lib"
-ExecStart=/bin/bash -c '${bin} ${flags}'
+${python_home:+Environment="PYTHONHOME=${python_home}"
+}Environment="LD_LIBRARY_PATH=${ld_path}"
+ExecStart=/bin/bash -c '${exec_cmd}'
 KillSignal=SIGINT
 SuccessExitStatus=130
 
@@ -5957,15 +6734,35 @@ install_service_ui() {
     if ! ensure_ram_temp_dir >/dev/null 2>&1; then
         TEMP_DIR=/tmp
     fi
+
+    # Shared layout for centred status messages
+    local row=$((LOG_TOP + 2))
+    local msg msg_plain w col
+
+    # --- Step 1: Generate ---
+    draw_bottom_panel_header "INSTALLING SERVICE" "false"
+    clear_info_area
+    msg="${YELLOW}Generating service file...${NC}"
+    msg_plain="Generating service file..."
+    w=$(get_display_width "$msg_plain")
+    col=$(( (INNER_COLS - w) / 2 ))
+    draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
+    draw_bottom_border
+
     local gen_out tmp
-    gen_out=$(generate_service_file 2>&1) || true
+    _GEN_SVC_SILENT=1 gen_out=$(generate_service_file 2>&1) || true
+    unset _GEN_SVC_SILENT
     tmp="${ACTIVE_SERVICE_FILE:-$gen_out}"
     # Normalize tmp to the last non-empty line (generate_service_file may emit warnings before printing the path)
     tmp=$(printf '%s' "$tmp" | tr -d '\r' | awk 'NF{line=$0} END{print line}')
 
-    # Attempt installation as root (using sudo if needed).
-    # We previously generated a temp service file as non-root (in $tmp).
-    # Move that file into the systemd unit path under root and reload.
+    # --- Step 2: Install (move into systemd path) ---
+    msg="${YELLOW}Installing service file...${NC}"
+    msg_plain="Installing service file..."
+    w=$(get_display_width "$msg_plain")
+    col=$(( (INNER_COLS - w) / 2 ))
+    draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
+
     local svc_target="$SERVICE_FILE_QZ"
     # Attempt to move the generated service file into place as root. Treat
     # installation as successful if the file exists at the target path after
@@ -5998,8 +6795,13 @@ install_service_ui() {
         ACTIVE_SERVICE_FILE="${svc_target}"
     fi
 
+    # --- Step 3: Reload systemd & report ---
     if [[ $mv_ok -eq 0 ]]; then
-        # Try daemon-reload but don't treat failures as install failures
+        msg="${YELLOW}Reloading systemd...${NC}"
+        msg_plain="Reloading systemd..."
+        w=$(get_display_width "$msg_plain")
+        col=$(( (INNER_COLS - w) / 2 ))
+        draw_sealed_row "$row" "$(printf '%*s' "$((col-2))" '')${msg}"
         if ! run_as_root_or_sudo systemctl daemon-reload >/dev/null 2>&1; then
             draw_info_screen "SERVICE INSTALLED" "Service file installed: ${svc_target}\nWarning: systemd daemon-reload failed; you may need to run 'sudo systemctl daemon-reload' manually." 3
         else
@@ -6365,7 +7167,7 @@ build_service_menu_options() {
     local opts=()
 
     opts+=("Configure Service Flags")
-    opts+=("View Current Configuration")
+    # REMOVED: "View Current Configuration" - not needed with help panel
     
     # NOTE: "Regenerate Service File" removed. 
     # Logic will handle this automatically on exit.
@@ -6375,14 +7177,23 @@ build_service_menu_options() {
             opts+=("Generate & Install Service")
             ;;
         stopped)
+            if [[ "${SVC_PYTHONHOME_STALE:-false}" == "true" ]]; then
+                opts+=("Generate & Install Service")
+            fi
             opts+=("Start Service")
             opts+=("Remove Service")
             ;;
         running)
+            if [[ "${SVC_PYTHONHOME_STALE:-false}" == "true" ]]; then
+                opts+=("Generate & Install Service")
+            fi
             opts+=("Restart Service")
             opts+=("Stop Service")
             ;;
         failed)
+            if [[ "${SVC_PYTHONHOME_STALE:-false}" == "true" ]]; then
+                opts+=("Generate & Install Service")
+            fi
             opts+=("Restart Service")
             if service_needs_exit_130_check; then
                 opts+=("Update Service Configuration")
@@ -6500,7 +7311,47 @@ service_menu_flow() {
         local options=()
         mapfile -t options < <(build_service_menu_options)
         
-        show_unified_menu options "$selected" "SERVICE CONFIGURATION" "$draw_mode"
+        # Build help text array to match options
+        local status
+        status=$(get_service_status)
+        local help_texts=()
+        
+        for opt in "${options[@]}"; do
+            case "$opt" in
+                *"Configure Service Flags"*)
+                    help_texts+=("Configure systemd service flags including logging, console output, ANT+ footpod support, and polling intervals. Changes are saved and applied automatically on exit.")
+                    ;;
+                *"Generate & Install Service"*)
+                    help_texts+=("Create and install the qz.service systemd unit file. This enables QZ to run as a background service and start automatically on boot if enabled.")
+                    ;;
+                *"Start Service"*)
+                    help_texts+=("Start the QZ systemd service immediately. The service will begin running in the background and connect to your configured equipment.")
+                    ;;
+                *"Stop Service"*)
+                    help_texts+=("Stop the currently running QZ service. This disconnects from equipment and terminates the background process. Does not disable auto-start.")
+                    ;;
+                *"Restart Service"*)
+                    help_texts+=("Restart the QZ service to apply configuration changes or recover from errors. This stops and immediately starts the service again.")
+                    ;;
+                *"Remove Service"*)
+                    help_texts+=("Completely remove the systemd service file and disable auto-start. QZ will no longer run as a background service but can still be run manually.")
+                    ;;
+                *"Enable Auto-Start"*)
+                    help_texts+=("Enable QZ to start automatically on system boot. The service will begin running in the background whenever your system starts up.")
+                    ;;
+                *"Disable Auto-Start"*)
+                    help_texts+=("Disable automatic startup on boot. The service must be started manually after each reboot. Does not affect the currently running service.")
+                    ;;
+                *"Update Service Configuration"*)
+                    help_texts+=("Apply the Exit 130 handler fix to the service file. This prevents systemd restart failures when the service is stopped normally.")
+                    ;;
+                *)
+                    help_texts+=("")
+                    ;;
+            esac
+        done
+        
+        show_unified_menu options "$selected" "SERVICE CONFIGURATION" "$draw_mode" "false" "" help_texts
         local exit_code=$?
         
         # --- EXIT HANDLER ---
@@ -6628,6 +7479,7 @@ USAGE:
 
     Interactive options:
         --uninstall    Start the uninstall menu immediately and exit
+        --pyenv        Force pyenv installation (skip system Python even if available)
 
 REQUIREMENTS:
     - Root privileges required for installation actions.
@@ -6683,6 +7535,9 @@ if [ $# -gt 0 ]; then
                 ;;
             --uninstall)
                 UNINSTALL_MODE=1
+                ;;
+            --pyenv)
+                FORCE_PYENV=1
                 ;;
             # (debug options removed)
             *)

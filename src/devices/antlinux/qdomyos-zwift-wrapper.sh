@@ -167,9 +167,44 @@ else
     export LD_LIBRARY_PATH="${PYTHON_LIB}:${CLEAN_LD_PATH}"
 fi
 
+# === PYTHONHOME — required for embedded Py_Initialize() with pyenv ===
+# QZ's C++ calls Py_Initialize() which needs PYTHONHOME to locate the
+# standard library and the lib-dynload C-extension modules (_struct,
+# _json, …).  Without it Python defaults to /usr — correct for a system
+# install, wrong for pyenv.
+#
+# We only derive it for pyenv paths; setting PYTHONHOME for system Python
+# is unnecessary and can cause subtle mismatches.  env -i later strips the
+# entire inherited environment, so the value must travel through LAUNCH_ENV
+# — derivation here is the only reliable path.
+#
+# Priority:
+#   1. Detected pyenv PYTHON_LIB   →  strip trailing /lib to get the prefix
+#   2. Inherited PYTHONHOME        →  from systemd Environment= or shell export
+PYTHON_HOME=""
+if [[ "$PYTHON_LIB" == *"/.pyenv/"* ]]; then
+    # PYTHON_LIB = .../versions/3.11.9/lib  →  PYTHONHOME = .../versions/3.11.9
+    PYTHON_HOME="${PYTHON_LIB%/lib}"
+fi
+[[ -z "$PYTHON_HOME" ]] && PYTHON_HOME="${PYTHONHOME:-}"
+
+# Pre-flight: if PYTHONHOME is set and the python binary exists under it,
+# verify _struct is importable.  Catches an incomplete pyenv build (e.g.
+# compiled without --enable-shared) before the binary launches and produces
+# an opaque "ModuleNotFoundError: No module named '_struct'" in C++ logs.
+if [[ -n "$PYTHON_HOME" ]] && [[ -x "${PYTHON_HOME}/bin/python3" ]]; then
+    if ! "${PYTHON_HOME}/bin/python3" -c "import _struct" 2>/dev/null; then
+        ERRORS+=("Python at ${PYTHON_HOME} cannot import _struct — the pyenv build may be incomplete. Recompile with: PYTHON_CONFIGURE_OPTS='--enable-shared' pyenv install -f 3.11.9")
+    fi
+fi
+
 # === CHECK 2: Qt5 Runtime Libraries ===
+# Cache ldconfig output once; forking ldconfig per-library is expensive on
+# constrained hardware (Pi Zero 2 W, ~10 ms per fork × 17 libs).
+_LDCONFIG_CACHE=$(ldconfig -p 2>/dev/null || true)
+
 # Qt5 Bluetooth is always required
-if ! ldconfig -p 2>/dev/null | grep "libQt5Bluetooth.so.5" >/dev/null 2>&1; then
+if ! echo "$_LDCONFIG_CACHE" | grep -q "libQt5Bluetooth.so.5"; then
     ERRORS+=("libQt5Bluetooth.so.5 not found (required for Bluetooth connectivity)")
 fi
 
@@ -195,9 +230,7 @@ QT5_LIBS=(
 )
 
 for lib in "${QT5_LIBS[@]}"; do
-    if ldconfig -p 2>/dev/null | grep "$lib" >/dev/null 2>&1; then
-        : # Library found
-    else
+    if ! echo "$_LDCONFIG_CACHE" | grep -q "$lib"; then
         MISSING_QT5+=("$lib")
     fi
 done
@@ -336,6 +369,13 @@ LAUNCH_ENV=(
     DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-}"
 )
 
+# Forward PYTHONHOME only when set.  env -i strips the entire inherited
+# environment so this append is the sole delivery path to the binary.
+# An empty PYTHONHOME can confuse Py_Initialize, so we guard the append.
+if [[ -n "${PYTHON_HOME:-}" ]]; then
+    LAUNCH_ENV+=(PYTHONHOME="$PYTHON_HOME")
+fi
+
 # Use setsid so the child becomes session and process-group leader.
 setsid env -i "${LAUNCH_ENV[@]}" "$DIR/qdomyos-zwift-bin" "$@" &
 child_pid=$!
@@ -353,7 +393,11 @@ trap 'forward_signal TERM' TERM
 trap 'forward_signal INT' INT
 trap 'forward_signal QUIT' QUIT
 
-# Wait for child to exit and return its status
+# Disable errexit for the wait.  The binary exits 130 on a normal SIGINT
+# shutdown (the service file declares SuccessExitStatus=130).  set -e would
+# kill this wrapper before rc=$? executes, silently skipping any cleanup
+# added after this block in the future.
+set +e
 wait "$child_pid"
 rc=$?
 exit $rc
