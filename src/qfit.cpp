@@ -389,6 +389,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     sessionMesg.SetTotalMovingTime(session.last().elapsedTime);
     sessionMesg.SetTotalAscent(session.last().elevationGain);  // Total elevation gain (meters)
     sessionMesg.SetTotalDescent(session.last().negativeElevationGain);  // Total elevation loss/descent (meters)
+    if (speed_avg > 0) {
+        sessionMesg.SetAvgSpeed(speed_avg / 3.6);  // Convert from km/h to m/s
+    }
     sessionMesg.SetMinAltitude(min_alt);
     sessionMesg.SetMaxAltitude(max_alt);
     sessionMesg.SetEvent(FIT_EVENT_SESSION);
