@@ -77,15 +77,15 @@ public class BleAdvertiser {
                     .setConnectable(true)
                     .build();
 
-            // PM5 advertising - use discovery service UUID
-            // Note: 128-bit UUIDs take more space, so we only advertise the discovery UUID
+            // PM5 advertising - only use device name, no service UUID
+            // 128-bit UUIDs are too large for advertising packet (31 bytes max)
+            // Apps like Mywhoosh should discover services after connection
             AdvertiseData advertiseData = new AdvertiseData.Builder()
                     .setIncludeDeviceName(true)
-                    .addServiceUuid(new ParcelUuid(PM5_DISCOVERY_SERVICE_UUID))
                     .build();
 
             if (advertiser != null) {
-                QLog.d("BleAdvertiser", "Starting PM5 advertising with UUID: " + PM5_DISCOVERY_SERVICE_UUID.toString());
+                QLog.d("BleAdvertiser", "Starting PM5 advertising (name only, no UUID)");
                 advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
             }
         }
