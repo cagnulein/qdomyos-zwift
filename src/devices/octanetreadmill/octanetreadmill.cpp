@@ -270,7 +270,7 @@ void octanetreadmill::update() {
     // ZR8: Check if cadence has been missing for too long (indicates treadmill stopped)
     if (ZR8 && !lastValidCadenceTime.isNull()) {
         qint64 secondsSinceLastCadence = lastValidCadenceTime.secsTo(QDateTime::currentDateTime());
-        if (secondsSinceLastCadence > 15 && Speed.value() > 0) {
+        if (secondsSinceLastCadence > 30 && Speed.value() > 0) {
             emit debug(QStringLiteral("ZR8: No cadence received for ") + QString::number(secondsSinceLastCadence) +
                        QStringLiteral(" seconds, resetting speed and cadence to 0"));
             Speed = 0;
