@@ -97,11 +97,16 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 #ifndef IO_UNDER_QT
     bool ios_peloton_workaround =
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-    if (ios_peloton_workaround && !heart_only && !pm5Mode) {
+    if (ios_peloton_workaround && !heart_only) {
 
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
-        h->virtualrower_ios();
+        if (pm5Mode) {
+            h->virtualrower_ios_pm5(true);
+            qDebug() << "iOS PM5 mode enabled";
+        } else {
+            h->virtualrower_ios();
+        }
     } else
 
 #endif
