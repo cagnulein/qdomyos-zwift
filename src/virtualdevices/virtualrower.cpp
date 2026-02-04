@@ -598,6 +598,42 @@ void virtualrower::rowerProvider() {
                 writeCharacteristic(servicePM5Rowing, charAdditionalStrokeData, additionalStrokeData);
                 qDebug() << "PM5 Additional Stroke Data:" << additionalStrokeData.toHex(' ');
             }
+
+            // Send Multiplexed Info (CE060080) - some clients only subscribe to this
+            QLowEnergyCharacteristic charMultiplexed = servicePM5Rowing->characteristic(PM5_MULTIPLEXED_INFO_UUID);
+            if (charMultiplexed.isValid()) {
+                // Send General Status via multiplexed (0x31 prefix)
+                QByteArray muxGeneralStatus;
+                muxGeneralStatus.append((char)0x31);
+                muxGeneralStatus.append(generalStatus);
+                writeCharacteristic(servicePM5Rowing, charMultiplexed, muxGeneralStatus);
+
+                // Send Additional Status via multiplexed (0x32 prefix)
+                QByteArray muxAdditionalStatus;
+                muxAdditionalStatus.append((char)0x32);
+                muxAdditionalStatus.append(additionalStatus);
+                writeCharacteristic(servicePM5Rowing, charMultiplexed, muxAdditionalStatus);
+
+                // Send Additional Status 2 via multiplexed (0x33 prefix)
+                QByteArray muxAdditionalStatus2;
+                muxAdditionalStatus2.append((char)0x33);
+                muxAdditionalStatus2.append(additionalStatus2);
+                writeCharacteristic(servicePM5Rowing, charMultiplexed, muxAdditionalStatus2);
+
+                // Send Stroke Data via multiplexed (0x35 prefix)
+                QByteArray muxStrokeData;
+                muxStrokeData.append((char)0x35);
+                muxStrokeData.append(strokeData);
+                writeCharacteristic(servicePM5Rowing, charMultiplexed, muxStrokeData);
+
+                // Send Additional Stroke Data via multiplexed (0x36 prefix)
+                QByteArray muxAdditionalStrokeData;
+                muxAdditionalStrokeData.append((char)0x36);
+                muxAdditionalStrokeData.append(additionalStrokeData);
+                writeCharacteristic(servicePM5Rowing, charMultiplexed, muxAdditionalStrokeData);
+
+                qDebug() << "PM5 Multiplexed data sent";
+            }
         } else {
             // FTMS protocol (original code)
             value.append((char)0x2C);
