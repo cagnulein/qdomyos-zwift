@@ -31,8 +31,8 @@ public class IQMessageReceiverWrapper extends BroadcastReceiver {
 
         try {
             receiver.onReceive(context, intent);
-        } catch (IllegalArgumentException | BufferUnderflowException e) {
-            QLog.d(TAG, e.toString());
+        } catch (Exception e) {
+            QLog.d(TAG, "Exception in Garmin message receiver: " + e.toString());
         }
     }
 
