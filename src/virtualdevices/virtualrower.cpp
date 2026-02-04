@@ -590,6 +590,14 @@ void virtualrower::rowerProvider() {
                 writeCharacteristic(servicePM5Rowing, charStrokeData, strokeData);
                 qDebug() << "PM5 Stroke Data:" << strokeData.toHex(' ');
             }
+
+            // Send Additional Stroke Data (CE060036)
+            QByteArray additionalStrokeData = buildPM5AdditionalStrokeData();
+            QLowEnergyCharacteristic charAdditionalStrokeData = servicePM5Rowing->characteristic(PM5_ADDITIONAL_STROKE_DATA_UUID);
+            if (charAdditionalStrokeData.isValid()) {
+                writeCharacteristic(servicePM5Rowing, charAdditionalStrokeData, additionalStrokeData);
+                qDebug() << "PM5 Additional Stroke Data:" << additionalStrokeData.toHex(' ');
+            }
         } else {
             // FTMS protocol (original code)
             value.append((char)0x2C);
@@ -1235,6 +1243,87 @@ QByteArray virtualrower::buildPM5StrokeData() {
     }
     value[18] = (char)(pm5StrokeCount & 0xFF);
     value[19] = (char)((pm5StrokeCount >> 8) & 0xFF);
+
+    return value;
+}
+
+QByteArray virtualrower::buildPM5AdditionalStrokeData() {
+    // PM5 Additional Stroke Data - 17 bytes
+    // Bytes 0-2: Elapsed Time (UInt24LE, 0.01 sec)
+    // Bytes 3-4: Stroke Power (UInt16LE, watts)
+    // Bytes 5-6: Stroke Calories (UInt16LE, calories)
+    // Bytes 7-8: Stroke Count (UInt16LE)
+    // Bytes 9-11: Projected Work Time (UInt24LE, 0.01 sec)
+    // Bytes 12-14: Projected Work Distance (UInt24LE, meters)
+    // Bytes 15-16: Work Per Stroke (UInt16LE, Joules)
+
+    QByteArray value(17, 0);
+
+    // Calculate elapsed time in centiseconds (0.01 sec units)
+    uint32_t elapsedCentiseconds = (uint32_t)(
+        (Rower->movingTime().hour() * 3600 +
+         Rower->movingTime().minute() * 60 +
+         Rower->movingTime().second()) * 100 +
+        Rower->movingTime().msec() / 10);
+
+    // Elapsed time (24-bit LE)
+    value[0] = (char)(elapsedCentiseconds & 0xFF);
+    value[1] = (char)((elapsedCentiseconds >> 8) & 0xFF);
+    value[2] = (char)((elapsedCentiseconds >> 16) & 0xFF);
+
+    // Stroke Power in watts (16-bit LE)
+    uint16_t strokePower = (uint16_t)Rower->wattsMetricforUI();
+    value[3] = (char)(strokePower & 0xFF);
+    value[4] = (char)((strokePower >> 8) & 0xFF);
+
+    // Stroke Calories (16-bit LE) - calories per stroke
+    double strokeRate = Rower->currentCadence().value();
+    uint16_t strokeCalories = 0;
+    if (strokeRate > 0) {
+        double totalCalories = Rower->calories().value();
+        double totalSeconds = Rower->movingTime().hour() * 3600 +
+                              Rower->movingTime().minute() * 60 +
+                              Rower->movingTime().second();
+        if (totalSeconds > 0) {
+            double totalStrokes = strokeRate * totalSeconds / 60.0;
+            if (totalStrokes > 0) {
+                strokeCalories = (uint16_t)(totalCalories * 1000.0 / totalStrokes); // in 0.001 kCal
+            }
+        }
+    }
+    value[5] = (char)(strokeCalories & 0xFF);
+    value[6] = (char)((strokeCalories >> 8) & 0xFF);
+
+    // Stroke Count (16-bit LE)
+    uint16_t pm5StrokeCount = 0;
+    if (strokeRate > 0) {
+        double totalSeconds = Rower->movingTime().hour() * 3600 +
+                              Rower->movingTime().minute() * 60 +
+                              Rower->movingTime().second() +
+                              Rower->movingTime().msec() / 1000.0;
+        pm5StrokeCount = (uint16_t)(strokeRate * totalSeconds / 60.0);
+    }
+    value[7] = (char)(pm5StrokeCount & 0xFF);
+    value[8] = (char)((pm5StrokeCount >> 8) & 0xFF);
+
+    // Projected Work Time - 0 (no target)
+    value[9] = 0x00;
+    value[10] = 0x00;
+    value[11] = 0x00;
+
+    // Projected Work Distance - 0 (no target)
+    value[12] = 0x00;
+    value[13] = 0x00;
+    value[14] = 0x00;
+
+    // Work Per Stroke in Joules (16-bit LE)
+    uint16_t workPerStroke = 0;
+    if (strokeRate > 0 && strokePower > 0) {
+        double strokeTime = 60.0 / strokeRate;
+        workPerStroke = (uint16_t)(strokePower * strokeTime);
+    }
+    value[15] = (char)(workPerStroke & 0xFF);
+    value[16] = (char)((workPerStroke >> 8) & 0xFF);
 
     return value;
 }

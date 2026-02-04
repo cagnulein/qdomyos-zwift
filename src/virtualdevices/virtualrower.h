@@ -69,6 +69,7 @@ class virtualrower : public virtualdevice {
     QByteArray buildPM5AdditionalStatus();
     QByteArray buildPM5AdditionalStatus2();
     QByteArray buildPM5StrokeData();
+    QByteArray buildPM5AdditionalStrokeData();
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
