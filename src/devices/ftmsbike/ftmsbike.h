@@ -154,6 +154,7 @@ class ftmsbike : public bike {
     bool BIKE_ = false;
     bool SMB1 = false;
     bool LYDSTO = false;
+    bool DMASUN = false;
     bool SL010 = false;
     bool REEBOK = false;
     bool TITAN_7000 = false;

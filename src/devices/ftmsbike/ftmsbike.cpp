@@ -753,7 +753,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             } else if (MRK_S26C) {
                 m_watt = Cadence.value() * (Resistance.value() * 1.16);
                 emit debug(QStringLiteral("Current Watt (MRK-S26C formula): ") + QString::number(m_watt.value()));
-            } else if (LYDSTO && watt_ignore_builtin) {
+            } else if ((LYDSTO || DMASUN) && watt_ignore_builtin) {
                 m_watt = wattFromHR(true);
                 emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
             } else {
@@ -1747,6 +1747,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("LYDSTO"))) {
             qDebug() << QStringLiteral("LYDSTO found");
             LYDSTO = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("DMASUN-") && bluetoothDevice.name().toUpper().endsWith("-BIKE"))) {
+            qDebug() << QStringLiteral("DMASUN bike found");
+            DMASUN = true;
         } else if ((bluetoothDevice.name().toUpper().startsWith("SL010-"))) {
             qDebug() << QStringLiteral("SL010 found");
             SL010 = true;
