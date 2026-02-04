@@ -53,7 +53,7 @@ ColumnLayout {
         }
 
     }*/
-    SwitchDelegate {
+    IndicatorOnlySwitch {
         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
         Layout.fillWidth: true
         spacing: 0
