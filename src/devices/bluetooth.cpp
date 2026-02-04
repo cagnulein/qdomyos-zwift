@@ -2033,6 +2033,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(echelonStairclimber, &echelonstairclimber::inclinationChanged, this, &bluetooth::inclinationChanged);
                 echelonStairclimber->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(echelonStairclimber);
+            } else if (b.name().toUpper().startsWith(QLatin1String("SF-S")) &&
+                       !sunnyfitStepper && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                sunnyfitStepper = new sunnyfitstepper(this->pollDeviceTime, noConsole, noHeartService);
+                emit deviceConnected(b);
+                connect(sunnyfitStepper, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(sunnyfitStepper, &sunnyfitstepper::debug, this, &bluetooth::debug);
+                connect(sunnyfitStepper, &sunnyfitstepper::speedChanged, this, &bluetooth::speedChanged);
+                connect(sunnyfitStepper, &sunnyfitstepper::inclinationChanged, this, &bluetooth::inclinationChanged);
+                sunnyfitStepper->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(sunnyfitStepper);
             } else if ((b.name().toUpper().startsWith(QLatin1String("ECH-STRIDE")) ||
                         b.name().toUpper().startsWith(QLatin1String("ECH-UK-")) ||
                         b.name().toUpper().startsWith(QLatin1String("ECH-FR-")) ||
@@ -3650,6 +3663,11 @@ void bluetooth::restart() {
         delete echelonStairclimber;
         echelonStairclimber = nullptr;
     }
+    if (sunnyfitStepper) {
+
+        delete sunnyfitStepper;
+        sunnyfitStepper = nullptr;
+    }
     if (octaneTreadmill) {
 
         delete octaneTreadmill;
@@ -4079,6 +4097,8 @@ bluetoothdevice *bluetooth::device() {
         return echelonStride;
     } else if (echelonStairclimber) {
         return echelonStairclimber;
+    } else if (sunnyfitStepper) {
+        return sunnyfitStepper;
     } else if (octaneTreadmill) {
         return octaneTreadmill;
     } else if (ziproTreadmill) {

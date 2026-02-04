@@ -106,6 +106,7 @@ SOURCES += \
     $$PWD/devices/thinkridercontroller/thinkridercontroller.cpp \
     $$PWD/devices/stairclimber.cpp \
     $$PWD/devices/echelonstairclimber/echelonstairclimber.cpp \
+    $$PWD/devices/sunnyfitstepper/sunnyfitstepper.cpp \
     $$PWD/devices/technogymbike/technogymbike.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
     $$PWD/fitdatabaseprocessor.cpp \
@@ -367,6 +368,7 @@ HEADERS += \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.h \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.h \
     $$PWD/devices/echelonstairclimber/echelonstairclimber.h \
+    $$PWD/devices/sunnyfitstepper/sunnyfitstepper.h \
     $$PWD/devices/elitesquarecontroller/elitesquarecontroller.h \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/jumprope.h \
