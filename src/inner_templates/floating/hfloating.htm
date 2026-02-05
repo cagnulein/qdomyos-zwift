@@ -247,19 +247,23 @@
         <tr class="speed" sort-order="0">
           <td class="icon">🏃</td>
           <td style="text-align: left">SPEED</td>
-          <td class="speed-avg-title"><small>AVG</small></td>
+          <td class="speed-avg-title"><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+              onclick="SpeedMinus()">-</button></td>
           <td class="speed-avg">0.0</td>
           <td class="speed-value values"><b>0.0</b></td>
-          <td class="speed-max-title"><small>MAX</small></td>
+          <td class="speed-max-title"><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+              onclick="SpeedPlus()">+</button></td>
           <td class="speed-max">0.0</td>
         </tr>
         <tr class="inclination" sort-order="1">
           <td class="icon">📐</td>
           <td style="text-align: left">INCLINE</td>
-          <td><small>AVG</small></td>
+          <td><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+              onclick="InclinationMinus()">-</button></td>
           <td class="inclination-avg">0.0</td>
           <td class="inclination-value values"><b>0.0</b></td>
-          <td><small>MAX</small></td>
+          <td><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+              onclick="InclinationPlus()">+</button></td>
           <td class="inclination-max">0.0</td>
         </tr>
         <tr class="pace" sort-order="2">
@@ -373,25 +377,7 @@
                 <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
                     onclick="GearsPlus()">+</button></td>
               </tr>
-              <tr class="speedcontrol" sort-order="18">
-                <td class="icon">🏃</td>
-                <td style="text-align: left">SPEED</td>
-                <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
-                    onclick="SpeedMinus()">-</button></td>
-                <td class="speedcontrol-value values"><b>0.0</b></td>
-                <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
-                    onclick="SpeedPlus()">+</button></td>
-              </tr>
-              <tr class="inclinecontrol" sort-order="19">
-                <td class="icon">📐</td>
-                <td style="text-align: left">INCLINE</td>
-                <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
-                    onclick="InclinationMinus()">-</button></td>
-                <td class="inclinecontrol-value values"><b>0.0</b></td>
-                <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
-                    onclick="InclinationPlus()">+</button></td>
-              </tr>
-              <tr class="nextrow" sort-order="20">
+              <tr class="nextrow" sort-order="17">
                 <td class="icon">🕶</td>
                 <td style="text-align: left">NEXT</td>
                 <td class="nextrow-value values" colspan="5"><b></b></td>
@@ -1441,10 +1427,6 @@
                                                                                 }
                                                                                 $('.inclination-avg').html(data.inclination_lapavg.toFixed(1));
                                                                                 $('.inclination-max').html(data.inclination_lapmax.toFixed(1));
-
-                                                                                // Speed and Incline control tiles
-                                                                                $('.speedcontrol-value').html("<b>" + data.speed.toFixed(1) + "</b>");
-                                                                                $('.inclinecontrol-value').html("<b>" + data.inclination.toFixed(1) + "</b>");
 
                                                                                 // Elevation
                                                                                 $('.elevation-value').html("<b>" + data.elevation.toFixed(1) + "</b>");
