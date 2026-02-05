@@ -75,22 +75,22 @@
       <td style="text-align: left">SPEED</td>
       <td class="speed-avg-title"><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
           onclick="SpeedMinus()">-</button></td>
-      <td class="speed-avg">0.0</td>
+      <td class="speed-avg"><span class="speed-avg-value">0.0</span><br><small style="font-size: 10px; color: #888;">AVG</small></td>
       <td class="speed-value values"><b>0.0</b></td>
       <td class="speed-max-title"><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
           onclick="SpeedPlus()">+</button></td>
-      <td class="speed-max">0.0</td>
+      <td class="speed-max"><span class="speed-max-value">0.0</span><br><small style="font-size: 10px; color: #888;">MAX</small></td>
     </tr>
     <tr class="inclination" sort-order="1">
       <td class="icon">📐</td>
       <td style="text-align: left">INCLINE</td>
       <td><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
           onclick="InclinationMinus()">-</button></td>
-      <td class="inclination-avg">0.0</td>
+      <td class="inclination-avg"><span class="inclination-avg-value">0.0</span><br><small style="font-size: 10px; color: #888;">AVG</small></td>
       <td class="inclination-value values"><b>0.0</b></td>
       <td><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
           onclick="InclinationPlus()">+</button></td>
-      <td class="inclination-max">0.0</td>
+      <td class="inclination-max"><span class="inclination-max-value">0.0</span><br><small style="font-size: 10px; color: #888;">MAX</small></td>
     </tr>
     <tr class="pace" sort-order="2">
       <td class="icon">🏃</td>
@@ -897,14 +897,14 @@
 
             $('.speed-value').html("<b>" + speed.toFixed(1) + "</b>");
           }
-          $('.speed-avg').html(speed_lapavg.toFixed(1));
-          $('.speed-max').html(speed_lapmax.toFixed(1));
+          $('.speed-avg-value').html(speed_lapavg.toFixed(1));
+          $('.speed-max-value').html(speed_lapmax.toFixed(1));
           if (tile_target_inclination_enabled && target_inclination > 0)
             $('.inclination-value').html("<b>" + inclination.toFixed(1) + "/" + target_inclination.toFixed(1) + "</b>");
           else
             $('.inclination-value').html("<b>" + inclination.toFixed(1) + "</b>");
-          $('.inclination-avg').html(inclination_lapavg.toFixed(1));
-          $('.inclination-max').html(inclination_lapmax.toFixed(1));
+          $('.inclination-avg-value').html(inclination_lapavg.toFixed(1));
+          $('.inclination-max-value').html(inclination_lapmax.toFixed(1));
           $('.elevation-value').html("<b>" + elevation.toFixed(1) + "</b>");
           if (tile_target_cadence_enabled && target_cadence > 0)
             $('.cadence-value').html("<b>" + cadence.toFixed(0) + "/" + target_cadence.toFixed(0) + "</b>");
