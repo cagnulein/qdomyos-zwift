@@ -1056,6 +1056,10 @@ class homeform : public QObject {
     void sortTilesTimeout();
     void gearUp();
     void gearDown();
+    void speedPlus();
+    void speedMinus();
+    void inclinationPlus();
+    void inclinationMinus();
     void changeTimestamp(QTime source, QTime actual);
     void pelotonOffset_Plus();
     void pelotonOffset_Minus();
