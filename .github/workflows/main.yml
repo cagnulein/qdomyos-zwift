@@ -627,6 +627,33 @@ jobs:
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
 
+      - uses: r0adkll/sign-android-release@v1
+        name: Sign app APK (For trusted sources)
+        id: sign_app
+#       if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || steps.check_permission.outputs.IS_REPO_OWNER == 'true'
+        with:
+          releaseDirectory: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: ${{ env.BUILD_TOOL_VERSION }}
+          
+      - name: Find unsigned APK
+#       if: github.event_name == 'pull_request' && steps.check_permission.outputs.IS_REPO_OWNER != 'true'
+        id: find_apk
+        run: |
+          APK_PATH=${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk
+          echo "UNSIGNED_APK=$APK_PATH" >> $GITHUB_OUTPUT
+          echo "Found unsigned APK at $APK_PATH"
+          
+      - name: Archive apk
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: ${{ steps.sign_app.outputs.signedReleaseFile || steps.find_apk.outputs.UNSIGNED_APK }}
+
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
         with:
