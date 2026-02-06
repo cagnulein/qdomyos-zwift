@@ -177,7 +177,7 @@ void deerruntreadmill::forceSpeedAndInclination(double requestSpeed, double requ
         writeSpeed[21] = calculatePitPatChecksum(writeSpeed, sizeof(writeSpeed));  // Checksum at byte 21
 
         writeCharacteristic(gattWriteCharacteristic, writeSpeed, sizeof(writeSpeed),
-                            QStringLiteral("forceSpeed PitPat speed=") + QString::number(requestSpeed), false, true);
+                            QStringLiteral("forceSpeed PitPat speed=") + QString::number(requestSpeed) + QStringLiteral(" incline=") + QString::number(requestInclination), false, true);
     } else if (superun_ba04) {
         // Superun BA04 speed template
         uint8_t writeSpeed[] = {0x4d, 0x00, 0x14, 0x17, 0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x04, 0x4c, 0x01, 0x00, 0x50, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0xb5, 0x7c, 0xdb, 0x43};
@@ -391,6 +391,9 @@ void deerruntreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         speed = ((double)((value[3] << 8) | ((uint8_t)value[4])) / 1000.0);
     }
     double incline = 0.0;
+    if(pitpat) {
+        incline = (double)(value[11] & 0xFF);
+    }
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
