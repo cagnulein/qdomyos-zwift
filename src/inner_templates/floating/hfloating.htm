@@ -197,6 +197,10 @@
       font-size: 24px;
     }
 
+    .treadmill-only {
+      display: none;
+    }
+
     /* Metric selector panel */
     .metric-selector-panel {
       display: none;
@@ -247,24 +251,24 @@
         <tr class="speed" sort-order="0">
           <td class="icon">🏃</td>
           <td style="text-align: left">SPEED</td>
-          <td class="speed-avg-title"><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          <td class="speed-avg-title"><small class="non-treadmill">AVG</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
               onclick="SpeedMinus()">-</button></td>
-          <td class="speed-avg"><span class="speed-avg-value">0.0</span><br><small style="font-size: 10px; color: #888;">AVG</small></td>
+          <td class="speed-avg"><span class="speed-avg-value">0.0</span><br><small class="treadmill-only" style="font-size: 10px; color: #888;">AVG</small></td>
           <td class="speed-value values"><b>0.0</b></td>
-          <td class="speed-max-title"><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          <td class="speed-max-title"><small class="non-treadmill">MAX</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
               onclick="SpeedPlus()">+</button></td>
-          <td class="speed-max"><span class="speed-max-value">0.0</span><br><small style="font-size: 10px; color: #888;">MAX</small></td>
+          <td class="speed-max"><span class="speed-max-value">0.0</span><br><small class="treadmill-only" style="font-size: 10px; color: #888;">MAX</small></td>
         </tr>
         <tr class="inclination" sort-order="1">
           <td class="icon">📐</td>
           <td style="text-align: left">INCLINE</td>
-          <td><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          <td class="inclination-avg-title"><small class="non-treadmill">AVG</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
               onclick="InclinationMinus()">-</button></td>
-          <td class="inclination-avg"><span class="inclination-avg-value">0.0</span><br><small style="font-size: 10px; color: #888;">AVG</small></td>
+          <td class="inclination-avg"><span class="inclination-avg-value">0.0</span><br><small class="treadmill-only" style="font-size: 10px; color: #888;">AVG</small></td>
           <td class="inclination-value values"><b>0.0</b></td>
-          <td><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          <td class="inclination-max-title"><small class="non-treadmill">MAX</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
               onclick="InclinationPlus()">+</button></td>
-          <td class="inclination-max"><span class="inclination-max-value">0.0</span><br><small style="font-size: 10px; color: #888;">MAX</small></td>
+          <td class="inclination-max"><span class="inclination-max-value">0.0</span><br><small class="treadmill-only" style="font-size: 10px; color: #888;">MAX</small></td>
         </tr>
         <tr class="pace" sort-order="2">
           <td class="icon">🏃</td>
@@ -1132,6 +1136,7 @@
                                               'speed_color', 'pace_color', 'power_zone_color', 'target_power_zone_color', 'cadence_color', 'heart_color', 'watts_color',
                                               'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
                                               'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'target_pace_h', 'target_pace_m', 'target_pace_s',
+                                              'deviceType', 'TREADMILL_TYPE',
                                               'inclination', 'inclination_lapavg',
                                               'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls',
                                               'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance', 'gears', 'elevation', 'pace_s' , 'pace_m',
@@ -1197,6 +1202,8 @@
                                                           var peloton_offset = 0;
                                                           var gears = 0;
                                                           var nextrow = "";
+                                                          var deviceType = -1;
+                                                          var TREADMILL_TYPE = -1;
 
                                                           // Get values from message
                                                           for (let key of keys_arr) {
@@ -1315,6 +1322,10 @@
                                                                             peloton_offset = msg.content[key];
                                                                           } else if (key === 'gears') {
                                                                             gears = msg.content[key];
+                                                                          } else if (key === 'deviceType') {
+                                                                            deviceType = msg.content[key];
+                                                                          } else if (key === 'TREADMILL_TYPE') {
+                                                                            TREADMILL_TYPE = msg.content[key];
                                                                           } else if (key === 'peloton_resistance_color') {
                                                                             $('.pelotonresistance-value').css('color', msg.content[key]);
                                                                           } else if (key === 'heart_color') {
@@ -1396,7 +1407,9 @@
                                                                                       target_power: target_power,
                                                                                       peloton_offset: peloton_offset,
                                                                                       gears: gears,
-                                                                                      nextrow: nextrow
+                                                                                      nextrow: nextrow,
+                                                                                      deviceType: deviceType,
+                                                                                      TREADMILL_TYPE: TREADMILL_TYPE
                                                                                     });
                                                                                   }
                                                                                   return null;
@@ -1427,6 +1440,15 @@
                                                                                 }
                                                                                 $('.inclination-avg-value').html(data.inclination_lapavg.toFixed(1));
                                                                                 $('.inclination-max-value').html(data.inclination_lapmax.toFixed(1));
+
+                                                                                // Show/hide treadmill-only controls based on device type
+                                                                                if (data.deviceType === data.TREADMILL_TYPE && data.TREADMILL_TYPE !== undefined) {
+                                                                                  $('.treadmill-only').show();
+                                                                                  $('.non-treadmill').hide();
+                                                                                } else {
+                                                                                  $('.treadmill-only').hide();
+                                                                                  $('.non-treadmill').show();
+                                                                                }
 
                                                                                 // Elevation
                                                                                 $('.elevation-value').html("<b>" + data.elevation.toFixed(1) + "</b>");
