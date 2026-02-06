@@ -1059,6 +1059,12 @@ class QZSettings {
     static const QString virtual_device_rower;
     static constexpr bool default_virtual_device_rower = false;
     /**
+     *@brief When virtual_device_rower is enabled, use the Concept2 PM5 protocol instead of FTMS.
+     * This enables compatibility with apps like Mywhoosh that only support PM5 rowers.
+     */
+    static const QString virtual_device_rower_pm5;
+    static constexpr bool default_virtual_device_rower_pm5 = false;
+    /**
      *@brief Used to force a non-bike device to be presented to client apps as a bike.
      */
     static const QString virtual_device_force_bike;

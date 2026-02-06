@@ -226,6 +226,11 @@ void lockscreen::virtualrower_ios()
     _virtualrower = [[virtualrower_zwift alloc] init];
 }
 
+void lockscreen::virtualrower_ios_pm5(bool pm5Mode)
+{
+    _virtualrower = [[virtualrower_zwift alloc] initWithPm5Mode:pm5Mode];
+}
+
 double lockscreen::virtualbike_getCurrentSlope()
 {
     if(_virtualbike_zwift != nil)
@@ -286,6 +291,12 @@ void lockscreen::virtualrower_setHeartRate(unsigned char heartRate)
 {
     if(_virtualrower != nil)
         [_virtualrower updateHeartRateWithHeartRate:heartRate];
+}
+
+void lockscreen::virtualrower_setPM5Mode(bool enabled)
+{
+    if(_virtualrower != nil)
+        [_virtualrower setPM5ModeWithEnabled:enabled];
 }
 
 
