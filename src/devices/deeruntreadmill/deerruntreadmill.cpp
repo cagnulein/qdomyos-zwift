@@ -160,7 +160,7 @@ uint8_t deerruntreadmill::calculatePitPatChecksum(uint8_t arr[], size_t size) {
 }
 
 
-void deerruntreadmill::forceSpeed(double requestSpeed) {
+void deerruntreadmill::forceSpeedAndInclination(double requestSpeed, double requestInclination) {
     QSettings settings;
 
     if (pitpat) {
@@ -172,6 +172,7 @@ void deerruntreadmill::forceSpeed(double requestSpeed) {
         uint16_t speed = (uint16_t)(requestSpeed * 1000.0);
         writeSpeed[6] = (speed >> 8) & 0xFF;  // High byte
         writeSpeed[7] = speed & 0xFF;          // Low byte
+        writeSpeed[9] = requestInclination & 0xFF;          // Low byte
         writeSpeed[21] = calculatePitPatChecksum(writeSpeed, sizeof(writeSpeed));  // Checksum at byte 21
 
         writeCharacteristic(gattWriteCharacteristic, writeSpeed, sizeof(writeSpeed),
@@ -201,8 +202,12 @@ void deerruntreadmill::forceSpeed(double requestSpeed) {
     }
 }
 
-void deerruntreadmill::forceIncline(double requestIncline) {
+void deerruntreadmill::forceSpeed(double requestSpeed, double requestInclination) {
+    forceSpeedAndInclination(requestSpeed, currentInclination().value());
+}
 
+void deerruntreadmill::forceIncline(double requestIncline) {
+    forceSpeedAndInclination(currentSpeed().value(), requestIncline);
 }
 
 void deerruntreadmill::changeInclinationRequested(double grade, double percentage) {
