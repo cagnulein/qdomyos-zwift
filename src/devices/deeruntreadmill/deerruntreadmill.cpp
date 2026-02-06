@@ -203,7 +203,7 @@ void deerruntreadmill::forceSpeedAndInclination(double requestSpeed, double requ
     }
 }
 
-void deerruntreadmill::forceSpeed(double requestSpeed, double requestInclination) {
+void deerruntreadmill::forceSpeed(double requestSpeed) {
     forceSpeedAndInclination(requestSpeed, currentInclination().value());
 }
 
