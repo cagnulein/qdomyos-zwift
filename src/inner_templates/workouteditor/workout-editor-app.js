@@ -818,7 +818,8 @@
                         if (field.max !== undefined) input.max = field.max;
                         input.value = value !== undefined ? value : '';
                     }
-                    input.addEventListener(field.type === 'duration' || field.type === 'pace' ? 'change' : 'input', handleFieldChange);
+                    // Use 'change' event for duration, pace, and number fields to prevent keyboard from closing during typing
+                    input.addEventListener(field.type === 'duration' || field.type === 'pace' || field.type === 'number' ? 'change' : 'input', handleFieldChange);
 
                     // Add +/- buttons for duration, number, and pace fields
                     if (field.type === 'duration' || field.type === 'number' || field.type === 'pace') {
@@ -929,13 +930,9 @@
         } else if (type === 'number') {
             const raw = target.value;
             state.intervals[index][key] = raw === '' ? undefined : Number(raw);
-            // If this is a speed field, update pace field directly without re-render to keep focus/keyboard open
+            // If this is a speed field, re-render to update pace (uses 'change' event so keyboard is already closed)
             if (key === 'speed') {
-                const paceInput = document.querySelector(`input[data-index="${index}"][data-key="pace"]`);
-                if (paceInput) {
-                    const speedValue = state.intervals[index][key];
-                    paceInput.value = speedValue ? speedToPace(speedValue) : '';
-                }
+                renderIntervals();
             }
         } else {
             const raw = target.value;
