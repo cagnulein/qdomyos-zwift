@@ -479,6 +479,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         sessionMesg.SetSport(FIT_SPORT_CYCLING);
         if (strava_virtual_activity) {
             sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
+        } else {
+            sessionMesg.SetSubSport(FIT_SUB_SPORT_INDOOR_CYCLING);
         }
     }
 
