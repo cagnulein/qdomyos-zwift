@@ -5548,9 +5548,9 @@ void homeform::update() {
             QStringLiteral(" MAX: ") +
             QString::number((bluetoothManager->device())->currentSpeed().max() * unit_conversion, 'f', 1));
         heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value(), 'f', 0));
-        hrv->setValue(QString::number(bluetoothManager->device()->currentHRV().value(), 'f', 0));
+        hrv->setValue(QString::number(bluetoothManager->device()->currentHRV().value(), 'f', 2));
         hrv->setSecondLine(QStringLiteral("AVG: ") +
-                          QString::number(bluetoothManager->device()->currentHRV().average(), 'f', 0));
+                          QString::number(bluetoothManager->device()->currentHRV().average(), 'f', 2));
 
         bool activeOnly = settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
         calories->setValue(QString::number(bluetoothManager->device()->calories().value(), 'f', 0));
