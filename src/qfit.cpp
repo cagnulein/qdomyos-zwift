@@ -163,6 +163,11 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     double watt_sum = 0;
     int watt_count = 0;
 
+    // Variables for jump rope cadence
+    double cadence_sum = 0;
+    int cadence_count = 0;
+    uint8_t max_cadence = 0;
+
     for (int i = firstRealIndex; i < session.length(); i++) {
         if (session.at(i).coordinate.isValid()) {
             gps_data = true;
@@ -204,6 +209,15 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         if (session.at(i).watt > 0) {
             watt_sum += session.at(i).watt;
             watt_count++;
+        }
+
+        // Collect cadence data for jump rope
+        if (type == JUMPROPE && session.at(i).cadence > 0) {
+            cadence_sum += session.at(i).cadence;
+            cadence_count++;
+            if (session.at(i).cadence > max_cadence) {
+                max_cadence = session.at(i).cadence;
+            }
         }
     }
 
@@ -376,6 +390,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     sessionMesg.SetTotalMovingTime(session.last().elapsedTime);
     sessionMesg.SetTotalAscent(session.last().elevationGain);  // Total elevation gain (meters)
     sessionMesg.SetTotalDescent(session.last().negativeElevationGain);  // Total elevation loss/descent (meters)
+    if (speed_avg > 0) {
+        sessionMesg.SetAvgSpeed(speed_avg / 3.6);  // Convert from km/h to m/s
+    }
     sessionMesg.SetMinAltitude(min_alt);
     sessionMesg.SetMaxAltitude(max_alt);
     sessionMesg.SetEvent(FIT_EVENT_SESSION);
@@ -441,7 +458,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             sessionMesg.SetAvgStrokeDistance(session.last().avgStrokesLength);
     } else if (type == STAIRCLIMBER) {
 
-        sessionMesg.SetSport(FIT_SPORT_GENERIC);
+        sessionMesg.SetSport(FIT_SPORT_FITNESS_EQUIPMENT);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_STAIR_CLIMBING);
     } else if (type == JUMPROPE) {
 
@@ -449,6 +466,15 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         sessionMesg.SetSubSport(FIT_SUB_SPORT_GENERIC);
         if (session.last().stepCount)
             sessionMesg.SetJumpCount(session.last().stepCount);
+        // Total cycles
+        if (session.last().stepCount)
+            sessionMesg.SetTotalCycles(session.last().stepCount);
+        // Avg cadence (jump rate)
+        if (cadence_count > 0)
+            sessionMesg.SetAvgCadence((uint8_t)(cadence_sum / cadence_count));
+        // Max cadence (max jump rate)
+        if (max_cadence > 0)
+            sessionMesg.SetMaxCadence(max_cadence);
     } else {
 
         sessionMesg.SetSport(FIT_SPORT_CYCLING);
@@ -677,7 +703,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         lapMesg.SetSport(FIT_SPORT_JUMP_ROPE);
     } else if (type == STAIRCLIMBER) {
 
-        lapMesg.SetSport(FIT_SPORT_GENERIC);
+        lapMesg.SetSport(FIT_SPORT_FITNESS_EQUIPMENT);
         lapMesg.SetSubSport(FIT_SUB_SPORT_STAIR_CLIMBING);
     } else {
 
@@ -805,7 +831,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             lapMesg.SetMessageIndex(lap_index++);
             lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_DISTANCE);
             if (type == JUMPROPE)
-                lapMesg.SetRepetitionNum(session.at(i - 1).inclination);
+                lapMesg.SetRepetitionNum(lap_index);
             lastLapTimer = sl.elapsedTime;
             lastLapOdometer = sl.distance;
 
