@@ -10,6 +10,7 @@ ScrollView {
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.fill: parent
     id: settingsShortcutsPane
+    objectName: "settingsShortcutsPane"
 
     Settings {
         id: settings
@@ -117,6 +118,12 @@ ScrollView {
             Layout.preferredWidth: 100
             readOnly: true
             selectByMouse: false
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: parent.forceActiveFocus()
+            }
+
             onActiveFocusChanged: {
                 if (activeFocus) {
                     cursorPosition = text.length

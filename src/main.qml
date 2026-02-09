@@ -60,8 +60,25 @@ ApplicationWindow {
     
     function getRightPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ? 
+        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
                AndroidStatusBar.rightInset : 0;
+    }
+
+    function isConfiguringShortcuts() {
+        // Check if a TextField in the shortcuts settings has active focus
+        // This prevents global shortcuts from intercepting key presses when configuring them
+        var focusItem = window.activeFocusItem;
+        if (!focusItem) return false;
+
+        // Walk up the parent hierarchy to check if we're inside settingsShortcutsPane
+        var current = focusItem;
+        while (current) {
+            if (current.objectName === "settingsShortcutsPane") {
+                return true;
+            }
+            current = current.parent;
+        }
+        return false;
     }
 
     signal gpx_open_clicked(url name)
@@ -1128,7 +1145,7 @@ ApplicationWindow {
                 keyMediaPrevious();
             else if (event.key === Qt.Key_MediaNext)
                 keyMediaNext();
-            else if (settings.shortcuts_enabled && event.text !== "") {
+            else if (settings.shortcuts_enabled && event.text !== "" && !isConfiguringShortcuts()) {
                 var keyStr = event.text.toUpperCase();
                 var handled = true;
                 if (keyStr === settings.shortcut_speed_plus) rootItem.Plus("speed");
