@@ -1504,6 +1504,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(lifefitnessTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("HZ_T101-")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("HZ_7.0AT-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && (gem_module_inclination || deviceHasService(b, QBluetoothUuid((quint16)0x1826)))) ||
@@ -1538,7 +1539,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("TM4500")) ||
                         b.name().toUpper().startsWith(QStringLiteral("TM6500")) ||
                         b.name().toUpper().startsWith(QStringLiteral("RUNN ")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("YS_T1MPLUST")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("YS_T")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BFX_T")) ||
                         (b.name().toUpper().startsWith("3G PRO ")) ||
@@ -1854,8 +1855,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         !b.name().compare(ftms_bike, Qt::CaseInsensitive) || (b.name().toUpper().startsWith("SMB1")) ||
                         (b.name().toUpper().startsWith("UBIKE FTMS")) || (b.name().toUpper().startsWith("INRIDE")) ||
                         (b.name().toUpper().startsWith("INCONDI")) || // inCondi S150i
-                        (b.name().toUpper().startsWith("YPBM") && b.name().length() == 10) ||
-                        (b.name().toUpper().startsWith("JFICCYCLE"))) &&
+                        (b.name().toUpper().startsWith("YPBM") && b.name().length() == 10)) &&
                         ftms_rower.contains(QZSettings::default_ftms_rower) &&
                        !ftmsBike && !ftmsRower && !snodeBike && !fitPlusBike && !stagesBike && filter) {
                 this->setLastBluetoothDevice(b);
@@ -2034,6 +2034,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(echelonStairclimber, &echelonstairclimber::inclinationChanged, this, &bluetooth::inclinationChanged);
                 echelonStairclimber->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(echelonStairclimber);
+            } else if (b.name().toUpper().startsWith(QLatin1String("SF-S")) &&
+                       !sunnyfitStepper && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                sunnyfitStepper = new sunnyfitstepper(this->pollDeviceTime, noConsole, noHeartService);
+                emit deviceConnected(b);
+                connect(sunnyfitStepper, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(sunnyfitStepper, &sunnyfitstepper::debug, this, &bluetooth::debug);
+                connect(sunnyfitStepper, &sunnyfitstepper::speedChanged, this, &bluetooth::speedChanged);
+                connect(sunnyfitStepper, &sunnyfitstepper::inclinationChanged, this, &bluetooth::inclinationChanged);
+                sunnyfitStepper->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(sunnyfitStepper);
             } else if ((b.name().toUpper().startsWith(QLatin1String("ECH-STRIDE")) ||
                         b.name().toUpper().startsWith(QLatin1String("ECH-UK-")) ||
                         b.name().toUpper().startsWith(QLatin1String("ECH-FR-")) ||
@@ -3651,6 +3664,11 @@ void bluetooth::restart() {
         delete echelonStairclimber;
         echelonStairclimber = nullptr;
     }
+    if (sunnyfitStepper) {
+
+        delete sunnyfitStepper;
+        sunnyfitStepper = nullptr;
+    }
     if (octaneTreadmill) {
 
         delete octaneTreadmill;
@@ -4080,6 +4098,8 @@ bluetoothdevice *bluetooth::device() {
         return echelonStride;
     } else if (echelonStairclimber) {
         return echelonStairclimber;
+    } else if (sunnyfitStepper) {
+        return sunnyfitStepper;
     } else if (octaneTreadmill) {
         return octaneTreadmill;
     } else if (ziproTreadmill) {

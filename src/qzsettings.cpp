@@ -92,6 +92,7 @@ const QString QZSettings::default_user_email = QLatin1String("");
 const QString QZSettings::user_nickname = QStringLiteral("user_nickname");
 const QString QZSettings::default_user_nickname = QStringLiteral("");
 const QString QZSettings::miles_unit = QStringLiteral("miles_unit");
+const QString QZSettings::weight_kg_unit = QStringLiteral("weight_kg_unit");
 const QString QZSettings::pause_on_start = QStringLiteral("pause_on_start");
 const QString QZSettings::treadmill_force_speed = QStringLiteral("treadmill_force_speed");
 const QString QZSettings::pause_on_start_treadmill = QStringLiteral("pause_on_start_treadmill");
@@ -1180,8 +1181,7 @@ const QString QZSettings::default_shortcut_lap = QStringLiteral("");
 const QString QZSettings::shortcut_start_stop = QStringLiteral("shortcut_start_stop");
 const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 
-
-const uint32_t allSettingsCount = 922;
+const uint32_t allSettingsCount = 923;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1241,6 +1241,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::user_email, QZSettings::default_user_email},
     {QZSettings::user_nickname, QZSettings::default_user_nickname},
     {QZSettings::miles_unit, QZSettings::default_miles_unit},
+    {QZSettings::weight_kg_unit, QZSettings::default_weight_kg_unit},
     {QZSettings::pause_on_start, QZSettings::default_pause_on_start},
     {QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed},
     {QZSettings::pause_on_start_treadmill, QZSettings::default_pause_on_start_treadmill},

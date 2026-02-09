@@ -272,6 +272,12 @@ class QZSettings {
     static const QString miles_unit;
     static constexpr bool default_miles_unit = false;
 
+    /**
+     *@brief Use kg for weight even when miles_unit is true (for UK users).
+     */
+    static const QString weight_kg_unit;
+    static constexpr bool default_weight_kg_unit = false;
+
     static const QString pause_on_start;
     static constexpr bool default_pause_on_start = false;
 

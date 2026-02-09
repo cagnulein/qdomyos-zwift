@@ -1,17 +1,15 @@
-#ifndef DEERRUNTREADMILL_H
-#define DEERRUNTREADMILL_H
+#ifndef SUNNYFITSTEPPER_H
+#define SUNNYFITSTEPPER_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
 #include <QtBluetooth/qlowenergycharacteristicdata.h>
-
 #include <QtBluetooth/qlowenergycontroller.h>
 #include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
-
 #include <QtCore/qbytearray.h>
 
 #ifndef Q_OS_ANDROID
@@ -26,66 +24,56 @@
 
 #include <QDateTime>
 #include <QObject>
+#include <QString>
 
-#include "devices/treadmill.h"
+#include "stairclimber.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
 
-class deerruntreadmill : public treadmill {
-
+class sunnyfitstepper : public stairclimber {
     Q_OBJECT
   public:
-    deerruntreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
-                     double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
+    sunnyfitstepper(uint32_t pollDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
+                    double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
-    double minStepInclination() override;
-    double minStepSpeed() override { return 0.1; }
 
   private:
-    void forceSpeed(double requestSpeed);
-    void forceIncline(double requestIncline);
-    void forceSpeedAndInclination(double requestSpeed, double requestInclination);
-    void btinit(bool startTape);
-    void writeCharacteristic(const QLowEnergyCharacteristic characteristic, uint8_t *data, uint8_t data_len,
-                             const QString &info, bool disable_log = false, bool wait_for_response = false);
-    void writeUnlockCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false);
-    void waitForAPacket();
+    void btinit();
+    void sendPoll();
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+                             bool wait_for_response = false);
+    void processDataFrame(const QByteArray &completeFrame);
     void startDiscover();
-    uint8_t calculateXOR(uint8_t arr[], size_t size);
-    uint8_t calculatePitPatChecksum(uint8_t arr[], size_t size);
+
+    // Bluetooth
+    QLowEnergyService *gattCommunicationChannelService = nullptr;
+    QLowEnergyCharacteristic gattWriteCharacteristic;
+    QLowEnergyCharacteristic gattNotify1Characteristic;
+    QLowEnergyCharacteristic gattNotify4Characteristic;
+
+    // Split-frame handling (CRITICAL)
+    QByteArray frameBuffer;
+    bool expectingSecondPart = false;
+
+    // State
+    QTimer *refresh;
+    uint8_t sec1Update = 0;
+    uint8_t counterPoll = 0;
+    bool initDone = false;
+    bool initRequest = false;
     bool noConsole = false;
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;
-    uint8_t pollCounter = 0;
-    bool searchStopped = false;
-    uint8_t sec1Update = 0;
-    uint8_t firstInit = 0;
-    QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
-
-    QTimer *refresh;
-
-    QLowEnergyService *gattCommunicationChannelService = nullptr;
-    QLowEnergyCharacteristic gattWriteCharacteristic;
-    QLowEnergyCharacteristic gattNotifyCharacteristic;
-    
-    QLowEnergyService *unlock_service = nullptr;
-    QLowEnergyCharacteristic unlock_characteristic;
-
-    bool pitpat = false;
-    bool superun_ba04 = false;
-
-    bool initDone = false;
-    bool initRequest = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
 
-  Q_SIGNALS:
+  signals:
     void disconnected();
     void debug(QString string);
     void speedChanged(double speed);
@@ -93,17 +81,14 @@ class deerruntreadmill : public treadmill {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void searchingStop();
 
   private slots:
-
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
     void changeInclinationRequested(double grade, double percentage);
-
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
     void update();
@@ -111,4 +96,4 @@ class deerruntreadmill : public treadmill {
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // DEERRUNTREADMILL_H
+#endif // SUNNYFITSTEPPER_H
