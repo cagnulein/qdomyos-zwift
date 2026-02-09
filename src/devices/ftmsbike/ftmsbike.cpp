@@ -425,8 +425,8 @@ void ftmsbike::update() {
         if(zwiftPlayService && gears_zwift_ratio && lastGearValue != gears()) {
             // Workaround: gear commands don't work until an inclination command has been sent first
             if (!gearInclinationSent) {
-                qDebug() << "Sending initial inclination command (0.0) before first gear command";
-                sendZwiftPlayInclination(0.0);
+                qDebug() << "Sending initial inclination command (0.4%) before first gear command";
+                sendZwiftPlayInclination(0.4);
             }
 
             QSettings settings;
