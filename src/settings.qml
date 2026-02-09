@@ -1221,6 +1221,7 @@ import Qt.labs.platform 1.1
             property bool proform_trainer_9_0: false
             property bool iconcept_ftms_treadmill_inclination_table: false
             property bool skandika_wiri_x2000_protocol: true
+          
             property bool nordictrack_series_7: false
             property string kettler_usb_serialport: ""			
             property int kettler_usb_baudrate: 9600
@@ -1275,6 +1276,8 @@ import Qt.labs.platform 1.1
 			property bool domyos_treadmill_ts100: false
 			property bool thinkrider_controller: false
 			property bool weight_kg_unit: false
+            property double gears_max: 999.0
+            property double gears_min: -999.0              
         }
 
 
@@ -3005,6 +3008,78 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Applies an offset to the gears. Default is 0.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Gears Max:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: gearsMaxTextField
+                            text: settings.gears_max
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.gears_max = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.gears_max = gearsMaxTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Maximum gear value allowed. Default is 999.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Gears Min:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: gearsMinTextField
+                            text: settings.gears_min
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.gears_min = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.gears_min = gearsMinTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Minimum gear value allowed. Default is -999.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

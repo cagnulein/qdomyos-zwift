@@ -196,6 +196,16 @@ void bike::setGears(double gears) {
     }
 }
 
+double bike::maxGears() {
+    QSettings settings;
+    return settings.value(QZSettings::gears_max, QZSettings::default_gears_max).toDouble();
+}
+
+double bike::minGears() {
+    QSettings settings;
+    return settings.value(QZSettings::gears_min, QZSettings::default_gears_min).toDouble();
+}
+
 double bike::currentCrankRevolutions() { return CrankRevs; }
 uint16_t bike::lastCrankEventTime() { return LastCrankEventTime; }
 metric bike::lastRequestedResistance() { return RequestedResistance; }
