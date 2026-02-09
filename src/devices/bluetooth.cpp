@@ -2261,6 +2261,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 sportsTechElliptical->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(sportsTechElliptical);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("EW-ST-")) && !sportsTechRower && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                sportsTechRower = new sportstechrower(noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                      bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(sportsTechRower, &bluetoothdevice::connectedAndDiscovered, this,
+                       &bluetooth::connectedAndDiscovered);
+                connect(sportsTechRower, &sportstechrower::debug, this, &bluetooth::debug);
+                sportsTechRower->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(sportsTechRower);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("CARDIOFIT")) ||
                         (b.name().toUpper().contains(QStringLiteral("CARE")) &&
                          b.name().length() == 11)) // CARE9040177 - Carefitness CV-351
@@ -3803,6 +3814,11 @@ void bluetooth::restart() {
         delete sportsTechElliptical;
         sportsTechElliptical = nullptr;
     }
+    if (sportsTechRower) {
+
+        delete sportsTechRower;
+        sportsTechRower = nullptr;
+    }
     if (sportsPlusBike) {
 
         delete sportsPlusBike;
@@ -4154,6 +4170,8 @@ bluetoothdevice *bluetooth::device() {
         return sportsTechBike;
     } else if (sportsTechElliptical) {
         return sportsTechElliptical;
+    } else if (sportsTechRower) {
+        return sportsTechRower;
     } else if (sportsPlusBike) {
         return sportsPlusBike;
     } else if (sportsPlusRower) {
