@@ -297,6 +297,42 @@ void ftmsbike::forceInclination(double requestInclination) {
                         QStringLiteral("forceInclination ") + QString::number(requestInclination));
 }
 
+void ftmsbike::sendZwiftPlayInclination(double inclination) {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    QByteArray message = lockscreen::zwift_hub_inclinationCommand(inclination);
+#else
+    QByteArray message;
+#endif
+#elif defined(Q_OS_ANDROID)
+    QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+        "org/cagnulen/qdomyoszwift/ZwiftHubBike",
+        "inclinationCommand",
+        "(D)[B",
+        inclination);
+
+    if(!result.isValid()) {
+        qDebug() << "inclinationCommand returned invalid value";
+        return;
+    }
+
+    jbyteArray array = result.object<jbyteArray>();
+    QAndroidJniEnvironment env;
+    jbyte* bytes = env->GetByteArrayElements(array, nullptr);
+    jsize length = env->GetArrayLength(array);
+
+    QByteArray message((char*)bytes, length);
+
+    env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
+#else
+    QByteArray message;
+    qDebug() << "implement zwift hub protobuf!";
+    return;
+#endif
+    writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
+    gearInclinationSent = true;
+}
+
 void ftmsbike::update() {
 
     QSettings settings;
@@ -387,18 +423,24 @@ void ftmsbike::update() {
         }
 
         if(zwiftPlayService && gears_zwift_ratio && lastGearValue != gears()) {
+            // Workaround: gear commands don't work until an inclination command has been sent first
+            if (!gearInclinationSent) {
+                qDebug() << "Sending initial inclination command (0.0) before first gear command";
+                sendZwiftPlayInclination(0.0);
+            }
+
             QSettings settings;
             wheelCircumference::GearTable table;
             wheelCircumference::GearTable::GearInfo g = table.getGear((int)gears());
             double original_ratio = ((double)settings.value(QZSettings::gear_crankset_size, QZSettings::default_gear_crankset_size).toDouble()) /
             ((double)settings.value(QZSettings::gear_cog_size, QZSettings::default_gear_cog_size).toDouble());
-            
+
             double current_ratio = ((double)g.crankset / (double)g.rearCog);
-            
+
             uint32_t gear_value = static_cast<uint32_t>(10000.0 * (current_ratio/original_ratio) * (42.0/14.0));
-            
+
             qDebug() << "zwift hub gear current ratio" << current_ratio << g.crankset << g.rearCog << "gear_value" << gear_value << "original_ratio" << original_ratio;
- 
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             QByteArray proto = lockscreen::zwift_hub_setGearsCommand(gear_value);
@@ -1529,39 +1571,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
         } else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
-            
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            QByteArray message = lockscreen::zwift_hub_inclinationCommand(((double)slope) / 100.0);
-#else
-            QByteArray message;
-#endif
-#elif defined(Q_OS_ANDROID)
-            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
-                "org/cagnulen/qdomyoszwift/ZwiftHubBike",
-                "inclinationCommand",
-                "(D)[B",
-                ((double)slope) / 100.0);
-
-            if(!result.isValid()) {
-                qDebug() << "inclinationCommand returned invalid value";
-                return;
-            }
-
-            jbyteArray array = result.object<jbyteArray>();
-            QAndroidJniEnvironment env;
-            jbyte* bytes = env->GetByteArrayElements(array, nullptr);
-            jsize length = env->GetArrayLength(array);
-
-            QByteArray message((char*)bytes, length);
-
-            env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
-#else
-            QByteArray message;
-            qDebug() << "implement zwift hub protobuf!";
-            return;
-#endif
-            writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
+            sendZwiftPlayInclination(((double)slope) / 100.0);
             return;
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && !ergModeSupported) {
             qDebug() << "discarding";
@@ -1899,6 +1909,7 @@ void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState stat
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        gearInclinationSent = false;
         m_control->connectToDevice();
     }
 }
