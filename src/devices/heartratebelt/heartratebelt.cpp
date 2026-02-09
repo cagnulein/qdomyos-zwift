@@ -8,6 +8,10 @@
 #include <QSettings>
 #include <QThread>
 #include <chrono>
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QAndroidJniEnvironment>
+#endif
 
 using namespace std::chrono_literals;
 
@@ -27,7 +31,34 @@ heartratebelt::~heartratebelt() {
 void heartratebelt::update() {
     if(m_control->state() == QLowEnergyController::DiscoveredState && gattCommunicationChannelService &&
             gattNotifyCharacteristic.isValid() && gattCommunicationChannelService->characteristic(QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement)).properties() & QLowEnergyCharacteristic::Read) {
+#ifdef Q_OS_ANDROID
+        // On Android, use direct Java call to bypass Qt's buggy executeReadJob
+        QString serviceUuid = QStringLiteral("0000180d-0000-1000-8000-00805f9b34fb"); // Heart Rate Service
+        QString charUuid = QStringLiteral("00002a37-0000-1000-8000-00805f9b34fb"); // Heart Rate Measurement
+
+        qDebug() << QStringLiteral("HeartRateBelt :: Calling readCharacteristicDirectlyStatic with service:") << serviceUuid << " char:" << charUuid;
+
+        QAndroidJniEnvironment env;
+        bool result = QAndroidJniObject::callStaticMethod<jboolean>(
+            "org/qtproject/qt5/android/bluetooth/QtBluetoothLE",
+            "readCharacteristicDirectlyStatic",
+            "(Ljava/lang/String;Ljava/lang/String;)Z",
+            QAndroidJniObject::fromString(serviceUuid).object<jstring>(),
+            QAndroidJniObject::fromString(charUuid).object<jstring>()
+        );
+
+        if (env->ExceptionCheck()) {
+            qDebug() << QStringLiteral("HeartRateBelt :: JNI Exception occurred!");
+            env->ExceptionDescribe();
+            env->ExceptionClear();
+            result = false;
+        }
+
+        qDebug() << QStringLiteral("HeartRateBelt :: readCharacteristicDirectlyStatic result:") << result;
+#else
         gattCommunicationChannelService->readCharacteristic(gattCommunicationChannelService->characteristic(QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement)));
+        qDebug() << QStringLiteral("HeartRateBelt :: readCharacteristic call successful, waiting for response...");
+#endif
     }
 }
 
