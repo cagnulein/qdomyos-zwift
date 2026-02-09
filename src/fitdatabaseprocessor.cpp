@@ -16,6 +16,13 @@ FitDatabaseProcessor::FitDatabaseProcessor(const QString& dbPath, QObject* paren
       , dbPath(dbPath)
       , stopRequested(0)
 {
+    // Extract base path from database path (remove the database filename)
+    QFileInfo dbInfo(dbPath);
+    basePath = dbInfo.absolutePath();
+    if (!basePath.endsWith('/')) {
+        basePath += '/';
+    }
+
     moveToThread(&workerThread);
     connect(&workerThread, &QThread::finished, this, &QObject::deleteLater);
 }
@@ -28,73 +35,85 @@ FitDatabaseProcessor::~FitDatabaseProcessor() {
 }
 
 bool FitDatabaseProcessor::initializeDatabase() {
-    QMutexLocker locker(&mutex);
+    // Limit the scope of the mutex locker to avoid deadlock with migrateOldPaths()
+    {
+        QMutexLocker locker(&mutex);
 
-    if (QSqlDatabase::contains(DB_CONNECTION_NAME)) {
-        db = QSqlDatabase::database(DB_CONNECTION_NAME);
-    } else {
-        db = QSqlDatabase::addDatabase("QSQLITE", DB_CONNECTION_NAME);
-        db.setDatabaseName(dbPath);
-    }
+        if (QSqlDatabase::contains(DB_CONNECTION_NAME)) {
+            db = QSqlDatabase::database(DB_CONNECTION_NAME);
+        } else {
+            db = QSqlDatabase::addDatabase("QSQLITE", DB_CONNECTION_NAME);
+            db.setDatabaseName(dbPath);
+        }
 
-    if (!db.open()) {
-        emit error("Failed to open database: " + db.lastError().text());
-        return false;
-    }
+        if (!db.open()) {
+            emit error("Failed to open database: " + db.lastError().text());
+            return false;
+        }
 
-    // Start transaction for table creation
-    db.transaction();
+        // Start transaction for table creation
+        db.transaction();
 
-    QSqlQuery query(db);
+        QSqlQuery query(db);
 
-    // Create workouts table - Only storing summary data
-    if (!query.exec("CREATE TABLE IF NOT EXISTS workouts ("
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    "file_hash TEXT UNIQUE,"
-                    "file_path TEXT,"
-                    "workout_name TEXT,"
-                    "sport_type INTEGER,"
-                    "start_time DATETIME,"
-                    "end_time DATETIME,"
-                    "total_time INTEGER,"  // in seconds
-                    "total_distance REAL,"  // in km
-                    "total_calories INTEGER,"
-                    "avg_heart_rate INTEGER,"
-                    "max_heart_rate INTEGER,"
-                    "avg_cadence INTEGER,"
-                    "max_cadence INTEGER,"
-                    "avg_speed REAL,"
-                    "max_speed REAL,"
-                    "avg_power INTEGER,"
-                    "max_power INTEGER,"
-                    "total_ascent REAL,"
-                    "total_descent REAL,"
-                    "avg_stride_length REAL,"
-                    "total_strides INTEGER,"
-                    "workout_source TEXT DEFAULT 'QZ',"
-                    "peloton_workout_id TEXT,"
-                    "peloton_url TEXT,"
-                    "training_program_file TEXT,"
-                    "processed_at DATETIME DEFAULT CURRENT_TIMESTAMP"
-                    ")")) {
-        db.rollback();
-        emit error("Failed to create workouts table: " + query.lastError().text());
-        return false;
-    }
+        // Create workouts table - Only storing summary data
+        if (!query.exec("CREATE TABLE IF NOT EXISTS workouts ("
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                        "file_hash TEXT UNIQUE,"
+                        "file_path TEXT,"
+                        "workout_name TEXT,"
+                        "sport_type INTEGER,"
+                        "start_time DATETIME,"
+                        "end_time DATETIME,"
+                        "total_time INTEGER,"  // in seconds
+                        "total_distance REAL,"  // in km
+                        "total_calories INTEGER,"
+                        "avg_heart_rate INTEGER,"
+                        "max_heart_rate INTEGER,"
+                        "avg_cadence INTEGER,"
+                        "max_cadence INTEGER,"
+                        "avg_speed REAL,"
+                        "max_speed REAL,"
+                        "avg_power INTEGER,"
+                        "max_power INTEGER,"
+                        "total_ascent REAL,"
+                        "total_descent REAL,"
+                        "avg_stride_length REAL,"
+                        "total_strides INTEGER,"
+                        "workout_source TEXT DEFAULT 'QZ',"
+                        "peloton_workout_id TEXT,"
+                        "peloton_url TEXT,"
+                        "training_program_file TEXT,"
+                        "processed_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+                        ")")) {
+            db.rollback();
+            emit error("Failed to create workouts table: " + query.lastError().text());
+            return false;
+        }
 
-    // Create index for better performance
-    query.exec("CREATE INDEX IF NOT EXISTS idx_workout_start_time ON workouts(start_time)");
+        // Create index for better performance
+        query.exec("CREATE INDEX IF NOT EXISTS idx_workout_start_time ON workouts(start_time)");
 
-    // Add workout_name column if it doesn't exist (for existing databases)
-    query.exec("ALTER TABLE workouts ADD COLUMN workout_name TEXT");
-    
-    // Add new Peloton-related columns if they don't exist (for existing databases)
-    query.exec("ALTER TABLE workouts ADD COLUMN workout_source TEXT DEFAULT 'QZ'");
-    query.exec("ALTER TABLE workouts ADD COLUMN peloton_workout_id TEXT");
-    query.exec("ALTER TABLE workouts ADD COLUMN peloton_url TEXT");
-    query.exec("ALTER TABLE workouts ADD COLUMN training_program_file TEXT");
+        // Add workout_name column if it doesn't exist (for existing databases)
+        query.exec("ALTER TABLE workouts ADD COLUMN workout_name TEXT");
 
-    return db.commit();
+        // Add new Peloton-related columns if they don't exist (for existing databases)
+        query.exec("ALTER TABLE workouts ADD COLUMN workout_source TEXT DEFAULT 'QZ'");
+        query.exec("ALTER TABLE workouts ADD COLUMN peloton_workout_id TEXT");
+        query.exec("ALTER TABLE workouts ADD COLUMN peloton_url TEXT");
+        query.exec("ALTER TABLE workouts ADD COLUMN training_program_file TEXT");
+
+        if (!db.commit()) {
+            emit error("Failed to commit database initialization: " + db.lastError().text());
+            return false;
+        }
+    } // Mutex is released here
+
+    // Migrate old absolute paths to relative paths (after mutex is released)
+    qDebug() << "Checking for old absolute paths to migrate...";
+    migrateOldPaths();
+
+    return true;
 }
 
 void FitDatabaseProcessor::processDirectory(const QString& dirPath) {
@@ -109,8 +128,10 @@ void FitDatabaseProcessor::processDirectory(const QString& dirPath) {
 
 void FitDatabaseProcessor::processFile(const QString& filePath) {
     if (!db.isOpen()) {
-        emit error("Failed to initialize database for single file processing");
-        return;
+        if (!initializeDatabase()) {
+            emit error("Failed to initialize database for single file processing");
+            return;
+        }
     }
 
     if (!processFitFile(filePath)) {
@@ -226,6 +247,9 @@ bool FitDatabaseProcessor::saveWorkout(const QString& filePath,
         }
     }
 
+    // Convert absolute path to relative path for storage
+    QString relativeFilePath = makeRelativePath(filePath);
+
     QSqlQuery query(db);
     query.prepare("INSERT INTO workouts ("
                   "file_hash, file_path, workout_name, sport_type, start_time, end_time, "
@@ -239,7 +263,7 @@ bool FitDatabaseProcessor::saveWorkout(const QString& filePath,
                   ")");
 
     query.addBindValue(fileHash);
-    query.addBindValue(filePath);
+    query.addBindValue(relativeFilePath);  // Store relative path instead of absolute
     query.addBindValue(workoutName);
     query.addBindValue(static_cast<int>(sport));
     query.addBindValue(session.first().time);
@@ -383,4 +407,96 @@ void FitDatabaseProcessor::doWork() {
     }
 
     emit processingStopped();
+}
+
+QString FitDatabaseProcessor::makeRelativePath(const QString& absolutePath) {
+    // Convert absolute path to relative path
+    // Remove the base path from the absolute path to get a relative path
+    if (absolutePath.startsWith(basePath)) {
+        return absolutePath.mid(basePath.length());
+    }
+
+    // If the path doesn't start with basePath, try to extract just the fit/filename part
+    // This handles cases where the Application Container ID has changed on iOS
+    int fitIndex = absolutePath.indexOf("/fit/");
+    if (fitIndex != -1) {
+        // Extract everything from "fit/" onwards
+        return absolutePath.mid(fitIndex + 1); // +1 to skip the leading '/'
+    }
+
+    // Fallback: return the original path if we can't make it relative
+    return absolutePath;
+}
+
+QString FitDatabaseProcessor::makeAbsolutePath(const QString& relativePath) {
+    // Convert relative path to absolute path
+    // If already absolute, return as-is
+    if (QFileInfo(relativePath).isAbsolute()) {
+        return relativePath;
+    }
+
+    // Construct absolute path by prepending basePath
+    return basePath + relativePath;
+}
+
+bool FitDatabaseProcessor::migrateOldPaths() {
+    // Migrate old absolute paths to new relative paths
+    QMutexLocker locker(&mutex);
+
+    if (!db.isOpen()) {
+        qDebug() << "Database not open for path migration";
+        return false;
+    }
+
+    // Start a transaction for better performance
+    db.transaction();
+
+    QSqlQuery selectQuery(db);
+    selectQuery.prepare("SELECT id, file_path FROM workouts");
+
+    if (!selectQuery.exec()) {
+        qDebug() << "Failed to query workouts for migration:" << selectQuery.lastError().text();
+        db.rollback();
+        return false;
+    }
+
+    QSqlQuery updateQuery(db);
+    updateQuery.prepare("UPDATE workouts SET file_path = ? WHERE id = ?");
+
+    int migratedCount = 0;
+    while (selectQuery.next()) {
+        qint64 id = selectQuery.value(0).toLongLong();
+        QString oldPath = selectQuery.value(1).toString();
+
+        // Check if path is already relative (doesn't start with /)
+        if (!oldPath.startsWith('/')) {
+            continue; // Already relative, skip
+        }
+
+        // Convert to relative path
+        QString newPath = makeRelativePath(oldPath);
+
+        // Only update if path changed
+        if (newPath != oldPath) {
+            updateQuery.addBindValue(newPath);
+            updateQuery.addBindValue(id);
+
+            if (!updateQuery.exec()) {
+                qDebug() << "Failed to update path for workout ID" << id << ":" << updateQuery.lastError().text();
+                db.rollback();
+                return false;
+            }
+
+            migratedCount++;
+        }
+    }
+
+    if (!db.commit()) {
+        qDebug() << "Failed to commit path migration transaction:" << db.lastError().text();
+        db.rollback();
+        return false;
+    }
+
+    qDebug() << "Successfully migrated" << migratedCount << "workout paths to relative format";
+    return true;
 }

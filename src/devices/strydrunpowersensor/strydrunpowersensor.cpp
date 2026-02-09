@@ -654,7 +654,16 @@ void strydrunpowersensor::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     auto services_list = m_control->services();
+    bool isZwiftPod = bluetoothDevice.name().contains(QStringLiteral("Zwift RunPod"), Qt::CaseInsensitive);
+
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
+        // For Zwift RunPod, skip both fff0 and ffc0 services that cause discovery issues
+        if (isZwiftPod && (s.toString() == QStringLiteral("{0000fff0-0000-1000-8000-00805f9b34fb}") ||
+                           s.toString() == QStringLiteral("{f000ffc0-0451-4000-b000-000000000000}"))) {
+            qDebug() << QStringLiteral("Skipping problematic services for Zwift RunPod:") << s.toString();
+            continue;
+        }
+
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &strydrunpowersensor::stateChanged);

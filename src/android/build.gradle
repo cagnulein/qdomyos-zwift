@@ -57,6 +57,7 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:5.0.1'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.60'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.60'
+    implementation("com.garmin.connectiq:ciq-companion-app-sdk:2.2.0@aar")
 }
 
 import org.apache.tools.ant.taskdefs.condition.Os

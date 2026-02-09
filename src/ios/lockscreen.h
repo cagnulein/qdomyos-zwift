@@ -16,10 +16,11 @@ class lockscreen {
     void setSpeed(double speed);
     void setPower(double power);
     void setCadence(double cadence);
+    void setElevationGain(double elevationGain);
     void setHeartRate(unsigned char heartRate);
     void startWorkout(unsigned short deviceType);
     void stopWorkout();
-    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance, double totalKcal, bool useMiles);
+    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance, double totalKcal, bool useMiles, unsigned char heartRate);
     bool appleWatchAppInstalled();
 
     // virtualbike
@@ -46,7 +47,7 @@ class lockscreen {
     int virtualrower_getLastFTMSMessage(unsigned char *message);
 
     // virtualtreadmill
-    void virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility);
+    void virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility, bool bike_cadence_sensor);
     void virtualtreadmill_setHeartRate(unsigned char heartRate);
     double virtualtreadmill_getCurrentSlope();
     uint64_t virtualtreadmill_lastChangeCurrentSlope();
@@ -54,8 +55,9 @@ class lockscreen {
     double virtualtreadmill_getRequestedSpeed();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                      unsigned short currentCadence, unsigned short currentWatt,
-                                     unsigned short currentInclination, unsigned long long currentDistance, unsigned short currentCalories, 
-                                     qint32 currentSteps, unsigned short elapsedSeconds, unsigned char deviceType);
+                                     unsigned short currentInclination, unsigned long long currentDistance, double elevationGain,
+                                     unsigned short currentCalories, qint32 currentSteps, unsigned short elapsedSeconds,
+                                     unsigned char deviceType);
 
     // volume
     double getVolume();
@@ -109,6 +111,8 @@ class lockscreen {
     static void set_action_profile(const char* profile);
     static const char* get_action_profile();
 
+    // multi-window detection for iPadOS
+    static bool isInMultiWindowMode();
 };
 
 #endif // LOCKSCREEN_H

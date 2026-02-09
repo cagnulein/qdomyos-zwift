@@ -177,6 +177,7 @@ bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
 }
 bool bluetoothdevice::connected() { return false; }
 metric bluetoothdevice::elevationGain() { return elevationAcc; }
+metric bluetoothdevice::negativeElevationGain() { return negativeElevationAcc; }
 void bluetoothdevice::heartRate(uint8_t heart) {
     Heart.setValue(heart);
 #ifdef Q_OS_IOS
@@ -286,9 +287,14 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts, const b
     METS = calculateMETS();
     if (currentInclination().value() > 0)
         elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
+    else if (currentInclination().value() < 0)
+        negativeElevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * fabs(currentInclination().value() / 100.0) * deltaTime;
 
     _lastTimeUpdate = current;
     _firstUpdate = false;
+
+    // Update iOS Live Activity with throttling
+    update_ios_live_activity();
 }
 
 void bluetoothdevice::update_hr_from_external() {
@@ -336,16 +342,29 @@ void bluetoothdevice::update_hr_from_external() {
     }
 #endif
     }
+    // Note: workoutTrackingUpdate is now called from update_ios_live_activity() with throttling
+}
+
+void bluetoothdevice::update_ios_live_activity() {
     #ifdef Q_OS_IOS
     #ifndef IO_UNDER_QT
-    lockscreen h;
-    double kcal = calories().value();
-    if(kcal < 0)
-        kcal = 0;
-    bool useMiles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
-    h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(), deviceType(), odometer() * 1000.0, totalCalories().value(), useMiles);
+    static QDateTime lastUpdate;
+    QDateTime current = QDateTime::currentDateTime();
+
+    // Throttle updates: only update if at least 1 second has passed since last update
+    if (!lastUpdate.isValid() || lastUpdate.msecsTo(current) >= 1000) {
+        QSettings settings;
+        lockscreen h;
+        double kcal = calories().value();
+        if(kcal < 0)
+            kcal = 0;
+        bool useMiles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+        h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(), deviceType(), odometer() * 1000.0, totalCalories().value(), useMiles, (uint8_t)Heart.value());
+
+        lastUpdate = current;
+    }
     #endif
-    #endif    
+    #endif
 }
 
 void bluetoothdevice::clearStats() {
@@ -361,6 +380,7 @@ void bluetoothdevice::clearStats() {
     Heart.clear(false);
     m_jouls.clear(true);
     elevationAcc = 0;
+    negativeElevationAcc = 0;
     m_watt.clear(false);
     m_rawWatt.clear(false);
     WeightLoss.clear(false);
