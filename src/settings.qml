@@ -14,9 +14,16 @@ import Qt.labs.platform 1.1
         anchors.fill: parent
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
-        id: settingsPane        
+        id: settingsPane
 
         signal peloton_connect_clicked()
+        signal intervalsicu_connect_clicked()
+        signal intervalsicu_download_todays_workout_clicked()
+
+        function openGarminSection() {
+            garminOptionsAccordion.isOpen = true
+            scrollTimer.start()
+        }
 
         Settings {
             id: settings
@@ -154,6 +161,7 @@ import Qt.labs.platform 1.1
             property real heart_rate_zone4: 100.0
             property bool heart_max_override_enable: false
             property real heart_max_override_value: 195.0
+            property int heart_rate_resting: 60
 
             property real peloton_gain: 1.0
             property real peloton_offset: 0
@@ -1167,10 +1175,108 @@ import Qt.labs.platform 1.1
             // 2.19.2
             property bool tile_hr_time_in_zone_individual_mode: false
             property bool wahoo_without_wheel_diameter: false
+
+            // 2.20.3
             property bool technogym_group_cycle: false
             property int ant_bike_device_number: 0
             property int ant_heart_device_number: 0
+            property int peloton_treadmill_walk_level: 1
+            property int pid_heart_zone_erg_mode_watt_step: 5
+            
+            // Automatic Virtual Shifting settings
+            property bool automatic_virtual_shifting_enabled: false
+            property int automatic_virtual_shifting_gear_up_cadence: 95
+            property real automatic_virtual_shifting_gear_up_time: 2.0
+            property int automatic_virtual_shifting_gear_down_cadence: 65
+            property real automatic_virtual_shifting_gear_down_time: 2.0
+            property int automatic_virtual_shifting_profile: 0
+            property int automatic_virtual_shifting_climb_gear_up_cadence: 95
+            property real automatic_virtual_shifting_climb_gear_up_time: 2.0
+            property int automatic_virtual_shifting_climb_gear_down_cadence: 65
+            property real automatic_virtual_shifting_climb_gear_down_time: 2.0
+            property int automatic_virtual_shifting_sprint_gear_up_cadence: 95
+            property real automatic_virtual_shifting_sprint_gear_up_time: 2.0
+            property int automatic_virtual_shifting_sprint_gear_down_cadence: 65
+            property real automatic_virtual_shifting_sprint_gear_down_time: 2.0
+            property bool tile_auto_virtual_shifting_cruise_enabled: false
+            property int tile_auto_virtual_shifting_cruise_order: 55
+            property bool tile_auto_virtual_shifting_climb_enabled: false
+            property int tile_auto_virtual_shifting_climb_order: 56
+            property bool tile_auto_virtual_shifting_sprint_enabled: false
+            property int tile_auto_virtual_shifting_sprint_order: 57
+            property string proform_rower_ip: ""
+            property string ftms_elliptical: "Disabled"
+            property bool calories_active_only: false
+            property real height: 175.0
+            property bool calories_from_hr: false
+            property int bike_power_offset: 0
+            property int chart_display_mode: 0
+            property bool zwift_play_vibration: true
+            property bool toorxtreadmill_discovery_completed: false
+            property bool taurua_ic90: false
+            property bool proform_csx210: false
+            property bool confirm_stop_workout: false                       
+            property bool proform_rower_750r: false             
+            property bool virtual_device_force_treadmill: false
+            property bool proform_trainer_9_0: false
+            property bool iconcept_ftms_treadmill_inclination_table: false
+            property bool skandika_wiri_x2000_protocol: true
+            property bool nordictrack_series_7: false
+            property string kettler_usb_serialport: ""			
+            property int kettler_usb_baudrate: 9600
+            property bool nordictrack_se7i: false
+            property real treadmill_speed_max: 100
+            
+            // Intervals.icu settings
+            property string intervalsicu_accesstoken: ""
+            property string intervalsicu_refreshtoken: ""
+            property string intervalsicu_athlete_id: ""
+            property bool intervalsicu_upload_enabled: true
+            property string intervalsicu_suffix: "#QZ"
+            property bool intervalsicu_date_prefix: false            
+
+            property bool proform_treadmill_sport_3_0: false
+            property bool rouvy_compatibility: false
+            property bool tile_negative_inclination_enabled: false
+            property int tile_negative_inclination_order: 75
+            property bool tile_avg_pace_enabled: false
+            property int  tile_avg_pace_order: 76
+
+            // Garmin connect
+            property string garmin_email: ""
+            property string garmin_password: ""
+            property bool garmin_upload_enabled: false
+            property string garmin_access_token: ""
+            property string garmin_refresh_token: ""
+            property string garmin_token_type: ""
+            property var garmin_expires_at: 0
+            property var garmin_refresh_token_expires_at: 0
+            property string garmin_domain: "garmin.com"
+            property string garmin_last_refresh: ""
+            
+            property bool power_sensor_cadence_instead_treadmill: false            
+            
+            property string garmin_oauth1_token: ""
+            property string garmin_oauth1_token_secret: ""
+
+			property bool domyos_treadmill_sync_start: false
+			property string garmin_device_serial: "3313379353"
+			property real treadmill_speed_min: 0
+			property real peloton_treadmill_walking_min_speed: 0.0
+			property real peloton_treadmill_running_min_speed: 0.0
+			property bool trainprogram_auto_lap_on_segment: false
+			property bool power_avg_3s: false
+			property bool tile_power_avg_enabled: false
+			property int tile_power_avg_order: 77
+			property bool life_fitness_ic5: false
+			property bool technogym_bike: false
+			property bool kingsmith_r2_enable_hw_buttons: false
+			property bool treadmill_direct_distance: false
+			property bool domyos_treadmill_ts100: false
+			property bool thinkrider_controller: false
+			property bool weight_kg_unit: false
         }
+
 
         function paddingZeros(text, limit) {
           if (text.length < limit) {
@@ -1255,12 +1361,12 @@ import Qt.labs.platform 1.1
                         spacing: 10
                         Label {
                             id: labelWeight
-                            text: qsTr("Player Weight") + "(" + (settings.miles_unit?"lbs":"kg") + ")"
+                            text: qsTr("Player Weight") + "(" + ((settings.miles_unit && !settings.weight_kg_unit)?"lbs":"kg") + ")"
                             Layout.fillWidth: true
                         }
                         TextField {
                             id: weightTextField
-                            text: (settings.miles_unit?settings.weight * 2.20462:settings.weight)
+                            text: ((settings.miles_unit && !settings.weight_kg_unit)?settings.weight * 2.20462:settings.weight)
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -1272,11 +1378,70 @@ import Qt.labs.platform 1.1
                             id: okWeightButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.weight = (settings.miles_unit?weightTextField.text / 2.20462:weightTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.weight = ((settings.miles_unit && !settings.weight_kg_unit)?weightTextField.text / 2.20462:weightTextField.text); toast.show("Setting saved!"); }
                         }
                     }
                     Label {
-                        text: qsTr("Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs).")
+                        text: qsTr("Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable 'Use kg for weight'.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelHeight
+                            text: qsTr("Player Height") + "(" + (settings.miles_unit?"ft/in":"cm") + ")"
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: heightTextField
+                            text: settings.miles_unit ? Math.floor(settings.height / 30.48) + "'" + Math.round((settings.height % 30.48) / 2.54) + '"' : settings.height
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: {
+                                if (settings.miles_unit) {
+                                    var parts = text.match(/(\d+)[\s''\u2018\u2019]*(\d+)/);
+                                    if (parts) {
+                                        settings.height = parseInt(parts[1]) * 30.48 + parseInt(parts[2]) * 2.54;
+                                    }
+                                } else {
+                                    settings.height = parseFloat(text);
+                                }
+                            }
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okHeightButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                if (settings.miles_unit) {
+                                    var parts = heightTextField.text.match(/(\d+)[\s''\u2018\u2019]*(\d+)/);
+                                    if (parts) {
+                                        settings.height = parseInt(parts[1]) * 30.48 + parseInt(parts[2]) * 2.54;
+                                    } else {
+                                        toast.show("Invalid format! Use feet'inches (e.g., 6'2\")");
+                                        return;
+                                    }
+                                } else {
+                                    settings.height = parseFloat(heightTextField.text);
+                                }
+                                toast.show("Setting saved!");
+                            }
+                        }
+                    }
+                    Label {
+                        text: qsTr("Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet'inches\" format (e.g., 5'10\") for imperial units.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -1544,6 +1709,36 @@ import Qt.labs.platform 1.1
                     }
 
                     IndicatorOnlySwitch {
+                        id: weightKgUnitDelegate
+                        text: qsTr("Use kg for weight")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.weight_kg_unit
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.weight_kg_unit = checked
+                        visible: settings.miles_unit
+                    }
+
+                    Label {
+                        text: qsTr("Turn on if you want to use kilograms (kg) for weight instead of pounds (lbs). Useful for UK users who use miles for distance but kg for weight.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                        visible: settings.miles_unit
+                    }
+
+                    IndicatorOnlySwitch {
                         id: pauseOnStartDelegate
                         text: qsTr("Pause when App Starts")
                         spacing: 0
@@ -1692,7 +1887,63 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("This prevents your bike or treadmill from sending its calories-burned calculation to QZ and defaults to QZ’s more accurate calculation.")
+                        text: qsTr("This prevents your bike or treadmill from sending its calories-burned calculation to QZ and defaults to QZ's more accurate calculation.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: switchActiveCaloriesOnlyDelegate
+                        text: qsTr("Calculate Active Calories Only")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.calories_active_only
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.calories_active_only = checked
+                    }
+
+                    Label {
+                        text: qsTr("Enable to calculate only active calories (excluding basal metabolic rate) similar to Apple Watch. When disabled, total calories including BMR are calculated. This affects both display and Apple Health integration.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: switchCaloriesFromHRDelegate
+                        text: qsTr("Calculate Calories from Heart Rate")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.calories_from_hr
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.calories_from_hr = checked
+                    }
+
+                    Label {
+                        text: qsTr("Enable to calculate calories based on heart rate data instead of power. Requires heart rate sensor connection for accurate calorie estimation.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -1933,20 +2184,58 @@ import Qt.labs.platform 1.1
                                             onClicked: { settings.heart_max_override_value = heartRateMaxOverrideValueTextField.text; toast.show("Setting saved!"); }
                                         }
                                     }
-                                }
-                            }
 
-                            Label {
-                                text: qsTr("QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.")
-                                font.bold: true
-                                font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
-                                textFormat: Text.PlainText
-                                wrapMode: Text.WordWrap
-                                verticalAlignment: Text.AlignVCenter
-                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                                Layout.fillWidth: true
-                                color: Material.color(Material.Lime)
+                                    Label {
+                                        text: qsTr("QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
+                                    RowLayout {
+                                        spacing: 10
+                                        Label {
+                                            id: labelHeartRateRestingValue
+                                            text: qsTr("Resting Heart Rate")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: heartRateRestingValueTextField
+                                            text: settings.heart_rate_resting
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.heart_rate_resting = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okHeartRateRestingValue
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: { settings.heart_rate_resting = heartRateRestingValueTextField.text; toast.show("Setting saved!"); }
+                                        }
+                                    }
+
+                                    Label {
+                                        text: qsTr("Enter your resting heart rate (the lowest your heart rate reaches when fully rested). This is used for accurate training load calculations. Default is 60 bpm.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+                                }
                             }
 
                             AccordionElement {
@@ -2241,12 +2530,12 @@ import Qt.labs.platform 1.1
                         spacing: 10
                         Label {
                             id: labelBikeWeight
-                            text: qsTr("Bike Weight") + "(" + (settings.miles_unit?"lbs":"kg") + ")"
+                            text: qsTr("Bike Weight") + "(" + ((settings.miles_unit && !settings.weight_kg_unit)?"lbs":"kg") + ")"
                             Layout.fillWidth: true
                         }
                         TextField {
                             id: bikeweightTextField
-                            text: (settings.miles_unit?settings.bike_weight * 2.20462:settings.bike_weight)
+                            text: ((settings.miles_unit && !settings.weight_kg_unit)?settings.bike_weight * 2.20462:settings.bike_weight)
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2258,12 +2547,12 @@ import Qt.labs.platform 1.1
                             id: okBikeWeightButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.bike_weight = (settings.miles_unit?bikeweightTextField.text / 2.20462:bikeweightTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.bike_weight = ((settings.miles_unit && !settings.weight_kg_unit)?bikeweightTextField.text / 2.20462:bikeweightTextField.text); toast.show("Setting saved!"); }
                         }
                     }
 
                     Label {
-                        text: qsTr("Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will “level the playing field” against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs). Default unit is kilograms (kgs).")
+                        text: qsTr("Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will 'level the playing field' against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable 'Use kg for weight'. Default unit is kilograms (kgs).")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -2392,6 +2681,44 @@ import Qt.labs.platform 1.1
                     RowLayout {
                         spacing: 10
                         Label {
+                            id: labelBikePowerOffset
+                            text: qsTr("Zwift Power Offset (W):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: bikePowerOffsetTextField
+                            text: settings.bike_power_offset
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.bike_power_offset = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okBikePowerOffsetButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.bike_power_offset = bikePowerOffsetTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Add an offset in watts to the requested power from apps like Zwift. Positive values increase power, negative values decrease it. Default is 0.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
                             id: labelBikeResistanceGain
                             text: qsTr("Zwift Resistance Gain:")
                             Layout.fillWidth: true
@@ -2453,7 +2780,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 Watts or more than 110 Watts. Default is 10.")
+                        text: qsTr("In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -2689,6 +3016,383 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
+                    AccordionElement {
+                        id: automaticVirtualShiftingAccordion
+                        title: qsTr("Automatic Virtual Shifting")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Red)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+
+                            IndicatorOnlySwitch {
+                                id: automaticVirtualShiftingEnabledDelegate
+                                text: qsTr("Enable Automatic Virtual Shifting")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.automatic_virtual_shifting_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.automatic_virtual_shifting_enabled = checked
+                            }
+
+                            Label {
+                                text: qsTr("Enable automatic gear shifting based on cadence thresholds. When enabled, QZ will automatically shift gears up or down based on your pedaling cadence.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Profile:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    id: automaticVirtualShiftingProfileComboBox
+                                    model: ["Cruise", "Climb", "Sprint"]
+                                    currentIndex: settings.automatic_virtual_shifting_profile
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onActivated: {
+                                        settings.automatic_virtual_shifting_profile = currentIndex
+                                    }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Cruise Profile Settings")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 1
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Grey)
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Cruise - Gear Up Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingGearUpCadenceTextField
+                                    text: settings.automatic_virtual_shifting_gear_up_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_gear_up_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_gear_up_cadence = automaticVirtualShiftingGearUpCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Cruise - Gear Up Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingGearUpTimeTextField
+                                    text: settings.automatic_virtual_shifting_gear_up_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_gear_up_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_gear_up_time = automaticVirtualShiftingGearUpTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Cruise - Gear Down Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingGearDownCadenceTextField
+                                    text: settings.automatic_virtual_shifting_gear_down_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_gear_down_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_gear_down_cadence = automaticVirtualShiftingGearDownCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Cruise - Gear Down Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingGearDownTimeTextField
+                                    text: settings.automatic_virtual_shifting_gear_down_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_gear_down_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_gear_down_time = automaticVirtualShiftingGearDownTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Climb Profile Settings")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 1
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Grey)
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Climb - Gear Up Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingClimbGearUpCadenceTextField
+                                    text: settings.automatic_virtual_shifting_climb_gear_up_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_up_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_up_cadence = automaticVirtualShiftingClimbGearUpCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Climb - Gear Up Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingClimbGearUpTimeTextField
+                                    text: settings.automatic_virtual_shifting_climb_gear_up_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_up_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_up_time = automaticVirtualShiftingClimbGearUpTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Climb - Gear Down Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingClimbGearDownCadenceTextField
+                                    text: settings.automatic_virtual_shifting_climb_gear_down_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_down_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_down_cadence = automaticVirtualShiftingClimbGearDownCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Climb - Gear Down Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingClimbGearDownTimeTextField
+                                    text: settings.automatic_virtual_shifting_climb_gear_down_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_down_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_down_time = automaticVirtualShiftingClimbGearDownTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Sprint Profile Settings")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 1
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Grey)
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Sprint - Gear Up Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingSprintGearUpCadenceTextField
+                                    text: settings.automatic_virtual_shifting_sprint_gear_up_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_up_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_cadence = automaticVirtualShiftingSprintGearUpCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Sprint - Gear Up Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingSprintGearUpTimeTextField
+                                    text: settings.automatic_virtual_shifting_sprint_gear_up_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_up_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_time = automaticVirtualShiftingSprintGearUpTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Sprint - Gear Down Cadence (RPM):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingSprintGearDownCadenceTextField
+                                    text: settings.automatic_virtual_shifting_sprint_gear_down_cadence
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_down_cadence = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_cadence = automaticVirtualShiftingSprintGearDownCadenceTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                visible: automaticVirtualShiftingEnabledDelegate.checked
+                                Label {
+                                    text: qsTr("Sprint - Gear Down Time (seconds):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: automaticVirtualShiftingSprintGearDownTimeTextField
+                                    text: settings.automatic_virtual_shifting_sprint_gear_down_time
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_down_time = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_time = automaticVirtualShiftingSprintGearDownTimeTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+                        }
+                    }
+
                     Label {
                         text: qsTr("FTMS Bike:")
                         Layout.fillWidth: true
@@ -2716,7 +3420,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the bluetooth name of your bike.")
+                        text: qsTr("If you have a generic FTMS bike and the tiles don't appear on the main QZ screen, select here the Bluetooth name of your bike.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -2739,7 +3443,7 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }
+                    }                    
 
                     NewPageElement {
                         title: qsTr("Wahoo Options")
@@ -2823,7 +3527,7 @@ import Qt.labs.platform 1.1
                                 }
                             }
                             Label {
-                                text: qsTr("Since this bike doesn't send resistance over bluetooth, QZ is calculating it using cadence and wattage. The result could be a little 'jumpy' and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.")
+                                text: qsTr("Since this bike doesn't send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little 'jumpy' and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
@@ -3153,6 +3857,42 @@ import Qt.labs.platform 1.1
                         }
                     }
                     AccordionElement {
+                        id: skandikaBikeAccordion
+                        title: qsTr("Skandika Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                id: skandikaX2000ProtocolDelegate
+                                text: qsTr("Skandika X-2000 Protocol")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.skandika_wiri_x2000_protocol
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.skandika_wiri_x2000_protocol = checked; window.settings_restart_to_apply = true; }
+                            }
+                            Label {
+                                text: qsTr("Enable this for Skandika X-2000 bikes. Disable for other Skandika models (e.g., HT211212095)")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }
+                    AccordionElement {
                         id: fitplusBikeAccordion
                         title: qsTr("Fitplus Bike Options")
                         indicatRectColor: Material.color(Material.Grey)
@@ -3250,6 +3990,20 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.flywheel_life_fitness_ic8 = checked; window.settings_restart_to_apply = true; }
+                            }
+                            IndicatorOnlySwitch {
+                                id: lifeFitnessIC5Delegate
+                                text: qsTr("Life Fitness IC5")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.life_fitness_ic5
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.life_fitness_ic5 = checked; window.settings_restart_to_apply = true; }
                             }
                         }
                     }
@@ -3447,7 +4201,8 @@ import Qt.labs.platform 1.1
                                     "Nordictrack GX 4.4 Pro",
                                     "TDF 1.0 PFEVEX71316.0",
                                     "Proform XBike",
-                                    "Proform 225 CSX PFEX32925 INT.0"
+                                    "Proform 225 CSX PFEX32925 INT.0",
+                                    "Proform CSX210"
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -3482,7 +4237,8 @@ import Qt.labs.platform 1.1
                                                     settings.nordictrack_gx_44_pro ? 15 :
                                                     settings.proform_bike_PFEVEX71316_0 ? 16 :
                                                     settings.proform_xbike ? 17 :
-                                                    settings.proform_225_csx_PFEX32925_INT_0 ? 18 : 0;
+                                                    settings.proform_225_csx_PFEX32925_INT_0 ? 18 :
+                                                    settings.proform_csx210 ? 19 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -3515,6 +4271,7 @@ import Qt.labs.platform 1.1
                                     settings.proform_bike_PFEVEX71316_0 = false;
                                     settings.proform_xbike = false;
                                     settings.proform_225_csx_PFEX32925_INT_0 = false;
+                                    settings.proform_csx210 = false;
 
                                     // Set corresponding setting for selected model
                                     switch (currentIndex) {
@@ -3536,6 +4293,7 @@ import Qt.labs.platform 1.1
                                         case 16: settings.proform_bike_PFEVEX71316_0 = true; break;
                                         case 17: settings.proform_xbike = true; break;
                                         case 18: settings.proform_225_csx_PFEX32925_INT_0 = true; break;
+                                        case 19: settings.proform_csx210 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -3544,7 +4302,7 @@ import Qt.labs.platform 1.1
 
                             IndicatorOnlySwitch {
                                 id: proformTdfJonseedWattdelegate
-                                text: qsTr("TDF CBC Jonseed Watt table")
+                                text: qsTr("TDF CBC Jonseed watt table")
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -3692,6 +4450,70 @@ import Qt.labs.platform 1.1
 
 
                     AccordionElement {
+                        id: kettlerUsbBikeAccordion
+                        title: qsTr("Kettler USB Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+												accordionContent: ColumnLayout {
+                            spacing: 0
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelKettlerUsbSerialPort
+                                text: qsTr("Serial Port:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: kettlerUsbSerialPortTextField
+                                text: settings.kettler_usb_serialport
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onAccepted: settings.kettler_usb_serialport = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okKettlerUsbSerialPortButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.kettler_usb_serialport = kettlerUsbSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelKettlerUsbBaudrate
+                                text: qsTr("Baudrate:")
+                                Layout.fillWidth: true
+                            }
+                            ComboBox {
+                                id: kettlerUsbBaudrateComboBox
+                                model: [ "9600", "57600" ]
+                                displayText: settings.kettler_usb_baudrate.toString()
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    console.log("kettler baudrate combobox activated" + kettlerUsbBaudrateComboBox.currentIndex)
+                                    displayText = kettlerUsbBaudrateComboBox.currentValue
+                                }
+                            }
+                            Button {
+                                id: okKettlerUsbBaudrateButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: {
+                                    settings.kettler_usb_baudrate = parseInt(kettlerUsbBaudrateComboBox.displayText);
+                                    window.settings_restart_to_apply = true;
+                                    toast.show("Setting saved!");
+                                }
+                            }
+                        }
+                    }
+										}
+
+
+                    AccordionElement {
                         id: m3iBikeAccordion
                         title: qsTr("M3i Bike Options")
                         indicatRectColor: Material.color(Material.Grey)
@@ -3816,6 +4638,20 @@ import Qt.labs.platform 1.1
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             spacing: 0
+                            IndicatorOnlySwitch {
+                                id: technogymBikeDelegate
+                                text: qsTr("Technogym Bike (BIKE 1, BIKE 2, etc)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.technogym_bike
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.technogym_bike = checked; window.settings_restart_to_apply = true; }
+                            }
                             IndicatorOnlySwitch {
                                 id: technogymGroupCycleDelegate
                                 text: qsTr("Group Cycle")
@@ -4058,7 +4894,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Use this to connect to your bike using ANT+ instead bluetooth. Default: Disabled")
+                        text: qsTr("Use this to connect to your bike using ANT+ instead of Bluetooth. Default: Disabled")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -4316,6 +5152,44 @@ import Qt.labs.platform 1.1
                         text: "Open Floating on a Browser"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: openFloatingWindowBrowser();
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelChartDisplayMode
+                            text: qsTr("Chart Display Mode:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: chartDisplayModeComboBox
+                            model: ["Both Charts", "Heart Rate Only", "Power Only"]
+                            currentIndex: settings.chart_display_mode
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("chart_display_mode activated" + chartDisplayModeComboBox.currentIndex)
+                            }
+                        }
+                        Button {
+                            id: okChartDisplayModeButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.chart_display_mode = chartDisplayModeComboBox.currentIndex; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     AccordionElement {
@@ -4683,7 +5557,113 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Difficulty level for peloton treadmill classes. 1 is easy 10 is hard.")
+                        text: qsTr("Difficulty level for Peloton treadmill classes. 1 is easy 10 is hard.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Treadmill Walk Level:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: pelotonTreadmillWalkLevelTextField
+                            model: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" ]
+                            displayText: settings.peloton_treadmill_walk_level
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + pelotonTreadmillWalkLevelTextField.currentIndex)
+                                displayText = pelotonTreadmillWalkLevelTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_treadmill_walk_level = parseInt(pelotonTreadmillWalkLevelTextField.displayText); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Difficulty level for Peloton treadmill walking classes. 1 is easy 10 is hard.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Walking Min Speed:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pelotonTreadmillWalkingMinSpeedTextField
+                            text: (settings.miles_unit ? settings.peloton_treadmill_walking_min_speed * 0.621371 : settings.peloton_treadmill_walking_min_speed).toFixed(1)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_treadmill_walking_min_speed = (settings.miles_unit ? pelotonTreadmillWalkingMinSpeedTextField.text / 0.621371 : pelotonTreadmillWalkingMinSpeedTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Running Min Speed:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pelotonTreadmillRunningMinSpeedTextField
+                            text: (settings.miles_unit ? settings.peloton_treadmill_running_min_speed * 0.621371 : settings.peloton_treadmill_running_min_speed).toFixed(1)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_treadmill_running_min_speed = (settings.miles_unit ? pelotonTreadmillRunningMinSpeedTextField.text / 0.621371 : pelotonTreadmillRunningMinSpeedTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Minimum speed for Peloton running sessions. Set to 0 to disable. Applied to all speed targets in running workouts.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -4721,7 +5701,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Difficulty level for peloton rower classes. 1 is easy 10 is hard.")
+                        text: qsTr("Difficulty level for Peloton rower classes. 1 is easy 10 is hard.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -4873,7 +5853,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton Resistance of 30 and you enter 5, QZ will display 35.)")
+                        text: qsTr("Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -4887,7 +5867,7 @@ import Qt.labs.platform 1.1
 
                     IndicatorOnlySwitch {
                         id: cadenceSensorDelegate
-                        text: qsTr("Cycling Cadence Sensor (Peloton compatibility)")
+                        text: qsTr("Cycling/Running Sensor (Peloton compatibility)")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -4901,7 +5881,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Turn this on to send cadence to Peloton over Bluetooth. Default is off.")
+                        text: qsTr("Turn this on compatibility to Peloton over Bluetooth. Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -5171,7 +6151,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Only for Android where QZ is running on the same Peloton device. This setting enables the AI (Artificial Intelligence) on QZ that will read the peloton workout screen and will adjust the peloton offset in order to stay in sync in realtime with your Peloton workout. A popup about screen recording will appear in order to notify this.")
+                        text: qsTr("Only for Android where QZ is running on the same Peloton device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Peloton workout screen and will adjust the Peloton offset in order to stay in sync in realtime with your Peloton workout. A popup about screen recording will appear in order to notify this.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -5198,7 +6178,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("This setting enables the AI (Artificial Intelligence) on the QZ Companion AI app that will read the peloton workout screen and will adjust the peloton offset in order to stay in sync in realtime with your Peloton workout.")
+                        text: qsTr("This setting enables the AI (Artificial Intelligence) on the QZ Companion AI app that will read the Peloton workout screen and will adjust the Peloton offset in order to stay in sync in realtime with your Peloton workout.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -5209,7 +6189,7 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-
+                    /*
                     IndicatorOnlySwitch {
                         id: pelotonBikeOCRDelegate
                         text: qsTr("Peloton Bike/Bike+ (Experimental)")
@@ -5236,7 +6216,7 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }
+                    }*/
                 }
             }
 
@@ -5363,7 +6343,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. Default: disabled.")
+                        text: qsTr("This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure Zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. MUST be disabled for Mywhoosh app. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -5390,7 +6370,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("This setting shows the actual gear from qz to Zwift. Negative values are not displayed on zwift and it could have also limitation to higher gain value. Default: disabled.")
+                        text: qsTr("This setting shows the actual gear from QZ to Zwift. Negative values are not displayed on Zwift and it could have also limitation to higher gain value. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -5564,6 +6544,44 @@ import Qt.labs.platform 1.1
             }
 
             AccordionElement {
+                title: qsTr("Rouvy Options") + "\uD83E\uDD47"
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 0
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Rouvy Compatibility")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.rouvy_compatibility
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.rouvy_compatibility = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Wifi Compatibility for Rouvy")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+                }
+            }
+
+            AccordionElement {
+                id: garminOptionsAccordion
                 title: qsTr("Garmin Options") + "\uD83E\uDD47"
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
@@ -5651,6 +6669,678 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
+                    Label {
+                        id: garminConnectLabel
+                        text: qsTr("Garmin Connect")
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Enable Garmin Upload")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.garmin_upload_enabled
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.garmin_upload_enabled = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("Enable automatic upload of FIT files to Garmin Connect after workouts.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Garmin Email:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: garminEmailTextField
+                            text: settings.garmin_email
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.garmin_email = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                rootItem.garmin_connect_logout();
+                                settings.garmin_email = garminEmailTextField.text;
+                                toast.show("Setting saved!");
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Garmin Password:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: garminPasswordTextField
+                            text: settings.garmin_password
+                            echoMode: TextInput.Password
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.garmin_password = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                rootItem.garmin_connect_logout();
+                                settings.garmin_password = garminPasswordTextField.text;
+                                toast.show("Setting saved!");
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Garmin Server:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: garminServerComboBox
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            model: ["Global (garmin.com)", "China (garmin.cn)"]
+                            currentIndex: settings.garmin_domain === "garmin.cn" ? 1 : 0
+                            onCurrentIndexChanged: {
+                                var newDomain = currentIndex === 1 ? "garmin.cn" : "garmin.com";
+                                if (newDomain !== settings.garmin_domain) {
+                                    rootItem.garmin_connect_logout();
+                                    settings.garmin_domain = newDomain;
+                                    window.settings_restart_to_apply = true;
+                                }
+                            }
+                        }
+                    }
+
+                    Button {
+                        text: "Test Garmin Login"
+                        Layout.alignment: Qt.AlignHCenter
+                        onClicked: { rootItem.garmin_connect_login(); }
+                    }
+
+                    // MFA Dialog
+                    Popup {
+                        id: garminMfaDialog
+                        modal: true
+                        focus: true
+                        closePolicy: Popup.CloseOnEscape
+                        anchors.centerIn: Overlay.overlay
+                        width: Math.min(parent.width * 0.9, 400)
+
+                        visible: rootItem.garminMfaRequested
+
+                        ColumnLayout {
+                            anchors.fill: parent
+                            spacing: 20
+
+                            Label {
+                                text: "Garmin MFA Required"
+                                font.pixelSize: 18
+                                font.bold: true
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignHCenter
+                            }
+
+                            Label {
+                                text: "Garmin has sent a verification code to your email.\nPlease enter it below:"
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignHCenter
+                            }
+
+                            Label {
+                                text: "If you don't receive the code, please enable 2FA in your Garmin profile privacy settings."
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignHCenter
+                                font.pixelSize: 12
+                                font.italic: true
+                                color: Material.color(Material.Grey)
+                            }
+
+                            TextField {
+                                id: mfaCodeTextField
+                                placeholderText: "Enter MFA code"
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 40
+                                font.pixelSize: 16
+
+                                onAccepted: {
+                                    if (text.length > 0) {
+                                        rootItem.garmin_submit_mfa_code(text);
+                                        text = "";
+                                    }
+                                }
+                            }
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 10
+
+                                Button {
+                                    text: "Cancel"
+                                    Layout.fillWidth: true
+                                    onClicked: {
+                                        mfaCodeTextField.text = "";
+                                        rootItem.garminMfaRequested = false;
+                                    }
+                                }
+
+                                Button {
+                                    text: "Submit"
+                                    Layout.fillWidth: true
+                                    highlighted: true
+                                    enabled: mfaCodeTextField.text.length > 0
+                                    onClicked: {
+                                        rootItem.garmin_submit_mfa_code(mfaCodeTextField.text);
+                                        mfaCodeTextField.text = "";
+                                    }
+                                }
+                            }
+                        }
+
+                        onVisibleChanged: {
+                            if (visible) {
+                                mfaCodeTextField.forceActiveFocus();
+                            }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Enter your Garmin Connect credentials to enable automatic upload. Your password is stored locally and securely.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Use Garmin device in the FIT file")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.fit_file_garmin_device_training_effect
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.fit_file_garmin_device_training_effect = checked; window.settings_restart_to_apply = false; }
+                    }
+
+                    Label {
+                        text: qsTr("With this enabled, QZ will write the FIT file as a Garmin device so Garmin will consider this fit file for the training effect. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    Label {
+                        text: qsTr("Garmin device for FIT file")
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                    }
+
+                    ComboBox {
+                        id: garminDeviceComboBoxDelegate
+                        model: [
+                            "D2Airvenu",
+                            "Edge1000",
+                            "Edge20",
+                            "Edge200",
+                            "Edge25",
+                            "Edge500",
+                            "Edge510",
+                            "Edge520",
+                            "Edge800",
+                            "Edge810",
+                            "Edge 1030",
+                            "Edge 1030 Plus",
+                            "Edge 1040",
+                            "Edge 1050",
+                            "Edge 130",
+                            "Edge 130 Plus",
+                            "Edge 520 Plus",
+                            "Edge 530",
+                            "Edge 540",
+                            "Edge 820",
+                            "Edge 830",
+                            "Edge 840",
+                            "Edge Explore",
+                            "Edge Explore2",
+                            "Edge Explore 1000",
+                            "Edge Explore 820",
+                            "Edge Remote",
+                            "Edge Touring",
+                            "Epix",
+                            "Epix Japan",
+                            "Epix Korea",
+                            "Epix Gen2",
+                            "Epix Gen2 Apac",
+                            "Epix Gen2 Pro 42",
+                            "Epix Gen2 Pro 47",
+                            "Epix Gen2 Pro 51",
+                            "Fenix",
+                            "Fenix2",
+                            "Fenix3",
+                            "Fenix3 Chronos",
+                            "Fenix3 Hr",
+                            "Fenix5",
+                            "Fenix5S",
+                            "Fenix5S Plus",
+                            "Fenix5X",
+                            "Fenix5X Plus",
+                            "Fenix5 Plus",
+                            "Fenix6",
+                            "Fenix6S",
+                            "Fenix6S Sport",
+                            "Fenix6X",
+                            "Fenix6 Sport",
+                            "Fenix7",
+                            "Fenix7S",
+                            "Fenix7S Pro Solar",
+                            "Fenix7X",
+                            "Fenix7X Pro Solar",
+                            "Fenix7 Pro Solar",
+                            "Fenix8",
+                            "Fenix8 Small",
+                            "Fenix8 Solar",
+                            "Fenix8 Solar Large",
+                            "Fenix E",
+                            "Forerunner 10",
+                            "Forerunner 110",
+                            "Forerunner 15",
+                            "Forerunner 165",
+                            "Forerunner 165 Music",
+                            "Forerunner 220",
+                            "Forerunner 225",
+                            "Forerunner 230",
+                            "Forerunner 235",
+                            "Forerunner 245",
+                            "Forerunner 245 Music",
+                            "Forerunner 25",
+                            "Forerunner 255",
+                            "Forerunner 255 Music",
+                            "Forerunner 255 Small",
+                            "Forerunner 255 Small Music",
+                            "Forerunner 265 Large",
+                            "Forerunner 265 Small",
+                            "Forerunner 30",
+                            "Forerunner 310Xt",
+                            "Forerunner 310Xt 4T",
+                            "Forerunner 35",
+                            "Forerunner 405",
+                            "Forerunner 45",
+                            "Forerunner 50",
+                            "Forerunner 55",
+                            "Forerunner 60",
+                            "Forerunner 610",
+                            "Forerunner 620",
+                            "Forerunner 630",
+                            "Forerunner 645",
+                            "Forerunner 645M",
+                            "Forerunner 70",
+                            "Forerunner 735Xt",
+                            "Forerunner 745",
+                            "Forerunner 910Xt",
+                            "Forerunner 920Xt",
+                            "Forerunner 935",
+                            "Forerunner 945",
+                            "Forerunner 945 Lte",
+                            "Forerunner 955",
+                            "Forerunner 965",
+                            "Venu",
+                            "Venu2",
+                            "Venu2S",
+                            "Venu2 Plus",
+                            "Venu3",
+                            "Venu3S",
+                            "Venu Sq",
+                            "Venu Sq2",
+                            "Venu Sq2Music",
+                            "Venu Sq Music",
+                            "Vivoactive 3",
+                            "Vivoactive 3M L",
+                            "Vivoactive 3M W",
+                            "Vivoactive 4 Large",
+                            "Vivoactive 4 Small",
+                            "Vivoactive 5",
+                            "Vivoactive 6",
+                            "Tacx",
+                            "Zwift"
+                        ]
+                        currentIndex: {
+                            if (settings.fit_file_garmin_device_training_effect_device === 2187) return 0;  // D2AIRVENU
+                            if (settings.fit_file_garmin_device_training_effect_device === 1836) return 1;  // EDGE1000
+                            if (settings.fit_file_garmin_device_training_effect_device === 2238) return 2;  // EDGE20
+                            if (settings.fit_file_garmin_device_training_effect_device === 1325) return 3;  // EDGE200
+                            if (settings.fit_file_garmin_device_training_effect_device === 2147) return 4;  // EDGE25
+                            if (settings.fit_file_garmin_device_training_effect_device === 1036) return 5;  // EDGE500
+                            if (settings.fit_file_garmin_device_training_effect_device === 1561) return 6;  // EDGE510
+                            if (settings.fit_file_garmin_device_training_effect_device === 2067) return 7;  // EDGE520
+                            if (settings.fit_file_garmin_device_training_effect_device === 1169) return 8;  // EDGE800
+                            if (settings.fit_file_garmin_device_training_effect_device === 1567) return 9;  // EDGE810
+                            if (settings.fit_file_garmin_device_training_effect_device === 2713) return 10;  // EDGE_1030
+                            if (settings.fit_file_garmin_device_training_effect_device === 3570) return 11;  // EDGE_1030_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3843) return 12;  // EDGE_1040
+                            if (settings.fit_file_garmin_device_training_effect_device === 4440) return 13;  // EDGE_1050
+                            if (settings.fit_file_garmin_device_training_effect_device === 2909) return 14;  // EDGE_130
+                            if (settings.fit_file_garmin_device_training_effect_device === 3558) return 15;  // EDGE_130_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3112) return 16;  // EDGE_520_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3121) return 17;  // EDGE_530
+                            if (settings.fit_file_garmin_device_training_effect_device === 4061) return 18;  // EDGE_540
+                            if (settings.fit_file_garmin_device_training_effect_device === 2530) return 19;  // EDGE_820
+                            if (settings.fit_file_garmin_device_training_effect_device === 3122) return 20;  // EDGE_830
+                            if (settings.fit_file_garmin_device_training_effect_device === 4062) return 21;  // EDGE_840
+                            if (settings.fit_file_garmin_device_training_effect_device === 3011) return 22;  // EDGE_EXPLORE
+                            if (settings.fit_file_garmin_device_training_effect_device === 4169) return 23;  // EDGE_EXPLORE2
+                            if (settings.fit_file_garmin_device_training_effect_device === 2204) return 24;  // EDGE_EXPLORE_1000
+                            if (settings.fit_file_garmin_device_training_effect_device === 2531) return 25;  // EDGE_EXPLORE_820
+                            if (settings.fit_file_garmin_device_training_effect_device === 10014) return 26;  // EDGE_REMOTE
+                            if (settings.fit_file_garmin_device_training_effect_device === 1736) return 27;  // EDGE_TOURING
+                            if (settings.fit_file_garmin_device_training_effect_device === 1988) return 28;  // EPIX
+                            if (settings.fit_file_garmin_device_training_effect_device === 2332) return 29;  // EPIX_JAPAN
+                            if (settings.fit_file_garmin_device_training_effect_device === 2457) return 30;  // EPIX_KOREA
+                            if (settings.fit_file_garmin_device_training_effect_device === 3943) return 31;  // EPIX_GEN2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3944) return 32;  // EPIX_GEN2_APAC
+                            if (settings.fit_file_garmin_device_training_effect_device === 4312) return 33;  // EPIX_GEN2_PRO_42
+                            if (settings.fit_file_garmin_device_training_effect_device === 4313) return 34;  // EPIX_GEN2_PRO_47
+                            if (settings.fit_file_garmin_device_training_effect_device === 4314) return 35;  // EPIX_GEN2_PRO_51
+                            if (settings.fit_file_garmin_device_training_effect_device === 1551) return 36;  // FENIX
+                            if (settings.fit_file_garmin_device_training_effect_device === 1967) return 37;  // FENIX2
+                            if (settings.fit_file_garmin_device_training_effect_device === 2050) return 38;  // FENIX3
+                            if (settings.fit_file_garmin_device_training_effect_device === 2432) return 39;  // FENIX3_CHRONOS
+                            if (settings.fit_file_garmin_device_training_effect_device === 2413) return 40;  // FENIX3_HR
+                            if (settings.fit_file_garmin_device_training_effect_device === 2697) return 41;  // FENIX5
+                            if (settings.fit_file_garmin_device_training_effect_device === 2544) return 42;  // FENIX5S
+                            if (settings.fit_file_garmin_device_training_effect_device === 2900) return 43;  // FENIX5S_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 2604) return 44;  // FENIX5X
+                            if (settings.fit_file_garmin_device_training_effect_device === 3111) return 45;  // FENIX5X_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3110) return 46;  // FENIX5_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3290) return 47;  // FENIX6
+                            if (settings.fit_file_garmin_device_training_effect_device === 3288) return 48;  // FENIX6S
+                            if (settings.fit_file_garmin_device_training_effect_device === 3287) return 49;  // FENIX6S_SPORT
+                            if (settings.fit_file_garmin_device_training_effect_device === 3291) return 50;  // FENIX6X
+                            if (settings.fit_file_garmin_device_training_effect_device === 3289) return 51;  // FENIX6_SPORT
+                            if (settings.fit_file_garmin_device_training_effect_device === 3906) return 52;  // FENIX7
+                            if (settings.fit_file_garmin_device_training_effect_device === 3905) return 53;  // FENIX7S
+                            if (settings.fit_file_garmin_device_training_effect_device === 4374) return 54;  // FENIX7S_PRO_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 3907) return 55;  // FENIX7X
+                            if (settings.fit_file_garmin_device_training_effect_device === 4376) return 56;  // FENIX7X_PRO_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 4375) return 57;  // FENIX7_PRO_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 4536) return 58;  // FENIX8
+                            if (settings.fit_file_garmin_device_training_effect_device === 4534) return 59;  // FENIX8_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 4532) return 60;  // FENIX8_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 4533) return 61;  // FENIX8_SOLAR_LARGE
+                            if (settings.fit_file_garmin_device_training_effect_device === 4666) return 62;  // FENIX_E
+                            if (settings.fit_file_garmin_device_training_effect_device === 1482) return 63;  // FR10
+                            if (settings.fit_file_garmin_device_training_effect_device === 1124) return 64;  // FR110
+                            if (settings.fit_file_garmin_device_training_effect_device === 1903) return 65;  // FR15
+                            if (settings.fit_file_garmin_device_training_effect_device === 4432) return 66;  // FR165
+                            if (settings.fit_file_garmin_device_training_effect_device === 4433) return 67;  // FR165_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 1632) return 68;  // FR220
+                            if (settings.fit_file_garmin_device_training_effect_device === 2153) return 69;  // FR225
+                            if (settings.fit_file_garmin_device_training_effect_device === 2157) return 70;  // FR230
+                            if (settings.fit_file_garmin_device_training_effect_device === 2431) return 71;  // FR235
+                            if (settings.fit_file_garmin_device_training_effect_device === 3076) return 72;  // FR245
+                            if (settings.fit_file_garmin_device_training_effect_device === 3077) return 73;  // FR245_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 2148) return 74;  // FR25
+                            if (settings.fit_file_garmin_device_training_effect_device === 3992) return 75;  // FR255
+                            if (settings.fit_file_garmin_device_training_effect_device === 3990) return 76;  // FR255_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 3993) return 77;  // FR255_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 3991) return 78;  // FR255_SMALL_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 4257) return 79;  // FR265_LARGE
+                            if (settings.fit_file_garmin_device_training_effect_device === 4258) return 80;  // FR265_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 2891) return 81;  // FR30
+                            if (settings.fit_file_garmin_device_training_effect_device === 1018) return 82;  // FR310XT
+                            if (settings.fit_file_garmin_device_training_effect_device === 1446) return 83;  // FR310XT_4T
+                            if (settings.fit_file_garmin_device_training_effect_device === 2503) return 84;  // FR35
+                            if (settings.fit_file_garmin_device_training_effect_device === 717) return 85;  // FR405
+                            if (settings.fit_file_garmin_device_training_effect_device === 3282) return 86;  // FR45
+                            if (settings.fit_file_garmin_device_training_effect_device === 782) return 87;  // FR50
+                            if (settings.fit_file_garmin_device_training_effect_device === 3869) return 88;  // FR55
+                            if (settings.fit_file_garmin_device_training_effect_device === 988) return 89;  // FR60
+                            if (settings.fit_file_garmin_device_training_effect_device === 1345) return 90;  // FR610
+                            if (settings.fit_file_garmin_device_training_effect_device === 1623) return 91;  // FR620
+                            if (settings.fit_file_garmin_device_training_effect_device === 2156) return 92;  // FR630
+                            if (settings.fit_file_garmin_device_training_effect_device === 2886) return 93;  // FR645
+                            if (settings.fit_file_garmin_device_training_effect_device === 2888) return 94;  // FR645M
+                            if (settings.fit_file_garmin_device_training_effect_device === 1436) return 95;  // FR70
+                            if (settings.fit_file_garmin_device_training_effect_device === 2158) return 96;  // FR735XT
+                            if (settings.fit_file_garmin_device_training_effect_device === 3589) return 97;  // FR745
+                            if (settings.fit_file_garmin_device_training_effect_device === 1328) return 98;  // FR910XT
+                            if (settings.fit_file_garmin_device_training_effect_device === 1765) return 99;  // FR920XT
+                            if (settings.fit_file_garmin_device_training_effect_device === 2691) return 100;  // FR935
+                            if (settings.fit_file_garmin_device_training_effect_device === 3113) return 101;  // FR945
+                            if (settings.fit_file_garmin_device_training_effect_device === 3652) return 102;  // FR945_LTE
+                            if (settings.fit_file_garmin_device_training_effect_device === 4024) return 103;  // FR955
+                            if (settings.fit_file_garmin_device_training_effect_device === 4315) return 104;  // FR965
+                            if (settings.fit_file_garmin_device_training_effect_device === 3226) return 105;  // VENU
+                            if (settings.fit_file_garmin_device_training_effect_device === 3703) return 106;  // VENU2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3704) return 107;  // VENU2S
+                            if (settings.fit_file_garmin_device_training_effect_device === 3851) return 108;  // VENU2_PLUS
+                            if (settings.fit_file_garmin_device_training_effect_device === 4260) return 109;  // VENU3
+                            if (settings.fit_file_garmin_device_training_effect_device === 4261) return 110;  // VENU3S
+                            if (settings.fit_file_garmin_device_training_effect_device === 3600) return 111;  // VENUSQ
+                            if (settings.fit_file_garmin_device_training_effect_device === 4115) return 112;  // VENUSQ2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4116) return 113;  // VENUSQ2MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 3596) return 114;  // VENUSQ_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 2700) return 115;  // VIVOACTIVE3
+                            if (settings.fit_file_garmin_device_training_effect_device === 3066) return 116;  // VIVOACTIVE3M_L
+                            if (settings.fit_file_garmin_device_training_effect_device === 2988) return 117;  // VIVOACTIVE3M_W
+                            if (settings.fit_file_garmin_device_training_effect_device === 3225) return 118;  // VIVOACTIVE4_LARGE
+                            if (settings.fit_file_garmin_device_training_effect_device === 3224) return 119;  // VIVOACTIVE4_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 4426) return 120;  // VIVOACTIVE5
+                            if (settings.fit_file_garmin_device_training_effect_device === 4625) return 121;  // VIVOACTIVE6
+                            if (settings.fit_file_garmin_device_training_effect_device === 88888) return 122;  // Tacx
+                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 123;  // Zwift
+                            return 20;  // Default to Edge 830
+                        }
+                        onCurrentIndexChanged: {
+                            switch(currentIndex) {
+                                case 0: settings.fit_file_garmin_device_training_effect_device = 2187; break;  // D2AIRVENU
+                                case 1: settings.fit_file_garmin_device_training_effect_device = 1836; break;  // EDGE1000
+                                case 2: settings.fit_file_garmin_device_training_effect_device = 2238; break;  // EDGE20
+                                case 3: settings.fit_file_garmin_device_training_effect_device = 1325; break;  // EDGE200
+                                case 4: settings.fit_file_garmin_device_training_effect_device = 2147; break;  // EDGE25
+                                case 5: settings.fit_file_garmin_device_training_effect_device = 1036; break;  // EDGE500
+                                case 6: settings.fit_file_garmin_device_training_effect_device = 1561; break;  // EDGE510
+                                case 7: settings.fit_file_garmin_device_training_effect_device = 2067; break;  // EDGE520
+                                case 8: settings.fit_file_garmin_device_training_effect_device = 1169; break;  // EDGE800
+                                case 9: settings.fit_file_garmin_device_training_effect_device = 1567; break;  // EDGE810
+                                case 10: settings.fit_file_garmin_device_training_effect_device = 2713; break;  // EDGE_1030
+                                case 11: settings.fit_file_garmin_device_training_effect_device = 3570; break;  // EDGE_1030_PLUS
+                                case 12: settings.fit_file_garmin_device_training_effect_device = 3843; break;  // EDGE_1040
+                                case 13: settings.fit_file_garmin_device_training_effect_device = 4440; break;  // EDGE_1050
+                                case 14: settings.fit_file_garmin_device_training_effect_device = 2909; break;  // EDGE_130
+                                case 15: settings.fit_file_garmin_device_training_effect_device = 3558; break;  // EDGE_130_PLUS
+                                case 16: settings.fit_file_garmin_device_training_effect_device = 3112; break;  // EDGE_520_PLUS
+                                case 17: settings.fit_file_garmin_device_training_effect_device = 3121; break;  // EDGE_530
+                                case 18: settings.fit_file_garmin_device_training_effect_device = 4061; break;  // EDGE_540
+                                case 19: settings.fit_file_garmin_device_training_effect_device = 2530; break;  // EDGE_820
+                                case 20: settings.fit_file_garmin_device_training_effect_device = 3122; break;  // EDGE_830
+                                case 21: settings.fit_file_garmin_device_training_effect_device = 4062; break;  // EDGE_840
+                                case 22: settings.fit_file_garmin_device_training_effect_device = 3011; break;  // EDGE_EXPLORE
+                                case 23: settings.fit_file_garmin_device_training_effect_device = 4169; break;  // EDGE_EXPLORE2
+                                case 24: settings.fit_file_garmin_device_training_effect_device = 2204; break;  // EDGE_EXPLORE_1000
+                                case 25: settings.fit_file_garmin_device_training_effect_device = 2531; break;  // EDGE_EXPLORE_820
+                                case 26: settings.fit_file_garmin_device_training_effect_device = 10014; break;  // EDGE_REMOTE
+                                case 27: settings.fit_file_garmin_device_training_effect_device = 1736; break;  // EDGE_TOURING
+                                case 28: settings.fit_file_garmin_device_training_effect_device = 1988; break;  // EPIX
+                                case 29: settings.fit_file_garmin_device_training_effect_device = 2332; break;  // EPIX_JAPAN
+                                case 30: settings.fit_file_garmin_device_training_effect_device = 2457; break;  // EPIX_KOREA
+                                case 31: settings.fit_file_garmin_device_training_effect_device = 3943; break;  // EPIX_GEN2
+                                case 32: settings.fit_file_garmin_device_training_effect_device = 3944; break;  // EPIX_GEN2_APAC
+                                case 33: settings.fit_file_garmin_device_training_effect_device = 4312; break;  // EPIX_GEN2_PRO_42
+                                case 34: settings.fit_file_garmin_device_training_effect_device = 4313; break;  // EPIX_GEN2_PRO_47
+                                case 35: settings.fit_file_garmin_device_training_effect_device = 4314; break;  // EPIX_GEN2_PRO_51
+                                case 36: settings.fit_file_garmin_device_training_effect_device = 1551; break;  // FENIX
+                                case 37: settings.fit_file_garmin_device_training_effect_device = 1967; break;  // FENIX2
+                                case 38: settings.fit_file_garmin_device_training_effect_device = 2050; break;  // FENIX3
+                                case 39: settings.fit_file_garmin_device_training_effect_device = 2432; break;  // FENIX3_CHRONOS
+                                case 40: settings.fit_file_garmin_device_training_effect_device = 2413; break;  // FENIX3_HR
+                                case 41: settings.fit_file_garmin_device_training_effect_device = 2697; break;  // FENIX5
+                                case 42: settings.fit_file_garmin_device_training_effect_device = 2544; break;  // FENIX5S
+                                case 43: settings.fit_file_garmin_device_training_effect_device = 2900; break;  // FENIX5S_PLUS
+                                case 44: settings.fit_file_garmin_device_training_effect_device = 2604; break;  // FENIX5X
+                                case 45: settings.fit_file_garmin_device_training_effect_device = 3111; break;  // FENIX5X_PLUS
+                                case 46: settings.fit_file_garmin_device_training_effect_device = 3110; break;  // FENIX5_PLUS
+                                case 47: settings.fit_file_garmin_device_training_effect_device = 3290; break;  // FENIX6
+                                case 48: settings.fit_file_garmin_device_training_effect_device = 3288; break;  // FENIX6S
+                                case 49: settings.fit_file_garmin_device_training_effect_device = 3287; break;  // FENIX6S_SPORT
+                                case 50: settings.fit_file_garmin_device_training_effect_device = 3291; break;  // FENIX6X
+                                case 51: settings.fit_file_garmin_device_training_effect_device = 3289; break;  // FENIX6_SPORT
+                                case 52: settings.fit_file_garmin_device_training_effect_device = 3906; break;  // FENIX7
+                                case 53: settings.fit_file_garmin_device_training_effect_device = 3905; break;  // FENIX7S
+                                case 54: settings.fit_file_garmin_device_training_effect_device = 4374; break;  // FENIX7S_PRO_SOLAR
+                                case 55: settings.fit_file_garmin_device_training_effect_device = 3907; break;  // FENIX7X
+                                case 56: settings.fit_file_garmin_device_training_effect_device = 4376; break;  // FENIX7X_PRO_SOLAR
+                                case 57: settings.fit_file_garmin_device_training_effect_device = 4375; break;  // FENIX7_PRO_SOLAR
+                                case 58: settings.fit_file_garmin_device_training_effect_device = 4536; break;  // FENIX8
+                                case 59: settings.fit_file_garmin_device_training_effect_device = 4534; break;  // FENIX8_SMALL
+                                case 60: settings.fit_file_garmin_device_training_effect_device = 4532; break;  // FENIX8_SOLAR
+                                case 61: settings.fit_file_garmin_device_training_effect_device = 4533; break;  // FENIX8_SOLAR_LARGE
+                                case 62: settings.fit_file_garmin_device_training_effect_device = 4666; break;  // FENIX_E
+                                case 63: settings.fit_file_garmin_device_training_effect_device = 1482; break;  // FR10
+                                case 64: settings.fit_file_garmin_device_training_effect_device = 1124; break;  // FR110
+                                case 65: settings.fit_file_garmin_device_training_effect_device = 1903; break;  // FR15
+                                case 66: settings.fit_file_garmin_device_training_effect_device = 4432; break;  // FR165
+                                case 67: settings.fit_file_garmin_device_training_effect_device = 4433; break;  // FR165_MUSIC
+                                case 68: settings.fit_file_garmin_device_training_effect_device = 1632; break;  // FR220
+                                case 69: settings.fit_file_garmin_device_training_effect_device = 2153; break;  // FR225
+                                case 70: settings.fit_file_garmin_device_training_effect_device = 2157; break;  // FR230
+                                case 71: settings.fit_file_garmin_device_training_effect_device = 2431; break;  // FR235
+                                case 72: settings.fit_file_garmin_device_training_effect_device = 3076; break;  // FR245
+                                case 73: settings.fit_file_garmin_device_training_effect_device = 3077; break;  // FR245_MUSIC
+                                case 74: settings.fit_file_garmin_device_training_effect_device = 2148; break;  // FR25
+                                case 75: settings.fit_file_garmin_device_training_effect_device = 3992; break;  // FR255
+                                case 76: settings.fit_file_garmin_device_training_effect_device = 3990; break;  // FR255_MUSIC
+                                case 77: settings.fit_file_garmin_device_training_effect_device = 3993; break;  // FR255_SMALL
+                                case 78: settings.fit_file_garmin_device_training_effect_device = 3991; break;  // FR255_SMALL_MUSIC
+                                case 79: settings.fit_file_garmin_device_training_effect_device = 4257; break;  // FR265_LARGE
+                                case 80: settings.fit_file_garmin_device_training_effect_device = 4258; break;  // FR265_SMALL
+                                case 81: settings.fit_file_garmin_device_training_effect_device = 2891; break;  // FR30
+                                case 82: settings.fit_file_garmin_device_training_effect_device = 1018; break;  // FR310XT
+                                case 83: settings.fit_file_garmin_device_training_effect_device = 1446; break;  // FR310XT_4T
+                                case 84: settings.fit_file_garmin_device_training_effect_device = 2503; break;  // FR35
+                                case 85: settings.fit_file_garmin_device_training_effect_device = 717; break;  // FR405
+                                case 86: settings.fit_file_garmin_device_training_effect_device = 3282; break;  // FR45
+                                case 87: settings.fit_file_garmin_device_training_effect_device = 782; break;  // FR50
+                                case 88: settings.fit_file_garmin_device_training_effect_device = 3869; break;  // FR55
+                                case 89: settings.fit_file_garmin_device_training_effect_device = 988; break;  // FR60
+                                case 90: settings.fit_file_garmin_device_training_effect_device = 1345; break;  // FR610
+                                case 91: settings.fit_file_garmin_device_training_effect_device = 1623; break;  // FR620
+                                case 92: settings.fit_file_garmin_device_training_effect_device = 2156; break;  // FR630
+                                case 93: settings.fit_file_garmin_device_training_effect_device = 2886; break;  // FR645
+                                case 94: settings.fit_file_garmin_device_training_effect_device = 2888; break;  // FR645M
+                                case 95: settings.fit_file_garmin_device_training_effect_device = 1436; break;  // FR70
+                                case 96: settings.fit_file_garmin_device_training_effect_device = 2158; break;  // FR735XT
+                                case 97: settings.fit_file_garmin_device_training_effect_device = 3589; break;  // FR745
+                                case 98: settings.fit_file_garmin_device_training_effect_device = 1328; break;  // FR910XT
+                                case 99: settings.fit_file_garmin_device_training_effect_device = 1765; break;  // FR920XT
+                                case 100: settings.fit_file_garmin_device_training_effect_device = 2691; break;  // FR935
+                                case 101: settings.fit_file_garmin_device_training_effect_device = 3113; break;  // FR945
+                                case 102: settings.fit_file_garmin_device_training_effect_device = 3652; break;  // FR945_LTE
+                                case 103: settings.fit_file_garmin_device_training_effect_device = 4024; break;  // FR955
+                                case 104: settings.fit_file_garmin_device_training_effect_device = 4315; break;  // FR965
+                                case 105: settings.fit_file_garmin_device_training_effect_device = 3226; break;  // VENU
+                                case 106: settings.fit_file_garmin_device_training_effect_device = 3703; break;  // VENU2
+                                case 107: settings.fit_file_garmin_device_training_effect_device = 3704; break;  // VENU2S
+                                case 108: settings.fit_file_garmin_device_training_effect_device = 3851; break;  // VENU2_PLUS
+                                case 109: settings.fit_file_garmin_device_training_effect_device = 4260; break;  // VENU3
+                                case 110: settings.fit_file_garmin_device_training_effect_device = 4261; break;  // VENU3S
+                                case 111: settings.fit_file_garmin_device_training_effect_device = 3600; break;  // VENUSQ
+                                case 112: settings.fit_file_garmin_device_training_effect_device = 4115; break;  // VENUSQ2
+                                case 113: settings.fit_file_garmin_device_training_effect_device = 4116; break;  // VENUSQ2MUSIC
+                                case 114: settings.fit_file_garmin_device_training_effect_device = 3596; break;  // VENUSQ_MUSIC
+                                case 115: settings.fit_file_garmin_device_training_effect_device = 2700; break;  // VIVOACTIVE3
+                                case 116: settings.fit_file_garmin_device_training_effect_device = 3066; break;  // VIVOACTIVE3M_L
+                                case 117: settings.fit_file_garmin_device_training_effect_device = 2988; break;  // VIVOACTIVE3M_W
+                                case 118: settings.fit_file_garmin_device_training_effect_device = 3225; break;  // VIVOACTIVE4_LARGE
+                                case 119: settings.fit_file_garmin_device_training_effect_device = 3224; break;  // VIVOACTIVE4_SMALL
+                                case 120: settings.fit_file_garmin_device_training_effect_device = 4426; break;  // VIVOACTIVE5
+                                case 121: settings.fit_file_garmin_device_training_effect_device = 4625; break;  // VIVOACTIVE6
+                                case 122: settings.fit_file_garmin_device_training_effect_device = 88888; break;  // Tacx
+                                case 123: settings.fit_file_garmin_device_training_effect_device = 99999; break;  // Zwift
+                            }
+                        }
+                        Layout.fillWidth: true
+                    }
+
+                    Label {
+                        text: qsTr("Garmin device UNIT ID")
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        TextField {
+                            id: garminDeviceSerialTextField
+                            text: settings.garmin_device_serial
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 250
+                            horizontalAlignment: Text.AlignLeft
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onTextChanged: {
+                                settings.garmin_device_serial = text;
+                            }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("IMPORTANT: You must set your real Garmin device UNIT ID here to see your actual device in Garmin Connect. You can find your device UNIT ID in the Garmin Connect app. The default value (3313379353) is just a placeholder. If you want to see also the Acute load in Garmin Connect leave the default Unit ID here.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Orange)
+                    }
                 }
             }
 
@@ -5693,7 +7383,35 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }                    
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: trainprogramAutoLapOnSegmentDelegate
+                        text: qsTr("Auto Lap on Segment")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.trainprogram_auto_lap_on_segment
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.trainprogram_auto_lap_on_segment = checked
+                    }
+
+                    Label {
+                        text: qsTr("Automatically trigger a lap when completing each workout segment/row. For ramp segments, lap is triggered only at the end of the ramp to avoid creating a lap every second.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
 
                     IndicatorOnlySwitch {
                         text: qsTr("Treadmill Auto-adjust speed by power")
@@ -6098,212 +7816,251 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
-                    AccordionCheckElement {
-                        id: trainingProgramRandomAccordion
-                        title: qsTr("Training Program Random Options")
-                        linkedBoolSetting: "trainprogram_random"
-                        settings: settings
-                        accordionContent: ColumnLayout {
-                            spacing: 0
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelTrainProgramRandomDuration
-                                    text: qsTr("Duration (minutes):")
-                                    Layout.fillWidth: true
-                                }
-                                TextField {
-                                    id: trainProgramRandomDurationTextField
-                                    text: settings.trainprogram_total
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.trainprogram_total = text
-                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    id: okTrainProgramRandomDuration
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.trainprogram_total = trainProgramRandomDurationTextField.text; toast.show("Setting saved!"); }
-                                }
-                            }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPidHeartZoneErgModeWattStep
+                            text: qsTr("ERG Mode Watt Step:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pidHeartZoneErgModeWattStepTextField
+                            text: settings.pid_heart_zone_erg_mode_watt_step.toString()
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okPidHeartZoneErgModeWattStep
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.pid_heart_zone_erg_mode_watt_step = parseInt(pidHeartZoneErgModeWattStepTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
 
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelTrainProgramRandomPeriod
-                                    text: qsTr("Period (seconds):")
-                                    Layout.fillWidth: true
-                                }
-                                TextField {
-                                    id: trainProgramRandomPeriodTextField
-                                    text: settings.trainprogram_period_seconds
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.trainprogram_period_seconds = text
-                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    id: okTrainProgramRandomPeriod
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.trainprogram_period_seconds = trainProgramRandomPeriodTextField.text; toast.show("Setting saved!"); }
-                                }
-                            }
+                    Label {
+                        text: qsTr("Set the wattage step increment for ERG mode heart rate zone training. Default: 5 watts.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
 
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelTrainProgramRandomSpeedMin
-                                    text: qsTr("Speed min.:")
-                                    Layout.fillWidth: true
-                                }
-                                TextField {
-                                    id: trainProgramRandomSpeedMinTextField
-                                    text: settings.trainprogram_speed_min
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.trainprogram_speed_min = text
-                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    id: okTrainProgramRandomSpeedMin
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.trainprogram_speed_min = trainProgramRandomSpeedMinTextField.text; toast.show("Setting saved!"); }
-                                }
-                            }
+                    IndicatorOnlySwitch {
+                        id: trainprogramRandomDelegate
+                        text: qsTr("Training Program Random")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        Layout.fillWidth: true
+                        checked: settings.trainprogram_random
+                        onCheckedChanged: settings.trainprogram_random = checked
+                    }
 
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelTrainProgramRandomSpeedMax
-                                    text: qsTr("Speed max.:")
-                                    Layout.fillWidth: true
-                                }
-                                TextField {
-                                    id: trainProgramRandomSpeedMaxTextField
-                                    text: settings.trainprogram_speed_max
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.trainprogram_speed_max = text
-                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    id: okTrainProgramRandomSpeedMax
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.trainprogram_speed_max = trainProgramRandomSpeedMaxTextField.text; toast.show("Setting saved!"); }
-                                }
-                            }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRandomDuration
+                            text: qsTr("Duration (minutes):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRandomDurationTextField
+                            text: settings.trainprogram_total
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.trainprogram_total = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRandomDuration
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_total = trainProgramRandomDurationTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
 
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelTrainProgramRandomInclineMin
-                                    text: qsTr("Incline min.:")
-                                    Layout.fillWidth: true
-                                }
-                                TextField {
-                                    id: trainProgramRandomInclineMinTextField
-                                    text: settings.trainprogram_incline_min
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.trainprogram_incline_min = text
-                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    id: okTrainProgramRandomInclineMin
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.trainprogram_incline_min = trainProgramRandomInclineMinTextField.text; toast.show("Setting saved!"); }
-                                }
-                            }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRandomPeriod
+                            text: qsTr("Period (seconds):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRandomPeriodTextField
+                            text: settings.trainprogram_period_seconds
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.trainprogram_period_seconds = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRandomPeriod
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_period_seconds = trainProgramRandomPeriodTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
 
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelTrainProgramRandomInclineMax
-                                    text: qsTr("Incline max.:")
-                                    Layout.fillWidth: true
-                                }
-                                TextField {
-                                    id: trainProgramRandomInclineMaxTextField
-                                    text: settings.trainprogram_incline_max
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.trainprogram_incline_max = text
-                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    id: okTrainProgramRandomInclineMax
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.trainprogram_incline_max = trainProgramRandomInclineMaxTextField.text; toast.show("Setting saved!"); }
-                                }
-                            }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRandomSpeedMin
+                            text: qsTr("Speed min.:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRandomSpeedMinTextField
+                            text: settings.trainprogram_speed_min
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.trainprogram_speed_min = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRandomSpeedMin
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_speed_min = trainProgramRandomSpeedMinTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
 
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelTrainProgramRandomResistanceMin
-                                    text: qsTr("Resistance min.:")
-                                    Layout.fillWidth: true
-                                }
-                                TextField {
-                                    id: trainProgramRandomResistanceMinTextField
-                                    text: settings.trainprogram_resistance_min
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.trainprogram_resistance_min = text
-                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    id: okTrainProgramRandomResistanceMin
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.trainprogram_resistance_min = trainProgramRandomResistanceMinTextField.text; toast.show("Setting saved!"); }
-                                }
-                            }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRandomSpeedMax
+                            text: qsTr("Speed max.:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRandomSpeedMaxTextField
+                            text: settings.trainprogram_speed_max
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.trainprogram_speed_max = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRandomSpeedMax
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_speed_max = trainProgramRandomSpeedMaxTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
 
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelTrainProgramRandomResistanceMax
-                                    text: qsTr("Resistance max.:")
-                                    Layout.fillWidth: true
-                                }
-                                TextField {
-                                    id: trainProgramRandomResistanceMaxTextField
-                                    text: settings.trainprogram_resistance_max
-                                    horizontalAlignment: Text.AlignRight
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.trainprogram_resistance_max = text
-                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                                }
-                                Button {
-                                    id: okTrainProgramRandomResistanceMax
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.trainprogram_resistance_max = trainProgramRandomResistanceMaxTextField.text; toast.show("Setting saved!"); }
-                                }
-                            }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRandomInclineMin
+                            text: qsTr("Incline min.:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRandomInclineMinTextField
+                            text: settings.trainprogram_incline_min
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.trainprogram_incline_min = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRandomInclineMin
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_incline_min = trainProgramRandomInclineMinTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRandomInclineMax
+                            text: qsTr("Incline max.:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRandomInclineMaxTextField
+                            text: settings.trainprogram_incline_max
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.trainprogram_incline_max = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRandomInclineMax
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_incline_max = trainProgramRandomInclineMaxTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRandomResistanceMin
+                            text: qsTr("Resistance min.:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRandomResistanceMinTextField
+                            text: settings.trainprogram_resistance_min
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.trainprogram_resistance_min = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRandomResistanceMin
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_resistance_min = trainProgramRandomResistanceMinTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRandomResistanceMax
+                            text: qsTr("Resistance max.:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRandomResistanceMaxTextField
+                            text: settings.trainprogram_resistance_max
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.trainprogram_resistance_max = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRandomResistanceMax
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_resistance_max = trainProgramRandomResistanceMaxTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -6402,6 +8159,34 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Turn this on to have QZ go into Pause mode upon opening when using a treadmill. This is for treadmills only. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: treadmillDirectDistanceDelegate
+                        text: qsTr("Direct Distance from Treadmill")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_direct_distance
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.treadmill_direct_distance = checked
+                    }
+
+                    Label {
+                        text: qsTr("Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -6550,7 +8335,79 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }            
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Max. Speed:") + "(" + (settings.miles_unit?"mph":"km/h") + ")"
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: treadmillSpeedMaxTextField
+                            text: (settings.miles_unit?settings.treadmill_speed_max * 0.621371:settings.treadmill_speed_max).toFixed(1)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.treadmill_speed_max = (settings.miles_unit?text * 1.60934:text)
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.treadmill_speed_max = (settings.miles_unit?treadmillSpeedMaxTextField.text * 1.60934:treadmillSpeedMaxTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Min. Speed:") + "(" + (settings.miles_unit?"mph":"km/h") + ")"
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: treadmillSpeedMinTextField
+                            text: (settings.miles_unit?settings.treadmill_speed_min * 0.621371:settings.treadmill_speed_min).toFixed(1)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.treadmill_speed_min = (settings.miles_unit?text * 1.60934:text)
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.treadmill_speed_min = (settings.miles_unit?treadmillSpeedMinTextField.text * 1.60934:treadmillSpeedMinTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("This overrides the minimum speed value of your treadmill (in order to limit the min speed). Default is 0 km/h (0 mph)")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
 
                     NewPageElement {
                         title: qsTr("Inclination Overrides")
@@ -6627,7 +8484,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the bluetooth name of your bike.")
+                        text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the Bluetooth name of your bike.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -6724,6 +8581,9 @@ import Qt.labs.platform 1.1
                                     "Nordictrack Ultra LE",
                                     "Proform Carbon TLS",
                                     "Proform 995i",
+                                    "NordicTrack Series 7",
+                                    "Proform Trainer 9.0 (PFTL69921-INT.4)",
+                                    "Proform Sport 3.0",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -6792,7 +8652,10 @@ import Qt.labs.platform 1.1
                                                     settings.nordictrack_elite_800 ? 49 :
                                                     settings.nordictrack_treadmill_ultra_le ? 50 :
                                                     settings.proform_treadmill_carbon_tls ? 51 :
-                                                    settings.proform_treadmill_995i ? 52 : 0;
+                                                    settings.proform_treadmill_995i ? 52 :
+                                                    settings.nordictrack_series_7 ? 53 :
+                                                    settings.proform_trainer_9_0 ? 54 :
+                                                    settings.proform_treadmill_sport_3_0 ? 55 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -6859,6 +8722,9 @@ import Qt.labs.platform 1.1
                                     settings.nordictrack_treadmill_ultra_le = false;
                                     settings.proform_treadmill_carbon_tls = false;
                                     settings.proform_treadmill_995i = false;
+                                    settings.nordictrack_series_7 = false;
+                                    settings.proform_trainer_9_0 = false;
+                                    settings.proform_treadmill_sport_3_0 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -6914,6 +8780,9 @@ import Qt.labs.platform 1.1
                                         case 50: settings.nordictrack_treadmill_ultra_le = true; break;
                                         case 51: settings.proform_treadmill_carbon_tls = true; break;
                                         case 52: settings.proform_treadmill_995i = true; break;
+                                        case 53: settings.nordictrack_series_7 = true; break;
+                                        case 54: settings.proform_trainer_9_0 = true; break;
+                                        case 55: settings.proform_treadmill_sport_3_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -7148,7 +9017,34 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.kingsmith_encrypt_g1_walking_pad = checked; settings.kingsmith_encrypt_v5 = false; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v2 = false; settings.kingsmith_encrypt_v4 = false; window.settings_restart_to_apply = true; }
-                            }                        
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Hardware Buttons")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.kingsmith_r2_enable_hw_buttons
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.kingsmith_r2_enable_hw_buttons = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Enable handling of physical Start/Pause/Stop buttons on the treadmill hardware")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
                         }
                     }
 
@@ -7225,7 +9121,35 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: settings.domyos_treadmill_t900a = checked
-                            }                        
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("TS100 (Fixed 15° Inclination)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_treadmill_ts100
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.domyos_treadmill_ts100 = checked
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Sync Start (Old Behavior)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_treadmill_sync_start
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.domyos_treadmill_sync_start = checked
+                            }
 
                             IndicatorOnlySwitch {
                                 id: domyosTreadmillDistanceDisplayDelegate
@@ -7260,7 +9184,7 @@ import Qt.labs.platform 1.1
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: qsTr("Remap 5km/h button:")
+                                    text: qsTr("Remap 5 km/h button:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -7283,7 +9207,7 @@ import Qt.labs.platform 1.1
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: qsTr("Remap 10km/h button:")
+                                    text: qsTr("Remap 10 km/h button:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -7306,7 +9230,7 @@ import Qt.labs.platform 1.1
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: qsTr("Remap 16km/h button:")
+                                    text: qsTr("Remap 16 km/h button:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -7329,7 +9253,7 @@ import Qt.labs.platform 1.1
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: qsTr("Remap 22km/h button:")
+                                    text: qsTr("Remap 22 km/h button:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -7865,9 +9789,34 @@ import Qt.labs.platform 1.1
                                 onClicked: { settings.horizon_treadmill_force_ftms = checked; window.settings_restart_to_apply = true; }
                             }
                         }
-                    }                
-                }             
-            }
+                    }
+
+                    AccordionElement {
+                        id: bowflexTreadmillAccordion
+                        title: qsTr("Bowflex Treadmill Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                id: bowflexT9MilesDelegate
+                                text: qsTr("T9 mi/h speed")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.fitshow_treadmill_miles
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.fitshow_treadmill_miles = checked
+                            }
+                        }
+                    }                    
+                }
+            }            
 
             AccordionElement {
                 id: toorxTreadmillAccordion
@@ -7922,7 +9871,7 @@ import Qt.labs.platform 1.1
                     }
 
                     IndicatorOnlySwitch {
-                        text: qsTr("BH SPADA Wattage")
+                        text: qsTr("BH SPADA wattage")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -7990,7 +9939,21 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.hop_sport_hs_090h_bike = checked; window.settings_restart_to_apply = true; }
-                    }                    
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Taurua IC90 Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.taurua_ic90
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.taurua_ic90 = checked; window.settings_restart_to_apply = true; }
+                    }
 
                     IndicatorOnlySwitch {
                         id: jtxFitnessSprintTreadmillDelegate
@@ -8080,6 +10043,21 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.toorx_ftms_treadmill = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: iconceptFTMSTreadmillInclinationTableDelegate
+                        text: qsTr("IConcept FTMS Treadmill")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.iconcept_ftms_treadmill_inclination_table
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.iconcept_ftms_treadmill_inclination_table = checked; window.settings_restart_to_apply = true; }
                     }
 
                     IndicatorOnlySwitch {
@@ -8178,6 +10156,19 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.iconsole_rower = checked; window.settings_restart_to_apply = true; }
+                    }
+                    IndicatorOnlySwitch {
+                        text: qsTr("Toorx Treadmill Discovery Completed")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.toorxtreadmill_discovery_completed
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.toorxtreadmill_discovery_completed = checked; }
                     }
                 }
             }
@@ -8284,6 +10275,46 @@ import Qt.labs.platform 1.1
                                 Layout.fillWidth: true
                                 onClicked: { settings.proform_rower_sport_rl = checked; window.settings_restart_to_apply = true; }
                             }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Proform Rower 750R")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.proform_rower_750r
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    settings.proform_rower_750r = checked;
+                                    if (checked) {
+                                        settings.proform_rower_sport_rl = false;
+                                    }
+                                    window.settings_restart_to_apply = true;
+                                }
+                            }
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("ProForm Rower IP:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: proformRowerIPTextField
+                                    text: settings.proform_rower_ip
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: settings.proform_rower_ip = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.proform_rower_ip = proformRowerIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                }
+                            }
                         }
                     }
                 }
@@ -8374,6 +10405,51 @@ import Qt.labs.platform 1.1
                         }
                     }
 
+                    Label {
+                        text: qsTr("FTMS Elliptical:")
+                        Layout.fillWidth: true
+                    }
+                    RowLayout {
+                        spacing: 10
+                        ComboBox {
+                            id: ftmsEllipticalTextField
+                            model: rootItem.bluetoothDevices
+                            displayText: settings.ftms_elliptical
+                            Layout.fillHeight: false
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + ftmsEllipticalTextField.currentIndex)
+                                displayText = ftmsEllipticalTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ftms_elliptical = ftmsEllipticalTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Button {
+                        text: "Refresh Devices List"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: refresh_bluetooth_devices_clicked();
+                    }
+
+                    Label {
+                        text: qsTr("Allows you to force QZ to connect to your FTMS Elliptical. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is Disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     AccordionElement {
                         id: proformEllipticalAccordion
                         title: qsTr("Proform/Nordictrack Elliptical Options")
@@ -8421,6 +10497,19 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.nordictrack_elliptical_c7_5 = checked; window.settings_restart_to_apply = true; }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("NordicTrack Elliptical SE7i")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.nordictrack_se7i
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.nordictrack_se7i = checked; window.settings_restart_to_apply = true; }
                             }
                             RowLayout {
                                 spacing: 10
@@ -8570,6 +10659,33 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Allows you to force QZ to connect to your equipment (see “Bluetooth Troubleshooting” below). Default is “Disabled.”")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Confirm Stop Workout")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.confirm_stop_workout
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.confirm_stop_workout = checked
+                    }
+
+                    Label {
+                        text: qsTr("Shows a confirmation popup before stopping the workout from the UI.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -8895,7 +11011,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("QZ can open a external browser in order to auth strava to QZ. Default: disabled.")
+                        text: qsTr("QZ can open an external browser to authorize Strava. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -8905,168 +11021,7 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }
-
-                    IndicatorOnlySwitch {
-                        text: qsTr("Use garmin device in the FIT file")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.fit_file_garmin_device_training_effect
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.fit_file_garmin_device_training_effect = checked; window.settings_restart_to_apply = false; }
-                    }
-
-                    Label {
-                        text: qsTr("With this enabled, QZ will write the FIT file as a Garmin device so Garmin will consider this fit file for the training effect. Default: disabled.")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-
-                    Label {
-                        text: qsTr("Garmin device for FIT file")
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                    }
-
-                    ComboBox {
-                        id: garminDeviceComboBoxDelegate
-                        model: [
-                            "Edge 130 (2909)",
-                            "Edge 200 (1325)", 
-                            "Edge 520 (2067)",
-                            "Edge 530 (3121)",
-                            "Edge 810 (1567)",
-                            "Edge 820 (2530)",
-                            "Edge 830 (3122)",
-                            "Edge 1000 (1836)",
-                            "Edge 1030 (2713)",
-                            "Edge Explore (3011)",
-                            "Fenix (1551)",
-                            "Fenix 2 (1967)",
-                            "Fenix 3 (2050)",
-                            "Fenix 3 HR (2413)",
-                            "Fenix 3 Chronos (2432)",
-                            "Fenix 5 (2697)",
-                            "Fenix 5S (2544)",
-                            "Fenix 5X (2604)",
-                            "Fenix 5S Plus (2900)",
-                            "Fenix 5 Plus (3110)",
-                            "Fenix 5X Plus (3111)",
-                            "Fenix 6 (3290)",
-                            "Fenix 6S (3288)",
-                            "Fenix 6X (3291)",
-                            "Fenix 7 (3906)",
-                            "Fenix 7S (3905)",
-                            "Fenix 7X (3907)",
-                            "Fenix 8 (4536)",
-                            "Venu (3226)",
-                            "Venu 2 (3703)",
-                            "Venu 2S (3704)",
-                            "Venu 3 (4260)",
-                            "Venu 3S (4261)",
-                            "VenuSq (3600)",
-                            "VenuSq Music (3596)",
-                            "Vivoactive 3 (2700)",
-                            "Vivoactive 4 Small (3224)",
-                            "Vivoactive 4 Large (3225)"
-                        ]
-                        currentIndex: {
-                            if (settings.fit_file_garmin_device_training_effect_device === 2909) return 0;  // Edge 130
-                            if (settings.fit_file_garmin_device_training_effect_device === 1325) return 1;  // Edge 200
-                            if (settings.fit_file_garmin_device_training_effect_device === 2067) return 2;  // Edge 520
-                            if (settings.fit_file_garmin_device_training_effect_device === 3121) return 3;  // Edge 530
-                            if (settings.fit_file_garmin_device_training_effect_device === 1567) return 4;  // Edge 810
-                            if (settings.fit_file_garmin_device_training_effect_device === 2530) return 5;  // Edge 820
-                            if (settings.fit_file_garmin_device_training_effect_device === 3122) return 6;  // Edge 830
-                            if (settings.fit_file_garmin_device_training_effect_device === 1836) return 7;  // Edge 1000
-                            if (settings.fit_file_garmin_device_training_effect_device === 2713) return 8;  // Edge 1030
-                            if (settings.fit_file_garmin_device_training_effect_device === 3011) return 9;  // Edge Explore
-                            if (settings.fit_file_garmin_device_training_effect_device === 1551) return 10; // Fenix
-                            if (settings.fit_file_garmin_device_training_effect_device === 1967) return 11; // Fenix 2
-                            if (settings.fit_file_garmin_device_training_effect_device === 2050) return 12; // Fenix 3
-                            if (settings.fit_file_garmin_device_training_effect_device === 2413) return 13; // Fenix 3 HR
-                            if (settings.fit_file_garmin_device_training_effect_device === 2432) return 14; // Fenix 3 Chronos
-                            if (settings.fit_file_garmin_device_training_effect_device === 2697) return 15; // Fenix 5
-                            if (settings.fit_file_garmin_device_training_effect_device === 2544) return 16; // Fenix 5S
-                            if (settings.fit_file_garmin_device_training_effect_device === 2604) return 17; // Fenix 5X
-                            if (settings.fit_file_garmin_device_training_effect_device === 2900) return 18; // Fenix 5S Plus
-                            if (settings.fit_file_garmin_device_training_effect_device === 3110) return 19; // Fenix 5 Plus
-                            if (settings.fit_file_garmin_device_training_effect_device === 3111) return 20; // Fenix 5X Plus
-                            if (settings.fit_file_garmin_device_training_effect_device === 3290) return 21; // Fenix 6
-                            if (settings.fit_file_garmin_device_training_effect_device === 3288) return 22; // Fenix 6S
-                            if (settings.fit_file_garmin_device_training_effect_device === 3291) return 23; // Fenix 6X
-                            if (settings.fit_file_garmin_device_training_effect_device === 3906) return 24; // Fenix 7
-                            if (settings.fit_file_garmin_device_training_effect_device === 3905) return 25; // Fenix 7S
-                            if (settings.fit_file_garmin_device_training_effect_device === 3907) return 26; // Fenix 7X
-                            if (settings.fit_file_garmin_device_training_effect_device === 4536) return 27; // Fenix 8
-                            if (settings.fit_file_garmin_device_training_effect_device === 3226) return 28; // Venu
-                            if (settings.fit_file_garmin_device_training_effect_device === 3703) return 29; // Venu 2
-                            if (settings.fit_file_garmin_device_training_effect_device === 3704) return 30; // Venu 2S
-                            if (settings.fit_file_garmin_device_training_effect_device === 4260) return 31; // Venu 3
-                            if (settings.fit_file_garmin_device_training_effect_device === 4261) return 32; // Venu 3S
-                            if (settings.fit_file_garmin_device_training_effect_device === 3600) return 33; // VenuSq
-                            if (settings.fit_file_garmin_device_training_effect_device === 3596) return 34; // VenuSq Music
-                            if (settings.fit_file_garmin_device_training_effect_device === 2700) return 35; // Vivoactive 3
-                            if (settings.fit_file_garmin_device_training_effect_device === 3224) return 36; // Vivoactive 4 Small
-                            if (settings.fit_file_garmin_device_training_effect_device === 3225) return 37; // Vivoactive 4 Large
-                            return 6; // Default to Edge 830
-                        }
-                        onCurrentIndexChanged: {
-                            switch(currentIndex) {
-                                case 0: settings.fit_file_garmin_device_training_effect_device = 2909; break;  // Edge 130
-                                case 1: settings.fit_file_garmin_device_training_effect_device = 1325; break;  // Edge 200
-                                case 2: settings.fit_file_garmin_device_training_effect_device = 2067; break;  // Edge 520
-                                case 3: settings.fit_file_garmin_device_training_effect_device = 3121; break;  // Edge 530
-                                case 4: settings.fit_file_garmin_device_training_effect_device = 1567; break;  // Edge 810
-                                case 5: settings.fit_file_garmin_device_training_effect_device = 2530; break;  // Edge 820
-                                case 6: settings.fit_file_garmin_device_training_effect_device = 3122; break;  // Edge 830
-                                case 7: settings.fit_file_garmin_device_training_effect_device = 1836; break;  // Edge 1000
-                                case 8: settings.fit_file_garmin_device_training_effect_device = 2713; break;  // Edge 1030
-                                case 9: settings.fit_file_garmin_device_training_effect_device = 3011; break;  // Edge Explore
-                                case 10: settings.fit_file_garmin_device_training_effect_device = 1551; break; // Fenix
-                                case 11: settings.fit_file_garmin_device_training_effect_device = 1967; break; // Fenix 2
-                                case 12: settings.fit_file_garmin_device_training_effect_device = 2050; break; // Fenix 3
-                                case 13: settings.fit_file_garmin_device_training_effect_device = 2413; break; // Fenix 3 HR
-                                case 14: settings.fit_file_garmin_device_training_effect_device = 2432; break; // Fenix 3 Chronos
-                                case 15: settings.fit_file_garmin_device_training_effect_device = 2697; break; // Fenix 5
-                                case 16: settings.fit_file_garmin_device_training_effect_device = 2544; break; // Fenix 5S
-                                case 17: settings.fit_file_garmin_device_training_effect_device = 2604; break; // Fenix 5X
-                                case 18: settings.fit_file_garmin_device_training_effect_device = 2900; break; // Fenix 5S Plus
-                                case 19: settings.fit_file_garmin_device_training_effect_device = 3110; break; // Fenix 5 Plus
-                                case 20: settings.fit_file_garmin_device_training_effect_device = 3111; break; // Fenix 5X Plus
-                                case 21: settings.fit_file_garmin_device_training_effect_device = 3290; break; // Fenix 6
-                                case 22: settings.fit_file_garmin_device_training_effect_device = 3288; break; // Fenix 6S
-                                case 23: settings.fit_file_garmin_device_training_effect_device = 3291; break; // Fenix 6X
-                                case 24: settings.fit_file_garmin_device_training_effect_device = 3906; break; // Fenix 7
-                                case 25: settings.fit_file_garmin_device_training_effect_device = 3905; break; // Fenix 7S
-                                case 26: settings.fit_file_garmin_device_training_effect_device = 3907; break; // Fenix 7X
-                                case 27: settings.fit_file_garmin_device_training_effect_device = 4536; break; // Fenix 8
-                                case 28: settings.fit_file_garmin_device_training_effect_device = 3226; break; // Venu
-                                case 29: settings.fit_file_garmin_device_training_effect_device = 3703; break; // Venu 2
-                                case 30: settings.fit_file_garmin_device_training_effect_device = 3704; break; // Venu 2S
-                                case 31: settings.fit_file_garmin_device_training_effect_device = 4260; break; // Venu 3
-                                case 32: settings.fit_file_garmin_device_training_effect_device = 4261; break; // Venu 3S
-                                case 33: settings.fit_file_garmin_device_training_effect_device = 3600; break; // VenuSq
-                                case 34: settings.fit_file_garmin_device_training_effect_device = 3596; break; // VenuSq Music
-                                case 35: settings.fit_file_garmin_device_training_effect_device = 2700; break; // Vivoactive 3
-                                case 36: settings.fit_file_garmin_device_training_effect_device = 3224; break; // Vivoactive 4 Small
-                                case 37: settings.fit_file_garmin_device_training_effect_device = 3225; break; // Vivoactive 4 Large
-                            }
-                        }
-                        Layout.fillWidth: true
-                    }
+                    }                    
 
                     IndicatorOnlySwitch {
                         id: stravaVirtualActivityDelegate
@@ -9138,7 +11093,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Append the Date to the Strava Activity as a prefix only for non-peloton workout")
+                        text: qsTr("Append the Date to the Strava Activity as a prefix only for non-Peloton workout")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -9205,23 +11160,40 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
-                    IndicatorOnlySwitch {
-                        id: powerAvg5s
-                        text: qsTr("Power Average 5 sec.")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.power_avg_5s
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.power_avg_5s = checked
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPowerAvg
+                            text: qsTr("Power Averaging Mode:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: powerAvgCombo
+                            model: ["Off", "3 seconds", "5 seconds"]
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            currentIndex: {
+                                if (settings.power_avg_3s) return 1;
+                                if (settings.power_avg_5s) return 2;
+                                return 0;
+                            }
+                            onActivated: {
+                                if (currentIndex === 0) {
+                                    settings.power_avg_3s = false;
+                                    settings.power_avg_5s = false;
+                                } else if (currentIndex === 1) {
+                                    settings.power_avg_3s = true;
+                                    settings.power_avg_5s = false;
+                                } else if (currentIndex === 2) {
+                                    settings.power_avg_3s = false;
+                                    settings.power_avg_5s = true;
+                                }
+                            }
+                        }
                     }
 
                     Label {
-                        text: qsTr("If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Default is off.")
+                        text: qsTr("If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Uses harmonic averaging which smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is Off.\n\nIMPORTANT NOTES:\n- No Average/smooth in Hometrainer config for standard home trainers which work at 1hz (No race mode available)\n- Disable Average on 3rd party apps (Rouvy/Zwift/MyWhoosh etc) or select 1sec in the app!\n- Need to use QZ in bridge mode!\n- For Elite home trainers or those who have a race mode (10hz), if it's not sufficient for some users, using Elite/Hometrainer smoothing in addition to QZ smoothing will improve it.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -9454,7 +11426,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("By default QZ sends to the virtual bluetooth/dircon bridge the current inclination of the treadmill. Enabling this, it will send instead the one wihtout considering inclination gain or offset. Default: False.")
+                        text: qsTr("By default QZ sends to the virtual Bluetooth/DIRCON bridge the current inclination of the treadmill. Enabling this, it will send instead the one wihtout considering inclination gain or offset. Default: False.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -9468,7 +11440,7 @@ import Qt.labs.platform 1.1
 
 
                     IndicatorOnlySwitch {
-                        text: qsTr("Disable Wattage from Machinery")
+                        text: qsTr("Disable wattage from machinery")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -9904,7 +11876,7 @@ import Qt.labs.platform 1.1
                             }
 
                             Label {
-                                text: qsTr("If you have a bluetooth treadmill and also a Stryd device connected to QZ and you want to use the speed from the stryd instead of the speed of the treadmill, enable this. Default: disabled.")
+                                text: qsTr("If you have a Bluetooth treadmill and also a Stryd device connected to QZ and you want to use the speed from the stryd instead of the speed of the treadmill, enable this. Default: disabled.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
@@ -9931,7 +11903,34 @@ import Qt.labs.platform 1.1
                             }
 
                             Label {
-                                text: qsTr("If you have a bluetooth treadmill and also a Runn device connected to QZ and you want to use the inclination from the RUNN instead of the inclination of the treadmill, enable this. Default: disabled.")
+                                text: qsTr("If you have a Bluetooth treadmill and also a Runn device connected to QZ and you want to use the inclination from the RUNN instead of the inclination of the treadmill, enable this. Default: disabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Use cadence from the power sensor")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.power_sensor_cadence_instead_treadmill
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.power_sensor_cadence_instead_treadmill = checked
+                            }
+
+                            Label {
+                                text: qsTr("If you have a Bluetooth treadmill and also a power sensor (like Stryd) connected to QZ and you want to use the cadence from the power sensor instead of the cadence of the treadmill, enable this. This is useful when the treadmill cadence sensor is unreliable at low speeds (walking/jogging). Default: disabled.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
@@ -9958,7 +11957,7 @@ import Qt.labs.platform 1.1
                             }
 
                             Label {
-                                text: qsTr("If you have a bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can't get the inclination from the treadmill. Enabling this and QZ will add a inclination gain to the power read from the Stryd. Default: disabled.")
+                                text: qsTr("If you have a Bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can't get the inclination from the treadmill. Enabling this and QZ will add an inclination gain to the power read from the Stryd. Default: disabled.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
@@ -10801,6 +12800,43 @@ import Qt.labs.platform 1.1
                     }*/
 
                 AccordionElement {
+                        title: qsTr("Thinkrider Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                text: qsTr("Thinkrider Controller")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.thinkrider_controller
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.thinkrider_controller = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Thinkrider VS200 remote controller. Use it to change gears on QZ!")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }
+
+                AccordionElement {
                         title: qsTr("Zwift Devices Options")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
@@ -10861,6 +12897,33 @@ import Qt.labs.platform 1.1
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
                             }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Zwift Play Vibration")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.zwift_play_vibration
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.zwift_play_vibration = checked; }
+                            }
+
+                            Label {
+                                text: qsTr("Enable vibration feedback on Zwift Play controllers when changing gears. Default: enabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }                            
 
                             IndicatorOnlySwitch {
                                 text: qsTr("Buttons debouncing")
@@ -11126,7 +13189,7 @@ import Qt.labs.platform 1.1
 
                     IndicatorOnlySwitch {
                         id: bluetooth30mHangsDelegate
-                        text: qsTr("Bluetooth hangs after 30m")
+                        text: qsTr("Bluetooth hangs after 30 m")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11292,6 +13355,34 @@ import Qt.labs.platform 1.1
                                     }
 
                                     IndicatorOnlySwitch {
+                                        id: virtualDeviceForceTreadmillDelegate
+                                        text: qsTr("Force Virtual Treadmill")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_force_treadmill
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: { settings.virtual_device_force_treadmill = checked; window.settings_restart_to_apply = true; }
+                                    }
+
+                                    Label {
+                                        text: qsTr("When enabled, forces QZ to impersonate a virtual treadmill regardless of the original device type. This allows any device (bike, rower, elliptical, etc.) to appear as a treadmill to third party apps. Default is off.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
+                                    IndicatorOnlySwitch {
                                         id: virtualBikeForceResistanceDelegate
                                         text: qsTr("Zwift Force Resistance")
                                         spacing: 0
@@ -11364,7 +13455,7 @@ import Qt.labs.platform 1.1
                                     }
 
                                     Label {
-                                        text: qsTr("Enables a virtual bluetooth bridge to the iFit App. This setting requires that at least one device be Android. For example, this setting does NOT work with QZ on iOS and iFit to iOS, but DOES work with QZ on iOS and iFit to Android. On Android remember to rename your device into I_EL into the android settings and reboot your device.")
+                                        text: qsTr("Enables a virtual Bluetooth bridge to the iFit App. This setting requires that at least one device be Android. For example, this setting does NOT work with QZ on iOS and iFit to iOS, but DOES work with QZ on iOS and iFit to Android. On Android remember to rename your device into I_EL into the android settings and reboot your device.")
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -11384,7 +13475,7 @@ import Qt.labs.platform 1.1
                                 settings: settings
                                 accordionContent: ColumnLayout {
                                     spacing: 0
-                                    /*
+
                                     IndicatorOnlySwitch {
                                         id: wahooRGTDirconDelegate
                                         text: qsTr("MyWhoosh Compatibility")
@@ -11398,10 +13489,10 @@ import Qt.labs.platform 1.1
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
                                         onClicked: { settings.wahoo_rgt_dircon = checked; window.settings_restart_to_apply = true; }
-                                    }*/
+                                    }
 
                                     Label {
-                                        text: qsTr("Enables the compatibility of the Wahoo KICKR protocol to Wahoo RGT app. Leave the RGT compatibility disabled in order to use Zwift.")
+                                        text: qsTr("Enables the compatibility of the Wahoo KICKR protocol to MyWhoosh app. Leave the MyWhoosh compatibility disabled in order to use Zwift.")
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -12161,6 +14252,21 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+                }
+            }
+        }
+
+        Timer {
+            id: scrollTimer
+            interval: 200
+            repeat: false
+            onTriggered: {
+                if (garminOptionsAccordion && garminOptionsAccordion.y !== undefined) {
+                    var yPos = garminOptionsAccordion.y - 20
+                    if (yPos < 0) yPos = 0
+                    if (settingsPane.contentItem) {
+                        settingsPane.contentItem.contentY = yPos
                     }
                 }
             }

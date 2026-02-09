@@ -1,5 +1,6 @@
 #include "cscbike.h"
 #include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualrower.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -17,7 +18,7 @@
 using namespace std::chrono_literals;
 
 cscbike::cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -78,7 +79,12 @@ void cscbike::update() {
         double rpm = currentCadence().value();
         m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404;
     } else {
-        m_watt = wattFromHR(false);
+        // When cadence is zero, watts should be zero regardless of HR
+        if (currentCadence().value() == 0) {
+            m_watt = 0;
+        } else {
+            m_watt = wattFromHR(false);
+        }
     }
     emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
@@ -207,6 +213,22 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         emit debug(QStringLiteral("Current Crank Event Time: ") + QString::number(_LastCrankEventTime));
     }
 
+    // CSC Combo Sensor Fallback Logic
+    //
+    // Some combo sensors (e.g., Giant Combo) advertise both speed and cadence capabilities
+    // by setting CrankPresent=true in the CSC flags byte, but only transmit valid wheel data
+    // while sending crank data as zeros. This happens when:
+    // 1. The sensor supports dual mode (speed+cadence) but only speed sensor is mounted
+    // 2. The cadence sensor is not activated/calibrated
+    // 3. Firmware always sets CrankPresent flag regardless of actual crank sensor status
+    //
+    // In these cases, we use wheel revolutions as a fallback to calculate cadence.
+    // This works when the wheel circumference is set to a small value (e.g., 20cm for
+    // indoor trainers), which effectively converts wheel RPM to a cadence-like metric.
+    //
+    // Note: When using wheel revs as cadence, the calculated RPM can exceed 256 (the
+    // typical limit for real crank cadence). For example, with 20cm wheel circumference
+    // at 12.5 km/h, wheel RPM ≈ 1000. The validation logic below accounts for this.
     if ((!CrankPresent || _CrankRevs == 0) && WheelPresent) {
         CrankRevs = _WheelRevs;
         LastCrankEventTime = _LastWheelEventTime;
@@ -222,7 +244,23 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
 
     if (CrankRevs != oldCrankRevs && deltaT) {
         double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;
-        if ((cadence >= 0 && cadence < 256 && CrankPresent) || (!CrankPresent && WheelPresent))
+
+        // Cadence Validation Logic
+        //
+        // Normal cadence validation applies a 256 RPM limit for real crank sensors (no human
+        // can pedal faster than 256 RPM). However, when using wheel revs as fallback
+        // (_CrankRevs == 0), we bypass this limit because:
+        // - Wheel RPM with small circumferences (e.g., 20cm) can legitimately exceed 256
+        // - Example: 12.5 km/h with 20cm circumference = ~1042 wheel RPM
+        // - This high RPM represents wheel rotation rate, not actual pedaling cadence
+        //
+        // The condition breakdown:
+        // Part 1: (cadence >= 0 && (cadence < 256 || _CrankRevs == 0) && CrankPresent)
+        //         - For real crank data: applies 256 RPM limit
+        //         - For wheel fallback: no limit when _CrankRevs == 0
+        // Part 2: (!CrankPresent && WheelPresent)
+        //         - Pure speed sensors with no crank capability
+        if ((cadence >= 0 && (cadence < 256 || _CrankRevs == 0) && CrankPresent) || (!CrankPresent && WheelPresent))
             Cadence = cadence;
         lastGoodCadence = now;
     } else if (lastGoodCadence.msecsTo(now) > 2000) {
@@ -422,6 +460,8 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
         QSettings settings;
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_rower =
+            settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         bool cadence =
@@ -436,11 +476,17 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
 #endif
             if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual bike interface..."));
-            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-            connect(virtualBike, &virtualbike::changeInclination, this, &cscbike::changeInclination);
-            // connect(virtualBike,&virtualbike::debug ,this,&cscbike::debug);
-            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+            if (virtual_device_rower) {
+                emit debug(QStringLiteral("creating virtual rower interface..."));
+                auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
+            } else {
+                emit debug(QStringLiteral("creating virtual bike interface..."));
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                connect(virtualBike, &virtualbike::changeInclination, this, &cscbike::changeInclination);
+                // connect(virtualBike,&virtualbike::debug ,this,&cscbike::debug);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+            }
         }
     }
     firstStateChanged = 1;

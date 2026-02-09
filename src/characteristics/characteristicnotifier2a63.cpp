@@ -4,11 +4,11 @@ CharacteristicNotifier2A63::CharacteristicNotifier2A63(bluetoothdevice *Bike, QO
     : CharacteristicNotifier(0x2a63, parent), Bike(Bike) {}
 
 int CharacteristicNotifier2A63::notify(QByteArray &value) {
-    double normalizeWattage = Bike->wattsMetric().value();
+    double normalizeWattage = Bike->wattsMetricforUI();
     if (normalizeWattage < 0)
         normalizeWattage = 0;
     
-    if (Bike->deviceType() == bluetoothdevice::BIKE) {
+    if (Bike->deviceType() == BIKE) {
         /*
          // set measurement
          measurement[2] = power & 0xFF;

@@ -22,12 +22,14 @@
 #include <QQmlApplicationEngine>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QList>
 #ifdef CHARTJS
 #include <QtWebView/QtWebView>
 #endif
 
 #include "mqttpublisher.h"
 #include "androidstatusbar.h"
+#include "fontmanager.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -60,6 +62,11 @@ QString peloton_password = "";
 QString pzp_username = "";
 QString pzp_password = "";
 bool fit_file_saved_on_quit = false;
+QString mqtt_host = "";
+int mqtt_port = -1;
+QString mqtt_username = "";
+QString mqtt_password = "";
+QString mqtt_deviceid = "";
 bool testResistance = false;
 bool forceQml = true;
 bool miles = false;
@@ -161,6 +168,13 @@ void displayHelp() {
     printf("\nPower Zone Pack options:\n");
     printf("  -pzp-username <username>      Set Power Zone Pack username\n");
     printf("  -pzp-password <password>      Set Power Zone Pack password\n");
+
+    printf("\nMQTT options:\n");
+    printf("  -mqtt-host <hostname>         Set MQTT broker hostname\n");
+    printf("  -mqtt-port <port>             Set MQTT broker port (default: 1883)\n");
+    printf("  -mqtt-username <username>     Set MQTT username\n");
+    printf("  -mqtt-password <password>     Set MQTT password\n");
+    printf("  -mqtt-deviceid <deviceid>     Set MQTT device ID\n");
 
     printf("\nOther options:\n");
     printf("  -test-resistance              Enable resistance testing\n");
@@ -366,6 +380,21 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-power-sensor-as-treadmill")) {
             power_sensor_as_treadmill = true;
         }
+        if (!qstrcmp(argv[i], "-mqtt-host")) {
+            mqtt_host = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-mqtt-port")) {
+            mqtt_port = atoi(argv[++i]);
+        }
+        if (!qstrcmp(argv[i], "-mqtt-username")) {
+            mqtt_username = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-mqtt-password")) {
+            mqtt_password = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-mqtt-deviceid")) {
+            mqtt_deviceid = argv[++i];
+        }
     }
 
     if (nogui) {
@@ -429,7 +458,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     QSettings settings;
     static bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
-    if ((logs == false && !forceQml) || (logdebug == false && forceQml))
+    if ( (logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
     if (logdebug == false)
 #endif
@@ -593,6 +622,21 @@ int main(int argc, char *argv[]) {
         settings.setValue(QZSettings::virtual_device_bluetooth, virtual_device_bluetooth);
         settings.setValue(QZSettings::power_sensor_name, power_sensor_name);
         settings.setValue(QZSettings::power_sensor_as_treadmill, power_sensor_as_treadmill);
+        if (mqtt_host.length() > 0) {
+            settings.setValue(QZSettings::mqtt_host, mqtt_host);
+        }
+        if (mqtt_port != -1) {
+            settings.setValue(QZSettings::mqtt_port, mqtt_port);
+        }
+        if (mqtt_username.length() > 0) {
+            settings.setValue(QZSettings::mqtt_username, mqtt_username);
+        }
+        if (mqtt_password.length() > 0) {
+            settings.setValue(QZSettings::mqtt_password, mqtt_password);
+        }
+        if (mqtt_deviceid.length() > 0) {
+            settings.setValue(QZSettings::mqtt_deviceid, mqtt_deviceid);
+        }
     }
 #endif
 
@@ -603,10 +647,17 @@ int main(int argc, char *argv[]) {
     }
 #endif
     
+    // Register custom meta types used in queued invocations
+    qRegisterMetaType<SessionLine>("SessionLine");
+    qRegisterMetaType<QList<SessionLine>>("QList<SessionLine>");
+    qRegisterMetaType<BLUETOOTH_TYPE>("BLUETOOTH_TYPE");
+    qRegisterMetaType<uint32_t>("uint32_t");
+    qRegisterMetaType<FIT_SPORT>("FIT_SPORT");
+
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token")) {
+        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token") && !s.contains("garmin_device_serial") && !s.contains("garmin_email")) {
 
             qDebug() << s << settings.value(s);
         }
@@ -627,7 +678,7 @@ int main(int argc, char *argv[]) {
         l.append(SessionLine(i%20,i%10,i,i%300,i%10,i%180,i%6,i%120,i,i, d));
     }
     QString path = homeform::getWritableAppDir();
-    qfit::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit", l, bluetoothdevice::BIKE);
+    qfit::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit", l, BIKE);
     return 0;
 #endif
 
@@ -798,6 +849,11 @@ int main(int argc, char *argv[]) {
 #endif
     {
         AndroidStatusBar::registerQmlType();
+        
+#ifdef Q_OS_ANDROID
+        FontManager fontManager;
+        fontManager.initializeEmojiFont();
+#endif
         QQmlApplicationEngine engine;
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(
@@ -819,6 +875,9 @@ int main(int argc, char *argv[]) {
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(true));
 #else
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(false));
+#endif
+#ifdef Q_OS_ANDROID
+        engine.rootContext()->setContextProperty("fontManager", &fontManager);
 #endif
         engine.load(url);
         homeform *h = new homeform(&engine, &bl);

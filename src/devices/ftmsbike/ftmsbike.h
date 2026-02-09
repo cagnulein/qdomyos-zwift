@@ -45,7 +45,7 @@ enum FtmsControlPointCommand {
     FTMS_START_RESUME,
     FTMS_STOP_PAUSE,
     FTMS_SET_TARGETED_EXP_ENERGY,
-    FTMS_SET_TARGETED_STEPS,
+  FTMS_SET_TARGETED_STEPS,
     FTMS_SET_TARGETED_STRIDES,
     FTMS_SET_TARGETED_DISTANCE,
     FTMS_SET_TARGETED_TIME,
@@ -81,6 +81,7 @@ class ftmsbike : public bike {
 
     // true because or the bike supports it by hardware or because QZ is emulating this in this module
     bool ergModeSupportedAvailableBySoftware() override { return true; }
+    bool inclinationAvailableBySoftware() override { return !resistance_lvl_mode; }
 
   private:
     bool writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -94,9 +95,13 @@ class ftmsbike : public bike {
     void init();
     void forceResistance(resistance_t requestResistance);
     void forcePower(int16_t requestPower);
+    void forceInclination(double requestInclination);
     uint16_t wattsFromResistance(double resistance);
 
     QTimer *refresh;
+    
+    // Gear modification constants
+    static constexpr int GEARS_SLOPE_MULTIPLIER = 50;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
@@ -130,11 +135,16 @@ class ftmsbike : public bike {
     bool resistance_received = false;
     inclinationResistanceTable _inclinationResistanceTable;
 
+    // D500V2 workaround: track if we're awaiting start simulation command after request control
+    bool awaiting_start_simulation_after_request_control = false;
+
     bool DU30_bike = false;
     bool ICSE = false;
     bool DOMYOS = false;
+    bool D500V2 = false;
     bool _3G_Cardio_RB = false;
     bool SCH_190U = false;
+    bool SCH_290R = false;
     bool D2RIDE = false;
     bool WATTBIKE = false;
     bool VFSPINBIKE = false;
@@ -144,6 +154,7 @@ class ftmsbike : public bike {
     bool BIKE_ = false;
     bool SMB1 = false;
     bool LYDSTO = false;
+    bool DMASUN = false;
     bool SL010 = false;
     bool REEBOK = false;
     bool TITAN_7000 = false;
@@ -154,10 +165,23 @@ class ftmsbike : public bike {
     bool PM5 = false;
     bool THINK_X = false;
     bool WLT8828 = false;
+    bool VANRYSEL_HT = false;
+    bool MAGNUS = false;
+    bool MRK_S26C = false;
+    bool HAMMER = false;
+    bool YPBM = false;
+    bool SPORT01 = false;
+    bool FS_YK = false;
+    bool S18 = false;
+    bool ZIPRO_RAVE = false;
+
+    uint8_t secondsToResetTimer = 5;
 
     int16_t T2_lastGear = 0;
 
     uint8_t battery_level = 0;
+
+    bool wattReceived = false;
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;

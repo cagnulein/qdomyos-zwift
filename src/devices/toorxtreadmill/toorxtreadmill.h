@@ -38,7 +38,9 @@ class toorxtreadmill : public treadmill {
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
 
   private slots:
+    void serviceCanceled(void);
     void serviceDiscovered(const QBluetoothServiceInfo &service);
+    void serviceFinished();
     void readSocket();
     void rfCommConnected();
     void onSocketErrorOccurred(QBluetoothSocket::SocketError);
@@ -51,11 +53,14 @@ class toorxtreadmill : public treadmill {
 
     QTimer *refresh;
     bool initDone = false;
+    bool found = false;
+
+    void send(char * buffer, int size);
 
     bool MASTERT409 = false;
 
     uint16_t GetElapsedTimeFromPacket(const QByteArray &packet);
-    uint16_t GetDistanceFromPacket(const QByteArray &packet);
+    double GetDistanceFromPacket(const QByteArray &packet);
     uint16_t GetCaloriesFromPacket(const QByteArray &packet);
     double GetSpeedFromPacket(const QByteArray &packet);
     uint8_t GetInclinationFromPacket(const QByteArray &packet);

@@ -4,6 +4,7 @@
 #include "keepawakehelper.h"
 #endif
 #include "virtualdevices/virtualbike.h"
+#include "qzsettings.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -15,11 +16,13 @@
 using namespace std::chrono_literals;
 
 flywheelbike::flywheelbike(bool noWriteResistance, bool noHeartService) {
-    m_watt.setType(metric::METRIC_WATT);
+    QSettings settings;
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    this->life_fitness_ic5 = settings.value(QZSettings::life_fitness_ic5, QZSettings::default_life_fitness_ic5).toBool();
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &flywheelbike::update);
     refresh->start(200ms);
@@ -132,9 +135,6 @@ void flywheelbike::decodeReceivedData(QByteArray buffer) {
                 flushDataframe(&bikeData);
                 errorState = MSG_NO_ERROR;
                 rxState = WFLENGTH;
-            } else {
-                errorState = MSG_NO_ERROR;
-                rxState = WFSYNC_1;
             }
             break;
         case WFLENGTH:
@@ -149,37 +149,37 @@ void flywheelbike::decodeReceivedData(QByteArray buffer) {
             }
             break;
         case WFID:
-            if (b >= 0) {
-                bikeData.message_id = b;
-                if (dataPacketLength != 0) {
-                    rxState = DATA;
-                } else {
-                    rxState = CHECKSUM;
-                }
+            bikeData.message_id = b;
+            dataPacketLength--;
+            if (dataPacketLength > 1) {
+                rxState = DATA;
+            } else if (dataPacketLength == 1) {
+                rxState = CHECKSUM;
             } else {
-                errorState = MSG_UNKNOWN_ID;
-                rxState = WFSYNC_1;
+                rxState = EOF_1;
             }
             break;
         case DATA:
-            if (dataPacketLength == 0) {
-                rxState = CHECKSUM;
-            }
-
             bikeData.buffer[dataPacketIndex] = b;
             dataPacketIndex++;
             dataPacketLength--;
+            if (dataPacketLength == 1) {
+                rxState = CHECKSUM;
+            }
             break;
         case CHECKSUM:
             /* TODO: Implement checksum */
+            bikeData.crc = b;
             rxState = EOF_1;
             break;
         case EOF_1:
             /* End of frame byte is 0x55 */
             if (b == 0x55) {
                 errorState = MSG_COMPLETE;
-                rxState = WFSYNC_1;
+            } else {
+                errorState = MSG_BAD_EOF;
             }
+            rxState = WFSYNC_1;
             break;
         }
     }
@@ -329,9 +329,19 @@ double flywheelbike::GetDistanceFromPacket(const QByteArray &packet) {
 }
 
 void flywheelbike::btinit() {
-    uint8_t initData1[] = {0xf5, 0x20, 0x20, 0x40, 0xf6};
+    if (life_fitness_ic5) {
+        // IC5: send 2 new packets
+        uint8_t initData1[] = {0xff, 0x10, 0x05, 0x55, 0x6e, 0x6b, 0x6e, 0x6f, 0x77, 0x6e, 0x20, 0x44, 0x65, 0x76, 0x69, 0x63, 0x65, 0x45, 0x55};
+        uint8_t initData2[] = {0xff, 0x0c, 0x02, 0x00, 0x2a, 0x5b, 0x02, 0x00, 0xe2, 0xb8, 0x01, 0x4a, 0x4a, 0x26, 0x55};
 
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+    } else {
+        // IC8 and other models: send old packet
+        uint8_t initData1[] = {0xf5, 0x20, 0x20, 0x40, 0xf6};
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    }
     initDone = true;
 }
 

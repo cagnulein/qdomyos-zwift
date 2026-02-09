@@ -20,7 +20,10 @@ SOURCES += \
         Devices/devicenamepatterngroup.cpp \
         Devices/devicetestdataindex.cpp \
         Erg/ergtabletestsuite.cpp \
+        GarminConnect/garminconnecttestsuite.cpp \
+        ToolTests/qfittestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
+        ToolTests/testtrainingloadtestsuite.cpp \
         Tools/testsettings.cpp \
         Tools/typeidgenerator.cpp \
         main.cpp
@@ -33,7 +36,7 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../src/release/ -lqdom
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../src/debug/ -lqdomyos-zwift
 else:unix: LIBS += -L$$OUT_PWD/../src/ -lqdomyos-zwift
 
-INCLUDEPATH += $$PWD/../src $$PWD/../src/devices
+INCLUDEPATH += $$PWD/../src $$PWD/../src/devices $$PWD/../src/fit-sdk
 DEPENDPATH += $$PWD/../src $$PWD/../src/devices
 
 win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../src/release/libqdomyos-zwift.a
@@ -51,8 +54,12 @@ HEADERS += \
     Devices/deviceindex.h \
     Devices/devicenamepatterngroup.h \
     Devices/devicetestdataindex.h \
+    Devices/TestSunnyfitStepper.h \
     Erg/ergtabletestsuite.h \
+    GarminConnect/garminconnecttestsuite.h \
+    ToolTests/qfittestsuite.h \
     ToolTests/testsettingstestsuite.h \
+    ToolTests/testtrainingloadtestsuite.h \
     Tools/devicetypeid.h \
     Tools/testsettings.h \
     Tools/typeidgenerator.h

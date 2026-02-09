@@ -64,6 +64,8 @@ class horizontreadmill : public treadmill {
     QLowEnergyService *gattCustomService = nullptr;
     volatile int notificationSubscribed = 0;
 
+    static inline const QBluetoothUuid DomyosServiceId{QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455")};
+
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QByteArray lastPacketComplete;
@@ -102,14 +104,22 @@ class horizontreadmill : public treadmill {
     bool disableAutoPause = false;
     bool HORIZON_78AT_treadmill = false;
     bool ICONCEPT_FTMS_treadmill = false;
+    bool iconcept_ftms_treadmill_inclination_table = false;
     bool DOMYOS = false;
+    bool domyos_treadmill_ts100 = false;
     bool SW_TREADMILL = false;
     bool BOWFLEX_T9 = false;
     bool YPOO_MINI_PRO = false;
     bool MX_TM = false;
     bool FIT = false;
+    bool FIT_TM = false;
     bool T3G_PRO = false;
     bool T3G_ELITE = false;
+    bool TP1 = false;
+    bool T01 = false;
+    bool TM4800 = false;
+    bool TM6500 = false;
+    bool WT_TREADMILL = false;
 
     void testProfileCRC();
     void updateProfileCRC();

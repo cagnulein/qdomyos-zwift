@@ -17,7 +17,7 @@
 using namespace std::chrono_literals;
 
 fakebike::fakebike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -64,6 +64,14 @@ void fakebike::update() {
             m_watt.value(), 0, Speed.value(), fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
             speedLimit());
     }
+    
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    if (watts())
+        KCal +=
+            ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
+             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                              // kg * 3.5) / 200 ) / 60
     
     if (Cadence.value() > 0) {
         CrankRevs++;
