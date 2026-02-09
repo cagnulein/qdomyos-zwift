@@ -135,9 +135,13 @@ class ftmsbike : public bike {
     bool resistance_received = false;
     inclinationResistanceTable _inclinationResistanceTable;
 
+    // D500V2 workaround: track if we're awaiting start simulation command after request control
+    bool awaiting_start_simulation_after_request_control = false;
+
     bool DU30_bike = false;
     bool ICSE = false;
     bool DOMYOS = false;
+    bool D500V2 = false;
     bool _3G_Cardio_RB = false;
     bool SCH_190U = false;
     bool SCH_290R = false;
@@ -150,6 +154,7 @@ class ftmsbike : public bike {
     bool BIKE_ = false;
     bool SMB1 = false;
     bool LYDSTO = false;
+    bool DMASUN = false;
     bool SL010 = false;
     bool REEBOK = false;
     bool TITAN_7000 = false;
@@ -168,7 +173,6 @@ class ftmsbike : public bike {
     bool SPORT01 = false;
     bool FS_YK = false;
     bool S18 = false;
-    bool JFICCYCLE = false;
     bool ZIPRO_RAVE = false;
 
     uint8_t secondsToResetTimer = 5;
