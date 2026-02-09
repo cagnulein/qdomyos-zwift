@@ -31,20 +31,30 @@ ApplicationWindow {
     
     // Helper functions for cleaner padding calculations
     function getTopPadding() {
+        // Add padding for iPadOS multi-window mode (Stage Manager, Split View, Slide Over)
+        // to avoid overlap with window control buttons (red/yellow/green)
+        // Check both the native detection and window size comparison for reactivity
+        if (Qt.platform.os === "ios") {
+            var isMultiWindow = (typeof rootItem !== "undefined" && rootItem && rootItem.iPadMultiWindowMode) ||
+                                (window.width < Screen.width - 10);  // Window smaller than screen = multi-window
+            if (isMultiWindow) {
+                return 15;  // Space for window control buttons
+            }
+        }
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? 
+        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
                AndroidStatusBar.height : AndroidStatusBar.leftInset;
     }
-    
+
     function getBottomPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? 
+        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
                AndroidStatusBar.navigationBarHeight : AndroidStatusBar.rightInset;
     }
-    
+
     function getLeftPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ? 
+        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
                AndroidStatusBar.leftInset : 0;
     }
     
@@ -925,7 +935,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.20.23"
+                    text: "version 2.20.26"
                     width: parent.width
                 }
 

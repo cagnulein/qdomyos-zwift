@@ -201,12 +201,15 @@ void bluetooth::finished() {
 
     bool sramDeviceFound = !settings.value(QZSettings::sram_axs_controller, QZSettings::default_sram_axs_controller).toBool();
 
+    bool thinkriderDeviceFound = !settings.value(QZSettings::thinkrider_controller, QZSettings::default_thinkrider_controller).toBool();
+
     if ((!heartRateBeltFound && !heartRateBeltAvaiable()) || (!ftmsAccessoryFound && !ftmsAccessoryAvaiable()) ||
         (!cscFound && !cscSensorAvaiable()) || (!powerSensorFound && !powerSensorAvaiable()) ||
         (!eliteRizerFound && !eliteRizerAvaiable()) || (!eliteSterzoSmartFound && !eliteSterzoSmartAvaiable()) ||
         (!fitmetriaFanfitFound && !fitmetriaFanfitAvaiable()) ||
         (!zwiftDeviceFound && !zwiftDeviceAvaiable()) ||
-        (!sramDeviceFound && !sramDeviceAvaiable())) {
+        (!sramDeviceFound && !sramDeviceAvaiable()) ||
+        (!thinkriderDeviceFound && !thinkriderDeviceAvaiable())) {
 
         // force heartRateBelt off
         forceHeartBeltOffForTimeout = true;
@@ -336,6 +339,16 @@ bool bluetooth::sramDeviceAvaiable() {
     return false;
 }
 
+bool bluetooth::thinkriderDeviceAvaiable() {
+
+    Q_FOREACH (QBluetoothDeviceInfo b, devices) {
+        if (b.name().toUpper().startsWith("THINK VS") || b.name().toUpper().startsWith("THINKRIDER")) {
+           return true;
+        }
+    }
+    return false;
+}
+
 
 bool bluetooth::powerSensorAvaiable() {
 
@@ -437,6 +450,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool sramDeviceFound = !settings.value(QZSettings::sram_axs_controller, QZSettings::default_sram_axs_controller).toBool();
     bool zwiftDeviceFound =
         !settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool() && !settings.value(QZSettings::zwift_play, QZSettings::default_zwift_play).toBool();
+    bool thinkriderDeviceFound = !settings.value(QZSettings::thinkrider_controller, QZSettings::default_thinkrider_controller).toBool();
     bool fitmetriaFanfitFound =
         !settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool();
     bool toorx_ftms = settings.value(QZSettings::toorx_ftms, QZSettings::default_toorx_ftms).toBool();
@@ -548,6 +562,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if(!sramDeviceFound) {
 
         sramDeviceFound = sramDeviceAvaiable();
+    }
+    if(!thinkriderDeviceFound) {
+
+        thinkriderDeviceFound = thinkriderDeviceAvaiable();
     }
     if (!ftmsAccessoryFound) {
 
@@ -681,7 +699,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #endif
 
     bool searchDevices = (heartRateBeltFound && ftmsAccessoryFound && cscFound && powerSensorFound && eliteRizerFound &&
-                          eliteSterzoSmartFound && fitmetriaFanfitFound && zwiftDeviceFound) ||
+                          eliteSterzoSmartFound && fitmetriaFanfitFound && zwiftDeviceFound && sramDeviceFound && thinkriderDeviceFound) ||
                          forceHeartBeltOffForTimeout;
 
     if (searchDevices) {
@@ -968,7 +986,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->signalBluetoothDeviceConnected(nordictrackifitadbRower);
             } else if (((csc_as_bike && b.name().startsWith(cscName)) ||
-                        b.name().toUpper().startsWith(QStringLiteral("JOROTO-BK-"))) &&
+                        b.name().toUpper().startsWith(QStringLiteral("JOROTO-BK-")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("BGYM")) && b.name().length() == 8)) &&
                        !cscBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1485,6 +1504,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(lifefitnessTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("HZ_T101-")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("HZ_7.0AT-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && (gem_module_inclination || deviceHasService(b, QBluetoothUuid((quint16)0x1826)))) ||
@@ -1519,7 +1539,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("TM4500")) ||
                         b.name().toUpper().startsWith(QStringLiteral("TM6500")) ||
                         b.name().toUpper().startsWith(QStringLiteral("RUNN ")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("YS_T1MPLUST")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("YS_T")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BFX_T")) ||
                         (b.name().toUpper().startsWith("3G PRO ")) ||
@@ -1567,7 +1587,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("X-T"))) ||                            // FTMS (X-T421)
                         (b.name().toUpper().startsWith(QStringLiteral("TC-"))) ||                            // FTMS (Focus Fitness Jet 7 iPlus)
                         b.name().toUpper().startsWith(QStringLiteral("TM XP_")) ||                           // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("THERUN  T15"))                         // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("THERUN  T15")) ||                      // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("BODYCRAFT_")) ||                         // Bodycraft T850 Treadmill
+                        (b.name().toUpper().startsWith(QStringLiteral("WT")) && b.name().length() == 5 && b.name().midRef(2).toInt() > 0) // WT treadmill (e.g. WT703)
                         ) &&
                        !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -1833,8 +1855,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         !b.name().compare(ftms_bike, Qt::CaseInsensitive) || (b.name().toUpper().startsWith("SMB1")) ||
                         (b.name().toUpper().startsWith("UBIKE FTMS")) || (b.name().toUpper().startsWith("INRIDE")) ||
                         (b.name().toUpper().startsWith("INCONDI")) || // inCondi S150i
-                        (b.name().toUpper().startsWith("YPBM") && b.name().length() == 10) ||
-                        (b.name().toUpper().startsWith("JFICCYCLE"))) &&
+                        (b.name().toUpper().startsWith("YPBM") && b.name().length() == 10)) &&
                         ftms_rower.contains(QZSettings::default_ftms_rower) &&
                        !ftmsBike && !ftmsRower && !snodeBike && !fitPlusBike && !stagesBike && filter) {
                 this->setLastBluetoothDevice(b);
@@ -2013,6 +2034,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(echelonStairclimber, &echelonstairclimber::inclinationChanged, this, &bluetooth::inclinationChanged);
                 echelonStairclimber->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(echelonStairclimber);
+            } else if (b.name().toUpper().startsWith(QLatin1String("SF-S")) &&
+                       !sunnyfitStepper && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                sunnyfitStepper = new sunnyfitstepper(this->pollDeviceTime, noConsole, noHeartService);
+                emit deviceConnected(b);
+                connect(sunnyfitStepper, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(sunnyfitStepper, &sunnyfitstepper::debug, this, &bluetooth::debug);
+                connect(sunnyfitStepper, &sunnyfitstepper::speedChanged, this, &bluetooth::speedChanged);
+                connect(sunnyfitStepper, &sunnyfitstepper::inclinationChanged, this, &bluetooth::inclinationChanged);
+                sunnyfitStepper->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(sunnyfitStepper);
             } else if ((b.name().toUpper().startsWith(QLatin1String("ECH-STRIDE")) ||
                         b.name().toUpper().startsWith(QLatin1String("ECH-UK-")) ||
                         b.name().toUpper().startsWith(QLatin1String("ECH-FR-")) ||
@@ -2091,9 +2125,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(lifespanTreadmill, &lifespantreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
                 lifespanTreadmill->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(lifespanTreadmill);
-            } else if ((b.name().startsWith(QStringLiteral("ECH-ROW")) ||
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("ECH-ROW")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROWSPORT")) ||
-                        b.name().startsWith(QStringLiteral("ROW-S"))) &&
+                        b.name().toUpper().startsWith(QStringLiteral("ROW-S"))) &&
                        !echelonRower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -3112,6 +3146,24 @@ void bluetooth::connectedAndDiscovered() {
         }
     }
 
+    if(settings.value(QZSettings::thinkrider_controller, QZSettings::default_thinkrider_controller).toBool()) {
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (((b.name().toUpper().startsWith("THINK VS")) || (b.name().toUpper().startsWith("THINKRIDER"))) && !thinkriderController && this->device() &&
+                    this->device()->deviceType() == BIKE) {
+
+                thinkriderController = new thinkridercontroller(this->device());
+
+                connect(thinkriderController, &thinkridercontroller::debug, this, &bluetooth::debug);
+                connect(thinkriderController, &thinkridercontroller::plus, (bike*)this->device(), &bike::gearUp);
+                connect(thinkriderController, &thinkridercontroller::minus, (bike*)this->device(), &bike::gearDown);
+                thinkriderController->deviceDiscovered(b);
+                if(homeform::singleton())
+                    homeform::singleton()->setToastRequested("Thinkrider Controller Connected!");
+                break;
+            }
+        }
+    }
+
     if(settings.value(QZSettings::zwift_play, QZSettings::default_zwift_play).toBool()) {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (((b.name().toUpper().startsWith("SQUARE"))) && !eliteSquareController && this->device() &&
@@ -3612,6 +3664,11 @@ void bluetooth::restart() {
         delete echelonStairclimber;
         echelonStairclimber = nullptr;
     }
+    if (sunnyfitStepper) {
+
+        delete sunnyfitStepper;
+        sunnyfitStepper = nullptr;
+    }
     if (octaneTreadmill) {
 
         delete octaneTreadmill;
@@ -4041,6 +4098,8 @@ bluetoothdevice *bluetooth::device() {
         return echelonStride;
     } else if (echelonStairclimber) {
         return echelonStairclimber;
+    } else if (sunnyfitStepper) {
+        return sunnyfitStepper;
     } else if (octaneTreadmill) {
         return octaneTreadmill;
     } else if (ziproTreadmill) {

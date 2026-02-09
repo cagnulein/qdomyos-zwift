@@ -616,13 +616,43 @@ void lockscreen::zwiftClickRemote(const char* Name, const char* UUID, void* devi
 
 void lockscreen::zwiftClickRemote_WriteCharacteristic(unsigned char* qdata, unsigned char length, void* deviceClass) {
     if (ios_zwiftClickRemotes == nil) return;
-    
+
     // Get the specific remote for this device
     NSValue *key = [NSValue valueWithPointer:deviceClass];
     ios_zwiftclickremote *remote = [ios_zwiftClickRemotes objectForKey:key];
-    
+
     if(remote) {
         [remote writeCharacteristic:qdata length:length];
     }
+}
+
+bool lockscreen::isInMultiWindowMode() {
+    // Check if we're on iPad and in multi-window mode (Stage Manager, Split View, Slide Over)
+    if (UIDevice.currentDevice.userInterfaceIdiom != UIUserInterfaceIdiomPad) {
+        return false;
+    }
+
+    if (@available(iOS 13.0, *)) {
+        // Get the foreground active scene
+        for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+            if (scene.activationState == UISceneActivationStateForegroundActive &&
+                [scene isKindOfClass:[UIWindowScene class]]) {
+                UIWindowScene *windowScene = (UIWindowScene *)scene;
+
+                // Get the window bounds and screen bounds
+                CGRect windowBounds = windowScene.coordinateSpace.bounds;
+                CGRect screenBounds = windowScene.screen.bounds;
+
+                // If window is smaller than screen in either dimension, we're in multi-window mode
+                // Add a small tolerance for floating point comparison
+                if (windowBounds.size.width < screenBounds.size.width - 1 ||
+                    windowBounds.size.height < screenBounds.size.height - 1) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
 }
 #endif
