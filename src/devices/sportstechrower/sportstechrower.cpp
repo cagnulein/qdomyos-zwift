@@ -15,8 +15,8 @@
 
 using namespace std::chrono_literals;
 
-sportstechrower::sportstechbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
-                               double bikeResistanceGain) {
+sportstechrower::sportstechrower(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
+                                 double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -167,7 +167,7 @@ void sportstechrower::characteristicChanged(const QLowEnergyCharacteristic &char
     } else {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
-            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), 0);
     }
     Resistance = resistance;
     emit resistanceRead(Resistance.value());
