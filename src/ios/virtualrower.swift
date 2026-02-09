@@ -122,6 +122,7 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     public var LastFTMSMessageReceivedAndPassed: Data?
 
     public var serviceToggle: UInt8 = 0
+    public var pm5ServiceToggle: UInt8 = 0
 
   public var connected: Bool = false
 
@@ -130,6 +131,7 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   // PM5 Mode
   public var pm5Mode: Bool = false
   private var startTime: Date = Date()
+  private var pm5SampleRate: UInt8 = 0x01
 
   // PM5 Services
   private var PM5DeviceInfoService: CBMutableService!
@@ -369,7 +371,7 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
 
       self.PM5SampleRateCharacteristic = CBMutableCharacteristic(type: PM5_SAMPLE_RATE_UUID,
                                                                  properties: [.read, .write],
-                                                                 value: Data([0x01]),
+                                                                 value: nil,
                                                                  permissions: [.readable, .writeable])
 
       self.PM5StrokeDataCharacteristic = CBMutableCharacteristic(type: PM5_STROKE_DATA_UUID,
@@ -428,6 +430,14 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   }
   
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
+    if requests.first!.characteristic == self.PM5SampleRateCharacteristic {
+        if let value = requests.first!.value, value.count > 0 {
+            self.pm5SampleRate = value[0]
+            print("PM5 sample rate set to \(self.pm5SampleRate)")
+        }
+        self.peripheralManager.respond(to: requests.first!, withResult: .success)
+        return
+    }
     if requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic {
         if(LastFTMSMessageReceived == nil || LastFTMSMessageReceived?.count == 0) {
             LastFTMSMessageReceived = requests.first!.value
@@ -469,6 +479,11 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         request.value = self.calculateRower()
         self.peripheralManager.respond(to: request, withResult: .success)
         print("Responded successfully to a read request")
+    }
+    else if request.characteristic == self.PM5SampleRateCharacteristic {
+        request.value = Data([self.pm5SampleRate])
+        self.peripheralManager.respond(to: request, withResult: .success)
+        print("Responded successfully to PM5 sample rate read request")
     }
   }
   
@@ -560,41 +575,69 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   func updatePM5Subscribers() {
     guard PM5GeneralStatusCharacteristic != nil else { return }
 
-    // Build all PM5 data
-    let generalStatus = buildPM5GeneralStatus()
-    let additionalStatus = buildPM5AdditionalStatus()
-    let additionalStatus2 = buildPM5AdditionalStatus2()
-    let strokeData = buildPM5StrokeData()
-    let additionalStrokeData = buildPM5AdditionalStrokeData()
+    var ok = false
 
-    // Send to individual characteristics
-    _ = self.peripheralManager.updateValue(generalStatus, for: self.PM5GeneralStatusCharacteristic, onSubscribedCentrals: nil)
-    _ = self.peripheralManager.updateValue(additionalStatus, for: self.PM5AdditionalStatusCharacteristic, onSubscribedCentrals: nil)
-    _ = self.peripheralManager.updateValue(additionalStatus2, for: self.PM5AdditionalStatus2Characteristic, onSubscribedCentrals: nil)
-    _ = self.peripheralManager.updateValue(strokeData, for: self.PM5StrokeDataCharacteristic, onSubscribedCentrals: nil)
-    _ = self.peripheralManager.updateValue(additionalStrokeData, for: self.PM5AdditionalStrokeDataCharacteristic, onSubscribedCentrals: nil)
+    switch pm5ServiceToggle {
+    case 0:
+      // Send General Status
+      let generalStatus = buildPM5GeneralStatus()
+      ok = self.peripheralManager.updateValue(generalStatus, for: self.PM5GeneralStatusCharacteristic, onSubscribedCentrals: nil)
+      if ok && PM5MultiplexedInfoCharacteristic != nil {
+        var muxGeneralStatus = Data([0x31])
+        muxGeneralStatus.append(generalStatus)
+        _ = self.peripheralManager.updateValue(muxGeneralStatus, for: self.PM5MultiplexedInfoCharacteristic, onSubscribedCentrals: nil)
+      }
 
-    // Send via multiplexed characteristic
-    if PM5MultiplexedInfoCharacteristic != nil {
-      var muxGeneralStatus = Data([0x31])
-      muxGeneralStatus.append(generalStatus)
-      _ = self.peripheralManager.updateValue(muxGeneralStatus, for: self.PM5MultiplexedInfoCharacteristic, onSubscribedCentrals: nil)
+    case 1:
+      // Send Additional Status
+      let additionalStatus = buildPM5AdditionalStatus()
+      ok = self.peripheralManager.updateValue(additionalStatus, for: self.PM5AdditionalStatusCharacteristic, onSubscribedCentrals: nil)
+      if ok && PM5MultiplexedInfoCharacteristic != nil {
+        var muxAdditionalStatus = Data([0x32])
+        muxAdditionalStatus.append(additionalStatus)
+        _ = self.peripheralManager.updateValue(muxAdditionalStatus, for: self.PM5MultiplexedInfoCharacteristic, onSubscribedCentrals: nil)
+      }
 
-      var muxAdditionalStatus = Data([0x32])
-      muxAdditionalStatus.append(additionalStatus)
-      _ = self.peripheralManager.updateValue(muxAdditionalStatus, for: self.PM5MultiplexedInfoCharacteristic, onSubscribedCentrals: nil)
+    case 2:
+      // Send Additional Status 2
+      let additionalStatus2 = buildPM5AdditionalStatus2()
+      ok = self.peripheralManager.updateValue(additionalStatus2, for: self.PM5AdditionalStatus2Characteristic, onSubscribedCentrals: nil)
+      if ok && PM5MultiplexedInfoCharacteristic != nil {
+        var muxAdditionalStatus2 = Data([0x33])
+        muxAdditionalStatus2.append(additionalStatus2)
+        _ = self.peripheralManager.updateValue(muxAdditionalStatus2, for: self.PM5MultiplexedInfoCharacteristic, onSubscribedCentrals: nil)
+      }
 
-      var muxAdditionalStatus2 = Data([0x33])
-      muxAdditionalStatus2.append(additionalStatus2)
-      _ = self.peripheralManager.updateValue(muxAdditionalStatus2, for: self.PM5MultiplexedInfoCharacteristic, onSubscribedCentrals: nil)
+    case 3:
+      // Send Stroke Data
+      let strokeData = buildPM5StrokeData()
+      ok = self.peripheralManager.updateValue(strokeData, for: self.PM5StrokeDataCharacteristic, onSubscribedCentrals: nil)
+      if ok && PM5MultiplexedInfoCharacteristic != nil {
+        var muxStrokeData = Data([0x35])
+        muxStrokeData.append(strokeData)
+        _ = self.peripheralManager.updateValue(muxStrokeData, for: self.PM5MultiplexedInfoCharacteristic, onSubscribedCentrals: nil)
+      }
 
-      var muxStrokeData = Data([0x35])
-      muxStrokeData.append(strokeData)
-      _ = self.peripheralManager.updateValue(muxStrokeData, for: self.PM5MultiplexedInfoCharacteristic, onSubscribedCentrals: nil)
+    case 4:
+      // Send Additional Stroke Data
+      let additionalStrokeData = buildPM5AdditionalStrokeData()
+      ok = self.peripheralManager.updateValue(additionalStrokeData, for: self.PM5AdditionalStrokeDataCharacteristic, onSubscribedCentrals: nil)
+      if ok && PM5MultiplexedInfoCharacteristic != nil {
+        var muxAdditionalStrokeData = Data([0x36])
+        muxAdditionalStrokeData.append(additionalStrokeData)
+        _ = self.peripheralManager.updateValue(muxAdditionalStrokeData, for: self.PM5MultiplexedInfoCharacteristic, onSubscribedCentrals: nil)
+      }
 
-      var muxAdditionalStrokeData = Data([0x36])
-      muxAdditionalStrokeData.append(additionalStrokeData)
-      _ = self.peripheralManager.updateValue(muxAdditionalStrokeData, for: self.PM5MultiplexedInfoCharacteristic, onSubscribedCentrals: nil)
+    default:
+      break
+    }
+
+    // Advance to next characteristic if update was successful
+    if ok {
+      pm5ServiceToggle += 1
+      if pm5ServiceToggle > 4 {
+        pm5ServiceToggle = 0
+      }
     }
   }
 
@@ -765,7 +808,8 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     var recoveryTime: UInt16 = 170 // default 1.7s
     if CurrentCadence > 0 {
       let strokeTime = 60.0 / Double(CurrentCadence)
-      recoveryTime = UInt16((strokeTime - 0.8) * 100.0)
+      let recoveryTimeDouble = max(0.5, strokeTime - 0.8) * 100.0
+      recoveryTime = UInt16(recoveryTimeDouble)
       if recoveryTime < 50 { recoveryTime = 50 }
     }
     value[8] = UInt8(recoveryTime & 0xFF)
