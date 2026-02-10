@@ -2308,6 +2308,12 @@ class QZSettings {
     static const QString gears_offset;
     static constexpr double default_gears_offset = 0.0;
 
+    static const QString gears_max;
+    static constexpr double default_gears_max = 999.0;
+
+    static const QString gears_min;
+    static constexpr double default_gears_min = -999.0;
+
     static const QString peloton_accesstoken;
     static const QString default_peloton_accesstoken;
 
