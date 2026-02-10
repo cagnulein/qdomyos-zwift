@@ -1275,6 +1275,7 @@ import Qt.labs.platform 1.1
 			property bool domyos_treadmill_ts100: false
 			property bool thinkrider_controller: false
 			property bool weight_kg_unit: false
+            property real stryd_speed_correction_gain: 1.0            
         }
 
 
@@ -11877,6 +11878,60 @@ import Qt.labs.platform 1.1
 
                             Label {
                                 text: qsTr("If you have a Bluetooth treadmill and also a Stryd device connected to QZ and you want to use the speed from the stryd instead of the speed of the treadmill, enable this. Default: disabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            RowLayout {
+                                visible: settings.stryd_speed_instead_treadmill
+                                spacing: 10
+                                Label {
+                                    id: labelStrydSpeedCorrectionGain
+                                    text: qsTr("Speed Correction Gain:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: strydSpeedCorrectionGainTextField
+                                    text: settings.stryd_speed_correction_gain.toFixed(2)
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onActiveFocusChanged: if(this.focus) this.selectAll()
+                                    onAccepted: {
+                                        var value = parseFloat(text)
+                                        if (value >= 0.0 && value <= 1.0) {
+                                            settings.stryd_speed_correction_gain = value
+                                        } else {
+                                            text = settings.stryd_speed_correction_gain.toFixed(2)
+                                        }
+                                    }
+                                }
+                                Button {
+                                    id: okStrydSpeedCorrectionGainButton
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: {
+                                        var value = parseFloat(strydSpeedCorrectionGainTextField.text)
+                                        if (value >= 0.0 && value <= 1.0) {
+                                            settings.stryd_speed_correction_gain = value
+                                        } else {
+                                            strydSpeedCorrectionGainTextField.text = settings.stryd_speed_correction_gain.toFixed(2)
+                                        }
+                                    }
+                                }
+                            }
+
+                            Label {
+                                visible: settings.stryd_speed_instead_treadmill
+                                text: qsTr("Controls how aggressively QZ corrects treadmill speed based on sensor readings. A value of 1.0 applies full correction immediately (may cause oscillations). Lower values (e.g., 0.3) apply gradual corrections to avoid speed fluctuations. Range: 0.0 - 1.0. Default: 1.0")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
