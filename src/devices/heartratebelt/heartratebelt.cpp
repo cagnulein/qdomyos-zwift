@@ -7,46 +7,58 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <QThread>
+#include <chrono>
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QAndroidJniEnvironment>
+#endif
+
+using namespace std::chrono_literals;
 
 heartratebelt::heartratebelt() {
-    // Initialize the update timer to run every second
-    updateTimer = new QTimer(this);
-    updateTimer->setInterval(1000);  // 1 second
-    connect(updateTimer, &QTimer::timeout, this, &heartratebelt::update);
-    updateTimer->start();
+    refresh = new QTimer(this);
+    connect(refresh, &QTimer::timeout, this, &heartratebelt::update);
+    refresh->start(500ms);
 }
 
 heartratebelt::~heartratebelt() {
-    if (updateTimer) {
-        updateTimer->stop();
-        delete updateTimer;
+    if (refresh) {
+        refresh->stop();
+        delete refresh;
     }
 }
 
 void heartratebelt::update() {
-    QSettings settings;
-    
-    // Check if we are in connecting state and more than 10 seconds have passed
-    if (m_control && 
-        m_control->state() == QLowEnergyController::ConnectingState && 
-        !connectingTime.isNull() &&
-        connectingTime.msecsTo(QDateTime::currentDateTime()) > CONNECTION_TIMEOUT
-#ifdef Q_OS_IOS
-        && !settings.value(QZSettings::ios_cache_heart_device, QZSettings::default_ios_cache_heart_device).toBool()
+    if(m_control->state() == QLowEnergyController::DiscoveredState && gattCommunicationChannelService &&
+            gattNotifyCharacteristic.isValid() && gattCommunicationChannelService->characteristic(QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement)).properties() & QLowEnergyCharacteristic::Read) {
+#ifdef Q_OS_ANDROID
+        // On Android, use direct Java call to bypass Qt's buggy executeReadJob
+        QString serviceUuid = QStringLiteral("0000180d-0000-1000-8000-00805f9b34fb"); // Heart Rate Service
+        QString charUuid = QStringLiteral("00002a37-0000-1000-8000-00805f9b34fb"); // Heart Rate Measurement
+
+        qDebug() << QStringLiteral("HeartRateBelt :: Calling readCharacteristicDirectlyStatic with service:") << serviceUuid << " char:" << charUuid;
+
+        QAndroidJniEnvironment env;
+        bool result = QAndroidJniObject::callStaticMethod<jboolean>(
+            "org/qtproject/qt5/android/bluetooth/QtBluetoothLE",
+            "readCharacteristicDirectlyStatic",
+            "(Ljava/lang/String;Ljava/lang/String;)Z",
+            QAndroidJniObject::fromString(serviceUuid).object<jstring>(),
+            QAndroidJniObject::fromString(charUuid).object<jstring>()
+        );
+
+        if (env->ExceptionCheck()) {
+            qDebug() << QStringLiteral("HeartRateBelt :: JNI Exception occurred!");
+            env->ExceptionDescribe();
+            env->ExceptionClear();
+            result = false;
+        }
+
+        qDebug() << QStringLiteral("HeartRateBelt :: readCharacteristicDirectlyStatic result:") << result;
+#else
+        gattCommunicationChannelService->readCharacteristic(gattCommunicationChannelService->characteristic(QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement)));
+        qDebug() << QStringLiteral("HeartRateBelt :: readCharacteristic call successful, waiting for response...");
 #endif
-        ) {
-        
-        emit debug(QStringLiteral("Connection timeout in ConnectingState - disconnecting and retrying..."));
-        disconnectBluetooth();
-        connectingTime = QDateTime();  // Reset the timestamp
-        
-        // Reconnect after 1 second
-        QTimer::singleShot(1000, this, [this]() {
-            if (m_control) {
-                emit debug(QStringLiteral("Attempting to reconnect after timeout..."));
-                m_control->connectToDevice();
-            }
-        });
     }
 }
 
