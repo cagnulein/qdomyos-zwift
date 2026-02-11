@@ -3347,21 +3347,6 @@ void proformbike::btinit() {
         QThread::msleep(400);
         writeCharacteristic(initData31, sizeof(initData31), QStringLiteral("init"), false, false);
         QThread::msleep(400);
-    } else {
-        // Default initialization for other models
-        uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
-                                0x01, 0x10, 0xcc, 0x7a, 0x3e, 0xf4, 0xb8, 0x66, 0x3a, 0xf8};
-        uint8_t initData11[] = {0x01, 0x12, 0xb4, 0x72, 0x46, 0x1c, 0xf0, 0xbe, 0x92, 0x40,
-                                0x3c, 0xea, 0xce, 0xa4, 0x88, 0x76, 0x4a, 0x28, 0x04, 0xe2};
-        uint8_t initData12[] = {0xff, 0x08, 0xf6, 0xcc, 0xe0, 0x98, 0x02, 0x00, 0x00, 0xd1,
-                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-
-        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
     }
 
     initDone = true;
