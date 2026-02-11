@@ -1844,6 +1844,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("VFSPINBIKE")) ||
                         (b.name().toUpper().startsWith("RIVO COG")) ||
                         (b.name().toUpper().startsWith("RAVE")) ||
+                        (b.name().toUpper().startsWith("TOPUTURE-")) ||
                         (b.name().toUpper().startsWith("BESP-")) ||  // FITFIU BESP 250 indoor bike
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith("SPORT01-") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // Labgrey Magnetic Exercise Bike https://www.amazon.co.uk/dp/B0CXMF1NPY?_encoding=UTF8&psc=1&ref=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&ref_=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&social_share=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&skipTwisterOG=1
@@ -2004,6 +2005,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("ROWER ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROGUE CONSOLE ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("DFIT-L-R")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("EW-ST-")) ||    // EW-ST-3739 Force USA R3 rower
                         !b.name().compare(ftms_rower, Qt::CaseInsensitive) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
                          b.name().toUpper().endsWith(QStringLiteral("ROW")))) &&

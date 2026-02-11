@@ -356,6 +356,7 @@ const QString QZSettings::virtual_device_onlyheart = QStringLiteral("virtual_dev
 const QString QZSettings::virtual_device_echelon = QStringLiteral("virtual_device_echelon");
 const QString QZSettings::virtual_device_ifit = QStringLiteral("virtual_device_ifit");
 const QString QZSettings::virtual_device_rower = QStringLiteral("virtual_device_rower");
+const QString QZSettings::virtual_device_rower_pm5 = QStringLiteral("virtual_device_rower_pm5");
 const QString QZSettings::virtual_device_force_bike = QStringLiteral("virtual_device_force_bike");
 const QString QZSettings::virtual_device_force_treadmill = QStringLiteral("virtual_device_force_treadmill");
 const QString QZSettings::volume_change_gears = QStringLiteral("volume_change_gears");
@@ -1343,6 +1344,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon},
     {QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit},
     {QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower},
+    {QZSettings::virtual_device_rower_pm5, QZSettings::default_virtual_device_rower_pm5},
     {QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike},
     {QZSettings::virtual_device_force_treadmill, QZSettings::default_virtual_device_force_treadmill},
     {QZSettings::volume_change_gears, QZSettings::default_volume_change_gears},
