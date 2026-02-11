@@ -3348,6 +3348,7 @@ void proformbike::btinit() {
         writeCharacteristic(initData31, sizeof(initData31), QStringLiteral("init"), false, false);
         QThread::msleep(400);
     }
+    }
 
     initDone = true;
 }
