@@ -389,6 +389,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     sessionMesg.SetTotalMovingTime(session.last().elapsedTime);
     sessionMesg.SetTotalAscent(session.last().elevationGain);  // Total elevation gain (meters)
     sessionMesg.SetTotalDescent(session.last().negativeElevationGain);  // Total elevation loss/descent (meters)
+    if (speed_avg > 0) {
+        sessionMesg.SetAvgSpeed(speed_avg / 3.6);  // Convert from km/h to m/s
+    }
     sessionMesg.SetMinAltitude(min_alt);
     sessionMesg.SetMaxAltitude(max_alt);
     sessionMesg.SetEvent(FIT_EVENT_SESSION);
@@ -454,7 +457,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             sessionMesg.SetAvgStrokeDistance(session.last().avgStrokesLength);
     } else if (type == STAIRCLIMBER) {
 
-        sessionMesg.SetSport(FIT_SPORT_GENERIC);
+        sessionMesg.SetSport(FIT_SPORT_FITNESS_EQUIPMENT);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_STAIR_CLIMBING);
     } else if (type == JUMPROPE) {
 
@@ -699,7 +702,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         lapMesg.SetSport(FIT_SPORT_JUMP_ROPE);
     } else if (type == STAIRCLIMBER) {
 
-        lapMesg.SetSport(FIT_SPORT_GENERIC);
+        lapMesg.SetSport(FIT_SPORT_FITNESS_EQUIPMENT);
         lapMesg.SetSubSport(FIT_SUB_SPORT_STAIR_CLIMBING);
     } else {
 
