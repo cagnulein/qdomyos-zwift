@@ -1838,6 +1838,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("S18 found");
             S18 = true;
             max_resistance = 24;
+        } else if(device.name().toUpper().startsWith("SPEEDRACEX")) {
+            qDebug() << QStringLiteral("SpeedRaceX found");
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            max_resistance = 32;
         }
 
 
