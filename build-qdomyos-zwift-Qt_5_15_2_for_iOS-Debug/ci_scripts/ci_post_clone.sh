@@ -33,9 +33,13 @@ cp -a "$QT_PATH/lib/QtSslServer.framework/Versions/5/Headers/"* "$QT_PATH/includ
 
 ls -ltr "$QT_PATH/include/QtHttpServer/"
 
+echo "=== SCRIPT VERSION: 2026-02-12-v2 - Restoring project and workspace settings ==="
+
 # Restore the good Xcode project and workspace settings from repository (after qmake overwrites them)
 git checkout -- /Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
 git checkout -- /Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.xcworkspace/xcshareddata/
+
+echo "=== Git checkout completed ==="
 
 #sed -i '' 's|/Users/cagnulein/qdomyos-zwift|..|g' /Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
 #add "" for folder qt@5
