@@ -48,6 +48,7 @@ google_test/*
 *build-*
 !build-qdomyos-zwift-Qt_*_for_iOS-Debug # Needed for Apple Watch
 !build-qdomyos-zwift-Qt_*_for_iOS-Debug/ci_scripts/**
+!build-qdomyos-zwift-Qt_*_for_iOS-Debug/qdomyoszwift.xcodeproj/project.xcworkspace/xcshareddata/**
 src/inner_templates/googlemaps/cesium-key.js
 *.autosave
 .vscode/settings.json
