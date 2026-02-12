@@ -41,5 +41,10 @@ git checkout -- /Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_
 
 echo "=== Git checkout completed ==="
 
+# Fix Qt include paths to use Xcode Cloud's Qt installation
+sed -i '' 's|../../Qt/5.15.2/ios/include|'"$QT_PATH"'/include|g' /Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
+
+echo "=== Fixed Qt include paths ==="
+
 #sed -i '' 's|/Users/cagnulein/qdomyos-zwift|..|g' /Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
 #add "" for folder qt@5
