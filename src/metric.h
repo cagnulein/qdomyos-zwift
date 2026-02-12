@@ -1,6 +1,7 @@
 #ifndef METRIC_H
 #define METRIC_H
 
+#include "bluetoothdevicetype.h"
 #include "qdebugfixup.h"
 #include "sessionline.h"
 #include <QDateTime>
@@ -18,13 +19,17 @@ class metric {
     } _metric_type;
 
     metric();
-    void setType(_metric_type t);
+    void setType(_metric_type t, BLUETOOTH_TYPE bt = UNKNOWN);
     void setValue(double value, bool applyGainAndOffset = true);
     double value();
+    double valueRaw();
     QDateTime lastChanged() { return m_lastChanged; }
     QDateTime valueChanged() { return m_valueChanged; }
     double average();
     double average5s();
+    double average5sHarmonic();
+    double average3sHarmonic();
+    double average20s();
 
     // rate of the current metric in a second, useful to know how many Kcal i will burn in a
     // minute if i keep the current pace
@@ -42,8 +47,6 @@ class metric {
     void operator+=(double);
     void setPaused(bool p);
     void setLap(bool accumulator);
-    void setColor(QString color) { m_color = color; }
-    QString color() { return m_color; }
 
     static double calculateMaxSpeedFromPower(double power, double inclination);
     static double calculatePowerFromSpeed(double speed, double inclination);
@@ -52,9 +55,11 @@ class metric {
     static double calculateWeightLoss(double kcal);
     static double calculateVO2Max(QList<SessionLine> *session);
     static double calculateKCalfromHR(double HR_AVG, double elapsed);
+    static double calculateBMR();
+    static double calculateActiveKCal(double totalKCal, double elapsed);
 
     static double powerPeak(QList<SessionLine> *session, int seconds);
-
+    
   private:
     double m_value = 0;
     double m_totValue = 0;
@@ -62,7 +67,9 @@ class metric {
     double m_min = 999999999;
     double m_max = 0;
     double m_offset = 0;
+    QList<double> m_last3;
     QList<double> m_last5;
+    QList<double> m_last20;
 
     double m_lapOffset = 0;
     double m_lapTotValue = 0;
@@ -75,9 +82,9 @@ class metric {
     double m_rateAtSec = 0;
 
     _metric_type m_type = METRIC_OTHER;
+    BLUETOOTH_TYPE m_bluetooth_type = UNKNOWN;
 
     bool paused = false;
-    QString m_color;
 };
 
 #endif // METRIC_H

@@ -17,7 +17,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.os.Looper;
 import android.os.Handler;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import com.garmin.android.connectiq.ConnectIQ;
 import com.garmin.android.connectiq.ConnectIQAdbStrategy;
 import com.garmin.android.connectiq.IQApp;
@@ -28,6 +28,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContextWrapper;
 import android.content.IntentFilter;
 import android.widget.Toast;
+import androidx.core.content.ContextCompat;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -48,29 +49,51 @@ public class Garmin {
 
     private static Integer HR = 0;
     private static Integer FootCad = 0;
+    private static Double Speed = 0.0;
+    private static Integer Power = 0;
 
     public static int getHR() {
-        Log.d(TAG, "getHR " + HR);
+        QLog.d(TAG, "getHR " + HR);
         return HR;
     }
 
+    public static int getPower() {
+        QLog.d(TAG, "getPower " + Power);
+        return Power;
+    }
+
+    public static double getSpeed() {
+        QLog.d(TAG, "getSpeed " + Speed);
+        return Speed;
+    }
+
     public static int getFootCad() {
-        Log.d(TAG, "getFootCad " + FootCad);
+        QLog.d(TAG, "getFootCad " + FootCad);
         return FootCad;
     }
 
     public static void init(Context c) {
+        if (connectIqReady || connectIqInitializing) {
+            QLog.d(TAG, "Garmin already initialized or initializing");
+            return;
+        }
+        connectIqInitializing = true;
+
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-            connectIQ = ConnectIQ.getInstance(c, ConnectIQ.IQConnectType.WIRELESS);
+            // Create wrapped context BEFORE getInstance to ensure all SDK operations use it
+            context = createWrappedContext(c);
+
+            connectIQ = ConnectIQ.getInstance(context, ConnectIQ.IQConnectType.WIRELESS);
 
             // init a wrapped SDK with fix for "Cannot cast to Long" issue viz https://forums.garmin.com/forum/developers/connect-iq/connect-iq-bug-reports/158068-?p=1278464#post1278464
-            context = initializeConnectIQWrapped(c, connectIQ, false, new ConnectIQ.ConnectIQListener() {
+            initializeConnectIQWithContext(connectIQ, false, new ConnectIQ.ConnectIQListener() {
 
                 @Override
                 public void onInitializeError(ConnectIQ.IQSdkErrorStatus errStatus) {
-                    Log.e(TAG, errStatus.toString());
+                    QLog.e(TAG, errStatus.toString());
+                    connectIqInitializing = false;
                     connectIqReady = false;
                 }
 
@@ -78,7 +101,7 @@ public class Garmin {
                 public void onSdkReady() {
                     connectIqInitializing = false;
                     connectIqReady = true;
-                    Log.i(TAG, " onSdkReady");
+                    QLog.i(TAG, " onSdkReady");
 
                     registerWatchMessagesReceiver();
                     registerDeviceStatusReceiver();
@@ -105,16 +128,16 @@ public class Garmin {
         try {
             List<IQDevice> devices = connectIQ.getConnectedDevices();
             if (devices != null && devices.size() > 0) {
-                Log.v(TAG, "getDevice connected: " + devices.get(0).toString() );
+                QLog.v(TAG, "getDevice connected: " + devices.get(0).toString() );
                 deviceCache = devices.get(0);
                 return deviceCache;
             } else {
                 return deviceCache;
             }
         } catch (InvalidStateException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         } catch (ServiceUnavailableException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         }
         return null;
     }
@@ -138,12 +161,8 @@ public class Garmin {
         connectIQ.sendMessage(getDevice(), getApp(), message, listener);
     }
 
-    private static Context initializeConnectIQWrapped(Context context, ConnectIQ connectIQ, boolean autoUI, ConnectIQ.ConnectIQListener listener) {
-        if (connectIQ instanceof ConnectIQAdbStrategy) {
-            connectIQ.initialize(context, autoUI, listener);
-            return context;
-        }
-        Context wrappedContext = new ContextWrapper(context) {
+    private static Context createWrappedContext(Context context) {
+        return new ContextWrapper(context) {
             private HashMap<BroadcastReceiver, BroadcastReceiver> receiverToWrapper = new HashMap<>();
 
             @Override
@@ -152,7 +171,12 @@ public class Garmin {
                 synchronized (receiverToWrapper) {
                     receiverToWrapper.put(receiver, wrappedRecv);
                 }
-                return super.registerReceiver(wrappedRecv, filter);
+                return ContextCompat.registerReceiver(
+                    super.getBaseContext(),
+                    wrappedRecv,
+                    filter,
+                    ContextCompat.RECEIVER_EXPORTED
+                );
             }
 
             @Override
@@ -165,6 +189,18 @@ public class Garmin {
                 if (wrappedReceiver != null) super.unregisterReceiver(wrappedReceiver);
             }
         };
+    }
+
+    private static void initializeConnectIQWithContext(ConnectIQ connectIQ, boolean autoUI, ConnectIQ.ConnectIQListener listener) {
+        connectIQ.initialize(context, autoUI, listener);
+    }
+
+    private static Context initializeConnectIQWrapped(Context context, ConnectIQ connectIQ, boolean autoUI, ConnectIQ.ConnectIQListener listener) {
+        if (connectIQ instanceof ConnectIQAdbStrategy) {
+            connectIQ.initialize(context, autoUI, listener);
+            return context;
+        }
+        Context wrappedContext = createWrappedContext(context);
         connectIQ.initialize(wrappedContext, autoUI, listener);
         return wrappedContext;
     }
@@ -175,33 +211,33 @@ public class Garmin {
 
                 @Override
                 public void onApplicationInfoReceived(IQApp app) {
-                    Log.d(TAG, "App installed.");
+                    QLog.d(TAG, "App installed.");
                 }
 
                 @Override
                 public void onApplicationNotInstalled(String applicationId) {
                     if (getDevice() != null) {
                         Toast.makeText(context, "App not installed on your Garmin watch", Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "watch app not installed.");
+                        QLog.d(TAG, "watch app not installed.");
                     }
                 }
             });
         } catch (InvalidStateException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         } catch (ServiceUnavailableException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         }
     }
 
     private static void registerDeviceStatusReceiver() {
-        Log.d(TAG, "registerDeviceStatusReceiver");
+        QLog.d(TAG, "registerDeviceStatusReceiver");
         IQDevice device = getDevice();
         try {
             if (device != null) {
                 connectIQ.registerForDeviceEvents(device, new ConnectIQ.IQDeviceEventListener() {
                     @Override
                     public void onDeviceStatusChanged(IQDevice device, IQDevice.IQDeviceStatus newStatus) {
-                        Log.d(TAG, "Device status changed, now " + newStatus);
+                        QLog.d(TAG, "Device status changed, now " + newStatus);
                     }
                 });
             }
@@ -211,7 +247,7 @@ public class Garmin {
     }
 
     private static void registerWatchMessagesReceiver(){
-        Log.d(TAG, "registerWatchMessageReceiver");
+        QLog.d(TAG, "registerWatchMessageReceiver");
         IQDevice device = getDevice();
         try {
             if (device != null) {
@@ -220,24 +256,32 @@ public class Garmin {
                     public void onMessageReceived(IQDevice device, IQApp app, List<Object> message, ConnectIQ.IQMessageStatus status) {
                         if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
                             //MessageHandler.getInstance().handleMessageFromWatchUsingCIQ(message, status, context);
-                            Log.d(TAG, "onMessageReceived, status: " + status.toString() + message.get(0));
-                            String var[] = message.toArray()[0].toString().split(",");
-                            HR = Integer.parseInt(var[0].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
-                            if(var.length > 1) {
-                                FootCad = Integer.parseInt(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
+                            QLog.d(TAG, "onMessageReceived, status: " + status.toString() + message.get(0));
+                            try {
+                                String var[] = message.toArray()[0].toString().split(",");
+                                HR = Integer.parseInt(var[0].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
+                                if(var.length > 1) {
+                                    FootCad = Integer.parseInt(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
+                                    if(var.length > 2) {
+                                        Power = Integer.parseInt(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
+                                        Speed = Double.parseDouble(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
+                                    }
+                                }
+                                QLog.d(TAG, "HR " + HR);
+                                QLog.d(TAG, "FootCad " + FootCad);
+                            } catch (Exception e) {
+                                QLog.e(TAG, "Processing error", e);
                             }
-                            Log.d(TAG, "HR " + HR);
-                            Log.d(TAG, "FootCad " + FootCad);
                         } else {
-                            Log.d(TAG, "onMessageReceived error, status: " + status.toString());
+                            QLog.d(TAG, "onMessageReceived error, status: " + status.toString());
                         }
                     }
                 });
             } else {
-                Log.d(TAG, "registerWatchMessagesReceiver: No device found.");
+                QLog.d(TAG, "registerWatchMessagesReceiver: No device found.");
             }
         } catch (InvalidStateException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         }
     }
 
@@ -247,19 +291,19 @@ public class Garmin {
 
         try {
             if (context != null) {
-                Log.d(TAG,  "Shutting down with wrapped context");
+                QLog.d(TAG,  "Shutting down with wrapped context");
                 connectIQ.shutdown(context);
             } else {
-                Log.d(TAG,  "Shutting down without wrapped context");
+                QLog.d(TAG,  "Shutting down without wrapped context");
                 connectIQ.shutdown(applicationContext);
             }
         } catch (InvalidStateException e) {
             // This is usually because the SDK was already shut down so no worries.
-            Log.e(TAG, "This is usually because the SDK was already shut down so no worries.", e);
+            QLog.e(TAG, "This is usually because the SDK was already shut down so no worries.", e);
         } catch (IllegalArgumentException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         } catch (RuntimeException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         }
     }
 
@@ -273,11 +317,11 @@ public class Garmin {
                 }
             }
         } catch (InvalidStateException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         } catch (IllegalArgumentException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         } catch (RuntimeException e) {
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         }
     }
 }

@@ -11,19 +11,34 @@ import QtLocation 5.6
 
 ColumnLayout {
     signal trainprogram_open_clicked(url name)
+    signal trainprogram_open_other_folder(url name)
     signal trainprogram_preview(url name)
-    FileDialog {
-        id: fileDialogTrainProgram
-        title: "Please choose a file"
-        folder: shortcuts.home
-        onAccepted: {
-            console.log("You chose: " + fileDialogTrainProgram.fileUrl)
-            trainprogram_open_clicked(fileDialogTrainProgram.fileUrl)
-            fileDialogTrainProgram.close()
-        }
-        onRejected: {
-            console.log("Canceled")
-            fileDialogTrainProgram.close()
+    Loader {
+        id: fileDialogLoader
+        active: false
+        sourceComponent: Component {
+            FileDialog {
+                title: "Please choose a file"
+                folder: shortcuts.home
+                visible: true
+                onAccepted: {
+                    console.log("You chose: " + fileUrl)
+                    if(OS_VERSION === "Android") {
+                        trainprogram_open_other_folder(fileUrl)
+                    } else {
+                        trainprogram_open_clicked(fileUrl)
+                    }
+                    close()
+                    // Destroy and recreate the dialog for next use
+                    fileDialogLoader.active = false
+                }
+                onRejected: {
+                    console.log("Canceled")
+                    close()
+                    // Destroy the dialog
+                    fileDialogLoader.active = false
+                }
+            }
         }
     }
 
@@ -231,7 +246,7 @@ ColumnLayout {
                             elevationGain = elevationGain + (pathController.geopath.coordinateAt(i).altitude - pathController.geopath.coordinateAt(i-1).altitude)
                         lines[i] = pathController.geopath.coordinateAt(i)
                     }
-                    distance.text = "Distance " + (pathController.geopath.length() / 1000.0).toFixed(1) + " km Elevation Gain: " + elevationGain.toFixed(1) + " meters"
+                    distance.text = "Distance " + pathController.distance.toFixed(1) + " km Elevation Gain: " + elevationGain.toFixed(1) + " meters"
                     return lines;
                 }
 
@@ -258,7 +273,8 @@ ColumnLayout {
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'gpx')
-            fileDialogTrainProgram.visible = true
+            // Create a fresh FileDialog instance
+            fileDialogLoader.active = true
         }
         anchors {
             bottom: parent.bottom

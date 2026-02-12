@@ -1,6 +1,6 @@
 # iFit-Wolf3 - Autoincline control of treadmill via ADB and OCR
 # Author: Al Udell
-# Revised: August 16, 2023
+# Revised: November 23, 2023
 
 # zwift-incline.py - take Zwift screenshot, crop incline, OCR incline
 
@@ -8,12 +8,25 @@
 import cv2
 import numpy as np
 import re
+import win32gui
 from datetime import datetime
 from paddleocr import PaddleOCR
 from PIL import Image, ImageGrab
 
-# Take Zwift screenshot
-screenshot = ImageGrab.grab()
+# Enable DPI aware on Windows
+from ctypes import windll
+user32 = windll.user32
+user32.SetProcessDPIAware()
+
+# Take Zwift screenshot - windowed mode only
+hwnd = win32gui.FindWindow(None, 'Zwift')
+if not hwnd:
+    print("Zwift is not running")
+    exit()
+x, y, x1, y1 = win32gui.GetClientRect(hwnd)
+x, y = win32gui.ClientToScreen(hwnd, (x, y))
+x1, y1 = win32gui.ClientToScreen(hwnd, (x1, y1))
+screenshot = ImageGrab.grab((x, y, x1, y1))
 
 # Scale image to 3000 x 2000
 screenshot = screenshot.resize((3000, 2000))
@@ -83,7 +96,7 @@ ret,bin = cv2.threshold(gray, 70, 255, cv2.THRESH_BINARY_INV)
 gaussianBlur = cv2.GaussianBlur(bin,(3,3),0)
 
 # OCR image
-ocr = PaddleOCR(lang='en', use_gpu=False, enable_mkldnn=True, use_angle_cls=False, table=False, layout=False, show_log=False)
+ocr = PaddleOCR(lang='en', use_gpu=False, show_log=False, det_db_unclip_ratio=2.0, det_db_box_thresh=0.40, drop_score=0.40, rec_algorithm='CRNN', cls_model_dir='paddleocr/ch_ppocr_mobile_v2.0_cls_infer', det_model_dir='paddleocr/en_PP-OCRv3_det_infer', rec_model_dir='paddleocr/en_PP-OCRv3_rec_infer')
 result = ocr.ocr(gaussianBlur, cls=False, det=True, rec=True)
 
 # Extract OCR text

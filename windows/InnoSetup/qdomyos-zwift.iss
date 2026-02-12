@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "QZ Fitness"
-#define MyAppVersion "2.10.88"
+#define MyAppVersion "2.16.35"
 #define MyAppPublisher "QZ di Roberto Viola"
 #define MyAppURL "http://www.qzfitness.com/"
 #define MyAppExeName "qdomyos-zwift.exe"

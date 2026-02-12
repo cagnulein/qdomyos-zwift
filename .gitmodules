@@ -5,14 +5,14 @@
 	path = src/smtpclient
 	url = https://github.com/cagnulein/SmtpClient-for-Qt.git
 	branch = cagnulein-patch-2
-[submodule "src/qmdnsengine"]
-	path = src/qmdnsengine
-	url = https://github.com/cagnulein/qmdnsengine.git
-	branch = zwift
 [submodule "tst/googletest"]
 	path = tst/googletest
 	url = https://github.com/google/googletest.git
-	branch = tags/release-1.12.1
+	tag = release-1.12.1
 [submodule "src/qthttpserver"]
 	path = src/qthttpserver
 	url = https://github.com/qt-labs/qthttpserver
+[submodule "zwiftplay"]
+	path = zwiftplay
+	url = https://github.com/cagnulein/zwiftplay.git
+	branch = lib

@@ -59,6 +59,7 @@ function process_arr(arr) {
     let deviceType = 0;
     let cadence_avg = 0;
     let peloton_resistance_avg = 0;
+    let resistance_avg = 0;
     let calories = 0;
     let distance = 0;
     saveScreenshot[0] = false;
@@ -100,6 +101,7 @@ function process_arr(arr) {
         jouls = el.jouls;
         deviceType = el.deviceType;
         peloton_resistance_avg = el.peloton_resistance_avg;
+        resistance_avg = el.resistance_avg;
         cadence_avg = el.cadence_avg;
         distance = el.distance;
         calories = el.calories;
@@ -148,7 +150,7 @@ function process_arr(arr) {
         pelotonreqresistance.push(pelotonreqresistanceel);
 
         speedel.x = time;
-        speedel.y = el.speed;
+        speedel.y = el.speed * miles; // Convert to user's preferred unit (km/h or mph)
         speed.push(speedel);
         inclinationel.x = time;
         inclinationel.y = el.inclination;
@@ -177,9 +179,10 @@ function process_arr(arr) {
     $('.summary_watts_avg').text(Math.floor(watts_avg) + ' W');
     $('.summary_jouls').text(Math.floor(jouls / 1000.0) + ' kJ');
     $('.summary_calories').text(Math.floor(calories) + ' kcal');
-    $('.summary_distance').text(Math.floor(distance * miles) + (miles === 1 ? ' km' : ' mi'));
+    $('.summary_distance').text((distance * miles).toFixed(1) + (miles === 1 ? ' km' : ' mi'));
     $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' rpm');
-    $('.summary_resistance_avg').text(Math.floor(peloton_resistance_avg) + ' lvl');    
+    // Use resistance_avg for ellipticals (deviceType 4), peloton_resistance_avg for bikes/rowers
+    $('.summary_resistance_avg').text(Math.floor(deviceType === 4 ? resistance_avg : peloton_resistance_avg) + ' lvl');    
 
     const backgroundFill = {
       id: 'custom_canvas_background_color',
@@ -1026,7 +1029,7 @@ function process_arr(arr) {
                 {
                     backgroundColor: window.chartColors.blue,
                     borderColor: window.chartColors.blue,
-                    label: 'Speed',
+                    label: 'Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
                     //cubicInterpolationMode: 'monotone',
                     data: speed,
                     fill: false,

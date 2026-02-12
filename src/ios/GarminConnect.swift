@@ -26,6 +26,14 @@ extension ConnectIQ {
         return v.FootCad;
     }
     
+    @objc public func getPower() -> Int {
+        return v.Power;
+    }
+    
+    @objc public func getSpeed() -> Double {
+        return v.Speed;
+    }
+
     @objc public func urlParser(_ url: URL) {
         v.urlParser(url)
     }
@@ -45,6 +53,10 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
     
     public var HR: Int = 0
     public var FootCad: Int = 0
+    public var Power: Int = 0
+    public var Speed: Double = 0
+    
+    let SwiftDebug = swiftDebug()
 
     private let formatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -65,6 +77,7 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
         guard url.scheme == GarminConnectSwift.urlScheme,
                  let devices = ConnectIQ.shared?.parseDeviceSelectionResponse(from: url) as? [IQDevice] else { return false }
              registerForDeviceEvents(devices: devices)
+        SwiftDebug.qtDebug("GarminConnect: urlParser: return true")
              return true
     }
 
@@ -75,6 +88,7 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
     }
 
     public func deviceStatusChanged(_ device: IQDevice!, status: IQDeviceStatus) {
+        let descriptionStatus: String
         switch status {
         case .connected:
             // The `store` is not necessary for sending messages, I suppose it's for when you want the user to download the app.
@@ -82,6 +96,7 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
             let app = IQApp(uuid: GarminConnectSwift.watchAppUuid, store: nil, device: device)
             apps[device.uuid] = app
             print(device.uuid)
+            descriptionStatus = "connected"
 
             ConnectIQ.shared?.register(forAppMessages: app, delegate: self)
 
@@ -93,15 +108,20 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
 
         case .bluetoothNotReady, .invalidDevice, .notConnected, .notFound:
             print(device.uuid)
+            descriptionStatus = "invalidDevice"
             apps.removeValue(forKey: device.uuid)
 
         @unknown default:
+            descriptionStatus = "case not handled"
             print("New case, still unhandled. \(status.rawValue)")
         }
+        
+        SwiftDebug.qtDebug("GarminConnect: deviceStatusChanged: status " + descriptionStatus + " " + device.uuid.uuidString)
     }
 
     func receivedMessage(_ message: Any!, from app: IQApp!) {
         print("Received message from ConnectIQ: \(message.debugDescription)")
+        SwiftDebug.qtDebug("GarminConnect: receivedMessage: " + message.debugDescription)
 
         guard let array = message as? [Any] else {
             print("Failed to parse message sent from ConnectIQ.")
@@ -116,8 +136,12 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
             print(dictionary)
             HR = dictionary[0] as? Int ?? 0
             FootCad = dictionary[1] as? Int ?? 0
-            print("Garmin HR: \(HR)")
-            print("Garmin Foot Cadence: \(FootCad)")
+            Power = dictionary[2] as? Int ?? 0
+            Speed = dictionary[3] as? Double ?? 0
+            SwiftDebug.qtDebug("Garmin HR: \(HR)")
+            SwiftDebug.qtDebug("Garmin Foot Cadence: \(FootCad)")
+            SwiftDebug.qtDebug("Garmin Power: \(Power)")
+            SwiftDebug.qtDebug("Garmin Speed: \(Speed)")
         }
     }
 

@@ -17,9 +17,11 @@ var pedometer = CMPedometer()
 
 @objc public class healthkit:NSObject {
     let w = watchAppStart()
-        
+    let SwiftDebug = swiftDebug()
+
     @objc public func request()
     {
+        SwiftDebug.qtDebug("swift debug test")
         if #available(iOS 13.0, *) {
             Client.client.start()
         } else {
@@ -29,10 +31,10 @@ var pedometer = CMPedometer()
             Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateHeartRate), userInfo: nil, repeats: true)
         }
         Server.server?.start()
-	
+
         LocalNotificationHelper.requestPermission()
         WatchKitConnection.shared.startSession()
-        
+
         if CMPedometer.isStepCountingAvailable() {
             pedometer.startUpdates(from: Date()) { pedometerData, error in
                 guard let pedometerData = pedometerData, error == nil else { return }
@@ -40,7 +42,6 @@ var pedometer = CMPedometer()
             }
         }
 
-        
         //w.startWatchApp()
     }
     
@@ -52,6 +53,18 @@ var pedometer = CMPedometer()
     @objc public func stepCadence() -> Int
     {
         return WatchKitConnection.stepCadence;
+    }
+
+    @objc public func setSteps(steps: Int) -> Void
+    {
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        WatchKitConnection.steps = steps;
+        Server.server?.send(createString(sender: sender))
     }
     
     @objc public func setDistance(distance: Double) -> Void
@@ -75,6 +88,18 @@ var pedometer = CMPedometer()
 			sender = "PHONE"
 		}
         WatchKitConnection.kcal = kcal;
+        Server.server?.send(createString(sender: sender))
+    }
+    
+    @objc public func setTotalKcal(totalKcal: Double) -> Void
+    {
+		var sender: String
+		if UIDevice.current.userInterfaceIdiom == .pad {
+			sender = "PAD"
+		} else {
+			sender = "PHONE"
+		}
+        WatchKitConnection.totalKcal = totalKcal;
         Server.server?.send(createString(sender: sender))
     }
     
@@ -113,9 +138,21 @@ var pedometer = CMPedometer()
         WatchKitConnection.power = power;
         Server.server?.send(createString(sender: sender))
     }
+
+    @objc public func setElevationGain(elevationGain: Double) -> Void
+    {
+        WatchKitConnection.elevationGain = elevationGain;
+    }
+
+    @objc public func setHeartRate(heartRate: Int) -> Void
+    {
+        if #available(iOS 17.0, *) {
+            WorkoutTracking.shared.setBluetoothHeartRate(heartRate: Double(heartRate))
+        }
+    }
     
     func createString(sender: String) -> String {
-        return "SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(WatchKitConnection.kcal)#BCAD=\(WatchKitConnection.cadence)#SPD=\(WatchKitConnection.speed)#PWR=\(WatchKitConnection.power)#CAD=\(WatchKitConnection.stepCadence)#ODO=\(WatchKitConnection.distance)#";
+        return "SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(WatchKitConnection.kcal)#TOTALKCAL=\(WatchKitConnection.totalKcal)#BCAD=\(WatchKitConnection.cadence)#SPD=\(WatchKitConnection.speed)#PWR=\(WatchKitConnection.power)#CAD=\(WatchKitConnection.stepCadence)#ODO=\(WatchKitConnection.distance)#";
     }
     
     @objc func updateHeartRate() {
@@ -161,7 +198,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
-        // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+        // Called as part of the transition from the background to the active state. Here you can undo many of the changes made on entering the background.
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {

@@ -39,6 +39,10 @@
       font-size: 24px;
     }
 
+    .treadmill-only {
+      display: none;
+    }
+
     .overlay {
       position: absolute;
       top: 0;
@@ -73,35 +77,39 @@
     <tr class="speed" sort-order="0">
       <td class="icon">🏃</td>
       <td style="text-align: left">SPEED</td>
-      <td><small>AVG</small></td>
-      <td class="speed-avg">0.0</td>
+      <td class="speed-avg-title"><small class="non-treadmill">AVG</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          onclick="SpeedMinus()">-</button></td>
+      <td class="speed-avg"><span class="speed-avg-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;">AVG</small></span></td>
       <td class="speed-value values"><b>0.0</b></td>
-      <td><small>MAX</small></td>
-      <td class="speed-max">0.0</td>
+      <td class="speed-max-title"><small class="non-treadmill">MAX</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          onclick="SpeedPlus()">+</button></td>
+      <td class="speed-max"><span class="speed-max-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;">MAX</small></span></td>
     </tr>
     <tr class="inclination" sort-order="1">
       <td class="icon">📐</td>
       <td style="text-align: left">INCLINE</td>
-      <td><small>AVG</small></td>
-      <td class="inclination-avg">0.0</td>
+      <td class="inclination-avg-title"><small class="non-treadmill">AVG</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          onclick="InclinationMinus()">-</button></td>
+      <td class="inclination-avg"><span class="inclination-avg-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;">AVG</small></span></td>
       <td class="inclination-value values"><b>0.0</b></td>
-      <td><small>MAX</small></td>
-      <td class="inclination-max">0.0</td>
+      <td class="inclination-max-title"><small class="non-treadmill">MAX</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          onclick="InclinationPlus()">+</button></td>
+      <td class="inclination-max"><span class="inclination-max-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;">MAX</small></span></td>
     </tr>
     <tr class="pace" sort-order="2">
       <td class="icon">🏃</td>
       <td style="text-align: left">PACE</td>
-      <td><small>AVG</small></td>
+      <td class="pace-avg-title"><small>AVG</small></td>
       <td class="pace-avg">00:00</td>
       <td class="pace-value values"><b>00:00</b></td>
-      <td><small>MAX</small></td>
+      <td class="pace-max-title"><small>MAX</small></td>
       <td class="pace-max">00:00</td>
-    </tr>    
+    </tr>
     <tr class="elevation" sort-order="3">
       <td class="icon">🚵</td>
       <td style="text-align: left">ELEV.</td>
       <td class="elevation-value values" colspan="5"><b>0.0</b></td>
-    </tr>    
+    </tr>
     <tr class="cadence" sort-order="4">
       <td class="icon">🚴</td>
       <td style="text-align: left">CADENCE</td>
@@ -125,7 +133,7 @@
       <td style="text-align: left">POWER</td>
       <td><small>AVG</small></td>
       <td class="watt-avg">0</td>
-      <td class="watt-value values"><b>0</b></td>
+      <td class="watt-value values"><span class='current-watt'><b>0</b></span><span class='watt-separator'></span><span class='target-watt'></span></td>
       <td><small>MAX</small></td>
       <td class="watt-max">0</td>
     </tr>
@@ -134,7 +142,7 @@
       <td style="text-align: left">P.ZONE</td>
       <td><small>AVG</small></td>
       <td class="powerzone-avg">0.0</td>
-      <td class="powerzone-value values"><b>0.0</b></td>
+      <td class="powerzone-value values"><span class='powerzone-current-value'><b>0.0</b></span><span class='powerzone-separator'></span><span class='powerzone-target-value'></span></td>
       <td><small>MAX</small></td>
       <td class="powerzone-max">0.0</td>
     </tr>
@@ -198,7 +206,12 @@
       <td class="gears-value values"><b>0</b></td>
       <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
           onclick="GearsPlus()">+</button></td>
-    </tr>    
+    </tr>
+    <tr class="nextrow" sort-order="17">
+      <td class="icon">🕶</td>
+      <td style="text-align: left">NEXT</td>
+      <td class="nextrow-value values" colspan="5"><b></b></td>
+    </tr>
     <tr sort-order="255">
       <td colspan=2 style="text-align:left"><button style="font-size: 16px; color: white; background-color:#4C70BF"
           onclick="Lap()">CLEAR</button></td>
@@ -292,6 +305,62 @@
         msg: 'gears_minus',
       }, function (msg) {
         if (msg.msg === 'R_gears_minus') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function SpeedPlus() {
+      let el = new MainWSQueueElement({
+        msg: 'speed_plus',
+      }, function (msg) {
+        if (msg.msg === 'R_speed_plus') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function SpeedMinus() {
+      let el = new MainWSQueueElement({
+        msg: 'speed_minus',
+      }, function (msg) {
+        if (msg.msg === 'R_speed_minus') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function InclinationPlus() {
+      let el = new MainWSQueueElement({
+        msg: 'inclination_plus',
+      }, function (msg) {
+        if (msg.msg === 'R_inclination_plus') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function InclinationMinus() {
+      let el = new MainWSQueueElement({
+        msg: 'inclination_minus',
+      }, function (msg) {
+        if (msg.msg === 'R_inclination_minus') {
           return msg.content;
         }
         return null;
@@ -396,7 +465,7 @@
       tile_target_peloton_resistance_enabled = false;
       tile_target_cadence_enabled = false;
       tile_target_speed_enabled = false;
-		tile_target_pace_enabled = false;
+                tile_target_pace_enabled = false;
       tile_target_zone_enabled = false;
       tile_target_inclination_enabled = false;
       tile_target_power_enabled = false;
@@ -406,14 +475,14 @@
 
       settings_arr = ['tile_speed_enabled', 'tile_cadence_enabled', 'tile_calories_enabled', 'tile_odometer_enabled', 'tile_resistance_enabled', 'tile_watt_enabled',
         'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency', 'tile_target_resistance_enabled', 'tile_target_peloton_resistance_enabled',
-		  'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit', 'tile_target_speed_enabled', 'tile_target_pace_enabled', 'tile_inclination_enabled',
-        'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled', 'tile_jouls_enabled', 'tile_remainingtimetrainprogramrow_enabled', 'tile_gears_enabled', 
+                  'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit', 'tile_target_speed_enabled', 'tile_target_pace_enabled', 'tile_inclination_enabled',
+        'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled', 'tile_jouls_enabled', 'tile_remainingtimetrainprogramrow_enabled', 'tile_gears_enabled',
         'tile_elevation_enabled', 'tile_pace_enabled',
         'tile_speed_order', 'tile_cadence_order', 'tile_calories_order', 'tile_odometer_order', 'tile_resistance_order', 'tile_watt_order',
         'tile_heart_order', 'tile_elapsed_order', 'tile_peloton_resistance_order', 'floating_transparency', 'tile_target_resistance_order', 'tile_target_peloton_resistance_order',
-		  'tile_target_cadence_order', 'tile_target_power_order', 'tile_peloton_offset_order', 'tile_target_speed_order', 'tile_target_pace_order', 'tile_inclination_order',
-        'tile_target_incline_order', 'tile_target_zone_order', 'tile_ftp_order', 'tile_jouls_order', 'tile_remainingtimetrainprogramrow_order', 'tile_gears_order', 
-        'tile_elevation_order', 'tile_pace_order']
+                  'tile_target_cadence_order', 'tile_target_power_order', 'tile_peloton_offset_order', 'tile_target_speed_order', 'tile_target_pace_order', 'tile_inclination_order',
+        'tile_target_incline_order', 'tile_target_zone_order', 'tile_ftp_order', 'tile_jouls_order', 'tile_remainingtimetrainprogramrow_order', 'tile_gears_order',
+        'tile_elevation_order', 'tile_pace_order', 'theme_tile_icon_enabled', 'tile_nextrowstrainprogram_enabled', 'tile_nextrowstrainprogram_order']
       let el = new MainWSQueueElement({
         msg: 'getsettings',
         content: {
@@ -435,7 +504,7 @@
             } else if (key === 'tile_pace_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".pace").hide();
-              }              
+              }
             } else if (key === 'tile_inclination_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".inclination").hide();
@@ -443,7 +512,7 @@
             } else if (key === 'tile_elevation_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".elevation").hide();
-              }              
+              }
             } else if (key === 'tile_cadence_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".cadence").hide();
@@ -480,6 +549,10 @@
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".rowremainingtime").hide();
               }
+            } else if (key === 'tile_nextrowstrainprogram_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".nextrow").hide();
+              }
             } else if (key === 'tile_peloton_resistance_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".pelotonresistance").hide();
@@ -500,8 +573,8 @@
               tile_target_cadence_enabled = (msg.content[key] === true || msg.content[key] === 'true');
             } else if (key === 'tile_target_speed_enabled') {
               tile_target_speed_enabled = (msg.content[key] === true || msg.content[key] === 'true');
-				} else if (key === 'tile_target_pace_enabled') {
-				  tile_target_pace_enabled = (msg.content[key] === true || msg.content[key] === 'true');
+                                } else if (key === 'tile_target_pace_enabled') {
+                                  tile_target_pace_enabled = (msg.content[key] === true || msg.content[key] === 'true');
             } else if (key === 'tile_target_zone_enabled') {
               tile_target_zone_enabled = (msg.content[key] === true || msg.content[key] === 'true');
             } else if (key === 'tile_target_incline_enabled') {
@@ -515,7 +588,7 @@
             } else if (key === 'tile_gears_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".gears").hide();
-              }              
+              }
             } else if(key === 'tile_speed_order') {
               $(".speed").attr('sort-order', msg.content[key]);
             } else if(key === 'tile_cadence_order') {
@@ -544,28 +617,37 @@
               $(".pelotonoffset").attr('sort-order', msg.content[key]);
             } else if(key === 'tile_remainingtimetrainprogramrow_order') {
               $(".rowremainingtime").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_nextrowstrainprogram_order') {
+              $(".nextrow").attr('sort-order', msg.content[key]);
             } else if(key === 'tile_inclination_order') {
               $(".inclination").attr('sort-order', msg.content[key]);
             } else if(key === 'tile_jouls_order') {
               $(".jouls").attr('sort-order', msg.content[key]);
             } else if(key === 'tile_ftp_order') {
-              $(".powerzone").attr('sort-order', msg.content[key]);              
+              $(".powerzone").attr('sort-order', msg.content[key]);
+            } else if(key === 'theme_tile_icon_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                var icons = document.querySelectorAll('.icon');
+                icons.forEach(function(icon) {
+                    icon.style.display = 'none';
+                });
+              }
             } /*else if(key === 'tile_target_peloton_resistance_order') {
-              $(".pelotonresistance").attr('sort-order', msg.content[key]);              
+              $(".pelotonresistance").attr('sort-order', msg.content[key]);
             } else if(key === 'tile_target_cadence_order') {
-              $(".cadence").attr('sort-order', msg.content[key]);              
+              $(".cadence").attr('sort-order', msg.content[key]);
             } else if(key === 'tile_target_power_order') {
-              $(".watt").attr('sort-order', msg.content[key]);                          
+              $(".watt").attr('sort-order', msg.content[key]);
             } else if(key === 'tile_target_speed_order') {
-              $(".speed").attr('sort-order', msg.content[key]);              
-				} else if(key === 'tile_target_pace_order') {
-				  $(".pace").attr('sort-order', msg.content[key]);
+              $(".speed").attr('sort-order', msg.content[key]);
+                                } else if(key === 'tile_target_pace_order') {
+                                  $(".pace").attr('sort-order', msg.content[key]);
             } else if(key === 'tile_target_incline_order') {
-              $(".inclination").attr('sort-order', msg.content[key]);              
+              $(".inclination").attr('sort-order', msg.content[key]);
             } else if(key === 'tile_target_zone_order') {
-              $(".powerzone").attr('sort-order', msg.content[key]);        
-				} else if(key === 'tile_target_resistance_order') {
-				  $(".resistance").attr('sort-order', msg.content[key]);
+              $(".powerzone").attr('sort-order', msg.content[key]);
+                                } else if(key === 'tile_target_resistance_order') {
+                                  $(".resistance").attr('sort-order', msg.content[key]);
             }*/
           }
 
@@ -575,7 +657,7 @@
             var bVal = +b.getAttribute('sort-order');
             return (aVal > bVal) ? 1 : (aVal < bVal) ? -1 : 0;
           });
-          
+
           // substitute the table rows with the ordered one
           $.each(sortedTableRows, function (i, e) {
             $('table tbody').append(e);
@@ -590,11 +672,14 @@
       keys_arr = ['speed', 'speed_lapavg', 'cadence', 'cadence_lapavg', 'heart', 'heart_lapavg', 'calories', 'distance', 'watts', 'watts_lapavg',
         'elapsed_h', 'elapsed_m', 'elapsed_s', 'resistance', 'resistance_lapavg', 'peloton_resistance', 'peloton_resistance_lapavg',
         'speed_lapmax', 'cadence_lapmax', 'heart_lapmax', 'watts_lapmax', 'resistance_lapmax', 'peloton_resistance_lapmax',
-        'speed_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
-		  'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'target_pace', 'inclination', 'inclination_lapavg',
+        'speed_color', 'pace_color', 'power_zone_color', 'target_power_zone_color', 'cadence_color', 'heart_color', 'watts_color',
+        'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
+        'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'target_pace_h', 'target_pace_m', 'target_pace_s',
+        'deviceType', 'TREADMILL_TYPE',
+        'inclination', 'inclination_lapavg',
         'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls',
-        'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance', 'gears', 'elevation', 'pace_s' , 'pace_m', 
-        'avgpace_s', 'avgpace_m', 'maxpace_s' , 'maxpace_m',]
+        'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance', 'gears', 'elevation', 'pace_s' , 'pace_m',
+        'avgpace_s', 'avgpace_m', 'maxpace_s' , 'maxpace_m', 'remaining_time_s', 'remaining_time_m', 'remaining_time_h', 'nextrow']
       let ell = new MainWSQueueElement(null, function (msg) {
         if (msg.msg === 'workout') {
           var speed = 0;
@@ -620,14 +705,17 @@
           var elapsed_m = 0;
           var elapsed_s = 0;
           var pace_m = 0;
-          var pace_s = 0;          
+          var pace_s = 0;
           var avgpace_m = 0;
-          var avgpace_s = 0;          
+          var avgpace_s = 0;
           var maxpace_m = 0;
-          var maxpace_s = 0;                    
+          var maxpace_s = 0;
           var row_remaining_time_s = 0;
           var row_remaining_time_m = 0;
           var row_remaining_time_h = 0;
+          var remaining_time_s = 0;
+          var remaining_time_m = 0;
+          var remaining_time_h = 0;
           var resistance = 0;
           var resistance_lapavg = 0;
           var peloton_resistance = 0;
@@ -641,14 +729,17 @@
           var target_peloton_resistance = 0;
           var target_cadence = 0;
           var target_speed = 0;
-			 var target_pace_s = 0;
-			 var target_pace_m = 0;
-			 var target_pace_h = 0;
+                         var target_pace_s = 0;
+                         var target_pace_m = 0;
+                         var target_pace_h = 0;
           var target_power_zone = 0;
           var target_inclination = 0;
           var target_power = 0;
           var peloton_offset = 0;
-          var gears = 0;          
+          var gears = 0;
+          var nextrow = "";
+          var deviceType = -1;
+          var TREADMILL_TYPE = -1;
 
           for (let key of keys_arr) {
             if (msg.content[key] === undefined || msg.content[key] === null)
@@ -660,7 +751,7 @@
             } else if (key === 'speed_lapmax') {
               speed_lapmax = msg.content[key] * miles_conversion;
             } else if (key === 'elevation') {
-              elevation = msg.content[key] * meter_conversion;              
+              elevation = msg.content[key] * meter_conversion;
             } else if (key === 'inclination') {
               inclination = msg.content[key];
             } else if (key === 'inclination_lapavg') {
@@ -706,27 +797,35 @@
             } else if (key === 'pace_m') {
               pace_m = msg.content[key];
             } else if (key === 'pace_s') {
-              pace_s = msg.content[key];              
+              pace_s = msg.content[key];
             } else if (key === 'avgpace_m') {
               avgpace_m = msg.content[key];
             } else if (key === 'avgpace_s') {
-              avgpace_s = msg.content[key];              
+              avgpace_s = msg.content[key];
             } else if (key === 'maxpace_m') {
               maxpace_m = msg.content[key];
             } else if (key === 'maxpace_s') {
-              maxpace_s = msg.content[key];                                          
+              maxpace_s = msg.content[key];
             } else if (key === 'row_remaining_time_h') {
               row_remaining_time_h = msg.content[key];
             } else if (key === 'row_remaining_time_m') {
               row_remaining_time_m = msg.content[key];
             } else if (key === 'row_remaining_time_s') {
               row_remaining_time_s = msg.content[key];
-				} else if (key === 'target_pace_h') {
-				  target_pace_h = msg.content[key];
-				} else if (key === 'target_pace_m') {
-				  target_pace_m = msg.content[key];
-				} else if (key === 'target_pace_s') {
-				  target_pace_s = msg.content[key];
+            } else if (key === 'remaining_time_h') {
+              remaining_time_h = msg.content[key];
+            } else if (key === 'remaining_time_m') {
+              remaining_time_m = msg.content[key];
+            } else if (key === 'remaining_time_s') {
+              remaining_time_s = msg.content[key];
+            } else if (key === 'nextrow') {
+              nextrow = msg.content[key];
+                                } else if (key === 'target_pace_h') {
+                                  target_pace_h = msg.content[key];
+                                } else if (key === 'target_pace_m') {
+                                  target_pace_m = msg.content[key];
+                                } else if (key === 'target_pace_s') {
+                                  target_pace_s = msg.content[key];
             } else if (key === 'resistance') {
               resistance = msg.content[key];
             } else if (key === 'resistance_lapavg') {
@@ -756,17 +855,28 @@
             } else if (key === 'peloton_offset') {
               peloton_offset = msg.content[key];
             } else if (key === 'gears') {
-              gears = msg.content[key];              
+              gears = msg.content[key];
+            } else if (key === 'deviceType') {
+              deviceType = msg.content[key];
+            } else if (key === 'TREADMILL_TYPE') {
+              TREADMILL_TYPE = msg.content[key];
             } else if (key === 'peloton_resistance_color') {
-              $('.peloton_resistance-value').css('color', msg.content[key]);
+              $('.pelotonresistance-value').css('color', msg.content[key]);
             } else if (key === 'heart_color') {
               $('.heart-value').css('color', msg.content[key]);
             } else if (key === 'cadence_color') {
               $('.cadence-value').css('color', msg.content[key]);
             } else if (key === 'watts_color') {
-              $('.watt-value').css('color', msg.content[key]);
+              $('.current-watt').css('color', msg.content[key]);
             } else if (key === 'speed_color') {
               $('.speed-value').css('color', msg.content[key]);
+            } else if (key === 'pace_color') {
+              $('.pace-value').css('color', msg.content[key]);
+            } else if (key === 'power_zone_color') {
+              $('.powerzone-current-value').css('color', msg.content[key]);
+            } else if (key === 'target_power_zone_color') {
+                $('.powerzone-target-value').css('color', msg.content[key]);
+                //$('.target-watt').css('color', msg.content[key]); // target watt on the main ui doesn't have a color
             } else if (key === 'peloton_ask_start' && !peloton_ask_already_running && (msg.content[key] === true || msg.content[key] === 'true')) {
               peloton_ask_already_running = true;
               document.getElementById("overlay").hidden = false;
@@ -780,18 +890,42 @@
                 $(".autoresistance").html('⊘')
             }
           }
-          if (tile_target_speed_enabled && target_speed > 0)
+
+          if (tile_target_speed_enabled && target_speed > 0) {
+            $('.speed-avg').hide();
+            $('.speed-avg-title').hide();
+            $('.speed-max').hide();
+            $('.speed-max-title').hide();
+            $('.speed-value').attr('colspan', 5);
+
             $('.speed-value').html("<b>" + speed.toFixed(1) + "/" + target_speed.toFixed(1) + "</b>");
-          else
+          } else {
+            $('.speed-avg').show();
+            $('.speed-avg-title').show();
+            $('.speed-max').show();
+            $('.speed-max-title').show();
+            $('.speed-value').attr('colspan', 0);
+
             $('.speed-value').html("<b>" + speed.toFixed(1) + "</b>");
-          $('.speed-avg').html(speed_lapavg.toFixed(1));
-          $('.speed-max').html(speed_lapmax.toFixed(1));
+          }
+          $('.speed-avg-value').html(speed_lapavg.toFixed(1));
+          $('.speed-max-value').html(speed_lapmax.toFixed(1));
           if (tile_target_inclination_enabled && target_inclination > 0)
             $('.inclination-value').html("<b>" + inclination.toFixed(1) + "/" + target_inclination.toFixed(1) + "</b>");
           else
             $('.inclination-value').html("<b>" + inclination.toFixed(1) + "</b>");
-          $('.inclination-avg').html(inclination_lapavg.toFixed(1));
-          $('.inclination-max').html(inclination_lapmax.toFixed(1));
+          $('.inclination-avg-value').html(inclination_lapavg.toFixed(1));
+          $('.inclination-max-value').html(inclination_lapmax.toFixed(1));
+
+          // Show/hide treadmill-only controls based on device type
+          if (deviceType === TREADMILL_TYPE && TREADMILL_TYPE !== -1) {
+            $('.treadmill-only').show();
+            $('.non-treadmill').hide();
+          } else {
+            $('.treadmill-only').hide();
+            $('.non-treadmill').show();
+          }
+
           $('.elevation-value').html("<b>" + elevation.toFixed(1) + "</b>");
           if (tile_target_cadence_enabled && target_cadence > 0)
             $('.cadence-value').html("<b>" + cadence.toFixed(0) + "/" + target_cadence.toFixed(0) + "</b>");
@@ -802,10 +936,15 @@
           $('.heart-value').html("<b>" + hr.toFixed(0) + "</b>");
           $('.heart-avg').html(hr_lapavg.toFixed(0));
           $('.heart-max').html(hr_lapmax.toFixed(0));
-          if (tile_target_power_enabled && target_power > 0)
-            $('.watt-value').html("<b>" + watt.toFixed(0) + "/" + target_power.toFixed(0) + "</b>");
-          else
-            $('.watt-value').html("<b>" + watt.toFixed(0) + "</b>");
+          if (tile_target_power_enabled && target_power > 0) {
+              $('.current-watt').html("<b>" + watt.toFixed(0) + "</b>");
+              $('.watt-separator').html("/");
+              $('.target-watt').html("<b>" + target_power.toFixed(0) + "</b>");
+          } else {
+              $('.current-watt').html("<b>" + watt.toFixed(0) + "</b>");
+              $('.watt-separator').html("");
+              $('.target-watt').html("");
+          }
           $('.watt-avg').html(watt_lapavg.toFixed(0));
           $('.watt-max').html(watt_lapmax.toFixed(0));
           if (tile_target_resistance_enabled && target_resistance > 0)
@@ -822,16 +961,28 @@
           $('.pelotonresistance-max').html(peloton_resistance_lapmax.toFixed(0));
           $('.distance-value').html("<b>" + odometer.toFixed(2) + "</b>");
           $('.rowremainingtime-value').html("<b>" + row_remaining_time_h.toString().padStart(2, "0") + ":" + row_remaining_time_m.toString().padStart(2, "0") + ":" + row_remaining_time_s.toString().padStart(2, "0") + "</b>");
-          $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0") + "</b>");
+          $('.nextrow-value').html("<b>" + nextrow + "</b>");
+          $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0") + "</b>" + (remaining_time_h > 0 || remaining_time_m > 0 || remaining_time_s > 0 ? " / " + "<b>" + remaining_time_h.toString().padStart(2, "0") + ":" + remaining_time_m.toString().padStart(2, "0") + ":" + remaining_time_s.toString().padStart(2, "0") + "</b>" : ""));
           $('.gears-value').html("<b>" + gears.toFixed(0) + "</b>");
           if(pace_s.toString() === "-1" || (pace_s.toString() === "0" && pace_m.toString() === "0"))
             $('.pace-value').html("<b>N/A</b>");
-			 else {
-			   if(tile_target_pace_enabled && target_pace > 0)
-				   $('.pace-value').html("<b>" + pace_m.toString().padStart(2, "0") + ":" + pace_s.toString().padStart(2, "0") + "/" + target_pace_m.toString().padStart(2, "0") + ":" + target_pace_s.toString().padStart(2, "0") + "</b>");
-					else
-					$('.pace-value').html("<b>" + pace_m.toString().padStart(2, "0") + ":" + pace_s.toString().padStart(2, "0") + "</b>");
-			 }
+          else {
+            if(tile_target_pace_enabled && (target_pace_s.toString() === "-1" || (target_pace_s.toString() === "0" && target_pace_m.toString() === "0"))) {
+              $('.pace-value').html("<b>" + pace_m.toString().padStart(2, "0") + ":" + pace_s.toString().padStart(2, "0") + "</b>");
+              $('.pace-avg').show();
+              $('.pace-avg-title').show();
+              $('.pace-max').show();
+              $('.pace-max-title').show();
+              $('.pace-value').attr('colspan', 0);
+            } else {
+              $('.pace-avg').hide();
+              $('.pace-avg-title').hide();
+              $('.pace-max').hide();
+              $('.pace-max-title').hide();
+              $('.pace-value').attr('colspan', 5);
+              $('.pace-value').html("<b>" + pace_m.toString().padStart(1, "0") + ":" + pace_s.toString().padStart(2, "0") + " / " + target_pace_m.toString().padStart(1, "0") + ":" + target_pace_s.toString().padStart(2, "0") + "</b>");
+            }
+          }
           if(avgpace_s.toString() === "-1" || (avgpace_s.toString() === "0" && avgpace_m.toString() === "0"))
             $('.pace-avg').html("<b>N/A</b>");
           else
@@ -840,14 +991,19 @@
             $('.pace-max').html("<b>N/A</b>");
           else
             $('.pace-max').html("<b>" + maxpace_m.toString().padStart(2, "0") + ":" + maxpace_s.toString().padStart(2, "0") + "</b>");
-          
+
           $('.calories-value').html("<b>" + calories.toFixed(0) + "</b>");
           $('.jouls-value').html("<b>" + jouls.toFixed(1) + "</b>");
           $('.pelotonoffset-value').html(peloton_offset.toFixed(0));
-          if (tile_target_zone_enabled && target_power_zone > 0)
-            $('.powerzone-value').html("<b>" + powerzone.toFixed(1) + "/" + target_power_zone.toFixed(1) + "</b>");
-          else
-            $('.powerzone-value').html("<b>" + powerzone.toFixed(1) + "</b>");
+          if (tile_target_zone_enabled && target_power_zone > 0) {
+            $('.powerzone-current-value').html("<b>" + powerzone.toFixed(1) + "</b>");
+            $('.powerzone-separator').html("/");
+            $('.powerzone-target-value').html("<b>" + target_power_zone.toFixed(1) + "</b>");
+          } else {
+            $('.powerzone-current-value').html("<b>" + powerzone.toFixed(1) + "</b>");
+            $('.powerzone-separator').html("");
+            $('.powerzone-target-value').html("");
+          }
           $('.powerzone-avg').html(powerzone_lapavg.toFixed(1));
           $('.powerzone-max').html(powerzone_lapmax.toFixed(1));
         }
@@ -858,6 +1014,19 @@
       });
     }
     setTimeout(a, 0);
+    
+    // Add global event listeners for any touch/click to enable dragging margins
+    document.addEventListener('click', function(event) {
+      if (typeof Android !== 'undefined' && Android.enableDraggingMargins) {
+        Android.enableDraggingMargins();
+      }
+    });
+    
+    document.addEventListener('touchstart', function(event) {
+      if (typeof Android !== 'undefined' && Android.enableDraggingMargins) {
+        Android.enableDraggingMargins();
+      }
+    });
   </script>
 </body>
 
