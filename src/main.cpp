@@ -657,7 +657,7 @@ int main(int argc, char *argv[]) {
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token")) {
+        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token") && !s.contains("garmin_device_serial") && !s.contains("garmin_email")) {
 
             qDebug() << s << settings.value(s);
         }

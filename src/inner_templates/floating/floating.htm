@@ -39,6 +39,10 @@
       font-size: 24px;
     }
 
+    .treadmill-only {
+      display: none;
+    }
+
     .overlay {
       position: absolute;
       top: 0;
@@ -73,20 +77,24 @@
     <tr class="speed" sort-order="0">
       <td class="icon">🏃</td>
       <td style="text-align: left">SPEED</td>
-      <td class="speed-avg-title"><small>AVG</small></td>
-      <td class="speed-avg">0.0</td>
+      <td class="speed-avg-title"><small class="non-treadmill">AVG</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          onclick="SpeedMinus()">-</button></td>
+      <td class="speed-avg"><span class="speed-avg-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;">AVG</small></span></td>
       <td class="speed-value values"><b>0.0</b></td>
-      <td class="speed-max-title"><small>MAX</small></td>
-      <td class="speed-max">0.0</td>
+      <td class="speed-max-title"><small class="non-treadmill">MAX</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          onclick="SpeedPlus()">+</button></td>
+      <td class="speed-max"><span class="speed-max-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;">MAX</small></span></td>
     </tr>
     <tr class="inclination" sort-order="1">
       <td class="icon">📐</td>
       <td style="text-align: left">INCLINE</td>
-      <td><small>AVG</small></td>
-      <td class="inclination-avg">0.0</td>
+      <td class="inclination-avg-title"><small class="non-treadmill">AVG</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          onclick="InclinationMinus()">-</button></td>
+      <td class="inclination-avg"><span class="inclination-avg-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;">AVG</small></span></td>
       <td class="inclination-value values"><b>0.0</b></td>
-      <td><small>MAX</small></td>
-      <td class="inclination-max">0.0</td>
+      <td class="inclination-max-title"><small class="non-treadmill">MAX</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          onclick="InclinationPlus()">+</button></td>
+      <td class="inclination-max"><span class="inclination-max-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;">MAX</small></span></td>
     </tr>
     <tr class="pace" sort-order="2">
       <td class="icon">🏃</td>
@@ -297,6 +305,62 @@
         msg: 'gears_minus',
       }, function (msg) {
         if (msg.msg === 'R_gears_minus') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function SpeedPlus() {
+      let el = new MainWSQueueElement({
+        msg: 'speed_plus',
+      }, function (msg) {
+        if (msg.msg === 'R_speed_plus') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function SpeedMinus() {
+      let el = new MainWSQueueElement({
+        msg: 'speed_minus',
+      }, function (msg) {
+        if (msg.msg === 'R_speed_minus') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function InclinationPlus() {
+      let el = new MainWSQueueElement({
+        msg: 'inclination_plus',
+      }, function (msg) {
+        if (msg.msg === 'R_inclination_plus') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function InclinationMinus() {
+      let el = new MainWSQueueElement({
+        msg: 'inclination_minus',
+      }, function (msg) {
+        if (msg.msg === 'R_inclination_minus') {
           return msg.content;
         }
         return null;
@@ -611,6 +675,7 @@
         'speed_color', 'pace_color', 'power_zone_color', 'target_power_zone_color', 'cadence_color', 'heart_color', 'watts_color',
         'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
         'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'target_pace_h', 'target_pace_m', 'target_pace_s',
+        'deviceType', 'TREADMILL_TYPE',
         'inclination', 'inclination_lapavg',
         'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls',
         'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance', 'gears', 'elevation', 'pace_s' , 'pace_m',
@@ -673,6 +738,8 @@
           var peloton_offset = 0;
           var gears = 0;
           var nextrow = "";
+          var deviceType = -1;
+          var TREADMILL_TYPE = -1;
 
           for (let key of keys_arr) {
             if (msg.content[key] === undefined || msg.content[key] === null)
@@ -789,6 +856,10 @@
               peloton_offset = msg.content[key];
             } else if (key === 'gears') {
               gears = msg.content[key];
+            } else if (key === 'deviceType') {
+              deviceType = msg.content[key];
+            } else if (key === 'TREADMILL_TYPE') {
+              TREADMILL_TYPE = msg.content[key];
             } else if (key === 'peloton_resistance_color') {
               $('.pelotonresistance-value').css('color', msg.content[key]);
             } else if (key === 'heart_color') {
@@ -837,14 +908,24 @@
 
             $('.speed-value').html("<b>" + speed.toFixed(1) + "</b>");
           }
-          $('.speed-avg').html(speed_lapavg.toFixed(1));
-          $('.speed-max').html(speed_lapmax.toFixed(1));
+          $('.speed-avg-value').html(speed_lapavg.toFixed(1));
+          $('.speed-max-value').html(speed_lapmax.toFixed(1));
           if (tile_target_inclination_enabled && target_inclination > 0)
             $('.inclination-value').html("<b>" + inclination.toFixed(1) + "/" + target_inclination.toFixed(1) + "</b>");
           else
             $('.inclination-value').html("<b>" + inclination.toFixed(1) + "</b>");
-          $('.inclination-avg').html(inclination_lapavg.toFixed(1));
-          $('.inclination-max').html(inclination_lapmax.toFixed(1));
+          $('.inclination-avg-value').html(inclination_lapavg.toFixed(1));
+          $('.inclination-max-value').html(inclination_lapmax.toFixed(1));
+
+          // Show/hide treadmill-only controls based on device type
+          if (deviceType === TREADMILL_TYPE && TREADMILL_TYPE !== -1) {
+            $('.treadmill-only').show();
+            $('.non-treadmill').hide();
+          } else {
+            $('.treadmill-only').hide();
+            $('.non-treadmill').show();
+          }
+
           $('.elevation-value').html("<b>" + elevation.toFixed(1) + "</b>");
           if (tile_target_cadence_enabled && target_cadence > 0)
             $('.cadence-value').html("<b>" + cadence.toFixed(0) + "/" + target_cadence.toFixed(0) + "</b>");
