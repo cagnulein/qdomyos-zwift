@@ -1,4 +1,5 @@
 #include "nordictrackifitadbtreadmill.h"
+#include "homeform.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -13,6 +14,11 @@
 #include <chrono>
 #include <math.h>
 #include <QRegularExpression>
+
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
 
 using namespace std::chrono_literals;
 
@@ -50,6 +56,7 @@ QString nordictrackifitadbtreadmillLogcatAdbThread::runAdbCommand(QString comman
     emit debug("adb << OUT " + out);
     emit debug("adb << ERR" + err);
 #else
+    Q_UNUSED(command);
     QString out;
 #endif
     return out;
@@ -112,7 +119,99 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
     emit debug("adbLogCat >> " + command);
     process->start("adb/adb.exe", QStringList(command.split(' ')));
     process->waitForFinished(-1);
+#else
+    Q_UNUSED(command);
 #endif
+}
+
+nordictrackifitadbtreadmill::DisplayValue nordictrackifitadbtreadmill::extractValue(const QString& ocrText, int imageWidth, bool isLeftSide) {
+    QStringList lines = ocrText.split("§§");
+    QRegularExpression rectRegex("Rect\\((\\d+), (\\d+) - (\\d+), (\\d+)\\)");
+    QRegularExpression numericRegex("^-?\\d+(\\.\\d+)?$");
+
+    DisplayValue result;
+    int minX = isLeftSide ? 0 : imageWidth - 200;
+    int maxX = isLeftSide ? 200 : imageWidth;
+    QStringList targetLabels = isLeftSide ? QStringList{"INCLINE"} : QStringList{"SPEED", "RESISTANCE", "MPH", "KPH"};
+
+    QRect labelRect;
+    int closestDistance = INT_MAX;
+
+    // First pass: find the label
+    for (const QString& line : lines) {
+        QStringList parts = line.split("$$");
+        if (parts.size() == 2) {
+            QString value = parts[0];
+            QRegularExpressionMatch match = rectRegex.match(parts[1]);
+
+            if (match.hasMatch()) {
+                int x1 = match.captured(1).toInt();
+                int x2 = match.captured(3).toInt();
+
+                if (x1 >= minX && x2 <= maxX) {
+                    for (const QString& targetLabel : targetLabels) {
+                        if (value.contains(targetLabel, Qt::CaseInsensitive)) {
+                            labelRect = QRect(x1, match.captured(2).toInt(),
+                                              x2 - x1, match.captured(4).toInt() - match.captured(2).toInt());
+                            result.label = value;
+                            break;
+                        }
+                    }
+                    if (!result.label.isEmpty()) break;
+                }
+            }
+        }
+    }
+
+    // Second pass: find the closest numeric value to the label
+    if (!labelRect.isNull()) {
+        for (const QString& line : lines) {
+            QStringList parts = line.split("$$");
+            if (parts.size() == 2) {
+                QString value = parts[0];
+                QRegularExpressionMatch match = rectRegex.match(parts[1]);
+
+                if (match.hasMatch() && numericRegex.match(value).hasMatch()) {
+                    int x1 = match.captured(1).toInt();
+                    int y1 = match.captured(2).toInt();
+                    int x2 = match.captured(3).toInt();
+                    int y2 = match.captured(4).toInt();
+
+                    QRect valueRect(x1, y1, x2 - x1, y2 - y1);
+
+                    if (x1 >= minX && x2 <= maxX) {
+                        int distance = qAbs(valueRect.center().y() - labelRect.center().y());
+                        if (distance < closestDistance) {
+                            closestDistance = distance;
+                            result.value = value;
+                            result.rect = valueRect;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+void nordictrackifitadbtreadmill::processOCROutput(const QString& ocrText, int imageWidth) {
+    DisplayValue leftValue = extractValue(ocrText, imageWidth, true);
+    DisplayValue rightValue = extractValue(ocrText, imageWidth, false);
+
+    if (!leftValue.value.isEmpty()) {
+        qDebug() << "Left value (" << leftValue.label << "):" << leftValue.value;
+        Inclination = leftValue.label.toDouble();
+    } else {
+        qDebug() << "Left value not found";
+    }
+
+    if (!rightValue.value.isEmpty()) {
+        qDebug() << "Right value (" << rightValue.label << "):" << rightValue.value;
+        Speed = rightValue.label.toDouble();
+    } else {
+        qDebug() << "Right value not found";
+    }
 }
 
 double nordictrackifitadbtreadmill::getDouble(QString v) {
@@ -124,6 +223,7 @@ double nordictrackifitadbtreadmill::getDouble(QString v) {
 }
 
 nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance, bool noHeartService) {
+    lastTimeDataReceived = QDateTime::currentDateTime();
     QSettings settings;
     bool nordictrack_ifit_adb_remote =
         settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
@@ -175,6 +275,20 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
 #endif
 #endif
     }
+
+    // Initialize gRPC service on Android
+#ifdef Q_OS_ANDROID
+    emit debug(QString("Initializing gRPC service..."));
+    initializeGrpcService();
+    emit debug(QString("After initializeGrpcService(), grpcInitialized=%1").arg(grpcInitialized));
+    if (grpcInitialized) {
+        emit debug(QString("Starting gRPC metrics updates and workout state monitoring..."));
+        startGrpcMetricsUpdates();
+        startGrpcWorkoutStateMonitoring();
+    } else {
+        emit debug(QString("gRPC not initialized, skipping metrics and workout state monitoring"));
+    }
+#endif
 
     initRequest = true;
 
@@ -416,8 +530,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
         // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
-        Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+        
 
         lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
@@ -464,9 +577,21 @@ disable_log, bool wait_for_response) { QEventLoop loop; QTimer timeout; if (wait
     loop.exec();
 }
 */
-void nordictrackifitadbtreadmill::forceIncline(double incline) {}
+void nordictrackifitadbtreadmill::forceIncline(double incline) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        setGrpcIncline(incline);
+    }
+#endif
+}
 
-void nordictrackifitadbtreadmill::forceSpeed(double speed) {}
+void nordictrackifitadbtreadmill::forceSpeed(double speed) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        setGrpcSpeed(speed);
+    }
+#endif
+}
 
 void nordictrackifitadbtreadmill::onWatt(double watt) {
     m_watt = watt;
@@ -494,8 +619,7 @@ void nordictrackifitadbtreadmill::onSpeedInclination(double speed, double inclin
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
     // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
-    Distance += ((Speed.value() / 3600000.0) *
-                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+    
 
     
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
@@ -542,7 +666,30 @@ void nordictrackifitadbtreadmill::update() {
     if (requestStart != -1) {
         emit debug(QStringLiteral("starting..."));
 
-        // btinit();
+#ifdef Q_OS_ANDROID
+        // Start or Resume workout via gRPC WorkoutService (only if not originated from gRPC)
+        if (grpcInitialized && requestStartOrigin != ORIGIN_GRPC) {
+            if (isPaused()) {
+                // Resume from pause
+                QAndroidJniObject::callStaticMethod<void>(
+                    "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                    "resumeWorkout",
+                    "()V"
+                );
+                emit debug("Resumed workout via gRPC WorkoutService");
+            } else {
+                // Start new workout
+                QAndroidJniObject::callStaticMethod<void>(
+                    "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                    "startWorkout",
+                    "()V"
+                );
+                emit debug("Started workout via gRPC WorkoutService");
+            }
+        } else if (requestStartOrigin == ORIGIN_GRPC) {
+            emit debug("Skipping gRPC start/resumeWorkout (originated from gRPC event)");
+        }
+#endif
 
         QSettings settings;
         bool nordictrack_ifit_adb_remote =
@@ -568,66 +715,205 @@ void nordictrackifitadbtreadmill::update() {
         }
 
         requestStart = -1;
+        requestStartOrigin = ORIGIN_USER; // Reset to default
         emit tapeStarted();
     }
     if (requestStop != -1) {
         emit debug(QStringLiteral("stopping..."));
 
-        QSettings settings;
-        bool nordictrack_ifit_adb_remote =
-            settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
-                .toBool();
-        bool proform_trainer_9_0 = settings.value(QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0).toBool();
-
-        if (nordictrack_ifit_adb_remote && proform_trainer_9_0) {
-            lastCommand = "input tap 420 350 && sleep 1 && input tap 420 350";
-            qDebug() << " >> " + lastCommand;
 #ifdef Q_OS_ANDROID
-            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
-                                                      "(Ljava/lang/String;)V", command.object<jstring>());
-#elif defined(Q_OS_WIN)
-            if (logcatAdbThread)
-                logcatAdbThread->runCommand("shell " + lastCommand);
-#elif defined Q_OS_IOS
-#ifndef IO_UNDER_QT
-            h->adb_sendcommand(lastCommand.toStdString().c_str());
-#endif
-#endif
+        // Stop workout via gRPC WorkoutService (only if not originated from gRPC)
+        if (grpcInitialized && requestStopOrigin != ORIGIN_GRPC) {
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "stopWorkout",
+                "()V"
+            );
+            emit debug("Stopped workout via gRPC WorkoutService");
+        } else if (requestStopOrigin == ORIGIN_GRPC) {
+            emit debug("Skipping gRPC stopWorkout (originated from gRPC event)");
         }
+#endif
 
-        // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
         requestStop = -1;
+        requestStopOrigin = ORIGIN_USER; // Reset to default
     }
+
     if (requestPause != -1) {
         emit debug(QStringLiteral("pausing..."));
 
-        QSettings settings;
-        bool nordictrack_ifit_adb_remote =
-            settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
-                .toBool();
-        bool proform_trainer_9_0 = settings.value(QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0).toBool();
-
-        if (nordictrack_ifit_adb_remote && proform_trainer_9_0) {
-            // Double tap for pause
-            lastCommand = "input tap 512 350 && sleep 1 && input tap 512 350";
-            qDebug() << " >> " + lastCommand;
 #ifdef Q_OS_ANDROID
-            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
-                                                      "(Ljava/lang/String;)V", command.object<jstring>());
-#elif defined(Q_OS_WIN)
-            if (logcatAdbThread)
-                logcatAdbThread->runCommand("shell " + lastCommand);
-#elif defined Q_OS_IOS
-#ifndef IO_UNDER_QT
-            h->adb_sendcommand(lastCommand.toStdString().c_str());
-#endif
-#endif
+        // Pause workout via gRPC WorkoutService (only if not originated from gRPC)
+        if (grpcInitialized && requestPauseOrigin != ORIGIN_GRPC) {
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "pauseWorkout",
+                "()V"
+            );
+            emit debug("Paused workout via gRPC WorkoutService");
+        } else if (requestPauseOrigin == ORIGIN_GRPC) {
+            emit debug("Skipping gRPC pauseWorkout (originated from gRPC event)");
         }
+#endif
 
         requestPause = -1;
+        requestPauseOrigin = ORIGIN_USER; // Reset to default
     }
+
+#ifdef Q_OS_ANDROID
+    // Use gRPC to fetch current metrics instead of OCR
+    if (grpcInitialized) {
+        double currentSpeed = getGrpcSpeed();
+        double currentIncline = getGrpcIncline();
+        double currentWatts = getGrpcWatts();
+        double currentCadence = getGrpcCadence();
+        int currentFanSpeed = getGrpcFanSpeed();
+        
+        // Update the metrics if they've changed
+        if (currentSpeed != Speed.value()) {
+            Speed = currentSpeed;
+            emit debug(QString("gRPC Speed: %1").arg(currentSpeed));
+        }
+        
+        if (currentIncline != Inclination.value()) {
+            Inclination = currentIncline;
+            emit debug(QString("gRPC Incline: %1").arg(currentIncline));
+        }
+        
+        if (currentWatts != m_watt.value() && currentWatts > 0) {
+            m_watt = currentWatts;
+            wattReadFromTM = true;
+            emit debug(QString("gRPC Watts: %1").arg(currentWatts));
+        }
+        
+        if (currentCadence != Cadence.value() && currentCadence > 0) {
+            Cadence = currentCadence;
+            cadenceReadFromTM = true;
+            emit debug(QString("gRPC Cadence: %1").arg(currentCadence));
+        }
+        
+        if (currentFanSpeed != FanSpeed) {
+            FanSpeed = currentFanSpeed;
+            emit debug(QString("gRPC Fan Speed: %1").arg(currentFanSpeed));
+        }
+
+        if (!firstDataReceived) {
+            Distance += ((Speed.value() / (double)3600.0) /
+                        ((double)1000.0 / (double)(lastTimeDataReceived.msecsTo(QDateTime::currentDateTime()))));
+        }
+        lastTimeDataReceived = QDateTime::currentDateTime();
+        firstDataReceived = false;
+
+        // Read heart rate from gRPC if heart rate belt is disabled
+        QString heartRateBeltName = settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+        bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
+            double currentHeartRate = getGrpcHeartRate();
+            if (currentHeartRate > 0 && currentHeartRate != Heart.value()) {
+                Heart = currentHeartRate;
+                emit debug(QString("gRPC Heart Rate: %1").arg(currentHeartRate));
+            }
+        }
+
+        if (requestInclination != -100) {
+            setGrpcIncline(requestInclination);
+            requestInclination = -100;
+        }
+
+        if (requestSpeed != -1) {
+            setGrpcSpeed(requestSpeed);
+            requestSpeed = -1;
+        }
+
+        // Monitor workout state changes from iFit app
+        // Get next state transition from queue (returns null if queue empty)
+        QAndroidJniEnvironment env;
+        QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getNextWorkoutStateChange",
+            "()[I"
+        );
+
+        if (result.isValid() && result.object() != nullptr) {
+            jintArray javaArray = static_cast<jintArray>(result.object());
+            jint* states = env->GetIntArrayElements(javaArray, nullptr);
+
+            if (states != nullptr) {
+                int previousState = states[0];
+                int currentWorkoutState = states[1];
+                env->ReleaseIntArrayElements(javaArray, states, JNI_ABORT);
+
+                emit debug(QString("Workout state changed: %1 -> %2").arg(previousState).arg(currentWorkoutState));
+
+                // WORKOUT_STATE_IDLE = 1
+                // WORKOUT_STATE_RUNNING = 3
+                // WORKOUT_STATE_PAUSED = 4
+                // WORKOUT_STATE_RESULTS = 5
+
+                // If workout started (IDLE/PAUSED -> RUNNING)
+                if (currentWorkoutState == 3 && (previousState == 1 || previousState == 4)) {
+                    emit debug("Workout started in iFit app - auto-starting QZ recording");
+                    if (homeform::singleton()) {
+                        const bool qzPausedOrStopped = isPaused();
+                        // If starting from IDLE and QZ is on complete screen (stopped), close it first
+                        if (previousState == 1 && qzPausedOrStopped) {
+                            emit debug("Closing complete screen before starting new workout");
+                            emit homeform::singleton()->closeCompleteScreenRequested();
+                        }
+
+                        // Only call Start() if QZ is not already running (to avoid toggling pause)
+                        if (qzPausedOrStopped) {
+                            requestStartOrigin = ORIGIN_GRPC;
+                            requestStopOrigin = ORIGIN_GRPC;
+                            requestPauseOrigin = ORIGIN_GRPC;
+                            homeform::singleton()->Start();
+                        } else {
+                            emit debug("QZ already running, not calling Start() again");
+                        }
+                    }
+                }
+                // If workout stopped/completed (any state -> RESULTS or PAUSED/RUNNING/RESULTS -> IDLE)
+                else if (currentWorkoutState == 5 ||
+                         (currentWorkoutState == 1 && (previousState == 3 || previousState == 4 || previousState == 5))) {
+                    emit debug("Workout completed in iFit app - showing workout complete screen");
+                    if (homeform::singleton()) {
+                        requestStopOrigin = ORIGIN_GRPC;
+                        homeform::singleton()->StopRequested();
+                    }
+                }
+                // If workout paused (RUNNING -> PAUSED)
+                else if (currentWorkoutState == 4 && previousState == 3) {
+                    emit debug("Workout paused in iFit app - auto-pausing QZ recording");
+                    if (homeform::singleton()) {
+                        requestStopOrigin = ORIGIN_GRPC;
+                        requestPauseOrigin = ORIGIN_GRPC;
+                        homeform::singleton()->Start();
+                    }
+                }
+
+                previousWorkoutState = currentWorkoutState;
+            }
+        }
+    } else {
+        // Fallback to OCR if gRPC is not available
+        QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
+            "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
+        QString t = text.toString();
+        QAndroidJniObject textExtended = QAndroidJniObject::callStaticObjectMethod<jstring>(
+            "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastTextExtended");
+        QString tt = textExtended.toString();
+        jint w = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                                                           "getImageWidth", "()I");
+        QString tExtended = textExtended.toString();
+        QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
+            "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
+        QString packageName = packageNameJava.toString();
+
+        qDebug() << QStringLiteral("OCR") << packageName << tt;
+        processOCROutput(tt, w);
+    }
+#endif
 }
 
 void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, double percentage) {
@@ -640,6 +926,14 @@ void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, doubl
 bool nordictrackifitadbtreadmill::connected() { return true; }
 
 bool nordictrackifitadbtreadmill::canStartStop() {
+#ifdef Q_OS_ANDROID
+    // Support gRPC-based workout control
+    if (grpcInitialized) {
+        return true;
+    }
+#endif
+
+    // Fallback to remote control for ProForm Trainer 9.0
     QSettings settings;
     bool nordictrack_ifit_adb_remote =
         settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
@@ -649,6 +943,11 @@ bool nordictrackifitadbtreadmill::canStartStop() {
 
 void nordictrackifitadbtreadmill::stopLogcatAdbThread() {
     qDebug() << "stopLogcatAdbThread()";
+    
+#ifdef Q_OS_ANDROID
+    // Stop gRPC metrics updates
+    stopGrpcMetricsUpdates();
+#endif
     
 #ifdef Q_OS_WIN32
     initiateThreadStop();
@@ -832,4 +1131,253 @@ int nordictrackifitadbtreadmill::proform_trainer_9_0_inclination_lookuptable(dou
     else if (reqInclination == 9.5) { y2 = 203; }
     else if (reqInclination == 10.0) { y2 = 190; }
     return y2;
+}
+
+// gRPC integration methods implementation
+void nordictrackifitadbtreadmill::initializeGrpcService() {
+#ifdef Q_OS_ANDROID
+    if (!grpcInitialized) {
+        try {
+            QSettings settings;
+            QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+            
+            // Set Android context first
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "setContext",
+                "(Landroid/content/Context;)V",
+                QtAndroid::androidContext().object()
+            );
+            
+            // Now initialize the service with the host IP
+            QAndroidJniObject hostObj = QAndroidJniObject::fromString(ip);
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "initialize",
+                "(Ljava/lang/String;)V",
+                hostObj.object<jstring>()
+            );
+            grpcInitialized = true;
+            emit debug("gRPC service initialized successfully with host: " + ip);
+        } catch (...) {
+            emit debug("Failed to initialize gRPC service");
+            grpcInitialized = false;
+        }
+    }
+#endif
+}
+
+void nordictrackifitadbtreadmill::startGrpcMetricsUpdates() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "startMetricsUpdates",
+            "()V"
+        );
+        emit debug("Started gRPC metrics updates");
+    }
+#endif
+}
+
+void nordictrackifitadbtreadmill::stopGrpcMetricsUpdates() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "stopMetricsUpdates",
+            "()V"
+        );
+        emit debug("Stopped gRPC metrics updates");
+    }
+#endif
+}
+
+double nordictrackifitadbtreadmill::getGrpcSpeed() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        return QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentSpeed",
+            "()D"
+        );
+    }
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbtreadmill::getGrpcIncline() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        return QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentIncline",
+            "()D"
+        );
+    }
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbtreadmill::getGrpcWatts() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        return QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentWatts",
+            "()D"
+        );
+    }
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbtreadmill::getGrpcCadence() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        return QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentCadence",
+            "()D"
+        );
+    }
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbtreadmill::getGrpcHeartRate() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        return QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentHeartRate",
+            "()D"
+        );
+    }
+#endif
+    return 0.0;
+}
+
+void nordictrackifitadbtreadmill::setGrpcSpeed(double speed) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "adjustSpeed",
+            "(D)V",
+            speed - Speed.value()
+        );
+        emit debug(QString("Set gRPC speed to: %1").arg(speed));
+    }
+#endif
+}
+
+void nordictrackifitadbtreadmill::setGrpcIncline(double incline) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "adjustIncline",
+            "(D)V",
+            incline - Inclination.value()
+        );
+        emit debug(QString("Set gRPC incline to: %1").arg(incline));
+    }
+#endif
+}
+
+void nordictrackifitadbtreadmill::startGrpcWorkoutStateMonitoring() {
+#ifdef Q_OS_ANDROID
+    emit debug(QString("startGrpcWorkoutStateMonitoring() called, grpcInitialized=%1").arg(grpcInitialized));
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "startWorkoutStateMonitoring",
+            "()V"
+        );
+        emit debug(QString("Started gRPC workout state monitoring"));
+
+        // Synchronize QZ with current iFit workout state
+        int initialState = getGrpcWorkoutState();
+        emit debug(QString("Initial workout state at startup: %1").arg(initialState));
+
+        if (initialState == 3) { // RUNNING
+            emit debug("iFit workout already running - QZ already started by default, no action needed");
+        } else if (initialState == 4) { // PAUSED
+            emit debug("iFit workout paused - auto-pausing QZ recording");
+            if (homeform::singleton()) {
+                requestPauseOrigin = ORIGIN_GRPC;
+                homeform::singleton()->Start(); // This will pause since QZ is already running
+            }
+        } else if (initialState == 1 || initialState == 5) { // IDLE or RESULTS
+            emit debug("iFit workout stopped/idle - auto-stopping QZ recording");
+            if (homeform::singleton()) {
+                requestStopOrigin = ORIGIN_GRPC;
+                homeform::singleton()->Stop();
+            }
+        }
+
+        // Update previous state to avoid triggering false transitions
+        previousWorkoutState = initialState;
+    } else {
+        emit debug(QString("Cannot start workout state monitoring: gRPC not initialized"));
+    }
+#endif
+}
+
+int nordictrackifitadbtreadmill::getGrpcWorkoutState() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        return QAndroidJniObject::callStaticMethod<jint>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getWorkoutState",
+            "()I"
+        );
+    }
+#endif
+    return 1; // WORKOUT_STATE_IDLE
+}
+
+bool nordictrackifitadbtreadmill::changeFanSpeed(uint8_t speed) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        setGrpcFanSpeed(static_cast<int>(speed));
+        FanSpeed = speed;
+        emit debug(QString("changeFanSpeed: Set fan speed to %1 via gRPC").arg(speed));
+        return true;
+    } else {
+        emit debug(QString("changeFanSpeed: Fan speed request %1 (gRPC not available)").arg(speed));
+        return false;
+    }
+#else
+    emit debug(QString("changeFanSpeed: Fan speed request %1 (Android gRPC not available)").arg(speed));
+    return false;
+#endif
+}
+
+void nordictrackifitadbtreadmill::setGrpcFanSpeed(int fanSpeed) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "setFanSpeed",
+            "(I)V",
+            fanSpeed
+        );
+        emit debug(QString("Set gRPC fan speed to: %1").arg(fanSpeed));
+    }
+#endif
+}
+
+int nordictrackifitadbtreadmill::getGrpcFanSpeed() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        return QAndroidJniObject::callStaticMethod<jint>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentFanSpeed",
+            "()I"
+        );
+    }
+#endif
+    return 0;
 }

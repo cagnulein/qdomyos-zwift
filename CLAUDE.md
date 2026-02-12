@@ -289,7 +289,7 @@ const QString QZSettings::proform_treadmill_newmodel = QStringLiteral("proform_t
 ```qml
 property bool proform_treadmill_newmodel: false
 ```
-
+ 
 2. Update ComboBox model array:
 ```qml
 model: ["Disabled", "Proform New Model", ...]
@@ -469,5 +469,7 @@ These are typically updated via Xcode IDE rather than manually editing files.
 
 ## Additional Memories
 
-- When adding a new setting in QML (setting-tiles.qml), you must:
-  * Add the property at the END of the properties list
+- When adding a new setting in QML (settings.qml), you must:
+  * Add the property at the END of the properties list (before the closing brace)
+  * NEVER add properties in the middle of the properties list
+  * This applies to ALL QML settings properties, not just setting-tiles.qml  
