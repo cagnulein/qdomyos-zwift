@@ -22,6 +22,65 @@ ColumnLayout {
     }
 
     property var selectedFileUrl: ""
+    property bool isSearching: false
+
+    // JavaScript functions for recursive file search
+    function searchRecursively(folderUrl, filter) {
+        searchResultsModel.clear()
+        isSearching = true
+        var searchPattern = filter.toLowerCase()
+        recursiveSearch(folderUrl, searchPattern)
+    }
+
+    function recursiveSearch(folderUrl, pattern) {
+        var tempModel = Qt.createQmlObject('import Qt.labs.folderlistmodel 2.15; FolderListModel {}', stackView)
+        tempModel.folder = folderUrl
+        tempModel.nameFilters = ["*.xml", "*.zwo"]
+        tempModel.showDirs = true
+        tempModel.showDotAndDotDot = false
+
+        // Wait for model to populate
+        var maxWait = 100
+        var waited = 0
+        while (tempModel.count === 0 && waited < maxWait) {
+            waited++
+        }
+
+        for (var i = 0; i < tempModel.count; i++) {
+            var isFolder = tempModel.isFolder(i)
+            var fileName = tempModel.get(i, "fileName")
+            var fileUrl = tempModel.get(i, "fileUrl") || tempModel.get(i, "fileURL")
+
+            if (isFolder) {
+                // Recursively search subdirectories
+                recursiveSearch(fileUrl, pattern)
+            } else {
+                // Check if file matches pattern
+                if (fileName.toLowerCase().indexOf(pattern) !== -1) {
+                    // Get relative path from base training folder
+                    var baseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
+                    var relativePath = fileUrl.toString().replace(baseFolder, "")
+                    if (relativePath.startsWith("/")) {
+                        relativePath = relativePath.substring(1)
+                    }
+
+                    searchResultsModel.append({
+                        "fileName": fileName,
+                        "fileUrl": fileUrl,
+                        "relativePath": relativePath,
+                        "isFolder": false
+                    })
+                }
+            }
+        }
+
+        tempModel.destroy()
+    }
+
+    // Model for search results
+    ListModel {
+        id: searchResultsModel
+    }
 
     Loader {
         id: fileDialogLoader
@@ -79,21 +138,36 @@ ColumnLayout {
                     TextField {
                         id: filterField
                         Layout.fillWidth: true
+                        placeholderText: "Search (recursive)..."
 
                         function updateFilter() {
-                            var text = filterField.text
-                            var filter = "*"
-                            for(var i = 0; i<text.length; i++)
-                               filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
-                            filter+="*"
-                            folderModel.nameFilters = [filter + ".zwo", filter + ".xml"]
+                            var text = filterField.text.trim()
+
+                            if (text === "") {
+                                // No filter - use normal folder browsing
+                                isSearching = false
+                            } else {
+                                // Trigger recursive search
+                                var baseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
+                                searchRecursively(baseFolder, text)
+                            }
                         }
 
-                        onTextChanged: updateFilter()
+                        onTextChanged: {
+                            searchTimer.restart()
+                        }
+
+                        Timer {
+                            id: searchTimer
+                            interval: 300
+                            repeat: false
+                            onTriggered: filterField.updateFilter()
+                        }
                     }
 
                     Button {
                         text: "←"
+                        visible: !isSearching
                         onClicked: folderModel.folder = folderModel.parentFolder
                     }
                 }
@@ -114,13 +188,18 @@ ColumnLayout {
                         showDirsFirst: true
                     }
 
-                    model: folderModel
+                    model: isSearching ? searchResultsModel : folderModel
 
                     delegate: Component {
                         Rectangle {
                             width: ListView.view.width
                             height: 50
                             color: ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor
+
+                            property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
+                            property string itemFileName: isSearching ? model.fileName : folderModel.get(index, "fileName")
+                            property string itemFileUrl: isSearching ? model.fileUrl : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL'))
+                            property string itemRelativePath: isSearching ? model.relativePath : ""
 
                             RowLayout {
                                 anchors.fill: parent
@@ -129,19 +208,33 @@ ColumnLayout {
 
                                 Text {
                                     id: fileIcon
-                                    text: folderModel.isFolder(index) ? "📁" : "📄"
+                                    text: isItemFolder ? "📁" : "📄"
                                     font.pixelSize: 24
                                 }
 
-                                Text {
-                                    id: fileName
+                                ColumnLayout {
                                     Layout.fillWidth: true
-                                    text: !folderModel.isFolder(index) ?
-                                          folderModel.get(index, "fileName").substring(0, folderModel.get(index, "fileName").length-4) :
-                                          folderModel.get(index, "fileName")
-                                    color: folderModel.isFolder(index) ? Material.color(Material.Orange) : "white"
-                                    font.pixelSize: 16
-                                    elide: Text.ElideRight
+                                    spacing: 2
+
+                                    Text {
+                                        id: fileName
+                                        Layout.fillWidth: true
+                                        text: !isItemFolder ?
+                                              itemFileName.substring(0, itemFileName.length-4) :
+                                              itemFileName
+                                        color: isItemFolder ? Material.color(Material.Orange) : "white"
+                                        font.pixelSize: 16
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: itemRelativePath
+                                        color: Material.color(Material.Grey)
+                                        font.pixelSize: 12
+                                        elide: Text.ElideMiddle
+                                        visible: isSearching && itemRelativePath !== ""
+                                    }
                                 }
 
                                 Text {
@@ -156,16 +249,17 @@ ColumnLayout {
                                 anchors.fill: parent
                                 onClicked: {
                                     list.currentIndex = index
-                                    let fileUrl = folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL');
 
-                                    if (folderModel.isFolder(index)) {
-                                        // Navigate to folder
-                                        folderModel.folder = fileUrl
-                                    } else if (fileUrl) {
+                                    if (isItemFolder) {
+                                        // Navigate to folder (only in browse mode)
+                                        if (!isSearching) {
+                                            folderModel.folder = itemFileUrl
+                                        }
+                                    } else if (itemFileUrl) {
                                         // Load preview and show detail view
-                                        console.log('Loading preview for: ' + fileUrl);
-                                        trainprogram_preview(fileUrl)
-                                        pendingWorkoutUrl = fileUrl
+                                        console.log('Loading preview for: ' + itemFileUrl);
+                                        trainprogram_preview(itemFileUrl)
+                                        pendingWorkoutUrl = itemFileUrl
 
                                         // Wait for preview to load then push detail view
                                         detailViewTimer.restart()
