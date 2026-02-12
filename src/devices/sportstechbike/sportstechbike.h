@@ -59,6 +59,7 @@ class sportstechbike : public bike {
     bool noHeartService = false;
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
+    bool isAF7019 = false;
 
     uint8_t firstVirtualBike = 0;
     bool firstCharChanged = true;
