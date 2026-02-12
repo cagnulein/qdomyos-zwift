@@ -11,9 +11,12 @@ brew install qt@5
 
 PATH="/usr/local/opt/qt@5/bin:$PATH"
 
+# Get Qt installation path dynamically
+QT_PATH=$(brew --prefix qt@5)
+
 ls -ltr /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS17.0.sdk/System/Library/Frameworks/OpenGL.framework/Headers
 
-cd /Volumes/workspace/repository/src/qthttpserver 
+cd /Volumes/workspace/repository/src/qthttpserver
 qmake
 make -j8
 make install
@@ -23,14 +26,16 @@ qmake -spec macx-ios-clang CONFIG+=iphoneos CONFIG+=device CONFIG+=qml_debug -af
 #make -j8
 #make install
 
-mkdir /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer
-mkdir /usr/local/Cellar/qt@5/5.15.10_1/include/QtSslServer
-cp -a /usr/local/Cellar/qt@5/5.15.10_1/lib/QtHttpServer.framework/Versions/5/Headers/* /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer/
-cp -a /usr/local/Cellar/qt@5/5.15.10_1/lib/QtSslServer.framework/Versions/5/Headers/* /usr/local/Cellar/qt@5/5.15.10_1/include/QtSslServer/
+mkdir -p "$QT_PATH/include/QtHttpServer"
+mkdir -p "$QT_PATH/include/QtSslServer"
+cp -a "$QT_PATH/lib/QtHttpServer.framework/Versions/5/Headers/"* "$QT_PATH/include/QtHttpServer/"
+cp -a "$QT_PATH/lib/QtSslServer.framework/Versions/5/Headers/"* "$QT_PATH/include/QtSslServer/"
 
-ls -ltr /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer/
+ls -ltr "$QT_PATH/include/QtHttpServer/"
 
+# Restore the good Xcode project and workspace settings from repository (after qmake overwrites them)
 git checkout -- /Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
+git checkout -- /Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.xcworkspace/xcshareddata/
 
 #sed -i '' 's|/Users/cagnulein/qdomyos-zwift|..|g' /Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
 #add "" for folder qt@5
