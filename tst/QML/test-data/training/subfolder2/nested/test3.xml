@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workout>
+    <name>Test Workout 3</name>
+    <description>Test workout in nested subfolder</description>
+</workout>
