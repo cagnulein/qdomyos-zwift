@@ -334,9 +334,10 @@ ColumnLayout {
 
                         // When using search results, access roles via modelData or explicit model object
                         // Note: We can't use direct role names because Text id="fileName" conflicts!
+                        // IMPORTANT: model.fileUrl is auto-converted to URL object by QML, must use .toString()!
                         property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
                         property string itemFileName: isSearching ? model.fileName : folderModel.get(index, "fileName")
-                        property string itemFileUrl: isSearching ? model.fileUrl : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL'))
+                        property string itemFileUrl: isSearching ? model.fileUrl.toString() : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL'))
                         property string itemRelativePath: isSearching ? model.relativePath : ""
 
                         RowLayout {
