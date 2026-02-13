@@ -76,6 +76,28 @@ ColumnLayout {
         processorLoader.active = true
     }
 
+    // Timer to check when FolderListModel is ready after folder change
+    Timer {
+        id: statusCheckTimer
+        interval: 50
+        repeat: true
+        onTriggered: {
+            if (!waitingForModelReload) {
+                stop()
+                return
+            }
+
+            console.log("Checking model status:", mainFolderModel.status, "count:", mainFolderModel.count)
+
+            if (mainFolderModel.status === FolderListModel.Ready) {
+                console.log("Model is ready! Processing folder contents, count:", mainFolderModel.count)
+                stop()
+                waitingForModelReload = false
+                processFolderContents()
+            }
+        }
+    }
+
     // Loader for temporary processor ListView
     Loader {
         id: processorLoader
