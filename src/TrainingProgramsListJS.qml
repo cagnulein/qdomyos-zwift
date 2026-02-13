@@ -255,93 +255,12 @@ ColumnLayout {
                 }
 
                 // WebView con grafico
+                // Preview data is now loaded via WebSocket, no runJavaScript needed
                 WebView {
                     id: previewWebView
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
-
-                    Component.onCompleted: {
-                        // Update workout after a short delay to ensure data is loaded
-                        updateTimer.restart()
-                    }
-
-                    Timer {
-                        id: updateTimer
-                        interval: 400
-                        repeat: false
-                        onTriggered: previewWebView.updateWorkout()
-                    }
-
-                    function updateWorkout() {
-                        if (!rootItem.preview_workout_points) return;
-
-                        // Build arrays for the workout data
-                        var watts = [];
-                        var speed = [];
-                        var inclination = [];
-                        var resistance = [];
-                        var cadence = [];
-
-                        var hasWatts = false;
-                        var hasSpeed = false;
-                        var hasInclination = false;
-                        var hasResistance = false;
-                        var hasCadence = false;
-
-                        for (var i = 0; i < rootItem.preview_workout_points; i++) {
-                            if (rootItem.preview_workout_watt && rootItem.preview_workout_watt[i] !== undefined && rootItem.preview_workout_watt[i] > 0) {
-                                watts.push({ x: i, y: rootItem.preview_workout_watt[i] });
-                                hasWatts = true;
-                            }
-                            if (rootItem.preview_workout_speed && rootItem.preview_workout_speed[i] !== undefined && rootItem.preview_workout_speed[i] > 0) {
-                                speed.push({ x: i, y: rootItem.preview_workout_speed[i] });
-                                hasSpeed = true;
-                            }
-                            if (rootItem.preview_workout_inclination && rootItem.preview_workout_inclination[i] !== undefined && rootItem.preview_workout_inclination[i] > -200) {
-                                inclination.push({ x: i, y: rootItem.preview_workout_inclination[i] });
-                                hasInclination = true;
-                            }
-                            if (rootItem.preview_workout_resistance && rootItem.preview_workout_resistance[i] !== undefined && rootItem.preview_workout_resistance[i] >= 0) {
-                                resistance.push({ x: i, y: rootItem.preview_workout_resistance[i] });
-                                hasResistance = true;
-                            }
-                            if (rootItem.preview_workout_cadence && rootItem.preview_workout_cadence[i] !== undefined && rootItem.preview_workout_cadence[i] > 0) {
-                                cadence.push({ x: i, y: rootItem.preview_workout_cadence[i] });
-                                hasCadence = true;
-                            }
-                        }
-
-                        // Determine device type based on available data
-                        var deviceType = 'bike'; // default
-
-                        // Priority 1: If has resistance, it's a bike (regardless of inclination)
-                        if (hasResistance) {
-                            deviceType = 'bike';
-                        }
-                        // Priority 2: If has speed or inclination (without resistance), it's a treadmill
-                        else if (hasSpeed || hasInclination) {
-                            deviceType = 'treadmill';
-                        }
-                        // Priority 3: If has power or cadence (bike metrics), it's a bike
-                        else if (hasWatts || hasCadence) {
-                            deviceType = 'bike';
-                        }
-
-                        // Call JavaScript function in the WebView
-                        var data = {
-                            points: rootItem.preview_workout_points,
-                            watts: watts,
-                            speed: speed,
-                            inclination: inclination,
-                            resistance: resistance,
-                            cadence: cadence,
-                            deviceType: deviceType,
-                            miles_unit: settings.value("miles_unit", false)
-                        };
-
-                        runJavaScript("if(window.setWorkoutData) window.setWorkoutData(" + JSON.stringify(data) + ");");
-                    }
                 }
             }
         }
