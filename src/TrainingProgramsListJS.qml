@@ -65,8 +65,9 @@ ColumnLayout {
         console.log("Searching folder:", folderUrl, "- remaining:", foldersToSearch.length)
 
         // Use main folderModel - change its folder temporarily
-        // onStatusChanged will trigger processing when ready
+        // Start polling timer to detect when model is ready
         waitingForModelReload = true
+        statusCheckTimer.restart()
         mainFolderModel.folder = folderUrl
     }
 
