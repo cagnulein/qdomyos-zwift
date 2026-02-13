@@ -53,6 +53,7 @@ ColumnLayout {
 
     function searchNextFolderUsingMain() {
         if (foldersToSearch.length === 0) {
+            console.log("Search complete, restoring folder")
             // Restore original folder
             isSearching = true  // Keep search mode active while restoring
             waitingForModelReload = false  // Don't process when restoring
@@ -61,6 +62,7 @@ ColumnLayout {
         }
 
         var folderUrl = foldersToSearch.shift()
+        console.log("Searching folder:", folderUrl, "- remaining:", foldersToSearch.length)
 
         // Use main folderModel - change its folder temporarily
         // onStatusChanged will trigger processing when ready
@@ -97,12 +99,15 @@ ColumnLayout {
                         var itemFileName = fileName
                         var itemFileUrl = fileURL
 
+                        console.log("Processing item", index, "/", count, ":", itemFileName, "isFolder:", itemIsFolder)
+
                         if (itemIsFolder) {
                             foldersToSearch.push(itemFileUrl)
                         } else {
                             var matches = itemFileName.toLowerCase().indexOf(currentSearchPattern) !== -1
 
                             if (matches) {
+                                console.log("MATCH found:", itemFileName)
                                 var trainingBaseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
                                 var relativePath = itemFileUrl.toString().replace(trainingBaseFolder, "")
                                 if (relativePath.startsWith("/")) {
@@ -120,6 +125,7 @@ ColumnLayout {
 
                         // When all items processed, continue to next folder
                         if (index === count - 1) {
+                            console.log("Last item processed, moving to next folder")
                             // Unload processor and continue
                             processorLoader.active = false
                             // Use Qt.callLater to avoid re-entrancy issues
@@ -246,8 +252,10 @@ ColumnLayout {
                         }
 
                         onStatusChanged: {
+                            console.log("FolderListModel status changed:", status, "waiting:", waitingForModelReload, "count:", count)
                             // When searching and model is ready, process contents immediately
                             if (waitingForModelReload && status === FolderListModel.Ready) {
+                                console.log("Processing folder contents, count:", count)
                                 waitingForModelReload = false
                                 processFolderContents()
                             }
