@@ -32,10 +32,6 @@ ColumnLayout {
     // On iOS, dynamically created FolderListModels don't work in sandboxed environment
     // So we temporarily hijack the main folderModel for searching
     function searchRecursively(folderUrl, filter) {
-        console.log("=== SEARCH STARTED (iOS WORKAROUND) ===")
-        console.log("Search folder:", folderUrl)
-        console.log("Search filter:", filter)
-
         if (!mainFolderModel) {
             console.log("ERROR: mainFolderModel not set yet!")
             return
@@ -45,7 +41,6 @@ ColumnLayout {
 
         // Save current folder to restore later
         savedFolderUrl = mainFolderModel.folder
-        console.log("Saved original folder:", savedFolderUrl)
 
         isSearching = true
         currentSearchPattern = filter.toLowerCase()
@@ -57,30 +52,21 @@ ColumnLayout {
 
     function searchNextFolderUsingMain() {
         if (foldersToSearch.length === 0) {
-            console.log("=== SEARCH COMPLETED ===")
-            console.log("Total results found:", searchResultsModel.count)
-
             // Restore original folder
-            console.log("Restoring folder to:", savedFolderUrl)
             mainFolderModel.folder = savedFolderUrl
             return
         }
 
         var folderUrl = foldersToSearch.shift()
-        console.log("Processing folder:", folderUrl, "(remaining:", foldersToSearch.length, ")")
 
         // Use main folderModel - change its folder temporarily
         mainFolderModel.folder = folderUrl
-        console.log("Changed folderModel to:", mainFolderModel.folder)
 
         // Start timer to process after model reloads
         searchFolderTimer.restart()
     }
 
     function processFolderContents() {
-        console.log("Processing folder contents, count:", mainFolderModel.count)
-        console.log("Current folder:", mainFolderModel.folder)
-
         // WORKAROUND: Build fileURL manually since we can't use .get() on FolderListModel
         // We'll create a temporary ListView delegate to access the roles
         processorLoader.active = true
@@ -181,7 +167,6 @@ ColumnLayout {
                 visible: true
                 onAccepted: {
                     var chosenFile = fileDialog.fileUrl || fileDialog.file || (fileDialog.fileUrls && fileDialog.fileUrls.length > 0 ? fileDialog.fileUrls[0] : "")
-                    console.log("You chose: " + chosenFile)
                     selectedFileUrl = chosenFile
                     if(OS_VERSION === "Android") {
                         trainprogram_open_other_folder(chosenFile)
@@ -192,7 +177,6 @@ ColumnLayout {
                     fileDialogLoader.active = false
                 }
                 onRejected: {
-                    console.log("Canceled")
                     close()
                     fileDialogLoader.active = false
                 }
@@ -231,19 +215,12 @@ ColumnLayout {
                         function updateFilter() {
                             var text = filterField.text.trim()
 
-                            console.log("=== FILTER UPDATED ===")
-                            console.log("Filter text:", "'" + text + "'")
-                            console.log("Text length:", text.length)
-
                             if (text === "") {
-                                console.log("Empty filter - switching to folder browsing mode")
                                 // No filter - use normal folder browsing
                                 isSearching = false
                             } else {
-                                console.log("Non-empty filter - triggering recursive search")
                                 // Trigger recursive search
                                 var baseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
-                                console.log("Base folder:", baseFolder)
                                 searchRecursively(baseFolder, text)
                             }
                         }
@@ -285,22 +262,11 @@ ColumnLayout {
                         Component.onCompleted: {
                             // Set reference for search functions (iOS workaround)
                             mainFolderModel = folderModel
-                            console.log("mainFolderModel reference set")
-                        }
-
-                        onCountChanged: {
-                            console.log("FolderListModel count changed:", count)
                         }
                     }
 
                     model: isSearching ? searchResultsModel : folderModel
 
-                    onModelChanged: {
-                        console.log("=== ListView MODEL CHANGED ===")
-                        console.log("isSearching:", isSearching)
-                        console.log("Using model:", isSearching ? "searchResultsModel" : "folderModel")
-                        console.log("Model count:", model.count)
-                    }
 
                     delegate: Rectangle {
                         width: ListView.view.width
