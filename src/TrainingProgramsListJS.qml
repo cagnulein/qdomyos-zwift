@@ -79,24 +79,82 @@ ColumnLayout {
 
     function processFolderContents() {
         console.log("Processing folder contents, count:", mainFolderModel.count)
+        console.log("Current folder:", mainFolderModel.folder)
 
-        // Use Repeater to iterate over FolderListModel
-        // (FolderListModel doesn't support .get() method!)
-        folderRepeater.model = mainFolderModel
-
-        // Wait for Repeater to instantiate all delegates
-        // Then continue with next folder
-        processFolderTimer.restart()
+        // WORKAROUND: Build fileURL manually since we can't use .get() on FolderListModel
+        // We'll create a temporary ListView delegate to access the roles
+        processorLoader.active = true
     }
 
-    // Timer to continue after Repeater processes all items
+    // Loader for temporary processor ListView
+    Loader {
+        id: processorLoader
+        active: false
+        sourceComponent: Component {
+            ListView {
+                id: tempProcessor
+                visible: false
+                width: 1
+                height: 1
+                model: mainFolderModel
+
+                Component.onCompleted: {
+                    console.log("TempProcessor created, model count:", count)
+                }
+
+                delegate: Item {
+                    Component.onCompleted: {
+                        // Access FolderListModel roles
+                        var itemIsFolder = fileIsDir
+                        var itemFileName = fileName
+                        var itemFileUrl = fileURL
+
+                        console.log("  Processing:", itemFileName, "isFolder:", itemIsFolder, "url:", itemFileUrl)
+
+                        if (itemIsFolder) {
+                            console.log("    -> Adding subfolder to queue:", itemFileUrl)
+                            foldersToSearch.push(itemFileUrl)
+                        } else {
+                            var matches = itemFileName.toLowerCase().indexOf(currentSearchPattern) !== -1
+                            console.log("    -> Matches pattern '" + currentSearchPattern + "':", matches)
+
+                            if (matches) {
+                                var trainingBaseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
+                                var relativePath = itemFileUrl.toString().replace(trainingBaseFolder, "")
+                                if (relativePath.startsWith("/")) {
+                                    relativePath = relativePath.substring(1)
+                                }
+
+                                console.log("    -> MATCH! Adding:", itemFileName, "->", relativePath, "url:", itemFileUrl)
+
+                                searchResultsModel.append({
+                                    "fileName": itemFileName,
+                                    "fileUrl": itemFileUrl,
+                                    "relativePath": relativePath,
+                                    "isFolder": false
+                                })
+                            }
+                        }
+
+                        // When all items processed, continue
+                        if (index === count - 1) {
+                            console.log("All items processed, continuing to next folder")
+                            processFolderTimer.restart()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Timer to continue after processing completes
     Timer {
         id: processFolderTimer
         interval: 50
         repeat: false
         onTriggered: {
-            // Reset repeater model
-            folderRepeater.model = null
+            // Unload processor
+            processorLoader.active = false
 
             // Process next folder in queue
             searchNextFolderUsingMain()
@@ -118,48 +176,6 @@ ColumnLayout {
         }
     }
 
-    // Invisible Repeater to iterate over FolderListModel
-    // (FolderListModel doesn't have .get() method like ListModel!)
-    Repeater {
-        id: folderRepeater
-        model: null  // Will be set to mainFolderModel when processing
-
-        delegate: Item {
-            Component.onCompleted: {
-                // This runs for each item in the model
-                var itemIsFolder = fileIsDir  // FolderListModel role
-                var itemFileName = fileName   // FolderListModel role
-                var itemFileUrl = fileURL     // FolderListModel role (note: fileURL not fileUrl!)
-
-                console.log("  Repeater item:", itemFileName, "isFolder:", itemIsFolder, "url:", itemFileUrl)
-
-                if (itemIsFolder) {
-                    console.log("    -> Adding subfolder to queue")
-                    foldersToSearch.push(itemFileUrl)
-                } else {
-                    var matches = itemFileName.toLowerCase().indexOf(currentSearchPattern) !== -1
-                    console.log("    -> Matches pattern '" + currentSearchPattern + "':", matches)
-
-                    if (matches) {
-                        var trainingBaseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
-                        var relativePath = itemFileUrl.toString().replace(trainingBaseFolder, "")
-                        if (relativePath.startsWith("/")) {
-                            relativePath = relativePath.substring(1)
-                        }
-
-                        console.log("    -> MATCH! Adding:", itemFileName, "->", relativePath, "url:", itemFileUrl)
-
-                        searchResultsModel.append({
-                            "fileName": itemFileName,
-                            "fileUrl": itemFileUrl,
-                            "relativePath": relativePath,
-                            "isFolder": false
-                        })
-                    }
-                }
-            }
-        }
-    }
 
     Loader {
         id: fileDialogLoader
