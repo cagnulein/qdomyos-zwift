@@ -397,7 +397,6 @@ ColumnLayout {
                                 }
                             }
                         }
-                    }
 
                     focus: true
                 }
