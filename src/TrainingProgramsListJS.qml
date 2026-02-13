@@ -129,7 +129,7 @@ ColumnLayout {
 
                                 searchResultsModel.append({
                                     "fileName": itemFileName,
-                                    "filePath": itemFileUrl,
+                                    "filePath": itemFileUrl.toString(),
                                     "relativePath": relativePath,
                                     "isFolder": false
                                 })
