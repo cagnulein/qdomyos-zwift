@@ -53,6 +53,7 @@ ColumnLayout {
     function searchNextFolderUsingMain() {
         if (foldersToSearch.length === 0) {
             // Restore original folder
+            isSearching = true  // Keep search mode active while restoring
             mainFolderModel.folder = savedFolderUrl
             return
         }
@@ -60,10 +61,8 @@ ColumnLayout {
         var folderUrl = foldersToSearch.shift()
 
         // Use main folderModel - change its folder temporarily
+        // onStatusChanged will trigger processing when ready
         mainFolderModel.folder = folderUrl
-
-        // Start timer to process after model reloads
-        searchFolderTimer.restart()
     }
 
     function processFolderContents() {
@@ -116,9 +115,12 @@ ColumnLayout {
                             }
                         }
 
-                        // When all items processed, continue
+                        // When all items processed, continue to next folder
                         if (index === count - 1) {
-                            processFolderTimer.restart()
+                            // Unload processor and continue
+                            processorLoader.active = false
+                            // Use Qt.callLater to avoid re-entrancy issues
+                            Qt.callLater(searchNextFolderUsingMain)
                         }
                     }
                 }
@@ -126,33 +128,9 @@ ColumnLayout {
         }
     }
 
-    // Timer to continue after processing completes
-    Timer {
-        id: processFolderTimer
-        interval: 50
-        repeat: false
-        onTriggered: {
-            // Unload processor
-            processorLoader.active = false
-
-            // Process next folder in queue
-            searchNextFolderUsingMain()
-        }
-    }
-
     // Model for search results
     ListModel {
         id: searchResultsModel
-    }
-
-    // Timer for async folder processing
-    Timer {
-        id: searchFolderTimer
-        interval: 100  // Give model time to reload
-        repeat: false
-        onTriggered: {
-            processFolderContents()
-        }
     }
 
 
@@ -262,6 +240,13 @@ ColumnLayout {
                         Component.onCompleted: {
                             // Set reference for search functions (iOS workaround)
                             mainFolderModel = folderModel
+                        }
+
+                        onStatusChanged: {
+                            // When searching and model is ready, process contents immediately
+                            if (isSearching && status === FolderListModel.Ready && foldersToSearch.length >= 0) {
+                                processFolderContents()
+                            }
                         }
                     }
 
