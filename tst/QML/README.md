@@ -19,11 +19,17 @@ make
 
 ### Run:
 ```bash
-# Run with test data directory
-./qml-tests tst/QML/test-data/training
+# Run tests (test data directory is automatically detected)
+./qml-tests
 
 # Or with Xvfb for headless CI environments
-xvfb-run -a ./qml-tests tst/QML/test-data/training
+xvfb-run -a ./qml-tests
+
+# Or use the provided script (recommended)
+./run_tests.sh
+
+# To specify a custom test data directory, use environment variable
+QML_TEST_DATA_DIR=/path/to/test/data ./qml-tests
 ```
 
 ## Test Coverage

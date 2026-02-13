@@ -433,7 +433,7 @@ jobs:
       - name: Run Qt Quick Tests
         run: |
           cd tst/QML
-          xvfb-run -a ./qml-tests $PWD/test-data/training
+          xvfb-run -a ./qml-tests
           cd ../..
 
       - name: Upload test results

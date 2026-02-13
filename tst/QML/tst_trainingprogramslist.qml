@@ -7,8 +7,9 @@ TestCase {
     name: "TrainingProgramsListRecursiveSearchTest"
     when: windowShown
 
-    // Mock properties that would normally come from rootItem
-    property string mockBaseDir: Qt.application.arguments.length > 1 ? Qt.application.arguments[1] : ""
+    // Get test data directory from context property (set by C++ test runner)
+    // This will be either from QML_TEST_DATA_DIR environment variable or relative path
+    property string mockBaseDir: typeof testDataDirUrl !== 'undefined' ? testDataDirUrl : ""
 
     property bool isSearching: false
     property var searchResultsModel: ListModel { id: searchModel }
