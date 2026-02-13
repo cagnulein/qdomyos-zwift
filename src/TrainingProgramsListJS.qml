@@ -23,6 +23,7 @@ ColumnLayout {
 
     property var selectedFileUrl: ""
     property bool isSearching: false
+    property bool waitingForModelReload: false
     property var foldersToSearch: []  // Queue for iterative search
     property var savedFolderUrl: ""   // Save original folder for restoration
     property var mainFolderModel: null  // Reference to main folderModel for iOS workaround
@@ -54,6 +55,7 @@ ColumnLayout {
         if (foldersToSearch.length === 0) {
             // Restore original folder
             isSearching = true  // Keep search mode active while restoring
+            waitingForModelReload = false  // Don't process when restoring
             mainFolderModel.folder = savedFolderUrl
             return
         }
@@ -62,6 +64,7 @@ ColumnLayout {
 
         // Use main folderModel - change its folder temporarily
         // onStatusChanged will trigger processing when ready
+        waitingForModelReload = true
         mainFolderModel.folder = folderUrl
     }
 
@@ -244,7 +247,8 @@ ColumnLayout {
 
                         onStatusChanged: {
                             // When searching and model is ready, process contents immediately
-                            if (isSearching && status === FolderListModel.Ready && foldersToSearch.length >= 0) {
+                            if (waitingForModelReload && status === FolderListModel.Ready) {
+                                waitingForModelReload = false
                                 processFolderContents()
                             }
                         }
