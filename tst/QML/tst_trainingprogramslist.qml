@@ -29,11 +29,17 @@ TestCase {
         tempModel.showDirs = true
         tempModel.showDotAndDotDot = false
 
-        // Wait for model to populate
-        var maxWait = 100
-        var waited = 0
-        while (tempModel.count === 0 && waited < maxWait) {
-            waited++
+        // Wait for model to populate (FolderListModel loads asynchronously)
+        // Give it up to 500ms to load files
+        var startTime = Date.now()
+        var timeout = 500
+        while (tempModel.count === 0 && (Date.now() - startTime) < timeout) {
+            wait(10)  // Wait 10ms between checks
+        }
+
+        // Additional small wait to ensure all items are loaded
+        if (tempModel.count > 0) {
+            wait(50)
         }
 
         for (var i = 0; i < tempModel.count; i++) {
