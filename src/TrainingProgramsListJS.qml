@@ -325,11 +325,19 @@ ColumnLayout {
                                 anchors.fill: parent
                                 onClicked: {
                                     list.currentIndex = index
+                                    console.log("=== ITEM CLICKED ===")
+                                    console.log("isSearching:", isSearching)
+                                    console.log("isItemFolder:", isItemFolder)
+                                    console.log("itemFileName:", itemFileName)
+                                    console.log("itemFileUrl:", itemFileUrl)
 
                                     if (isItemFolder) {
                                         // Navigate to folder (only in browse mode)
                                         if (!isSearching) {
+                                            console.log("Navigating to folder:", itemFileUrl)
                                             folderModel.folder = itemFileUrl
+                                        } else {
+                                            console.log("Folder click ignored in search mode")
                                         }
                                     } else if (itemFileUrl) {
                                         // Load preview and show detail view
@@ -339,6 +347,8 @@ ColumnLayout {
 
                                         // Wait for preview to load then push detail view
                                         detailViewTimer.restart()
+                                    } else {
+                                        console.log("ERROR: No fileUrl available!")
                                     }
                                 }
                             }
