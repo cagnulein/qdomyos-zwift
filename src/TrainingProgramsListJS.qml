@@ -314,6 +314,24 @@ ColumnLayout {
                         height: 50
                         color: ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor
 
+                        Component.onCompleted: {
+                            if (isSearching) {
+                                console.log("=== DELEGATE DEBUG ===")
+                                console.log("index:", index)
+                                console.log("model object:", model)
+                                console.log("model.fileName:", model.fileName)
+                                console.log("model.fileUrl:", model.fileUrl)
+                                console.log("model.isFolder:", model.isFolder)
+                                console.log("model.relativePath:", model.relativePath)
+
+                                // Try to access all properties of model
+                                console.log("Trying to list all model properties...")
+                                for (var prop in model) {
+                                    console.log("  model." + prop + ":", model[prop])
+                                }
+                            }
+                        }
+
                         // When using search results, access roles via modelData or explicit model object
                         // Note: We can't use direct role names because Text id="fileName" conflicts!
                         property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
@@ -321,7 +339,7 @@ ColumnLayout {
                         property string itemFileUrl: isSearching ? model.fileUrl : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL'))
                         property string itemRelativePath: isSearching ? model.relativePath : ""
 
-                            RowLayout {
+                        RowLayout {
                                 anchors.fill: parent
                                 anchors.margins: 10
                                 spacing: 10
