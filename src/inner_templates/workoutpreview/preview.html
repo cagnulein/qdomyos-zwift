@@ -261,14 +261,6 @@
         let ws = null;
         let requestTimer = null;
 
-        // Check if running in Qt WebView (offline mode)
-        window.QZ_OFFLINE = false;
-        if (typeof window.qt !== 'undefined' ||
-            window.location.hostname === 'localhost' ||
-            window.location.hostname === '127.0.0.1') {
-            window.QZ_OFFLINE = true;
-        }
-
         // Send request for workout preview data
         function requestWorkoutPreview() {
             if (!ws || ws.readyState !== WebSocket.OPEN) {
@@ -364,9 +356,7 @@
         window.setWorkoutData = updateWorkoutFromData;
 
         // Initialize WebSocket connection
-        if (!window.QZ_OFFLINE) {
-            setupWebSocket();
-        }
+        setupWebSocket();
 
         // Initialize with empty chart
         window.addEventListener('load', function() {
