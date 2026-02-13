@@ -260,6 +260,7 @@
         // WebSocket for communication with Qt
         let ws = null;
         let requestTimer = null;
+        let lastDataHash = null; // Track last received data to avoid unnecessary redraws
 
         // Send request for workout preview data
         function requestWorkoutPreview() {
@@ -334,6 +335,24 @@
 
         // Update chart from WebSocket data
         function updateWorkoutFromData(data) {
+            // Create a hash of the data to detect changes
+            const dataHash = JSON.stringify({
+                points: data.points,
+                watts: data.watts,
+                speed: data.speed,
+                inclination: data.inclination,
+                resistance: data.resistance,
+                cadence: data.cadence,
+                deviceType: data.deviceType
+            });
+
+            // Only update if data has changed
+            if (dataHash === lastDataHash) {
+                return;
+            }
+
+            lastDataHash = dataHash;
+
             const { points, watts, speed, inclination, resistance, cadence, deviceType, miles_unit } = data;
 
             // Update miles setting if provided
@@ -349,6 +368,7 @@
                 cadence: cadence || []
             };
 
+            console.log('Updating chart with new data');
             updateWorkoutChart(workoutData, deviceType || 'bike');
         }
 
