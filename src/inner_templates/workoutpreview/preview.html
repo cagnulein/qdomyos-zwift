@@ -257,77 +257,91 @@
             return null;
         }
 
-        // Qt WebChannel integration (if available)
-        if (typeof window.qt !== 'undefined') {
-            window.qt.webChannelTransport = new QWebChannel(qt.webChannelTransport, function(channel) {
-                window.rootItem = channel.objects.rootItem;
+        // WebSocket for communication with Qt
+        let ws = null;
+        let requestTimer = null;
 
-                // Listen for preview updates
-                if (window.rootItem && window.rootItem.previewWorkoutPointsChanged) {
-                    window.rootItem.previewWorkoutPointsChanged.connect(updateFromRootItem);
-                }
-            });
+        // Check if running in Qt WebView (offline mode)
+        window.QZ_OFFLINE = false;
+        if (typeof window.qt !== 'undefined' ||
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1') {
+            window.QZ_OFFLINE = true;
         }
 
-        // Update chart from rootItem data
-        function updateFromRootItem() {
-            if (!window.rootItem) return;
-
-            // Get miles_unit setting if available
-            if (window.rootItem.miles_unit !== undefined) {
-                miles = window.rootItem.miles_unit ? 0.621371 : 1;
+        // Send request for workout preview data
+        function requestWorkoutPreview() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                return;
             }
 
-            const points = window.rootItem.preview_workout_points;
-            if (!points || points === 0) return;
+            const message = {
+                msg: 'getworkoutpreview',
+                content: {}
+            };
 
-            // Build workout data from rootItem arrays
-            const watts = [];
-            const speed = [];
-            const inclination = [];
-            const resistance = [];
-            const cadence = [];
-
-            for (let i = 0; i < points; i++) {
-                const time = i;
-
-                // Get watt value
-                if (window.rootItem.preview_workout_watt && window.rootItem.preview_workout_watt[i] !== undefined) {
-                    watts.push({ x: time, y: window.rootItem.preview_workout_watt[i] });
-                }
-
-                // Get speed value
-                if (window.rootItem.preview_workout_speed && window.rootItem.preview_workout_speed[i] !== undefined) {
-                    speed.push({ x: time, y: window.rootItem.preview_workout_speed[i] });
-                }
-
-                // Get inclination value
-                if (window.rootItem.preview_workout_inclination && window.rootItem.preview_workout_inclination[i] !== undefined) {
-                    inclination.push({ x: time, y: window.rootItem.preview_workout_inclination[i] });
-                }
-
-                // Get resistance value
-                if (window.rootItem.preview_workout_resistance && window.rootItem.preview_workout_resistance[i] !== undefined) {
-                    resistance.push({ x: time, y: window.rootItem.preview_workout_resistance[i] });
-                }
-
-                // Get cadence value
-                if (window.rootItem.preview_workout_cadence && window.rootItem.preview_workout_cadence[i] !== undefined) {
-                    cadence.push({ x: time, y: window.rootItem.preview_workout_cadence[i] });
-                }
-            }
-
-            // Determine device type (default to bike if we have watts)
-            let deviceType = 'bike';
-            if (speed.length > 0 && watts.length === 0) {
-                deviceType = 'treadmill';
-            }
-
-            updateWorkoutChart({ watts, speed, inclination, resistance, cadence }, deviceType);
+            console.log('Requesting workout preview data');
+            ws.send(JSON.stringify(message));
         }
 
-        // External API for QML to call directly
-        window.setWorkoutData = function(data) {
+        // WebSocket setup
+        function setupWebSocket() {
+            const host = (!location.host || location.host.length == 0) ? 'localhost:6666' : location.host;
+            const wsUrl = `ws://${host}/workoutpreview-ws`;
+
+            console.log('Connecting to WebSocket:', wsUrl);
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = function() {
+                console.log('WebSocket connected');
+
+                // Request initial data
+                requestWorkoutPreview();
+
+                // Set up periodic updates (every 500ms to catch changes)
+                if (requestTimer) {
+                    clearInterval(requestTimer);
+                }
+                requestTimer = setInterval(requestWorkoutPreview, 500);
+            };
+
+            ws.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    handleMessage(data);
+                } catch (e) {
+                    console.error('Error parsing message:', e);
+                }
+            };
+
+            ws.onerror = function(error) {
+                console.error('WebSocket error:', error);
+            };
+
+            ws.onclose = function() {
+                console.log('WebSocket closed, attempting reconnect in 5 seconds');
+                if (requestTimer) {
+                    clearInterval(requestTimer);
+                    requestTimer = null;
+                }
+                setTimeout(setupWebSocket, 5000);
+            };
+        }
+
+        // Handle incoming WebSocket messages
+        function handleMessage(data) {
+            console.log('Received message:', data);
+
+            const msgType = data.type || data.msg;
+
+            if (msgType === 'workoutpreview' || msgType === 'R_workoutpreview') {
+                const content = data.content || data;
+                updateWorkoutFromData(content);
+            }
+        }
+
+        // Update chart from WebSocket data
+        function updateWorkoutFromData(data) {
             const { points, watts, speed, inclination, resistance, cadence, deviceType, miles_unit } = data;
 
             // Update miles setting if provided
@@ -344,7 +358,15 @@
             };
 
             updateWorkoutChart(workoutData, deviceType || 'bike');
-        };
+        }
+
+        // External API for backwards compatibility (if needed)
+        window.setWorkoutData = updateWorkoutFromData;
+
+        // Initialize WebSocket connection
+        if (!window.QZ_OFFLINE) {
+            setupWebSocket();
+        }
 
         // Initialize with empty chart
         window.addEventListener('load', function() {
