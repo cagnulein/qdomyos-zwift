@@ -25,6 +25,7 @@ ColumnLayout {
     property bool isSearching: false
     property var foldersToSearch: []  // Queue for iterative search
     property var savedFolderUrl: ""   // Save original folder for restoration
+    property var mainFolderModel: null  // Reference to main folderModel for iOS workaround
 
     // JavaScript functions for search using main folderModel (iOS workaround)
     // On iOS, dynamically created FolderListModels don't work in sandboxed environment
@@ -34,10 +35,15 @@ ColumnLayout {
         console.log("Search folder:", folderUrl)
         console.log("Search filter:", filter)
 
+        if (!mainFolderModel) {
+            console.log("ERROR: mainFolderModel not set yet!")
+            return
+        }
+
         searchResultsModel.clear()
 
         // Save current folder to restore later
-        savedFolderUrl = folderModel.folder
+        savedFolderUrl = mainFolderModel.folder
         console.log("Saved original folder:", savedFolderUrl)
 
         isSearching = true
@@ -55,7 +61,7 @@ ColumnLayout {
 
             // Restore original folder
             console.log("Restoring folder to:", savedFolderUrl)
-            folderModel.folder = savedFolderUrl
+            mainFolderModel.folder = savedFolderUrl
             return
         }
 
@@ -63,29 +69,29 @@ ColumnLayout {
         console.log("Processing folder:", folderUrl, "(remaining:", foldersToSearch.length, ")")
 
         // Use main folderModel - change its folder temporarily
-        folderModel.folder = folderUrl
-        console.log("Changed folderModel to:", folderModel.folder)
+        mainFolderModel.folder = folderUrl
+        console.log("Changed folderModel to:", mainFolderModel.folder)
 
         // Wait for model to reload
         var attempts = 0
         var maxAttempts = 50
         var startDelay
-        while (folderModel.count === 0 && attempts < maxAttempts) {
+        while (mainFolderModel.count === 0 && attempts < maxAttempts) {
             attempts++
             if (attempts % 10 === 0) {
-                console.log("  Waiting for reload... attempt", attempts, "count:", folderModel.count)
+                console.log("  Waiting for reload... attempt", attempts, "count:", mainFolderModel.count)
             }
             startDelay = Date.now()
             while (Date.now() - startDelay < 20) {}
         }
 
-        console.log("FolderModel loaded:", folderModel.count, "items after", attempts, "attempts")
+        console.log("FolderModel loaded:", mainFolderModel.count, "items after", attempts, "attempts")
 
         // Process current folder contents
-        for (var i = 0; i < folderModel.count; i++) {
-            var isFolder = folderModel.isFolder(i)
-            var fileName = folderModel.get(i, "fileName")
-            var fileUrl = folderModel.get(i, "fileUrl") || folderModel.get(i, "fileURL")
+        for (var i = 0; i < mainFolderModel.count; i++) {
+            var isFolder = mainFolderModel.isFolder(i)
+            var fileName = mainFolderModel.get(i, "fileName")
+            var fileUrl = mainFolderModel.get(i, "fileUrl") || mainFolderModel.get(i, "fileURL")
 
             console.log("  Item", i + ":", fileName, "isFolder:", isFolder)
 
@@ -236,6 +242,12 @@ ColumnLayout {
                         showDirs: true
                         sortField: "Name"
                         showDirsFirst: true
+
+                        Component.onCompleted: {
+                            // Set reference for search functions (iOS workaround)
+                            mainFolderModel = folderModel
+                            console.log("mainFolderModel reference set")
+                        }
 
                         onCountChanged: {
                             console.log("FolderListModel count changed:", count)
