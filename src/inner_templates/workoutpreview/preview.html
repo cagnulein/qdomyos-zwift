@@ -265,6 +265,10 @@
                 // Listen for preview updates
                 if (window.rootItem && window.rootItem.previewWorkoutPointsChanged) {
                     window.rootItem.previewWorkoutPointsChanged.connect(updateFromRootItem);
+
+                    // IMPORTANT: Fetch initial data immediately after connection
+                    // to handle case where C++ emitted before JS connection was ready
+                    updateFromRootItem();
                 }
             });
         }
