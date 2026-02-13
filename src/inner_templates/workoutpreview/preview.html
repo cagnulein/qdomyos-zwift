@@ -266,9 +266,26 @@
                 if (window.rootItem && window.rootItem.previewWorkoutPointsChanged) {
                     window.rootItem.previewWorkoutPointsChanged.connect(updateFromRootItem);
 
-                    // IMPORTANT: Fetch initial data immediately after connection
-                    // to handle case where C++ emitted before JS connection was ready
-                    updateFromRootItem();
+                    // IMPORTANT: Polling mechanism to handle race condition where C++
+                    // emits before JS connection is ready. We retry multiple times with
+                    // increasing delays to ensure WebChannel properties are synchronized.
+                    let retryCount = 0;
+                    const maxRetries = 10;
+                    const tryUpdate = function() {
+                        const hasData = window.rootItem &&
+                                       window.rootItem.preview_workout_points > 0;
+
+                        if (hasData) {
+                            updateFromRootItem();
+                        } else if (retryCount < maxRetries) {
+                            retryCount++;
+                            // Exponential backoff: 50ms, 100ms, 200ms, 400ms, ...
+                            setTimeout(tryUpdate, 50 * Math.pow(2, retryCount - 1));
+                        }
+                    };
+
+                    // Start polling after initial delay
+                    setTimeout(tryUpdate, 50);
                 }
             });
         }
