@@ -26,6 +26,7 @@ ColumnLayout {
     property var foldersToSearch: []  // Queue for iterative search
     property var savedFolderUrl: ""   // Save original folder for restoration
     property var mainFolderModel: null  // Reference to main folderModel for iOS workaround
+    property string currentSearchPattern: ""  // Current search filter
 
     // JavaScript functions for search using main folderModel (iOS workaround)
     // On iOS, dynamically created FolderListModels don't work in sandboxed environment
@@ -47,14 +48,14 @@ ColumnLayout {
         console.log("Saved original folder:", savedFolderUrl)
 
         isSearching = true
-        var searchPattern = filter.toLowerCase()
+        currentSearchPattern = filter.toLowerCase()
 
         // Use iterative approach with queue, reusing main folderModel
         foldersToSearch = [folderUrl]
-        searchNextFolderUsingMain(searchPattern)
+        searchNextFolderUsingMain()
     }
 
-    function searchNextFolderUsingMain(pattern) {
+    function searchNextFolderUsingMain() {
         if (foldersToSearch.length === 0) {
             console.log("=== SEARCH COMPLETED ===")
             console.log("Total results found:", searchResultsModel.count)
@@ -72,20 +73,12 @@ ColumnLayout {
         mainFolderModel.folder = folderUrl
         console.log("Changed folderModel to:", mainFolderModel.folder)
 
-        // Wait for model to reload
-        var attempts = 0
-        var maxAttempts = 50
-        var startDelay
-        while (mainFolderModel.count === 0 && attempts < maxAttempts) {
-            attempts++
-            if (attempts % 10 === 0) {
-                console.log("  Waiting for reload... attempt", attempts, "count:", mainFolderModel.count)
-            }
-            startDelay = Date.now()
-            while (Date.now() - startDelay < 20) {}
-        }
+        // Start timer to process after model reloads
+        searchFolderTimer.restart()
+    }
 
-        console.log("FolderModel loaded:", mainFolderModel.count, "items after", attempts, "attempts")
+    function processFolderContents() {
+        console.log("Processing folder contents, count:", mainFolderModel.count)
 
         // Process current folder contents
         for (var i = 0; i < mainFolderModel.count; i++) {
@@ -100,8 +93,8 @@ ColumnLayout {
                 // Add to queue for later processing
                 foldersToSearch.push(fileUrl)
             } else {
-                var matches = fileName.toLowerCase().indexOf(pattern) !== -1
-                console.log("    -> Matches pattern '" + pattern + "':", matches)
+                var matches = fileName.toLowerCase().indexOf(currentSearchPattern) !== -1
+                console.log("    -> Matches pattern '" + currentSearchPattern + "':", matches)
 
                 if (matches) {
                     var trainingBaseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
@@ -123,12 +116,22 @@ ColumnLayout {
         }
 
         // Process next folder in queue
-        searchNextFolderUsingMain(pattern)
+        searchNextFolderUsingMain()
     }
 
     // Model for search results
     ListModel {
         id: searchResultsModel
+    }
+
+    // Timer for async folder processing
+    Timer {
+        id: searchFolderTimer
+        interval: 100  // Give model time to reload
+        repeat: false
+        onTriggered: {
+            processFolderContents()
+        }
     }
 
     Loader {
