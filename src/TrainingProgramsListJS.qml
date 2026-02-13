@@ -315,10 +315,10 @@ ColumnLayout {
                             height: 50
                             color: ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor
 
-                            property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
-                            property string itemFileName: isSearching ? model.fileName : folderModel.get(index, "fileName")
-                            property string itemFileUrl: isSearching ? model.fileUrl : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL'))
-                            property string itemRelativePath: isSearching ? model.relativePath : ""
+                            property bool isItemFolder: isSearching ? isFolder : folderModel.isFolder(index)
+                            property string itemFileName: isSearching ? fileName : folderModel.get(index, "fileName")
+                            property string itemFileUrl: isSearching ? fileUrl : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL'))
+                            property string itemRelativePath: isSearching ? relativePath : ""
 
                             RowLayout {
                                 anchors.fill: parent
