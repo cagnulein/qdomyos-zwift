@@ -92,8 +92,8 @@ TestCase {
             return
         }
 
-        // Create test directory structure
-        var testDir = "file://" + mockBaseDir
+        // mockBaseDir is already a complete file:// URL from C++ test runner
+        var testDir = mockBaseDir
         console.log("Testing with directory: " + testDir)
 
         // Perform search for a common pattern
@@ -104,6 +104,9 @@ TestCase {
 
         // Check if we found any files (depending on test data)
         console.log("Found " + searchResultsModel.count + " matching files")
+
+        // We should find at least 3 test files in test data
+        verify(searchResultsModel.count >= 3, "Should find at least 3 test files in nested structure")
 
         // Verify model structure for first result (if any)
         if (searchResultsModel.count > 0) {
@@ -122,7 +125,7 @@ TestCase {
             return
         }
 
-        var testDir = "file://" + mockBaseDir
+        var testDir = mockBaseDir
 
         searchResultsModel.clear()
         searchRecursively(testDir, "TEST")
@@ -133,6 +136,7 @@ TestCase {
         var lowerCount = searchResultsModel.count
 
         compare(upperCount, lowerCount, "Search should be case-insensitive")
+        verify(upperCount >= 3, "Should find at least 3 files with 'test' in name")
     }
 
     // Test 4: Verify search filters by file extension
@@ -142,9 +146,12 @@ TestCase {
             return
         }
 
-        var testDir = "file://" + mockBaseDir
+        var testDir = mockBaseDir
 
         searchRecursively(testDir, "")
+
+        // Should find 4 files total (test1.xml, test2.zwo, test3.xml, sample.zwo)
+        verify(searchResultsModel.count >= 4, "Should find at least 4 training files")
 
         // All results should be .xml or .zwo files
         for (var i = 0; i < searchResultsModel.count; i++) {
@@ -178,15 +185,15 @@ TestCase {
             return
         }
 
-        var testDir = "file://" + mockBaseDir
+        var testDir = mockBaseDir
 
         // Search with empty pattern should find all files
         searchRecursively(testDir, "")
 
         console.log("Found " + searchResultsModel.count + " total files with empty pattern")
 
-        // Should find at least some files (if test data exists)
-        // We can't verify exact count without knowing test data structure
+        // Should find 4 files total (test1.xml, test2.zwo, test3.xml, sample.zwo)
+        verify(searchResultsModel.count >= 4, "Should find at least 4 files with empty pattern")
     }
 
     // Test 7: Verify search with no matches
@@ -196,7 +203,7 @@ TestCase {
             return
         }
 
-        var testDir = "file://" + mockBaseDir
+        var testDir = mockBaseDir
 
         // Search for something that definitely won't exist
         searchRecursively(testDir, "xyzabc123notexist999")
