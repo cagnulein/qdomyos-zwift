@@ -99,7 +99,7 @@ ColumnLayout {
                 model: mainFolderModel
 
                 Component.onCompleted: {
-                    console.log("TempProcessor created, model count:", count)
+                    // Processor ready
                 }
 
                 delegate: Item {
@@ -109,14 +109,10 @@ ColumnLayout {
                         var itemFileName = fileName
                         var itemFileUrl = fileURL
 
-                        console.log("  Processing:", itemFileName, "isFolder:", itemIsFolder, "url:", itemFileUrl)
-
                         if (itemIsFolder) {
-                            console.log("    -> Adding subfolder to queue:", itemFileUrl)
                             foldersToSearch.push(itemFileUrl)
                         } else {
                             var matches = itemFileName.toLowerCase().indexOf(currentSearchPattern) !== -1
-                            console.log("    -> Matches pattern '" + currentSearchPattern + "':", matches)
 
                             if (matches) {
                                 var trainingBaseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
@@ -124,8 +120,6 @@ ColumnLayout {
                                 if (relativePath.startsWith("/")) {
                                     relativePath = relativePath.substring(1)
                                 }
-
-                                console.log("    -> MATCH! Adding:", itemFileName, "->", relativePath, "url:", itemFileUrl)
 
                                 searchResultsModel.append({
                                     "fileName": itemFileName,
@@ -138,7 +132,6 @@ ColumnLayout {
 
                         // When all items processed, continue
                         if (index === count - 1) {
-                            console.log("All items processed, continuing to next folder")
                             processFolderTimer.restart()
                         }
                     }
@@ -314,23 +307,6 @@ ColumnLayout {
                         height: 50
                         color: ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor
 
-                        Component.onCompleted: {
-                            if (isSearching) {
-                                console.log("=== DELEGATE DEBUG ===")
-                                console.log("index:", index)
-                                console.log("model object:", model)
-                                console.log("model.fileName:", model.fileName)
-                                console.log("model.filePath:", model.filePath)
-                                console.log("model.isFolder:", model.isFolder)
-                                console.log("model.relativePath:", model.relativePath)
-
-                                // Try to access all properties of model
-                                console.log("Trying to list all model properties...")
-                                for (var prop in model) {
-                                    console.log("  model." + prop + ":", model[prop])
-                                }
-                            }
-                        }
 
                         // When using search results, access roles via modelData or explicit model object
                         // Note: We can't use direct role names because Text id="fileName" conflicts!
@@ -388,23 +364,14 @@ ColumnLayout {
                                 anchors.fill: parent
                                 onClicked: {
                                     list.currentIndex = index
-                                    console.log("=== ITEM CLICKED ===")
-                                    console.log("isSearching:", isSearching)
-                                    console.log("isItemFolder:", isItemFolder)
-                                    console.log("itemFileName:", itemFileName)
-                                    console.log("itemFileUrl:", itemFileUrl)
 
                                     if (isItemFolder) {
                                         // Navigate to folder (only in browse mode)
                                         if (!isSearching) {
-                                            console.log("Navigating to folder:", itemFileUrl)
                                             folderModel.folder = itemFileUrl
-                                        } else {
-                                            console.log("Folder click ignored in search mode")
                                         }
                                     } else if (itemFileUrl) {
                                         // Load preview and show detail view
-                                        console.log('Loading preview for: ' + itemFileUrl);
                                         trainprogram_preview(itemFileUrl)
                                         pendingWorkoutUrl = itemFileUrl
 
