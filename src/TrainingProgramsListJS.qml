@@ -80,43 +80,27 @@ ColumnLayout {
     function processFolderContents() {
         console.log("Processing folder contents, count:", mainFolderModel.count)
 
-        // Process current folder contents
-        for (var i = 0; i < mainFolderModel.count; i++) {
-            var isFolder = mainFolderModel.isFolder(i)
-            var fileName = mainFolderModel.get(i, "fileName")
-            var fileUrl = mainFolderModel.get(i, "fileUrl") || mainFolderModel.get(i, "fileURL")
+        // Use Repeater to iterate over FolderListModel
+        // (FolderListModel doesn't support .get() method!)
+        folderRepeater.model = mainFolderModel
 
-            console.log("  Item", i + ":", fileName, "isFolder:", isFolder)
+        // Wait for Repeater to instantiate all delegates
+        // Then continue with next folder
+        processFolderTimer.restart()
+    }
 
-            if (isFolder) {
-                console.log("    -> Adding subfolder to queue")
-                // Add to queue for later processing
-                foldersToSearch.push(fileUrl)
-            } else {
-                var matches = fileName.toLowerCase().indexOf(currentSearchPattern) !== -1
-                console.log("    -> Matches pattern '" + currentSearchPattern + "':", matches)
+    // Timer to continue after Repeater processes all items
+    Timer {
+        id: processFolderTimer
+        interval: 50
+        repeat: false
+        onTriggered: {
+            // Reset repeater model
+            folderRepeater.model = null
 
-                if (matches) {
-                    var trainingBaseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
-                    var relativePath = fileUrl.toString().replace(trainingBaseFolder, "")
-                    if (relativePath.startsWith("/")) {
-                        relativePath = relativePath.substring(1)
-                    }
-
-                    console.log("    -> MATCH! Adding:", fileName, "->", relativePath)
-
-                    searchResultsModel.append({
-                        "fileName": fileName,
-                        "fileUrl": fileUrl,
-                        "relativePath": relativePath,
-                        "isFolder": false
-                    })
-                }
-            }
+            // Process next folder in queue
+            searchNextFolderUsingMain()
         }
-
-        // Process next folder in queue
-        searchNextFolderUsingMain()
     }
 
     // Model for search results
@@ -131,6 +115,49 @@ ColumnLayout {
         repeat: false
         onTriggered: {
             processFolderContents()
+        }
+    }
+
+    // Invisible Repeater to iterate over FolderListModel
+    // (FolderListModel doesn't have .get() method like ListModel!)
+    Repeater {
+        id: folderRepeater
+        model: null  // Will be set to mainFolderModel when processing
+
+        delegate: Item {
+            Component.onCompleted: {
+                // This runs for each item in the model
+                var itemIsFolder = fileIsDir  // FolderListModel role
+                var itemFileName = fileName   // FolderListModel role
+                var itemFileUrl = fileURL     // FolderListModel role (note: fileURL not fileUrl!)
+
+                console.log("  Repeater item:", itemFileName, "isFolder:", itemIsFolder, "url:", itemFileUrl)
+
+                if (itemIsFolder) {
+                    console.log("    -> Adding subfolder to queue")
+                    foldersToSearch.push(itemFileUrl)
+                } else {
+                    var matches = itemFileName.toLowerCase().indexOf(currentSearchPattern) !== -1
+                    console.log("    -> Matches pattern '" + currentSearchPattern + "':", matches)
+
+                    if (matches) {
+                        var trainingBaseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
+                        var relativePath = itemFileUrl.toString().replace(trainingBaseFolder, "")
+                        if (relativePath.startsWith("/")) {
+                            relativePath = relativePath.substring(1)
+                        }
+
+                        console.log("    -> MATCH! Adding:", itemFileName, "->", relativePath, "url:", itemFileUrl)
+
+                        searchResultsModel.append({
+                            "fileName": itemFileName,
+                            "fileUrl": itemFileUrl,
+                            "relativePath": relativePath,
+                            "isFolder": false
+                        })
+                    }
+                }
+            }
         }
     }
 
