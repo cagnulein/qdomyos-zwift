@@ -129,7 +129,7 @@ ColumnLayout {
 
                                 searchResultsModel.append({
                                     "fileName": itemFileName,
-                                    "fileUrl": itemFileUrl,
+                                    "filePath": itemFileUrl,
                                     "relativePath": relativePath,
                                     "isFolder": false
                                 })
@@ -320,7 +320,7 @@ ColumnLayout {
                                 console.log("index:", index)
                                 console.log("model object:", model)
                                 console.log("model.fileName:", model.fileName)
-                                console.log("model.fileUrl:", model.fileUrl)
+                                console.log("model.filePath:", model.filePath)
                                 console.log("model.isFolder:", model.isFolder)
                                 console.log("model.relativePath:", model.relativePath)
 
@@ -334,10 +334,10 @@ ColumnLayout {
 
                         // When using search results, access roles via modelData or explicit model object
                         // Note: We can't use direct role names because Text id="fileName" conflicts!
-                        // IMPORTANT: model.fileUrl is auto-converted to URL object by QML, must use .toString()!
+                        // IMPORTANT: Use "filePath" role name (not "fileUrl") to avoid QML auto-conversion to URL object!
                         property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
                         property string itemFileName: isSearching ? model.fileName : folderModel.get(index, "fileName")
-                        property string itemFileUrl: isSearching ? model.fileUrl.toString() : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL'))
+                        property string itemFileUrl: isSearching ? model.filePath : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL'))
                         property string itemRelativePath: isSearching ? model.relativePath : ""
 
                         RowLayout {
