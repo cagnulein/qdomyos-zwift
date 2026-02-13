@@ -24,90 +24,79 @@ ColumnLayout {
     property var selectedFileUrl: ""
     property bool isSearching: false
     property var foldersToSearch: []  // Queue for iterative search
-    property int currentSearchDepth: 0
+    property var savedFolderUrl: ""   // Save original folder for restoration
 
-    // Pool of reusable FolderListModels (pre-created for iOS compatibility)
-    Component {
-        id: folderModelComponent
-        FolderListModel {
-            nameFilters: ["*.xml", "*.zwo"]
-            showDirs: true
-            showDotAndDotDot: false
-        }
-    }
-
-    // JavaScript functions for iterative file search (iOS compatible)
+    // JavaScript functions for search using main folderModel (iOS workaround)
+    // On iOS, dynamically created FolderListModels don't work in sandboxed environment
+    // So we temporarily hijack the main folderModel for searching
     function searchRecursively(folderUrl, filter) {
-        console.log("=== SEARCH STARTED (ITERATIVE) ===")
+        console.log("=== SEARCH STARTED (iOS WORKAROUND) ===")
         console.log("Search folder:", folderUrl)
         console.log("Search filter:", filter)
 
         searchResultsModel.clear()
+
+        // Save current folder to restore later
+        savedFolderUrl = folderModel.folder
+        console.log("Saved original folder:", savedFolderUrl)
+
         isSearching = true
         var searchPattern = filter.toLowerCase()
 
-        // Use iterative approach with queue instead of recursion
+        // Use iterative approach with queue, reusing main folderModel
         foldersToSearch = [folderUrl]
-        searchNextFolder(searchPattern)
+        searchNextFolderUsingMain(searchPattern)
     }
 
-    function searchNextFolder(pattern) {
+    function searchNextFolderUsingMain(pattern) {
         if (foldersToSearch.length === 0) {
             console.log("=== SEARCH COMPLETED ===")
             console.log("Total results found:", searchResultsModel.count)
+
+            // Restore original folder
+            console.log("Restoring folder to:", savedFolderUrl)
+            folderModel.folder = savedFolderUrl
             return
         }
 
         var folderUrl = foldersToSearch.shift()
         console.log("Processing folder:", folderUrl, "(remaining:", foldersToSearch.length, ")")
 
-        // Create a model using Component (works better on iOS than Qt.createQmlObject)
-        var tempModel = folderModelComponent.createObject(stackView, {
-            "folder": folderUrl
-        })
+        // Use main folderModel - change its folder temporarily
+        folderModel.folder = folderUrl
+        console.log("Changed folderModel to:", folderModel.folder)
 
-        if (!tempModel) {
-            console.log("ERROR: Failed to create FolderListModel!")
-            searchNextFolder(pattern)  // Continue with next folder
-            return
-        }
-
-        console.log("Model created, folder:", tempModel.folder)
-
-        // Wait for model to populate
+        // Wait for model to reload
         var attempts = 0
         var maxAttempts = 50
-        while (tempModel.count === 0 && attempts < maxAttempts) {
+        var startDelay
+        while (folderModel.count === 0 && attempts < maxAttempts) {
             attempts++
             if (attempts % 10 === 0) {
-                console.log("  Waiting... attempt", attempts)
+                console.log("  Waiting for reload... attempt", attempts, "count:", folderModel.count)
             }
-            var startDelay = Date.now()
+            startDelay = Date.now()
             while (Date.now() - startDelay < 20) {}
         }
 
-        console.log("Model loaded:", tempModel.count, "items after", attempts, "attempts")
+        console.log("FolderModel loaded:", folderModel.count, "items after", attempts, "attempts")
 
-        processFolderItems(tempModel, pattern, folderUrl)
+        // Process current folder contents
+        for (var i = 0; i < folderModel.count; i++) {
+            var isFolder = folderModel.isFolder(i)
+            var fileName = folderModel.get(i, "fileName")
+            var fileUrl = folderModel.get(i, "fileUrl") || folderModel.get(i, "fileURL")
 
-        tempModel.destroy()
-
-        // Process next folder in queue
-        searchNextFolder(pattern)
-    }
-
-    function processFolderItems(model, pattern, baseFolder) {
-        for (var i = 0; i < model.count; i++) {
-            var isFolder = model.isFolder(i)
-            var fileName = model.get(i, "fileName")
-            var fileUrl = model.get(i, "fileUrl") || model.get(i, "fileURL")
+            console.log("  Item", i + ":", fileName, "isFolder:", isFolder)
 
             if (isFolder) {
-                console.log("  Found subfolder:", fileName, "- adding to queue")
+                console.log("    -> Adding subfolder to queue")
                 // Add to queue for later processing
                 foldersToSearch.push(fileUrl)
             } else {
                 var matches = fileName.toLowerCase().indexOf(pattern) !== -1
+                console.log("    -> Matches pattern '" + pattern + "':", matches)
+
                 if (matches) {
                     var trainingBaseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
                     var relativePath = fileUrl.toString().replace(trainingBaseFolder, "")
@@ -115,7 +104,7 @@ ColumnLayout {
                         relativePath = relativePath.substring(1)
                     }
 
-                    console.log("  Found match:", fileName, "->", relativePath)
+                    console.log("    -> MATCH! Adding:", fileName, "->", relativePath)
 
                     searchResultsModel.append({
                         "fileName": fileName,
@@ -126,6 +115,9 @@ ColumnLayout {
                 }
             }
         }
+
+        // Process next folder in queue
+        searchNextFolderUsingMain(pattern)
     }
 
     // Model for search results
