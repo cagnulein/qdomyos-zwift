@@ -26,43 +26,68 @@ ColumnLayout {
 
     // JavaScript functions for recursive file search
     function searchRecursively(folderUrl, filter) {
+        console.log("=== SEARCH STARTED ===")
+        console.log("Search folder:", folderUrl)
+        console.log("Search filter:", filter)
         searchResultsModel.clear()
         isSearching = true
         var searchPattern = filter.toLowerCase()
         recursiveSearch(folderUrl, searchPattern)
+        console.log("=== SEARCH COMPLETED ===")
+        console.log("Total results found:", searchResultsModel.count)
     }
 
     function recursiveSearch(folderUrl, pattern) {
+        console.log("Searching in folder:", folderUrl)
+
         var tempModel = Qt.createQmlObject('import Qt.labs.folderlistmodel 2.15; FolderListModel {}', stackView)
         tempModel.folder = folderUrl
         tempModel.nameFilters = ["*.xml", "*.zwo"]
         tempModel.showDirs = true
         tempModel.showDotAndDotDot = false
 
-        // Wait for model to populate
-        var maxWait = 100
-        var waited = 0
-        while (tempModel.count === 0 && waited < maxWait) {
-            waited++
+        console.log("Waiting for folder to load...")
+
+        // Wait for model to populate with a small delay
+        // iOS might need more time than desktop
+        var attempts = 0
+        var maxAttempts = 50
+        while (tempModel.count === 0 && attempts < maxAttempts) {
+            attempts++
+            // Small delay to allow async loading
+            var startDelay = Date.now()
+            while (Date.now() - startDelay < 20) {
+                // Busy wait for 20ms
+            }
         }
+
+        console.log("Folder loaded. Items found:", tempModel.count, "after", attempts, "attempts")
 
         for (var i = 0; i < tempModel.count; i++) {
             var isFolder = tempModel.isFolder(i)
             var fileName = tempModel.get(i, "fileName")
             var fileUrl = tempModel.get(i, "fileUrl") || tempModel.get(i, "fileURL")
 
+            console.log("  Item", i + ":", fileName, "isFolder:", isFolder, "url:", fileUrl)
+
             if (isFolder) {
+                console.log("  -> Recursing into subfolder:", fileName)
                 // Recursively search subdirectories
                 recursiveSearch(fileUrl, pattern)
             } else {
                 // Check if file matches pattern
-                if (fileName.toLowerCase().indexOf(pattern) !== -1) {
+                var matches = fileName.toLowerCase().indexOf(pattern) !== -1
+                console.log("  -> File matches pattern '" + pattern + "':", matches)
+
+                if (matches) {
                     // Get relative path from base training folder
                     var baseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
                     var relativePath = fileUrl.toString().replace(baseFolder, "")
                     if (relativePath.startsWith("/")) {
                         relativePath = relativePath.substring(1)
                     }
+
+                    console.log("  -> Adding to results. Relative path:", relativePath)
 
                     searchResultsModel.append({
                         "fileName": fileName,
@@ -143,12 +168,19 @@ ColumnLayout {
                         function updateFilter() {
                             var text = filterField.text.trim()
 
+                            console.log("=== FILTER UPDATED ===")
+                            console.log("Filter text:", "'" + text + "'")
+                            console.log("Text length:", text.length)
+
                             if (text === "") {
+                                console.log("Empty filter - switching to folder browsing mode")
                                 // No filter - use normal folder browsing
                                 isSearching = false
                             } else {
+                                console.log("Non-empty filter - triggering recursive search")
                                 // Trigger recursive search
                                 var baseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
+                                console.log("Base folder:", baseFolder)
                                 searchRecursively(baseFolder, text)
                             }
                         }
@@ -186,9 +218,20 @@ ColumnLayout {
                         showDirs: true
                         sortField: "Name"
                         showDirsFirst: true
+
+                        onCountChanged: {
+                            console.log("FolderListModel count changed:", count)
+                        }
                     }
 
                     model: isSearching ? searchResultsModel : folderModel
+
+                    onModelChanged: {
+                        console.log("=== ListView MODEL CHANGED ===")
+                        console.log("isSearching:", isSearching)
+                        console.log("Using model:", isSearching ? "searchResultsModel" : "folderModel")
+                        console.log("Model count:", model.count)
+                    }
 
                     delegate: Component {
                         Rectangle {
