@@ -116,16 +116,41 @@ CURRENT_HASH=$(find ../src -name "*.cpp" -o -name "*.h" -o -name "*.mm" | sort |
 echo "$CURRENT_HASH" > "$BUILD_CACHE_DIR/build_hash.txt"
 echo "Build cache updated"
 
-# NOW restore WatchOS companion app references AFTER make
-echo "Restoring WatchOS companion app references AFTER make..."
-echo "Performing git checkout of build directory..."
+# NOW restore Xcode project and fix qmake corruption AFTER make
+echo "Restoring Xcode project from git AFTER make..."
+echo "qmake regenerates src/qdomyoszwift.xcodeproj without proper code signing"
 
 # Return to project root for git operations
 cd ..
 
+# Restore the build directory project (has WatchOS and proper code signing)
 git checkout -- build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/
 
-echo "WatchOS references restored successfully"
+echo "Build directory Xcode project restored from git"
+
+# CRITICAL FIX: Delete corrupted project in src/ and symlink to the good one
+# qmake regenerates src/qdomyoszwift.xcodeproj without code signing during make
+# xcodebuild will build from src/, so we symlink to the correct project in build/
+echo "Removing corrupted Xcode project from src/ and creating symlink..."
+if [[ -d "src/qdomyoszwift.xcodeproj" ]]; then
+    rm -rf src/qdomyoszwift.xcodeproj
+    echo "Corrupted project removed from src/"
+fi
+
+# Create symlink from src/ to the correct project in build/
+ln -s ../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj src/qdomyoszwift.xcodeproj
+echo "Symlink created: src/qdomyoszwift.xcodeproj -> ../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj"
+
+# Verify symlink
+if [[ -L "src/qdomyoszwift.xcodeproj" ]]; then
+    echo "Symlink verified successfully"
+    ls -la src/qdomyoszwift.xcodeproj
+else
+    echo "ERROR: Failed to create symlink"
+    exit 1
+fi
+
+echo "Xcode project fix completed - symlink created to correct project with code signing"
 
 # Fix "legacy build locations" error by configuring Xcode project
 echo "Fixing Xcode Cloud legacy build locations issue..."
