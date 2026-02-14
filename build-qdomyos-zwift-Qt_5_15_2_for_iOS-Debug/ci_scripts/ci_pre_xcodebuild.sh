@@ -173,11 +173,11 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     sed -i '' 's|../Qt/5.15.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
     echo "Fixed Qt library paths in project file"
 
-    # Add Qt/labs/calendar to library search paths
-    # Find the LIBRARY_SEARCH_PATHS line and add the calendar path
-    echo "Adding Qt/labs/calendar to library search paths..."
-    sed -i '' 's|\(LIBRARY_SEARCH_PATHS = (\)|\1\n\t\t\t\t/tmp/Qt-5.15.2/ios/qml/Qt/labs/calendar,|g' qdomyoszwift.xcodeproj/project.pbxproj
-    echo "Added calendar directory to library search paths"
+    # Add ALL necessary Qt library search paths
+    # qmake generates these but they might be missing from the committed project
+    echo "Adding all Qt library search paths..."
+    sed -i '' 's|\(LIBRARY_SEARCH_PATHS = (\)|\1\n\t\t\t\t/tmp/Qt-5.15.2/ios/qml/Qt/labs/calendar,\n\t\t\t\t/tmp/Qt-5.15.2/ios/qml/Qt/labs/platform,\n\t\t\t\t/tmp/Qt-5.15.2/ios/qml/QtCharts,\n\t\t\t\t/tmp/Qt-5.15.2/ios/qml/QtWebView,\n\t\t\t\t/tmp/Qt-5.15.2/ios/qml/QtPositioning,\n\t\t\t\t/tmp/Qt-5.15.2/ios/qml/QtLocation,\n\t\t\t\t/tmp/Qt-5.15.2/ios/qml/QtMultimedia,\n\t\t\t\t/tmp/Qt-5.15.2/ios/plugins/platforms,\n\t\t\t\t/tmp/Qt-5.15.2/ios/plugins/webview,\n\t\t\t\t/tmp/Qt-5.15.2/ios/plugins/texttospeech,\n\t\t\t\t/tmp/Qt-5.15.2/ios/plugins/geoservices,\n\t\t\t\t/tmp/Qt-5.15.2/ios/plugins/sqldrivers,\n\t\t\t\t/tmp/Qt-5.15.2/ios/plugins/mediaservice,\n\t\t\t\t/tmp/Qt-5.15.2/ios/plugins/playlistformats,\n\t\t\t\t/tmp/Qt-5.15.2/ios/plugins/audio,|g' qdomyoszwift.xcodeproj/project.pbxproj
+    echo "Added all necessary Qt library search paths"
 
     # Verify the fix
     grep -c "libqtlabscalendarplugin.a" qdomyoszwift.xcodeproj/project.pbxproj && echo "qtlabscalendarplugin references found"
