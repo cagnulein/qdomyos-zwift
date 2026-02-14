@@ -125,18 +125,6 @@ echo "make completed successfully - MOC files generated"
 export PATH="${PATH#/tmp/fake_xcode:}"
 echo "Fake xcodebuild removed from PATH"
 
-# CRITICAL: Copy ALL generated files from src/ to build directory
-# qmake/make generates many files (moc_*.cpp, qrc_*.cpp, *.o, *.json, qmltyperegistrations, etc.) in src/
-# but Xcode project expects them in build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/
-echo "Copying ALL Qt-generated files from src/ to build directory..."
-cd "$PROJECT_ROOT/src"
-
-# Copy all generated files (cpp, o, json, a) but exclude directories
-find . -maxdepth 1 -type f \( -name "moc_*.cpp" -o -name "moc_*.cpp.json" -o -name "qrc_*.cpp" -o -name "*.o" -o -name "*.a" -o -name "*_qmltyperegistrations.*" -o -name "*.qmltypes" -o -name "*_metatypes.json" -o -name "*_plugin_import.cpp" \) -exec cp {} "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/" \;
-
-echo "Generated files copied to build directory"
-cd "$PROJECT_ROOT"
-
 # Cache the build results for next time
 echo "Caching build results..."
 mkdir -p "$BUILD_CACHE_DIR/objects"
@@ -162,6 +150,23 @@ echo "Back to project root: $(pwd)"
 git checkout -- build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/
 
 echo "Build directory Xcode project restored from git"
+
+# CRITICAL: Copy ALL generated files from src/ to build directory AFTER git restore
+# qmake/make generates many files (moc_*.cpp, qrc_*.cpp, *.o, *.json, qmltyperegistrations, etc.) in src/
+# but Xcode project expects them in build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/
+# This must happen AFTER git checkout to avoid wiping out the copied files
+echo "Copying ALL Qt-generated files from src/ to build directory..."
+cd "$PROJECT_ROOT/src"
+
+# Copy all generated files (cpp, o, json, a) but exclude directories
+echo "Looking for generated files in: $(pwd)"
+find . -maxdepth 1 -type f \( -name "moc_*.cpp" -o -name "moc_*.cpp.json" -o -name "qrc_*.cpp" -o -name "*.o" -o -name "*.a" -o -name "*_qmltyperegistrations.*" -o -name "*.qmltypes" -o -name "*_metatypes.json" -o -name "*_plugin_import.cpp" \) -print -exec cp {} "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/" \;
+
+echo "Generated files copied to build directory"
+echo "Verifying qdomyoszwift_qmltyperegistrations.cpp exists:"
+ls -la "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift_qmltyperegistrations.cpp" 2>&1 || echo "WARNING: qdomyoszwift_qmltyperegistrations.cpp not found after copy"
+
+cd "$PROJECT_ROOT"
 
 # CRITICAL FIX: Delete corrupted project in src/ and symlink to the good one
 # qmake regenerates src/qdomyoszwift.xcodeproj without code signing during make
