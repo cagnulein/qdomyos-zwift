@@ -151,6 +151,25 @@ git checkout -- build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/
 
 echo "Build directory Xcode project restored from git"
 
+# CRITICAL: Fix Qt library paths in Xcode project
+# The project has relative paths like ../../Qt/5.15.2/ which don't exist on Xcode Cloud
+# Replace them with absolute paths to /tmp/Qt-5.15.2/
+echo "Fixing Qt library paths in Xcode project..."
+cd "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug"
+if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
+    # Fix relative Qt paths to absolute paths
+    sed -i '' 's|../../Qt/5.15.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
+    sed -i '' 's|../Qt/5.15.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
+    echo "Fixed Qt library paths in project file"
+
+    # Verify the fix
+    grep -c "libqtlabscalendarplugin.a" qdomyoszwift.xcodeproj/project.pbxproj && echo "qtlabscalendarplugin references found"
+else
+    echo "ERROR: project.pbxproj not found"
+    exit 1
+fi
+cd "$PROJECT_ROOT"
+
 # CRITICAL: Copy ALL generated files from src/ to build directory AFTER git restore
 # qmake/make generates many files (moc_*.cpp, qrc_*.cpp, *.o, *.json, qmltyperegistrations, etc.) in src/
 # but Xcode project expects them in build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/
