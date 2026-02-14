@@ -252,21 +252,26 @@ void proformwifibike::innerWriteResistance() {
     bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
     static QString last_mode = "MANUAL";
 
-    if (requestResistance != -1) {
-        if (requestResistance > max_resistance) {
-            requestResistance = max_resistance;
-        } else if (requestResistance < min_resistance) {
-            requestResistance = min_resistance;
-        } else if (requestResistance == 0) {
-            requestResistance = 1;
+    if (requestResistance != -1 || lastGearValue != gears()) {
+        resistance_t rR = requestResistance;
+        if (rR == -1) {
+            rR = Resistance.value();
         }
 
-        if (requestResistance != currentResistance().value() && !inclinationAvailableByHardware() && requestInclination == -100) {
-            emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+        if (rR > max_resistance) {
+            rR = max_resistance;
+        } else if (rR < min_resistance) {
+            rR = min_resistance;
+        } else if (rR == 0) {
+            rR = 1;
+        }
+
+        if ((rR + gears() != currentResistance().value() || lastGearValue != gears()) && !inclinationAvailableByHardware() && requestInclination == -100) {
+            emit debug(QStringLiteral("writing resistance ") + QString::number(rR));
             auto virtualBike = this->VirtualBike();
             if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                 (requestPower == 0 || requestPower == -1)) {
-                forceResistance(requestResistance);
+                forceResistance(rR + gears());
             }
         }
         requestResistance = -1;
@@ -307,6 +312,8 @@ void proformwifibike::innerWriteResistance() {
                                                        // i'm using the gears in the inclination
         requestInclination = -100;
     }
+
+    lastGearValue = gears();
 }
 
 void proformwifibike::update() {
