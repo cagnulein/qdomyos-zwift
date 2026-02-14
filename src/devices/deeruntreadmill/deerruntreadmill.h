@@ -41,6 +41,7 @@ class deerruntreadmill : public treadmill {
                      double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
     double minStepInclination() override;
+    double minStepSpeed() override { return 0.1; }
 
   private:
     void forceSpeed(double requestSpeed);
@@ -48,8 +49,11 @@ class deerruntreadmill : public treadmill {
     void btinit(bool startTape);
     void writeCharacteristic(const QLowEnergyCharacteristic characteristic, uint8_t *data, uint8_t data_len,
                              const QString &info, bool disable_log = false, bool wait_for_response = false);
+    void writeUnlockCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false);
+    void waitForAPacket();
     void startDiscover();
     uint8_t calculateXOR(uint8_t arr[], size_t size);
+    uint8_t calculatePitPatChecksum(uint8_t arr[], size_t size);
     bool noConsole = false;
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;
@@ -66,6 +70,12 @@ class deerruntreadmill : public treadmill {
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
+    
+    QLowEnergyService *unlock_service = nullptr;
+    QLowEnergyCharacteristic unlock_characteristic;
+
+    bool pitpat = false;
+    bool superun_ba04 = false;
 
     bool initDone = false;
     bool initRequest = false;

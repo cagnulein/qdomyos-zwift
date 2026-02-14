@@ -31,9 +31,11 @@ Page {
         property int age: 35
         property string sex: "Male"
         property bool miles_unit: false
+        property bool weight_kg_unit: false
         property string heart_rate_belt_name: "Disabled"
         property bool garmin_companion: false
         property string filter_device: "Disabled"
+        property bool weight_kg_unit: false
     }
 
     background: Rectangle {
@@ -845,7 +847,6 @@ Page {
                         text: qsTr("Finish")
                         onClicked: {
                             settings.tile_gears_enabled = true;
-                            settings.gears_gain = 0.5;
                             stackViewLocal.push(finalStepComponent);
                         }
                     }
@@ -904,7 +905,6 @@ Page {
                         text: qsTr("Finish")
                         onClicked: {
                             settings.tile_gears_enabled = true;
-                            settings.gears_gain = 1;
                             stackViewLocal.push(finalStepComponent);
                         }
                     }
@@ -1183,7 +1183,7 @@ Page {
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Weight (" + (settings.miles_unit ? "lbs" : "kg") + ")")
+                        text: qsTr("Weight (" + ((settings.miles_unit && !settings.weight_kg_unit) ? "lbs" : "kg") + ")")
                         font.pixelSize: 20
                         color: "white"
                     }
@@ -1191,13 +1191,13 @@ Page {
                     SpinBox {
                         id: weightSpinBox
                         Layout.alignment: Qt.AlignHCenter
-                        from: settings.miles_unit ? 660 : 300  // 66.0 lbs or 30.0 kg
-                        to: settings.miles_unit ? 4400 : 2000  // 440.0 lbs or 200.0 kg
-                        value: settings.miles_unit ? (settings.weight * 2.20462 * 10).toFixed(0) : (settings.weight * 10)
+                        from: (settings.miles_unit && !settings.weight_kg_unit) ? 660 : 300  // 66.0 lbs or 30.0 kg
+                        to: (settings.miles_unit && !settings.weight_kg_unit) ? 4400 : 2000  // 440.0 lbs or 200.0 kg
+                        value: (settings.miles_unit && !settings.weight_kg_unit) ? (settings.weight * 2.20462 * 10).toFixed(0) : (settings.weight * 10)
                         stepSize: 1
                         editable: true
 
-                        property real realValue: settings.miles_unit ? value / 22.0462 : value / 10
+                        property real realValue: (settings.miles_unit && !settings.weight_kg_unit) ? value / 22.0462 : value / 10
 
                         textFromValue: function(value, locale) {
                             return Number(value / 10).toLocaleString(locale, 'f', 1)

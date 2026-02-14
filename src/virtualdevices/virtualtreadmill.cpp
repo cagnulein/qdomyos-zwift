@@ -20,6 +20,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
     double bikeResistanceGain =
         settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
+    bool bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
     this->noHeartService = noHeartService;
     if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
         dirconManager = new DirconManager(t, bikeResistanceOffset, bikeResistanceGain, this);
@@ -49,7 +50,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     if (ios_peloton_workaround) {
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
-        h->virtualtreadmill_zwift_ios(garmin_bluetooth_compatibility);
+        h->virtualtreadmill_zwift_ios(garmin_bluetooth_compatibility, bike_cadence_sensor);
     } else
 #endif
 #endif
@@ -516,6 +517,7 @@ void virtualtreadmill::reconnect() {
 void virtualtreadmill::treadmillProvider() {
     const uint64_t slopeTimeoutSecs = 30;
     QSettings settings;
+    bool bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
 
     if ((uint64_t)QDateTime::currentSecsSinceEpoch() > lastSlopeChanged + slopeTimeoutSecs)
         m_autoInclinationEnabled = false;
@@ -549,14 +551,17 @@ void virtualtreadmill::treadmillProvider() {
     //        (uint16_t)((treadmill *)treadMill)->wattsMetric().value(),
     //        inclination * 10, (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0))) {
     //    h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
-    //    lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
 
     uint16_t swiftSpeed = normalizeSpeed;
     uint16_t swiftCadence = (uint16_t)(((treadmill *)treadMill)->currentCadence().value() * cadence_multiplier);
     uint8_t swiftResistance = 0;
     uint16_t swiftWatt = (uint16_t)((treadmill *)treadMill)->wattsMetric().value();
     uint16_t swiftInclination = (uint16_t)(inclination * 10.0);
-    uint64_t swiftDistance = (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0);
+    uint64_t swiftDistance = bike_cadence_sensor ?
+        (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0) :  // old behavior
+        (uint64_t)(((treadmill *)treadMill)->odometerFromStartup() * 1000.0);  // new behavior
+    uint16_t swiftCalories = ((treadmill *)treadMill)->calories().value();
+    qint32 swiftSteps = ((treadmill *)treadMill)->currentStepCount().value();
 
     // Calculate Elapsed Time to pass
     QTime swift_elapsed = treadMill->elapsedTime();
@@ -568,14 +573,21 @@ void virtualtreadmill::treadmillProvider() {
 
     if (h->virtualtreadmill_updateFTMS(  // uses @objc public func updateFTMS in virtualtreadmill_zwift.swift
             swiftSpeed,
-            swiftCadence,
             swiftResistance,
+            swiftCadence,
             swiftWatt,
             swiftInclination,
             swiftDistance,
-            swiftElapsedTimeSeconds
+            ((treadmill *)treadMill)->elevationGain().value(),  // Use QZ's calculated elevation gain
+            swiftCalories,
+            swiftSteps,
+            swiftElapsedTimeSeconds,
+            static_cast<uint8_t>(treadMill->deviceType())
             )) {
         h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
+        h->setElevationGain(((treadmill *)treadMill)->elevationGain().value());
+
+        lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
 
         if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)
             writeP2AD9->changeSlope(h->virtualtreadmill_getCurrentSlope(), 0, 0);
@@ -583,7 +595,7 @@ void virtualtreadmill::treadmillProvider() {
         // Check for requested speed from FTMS and apply it
         double requestedSpeed = h->virtualtreadmill_getRequestedSpeed();
         if (requestedSpeed > 0 && requestedSpeed != treadMill->currentSpeed().value()) {
-            if (treadMill->deviceType() == bluetoothdevice::TREADMILL) {
+            if (treadMill->deviceType() == TREADMILL) {
                 ((treadmill *)treadMill)->changeSpeed(requestedSpeed);
                 qDebug() << "virtualtreadmill: Applied requested speed from FTMS:" << requestedSpeed;
             }

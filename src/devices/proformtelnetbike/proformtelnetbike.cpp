@@ -17,7 +17,7 @@ using namespace std::chrono_literals;
 proformtelnetbike::proformtelnetbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                  double bikeResistanceGain) {
     QSettings settings;
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     m_rawWatt.setType(metric::METRIC_WATT);
     target_watts.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -397,20 +397,5 @@ uint16_t proformtelnetbike::wattsFromResistance(resistance_t resistance) {
 }
 
 resistance_t proformtelnetbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-    if (Cadence.value() == 0)
-        return 1;
-
-    for (resistance_t i = 1; i < maxResistance(); i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                    << wattsFromResistance(i + 1) << power;
-            return i;
-        }
-    }
-    if (power < wattsFromResistance(1))
-        return 1;
-    else
-        return maxResistance();
+    return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), maxResistance());
 }

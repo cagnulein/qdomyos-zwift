@@ -30,7 +30,7 @@ fitplusbike::fitplusbike(bool noWriteResistance, bool noHeartService, int8_t bik
         QZ_EnableDiscoveryCharsAndDescripttors = true;
     }
 #endif
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -1141,20 +1141,5 @@ uint16_t fitplusbike::wattsFromResistance(double resistance) {
 }
 
 resistance_t fitplusbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-    if (Cadence.value() == 0)
-        return 1;
-
-    for (resistance_t i = 1; i < max_resistance; i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                     << wattsFromResistance(i + 1) << power;
-            return i;
-        }
-    }
-    if (power < wattsFromResistance(1))
-        return 1;
-    else
-        return max_resistance;
+    return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }

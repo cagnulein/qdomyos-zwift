@@ -27,6 +27,9 @@
 #include <QString>
 
 #include "devices/rower.h"
+#include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualrower.h"
+#include "virtualdevices/virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -70,6 +73,7 @@ class trxappgateusbrower : public rower {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool mearch_novarow_r50 = false;
 
     uint8_t counterPoll = 0;
     bool searchStopped = false;

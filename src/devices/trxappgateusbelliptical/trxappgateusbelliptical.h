@@ -59,6 +59,7 @@ class trxappgateusbelliptical : public elliptical {
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
+    QDateTime lastValidPacketTime = QDateTime::currentDateTime();
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     int8_t bikeResistanceOffset = 4;
@@ -69,6 +70,9 @@ class trxappgateusbelliptical : public elliptical {
     bool initDone = false;
     bool initRequest = false;
 
+    resistance_t lastResistanceBeforeDisconnection = -1;
+    bool needsResistanceRestore = false;
+
     bool noWriteResistance = false;
     bool noHeartService = false;
 
@@ -78,6 +82,8 @@ class trxappgateusbelliptical : public elliptical {
     typedef enum TYPE {
         ELLIPTICAL_GENERIC = 0,
         DCT2000I = 1,
+        JTX_FITNESS = 2,
+        TAURUS_FX99 = 3,
     } TYPE;
     TYPE elliptical_type = ELLIPTICAL_GENERIC;
 

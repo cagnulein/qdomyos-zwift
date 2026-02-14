@@ -17,7 +17,7 @@
 using namespace std::chrono_literals;
 
 fakebike::fakebike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -64,6 +64,14 @@ void fakebike::update() {
             m_watt.value(), 0, Speed.value(), fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
             speedLimit());
     }
+    
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    if (watts())
+        KCal +=
+            ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
+             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                              // kg * 3.5) / 200 ) / 60
     
     if (Cadence.value() > 0) {
         CrankRevs++;
@@ -171,28 +179,7 @@ uint16_t fakebike::wattsFromResistance(double resistance) {
 }
 
 resistance_t fakebike::resistanceFromPowerRequest(uint16_t power) {
-    //QSettings settings;
-    //bool toorx_srx_3500 = settings.value(QZSettings::toorx_srx_3500, QZSettings::default_toorx_srx_3500).toBool();
-    /*if(toorx_srx_3500)*/ {
-        qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-        if (Cadence.value() == 0)
-            return 1;
-
-        for (resistance_t i = 1; i < maxResistance(); i++) {
-            if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-                qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                        << wattsFromResistance(i + 1) << power;
-                return i;
-            }
-        }
-        if (power < wattsFromResistance(1))
-            return 1;
-        else
-            return maxResistance();
-    } /*else {
-        return power / 10;
-    }*/
+    return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), maxResistance());
 }
 
 

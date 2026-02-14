@@ -26,10 +26,12 @@ class WatchKitConnection: NSObject {
     static var distance = 0.0
     static var stepCadence = 0
     static var kcal = 0.0
+    static var totalKcal = 0.0
     static var speed = 0.0
     static var power = 0.0
     static var cadence = 0.0
     static var steps = 0
+    static var elevationGain = 0.0
     
     private override init() {
         super.init()
@@ -53,6 +55,11 @@ class WatchKitConnection: NSObject {
     public func setKCal(Kcal: Double) -> Void
     {
         WatchKitConnection.kcal = Kcal;
+    }
+    
+    public func setTotalKCal(TotalKcal: Double) -> Void
+    {
+        WatchKitConnection.totalKcal = TotalKcal;
     }
     
     public func setDistance(Distance: Double) -> Void
@@ -144,9 +151,10 @@ extension WatchKitConnection: WCSessionDelegate {
         replyValues["power"] = WatchKitConnection.power
         replyValues["speed"] = WatchKitConnection.speed
         replyValues["steps"] = Double(WatchKitConnection.steps)
-        
+        replyValues["elevationGain"] = WatchKitConnection.elevationGain
+
         SwiftDebug.qtDebug(replyValues.debugDescription)
-        
+
         replyHandler(replyValues)
                 
         //LocalNotificationHelper.fireHeartRate(heartReateDouble)

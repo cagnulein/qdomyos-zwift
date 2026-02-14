@@ -1,5 +1,6 @@
 #ifndef TEMPLATEINFOSENDERBUILDER_H
 #define TEMPLATEINFOSENDERBUILDER_H
+#include "fit_profile.hpp"
 #include "devices/bluetoothdevice.h"
 #include "templateinfosender.h"
 #include <QHash>
@@ -21,6 +22,9 @@ class TemplateInfoSenderBuilder : public QObject {
     void stop();
     QStringList templateIdList() const;
     ~TemplateInfoSenderBuilder();
+
+    void previewSessionOnChart(QList<SessionLine> *session, FIT_SPORT sport);
+    void previewSessionOnChart(QList<SessionLine> *session, FIT_SPORT sport, const QString &workoutName);
   signals:
     void activityDescriptionChanged(QString newDescription);
     void chartSaved(QString filename);
@@ -45,11 +49,13 @@ class TemplateInfoSenderBuilder : public QObject {
     QString activityDescription;
     void createTemplatesFromFolder(const QString &idInfo, const QString &folder, QStringList &dirTemplates);
     void clearSessionArray();
+    void clearPreviewSessionArray();
     bluetoothdevice *device = nullptr;
     QTimer updateTimer;
     QString masterId;
     QStringList foldersToLook;
     QJsonArray sessionArray;
+    QJsonArray previewSessionArray;
     QHash<QString, QVariant> context;
     QJSEngine *engine = nullptr;
     TemplateInfoSenderBuilder(QObject *parent);
@@ -78,10 +84,17 @@ class TemplateInfoSenderBuilder : public QObject {
     void onFloatingClose(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onAutoresistance(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onDeleteTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onGetTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onTrainingProgramPreview(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onTrainingProgramOpen(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onTrainingProgramAutostart(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onWorkoutEditorEnv(TemplateInfoSender *tempSender);
+    void onWorkoutEditorStart(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onGetSessionArray(TemplateInfoSender *tempSender);
+    void onGetPreviewSessionArray(TemplateInfoSender *tempSender);
     void onGetLatLon(TemplateInfoSender *tempSender);
     void onNextInclination300Meters(TemplateInfoSender *tempSender);
     void onGetGPXBase64(TemplateInfoSender *tempSender);

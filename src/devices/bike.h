@@ -4,6 +4,7 @@
 #include "devices/bluetoothdevice.h"
 #include "virtualdevices/virtualbike.h"
 #include <QObject>
+#include <QElapsedTimer>
 
 class bike : public bluetoothdevice {
 
@@ -31,7 +32,7 @@ class bike : public bluetoothdevice {
     virtual resistance_t resistanceFromPowerRequest(uint16_t power);
     virtual uint16_t powerFromResistanceRequest(resistance_t requestResistance);
     virtual bool ergManagedBySS2K() { return false; }
-    bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
+    BLUETOOTH_TYPE deviceType() override;
     metric pelotonResistance();
     void clearStats() override;
     void setLap() override;
@@ -51,7 +52,9 @@ class bike : public bluetoothdevice {
      */
     metric currentSteeringAngle() { return m_steeringAngle; }
     virtual bool inclinationAvailableByHardware();
+    virtual bool inclinationAvailableBySoftware();
     bool ergModeSupportedAvailableByHardware() { return ergModeSupported; }
+    virtual bool ergModeSupportedAvailableBySoftware() { return ergModeSupported; }
 
   public Q_SLOTS:
     void changeResistance(resistance_t res) override;
@@ -108,6 +111,25 @@ class bike : public bluetoothdevice {
     metric m_steeringAngle;
 
     double m_speedLimit = 0;
+
+    // Sim mode support: convert inclination to power for devices without native inclination
+    bool m_slopeControlEnabled = false;
+    double m_currentSlopePercent = 0.0;
+    int m_lastSlopeTargetPower = -1;
+    bool m_slopePowerChangeInProgress = false;
+    QElapsedTimer m_slopePowerTimer;
+
+    // Physics-based power calculation from slope
+    virtual double computeSlopeTargetPower(double gradePercent, double speedKmh);
+
+    // Update power based on current slope and speed (called periodically)
+    virtual void updateSlopeTargetPower(bool force = false);
+
+    // Check if device supports native inclination control
+    virtual bool supportsNativeInclination() const { return true; }
+
+    // Helper: get current speed for slope calculations
+    double getCurrentSpeedForSlope();
 
     uint16_t wattFromHR(bool useSpeedAndCadence);
 };

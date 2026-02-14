@@ -13,8 +13,8 @@ CharacteristicWriteProcessor2AD9::CharacteristicWriteProcessor2AD9(double bikeRe
 
 int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArray &data, QByteArray &reply) {
     if (data.size()) {
-        bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
-        if (dt == bluetoothdevice::BIKE) {
+        BLUETOOTH_TYPE dt = Bike->deviceType();
+        if (dt == BIKE || dt == ROWING) {
             QSettings settings;
             bool force_resistance =
                 settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
@@ -63,6 +63,12 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
                 reply.append((quint8)FTMS_RESPONSE_CODE);
                 reply.append((quint8)FTMS_START_RESUME);
                 reply.append((quint8)FTMS_SUCCESS);
+            } else if (cmd == FTMS_STOP_PAUSE) {
+                qDebug() << QStringLiteral("stop/pause simulation! ignoring it");
+
+                reply.append((quint8)FTMS_RESPONSE_CODE);
+                reply.append((quint8)FTMS_STOP_PAUSE);
+                reply.append((quint8)FTMS_SUCCESS);
             } else if (cmd == FTMS_REQUEST_CONTROL) {
                 qDebug() << QStringLiteral("control requested");
 
@@ -76,7 +82,7 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
                 reply.append((quint8)cmd);
                 reply.append((quint8)FTMS_NOT_SUPPORTED);
             }
-        } else if (dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL) {
+        } else if (dt == TREADMILL || dt == ELLIPTICAL) {
             char a, b;
             if ((char)data.at(0) == 0x02) {
                 // Set Target Speed
@@ -85,7 +91,7 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
 
                 uint16_t uspeed = a + (((uint16_t)b) << 8);
                 double requestSpeed = (double)uspeed / 100.0;
-                if (dt == bluetoothdevice::TREADMILL) {
+                if (dt == TREADMILL) {
                     ((treadmill *)Bike)->changeSpeed(requestSpeed);
                 }
                 qDebug() << QStringLiteral("new requested speed ") + QString::number(requestSpeed);
@@ -97,10 +103,10 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
                 int16_t sincline = a + (((int16_t)b) << 8);
                 double requestIncline = (double)sincline / 10.0;
 
-                if (dt == bluetoothdevice::TREADMILL)
+                if (dt == TREADMILL)
                     ((treadmill *)Bike)->changeInclination(requestIncline, requestIncline);
                 // Resistance as incline on Sole E95s Elliptical #419
-                else if (dt == bluetoothdevice::ELLIPTICAL) {
+                else if (dt == ELLIPTICAL) {
                     if(((elliptical *)Bike)->inclinationAvailableByHardware())
                         ((elliptical *)Bike)->changeInclination(requestIncline, requestIncline);
                     else
