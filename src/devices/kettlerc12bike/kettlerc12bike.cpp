@@ -219,7 +219,6 @@ void kettlerc12bike::update() {
                 if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
                 auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-                connect(virtualBike, &virtualbike::debug, this, &kettlerc12bike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &bike::changeInclination);
                 this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
@@ -248,6 +247,9 @@ void kettlerc12bike::serviceScanDone(void) {
 
 void kettlerc12bike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
+    QSettings settings;
+    QString heartRateBeltName =
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     lastPacket = newValue;
     lastRefreshCharacteristicChanged = now;
