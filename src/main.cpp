@@ -9,6 +9,8 @@
 #endif
 #endif
 #include <QQmlContext>
+#include <QTranslator>
+#include <QLocale>
 #include "logwriter.h"
 #include "bluetooth.h"
 #include "devices/domyostreadmill/domyostreadmill.h"
@@ -108,6 +110,10 @@ static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandle
 
 // Function to display help information and exit
 void displayHelp() {
+    // Test string for translation workflow - will be extracted by lupdate
+    QString testTranslation = QCoreApplication::translate("main", "QDomyos-Zwift - Fitness Equipment Bridge");
+    Q_UNUSED(testTranslation); // Suppress unused variable warning
+
     printf("qDomyos-Zwift Usage:\n");
     printf("General options:\n");
     printf("  -h, --help                    Display this help message and exit\n");
@@ -850,11 +856,33 @@ int main(int argc, char *argv[]) {
 #endif
     {
         AndroidStatusBar::registerQmlType();
-        
+
 #ifdef Q_OS_ANDROID
         FontManager fontManager;
         fontManager.initializeEmojiFont();
 #endif
+
+        // Load translations based on system locale
+        QTranslator translator;
+        QString locale = QLocale::system().name(); // e.g., "it_IT", "en_US", "de_DE"
+
+        // Try to load translation for the current locale
+        // The .qm files are embedded in the application via translations.qrc
+        // Located in src/translations/ folder
+        if (translator.load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + locale)) {
+            app->installTranslator(&translator);
+            qDebug() << "Translation loaded successfully for locale:" << locale;
+        } else {
+            // Try to load just the language part (e.g., "it" from "it_IT")
+            QString language = locale.split('_').at(0);
+            if (translator.load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + language)) {
+                app->installTranslator(&translator);
+                qDebug() << "Translation loaded successfully for language:" << language;
+            } else {
+                qDebug() << "No translation available for locale:" << locale << "- using default (English)";
+            }
+        }
+
         QQmlApplicationEngine engine;
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(
