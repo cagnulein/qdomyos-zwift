@@ -18,6 +18,10 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   window-build:
@@ -29,41 +33,36 @@ jobs:
           - {python: false}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Checkout submodule repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
+      - name: Checkout googletest
+        uses: actions/checkout@v4
         with:
           repository: google/googletest
           path: "tst/googletest/"
           ref: "release-1.12.1"
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
+      - name: Checkout MSIX-Toolkit
+        uses: actions/checkout@v4
         with:
           repository: microsoft/MSIX-Toolkit
           path: "src/MSIX-Toolkit/"
           ref: b82af826d29e93e4c85d34fad8a405b6c49905e7
-
-      - uses: actions/checkout@v2
       - name: Checkout qHttpServer
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
 
-
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: 3.7
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: .github/workflows/main.yml
       - name: download python and paddleocr
         run: |
           python -VV
@@ -103,15 +102,29 @@ jobs:
           cache: 'true'
           cache-key-prefix: 'install-qt-action-windows'          
 
+      - name: Cache qthttpserver build
+        id: cache-qthttpserver-mingw
+        uses: actions/cache@v4
+        with:
+          path: src/qthttpserver
+          key: qthttpserver-mingw-${{ runner.os }}-qt5.15.2-v1
+
       - name: download 3rd party files for qthttpserver
+        if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
         run: |
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
       - name: Build qthttpserver
+        if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
         run: |
             cd src\qthttpserver
             qmake
             make -j8
+            cd ../..
+
+      - name: Install qthttpserver
+        run: |
+            cd src\qthttpserver
             make install
             cd ../..
 
@@ -127,7 +140,7 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          cd ..  
+          cd ..
 
       - name: Build
         run: |
@@ -364,25 +377,21 @@ jobs:
           Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Checkout submodule repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
+      - name: Checkout googletest
+        uses: actions/checkout@v4
         with:
           repository: google/googletest
           path: "tst/googletest/"
           ref: "release-1.12.1"
-
-      - uses: actions/checkout@v2
       - name: Checkout qHttpServer
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
@@ -399,15 +408,29 @@ jobs:
           cache: 'true'
           cache-key-prefix: 'install-qt-action-linux'                    
 
+      - name: Cache qthttpserver build
+        id: cache-qthttpserver-linux
+        uses: actions/cache@v4
+        with:
+          path: src/qthttpserver
+          key: qthttpserver-linux-${{ runner.os }}-qt5.15.2-v1
+
       - name: download 3rd party files for qthttpserver
+        if: steps.cache-qthttpserver-linux.outputs.cache-hit != 'true'
         run: |
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
       - name: Build qthttpserver
+        if: steps.cache-qthttpserver-linux.outputs.cache-hit != 'true'
         run: |
-            cd src/qthttpserver 
+            cd src/qthttpserver
             qmake
             make -j8
+            cd ../..
+
+      - name: Install qthttpserver
+        run: |
+            cd src/qthttpserver
             make install
             cd ../..
 
@@ -828,17 +851,15 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Checkout submodule repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
+      - name: Checkout googletest
+        uses: actions/checkout@v4
         with:
           repository: google/googletest
           path: "tst/googletest/"
@@ -895,35 +916,33 @@ jobs:
       matrix:
         config:
           - {python: true}
-          - {python: false}    
+          - {python: false}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Checkout submodule repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
+      - name: Checkout googletest
+        uses: actions/checkout@v4
         with:
           repository: google/googletest
           path: "tst/googletest/"
           ref: "release-1.12.1"
-
-      - uses: actions/checkout@v2
       - name: Checkout qHttpServer
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: 3.7
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: .github/workflows/main.yml
       - name: download python and paddleocr
         run: |
           python -VV
@@ -937,7 +956,7 @@ jobs:
           python -m pip install opencv-python
           python -m pip install numpy
           python -m pip install pywin32
-        if: matrix.config.python          
+        if: matrix.config.python
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -959,17 +978,31 @@ jobs:
           toolset: 14.2
           arch: x64
 
+      - name: Cache qthttpserver build
+        id: cache-qthttpserver-msvc2019
+        uses: actions/cache@v4
+        with:
+          path: src/qthttpserver
+          key: qthttpserver-msvc2019-${{ runner.os }}-qt5.15.2-v1
+
       - name: download 3rd party files for qthttpserver
+        if: steps.cache-qthttpserver-msvc2019.outputs.cache-hit != 'true'
         run: |
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
       - name: Build qthttpserver
+        if: steps.cache-qthttpserver-msvc2019.outputs.cache-hit != 'true'
         run: |
-            cd src\qthttpserver 
+            cd src\qthttpserver
             qmake
             nmake
+            cd ../..
+
+      - name: Install qthttpserver
+        run: |
+            cd src\qthttpserver
             nmake install
-            cd ../..          
+            cd ../..
 
       - name: Secrets
         if: github.ref == 'refs/heads/master'
@@ -983,17 +1016,27 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          cd ..        
+          cd ..
+
+      - name: Cache vcpkg
+        id: cache-vcpkg-msvc2019
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.workspace }}\vcpkg\installed
+          key: vcpkg-msvc2019-x64-windows-protobuf-abseil-v1
 
       - name: Clone vcpkg
+        if: steps.cache-vcpkg-msvc2019.outputs.cache-hit != 'true'
         run: git clone https://github.com/microsoft/vcpkg.git
         working-directory: ${{ runner.workspace }}
-  
+
       - name: Bootstrap vcpkg
+        if: steps.cache-vcpkg-msvc2019.outputs.cache-hit != 'true'
         run: .\vcpkg\bootstrap-vcpkg.bat
         working-directory: ${{ runner.workspace }}
-        
+
       - name: Create vcpkg.json
+        if: steps.cache-vcpkg-msvc2019.outputs.cache-hit != 'true'
         working-directory: ${{ runner.workspace }}
         run: |
           echo '{
@@ -1006,18 +1049,19 @@ jobs:
             ],
             "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
           }' > vcpkg.json
-      
+
       - name: Install dependencies
+        if: steps.cache-vcpkg-msvc2019.outputs.cache-hit != 'true'
         run: |
           .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=${{ runner.workspace }}\vcpkg\installed
         working-directory: ${{ runner.workspace }}
-  
+
       - name: Build
         run: |
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
-            qmake            
+            qmake
             nmake
             cd src/debug
             mkdir output
@@ -1037,13 +1081,13 @@ jobs:
             cp ../../adb/* adb/
             cd ..
             cd appx
-            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz   
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz
         if: matrix.config.python
-            
+
       - name: Build without python
-        run: |          
+        run: |
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose      
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
             qmake           
             nmake
@@ -1095,28 +1139,24 @@ jobs:
   window-msvc2019-aiserver-build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Checkout submodule repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
+      - name: Checkout googletest
+        uses: actions/checkout@v4
         with:
           repository: google/googletest
           path: "tst/googletest/"
           ref: "release-1.12.1"
-
-      - uses: actions/checkout@v2
       - name: Checkout qHttpServer
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: qt-labs/qthttpserver
-          path: "src/qthttpserver"      
+          path: "src/qthttpserver"
 
       - name: Install CMake
         uses: lukka/get-cmake@latest
@@ -1141,17 +1181,31 @@ jobs:
           toolset: 14.2
           arch: x64
 
+      - name: Cache qthttpserver build
+        id: cache-qthttpserver-aiserver
+        uses: actions/cache@v4
+        with:
+          path: src/qthttpserver
+          key: qthttpserver-msvc2019-${{ runner.os }}-qt5.15.2-v1
+
       - name: download 3rd party files for qthttpserver
+        if: steps.cache-qthttpserver-aiserver.outputs.cache-hit != 'true'
         run: |
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
       - name: Build qthttpserver
+        if: steps.cache-qthttpserver-aiserver.outputs.cache-hit != 'true'
         run: |
-            cd src\qthttpserver 
+            cd src\qthttpserver
             qmake
             nmake
+            cd ../..
+
+      - name: Install qthttpserver
+        run: |
+            cd src\qthttpserver
             nmake install
-            cd ../..          
+            cd ../..
 
       - name: Secrets
         if: github.ref == 'refs/heads/master'
@@ -1167,15 +1221,25 @@ jobs:
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
 
+      - name: Cache vcpkg
+        id: cache-vcpkg-aiserver
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.workspace }}\vcpkg\installed
+          key: vcpkg-msvc2019-x64-windows-protobuf-abseil-v1
+
       - name: Clone vcpkg
+        if: steps.cache-vcpkg-aiserver.outputs.cache-hit != 'true'
         run: git clone https://github.com/microsoft/vcpkg.git
         working-directory: ${{ runner.workspace }}
-  
+
       - name: Bootstrap vcpkg
+        if: steps.cache-vcpkg-aiserver.outputs.cache-hit != 'true'
         run: .\vcpkg\bootstrap-vcpkg.bat
         working-directory: ${{ runner.workspace }}
-        
+
       - name: Create vcpkg.json
+        if: steps.cache-vcpkg-aiserver.outputs.cache-hit != 'true'
         working-directory: ${{ runner.workspace }}
         run: |
           echo '{
@@ -1188,8 +1252,9 @@ jobs:
             ],
             "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
           }' > vcpkg.json
-      
+
       - name: Install dependencies
+        if: steps.cache-vcpkg-aiserver.outputs.cache-hit != 'true'
         run: |
           .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=${{ runner.workspace }}\vcpkg\installed
         working-directory: ${{ runner.workspace }}
@@ -1197,7 +1262,7 @@ jobs:
       - name: Build
         run: |
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
             cd src
             echo "#define AISERVER" >> aiserver.h
@@ -1237,19 +1302,19 @@ jobs:
           path: windows-msvc2019-ai-server-binary.zip
 
   raspberry-pi-build:
-    runs-on: ubuntu-latest
-    
+    runs-on: ubuntu-22.04-arm
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Secrets
         run: |
@@ -1294,23 +1359,13 @@ jobs:
           path: src/qdomyos-zwift-32bit
 
   raspberry-pi-build-and-image-64bit:
-    runs-on: ubuntu-22.04
-    
+    runs-on: ubuntu-22.04-arm
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
-
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          image: tonistiigi/binfmt:master
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          version: v0.19.3
 
       - name: Secrets
         run: |
@@ -1326,24 +1381,21 @@ jobs:
           echo "#define LICENSE" >> secret.h
           cd ..
 
+      - name: Install Qt5 build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
+
       - name: Build for Raspberry Pi 64-bit
-        uses: docker://arm64v8/debian:bullseye-20241016
-        with:
-          args: >
-            bash -c "
-            set -ex &&
-            for i in 1 2 3; do apt-get update && break || sleep 5; done &&
-            for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql && break || sleep 5; done &&
-            export QT_SELECT=qt5 &&
-            export PATH=/usr/lib/qt5/bin:$PATH &&
-            cd /github/workspace &&
-            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
-            cat qdomyos-zwift.pro &&
-            qmake &&
-            make -j$(nproc)
-            "
+        run: |
+          export QT_SELECT=qt5
+          export PATH=/usr/lib/qt5/bin:$PATH
+          sed -i '/QtHttpServer/d' qdomyos-zwift.pro
+          find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} +
+          find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} +
+          cat qdomyos-zwift.pro
+          qmake
+          make -j$(nproc)
 
       - name: Rename binary
         run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit
@@ -1352,7 +1404,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: raspberry-pi-binary-64bit
-          path: src/qdomyos-zwift-64bit        
+          path: src/qdomyos-zwift-64bit
 
   window-msvc2022-build:
     runs-on: windows-latest
@@ -1370,9 +1422,11 @@ jobs:
           ref: refs/pull/1508/head
           submodules: recursive 
     
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: 3.7
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: .github/workflows/main.yml
       - name: download python and paddleocr
         run: |
           python -VV
@@ -1386,7 +1440,7 @@ jobs:
           python -m pip install opencv-python
           python -m pip install numpy
           python -m pip install pywin32
-        if: matrix.config.python          
+        if: matrix.config.python
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -1432,17 +1486,27 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          cd ..        
+          cd ..
+
+      - name: Cache vcpkg
+        id: cache-vcpkg-msvc2022
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.workspace }}\vcpkg\installed
+          key: vcpkg-msvc2022-x64-windows-protobuf-abseil-v1
 
       - name: Clone vcpkg
+        if: steps.cache-vcpkg-msvc2022.outputs.cache-hit != 'true'
         run: git clone https://github.com/microsoft/vcpkg.git
         working-directory: ${{ runner.workspace }}
-  
+
       - name: Bootstrap vcpkg
+        if: steps.cache-vcpkg-msvc2022.outputs.cache-hit != 'true'
         run: .\vcpkg\bootstrap-vcpkg.bat
         working-directory: ${{ runner.workspace }}
-        
+
       - name: Create vcpkg.json
+        if: steps.cache-vcpkg-msvc2022.outputs.cache-hit != 'true'
         working-directory: ${{ runner.workspace }}
         run: |
           echo '{
@@ -1455,12 +1519,13 @@ jobs:
             ],
             "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
           }' > vcpkg.json
-      
+
       - name: Install dependencies
+        if: steps.cache-vcpkg-msvc2022.outputs.cache-hit != 'true'
         run: |
            .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=${{ runner.workspace }}\vcpkg\installed
         working-directory: ${{ runner.workspace }}
-  
+
       - name: Build
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
