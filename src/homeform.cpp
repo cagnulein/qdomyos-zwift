@@ -558,6 +558,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             &homeform::pelotonOffset_Minus);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::gears_Plus, this, &homeform::gearUp);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::gears_Minus, this, &homeform::gearDown);
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::speed_Plus, this, &homeform::speedPlus);
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::speed_Minus, this, &homeform::speedMinus);
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::inclination_Plus, this, &homeform::inclinationPlus);
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::inclination_Minus, this, &homeform::inclinationMinus);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::pelotonOffset, this, &homeform::pelotonOffset);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::pelotonAskStart, this, &homeform::pelotonAskStart);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::peloton_start_workout, this,
@@ -1608,6 +1612,22 @@ void homeform::gearDown() {
         automaticShiftingGearUpStartTime = QDateTime::currentDateTime();
         automaticShiftingGearDownStartTime = QDateTime::currentDateTime();
     }
+}
+
+void homeform::speedPlus() {
+    Plus(QStringLiteral("speed"));
+}
+
+void homeform::speedMinus() {
+    Minus(QStringLiteral("speed"));
+}
+
+void homeform::inclinationPlus() {
+    Plus(QStringLiteral("inclination"));
+}
+
+void homeform::inclinationMinus() {
+    Minus(QStringLiteral("inclination"));
 }
 
 void homeform::ftmsAccessoryConnected(smartspin2k *d) {
@@ -5510,7 +5530,15 @@ void homeform::update() {
             QString::number((bluetoothManager->device())->currentSpeed().average() * unit_conversion, 'f', 1) +
             QStringLiteral(" MAX: ") +
             QString::number((bluetoothManager->device())->currentSpeed().max() * unit_conversion, 'f', 1));
-        heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value(), 'f', 0));
+        // Heart rate display - show as percentage if enabled
+        if (settings.value(QZSettings::tile_heart_show_as_percent, QZSettings::default_tile_heart_show_as_percent).toBool()) {
+            double currentHR = bluetoothManager->device()->currentHeart().value();
+            double maxHR = heartRateMax();
+            double hrPercent = (currentHR / maxHR) * 100.0;
+            heart->setValue(QString::number(hrPercent, 'f', 0) + "%");
+        } else {
+            heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value(), 'f', 0));
+        }
 
         bool activeOnly = settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
         calories->setValue(QString::number(bluetoothManager->device()->calories().value(), 'f', 0));
@@ -6753,10 +6781,22 @@ void homeform::update() {
         }
         bluetoothManager->device()->setHeartZone(currentHRZone);
         Z = QStringLiteral("Z") + QString::number(currentHRZone, 'f', 1);
-        heart->setSecondLine(Z + QStringLiteral(" AVG: ") +
-                             QString::number((bluetoothManager->device())->currentHeart().average(), 'f', 0) +
-                             QStringLiteral(" MAX: ") +
-                             QString::number((bluetoothManager->device())->currentHeart().max(), 'f', 0));
+
+        // Heart rate second line - show as percentage if enabled
+        if (settings.value(QZSettings::tile_heart_show_as_percent, QZSettings::default_tile_heart_show_as_percent).toBool()) {
+            double maxHR = heartRateMax();
+            double avgHRPercent = ((bluetoothManager->device())->currentHeart().average() / maxHR) * 100.0;
+            double maxHRPercent = ((bluetoothManager->device())->currentHeart().max() / maxHR) * 100.0;
+            heart->setSecondLine(Z + QStringLiteral(" AVG: ") +
+                                 QString::number(avgHRPercent, 'f', 0) + "%" +
+                                 QStringLiteral(" MAX: ") +
+                                 QString::number(maxHRPercent, 'f', 0) + "%");
+        } else {
+            heart->setSecondLine(Z + QStringLiteral(" AVG: ") +
+                                 QString::number((bluetoothManager->device())->currentHeart().average(), 'f', 0) +
+                                 QStringLiteral(" MAX: ") +
+                                 QString::number((bluetoothManager->device())->currentHeart().max(), 'f', 0));
+        }
 
         /*
                 if(trainProgram)

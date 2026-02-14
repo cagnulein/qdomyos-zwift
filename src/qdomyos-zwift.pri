@@ -101,17 +101,20 @@ SOURCES += \
     $$PWD/devices/pitpatbike/pitpatbike.cpp \
     $$PWD/devices/speraxtreadmill/speraxtreadmill.cpp \
     $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
+    $$PWD/devices/sportstechrower/sportstechrower.cpp \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
     $$PWD/devices/sramAXSController/sramAXSController.cpp \
     $$PWD/devices/thinkridercontroller/thinkridercontroller.cpp \
     $$PWD/devices/stairclimber.cpp \
     $$PWD/devices/echelonstairclimber/echelonstairclimber.cpp \
+    $$PWD/devices/sunnyfitstepper/sunnyfitstepper.cpp \
     $$PWD/devices/technogymbike/technogymbike.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
     $$PWD/fitdatabaseprocessor.cpp \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.cpp \
     $$PWD/logwriter.cpp \
     $$PWD/fitbackupwriter.cpp \
+    $$PWD/filesearcher.cpp \
     $$PWD/mqtt/qmqttauthenticationproperties.cpp \
     $$PWD/mqtt/qmqttclient.cpp \
     $$PWD/mqtt/qmqttconnection.cpp \
@@ -367,6 +370,7 @@ HEADERS += \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.h \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.h \
     $$PWD/devices/echelonstairclimber/echelonstairclimber.h \
+    $$PWD/devices/sunnyfitstepper/sunnyfitstepper.h \
     $$PWD/devices/elitesquarecontroller/elitesquarecontroller.h \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/jumprope.h \
@@ -379,6 +383,7 @@ HEADERS += \
     $$PWD/devices/pitpatbike/pitpatbike.h \
     $$PWD/devices/speraxtreadmill/speraxtreadmill.h \
     $$PWD/devices/sportsplusrower/sportsplusrower.h \
+    $$PWD/devices/sportstechrower/sportstechrower.h \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
     $$PWD/devices/sramAXSController/sramAXSController.h \
     $$PWD/devices/thinkridercontroller/thinkridercontroller.h \
@@ -391,6 +396,7 @@ HEADERS += \
     $$PWD/inclinationresistancetable.h \
     $$PWD/logwriter.h \
     $$PWD/fitbackupwriter.h \
+    $$PWD/filesearcher.h \
     $$PWD/osc.h \
     $$PWD/oscpp/client.hpp \
     $$PWD/oscpp/detail/endian.hpp \
@@ -1009,4 +1015,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.20.23
+VERSION = 2.20.26
