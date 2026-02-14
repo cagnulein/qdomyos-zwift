@@ -163,8 +163,27 @@ echo "Looking for generated files in: $(pwd)"
 find . -maxdepth 1 -type f \( -name "moc_*.cpp" -o -name "moc_*.cpp.json" -o -name "qrc_*.cpp" -o -name "*.o" -o -name "*.a" -o -name "*_qmltyperegistrations.*" -o -name "*.qmltypes" -o -name "*_metatypes.json" -o -name "*_plugin_import.cpp" \) -print -exec cp {} "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/" \;
 
 echo "Generated files copied to build directory"
+
+# CRITICAL FIX: Rename qdomyos-zwift_qmltyperegistrations.cpp to qdomyoszwift_qmltyperegistrations.cpp
+# qmake generates the file with a hyphen but Xcode project expects it without hyphen
+echo "Fixing qmltyperegistrations filename mismatch..."
+if [[ -f "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyos-zwift_qmltyperegistrations.cpp" ]]; then
+    cp "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyos-zwift_qmltyperegistrations.cpp" \
+       "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift_qmltyperegistrations.cpp"
+    echo "Renamed qdomyos-zwift_qmltyperegistrations.cpp -> qdomyoszwift_qmltyperegistrations.cpp"
+else
+    echo "WARNING: qdomyos-zwift_qmltyperegistrations.cpp not found in build directory"
+fi
+
+# Also handle .o file if it exists
+if [[ -f "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyos-zwift_qmltyperegistrations.o" ]]; then
+    cp "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyos-zwift_qmltyperegistrations.o" \
+       "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift_qmltyperegistrations.o"
+    echo "Renamed qdomyos-zwift_qmltyperegistrations.o -> qdomyoszwift_qmltyperegistrations.o"
+fi
+
 echo "Verifying qdomyoszwift_qmltyperegistrations.cpp exists:"
-ls -la "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift_qmltyperegistrations.cpp" 2>&1 || echo "WARNING: qdomyoszwift_qmltyperegistrations.cpp not found after copy"
+ls -la "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift_qmltyperegistrations.cpp" 2>&1
 
 cd "$PROJECT_ROOT"
 
