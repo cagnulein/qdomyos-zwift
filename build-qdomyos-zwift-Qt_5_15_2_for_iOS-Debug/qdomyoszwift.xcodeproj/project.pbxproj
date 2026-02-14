@@ -563,6 +563,8 @@
 		87DBD6652F333E5700342F2B /* moc_sunnyfitstepper.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DBD6612F333E5700342F2B /* moc_sunnyfitstepper.cpp */; };
 		87DBD7802F40601B00342F2B /* sportstechrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DBD77F2F40601B00342F2B /* sportstechrower.cpp */; };
 		87DBD7812F40601B00342F2B /* moc_sportstechrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DBD77D2F40601B00342F2B /* moc_sportstechrower.cpp */; };
+		87DBD7852F4060A200342F2B /* filesearcher.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DBD7832F4060A200342F2B /* filesearcher.cpp */; };
+		87DBD7862F4060A200342F2B /* moc_filesearcher.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DBD7842F4060A200342F2B /* moc_filesearcher.cpp */; };
 		87DC27EA2D9BDB53007A1B9D /* echelonstairclimber.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DC27E72D9BDB53007A1B9D /* echelonstairclimber.cpp */; };
 		87DC27EB2D9BDB53007A1B9D /* stairclimber.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DC27E92D9BDB53007A1B9D /* stairclimber.cpp */; };
 		87DC27EE2D9BDB8F007A1B9D /* moc_stairclimber.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DC27ED2D9BDB8F007A1B9D /* moc_stairclimber.cpp */; };
@@ -1675,6 +1677,9 @@
 		87DBD77D2F40601B00342F2B /* moc_sportstechrower.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sportstechrower.cpp; sourceTree = "<group>"; };
 		87DBD77E2F40601B00342F2B /* sportstechrower.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sportstechrower.h; path = ../src/devices/sportstechrower/sportstechrower.h; sourceTree = SOURCE_ROOT; };
 		87DBD77F2F40601B00342F2B /* sportstechrower.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sportstechrower.cpp; path = ../src/devices/sportstechrower/sportstechrower.cpp; sourceTree = SOURCE_ROOT; };
+		87DBD7822F4060A200342F2B /* filesearcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = filesearcher.h; path = ../src/filesearcher.h; sourceTree = SOURCE_ROOT; };
+		87DBD7832F4060A200342F2B /* filesearcher.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = filesearcher.cpp; path = ../src/filesearcher.cpp; sourceTree = SOURCE_ROOT; };
+		87DBD7842F4060A200342F2B /* moc_filesearcher.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_filesearcher.cpp; sourceTree = "<group>"; };
 		87DC27E62D9BDB53007A1B9D /* echelonstairclimber.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = echelonstairclimber.h; path = ../src/devices/echelonstairclimber/echelonstairclimber.h; sourceTree = SOURCE_ROOT; };
 		87DC27E72D9BDB53007A1B9D /* echelonstairclimber.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = echelonstairclimber.cpp; path = ../src/devices/echelonstairclimber/echelonstairclimber.cpp; sourceTree = SOURCE_ROOT; };
 		87DC27E82D9BDB53007A1B9D /* stairclimber.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = stairclimber.h; path = ../src/devices/stairclimber.h; sourceTree = SOURCE_ROOT; };
@@ -2350,6 +2355,9 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87DBD7822F4060A200342F2B /* filesearcher.h */,
+				87DBD7832F4060A200342F2B /* filesearcher.cpp */,
+				87DBD7842F4060A200342F2B /* moc_filesearcher.cpp */,
 				87DBD77D2F40601B00342F2B /* moc_sportstechrower.cpp */,
 				87DBD77E2F40601B00342F2B /* sportstechrower.h */,
 				87DBD77F2F40601B00342F2B /* sportstechrower.cpp */,
@@ -3889,6 +3897,8 @@
 				87E34C2D2886F99A00CEDE4B /* moc_octanetreadmill.cpp in Compile Sources */,
 				87D91F9A2800B9970026D43C /* proformwifibike.cpp in Compile Sources */,
 				873CD22327EF8E18000131BC /* inappstoreqmltype.cpp in Compile Sources */,
+				87DBD7852F4060A200342F2B /* filesearcher.cpp in Compile Sources */,
+				87DBD7862F4060A200342F2B /* moc_filesearcher.cpp in Compile Sources */,
 				87C481FA26DFA7C3006211AD /* eliterizer.cpp in Compile Sources */,
 				873824EE27E647A9004F1B46 /* service.cpp in Compile Sources */,
 				8772A0E625E43ADB0080718C /* trxappgateusbbike.cpp in Compile Sources */,
