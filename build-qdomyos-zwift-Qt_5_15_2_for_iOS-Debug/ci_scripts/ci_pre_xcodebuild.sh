@@ -92,7 +92,22 @@ if [[ -d "$BUILD_CACHE_DIR/objects" && -f "$BUILD_CACHE_DIR/build_hash.txt" ]]; 
     fi
 fi
 
-alias xcodebuild='echo "Skipping xcodebuild - returning success"; return 0'
+# CRITICAL: Create fake xcodebuild BEFORE make to prevent build failures
+# During make, qmake will try to call xcodebuild which will fail due to code signing
+# We create a fake xcodebuild that just returns success
+echo "Creating fake xcodebuild to skip Xcode build during make..."
+mkdir -p /tmp/fake_xcode
+cat > /tmp/fake_xcode/xcodebuild << 'XCODE_EOF'
+#!/bin/bash
+echo "Skipping xcodebuild during make - will use correct project later"
+exit 0
+XCODE_EOF
+chmod +x /tmp/fake_xcode/xcodebuild
+
+# Prepend fake xcodebuild to PATH so it's found first
+export PATH="/tmp/fake_xcode:$PATH"
+echo "Fake xcodebuild created and added to PATH"
+which xcodebuild
 
 # CRITICAL: Run make to compile Qt project and generate MOC files
 echo "Running make to compile Qt project and generate MOC files..."
@@ -101,7 +116,9 @@ make  -j$(sysctl -n hw.ncpu)
 
 echo "make completed successfully - MOC files generated"
 
-unalias xcodebuild
+# Remove fake xcodebuild from PATH
+export PATH="${PATH#/tmp/fake_xcode:}"
+echo "Fake xcodebuild removed from PATH"
 
 # Cache the build results for next time
 echo "Caching build results..."
@@ -190,19 +207,5 @@ else
     echo "ERROR: Xcode project not found after qmake"
     exit 1
 fi
-
-# Create fake xcodebuild to skip actual Xcode build
-echo "Creating fake xcodebuild to skip compilation..."
-mkdir -p /tmp/fake_xcode
-cat > /tmp/fake_xcode/xcodebuild << 'EOF'
-#!/bin/bash
-echo "Skipping xcodebuild - returning success"
-exit 0
-EOF
-chmod +x /tmp/fake_xcode/xcodebuild
-
-# Add fake xcodebuild to PATH
-export PATH="/tmp/fake_xcode:$PATH"
-echo "Fake xcodebuild created and added to PATH"
 
 echo "Pre-xcodebuild setup completed successfully"
