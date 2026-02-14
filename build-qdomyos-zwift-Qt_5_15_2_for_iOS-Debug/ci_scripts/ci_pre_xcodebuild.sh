@@ -151,6 +151,17 @@ git checkout -- build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/
 
 echo "Build directory Xcode project restored from git"
 
+# CRITICAL: Verify Qt labs calendar library exists
+echo "Verifying Qt labs calendar library..."
+if [[ -f "/tmp/Qt-5.15.2/ios/qml/Qt/labs/calendar/libqtlabscalendarplugin.a" ]]; then
+    echo "SUCCESS: libqtlabscalendarplugin.a found"
+    ls -lh /tmp/Qt-5.15.2/ios/qml/Qt/labs/calendar/libqtlabscalendarplugin.a
+else
+    echo "ERROR: libqtlabscalendarplugin.a NOT FOUND"
+    echo "Searching for calendar files..."
+    find /tmp/Qt-5.15.2 -name "*calendar*" 2>/dev/null || echo "No calendar files found"
+fi
+
 # CRITICAL: Fix Qt library paths in Xcode project
 # The project has relative paths like ../../Qt/5.15.2/ which don't exist on Xcode Cloud
 # Replace them with absolute paths to /tmp/Qt-5.15.2/
@@ -162,8 +173,15 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     sed -i '' 's|../Qt/5.15.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
     echo "Fixed Qt library paths in project file"
 
+    # Add Qt/labs/calendar to library search paths
+    # Find the LIBRARY_SEARCH_PATHS line and add the calendar path
+    echo "Adding Qt/labs/calendar to library search paths..."
+    sed -i '' 's|\(LIBRARY_SEARCH_PATHS = (\)|\1\n\t\t\t\t/tmp/Qt-5.15.2/ios/qml/Qt/labs/calendar,|g' qdomyoszwift.xcodeproj/project.pbxproj
+    echo "Added calendar directory to library search paths"
+
     # Verify the fix
     grep -c "libqtlabscalendarplugin.a" qdomyoszwift.xcodeproj/project.pbxproj && echo "qtlabscalendarplugin references found"
+    grep -c "labs/calendar" qdomyoszwift.xcodeproj/project.pbxproj && echo "labs/calendar path references found"
 else
     echo "ERROR: project.pbxproj not found"
     exit 1
