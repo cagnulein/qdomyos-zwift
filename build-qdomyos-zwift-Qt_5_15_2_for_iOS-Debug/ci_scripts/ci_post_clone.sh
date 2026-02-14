@@ -112,14 +112,22 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
             
             echo "Qt 5.15.2 precompiled installation completed"
 
-            # CRITICAL: Create symlink to match local development path
+            # CRITICAL: Fix hardcoded paths in .pri files
             # The Qt archive contains .pri files with absolute paths from local machine
-            # Create symlink so qmake can find httpserver and other modules
-            echo "Creating symlink for Qt path compatibility..."
-            sudo mkdir -p /Users/cagnulein/Qt/5.15.2
-            sudo ln -sfn /tmp/Qt-5.15.2/ios /Users/cagnulein/Qt/5.15.2/ios
-            echo "Symlink created: /Users/cagnulein/Qt/5.15.2/ios -> /tmp/Qt-5.15.2/ios"
-            ls -la /Users/cagnulein/Qt/5.15.2/ || echo "Symlink creation failed"
+            # Replace them with the Xcode Cloud installation path
+            echo "Fixing hardcoded paths in Qt .pri files..."
+            find /tmp/Qt-5.15.2 -name "*.pri" -type f -exec sed -i '' 's|/Users/cagnulein/Qt/5.15.2|/tmp/Qt-5.15.2|g' {} \;
+            find /tmp/Qt-5.15.2 -name "*.pri" -type f -exec sed -i '' 's|/Users/cagnulein/Qt/5.15.2|/private/tmp/Qt-5.15.2|g' {} \;
+            echo "Fixed paths in .pri files"
+
+            # Verify httpserver module is now findable
+            if [[ -f "/tmp/Qt-5.15.2/ios/mkspecs/modules-inst/qt_lib_httpserver.pri" ]]; then
+                echo "SUCCESS: httpserver module .pri file found"
+                grep "QT.httpserver.libs" /tmp/Qt-5.15.2/ios/mkspecs/modules-inst/qt_lib_httpserver.pri | head -1
+            else
+                echo "WARNING: httpserver .pri file not found at expected location"
+                find /tmp/Qt-5.15.2 -name "*httpserver*.pri" 2>/dev/null || echo "No httpserver .pri files found"
+            fi
         else
             echo "ERROR: Failed to download precompiled Qt from GitHub"
             exit 1
