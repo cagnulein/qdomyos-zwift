@@ -22,6 +22,32 @@ ColumnLayout {
     }
 
     property var selectedFileUrl: ""
+    property bool isSearching: false
+
+    // Model for search results
+    ListModel {
+        id: searchResultsModel
+    }
+
+    // Function to perform C++-based recursive search
+    function searchRecursively(folderUrl, filter) {
+        searchResultsModel.clear()
+
+        if (!filter || filter.trim() === "") {
+            isSearching = false
+            return
+        }
+
+        isSearching = true
+
+        // Call C++ FileSearcher for fast recursive search
+        var results = fileSearcher.searchRecursively(folderUrl, filter, ["*.xml", "*.zwo"])
+
+        // Populate search results model
+        for (var i = 0; i < results.length; i++) {
+            searchResultsModel.append(results[i])
+        }
+    }
 
     Loader {
         id: fileDialogLoader
@@ -79,21 +105,36 @@ ColumnLayout {
                     TextField {
                         id: filterField
                         Layout.fillWidth: true
+                        placeholderText: "Search (recursive)..."
 
                         function updateFilter() {
-                            var text = filterField.text
-                            var filter = "*"
-                            for(var i = 0; i<text.length; i++)
-                               filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
-                            filter+="*"
-                            folderModel.nameFilters = [filter + ".zwo", filter + ".xml"]
+                            var text = filterField.text.trim()
+
+                            if (text === "") {
+                                // No filter - use normal folder browsing
+                                isSearching = false
+                            } else {
+                                // Trigger recursive C++ search
+                                var baseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
+                                searchRecursively(baseFolder, text)
+                            }
                         }
 
-                        onTextChanged: updateFilter()
+                        onTextChanged: {
+                            searchTimer.restart()
+                        }
+
+                        Timer {
+                            id: searchTimer
+                            interval: 300
+                            repeat: false
+                            onTriggered: filterField.updateFilter()
+                        }
                     }
 
                     Button {
                         text: "←"
+                        visible: !isSearching
                         onClicked: folderModel.folder = folderModel.parentFolder
                     }
                 }
@@ -114,62 +155,80 @@ ColumnLayout {
                         showDirsFirst: true
                     }
 
-                    model: folderModel
+                    model: isSearching ? searchResultsModel : folderModel
 
-                    delegate: Component {
-                        Rectangle {
-                            width: ListView.view.width
-                            height: 50
-                            color: ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor
+                    delegate: Rectangle {
+                        width: ListView.view.width
+                        height: 50
+                        color: ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor
 
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.margins: 10
-                                spacing: 10
+                        // Determine item properties based on which model is active
+                        property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
+                        property string itemFileName: isSearching ? model.fileName : folderModel.get(index, "fileName")
+                        property string itemFileUrl: isSearching ? model.filePath : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL'))
+                        property string itemRelativePath: isSearching ? model.relativePath : ""
 
-                                Text {
-                                    id: fileIcon
-                                    text: folderModel.isFolder(index) ? "📁" : "📄"
-                                    font.pixelSize: 24
-                                }
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 10
+                            spacing: 10
+
+                            Text {
+                                id: fileIcon
+                                text: isItemFolder ? "📁" : "📄"
+                                font.pixelSize: 24
+                            }
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
 
                                 Text {
                                     id: fileName
                                     Layout.fillWidth: true
-                                    text: !folderModel.isFolder(index) ?
-                                          folderModel.get(index, "fileName").substring(0, folderModel.get(index, "fileName").length-4) :
-                                          folderModel.get(index, "fileName")
-                                    color: folderModel.isFolder(index) ? Material.color(Material.Orange) : "white"
+                                    text: !isItemFolder ?
+                                          itemFileName.substring(0, itemFileName.length-4) :
+                                          itemFileName
+                                    color: isItemFolder ? Material.color(Material.Orange) : "white"
                                     font.pixelSize: 16
                                     elide: Text.ElideRight
                                 }
 
                                 Text {
-                                    text: "›"
-                                    font.pixelSize: 24
+                                    Layout.fillWidth: true
+                                    text: itemRelativePath
                                     color: Material.color(Material.Grey)
-                                    visible: !ListView.isCurrentItem
+                                    font.pixelSize: 12
+                                    elide: Text.ElideMiddle
+                                    visible: isSearching && itemRelativePath !== ""
                                 }
                             }
 
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    list.currentIndex = index
-                                    let fileUrl = folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL');
+                            Text {
+                                text: "›"
+                                font.pixelSize: 24
+                                color: Material.color(Material.Grey)
+                                visible: !ListView.isCurrentItem
+                            }
+                        }
 
-                                    if (folderModel.isFolder(index)) {
-                                        // Navigate to folder
-                                        folderModel.folder = fileUrl
-                                    } else if (fileUrl) {
-                                        // Load preview and show detail view
-                                        console.log('Loading preview for: ' + fileUrl);
-                                        trainprogram_preview(fileUrl)
-                                        pendingWorkoutUrl = fileUrl
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                list.currentIndex = index
 
-                                        // Wait for preview to load then push detail view
-                                        detailViewTimer.restart()
+                                if (isItemFolder) {
+                                    // Navigate to folder (only in browse mode)
+                                    if (!isSearching) {
+                                        folderModel.folder = itemFileUrl
                                     }
+                                } else if (itemFileUrl) {
+                                    // Load preview and show detail view
+                                    trainprogram_preview(itemFileUrl)
+                                    pendingWorkoutUrl = itemFileUrl
+
+                                    // Wait for preview to load then push detail view
+                                    detailViewTimer.restart()
                                 }
                             }
                         }
