@@ -131,6 +131,7 @@ class ftmsbike : public bike {
     bool noHeartService = false;
 
     bool powerForced = false;
+    resistance_t m_lastErgResistance = 0;
 
     bool resistance_lvl_mode = false;
     bool resistance_received = false;

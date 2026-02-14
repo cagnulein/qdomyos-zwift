@@ -494,6 +494,23 @@ void ftmsbike::update() {
             forcePower(requestPower);
             requestPower = -1;
         }
+        // Continuous ERG for resistance-level bikes:
+        // Re-evaluate resistance when cadence changes to maintain target power.
+        // Without this, resistance is only set once when Zwift sends a new power target,
+        // and cadence changes don't trigger resistance adjustment.
+        if (resistance_lvl_mode && !ergModeSupported &&
+            lastRequestedPower().value() > 0 && autoResistance()) {
+            resistance_t newR = resistanceFromPowerRequest(
+                (uint16_t)lastRequestedPower().value());
+            if (newR != m_lastErgResistance && newR > 0) {
+                qDebug() << "continuous ERG: cadence" << Cadence.value()
+                         << "target" << lastRequestedPower().value()
+                         << "resistance" << m_lastErgResistance << "->" << newR;
+                forceResistance(newR);
+                m_lastErgResistance = newR;
+            }
+        }
+
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
 
