@@ -111,11 +111,20 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
             chmod +x /tmp/qt_env.sh
             
             echo "Qt 5.15.2 precompiled installation completed"
+
+            # CRITICAL: Create symlink to match local development path
+            # The Qt archive contains .pri files with absolute paths from local machine
+            # Create symlink so qmake can find httpserver and other modules
+            echo "Creating symlink for Qt path compatibility..."
+            sudo mkdir -p /Users/cagnulein/Qt/5.15.2
+            sudo ln -sfn /tmp/Qt-5.15.2/ios /Users/cagnulein/Qt/5.15.2/ios
+            echo "Symlink created: /Users/cagnulein/Qt/5.15.2/ios -> /tmp/Qt-5.15.2/ios"
+            ls -la /Users/cagnulein/Qt/5.15.2/ || echo "Symlink creation failed"
         else
             echo "ERROR: Failed to download precompiled Qt from GitHub"
             exit 1
         fi
-        
+
     fi
 fi
 
