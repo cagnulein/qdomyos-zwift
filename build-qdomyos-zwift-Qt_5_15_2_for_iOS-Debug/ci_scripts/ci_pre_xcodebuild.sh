@@ -36,6 +36,11 @@ fi
 # Change to project root directory
 cd ../..
 
+# CRITICAL: Save absolute path to project root for later use
+PROJECT_ROOT="$(pwd)"
+export PROJECT_ROOT
+echo "Project root saved: $PROJECT_ROOT"
+
 # Verify we're in the correct directory
 if [[ ! -f "qdomyos-zwift.pro" ]]; then
     echo "ERROR: qdomyos-zwift.pro not found. Are we in the right directory?"
@@ -76,7 +81,7 @@ mkdir -p "$BUILD_CACHE_DIR"
 
 # Check if we have cached object files
 if [[ -d "$BUILD_CACHE_DIR/objects" && -f "$BUILD_CACHE_DIR/build_hash.txt" ]]; then
-    CURRENT_HASH=$(find ../src -name "*.cpp" -o -name "*.h" -o -name "*.mm" | sort | xargs cat | shasum -a 256 | cut -d' ' -f1)
+    CURRENT_HASH=$(find "$PROJECT_ROOT/src" -name "*.cpp" -o -name "*.h" -o -name "*.mm" | sort | xargs cat | shasum -a 256 | cut -d' ' -f1)
     CACHED_HASH=$(cat "$BUILD_CACHE_DIR/build_hash.txt" 2>/dev/null || echo "none")
     
     if [[ "$CURRENT_HASH" == "$CACHED_HASH" ]]; then
@@ -129,7 +134,7 @@ find . -name "*.o" -o -name "moc_*.cpp" -o -name "moc_*.h" | while read file; do
 done
 
 # Store hash of source files for cache validation
-CURRENT_HASH=$(find ../src -name "*.cpp" -o -name "*.h" -o -name "*.mm" | sort | xargs cat | shasum -a 256 | cut -d' ' -f1)
+CURRENT_HASH=$(find "$PROJECT_ROOT/src" -name "*.cpp" -o -name "*.h" -o -name "*.mm" | sort | xargs cat | shasum -a 256 | cut -d' ' -f1)
 echo "$CURRENT_HASH" > "$BUILD_CACHE_DIR/build_hash.txt"
 echo "Build cache updated"
 
@@ -137,8 +142,9 @@ echo "Build cache updated"
 echo "Restoring Xcode project from git AFTER make..."
 echo "qmake regenerates src/qdomyoszwift.xcodeproj without proper code signing"
 
-# Return to project root for git operations
-cd ..
+# Return to project root for git operations (use absolute path)
+cd "$PROJECT_ROOT"
+echo "Back to project root: $(pwd)"
 
 # Restore the build directory project (has WatchOS and proper code signing)
 git checkout -- build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/
