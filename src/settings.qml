@@ -1276,6 +1276,7 @@ import Qt.labs.platform 1.1
 			property bool thinkrider_controller: false
 			property bool weight_kg_unit: false
 			property bool virtual_device_rower_pm5: false
+			property bool tile_heart_show_as_percent: false
         }
 
 
