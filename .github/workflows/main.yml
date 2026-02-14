@@ -756,94 +756,110 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-        
+
       # Download the APK from the previous job
       - name: Download APK Artifact
         uses: actions/download-artifact@v4
         with:
           name: fdroid-android-trial
           path: apk-debug
-          
+
       - name: Setup Java for Android Emulator
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
-      
-      # Use a smaller emulator configuration
+
+      - name: AVD cache
+        uses: actions/cache@v4
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-api${{ matrix.api-level }}-${{ matrix.target }}-${{ matrix.arch }}-v1
+
+      - name: Create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
+          arch: ${{ matrix.arch }}
+          profile: Nexus 6
+          force-avd-creation: false
+          ram-size: 2048M
+          disk-size: 4096M
+          heap-size: 512M
+          cores: 4
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
+
       - name: Run tests on emulator (${{ matrix.android-version }})
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
+          api-level: ${{ matrix.api-level }}
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
-          api-level: ${{ matrix.api-level }}
           profile: Nexus 6
+          force-avd-creation: false
+          ram-size: 2048M
+          disk-size: 4096M
+          heap-size: 512M
+          cores: 4
           disable-animations: true
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           script: |
             # Display available space
             df -h
-            
+
             # List available files
             echo "Files in apk-debug directory:"
             ls -la apk-debug/
-            
+
             # Install the APK
             adb install apk-debug/android-debug.apk
-            
-            # Grant necessary permissions - comprehensive list for all Android APIs
-            echo "Granting all required permissions..."
+
+            # Grant runtime (dangerous) permissions
+            echo "Granting runtime permissions..."
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_FINE_LOCATION || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_COARSE_LOCATION || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADMIN || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADVERTISE || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_CONNECT || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_SCAN || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.READ_EXTERNAL_STORAGE || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.WRITE_EXTERNAL_STORAGE || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.MANAGE_EXTERNAL_STORAGE || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.CAMERA || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.RECORD_AUDIO || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.INTERNET || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_NETWORK_STATE || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_WIFI_STATE || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.CHANGE_WIFI_STATE || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.WAKE_LOCK || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.VIBRATE || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.READ_PHONE_STATE || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.FOREGROUND_SERVICE || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS || true
-            
-            # Additional permissions for newer Android versions (12+)
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.POST_NOTIFICATIONS || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.SCHEDULE_EXACT_ALARM || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.USE_EXACT_ALARM || true
-            
-            # Enable all app ops permissions  
+
+            # Enable special app ops permissions
             adb shell appops set org.cagnulen.qdomyoszwift MANAGE_EXTERNAL_STORAGE allow || true
             adb shell appops set org.cagnulen.qdomyoszwift SYSTEM_ALERT_WINDOW allow || true
             adb shell appops set org.cagnulen.qdomyoszwift WRITE_SETTINGS allow || true
-            
+
             echo "All permissions granted successfully"
-            
+
             # Start the main activity
             adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
-            
+
             # Wait for app to start
             sleep 90
-            
+
             # Verify the app is running
             echo "Checking if app is running..."
             # Use different ps commands for different Android versions
             adb shell "ps -A 2>/dev/null || ps" > process_list.txt
-            
+
             # Debug: show all processes to understand the format
             echo "=== All running processes ==="
             cat process_list.txt | head -20
@@ -858,26 +874,26 @@ jobs:
             echo "=== Full recent logcat ==="
             adb logcat -d | tail -n 100
             echo "App is running successfully"
-            
+
             # Take a screenshot for verification
             adb shell screencap -p /sdcard/screenshot.png
             adb pull /sdcard/screenshot.png
-            
+
             # Test orientamento automatico con screenshot
             echo "Starting orientation test with automatic screenshots..."
-            
-            # Screenshot iniziale (orientamento corrente)  
+
+            # Screenshot iniziale (orientamento corrente)
             adb shell screencap -p /sdcard/screenshot_orientation_0.png
             adb pull /sdcard/screenshot_orientation_0.png
-            
+
             # Loop per 3 rotazioni aggiuntive (90°, 180°, 270°)
             for i in 1 2 3; do echo "Rotating to orientation $i (90° * $i)"; adb shell settings put system user_rotation $i; sleep 5; echo "Taking screenshot for orientation $i"; adb shell screencap -p /sdcard/screenshot_orientation_$i.png; adb pull /sdcard/screenshot_orientation_$i.png; done
-            
+
             echo "Orientation test completed - 4 screenshots captured"
-            
+
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
-            
+
             # Save logcat for debugging
             echo "Saving logcat for analysis..."
             adb logcat -d > full_logcat.txt
