@@ -363,6 +363,12 @@ void sportstechbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+        // Check if this is an AF7019 bike
+        if (device.name().toUpper().contains(QStringLiteral("AF"))) {
+            isAF7019 = true;
+            emit debug(QStringLiteral("Detected AF7019 bike - using custom power profile"));
+        }
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &sportstechbike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &sportstechbike::serviceScanDone);
@@ -421,22 +427,35 @@ void sportstechbike::controllerStateChanged(QLowEnergyController::ControllerStat
 }
 
 uint16_t sportstechbike::wattsFromResistance(double resistance) {
-        // Coefficients from the polynomial regression
-    double intercept = 14.4968;
-    double b1 = -4.1878;
-    double b2 = -0.5051;
-    double b3 = 0.00387;
-    double b4 = 0.2392;
-    double b5 = 0.01108;
     double cadence = Cadence.value();
+    double power;
 
-    // Calculate power using the polynomial equation
-    double power = intercept +
-                   (b1 * resistance) +
-                   (b2 * cadence) +
-                   (b3 * resistance * resistance) +
-                   (b4 * resistance * cadence) +
-                   (b5 * cadence * cadence);
+    if (isAF7019) {
+        // AF7019 power model from user regression analysis
+        // P(n,s) = 0.21645484*n + 0.06245436*n*s + 0.00351428*n² + 0.00071502*s*n²
+        // where n = cadence, s = resistance
+        power = (0.21645484 * cadence) +
+                (0.06245436 * cadence * resistance) +
+                (0.00351428 * cadence * cadence) +
+                (0.00071502 * resistance * cadence * cadence);
+    } else {
+        // Default Sportstech ESX600 model
+        // Coefficients from the polynomial regression
+        double intercept = 14.4968;
+        double b1 = -4.1878;
+        double b2 = -0.5051;
+        double b3 = 0.00387;
+        double b4 = 0.2392;
+        double b5 = 0.01108;
+
+        // Calculate power using the polynomial equation
+        power = intercept +
+                (b1 * resistance) +
+                (b2 * cadence) +
+                (b3 * resistance * resistance) +
+                (b4 * resistance * cadence) +
+                (b5 * cadence * cadence);
+    }
 
     return power;
 }
