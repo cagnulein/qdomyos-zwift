@@ -777,28 +777,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: AVD cache
-        uses: actions/cache@v4
-        id: avd-cache
-        with:
-          path: |
-            ~/.android/avd/*
-            ~/.android/adb*
-          key: avd-api${{ matrix.api-level }}-${{ matrix.target }}-${{ matrix.arch }}-v1
-
-      - name: Create AVD and generate snapshot for caching
-        if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: ReactiveCircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          target: ${{ matrix.target }}
-          arch: ${{ matrix.arch }}
-          profile: Nexus 6
-          force-avd-creation: false
-          disable-animations: true
-          emulator-options: -no-window -noaudio -no-boot-anim
-          script: echo "Generated AVD snapshot for caching."
-
       - name: Run tests on emulator (${{ matrix.android-version }})
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
@@ -806,9 +784,7 @@ jobs:
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
           profile: Nexus 6
-          force-avd-creation: false
           disable-animations: true
-          emulator-options: -no-snapshot-save -no-window -noaudio -no-boot-anim
           script: |
             # Display available space
             df -h
@@ -816,9 +792,6 @@ jobs:
             # List available files
             echo "Files in apk-debug directory:"
             ls -la apk-debug/
-
-            # Uninstall previous version (may exist in cached AVD) to avoid signature mismatch
-            adb uninstall org.cagnulen.qdomyoszwift || true
 
             # Install the APK
             adb install apk-debug/android-debug.apk
