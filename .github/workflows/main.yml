@@ -929,6 +929,8 @@ jobs:
         run: |
           brew install ccache
           echo "CCACHE_DIR=${{ github.workspace }}/.ccache" >> $GITHUB_ENV
+          # Use ccache via PATH symlinks (works with Xcode, unlike QMAKE_CC)
+          echo "$(brew --prefix ccache)/libexec" >> $GITHUB_PATH
           ccache --set-config=max_size=2G
           ccache --set-config=compression=true
           ccache --set-config=compression_level=6
@@ -956,7 +958,7 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
-          qmake CONFIG+=debug CONFIG+=iphonesimulator QMAKE_CC="ccache clang" QMAKE_CXX="ccache clang++" && make -j4
+          qmake CONFIG+=debug CONFIG+=iphonesimulator && make -j4
 
       - name: Show ccache stats
         if: always()
