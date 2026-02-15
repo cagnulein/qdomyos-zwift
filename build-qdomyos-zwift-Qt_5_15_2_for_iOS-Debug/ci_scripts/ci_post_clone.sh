@@ -124,12 +124,35 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
             echo "Downloading missing qmldbg libraries..."
             cd /tmp
             curl -L -o libqmldbg_debugger.zip https://github.com/cagnulein/qt5.15.2/releases/download/qt-5.15.2/libqmldbg_debugger.zip
-            unzip -q libqmldbg_debugger.zip
-            # Move files to correct location
-            mv libqmldbg_debugger.a /tmp/Qt-5.15.2/ios/plugins/qmltooling/
-            mv libqmldbg_nativedebugger.a /tmp/Qt-5.15.2/ios/plugins/qmltooling/
+
+            echo "Extracting libqmldbg_debugger.zip..."
+            unzip -o libqmldbg_debugger.zip
+
+            echo "Contents after extraction:"
+            ls -la libqmldbg*.a 2>/dev/null || echo "No .a files found in current directory"
+
+            # Ensure target directory exists
+            mkdir -p /tmp/Qt-5.15.2/ios/plugins/qmltooling
+
+            # Move files to correct location (with error checking)
+            if [[ -f "libqmldbg_debugger.a" ]]; then
+                mv libqmldbg_debugger.a /tmp/Qt-5.15.2/ios/plugins/qmltooling/
+                echo "Moved libqmldbg_debugger.a"
+            else
+                echo "FATAL ERROR: libqmldbg_debugger.a not found after extraction"
+                exit 1
+            fi
+
+            if [[ -f "libqmldbg_nativedebugger.a" ]]; then
+                mv libqmldbg_nativedebugger.a /tmp/Qt-5.15.2/ios/plugins/qmltooling/
+                echo "Moved libqmldbg_nativedebugger.a"
+            else
+                echo "FATAL ERROR: libqmldbg_nativedebugger.a not found after extraction"
+                exit 1
+            fi
+
             echo "Installed missing qmldbg libraries"
-            rm libqmldbg_debugger.zip
+            rm -f libqmldbg_debugger.zip
 
             # Verify httpserver module is now findable
             if [[ -f "/tmp/Qt-5.15.2/ios/mkspecs/modules-inst/qt_lib_httpserver.pri" ]]; then
