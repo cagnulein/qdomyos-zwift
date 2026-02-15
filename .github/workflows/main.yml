@@ -817,6 +817,9 @@ jobs:
             echo "Files in apk-debug directory:"
             ls -la apk-debug/
 
+            # Uninstall previous version (may exist in cached AVD) to avoid signature mismatch
+            adb uninstall org.cagnulen.qdomyoszwift || true
+
             # Install the APK
             adb install apk-debug/android-debug.apk
 
