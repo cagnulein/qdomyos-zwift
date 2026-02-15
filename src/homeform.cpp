@@ -180,7 +180,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
     settings.setValue(sKey + QStringLiteral("enabled"), true);
     settings.setValue(sKey + QStringLiteral("type"), TEMPLATE_TYPE_WEBSERVER);
-    settings.setValue(sKey + QStringLiteral("port"), 0);
+    if (!settings.contains(sKey + QStringLiteral("port")))
+        settings.setValue(sKey + QStringLiteral("port"), 0);
     this->innerTemplateManager =
         TemplateInfoSenderBuilder::getInstance(innerId, QStringList({QStringLiteral(":/inner_templates/")}), this);
 
