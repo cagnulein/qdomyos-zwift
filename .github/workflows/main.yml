@@ -925,6 +925,25 @@ jobs:
       - name: patching qt for bluetooth
         run: cp qt-patches/ios/5.15.2/binary/*.* ${{ github.workspace }}/output/ios/Qt/5.15.2/ios/lib/
 
+      - name: Setup ccache
+        run: |
+          brew install ccache
+          echo "CCACHE_DIR=${{ github.workspace }}/.ccache" >> $GITHUB_ENV
+          ccache --set-config=max_size=2G
+          ccache --set-config=compression=true
+          ccache --set-config=compression_level=6
+          ccache --set-config=base_dir=${{ github.workspace }}
+          ccache --set-config=sloppiness=pch_defines,time_macros,include_file_mtime,file_macro
+          ccache --zero-stats
+
+      - name: Restore ccache
+        uses: actions/cache@v4
+        with:
+          path: .ccache
+          key: ccache-ios-${{ hashFiles('src/**/*.cpp', 'src/**/*.h', 'src/*.pro') }}
+          restore-keys: |
+            ccache-ios-
+
       - name: Build
         run: |
           cd src
@@ -937,15 +956,11 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
-          qmake CONFIG+=debug CONFIG+=iphonesimulator && make -j4
+          qmake CONFIG+=debug CONFIG+=iphonesimulator QMAKE_CC="ccache clang" QMAKE_CXX="ccache clang++" && make -j4
 
-      # causes iOS build on Mac to fail
-      # - name: Commit moc files
-      #   uses: EndBug/add-and-commit@v9
-      #   with:
-      #     message: 'moc files added'
-      #     add: 'src/moc_*.cpp --force'
-      #   if: github.ref == 'refs/heads/master'
+      - name: Show ccache stats
+        if: always()
+        run: ccache --show-stats
 
   window-msvc2019-build:
     runs-on: windows-latest
