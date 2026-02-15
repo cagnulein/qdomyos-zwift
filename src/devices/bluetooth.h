@@ -150,6 +150,9 @@
 #include "devices/ultrasportbike/ultrasportbike.h"
 #include "devices/wahookickrheadwind/wahookickrheadwind.h"
 #include "devices/wahookickrsnapbike/wahookickrsnapbike.h"
+#include "devices/dircon/wahoodirconbike.h"
+#include "devices/dircon/wahoodircontreadmill.h"
+#include "devices/dircon/dircondiscovery.h"
 #include "devices/yesoulbike/yesoulbike.h"
 #include "devices/ypooelliptical/ypooelliptical.h"
 #include "devices/ziprotreadmill/ziprotreadmill.h"
@@ -176,6 +179,7 @@ class bluetooth : public QObject, public SignalHandler {
     bluetoothdevice *externalInclination() { return eliteRizer; }
     bluetoothdevice *heartRateDevice() { return heartRateBelt; }
     QList<QBluetoothDeviceInfo> devices;
+    QList<DirconDeviceInfo> dirconDevices() const;
     bool onlyDiscover = false;
     volatile bool homeformLoaded = false;
 
@@ -296,6 +300,9 @@ class bluetooth : public QObject, public SignalHandler {
     stagesbike *powerBike = nullptr;
     ultrasportbike *ultraSportBike = nullptr;
     wahookickrsnapbike *wahooKickrSnapBike = nullptr;
+    wahoodirconbike *wahooDirconBike = nullptr;
+    wahoodircontreadmill *wahooDirconTreadmill = nullptr;
+    DirconDiscovery *dirconDiscovery = nullptr;
     ypooelliptical *ypooElliptical = nullptr;
     ziprotreadmill *ziproTreadmill = nullptr;
     kineticinroadbike *kineticInroadBike = nullptr;
