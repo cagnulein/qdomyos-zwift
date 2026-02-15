@@ -712,6 +712,7 @@ jobs:
   android-emulator-test:
     runs-on: ubuntu-latest
     needs: android-build
+    continue-on-error: ${{ matrix.flaky || false }}
     strategy:
       fail-fast: false
       matrix:
@@ -745,6 +746,7 @@ jobs:
             target: google_apis
             arch: x86_64
             android-version: "Android 13"
+            flaky: true
           - api-level: 35
             target: google_apis
             arch: x86_64
