@@ -795,12 +795,8 @@ jobs:
           arch: ${{ matrix.arch }}
           profile: Nexus 6
           force-avd-creation: false
-          ram-size: 2048M
-          disk-size: 4096M
-          heap-size: 512M
-          cores: 4
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: false
+          disable-animations: true
+          emulator-options: -no-window -noaudio -no-boot-anim
           script: echo "Generated AVD snapshot for caching."
 
       - name: Run tests on emulator (${{ matrix.android-version }})
@@ -811,12 +807,8 @@ jobs:
           arch: ${{ matrix.arch }}
           profile: Nexus 6
           force-avd-creation: false
-          ram-size: 2048M
-          disk-size: 4096M
-          heap-size: 512M
-          cores: 4
           disable-animations: true
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          emulator-options: -no-snapshot-save -no-window -noaudio -no-boot-anim
           script: |
             # Display available space
             df -h
