@@ -929,14 +929,17 @@ jobs:
         run: |
           brew install ccache
           echo "CCACHE_DIR=${{ github.workspace }}/.ccache" >> $GITHUB_ENV
-          # Use ccache via PATH symlinks (works with Xcode, unlike QMAKE_CC)
-          echo "$(brew --prefix ccache)/libexec" >> $GITHUB_PATH
           ccache --set-config=max_size=2G
           ccache --set-config=compression=true
           ccache --set-config=compression_level=6
           ccache --set-config=base_dir=${{ github.workspace }}
-          ccache --set-config=sloppiness=pch_defines,time_macros,include_file_mtime,file_macro
+          ccache --set-config=sloppiness=pch_defines,time_macros,include_file_mtime,file_macro,clang_index_store
           ccache --zero-stats
+          # Create wrapper scripts for Xcode (which uses absolute compiler paths, ignoring PATH)
+          mkdir -p /tmp/ccache-wrappers
+          printf '#!/bin/bash\nexec /opt/homebrew/bin/ccache clang "$@"\n' > /tmp/ccache-wrappers/clang
+          printf '#!/bin/bash\nexec /opt/homebrew/bin/ccache clang++ "$@"\n' > /tmp/ccache-wrappers/clang++
+          chmod +x /tmp/ccache-wrappers/clang /tmp/ccache-wrappers/clang++
 
       - name: Restore ccache
         uses: actions/cache@v4
@@ -958,7 +961,10 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
-          qmake CONFIG+=debug CONFIG+=iphonesimulator && make -j4
+          qmake CONFIG+=debug CONFIG+=iphonesimulator \
+            QMAKE_CC=/tmp/ccache-wrappers/clang \
+            QMAKE_CXX=/tmp/ccache-wrappers/clang++ \
+            && make -j4
 
       - name: Show ccache stats
         if: always()
