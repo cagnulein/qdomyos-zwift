@@ -120,6 +120,17 @@ if ! command -v qmake &> /dev/null || [[ "$(qmake -v | grep -o "5\.[0-9]*\.[0-9]
             find /tmp/Qt-5.15.2 -name "*.pri" -type f -exec sed -i '' 's|/Users/cagnulein/Qt/5.15.2|/private/tmp/Qt-5.15.2|g' {} \;
             echo "Fixed paths in .pri files"
 
+            # CRITICAL: Download missing qmldbg libraries
+            echo "Downloading missing qmldbg libraries..."
+            cd /tmp
+            curl -L -o libqmldbg_debugger.zip https://github.com/cagnulein/qt5.15.2/releases/download/qt-5.15.2/libqmldbg_debugger.zip
+            unzip -q libqmldbg_debugger.zip
+            # Move files to correct location
+            mv libqmldbg_debugger.a /tmp/Qt-5.15.2/ios/plugins/qmltooling/
+            mv libqmldbg_nativedebugger.a /tmp/Qt-5.15.2/ios/plugins/qmltooling/
+            echo "Installed missing qmldbg libraries"
+            rm libqmldbg_debugger.zip
+
             # Verify httpserver module is now findable
             if [[ -f "/tmp/Qt-5.15.2/ios/mkspecs/modules-inst/qt_lib_httpserver.pri" ]]; then
                 echo "SUCCESS: httpserver module .pri file found"
