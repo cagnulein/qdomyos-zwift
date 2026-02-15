@@ -173,6 +173,14 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     sed -i '' 's|../Qt/5.15.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
     echo "Fixed Qt library paths in project file"
 
+    # CRITICAL: Remove _debug suffix from Qt libraries
+    # The Qt package only contains release libraries, not debug versions
+    # Replace all lib*_debug.a references with lib*.a (release versions)
+    echo "Replacing debug Qt libraries with release versions..."
+    sed -i '' 's|lib\([a-zA-Z0-9_]*\)_debug\.a|lib\1.a|g' qdomyoszwift.xcodeproj/project.pbxproj
+    sed -i '' 's|-l\([a-zA-Z0-9_]*\)_debug|-l\1|g' qdomyoszwift.xcodeproj/project.pbxproj
+    echo "Replaced all _debug library references with release versions"
+
     # Add ALL necessary Qt library search paths
     # qmake generates these but they might be missing from the committed project
     echo "Adding all Qt library search paths..."
