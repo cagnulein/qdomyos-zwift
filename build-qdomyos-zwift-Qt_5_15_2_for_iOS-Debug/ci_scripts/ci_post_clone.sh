@@ -272,7 +272,12 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     echo "Removing SYMROOT settings from project.pbxproj..."
     sed -i '' '/SYMROOT = /d' qdomyoszwift.xcodeproj/project.pbxproj
     sed -i '' '/OBJROOT = /d' qdomyoszwift.xcodeproj/project.pbxproj
-    echo "SYMROOT removed - legacy build locations disabled"
+
+    # Fix absolute paths for resource files (Default-568h@2x.png, etc.)
+    echo "Fixing absolute paths for resource files..."
+    sed -i '' 's|/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/|qdomyoszwift.xcodeproj/|g' qdomyoszwift.xcodeproj/project.pbxproj
+
+    echo "SYMROOT removed and paths fixed - legacy build locations disabled"
 else
     echo "WARNING: project.pbxproj not found"
 fi
