@@ -182,8 +182,9 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     sed -i '' 's|../../Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
     sed -i '' 's|../Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
 
-    # Fix absolute paths for resource files (Default-568h@2x.png, etc.)
-    sed -i '' 's|/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/|qdomyoszwift.xcodeproj/|g' qdomyoszwift.xcodeproj/project.pbxproj
+    # Fix absolute paths for resource files (Default-568h@2x.png, LaunchScreen.storyboard, etc.)
+    # Convert absolute paths to relative and change sourceTree from <absolute> to <group>
+    sed -i '' 's|path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/\([^"]*\)"; sourceTree = "<absolute>";|path = \1; sourceTree = "<group>";|g' qdomyoszwift.xcodeproj/project.pbxproj
 
     echo "Fixed all paths in project file"
 
