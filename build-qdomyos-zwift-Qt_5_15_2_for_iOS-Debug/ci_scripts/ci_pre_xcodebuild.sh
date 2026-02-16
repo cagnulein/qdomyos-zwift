@@ -169,22 +169,21 @@ cd "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug"
 if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     echo "Converting local development paths to Xcode Cloud paths..."
 
-    # Fix Qt library paths: /Users/cagnulein/Qt/5.15.2/ios/ -> /tmp/Qt-5.15.2/ios/
+    # Fix all paths in correct order (specific to general)
+
+    # 1. Fix Qt library paths (most specific)
     sed -i '' 's|/Users/cagnulein/Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
-
-    # Fix source file paths: /Users/cagnulein/qdomyos-zwift/src/ -> ../src/
-    sed -i '' 's|/Users/cagnulein/qdomyos-zwift/src/|../src/|g' qdomyoszwift.xcodeproj/project.pbxproj
-
-    # Fix build directory paths: /Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/ -> ../
-    sed -i '' 's|/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/|../|g' qdomyoszwift.xcodeproj/project.pbxproj
-
-    # Also fix any relative Qt paths that might exist
     sed -i '' 's|../../Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
     sed -i '' 's|../Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
 
-    # Fix absolute paths for resource files (Default-568h@2x.png, LaunchScreen.storyboard, etc.)
-    # Convert absolute paths to SOURCE_ROOT relative paths
-    sed -i '' 's|path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/\([^"]*\)"; sourceTree = "<absolute>";|path = "build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/\1"; sourceTree = SOURCE_ROOT;|g' qdomyoszwift.xcodeproj/project.pbxproj
+    # 2. Fix source file paths to relative (must be before general fix)
+    sed -i '' 's|/Users/cagnulein/qdomyos-zwift/src/|../src/|g' qdomyoszwift.xcodeproj/project.pbxproj
+
+    # 3. Fix all other absolute paths with general replacement
+    sed -i '' 's|/Users/cagnulein/qdomyos-zwift/|/Volumes/workspace/repository/|g' qdomyoszwift.xcodeproj/project.pbxproj
+
+    # 4. Fix sourceTree for relative src paths (must be <group> not <absolute>)
+    sed -i '' 's|path = "\.\./src/\([^"]*\)"; sourceTree = "<absolute>";|path = "../src/\1"; sourceTree = "<group>";|g' qdomyoszwift.xcodeproj/project.pbxproj
 
     echo "Fixed all paths in project file"
 
