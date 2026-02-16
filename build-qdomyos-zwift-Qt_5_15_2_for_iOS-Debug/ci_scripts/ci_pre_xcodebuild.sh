@@ -285,33 +285,29 @@ fi
 
 echo "Xcode project fix completed - symlink created to correct project with code signing"
 
-# Fix "legacy build locations" error by configuring Xcode project
-echo "Fixing Xcode Cloud legacy build locations issue..."
+# CRITICAL FIX: Remove legacy build locations to enable Swift Package support
+# The project has SYMROOT = "$(PROJECT_DIR)" which causes the error:
+# "Packages are not supported when using legacy build locations"
+echo "Removing legacy build locations from Xcode project..."
 cd build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug
 
-# Create or update xcconfig file to fix legacy build locations
-cat > xcode_cloud_fix.xcconfig << EOF
-// Xcode Cloud fix for legacy build locations
-SYMROOT = \$(SRCROOT)/build
-OBJROOT = \$(SRCROOT)/build/Intermediates
-CONFIGURATION_BUILD_DIR = \$(SRCROOT)/build/\$(CONFIGURATION)\$(EFFECTIVE_PLATFORM_NAME)
-EOF
-
-# Apply the fix to the Xcode project
 if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
-    echo "Applying Xcode Cloud build location fix..."
-    
-    # Backup original project file
-    cp qdomyoszwift.xcodeproj/project.pbxproj qdomyoszwift.xcodeproj/project.pbxproj.backup
-    
-    # Disable legacy build locations in project settings
-    # This changes the build system to use recommended locations
-    sed -i '' 's/SYMROOT = /\/\/ SYMROOT = /g' qdomyoszwift.xcodeproj/project.pbxproj || echo "SYMROOT fix applied"
-    sed -i '' 's/UseNewBuildSystem = NO/UseNewBuildSystem = YES/g' qdomyoszwift.xcodeproj/project.pbxproj || echo "New build system enabled"
-    
-    echo "Xcode project configuration updated for Xcode Cloud compatibility"
+    echo "Removing SYMROOT settings that cause legacy build locations error..."
+
+    # Remove all SYMROOT lines completely (they cause the legacy build locations error)
+    sed -i '' '/SYMROOT = /d' qdomyoszwift.xcodeproj/project.pbxproj
+
+    # Also remove OBJROOT if present
+    sed -i '' '/OBJROOT = /d' qdomyoszwift.xcodeproj/project.pbxproj
+
+    # Ensure new build system is enabled
+    sed -i '' 's/UseNewBuildSystem = NO/UseNewBuildSystem = YES/g' qdomyoszwift.xcodeproj/project.pbxproj || echo "New build system already enabled"
+
+    echo "Legacy build locations removed - Swift packages now supported"
+    echo "Verifying SYMROOT removed:"
+    grep -c "SYMROOT" qdomyoszwift.xcodeproj/project.pbxproj && echo "WARNING: SYMROOT still present!" || echo "SUCCESS: No SYMROOT found"
 else
-    echo "ERROR: Xcode project not found after qmake"
+    echo "ERROR: Xcode project not found"
     exit 1
 fi
 
