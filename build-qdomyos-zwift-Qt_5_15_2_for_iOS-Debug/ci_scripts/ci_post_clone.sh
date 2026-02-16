@@ -208,15 +208,13 @@ fi
 echo "Generating secret.h from environment variables..."
 cd "$CI_PRIMARY_REPOSITORY_PATH/src"
 
-cat > secret.h << EOF
-#define STRAVA_SECRET_KEY ${STRAVA_SECRET_KEY:-""}
-#define PELOTON_SECRET_KEY ${PELOTON_SECRET_KEY:-""}
-#define SMTP_USERNAME ${SMTP_USERNAME:-""}
-#define SMTP_PASSWORD ${SMTP_PASSWORD:-""}
-#define SMTP_SERVER ${SMTP_SERVER:-""}
-#define INTERVALSICU_CLIENT_ID ${INTERVALSICU_CLIENT_ID:-""}
-#define INTERVALSICU_CLIENT_SECRET ${INTERVALSICU_CLIENT_SECRET:-""}
-EOF
+echo "#define STRAVA_SECRET_KEY ${STRAVA_SECRET_KEY}" > secret.h
+echo "#define PELOTON_SECRET_KEY ${PELOTON_SECRET_KEY}" >> secret.h
+echo "#define SMTP_USERNAME ${SMTP_USERNAME}" >> secret.h
+echo "#define SMTP_PASSWORD ${SMTP_PASSWORD}" >> secret.h
+echo "#define SMTP_SERVER ${SMTP_SERVER}" >> secret.h
+echo "#define INTERVALSICU_CLIENT_ID ${INTERVALSICU_CLIENT_ID}" >> secret.h
+echo "#define INTERVALSICU_CLIENT_SECRET ${INTERVALSICU_CLIENT_SECRET}" >> secret.h
 
 echo "secret.h generated successfully"
 
