@@ -275,8 +275,8 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
 
     # Fix absolute paths for resource files (Default-568h@2x.png, LaunchScreen.storyboard, etc.)
     echo "Fixing absolute paths for resource files..."
-    # Convert absolute paths to relative and change sourceTree from <absolute> to <group>
-    sed -i '' 's|path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/\([^"]*\)"; sourceTree = "<absolute>";|path = "\1"; sourceTree = "<group>";|g' qdomyoszwift.xcodeproj/project.pbxproj
+    # Convert absolute paths to SOURCE_ROOT relative paths
+    sed -i '' 's|path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/\([^"]*\)"; sourceTree = "<absolute>";|path = "build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/\1"; sourceTree = SOURCE_ROOT;|g' qdomyoszwift.xcodeproj/project.pbxproj
 
     echo "SYMROOT removed and paths fixed - legacy build locations disabled"
 else
