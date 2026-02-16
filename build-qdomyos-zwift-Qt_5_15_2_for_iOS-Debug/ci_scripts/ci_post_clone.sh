@@ -204,4 +204,31 @@ else
     exit 1
 fi
 
+# CRITICAL: Generate secret.h from Xcode Cloud environment variables
+echo "Generating secret.h from environment variables..."
+cd "$CI_PRIMARY_REPOSITORY_PATH/src"
+
+cat > secret.h << EOF
+#define STRAVA_SECRET_KEY ${STRAVA_SECRET_KEY:-""}
+#define PELOTON_SECRET_KEY ${PELOTON_SECRET_KEY:-""}
+#define SMTP_USERNAME ${SMTP_USERNAME:-""}
+#define SMTP_PASSWORD ${SMTP_PASSWORD:-""}
+#define SMTP_SERVER ${SMTP_SERVER:-""}
+#define INTERVALSICU_CLIENT_ID ${INTERVALSICU_CLIENT_ID:-""}
+#define INTERVALSICU_CLIENT_SECRET ${INTERVALSICU_CLIENT_SECRET:-""}
+EOF
+
+echo "secret.h generated successfully"
+
+# Generate cesium-key.js if cesiumkey is provided
+if [[ -n "${CESIUMKEY}" ]]; then
+    echo "Generating cesium-key.js..."
+    echo "${CESIUMKEY}" > inner_templates/googlemaps/cesium-key.js
+    echo "cesium-key.js generated successfully"
+else
+    echo "CESIUMKEY not provided, skipping cesium-key.js generation"
+fi
+
+cd "$CI_PRIMARY_REPOSITORY_PATH"
+
 echo "Post-clone setup completed successfully - Qt 5.15.2 EXACTLY installed"

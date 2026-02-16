@@ -162,16 +162,45 @@ else
     find /tmp/Qt-5.15.2 -name "*calendar*" 2>/dev/null || echo "No calendar files found"
 fi
 
-# CRITICAL: Fix Qt library paths in Xcode project
-# The project has relative paths like ../../Qt/5.15.2/ which don't exist on Xcode Cloud
-# Replace them with absolute paths to /tmp/Qt-5.15.2/
-echo "Fixing Qt library paths in Xcode project..."
+# CRITICAL: Fix ALL paths in Xcode project for Xcode Cloud compatibility
+# The project has absolute paths from local development that need to be converted
+echo "Fixing all paths in Xcode project for Xcode Cloud..."
 cd "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug"
 if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
-    # Fix relative Qt paths to absolute paths
-    sed -i '' 's|../../Qt/5.15.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
-    sed -i '' 's|../Qt/5.15.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
-    echo "Fixed Qt library paths in project file"
+    echo "Converting local development paths to Xcode Cloud paths..."
+
+    # Fix Qt library paths: /Users/cagnulein/Qt/5.15.2/ios/ -> /tmp/Qt-5.15.2/ios/
+    sed -i '' 's|/Users/cagnulein/Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
+
+    # Fix source file paths: /Users/cagnulein/qdomyos-zwift/src/ -> ../src/
+    sed -i '' 's|/Users/cagnulein/qdomyos-zwift/src/|../src/|g' qdomyoszwift.xcodeproj/project.pbxproj
+
+    # Fix build directory paths: /Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/ -> ../
+    sed -i '' 's|/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/|../|g' qdomyoszwift.xcodeproj/project.pbxproj
+
+    # Also fix any relative Qt paths that might exist
+    sed -i '' 's|../../Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
+    sed -i '' 's|../Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
+
+    echo "Fixed all paths in project file"
+
+    # CRITICAL: Change scheme to Release configuration
+    # The scheme is committed with Debug configuration but we need Release for Xcode Cloud
+    echo "Changing scheme to Release configuration..."
+    if [[ -f "qdomyoszwift.xcodeproj/xcshareddata/xcschemes/qdomyoszwift.xcscheme" ]]; then
+        # Change TestAction from Debug to Release
+        sed -i '' 's|<TestAction[^>]*buildConfiguration = "Debug"|<TestAction buildConfiguration = "Release"|g' qdomyoszwift.xcodeproj/xcshareddata/xcschemes/qdomyoszwift.xcscheme
+
+        # Change LaunchAction from Debug to Release
+        sed -i '' 's|<LaunchAction[^>]*buildConfiguration = "Debug"|<LaunchAction buildConfiguration = "Release"|g' qdomyoszwift.xcodeproj/xcshareddata/xcschemes/qdomyoszwift.xcscheme
+
+        # Change AnalyzeAction from Debug to Release
+        sed -i '' 's|<AnalyzeAction[^>]*buildConfiguration = "Debug"|<AnalyzeAction buildConfiguration = "Release"|g' qdomyoszwift.xcodeproj/xcshareddata/xcschemes/qdomyoszwift.xcscheme
+
+        echo "Scheme changed to Release configuration"
+    else
+        echo "WARNING: Scheme file not found"
+    fi
 
     # CRITICAL: Remove _debug suffix from Qt libraries
     # The Qt package only contains release libraries, not debug versions
