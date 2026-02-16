@@ -1,0 +1,17 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console.update";
+option java_outer_classname = "FirmwareUpdateServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "console/update/FirmwareUpdateFile.proto";
+import "console/update/FirmwareUpdateState.proto";
+import "console/update/FirmwareUpdateStatus.proto";
+import "util/Util.proto";
+
+service FirmwareUpdateService {
+    rpc GetFirmwareUpdateStatus(Empty) returns (FirmwareUpdateStatus) {}
+    rpc FirmwareUpdateStatusChangedSubscription(Empty) returns (stream FirmwareUpdateStatus) {}
+    rpc StartFirmwareUpdate(FirmwareUpdateFile) returns (FirmwareUpdateStatus) {}
+}
