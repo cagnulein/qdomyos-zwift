@@ -285,14 +285,44 @@ fi
 
 echo "Xcode project fix completed - symlink created to correct project with code signing"
 
-# CRITICAL FIX: Remove legacy build locations to enable Swift Package support
-# The project has SYMROOT = "$(PROJECT_DIR)" which causes the error:
-# "Packages are not supported when using legacy build locations"
-echo "Removing legacy build locations from Xcode project..."
+# CRITICAL FIX: Disable legacy build locations to enable Swift Package support
+# Create workspace settings to force modern build system
+echo "Configuring workspace to disable legacy build locations..."
 cd build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug
 
+# Create xcshareddata directory if it doesn't exist
+mkdir -p qdomyoszwift.xcodeproj/project.xcworkspace/xcshareddata
+
+# Create WorkspaceSettings.xcsettings to disable legacy build locations
+cat > qdomyoszwift.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BuildSystemType</key>
+	<string>Latest</string>
+	<key>BuildLocationStyle</key>
+	<string>UseAppPreferences</string>
+</dict>
+</plist>
+EOF
+
+# Create IDEWorkspaceChecks.plist
+cat > qdomyoszwift.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDEDidComputeMac32BitWarning</key>
+	<true/>
+</dict>
+</plist>
+EOF
+
+echo "Workspace settings created - modern build system enabled"
+
 if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
-    echo "Removing SYMROOT settings that cause legacy build locations error..."
+    echo "Removing SYMROOT settings from project.pbxproj..."
 
     # Remove all SYMROOT lines completely (they cause the legacy build locations error)
     sed -i '' '/SYMROOT = /d' qdomyoszwift.xcodeproj/project.pbxproj
@@ -303,9 +333,7 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     # Ensure new build system is enabled
     sed -i '' 's/UseNewBuildSystem = NO/UseNewBuildSystem = YES/g' qdomyoszwift.xcodeproj/project.pbxproj || echo "New build system already enabled"
 
-    echo "Legacy build locations removed - Swift packages now supported"
-    echo "Verifying SYMROOT removed:"
-    grep -c "SYMROOT" qdomyoszwift.xcodeproj/project.pbxproj && echo "WARNING: SYMROOT still present!" || echo "SUCCESS: No SYMROOT found"
+    echo "Legacy build locations disabled - Swift packages now supported"
 else
     echo "ERROR: Xcode project not found"
     exit 1
