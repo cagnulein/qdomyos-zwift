@@ -231,4 +231,52 @@ fi
 
 cd "$CI_PRIMARY_REPOSITORY_PATH"
 
+# CRITICAL FIX: Disable legacy build locations to enable Swift Package support
+# This must be done BEFORE xcodebuild -resolvePackageDependencies is called
+echo "Configuring Xcode project to disable legacy build locations..."
+cd "$CI_PRIMARY_REPOSITORY_PATH/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug"
+
+# Create xcshareddata directory if it doesn't exist
+mkdir -p qdomyoszwift.xcodeproj/project.xcworkspace/xcshareddata
+
+# Create WorkspaceSettings.xcsettings to disable legacy build locations
+cat > qdomyoszwift.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BuildSystemType</key>
+	<string>Latest</string>
+	<key>BuildLocationStyle</key>
+	<string>UseAppPreferences</string>
+</dict>
+</plist>
+EOF
+
+# Create IDEWorkspaceChecks.plist
+cat > qdomyoszwift.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDEDidComputeMac32BitWarning</key>
+	<true/>
+</dict>
+</plist>
+EOF
+
+echo "Workspace settings created - modern build system enabled"
+
+# Remove SYMROOT from project.pbxproj to disable legacy build locations
+if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
+    echo "Removing SYMROOT settings from project.pbxproj..."
+    sed -i '' '/SYMROOT = /d' qdomyoszwift.xcodeproj/project.pbxproj
+    sed -i '' '/OBJROOT = /d' qdomyoszwift.xcodeproj/project.pbxproj
+    echo "SYMROOT removed - legacy build locations disabled"
+else
+    echo "WARNING: project.pbxproj not found"
+fi
+
+cd "$CI_PRIMARY_REPOSITORY_PATH"
+
 echo "Post-clone setup completed successfully - Qt 5.15.2 EXACTLY installed"
