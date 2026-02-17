@@ -112,6 +112,7 @@
 #include "signalhandler.h"
 #include "devices/skandikawiribike/skandikawiribike.h"
 #include "devices/smartrowrower/smartrowrower.h"
+#include "devices/sunnyfitstepper/sunnyfitstepper.h"
 #include "devices/smartspin2k/smartspin2k.h"
 #include "devices/snodebike/snodebike.h"
 #include "devices/strydrunpowersensor/strydrunpowersensor.h"
@@ -126,6 +127,7 @@
 #include "devices/sportsplusrower/sportsplusrower.h"
 #include "devices/sportstechbike/sportstechbike.h"
 #include "devices/sportstechelliptical/sportstechelliptical.h"
+#include "devices/sportstechrower/sportstechrower.h"
 #include "devices/sramAXSController/sramAXSController.h"
 #include "devices/stagesbike/stagesbike.h"
 
@@ -249,6 +251,7 @@ class bluetooth : public QObject, public SignalHandler {
     technogymbike* technogymBike = nullptr;
     sportstechbike *sportsTechBike = nullptr;
     sportstechelliptical *sportsTechElliptical = nullptr;
+    sportstechrower *sportsTechRower = nullptr;
     sportsplusbike *sportsPlusBike = nullptr;
     sportsplusrower *sportsPlusRower = nullptr;
     inspirebike *inspireBike = nullptr;
@@ -270,6 +273,7 @@ class bluetooth : public QObject, public SignalHandler {
     echelonrower *echelonRower = nullptr;
     ftmsrower *ftmsRower = nullptr;
     smartrowrower *smartrowRower = nullptr;
+    sunnyfitstepper *sunnyfitStepper = nullptr;
     echelonstride *echelonStride = nullptr;
     echelonstairclimber *echelonStairclimber = nullptr;
     lifefitnesstreadmill *lifefitnessTreadmill = nullptr;

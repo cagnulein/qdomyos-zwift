@@ -155,6 +155,7 @@ const QString QZSettings::tile_ftp_enabled = QStringLiteral("tile_ftp_enabled");
 const QString QZSettings::tile_ftp_order = QStringLiteral("tile_ftp_order");
 const QString QZSettings::tile_heart_enabled = QStringLiteral("tile_heart_enabled");
 const QString QZSettings::tile_heart_order = QStringLiteral("tile_heart_order");
+const QString QZSettings::tile_heart_show_as_percent = QStringLiteral("tile_heart_show_as_percent");
 const QString QZSettings::tile_fan_enabled = QStringLiteral("tile_fan_enabled");
 const QString QZSettings::tile_fan_order = QStringLiteral("tile_fan_order");
 const QString QZSettings::tile_jouls_enabled = QStringLiteral("tile_jouls_enabled");
@@ -356,6 +357,7 @@ const QString QZSettings::virtual_device_onlyheart = QStringLiteral("virtual_dev
 const QString QZSettings::virtual_device_echelon = QStringLiteral("virtual_device_echelon");
 const QString QZSettings::virtual_device_ifit = QStringLiteral("virtual_device_ifit");
 const QString QZSettings::virtual_device_rower = QStringLiteral("virtual_device_rower");
+const QString QZSettings::virtual_device_rower_pm5 = QStringLiteral("virtual_device_rower_pm5");
 const QString QZSettings::virtual_device_force_bike = QStringLiteral("virtual_device_force_bike");
 const QString QZSettings::virtual_device_force_treadmill = QStringLiteral("virtual_device_force_treadmill");
 const QString QZSettings::volume_change_gears = QStringLiteral("volume_change_gears");
@@ -1041,6 +1043,8 @@ const QString QZSettings::tile_power_avg_enabled = QStringLiteral("tile_power_av
 const QString QZSettings::tile_power_avg_order = QStringLiteral("tile_power_avg_order");
 const QString QZSettings::tile_negative_inclination_enabled = QStringLiteral("tile_negative_inclination_enabled");
 const QString QZSettings::tile_negative_inclination_order = QStringLiteral("tile_negative_inclination_order");
+const QString QZSettings::tile_hrv_enabled = QStringLiteral("tile_hrv_enabled");
+const QString QZSettings::tile_hrv_order = QStringLiteral("tile_hrv_order");
 const QString QZSettings::chart_display_mode = QStringLiteral("chart_display_mode");
 const QString QZSettings::calories_active_only = QStringLiteral("calories_active_only");
 const QString QZSettings::calories_from_hr = QStringLiteral("calories_from_hr");
@@ -1053,7 +1057,7 @@ const QString QZSettings::trainprogram_auto_lap_on_segment = QStringLiteral("tra
 const QString QZSettings::kingsmith_r2_enable_hw_buttons = QStringLiteral("kingsmith_r2_enable_hw_buttons");
 
 
-const uint32_t allSettingsCount = 858;
+const uint32_t allSettingsCount = 861;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1164,6 +1168,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_ftp_order, QZSettings::default_tile_ftp_order},
     {QZSettings::tile_heart_enabled, QZSettings::default_tile_heart_enabled},
     {QZSettings::tile_heart_order, QZSettings::default_tile_heart_order},
+    {QZSettings::tile_heart_show_as_percent, QZSettings::default_tile_heart_show_as_percent},
     {QZSettings::tile_fan_enabled, QZSettings::default_tile_fan_enabled},
     {QZSettings::tile_fan_order, QZSettings::default_tile_fan_order},
     {QZSettings::tile_jouls_enabled, QZSettings::default_tile_jouls_enabled},
@@ -1343,6 +1348,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon},
     {QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit},
     {QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower},
+    {QZSettings::virtual_device_rower_pm5, QZSettings::default_virtual_device_rower_pm5},
     {QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike},
     {QZSettings::virtual_device_force_treadmill, QZSettings::default_virtual_device_force_treadmill},
     {QZSettings::volume_change_gears, QZSettings::default_volume_change_gears},
@@ -1917,6 +1923,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_power_avg_order, QZSettings::default_tile_power_avg_order},
     {QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled},
     {QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order},
+    {QZSettings::tile_hrv_enabled, QZSettings::default_tile_hrv_enabled},
+    {QZSettings::tile_hrv_order, QZSettings::default_tile_hrv_order},
     {QZSettings::chart_display_mode, QZSettings::default_chart_display_mode},
     {QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike},
     {QZSettings::calories_active_only, QZSettings::default_calories_active_only},

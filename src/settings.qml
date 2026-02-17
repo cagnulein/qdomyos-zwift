@@ -1276,8 +1276,12 @@ import Qt.labs.platform 1.1
 			property bool treadmill_direct_distance: false
       
 			property bool domyos_treadmill_ts100: false
-			property bool thinkrider_controller: false          
-			property bool weight_kg_unit: false
+			property bool thinkrider_controller: false
+			property bool weight_kg_unit: false 
+			property bool virtual_device_rower_pm5: false
+			property bool tile_heart_show_as_percent: false
+			property bool tile_hrv_enabled: false
+			property int tile_hrv_order: 78                 
             property bool nordictrack_gx_4_5_pro: false
         }
 
@@ -13359,6 +13363,36 @@ import Qt.labs.platform 1.1
                                         verticalAlignment: Text.AlignVCenter
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
+                                    IndicatorOnlySwitch {
+                                        id: virtualDeviceRowerPm5Delegate
+                                        text: qsTr("Virtual Rower as PM5")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_rower_pm5
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        visible: settings.virtual_device_rower
+                                        onClicked: { settings.virtual_device_rower_pm5 = checked; window.settings_restart_to_apply = true; }
+                                    }
+
+                                    Label {
+                                        text: qsTr("When enabled, the virtual rower will use the Concept2 PM5 protocol instead of FTMS. This provides compatibility with apps like Mywhoosh that only support PM5 rowers. Default is off.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        visible: settings.virtual_device_rower
                                         color: Material.color(Material.Lime)
                                     }
 

@@ -10,6 +10,7 @@
 
 #include "fit_date_time.hpp"
 #include "fit_encode.hpp"
+#include "fit_hrv_mesg.hpp"
 
 #include "fit_decode.hpp"
 #include "fit_developer_field_description.hpp"
@@ -389,6 +390,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     sessionMesg.SetTotalMovingTime(session.last().elapsedTime);
     sessionMesg.SetTotalAscent(session.last().elevationGain);  // Total elevation gain (meters)
     sessionMesg.SetTotalDescent(session.last().negativeElevationGain);  // Total elevation loss/descent (meters)
+    if (speed_avg > 0) {
+        sessionMesg.SetAvgSpeed(speed_avg / 3.6);  // Convert from km/h to m/s
+    }
     sessionMesg.SetMinAltitude(min_alt);
     sessionMesg.SetMaxAltitude(max_alt);
     sessionMesg.SetEvent(FIT_EVENT_SESSION);
@@ -454,7 +458,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             sessionMesg.SetAvgStrokeDistance(session.last().avgStrokesLength);
     } else if (type == STAIRCLIMBER) {
 
-        sessionMesg.SetSport(FIT_SPORT_GENERIC);
+        sessionMesg.SetSport(FIT_SPORT_FITNESS_EQUIPMENT);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_STAIR_CLIMBING);
     } else if (type == JUMPROPE) {
 
@@ -699,7 +703,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         lapMesg.SetSport(FIT_SPORT_JUMP_ROPE);
     } else if (type == STAIRCLIMBER) {
 
-        lapMesg.SetSport(FIT_SPORT_GENERIC);
+        lapMesg.SetSport(FIT_SPORT_FITNESS_EQUIPMENT);
         lapMesg.SetSubSport(FIT_SUB_SPORT_STAIR_CLIMBING);
     } else {
 
@@ -803,6 +807,19 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
                // this workaround could leads an accuracy issue.
         newRecord.SetTimestamp(date.GetTimeStamp() + i);
         encode.Write(newRecord);
+
+        // Write HRV messages with RR-intervals (standard FIT format)
+        // Each HrvMesg can contain up to 5 RR-interval values
+        if (!sl.rrIntervals.isEmpty()) {
+            for (int rrIdx = 0; rrIdx < sl.rrIntervals.size(); rrIdx += 5) {
+                fit::HrvMesg hrvMesg;
+                for (int j = 0; j < 5 && (rrIdx + j) < sl.rrIntervals.size(); j++) {
+                    // Convert from milliseconds to seconds for FIT format
+                    hrvMesg.SetTime(j, (float)(sl.rrIntervals.at(rrIdx + j) / 1000.0));
+                }
+                encode.Write(hrvMesg);
+            }
+        }
 
         if (sl.lapTrigger) {
 

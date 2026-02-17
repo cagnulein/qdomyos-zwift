@@ -1,4 +1,5 @@
 #include "ftmsbike.h"
+#include "speedracex_defaults.h"
 #include "homeform.h"
 #include "virtualdevices/virtualbike.h"
 #include <QBluetoothLocalDevice>
@@ -260,7 +261,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         if(SL010 || SPORT01)
             Resistance = requestResistance;
         
-        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE) {
+        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -295,6 +296,42 @@ void ftmsbike::forceInclination(double requestInclination) {
 
     writeCharacteristic(write, sizeof(write),
                         QStringLiteral("forceInclination ") + QString::number(requestInclination));
+}
+
+void ftmsbike::sendZwiftPlayInclination(double inclination) {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    QByteArray message = lockscreen::zwift_hub_inclinationCommand(inclination);
+#else
+    QByteArray message;
+#endif
+#elif defined(Q_OS_ANDROID)
+    QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+        "org/cagnulen/qdomyoszwift/ZwiftHubBike",
+        "inclinationCommand",
+        "(D)[B",
+        inclination);
+
+    if(!result.isValid()) {
+        qDebug() << "inclinationCommand returned invalid value";
+        return;
+    }
+
+    jbyteArray array = result.object<jbyteArray>();
+    QAndroidJniEnvironment env;
+    jbyte* bytes = env->GetByteArrayElements(array, nullptr);
+    jsize length = env->GetArrayLength(array);
+
+    QByteArray message((char*)bytes, length);
+
+    env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
+#else
+    QByteArray message;
+    qDebug() << "implement zwift hub protobuf!";
+    return;
+#endif
+    writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
+    gearInclinationSent = true;
 }
 
 void ftmsbike::update() {
@@ -387,18 +424,24 @@ void ftmsbike::update() {
         }
 
         if(zwiftPlayService && gears_zwift_ratio && lastGearValue != gears()) {
+            // Workaround: gear commands don't work until an inclination command has been sent first
+            if (!gearInclinationSent) {
+                qDebug() << "Sending initial inclination command (0.4%) before first gear command";
+                sendZwiftPlayInclination(0.4);
+            }
+
             QSettings settings;
             wheelCircumference::GearTable table;
             wheelCircumference::GearTable::GearInfo g = table.getGear((int)gears());
             double original_ratio = ((double)settings.value(QZSettings::gear_crankset_size, QZSettings::default_gear_crankset_size).toDouble()) /
             ((double)settings.value(QZSettings::gear_cog_size, QZSettings::default_gear_cog_size).toDouble());
-            
+
             double current_ratio = ((double)g.crankset / (double)g.rearCog);
-            
+
             uint32_t gear_value = static_cast<uint32_t>(10000.0 * (current_ratio/original_ratio) * (42.0/14.0));
-            
+
             qDebug() << "zwift hub gear current ratio" << current_ratio << g.crankset << g.rearCog << "gear_value" << gear_value << "original_ratio" << original_ratio;
- 
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             QByteArray proto = lockscreen::zwift_hub_setGearsCommand(gear_value);
@@ -452,6 +495,30 @@ void ftmsbike::update() {
             forcePower(requestPower);
             requestPower = -1;
         }
+        // Continuous ERG for resistance-level bikes:
+        // Re-evaluate resistance when cadence changes to maintain target power.
+        // Without this, resistance is only set once when Zwift sends a new power target,
+        // and cadence changes don't trigger resistance adjustment.
+        if (resistance_lvl_mode && !ergModeSupported &&
+            lastRequestedPower().value() > 0 && autoResistance()) {
+            resistance_t newR = resistanceFromPowerRequest(
+                (uint16_t)lastRequestedPower().value());
+            if (newR != m_lastErgResistance && newR > 0) {
+                // ERG death spiral protection: below 50 RPM, only allow resistance decreases
+                if (Cadence.value() > 0 && Cadence.value() < 50 && newR > m_lastErgResistance) {
+                    qDebug() << "ERG death spiral protection: cadence" << Cadence.value()
+                             << "< 50, blocking resistance increase"
+                             << m_lastErgResistance << "->" << newR;
+                } else {
+                    qDebug() << "continuous ERG: cadence" << Cadence.value()
+                             << "target" << lastRequestedPower().value()
+                             << "resistance" << m_lastErgResistance << "->" << newR;
+                    forceResistance(newR);
+                    m_lastErgResistance = newR;
+                }
+            }
+        }
+
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
 
@@ -753,7 +820,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             } else if (MRK_S26C) {
                 m_watt = Cadence.value() * (Resistance.value() * 1.16);
                 emit debug(QStringLiteral("Current Watt (MRK-S26C formula): ") + QString::number(m_watt.value()));
-            } else if (LYDSTO && watt_ignore_builtin) {
+            } else if ((LYDSTO || DMASUN) && watt_ignore_builtin) {
                 m_watt = wattFromHR(true);
                 emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
             } else {
@@ -1461,9 +1528,17 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
     bool allowPowerRouting = (!power_sensor && ergModeSupported && isPowerCommand);
     
     if (!autoResistance() || (resistance_lvl_mode && !allowPowerRouting) || ergModeNotSupported) {
-        qDebug() << "ignoring routing FTMS packet to the bike from virtualbike because of auto resistance OFF or resistance lvl mode is on or ergModeNotSupported"
-                 << characteristic.uuid() << newValue.toHex(' ') << "ergModeNotSupported:" << ergModeNotSupported 
-                 << "resistance_lvl_mode:" << resistance_lvl_mode << "power_sensor:" << power_sensor << "isPowerCommand:" << isPowerCommand;
+        // For bikes that don't support ERG natively but accept resistance levels (e.g. SpeedRaceX),
+        // intercept power commands and route through changePower() which converts power→resistance
+        if (isPowerCommand && !ergModeSupported && resistance_lvl_mode && autoResistance() && newValue.length() > 2) {
+            uint16_t power = (((uint8_t)newValue.at(1)) + (newValue.at(2) << 8));
+            qDebug() << "routing power command through changePower() for resistance_lvl_mode bike, power:" << power;
+            changePower(power);
+        } else {
+            qDebug() << "ignoring routing FTMS packet to the bike from virtualbike because of auto resistance OFF or resistance lvl mode is on or ergModeNotSupported"
+                     << characteristic.uuid() << newValue.toHex(' ') << "ergModeNotSupported:" << ergModeNotSupported
+                     << "resistance_lvl_mode:" << resistance_lvl_mode << "power_sensor:" << power_sensor << "isPowerCommand:" << isPowerCommand;
+        }
         return;
     }
 
@@ -1529,39 +1604,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
         } else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
-            
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            QByteArray message = lockscreen::zwift_hub_inclinationCommand(((double)slope) / 100.0);
-#else
-            QByteArray message;
-#endif
-#elif defined(Q_OS_ANDROID)
-            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
-                "org/cagnulen/qdomyoszwift/ZwiftHubBike",
-                "inclinationCommand",
-                "(D)[B",
-                ((double)slope) / 100.0);
-
-            if(!result.isValid()) {
-                qDebug() << "inclinationCommand returned invalid value";
-                return;
-            }
-
-            jbyteArray array = result.object<jbyteArray>();
-            QAndroidJniEnvironment env;
-            jbyte* bytes = env->GetByteArrayElements(array, nullptr);
-            jsize length = env->GetArrayLength(array);
-
-            QByteArray message((char*)bytes, length);
-
-            env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
-#else
-            QByteArray message;
-            qDebug() << "implement zwift hub protobuf!";
-            return;
-#endif
-            writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
+            sendZwiftPlayInclination(((double)slope) / 100.0);
             return;
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && !ergModeSupported) {
             qDebug() << "discarding";
@@ -1747,6 +1790,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("LYDSTO"))) {
             qDebug() << QStringLiteral("LYDSTO found");
             LYDSTO = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("DMASUN-") && bluetoothDevice.name().toUpper().endsWith("-BIKE"))) {
+            qDebug() << QStringLiteral("DMASUN bike found");
+            DMASUN = true;
         } else if ((bluetoothDevice.name().toUpper().startsWith("SL010-"))) {
             qDebug() << QStringLiteral("SL010 found");
             SL010 = true;
@@ -1825,6 +1871,13 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("S18 found");
             S18 = true;
             max_resistance = 24;
+        } else if(device.name().toUpper().startsWith("SPEEDRACEX")) {
+            qDebug() << QStringLiteral("SpeedRaceX found");
+            SPEEDRACEX = true;
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            max_resistance = 32;
+            _ergTable.loadDefaultData(kSpeedRaceXDefaultErgData);
         }
 
 
@@ -1896,6 +1949,7 @@ void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState stat
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        gearInclinationSent = false;
         m_control->connectToDevice();
     }
 }
