@@ -56,6 +56,10 @@ static zwift_protobuf_layer* zwiftProtobufLayer = nil;
 
 static NSString* profile_selected;
 
+// Background audio keep-alive
+static AVAudioEngine* _bgAudioEngine = nil;
+static AVAudioPlayerNode* _bgPlayerNode = nil;
+
 bool lockscreen::appleWatchAppInstalled() {
     static int lastState = -1; // -1 = not initialized, 0 = not supported/not paired, 1 = paired but no app, 2 = paired with app
     
@@ -419,6 +423,72 @@ double lockscreen::getVolume()
 {
     [[AVAudioSession sharedInstance] setActive:true error:0];
     return [[AVAudioSession sharedInstance] outputVolume];
+}
+
+void lockscreen::startBackgroundAudio()
+{
+    if (_bgAudioEngine && [_bgAudioEngine isRunning]) {
+        return; // already running
+    }
+
+    NSError *sessionError = nil;
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback
+                                     withOptions:AVAudioSessionCategoryOptionMixWithOthers
+                                           error:&sessionError];
+    if (sessionError) {
+        NSLog(@"[QZ] startBackgroundAudio: setCategory error: %@", sessionError.localizedDescription);
+    }
+
+    [[AVAudioSession sharedInstance] setActive:YES error:&sessionError];
+    if (sessionError) {
+        NSLog(@"[QZ] startBackgroundAudio: setActive error: %@", sessionError.localizedDescription);
+    }
+
+    _bgAudioEngine = [[AVAudioEngine alloc] init];
+    _bgPlayerNode = [[AVAudioPlayerNode alloc] init];
+
+    [_bgAudioEngine attachNode:_bgPlayerNode];
+
+    AVAudioFormat *format = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:44100 channels:2];
+    [_bgAudioEngine connect:_bgPlayerNode to:_bgAudioEngine.mainMixerNode format:format];
+
+    // Create a short silent PCM buffer and schedule it in an infinite loop
+    AVAudioFrameCount frameCount = 4410; // 0.1s at 44100 Hz
+    AVAudioPCMBuffer *silentBuffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:format frameCapacity:frameCount];
+    silentBuffer.frameLength = frameCount;
+    // Buffer memory is already zeroed (silent)
+
+    NSError *engineError = nil;
+    [_bgAudioEngine startAndReturnError:&engineError];
+    if (engineError) {
+        NSLog(@"[QZ] startBackgroundAudio: engine start error: %@", engineError.localizedDescription);
+        _bgAudioEngine = nil;
+        _bgPlayerNode = nil;
+        return;
+    }
+
+    [_bgPlayerNode scheduleBuffer:silentBuffer atTime:nil options:AVAudioPlayerNodeBufferLoops completionHandler:nil];
+    [_bgPlayerNode play];
+
+    NSLog(@"[QZ] Background audio keep-alive started");
+}
+
+void lockscreen::stopBackgroundAudio()
+{
+    if (_bgPlayerNode) {
+        [_bgPlayerNode stop];
+        _bgPlayerNode = nil;
+    }
+    if (_bgAudioEngine) {
+        [_bgAudioEngine stop];
+        _bgAudioEngine = nil;
+    }
+
+    [[AVAudioSession sharedInstance] setActive:NO
+                                   withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation
+                                         error:nil];
+
+    NSLog(@"[QZ] Background audio keep-alive stopped");
 }
 
 void lockscreen::debug(const char* debugstring) {
