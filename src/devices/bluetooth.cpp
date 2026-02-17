@@ -1126,6 +1126,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("SCH_590E")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SCH411/510E")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER ")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("MRK-E")) ||
                         b.name().toUpper().startsWith(QStringLiteral("FEIER-EM-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MX-AS ")) ||
                         (b.name().startsWith(QStringLiteral("Domyos-EL")) && settings.value(QZSettings::domyos_elliptical_fmts, QZSettings::default_domyos_elliptical_fmts).toBool()) ||
@@ -1402,11 +1403,12 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(shuaA5Treadmill);
             } else if (((b.name().toUpper().startsWith(QStringLiteral("TRUE")) &&
-                         !(b.name().toUpper().startsWith(QStringLiteral("TRUE TREADMILL ")) && b.name().length() == 19)) ||
+                         !(b.name().toUpper().startsWith(QStringLiteral("TRUE TREADMILL ")) && b.name().length() == 19) &&
+                         !(b.name().toUpper().startsWith(QStringLiteral("TRUE 1000")))) ||
                         b.name().toUpper().startsWith(QStringLiteral("ASSAULT TREADMILL ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("WDWAY")) && b.name().length() == 8) || // WdWay179
                         (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && !gem_module_inclination && !deviceHasService(b, QBluetoothUuid((quint16)0x1814)) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)))) &&
-                       !trueTreadmill && filter) {
+                       !trueTreadmill && ftms_treadmill.contains(QZSettings::default_ftms_treadmill) && !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 trueTreadmill = new truetreadmill(noWriteResistance, noHeartService);
@@ -1552,6 +1554,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("FIT-TM-")) ||                             // FIT-TM- treadmill with real inclination
                         b.name().toUpper().startsWith(QStringLiteral("LJJ-")) ||                            // LJJ-02351A
                         b.name().toUpper().startsWith(QStringLiteral("WLT-EP-")) ||                             // Flow elliptical
+                        b.name().toUpper().startsWith(QStringLiteral("TRUE 1000")) ||
                         (b.name().toUpper().startsWith("SCHWINN 810")) ||
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
                         (b.name().toUpper().startsWith("MRK-T")) || // MERACH W50 TREADMILL
@@ -1564,6 +1567,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("TP1")) && b.name().length() == 3) ||
                         (b.name().toUpper().startsWith(QStringLiteral("KS-HD-Z1D"))) ||                     // Kingsmith WalkingPad Z1
                         (b.name().toUpper().startsWith(QStringLiteral("KS-AP-"))) ||                        // Kingsmith WalkingPad R3 Hybrid+
+                        (b.name().toUpper().startsWith(QStringLiteral("KS-NG-"))) ||                        // Kingsmith X218 / Walking Pad
                         (b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("TT8")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ST90")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
@@ -1843,6 +1847,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("VFSPINBIKE")) ||
                         (b.name().toUpper().startsWith("RIVO COG")) ||
                         (b.name().toUpper().startsWith("RAVE")) ||
+                        (b.name().toUpper().startsWith("TOPUTURE-")) ||
                         (b.name().toUpper().startsWith("BESP-")) ||  // FITFIU BESP 250 indoor bike
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith("SPORT01-") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // Labgrey Magnetic Exercise Bike https://www.amazon.co.uk/dp/B0CXMF1NPY?_encoding=UTF8&psc=1&ref=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&ref_=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&social_share=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&skipTwisterOG=1
@@ -2261,6 +2266,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 sportsTechElliptical->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(sportsTechElliptical);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("EW-ST-")) && !sportsTechRower && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                sportsTechRower = new sportstechrower(noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                      bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(sportsTechRower, &bluetoothdevice::connectedAndDiscovered, this,
+                       &bluetooth::connectedAndDiscovered);
+                connect(sportsTechRower, &sportstechrower::debug, this, &bluetooth::debug);
+                sportsTechRower->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(sportsTechRower);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("CARDIOFIT")) ||
                         (b.name().toUpper().contains(QStringLiteral("CARE")) &&
                          b.name().length() == 11)) // CARE9040177 - Carefitness CV-351
@@ -3803,6 +3819,11 @@ void bluetooth::restart() {
         delete sportsTechElliptical;
         sportsTechElliptical = nullptr;
     }
+    if (sportsTechRower) {
+
+        delete sportsTechRower;
+        sportsTechRower = nullptr;
+    }
     if (sportsPlusBike) {
 
         delete sportsPlusBike;
@@ -4154,6 +4175,8 @@ bluetoothdevice *bluetooth::device() {
         return sportsTechBike;
     } else if (sportsTechElliptical) {
         return sportsTechElliptical;
+    } else if (sportsTechRower) {
+        return sportsTechRower;
     } else if (sportsPlusBike) {
         return sportsPlusBike;
     } else if (sportsPlusRower) {

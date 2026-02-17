@@ -277,6 +277,8 @@ ScrollView {
         property bool tile_power_avg_enabled: false
         property int  tile_power_avg_order: 77
 
+        property bool tile_heart_show_as_percent: false
+
         property bool shortcuts_enabled: false
         property string shortcut_speed_plus: ""
         property string shortcut_speed_minus: ""
@@ -341,7 +343,7 @@ ScrollView {
         property string shortcut_preset_powerzone_7: ""
         property string shortcut_auto_resistance: ""
         property string shortcut_lap: ""
-        property string shortcut_start_stop: ""
+        property string shortcut_start_stop: ""        
     }
 
 
@@ -1016,29 +1018,59 @@ ScrollView {
             title: qsTr("Heart")
             linkedBoolSetting: "tile_heart_enabled"
             settings: settings
-            accordionContent: RowLayout {
-                spacing: 10
-                Label {
-                    id: labelheartrateOrder
-                    text: qsTr("order index:")
+            accordionContent: ColumnLayout {
+                SwitchDelegate {
+                    id: heartShowAsPercentSwitch
+                    text: qsTr("Show as %FC Max")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.tile_heart_show_as_percent
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignRight
+                    onClicked: settings.tile_heart_show_as_percent = checked
                 }
-                ComboBox {
-                    id: heartrateOrderTextField
-                    model: rootItem.tile_order
-                    displayText: settings.tile_heart_order
-                    Layout.fillHeight: false
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onActivated: {
-                        displayText = heartrateOrderTextField.currentValue
-                     }
+
+                Label {
+                    text: qsTr("When enabled, displays heart rate as percentage of maximum heart rate (%FC Max) instead of BPM. AVG and MAX values will also show percentages.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: Qt.application.font.pixelSize - 2
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
                 }
-                Button {
-                    id: okheartrateOrderButton
-                    text: "OK"
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_heart_order = heartrateOrderTextField.displayText; toast.show("Setting saved!"); }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelheartrateOrder
+                        text: qsTr("order index:")
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    ComboBox {
+                        id: heartrateOrderTextField
+                        model: rootItem.tile_order
+                        displayText: settings.tile_heart_order
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            displayText = heartrateOrderTextField.currentValue
+                         }
+                    }
+                    Button {
+                        id: okheartrateOrderButton
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_heart_order = heartrateOrderTextField.displayText; toast.show("Setting saved!"); }
+                    }
                 }
             }
         }

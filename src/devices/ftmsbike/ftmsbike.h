@@ -96,6 +96,7 @@ class ftmsbike : public bike {
     void forceResistance(resistance_t requestResistance);
     void forcePower(int16_t requestPower);
     void forceInclination(double requestInclination);
+    void sendZwiftPlayInclination(double inclination);
     uint16_t wattsFromResistance(double resistance);
 
     QTimer *refresh;
@@ -182,6 +183,7 @@ class ftmsbike : public bike {
     uint8_t battery_level = 0;
 
     bool wattReceived = false;
+    bool gearInclinationSent = false;
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;

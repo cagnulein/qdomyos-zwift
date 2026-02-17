@@ -1,17 +1,15 @@
-#ifndef DOMYOSTREADMILL_H
-#define DOMYOSTREADMILL_H
+#ifndef SPORTSTECHROWER_H
+#define SPORTSTECHROWER_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
 #include <QtBluetooth/qlowenergycharacteristicdata.h>
-
 #include <QtBluetooth/qlowenergycontroller.h>
 #include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
-
 #include <QtCore/qbytearray.h>
 
 #ifndef Q_OS_ANDROID
@@ -23,88 +21,66 @@
 #include <QtCore/qmutex.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
-#include <QtCore/qqueue.h>
 
-#include <QDateTime>
 #include <QObject>
+#include <QTime>
 
-#include "treadmill.h"
+#include "devices/rower.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
-class domyostreadmill : public treadmill {
-
+class sportstechrower : public rower {
     Q_OBJECT
   public:
-    domyostreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
-                    double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
+    sportstechrower(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
+                    double bikeResistanceGain);
     bool connected() override;
-    bool changeFanSpeed(uint8_t speed) override;
-    double minStepSpeed() override;
+    resistance_t maxResistance() override { return 24; }
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;    
 
   private:
-    // Structure for async write queue
-    struct WriteRequest {
-        QByteArray data;
-        QString info;
-        bool disable_log;
-        bool wait_for_response;
-    };
-    bool sendChangeFanSpeed(uint8_t speed);
     double GetSpeedFromPacket(const QByteArray &packet);
-    double GetInclinationFromPacket(const QByteArray &packet);
+    double GetResistanceFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);
-    double GetDistanceFromPacket(const QByteArray &packet);
-    void forceSpeedOrIncline(double requestSpeed, double requestIncline);
+    double GetDistanceFromPacket(QByteArray packet);
+    uint16_t GetElapsedFromPacket(const QByteArray &packet);
+    uint16_t wattsFromResistance(double resistance);
+    void forceResistance(resistance_t requestResistance);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
-                             bool wait_for_response = false);
-    void processWriteQueue();
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+                             bool wait_for_response);
     void startDiscover();
-    volatile bool incompletePackets = false;
-    bool noConsole = false;
-    bool noHeartService = false;
-    bool domyos_treadmill_sync_start = false;
-    uint32_t pollDeviceTime = 200;
-    bool searchStopped = false;
-    uint8_t sec1Update = 0;
-    uint8_t firstInit = 0;
-    QByteArray lastPacket;
-    QDateTime lastTimeCharacteristicChanged;
-    bool firstCharacteristicChanged = true;
-    QDateTime lastInclinationChanged = QDateTime::currentDateTime();
+    uint16_t watts() override;
+    double GetWattFromPacket(const QByteArray &packet);
+    double GetStrokeRateFromPacket(const QByteArray &packet);
 
     QTimer *refresh;
 
+    bool noWriteResistance = false;
+    bool noHeartService = false;
+    int8_t bikeResistanceOffset = 4;
+    double bikeResistanceGain = 1.0;
+
+    uint8_t firstVirtualBike = 0;
+    bool firstCharChanged = true;
+    QTime lastTimeCharChanged;
+    uint8_t sec1update = 0;
+    QByteArray lastPacket;
+
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
-    QLowEnergyCharacteristic gattNotifyCharacteristic;
+    QLowEnergyCharacteristic gattNotify1Characteristic;
 
     bool initDone = false;
     bool initRequest = false;
+    bool readyToStart = false;
 
-    // Async write queue management
-    QQueue<WriteRequest> writeQueue;
-    bool isWriting = false;
-    bool currentWriteWaitingForResponse = false;
-    QTimer *writeTimeoutTimer = nullptr;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
-
-  Q_SIGNALS:
+  signals:
     void disconnected();
     void debug(QString string);
-    void speedChanged(double speed);
     void packetReceived();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void searchingStop();
 
   private slots:
 
@@ -113,7 +89,6 @@ class domyostreadmill : public treadmill {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
-    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
@@ -122,4 +97,4 @@ class domyostreadmill : public treadmill {
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // DOMYOSTREADMILL_H
+#endif // SPORTSTECHROWER_H
