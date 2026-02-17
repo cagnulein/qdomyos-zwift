@@ -11,6 +11,8 @@
 #include "ios/lockscreen.h"
 #include "devices/bluetoothdevice.h"
 #include <QDebug>
+#include <QSettings>
+#include "qzsettings.h"
 #include "ios/AdbClient.h"
 #include "ios/ios_eliteariafan.h"
 #include "ios/ios_echelonconnectsport.h"
@@ -427,6 +429,11 @@ double lockscreen::getVolume()
 
 void lockscreen::startBackgroundAudio()
 {
+    QSettings settings;
+    if (!settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {
+        return; // "Allow Background Mode" is disabled
+    }
+
     if (_bgAudioEngine && [_bgAudioEngine isRunning]) {
         return; // already running
     }
