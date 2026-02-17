@@ -827,6 +827,7 @@ class homeform : public QObject {
     DataObject *autoVirtualShiftingClimb;
     DataObject *autoVirtualShiftingSprint;
     DataObject *powerAvg;
+    DataObject *hrv;
 
   private:
     static homeform *m_singleton;

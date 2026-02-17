@@ -1275,10 +1275,12 @@ import Qt.labs.platform 1.1
 			property bool domyos_treadmill_ts100: false
           
 			property bool thinkrider_controller: false
-			property bool weight_kg_unit: false
-          
+    
+			property bool weight_kg_unit: false 
 			property bool virtual_device_rower_pm5: false
 			property bool tile_heart_show_as_percent: false
+			property bool tile_hrv_enabled: false
+			property int tile_hrv_order: 78                 
 
             property bool shortcuts_enabled: false
             property string shortcut_speed_plus: ""
@@ -1344,7 +1346,7 @@ import Qt.labs.platform 1.1
             property string shortcut_preset_powerzone_6: ""
             property string shortcut_preset_powerzone_7: ""
             property string shortcut_lap: ""
-            property string shortcut_start_stop: ""              
+            property string shortcut_start_stop: ""                      
         }
 
 

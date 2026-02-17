@@ -778,6 +778,7 @@ fit-sdk/fit_zones_target_mesg.hpp \
 fit-sdk/fit_zones_target_mesg_listener.hpp \
 devices/flywheelbike/flywheelbike.h \
 devices/ftmsbike/ftmsbike.h \
+devices/ftmsbike/speedracex_defaults.h \
 devices/heartratebelt/heartratebelt.h \
 homeform.h \
 garminconnect.h \
@@ -993,6 +994,9 @@ ios {
 
     TARGET = qdomyoszwift
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
+    
+    # iOS Code Signing Configuration - handled manually in Xcode project
+    
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
 

@@ -279,6 +279,9 @@ ScrollView {
 
         property bool tile_heart_show_as_percent: false
 
+        property bool tile_hrv_enabled: false
+        property int  tile_hrv_order: 78        
+
         property bool shortcuts_enabled: false
         property string shortcut_speed_plus: ""
         property string shortcut_speed_minus: ""
@@ -344,6 +347,7 @@ ScrollView {
         property string shortcut_auto_resistance: ""
         property string shortcut_lap: ""
         property string shortcut_start_stop: ""        
+
     }
 
 
@@ -5632,6 +5636,51 @@ ScrollView {
 
         Label {
             text: qsTr("Button tile to cycle through power averaging modes: Off, 3s avg (harmonic), 5s avg (harmonic). Tap to cycle between modes. Only for bikes.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: hrvEnabledAccordion
+            title: qsTr("HRV (Heart Rate Variability)")
+            linkedBoolSetting: "tile_hrv_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelhrvOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: hrvOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_hrv_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = hrvOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okhrvOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_hrv_order = hrvOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Shows Heart Rate Variability (HRV) from a compatible heart rate belt. Displays RMSSD value in milliseconds.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2

@@ -234,6 +234,31 @@ class ergTable : public QObject {
         return maxRes;
     }
 
+    /**
+     * @brief Load default calibration data for a specific bike model.
+     * Only populates if the table is currently empty (won't overwrite user's learned data).
+     * Data format: "cadence|wattage|resistance;cadence|wattage|resistance;..."
+     */
+    void loadDefaultData(const QString& defaultDataString) {
+        if (!consolidatedData.isEmpty()) {
+            qDebug() << "ergTable: skipping defaults, user data already exists ("
+                     << consolidatedData.size() << "points)";
+            return;
+        }
+        QStringList dataList = defaultDataString.split(";", Qt::SkipEmptyParts);
+        for (const QString& triple : dataList) {
+            QStringList fields = triple.split("|");
+            if (fields.size() == 3) {
+                uint16_t cadence = fields[0].toUInt();
+                uint16_t wattage = fields[1].toUInt();
+                uint16_t resistance = fields[2].toUInt();
+                consolidatedData.append(ergDataPoint(cadence, wattage, resistance));
+            }
+        }
+        qDebug() << "ergTable: loaded" << consolidatedData.size() << "default data points";
+        saveSettings();
+    }
+
   private:
     QMap<CadenceResistancePair, WattageStats> wattageData;
     QList<ergDataPoint> consolidatedData;

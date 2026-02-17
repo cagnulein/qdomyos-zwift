@@ -312,6 +312,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                               QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingSprint"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Sprint", QStringLiteral("red"));
     powerAvg = new DataObject(QStringLiteral("Power Avg"), QStringLiteral("icons/icons/watt.png"),
                              QStringLiteral("0"), true, QStringLiteral("powerAvg"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Off", QStringLiteral("grey"));
+    hrv = new DataObject(QStringLiteral("HRV (ms)"), QStringLiteral("icons/icons/heart_red.png"),
+                         QStringLiteral("0"), false, QStringLiteral("hrv"), 48, labelFontSize);
     pidHR = new DataObject(QStringLiteral("PID Heart"), QStringLiteral("icons/icons/heart_red.png"),
                            QStringLiteral("0"), true, QStringLiteral("pid_hr"), 48, labelFontSize);
     extIncline = new DataObject(QStringLiteral("Ext.Inclin.(%)"), QStringLiteral("icons/icons/inclination.png"),
@@ -1758,6 +1760,12 @@ void homeform::sortTiles() {
                 dataList.append(heart);
             }
 
+            if (settings.value(QZSettings::tile_hrv_enabled, QZSettings::default_tile_hrv_enabled).toBool() &&
+                settings.value(QZSettings::tile_hrv_order, QZSettings::default_tile_hrv_order).toInt() == i) {
+                hrv->setGridId(i);
+                dataList.append(hrv);
+            }
+
             if (settings.value(QZSettings::tile_fan_enabled, true).toBool() &&
                 settings.value(QZSettings::tile_fan_order, 0).toInt() == i) {
                 fan->setGridId(i);
@@ -2147,6 +2155,12 @@ void homeform::sortTiles() {
                 dataList.append(heart);
             }
 
+            if (settings.value(QZSettings::tile_hrv_enabled, QZSettings::default_tile_hrv_enabled).toBool() &&
+                settings.value(QZSettings::tile_hrv_order, QZSettings::default_tile_hrv_order).toInt() == i) {
+                hrv->setGridId(i);
+                dataList.append(hrv);
+            }
+
             if (settings.value(QZSettings::tile_fan_enabled, true).toBool() &&
                 settings.value(QZSettings::tile_fan_order, 0).toInt() == i) {
                 fan->setGridId(i);
@@ -2534,6 +2548,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_heart_order, 0).toInt() == i) {
                 heart->setGridId(i);
                 dataList.append(heart);
+            }
+
+            if (settings.value(QZSettings::tile_hrv_enabled, QZSettings::default_tile_hrv_enabled).toBool() &&
+                settings.value(QZSettings::tile_hrv_order, QZSettings::default_tile_hrv_order).toInt() == i) {
+                hrv->setGridId(i);
+                dataList.append(hrv);
             }
 
             if (settings.value(QZSettings::tile_fan_enabled, true).toBool() &&
@@ -3010,6 +3030,12 @@ void homeform::sortTiles() {
                 dataList.append(heart);
             }
 
+            if (settings.value(QZSettings::tile_hrv_enabled, QZSettings::default_tile_hrv_enabled).toBool() &&
+                settings.value(QZSettings::tile_hrv_order, QZSettings::default_tile_hrv_order).toInt() == i) {
+                hrv->setGridId(i);
+                dataList.append(hrv);
+            }
+
             if (settings.value(QZSettings::tile_fan_enabled, true).toBool() &&
                 settings.value(QZSettings::tile_fan_order, 0).toInt() == i) {
                 fan->setGridId(i);
@@ -3376,6 +3402,12 @@ void homeform::sortTiles() {
                 dataList.append(heart);
             }
 
+            if (settings.value(QZSettings::tile_hrv_enabled, QZSettings::default_tile_hrv_enabled).toBool() &&
+                settings.value(QZSettings::tile_hrv_order, QZSettings::default_tile_hrv_order).toInt() == i) {
+                hrv->setGridId(i);
+                dataList.append(hrv);
+            }
+
             if (settings.value(QZSettings::tile_fan_enabled, true).toBool() &&
                 settings.value(QZSettings::tile_fan_order, 0).toInt() == i) {
                 fan->setGridId(i);
@@ -3737,6 +3769,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_heart_order, 0).toInt() == i) {
                 heart->setGridId(i);
                 dataList.append(heart);
+            }
+
+            if (settings.value(QZSettings::tile_hrv_enabled, QZSettings::default_tile_hrv_enabled).toBool() &&
+                settings.value(QZSettings::tile_hrv_order, QZSettings::default_tile_hrv_order).toInt() == i) {
+                hrv->setGridId(i);
+                dataList.append(hrv);
             }
 
             if (settings.value(QZSettings::tile_fan_enabled, true).toBool() &&
@@ -5539,6 +5577,10 @@ void homeform::update() {
         } else {
             heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value(), 'f', 0));
         }
+        hrv->setValue(QString::number(bluetoothManager->device()->currentHRV().value(), 'f', 2));
+        hrv->setSecondLine(QStringLiteral("AVG: ") +
+                          QString::number(bluetoothManager->device()->currentHRV().average(), 'f', 2));
+      
 
         bool activeOnly = settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
         calories->setValue(QString::number(bluetoothManager->device()->calories().value(), 'f', 0));
@@ -7726,7 +7768,8 @@ void homeform::update() {
                             bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount,
                             target_cadence->value().toDouble(), target_power->value().toDouble(), target_resistance->value().toDouble(),
                             target_incline->value().toDouble(), target_speed->value().toDouble(),
-                            bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(), bluetoothManager->device()->HeatStrainIndex.value());
+                            bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(), bluetoothManager->device()->HeatStrainIndex.value(),
+                            0.0, QList<double>());
                         
                         Session.append(gapFill);
                         qDebug() << "Added gap-filling SessionLine for elapsed time:" << (lastRecordedTime + i);
@@ -7762,7 +7805,9 @@ void homeform::update() {
                 bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount,
                 target_cadence->value().toDouble(), target_power->value().toDouble(), target_resistance->value().toDouble(),
                 target_incline->value().toDouble(), target_speed->value().toDouble(),
-                bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(), bluetoothManager->device()->HeatStrainIndex.value());
+                bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(), bluetoothManager->device()->HeatStrainIndex.value(),
+                bluetoothManager->device()->currentHRV().value(),
+                bluetoothManager->device()->getRRIntervalsAndClear());
 
             Session.append(s);
 

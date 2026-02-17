@@ -1042,6 +1042,8 @@ const QString QZSettings::tile_power_avg_enabled = QStringLiteral("tile_power_av
 const QString QZSettings::tile_power_avg_order = QStringLiteral("tile_power_avg_order");
 const QString QZSettings::tile_negative_inclination_enabled = QStringLiteral("tile_negative_inclination_enabled");
 const QString QZSettings::tile_negative_inclination_order = QStringLiteral("tile_negative_inclination_order");
+const QString QZSettings::tile_hrv_enabled = QStringLiteral("tile_hrv_enabled");
+const QString QZSettings::tile_hrv_order = QStringLiteral("tile_hrv_order");
 const QString QZSettings::chart_display_mode = QStringLiteral("chart_display_mode");
 const QString QZSettings::calories_active_only = QStringLiteral("calories_active_only");
 const QString QZSettings::calories_from_hr = QStringLiteral("calories_from_hr");
@@ -1183,7 +1185,7 @@ const QString QZSettings::default_shortcut_lap = QStringLiteral("");
 const QString QZSettings::shortcut_start_stop = QStringLiteral("shortcut_start_stop");
 const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 923;
+const uint32_t allSettingsCount = 926;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2048,6 +2050,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_power_avg_order, QZSettings::default_tile_power_avg_order},
     {QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled},
     {QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order},
+    {QZSettings::tile_hrv_enabled, QZSettings::default_tile_hrv_enabled},
+    {QZSettings::tile_hrv_order, QZSettings::default_tile_hrv_order},
     {QZSettings::chart_display_mode, QZSettings::default_chart_display_mode},
     {QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike},
     {QZSettings::calories_active_only, QZSettings::default_calories_active_only},
