@@ -60,8 +60,25 @@ ApplicationWindow {
     
     function getRightPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ? 
+        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
                AndroidStatusBar.rightInset : 0;
+    }
+
+    function isConfiguringShortcuts() {
+        // Check if a TextField in the shortcuts settings has active focus
+        // This prevents global shortcuts from intercepting key presses when configuring them
+        var focusItem = window.activeFocusItem;
+        if (!focusItem) return false;
+
+        // Walk up the parent hierarchy to check if we're inside settingsShortcutsPane
+        var current = focusItem;
+        while (current) {
+            if (current.objectName === "settingsShortcutsPane") {
+                return true;
+            }
+            current = current.parent;
+        }
+        return false;
     }
 
     signal gpx_open_clicked(url name)
@@ -106,6 +123,72 @@ ApplicationWindow {
         property bool volume_change_gears: false
         property string peloton_username: "username"
         property string peloton_password: "password"
+
+        property bool shortcuts_enabled: false
+        property string shortcut_speed_plus: ""
+        property string shortcut_speed_minus: ""
+        property string shortcut_inclination_plus: ""
+        property string shortcut_inclination_minus: ""
+        property string shortcut_resistance_plus: ""
+        property string shortcut_resistance_minus: ""
+        property string shortcut_peloton_resistance_plus: ""
+        property string shortcut_peloton_resistance_minus: ""
+        property string shortcut_target_resistance_plus: ""
+        property string shortcut_target_resistance_minus: ""
+        property string shortcut_target_power_plus: ""
+        property string shortcut_target_power_minus: ""
+        property string shortcut_target_zone_plus: ""
+        property string shortcut_target_zone_minus: ""
+        property string shortcut_target_speed_plus: ""
+        property string shortcut_target_speed_minus: ""
+        property string shortcut_target_incline_plus: ""
+        property string shortcut_target_incline_minus: ""
+        property string shortcut_fan_plus: ""
+        property string shortcut_fan_minus: ""
+        property string shortcut_peloton_offset_plus: ""
+        property string shortcut_peloton_offset_minus: ""
+        property string shortcut_peloton_remaining_plus: ""
+        property string shortcut_peloton_remaining_minus: ""
+        property string shortcut_remaining_time_plus: ""
+        property string shortcut_remaining_time_minus: ""
+        property string shortcut_gears_plus: ""
+        property string shortcut_gears_minus: ""
+        property string shortcut_pid_hr_plus: ""
+        property string shortcut_pid_hr_minus: ""
+        property string shortcut_ext_incline_plus: ""
+        property string shortcut_ext_incline_minus: ""
+        property string shortcut_biggears_plus: ""
+        property string shortcut_biggears_minus: ""
+        property string shortcut_avs_cruise: ""
+        property string shortcut_avs_climb: ""
+        property string shortcut_avs_sprint: ""
+        property string shortcut_power_avg: ""
+        property string shortcut_erg_mode: ""
+        property string shortcut_preset_resistance_1: ""
+        property string shortcut_preset_resistance_2: ""
+        property string shortcut_preset_resistance_3: ""
+        property string shortcut_preset_resistance_4: ""
+        property string shortcut_preset_resistance_5: ""
+        property string shortcut_preset_speed_1: ""
+        property string shortcut_preset_speed_2: ""
+        property string shortcut_preset_speed_3: ""
+        property string shortcut_preset_speed_4: ""
+        property string shortcut_preset_speed_5: ""
+        property string shortcut_preset_inclination_1: ""
+        property string shortcut_preset_inclination_2: ""
+        property string shortcut_preset_inclination_3: ""
+        property string shortcut_preset_inclination_4: ""
+        property string shortcut_preset_inclination_5: ""
+        property string shortcut_preset_powerzone_1: ""
+        property string shortcut_preset_powerzone_2: ""
+        property string shortcut_preset_powerzone_3: ""
+        property string shortcut_preset_powerzone_4: ""
+        property string shortcut_preset_powerzone_5: ""
+        property string shortcut_preset_powerzone_6: ""
+        property string shortcut_preset_powerzone_7: ""
+        property string shortcut_auto_resistance: ""
+        property string shortcut_lap: ""
+        property string shortcut_start_stop: ""
     }
 
 
@@ -1058,14 +1141,89 @@ ApplicationWindow {
             Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
         Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
         Keys.onPressed: (event)=> {
+            console.log("Keys.onPressed: key=" + event.key + " text=" + event.text);
             if (event.key === Qt.Key_MediaPrevious)
                 keyMediaPrevious();
             else if (event.key === Qt.Key_MediaNext)
                 keyMediaNext();
-            else if (OS_VERSION === "Other" && event.key === Qt.Key_Z)
-                volumeDown();
-            else if (OS_VERSION === "Other" && event.key === Qt.Key_X)
-                volumeUp();
+            else if (settings.shortcuts_enabled && event.text !== "" && !isConfiguringShortcuts()) {
+                var keyStr = String(event.text).toUpperCase();
+                var targetKey = String(settings.shortcut_start_stop).toUpperCase();
+                console.log("Comparison Debug: keyStr='" + keyStr + "' targetKey='" + targetKey + "' Equal=" + (keyStr === targetKey));
+                
+                var handled = true;
+                if (keyStr === String(settings.shortcut_speed_plus).toUpperCase()) rootItem.keyboardPlus("speed");
+                else if (keyStr === settings.shortcut_speed_minus) rootItem.keyboardMinus("speed");
+                else if (keyStr === settings.shortcut_inclination_plus) rootItem.keyboardPlus("inclination");
+                else if (keyStr === settings.shortcut_inclination_minus) rootItem.keyboardMinus("inclination");
+                else if (keyStr === settings.shortcut_resistance_plus) rootItem.keyboardPlus("resistance");
+                else if (keyStr === settings.shortcut_resistance_minus) rootItem.keyboardMinus("resistance");
+                else if (keyStr === settings.shortcut_peloton_resistance_plus) rootItem.keyboardPlus("peloton_resistance");
+                else if (keyStr === settings.shortcut_peloton_resistance_minus) rootItem.keyboardMinus("peloton_resistance");
+                else if (keyStr === settings.shortcut_target_resistance_plus) rootItem.keyboardPlus("target_resistance");
+                else if (keyStr === settings.shortcut_target_resistance_minus) rootItem.keyboardMinus("target_resistance");
+                else if (keyStr === settings.shortcut_target_power_plus) rootItem.keyboardPlus("target_power");
+                else if (keyStr === settings.shortcut_target_power_minus) rootItem.keyboardMinus("target_power");
+                else if (keyStr === settings.shortcut_target_zone_plus) rootItem.keyboardPlus("target_zone");
+                else if (keyStr === settings.shortcut_target_zone_minus) rootItem.keyboardMinus("target_zone");
+                else if (keyStr === settings.shortcut_target_speed_plus) rootItem.keyboardPlus("target_speed");
+                else if (keyStr === settings.shortcut_target_speed_minus) rootItem.keyboardMinus("target_speed");
+                else if (keyStr === settings.shortcut_target_incline_plus) rootItem.keyboardPlus("target_inclination");
+                else if (keyStr === settings.shortcut_target_incline_minus) rootItem.keyboardMinus("target_inclination");
+                else if (keyStr === settings.shortcut_fan_plus) rootItem.keyboardPlus("fan");
+                else if (keyStr === settings.shortcut_fan_minus) rootItem.keyboardMinus("fan");
+                else if (keyStr === settings.shortcut_peloton_offset_plus) rootItem.keyboardPlus("peloton_offset");
+                else if (keyStr === settings.shortcut_peloton_offset_minus) rootItem.keyboardMinus("peloton_offset");
+                else if (keyStr === settings.shortcut_peloton_remaining_plus) rootItem.keyboardPlus("peloton_remaining");
+                else if (keyStr === settings.shortcut_peloton_remaining_minus) rootItem.keyboardMinus("peloton_remaining");
+                else if (keyStr === settings.shortcut_remaining_time_plus) rootItem.keyboardPlus("remainingtimetrainprogramrow");
+                else if (keyStr === settings.shortcut_remaining_time_minus) rootItem.keyboardMinus("remainingtimetrainprogramrow");
+                else if (keyStr === settings.shortcut_gears_plus) rootItem.keyboardPlus("gears");
+                else if (keyStr === settings.shortcut_gears_minus) rootItem.keyboardMinus("gears");
+                else if (keyStr === settings.shortcut_pid_hr_plus) rootItem.keyboardPlus("pid_hr");
+                else if (keyStr === settings.shortcut_pid_hr_minus) rootItem.keyboardMinus("pid_hr");
+                else if (keyStr === settings.shortcut_ext_incline_plus) rootItem.keyboardPlus("external_inclination");
+                else if (keyStr === settings.shortcut_ext_incline_minus) rootItem.keyboardMinus("external_inclination");
+                else if (keyStr === settings.shortcut_biggears_plus) rootItem.keyboardLargeButton("biggearsplus");
+                else if (keyStr === settings.shortcut_biggears_minus) rootItem.keyboardLargeButton("biggearsminus");
+                else if (keyStr === settings.shortcut_avs_cruise) rootItem.keyboardLargeButton("autoVirtualShiftingCruise");
+                else if (keyStr === settings.shortcut_avs_climb) rootItem.keyboardLargeButton("autoVirtualShiftingClimb");
+                else if (keyStr === settings.shortcut_avs_sprint) rootItem.keyboardLargeButton("autoVirtualShiftingSprint");
+                else if (keyStr === settings.shortcut_power_avg) rootItem.keyboardLargeButton("powerAvg");
+                else if (keyStr === settings.shortcut_erg_mode) rootItem.keyboardLargeButton("erg_mode");
+                else if (keyStr === settings.shortcut_preset_resistance_1) rootItem.keyboardLargeButton("preset_resistance_1");
+                else if (keyStr === settings.shortcut_preset_resistance_2) rootItem.keyboardLargeButton("preset_resistance_2");
+                else if (keyStr === settings.shortcut_preset_resistance_3) rootItem.keyboardLargeButton("preset_resistance_3");
+                else if (keyStr === settings.shortcut_preset_resistance_4) rootItem.keyboardLargeButton("preset_resistance_4");
+                else if (keyStr === settings.shortcut_preset_resistance_5) rootItem.keyboardLargeButton("preset_resistance_5");
+                else if (keyStr === settings.shortcut_preset_speed_1) rootItem.keyboardLargeButton("preset_speed_1");
+                else if (keyStr === settings.shortcut_preset_speed_2) rootItem.keyboardLargeButton("preset_speed_2");
+                else if (keyStr === settings.shortcut_preset_speed_3) rootItem.keyboardLargeButton("preset_speed_3");
+                else if (keyStr === settings.shortcut_preset_speed_4) rootItem.keyboardLargeButton("preset_speed_4");
+                else if (keyStr === settings.shortcut_preset_speed_5) rootItem.keyboardLargeButton("preset_speed_5");
+                else if (keyStr === settings.shortcut_preset_inclination_1) rootItem.keyboardLargeButton("preset_inclination_1");
+                else if (keyStr === settings.shortcut_preset_inclination_2) rootItem.keyboardLargeButton("preset_inclination_2");
+                else if (keyStr === settings.shortcut_preset_inclination_3) rootItem.keyboardLargeButton("preset_inclination_3");
+                else if (keyStr === settings.shortcut_preset_inclination_4) rootItem.keyboardLargeButton("preset_inclination_4");
+                else if (keyStr === settings.shortcut_preset_inclination_5) rootItem.keyboardLargeButton("preset_inclination_5");
+                else if (keyStr === settings.shortcut_preset_powerzone_1) rootItem.keyboardLargeButton("preset_powerzone_1");
+                else if (keyStr === settings.shortcut_preset_powerzone_2) rootItem.keyboardLargeButton("preset_powerzone_2");
+                else if (keyStr === settings.shortcut_preset_powerzone_3) rootItem.keyboardLargeButton("preset_powerzone_3");
+                else if (keyStr === settings.shortcut_preset_powerzone_4) rootItem.keyboardLargeButton("preset_powerzone_4");
+                else if (keyStr === settings.shortcut_preset_powerzone_5) rootItem.keyboardLargeButton("preset_powerzone_5");
+                else if (keyStr === settings.shortcut_preset_powerzone_6) rootItem.keyboardLargeButton("preset_powerzone_6");
+                else if (keyStr === settings.shortcut_preset_powerzone_7) rootItem.keyboardLargeButton("preset_powerzone_7");
+                else if (keyStr === settings.shortcut_auto_resistance) rootItem.setAutoResistance(!rootItem.autoResistance);
+                else if (keyStr === settings.shortcut_lap) rootItem.keyboardLap();
+                else if (keyStr === settings.shortcut_start_stop) rootItem.keyboardStartStop();
+                else handled = false;
+
+                if (handled) {
+                    console.log("Shortcut handled: " + keyStr);
+                    event.accepted = true;
+                    return;
+                }
+            }
 
             event.accepted = settings.volume_change_gears;
         }
