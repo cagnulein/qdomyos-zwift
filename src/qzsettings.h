@@ -454,6 +454,9 @@ class QZSettings {
     static const QString tile_heart_order;
     static constexpr int default_tile_heart_order = 11;
 
+    static const QString tile_heart_show_as_percent;
+    static constexpr bool default_tile_heart_show_as_percent = false;
+
     static const QString tile_fan_enabled;
     static constexpr bool default_tile_fan_enabled = true;
 

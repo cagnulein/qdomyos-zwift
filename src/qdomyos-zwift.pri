@@ -101,6 +101,7 @@ SOURCES += \
     $$PWD/devices/pitpatbike/pitpatbike.cpp \
     $$PWD/devices/speraxtreadmill/speraxtreadmill.cpp \
     $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
+    $$PWD/devices/sportstechrower/sportstechrower.cpp \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
     $$PWD/devices/sramAXSController/sramAXSController.cpp \
     $$PWD/devices/thinkridercontroller/thinkridercontroller.cpp \
@@ -113,6 +114,7 @@ SOURCES += \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.cpp \
     $$PWD/logwriter.cpp \
     $$PWD/fitbackupwriter.cpp \
+    $$PWD/filesearcher.cpp \
     $$PWD/mqtt/qmqttauthenticationproperties.cpp \
     $$PWD/mqtt/qmqttclient.cpp \
     $$PWD/mqtt/qmqttconnection.cpp \
@@ -381,6 +383,7 @@ HEADERS += \
     $$PWD/devices/pitpatbike/pitpatbike.h \
     $$PWD/devices/speraxtreadmill/speraxtreadmill.h \
     $$PWD/devices/sportsplusrower/sportsplusrower.h \
+    $$PWD/devices/sportstechrower/sportstechrower.h \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
     $$PWD/devices/sramAXSController/sramAXSController.h \
     $$PWD/devices/thinkridercontroller/thinkridercontroller.h \
@@ -393,6 +396,7 @@ HEADERS += \
     $$PWD/inclinationresistancetable.h \
     $$PWD/logwriter.h \
     $$PWD/fitbackupwriter.h \
+    $$PWD/filesearcher.h \
     $$PWD/osc.h \
     $$PWD/oscpp/client.hpp \
     $$PWD/oscpp/detail/endian.hpp \
