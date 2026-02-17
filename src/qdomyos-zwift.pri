@@ -993,6 +993,9 @@ ios {
 
     TARGET = qdomyoszwift
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
+    
+    # iOS Code Signing Configuration - handled manually in Xcode project
+    
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
 
