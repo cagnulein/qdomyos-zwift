@@ -1966,82 +1966,93 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     break;
                 case 0x07:
                 case 0x08:
-                case 0x09:
                     Resistance = 5;
                     m_pelotonResistance = 33;
                     break;
-                case 0x0A:
-                case 0x0b:
+                case 0x09:
                     Resistance = 6;
                     m_pelotonResistance = 35;
                     break;
-                case 0x0c:
-                case 0x0d:
+                case 0x0A:
+                case 0x0b:
                     Resistance = 7;
                     m_pelotonResistance = 38;
                     break;
-                case 0x0e:
-                case 0x0f:
+                case 0x0c:
+                case 0x0d:
                     Resistance = 8;
                     m_pelotonResistance = 40;
                     break;
-                case 0x10:
-                case 0x11:
+                case 0x0e:
                     Resistance = 9;
                     m_pelotonResistance = 45;
                     break;
-                case 0x12:
-                case 0x13:
+                case 0x0f:
+                case 0x10:
                     Resistance = 10;
                     m_pelotonResistance = 50;
                     break;
-                case 0x14:
-                case 0x15:
+                case 0x11:
                     Resistance = 11;
                     m_pelotonResistance = 55;
                     break;
-                case 0x16:
-                case 0x17:
+                case 0x12:
+                case 0x13:
                     Resistance = 12;
                     m_pelotonResistance = 60;
                     break;
-                case 0x18:
-                case 0x19:
+                case 0x14:
                     Resistance = 13;
                     m_pelotonResistance = 63;
                     break;
-                case 0x1a:
-                case 0x1b:
+                case 0x15:
+                case 0x16:
                     Resistance = 14;
                     m_pelotonResistance = 65;
                     break;
-                case 0x1c:
-                case 0x1d:
+                case 0x17:
                     Resistance = 15;
                     m_pelotonResistance = 68;
-                case 0x1e:
-                case 0x1f:
+                case 0x18:
+                case 0x19:
                     Resistance = 16;
                     m_pelotonResistance = 70;
                     break;
-                case 0x20:
-                case 0x21:
+                case 0x1a:
+                case 0x1b:
                     Resistance = 17;
                     m_pelotonResistance = 75;
                     break;
-                case 0x22:
-                case 0x23:
+                case 0x1c:
                     Resistance = 18;
                     m_pelotonResistance = 80;
                     break;
-                case 0x24:
-                case 0x25:
+                case 0x1d:
                     Resistance = 19;
                     m_pelotonResistance = 85;
                     break;
-                case 0x26:
-                case 0x27:
+                case 0x1f:
                     Resistance = 20;
+                    m_pelotonResistance = 100;
+                    break;
+                case 0x20:
+                    Resistance = 21;
+                    m_pelotonResistance = 100;
+                    break;
+                case 0x22:
+                    Resistance = 22;
+                    m_pelotonResistance = 100;
+                    break;
+                case 0x23:
+                    Resistance = 23;
+                    m_pelotonResistance = 100;
+                    break;
+                case 0x25:
+                    Resistance = 24;
+                    m_pelotonResistance = 100;
+                    break;
+                case 0x27:
+                    Resistance = 25;
                     m_pelotonResistance = 100;
                     break;
                 }
