@@ -30,6 +30,7 @@
 #include "mqttpublisher.h"
 #include "androidstatusbar.h"
 #include "fontmanager.h"
+#include "filesearcher.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -879,6 +880,10 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_ANDROID
         engine.rootContext()->setContextProperty("fontManager", &fontManager);
 #endif
+        // Expose FileSearcher for fast recursive file searching
+        FileSearcher fileSearcher;
+        engine.rootContext()->setContextProperty("fileSearcher", &fileSearcher);
+
         engine.load(url);
         homeform *h = new homeform(&engine, &bl);
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,
