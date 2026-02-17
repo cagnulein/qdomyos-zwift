@@ -116,8 +116,8 @@ ScrollView {
             placeholderText: qsTr("None")
             horizontalAlignment: Text.AlignRight
             Layout.preferredWidth: 100
-            readOnly: true
             selectByMouse: false
+            inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhSensitiveData | Qt.ImhNoAutoUppercase
 
             MouseArea {
                 anchors.fill: parent
@@ -129,11 +129,25 @@ ScrollView {
                     cursorPosition = text.length
                 }
             }
+
+            onTextEdited: {
+                // Handles soft keyboard input (iOS/Android)
+                if (text.length === 0) {
+                    settings[settingName] = ""
+                } else {
+                    var lastChar = text[text.length - 1].toUpperCase()
+                    settings[settingName] = lastChar
+                    text = lastChar
+                }
+            }
+
             Keys.onPressed: (event) => {
                 if (event.key === Qt.Key_Backspace || event.key === Qt.Key_Delete) {
                     settings[settingName] = ""
+                    text = ""
                 } else if (event.text !== "") {
                     settings[settingName] = event.text.toUpperCase()
+                    text = event.text.toUpperCase()
                 }
                 event.accepted = true
             }
