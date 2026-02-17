@@ -1274,9 +1274,11 @@ import Qt.labs.platform 1.1
 			property bool treadmill_direct_distance: false
 			property bool domyos_treadmill_ts100: false
 			property bool thinkrider_controller: false
-			property bool weight_kg_unit: false
+			property bool weight_kg_unit: false 
 			property bool virtual_device_rower_pm5: false
 			property bool tile_heart_show_as_percent: false
+			property bool tile_hrv_enabled: false
+			property int tile_hrv_order: 78                 
         }
 
 
