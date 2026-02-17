@@ -1557,7 +1557,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("TRUE 1000")) ||
                         (b.name().toUpper().startsWith("SCHWINN 810")) ||
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
-                        (b.name().toUpper().startsWith("MRK-T")) || // MERACH W50 TREADMILL
+                        (b.name().toUpper().startsWith("MRK-T") && !b.name().toUpper().startsWith("MRK-T25-")) || // MERACH W50 TREADMILL
                         (b.name().toUpper().startsWith("SF-T")) || // Sunny Fitness Treadmill
                         b.name().toUpper().startsWith(QStringLiteral("KS-MC")) ||
                         b.name().toUpper().startsWith(QStringLiteral("FOCUS M3")) ||
@@ -2713,7 +2713,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(snodeBike);
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && fitplus_bike) ||
                         (b.name().toUpper().startsWith("H9110 OSAKA")) ||
-                        b.name().startsWith(QStringLiteral("MRK-"))) &&
+                        (b.name().startsWith(QStringLiteral("MRK-")) && !b.name().toUpper().startsWith("MRK-T25-"))) &&
                        !fitPlusBike && !ftmsBike && !ftmsRower && !snodeBike && !horizonTreadmill && !trxappgateusbRower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();

@@ -392,6 +392,7 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::FitPlusBike_MRK_NoSettings)
         ->expectDevice<fitplusbike>()
         ->acceptDeviceName("MRK-", DeviceNameComparison::StartsWith)
+        ->rejectDeviceName("MRK-T25-", DeviceNameComparison::StartsWith)
         ->excluding<ftmsbike>()
         ->excluding<snodebike>();
 
