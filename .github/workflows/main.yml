@@ -1407,7 +1407,7 @@ jobs:
             find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
             find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
             cat qdomyos-zwift.pro &&
-            qmake QMAKE_CFLAGS+='-march=armv6 -mfpu=vfp -marm' QMAKE_CXXFLAGS+='-march=armv6 -mfpu=vfp -marm' &&
+            qmake QMAKE_CFLAGS+='-march=armv6 -mfpu=vfp -marm' QMAKE_CXXFLAGS+='-march=armv6 -mfpu=vfp -marm' QMAKE_LFLAGS+='-march=armv6 -mfpu=vfp -marm' &&
             make -j$(nproc)
             "
 
