@@ -8936,6 +8936,7 @@ void homeform::strava_logout() {
     if (manager) {
         manager->setCookieJar(new QNetworkCookieJar(manager));
     }
+    clearWebViewCache();
     qDebug() << "Strava: tokens cleared";
 }
 
@@ -8944,6 +8945,7 @@ void homeform::peloton_logout() {
     if (pelotonHandler) {
         pelotonHandler->peloton_logout();
     }
+    clearWebViewCache();
 }
 
 void homeform::intervalsicu_logout() {
@@ -8959,7 +8961,33 @@ void homeform::intervalsicu_logout() {
     if (intervalsicuManager) {
         intervalsicuManager->setCookieJar(new QNetworkCookieJar(intervalsicuManager));
     }
+    clearWebViewCache();
     qDebug() << "Intervals.icu: tokens cleared";
+}
+
+void homeform::clearWebViewCache() {
+#ifdef Q_OS_ANDROID
+    QtAndroid::runOnAndroidThread([] {
+        QAndroidJniObject cookieManager = QAndroidJniObject::callStaticObjectMethod(
+            "android/webkit/CookieManager",
+            "getInstance",
+            "()Landroid/webkit/CookieManager;");
+        if (cookieManager.isValid()) {
+            cookieManager.callMethod<void>("removeAllCookies", "(Landroid/webkit/ValueCallback;)V",
+                                          static_cast<jobject>(nullptr));
+            cookieManager.callMethod<void>("flush", "()V");
+        }
+        QAndroidJniEnvironment env;
+        if (env->ExceptionCheck()) {
+            env->ExceptionClear();
+        }
+        qDebug() << "Android: WebView cookies cleared";
+    });
+#endif
+#ifdef Q_OS_IOS
+    lockscreen::clearWebViewCache();
+    qDebug() << "iOS: WebView cache cleared";
+#endif
 }
 
 void homeform::garmin_upload_file_prepare() {

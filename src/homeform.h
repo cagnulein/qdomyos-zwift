@@ -552,6 +552,10 @@ class homeform : public QObject {
     Q_INVOKABLE void peloton_logout();
     Q_INVOKABLE void intervalsicu_logout();
 
+private:
+    void clearWebViewCache();
+
+public:
     void setGeneralPopupVisible(bool value);
     void setPelotonPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
