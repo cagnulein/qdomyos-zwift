@@ -1390,22 +1390,22 @@ jobs:
           cd ..
 
       - name: Build for Raspberry Pi
-        uses: docker://arm32v7/debian:bullseye-20241016
-        with:
-          args: >
+        run: |
+          docker run --rm --platform linux/arm/v6 \
+            -v ${{ github.workspace }}:/workspace -w /workspace \
+            balenalib/raspberry-pi-debian:bullseye-build \
             bash -c "
-            set -ex &&
-            for i in 1 2 3; do apt-get update && break || sleep 5; done &&
-            for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql && break || sleep 5; done &&
-            export QT_SELECT=qt5 &&
-            export PATH=/usr/lib/qt5/bin:$PATH &&
-            cd /github/workspace &&
-            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
-            cat qdomyos-zwift.pro &&
-            qmake QMAKE_CFLAGS+='-march=armv6 -mfpu=vfp -marm' QMAKE_CXXFLAGS+='-march=armv6 -mfpu=vfp -marm' QMAKE_LFLAGS+='-march=armv6 -mfpu=vfp -marm' &&
-            make -j$(nproc)
+              set -ex &&
+              for i in 1 2 3; do apt-get update && break || sleep 5; done &&
+              for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql && break || sleep 5; done &&
+              export QT_SELECT=qt5 &&
+              export PATH=/usr/lib/qt5/bin:\$PATH &&
+              sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
+              find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
+              find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
+              cat qdomyos-zwift.pro &&
+              qmake &&
+              make -j\$(nproc)
             "
 
       - name: Rename binary
@@ -1509,12 +1509,15 @@ jobs:
       - name: Smoke test 32-bit binary (ARMv6 - Pi Zero W)
         run: |
           chmod +x bin32/qdomyos-zwift-32bit
-          docker run --rm -v ${{ github.workspace }}/bin32:/app \
-            arm32v6/alpine:3.18 \
-            sh -c "
-              apk add --no-cache qt5-qtbase qt5-qtconnectivity qt5-qtcharts \
-                qt5-qtmultimedia qt5-qtwebsockets qt5-qtdeclarative \
-                qt5-qtlocation qt5-qtspeech qt5-qtnetworkauth qt5-qtsvg || true
+          docker run --rm --platform linux/arm/v6 \
+            -v ${{ github.workspace }}/bin32:/app \
+            balenalib/raspberry-pi-debian:bullseye \
+            bash -c "
+              apt-get update && apt-get install -y --no-install-recommends \
+                libqt5core5a libqt5bluetooth5 libqt5charts5 libqt5widgets5 \
+                libqt5network5 libqt5websockets5 libqt5xml5 libqt5sql5 \
+                libqt5multimedia5 libqt5positioning5 libqt5qml5 libqt5quick5 \
+                libqt5texttospeech5 libqt5networkauth5 libqt5gui5 || true
               timeout 10 /app/qdomyos-zwift-32bit -no-gui -heart-service 2>&1 || EXIT_CODE=\$?
               if [ \"\${EXIT_CODE:-0}\" -eq 124 ] || [ \"\${EXIT_CODE:-0}\" -eq 0 ]; then
                 echo 'SUCCESS: Binary runs on ARMv6 (headless mode)'
