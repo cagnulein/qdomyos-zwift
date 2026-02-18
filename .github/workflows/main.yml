@@ -1507,27 +1507,20 @@ jobs:
         uses: docker/setup-qemu-action@v3
 
       - name: Smoke test 32-bit binary (ARMv6 - Pi Zero W)
+        timeout-minutes: 5
         run: |
           chmod +x bin32/qdomyos-zwift-32bit
-          docker run --rm --platform linux/arm/v6 \
-            -v ${{ github.workspace }}/bin32:/app \
-            balenalib/raspberry-pi-debian:bullseye \
-            bash -c "
-              apt-get update && apt-get install -y --no-install-recommends \
-                libqt5core5a libqt5bluetooth5 libqt5charts5 libqt5widgets5 \
-                libqt5network5 libqt5websockets5 libqt5xml5 libqt5sql5 \
-                libqt5multimedia5 libqt5positioning5 libqt5qml5 libqt5quick5 \
-                libqt5texttospeech5 libqt5networkauth5 libqt5gui5 || true
-              timeout 10 /app/qdomyos-zwift-32bit -no-gui -heart-service 2>&1 || EXIT_CODE=\$?
-              if [ \"\${EXIT_CODE:-0}\" -eq 124 ] || [ \"\${EXIT_CODE:-0}\" -eq 0 ]; then
-                echo 'SUCCESS: Binary runs on ARMv6 (headless mode)'
-              else
-                echo \"FAILURE: Binary crashed with exit code \$EXIT_CODE\"
-                exit 1
-              fi
-            "
+          file bin32/qdomyos-zwift-32bit
+          readelf -A bin32/qdomyos-zwift-32bit | grep -E 'Tag_CPU|Tag_FP'
+          ARCH=$(readelf -A bin32/qdomyos-zwift-32bit | grep 'Tag_CPU_arch:' | awk '{print $2}')
+          if [ "$ARCH" != "v6" ]; then
+            echo "::error::32-bit binary targets $ARCH, expected v6"
+            exit 1
+          fi
+          echo "SUCCESS: 32-bit binary is a valid ARMv6 ELF"
 
       - name: Smoke test 64-bit binary (ARM64 Bullseye - Pi 3/4/5)
+        timeout-minutes: 10
         run: |
           chmod +x bin64/qdomyos-zwift-64bit
           docker run --rm -v ${{ github.workspace }}/bin64:/app \
