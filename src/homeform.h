@@ -821,6 +821,7 @@ class homeform : public QObject {
     DataObject *autoVirtualShiftingClimb;
     DataObject *autoVirtualShiftingSprint;
     DataObject *powerAvg;
+    DataObject *hrv;
 
   private:
     static homeform *m_singleton;
@@ -1056,6 +1057,10 @@ class homeform : public QObject {
     void sortTilesTimeout();
     void gearUp();
     void gearDown();
+    void speedPlus();
+    void speedMinus();
+    void inclinationPlus();
+    void inclinationMinus();
     void changeTimestamp(QTime source, QTime actual);
     void pelotonOffset_Plus();
     void pelotonOffset_Minus();

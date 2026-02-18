@@ -1,10 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find:*)",
       "Bash(grep:*)",
-      "Bash(python3:*)",
-      "Bash(git log:*)"
+      "Bash(tshark:*)",
+      "Bash(find:*)",
+      "Bash(python3:*)",     
+      "Bash(git log:*)",
+      "Bash(git ls-tree:*)"
     ]
   }
 }

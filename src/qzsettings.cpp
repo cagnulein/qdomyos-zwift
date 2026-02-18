@@ -92,6 +92,7 @@ const QString QZSettings::default_user_email = QLatin1String("");
 const QString QZSettings::user_nickname = QStringLiteral("user_nickname");
 const QString QZSettings::default_user_nickname = QStringLiteral("");
 const QString QZSettings::miles_unit = QStringLiteral("miles_unit");
+const QString QZSettings::weight_kg_unit = QStringLiteral("weight_kg_unit");
 const QString QZSettings::pause_on_start = QStringLiteral("pause_on_start");
 const QString QZSettings::treadmill_force_speed = QStringLiteral("treadmill_force_speed");
 const QString QZSettings::pause_on_start_treadmill = QStringLiteral("pause_on_start_treadmill");
@@ -154,6 +155,7 @@ const QString QZSettings::tile_ftp_enabled = QStringLiteral("tile_ftp_enabled");
 const QString QZSettings::tile_ftp_order = QStringLiteral("tile_ftp_order");
 const QString QZSettings::tile_heart_enabled = QStringLiteral("tile_heart_enabled");
 const QString QZSettings::tile_heart_order = QStringLiteral("tile_heart_order");
+const QString QZSettings::tile_heart_show_as_percent = QStringLiteral("tile_heart_show_as_percent");
 const QString QZSettings::tile_fan_enabled = QStringLiteral("tile_fan_enabled");
 const QString QZSettings::tile_fan_order = QStringLiteral("tile_fan_order");
 const QString QZSettings::tile_jouls_enabled = QStringLiteral("tile_jouls_enabled");
@@ -355,6 +357,7 @@ const QString QZSettings::virtual_device_onlyheart = QStringLiteral("virtual_dev
 const QString QZSettings::virtual_device_echelon = QStringLiteral("virtual_device_echelon");
 const QString QZSettings::virtual_device_ifit = QStringLiteral("virtual_device_ifit");
 const QString QZSettings::virtual_device_rower = QStringLiteral("virtual_device_rower");
+const QString QZSettings::virtual_device_rower_pm5 = QStringLiteral("virtual_device_rower_pm5");
 const QString QZSettings::virtual_device_force_bike = QStringLiteral("virtual_device_force_bike");
 const QString QZSettings::virtual_device_force_treadmill = QStringLiteral("virtual_device_force_treadmill");
 const QString QZSettings::volume_change_gears = QStringLiteral("volume_change_gears");
@@ -776,6 +779,7 @@ const QString QZSettings::proform_treadmill_505_cst = QStringLiteral("proform_tr
 const QString QZSettings::nordictrack_treadmill_t8_5s = QStringLiteral("nordictrack_treadmill_t8_5s");
 const QString QZSettings::proform_treadmill_705_cst = QStringLiteral("proform_treadmill_705_cst");
 const QString QZSettings::zwift_click = QStringLiteral("zwift_click");
+const QString QZSettings::thinkrider_controller = QStringLiteral("thinkrider_controller");
 const QString QZSettings::hop_sport_hs_090h_bike = QStringLiteral("hop_sport_hs_090h_bike");
 const QString QZSettings::zwift_play = QStringLiteral("zwift_play");
 const QString QZSettings::zwift_play_vibration = QStringLiteral("zwift_play_vibration");
@@ -1038,6 +1042,8 @@ const QString QZSettings::tile_power_avg_enabled = QStringLiteral("tile_power_av
 const QString QZSettings::tile_power_avg_order = QStringLiteral("tile_power_avg_order");
 const QString QZSettings::tile_negative_inclination_enabled = QStringLiteral("tile_negative_inclination_enabled");
 const QString QZSettings::tile_negative_inclination_order = QStringLiteral("tile_negative_inclination_order");
+const QString QZSettings::tile_hrv_enabled = QStringLiteral("tile_hrv_enabled");
+const QString QZSettings::tile_hrv_order = QStringLiteral("tile_hrv_order");
 const QString QZSettings::chart_display_mode = QStringLiteral("chart_display_mode");
 const QString QZSettings::calories_active_only = QStringLiteral("calories_active_only");
 const QString QZSettings::calories_from_hr = QStringLiteral("calories_from_hr");
@@ -1050,7 +1056,7 @@ const QString QZSettings::trainprogram_auto_lap_on_segment = QStringLiteral("tra
 const QString QZSettings::kingsmith_r2_enable_hw_buttons = QStringLiteral("kingsmith_r2_enable_hw_buttons");
 
 
-const uint32_t allSettingsCount = 856;
+const uint32_t allSettingsCount = 861;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1110,6 +1116,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::user_email, QZSettings::default_user_email},
     {QZSettings::user_nickname, QZSettings::default_user_nickname},
     {QZSettings::miles_unit, QZSettings::default_miles_unit},
+    {QZSettings::weight_kg_unit, QZSettings::default_weight_kg_unit},
     {QZSettings::pause_on_start, QZSettings::default_pause_on_start},
     {QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed},
     {QZSettings::pause_on_start_treadmill, QZSettings::default_pause_on_start_treadmill},
@@ -1160,6 +1167,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_ftp_order, QZSettings::default_tile_ftp_order},
     {QZSettings::tile_heart_enabled, QZSettings::default_tile_heart_enabled},
     {QZSettings::tile_heart_order, QZSettings::default_tile_heart_order},
+    {QZSettings::tile_heart_show_as_percent, QZSettings::default_tile_heart_show_as_percent},
     {QZSettings::tile_fan_enabled, QZSettings::default_tile_fan_enabled},
     {QZSettings::tile_fan_order, QZSettings::default_tile_fan_order},
     {QZSettings::tile_jouls_enabled, QZSettings::default_tile_jouls_enabled},
@@ -1339,6 +1347,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon},
     {QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit},
     {QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower},
+    {QZSettings::virtual_device_rower_pm5, QZSettings::default_virtual_device_rower_pm5},
     {QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike},
     {QZSettings::virtual_device_force_treadmill, QZSettings::default_virtual_device_force_treadmill},
     {QZSettings::volume_change_gears, QZSettings::default_volume_change_gears},
@@ -1696,6 +1705,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_treadmill_t8_5s, QZSettings::default_nordictrack_treadmill_t8_5s},    
     {QZSettings::proform_treadmill_705_cst, QZSettings::default_proform_treadmill_705_cst},
     {QZSettings::zwift_click, QZSettings::default_zwift_click},
+    {QZSettings::thinkrider_controller, QZSettings::default_thinkrider_controller},
     {QZSettings::hop_sport_hs_090h_bike, QZSettings::default_hop_sport_hs_090h_bike},
     {QZSettings::zwift_play, QZSettings::default_zwift_play},
     {QZSettings::zwift_play_vibration, QZSettings::default_zwift_play_vibration},
@@ -1911,6 +1921,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_power_avg_order, QZSettings::default_tile_power_avg_order},
     {QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled},
     {QZSettings::tile_negative_inclination_order, QZSettings::default_tile_negative_inclination_order},
+    {QZSettings::tile_hrv_enabled, QZSettings::default_tile_hrv_enabled},
+    {QZSettings::tile_hrv_order, QZSettings::default_tile_hrv_order},
     {QZSettings::chart_display_mode, QZSettings::default_chart_display_mode},
     {QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike},
     {QZSettings::calories_active_only, QZSettings::default_calories_active_only},
