@@ -1531,8 +1531,8 @@ jobs:
                 libqt5network5 libqt5websockets5 libqt5xml5 libqt5sql5 \
                 libqt5multimedia5 libqt5positioning5 libqt5qml5 libqt5quick5 \
                 libqt5texttospeech5 libqt5networkauth5 libqt5gui5 || true
-              timeout 10 /app/qdomyos-zwift-64bit -no-gui -heart-service 2>&1 || EXIT_CODE=\$?
-              if [ \"\${EXIT_CODE:-0}\" -eq 124 ] || [ \"\${EXIT_CODE:-0}\" -eq 0 ]; then
+              timeout -s KILL 30 /app/qdomyos-zwift-64bit -no-gui -heart-service 2>&1 || EXIT_CODE=\$?
+              if [ \"\${EXIT_CODE:-0}\" -eq 137 ] || [ \"\${EXIT_CODE:-0}\" -eq 124 ] || [ \"\${EXIT_CODE:-0}\" -eq 0 ]; then
                 echo 'SUCCESS: Binary runs on ARM64 Bullseye (headless mode)'
               else
                 echo \"FAILURE: Binary crashed with exit code \$EXIT_CODE\"
