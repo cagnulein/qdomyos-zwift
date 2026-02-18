@@ -10375,15 +10375,17 @@ extern "C" {
     JNIEXPORT void JNICALL
     Java_org_cagnulen_qdomyoszwift_ChannelService_nativeSetInclination(JNIEnv *env, jclass clazz, jdouble inclination) {
         qDebug() << "Native: ANT+ Setting inclination to:" << inclination << "%";
-        
+
         if (homeform::singleton()->bluetoothManager && homeform::singleton()->bluetoothManager->device()) {
-            BLUETOOTH_TYPE deviceType = homeform::singleton()->bluetoothManager->device()->deviceType();
-            
-            if (deviceType == BIKE || 
-                deviceType == TREADMILL || 
-                deviceType == ELLIPTICAL) {
-                
-                homeform::singleton()->bluetoothManager->device()->changeInclination(inclination, inclination);
+            bluetoothdevice *device = homeform::singleton()->bluetoothManager->device();
+            BLUETOOTH_TYPE deviceType = device->deviceType();
+
+            if (deviceType == BIKE || deviceType == ELLIPTICAL) {
+                double grade, percentage;
+                device->processSlopeChange((int16_t)(inclination * 100.0), 40, 0, grade, percentage);
+                qDebug() << "Applied ANT+ inclination change:" << inclination << "% -> grade:" << grade;
+            } else if (deviceType == TREADMILL) {
+                device->changeInclination(inclination, inclination);
                 qDebug() << "Applied ANT+ inclination change:" << inclination << "%";
             } else {
                 qDebug() << "Device type does not support inclination change";
