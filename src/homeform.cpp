@@ -30,6 +30,7 @@
 #include <QImageWriter>
 #include <QJsonDocument>
 #include <QNetworkAccessManager>
+#include <QNetworkCookieJar>
 #include <QNetworkInterface>
 #include <QOAuth2AuthorizationCodeFlow>
 #include <QOAuthHttpServerReplyHandler>
@@ -8898,6 +8899,67 @@ void homeform::garmin_connect_logout() {
         garminConnect->logout();
         qDebug() << "Garmin Connect: Logged out and tokens cleared";
     }
+}
+
+bool homeform::isStravaLoggedIn() {
+    QSettings settings;
+    return !settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken).toString().isEmpty();
+}
+
+bool homeform::isPelotonLoggedIn() {
+    QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id).toString();
+    if (!userId.isEmpty()) {
+        QString key = QStringLiteral("peloton_accesstoken_") + userId;
+        if (!settings.value(key).toString().isEmpty())
+            return true;
+    }
+    return !settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString().isEmpty();
+}
+
+bool homeform::isIntervalsICULoggedIn() {
+    QSettings settings;
+    return !settings.value(QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken).toString().isEmpty();
+}
+
+void homeform::strava_logout() {
+    qDebug() << "Strava logout requested";
+    QSettings settings;
+    settings.setValue(QZSettings::strava_accesstoken, QStringLiteral(""));
+    settings.setValue(QZSettings::strava_refreshtoken, QStringLiteral(""));
+    settings.setValue(QZSettings::strava_lastrefresh, QStringLiteral(""));
+    settings.setValue(QZSettings::strava_expires, QStringLiteral(""));
+    if (strava) {
+        strava->setToken(QStringLiteral(""));
+        strava->setRefreshToken(QStringLiteral(""));
+    }
+    if (manager) {
+        manager->setCookieJar(new QNetworkCookieJar(manager));
+    }
+    qDebug() << "Strava: tokens cleared";
+}
+
+void homeform::peloton_logout() {
+    qDebug() << "Peloton logout requested";
+    if (pelotonHandler) {
+        pelotonHandler->peloton_logout();
+    }
+}
+
+void homeform::intervalsicu_logout() {
+    qDebug() << "Intervals.icu logout requested";
+    QSettings settings;
+    settings.setValue(QZSettings::intervalsicu_accesstoken, QStringLiteral(""));
+    settings.setValue(QZSettings::intervalsicu_refreshtoken, QStringLiteral(""));
+    settings.setValue(QZSettings::intervalsicu_athlete_id, QStringLiteral(""));
+    if (intervalsicu) {
+        intervalsicu->setToken(QStringLiteral(""));
+        intervalsicu->setRefreshToken(QStringLiteral(""));
+    }
+    if (intervalsicuManager) {
+        intervalsicuManager->setCookieJar(new QNetworkCookieJar(intervalsicuManager));
+    }
+    qDebug() << "Intervals.icu: tokens cleared";
 }
 
 void homeform::garmin_upload_file_prepare() {

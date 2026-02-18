@@ -545,6 +545,13 @@ class homeform : public QObject {
     Q_INVOKABLE void garmin_submit_mfa_code(const QString &mfaCode);
     Q_INVOKABLE void garmin_connect_logout();
 
+    Q_INVOKABLE bool isStravaLoggedIn();
+    Q_INVOKABLE bool isPelotonLoggedIn();
+    Q_INVOKABLE bool isIntervalsICULoggedIn();
+    Q_INVOKABLE void strava_logout();
+    Q_INVOKABLE void peloton_logout();
+    Q_INVOKABLE void intervalsicu_logout();
+
     void setGeneralPopupVisible(bool value);
     void setPelotonPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
