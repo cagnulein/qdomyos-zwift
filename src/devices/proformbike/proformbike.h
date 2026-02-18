@@ -85,6 +85,7 @@ class proformbike : public bike {
     bool proform_hybrid_trainer_PFEL03815 = false;
     bool proform_bike_sb = false;
     bool proform_cycle_trainer_300_ci =false;
+    bool nordictrack_gx_4_5_pro = false;
     bool proform_bike_225_csx = false;
     bool proform_bike_325_csx = false;
     bool proform_tour_de_france_clc = false;

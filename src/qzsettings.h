@@ -2069,7 +2069,9 @@ class QZSettings {
     static constexpr bool default_freemotion_coachbike_b22_7 = false;
 
     static const QString proform_cycle_trainer_300_ci;
+    static const QString nordictrack_gx_4_5_pro;
     static constexpr bool default_proform_cycle_trainer_300_ci = false;
+    static constexpr bool default_nordictrack_gx_4_5_pro = false;
 
     static const QString kingsmith_encrypt_g1_walking_pad;
     static constexpr bool default_kingsmith_encrypt_g1_walking_pad = false;
