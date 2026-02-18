@@ -1309,7 +1309,7 @@ void proformbike::update() {
                     innerWriteResistance();
                 }
             }
-            break;
+
             if (requestInclination != -100 && (proform_studio || proform_tdf_10)) {
                 // only 0.5 steps ara available
                 double inc = qRound(requestInclination * 2.0) / 2.0;
