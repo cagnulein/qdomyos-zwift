@@ -682,7 +682,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QDirIterator itZwo(":/zwo/");
     QDir().mkdir(getWritableAppDir() + "training/");
     while (itZwo.hasNext()) {
-        qDebug() << itZwo.next() << itZwo.fileName();
+
+        // Resolve issue with GUI race condition when ANT+ enabled
+        // qDebug() << itZwo.next() << itZwo.fileName();
+        itZwo.next();
+        qDebug() << itZwo.fileName();
+
         QString targetPath = getWritableAppDir() + "training/" + itZwo.fileName();
         QString markerPath = getWritableAppDir() + "training/.deleted_" + itZwo.fileName();
         // Only copy if file doesn't exist AND no deletion marker exists
@@ -694,7 +699,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QDirIterator itGpx(":/gpx/");
     QDir().mkdir(getWritableAppDir() + "gpx/");
     while (itGpx.hasNext()) {
-        qDebug() << itGpx.next() << itGpx.fileName();
+        // Resolve issue with GUI race condition when ANT+ enabled
+        // qDebug() << itGpx.next() << itGpx.fileName();
+        itGpx.next();
+        qDebug() << itGpx.fileName();
+
         QString targetPath = getWritableAppDir() + "gpx/" + itGpx.fileName();
         QString markerPath = getWritableAppDir() + "gpx/.deleted_" + itGpx.fileName();
         // Only copy if file doesn't exist AND no deletion marker exists
