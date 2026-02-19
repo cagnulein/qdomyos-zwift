@@ -1283,6 +1283,7 @@ import Qt.labs.platform 1.1
 			property bool tile_hrv_enabled: false
 			property int tile_hrv_order: 78                 
             property bool nordictrack_gx_4_5_pro: false
+            property bool sportstech_esx500: false
         }
 
 
@@ -3950,6 +3951,20 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.sportstech_sx600 = checked; window.settings_restart_to_apply = true; }
+                        }
+                        IndicatorOnlySwitch {
+                            id: sportstechEsx500BikeDelegate
+                            text: qsTr("Sportstech ESX500 bike")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sportstech_esx500
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.sportstech_esx500 = checked; window.settings_restart_to_apply = true; }
                         }
 										   }
                     }

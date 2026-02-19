@@ -10,9 +10,92 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <QThread>
+#include <algorithm>
+#include <array>
 #include <chrono>
+#include <cmath>
 
 using namespace std::chrono_literals;
+
+namespace {
+constexpr int kEsx500MinCadence = 30;
+constexpr int kEsx500MaxCadence = 100;
+constexpr int kEsx500CadenceCount = (kEsx500MaxCadence - kEsx500MinCadence) + 1;
+constexpr int kEsx500ResistanceCount = 11; // 0..10
+
+// Sportstech ESX500 table from "velo sportstech esx500.xlsx".
+// Rows are resistance levels 0..10, columns are cadence 30..100 RPM.
+constexpr std::array<std::array<int, kEsx500CadenceCount>, kEsx500ResistanceCount> kEsx500PowerTable = {{
+    {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 11, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 25, 27, 30, 32, 35,
+      37, 40, 42, 43, 45, 46, 47, 47, 48, 49, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
+      66, 67, 68, 69, 70, 71, 73, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92}},
+    {{-1, -1, -1, -1, -1, -1, 9, 9, 10, 10, 11, 12, 13, 14, 14, 15, 16, 17, 18, 19, 20, 22, 25, 27, 30, 32, 35,
+      37, 40, 42, 43, 45, 46, 47, 47, 48, 49, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
+      66, 67, 68, 69, 70, 71, 73, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92}},
+    {{11, 11, 12, 13, 13, 14, 15, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 30, 33, 35, 38, 41, 43,
+      46, 48, 51, 53, 54, 55, 55, 56, 57, 57, 58, 58, 59, 60, 61, 62, 63, 65, 66, 67, 69, 70, 71, 73, 74, 76, 78,
+      80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100, 102, 104, 106, 108, 110, 112}},
+    {{13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31, 32, 33, 35, 37, 40, 43, 46, 49, 51,
+      54, 57, 60, 63, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 74, 77, 79, 82, 85, 87, 90, 92, 95, 98, 100, 102, 104,
+      106, 109, 111, 113, 115, 117, 120, 123, 126, 129, 133, 136, 139, 143, 146, 149, 153}},
+    {{-1, -1, -1, -1, 24, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 36, 37, 38, 39, 40, 43, 46, 49, 52, 56, 59,
+      62, 65, 68, 72, 73, 75, 77, 79, 81, 82, 84, 86, 88, 90, 93, 97, 100, 104, 107, 111, 114, 118, 121, 125, 128,
+      131, 134, 137, 140, 143, 146, 149, 152, 156, 159, 163, 167, 171, 175, 178, 182, 186, 190, 194}},
+    {{22, 24, 26, 28, 29, 31, 33, 34, 36, 38, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 53, 56, 59, 62, 65, 68,
+      71, 74, 77, 80, 83, 86, 89, 92, 95, 97, 100, 103, 106, 109, 112, 116, 120, 124, 128, 131, 135, 139, 143, 147,
+      150, 154, 158, 161, 165, 169, 172, 176, 180, 184, 187, 190, 193, 196, 199, 202, 205, 208, 211, 215}},
+    {{28, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 48, 50, 52, 54, 56, 57, 59, 61, 63, 65, 67, 70, 72, 75, 77, 80,
+      82, 85, 87, 90, 94, 98, 102, 106, 110, 114, 118, 122, 126, 131, 135, 139, 143, 147, 151, 155, 159, 163, 167,
+      172, 176, 180, 184, 188, 192, 196, 200, 204, 208, 212, 215, 218, 221, 225, 229, 232, 235, 239, 242, 246}},
+    {{33, 35, 37, 39, 41, 44, 46, 49, 51, 53, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 77, 79, 81, 83, 85, 88, 90,
+      92, 94, 96, 99, 104, 110, 115, 121, 127, 132, 138, 143, 149, 155, 160, 165, 170, 175, 180, 185, 190, 195, 200,
+      205, 209, 213, 218, 222, 227, 231, 235, 240, 244, 249, 252, 256, 260, 264, 268, 271, 275, 279, 283, 287}},
+    {{38, 40, 43, 46, 48, 51, 54, 56, 59, 62, 65, 67, 69, 71, 74, 76, 78, 81, 83, 85, 88, 90, 92, 94, 96, 98, 100,
+      102, 104, 106, 108, 115, 122, 129, 137, 144, 151, 159, 166, 173, 181, 185, 189, 193, 197, 201, 205, 209, 213,
+      217, 221, 225, 230, 235, 239, 244, 248, 252, 257, 262, 267, 272, 277, 282, 287, 292, 297, 302, 307, 312, 317}},
+    {{42, 45, 48, 51, 54, 57, 60, 63, 66, 69, 72, 73, 75, 77, 79, 81, 82, 84, 86, 88, 90, 92, 95, 98, 100, 103, 106,
+      108, 111, 114, 117, 125, 134, 142, 151, 159, 168, 176, 185, 193, 202, 207, 212, 217, 222, 228, 233, 238, 243,
+      248, 254, 259, 265, 271, 277, 283, 289, 295, 301, 307, 313, 317, 322, 326, 331, 336, 340, 345, 349, 354, 359}},
+    {{46, 49, 52, 55, 59, 62, 65, 69, 72, 75, 79, 80, 82, 84, 85, 87, 89, 90, 92, 94, 96, 99, 102, 105, 108, 111,
+      114, 117, 120, 123, 126, 135, 144, 153, 163, 172, 181, 191, 200, 209, 219, 224, 230, 236, 242, 248, 254, 260,
+      266, 272, 278, 284, 290, 296, 302, 309, 315, 322, 328, 334, 339, 345, 350, 355, 360, 365, 370, 375, 380, 385,
+      390}}
+}};
+
+double interpolateCadence(const std::array<int, kEsx500CadenceCount> &row, double cadence) {
+    const double clampedCadence = std::clamp(cadence, (double)kEsx500MinCadence, (double)kEsx500MaxCadence);
+    int left = (int)std::floor(clampedCadence) - kEsx500MinCadence;
+    int right = (int)std::ceil(clampedCadence) - kEsx500MinCadence;
+    left = std::clamp(left, 0, kEsx500CadenceCount - 1);
+    right = std::clamp(right, 0, kEsx500CadenceCount - 1);
+
+    while (left > 0 && row[left] < 0) {
+        --left;
+    }
+    while (right < kEsx500CadenceCount - 1 && row[right] < 0) {
+        ++right;
+    }
+
+    if (row[left] < 0 && row[right] < 0) {
+        return 0.0;
+    }
+    if (left == right || row[left] < 0) {
+        return row[right];
+    }
+    if (row[right] < 0) {
+        return row[left];
+    }
+
+    const double c0 = kEsx500MinCadence + left;
+    const double c1 = kEsx500MinCadence + right;
+    if (c1 <= c0) {
+        return row[left];
+    }
+
+    const double t = (clampedCadence - c0) / (c1 - c0);
+    return row[left] + ((row[right] - row[left]) * t);
+}
+} // namespace
 
 sportstechbike::sportstechbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                double bikeResistanceGain) {
@@ -421,7 +504,33 @@ void sportstechbike::controllerStateChanged(QLowEnergyController::ControllerStat
 }
 
 uint16_t sportstechbike::wattsFromResistance(double resistance) {
-        // Coefficients from the polynomial regression
+    QSettings settings;
+    const bool sportstechEsx500 =
+        settings.value(QZSettings::sportstech_esx500, QZSettings::default_sportstech_esx500).toBool();
+    if (sportstechEsx500) {
+        const double cadence = Cadence.value();
+        const double maxDeviceResistance = std::max(1.0, (double)maxResistance());
+        const double mappedResistance = std::clamp(resistance, 0.0, maxDeviceResistance) *
+                                       (double)(kEsx500ResistanceCount - 1) / maxDeviceResistance;
+
+        int lowerResistance = (int)std::floor(mappedResistance);
+        int upperResistance = (int)std::ceil(mappedResistance);
+        lowerResistance = std::clamp(lowerResistance, 0, kEsx500ResistanceCount - 1);
+        upperResistance = std::clamp(upperResistance, 0, kEsx500ResistanceCount - 1);
+
+        const double lowerWatt = interpolateCadence(kEsx500PowerTable[lowerResistance], cadence);
+        const double upperWatt = interpolateCadence(kEsx500PowerTable[upperResistance], cadence);
+
+        double interpolatedWatt = lowerWatt;
+        if (upperResistance != lowerResistance) {
+            const double t = mappedResistance - lowerResistance;
+            interpolatedWatt = lowerWatt + ((upperWatt - lowerWatt) * t);
+        }
+
+        return (uint16_t)std::lround(std::max(0.0, interpolatedWatt));
+    }
+
+    // Coefficients from the polynomial regression
     double intercept = 14.4968;
     double b1 = -4.1878;
     double b2 = -0.5051;
