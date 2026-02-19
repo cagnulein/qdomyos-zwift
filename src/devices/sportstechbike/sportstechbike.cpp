@@ -494,6 +494,13 @@ bool sportstechbike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
+resistance_t sportstechbike::maxResistance() {
+    QSettings settings;
+    const bool sportstechEsx500 =
+        settings.value(QZSettings::sportstech_esx500, QZSettings::default_sportstech_esx500).toBool();
+    return sportstechEsx500 ? 10 : 24;
+}
+
 void sportstechbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
@@ -509,9 +516,8 @@ uint16_t sportstechbike::wattsFromResistance(double resistance) {
         settings.value(QZSettings::sportstech_esx500, QZSettings::default_sportstech_esx500).toBool();
     if (sportstechEsx500) {
         const double cadence = Cadence.value();
-        const double maxDeviceResistance = std::max(1.0, (double)maxResistance());
-        const double mappedResistance = std::clamp(resistance, 0.0, maxDeviceResistance) *
-                                       (double)(kEsx500ResistanceCount - 1) / maxDeviceResistance;
+        // ESX500 table already uses device resistance levels (0..10), no 24->10 remapping.
+        const double mappedResistance = std::clamp(resistance, 0.0, (double)(kEsx500ResistanceCount - 1));
 
         int lowerResistance = (int)std::floor(mappedResistance);
         int upperResistance = (int)std::ceil(mappedResistance);
