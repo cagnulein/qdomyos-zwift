@@ -2906,6 +2906,12 @@ class QZSettings {
     static constexpr bool default_kingsmith_r2_enable_hw_buttons = false;
 
     /**
+     * @brief Gain multiplier applied to step count calculated from cadence for calibration purposes
+     */
+    static const QString step_gain;
+    static constexpr double default_step_gain = 1.0;
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */
