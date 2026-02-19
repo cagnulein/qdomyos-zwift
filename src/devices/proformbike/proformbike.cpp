@@ -762,6 +762,11 @@ void proformbike::forceResistance(resistance_t requestResistance) {
         const uint8_t res2[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01, 0x04, 0xf8, 0x02, 0x00, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00};
         const uint8_t res1[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01, 0x04, 0x68, 0x01, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+        if(nordictrack_vr21) {
+            uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
+            writeCharacteristic((uint8_t *)noOpData7, sizeof(noOpData7), QStringLiteral("resrequest"), false, false);
+        }
+
         switch (requestResistance) {
         case 1:
             writeCharacteristic((uint8_t *)res1, sizeof(res1), QStringLiteral("resistance1"), false, true);
@@ -1212,13 +1217,8 @@ void proformbike::update() {
             } else if (proform_studio || proform_tdf_10)
                 writeCharacteristic(noOpData4_proform_studio, sizeof(noOpData4_proform_studio), QStringLiteral("noOp"));
             else if (nordictrack_gx_2_7 || nordictrack_vr21 || proform_cycle_trainer_300_ci) {
-                if (nordictrack_vr21) {
-                    writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
-                    innerWriteResistance();
-                } else {
-                    innerWriteResistance();
-                    writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
-                }
+                innerWriteResistance();
+                writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
             } else if (proform_hybrid_trainer_PFEL03815) {
                 innerWriteResistance();
                 writeCharacteristic(noOpData4_proform_hybrid_trainer_PFEL03815,
