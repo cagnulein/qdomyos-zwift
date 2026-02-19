@@ -558,6 +558,15 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     bool heart = false;
     bool watt_ignore_builtin =
         settings.value(QZSettings::watt_ignore_builtin, QZSettings::default_watt_ignore_builtin).toBool();
+    bool externalCadenceSensorEnabled =
+        !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+             .toString()
+             .startsWith(QStringLiteral("Disabled"));
+    bool externalPowerSensorEnabled =
+        !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+             .toString()
+             .startsWith(QStringLiteral("Disabled"));
+    bool useMachineCadence = !externalCadenceSensorEnabled && !externalPowerSensorEnabled;
 
     qDebug() << characteristic.uuid() << newValue.length() << QStringLiteral(" << ") << newValue.toHex(' ');
 
@@ -587,8 +596,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 #ifndef IO_UNDER_QT
         m_watt =  lockscreen::zwift_hub_getPowerFromBuffer(newValue.mid(1));
         qDebug() << "Current power: " << m_watt.value();
-        
-        Cadence =  lockscreen::zwift_hub_getCadenceFromBuffer(newValue.mid(1));
+
+        if (useMachineCadence) {
+            Cadence =  lockscreen::zwift_hub_getCadenceFromBuffer(newValue.mid(1));
+        }
         qDebug() << "Current cadence: " << Cadence.value();
 #endif
 #endif
@@ -690,9 +701,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         if (Flags.instantCadence) {
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled"))) {
+            if (useMachineCadence) {
                 Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index)))) /
                           2.0;
@@ -710,9 +719,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             emit debug(QStringLiteral("Current Average Cadence: ") + QString::number(avgCadence));
             // Use average cadence if instant cadence is not available
             if (!Flags.instantCadence) {
-                if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                        .toString()
-                        .startsWith(QStringLiteral("Disabled"))) {
+                if (useMachineCadence) {
                     Cadence = avgCadence;
                     emit debug(QStringLiteral("Current Cadence (from average): ") + QString::number(Cadence.value()));
                 }
@@ -998,9 +1005,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     deltaT = LastCrankEventTime + time_division - oldLastCrankEventTime;
                 }
 
-                if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                        .toString()
-                        .startsWith(QStringLiteral("Disabled"))) {
+                if (useMachineCadence) {
                     if (CrankRevs != oldCrankRevs && deltaT) {
                         double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
                         if (!crank_rev_present)
@@ -1160,9 +1165,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.stepCount) {
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled"))) {
+            if (useMachineCadence) {
                 Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index))));
             }
