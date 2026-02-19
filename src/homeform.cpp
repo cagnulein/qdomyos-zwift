@@ -8985,8 +8985,10 @@ void homeform::clearWebViewCache() {
     });
 #endif
 #ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
     lockscreen::clearWebViewCache();
     qDebug() << "iOS: WebView cache cleared";
+#endif
 #endif
 }
 
