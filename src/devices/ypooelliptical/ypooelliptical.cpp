@@ -210,6 +210,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     bool iconsole_elliptical =
         settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
+    double cadence_gain = settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
+    double cadence_offset = settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
 
     qDebug() << characteristic.uuid() << QStringLiteral("<<") << newvalue.toHex(' ');
 
@@ -316,8 +318,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                 double divisor = 1.0;
                 if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS)
                     divisor = 2.0;
-                Cadence = (((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
-                                    (uint16_t)((uint8_t)lastPacket.at(index))))) / divisor;
+                Cadence = ((((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                    (uint16_t)((uint8_t)lastPacket.at(index))))) / divisor) * cadence_gain + cadence_offset;
             }
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
@@ -352,7 +354,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                             double stridesPerMinute = stridesDiff / timeInMinutes;
                             instantCadence = stridesPerMinute / 2.0;
                             if(instantCadence.value() < 120 && instantCadence.average5s() < 200) // sanity check: reject spikes > 120 RPM
-                                Cadence = instantCadence.average5s();
+                                Cadence = instantCadence.average5s() * cadence_gain + cadence_offset;
                             emit debug(QStringLiteral("Current Cadence (from strideCount): ") + QString::number(Cadence.value()) +
                                       QStringLiteral(" (diff: ") + QString::number(stridesDiff) + QStringLiteral(")"));
 
@@ -555,8 +557,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
-                Cadence = ((double)(((uint16_t)((uint8_t)newvalue.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)newvalue.at(index)))) / 2.0;
+                Cadence = (((double)(((uint16_t)((uint8_t)newvalue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newvalue.at(index)))) / 2.0) * cadence_gain + cadence_offset;
                 emit debug(QStringLiteral("Current Cadence (2AD2): ") + QString::number(Cadence.value()));
             }
             index += 2;
@@ -692,7 +694,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     } else if (iconsole_elliptical) {
         if (newvalue.length() == 15) {
             Speed = (double)((((uint8_t)newvalue.at(10)) << 8) | ((uint8_t)newvalue.at(9))) / 100.0;
-            Cadence = newvalue.at(6);
+            Cadence = newvalue.at(6) * cadence_gain + cadence_offset;
             m_watt = elliptical::watts();
 
             Distance += ((Speed.value() / 3600000.0) *
