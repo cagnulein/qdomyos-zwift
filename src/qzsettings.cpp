@@ -1059,7 +1059,7 @@ const QString QZSettings::kingsmith_r2_enable_hw_buttons = QStringLiteral("kings
 const QString QZSettings::step_gain = QStringLiteral("step_gain");
 
 
-const uint32_t allSettingsCount = 862;
+const uint32_t allSettingsCount = 863;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
