@@ -536,6 +536,9 @@ class bluetoothdevice : public QObject {
     void instantaneousStrideLengthChanged(double length);
     void groundContactChanged(double groundContact);
     void verticalOscillationChanged(double verticalOscillation);
+#ifdef ANT_LINUX_ENABLED
+    void disconnected();  // used by AntManager.cpp
+#endif
 
   protected:
     /**
