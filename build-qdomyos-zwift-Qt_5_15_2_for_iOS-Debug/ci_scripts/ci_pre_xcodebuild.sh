@@ -75,27 +75,9 @@ echo "Checking QtCore include directory:"
 ls -la /tmp/Qt-5.15.2/ios/include/QtCore/ 2>/dev/null || echo "No QtCore in /tmp/"
 ls -la /private/tmp/Qt-5.15.2/ios/include/QtCore/ 2>/dev/null || echo "No QtCore in /private/tmp/"
 
-# Setup build cache for faster compilation
+# Setup generated-file cache directory for faster prebuilds
 BUILD_CACHE_DIR="$HOME/Library/Caches/XcodeCloud/QDomyos-Zwift-Build"
 mkdir -p "$BUILD_CACHE_DIR"
-
-# Check if we have cached object files
-if [[ -d "$BUILD_CACHE_DIR/objects" && -f "$BUILD_CACHE_DIR/build_hash.txt" ]]; then
-    CURRENT_HASH=$(find "$PROJECT_ROOT/src" -name "*.cpp" -o -name "*.h" -o -name "*.mm" | sort | xargs cat | shasum -a 256 | cut -d' ' -f1)
-    CACHED_HASH=$(cat "$BUILD_CACHE_DIR/build_hash.txt" 2>/dev/null || echo "none")
-    
-    if [[ "$CURRENT_HASH" == "$CACHED_HASH" ]]; then
-        echo "Source files unchanged, restoring build cache..."
-        if cp -r "$BUILD_CACHE_DIR/objects/"* . 2>/dev/null; then
-            echo "Build cache restored successfully"
-        else
-            echo "Cache restoration failed, will build from scratch"
-        fi
-    else
-        echo "Source files changed, cache invalid"
-        rm -rf "$BUILD_CACHE_DIR/objects" "$BUILD_CACHE_DIR/build_hash.txt"
-    fi
-fi
 
 # CRITICAL: Create fake xcodebuild BEFORE make to prevent build failures
 # During make, qmake will try to call xcodebuild which will fail due to code signing
@@ -114,29 +96,52 @@ export PATH="/tmp/fake_xcode:$PATH"
 echo "Fake xcodebuild created and added to PATH"
 which xcodebuild
 
-# CRITICAL: Run make to compile Qt project and generate MOC files
-echo "Running make to compile Qt project and generate MOC files..."
-# Use parallel compilation for faster builds
-make  -j$(sysctl -n hw.ncpu)
+# CRITICAL: Generate only Qt auto-generated sources needed by Xcode.
+# Do NOT build full objects/archives here, to avoid duplicate work in xcodebuild archive.
+echo "Running make for generated sources only (no full compile)..."
 
-echo "make completed successfully - MOC files generated"
+CPU_COUNT=$(sysctl -n hw.ncpu)
+TARGETS=(
+    qdomyos-zwift_metatypes.json
+    qdomyos-zwift_qmltyperegistrations.cpp
+    qrc_qml.cpp
+    qrc_icons.cpp
+)
+
+if ! make -j"${CPU_COUNT}" "${TARGETS[@]}"; then
+    echo "WARNING: targeted make failed, running dry-run to discover generated-source targets..."
+    DISCOVERED_TARGETS=()
+    while IFS= read -r target; do
+        DISCOVERED_TARGETS+=("$target")
+    done < <(
+        make -n 2>/dev/null \
+            | sed -n 's/.* -o \(moc_[^ ]*\.cpp\).*/\1/p; s/.* -o \(qrc_[^ ]*\.cpp\).*/\1/p; s/.* -o \([^ ]*_qmltyperegistrations\.cpp\).*/\1/p' \
+            | sort -u
+    )
+
+    if [[ ${#DISCOVERED_TARGETS[@]} -eq 0 ]]; then
+        echo "ERROR: could not discover generated-source targets"
+        exit 1
+    fi
+
+    echo "Discovered ${#DISCOVERED_TARGETS[@]} generated targets, building them..."
+    make -j"${CPU_COUNT}" "${DISCOVERED_TARGETS[@]}"
+fi
+
+echo "Generated-source make completed successfully"
 
 # Remove fake xcodebuild from PATH
 export PATH="${PATH#/tmp/fake_xcode:}"
 echo "Fake xcodebuild removed from PATH"
 
-# Cache the build results for next time
-echo "Caching build results..."
-mkdir -p "$BUILD_CACHE_DIR/objects"
-# Cache compiled object files and MOC files
-find . -name "*.o" -o -name "moc_*.cpp" -o -name "moc_*.h" | while read file; do
-    cp "$file" "$BUILD_CACHE_DIR/objects/" 2>/dev/null || echo "Could not cache $file"
-done
-
-# Store hash of source files for cache validation
-CURRENT_HASH=$(find "$PROJECT_ROOT/src" -name "*.cpp" -o -name "*.h" -o -name "*.mm" | sort | xargs cat | shasum -a 256 | cut -d' ' -f1)
-echo "$CURRENT_HASH" > "$BUILD_CACHE_DIR/build_hash.txt"
-echo "Build cache updated"
+# Cache only generated source files for next time
+echo "Caching generated sources..."
+mkdir -p "$BUILD_CACHE_DIR/generated"
+find . \( -name "moc_*.cpp" -o -name "qrc_*.cpp" -o -name "*_qmltyperegistrations.cpp" -o -name "*_metatypes.json" \) \
+    | while IFS= read -r file; do
+        cp "$file" "$BUILD_CACHE_DIR/generated/" 2>/dev/null || echo "Could not cache $file"
+      done
+echo "Generated-source cache updated"
 
 # NOW restore Xcode project and fix qmake corruption AFTER make
 echo "Restoring Xcode project from git AFTER make..."
@@ -235,9 +240,15 @@ cd "$PROJECT_ROOT"
 echo "Copying ALL Qt-generated files from src/ to build directory..."
 cd "$PROJECT_ROOT/src"
 
-# Copy all generated files (cpp, o, json, a) but exclude directories
+# Ensure stale qmltyperegistrations objects never leak into archive phase.
+rm -f "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyos-zwift_qmltyperegistrations.o"
+rm -f "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift_qmltyperegistrations.o"
+
+# Copy generated sources (cpp/json/qmltypes) but avoid precompiled objects/archives
 echo "Looking for generated files in: $(pwd)"
-find . -maxdepth 1 -type f \( -name "moc_*.cpp" -o -name "moc_*.cpp.json" -o -name "qrc_*.cpp" -o -name "*.o" -o -name "*.a" -o -name "*_qmltyperegistrations.*" -o -name "*.qmltypes" -o -name "*_metatypes.json" -o -name "*_plugin_import.cpp" \) -print -exec cp {} "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/" \;
+find . -maxdepth 1 -type f \
+    \( -name "moc_*.cpp" -o -name "moc_*.cpp.json" -o -name "qrc_*.cpp" -o -name "*_qmltyperegistrations.cpp" -o -name "*.qmltypes" -o -name "*_metatypes.json" -o -name "*_plugin_import.cpp" \) \
+    -print -exec cp {} "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/" \;
 
 echo "Generated files copied to build directory"
 
@@ -252,12 +263,7 @@ else
     echo "WARNING: qdomyos-zwift_qmltyperegistrations.cpp not found in build directory"
 fi
 
-# Also handle .o file if it exists
-if [[ -f "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyos-zwift_qmltyperegistrations.o" ]]; then
-    cp "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyos-zwift_qmltyperegistrations.o" \
-       "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift_qmltyperegistrations.o"
-    echo "Renamed qdomyos-zwift_qmltyperegistrations.o -> qdomyoszwift_qmltyperegistrations.o"
-fi
+echo "Skipping qmltyperegistrations object prebuild on purpose (compiled later by xcodebuild)"
 
 echo "Verifying qdomyoszwift_qmltyperegistrations.cpp exists:"
 ls -la "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift_qmltyperegistrations.cpp" 2>&1
