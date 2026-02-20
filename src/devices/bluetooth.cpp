@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
+#include <QGuiApplication>
 
 #include <QtXml>
 #ifdef Q_OS_ANDROID
@@ -680,13 +681,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #endif
     ;
 
-    // not required for mobile I guess
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
-    if(!homeformLoaded) {
+    // In GUI mode wait until UI (homeform) is ready; in --no-gui (headless)
+    // mode process immediately. We detect GUI mode by checking for a
+    // QGuiApplication instance.
+    if (!homeformLoaded && qobject_cast<QGuiApplication *>(QCoreApplication::instance())) {
         qDebug() << "homeform not yet loaded";
         return;
     }
-#endif    
+#endif
 
     if (onlyDiscover)
         return;
