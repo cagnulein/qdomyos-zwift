@@ -4218,34 +4218,7 @@ void homeform::LargeButton(const QString &name) {
             int zoneNum = name.right(1).toInt(); // Gets last digit from preset_powerzone_X
             QString zoneSetting = QString("tile_preset_powerzone_%1_value").arg(zoneNum);
             double zoneValue = settings.value(zoneSetting, zoneNum).toDouble();
-
-            // Calculate target watts based on FTP and zone value
-            // Map zoneValue to the correct percentage within each power zone
-            double targetPerc;
-            if (zoneValue <= 1.9) {
-                // Zone 1: 0-55% FTP range
-                targetPerc = zoneValue * 0.50; // zoneValue 1.0->50%, safely within Zone 1 boundary
-                if (targetPerc > 0.55) targetPerc = 0.55;
-            } else if (zoneValue <= 2.9) {
-                // Zone 2: 56-75% FTP range
-                targetPerc = 0.56 + (zoneValue - 2.0) * 0.19; // zoneValue 2.0->56%, 3.0->75%
-            } else if (zoneValue <= 3.9) {
-                // Zone 3: 76-90% FTP range
-                targetPerc = 0.76 + (zoneValue - 3.0) * 0.14; // zoneValue 3.0->76%, 4.0->90%
-            } else if (zoneValue <= 4.9) {
-                // Zone 4: 91-105% FTP range
-                targetPerc = 0.91 + (zoneValue - 4.0) * 0.14; // zoneValue 4.0->91%, 5.0->105%
-            } else if (zoneValue <= 5.9) {
-                // Zone 5: 106-120% FTP range
-                targetPerc = 1.06 + (zoneValue - 5.0) * 0.14; // zoneValue 5.0->106%, 6.0->120%
-            } else if (zoneValue <= 6.9) {
-                // Zone 6: 121-150% FTP range
-                targetPerc = 1.21 + (zoneValue - 6.0) * 0.29; // zoneValue 6.0->121%, 7.0->150%
-            } else {
-                // Zone 7: 151%+ FTP range
-                targetPerc = 1.51 + (zoneValue - 7.0) * 0.19; // zoneValue 7.0->151%, 8.0->170%
-            }
-            double targetWatts = ftp * targetPerc;
+            double targetWatts = bike::powerZoneValueToWatts(zoneValue, ftp);
             bluetoothManager->device()->changePower(targetWatts);
         } else if (name.contains(QStringLiteral("erg_mode"))) {
             settings.setValue(QZSettings::zwift_erg, !settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool());

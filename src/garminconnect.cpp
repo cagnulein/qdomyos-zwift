@@ -1,4 +1,6 @@
 #include "garminconnect.h"
+#include "devices/bike.h"
+#include "trainprogram.h"
 #include "qzsettings.h"
 #include <QDebug>
 #include <QRegularExpression>
@@ -1719,6 +1721,12 @@ static QString garminSecondsToTime(int seconds) {
     return QString("%1:%2:%3").arg(h, 2, 10, QChar('0')).arg(m, 2, 10, QChar('0')).arg(s, 2, 10, QChar('0'));
 }
 
+static int garminPowerFromZone(double zoneValue) {
+    QSettings settings;
+    const double ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+    return bike::powerZoneValueToWatts(zoneValue, ftp);
+}
+
 static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) {
     QString pad(indent * 4, QChar(' '));
     QString condTypeKey = step["endCondition"].toObject()["conditionTypeKey"].toString();
@@ -1729,6 +1737,11 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
         targetTypeKey = step["targetType"].toObject()["workoutTargetTypeKey"].toString();
     }
 
+    const bool hasTargetOne = step.contains("targetValueOne") && !step["targetValueOne"].isNull();
+    const bool hasTargetTwo = step.contains("targetValueTwo") && !step["targetValueTwo"].isNull();
+    const double targetOne = step["targetValueOne"].toDouble();
+    const double targetTwo = step["targetValueTwo"].toDouble();
+
     QString attrs;
     if (condTypeKey == "time" && endConditionValue > 0) {
         attrs += QString(" duration=\"%1\"").arg(garminSecondsToTime(static_cast<int>(endConditionValue)));
@@ -1738,7 +1751,33 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
         int hrMax = static_cast<int>(step["targetValueTwo"].toDouble());
         if (hrMin > 0) attrs += QString(" hrmin=\"%1\"").arg(hrMin);
         if (hrMax > 0) attrs += QString(" hrmax=\"%1\"").arg(hrMax);
-        attrs += " looptimehr=\"1\"";
+        const int loopTimeHr = trainrow().loopTimeHR;
+        attrs += QString(" looptimehr=\"%1\"").arg(loopTimeHr);
+    } else if (targetTypeKey.contains("power", Qt::CaseInsensitive)) {
+        int power = -1;
+        const bool isPowerZone = targetTypeKey.contains("zone", Qt::CaseInsensitive);
+        const bool isLikelyZoneValues =
+            (hasTargetOne && targetOne > 0 && targetOne <= 10) ||
+            (hasTargetTwo && targetTwo > 0 && targetTwo <= 10);
+
+        if (isPowerZone || isLikelyZoneValues) {
+            double zone = (hasTargetOne && targetOne > 0) ? targetOne : targetTwo;
+            power = garminPowerFromZone(zone);
+        } else {
+            const double low = (hasTargetOne && targetOne > 0) ? targetOne : 0.0;
+            const double high = (hasTargetTwo && targetTwo > 0) ? targetTwo : 0.0;
+            if (low > 0.0 && high > 0.0) {
+                power = qRound((low + high) / 2.0);
+            } else if (low > 0.0) {
+                power = qRound(low);
+            } else if (high > 0.0) {
+                power = qRound(high);
+            }
+        }
+
+        if (power > 0) {
+            attrs += QString(" power=\"%1\"").arg(power);
+        }
     }
     xml += pad + "<row" + attrs + "/>\n";
 }
@@ -1755,10 +1794,14 @@ static QString generateGarminWorkoutXml(const QJsonObject &workoutJson) {
             QJsonObject step = stepVal.toObject();
             if (step["type"].toString() == "RepeatGroupDTO") {
                 int iterations = static_cast<int>(step["numberOfIterations"].toDouble());
+                if (iterations < 1) {
+                    iterations = 1;
+                }
                 xml += QString("    <repeat times=\"%1\">\n").arg(iterations);
                 const QJsonArray innerSteps = step["workoutSteps"].toArray();
-                for (const QJsonValue &inner : innerSteps)
+                for (const QJsonValue &inner : innerSteps) {
                     appendGarminStep(xml, inner.toObject(), 2);
+                }
                 xml += "    </repeat>\n";
             } else {
                 appendGarminStep(xml, step, 1);
