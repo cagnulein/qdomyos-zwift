@@ -30,6 +30,8 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &wahookickrsnapbike::update);
+    connect(this, &bluetoothdevice::inclinationChanged, this, &wahookickrsnapbike::inclinationChanged,
+            Qt::UniqueConnection);
     QSettings settings;
     refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
 
