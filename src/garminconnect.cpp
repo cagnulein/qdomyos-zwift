@@ -1783,8 +1783,8 @@ void GarminConnect::downloadTodaysWorkout(const QString &saveDir) {
     int day = today.day();
 
     QString urlString =
-        QString("%1/gc-api/calendar-service/year/%2/month/%3/day/%4/start/1")
-            .arg(connectUrl()).arg(year).arg(month).arg(day);
+        QString("%1/calendar-service/year/%2/month/%3/day/%4/start/1")
+            .arg(connectApiUrl()).arg(year).arg(month).arg(day);
 
     QUrl url(urlString);
     QNetworkRequest request(url);
@@ -1852,7 +1852,7 @@ void GarminConnect::downloadWorkoutDetails(const QString &uuid, const QString &d
                                            const QString &saveDir) {
     const QString apiPath = (itemType == "fbtAdaptiveWorkout") ? "fbt-adaptive" : "workout";
     const QString urlString =
-        QString("%1/gc-api/workout-service/%2/%3").arg(connectUrl()).arg(apiPath).arg(uuid);
+        QString("%1/workout-service/%2/%3").arg(connectApiUrl()).arg(apiPath).arg(uuid);
 
     QUrl url2(urlString);
     QNetworkRequest request2(url2);
