@@ -1786,7 +1786,8 @@ void GarminConnect::downloadTodaysWorkout(const QString &saveDir) {
         QString("%1/gc-api/calendar-service/year/%2/month/%3/day/%4/start/1")
             .arg(connectUrl()).arg(year).arg(month).arg(day);
 
-    QNetworkRequest request(QUrl(urlString));
+    QUrl url(urlString);
+    QNetworkRequest request(url);
     request.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
     request.setRawHeader("User-Agent", USER_AGENT);
     request.setRawHeader("NK", "NT");
@@ -1853,14 +1854,15 @@ void GarminConnect::downloadWorkoutDetails(const QString &uuid, const QString &d
     const QString urlString =
         QString("%1/gc-api/workout-service/%2/%3").arg(connectUrl()).arg(apiPath).arg(uuid);
 
-    QNetworkRequest request(QUrl(urlString));
-    request.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
-    request.setRawHeader("User-Agent", USER_AGENT);
-    request.setRawHeader("NK", "NT");
-    request.setRawHeader("Accept", "application/json");
+    QUrl url2(urlString);
+    QNetworkRequest request2(url2);
+    request2.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
+    request2.setRawHeader("User-Agent", USER_AGENT);
+    request2.setRawHeader("NK", "NT");
+    request2.setRawHeader("Accept", "application/json");
 
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    QNetworkReply *reply = manager->get(request);
+    QNetworkReply *reply = manager->get(request2);
 
     connect(reply, &QNetworkReply::finished, this, [this, reply, manager, date, workoutName, saveDir]() {
         const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
