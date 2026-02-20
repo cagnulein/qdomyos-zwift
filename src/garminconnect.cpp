@@ -1857,10 +1857,12 @@ void GarminConnect::downloadTodaysWorkout(const QString &saveDir) {
 void GarminConnect::downloadWorkoutDetails(const QString &uuid, const QString &date,
                                            const QString &workoutName, const QString &itemType,
                                            const QString &saveDir) {
-    Q_UNUSED(itemType)
-    // All workout types (workout, fbtAdaptiveWorkout, etc.) use the same endpoint
+    QString detailsPath = "workout-service/workout";
+    if (itemType == "fbtAdaptiveWorkout")
+        detailsPath = "workout-service/fbt-adaptive";
+
     const QString urlString =
-        QString("%1/workout-service/workout/%2").arg(connectApiUrl()).arg(uuid);
+        QString("%1/%2/%3").arg(connectApiUrl(), detailsPath, uuid);
 
     QUrl url2(urlString);
     QNetworkRequest request2(url2);
@@ -1923,7 +1925,7 @@ void GarminConnect::downloadWorkoutDetails(const QString &uuid, const QString &d
         }
     });
 
-    qDebug() << "GarminConnect: Fetching workout details UUID:" << uuid;
+    qDebug() << "GarminConnect: Fetching workout details UUID:" << uuid << "using" << detailsPath;
 }
 
 // ========== End Daily Workout Download ==========

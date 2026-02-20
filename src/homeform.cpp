@@ -8855,8 +8855,14 @@ void homeform::garmin_connect_login() {
         });
 
         connect(garminConnect, &GarminConnect::workoutDownloaded, this,
-                [this](const QString &, const QString &workoutName) {
+                [this](const QString &filename, const QString &workoutName) {
                     setToastRequested(QString("Garmin workout saved: %1").arg(workoutName));
+                    m_garminWorkoutPromptFile = filename;
+                    if (m_garminWorkoutPromptName != workoutName) {
+                        m_garminWorkoutPromptName = workoutName;
+                        emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
+                    }
+                    setGarminWorkoutPromptRequested(true);
                 });
 
         connect(garminConnect, &GarminConnect::workoutDownloadFailed, this,
@@ -8923,6 +8929,35 @@ void homeform::garmin_connect_logout() {
         garminConnect->logout();
         qDebug() << "Garmin Connect: Logged out and tokens cleared";
     }
+}
+
+void homeform::garmin_start_downloaded_workout() {
+    const QString workoutFile = m_garminWorkoutPromptFile;
+    const QString workoutName = m_garminWorkoutPromptName;
+    m_garminWorkoutPromptFile.clear();
+    m_garminWorkoutPromptName.clear();
+    emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
+    setGarminWorkoutPromptRequested(false);
+
+    if (workoutFile.isEmpty()) {
+        setToastRequested("No Garmin workout file available");
+        return;
+    }
+
+    if (!startTrainingProgramFromFile(workoutFile)) {
+        setToastRequested(QString("Failed to load Garmin workout: %1").arg(workoutName));
+        return;
+    }
+
+    trainprogram_autostart_requested();
+    setToastRequested(QString("Starting Garmin workout: %1").arg(workoutName));
+}
+
+void homeform::garmin_dismiss_downloaded_workout_prompt() {
+    m_garminWorkoutPromptFile.clear();
+    m_garminWorkoutPromptName.clear();
+    emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
+    setGarminWorkoutPromptRequested(false);
 }
 
 bool homeform::isStravaLoggedIn() {
