@@ -18,6 +18,12 @@
 using namespace std::chrono_literals;
 
 namespace {
+// Local clamp helper for environments without std::clamp (pre-C++17)
+template <typename T>
+constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
+    return (v < lo) ? lo : (hi < v) ? hi : v;
+}
+
 constexpr int kEsx500MinCadence = 30;
 constexpr int kEsx500MaxCadence = 100;
 constexpr int kEsx500CadenceCount = (kEsx500MaxCadence - kEsx500MinCadence) + 1;
@@ -63,11 +69,11 @@ constexpr std::array<std::array<int, kEsx500CadenceCount>, kEsx500ResistanceCoun
 }};
 
 double interpolateCadence(const std::array<int, kEsx500CadenceCount> &row, double cadence) {
-    const double clampedCadence = std::clamp(cadence, (double)kEsx500MinCadence, (double)kEsx500MaxCadence);
+    const double clampedCadence = clamp(cadence, (double)kEsx500MinCadence, (double)kEsx500MaxCadence);
     int left = (int)std::floor(clampedCadence) - kEsx500MinCadence;
     int right = (int)std::ceil(clampedCadence) - kEsx500MinCadence;
-    left = std::clamp(left, 0, kEsx500CadenceCount - 1);
-    right = std::clamp(right, 0, kEsx500CadenceCount - 1);
+    left = clamp(left, 0, kEsx500CadenceCount - 1);
+    right = clamp(right, 0, kEsx500CadenceCount - 1);
 
     while (left > 0 && row[left] < 0) {
         --left;
@@ -517,12 +523,12 @@ uint16_t sportstechbike::wattsFromResistance(double resistance) {
     if (sportstechEsx500) {
         const double cadence = Cadence.value();
         // ESX500 table already uses device resistance levels (0..10), no 24->10 remapping.
-        const double mappedResistance = std::clamp(resistance, 0.0, (double)(kEsx500ResistanceCount - 1));
+        const double mappedResistance = clamp(resistance, 0.0, (double)(kEsx500ResistanceCount - 1));
 
         int lowerResistance = (int)std::floor(mappedResistance);
         int upperResistance = (int)std::ceil(mappedResistance);
-        lowerResistance = std::clamp(lowerResistance, 0, kEsx500ResistanceCount - 1);
-        upperResistance = std::clamp(upperResistance, 0, kEsx500ResistanceCount - 1);
+        lowerResistance = clamp(lowerResistance, 0, kEsx500ResistanceCount - 1);
+        upperResistance = clamp(upperResistance, 0, kEsx500ResistanceCount - 1);
 
         const double lowerWatt = interpolateCadence(kEsx500PowerTable[lowerResistance], cadence);
         const double upperWatt = interpolateCadence(kEsx500PowerTable[upperResistance], cadence);
@@ -574,3 +580,4 @@ resistance_t sportstechbike::resistanceFromPowerRequest(uint16_t power) {
     else
         return maxResistance();
 }
+
