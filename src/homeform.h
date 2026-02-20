@@ -203,6 +203,7 @@ class homeform : public QObject {
     Q_PROPERTY(QString previewWorkoutDescription READ previewWorkoutDescription NOTIFY previewWorkoutDescriptionChanged)
     Q_PROPERTY(QString previewWorkoutTags READ previewWorkoutTags NOTIFY previewWorkoutTagsChanged)
     Q_PROPERTY(bool miles_unit READ miles_unit)
+    Q_PROPERTY(bool iPadMultiWindowMode READ iPadMultiWindowMode)
 
     Q_PROPERTY(bool currentCoordinateValid READ currentCoordinateValid)
     Q_PROPERTY(bool trainProgramLoadedWithVideo READ trainProgramLoadedWithVideo)
@@ -544,6 +545,17 @@ class homeform : public QObject {
     Q_INVOKABLE void garmin_submit_mfa_code(const QString &mfaCode);
     Q_INVOKABLE void garmin_connect_logout();
 
+    Q_INVOKABLE bool isStravaLoggedIn();
+    Q_INVOKABLE bool isPelotonLoggedIn();
+    Q_INVOKABLE bool isIntervalsICULoggedIn();
+    Q_INVOKABLE void strava_logout();
+    Q_INVOKABLE void peloton_logout();
+    Q_INVOKABLE void intervalsicu_logout();
+
+private:
+    void clearWebViewCache();
+
+public:
     void setGeneralPopupVisible(bool value);
     void setPelotonPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
@@ -705,6 +717,18 @@ class homeform : public QObject {
         return settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     }
 
+    bool iPadMultiWindowMode() {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        return lockscreen::isInMultiWindowMode();
+#else
+        return false;
+#endif
+#else
+        return false;
+#endif
+    }
+
     bool currentCoordinateValid() {
         if (bluetoothManager && bluetoothManager->device()) {
             return bluetoothManager->device()->currentCordinate().isValid();
@@ -808,6 +832,7 @@ class homeform : public QObject {
     DataObject *autoVirtualShiftingClimb;
     DataObject *autoVirtualShiftingSprint;
     DataObject *powerAvg;
+    DataObject *hrv;
 
   private:
     static homeform *m_singleton;
@@ -1043,6 +1068,10 @@ class homeform : public QObject {
     void sortTilesTimeout();
     void gearUp();
     void gearDown();
+    void speedPlus();
+    void speedMinus();
+    void inclinationPlus();
+    void inclinationMinus();
     void changeTimestamp(QTime source, QTime actual);
     void pelotonOffset_Plus();
     void pelotonOffset_Minus();

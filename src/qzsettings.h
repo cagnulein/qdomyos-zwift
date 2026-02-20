@@ -272,6 +272,12 @@ class QZSettings {
     static const QString miles_unit;
     static constexpr bool default_miles_unit = false;
 
+    /**
+     *@brief Use kg for weight even when miles_unit is true (for UK users).
+     */
+    static const QString weight_kg_unit;
+    static constexpr bool default_weight_kg_unit = false;
+
     static const QString pause_on_start;
     static constexpr bool default_pause_on_start = false;
 
@@ -447,6 +453,9 @@ class QZSettings {
 
     static const QString tile_heart_order;
     static constexpr int default_tile_heart_order = 11;
+
+    static const QString tile_heart_show_as_percent;
+    static constexpr bool default_tile_heart_show_as_percent = false;
 
     static const QString tile_fan_enabled;
     static constexpr bool default_tile_fan_enabled = true;
@@ -1052,6 +1061,12 @@ class QZSettings {
      */
     static const QString virtual_device_rower;
     static constexpr bool default_virtual_device_rower = false;
+    /**
+     *@brief When virtual_device_rower is enabled, use the Concept2 PM5 protocol instead of FTMS.
+     * This enables compatibility with apps like Mywhoosh that only support PM5 rowers.
+     */
+    static const QString virtual_device_rower_pm5;
+    static constexpr bool default_virtual_device_rower_pm5 = false;
     /**
      *@brief Used to force a non-bike device to be presented to client apps as a bike.
      */
@@ -1757,6 +1772,8 @@ class QZSettings {
 
     static const QString sportstech_sx600;
     static constexpr bool default_sportstech_sx600 = false;
+    static const QString sportstech_esx500;
+    static constexpr bool default_sportstech_esx500 = false;
 
     static const QString sole_elliptical_inclination;
     static constexpr bool default_sole_elliptical_inclination = false;
@@ -1870,6 +1887,9 @@ class QZSettings {
 
     static const QString horizon_treadmill_7_0_at_24;
     static constexpr bool default_horizon_treadmill_7_0_at_24 = false;
+
+    static const QString treadmill_direct_distance;
+    static constexpr bool default_treadmill_direct_distance = false;
 
     static const QString treadmill_pid_heart_min;
     static constexpr int default_treadmill_pid_heart_min = 0;
@@ -2051,7 +2071,9 @@ class QZSettings {
     static constexpr bool default_freemotion_coachbike_b22_7 = false;
 
     static const QString proform_cycle_trainer_300_ci;
+    static const QString nordictrack_gx_4_5_pro;
     static constexpr bool default_proform_cycle_trainer_300_ci = false;
+    static constexpr bool default_nordictrack_gx_4_5_pro = false;
 
     static const QString kingsmith_encrypt_g1_walking_pad;
     static constexpr bool default_kingsmith_encrypt_g1_walking_pad = false;
@@ -2119,6 +2141,9 @@ class QZSettings {
     static const QString domyos_treadmill_t900a;
     static constexpr bool default_domyos_treadmill_t900a = false;
 
+    static const QString domyos_treadmill_ts100;
+    static constexpr bool default_domyos_treadmill_ts100 = false;
+
     static const QString domyos_treadmill_sync_start;
     static constexpr bool default_domyos_treadmill_sync_start = false;
 
@@ -2133,6 +2158,9 @@ class QZSettings {
     
     static const QString zwift_click;
     static constexpr bool default_zwift_click = false;
+
+    static const QString thinkrider_controller;
+    static constexpr bool default_thinkrider_controller = false;
 
     static const QString proform_treadmill_705_cst;
     static constexpr bool default_proform_treadmill_705_cst = false;
@@ -2814,6 +2842,18 @@ class QZSettings {
     static constexpr int default_tile_negative_inclination_order = 75;
 
     /**
+     * @brief Enable HRV (Heart Rate Variability) tile
+     */
+    static const QString tile_hrv_enabled;
+    static constexpr bool default_tile_hrv_enabled = false;
+
+    /**
+     * @brief Order of HRV tile
+     */
+    static const QString tile_hrv_order;
+    static constexpr int default_tile_hrv_order = 78;
+
+    /**
      * @brief Chart display mode: 0 = both charts, 1 = heart rate only, 2 = power only
      */
     static const QString chart_display_mode;
@@ -2866,6 +2906,12 @@ class QZSettings {
      */
     static const QString kingsmith_r2_enable_hw_buttons;
     static constexpr bool default_kingsmith_r2_enable_hw_buttons = false;
+
+    /**
+     * @brief Gain multiplier applied to step count calculated from cadence for calibration purposes
+     */
+    static const QString step_gain;
+    static constexpr double default_step_gain = 1.0;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

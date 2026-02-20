@@ -158,6 +158,7 @@ class wahookickrsnapbike : public bike {
     void stateChanged(QLowEnergyService::ServiceState state);
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+    void inclinationChanged(double grade, double percentage);
 
   private slots:
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
@@ -165,7 +166,6 @@ class wahookickrsnapbike : public bike {
     void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void update();
     void error(QLowEnergyController::Error err);
-    void errorService(QLowEnergyService::ServiceError);
-    void inclinationChanged(double grade, double percentage);
+    void errorService(QLowEnergyService::ServiceError);    
 };
 #endif // WAHOOKICKRSNAPBIKE_H
