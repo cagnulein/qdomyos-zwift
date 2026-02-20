@@ -1085,7 +1085,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ runner.workspace }}\vcpkg\installed
-          key: vcpkg-msvc2019-x64-windows-protobuf-abseil-v1
+          key: vcpkg-msvc2019-x64-windows-${{ hashFiles('.github/workflows/main.yml') }}
 
       - name: Clone vcpkg
         if: steps.cache-vcpkg-msvc2019.outputs.cache-hit != 'true'
@@ -1288,7 +1288,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ runner.workspace }}\vcpkg\installed
-          key: vcpkg-msvc2019-x64-windows-protobuf-abseil-v1
+          key: vcpkg-msvc2019-x64-windows-${{ hashFiles('.github/workflows/main.yml') }}
 
       - name: Clone vcpkg
         if: steps.cache-vcpkg-aiserver.outputs.cache-hit != 'true'
@@ -1375,9 +1375,6 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Secrets
         run: |
           cd src
@@ -1393,27 +1390,36 @@ jobs:
           cd ..
 
       - name: Build for Raspberry Pi
-        uses: docker://arm32v7/debian:bullseye-20241016
-        with:
-          args: >
+        run: |
+          docker run --rm --platform linux/arm/v6 \
+            -v ${{ github.workspace }}:/workspace -w /workspace \
+            balenalib/raspberry-pi-debian:bullseye-build \
             bash -c "
-            set -ex &&
-            for i in 1 2 3; do apt-get update && break || sleep 5; done &&
-            for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql && break || sleep 5; done &&
-            export QT_SELECT=qt5 &&
-            export PATH=/usr/lib/qt5/bin:$PATH &&
-            cd /github/workspace &&
-            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
-            cat qdomyos-zwift.pro &&
-            qmake &&
-            make -j$(nproc)
+              set -ex &&
+              for i in 1 2 3; do apt-get update && break || sleep 5; done &&
+              for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql && break || sleep 5; done &&
+              export QT_SELECT=qt5 &&
+              export PATH=/usr/lib/qt5/bin:\$PATH &&
+              sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
+              find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
+              find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
+              cat qdomyos-zwift.pro &&
+              qmake &&
+              make -j\$(nproc)
             "
 
       - name: Rename binary
         run: mv src/qdomyos-zwift src/qdomyos-zwift-32bit
-      
+
+      - name: Verify 32-bit binary targets ARMv6
+        run: |
+          ARCH=$(readelf -A src/qdomyos-zwift-32bit | grep 'Tag_CPU_arch:' | awk '{print $2}')
+          echo "Binary CPU architecture: $ARCH"
+          if [ "$ARCH" != "v6" ]; then
+            echo "::error::Binary targets $ARCH but must target v6 for Pi Zero W compatibility"
+            exit 1
+          fi
+
       - name: Archive Raspberry Pi binary
         uses: actions/upload-artifact@v4
         with:
@@ -1443,30 +1449,96 @@ jobs:
           echo "#define LICENSE" >> secret.h
           cd ..
 
-      - name: Install Qt5 build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
-
       - name: Build for Raspberry Pi 64-bit
-        run: |
-          export QT_SELECT=qt5
-          export PATH=/usr/lib/qt5/bin:$PATH
-          sed -i '/QtHttpServer/d' qdomyos-zwift.pro
-          find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} +
-          find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} +
-          cat qdomyos-zwift.pro
-          qmake
-          make -j$(nproc)
+        uses: docker://arm64v8/debian:bullseye-20241016
+        with:
+          args: >
+            bash -c "
+            set -ex &&
+            for i in 1 2 3; do apt-get update && break || sleep 5; done &&
+            for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql && break || sleep 5; done &&
+            export QT_SELECT=qt5 &&
+            export PATH=/usr/lib/qt5/bin:$PATH &&
+            cd /github/workspace &&
+            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
+            cat qdomyos-zwift.pro &&
+            qmake &&
+            make -j$(nproc)
+            "
 
       - name: Rename binary
         run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit
+
+      - name: Verify 64-bit binary glibc compatibility
+        run: |
+          MAX_GLIBC=$(readelf -V src/qdomyos-zwift-64bit | grep -oP 'GLIBC_\K[0-9.]+' | sort -V | tail -1)
+          echo "Max required GLIBC version: $MAX_GLIBC"
+          if dpkg --compare-versions "$MAX_GLIBC" gt "2.31"; then
+            echo "::error::Binary requires GLIBC $MAX_GLIBC but Raspberry Pi OS Bullseye only has 2.31"
+            exit 1
+          fi
 
       - name: Archive Raspberry Pi 64bit binary
         uses: actions/upload-artifact@v4
         with:
           name: raspberry-pi-binary-64bit
           path: src/qdomyos-zwift-64bit
+
+  raspberry-pi-smoke-test:
+    runs-on: ubuntu-22.04-arm
+    needs: [raspberry-pi-build, raspberry-pi-build-and-image-64bit]
+
+    steps:
+      - name: Download 32-bit binary
+        uses: actions/download-artifact@v4
+        with:
+          name: raspberry-pi-binary
+          path: bin32
+
+      - name: Download 64-bit binary
+        uses: actions/download-artifact@v4
+        with:
+          name: raspberry-pi-binary-64bit
+          path: bin64
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Smoke test 32-bit binary (ARMv6 - Pi Zero W)
+        timeout-minutes: 5
+        run: |
+          chmod +x bin32/qdomyos-zwift-32bit
+          file bin32/qdomyos-zwift-32bit
+          readelf -A bin32/qdomyos-zwift-32bit | grep -E 'Tag_CPU|Tag_FP'
+          ARCH=$(readelf -A bin32/qdomyos-zwift-32bit | grep 'Tag_CPU_arch:' | awk '{print $2}')
+          if [ "$ARCH" != "v6" ]; then
+            echo "::error::32-bit binary targets $ARCH, expected v6"
+            exit 1
+          fi
+          echo "SUCCESS: 32-bit binary is a valid ARMv6 ELF"
+
+      - name: Smoke test 64-bit binary (ARM64 Bullseye - Pi 3/4/5)
+        timeout-minutes: 10
+        run: |
+          chmod +x bin64/qdomyos-zwift-64bit
+          docker run --rm -v ${{ github.workspace }}/bin64:/app \
+            arm64v8/debian:bullseye-20241016 \
+            bash -c "
+              apt-get update && apt-get install -y --no-install-recommends \
+                libqt5core5a libqt5bluetooth5 libqt5charts5 libqt5widgets5 \
+                libqt5network5 libqt5websockets5 libqt5xml5 libqt5sql5 \
+                libqt5multimedia5 libqt5positioning5 libqt5qml5 libqt5quick5 \
+                libqt5texttospeech5 libqt5networkauth5 libqt5gui5 || true
+              timeout -s KILL 30 /app/qdomyos-zwift-64bit -no-gui -heart-service 2>&1 || EXIT_CODE=\$?
+              if [ \"\${EXIT_CODE:-0}\" -eq 137 ] || [ \"\${EXIT_CODE:-0}\" -eq 124 ] || [ \"\${EXIT_CODE:-0}\" -eq 0 ]; then
+                echo 'SUCCESS: Binary runs on ARM64 Bullseye (headless mode)'
+              else
+                echo \"FAILURE: Binary crashed with exit code \$EXIT_CODE\"
+                exit 1
+              fi
+            "
 
   window-msvc2022-build:
     runs-on: windows-latest
@@ -1555,7 +1627,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ runner.workspace }}\vcpkg\installed
-          key: vcpkg-msvc2022-x64-windows-protobuf-abseil-v1
+          key: vcpkg-msvc2022-x64-windows-${{ hashFiles('.github/workflows/main.yml') }}
 
       - name: Clone vcpkg
         if: steps.cache-vcpkg-msvc2022.outputs.cache-hit != 'true'
