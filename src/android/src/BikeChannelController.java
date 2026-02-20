@@ -78,8 +78,9 @@ public class BikeChannelController {
                 equipmentState = state;
                 QLog.d(TAG, "Equipment type: " + type + ", State: " + state);
 
-                // Only subscribe to bike specific data if this is actually a bike
-                if (type == EquipmentType.BIKE && !isSubscribedToBikeData) {
+                // Many smart trainers (e.g. Tacx Flow) report as TRAINER while still exposing bike metrics.
+                // Subscribe to bike-specific data for BIKE and TRAINER.
+                if ((type == EquipmentType.BIKE || type == EquipmentType.TRAINER) && !isSubscribedToBikeData) {
                     subscribeToBikeSpecificData();
                     isSubscribedToBikeData = true;
                 }
@@ -90,10 +91,12 @@ public class BikeChannelController {
         this.context = Ant.activity;
         
         if (technoGymGroupCycle) {
-            // For Technogym Group Cycle: disable openChannel, enable openPowerSensorChannel
+            // Group Cycle mode should still keep FE data (speed/cadence when available)
+            // and add a dedicated power channel for better power compatibility.
+            openChannel();
             openPowerSensorChannel(antBikeDeviceNumber);
         } else {
-            // Standard behavior: enable openChannel, disable openPowerSensorChannel
+            // Standard behavior: fitness equipment channel
             openChannel();
         }
         
