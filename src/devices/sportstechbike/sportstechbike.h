@@ -73,6 +73,8 @@ class sportstechbike : public bike {
     bool initDone = false;
     bool initRequest = false;
     bool readyToStart = false;
+    qint64 esx500UnderTargetSinceMs = -1;
+    uint16_t esx500LastTargetPower = 0;
 
   signals:
     void disconnected();
