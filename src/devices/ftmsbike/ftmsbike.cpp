@@ -261,7 +261,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         if(SL010 || SPORT01)
             Resistance = requestResistance;
         
-        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX) {
+        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -1850,6 +1850,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("MRK-S26C-")) {
             qDebug() << QStringLiteral("MRK-S26C found");
             MRK_S26C = true;
+        } else if(device.name().toUpper().startsWith("MRK-S28-")) {
+            qDebug() << QStringLiteral("MRK-S28 found");
+            MRK_S28 = true;
+            resistance_lvl_mode = true;
         } else if(device.name().toUpper().startsWith("HAMMER")) {
             qDebug() << QStringLiteral("HAMMER found");
             HAMMER = true;
