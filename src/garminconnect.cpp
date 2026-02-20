@@ -1804,6 +1804,14 @@ void GarminConnect::downloadTodaysWorkout(const QString &saveDir) {
         manager->deleteLater();
 
         qDebug() << "GarminConnect: Calendar API status:" << statusCode;
+        const QJsonDocument calendarRawDoc = QJsonDocument::fromJson(response);
+        if (!calendarRawDoc.isNull()) {
+            qDebug().noquote() << "GarminConnect: Calendar API JSON response:"
+                               << QString::fromUtf8(calendarRawDoc.toJson(QJsonDocument::Compact));
+        } else {
+            qDebug().noquote() << "GarminConnect: Calendar API raw response:"
+                               << QString::fromUtf8(response);
+        }
 
         if (statusCode != 200) {
             emit workoutDownloadFailed(QString("Calendar API failed (HTTP %1)").arg(statusCode));
@@ -1871,6 +1879,14 @@ void GarminConnect::downloadWorkoutDetails(const QString &uuid, const QString &d
         manager->deleteLater();
 
         qDebug() << "GarminConnect: Workout details status:" << statusCode;
+        const QJsonDocument workoutRawDoc = QJsonDocument::fromJson(response);
+        if (!workoutRawDoc.isNull()) {
+            qDebug().noquote() << "GarminConnect: Workout details JSON response:"
+                               << QString::fromUtf8(workoutRawDoc.toJson(QJsonDocument::Compact));
+        } else {
+            qDebug().noquote() << "GarminConnect: Workout details raw response:"
+                               << QString::fromUtf8(response);
+        }
 
         if (statusCode != 200) {
             emit workoutDownloadFailed(QString("Workout details failed (HTTP %1)").arg(statusCode));
