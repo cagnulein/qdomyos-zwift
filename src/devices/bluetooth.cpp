@@ -1892,7 +1892,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         &bluetooth::connectedAndDiscovered);
                 // connect(wahooKickrSnapBike, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(wahooKickrSnapBike, &wahookickrsnapbike::debug, this, &bluetooth::debug);
-                connect(wahooKickrSnapBike, &wahookickrsnapbike::inclinationChanged, this, &bluetooth::inclinationChanged);
                 wahooKickrSnapBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(wahooKickrSnapBike);
             } else if (((b.name().toUpper().startsWith("BIKE ") && (flywheel_life_fitness_ic8 || life_fitness_ic5) == false && technogym_bike && b.name().midRef(5).toInt() > 0) ||
