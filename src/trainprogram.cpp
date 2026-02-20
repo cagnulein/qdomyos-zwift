@@ -959,7 +959,7 @@ void trainprogram::scheduler() {
                 // For ellipticals, convert when hardware inclination is unavailable, or when inclination and
                 // resistance are separated.
                 if ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableBySoftware()) ||
-                    (isElliptical &&
+                    (isElliptical && rows.at(0).resistance == -1 &&
                      (!ellipticalInclinationByHardware || ellipticalInclinationSeparatedFromResistance))) {
                     double bikeResistanceOffset =
                         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
@@ -1185,7 +1185,7 @@ void trainprogram::scheduler() {
                         // For ellipticals, convert when hardware inclination is unavailable, or when inclination and
                         // resistance are separated.
                         if ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableBySoftware()) ||
-                            (isElliptical &&
+                            (isElliptical && rows.at(currentStep).resistance == -1 &&
                              (!ellipticalInclinationByHardware || ellipticalInclinationSeparatedFromResistance))) {
                             double bikeResistanceOffset =
                                 settings
@@ -1198,7 +1198,7 @@ void trainprogram::scheduler() {
 
                             bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
                                                                          bikeResistanceOffset +
-                                                                         1); // resistance start from 1                            
+                                                                         1); // resistance start from 1
                         }
 
                         if (bluetoothManager->device()->deviceType() == BIKE)
