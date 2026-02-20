@@ -224,7 +224,7 @@ private:
     void handleMfaLoginTokenReplyFinished();
     void downloadWorkoutDetails(const QString &uuid, const QString &date,
                                 const QString &workoutName, const QString &itemType,
-                                const QString &saveDir);
+                                const QString &saveDir); // itemType reserved for future use
 
     void loadTokensFromSettings();
     void saveTokensToSettings();

@@ -1790,7 +1790,6 @@ void GarminConnect::downloadTodaysWorkout(const QString &saveDir) {
     QNetworkRequest request(url);
     request.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
     request.setRawHeader("User-Agent", USER_AGENT);
-    request.setRawHeader("NK", "NT");
     request.setRawHeader("Accept", "application/json");
 
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
@@ -1850,15 +1849,15 @@ void GarminConnect::downloadTodaysWorkout(const QString &saveDir) {
 void GarminConnect::downloadWorkoutDetails(const QString &uuid, const QString &date,
                                            const QString &workoutName, const QString &itemType,
                                            const QString &saveDir) {
-    const QString apiPath = (itemType == "fbtAdaptiveWorkout") ? "fbt-adaptive" : "workout";
+    Q_UNUSED(itemType)
+    // All workout types (workout, fbtAdaptiveWorkout, etc.) use the same endpoint
     const QString urlString =
-        QString("%1/workout-service/%2/%3").arg(connectApiUrl()).arg(apiPath).arg(uuid);
+        QString("%1/workout-service/workout/%2").arg(connectApiUrl()).arg(uuid);
 
     QUrl url2(urlString);
     QNetworkRequest request2(url2);
     request2.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
     request2.setRawHeader("User-Agent", USER_AGENT);
-    request2.setRawHeader("NK", "NT");
     request2.setRawHeader("Accept", "application/json");
 
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
