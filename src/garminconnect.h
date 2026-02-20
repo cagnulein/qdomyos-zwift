@@ -90,6 +90,15 @@ public:
     bool tryRefreshToken();
 
     /**
+     * @brief Download today's scheduled workout from the Garmin calendar and save as XML
+     * Queries the Garmin calendar API for today's workout, then fetches the workout
+     * details and converts them to the QDomyos-Zwift XML training program format.
+     * Results are signaled via workoutDownloaded(), workoutDownloadFailed(), or noWorkoutFoundToday().
+     * @param saveDir Base directory under which training/garmin/{date}/ will be created
+     */
+    void downloadTodaysWorkout(const QString &saveDir);
+
+    /**
      * @brief Get the last error message
      * @return Error message string
      */
@@ -129,6 +138,24 @@ signals:
      * This signal indicates that the user needs to provide a 2FA code
      */
     void mfaRequired();
+
+    /**
+     * @brief Emitted when today's workout is successfully downloaded and saved
+     * @param filename Full path to the saved XML file
+     * @param workoutName Human-readable workout name
+     */
+    void workoutDownloaded(const QString &filename, const QString &workoutName);
+
+    /**
+     * @brief Emitted when the workout download fails
+     * @param error Error message
+     */
+    void workoutDownloadFailed(const QString &error);
+
+    /**
+     * @brief Emitted when no workout is scheduled for today
+     */
+    void noWorkoutFoundToday();
 
 private:
     // Network
@@ -181,6 +208,7 @@ private:
     // Private methods
     QString ssoUrl() const { return QString("https://sso.%1").arg(m_domain); }
     QString connectApiUrl() const { return QString("https://connectapi.%1").arg(m_domain); }
+    QString connectUrl() const { return QString("https://connect.%1").arg(m_domain); }
 
     bool fetchCookies();
     bool fetchCsrfToken();
@@ -194,6 +222,9 @@ private:
     // Async handlers for MFA verification
     void handleMfaReplyFinished();
     void handleMfaLoginTokenReplyFinished();
+    void downloadWorkoutDetails(const QString &uuid, const QString &date,
+                                const QString &workoutName, const QString &itemType,
+                                const QString &saveDir);
 
     void loadTokensFromSettings();
     void saveTokensToSettings();

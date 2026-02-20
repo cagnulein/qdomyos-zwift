@@ -1082,9 +1082,6 @@ public:
     void strava_upload_file_prepare();
     void garmin_upload_file_prepare();
     void garmin_download_todays_workout();
-    void garmin_download_workout_details(const QString &workoutUuid, const QString &date,
-                                         const QString &workoutName, const QString &itemType,
-                                         const QString &sportTypeKey);
     void handleRestoreDefaultWheelDiameter();
     void StartFromDevice();  // Called when physical start button pressed on hardware
     void PauseFromDevice();  // Called when physical pause button pressed on hardware
