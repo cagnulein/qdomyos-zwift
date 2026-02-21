@@ -1721,6 +1721,20 @@ static QString garminSecondsToTime(int seconds) {
     return QString("%1:%2:%3").arg(h, 2, 10, QChar('0')).arg(m, 2, 10, QChar('0')).arg(s, 2, 10, QChar('0'));
 }
 
+static QString garminTrainingSubdirFromSportTypeKey(const QString &sportTypeKey) {
+    const QString key = sportTypeKey.trimmed().toLower();
+    if (key.contains("cycl")) {
+        return "ride";
+    }
+    if (key.contains("run") || key.contains("tread")) {
+        return "run";
+    }
+    if (key.contains("row")) {
+        return "row";
+    }
+    return "workout";
+}
+
 static int garminPowerFromZone(double zoneValue) {
     QSettings settings;
     const double ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
@@ -1884,7 +1898,7 @@ void GarminConnect::downloadTodaysWorkout(const QString &saveDir) {
             const QString sportTypeKey = item["sportTypeKey"].toString();
 
             qDebug() << "GarminConnect: Found workout for today:" << workoutName << "UUID:" << workoutUuid;
-            downloadWorkoutDetails(workoutUuid, todayStr, workoutName, itemType, saveDir);
+            downloadWorkoutDetails(workoutUuid, todayStr, workoutName, itemType, sportTypeKey, saveDir);
             foundWorkout = true;
         }
 
@@ -1899,6 +1913,7 @@ void GarminConnect::downloadTodaysWorkout(const QString &saveDir) {
 
 void GarminConnect::downloadWorkoutDetails(const QString &uuid, const QString &date,
                                            const QString &workoutName, const QString &itemType,
+                                           const QString &sportTypeKey,
                                            const QString &saveDir) {
     QString detailsPath = "workout-service/workout";
     if (itemType == "fbtAdaptiveWorkout")
@@ -1916,7 +1931,7 @@ void GarminConnect::downloadWorkoutDetails(const QString &uuid, const QString &d
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     QNetworkReply *reply = manager->get(request2);
 
-    connect(reply, &QNetworkReply::finished, this, [this, reply, manager, date, workoutName, saveDir]() {
+    connect(reply, &QNetworkReply::finished, this, [this, reply, manager, date, workoutName, sportTypeKey, saveDir]() {
         const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         const QByteArray response = reply->readAll();
         reply->deleteLater();
@@ -1945,17 +1960,20 @@ void GarminConnect::downloadWorkoutDetails(const QString &uuid, const QString &d
 
         const QString xmlContent = generateGarminWorkoutXml(jsonDoc.object());
 
-        // Sanitize filename
-        QString safeName = workoutName;
-        safeName.replace(QRegularExpression("[^a-zA-Z0-9_\\-]"), "_");
-
-        // Create training/garmin/{date}/ directory
-        const QString garminDir = saveDir + "/garmin/" + date;
+        const QString subdir = garminTrainingSubdirFromSportTypeKey(sportTypeKey);
+        const QString workoutRootDir = saveDir + "/" + subdir + "/Garmin";
         QDir dir;
-        if (!dir.exists(garminDir))
-            dir.mkpath(garminDir);
+        if (!dir.exists(workoutRootDir)) {
+            dir.mkpath(workoutRootDir);
+        }
 
-        const QString filename = garminDir + "/" + safeName + ".xml";
+        QString safeName = workoutName.trimmed();
+        if (safeName.isEmpty()) {
+            safeName = "Workout";
+        }
+        safeName.replace(QRegularExpression("[\\\\/:*?\"<>|]"), "_");
+        const QString safeDate = date.trimmed().isEmpty() ? QDate::currentDate().toString(Qt::ISODate) : date.trimmed();
+        const QString filename = workoutRootDir + "/" + safeDate + " - " + safeName + ".xml";
         QFile file(filename);
         if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             file.write(xmlContent.toUtf8());
