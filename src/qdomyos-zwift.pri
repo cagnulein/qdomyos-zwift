@@ -3,7 +3,7 @@ QT += bluetooth widgets xml positioning quick networkauth websockets texttospeec
 QTPLUGIN += qavfmediaplayer
 QT+= charts core-private sql concurrent
 
-!win32:qtHaveModule(httpserver) {
+qtHaveModule(httpserver) {
     QT += httpserver
     DEFINES += Q_HTTPSERVER
     SOURCES += webserverinfosender.cpp
