@@ -86,6 +86,7 @@
         <file>gpx/Richmond Park.gpx</file>
         <file>gpx/St Andrews to Pittenweem.gpx</file>
         <file>GPXList.qml</file>
+        <file>GenericDeviceDialog.qml</file>
         <file>WorkoutsHistory.qml</file>
         <file>WorkoutTypeTag.qml</file>
         <file>inner_templates/previewchart/ajax-loader.gif</file>

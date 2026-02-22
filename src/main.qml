@@ -120,6 +120,34 @@ ApplicationWindow {
       onLoaded: { console.log("googleMapUI loaded"); stackView.push(googleMapUI.item); }
     }
 
+    // Generic Device Dialog for unknown Bluetooth devices
+    Loader {
+        id: genericDeviceDialogLoader
+        source: "GenericDeviceDialog.qml"
+        active: true
+        onLoaded: {
+            console.log("GenericDeviceDialog loaded");
+        }
+    }
+
+    // Connections to handle generic device discovery
+    Connections {
+        target: rootItem.bluetoothManager
+
+        function onGenericDevicesFound(deviceNames, deviceAddresses, deviceServiceTypes) {
+            console.log("Generic devices found:", deviceNames);
+            if (genericDeviceDialogLoader.status === Loader.Ready && genericDeviceDialogLoader.item) {
+                genericDeviceDialogLoader.item.deviceNames = deviceNames;
+                genericDeviceDialogLoader.item.deviceAddresses = deviceAddresses;
+                genericDeviceDialogLoader.item.deviceServiceTypes = deviceServiceTypes;
+                genericDeviceDialogLoader.item.selectedDeviceIndex = 0;
+                genericDeviceDialogLoader.item.open();
+            } else {
+                console.error("GenericDeviceDialog not ready");
+            }
+        }
+    }
+
     // here in order to cache everything for the SwagBagView
     Product {
         id: productUnlockVowels
