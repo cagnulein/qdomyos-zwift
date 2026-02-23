@@ -7187,7 +7187,7 @@ void homeform::update() {
                             }
                         } else if(inclinationAvailable) {
                             // Use inclination control for bikes without erg mode but with inclination support (e.g., ftmsbike)
-                            double step = 0.5;
+                            double step = 0.2;
                             double currentInclination = ((bike *)bluetoothManager->device())->currentInclination().value();
                             if (zone < ((uint8_t)currentHRZone)) {
                                 ((bike *)bluetoothManager->device())->changeInclination(currentInclination - step, currentInclination - step);
@@ -7375,7 +7375,7 @@ void homeform::update() {
                             }
                         } else if (inclinationAvailable) {
                             // Use inclination control for bikes without erg mode but with inclination support (e.g., ftmsbike)
-                            const double step = 0.5;
+                            const double step = 0.2;
                             double currentInclination = ((bike *)bluetoothManager->device())->currentInclination().value();
                             qDebug() << QStringLiteral("BIKE PID HR - Using inclination control, currentInclination:") << currentInclination;
 
