@@ -18,6 +18,10 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   window-build:
@@ -29,41 +33,36 @@ jobs:
           - {python: false}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Checkout submodule repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
+      - name: Checkout googletest
+        uses: actions/checkout@v4
         with:
           repository: google/googletest
           path: "tst/googletest/"
           ref: "release-1.12.1"
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
+      - name: Checkout MSIX-Toolkit
+        uses: actions/checkout@v4
         with:
           repository: microsoft/MSIX-Toolkit
           path: "src/MSIX-Toolkit/"
           ref: b82af826d29e93e4c85d34fad8a405b6c49905e7
-
-      - uses: actions/checkout@v2
       - name: Checkout qHttpServer
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
 
-
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: 3.7
+          python-version: '3.7'
+          cache: 'pip'
+          cache-dependency-path: .github/workflows/main.yml
       - name: download python and paddleocr
         run: |
           python -VV
@@ -103,15 +102,29 @@ jobs:
           cache: 'true'
           cache-key-prefix: 'install-qt-action-windows'          
 
+      - name: Cache qthttpserver build
+        id: cache-qthttpserver-mingw
+        uses: actions/cache@v4
+        with:
+          path: src/qthttpserver
+          key: qthttpserver-mingw-${{ runner.os }}-qt5.15.2-v1
+
       - name: download 3rd party files for qthttpserver
+        if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
         run: |
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
       - name: Build qthttpserver
+        if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
         run: |
             cd src\qthttpserver
             qmake
             make -j8
+            cd ../..
+
+      - name: Install qthttpserver
+        run: |
+            cd src\qthttpserver
             make install
             cd ../..
 
@@ -127,7 +140,7 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          cd ..  
+          cd ..
 
       - name: Build
         run: |
@@ -364,25 +377,21 @@ jobs:
           Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Checkout submodule repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
+      - name: Checkout googletest
+        uses: actions/checkout@v4
         with:
           repository: google/googletest
           path: "tst/googletest/"
           ref: "release-1.12.1"
-
-      - uses: actions/checkout@v2
       - name: Checkout qHttpServer
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
@@ -399,15 +408,29 @@ jobs:
           cache: 'true'
           cache-key-prefix: 'install-qt-action-linux'                    
 
+      - name: Cache qthttpserver build
+        id: cache-qthttpserver-linux
+        uses: actions/cache@v4
+        with:
+          path: src/qthttpserver
+          key: qthttpserver-linux-${{ runner.os }}-qt5.15.2-v1
+
       - name: download 3rd party files for qthttpserver
+        if: steps.cache-qthttpserver-linux.outputs.cache-hit != 'true'
         run: |
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
       - name: Build qthttpserver
+        if: steps.cache-qthttpserver-linux.outputs.cache-hit != 'true'
         run: |
-            cd src/qthttpserver 
+            cd src/qthttpserver
             qmake
             make -j8
+            cd ../..
+
+      - name: Install qthttpserver
+        run: |
+            cd src/qthttpserver
             make install
             cd ../..
 
@@ -428,7 +451,16 @@ jobs:
         if: failure()
         with:
           name: test_results_xml
-          path: tst/test-results/**/*.xml               
+          path: tst/test-results/**/*.xml
+
+      - name: Upload test FIT files and database
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test_fit_files_and_db
+          path: |
+            tst/test-artifacts/*.fit
+            tst/test-artifacts/*.sqlite
 
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
@@ -579,16 +611,57 @@ jobs:
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
-      - name: Set Android NDK 21 && build
+      - name: Cache Android NDK
+        id: cache-ndk
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/lib/android/sdk/ndk/21.4.7075529
+          key: android-ndk-21.4.7075529-${{ runner.os }}
+
+      - name: Install NDK 21
+        if: steps.cache-ndk.outputs.cache-hit != 'true'
         run: |
-          # Install NDK 21 after GitHub update
-          # https://github.com/actions/virtual-environments/issues/5595
-          ANDROID_ROOT="/usr/local/lib/android"
-          ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
-          SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          SDKMANAGER="/usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.4.7075529"
-          export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
-          export ANDROID_NDK_ROOT="${ANDROID_NDK}"
+
+      - name: Setup ccache
+        run: |
+          sudo apt-get install -y ccache
+          echo "CCACHE_DIR=${{ github.workspace }}/.ccache" >> $GITHUB_ENV
+          ccache --set-config=max_size=2G
+          ccache --set-config=compression=true
+          ccache --set-config=compression_level=6
+          ccache --set-config=base_dir=${{ github.workspace }}
+          ccache --set-config=sloppiness=pch_defines,time_macros,include_file_mtime,file_macro
+          ccache --zero-stats
+
+      - name: Restore ccache
+        uses: actions/cache@v4
+        with:
+          path: .ccache
+          key: ccache-android-ndk21-${{ hashFiles('src/**/*.cpp', 'src/**/*.h', 'src/*.pro') }}
+          restore-keys: |
+            ccache-android-ndk21-
+
+      - name: Setup NDK environment with ccache
+        run: |
+          NDK_PATH=/usr/local/lib/android/sdk/ndk/21.4.7075529
+          NDK_BIN=$NDK_PATH/toolchains/llvm/prebuilt/linux-x86_64/bin
+          ln -sfn $NDK_PATH /usr/local/lib/android/sdk/ndk-bundle
+          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+          echo "ANDROID_NDK=/usr/local/lib/android/sdk/ndk-bundle" >> $GITHUB_ENV
+          echo "ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk-bundle" >> $GITHUB_ENV
+          # Wrap NDK compilers with ccache for build caching
+          if [ ! -f "$NDK_BIN/clang.real" ]; then
+            mv $NDK_BIN/clang $NDK_BIN/clang.real
+            mv $NDK_BIN/clang++ $NDK_BIN/clang++.real
+          fi
+          printf '#!/bin/bash\nexec /usr/bin/ccache %s/clang.real "$@"\n' "$NDK_BIN" > $NDK_BIN/clang
+          printf '#!/bin/bash\nexec /usr/bin/ccache %s/clang++.real "$@"\n' "$NDK_BIN" > $NDK_BIN/clang++
+          chmod +x $NDK_BIN/clang $NDK_BIN/clang++
+
+      - name: Generate secrets
+        run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
           echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
@@ -599,24 +672,36 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
-          cd ..
 
-          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
-          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
-
-          # QTHTTPSERVER must use the same NDK
-          cd src/qthttpserver 
+      - name: Build qthttpserver for Android
+        run: |
+          cd src/qthttpserver
           qmake
           make -j8
           make install
-          cd ../..          
-          
+
+      - name: Build QZ for Android (4 ABIs)
+        run: |
           qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           cat src/android-qdomyos-zwift-deployment-settings.json
 
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-android-${{ runner.os }}-v1
+          restore-keys: |
+            gradle-android-${{ runner.os }}-
+
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+
+      - name: Show ccache stats
+        if: always()
+        run: ccache --show-stats
 
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
@@ -627,6 +712,7 @@ jobs:
   android-emulator-test:
     runs-on: ubuntu-latest
     needs: android-build
+    continue-on-error: ${{ matrix.flaky || false }}
     strategy:
       fail-fast: false
       matrix:
@@ -660,6 +746,7 @@ jobs:
             target: google_apis
             arch: x86_64
             android-version: "Android 13"
+            flaky: true
           - api-level: 35
             target: google_apis
             arch: x86_64
@@ -671,94 +758,78 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-        
+
       # Download the APK from the previous job
       - name: Download APK Artifact
         uses: actions/download-artifact@v4
         with:
           name: fdroid-android-trial
           path: apk-debug
-          
+
       - name: Setup Java for Android Emulator
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
-      
-      # Use a smaller emulator configuration
+
       - name: Run tests on emulator (${{ matrix.android-version }})
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
+          api-level: ${{ matrix.api-level }}
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
-          api-level: ${{ matrix.api-level }}
           profile: Nexus 6
           disable-animations: true
           script: |
             # Display available space
             df -h
-            
+
             # List available files
             echo "Files in apk-debug directory:"
             ls -la apk-debug/
-            
+
             # Install the APK
             adb install apk-debug/android-debug.apk
-            
-            # Grant necessary permissions - comprehensive list for all Android APIs
-            echo "Granting all required permissions..."
+
+            # Grant runtime (dangerous) permissions
+            echo "Granting runtime permissions..."
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_FINE_LOCATION || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_COARSE_LOCATION || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADMIN || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADVERTISE || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_CONNECT || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_SCAN || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.READ_EXTERNAL_STORAGE || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.WRITE_EXTERNAL_STORAGE || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.MANAGE_EXTERNAL_STORAGE || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.CAMERA || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.RECORD_AUDIO || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.INTERNET || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_NETWORK_STATE || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_WIFI_STATE || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.CHANGE_WIFI_STATE || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.WAKE_LOCK || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.VIBRATE || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.READ_PHONE_STATE || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.FOREGROUND_SERVICE || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS || true
-            
-            # Additional permissions for newer Android versions (12+)
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.POST_NOTIFICATIONS || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.SCHEDULE_EXACT_ALARM || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.USE_EXACT_ALARM || true
-            
-            # Enable all app ops permissions  
+
+            # Enable special app ops permissions
             adb shell appops set org.cagnulen.qdomyoszwift MANAGE_EXTERNAL_STORAGE allow || true
             adb shell appops set org.cagnulen.qdomyoszwift SYSTEM_ALERT_WINDOW allow || true
             adb shell appops set org.cagnulen.qdomyoszwift WRITE_SETTINGS allow || true
-            
+
             echo "All permissions granted successfully"
-            
+
             # Start the main activity
             adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
-            
+
             # Wait for app to start
             sleep 90
-            
+
             # Verify the app is running
             echo "Checking if app is running..."
             # Use different ps commands for different Android versions
             adb shell "ps -A 2>/dev/null || ps" > process_list.txt
-            
+
             # Debug: show all processes to understand the format
             echo "=== All running processes ==="
             cat process_list.txt | head -20
@@ -773,26 +844,26 @@ jobs:
             echo "=== Full recent logcat ==="
             adb logcat -d | tail -n 100
             echo "App is running successfully"
-            
+
             # Take a screenshot for verification
             adb shell screencap -p /sdcard/screenshot.png
             adb pull /sdcard/screenshot.png
-            
+
             # Test orientamento automatico con screenshot
             echo "Starting orientation test with automatic screenshots..."
-            
-            # Screenshot iniziale (orientamento corrente)  
+
+            # Screenshot iniziale (orientamento corrente)
             adb shell screencap -p /sdcard/screenshot_orientation_0.png
             adb pull /sdcard/screenshot_orientation_0.png
-            
+
             # Loop per 3 rotazioni aggiuntive (90°, 180°, 270°)
             for i in 1 2 3; do echo "Rotating to orientation $i (90° * $i)"; adb shell settings put system user_rotation $i; sleep 5; echo "Taking screenshot for orientation $i"; adb shell screencap -p /sdcard/screenshot_orientation_$i.png; adb pull /sdcard/screenshot_orientation_$i.png; done
-            
+
             echo "Orientation test completed - 4 screenshots captured"
-            
+
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
-            
+
             # Save logcat for debugging
             echo "Saving logcat for analysis..."
             adb logcat -d > full_logcat.txt
@@ -819,17 +890,15 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Checkout submodule repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
+      - name: Checkout googletest
+        uses: actions/checkout@v4
         with:
           repository: google/googletest
           path: "tst/googletest/"
@@ -858,6 +927,30 @@ jobs:
       - name: patching qt for bluetooth
         run: cp qt-patches/ios/5.15.2/binary/*.* ${{ github.workspace }}/output/ios/Qt/5.15.2/ios/lib/
 
+      - name: Setup ccache
+        run: |
+          brew install ccache
+          echo "CCACHE_DIR=${{ github.workspace }}/.ccache" >> $GITHUB_ENV
+          ccache --set-config=max_size=2G
+          ccache --set-config=compression=true
+          ccache --set-config=compression_level=6
+          ccache --set-config=base_dir=${{ github.workspace }}
+          ccache --set-config=sloppiness=pch_defines,time_macros,include_file_mtime,file_macro,clang_index_store
+          ccache --zero-stats
+          # Create wrapper scripts for Xcode (which uses absolute compiler paths, ignoring PATH)
+          mkdir -p /tmp/ccache-wrappers
+          printf '#!/bin/bash\nexec /opt/homebrew/bin/ccache clang "$@"\n' > /tmp/ccache-wrappers/clang
+          printf '#!/bin/bash\nexec /opt/homebrew/bin/ccache clang++ "$@"\n' > /tmp/ccache-wrappers/clang++
+          chmod +x /tmp/ccache-wrappers/clang /tmp/ccache-wrappers/clang++
+
+      - name: Restore ccache
+        uses: actions/cache@v4
+        with:
+          path: .ccache
+          key: ccache-ios-${{ hashFiles('src/**/*.cpp', 'src/**/*.h', 'src/*.pro') }}
+          restore-keys: |
+            ccache-ios-
+
       - name: Build
         run: |
           cd src
@@ -870,15 +963,14 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
-          qmake CONFIG+=debug CONFIG+=iphonesimulator && make -j4
+          qmake CONFIG+=debug CONFIG+=iphonesimulator \
+            QMAKE_CC=/tmp/ccache-wrappers/clang \
+            QMAKE_CXX=/tmp/ccache-wrappers/clang++ \
+            && make -j4
 
-      # causes iOS build on Mac to fail
-      # - name: Commit moc files
-      #   uses: EndBug/add-and-commit@v9
-      #   with:
-      #     message: 'moc files added'
-      #     add: 'src/moc_*.cpp --force'
-      #   if: github.ref == 'refs/heads/master'
+      - name: Show ccache stats
+        if: always()
+        run: ccache --show-stats
 
   window-msvc2019-build:
     runs-on: windows-latest
@@ -886,35 +978,33 @@ jobs:
       matrix:
         config:
           - {python: true}
-          - {python: false}    
+          - {python: false}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Checkout submodule repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
+      - name: Checkout googletest
+        uses: actions/checkout@v4
         with:
           repository: google/googletest
           path: "tst/googletest/"
           ref: "release-1.12.1"
-
-      - uses: actions/checkout@v2
       - name: Checkout qHttpServer
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: 3.7
+          python-version: '3.7'
+          cache: 'pip'
+          cache-dependency-path: .github/workflows/main.yml
       - name: download python and paddleocr
         run: |
           python -VV
@@ -928,7 +1018,7 @@ jobs:
           python -m pip install opencv-python
           python -m pip install numpy
           python -m pip install pywin32
-        if: matrix.config.python          
+        if: matrix.config.python
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -950,17 +1040,31 @@ jobs:
           toolset: 14.2
           arch: x64
 
+      - name: Cache qthttpserver build
+        id: cache-qthttpserver-msvc2019
+        uses: actions/cache@v4
+        with:
+          path: src/qthttpserver
+          key: qthttpserver-msvc2019-${{ runner.os }}-qt5.15.2-v1
+
       - name: download 3rd party files for qthttpserver
+        if: steps.cache-qthttpserver-msvc2019.outputs.cache-hit != 'true'
         run: |
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
       - name: Build qthttpserver
+        if: steps.cache-qthttpserver-msvc2019.outputs.cache-hit != 'true'
         run: |
-            cd src\qthttpserver 
+            cd src\qthttpserver
             qmake
             nmake
+            cd ../..
+
+      - name: Install qthttpserver
+        run: |
+            cd src\qthttpserver
             nmake install
-            cd ../..          
+            cd ../..
 
       - name: Secrets
         if: github.ref == 'refs/heads/master'
@@ -974,17 +1078,27 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          cd ..        
+          cd ..
+
+      - name: Cache vcpkg
+        id: cache-vcpkg-msvc2019
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.workspace }}\vcpkg\installed
+          key: vcpkg-msvc2019-x64-windows-protobuf-abseil-v1
 
       - name: Clone vcpkg
+        if: steps.cache-vcpkg-msvc2019.outputs.cache-hit != 'true'
         run: git clone https://github.com/microsoft/vcpkg.git
         working-directory: ${{ runner.workspace }}
-  
+
       - name: Bootstrap vcpkg
+        if: steps.cache-vcpkg-msvc2019.outputs.cache-hit != 'true'
         run: .\vcpkg\bootstrap-vcpkg.bat
         working-directory: ${{ runner.workspace }}
-        
+
       - name: Create vcpkg.json
+        if: steps.cache-vcpkg-msvc2019.outputs.cache-hit != 'true'
         working-directory: ${{ runner.workspace }}
         run: |
           echo '{
@@ -997,18 +1111,19 @@ jobs:
             ],
             "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
           }' > vcpkg.json
-      
+
       - name: Install dependencies
+        if: steps.cache-vcpkg-msvc2019.outputs.cache-hit != 'true'
         run: |
           .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=${{ runner.workspace }}\vcpkg\installed
         working-directory: ${{ runner.workspace }}
-  
+
       - name: Build
         run: |
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
-            qmake            
+            qmake
             nmake
             cd src/debug
             mkdir output
@@ -1028,13 +1143,13 @@ jobs:
             cp ../../adb/* adb/
             cd ..
             cd appx
-            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz   
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz
         if: matrix.config.python
-            
+
       - name: Build without python
-        run: |          
+        run: |
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose      
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
             qmake           
             nmake
@@ -1086,28 +1201,24 @@ jobs:
   window-msvc2019-aiserver-build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Checkout submodule repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
+      - name: Checkout googletest
+        uses: actions/checkout@v4
         with:
           repository: google/googletest
           path: "tst/googletest/"
           ref: "release-1.12.1"
-
-      - uses: actions/checkout@v2
       - name: Checkout qHttpServer
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: qt-labs/qthttpserver
-          path: "src/qthttpserver"      
+          path: "src/qthttpserver"
 
       - name: Install CMake
         uses: lukka/get-cmake@latest
@@ -1132,17 +1243,31 @@ jobs:
           toolset: 14.2
           arch: x64
 
+      - name: Cache qthttpserver build
+        id: cache-qthttpserver-aiserver
+        uses: actions/cache@v4
+        with:
+          path: src/qthttpserver
+          key: qthttpserver-msvc2019-${{ runner.os }}-qt5.15.2-v1
+
       - name: download 3rd party files for qthttpserver
+        if: steps.cache-qthttpserver-aiserver.outputs.cache-hit != 'true'
         run: |
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
       - name: Build qthttpserver
+        if: steps.cache-qthttpserver-aiserver.outputs.cache-hit != 'true'
         run: |
-            cd src\qthttpserver 
+            cd src\qthttpserver
             qmake
             nmake
+            cd ../..
+
+      - name: Install qthttpserver
+        run: |
+            cd src\qthttpserver
             nmake install
-            cd ../..          
+            cd ../..
 
       - name: Secrets
         if: github.ref == 'refs/heads/master'
@@ -1158,15 +1283,25 @@ jobs:
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
 
+      - name: Cache vcpkg
+        id: cache-vcpkg-aiserver
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.workspace }}\vcpkg\installed
+          key: vcpkg-msvc2019-x64-windows-protobuf-abseil-v1
+
       - name: Clone vcpkg
+        if: steps.cache-vcpkg-aiserver.outputs.cache-hit != 'true'
         run: git clone https://github.com/microsoft/vcpkg.git
         working-directory: ${{ runner.workspace }}
-  
+
       - name: Bootstrap vcpkg
+        if: steps.cache-vcpkg-aiserver.outputs.cache-hit != 'true'
         run: .\vcpkg\bootstrap-vcpkg.bat
         working-directory: ${{ runner.workspace }}
-        
+
       - name: Create vcpkg.json
+        if: steps.cache-vcpkg-aiserver.outputs.cache-hit != 'true'
         working-directory: ${{ runner.workspace }}
         run: |
           echo '{
@@ -1179,8 +1314,9 @@ jobs:
             ],
             "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
           }' > vcpkg.json
-      
+
       - name: Install dependencies
+        if: steps.cache-vcpkg-aiserver.outputs.cache-hit != 'true'
         run: |
           .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=${{ runner.workspace }}\vcpkg\installed
         working-directory: ${{ runner.workspace }}
@@ -1188,7 +1324,7 @@ jobs:
       - name: Build
         run: |
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
             cd src
             echo "#define AISERVER" >> aiserver.h
@@ -1228,19 +1364,19 @@ jobs:
           path: windows-msvc2019-ai-server-binary.zip
 
   raspberry-pi-build:
-    runs-on: ubuntu-latest
-    
+    runs-on: ubuntu-22.04-arm
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Secrets
         run: |
@@ -1285,23 +1421,13 @@ jobs:
           path: src/qdomyos-zwift-32bit
 
   raspberry-pi-build-and-image-64bit:
-    runs-on: ubuntu-22.04
-    
+    runs-on: ubuntu-22.04-arm
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
-
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          image: tonistiigi/binfmt:master
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          version: v0.19.3
 
       - name: Secrets
         run: |
@@ -1317,24 +1443,21 @@ jobs:
           echo "#define LICENSE" >> secret.h
           cd ..
 
+      - name: Install Qt5 build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
+
       - name: Build for Raspberry Pi 64-bit
-        uses: docker://arm64v8/debian:bullseye-20241016
-        with:
-          args: >
-            bash -c "
-            set -ex &&
-            for i in 1 2 3; do apt-get update && break || sleep 5; done &&
-            for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql && break || sleep 5; done &&
-            export QT_SELECT=qt5 &&
-            export PATH=/usr/lib/qt5/bin:$PATH &&
-            cd /github/workspace &&
-            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
-            cat qdomyos-zwift.pro &&
-            qmake &&
-            make -j$(nproc)
-            "
+        run: |
+          export QT_SELECT=qt5
+          export PATH=/usr/lib/qt5/bin:$PATH
+          sed -i '/QtHttpServer/d' qdomyos-zwift.pro
+          find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} +
+          find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} +
+          cat qdomyos-zwift.pro
+          qmake
+          make -j$(nproc)
 
       - name: Rename binary
         run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit
@@ -1343,7 +1466,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: raspberry-pi-binary-64bit
-          path: src/qdomyos-zwift-64bit        
+          path: src/qdomyos-zwift-64bit
 
   window-msvc2022-build:
     runs-on: windows-latest
@@ -1361,9 +1484,11 @@ jobs:
           ref: refs/pull/1508/head
           submodules: recursive 
     
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: 3.7
+          python-version: '3.7'
+          cache: 'pip'
+          cache-dependency-path: .github/workflows/main.yml
       - name: download python and paddleocr
         run: |
           python -VV
@@ -1377,7 +1502,7 @@ jobs:
           python -m pip install opencv-python
           python -m pip install numpy
           python -m pip install pywin32
-        if: matrix.config.python          
+        if: matrix.config.python
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -1423,17 +1548,27 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          cd ..        
+          cd ..
+
+      - name: Cache vcpkg
+        id: cache-vcpkg-msvc2022
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.workspace }}\vcpkg\installed
+          key: vcpkg-msvc2022-x64-windows-protobuf-abseil-v1
 
       - name: Clone vcpkg
+        if: steps.cache-vcpkg-msvc2022.outputs.cache-hit != 'true'
         run: git clone https://github.com/microsoft/vcpkg.git
         working-directory: ${{ runner.workspace }}
-  
+
       - name: Bootstrap vcpkg
+        if: steps.cache-vcpkg-msvc2022.outputs.cache-hit != 'true'
         run: .\vcpkg\bootstrap-vcpkg.bat
         working-directory: ${{ runner.workspace }}
-        
+
       - name: Create vcpkg.json
+        if: steps.cache-vcpkg-msvc2022.outputs.cache-hit != 'true'
         working-directory: ${{ runner.workspace }}
         run: |
           echo '{
@@ -1446,12 +1581,13 @@ jobs:
             ],
             "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
           }' > vcpkg.json
-      
+
       - name: Install dependencies
+        if: steps.cache-vcpkg-msvc2022.outputs.cache-hit != 'true'
         run: |
            .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=${{ runner.workspace }}\vcpkg\installed
         working-directory: ${{ runner.workspace }}
-  
+
       - name: Build
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           

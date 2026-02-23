@@ -66,6 +66,9 @@ class treadmill : public bluetoothdevice {
 
   signals:
     void tapeStarted();
+    void buttonHWStart();   // Physical start button pressed on hardware
+    void buttonHWPause();   // Physical pause button pressed on hardware
+    void buttonHWStop();    // Physical stop button pressed on hardware
 
   protected:
     volatile double requestSpeed = -1;

@@ -31,20 +31,30 @@ ApplicationWindow {
     
     // Helper functions for cleaner padding calculations
     function getTopPadding() {
+        // Add padding for iPadOS multi-window mode (Stage Manager, Split View, Slide Over)
+        // to avoid overlap with window control buttons (red/yellow/green)
+        // Check both the native detection and window size comparison for reactivity
+        if (Qt.platform.os === "ios") {
+            var isMultiWindow = (typeof rootItem !== "undefined" && rootItem && rootItem.iPadMultiWindowMode) ||
+                                (window.width < Screen.width - 10);  // Window smaller than screen = multi-window
+            if (isMultiWindow) {
+                return 15;  // Space for window control buttons
+            }
+        }
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? 
+        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
                AndroidStatusBar.height : AndroidStatusBar.leftInset;
     }
-    
+
     function getBottomPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? 
+        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
                AndroidStatusBar.navigationBarHeight : AndroidStatusBar.rightInset;
     }
-    
+
     function getLeftPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ? 
+        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
                AndroidStatusBar.leftInset : 0;
     }
     
@@ -510,6 +520,36 @@ ApplicationWindow {
         visible: rootItem.stravaUploadRequested
     }
 
+    MessageDialog {
+        id: stravaLogoutConfirm
+        text: qsTr("Strava")
+        informativeText: qsTr("You are already connected to Strava. Do you want to log out?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.strava_logout(); }
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
+    MessageDialog {
+        id: pelotonLogoutConfirm
+        text: qsTr("Peloton")
+        informativeText: qsTr("You are already connected to Peloton. Do you want to log out?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.peloton_logout(); }
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
+    MessageDialog {
+        id: intervalsICULogoutConfirm
+        text: qsTr("Intervals.icu")
+        informativeText: qsTr("You are already connected to Intervals.icu. Do you want to log out?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.intervalsicu_logout(); }
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
         Material.primary: settings.theme_status_bar_background_color
@@ -925,7 +965,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.20.21"
+                    text: "version 2.20.26"
                     width: parent.width
                 }
 
@@ -941,9 +981,14 @@ ApplicationWindow {
                     }
                     width: parent.width
                     onClicked: {
-                        stackView.push("WebStravaAuth.qml")
-                        strava_connect_clicked()
-                        drawer.close()
+                        if (rootItem.isStravaLoggedIn()) {
+                            stravaLogoutConfirm.visible = true
+                            drawer.close()
+                        } else {
+                            stackView.push("WebStravaAuth.qml")
+                            strava_connect_clicked()
+                            drawer.close()
+                        }
                     }
                 }
 
@@ -958,12 +1003,17 @@ ApplicationWindow {
                     }
                     width: parent.width
                     onClicked: {
-                        stackView.push("WebPelotonAuth.qml")
-                        stackView.currentItem.goBack.connect(function() {
-                            stackView.pop();
-                        })
-                        peloton_connect_clicked()
-                        drawer.close()
+                        if (rootItem.isPelotonLoggedIn()) {
+                            pelotonLogoutConfirm.visible = true
+                            drawer.close()
+                        } else {
+                            stackView.push("WebPelotonAuth.qml")
+                            stackView.currentItem.goBack.connect(function() {
+                                stackView.pop();
+                            })
+                            peloton_connect_clicked()
+                            drawer.close()
+                        }
                     }
                 }
 
@@ -1007,9 +1057,14 @@ ApplicationWindow {
                     }
                     width: parent.width
                     onClicked: {
-                        stackView.push("WebIntervalsICUAuth.qml")
-                        intervalsicu_connect_clicked()
-                        drawer.close()
+                        if (rootItem.isIntervalsICULoggedIn()) {
+                            intervalsICULogoutConfirm.visible = true
+                            drawer.close()
+                        } else {
+                            stackView.push("WebIntervalsICUAuth.qml")
+                            intervalsicu_connect_clicked()
+                            drawer.close()
+                        }
                     }
                 }
 
