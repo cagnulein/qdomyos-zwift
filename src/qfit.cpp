@@ -162,6 +162,11 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     double watt_sum = 0;
     int watt_count = 0;
 
+    // Variables for jump rope cadence
+    double cadence_sum = 0;
+    int cadence_count = 0;
+    uint8_t max_cadence = 0;
+
     for (int i = firstRealIndex; i < session.length(); i++) {
         if (session.at(i).coordinate.isValid()) {
             gps_data = true;
@@ -203,6 +208,15 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         if (session.at(i).watt > 0) {
             watt_sum += session.at(i).watt;
             watt_count++;
+        }
+
+        // Collect cadence data for jump rope
+        if (type == JUMPROPE && session.at(i).cadence > 0) {
+            cadence_sum += session.at(i).cadence;
+            cadence_count++;
+            if (session.at(i).cadence > max_cadence) {
+                max_cadence = session.at(i).cadence;
+            }
         }
     }
 
@@ -298,7 +312,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     activityTitle.SetFitBaseTypeId(FIT_BASE_TYPE_STRING);
     activityTitle.SetFieldName(0, L"Activity Title");
     activityTitle.SetUnits(0, L"Title");
-    activityTitle.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+    activityTitle.SetNativeMesgNum(FIT_MESG_NUM_WORKOUT);  // Workout message for developer metadata
 
     fit::FieldDescriptionMesg targetCadenceMesg;
     targetCadenceMesg.SetDeveloperDataIndex(0);
@@ -330,7 +344,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     ftpSessionMesg.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT64);
     ftpSessionMesg.SetFieldName(0, L"FTP");
     ftpSessionMesg.SetUnits(0, L"FTP");
-    ftpSessionMesg.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+    ftpSessionMesg.SetNativeMesgNum(FIT_MESG_NUM_WORKOUT);  // Workout message for developer metadata
 
     // Peloton and workout source fields
     fit::FieldDescriptionMesg workoutSourceMesg;
@@ -339,7 +353,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     workoutSourceMesg.SetFitBaseTypeId(FIT_BASE_TYPE_STRING);
     workoutSourceMesg.SetFieldName(0, L"Workout Source");
     workoutSourceMesg.SetUnits(0, L"source");
-    workoutSourceMesg.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+    workoutSourceMesg.SetNativeMesgNum(FIT_MESG_NUM_WORKOUT);  // Workout message for developer metadata
 
     fit::FieldDescriptionMesg pelotonWorkoutIdMesg;
     pelotonWorkoutIdMesg.SetDeveloperDataIndex(0);
@@ -347,7 +361,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     pelotonWorkoutIdMesg.SetFitBaseTypeId(FIT_BASE_TYPE_STRING);
     pelotonWorkoutIdMesg.SetFieldName(0, L"Peloton Workout ID");
     pelotonWorkoutIdMesg.SetUnits(0, L"id");
-    pelotonWorkoutIdMesg.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+    pelotonWorkoutIdMesg.SetNativeMesgNum(FIT_MESG_NUM_WORKOUT);  // Workout message for developer metadata
 
     fit::FieldDescriptionMesg pelotonUrlMesg;
     pelotonUrlMesg.SetDeveloperDataIndex(0);
@@ -355,7 +369,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     pelotonUrlMesg.SetFitBaseTypeId(FIT_BASE_TYPE_STRING);
     pelotonUrlMesg.SetFieldName(0, L"Peloton URL");
     pelotonUrlMesg.SetUnits(0, L"url");
-    pelotonUrlMesg.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+    pelotonUrlMesg.SetNativeMesgNum(FIT_MESG_NUM_WORKOUT);  // Workout message for developer metadata
 
     fit::FieldDescriptionMesg trainingProgramFileMesg;
     trainingProgramFileMesg.SetDeveloperDataIndex(0);
@@ -363,7 +377,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     trainingProgramFileMesg.SetFitBaseTypeId(FIT_BASE_TYPE_STRING);
     trainingProgramFileMesg.SetFieldName(0, L"Training Program File");
     trainingProgramFileMesg.SetUnits(0, L"filename");
-    trainingProgramFileMesg.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+    trainingProgramFileMesg.SetNativeMesgNum(FIT_MESG_NUM_WORKOUT);  // Workout message for developer metadata
 
     fit::SessionMesg sessionMesg;
     sessionMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
@@ -375,6 +389,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     sessionMesg.SetTotalMovingTime(session.last().elapsedTime);
     sessionMesg.SetTotalAscent(session.last().elevationGain);  // Total elevation gain (meters)
     sessionMesg.SetTotalDescent(session.last().negativeElevationGain);  // Total elevation loss/descent (meters)
+    if (speed_avg > 0) {
+        sessionMesg.SetAvgSpeed(speed_avg / 3.6);  // Convert from km/h to m/s
+    }
     sessionMesg.SetMinAltitude(min_alt);
     sessionMesg.SetMaxAltitude(max_alt);
     sessionMesg.SetEvent(FIT_EVENT_SESSION);
@@ -385,15 +402,18 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
     // Set training load in FIT file
     // Always set training_load_peak (Garmin uses this for acute training load)
+    // COMMENTED OUT: Garmin Connect doesn't properly reflect these values
+    // Moving to developer data message instead
     if (training_load > 0) {
-        sessionMesg.SetTrainingLoadPeak(training_load);
-        qDebug() << "Setting training_load_peak in FIT file:" << training_load;
+        //sessionMesg.SetTrainingLoadPeak(training_load);
+        qDebug() << "Training load will be stored in developer data:" << training_load;
     }
-    
+
     // For cycling with power, also set training_stress_score (TSS)
+    // COMMENTED OUT: Moving to developer data message
     if (has_tss) {
-        sessionMesg.SetTrainingStressScore(tss);
-        qDebug() << "Setting training_stress_score (TSS) in FIT file:" << tss;
+        //sessionMesg.SetTrainingStressScore(tss);
+        qDebug() << "TSS will be stored in developer data:" << tss;
     }
 
     // First, set sport and subsport based on device type
@@ -437,7 +457,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             sessionMesg.SetAvgStrokeDistance(session.last().avgStrokesLength);
     } else if (type == STAIRCLIMBER) {
 
-        sessionMesg.SetSport(FIT_SPORT_GENERIC);
+        sessionMesg.SetSport(FIT_SPORT_FITNESS_EQUIPMENT);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_STAIR_CLIMBING);
     } else if (type == JUMPROPE) {
 
@@ -445,6 +465,15 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         sessionMesg.SetSubSport(FIT_SUB_SPORT_GENERIC);
         if (session.last().stepCount)
             sessionMesg.SetJumpCount(session.last().stepCount);
+        // Total cycles
+        if (session.last().stepCount)
+            sessionMesg.SetTotalCycles(session.last().stepCount);
+        // Avg cadence (jump rate)
+        if (cadence_count > 0)
+            sessionMesg.SetAvgCadence((uint8_t)(cadence_sum / cadence_count));
+        // Max cadence (max jump rate)
+        if (max_cadence > 0)
+            sessionMesg.SetMaxCadence(max_cadence);
     } else {
 
         sessionMesg.SetSport(FIT_SPORT_CYCLING);
@@ -540,18 +569,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         trainingProgramFileField.SetSTRINGValue(trainingProgramFile.toStdWString());
     }
 
-    sessionMesg.AddDeveloperField(activityTitleField);
-    sessionMesg.AddDeveloperField(ftpSessionField);
-    sessionMesg.AddDeveloperField(workoutSourceField);
-    if (!pelotonWorkoutId.isEmpty()) {
-        sessionMesg.AddDeveloperField(pelotonWorkoutIdField);
-    }
-    if (!pelotonUrl.isEmpty()) {
-        sessionMesg.AddDeveloperField(pelotonUrlField);
-    }
-    if (!trainingProgramFile.isEmpty()) {
-        sessionMesg.AddDeveloperField(trainingProgramFileField);
-    }
+    // Developer fields are now added to custom message instead of session
+    // This improves Garmin Connect compatibility
 
     fit::ActivityMesg activityMesg;
     activityMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
@@ -608,6 +627,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
     encode.Write(timestampCorrelationMesg);
 
+    // Write workout message with developer metadata fields when workout name exists
+    // This keeps workout-related metadata separate from session/activity for better compatibility
     if (workoutName.length() > 0) {
         fit::TrainingFileMesg trainingFile;
         trainingFile.SetTimestamp(sessionMesg.GetTimestamp());
@@ -622,6 +643,21 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         workout.SetWktName(workoutName.toStdWString());
 #endif
         workout.SetNumValidSteps(1);
+
+        // Add developer fields to workout message
+        workout.AddDeveloperField(activityTitleField);
+        workout.AddDeveloperField(ftpSessionField);
+        workout.AddDeveloperField(workoutSourceField);
+        if (!pelotonWorkoutId.isEmpty()) {
+            workout.AddDeveloperField(pelotonWorkoutIdField);
+        }
+        if (!pelotonUrl.isEmpty()) {
+            workout.AddDeveloperField(pelotonUrlField);
+        }
+        if (!trainingProgramFile.isEmpty()) {
+            workout.AddDeveloperField(trainingProgramFileField);
+        }
+
         encode.Write(workout);
 
         fit::WorkoutStepMesg workoutStep;
@@ -666,7 +702,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         lapMesg.SetSport(FIT_SPORT_JUMP_ROPE);
     } else if (type == STAIRCLIMBER) {
 
-        lapMesg.SetSport(FIT_SPORT_GENERIC);
+        lapMesg.SetSport(FIT_SPORT_FITNESS_EQUIPMENT);
         lapMesg.SetSubSport(FIT_SUB_SPORT_STAIR_CLIMBING);
     } else {
 
@@ -781,7 +817,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             lapMesg.SetMessageIndex(lap_index++);
             lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_DISTANCE);
             if (type == JUMPROPE)
-                lapMesg.SetRepetitionNum(session.at(i - 1).inclination);
+                lapMesg.SetRepetitionNum(lap_index);
             lastLapTimer = sl.elapsedTime;
             lastLapOdometer = sl.distance;
 
@@ -869,6 +905,36 @@ class Listener : public fit::FileIdMesgListener,
         // printf("On Mesg:\n");
         // std::wcout << L"   New Mesg: " << mesg.GetName().c_str() << L".  It has " << mesg.GetNumFields() << L"
         // field(s) and " << mesg.GetNumDevFields() << " developer field(s).\n";
+
+        // Check if this is a Workout message with developer fields (new format)
+        if (mesg.GetNum() == FIT_MESG_NUM_WORKOUT) {
+            printf("Found Workout message with developer fields\n");
+            // Read developer fields from workout message (new format)
+            for (auto devField : mesg.GetDeveloperFields()) {
+                std::string fieldName = devField.GetName();
+                if (fieldName == "Activity Title" && workoutName != nullptr) {
+                    std::wstring wWorkoutName = devField.GetSTRINGValue(0);
+                    *workoutName = QString::fromStdWString(wWorkoutName);
+                    printf("   Found Activity Title in workout: %s\n", workoutName->toStdString().c_str());
+                } else if (fieldName == "Workout Source" && workoutSource != nullptr) {
+                    std::wstring wWorkoutSource = devField.GetSTRINGValue(0);
+                    *workoutSource = QString::fromStdWString(wWorkoutSource);
+                    printf("   Found Workout Source in workout: %s\n", workoutSource->toStdString().c_str());
+                } else if (fieldName == "Peloton Workout ID" && pelotonWorkoutId != nullptr) {
+                    std::wstring wPelotonWorkoutId = devField.GetSTRINGValue(0);
+                    *pelotonWorkoutId = QString::fromStdWString(wPelotonWorkoutId);
+                    printf("   Found Peloton Workout ID in workout: %s\n", pelotonWorkoutId->toStdString().c_str());
+                } else if (fieldName == "Peloton URL" && pelotonUrl != nullptr) {
+                    std::wstring wPelotonUrl = devField.GetSTRINGValue(0);
+                    *pelotonUrl = QString::fromStdWString(wPelotonUrl);
+                    printf("   Found Peloton URL in workout: %s\n", pelotonUrl->toStdString().c_str());
+                } else if (fieldName == "Training Program File" && trainingProgramFile != nullptr) {
+                    std::wstring wTrainingProgramFile = devField.GetSTRINGValue(0);
+                    *trainingProgramFile = QString::fromStdWString(wTrainingProgramFile);
+                    printf("   Found Training Program File in workout: %s\n", trainingProgramFile->toStdString().c_str());
+                }
+            }
+        }
 
         for (FIT_UINT16 i = 0; i < (FIT_UINT16)mesg.GetNumFields(); i++) {
             fit::Field *field = mesg.GetFieldByIndex(i);

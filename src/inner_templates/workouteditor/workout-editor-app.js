@@ -818,7 +818,8 @@
                         if (field.max !== undefined) input.max = field.max;
                         input.value = value !== undefined ? value : '';
                     }
-                    input.addEventListener(field.type === 'duration' || field.type === 'pace' ? 'change' : 'input', handleFieldChange);
+                    // Use 'change' event for duration, pace, and number fields to prevent keyboard from closing during typing
+                    input.addEventListener(field.type === 'duration' || field.type === 'pace' || field.type === 'number' ? 'change' : 'input', handleFieldChange);
 
                     // Add +/- buttons for duration, number, and pace fields
                     if (field.type === 'duration' || field.type === 'number' || field.type === 'pace') {
@@ -921,7 +922,7 @@
                     state.intervals[index][field.syncWith] = speed;
                 }
             }
-            // Re-render to update both fields
+            // Re-render to update speed field (pace uses 'change' event so keyboard is already closed)
             renderIntervals();
             updateChart();
             updateStatus();
@@ -929,7 +930,7 @@
         } else if (type === 'number') {
             const raw = target.value;
             state.intervals[index][key] = raw === '' ? undefined : Number(raw);
-            // If this is a speed field, re-render to update pace
+            // If this is a speed field, re-render to update pace (uses 'change' event so keyboard is already closed)
             if (key === 'speed') {
                 renderIntervals();
             }
