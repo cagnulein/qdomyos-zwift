@@ -59,7 +59,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   private var garmin_bluetooth_compatibility: Bool = false
   private var bike_cadence_sensor: Bool = false
   private var min_inclination: Double = 0.0
-  private var max_inclination: Double = 30.0
+  private var max_inclination: Double = 100.0
   private var peripheralManager: CBPeripheralManager!
   let SwiftDebug = swiftDebug()
 

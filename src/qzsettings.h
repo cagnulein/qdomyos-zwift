@@ -2385,7 +2385,7 @@ class QZSettings {
     static constexpr double default_min_inclination = -999.0;
 
     static const QString max_inclination;
-    static constexpr double default_max_inclination = 30.0;
+    static constexpr double default_max_inclination = 100.0;
 
     static const QString proform_performance_300i;
     static constexpr bool default_proform_performance_300i = false;
