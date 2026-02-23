@@ -158,6 +158,11 @@ resistance_t pafersbike::pelotonToBikeResistance(int pelotonResistance) {
 resistance_t pafersbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
+    // If Zwift hasn't sent a valid target (power==0) or the rider stopped pedaling
+    // (cadence==0), wattsFromResistance() is unreliable so keep the current resistance.
+    if (power == 0 || currentCadence().value() <= 0)
+        return Resistance.value();
+
     for (resistance_t i = 1; i < max_resistance; i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)

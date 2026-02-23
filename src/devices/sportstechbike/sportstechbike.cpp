@@ -564,20 +564,65 @@ uint16_t sportstechbike::wattsFromResistance(double resistance) {
 
 resistance_t sportstechbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+    QSettings settings;
+    const bool sportstechEsx500 =
+        settings.value(QZSettings::sportstech_esx500, QZSettings::default_sportstech_esx500).toBool();
 
-    if (Cadence.value() == 0)
+    if (Cadence.value() == 0) {
+        esx500UnderTargetSinceMs = -1;
+        esx500LastTargetPower = 0;
         return 1;
+    }
+
+    resistance_t selectedResistance = 1;
+    bool foundBracket = false;
 
     for (resistance_t i = 1; i < maxResistance(); i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                     << wattsFromResistance(i + 1) << power;
-            return i;
+        const uint16_t lowerWatt = wattsFromResistance(i);
+        const uint16_t upperWatt = wattsFromResistance(i + 1);
+        if (lowerWatt <= power && upperWatt >= power) {
+            foundBracket = true;
+            if (sportstechEsx500) {
+                // ESX500 has coarse resistance levels: choose nearest level, with upward bias.
+                const double midpoint = lowerWatt + ((upperWatt - lowerWatt) / 2.0);
+                selectedResistance = (power >= midpoint) ? (i + 1) : i;
+            } else {
+                selectedResistance = i;
+            }
+            qDebug() << QStringLiteral("resistanceFromPowerRequest") << lowerWatt << upperWatt << power
+                     << QStringLiteral("selected") << selectedResistance;
+            break;
         }
     }
-    if (power < wattsFromResistance(1))
-        return 1;
-    else
-        return maxResistance();
-}
 
+    if (!foundBracket) {
+        if (power < wattsFromResistance(1))
+            selectedResistance = 1;
+        else
+            selectedResistance = maxResistance();
+    }
+
+    if (sportstechEsx500) {
+        // If we stay below target for a while, force one level up to avoid sticking.
+        const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+        const double currentWatt = wattsMetric().value();
+        constexpr double kUnderTargetMarginWatt = 8.0;
+        constexpr qint64 kUnderTargetHoldMs = 2500;
+        if (currentWatt > 0.0 && (currentWatt + kUnderTargetMarginWatt) < power) {
+            if (esx500UnderTargetSinceMs < 0 || esx500LastTargetPower != power) {
+                esx500UnderTargetSinceMs = nowMs;
+            } else if ((nowMs - esx500UnderTargetSinceMs) >= kUnderTargetHoldMs &&
+                       selectedResistance < maxResistance()) {
+                selectedResistance++;
+                esx500UnderTargetSinceMs = nowMs;
+                qDebug() << QStringLiteral("resistanceFromPowerRequest ESX500 upstep") << selectedResistance
+                         << QStringLiteral("currentWatt") << currentWatt << QStringLiteral("target") << power;
+            }
+        } else {
+            esx500UnderTargetSinceMs = -1;
+        }
+        esx500LastTargetPower = power;
+    }
+
+    return selectedResistance;
+}
