@@ -585,7 +585,6 @@ void virtualtreadmill::treadmillProvider() {
             static_cast<uint8_t>(treadMill->deviceType())
             )) {
         h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
-        h->setElevationGain(((treadmill *)treadMill)->elevationGain().value());
 
         lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
 

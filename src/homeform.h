@@ -552,6 +552,17 @@ class homeform : public QObject {
     Q_INVOKABLE void garmin_submit_mfa_code(const QString &mfaCode);
     Q_INVOKABLE void garmin_connect_logout();
 
+    Q_INVOKABLE bool isStravaLoggedIn();
+    Q_INVOKABLE bool isPelotonLoggedIn();
+    Q_INVOKABLE bool isIntervalsICULoggedIn();
+    Q_INVOKABLE void strava_logout();
+    Q_INVOKABLE void peloton_logout();
+    Q_INVOKABLE void intervalsicu_logout();
+
+private:
+    void clearWebViewCache();
+
+public:
     void setGeneralPopupVisible(bool value);
     void setPelotonPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
@@ -828,6 +839,7 @@ class homeform : public QObject {
     DataObject *autoVirtualShiftingClimb;
     DataObject *autoVirtualShiftingSprint;
     DataObject *powerAvg;
+    DataObject *hrv;
 
   private:
     static homeform *m_singleton;

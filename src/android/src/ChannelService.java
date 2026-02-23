@@ -196,7 +196,7 @@ public class ChannelService extends Service {
         }
 
         boolean isBikeConnected() {
-            return (bikeChannelController != null && bikeChannelController.isConnected());
+            return (bikeChannelController != null && bikeChannelController.isAnyDeviceConnected());
         }
 
         // ========== BIKE TRANSMITTER METHODS ==========

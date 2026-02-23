@@ -131,6 +131,7 @@ class ftmsbike : public bike {
     bool noHeartService = false;
 
     bool powerForced = false;
+    resistance_t m_lastErgResistance = 0;
 
     bool resistance_lvl_mode = false;
     bool resistance_received = false;
@@ -169,12 +170,14 @@ class ftmsbike : public bike {
     bool VANRYSEL_HT = false;
     bool MAGNUS = false;
     bool MRK_S26C = false;
+    bool MRK_S28 = false;
     bool HAMMER = false;
     bool YPBM = false;
     bool SPORT01 = false;
     bool FS_YK = false;
     bool S18 = false;
     bool ZIPRO_RAVE = false;
+    bool SPEEDRACEX = false;
 
     uint8_t secondsToResetTimer = 5;
 
