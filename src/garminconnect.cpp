@@ -111,6 +111,11 @@ bool GarminConnect::uploadFitFile(const QString &fitFilePath)
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", USER_AGENT);
 
+    // CRITICAL: Force connection close to prevent SSL connection reuse issues
+    // Without this, consecutive uploads fail with "SSL routines:ssl3_read_bytes:sslv3 alert bad record mac"
+    // because QNetworkAccessManager tries to reuse a stale SSL connection
+    request.setRawHeader("Connection", "close");
+
     // Use OAuth2 Bearer token for authorization
     QString authHeader = "Bearer " + m_oauth2Token.access_token;
     request.setRawHeader("Authorization", authHeader.toUtf8());
@@ -386,6 +391,9 @@ bool GarminConnect::fetchCsrfToken()
 bool GarminConnect::performLogin(const QString &email, const QString &password, bool suppressMfaSignal)
 {
     qDebug() << "GarminConnect: Performing login...";
+    qDebug() << "GarminConnect: Using domain:" << m_domain;
+    qDebug() << "GarminConnect: SSO URL:" << ssoUrl();
+    qDebug() << "GarminConnect: Connect API URL:" << connectApiUrl();
 
     QString ssoEmbedUrl = ssoUrl() + SSO_EMBED_PATH;
 
@@ -447,15 +455,54 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
     qDebug() << "GarminConnect: Login response length:" << response.length();
     qDebug() << "GarminConnect: Response snippet:" << response.left(300);
 
-    // Check for success title (like Python garth library)
+    // Check page title (like Python garth library)
+    // garth checks ONLY the title for MFA detection, not the body
+    // This is important because some servers (like garmin.cn) may have "MFA" text
+    // in their Success page HTML body, which would cause false positives
+    QString pageTitle;
     QRegularExpression titleRegex("<title>(.+?)</title>");
     QRegularExpressionMatch titleMatch = titleRegex.match(response);
     if (titleMatch.hasMatch()) {
-        QString title = titleMatch.captured(1);
-        qDebug() << "GarminConnect: Page title:" << title;
-        if (title == "Success") {
-            qDebug() << "GarminConnect: Login successful (Success page detected)";
+        pageTitle = titleMatch.captured(1);
+        qDebug() << "GarminConnect: Page title:" << pageTitle;
+    }
+
+    // Check if MFA is required by looking at the TITLE (garth approach)
+    // This is more reliable than checking the body which may contain "MFA" in scripts/URLs
+    if (pageTitle.contains("MFA", Qt::CaseInsensitive)) {
+        m_lastError = "MFA Required";
+        qDebug() << "GarminConnect: MFA detected in page title";
+
+        // Extract new CSRF token from MFA page - try multiple patterns
+        QRegularExpression csrfRegex1("name=\"_csrf\"[^>]*value=\"([^\"]+)\"");
+        QRegularExpression csrfRegex2("value=\"([^\"]+)\"[^>]*name=\"_csrf\"");
+
+        QRegularExpressionMatch match = csrfRegex1.match(response);
+        if (!match.hasMatch()) {
+            match = csrfRegex2.match(response);
         }
+        if (match.hasMatch()) {
+            m_csrfToken = match.captured(1);
+            qDebug() << "GarminConnect: CSRF token from MFA page:" << m_csrfToken.left(20) << "...";
+        }
+
+        // Update cookies
+        m_cookies = m_manager->cookieJar()->cookiesForUrl(url);
+
+        if (!suppressMfaSignal) {
+            qDebug() << "GarminConnect: Emitting mfaRequired signal";
+            emit mfaRequired();
+        } else {
+            qDebug() << "GarminConnect: MFA required but signal suppressed (retrying with MFA code)";
+        }
+        reply->deleteLater();
+        return false;
+    }
+
+    // Check if login was successful (title is "Success")
+    if (pageTitle == "Success") {
+        qDebug() << "GarminConnect: Login successful (Success page detected)";
+        // Continue to extract ticket below
     }
 
     // Check for error messages in response
@@ -544,37 +591,15 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
         return false;
     }
 
-    // Check if MFA is required (legacy check for non-redirect MFA)
-    if (response.contains("MFA", Qt::CaseInsensitive) ||
-        response.contains("Enter MFA Code", Qt::CaseInsensitive)) {
-        m_lastError = "MFA Required";
-        qDebug() << "GarminConnect: MFA content detected in response";
-
-        // Extract new CSRF token from MFA page - try multiple patterns
-        QRegularExpression csrfRegex1("name=\"_csrf\"[^>]*value=\"([^\"]+)\"");
-        QRegularExpression csrfRegex2("value=\"([^\"]+)\"[^>]*name=\"_csrf\"");
-
-        QRegularExpressionMatch match = csrfRegex1.match(response);
-        if (!match.hasMatch()) {
-            match = csrfRegex2.match(response);
-        }
-        if (match.hasMatch()) {
-            m_csrfToken = match.captured(1);
-        }
-
-        // Update cookies
-        m_cookies = m_manager->cookieJar()->cookiesForUrl(url);
-
-        if (!suppressMfaSignal) {
-            emit mfaRequired();
-        }
-        reply->deleteLater();
-        return false;
-    }
-
     // Extract ticket from response URL (already declared above)
     if (responseUrl.isEmpty()) {
         responseUrl = reply->url();
+    }
+
+    if (DEBUG_GARMIN_VERBOSE) {
+        qDebug() << "GarminConnect: Response URL:" << responseUrl.toString();
+        qDebug() << "GarminConnect: Response length:" << response.length();
+        qDebug() << "GarminConnect: Full response body:" << response;
     }
 
     QUrlQuery responseQuery(responseUrl);
@@ -594,6 +619,8 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
             if (match.hasMatch()) {
                 ticket = match.captured(1);
                 qDebug() << "GarminConnect: Found ticket with fallback pattern:" << ticket.left(20) << "...";
+            } else if (DEBUG_GARMIN_VERBOSE) {
+                qDebug() << "GarminConnect: No ticket patterns matched in response body";
             }
         }
     }
@@ -603,6 +630,9 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
     if (ticket.isEmpty()) {
         m_lastError = "Failed to extract ticket from login response";
         qDebug() << "GarminConnect:" << m_lastError;
+        if (DEBUG_GARMIN_VERBOSE) {
+            qDebug() << "GarminConnect: Response snippet:" << response.left(1000);
+        }
         return false;
     }
 
@@ -703,8 +733,12 @@ void GarminConnect::handleMfaReplyFinished()
     qDebug() << "GarminConnect: MFA response status code:" << statusCode;
     qDebug() << "GarminConnect: MFA response redirect URL:" << responseUrl.toString();
 
-    // If no redirect, log response body to understand what happened
-    if (responseUrl.isEmpty()) {
+    // Log detailed response information
+    if (DEBUG_GARMIN_VERBOSE) {
+        qDebug() << "GarminConnect: MFA response length:" << response.length();
+        qDebug() << "GarminConnect: Full MFA response body:" << response;
+    } else if (responseUrl.isEmpty()) {
+        // If no redirect, log response body to understand what happened (non-verbose)
         qDebug() << "GarminConnect: MFA response body (first 500 chars):" << response.left(500);
     }
 
@@ -743,6 +777,9 @@ void GarminConnect::handleMfaReplyFinished()
 
     // If not found in redirect URL, try response body
     if (ticket.isEmpty() && !response.isEmpty()) {
+        if (DEBUG_GARMIN_VERBOSE) {
+            qDebug() << "GarminConnect: Attempting to extract ticket from MFA response body";
+        }
         // Try multiple patterns for ticket extraction
         QRegularExpression ticketRegex1("embed\\?ticket=([^\"]+)\"");
         QRegularExpression ticketRegex2("ticket=([^&\"']+)");
@@ -756,6 +793,16 @@ void GarminConnect::handleMfaReplyFinished()
             if (match.hasMatch()) {
                 ticket = match.captured(1);
                 qDebug() << "GarminConnect: Found ticket in response body (pattern 2):" << ticket.left(20) << "...";
+            } else if (DEBUG_GARMIN_VERBOSE) {
+                qDebug() << "GarminConnect: No MFA ticket patterns matched. Checking for other patterns...";
+                // Check for JSON format
+                if (response.contains("ticket")) {
+                    qDebug() << "GarminConnect: Response contains 'ticket' keyword, may be JSON or different format";
+                }
+                // Check for common response patterns
+                if (response.contains("\"")) {
+                    qDebug() << "GarminConnect: Response contains quoted strings (may be JSON)";
+                }
             }
         }
     }
@@ -765,6 +812,9 @@ void GarminConnect::handleMfaReplyFinished()
     if (ticket.isEmpty()) {
         m_lastError = "Failed to extract ticket after MFA";
         qDebug() << "GarminConnect:" << m_lastError;
+        if (DEBUG_GARMIN_VERBOSE) {
+            qDebug() << "GarminConnect: Response snippet:" << response.left(1000);
+        }
         emit authenticationFailed(m_lastError);
         return;
     }
@@ -1334,6 +1384,12 @@ bool GarminConnect::uploadActivity(const QByteArray &fitData, const QString &fil
     QUrl url(connectApiUrl() + "/upload-service/upload");
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", "GCM-iOS-5.7.2.1");
+
+    // CRITICAL: Force connection close to prevent SSL connection reuse issues
+    // Without this, consecutive uploads fail with "SSL routines:ssl3_read_bytes:sslv3 alert bad record mac"
+    // because QNetworkAccessManager tries to reuse a stale SSL connection
+    request.setRawHeader("Connection", "close");
+
     request.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
 
     // Perform upload
@@ -1390,6 +1446,7 @@ void GarminConnect::loadTokensFromSettings()
     m_oauth1Token.oauth_token = settings.value(QZSettings::garmin_oauth1_token, QZSettings::default_garmin_oauth1_token).toString();
     m_oauth1Token.oauth_token_secret = settings.value(QZSettings::garmin_oauth1_token_secret, QZSettings::default_garmin_oauth1_token_secret).toString();
     m_domain = settings.value(QZSettings::garmin_domain, QZSettings::default_garmin_domain).toString();
+    qDebug() << "GarminConnect: Loaded Garmin domain from settings:" << m_domain;
 
     if (!m_oauth2Token.access_token.isEmpty()) {
         qDebug() << "GarminConnect: Loaded tokens from settings (OAuth1 + OAuth2)";

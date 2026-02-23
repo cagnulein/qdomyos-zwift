@@ -85,6 +85,7 @@ class proformbike : public bike {
     bool proform_hybrid_trainer_PFEL03815 = false;
     bool proform_bike_sb = false;
     bool proform_cycle_trainer_300_ci =false;
+    bool nordictrack_gx_4_5_pro = false;
     bool proform_bike_225_csx = false;
     bool proform_bike_325_csx = false;
     bool proform_tour_de_france_clc = false;
@@ -97,6 +98,7 @@ class proformbike : public bike {
     bool proform_xbike = false;
     bool proform_225_csx_PFEX32925_INT_0 = false;
     bool proform_csx210 = false;
+    bool proform_bike_325_csx_PFEX439210INT_0 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

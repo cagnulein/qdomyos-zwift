@@ -33,7 +33,7 @@ class sportstechbike : public bike {
     sportstechbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain);
     bool connected() override;
-    resistance_t maxResistance() override { return 24; }
+    resistance_t maxResistance() override;
     resistance_t resistanceFromPowerRequest(uint16_t power) override;    
 
   private:
@@ -73,6 +73,8 @@ class sportstechbike : public bike {
     bool initDone = false;
     bool initRequest = false;
     bool readyToStart = false;
+    qint64 esx500UnderTargetSinceMs = -1;
+    uint16_t esx500LastTargetPower = 0;
 
   signals:
     void disconnected();
