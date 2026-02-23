@@ -21,6 +21,11 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     double bikeResistanceGain =
         settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
     bool bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    double minInclination = settings.value(QZSettings::min_inclination, QZSettings::default_min_inclination).toDouble();
+    double maxInclination = settings.value(QZSettings::max_inclination, QZSettings::default_max_inclination).toDouble();
+    // If min_inclination is the sentinel "no limit" value, use 0 as the BLE lower bound
+    if (minInclination <= QZSettings::default_min_inclination)
+        minInclination = 0.0;
     this->noHeartService = noHeartService;
     if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
         dirconManager = new DirconManager(t, bikeResistanceOffset, bikeResistanceGain, this);
@@ -50,7 +55,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     if (ios_peloton_workaround) {
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
-        h->virtualtreadmill_zwift_ios(garmin_bluetooth_compatibility, bike_cadence_sensor);
+        h->virtualtreadmill_zwift_ios(garmin_bluetooth_compatibility, bike_cadence_sensor, minInclination, maxInclination);
     } else
 #endif
 #endif
@@ -224,6 +229,24 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                valueFIT2.append((char)0x00); // step resistance
                charDataFIT2.setValue(valueFIT2);
 
+               // Supported Inclination Range (0x2AD5): Sint16 min, Sint16 max, UInt16 step, all in 0.1% units
+               QLowEnergyCharacteristicData charDataInclinationRange;
+               charDataInclinationRange.setUuid((QBluetoothUuid::CharacteristicType)0x2AD5);
+               charDataInclinationRange.setProperties(QLowEnergyCharacteristic::Read);
+               {
+                   int16_t bleMinInclination = (int16_t)(minInclination * 10.0);
+                   int16_t bleMaxInclination = (int16_t)(maxInclination * 10.0);
+                   uint16_t bleStepInclination = 5; // 0.5% step
+                   QByteArray valueInclinationRange;
+                   valueInclinationRange.append((char)(bleMinInclination & 0xFF));
+                   valueInclinationRange.append((char)((bleMinInclination >> 8) & 0xFF));
+                   valueInclinationRange.append((char)(bleMaxInclination & 0xFF));
+                   valueInclinationRange.append((char)((bleMaxInclination >> 8) & 0xFF));
+                   valueInclinationRange.append((char)(bleStepInclination & 0xFF));
+                   valueInclinationRange.append((char)((bleStepInclination >> 8) & 0xFF));
+                   charDataInclinationRange.setValue(valueInclinationRange);
+               }
+
                serviceDataFTMS.setType(QLowEnergyServiceData::ServiceTypePrimary);
                serviceDataFTMS.setUuid((QBluetoothUuid::ServiceClassUuid)0x1826); // FitnessMachineServiceUuid
                serviceDataFTMS.addCharacteristic(charData);
@@ -234,6 +257,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                serviceDataFTMS.addCharacteristic(charDataFIT6);
                serviceDataFTMS.addCharacteristic(charDataFIT7);
                serviceDataFTMS.addCharacteristic(charDataFIT2);
+               serviceDataFTMS.addCharacteristic(charDataInclinationRange);
            }
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
