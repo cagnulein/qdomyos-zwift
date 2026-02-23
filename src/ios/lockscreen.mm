@@ -351,8 +351,9 @@ double lockscreen::virtualtreadmill_getRequestedSpeed()
 
 bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, double elevationGain, unsigned short currentCalories, qint32 currentSteps,  unsigned short elapsedSeconds, UInt8 deviceType)
 {
+    WatchKitConnection.elevationGain = elevationGain;
+
     if(workoutTracking != nil && !appleWatchAppInstalled()) {
-        // Use elevationGain directly from QZ instead of recalculating
         [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:0 elevationGain:elevationGain];
     }
 
