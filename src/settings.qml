@@ -1286,6 +1286,7 @@ import Qt.labs.platform 1.1
             property double step_gain: 1.0
             property bool sportstech_esx500: false
             property bool proform_bike_325_csx_PFEX439210INT_0: false
+            property bool proform_carbon_tlx_treadmill: false
         }
 
 
@@ -8655,6 +8656,7 @@ import Qt.labs.platform 1.1
                                     "NordicTrack Series 7",
                                     "Proform Trainer 9.0 (PFTL69921-INT.4)",
                                     "Proform Sport 3.0",
+                                    "ProForm Carbon TLX PFTL90924C.7",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -8726,7 +8728,8 @@ import Qt.labs.platform 1.1
                                                     settings.proform_treadmill_995i ? 52 :
                                                     settings.nordictrack_series_7 ? 53 :
                                                     settings.proform_trainer_9_0 ? 54 :
-                                                    settings.proform_treadmill_sport_3_0 ? 55 : 0;
+                                                    settings.proform_treadmill_sport_3_0 ? 55 :
+                                                    settings.proform_carbon_tlx_treadmill ? 56 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -8796,6 +8799,7 @@ import Qt.labs.platform 1.1
                                     settings.nordictrack_series_7 = false;
                                     settings.proform_trainer_9_0 = false;
                                     settings.proform_treadmill_sport_3_0 = false;
+                                    settings.proform_carbon_tlx_treadmill = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -8854,6 +8858,7 @@ import Qt.labs.platform 1.1
                                         case 53: settings.nordictrack_series_7 = true; break;
                                         case 54: settings.proform_trainer_9_0 = true; break;
                                         case 55: settings.proform_treadmill_sport_3_0 = true; break;
+                                        case 56: settings.proform_carbon_tlx_treadmill = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;

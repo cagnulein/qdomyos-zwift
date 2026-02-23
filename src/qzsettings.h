@@ -2915,6 +2915,9 @@ class QZSettings {
     static const QString step_gain;
     static constexpr double default_step_gain = 1.0;
 
+    static const QString proform_carbon_tlx_treadmill;
+    static constexpr bool default_proform_carbon_tlx_treadmill = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
