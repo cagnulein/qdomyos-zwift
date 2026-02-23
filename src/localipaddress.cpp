@@ -114,6 +114,24 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
             }
         }
     }
+
+    // Fallback: return any valid non-loopback IPv4 address from available interfaces
+    {
+        const auto interfaces = QNetworkInterface::allInterfaces();
+        for (const QNetworkInterface &networkInterface : interfaces) {
+            if (!(networkInterface.flags() & QNetworkInterface::IsUp))
+                continue;
+            const auto entries = networkInterface.addressEntries();
+            for (const QNetworkAddressEntry &entry : entries) {
+                QHostAddress address = entry.ip();
+                if (address.protocol() == QAbstractSocket::IPv4Protocol && !address.isLoopback()) {
+                    qDebug() << "getIP fallback via QNetworkInterface" << address;
+                    return address;
+                }
+            }
+        }
+    }
+
 #ifdef Q_OS_ANDROID
     QAndroidJniEnvironment env;
     jobject wifiManagerObj = getWifiManagerObj(env, QtAndroid::androidContext().object());
