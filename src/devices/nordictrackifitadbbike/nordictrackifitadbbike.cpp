@@ -712,6 +712,8 @@ void nordictrackifitadbbike::update() {
         double currentWatts = getGrpcWatts();
         double currentCadence = getGrpcCadence();
         double currentResistance = getGrpcResistance();
+        // Capture current time once and reuse below
+        QDateTime now = QDateTime::currentDateTime();
         
         // Update the metrics if they've changed
         // Only update speed from gRPC if speed_power_based is disabled
@@ -816,12 +818,26 @@ void nordictrackifitadbbike::update() {
         
         // Handle speed calculation from power when speed_power_based is enabled
         if (speed_power_based) {
-            QDateTime now = QDateTime::currentDateTime();
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
                 fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             qDebug() << "speed_power_based with gRPC: calculated speed from power:" << Speed.value() << "km/h (watts:" << watts() << ")";
         }
+
+        // Update calories and distance using the same logic as ADB path
+        if (watts()) {
+            double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+            KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
+                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(now))));
+        }
+        Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
+
+        lastRefreshCharacteristicChanged = now;
     }
 #endif
 }
@@ -1271,5 +1287,3 @@ int nordictrackifitadbbike::getGrpcFanSpeed() {
 #endif
     return 0;
 }
-
-
