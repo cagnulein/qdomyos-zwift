@@ -109,23 +109,22 @@ TARGETS=(
 )
 
 if ! make -j"${CPU_COUNT}" "${TARGETS[@]}"; then
-    echo "WARNING: targeted make failed, running dry-run to discover generated-source targets..."
-    DISCOVERED_TARGETS=()
-    while IFS= read -r target; do
-        DISCOVERED_TARGETS+=("$target")
-    done < <(
-        make -n 2>/dev/null \
-            | sed -n 's/.* -o \(moc_[^ ]*\.cpp\).*/\1/p; s/.* -o \(qrc_[^ ]*\.cpp\).*/\1/p; s/.* -o \([^ ]*_qmltyperegistrations\.cpp\).*/\1/p' \
-            | sort -u
-    )
+    echo "WARNING: targeted make failed, running dry-run and executing generator commands directly..."
+    GENERATOR_SCRIPT="/tmp/qz_generated_commands.sh"
+    make -n 2>/dev/null \
+        | sed -n -E '/(^|[[:space:]])(moc|rcc|qmltyperegistrar)([[:space:]]|$)/p' \
+        | sed -n -E '/[[:space:]]-o[[:space:]][^[:space:]]+\.(cpp|json)([[:space:]]|$)/p' \
+        | sed '/^make[[:space:]]/d' \
+        | sed '/^[[:space:]]*$/d' > "${GENERATOR_SCRIPT}"
 
-    if [[ ${#DISCOVERED_TARGETS[@]} -eq 0 ]]; then
-        echo "ERROR: could not discover generated-source targets"
+    if [[ ! -s "${GENERATOR_SCRIPT}" ]]; then
+        echo "ERROR: could not discover generator commands from make -n"
         exit 1
     fi
 
-    echo "Discovered ${#DISCOVERED_TARGETS[@]} generated targets, building them..."
-    make -j"${CPU_COUNT}" "${DISCOVERED_TARGETS[@]}"
+    echo "Discovered $(wc -l < "${GENERATOR_SCRIPT}") generator commands, executing..."
+    chmod +x "${GENERATOR_SCRIPT}"
+    bash "${GENERATOR_SCRIPT}"
 fi
 
 echo "Generated-source make completed successfully"
