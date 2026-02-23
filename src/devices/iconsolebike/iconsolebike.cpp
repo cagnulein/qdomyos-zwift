@@ -372,14 +372,7 @@ uint16_t iconsolebike::GetCadenceFromPacket(const QByteArray &packet) {
     // Bytes 6-7: Cadence (16-bit big-endian)
     uint16_t raw = ((uint8_t)packet[8] << 8) | (uint8_t)packet[9];
 
-    // Idle value seems to be 0x0101 (257)
-    // Active values around 0x0328-0x032B (800-811)
-    // Assuming formula: actual_rpm = raw / 10 where 800 = 80 RPM
-    if (raw <= 257) {
-        return 0;  // No movement
-    }
-
-    return raw / 10;  // Convert to actual RPM
+    return raw;  // Convert to actual RPM
 }
 
 double iconsolebike::GetSpeedFromPacket(const QByteArray &packet) {
@@ -402,13 +395,7 @@ uint16_t iconsolebike::GetPowerFromPacket(const QByteArray &packet) {
     // Bytes 8-9: Power (16-bit big-endian)
     uint16_t raw = ((uint8_t)packet[6] << 8) | (uint8_t)packet[7];
 
-    // Idle value: 0x0101 (257)
-    // Formula: raw - 257 = power in watts
-    if (raw <= 257) {
-        return 0;
-    }
-
-    return raw - 257;
+    return raw / 10;  // Convert to actual RPM
 }
 
 uint8_t iconsolebike::GetResistanceFromPacket(const QByteArray &packet) {
