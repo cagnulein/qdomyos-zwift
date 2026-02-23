@@ -98,36 +98,42 @@ which xcodebuild
 
 # CRITICAL: Generate only Qt auto-generated sources needed by Xcode.
 # Do NOT build full objects/archives here, to avoid duplicate work in xcodebuild archive.
-echo "Running make for generated sources only (no full compile)..."
+echo "Generating Qt auto-generated sources (moc/rcc/qmltyperegistrar only)..."
 
-CPU_COUNT=$(sysctl -n hw.ncpu)
-TARGETS=(
-    qdomyos-zwift_metatypes.json
-    qdomyos-zwift_qmltyperegistrations.cpp
-    qrc_qml.cpp
-    qrc_icons.cpp
-)
+GENERATOR_SCRIPT="/tmp/qz_generated_commands.sh"
+rm -f "${GENERATOR_SCRIPT}"
 
-if ! make -j"${CPU_COUNT}" "${TARGETS[@]}"; then
-    echo "WARNING: targeted make failed, running dry-run and executing generator commands directly..."
-    GENERATOR_SCRIPT="/tmp/qz_generated_commands.sh"
-    make -n 2>/dev/null \
+extract_generator_commands() {
+    local dryrun_cmd="$1"
+    eval "${dryrun_cmd}" 2>/dev/null \
         | sed -n -E '/(^|[[:space:]])(moc|rcc|qmltyperegistrar)([[:space:]]|$)/p' \
         | sed -n -E '/[[:space:]]-o[[:space:]][^[:space:]]+\.(cpp|json)([[:space:]]|$)/p' \
-        | sed '/^make[[:space:]]/d' \
-        | sed '/^[[:space:]]*$/d' > "${GENERATOR_SCRIPT}"
+        | sed '/^[[:space:]]*$/d'
+}
 
-    if [[ ! -s "${GENERATOR_SCRIPT}" ]]; then
-        echo "ERROR: could not discover generator commands from make -n"
-        exit 1
-    fi
-
-    echo "Discovered $(wc -l < "${GENERATOR_SCRIPT}") generator commands, executing..."
-    chmod +x "${GENERATOR_SCRIPT}"
-    bash "${GENERATOR_SCRIPT}"
+# Prefer the qmake-generated library Makefile where moc/rcc rules actually live.
+if [[ -f "$PROJECT_ROOT/src/Makefile.qdomyos-zwift-lib" ]]; then
+    extract_generator_commands "make -C \"$PROJECT_ROOT/src\" -f Makefile.qdomyos-zwift-lib -n" > "${GENERATOR_SCRIPT}"
 fi
 
-echo "Generated-source make completed successfully"
+# Fallback: try top-level dry-run only if the specific Makefile did not yield commands.
+if [[ ! -s "${GENERATOR_SCRIPT}" ]]; then
+    extract_generator_commands "make -n" > "${GENERATOR_SCRIPT}"
+fi
+
+if [[ ! -s "${GENERATOR_SCRIPT}" ]]; then
+    echo "ERROR: could not discover generator commands from Makefile dry-run"
+    exit 1
+fi
+
+echo "Discovered $(wc -l < "${GENERATOR_SCRIPT}") generator commands, executing from src/..."
+chmod +x "${GENERATOR_SCRIPT}"
+(
+    cd "$PROJECT_ROOT/src"
+    bash "${GENERATOR_SCRIPT}"
+)
+
+echo "Generated-source command execution completed successfully"
 
 # Remove fake xcodebuild from PATH
 export PATH="${PATH#/tmp/fake_xcode:}"
