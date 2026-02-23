@@ -2888,6 +2888,8 @@ class QZSettings {
 
     static const QString proform_csx210;
     static constexpr bool default_proform_csx210 = false;
+    static const QString proform_bike_325_csx_PFEX439210INT_0;
+    static constexpr bool default_proform_bike_325_csx_PFEX439210INT_0 = false;
 
     /**
      * @brief Enable X-2000 protocol for Skandika Wiri bike (true for X-2000, false for standard protocol)

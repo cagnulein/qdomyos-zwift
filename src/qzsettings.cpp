@@ -1053,13 +1053,14 @@ const QString QZSettings::confirm_stop_workout = QStringLiteral("confirm_stop_wo
 const QString QZSettings::height = QStringLiteral("height");
 const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
+const QString QZSettings::proform_bike_325_csx_PFEX439210INT_0 = QStringLiteral("proform_bike_325_csx_PFEX439210INT_0");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 const QString QZSettings::trainprogram_auto_lap_on_segment = QStringLiteral("trainprogram_auto_lap_on_segment");
 const QString QZSettings::kingsmith_r2_enable_hw_buttons = QStringLiteral("kingsmith_r2_enable_hw_buttons");
 const QString QZSettings::step_gain = QStringLiteral("step_gain");
 
 
-const uint32_t allSettingsCount = 863;
+const uint32_t allSettingsCount = 864;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1936,6 +1937,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::height, QZSettings::default_height},
     {QZSettings::taurua_ic90, QZSettings::default_taurua_ic90},
     {QZSettings::proform_csx210, QZSettings::default_proform_csx210},
+    {QZSettings::proform_bike_325_csx_PFEX439210INT_0, QZSettings::default_proform_bike_325_csx_PFEX439210INT_0},
     {QZSettings::skandika_wiri_x2000_protocol, QZSettings::default_skandika_wiri_x2000_protocol},
     {QZSettings::trainprogram_auto_lap_on_segment, QZSettings::default_trainprogram_auto_lap_on_segment},
     {QZSettings::kingsmith_r2_enable_hw_buttons, QZSettings::default_kingsmith_r2_enable_hw_buttons},
