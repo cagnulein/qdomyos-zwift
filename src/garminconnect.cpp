@@ -1812,10 +1812,12 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
             attrs += QString(" average_speed=\"%1\"").arg(avgKph, 0, 'f', 3);
             attrs += QString(" upper_speed=\"%1\"").arg(upperKph, 0, 'f', 3);
             attrs += QString(" speed=\"%1\"").arg(avgKph, 0, 'f', 3);
+            attrs += QStringLiteral(" forcespeed=\"1\"");
         } else {
             const double singleMps = (first > 0.0) ? first : second;
             if (singleMps > 0.0) {
                 attrs += QString(" speed=\"%1\"").arg(garminSpeedMpsToKph(singleMps), 0, 'f', 3);
+                attrs += QStringLiteral(" forcespeed=\"1\"");
             }
         }
     }
