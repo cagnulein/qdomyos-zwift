@@ -522,7 +522,9 @@ ApplicationWindow {
 
     MessageDialog {
         text: "Garmin"
-        informativeText: "Workout found for today:\n" + rootItem.garminWorkoutPromptName + "\n\nDo you want to start it now?"
+        informativeText: "Workout found:\n" + rootItem.garminWorkoutPromptName +
+                         (rootItem.garminWorkoutPromptDate.length > 0 ? "\nDate: " + rootItem.garminWorkoutPromptDate : "") +
+                         "\n\nDo you want to start it now?"
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: { rootItem.garmin_start_downloaded_workout(); }
         onNoClicked: { rootItem.garmin_dismiss_downloaded_workout_prompt(); }

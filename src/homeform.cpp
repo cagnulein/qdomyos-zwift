@@ -8835,6 +8835,20 @@ void homeform::garmin_connect_login() {
                         m_garminWorkoutPromptName = workoutName;
                         emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
                     }
+                    QString workoutDate;
+                    const QString baseName = QFileInfo(filename).completeBaseName();
+                    const int separatorPos = baseName.indexOf(QStringLiteral(" - "));
+                    if (separatorPos > 0) {
+                        const QString candidateDate = baseName.left(separatorPos).trimmed();
+                        static const QRegularExpression isoDatePattern(QStringLiteral("^\\d{4}-\\d{2}-\\d{2}$"));
+                        if (isoDatePattern.match(candidateDate).hasMatch()) {
+                            workoutDate = candidateDate;
+                        }
+                    }
+                    if (m_garminWorkoutPromptDate != workoutDate) {
+                        m_garminWorkoutPromptDate = workoutDate;
+                        emit garminWorkoutPromptDateChanged(m_garminWorkoutPromptDate);
+                    }
                     setGarminWorkoutPromptRequested(true);
                 });
 
@@ -8909,7 +8923,9 @@ void homeform::garmin_start_downloaded_workout() {
     const QString workoutName = m_garminWorkoutPromptName;
     m_garminWorkoutPromptFile.clear();
     m_garminWorkoutPromptName.clear();
+    m_garminWorkoutPromptDate.clear();
     emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
+    emit garminWorkoutPromptDateChanged(m_garminWorkoutPromptDate);
     setGarminWorkoutPromptRequested(false);
 
     if (workoutFile.isEmpty()) {
@@ -8929,7 +8945,9 @@ void homeform::garmin_start_downloaded_workout() {
 void homeform::garmin_dismiss_downloaded_workout_prompt() {
     m_garminWorkoutPromptFile.clear();
     m_garminWorkoutPromptName.clear();
+    m_garminWorkoutPromptDate.clear();
     emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
+    emit garminWorkoutPromptDateChanged(m_garminWorkoutPromptDate);
     setGarminWorkoutPromptRequested(false);
 }
 

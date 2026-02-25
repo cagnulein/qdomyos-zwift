@@ -222,10 +222,10 @@ private:
     // Async handlers for MFA verification
     void handleMfaReplyFinished();
     void handleMfaLoginTokenReplyFinished();
-    void downloadWorkoutDetails(const QString &uuid, const QString &date,
+    void downloadWorkoutDetails(const QString &workoutIdentifier, const QString &date,
                                 const QString &workoutName, const QString &itemType,
-                                const QString &sportTypeKey,
-                                const QString &saveDir); // itemType reserved for future use
+                                const QString &sportTypeKey, const QString &saveDir,
+                                bool useScheduleEndpoint = false);
 
     void loadTokensFromSettings();
     void saveTokensToSettings();

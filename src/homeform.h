@@ -194,6 +194,7 @@ class homeform : public QObject {
     Q_PROPERTY(bool garminMfaRequested READ garminMfaRequested NOTIFY garminMfaRequestedChanged WRITE setGarminMfaRequested)
     Q_PROPERTY(bool garminWorkoutPromptRequested READ garminWorkoutPromptRequested NOTIFY garminWorkoutPromptRequestedChanged WRITE setGarminWorkoutPromptRequested)
     Q_PROPERTY(QString garminWorkoutPromptName READ garminWorkoutPromptName NOTIFY garminWorkoutPromptNameChanged)
+    Q_PROPERTY(QString garminWorkoutPromptDate READ garminWorkoutPromptDate NOTIFY garminWorkoutPromptDateChanged)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -484,6 +485,7 @@ class homeform : public QObject {
     bool garminMfaRequested() { return m_garminMfaRequested; }
     bool garminWorkoutPromptRequested() { return m_garminWorkoutPromptRequested; }
     QString garminWorkoutPromptName() { return m_garminWorkoutPromptName; }
+    QString garminWorkoutPromptDate() { return m_garminWorkoutPromptDate; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool pelotonPopupVisible();
@@ -907,6 +909,7 @@ public:
     bool m_garminMfaRequested = false;
     bool m_garminWorkoutPromptRequested = false;
     QString m_garminWorkoutPromptName = QStringLiteral("");
+    QString m_garminWorkoutPromptDate = QStringLiteral("");
     QString m_garminWorkoutPromptFile = QStringLiteral("");
     FitDatabaseProcessor *fitProcessor = nullptr;
     WorkoutModel *workoutModel = nullptr;
@@ -1133,6 +1136,7 @@ public:
     void garminMfaRequestedChanged(bool value);
     void garminWorkoutPromptRequestedChanged(bool value);
     void garminWorkoutPromptNameChanged(QString value);
+    void garminWorkoutPromptDateChanged(QString value);
     void generalPopupVisibleChanged(bool value);
     void pelotonPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
