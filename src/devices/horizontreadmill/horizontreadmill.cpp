@@ -1883,6 +1883,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             } else if(horizon_treadmill_7_8 && miles) {
                 // this treadmill sends the speed in miles!
                 speed /= miles_conversion;
+            } else if(THERUN_T15 && miles) {
+                // this treadmill sends the speed in miles when miles_unit is enabled!
+                speed /= miles_conversion;
             }
             if(!mobvoi_tmp_treadmill || (mobvoi_tmp_treadmill && !horizonPaused))
                 parseSpeed(speed);
