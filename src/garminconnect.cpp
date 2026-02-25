@@ -1741,6 +1741,10 @@ static int garminPowerFromZone(double zoneValue) {
     return bike::powerZoneValueToWatts(zoneValue, ftp);
 }
 
+static double garminSpeedMpsToKph(double speedMps) {
+    return speedMps * 3.6;
+}
+
 static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) {
     QString pad(indent * 4, QChar(' '));
     QString condTypeKey = step["endCondition"].toObject()["conditionTypeKey"].toString();
@@ -1791,6 +1795,28 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
 
         if (power > 0) {
             attrs += QString(" power=\"%1\"").arg(power);
+        }
+    } else if (targetTypeKey.contains("pace", Qt::CaseInsensitive) ||
+               targetTypeKey.contains("speed", Qt::CaseInsensitive)) {
+        const double first = (hasTargetOne && targetOne > 0.0) ? targetOne : 0.0;
+        const double second = (hasTargetTwo && targetTwo > 0.0) ? targetTwo : 0.0;
+
+        if (first > 0.0 && second > 0.0) {
+            const double lowerMps = qMin(first, second);
+            const double upperMps = qMax(first, second);
+            const double lowerKph = garminSpeedMpsToKph(lowerMps);
+            const double upperKph = garminSpeedMpsToKph(upperMps);
+            const double avgKph = (lowerKph + upperKph) / 2.0;
+
+            attrs += QString(" lower_speed=\"%1\"").arg(lowerKph, 0, 'f', 3);
+            attrs += QString(" average_speed=\"%1\"").arg(avgKph, 0, 'f', 3);
+            attrs += QString(" upper_speed=\"%1\"").arg(upperKph, 0, 'f', 3);
+            attrs += QString(" speed=\"%1\"").arg(avgKph, 0, 'f', 3);
+        } else {
+            const double singleMps = (first > 0.0) ? first : second;
+            if (singleMps > 0.0) {
+                attrs += QString(" speed=\"%1\"").arg(garminSpeedMpsToKph(singleMps), 0, 'f', 3);
+            }
         }
     }
     xml += pad + "<row" + attrs + "/>\n";
