@@ -1630,7 +1630,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     m_pelotonResistance = 86;
                     break;
                 }
-            } else if(nordictrack_GX4_5_bike || nordictrack_gx_44_pro) {
+            } else if(nordictrack_GX4_5_bike || nordictrack_gx_44_pro || nordictrack_vr21) {
                 switch ((uint8_t)newValue.at(11)) {
                 case 0:
                 case 1:
