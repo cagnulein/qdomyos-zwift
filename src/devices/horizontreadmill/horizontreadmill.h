@@ -120,6 +120,7 @@ class horizontreadmill : public treadmill {
     bool TM4800 = false;
     bool TM6500 = false;
     bool WT_TREADMILL = false;
+    bool THERUN_T15 = false;
 
     void testProfileCRC();
     void updateProfileCRC();
