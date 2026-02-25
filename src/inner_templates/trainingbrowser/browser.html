@@ -542,7 +542,24 @@
         function updateWorkoutChart(workout) {
             if (!workout) return;
 
-            const deviceType = workout.deviceType || 'bike';
+            // The C++ backend always populates the watts array even for treadmill workouts
+            // where power is unset (sent as y = -1).  Detect the actual device type from
+            // the data by checking whether any watts value is valid (>= 0).
+            var hasValidWatts = Array.isArray(workout.watts) && workout.watts.some(function(p) {
+                return (p !== null && typeof p === 'object' && p.y !== undefined) ? p.y >= 0 : Number(p) >= 0;
+            });
+            var hasSpeed = Array.isArray(workout.speed) && workout.speed.length > 0;
+            var hasResistance = Array.isArray(workout.resistance) && workout.resistance.length > 0;
+
+            var deviceType;
+            if (!hasValidWatts && hasSpeed) {
+                deviceType = 'treadmill';
+            } else if (!hasValidWatts && hasResistance) {
+                deviceType = 'elliptical';
+            } else {
+                deviceType = workout.deviceType || 'bike';
+            }
+
             const seriesDefs = SERIES_DEFS[deviceType] || SERIES_DEFS.bike;
 
             // Derive totalSeconds from the longest non-empty array
@@ -553,10 +570,14 @@
                 }
             });
 
-            // Build series list – only include series that have data
+            // Build series list – only include series that have data (filter invalid y < 0 for watts)
             var series = [];
             seriesDefs.forEach(function(def) {
                 var points = toPoints(workout[def.key]);
+                // For watts, skip data points where power is invalid (y < 0 means unset)
+                if (def.key === 'watts') {
+                    points = points.filter(function(p) { return p.y >= 0; });
+                }
                 if (points.length > 0) {
                     series.push({
                         key: def.key,
