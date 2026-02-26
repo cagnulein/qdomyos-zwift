@@ -143,8 +143,9 @@ You can generate a first machine-translated draft (to be human-reviewed) from Gi
 2. Click `Run workflow`
 3. Choose `target_language`: any available locale code (e.g. `it`, `fr`, `de`, `es`) or `all`
 4. Set `max_entries` to `0` to process all unfinished strings
+5. Optional: tune `max_parallel` to control how many languages run at the same time
 
-The workflow updates the selected `.ts` file(s) and commits the result to the current branch.
+The workflow runs one job per language (matrix), then commits updated `.ts` files to the current branch.
 
 ## Common Terms Glossary
 

@@ -71,6 +71,7 @@ def main() -> int:
     parser.add_argument("--sleep", type=float, default=0.25, help="Sleep between API calls")
     parser.add_argument("--max-entries", type=int, default=0, help="0 = no limit")
     parser.add_argument("--cache-file", default="", help="Optional cache json path")
+    parser.add_argument("--progress-every", type=int, default=200, help="Print progress every N processed entries")
     args = parser.parse_args()
 
     ts_path = Path(args.ts_file)
@@ -92,6 +93,7 @@ def main() -> int:
     translated = 0
     skipped = 0
     failed = 0
+    processed = 0
 
     for msg in root.findall(".//message"):
         src_el = msg.find("source")
@@ -104,8 +106,15 @@ def main() -> int:
             continue
 
         source = src_el.text or ""
+        processed += 1
         if should_skip_source(source):
             skipped += 1
+            if args.progress_every > 0 and processed % args.progress_every == 0:
+                print(
+                    f"progress file={ts_path.name} processed={processed} translated={translated} "
+                    f"skipped={skipped} failed={failed}",
+                    flush=True,
+                )
             continue
 
         if args.max_entries and translated >= args.max_entries:
@@ -123,16 +132,34 @@ def main() -> int:
                 time.sleep(args.sleep)
             except Exception:
                 failed += 1
+                if args.progress_every > 0 and processed % args.progress_every == 0:
+                    print(
+                        f"progress file={ts_path.name} processed={processed} translated={translated} "
+                        f"skipped={skipped} failed={failed}",
+                        flush=True,
+                    )
                 continue
 
         out = restore_placeholders(out, placeholders).strip()
         if not out or out == source:
             failed += 1
+            if args.progress_every > 0 and processed % args.progress_every == 0:
+                print(
+                    f"progress file={ts_path.name} processed={processed} translated={translated} "
+                    f"skipped={skipped} failed={failed}",
+                    flush=True,
+                )
             continue
 
         tr_el.text = out
         tr_el.attrib.pop("type", None)
         translated += 1
+        if args.progress_every > 0 and processed % args.progress_every == 0:
+            print(
+                f"progress file={ts_path.name} processed={processed} translated={translated} "
+                f"skipped={skipped} failed={failed}",
+                flush=True,
+            )
 
     tree.write(ts_path, encoding="utf-8", xml_declaration=True)
 

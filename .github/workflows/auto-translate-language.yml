@@ -30,17 +30,98 @@ on:
         required: true
         default: "all"
       max_entries:
-        description: "Max unfinished entries to translate (0 = all)"
+        description: "Max unfinished entries per language (0 = all)"
         required: true
         default: "0"
+      max_parallel:
+        description: "Maximum parallel language jobs"
+        required: true
+        default: "5"
 
 jobs:
-  auto-translate:
+  prepare:
     runs-on: ubuntu-latest
-    env:
-      TARGET_LANGUAGE: ${{ github.event.inputs.target_language || 'all' }}
-      MAX_ENTRIES: ${{ github.event.inputs.max_entries || '0' }}
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      target_language: ${{ steps.vars.outputs.target_language }}
+      max_entries: ${{ steps.vars.outputs.max_entries }}
+      max_parallel: ${{ steps.vars.outputs.max_parallel }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
+      - name: Resolve input defaults
+        id: vars
+        run: |
+          TARGET_LANGUAGE="${{ github.event.inputs.target_language || 'all' }}"
+          MAX_ENTRIES="${{ github.event.inputs.max_entries || '0' }}"
+          MAX_PARALLEL="${{ github.event.inputs.max_parallel || '5' }}"
+          echo "target_language=$TARGET_LANGUAGE" >> "$GITHUB_OUTPUT"
+          echo "max_entries=$MAX_ENTRIES" >> "$GITHUB_OUTPUT"
+          echo "max_parallel=$MAX_PARALLEL" >> "$GITHUB_OUTPUT"
+
+      - name: Build language matrix
+        id: matrix
+        run: |
+          python3 - <<'PY'
+          import glob, json, os, re, sys
+          target = "${{ steps.vars.outputs.target_language }}"
+          files = sorted(glob.glob("src/translations/qdomyos-zwift_*.ts"))
+          langs = [re.sub(r"^qdomyos-zwift_|\.ts$", "", os.path.basename(f)) for f in files]
+          if target != "all":
+              if target not in langs:
+                  print(f"Unsupported language: {target}")
+                  sys.exit(1)
+              langs = [target]
+          print(f"Languages selected: {', '.join(langs)}")
+          matrix = {"language": langs}
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              out.write("matrix=" + json.dumps(matrix) + "\n")
+          PY
+
+  translate:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: ${{ fromJson(needs.prepare.outputs.max_parallel) }}
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Auto translate one language
+        run: |
+          TS_FILE="src/translations/qdomyos-zwift_${{ matrix.language }}.ts"
+          echo "Auto-translating ${TS_FILE}"
+          python3 scripts/autotranslate-ts.py \
+            --ts-file "${TS_FILE}" \
+            --source-lang en \
+            --target-lang "${{ matrix.language }}" \
+            --max-entries "${{ needs.prepare.outputs.max_entries }}" \
+            --progress-every 250 \
+            --cache-file ".translation-cache/${{ matrix.language }}.json"
+
+      - name: Upload translated file
+        uses: actions/upload-artifact@v4
+        with:
+          name: translated-${{ matrix.language }}
+          path: src/translations/qdomyos-zwift_${{ matrix.language }}.ts
+          if-no-files-found: error
+
+  commit:
+    needs: [prepare, translate]
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -48,49 +129,19 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Download translated files
+        uses: actions/download-artifact@v4
         with:
-          python-version: "3.11"
-
-      - name: Resolve target TS file(s)
-        id: resolve
-        run: |
-          if [ "${TARGET_LANGUAGE}" = "all" ]; then
-            TS_FILES="$(ls src/translations/qdomyos-zwift_*.ts | tr '\n' ' ')"
-          else
-            TS_FILE="src/translations/qdomyos-zwift_${TARGET_LANGUAGE}.ts"
-            if [ ! -f "$TS_FILE" ]; then
-              echo "Unsupported language or missing file: ${TARGET_LANGUAGE}"
-              exit 1
-            fi
-            TS_FILES="$TS_FILE"
-          fi
-
-          echo "ts_files=$TS_FILES" >> "$GITHUB_OUTPUT"
-          echo "Target files: $TS_FILES"
-
-      - name: Run auto translation
-        run: |
-          for ts_file in ${{ steps.resolve.outputs.ts_files }}; do
-            lang_code="$(basename "$ts_file" .ts | sed 's/^qdomyos-zwift_//')"
-            echo "Auto-translating $ts_file (lang=$lang_code)"
-            python3 scripts/autotranslate-ts.py \
-              --ts-file "$ts_file" \
-              --source-lang en \
-              --target-lang "$lang_code" \
-              --max-entries "${MAX_ENTRIES}" \
-              --cache-file ".translation-cache/${lang_code}.json"
-          done
+          pattern: translated-*
+          merge-multiple: true
+          path: .
 
       - name: Show translation progress
         run: |
           python3 - <<'PY'
           import re
           from pathlib import Path
-          files = "${{ steps.resolve.outputs.ts_files }}".split()
-          for f in files:
-              p = Path(f)
+          for p in sorted(Path("src/translations").glob("qdomyos-zwift_*.ts")):
               s = p.read_text(encoding="utf-8", errors="ignore")
               msg = len(re.findall(r"<message>", s))
               unf = len(re.findall(r'type="unfinished"', s))
@@ -108,5 +159,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
 
           git add src/translations/qdomyos-zwift_*.ts
-          git commit -m "i18n: auto-translate ${TARGET_LANGUAGE} (machine draft)"
-          git push origin HEAD:refs/heads/${GITHUB_REF_NAME}
+          git commit -m "i18n: auto-translate ${{ needs.prepare.outputs.target_language }} (machine draft)"
+
+          TARGET_BRANCH="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
+          git push origin HEAD:refs/heads/${TARGET_BRANCH}
