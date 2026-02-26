@@ -135,6 +135,17 @@ The translation files are automatically updated by GitHub Actions when new strin
 - New strings appear as `<translation type="unfinished">`
 - Contributors can easily see what needs translation
 
+## Machine Draft Translation (IT/FR/DE/ES)
+
+You can generate a first machine-translated draft (to be human-reviewed) from GitHub Actions:
+
+1. Open Actions -> `Auto Translate Language`
+2. Click `Run workflow`
+3. Choose `target_language`: any available locale code (e.g. `it`, `fr`, `de`, `es`) or `all`
+4. Set `max_entries` to `0` to process all unfinished strings
+
+The workflow updates the selected `.ts` file(s) and commits the result to the current branch.
+
 ## Common Terms Glossary
 
 | English | Example Translations |

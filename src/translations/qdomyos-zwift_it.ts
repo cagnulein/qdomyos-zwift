@@ -796,12 +796,12 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <location filename="../charts.ui" line="83"/>
         <source>Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Inclinazione</translation>
     </message>
     <message>
         <location filename="../charts.ui" line="107"/>
         <source>Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>Watt</translation>
     </message>
     <message>
         <location filename="../charts.ui" line="131"/>
@@ -1478,22 +1478,22 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="1338"/>
         <source>UI Zoom:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoom interfaccia:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="1359"/>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation type="unfinished"></translation>
+        <translation>Questa opzione cambia la dimensione dei riquadri che mostrano le metriche. Il valore predefinito è 100%. Per far stare più riquadri sullo schermo, scegli una percentuale più bassa. Per ingrandirli, scegli una percentuale superiore al 100%. Non inserire il simbolo %.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="1376"/>
         <source>Player Weight</source>
-        <translation type="unfinished"></translation>
+        <translation>Peso atleta</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="1413"/>
         <source>Player Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Altezza atleta</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="1456"/>
@@ -1563,7 +1563,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="1697"/>
         <source>Use Miles unit in UI</source>
-        <translation type="unfinished"></translation>
+        <translation>Usa miglia nell'interfaccia</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="1711"/>
@@ -1744,7 +1744,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="2381"/>
         <source>Bike Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opzioni bici</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="2392"/>
@@ -1796,7 +1796,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="2545"/>
         <source>Bike Weight</source>
-        <translation type="unfinished"></translation>
+        <translation>Peso bici</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="2583"/>
@@ -1976,12 +1976,12 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="3698"/>
         <source>Advanced Formula (15/3/2021)</source>
-        <translation type="unfinished"></translation>
+        <translation>Formula avanzata (15/3/2021)</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="3712"/>
         <source>Advanced Formula (14/7/2021)</source>
-        <translation type="unfinished"></translation>
+        <translation>Formula avanzata (14/7/2021)</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="3729"/>
@@ -2178,7 +2178,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="4628"/>
         <source>Use KCal from the Bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Usa KCal dalla bici</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="4740"/>
@@ -2293,7 +2293,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="5231"/>
         <source>UI Themes</source>
-        <translation type="unfinished"></translation>
+        <translation>Temi interfaccia</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5239"/>
@@ -2303,7 +2303,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="5255"/>
         <source>Background Color:</source>
-        <translation type="unfinished"></translation>
+        <translation>Colore sfondo:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5289"/>
@@ -2328,7 +2328,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="5402"/>
         <source>2nd line tile text size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimensione testo seconda riga riquadro:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5427"/>
@@ -2410,7 +2410,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="6056"/>
         <source>Date on Strava:</source>
-        <translation type="unfinished"></translation>
+        <translation>Data su Strava:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="6080"/>
@@ -2420,7 +2420,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="6119"/>
         <source>Activity Link in Strava</source>
-        <translation type="unfinished"></translation>
+        <translation>Link attività su Strava</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="6133"/>
@@ -2450,7 +2450,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="6258"/>
         <source>Zwift Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opzioni Zwift</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="6290"/>
@@ -2611,7 +2611,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="7817"/>
         <source>Default Pace:</source>
-        <translation type="unfinished"></translation>
+        <translation>Passo predefinito:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="7841"/>
@@ -2896,7 +2896,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="8979"/>
         <source>Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Inclinazione</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="8995"/>
@@ -3305,7 +3305,7 @@ Do you want to start it now?</source>
         <location filename="../settings.qml" line="13896"/>
         <location filename="../settings.qml" line="13920"/>
         <source>Setting saved!</source>
-        <translation type="unfinished"></translation>
+        <translation>Impostazione salvata!</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="1397"/>
@@ -3320,7 +3320,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="1725"/>
         <source>Use kg for weight</source>
-        <translation type="unfinished"></translation>
+        <translation>Usa kg per il peso</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="1740"/>
@@ -3478,7 +3478,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="3461"/>
         <source>Wahoo Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opzioni Wahoo</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="3542"/>
@@ -3614,7 +3614,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="5195"/>
         <source>Chart Display Mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Modalità visualizzazione grafici:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5217"/>
@@ -3627,7 +3627,7 @@ Do you want to start it now?</source>
         <location filename="../settings.qml" line="5357"/>
         <location filename="../settings.qml" line="5390"/>
         <source>Please choose a color</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona un colore</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5571"/>
@@ -3712,7 +3712,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="6095"/>
         <source>Date Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Formato data:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="6188"/>
@@ -3848,7 +3848,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="6885"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Annulla</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="6894"/>
@@ -4572,7 +4572,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings.qml" line="10692"/>
         <source>Advanced Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Impostazioni avanzate</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10703"/>
@@ -4587,7 +4587,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings.qml" line="10750"/>
         <source>Confirm Stop Workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Conferma fine allenamento</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10764"/>
@@ -4672,7 +4672,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings.qml" line="11063"/>
         <source>Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il valore predefinito è “QZ”. Lascialo così in modo che anche altri utenti Strava vedano QZ; è una piccola forma di promozione che aiuta lo sviluppo dell'app. Se scegli di rimuoverlo, valuta di contribuire su Patreon o Buy Me a Coffee, oppure iscriviti allo Swag bag nella barra laterale sinistra per supportare lo sviluppo e l'assistenza.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11076"/>
@@ -4692,7 +4692,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings.qml" line="11158"/>
         <source>Date Prefix on Strava Workout</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefisso data allenamento su Strava</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11200"/>
@@ -4957,7 +4957,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings.qml" line="12307"/>
         <source>Max Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Resistenza massima</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="12331"/>
@@ -5345,7 +5345,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings.qml" line="14028"/>
         <source>Android WakeLock</source>
-        <translation type="unfinished"></translation>
+        <translation>WakeLock Android</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14042"/>
@@ -5425,7 +5425,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings.qml" line="14250"/>
         <source>Android Notification</source>
-        <translation type="unfinished"></translation>
+        <translation>Notifica Android</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14264"/>
@@ -5445,7 +5445,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings.qml" line="14305"/>
         <source>Debug Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Log di debug</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14319"/>
@@ -5455,7 +5455,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings.qml" line="14336"/>
         <source>Clear History</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancella cronologia</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14342"/>
@@ -5566,7 +5566,7 @@ IMPORTANT NOTES:
         <location filename="../settings-tiles.qml" line="5537"/>
         <location filename="../settings-tiles.qml" line="5581"/>
         <source>order index:</source>
-        <translation type="unfinished"></translation>
+        <translation>indice ordine:</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="314"/>
@@ -5885,7 +5885,7 @@ IMPORTANT NOTES:
         <location filename="../settings-tiles.qml" line="5554"/>
         <location filename="../settings-tiles.qml" line="5599"/>
         <source>Setting saved!</source>
-        <translation type="unfinished"></translation>
+        <translation>Impostazione salvata!</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="322"/>
@@ -5895,12 +5895,12 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings-tiles.qml" line="336"/>
         <source>Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Inclinazione</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="368"/>
         <source>Cadence</source>
-        <translation type="unfinished"></translation>
+        <translation>Cadenza</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="374"/>
@@ -5935,7 +5935,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings-tiles.qml" line="518"/>
         <source>Calories</source>
-        <translation type="unfinished"></translation>
+        <translation>Calorie</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="549"/>
@@ -5960,7 +5960,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings-tiles.qml" line="640"/>
         <source>Average Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Passo medio</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="671"/>
@@ -5980,7 +5980,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings-tiles.qml" line="730"/>
         <source>Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>Watt</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="761"/>
@@ -6185,7 +6185,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings-tiles.qml" line="1724"/>
         <source>Watt/Kg</source>
-        <translation type="unfinished"></translation>
+        <translation>Watt/kg</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="1755"/>
@@ -6384,7 +6384,7 @@ IMPORTANT NOTES:
         <location filename="../settings-tiles.qml" line="4017"/>
         <location filename="../settings-tiles.qml" line="4126"/>
         <source>value:</source>
-        <translation type="unfinished"></translation>
+        <translation>valore:</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="2621"/>
@@ -6410,7 +6410,7 @@ IMPORTANT NOTES:
         <location filename="../settings-tiles.qml" line="4756"/>
         <location filename="../settings-tiles.qml" line="4857"/>
         <source>label:</source>
-        <translation type="unfinished"></translation>
+        <translation>etichetta:</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="2642"/>
@@ -6436,7 +6436,7 @@ IMPORTANT NOTES:
         <location filename="../settings-tiles.qml" line="4775"/>
         <location filename="../settings-tiles.qml" line="4876"/>
         <source>color:</source>
-        <translation type="unfinished"></translation>
+        <translation>colore:</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="2648"/>
@@ -6462,7 +6462,7 @@ IMPORTANT NOTES:
         <location filename="../settings-tiles.qml" line="4781"/>
         <location filename="../settings-tiles.qml" line="4882"/>
         <source>Please choose a color</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona un colore</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="2677"/>
@@ -6548,7 +6548,7 @@ IMPORTANT NOTES:
         <location filename="../settings-tiles.qml" line="4737"/>
         <location filename="../settings-tiles.qml" line="4838"/>
         <source>zone value:</source>
-        <translation type="unfinished"></translation>
+        <translation>valore zona:</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="4304"/>
@@ -6583,7 +6583,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings-tiles.qml" line="4909"/>
         <source>Power zone presets allow quick access to specific training zones with customizable labels and values.</source>
-        <translation type="unfinished"></translation>
+        <translation>I preset delle zone di potenza consentono accesso rapido a zone di allenamento specifiche con etichette e valori personalizzabili.</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="4923"/>
@@ -6638,7 +6638,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings-tiles.qml" line="5152"/>
         <source>Show individual zone times (instead of cumulative)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra tempi singola zona (invece che cumulativi)</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="5163"/>
@@ -6830,7 +6830,7 @@ IMPORTANT NOTES:
         <location filename="../settings-treadmill-inclination-override.qml" line="773"/>
         <location filename="../settings-treadmill-inclination-override.qml" line="795"/>
         <source>Setting saved!</source>
-        <translation type="unfinished"></translation>
+        <translation>Impostazione salvata!</translation>
     </message>
     <message>
         <location filename="../settings-treadmill-inclination-override.qml" line="96"/>
@@ -7018,7 +7018,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings-tts.qml" line="113"/>
         <source>Setting saved!</source>
-        <translation type="unfinished"></translation>
+        <translation>Impostazione salvata!</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="118"/>
@@ -7028,12 +7028,12 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings-tts.qml" line="132"/>
         <source>Actual Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocità attuale</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="146"/>
         <source>Average Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocità media</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="160"/>
@@ -7043,17 +7043,17 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings-tts.qml" line="174"/>
         <source>Actual Inclination</source>
-        <translation type="unfinished"></translation>
+        <translation>Inclinazione attuale</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="188"/>
         <source>Actual Cadence</source>
-        <translation type="unfinished"></translation>
+        <translation>Cadenza attuale</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="202"/>
         <source>Average Cadence</source>
-        <translation type="unfinished"></translation>
+        <translation>Cadenza media</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="216"/>
@@ -7068,7 +7068,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings-tts.qml" line="244"/>
         <source>Actual Calories</source>
-        <translation type="unfinished"></translation>
+        <translation>Calorie attuali</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="258"/>
@@ -7078,12 +7078,12 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings-tts.qml" line="272"/>
         <source>Actual Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Passo attuale</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="286"/>
         <source>Average Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Passo medio</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="300"/>
@@ -7093,27 +7093,27 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings-tts.qml" line="314"/>
         <source>Actual Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Resistenza attuale</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="328"/>
         <source>Average Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Resistenza media</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="342"/>
         <source>Max Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Resistenza massima</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="356"/>
         <source>Actual Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>Watt attuali</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="370"/>
         <source>Average Watt</source>
-        <translation type="unfinished"></translation>
+        <translation>Watt medi</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="384"/>
@@ -7128,12 +7128,12 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings-tts.qml" line="440"/>
         <source>Actual Heart</source>
-        <translation type="unfinished"></translation>
+        <translation>Frequenza cardiaca attuale</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="454"/>
         <source>Average Heart</source>
-        <translation type="unfinished"></translation>
+        <translation>Frequenza cardiaca media</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="468"/>
@@ -7148,17 +7148,17 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings-tts.qml" line="496"/>
         <source>Actual Elapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo trascorso attuale</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="510"/>
         <source>Actual Peloton Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Resistenza Peloton attuale</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="524"/>
         <source>Average Peloton Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Resistenza Peloton media</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="538"/>
@@ -7168,52 +7168,52 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings-tts.qml" line="552"/>
         <source>Actual Target Peloton Resistance</source>
-        <translation type="unfinished"></translation>
+        <translation>Resistenza Peloton target attuale</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="566"/>
         <source>Actual Target Cadence</source>
-        <translation type="unfinished"></translation>
+        <translation>Cadenza target attuale</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="580"/>
         <source>Actual Target Power</source>
-        <translation type="unfinished"></translation>
+        <translation>Potenza target attuale</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="594"/>
         <source>Actual Target Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>Zona target attuale</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="608"/>
         <source>Actual Target Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocità target attuale</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="622"/>
         <source>Actual Target Pace</source>
-        <translation type="unfinished"></translation>
+        <translation>Passo target attuale</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="636"/>
         <source>Actual Target Incline</source>
-        <translation type="unfinished"></translation>
+        <translation>Inclinazione target attuale</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="650"/>
         <source>Actual Watt/KG</source>
-        <translation type="unfinished"></translation>
+        <translation>Watt/kg attuali</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="664"/>
         <source>Average Watt/KG</source>
-        <translation type="unfinished"></translation>
+        <translation>Watt/kg medi</translation>
     </message>
     <message>
         <location filename="../settings-tts.qml" line="678"/>
         <source>Max Watt/KG</source>
-        <translation type="unfinished"></translation>
+        <translation>Watt/kg massimi</translation>
     </message>
 </context>
 </TS>

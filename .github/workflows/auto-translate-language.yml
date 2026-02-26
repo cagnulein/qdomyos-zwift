@@ -1,0 +1,87 @@
+name: Auto Translate Language
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_language:
+        description: "Target language code (e.g. it, fr, de, es) or all"
+        required: true
+        default: "all"
+      max_entries:
+        description: "Max unfinished entries to translate (0 = all)"
+        required: true
+        default: "0"
+
+jobs:
+  auto-translate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Resolve target TS file(s)
+        id: resolve
+        run: |
+          if [ "${{ inputs.target_language }}" = "all" ]; then
+            TS_FILES="$(ls src/translations/qdomyos-zwift_*.ts | tr '\n' ' ')"
+          else
+            TS_FILE="src/translations/qdomyos-zwift_${{ inputs.target_language }}.ts"
+            if [ ! -f "$TS_FILE" ]; then
+              echo "Unsupported language or missing file: ${{ inputs.target_language }}"
+              exit 1
+            fi
+            TS_FILES="$TS_FILE"
+          fi
+
+          echo "ts_files=$TS_FILES" >> "$GITHUB_OUTPUT"
+          echo "Target files: $TS_FILES"
+
+      - name: Run auto translation
+        run: |
+          for ts_file in ${{ steps.resolve.outputs.ts_files }}; do
+            lang_code="$(basename "$ts_file" .ts | sed 's/^qdomyos-zwift_//')"
+            echo "Auto-translating $ts_file (lang=$lang_code)"
+            python3 scripts/autotranslate-ts.py \
+              --ts-file "$ts_file" \
+              --source-lang en \
+              --target-lang "$lang_code" \
+              --max-entries "${{ inputs.max_entries }}" \
+              --cache-file ".translation-cache/${lang_code}.json"
+          done
+
+      - name: Show translation progress
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          files = "${{ steps.resolve.outputs.ts_files }}".split()
+          for f in files:
+              p = Path(f)
+              s = p.read_text(encoding="utf-8", errors="ignore")
+              msg = len(re.findall(r"<message>", s))
+              unf = len(re.findall(r'type="unfinished"', s))
+              print(f"file={p} messages={msg} translated={msg-unf} unfinished={unf}")
+          PY
+
+      - name: Commit and push changes
+        run: |
+          if git diff --quiet -- src/translations/qdomyos-zwift_*.ts; then
+            echo "No translation changes detected."
+            exit 0
+          fi
+
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          git add src/translations/qdomyos-zwift_*.ts
+          git commit -m "i18n: auto-translate ${{ inputs.target_language }} (machine draft)"
+          git push origin HEAD:refs/heads/${GITHUB_REF_NAME}
