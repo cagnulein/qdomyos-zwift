@@ -1352,16 +1352,19 @@ jobs:
           echo "#define LICENSE" >> secret.h
           cd ..
       - name: Build for Raspberry Pi
-        uses: docker://arm32v7/debian:bullseye-20241016
+        uses: docker://arm32v7/debian:bookworm-20260202
         with:
-          args: |
-            bash -c "set -ex &&
-            export DEBIAN_FRONTEND=noninteractive &&
-            apt-get update &&
-            apt-get install -y --no-install-recommends build-essential git cmake ca-certificates apt-transport-https qmake6 qt6-base-dev qt6-base-dev-tools qt6-positioning-dev qt6-connectivity-dev libqt6charts6-dev qt6-multimedia-dev libqt6websockets6-dev libqt6networkauth6-dev &&
+          args: >
+            bash -c "
+            set -ex &&
+            for i in 1 2 3; do apt-get update && break || sleep 5; done &&
+            for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake ca-certificates apt-transport-https qmake6 qt6-base-dev qt6-base-dev-tools qt6-positioning-dev qt6-connectivity-dev libqt6charts6-dev qt6-multimedia-dev libqt6websockets6-dev libqt6networkauth6-dev libqt6opengl6-dev && break || sleep 5; done &&
             export QT_SELECT=qt6 &&
             export PATH=/usr/lib/qt6/bin:$PATH &&
             cd /github/workspace &&
+            # Some Qt6 modules are missing on arm32 packages; strip only unavailable modules for CI build.
+            sed -i -E 's/\\b(httpserver|webview|texttospeech|location)\\b//g' src/qdomyos-zwift.pri &&
+            cat qdomyos-zwift.pro &&
             qmake6 &&
             make -j$(nproc)
             "
@@ -1401,12 +1404,15 @@ jobs:
             build-essential git cmake \
             qmake6 qt6-base-dev qt6-base-dev-tools \
             qt6-positioning-dev qt6-connectivity-dev libqt6charts6-dev \
-            qt6-multimedia-dev libqt6websockets6-dev libqt6networkauth6-dev
+            qt6-multimedia-dev libqt6websockets6-dev libqt6networkauth6-dev libqt6opengl6-dev
 
       - name: Build for Raspberry Pi 64-bit
         run: |
           export QT_SELECT=qt6
           export PATH=/usr/lib/qt6/bin:$PATH
+          # Ubuntu arm64 repo may miss some optional Qt6 modules; keep core qt6 build working in CI.
+          sed -i -E 's/\b(httpserver|webview|texttospeech|location)\b//g' src/qdomyos-zwift.pri
+          cat qdomyos-zwift.pro
           qmake6
           make -j$(nproc)
             
@@ -1450,7 +1456,7 @@ jobs:
           chmod +x pi-gen/stage3/01-qdomyos-zwift/01-files/home/pi/qdomyos-zwift/qdomyos-zwift
           
           # Create Qt dependencies package list
-          echo "qt6-base-dev qt6-base-dev-tools libqt6widgets6 libqt6bluetooth6 libqt6positioning6 libqt6xml6 qt6-connectivity-dev qt6-positioning-dev libqt6charts6-dev libqt6charts6 libqt6networkauth6-dev libqt6websockets6-dev" > pi-gen/stage3/01-qdomyos-zwift/00-packages/00-packages-nr
+          echo "qt6-base-dev qt6-base-dev-tools libqt6widgets6 libqt6bluetooth6 libqt6positioning6 libqt6xml6 qt6-connectivity-dev qt6-positioning-dev libqt6charts6-dev libqt6charts6 libqt6networkauth6-dev libqt6websockets6-dev libqt6opengl6-dev" > pi-gen/stage3/01-qdomyos-zwift/00-packages/00-packages-nr
           
           # Create systemd service file to autostart the application
           cat > pi-gen/stage3/01-qdomyos-zwift/01-files/etc/systemd/system/qdomyos-zwift.service << EOL
