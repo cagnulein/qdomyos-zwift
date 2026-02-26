@@ -1352,13 +1352,13 @@ jobs:
           echo "#define LICENSE" >> secret.h
           cd ..
       - name: Build for Raspberry Pi
-        uses: docker://arm32v7/debian:bookworm
+        uses: docker://arm32v7/debian:bullseye-20241016
         with:
           args: |
             bash -c "set -ex &&
             export DEBIAN_FRONTEND=noninteractive &&
             apt-get update &&
-            apt-get install -y --no-install-recommends build-essential git cmake ca-certificates apt-transport-https qmake6 qt6-base-dev qt6-base-dev-tools qt6-positioning-dev qt6-connectivity-dev qt6-charts-dev qt6-multimedia-dev qt6-websockets-dev libqt6networkauth6-dev &&
+            apt-get install -y --no-install-recommends build-essential git cmake ca-certificates apt-transport-https qmake6 qt6-base-dev qt6-base-dev-tools qt6-positioning-dev qt6-connectivity-dev libqt6charts6-dev qt6-multimedia-dev libqt6websockets6-dev libqt6networkauth6-dev &&
             export QT_SELECT=qt6 &&
             export PATH=/usr/lib/qt6/bin:$PATH &&
             cd /github/workspace &&
@@ -1400,8 +1400,8 @@ jobs:
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
             build-essential git cmake \
             qmake6 qt6-base-dev qt6-base-dev-tools \
-            qt6-positioning-dev qt6-connectivity-dev qt6-charts-dev \
-            qt6-multimedia-dev qt6-websockets-dev libqt6networkauth6-dev
+            qt6-positioning-dev qt6-connectivity-dev libqt6charts6-dev \
+            qt6-multimedia-dev libqt6websockets6-dev libqt6networkauth6-dev
 
       - name: Build for Raspberry Pi 64-bit
         run: |
