@@ -37,6 +37,9 @@ on:
 jobs:
   auto-translate:
     runs-on: ubuntu-latest
+    env:
+      TARGET_LANGUAGE: ${{ github.event.inputs.target_language || 'all' }}
+      MAX_ENTRIES: ${{ github.event.inputs.max_entries || '0' }}
 
     steps:
       - name: Checkout repository
@@ -53,12 +56,12 @@ jobs:
       - name: Resolve target TS file(s)
         id: resolve
         run: |
-          if [ "${{ inputs.target_language }}" = "all" ]; then
+          if [ "${TARGET_LANGUAGE}" = "all" ]; then
             TS_FILES="$(ls src/translations/qdomyos-zwift_*.ts | tr '\n' ' ')"
           else
-            TS_FILE="src/translations/qdomyos-zwift_${{ inputs.target_language }}.ts"
+            TS_FILE="src/translations/qdomyos-zwift_${TARGET_LANGUAGE}.ts"
             if [ ! -f "$TS_FILE" ]; then
-              echo "Unsupported language or missing file: ${{ inputs.target_language }}"
+              echo "Unsupported language or missing file: ${TARGET_LANGUAGE}"
               exit 1
             fi
             TS_FILES="$TS_FILE"
@@ -76,7 +79,7 @@ jobs:
               --ts-file "$ts_file" \
               --source-lang en \
               --target-lang "$lang_code" \
-              --max-entries "${{ inputs.max_entries }}" \
+              --max-entries "${MAX_ENTRIES}" \
               --cache-file ".translation-cache/${lang_code}.json"
           done
 
@@ -105,5 +108,5 @@ jobs:
           git config --local user.name "github-actions[bot]"
 
           git add src/translations/qdomyos-zwift_*.ts
-          git commit -m "i18n: auto-translate ${{ inputs.target_language }} (machine draft)"
+          git commit -m "i18n: auto-translate ${TARGET_LANGUAGE} (machine draft)"
           git push origin HEAD:refs/heads/${GITHUB_REF_NAME}
