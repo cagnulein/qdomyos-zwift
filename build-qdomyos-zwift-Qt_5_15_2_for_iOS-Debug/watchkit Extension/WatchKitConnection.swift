@@ -91,6 +91,7 @@ extension WatchKitConnection: WatchKitConnectionProtocol {
                 // Calculate flights climbed and update WorkoutTracking
                 let flightsClimbed = elevationGainDouble / 3.048  // One flight = 10 feet = 3.048 meters
                 WorkoutTracking.flightsClimbed = flightsClimbed
+                WorkoutTracking.elevationGain = elevationGainDouble
                 print("WatchKitConnection: Received elevation gain: \(elevationGainDouble)m, flights: \(flightsClimbed)")
             }
         }, errorHandler: { (error) in

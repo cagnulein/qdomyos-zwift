@@ -35,6 +35,7 @@ protocol WorkoutTrackingProtocol {
     public static var totalKcal = Double()
     public static var steps = Double()
     public static var flightsClimbed = Double()
+    public static var elevationGain = Double()
     static var sport: Int = 0
     static let healthStore = HKHealthStore()
     static let configuration = HKWorkoutConfiguration()
@@ -225,8 +226,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         WorkoutTracking.authorizeHealthKit()
         WorkoutTracking.workoutInProgress = true;
         WorkoutTracking.lastDateMetric = Date()
-        // Reset flights climbed and previous distance for new workout
+        // Reset flights climbed, elevation gain and previous distance for new workout
         WorkoutTracking.flightsClimbed = 0
+        WorkoutTracking.elevationGain = 0
         WorkoutTracking.previousDistance = 0
         SwiftDebug.qtDebug("WorkoutTracking: Start workout")
         setSport(Int(deviceType))
@@ -301,6 +303,13 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                 }
             }
+            if WorkoutTracking.elevationGain > 0 {
+                WorkoutTracking.workoutBuilder.addMetadata([HKMetadataKeyElevationAscended: HKQuantity(unit: HKUnit.meter(), doubleValue: WorkoutTracking.elevationGain)]) { (_, error) in
+                    if let error = error {
+                        SwiftDebug.qtDebug("WorkoutTracking elevation metadata: " + error.localizedDescription)
+                    }
+                }
+            }
             WorkoutTracking.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
                     if let error = error {
                         SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
@@ -369,6 +378,14 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     return
                 }
 
+                if WorkoutTracking.elevationGain > 0 {
+                    WorkoutTracking.workoutBuilder.addMetadata([HKMetadataKeyElevationAscended: HKQuantity(unit: HKUnit.meter(), doubleValue: WorkoutTracking.elevationGain)]) { (_, error) in
+                        if let error = error {
+                            SwiftDebug.qtDebug("WorkoutTracking elevation metadata: " + error.localizedDescription)
+                        }
+                    }
+                }
+
                 // End the data collection - only do this once
                 WorkoutTracking.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
                     if let error = error {
@@ -390,8 +407,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                         let totalEnergyQuantity = HKQuantity(unit: unit, doubleValue: totalEnergy)
                         workout?.setValue(totalEnergyQuantity, forKey: "totalEnergyBurned")
 
-                        // Reset flights climbed for next workout
+                        // Reset flights climbed and elevation gain for next workout
                         WorkoutTracking.flightsClimbed = 0
+                        WorkoutTracking.elevationGain = 0
                     }
                 }
             }
@@ -417,6 +435,11 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         WorkoutTracking.totalKcal = totalKcal
         WorkoutTracking.steps = steps
         WorkoutTracking.distance = distance
+
+        // Store elevation gain for all sports
+        if elevationGain > 0 {
+            WorkoutTracking.elevationGain = elevationGain
+        }
 
         // Calculate flights climbed from elevation gain for treadmill (sport == 0 or 1)
         // elevationGain is already calculated by QZ in meters
