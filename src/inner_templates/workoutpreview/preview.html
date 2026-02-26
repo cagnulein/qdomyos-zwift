@@ -368,8 +368,22 @@
                 cadence: cadence || []
             };
 
+            // The C++ backend always populates watts even for treadmill workouts where
+            // power is unset (sent as y = -1).  Detect the actual device type from data.
+            var hasValidWatts = workoutData.watts.some(function(p) {
+                return (p !== null && typeof p === 'object' && p.y !== undefined) ? p.y >= 0 : Number(p) >= 0;
+            });
+            var actualDeviceType = deviceType || 'bike';
+            if (!hasValidWatts) {
+                if (workoutData.speed.length > 0) {
+                    actualDeviceType = 'treadmill';
+                } else if (workoutData.resistance.length > 0) {
+                    actualDeviceType = 'elliptical';
+                }
+            }
+
             console.log('Updating chart with new data');
-            updateWorkoutChart(workoutData, deviceType || 'bike');
+            updateWorkoutChart(workoutData, actualDeviceType);
         }
 
         // External API for backwards compatibility (if needed)
