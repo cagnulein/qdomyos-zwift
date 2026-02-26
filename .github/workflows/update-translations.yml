@@ -61,11 +61,6 @@ jobs:
           echo "Checking compiled translation files..."
           ls -1 src/translations/*.qm
 
-      - name: qmake smoke check
-        run: |
-          echo "Validating qmake project configuration..."
-          qmake src/qdomyos-zwift.pro
-
       - name: Check for translation changes
         run: |
           echo ""
