@@ -955,7 +955,8 @@ DISTFILES += \
 	android/src/org/qtproject/qt/android/purchasing/Base64DecoderException.java \
 	ios/AppDelegate.swift \
 	ios/BLEPeripheralManager.swift \
-	ios/LiveActivityManager.swift
+	ios/LiveActivityManager.swift \
+	ios/AccessorySetupManager.swift
 
 win32: DISTFILES += \
    $$PWD/adb/AdbWinApi.dll \
@@ -973,6 +974,7 @@ ios {
     ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
     ios/ios_liveactivity.mm \
+    ios/ios_bluetoothsettings.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
 	 fit-sdk/FitEncode.mm \
@@ -985,7 +987,8 @@ ios {
     SOURCES += ios/M3iNSQT.cpp
 
     OBJECTIVE_HEADERS += ios/M3iNS.h \
-    ios/ios_liveactivity.h
+    ios/ios_liveactivity.h \
+    ios/ios_bluetoothsettings.h
 
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets

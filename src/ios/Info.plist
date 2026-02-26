@@ -54,6 +54,10 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSAccessorySetupKitSupports</key>
+	<array>
+		<string>Bluetooth</string>
+	</array>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Our app uses bluetooth to find, connect and transfer data between the treadmill/bike and 3rd app like Zwift. The connection is always required.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
