@@ -85,7 +85,9 @@ jobs:
           fi
 
       - name: Commit and push changes (Testing Mode)
-        if: env.HAS_CHANGES == 'true' && steps.context.outputs.mode == 'testing'
+        if: env.HAS_CHANGES == 'true' && steps.context.outputs.mode == 'testing' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        env:
+          TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
@@ -101,8 +103,8 @@ jobs:
           - Triggered by: ${{ github.event_name }}
           - Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 
-          # Push to remote
-          git push origin HEAD
+          # Push to remote branch explicitly (works also in detached HEAD on pull_request events)
+          git push origin HEAD:refs/heads/${TARGET_BRANCH}
 
           echo "✅ Changes committed and pushed to current branch"
 
