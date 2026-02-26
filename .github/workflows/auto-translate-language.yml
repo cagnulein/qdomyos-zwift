@@ -1,6 +1,28 @@
 name: Auto Translate Language
 
 on:
+  push:
+    branches:
+      - "claude/**"
+    paths:
+      - "src/**/*.cpp"
+      - "src/**/*.h"
+      - "src/**/*.qml"
+      - "src/**/*.ui"
+      - "src/translations/**/*.ts"
+      - ".github/workflows/auto-translate-language.yml"
+      - "scripts/autotranslate-ts.py"
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "src/**/*.cpp"
+      - "src/**/*.h"
+      - "src/**/*.qml"
+      - "src/**/*.ui"
+      - "src/translations/**/*.ts"
+      - ".github/workflows/auto-translate-language.yml"
+      - "scripts/autotranslate-ts.py"
   workflow_dispatch:
     inputs:
       target_language:
