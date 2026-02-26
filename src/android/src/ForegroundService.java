@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.IBinder;
 import androidx.core.app.NotificationCompat;
@@ -16,13 +17,50 @@ public class ForegroundService extends Service {
 	 public static final String CHANNEL_ID = "ForegroundServiceChannel";
          private static final String EXTRA_FOREGROUND_SERVICE_TYPE = "FOREGROUND_SERVICE_TYPE";
          private static final int FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE = 0x10;
+         private WifiManager.MulticastLock multicastLock;
+
+         private void acquireMulticastLock() {
+             if (multicastLock != null && multicastLock.isHeld()) {
+                 return;
+             }
+
+             try {
+                 WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+                 if (wifiManager == null) {
+                     QLog.d("ForegroundService", "WifiManager unavailable; cannot acquire multicast lock");
+                     return;
+                 }
+
+                 multicastLock = wifiManager.createMulticastLock("QZ:ForegroundService");
+                 multicastLock.setReferenceCounted(false);
+                 multicastLock.acquire();
+                 QLog.d("ForegroundService", "Acquired multicast lock");
+             } catch (Exception e) {
+                 QLog.e("ForegroundService", "Failed to acquire multicast lock", e);
+             }
+         }
+
+         private void releaseMulticastLock() {
+             try {
+                 if (multicastLock != null && multicastLock.isHeld()) {
+                     multicastLock.release();
+                     QLog.d("ForegroundService", "Released multicast lock");
+                 }
+             } catch (Exception e) {
+                 QLog.e("ForegroundService", "Failed to release multicast lock", e);
+             } finally {
+                 multicastLock = null;
+             }
+         }
 
 	 @Override
 	 public void onCreate() {
 		  super.onCreate();
+                  acquireMulticastLock();
 		}
 	 @Override
 	 public int onStartCommand(Intent intent, int flags, int startId) {
+                  acquireMulticastLock();
 		  String input = intent.getStringExtra("inputExtra");
 		  createNotificationChannel();
                   Intent notificationIntent = new Intent();
@@ -52,6 +90,7 @@ public class ForegroundService extends Service {
 		}
 	 @Override
 	 public void onDestroy() {
+                  releaseMulticastLock();
 		  super.onDestroy();
 		}
 
