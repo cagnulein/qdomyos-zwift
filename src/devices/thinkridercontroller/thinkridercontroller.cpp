@@ -60,13 +60,13 @@ void thinkridercontroller::stateChanged(QLowEnergyService::ServiceState state) {
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
-        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+        if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
         }
     }
 
-    if (state != QLowEnergyService::ServiceState::ServiceDiscovered) {
+    if (state != QLowEnergyService::ServiceState::RemoteServiceDiscovered) {
         qDebug() << QStringLiteral("ignoring this state");
         return;
     }
@@ -74,7 +74,7 @@ void thinkridercontroller::stateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+        if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &thinkridercontroller::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicRead, this, &thinkridercontroller::characteristicChanged);
@@ -87,10 +87,10 @@ void thinkridercontroller::stateChanged(QLowEnergyService::ServiceState state) {
 
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+                qDebug() << QStringLiteral("char uuid") << c.uuid();
                 auto descriptors_list = c.descriptors();
                 for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
-                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid();
                 }
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
@@ -102,7 +102,6 @@ void thinkridercontroller::stateChanged(QLowEnergyService::ServiceState state) {
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
                                  << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).handle()
                                  << QStringLiteral(" is not valid");
                     }
 
@@ -117,7 +116,6 @@ void thinkridercontroller::stateChanged(QLowEnergyService::ServiceState state) {
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
                                  << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).handle()
                                  << QStringLiteral(" is not valid");
                     }
 
