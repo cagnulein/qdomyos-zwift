@@ -10,6 +10,7 @@
 #include "homeform.h"
 #include "peloton.h"
 #include <chrono>
+#include <QNetworkCookieJar>
 #include <QTimer>
 
 using namespace std::chrono_literals;
@@ -2690,9 +2691,40 @@ QOAuth2AuthorizationCodeFlow *peloton::peloton_connect() {
     return pelotonOAuth;
 }
 
+void peloton::peloton_logout() {
+    qDebug() << "Peloton logout";
+    QSettings settings;
+    // Clear base token keys
+    settings.setValue(QZSettings::peloton_accesstoken, QStringLiteral(""));
+    settings.setValue(QZSettings::peloton_refreshtoken, QStringLiteral(""));
+    settings.setValue(QZSettings::peloton_lastrefresh, QStringLiteral(""));
+    settings.setValue(QZSettings::peloton_expires, QStringLiteral(""));
+    settings.setValue(QZSettings::peloton_code, QStringLiteral(""));
+    // Clear user-specific tokens
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
+    if (!userId.isEmpty()) {
+        settings.remove(getPelotonSettingKey(QZSettings::peloton_accesstoken, userId));
+        settings.remove(getPelotonSettingKey(QZSettings::peloton_refreshtoken, userId));
+        settings.remove(getPelotonSettingKey(QZSettings::peloton_expires, userId));
+    }
+    settings.setValue(QZSettings::peloton_current_user_id, QStringLiteral(""));
+    // Clear in-memory tokens
+    tempAccessToken.clear();
+    tempRefreshToken.clear();
+    // Reset OAuth cookie jar
+    if (pelotonOAuth) {
+        pelotonOAuth->setToken(QStringLiteral(""));
+        pelotonOAuth->setRefreshToken(QStringLiteral(""));
+    }
+    if (manager) {
+        manager->setCookieJar(new QNetworkCookieJar(manager));
+    }
+    qDebug() << "Peloton: tokens cleared";
+}
+
 void peloton::peloton_connect_clicked() {
     timer->stop();
-    
+
     QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
 
     peloton_connect();

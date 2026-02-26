@@ -86,10 +86,47 @@ void heartratebelt::characteristicChanged(const QLowEnergyCharacteristic &charac
         return;
     }
 
-    // Handle Heart Rate Measurement
+    // Handle Heart Rate Measurement according to Bluetooth Heart Rate Profile
     if (newValue.length() > 1) {
-        Heart = (uint8_t)newValue[1];
+        uint8_t flags = (uint8_t)newValue[0];
+        int index = 1;
+
+        // Bit 0: Heart Rate Value Format
+        // 0 = UINT8, 1 = UINT16
+        bool hrFormat16bit = (flags & 0x01) != 0;
+
+        if (hrFormat16bit && newValue.length() > 2) {
+            // 16-bit heart rate value
+            Heart = (uint16_t)(((uint8_t)newValue[2] << 8) | (uint8_t)newValue[1]);
+            index = 3;
+        } else {
+            // 8-bit heart rate value
+            Heart = (uint8_t)newValue[1];
+            index = 2;
+        }
         emit heartRate((uint8_t)Heart.value());
+
+        // Bit 3: Energy Expended Status
+        // If set, 2 bytes of Energy Expended follow the HR value
+        bool energyExpendedPresent = (flags & 0x08) != 0;
+        if (energyExpendedPresent) {
+            index += 2; // Skip 2 bytes of energy expended
+        }
+
+        // Bit 4: RR-Interval
+        // If set, one or more RR-Interval values are present (2 bytes each)
+        // RR-Interval is in units of 1/1024 seconds
+        bool rrIntervalPresent = (flags & 0x10) != 0;
+        if (rrIntervalPresent) {
+            while (index + 1 < newValue.length()) {
+                uint16_t rrRaw = (uint16_t)(((uint8_t)newValue[index + 1] << 8) | (uint8_t)newValue[index]);
+                // Convert from 1/1024 seconds to milliseconds
+                double rrMs = (rrRaw / 1024.0) * 1000.0;
+                emit debug(QStringLiteral("RR-Interval: ") + QString::number(rrMs, 'f', 1) + QStringLiteral(" ms"));
+                emit rrIntervalReceived(rrMs);
+                index += 2;
+            }
+        }
     }
 
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));

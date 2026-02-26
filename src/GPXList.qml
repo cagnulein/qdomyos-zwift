@@ -243,7 +243,7 @@ ColumnLayout {
                             elevationGain = elevationGain + (pathController.geopath.coordinateAt(i).altitude - pathController.geopath.coordinateAt(i-1).altitude)
                         lines[i] = pathController.geopath.coordinateAt(i)
                     }
-                    distance.text = "Distance " + (pathController.geopath.length() / 1000.0).toFixed(1) + " km Elevation Gain: " + elevationGain.toFixed(1) + " meters"
+                    distance.text = "Distance " + pathController.distance.toFixed(1) + " km Elevation Gain: " + elevationGain.toFixed(1) + " meters"
                     return lines;
                 }
 

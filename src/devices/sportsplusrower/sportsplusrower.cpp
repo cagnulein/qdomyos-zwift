@@ -3,6 +3,7 @@
 #include "keepawakehelper.h"
 #endif
 #include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualrower.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QEventLoop>
@@ -275,17 +276,26 @@ void sportsplusrower::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &sportsplusrower::descriptorWritten);
 
-        // ******************************************* virtual bike init *************************************
+        // ******************************************* virtual bike/rower init *************************************
         if (!firstVirtualBike && !this->hasVirtualDevice()) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_rower =
+                settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
             if (virtual_device_enabled) {
-                emit debug(QStringLiteral("creating virtual bike interface..."));
-                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                // connect(virtualBike,&virtualbike::debug ,this,&sportsplusrower::debug);
-                connect(virtualBike, &virtualbike::changeInclination, this, &sportsplusrower::changeInclination);
-                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                if (!virtual_device_rower) {
+                    emit debug(QStringLiteral("creating virtual bike interface..."));
+                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                    // connect(virtualBike,&virtualbike::debug ,this,&sportsplusrower::debug);
+                    connect(virtualBike, &virtualbike::changeInclination, this, &sportsplusrower::changeInclination);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                } else {
+                    emit debug(QStringLiteral("creating virtual rower interface..."));
+                    auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                    // connect(virtualRower,&virtualrower::debug ,this,&sportsplusrower::debug);
+                    this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::PRIMARY);
+                }
             }
         }
         firstVirtualBike = 1;

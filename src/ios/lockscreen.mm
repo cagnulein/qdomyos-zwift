@@ -3,6 +3,7 @@
 #import <UIKit/UIKit.h>
 #import <WatchConnectivity/WatchConnectivity.h>
 #import <CoreBluetooth/CoreBluetooth.h>
+#import <WebKit/WKWebsiteDataStore.h>
 #import <AVFoundation/AVFoundation.h>
 #import <ConnectIQ/ConnectIQ.h>
 #import "qdomyoszwift-Swift2.h"
@@ -14,7 +15,6 @@
 #include "ios/AdbClient.h"
 #include "ios/ios_eliteariafan.h"
 #include "ios/ios_echelonconnectsport.h"
-#include "ios/ios_wahookickrsnapbike.h"
 #include "ios/ios_zwiftclickremote.h"
 #include "ios/ios_liveactivity.h"
 
@@ -227,6 +227,11 @@ void lockscreen::virtualrower_ios()
     _virtualrower = [[virtualrower_zwift alloc] init];
 }
 
+void lockscreen::virtualrower_ios_pm5(bool pm5Mode)
+{
+    _virtualrower = [[virtualrower_zwift alloc] initWithPm5Mode:pm5Mode];
+}
+
 double lockscreen::virtualbike_getCurrentSlope()
 {
     if(_virtualbike_zwift != nil)
@@ -289,6 +294,12 @@ void lockscreen::virtualrower_setHeartRate(unsigned char heartRate)
         [_virtualrower updateHeartRateWithHeartRate:heartRate];
 }
 
+void lockscreen::virtualrower_setPM5Mode(bool enabled)
+{
+    if(_virtualrower != nil)
+        [_virtualrower setPM5ModeWithEnabled:enabled];
+}
+
 
 // virtual treadmill
 void lockscreen::virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility, bool bike_cadence_sensor)
@@ -341,7 +352,6 @@ double lockscreen::virtualtreadmill_getRequestedSpeed()
 bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, double elevationGain, unsigned short currentCalories, qint32 currentSteps,  unsigned short elapsedSeconds, UInt8 deviceType)
 {
     if(workoutTracking != nil && !appleWatchAppInstalled()) {
-        // Use elevationGain directly from QZ instead of recalculating
         [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:0 elevationGain:elevationGain];
     }
 
@@ -593,19 +603,6 @@ uint32_t lockscreen::zwift_hub_getCadenceFromBuffer(const QByteArray& buffer) {
     return cadence;
 }
 
-static ios_wahookickrsnapbike* ios_wahooKickrSnapBike = nil;
-
-void lockscreen::wahooKickrSnapBike(const char* Name, void* deviceClass) {
-    NSString *deviceName = [NSString stringWithCString:Name encoding:NSASCIIStringEncoding];
-    ios_wahooKickrSnapBike = [[ios_wahookickrsnapbike alloc] init:deviceName qtDevice:deviceClass];
-}
-
-void lockscreen::writeCharacteristic(unsigned char* qdata, unsigned char length) {
-    if(ios_wahooKickrSnapBike) {
-        [ios_wahooKickrSnapBike writeCharacteristic:qdata length:length];
-    }
-}
-
 static NSMutableDictionary<NSValue*, ios_zwiftclickremote*>* ios_zwiftClickRemotes = nil;
 
 void lockscreen::zwiftClickRemote(const char* Name, const char* UUID, void* deviceClass) {
@@ -630,13 +627,58 @@ void lockscreen::zwiftClickRemote(const char* Name, const char* UUID, void* devi
 
 void lockscreen::zwiftClickRemote_WriteCharacteristic(unsigned char* qdata, unsigned char length, void* deviceClass) {
     if (ios_zwiftClickRemotes == nil) return;
-    
+
     // Get the specific remote for this device
     NSValue *key = [NSValue valueWithPointer:deviceClass];
     ios_zwiftclickremote *remote = [ios_zwiftClickRemotes objectForKey:key];
-    
+
     if(remote) {
         [remote writeCharacteristic:qdata length:length];
+    }
+}
+
+bool lockscreen::isInMultiWindowMode() {
+    // Check if we're on iPad and in multi-window mode (Stage Manager, Split View, Slide Over)
+    if (UIDevice.currentDevice.userInterfaceIdiom != UIUserInterfaceIdiomPad) {
+        return false;
+    }
+
+    if (@available(iOS 13.0, *)) {
+        // Get the foreground active scene
+        for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+            if (scene.activationState == UISceneActivationStateForegroundActive &&
+                [scene isKindOfClass:[UIWindowScene class]]) {
+                UIWindowScene *windowScene = (UIWindowScene *)scene;
+
+                // Get the window bounds and screen bounds
+                CGRect windowBounds = windowScene.coordinateSpace.bounds;
+                CGRect screenBounds = windowScene.screen.bounds;
+
+                // If window is smaller than screen in either dimension, we're in multi-window mode
+                // Add a small tolerance for floating point comparison
+                if (windowBounds.size.width < screenBounds.size.width - 1 ||
+                    windowBounds.size.height < screenBounds.size.height - 1) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+void lockscreen::clearWebViewCache() {
+    if (@available(iOS 9.0, *)) {
+        NSSet *websiteDataTypes = [WKWebsiteDataStore allWebsiteDataTypes];
+        NSDate *dateFrom = [NSDate dateWithTimeIntervalSince1970:0];
+        [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:websiteDataTypes
+                                                  modifiedSince:dateFrom
+                                              completionHandler:^{}];
+    }
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
+    NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    for (NSHTTPCookie *cookie in cookieStorage.cookies) {
+        [cookieStorage deleteCookie:cookie];
     }
 }
 #endif

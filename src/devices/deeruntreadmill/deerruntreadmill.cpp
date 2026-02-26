@@ -160,22 +160,24 @@ uint8_t deerruntreadmill::calculatePitPatChecksum(uint8_t arr[], size_t size) {
 }
 
 
-void deerruntreadmill::forceSpeed(double requestSpeed) {
+void deerruntreadmill::forceSpeedAndInclination(double requestSpeed, double requestInclination) {
     QSettings settings;
 
     if (pitpat) {
         // PitPat speed template
         // Pattern: 6a 17 00 00 00 00 [speed_high] [speed_low] 01 00 8a 00 04 00 00 00 00 00 12 2e 0c [checksum] 43
         // Speed encoding: speed value * 1000 (e.g., 2.0 km/h = 2000 = 0x07d0)
-        uint8_t writeSpeed[] = {0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x07, 0x6c, 0x01, 0x00, 0x8a, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12, 0x2e, 0x0c, 0xc3, 0x43};
+        uint8_t writeSpeed[] = {0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x03, 0xe8, 0x01, 0x08, 0x64, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x16, 0x7a, 0x67, 0x96, 0x43};
 
         uint16_t speed = (uint16_t)(requestSpeed * 1000.0);
+        uint16_t incline = (uint16_t)(requestInclination);
         writeSpeed[6] = (speed >> 8) & 0xFF;  // High byte
         writeSpeed[7] = speed & 0xFF;          // Low byte
+        writeSpeed[9] = incline & 0xFF;          // Low byte
         writeSpeed[21] = calculatePitPatChecksum(writeSpeed, sizeof(writeSpeed));  // Checksum at byte 21
 
         writeCharacteristic(gattWriteCharacteristic, writeSpeed, sizeof(writeSpeed),
-                            QStringLiteral("forceSpeed PitPat speed=") + QString::number(requestSpeed), false, true);
+                            QStringLiteral("forceSpeed PitPat speed=") + QString::number(requestSpeed) + QStringLiteral(" incline=") + QString::number(requestInclination), false, true);
     } else if (superun_ba04) {
         // Superun BA04 speed template
         uint8_t writeSpeed[] = {0x4d, 0x00, 0x14, 0x17, 0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x04, 0x4c, 0x01, 0x00, 0x50, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0xb5, 0x7c, 0xdb, 0x43};
@@ -201,8 +203,12 @@ void deerruntreadmill::forceSpeed(double requestSpeed) {
     }
 }
 
-void deerruntreadmill::forceIncline(double requestIncline) {
+void deerruntreadmill::forceSpeed(double requestSpeed) {
+    forceSpeedAndInclination(requestSpeed, currentInclination().value());
+}
 
+void deerruntreadmill::forceIncline(double requestIncline) {
+    forceSpeedAndInclination(currentSpeed().value(), requestIncline);
 }
 
 void deerruntreadmill::changeInclinationRequested(double grade, double percentage) {
@@ -392,6 +398,9 @@ void deerruntreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         speed = ((double)((value[3] << 8) | ((uint8_t)value[4])) / 1000.0);
     }
     double incline = 0.0;
+    if(pitpat) {
+        incline = (double)(value[11] & 0xFF);
+    }
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())

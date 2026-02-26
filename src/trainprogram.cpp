@@ -943,16 +943,30 @@ void trainprogram::scheduler() {
                 emit changeRequestedPelotonResistance(rows.at(0).requested_peloton_resistance);
             }
 
-            if (rows.at(0).inclination != -200 && (bluetoothManager->device()->deviceType() == BIKE ||
-            (bluetoothManager->device()->deviceType() == ELLIPTICAL && !((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware()))) {
+            if (rows.at(0).inclination != -200 &&
+                (bluetoothManager->device()->deviceType() == BIKE ||
+                 bluetoothManager->device()->deviceType() == ELLIPTICAL)) {
                 // this should be converted in a signal as all the other signals...
 
                 double inc = rows.at(0).inclination;
+                bool isElliptical = bluetoothManager->device()->deviceType() == ELLIPTICAL;
+                bool ellipticalInclinationByHardware =
+                    isElliptical ? ((elliptical *)bluetoothManager->device())->inclinationAvailableByHardware() : false;
+                bool ellipticalInclinationSeparatedFromResistance =
+                    isElliptical ? ((elliptical *)bluetoothManager->device())->inclinationSeparatedFromResistance()
+                                 : false;
+
+                if (isElliptical && !ellipticalInclinationByHardware && ellipticalInclinationSeparatedFromResistance) {
+                    qWarning() << "Unexpected elliptical configuration: inclinationSeparatedFromResistance=true while"
+                                  "inclinationAvailableByHardware=false";
+                }
 
                 // Only convert inclination to resistance for bikes WITHOUT hardware inclination support
-                // Ellipticals only enter here if they don't have hardware inclination (checked in outer condition)
+                // For ellipticals, convert when hardware inclination is unavailable, or when inclination and
+                // resistance are separated.
                 if ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableBySoftware()) ||
-                    (bluetoothManager->device()->deviceType() == ELLIPTICAL)) {
+                    (isElliptical && rows.at(0).resistance == -1 &&
+                     (!ellipticalInclinationByHardware || ellipticalInclinationSeparatedFromResistance))) {
                     double bikeResistanceOffset =
                         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
                             .toInt();
@@ -967,9 +981,12 @@ void trainprogram::scheduler() {
                 if (bluetoothManager->device()->deviceType() == BIKE)
                     bluetoothManager->device()->setInclination(inc);
 
-                qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
-                emit changeInclination(inc, inc);
-                emit changeNextInclination300Meters(inclinationNext300Meters());
+                if (bluetoothManager->device()->deviceType() == BIKE ||
+                    (isElliptical && ellipticalInclinationByHardware)) {
+                    qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
+                    emit changeInclination(inc, inc);
+                    emit changeNextInclination300Meters(inclinationNext300Meters());
+                }
             }
         }
 
@@ -1151,15 +1168,31 @@ void trainprogram::scheduler() {
 
                     if (rows.at(currentStep).inclination != -200 &&
                         (bluetoothManager->device()->deviceType() == BIKE ||
-                        (bluetoothManager->device()->deviceType() == ELLIPTICAL && !((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware()))) {
+                         bluetoothManager->device()->deviceType() == ELLIPTICAL)) {
                         // this should be converted in a signal as all the other signals...
 
                         double inc = rows.at(currentStep).inclination;
+                        bool isElliptical = bluetoothManager->device()->deviceType() == ELLIPTICAL;
+                        bool ellipticalInclinationByHardware =
+                            isElliptical ? ((elliptical *)bluetoothManager->device())->inclinationAvailableByHardware()
+                                         : false;
+                        bool ellipticalInclinationSeparatedFromResistance =
+                            isElliptical
+                                ? ((elliptical *)bluetoothManager->device())->inclinationSeparatedFromResistance()
+                                : false;
+
+                        if (isElliptical && !ellipticalInclinationByHardware &&
+                            ellipticalInclinationSeparatedFromResistance) {
+                            qWarning() << "Unexpected elliptical configuration: inclinationSeparatedFromResistance=true while"
+                                          "inclinationAvailableByHardware=false";
+                        }
 
                         // Only convert inclination to resistance for bikes WITHOUT hardware inclination support
-                        // Ellipticals only enter here if they don't have hardware inclination (checked in outer condition)
+                        // For ellipticals, convert when hardware inclination is unavailable, or when inclination and
+                        // resistance are separated.
                         if ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableBySoftware()) ||
-                            (bluetoothManager->device()->deviceType() == ELLIPTICAL)) {
+                            (isElliptical && rows.at(currentStep).resistance == -1 &&
+                             (!ellipticalInclinationByHardware || ellipticalInclinationSeparatedFromResistance))) {
                             double bikeResistanceOffset =
                                 settings
                                     .value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
@@ -1171,15 +1204,18 @@ void trainprogram::scheduler() {
 
                             bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
                                                                          bikeResistanceOffset +
-                                                                         1); // resistance start from 1                            
+                                                                         1); // resistance start from 1
                         }
 
                         if (bluetoothManager->device()->deviceType() == BIKE)
                             bluetoothManager->device()->setInclination(inc);
 
-                        qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
-                        emit changeInclination(inc, inc);
-                        emit changeNextInclination300Meters(inclinationNext300Meters());
+                        if (bluetoothManager->device()->deviceType() == BIKE ||
+                            (isElliptical && ellipticalInclinationByHardware)) {
+                            qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
+                            emit changeInclination(inc, inc);
+                            emit changeNextInclination300Meters(inclinationNext300Meters());
+                        }
                     }
                 }
 
@@ -1901,7 +1937,7 @@ QTime trainprogram::currentRowRemainingTime() {
             uint32_t currentLine = calculateTimeForRow(calculatedLine);
             calculatedElapsedTime += currentLine;
 
-            if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
+            if (calculatedElapsedTime >= static_cast<uint32_t>(ticks)) {
                 if (rows.at(calculatedLine).rampDuration != QTime(0, 0, 0)) {
                     calculatedElapsedTime += ((rows.at(calculatedLine).rampDuration.second() +
                                                (rows.at(calculatedLine).rampDuration.minute() * 60) +

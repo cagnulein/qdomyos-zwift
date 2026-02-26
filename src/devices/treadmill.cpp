@@ -539,9 +539,23 @@ double treadmill::treadmillInclinationOverride(double Inclination) {
 }
 
 void treadmill::evaluateStepCount() {
-    // Auto-detect cadence format: if < 120, assume it's per-leg and needs doubling for step count
-    double effectiveCadence = (Cadence.value() < 120 && Cadence.value() > 0) ? Cadence.value() * 2 : Cadence.value();
-    StepCount += (Cadence.lastChanged().msecsTo(QDateTime::currentDateTime())) * (effectiveCadence / 60000);
+    // Auto-detect cadence format: if per-leg, needs doubling for step count
+    // Running (>6 km/h): double if cadence < 120
+    // Walking (<6 km/h): double if cadence < 60
+    double effectiveCadence = Cadence.value();
+
+    if (Speed.value() > 6.0 && Cadence.value() < 120 && Cadence.value() > 0) {
+        // Running: likely per-leg cadence, double it
+        effectiveCadence = Cadence.value() * 2;
+    } else if (Speed.value() > 0 && Speed.value() <= 6.0 && Cadence.value() < 60 && Cadence.value() > 0) {
+        // Walking: likely per-leg cadence, double it
+        effectiveCadence = Cadence.value() * 2;
+    }
+
+    QSettings settings;
+    double step_gain = settings.value(QZSettings::step_gain, QZSettings::default_step_gain).toDouble();
+
+    StepCount += (Cadence.lastChanged().msecsTo(QDateTime::currentDateTime())) * (effectiveCadence / 60000) * step_gain;
 }
 
 bool treadmill::cadenceFromAppleWatch() {

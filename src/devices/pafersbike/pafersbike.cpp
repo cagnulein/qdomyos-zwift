@@ -4,6 +4,7 @@
 #include "keepawakehelper.h"
 #endif
 #include "virtualdevices/virtualbike.h"
+#include "pafers_defaults.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -31,6 +32,8 @@ pafersbike::pafersbike(bool noWriteResistance, bool noHeartService, int8_t bikeR
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
+    // Preload default ERG calibration if no user data exists yet
+    _ergTable.loadDefaultData(kPafersDefaultErgData);
     connect(refresh, &QTimer::timeout, this, &pafersbike::update);
     refresh->start(400ms);
 }
@@ -162,22 +165,17 @@ resistance_t pafersbike::pelotonToBikeResistance(int pelotonResistance) {
 resistance_t pafersbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
-    for (resistance_t i = 1; i < max_resistance; i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                     << wattsFromResistance(i + 1) << power;
-            return i;
-        }
-    }
-    if (power < wattsFromResistance(1))
-        return 1;
-    else
-        return max_resistance;
+    // Maintain current resistance when target is invalid or rider stopped
+    if (power == 0 || currentCadence().value() <= 0)
+        return Resistance.value();
+
+    return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }
 
 uint16_t pafersbike::wattsFromResistance(double resistance) {
-    // to be changed
-    return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
+    if (currentCadence().value() == 0)
+        return 0;
+    return _ergTable.estimateWattage(Cadence.value(), static_cast<uint16_t>(resistance));
 }
 
 double pafersbike::bikeResistanceToPeloton(double resistance) {

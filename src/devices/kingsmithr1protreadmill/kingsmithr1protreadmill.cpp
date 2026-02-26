@@ -1,4 +1,5 @@
 #include "kingsmithr1protreadmill.h"
+#include "homeform.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -490,6 +491,20 @@ void kingsmithr1protreadmill::serviceScanDone(void) {
     ignoreFirstPackage = true;
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    if(!gattCommunicationChannelService) {
+        // Check if this device has FTMS service (0x1826)
+        QBluetoothUuid ftmsServiceId((quint16)0x1826);
+        QLowEnergyService *ftmsService = m_control->createServiceObject(ftmsServiceId);
+        if(ftmsService) {
+            QSettings settings;
+            settings.setValue(QZSettings::ftms_treadmill, bluetoothDevice.name());
+            qDebug() << "forcing FTMS treadmill since it has FTMS service but not the main kingsmith service";
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested("FTMS treadmill found, restart the app to apply the change");
+            delete ftmsService;
+        }
+        return;
+    }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
             &kingsmithr1protreadmill::stateChanged);
     gattCommunicationChannelService->discoverDetails();

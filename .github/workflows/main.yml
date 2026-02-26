@@ -15,6 +15,10 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   window-build:
@@ -355,25 +359,21 @@ jobs:
           sudo apt-get install -y xvfb
           Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Checkout submodule repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
+      - name: Checkout googletest
+        uses: actions/checkout@v4
         with:
           repository: google/googletest
           path: "tst/googletest/"
           ref: "release-1.12.1"
-
-      - uses: actions/checkout@v2
       - name: Checkout qHttpServer
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
@@ -390,14 +390,28 @@ jobs:
           cache: 'true'
           cache-key-prefix: 'install-qt-action-linux'                    
 
+      - name: Cache qthttpserver build
+        id: cache-qthttpserver-linux
+        uses: actions/cache@v4
+        with:
+          path: src/qthttpserver
+          key: qthttpserver-linux-${{ runner.os }}-qt5.15.2-v1
+
       - name: download 3rd party files for qthttpserver
+        if: steps.cache-qthttpserver-linux.outputs.cache-hit != 'true'
         run: |
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
       - name: Build qthttpserver
+        if: steps.cache-qthttpserver-linux.outputs.cache-hit != 'true'
         run: |
-            cd src/qthttpserver 
+            cd src/qthttpserver
             qmake
             make -j8
+            cd ../..
+
+      - name: Install qthttpserver
+        run: |
+            cd src/qthttpserver
             make install
             cd ../..
       - name: Compile Linux Desktop
@@ -417,7 +431,16 @@ jobs:
         if: failure()
         with:
           name: test_results_xml
-          path: tst/test-results/**/*.xml               
+          path: tst/test-results/**/*.xml
+
+      - name: Upload test FIT files and database
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test_fit_files_and_db
+          path: |
+            tst/test-artifacts/*.fit
+            tst/test-artifacts/*.sqlite
 
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
@@ -617,23 +640,57 @@ jobs:
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
-      - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v1.9
+      - name: Cache Android NDK
+        id: cache-ndk
+        uses: actions/cache@v4
         with:
-          cmake-version: '3.25.x'
+          path: /usr/local/lib/android/sdk/ndk/21.4.7075529
+          key: android-ndk-21.4.7075529-${{ runner.os }}
 
-      - name: Set Android NDK 21 && build with CMake
+      - name: Install NDK 21
+        if: steps.cache-ndk.outputs.cache-hit != 'true'
         run: |
-          # Install NDK 21 after GitHub update
-          # https://github.com/actions/virtual-environments/issues/5595
-          ANDROID_ROOT="/usr/local/lib/android"
-          ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
-          SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          SDKMANAGER="/usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager"
           echo "y" | $SDKMANAGER "ndk;21.4.7075529"
-          echo "y" | $SDKMANAGER "platforms;android-35"
-          echo "y" | $SDKMANAGER "build-tools;34.0.0"
-          export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
-          export ANDROID_NDK_ROOT="${ANDROID_NDK}"
+
+      - name: Setup ccache
+        run: |
+          sudo apt-get install -y ccache
+          echo "CCACHE_DIR=${{ github.workspace }}/.ccache" >> $GITHUB_ENV
+          ccache --set-config=max_size=2G
+          ccache --set-config=compression=true
+          ccache --set-config=compression_level=6
+          ccache --set-config=base_dir=${{ github.workspace }}
+          ccache --set-config=sloppiness=pch_defines,time_macros,include_file_mtime,file_macro
+          ccache --zero-stats
+
+      - name: Restore ccache
+        uses: actions/cache@v4
+        with:
+          path: .ccache
+          key: ccache-android-ndk21-${{ hashFiles('src/**/*.cpp', 'src/**/*.h', 'src/*.pro') }}
+          restore-keys: |
+            ccache-android-ndk21-
+
+      - name: Setup NDK environment with ccache
+        run: |
+          NDK_PATH=/usr/local/lib/android/sdk/ndk/21.4.7075529
+          NDK_BIN=$NDK_PATH/toolchains/llvm/prebuilt/linux-x86_64/bin
+          ln -sfn $NDK_PATH /usr/local/lib/android/sdk/ndk-bundle
+          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+          echo "ANDROID_NDK=/usr/local/lib/android/sdk/ndk-bundle" >> $GITHUB_ENV
+          echo "ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk-bundle" >> $GITHUB_ENV
+          # Wrap NDK compilers with ccache for build caching
+          if [ ! -f "$NDK_BIN/clang.real" ]; then
+            mv $NDK_BIN/clang $NDK_BIN/clang.real
+            mv $NDK_BIN/clang++ $NDK_BIN/clang++.real
+          fi
+          printf '#!/bin/bash\nexec /usr/bin/ccache %s/clang.real "$@"\n' "$NDK_BIN" > $NDK_BIN/clang
+          printf '#!/bin/bash\nexec /usr/bin/ccache %s/clang++.real "$@"\n' "$NDK_BIN" > $NDK_BIN/clang++
+          chmod +x $NDK_BIN/clang $NDK_BIN/clang++
+
+      - name: Generate secrets
+        run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
           echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
@@ -642,79 +699,36 @@ jobs:
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
-          cd ..          
-          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
-          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
-          
-          # Clean previous build
-          rm -rf build-android-multiabi
-          mkdir build-android-multiabi
-          cd build-android-multiabi
-          
-          # Configure with CMake for multi-ABI build - single APK with all architectures
-          export ANDROID_COMPILE_SDK_VERSION=35
-          export ANDROID_TARGET_SDK_VERSION=35
-          cmake .. \
-            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake" \
-            -DQT_HOST_PATH="${{ github.workspace }}/output/android/Qt/6.5.1/gcc_64" \
-            -DCMAKE_PREFIX_PATH="${{ github.workspace }}/output/android/Qt/6.5.1/android_arm64_v8a" \
-            -DANDROID_ABI=arm64-v8a \
-            -DANDROID_PLATFORM=android-23 \
-            -DANDROID_STL=c++_shared \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DQT_ANDROID_BUILD_ALL_ABIS=ON \
-            -DQT_ANDROID_ABIS="armeabi-v7a;arm64-v8a;x86;x86_64" \
-            -DQT_ANDROID_ABIS_PATH="${{ github.workspace }}/output/android/Qt/6.5.1/android_armv7;${{ github.workspace }}/output/android/Qt/6.5.1/android_arm64_v8a;${{ github.workspace }}/output/android/Qt/6.5.1/android_x86;${{ github.workspace }}/output/android/Qt/6.5.1/android_x86_64" \
-            -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH \
-            -DANDROID_SDK_ROOT="$ANDROID_SDK_ROOT" \
-            -DANDROID_NDK_ROOT="$ANDROID_NDK_ROOT"
-          
-          # Build the project for all ABIs
-          cmake --build . --parallel 4
-          
-          cd ..
-          
-          # Create gradle.properties for Android build
-          cat > src/android/gradle.properties << EOF
-          android.useAndroidX=true
-          android.enableJetifier=true
-          androidBuildToolsVersion=34.0.0
-          androidCompileSdkVersion=35
-          qt5AndroidDir=/opt/Qt/5.15.2/android
-          EOF
-          
-          # Create deployment settings for androiddeployqt with multi-ABI support
-          cat > android-qdomyos-zwift-deployment-settings.json << EOF
-          {
-             "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",
-             "description": "This file is generated by CMake to be read by androiddeployqt and should not be modified by hand.",
-             "qt": "${{ github.workspace }}/output/android/Qt/6.5.1/android",
-             "sdk": "$ANDROID_SDK_ROOT",
-             "ndk": "$ANDROID_NDK_ROOT",
-             "toolchain-prefix": "llvm",
-             "tool-prefix": "llvm",
-             "toolchain-version": "21.4.7075529",
-             "build-tools-version": "34.0.0",
-             "ndk-host": "linux-x86_64",
-             "android-abis": ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"],
-             "target-architecture": "arm64-v8a",
-             "application-binary": "build-android-multiabi/qdomyos-zwift"
-          }
-          EOF
-          cat android-qdomyos-zwift-deployment-settings.json
-      - name: Build APK with Multi-ABI support
+
+      - name: Build qthttpserver for Android
         run: |
-          # Use androiddeployqt to build APK with all ABIs
-          androiddeployqt --input android-qdomyos-zwift-deployment-settings.json \
-            --output ${{ github.workspace }}/output/android/ \
-            --android-platform android-35 \
-            --gradle \
-            --aab \
-            --verbose
-          
-          # Remove deprecated enableUncompressedNativeLibs from generated files
-          find ${{ github.workspace }}/output/android/ -name "*.gradle" -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} \;
-          find ${{ github.workspace }}/output/android/ -name "gradle.properties" -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} \;
+          cd src/qthttpserver
+          qmake
+          make -j8
+          make install
+
+      - name: Build QZ for Android (4 ABIs)
+        run: |
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
+          cat src/android-qdomyos-zwift-deployment-settings.json
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-android-${{ runner.os }}-v1
+          restore-keys: |
+            gradle-android-${{ runner.os }}-
+
+      - name: Build APK (not usable for production due to unpatched QT library)
+        run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+
+      - name: Show ccache stats
+        if: always()
+        run: ccache --show-stats
 
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
@@ -725,79 +739,156 @@ jobs:
   android-emulator-test:
     runs-on: ubuntu-latest
     needs: android-build
+    continue-on-error: ${{ matrix.flaky || false }}
+    strategy:
+      fail-fast: false
+      matrix:
+        api-level: [24, 26, 28, 29, 30, 31, 33, 35, 36]
+        include:
+          - api-level: 24
+            target: default
+            arch: x86
+            android-version: "Android 7.0"
+          - api-level: 26
+            target: default
+            arch: x86
+            android-version: "Android 8.0"
+          - api-level: 28
+            target: default
+            arch: x86
+            android-version: "Android 9.0"
+          - api-level: 29
+            target: default
+            arch: x86
+            android-version: "Android 10"
+          - api-level: 30
+            target: google_apis
+            arch: x86
+            android-version: "Android 11"
+          - api-level: 31
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 12"
+          - api-level: 33
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 13"
+            flaky: true
+          - api-level: 35
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 15"
+          - api-level: 36
+            target: google_apis
+            arch: x86_64
+            android-version: "Android 16"
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-        
+
       # Download the APK from the previous job
       - name: Download APK Artifact
         uses: actions/download-artifact@v4
         with:
           name: fdroid-android-trial
           path: apk-debug
-          
+
       - name: Setup Java for Android Emulator
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
-      
-      # Use a smaller emulator configuration
-      - name: Run tests on emulator
+
+      - name: Run tests on emulator (${{ matrix.android-version }})
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          target: default  # Use default instead of Google APIs
-          arch: x86
-          api-level: 29
+          api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
+          arch: ${{ matrix.arch }}
           profile: Nexus 6
           disable-animations: true
           script: |
             # Display available space
             df -h
-            
+
             # List available files
             echo "Files in apk-debug directory:"
             ls -la apk-debug/
-            
+
             # Install the APK
             adb install apk-debug/android-debug.apk
-            
-            # Grant necessary permissions for API 25
-            echo "Granting permissions..."
+
+            # Grant runtime (dangerous) permissions
+            echo "Granting runtime permissions..."
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_FINE_LOCATION || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH || true
-            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADMIN || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.ACCESS_COARSE_LOCATION || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_ADVERTISE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_CONNECT || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.BLUETOOTH_SCAN || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.READ_EXTERNAL_STORAGE || true
             adb shell pm grant org.cagnulen.qdomyoszwift android.permission.WRITE_EXTERNAL_STORAGE || true
-            
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.CAMERA || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.RECORD_AUDIO || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.READ_PHONE_STATE || true
+            adb shell pm grant org.cagnulen.qdomyoszwift android.permission.POST_NOTIFICATIONS || true
+
+            # Enable special app ops permissions
+            adb shell appops set org.cagnulen.qdomyoszwift MANAGE_EXTERNAL_STORAGE allow || true
+            adb shell appops set org.cagnulen.qdomyoszwift SYSTEM_ALERT_WINDOW allow || true
+            adb shell appops set org.cagnulen.qdomyoszwift WRITE_SETTINGS allow || true
+
+            echo "All permissions granted successfully"
+
             # Start the main activity
-            adb shell am start -n org.cagnulen.qdomyoszwift/org.qtproject.qt5.android.bindings.QtActivity
-            
+            adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
+
             # Wait for app to start
-            sleep 40
-            
+            sleep 90
+
             # Verify the app is running
             echo "Checking if app is running..."
-            adb shell "ps -A" > process_list.txt
+            # Use different ps commands for different Android versions
+            adb shell "ps -A 2>/dev/null || ps" > process_list.txt
+
+            # Debug: show all processes to understand the format
+            echo "=== All running processes ==="
+            cat process_list.txt | head -20
+            echo "=== Looking for our app ==="
+
             grep -q "qdomyos" process_list.txt || (echo "App process not found in process list" && echo "TEST FAILED: App process not running" && exit 1)
             echo "App is running successfully"
-            
+
             # Take a screenshot for verification
             adb shell screencap -p /sdcard/screenshot.png
             adb pull /sdcard/screenshot.png
-            
+
+            # Test orientamento automatico con screenshot
+            echo "Starting orientation test with automatic screenshots..."
+
+            # Screenshot iniziale (orientamento corrente)
+            adb shell screencap -p /sdcard/screenshot_orientation_0.png
+            adb pull /sdcard/screenshot_orientation_0.png
+
+            # Loop per 3 rotazioni aggiuntive (90°, 180°, 270°)
+            for i in 1 2 3; do echo "Rotating to orientation $i (90° * $i)"; adb shell settings put system user_rotation $i; sleep 5; echo "Taking screenshot for orientation $i"; adb shell screencap -p /sdcard/screenshot_orientation_$i.png; adb pull /sdcard/screenshot_orientation_$i.png; done
+
+            echo "Orientation test completed - 4 screenshots captured"
+
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
-            
-            # Display logcat output for debugging (just the last 100 lines)
-            adb logcat -d | grep -i qdomyos | tail -n 100
+
+            # Save logcat for debugging
+            echo "Saving logcat for analysis..."
+            adb logcat -d > full_logcat.txt
+            adb logcat -d | grep -i qdomyos > qdomyos_logcat.txt
+
       - name: Upload test evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -816,17 +907,15 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Checkout submodule repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
+      - name: Checkout googletest
+        uses: actions/checkout@v4
         with:
           repository: google/googletest
           path: "tst/googletest/"
@@ -855,6 +944,30 @@ jobs:
       - name: patching qt for bluetooth
         run: cp qt-patches/ios/5.15.2/binary/*.* ${{ github.workspace }}/output/ios/Qt/5.15.2/ios/lib/
 
+      - name: Setup ccache
+        run: |
+          brew install ccache
+          echo "CCACHE_DIR=${{ github.workspace }}/.ccache" >> $GITHUB_ENV
+          ccache --set-config=max_size=2G
+          ccache --set-config=compression=true
+          ccache --set-config=compression_level=6
+          ccache --set-config=base_dir=${{ github.workspace }}
+          ccache --set-config=sloppiness=pch_defines,time_macros,include_file_mtime,file_macro,clang_index_store
+          ccache --zero-stats
+          # Create wrapper scripts for Xcode (which uses absolute compiler paths, ignoring PATH)
+          mkdir -p /tmp/ccache-wrappers
+          printf '#!/bin/bash\nexec /opt/homebrew/bin/ccache clang "$@"\n' > /tmp/ccache-wrappers/clang
+          printf '#!/bin/bash\nexec /opt/homebrew/bin/ccache clang++ "$@"\n' > /tmp/ccache-wrappers/clang++
+          chmod +x /tmp/ccache-wrappers/clang /tmp/ccache-wrappers/clang++
+
+      - name: Restore ccache
+        uses: actions/cache@v4
+        with:
+          path: .ccache
+          key: ccache-ios-${{ hashFiles('src/**/*.cpp', 'src/**/*.h', 'src/*.pro') }}
+          restore-keys: |
+            ccache-ios-
+
       - name: Build
         run: |
           cd src
@@ -865,14 +978,14 @@ jobs:
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
-          qmake CONFIG+=debug && make -j4
-      # causes iOS build on Mac to fail
-      # - name: Commit moc files
-      #   uses: EndBug/add-and-commit@v9
-      #   with:
-      #     message: 'moc files added'
-      #     add: 'src/moc_*.cpp --force'
-      #   if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/qt6'
+          qmake CONFIG+=debug CONFIG+=iphonesimulator \
+            QMAKE_CC=/tmp/ccache-wrappers/clang \
+            QMAKE_CXX=/tmp/ccache-wrappers/clang++ \
+            && make -j4
+
+      - name: Show ccache stats
+        if: always()
+        run: ccache --show-stats
 
   window-msvc2022-build:
     runs-on: windows-latest

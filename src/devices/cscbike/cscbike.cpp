@@ -1,5 +1,6 @@
 #include "cscbike.h"
 #include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualrower.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -82,7 +83,12 @@ void cscbike::update() {
         double rpm = currentCadence().value();
         m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404;
     } else {
-        m_watt = wattFromHR(false);
+        // When cadence is zero, watts should be zero regardless of HR
+        if (currentCadence().value() == 0) {
+            m_watt = 0;
+        } else {
+            m_watt = wattFromHR(false);
+        }
     }
     emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
@@ -458,6 +464,8 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
         QSettings settings;
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_rower =
+            settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         bool cadence =
@@ -472,11 +480,17 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
 #endif
             if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual bike interface..."));
-            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-            connect(virtualBike, &virtualbike::changeInclination, this, &cscbike::changeInclination);
-            // connect(virtualBike,&virtualbike::debug ,this,&cscbike::debug);
-            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+            if (virtual_device_rower) {
+                emit debug(QStringLiteral("creating virtual rower interface..."));
+                auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
+            } else {
+                emit debug(QStringLiteral("creating virtual bike interface..."));
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                connect(virtualBike, &virtualbike::changeInclination, this, &cscbike::changeInclination);
+                // connect(virtualBike,&virtualbike::debug ,this,&cscbike::debug);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+            }
         }
     }
     firstStateChanged = 1;

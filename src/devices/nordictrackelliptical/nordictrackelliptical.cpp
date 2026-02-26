@@ -14,6 +14,7 @@
 #include <chrono>
 #include <math.h>
 #include <qmath.h>
+#include "homeform.h"
 
 using namespace std::chrono_literals;
 
@@ -608,6 +609,89 @@ void nordictrackelliptical::forceResistance(resistance_t requestResistance) {
     }
 }
 
+void nordictrackelliptical::se7i_send_next_frame() {
+    if (!nordictrack_se7i) {
+        return;
+    }
+
+    emit debug(QStringLiteral("se7i_send_next_frame: state = ") + QString::number(se7i_init_state));
+
+    switch (se7i_init_state) {
+        case 0: {
+            // Frame 1: se7i_initData11, se7i_initData12, se7i_initData13 (ends with 0xff)
+            uint8_t se7i_initData11[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x06, 0x28, 0x90, 0x04, 0x00, 0x0d, 0x68, 0xc9, 0x28, 0x95, 0xf0, 0x69, 0xc0, 0x3d};
+            uint8_t se7i_initData12[] = {0x01, 0x12, 0xa8, 0x19, 0x88, 0xf5, 0x60, 0xf9, 0x70, 0xcd, 0x48, 0xc9, 0x48, 0xf5, 0x70, 0xe9, 0x60, 0x1d, 0x88, 0x39};
+            uint8_t se7i_initData13[] = {0xff, 0x08, 0xa8, 0x55, 0xc0, 0x80, 0x02, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            writeCharacteristic(se7i_initData11, sizeof(se7i_initData11), QStringLiteral("se7i_frame1_pkt1"), false, false);
+            writeCharacteristic(se7i_initData12, sizeof(se7i_initData12), QStringLiteral("se7i_frame1_pkt2"), false, false);
+            writeCharacteristic(se7i_initData13, sizeof(se7i_initData13), QStringLiteral("se7i_frame1_pkt3_FF"), false, false);
+
+            se7i_waiting_for_response = true;
+            se7i_init_state = 1;
+            emit debug(QStringLiteral("se7i: Sent frame 1 (3 packets), waiting for response with 0xFF marker"));
+            break;
+        }
+        case 1: {
+            // Frame 2: se7i_initData14, se7i_initData15, se7i_initData16 (ends with 0xff)
+            uint8_t se7i_initData14[] = {0xfe, 0x02, 0x19, 0x03};
+            uint8_t se7i_initData15[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x06, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t se7i_initData16[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            writeCharacteristic(se7i_initData14, sizeof(se7i_initData14), QStringLiteral("se7i_frame2_pkt1"), false, false);
+            writeCharacteristic(se7i_initData15, sizeof(se7i_initData15), QStringLiteral("se7i_frame2_pkt2"), false, false);
+            writeCharacteristic(se7i_initData16, sizeof(se7i_initData16), QStringLiteral("se7i_frame2_pkt3_FF"), false, false);
+
+            se7i_waiting_for_response = true;
+            se7i_init_state = 2;
+            emit debug(QStringLiteral("se7i: Sent frame 2 (3 packets), waiting for response with 0xFF marker"));
+            break;
+        }
+        case 2: {
+            // Frame 3: se7i_init_020, se7i_init_021, se7i_init_022 (ends with 0xff)
+            uint8_t se7i_init_020[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t se7i_init_021[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t se7i_init_022[] = {0xff, 0x05, 0x00, 0x80, 0x01, 0x00, 0xa8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            writeCharacteristic(se7i_init_020, sizeof(se7i_init_020), QStringLiteral("se7i_frame3_pkt1"), false, false);
+            writeCharacteristic(se7i_init_021, sizeof(se7i_init_021), QStringLiteral("se7i_frame3_pkt2"), false, false);
+            writeCharacteristic(se7i_init_022, sizeof(se7i_init_022), QStringLiteral("se7i_frame3_pkt3_FF"), false, false);
+
+            se7i_waiting_for_response = true;
+            se7i_init_state = 3;
+            emit debug(QStringLiteral("se7i: Sent frame 3 (3 packets), waiting for response with 0xFF marker"));
+            break;
+        }
+        case 3: {
+            // Frame 4: se7i_init_023, se7i_init_024, se7i_init_025 (ends with 0xff)
+            uint8_t se7i_init_023[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t se7i_init_024[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x00, 0x0d, 0x00, 0x10, 0x00, 0xd8, 0x1c, 0x4c, 0x00, 0x00, 0xe0};
+            uint8_t se7i_init_025[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x10, 0x68, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            writeCharacteristic(se7i_init_023, sizeof(se7i_init_023), QStringLiteral("se7i_frame4_pkt1"), false, false);
+            writeCharacteristic(se7i_init_024, sizeof(se7i_init_024), QStringLiteral("se7i_frame4_pkt2"), false, false);
+            writeCharacteristic(se7i_init_025, sizeof(se7i_init_025), QStringLiteral("se7i_frame4_pkt3_FF"), false, false);
+
+            se7i_waiting_for_response = true;
+            se7i_init_state = 4;
+            emit debug(QStringLiteral("se7i: Sent frame 4 (3 packets), waiting for response with 0xFF marker"));
+            break;
+        }
+        case 4: {
+            // Initialization complete!
+            emit debug(QStringLiteral("se7i: Initialization completed successfully!"));
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested("SE7i init completed!");
+            initDone = true;
+            se7i_waiting_for_response = false;
+            break;
+        }
+        default:
+            emit debug(QStringLiteral("se7i_send_next_frame: invalid state ") + QString::number(se7i_init_state));
+            break;
+    }
+}
+
 void nordictrackelliptical::update() {
 
     if (!m_control)
@@ -1020,6 +1104,21 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
+    // SE7i frame-based protocol: check for 0xFF marker indicating end of response frame
+    if (nordictrack_se7i && se7i_waiting_for_response && newValue.length() > 0) {
+        if ((uint8_t)newValue.at(0) == 0xFF) {
+            emit debug(QStringLiteral("SE7i: Received 0xFF marker - end of response frame detected"));
+            se7i_waiting_for_response = false;
+            // Schedule next frame send in the next event loop iteration to avoid reentrancy issues
+            QTimer::singleShot(0, this, [this]() {
+                se7i_send_next_frame();
+            });
+            return;
+        } else {
+            emit debug(QStringLiteral("SE7i: Received packet (waiting for 0xFF): ") + QString::number((uint8_t)newValue.at(0), 16));
+        }
+    }
+
     lastPacket = newValue;
 
     // SE7i Speed and Cadence parsing (Type 0x01 packets with byte[4]=0x46)
@@ -1302,66 +1401,19 @@ void nordictrackelliptical::btinit() {
         writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
         QThread::msleep(400);
         if (nordictrack_se7i) {
-            // NordicTrack Elliptical SE7i initialization (19 packets: pkt944 to pkt1020)
             max_resistance = 22;
             max_inclination = 20;
 
-            uint8_t se7i_initData1[] = {0xfe, 0x02, 0x08, 0x02};
-            uint8_t se7i_initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t se7i_initData3[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x06, 0x04, 0x80, 0x8a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t se7i_initData4[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x06, 0x04, 0x88, 0x92, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t se7i_initData5[] = {0xfe, 0x02, 0x0b, 0x02}; // pkt972
-            uint8_t se7i_initData6[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00, 0x00, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt975
-            uint8_t se7i_initData7[] = {0xfe, 0x02, 0x0a, 0x02}; // pkt982
-            uint8_t se7i_initData8[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00, 0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt985
-            uint8_t se7i_initData9[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt994
-            uint8_t se7i_initData10[] = {0xfe, 0x02, 0x2c, 0x04}; // pkt1000
-            uint8_t se7i_initData11[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x06, 0x28, 0x90, 0x04, 0x00, 0x0d, 0x68, 0xc9, 0x28, 0x95, 0xf0, 0x69, 0xc0, 0x3d}; // pkt1003
-            uint8_t se7i_initData12[] = {0x01, 0x12, 0xa8, 0x19, 0x88, 0xf5, 0x60, 0xf9, 0x70, 0xcd, 0x48, 0xc9, 0x48, 0xf5, 0x70, 0xe9, 0x60, 0x1d, 0x88, 0x39}; // pkt1006
-            uint8_t se7i_initData13[] = {0xff, 0x08, 0xa8, 0x55, 0xc0, 0x80, 0x02, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt1009
-            uint8_t se7i_initData14[] = {0xfe, 0x02, 0x19, 0x03}; // pkt1014
-            uint8_t se7i_initData15[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x06, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt1017
-            uint8_t se7i_initData16[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // pkt1020
+            // Initialize frame-based communication state machine
+            se7i_init_state = 0;
+            se7i_waiting_for_response = false;
 
-            int sleepms = 400;
-            writeCharacteristic(se7i_initData1, sizeof(se7i_initData1), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData2, sizeof(se7i_initData2), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData1, sizeof(se7i_initData1), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData3, sizeof(se7i_initData3), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData1, sizeof(se7i_initData1), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData4, sizeof(se7i_initData4), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData5, sizeof(se7i_initData5), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData6, sizeof(se7i_initData6), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData7, sizeof(se7i_initData7), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData8, sizeof(se7i_initData8), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData1, sizeof(se7i_initData1), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData9, sizeof(se7i_initData9), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData10, sizeof(se7i_initData10), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData11, sizeof(se7i_initData11), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData12, sizeof(se7i_initData12), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData13, sizeof(se7i_initData13), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData14, sizeof(se7i_initData14), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData15, sizeof(se7i_initData15), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
-            writeCharacteristic(se7i_initData16, sizeof(se7i_initData16), QStringLiteral("init"), false, true);
-            QThread::msleep(sleepms);
+            // Start frame-based initialization sequence
+            emit debug(QStringLiteral("SE7i: Starting frame-based initialization (no sleep mode)"));
+            se7i_send_next_frame();
+
+            // Do NOT set initDone here - it will be set when all frames complete
+            return;
         } else if (nordictrack_elliptical_c7_5) {
             max_resistance = 22;
             max_inclination = 20;

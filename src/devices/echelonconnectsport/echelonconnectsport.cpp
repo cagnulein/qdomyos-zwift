@@ -276,8 +276,10 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
                 int8_t g = gears();
                 g += (res - qRound(Resistance.value()));
                 qDebug() << QStringLiteral("gears_from_bike APPLIED") << gears() << g;
-                lastRawRequestedResistanceValue = -1; // in order to avoid to change resistance with the setGears
+                resistance_t savedRawValue = lastRawRequestedResistanceValue;
+                lastRawRequestedResistanceValue = -1; // temporarily prevent setGears from re-applying resistance
                 setGears(g);
+                lastRawRequestedResistanceValue = savedRawValue; // restore for future checks
             }
         }
         Resistance = res;
@@ -649,7 +651,7 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
         const double Epsilon = 4.94065645841247E-324;
         const int wattTableFirstDimension = 33;
         const int wattTableSecondDimension = 11;
-        double wattTable[wattTableFirstDimension][wattTableSecondDimension] = {
+        static const double wattTable[wattTableFirstDimension][wattTableSecondDimension] = {
             {Epsilon, 1.0, 2.2, 4.8, 9.5, 13.6, 16.7, 22.6, 26.3, 29.2, 47.0},
             {Epsilon, 1.0, 2.2, 4.8, 9.5, 13.6, 16.7, 22.6, 26.3, 29.2, 47.0},
             {Epsilon, 1.3, 3.0, 5.4, 10.4, 14.5, 18.5, 24.6, 27.6, 33.5, 49.5},
@@ -684,7 +686,7 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
             {Epsilon, 12.5, 48.0, 99.3, 162.2, 232.9, 310.4, 400.3, 435.5, 530.5, 589.0},
             {Epsilon, 13.0, 53.0, 102.0, 170.3, 242.0, 320.0, 427.9, 475.2, 570.0, 625.0}};
 
-        double wattTable_mgarcea[wattTableFirstDimension][wattTableSecondDimension] = {
+        static const double wattTable_mgarcea[wattTableFirstDimension][wattTableSecondDimension] = {
             {Epsilon, 1.0, 2.2, 4.8, 9.5, 13.6, 16.7, 22.6, 26.3, 29.2, 47.0},
             {Epsilon, 1.0, 2.2, 4.8, 9.5, 13.6, 16.7, 22.6, 26.3, 29.2, 47.0},
             {Epsilon, 1.3, 3.0, 5.4, 10.4, 14.5, 18.5, 24.6, 27.6, 33.5, 49.5},
@@ -726,7 +728,7 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
         if (level >= wattTableFirstDimension) {
             level = wattTableFirstDimension - 1;
         }
-        double *watts_of_level;
+        const double *watts_of_level;
         QSettings settings;
         if (!settings.value(QZSettings::echelon_watttable, QZSettings::default_echelon_watttable)
                  .toString()

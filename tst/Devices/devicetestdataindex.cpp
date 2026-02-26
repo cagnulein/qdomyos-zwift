@@ -550,6 +550,9 @@ void DeviceTestDataIndex::Initialize() {
         "D2RIDE",
         "DIRETO X",
         "MERACH-667-",
+        "MRK-S26S-",
+        "MRK-S26C-",
+        "MRK-S28-",
         "SMB1",
         "UBIKE FTMS",
         "INRIDE"

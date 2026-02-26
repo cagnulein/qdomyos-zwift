@@ -330,8 +330,8 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.expEnergy && newValue.length() > index + 1) {
-            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint16_t)((uint8_t)newValue.at(index))));
+            /*KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));*/
             index += 2;
 
             // energy per hour
@@ -339,7 +339,7 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
             // energy per minute
             index += 1;
-        } else {
+        } /*else*/ {
             if (watts())
                 KCal += ((((0.048 * ((double)watts()) + 1.19) *
                            settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /

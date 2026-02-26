@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QSettings>
 #include <QTime>
+#include <cmath>
 
 #ifdef Q_OS_ANDROID
 #include <QJniObject>
@@ -192,6 +193,35 @@ void bluetoothdevice::heartRate(uint8_t heart) {
 void bluetoothdevice::coreBodyTemperature(double coreBodyTemperature) { CoreBodyTemperature.setValue(coreBodyTemperature); }
 void bluetoothdevice::skinTemperature(double skinTemperature) { SkinTemperature.setValue(skinTemperature); }
 void bluetoothdevice::heatStrainIndex(double heatStrainIndex) { HeatStrainIndex.setValue(heatStrainIndex); }
+void bluetoothdevice::rrIntervalReceived(double rrInterval) {
+    // RR-interval is in milliseconds
+    // Add to buffer for RMSSD calculation (keep max 30 samples for real-time HRV display)
+    // Using 30 samples (~20-30 seconds of data) gives more responsive and accurate HRV
+    // than using longer windows which can include heart rate transitions
+    rrIntervals.append(rrInterval);
+    while (rrIntervals.size() > 30) {
+        rrIntervals.removeFirst();
+    }
+
+    // Also add to FIT file buffer (will be cleared when SessionLine is created)
+    rrIntervalsForFit.append(rrInterval);
+
+    // Calculate RMSSD when we have at least 5 RR-intervals
+    if (rrIntervals.size() >= 5) {
+        double sumSquaredDiff = 0.0;
+        int count = 0;
+        for (int i = 1; i < rrIntervals.size(); i++) {
+            double diff = rrIntervals.at(i) - rrIntervals.at(i - 1);
+            sumSquaredDiff += diff * diff;
+            count++;
+        }
+        if (count > 0) {
+            double rmssd = sqrt(sumSquaredDiff / count);
+            HRV.setValue(rmssd);
+            qDebug() << "HRV (RMSSD):" << rmssd << "ms from" << rrIntervals.size() << "RR-intervals";
+        }
+    }
+}
 void bluetoothdevice::disconnectBluetooth() {
     if (m_control) {
         m_control->disconnectFromDevice();
@@ -331,6 +361,7 @@ void bluetoothdevice::update_hr_from_external() {
             h.setPower(m_watt.value());
             h.setCadence(Cadence.value());
             h.setSteps(StepCount.value());
+            h.setElevationGain(elevationGain().value());
             Heart = appleWatchHeartRate;
             qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
 #endif
