@@ -1352,14 +1352,13 @@ jobs:
           echo "#define LICENSE" >> secret.h
           cd ..
       - name: Build for Raspberry Pi
-        uses: docker://arm32v7/debian:sid-20241016
+        uses: docker://arm32v7/debian:bookworm
         with:
           args: |
-            bash -c "set -ex && 
-            apt-get update && 
-            apt-get install -y build-essential git cmake &&
-            apt-get install -y ca-certificates apt-transport-https &&
-            apt-get install -y $(apt-cache search --names-only 'qt6' | grep -v 'phonon4qt6' | awk '{print $1}') &&
+            bash -c "set -ex &&
+            export DEBIAN_FRONTEND=noninteractive &&
+            apt-get update &&
+            apt-get install -y --no-install-recommends build-essential git cmake ca-certificates apt-transport-https qmake6 qt6-base-dev qt6-base-dev-tools qt6-positioning-dev qt6-connectivity-dev qt6-charts-dev qt6-multimedia-dev qt6-websockets-dev libqt6networkauth6-dev &&
             export QT_SELECT=qt6 &&
             export PATH=/usr/lib/qt6/bin:$PATH &&
             cd /github/workspace &&
@@ -1376,23 +1375,13 @@ jobs:
           path: src/qdomyos-zwift-32bit
 
   raspberry-pi-build-and-image-64bit:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-arm
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
           submodules: recursive
-
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          image: tonistiigi/binfmt:master
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          version: v0.19.3
 
       - name: Secrets
         run: |
@@ -1405,21 +1394,21 @@ jobs:
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           cd ..
+      - name: Install Qt6 build dependencies
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            build-essential git cmake \
+            qmake6 qt6-base-dev qt6-base-dev-tools \
+            qt6-positioning-dev qt6-connectivity-dev qt6-charts-dev \
+            qt6-multimedia-dev qt6-websockets-dev libqt6networkauth6-dev
+
       - name: Build for Raspberry Pi 64-bit
-        uses: docker://arm64v8/debian:sid-20241016
-        with:
-          args: |
-            bash -c "set -ex && 
-            apt-get update && 
-            apt-get install -y build-essential git cmake &&
-            apt-get install -y ca-certificates apt-transport-https &&
-            apt-get install -y $(apt-cache search --names-only 'qt6' | grep -v 'phonon4qt6' | awk '{print $1}') &&
-            export QT_SELECT=qt6 &&
-            export PATH=/usr/lib/qt6/bin:$PATH &&
-            cd /github/workspace &&
-            qmake6 &&
-            make -j$(nproc)
-            "
+        run: |
+          export QT_SELECT=qt6
+          export PATH=/usr/lib/qt6/bin:$PATH
+          qmake6
+          make -j$(nproc)
             
       - name: Rename binary
         run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit
