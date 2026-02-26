@@ -1260,8 +1260,8 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
         if(BOWFLEX_T9) {
             requestSpeed *= miles_conversion;   // this treadmill wants the speed in miles, at least seems so!!
-        }        
-        if(TM4800 || TM6500 || T3G_ELITE || WT_TREADMILL) {
+        }
+        if(TM4800 || TM6500 || T3G_ELITE || WT_TREADMILL || THERUN_T15) {
             bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
             if(miles) {
                 requestSpeed *= miles_conversion;   // these treadmills want the speed in miles when miles_unit is enabled
@@ -1882,6 +1882,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 }
             } else if(horizon_treadmill_7_8 && miles) {
                 // this treadmill sends the speed in miles!
+                speed /= miles_conversion;
+            } else if(THERUN_T15 && miles) {
+                // this treadmill sends the speed in miles when miles_unit is enabled!
                 speed /= miles_conversion;
             }
             if(!mobvoi_tmp_treadmill || (mobvoi_tmp_treadmill && !horizonPaused))
@@ -2701,6 +2704,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("WT")) && device.name().length() == 5) {
             qDebug() << QStringLiteral("WT treadmill found");
             WT_TREADMILL = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("THERUN  T15"))) {
+            qDebug() << QStringLiteral("THERUN T15 treadmill found");
+            THERUN_T15 = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
