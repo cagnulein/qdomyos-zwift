@@ -18,6 +18,7 @@ void treadmill::changeSpeed(double speed) {
 
     QSettings settings;
     double treadmill_speed_max = settings.value(QZSettings::treadmill_speed_max, QZSettings::default_treadmill_speed_max).toDouble();
+    double treadmill_speed_min = settings.value(QZSettings::treadmill_speed_min, QZSettings::default_treadmill_speed_min).toDouble();
     bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
     m_lastRawSpeedRequested = speed;
     speed /= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
@@ -26,6 +27,11 @@ void treadmill::changeSpeed(double speed) {
     if(speed > treadmill_speed_max) {
         speed = treadmill_speed_max;
         qDebug() << "speed override due to treadmill_speed_max" << speed;
+    }
+
+    if(speed < treadmill_speed_min && speed > 0) {
+        speed = treadmill_speed_min;
+        qDebug() << "speed override due to treadmill_speed_min" << speed;
     }
 
     if(stryd_speed_instead_treadmill && Speed.value() > 0) {
@@ -533,7 +539,23 @@ double treadmill::treadmillInclinationOverride(double Inclination) {
 }
 
 void treadmill::evaluateStepCount() {
-    StepCount += (Cadence.lastChanged().msecsTo(QDateTime::currentDateTime())) * (Cadence.value() / 60000) * 2.0;
+    // Auto-detect cadence format: if per-leg, needs doubling for step count
+    // Running (>6 km/h): double if cadence < 120
+    // Walking (<6 km/h): double if cadence < 60
+    double effectiveCadence = Cadence.value();
+
+    if (Speed.value() > 6.0 && Cadence.value() < 120 && Cadence.value() > 0) {
+        // Running: likely per-leg cadence, double it
+        effectiveCadence = Cadence.value() * 2;
+    } else if (Speed.value() > 0 && Speed.value() <= 6.0 && Cadence.value() < 60 && Cadence.value() > 0) {
+        // Walking: likely per-leg cadence, double it
+        effectiveCadence = Cadence.value() * 2;
+    }
+
+    QSettings settings;
+    double step_gain = settings.value(QZSettings::step_gain, QZSettings::default_step_gain).toDouble();
+
+    StepCount += (Cadence.lastChanged().msecsTo(QDateTime::currentDateTime())) * (effectiveCadence / 60000) * step_gain;
 }
 
 bool treadmill::cadenceFromAppleWatch() {
@@ -738,6 +760,16 @@ void treadmill::parseSpeed(double speed) {
         qDebug() << "speed from the treadmill is discarded since we are using the one from the power sensor " << speed;
     }
     rawSpeed = speed;
+}
+
+void treadmill::parseCadence(double cadence) {
+    QSettings settings;
+    bool power_sensor_cadence_instead_treadmill = settings.value(QZSettings::power_sensor_cadence_instead_treadmill, QZSettings::default_power_sensor_cadence_instead_treadmill).toBool();
+    if(!power_sensor_cadence_instead_treadmill) {
+        Cadence = cadence;
+    } else {
+        qDebug() << "cadence from the treadmill is discarded since we are using the one from the power sensor " << cadence;
+    }
 }
 
 /*

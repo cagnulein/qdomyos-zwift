@@ -10,6 +10,7 @@
 #include "homeform.h"
 #include "peloton.h"
 #include <chrono>
+#include <QNetworkCookieJar>
 #include <QTimer>
 
 using namespace std::chrono_literals;
@@ -1484,6 +1485,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
             QJsonObject segmentObj = segment.toObject();
             QJsonObject offsets = segmentObj["offsets"].toObject();
             QJsonArray metrics = segmentObj["metrics"].toArray();
+            QString segment_type = segmentObj["segment_type"].toString();
 
             int start = offsets["start"].toInt();
             int end = offsets["end"].toInt();
@@ -1503,6 +1505,16 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
             }
 
             lastEnd = end;
+
+            // Handle floor segments (bootcamp workouts)
+            if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
+                trainrow r;
+                r.duration = QTime(0, 0, 0).addSecs(end - start + 1);
+                r.power = -1; // No power target for floor segments
+                trainrows.append(r);
+                qDebug() << r.duration << "floor segment - no cycling metrics" << "time range" << start << "-" << end;
+                continue;
+            }
 
             trainrow r;
             r.duration = QTime(0, 0, 0).addSecs(end - start + 1);
@@ -1663,7 +1675,11 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                                                        QZSettings::default_peloton_treadmill_level).toInt() - 1;
             int peloton_treadmill_walk_level = settings.value(QZSettings::peloton_treadmill_walk_level,
                                                        QZSettings::default_peloton_treadmill_walk_level).toInt() - 1;
-            
+            double peloton_treadmill_walking_min_speed = settings.value(QZSettings::peloton_treadmill_walking_min_speed,
+                                                       QZSettings::default_peloton_treadmill_walking_min_speed).toDouble();
+            double peloton_treadmill_running_min_speed = settings.value(QZSettings::peloton_treadmill_running_min_speed,
+                                                       QZSettings::default_peloton_treadmill_running_min_speed).toDouble();
+
             if (peloton_treadmill_level < 0 || peloton_treadmill_level > 9)
                 peloton_treadmill_level = 0;
             if (peloton_treadmill_walk_level < 0 || peloton_treadmill_walk_level > 9)
@@ -1708,9 +1724,25 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         if (isWalkingWorkout()) {
                             speed_lower = walking_pace[pace_intensity_lower].levels[peloton_treadmill_walk_level].slow_pace;
                             speed_upper = walking_pace[pace_intensity_upper].levels[peloton_treadmill_walk_level].fast_pace;
+
+                            // Apply walking min speed if set
+                            if (peloton_treadmill_walking_min_speed > 0.0) {
+                                if (speed_lower < peloton_treadmill_walking_min_speed)
+                                    speed_lower = peloton_treadmill_walking_min_speed;
+                                if (speed_upper < peloton_treadmill_walking_min_speed)
+                                    speed_upper = peloton_treadmill_walking_min_speed;
+                            }
                         } else {
                             speed_lower = treadmill_pace[pace_intensity_lower].levels[peloton_treadmill_level].slow_pace;
                             speed_upper = treadmill_pace[pace_intensity_upper].levels[peloton_treadmill_level].fast_pace;
+
+                            // Apply running min speed if set
+                            if (peloton_treadmill_running_min_speed > 0.0) {
+                                if (speed_lower < peloton_treadmill_running_min_speed)
+                                    speed_lower = peloton_treadmill_running_min_speed;
+                                if (speed_upper < peloton_treadmill_running_min_speed)
+                                    speed_upper = peloton_treadmill_running_min_speed;
+                            }
                         }
 
                         miles = 1; // the pace intensity are always in km/h
@@ -1718,6 +1750,19 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                     else if (metricName == "speed") {
                         speed_lower = metricObj["lower"].toDouble();
                         speed_upper = metricObj["upper"].toDouble();
+
+                        // Apply min speed based on workout type
+                        if (isWalkingWorkout() && peloton_treadmill_walking_min_speed > 0.0) {
+                            if (speed_lower < peloton_treadmill_walking_min_speed)
+                                speed_lower = peloton_treadmill_walking_min_speed;
+                            if (speed_upper < peloton_treadmill_walking_min_speed)
+                                speed_upper = peloton_treadmill_walking_min_speed;
+                        } else if (!isWalkingWorkout() && peloton_treadmill_running_min_speed > 0.0) {
+                            if (speed_lower < peloton_treadmill_running_min_speed)
+                                speed_lower = peloton_treadmill_running_min_speed;
+                            if (speed_upper < peloton_treadmill_running_min_speed)
+                                speed_upper = peloton_treadmill_running_min_speed;
+                        }
                     }
                     else if (metricName == "incline") {
                         inc_lower = metricObj["lower"].toDouble();
@@ -1854,6 +1899,23 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             QJsonObject targetMetric = targetMetrics.at(i).toObject();
             QJsonObject offsets = targetMetric[QStringLiteral("offsets")].toObject();
             QJsonArray metrics = targetMetric[QStringLiteral("metrics")].toArray();
+            QString segment_type = targetMetric[QStringLiteral("segment_type")].toString();
+
+            // Handle floor segments (bootcamp workouts)
+            if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
+                trainrow r;
+                int offset_start = offsets[QStringLiteral("start")].toInt();
+                int offset_end = offsets[QStringLiteral("end")].toInt();
+                int duration = offset_end - offset_start;
+                if (i != 0) {
+                    duration++;
+                }
+                r.duration = QTime(0, 0, 0).addSecs(duration);
+                r.power = -1; // No power target for floor segments
+                trainrows.append(r);
+                qDebug() << i << r.duration << "floor segment - no cycling metrics";
+                continue;
+            }
 
                    // Find resistance and cadence metrics
             int lowerResistance = 0, upperResistance = 0, lowerCadence = 0, upperCadence = 0;
@@ -1969,10 +2031,11 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             for (QJsonValue metric : sortedMetrics) {
                 QJsonObject metricObj = metric.toObject();
                 QJsonObject offsets = metricObj[QStringLiteral("offsets")].toObject();
+                QString segment_type = metricObj[QStringLiteral("segment_type")].toString();
                 int start = offsets[QStringLiteral("start")].toInt();
                 int end = offsets[QStringLiteral("end")].toInt();
                 int len = end - start + 1;
-                
+
                 // Check if there's a gap from previous segment
                 if (!trainrows.isEmpty()) {
                    int prevEnd = start - 1; // Expected previous end
@@ -1985,8 +2048,18 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                        trainrows.append(gapRow);
                    }
                 }
-                
+
                 lastEnd = end;
+
+                // Handle floor segments (bootcamp workouts)
+                if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
+                    trainrow r;
+                    r.duration = QTime(0, len / 60, len % 60, 0);
+                    r.power = -1; // No power target for floor segments
+                    trainrows.append(r);
+                    qDebug() << r.duration << "floor segment - no cycling metrics" << "time range" << start << "-" << end;
+                    continue;
+                }
 
                 QJsonArray metricsArray = metricObj[QStringLiteral("metrics")].toArray();
                 if (!metricsArray.isEmpty()) {
@@ -2047,6 +2120,11 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         int peloton_treadmill_walk_level =
             settings.value(QZSettings::peloton_treadmill_walk_level, QZSettings::default_peloton_treadmill_walk_level).toInt() -
             1;
+        double peloton_treadmill_walking_min_speed = settings.value(QZSettings::peloton_treadmill_walking_min_speed,
+                                                   QZSettings::default_peloton_treadmill_walking_min_speed).toDouble();
+        double peloton_treadmill_running_min_speed = settings.value(QZSettings::peloton_treadmill_running_min_speed,
+                                                   QZSettings::default_peloton_treadmill_running_min_speed).toDouble();
+
         if(peloton_treadmill_level < 0 || peloton_treadmill_level > 9)
             peloton_treadmill_level = 0;
         if(peloton_treadmill_walk_level < 0 || peloton_treadmill_walk_level > 9)
@@ -2078,6 +2156,20 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                     if(oo[QStringLiteral("name")].toString().toLower() == "speed") {
                         speed_lower = oo[QStringLiteral("lower")].toDouble();
                         speed_upper = oo[QStringLiteral("upper")].toDouble();
+
+                        // Apply min speed based on workout type
+                        if (isWalkingWorkout() && peloton_treadmill_walking_min_speed > 0.0) {
+                            if (speed_lower < peloton_treadmill_walking_min_speed)
+                                speed_lower = peloton_treadmill_walking_min_speed;
+                            if (speed_upper < peloton_treadmill_walking_min_speed)
+                                speed_upper = peloton_treadmill_walking_min_speed;
+                        } else if (!isWalkingWorkout() && peloton_treadmill_running_min_speed > 0.0) {
+                            if (speed_lower < peloton_treadmill_running_min_speed)
+                                speed_lower = peloton_treadmill_running_min_speed;
+                            if (speed_upper < peloton_treadmill_running_min_speed)
+                                speed_upper = peloton_treadmill_running_min_speed;
+                        }
+
                         speed_average = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
                     } else if(oo[QStringLiteral("name")].toString().toLower() == "incline") {
                         inc_lower = oo[QStringLiteral("lower")].toDouble();
@@ -2091,9 +2183,25 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                             if (isWalkingWorkout()) {
                                 speed_lower = walking_pace[paceintensity_lower].levels[peloton_treadmill_walk_level].slow_pace;
                                 speed_upper = walking_pace[paceintensity_upper].levels[peloton_treadmill_walk_level].fast_pace;
+
+                                // Apply walking min speed if set
+                                if (peloton_treadmill_walking_min_speed > 0.0) {
+                                    if (speed_lower < peloton_treadmill_walking_min_speed)
+                                        speed_lower = peloton_treadmill_walking_min_speed;
+                                    if (speed_upper < peloton_treadmill_walking_min_speed)
+                                        speed_upper = peloton_treadmill_walking_min_speed;
+                                }
                             } else {
                                 speed_lower = treadmill_pace[paceintensity_lower].levels[peloton_treadmill_level].slow_pace;
                                 speed_upper = treadmill_pace[paceintensity_upper].levels[peloton_treadmill_level].fast_pace;
+
+                                // Apply running min speed if set
+                                if (peloton_treadmill_running_min_speed > 0.0) {
+                                    if (speed_lower < peloton_treadmill_running_min_speed)
+                                        speed_lower = peloton_treadmill_running_min_speed;
+                                    if (speed_upper < peloton_treadmill_running_min_speed)
+                                        speed_upper = peloton_treadmill_running_min_speed;
+                                }
                             }
                             speed_average = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
                             miles = 1; // the pace intensity are always in km/h
@@ -2583,9 +2691,40 @@ QOAuth2AuthorizationCodeFlow *peloton::peloton_connect() {
     return pelotonOAuth;
 }
 
+void peloton::peloton_logout() {
+    qDebug() << "Peloton logout";
+    QSettings settings;
+    // Clear base token keys
+    settings.setValue(QZSettings::peloton_accesstoken, QStringLiteral(""));
+    settings.setValue(QZSettings::peloton_refreshtoken, QStringLiteral(""));
+    settings.setValue(QZSettings::peloton_lastrefresh, QStringLiteral(""));
+    settings.setValue(QZSettings::peloton_expires, QStringLiteral(""));
+    settings.setValue(QZSettings::peloton_code, QStringLiteral(""));
+    // Clear user-specific tokens
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
+    if (!userId.isEmpty()) {
+        settings.remove(getPelotonSettingKey(QZSettings::peloton_accesstoken, userId));
+        settings.remove(getPelotonSettingKey(QZSettings::peloton_refreshtoken, userId));
+        settings.remove(getPelotonSettingKey(QZSettings::peloton_expires, userId));
+    }
+    settings.setValue(QZSettings::peloton_current_user_id, QStringLiteral(""));
+    // Clear in-memory tokens
+    tempAccessToken.clear();
+    tempRefreshToken.clear();
+    // Reset OAuth cookie jar
+    if (pelotonOAuth) {
+        pelotonOAuth->setToken(QStringLiteral(""));
+        pelotonOAuth->setRefreshToken(QStringLiteral(""));
+    }
+    if (manager) {
+        manager->setCookieJar(new QNetworkCookieJar(manager));
+    }
+    qDebug() << "Peloton: tokens cleared";
+}
+
 void peloton::peloton_connect_clicked() {
     timer->stop();
-    
+
     QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
 
     peloton_connect();
