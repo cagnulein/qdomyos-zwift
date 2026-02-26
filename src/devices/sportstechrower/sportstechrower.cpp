@@ -362,14 +362,10 @@ void sportstechrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &sportstechrower::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &sportstechrower::serviceScanDone);
-        connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, &sportstechrower::error);
+        connect(m_control, &QLowEnergyController::errorOccurred, this, &sportstechrower::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &sportstechrower::controllerStateChanged);
 
-        connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, [this](QLowEnergyController::Error error) {
+        connect(m_control, &QLowEnergyController::errorOccurred, this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
                     emit debug(QStringLiteral("Cannot connect to remote device."));
