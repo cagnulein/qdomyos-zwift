@@ -1,0 +1,34 @@
+<RCC>
+    <qresource prefix="/translations">
+        <file>translations/qdomyos-zwift_it.qm</file>
+        <file>translations/qdomyos-zwift_de.qm</file>
+        <file>translations/qdomyos-zwift_fr.qm</file>
+        <file>translations/qdomyos-zwift_es.qm</file>
+        <file>translations/qdomyos-zwift_pt.qm</file>
+        <file>translations/qdomyos-zwift_pt_BR.qm</file>
+        <file>translations/qdomyos-zwift_ru.qm</file>
+        <file>translations/qdomyos-zwift_zh_CN.qm</file>
+        <file>translations/qdomyos-zwift_zh_TW.qm</file>
+        <file>translations/qdomyos-zwift_ja.qm</file>
+        <file>translations/qdomyos-zwift_ko.qm</file>
+        <file>translations/qdomyos-zwift_ar.qm</file>
+        <file>translations/qdomyos-zwift_hi.qm</file>
+        <file>translations/qdomyos-zwift_tr.qm</file>
+        <file>translations/qdomyos-zwift_vi.qm</file>
+        <file>translations/qdomyos-zwift_pl.qm</file>
+        <file>translations/qdomyos-zwift_uk.qm</file>
+        <file>translations/qdomyos-zwift_nl.qm</file>
+        <file>translations/qdomyos-zwift_th.qm</file>
+        <file>translations/qdomyos-zwift_id.qm</file>
+        <file>translations/qdomyos-zwift_ro.qm</file>
+        <file>translations/qdomyos-zwift_cs.qm</file>
+        <file>translations/qdomyos-zwift_el.qm</file>
+        <file>translations/qdomyos-zwift_sv.qm</file>
+        <file>translations/qdomyos-zwift_hu.qm</file>
+        <file>translations/qdomyos-zwift_fi.qm</file>
+        <file>translations/qdomyos-zwift_no.qm</file>
+        <file>translations/qdomyos-zwift_da.qm</file>
+        <file>translations/qdomyos-zwift_he.qm</file>
+        <file>translations/qdomyos-zwift_ca.qm</file>
+    </qresource>
+</RCC>
