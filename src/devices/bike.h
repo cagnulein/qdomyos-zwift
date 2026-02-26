@@ -12,6 +12,8 @@ class bike : public bluetoothdevice {
 
   public:
     bike();
+    static double powerZoneValueToFtpPercentage(double zoneValue);
+    static int powerZoneValueToWatts(double zoneValue, double ftp);
 
     virtualbike *VirtualBike();
 

@@ -521,6 +521,17 @@ ApplicationWindow {
     }
 
     MessageDialog {
+        text: "Garmin"
+        informativeText: "Workout found:\n" + rootItem.garminWorkoutPromptName +
+                         (rootItem.garminWorkoutPromptDate.length > 0 ? "\nDate: " + rootItem.garminWorkoutPromptDate : "") +
+                         "\n\nDo you want to start it now?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.garmin_start_downloaded_workout(); }
+        onNoClicked: { rootItem.garmin_dismiss_downloaded_workout_prompt(); }
+        visible: rootItem.garminWorkoutPromptRequested
+    }
+
+    MessageDialog {
         id: stravaLogoutConfirm
         text: qsTr("Strava")
         informativeText: qsTr("You are already connected to Strava. Do you want to log out?")
