@@ -862,23 +862,37 @@ int main(int argc, char *argv[]) {
         fontManager.initializeEmojiFont();
 #endif
 
-        // Load translations based on system locale
+        // Load translations based on explicit app setting or system locale.
         QTranslator *translator = new QTranslator(app.data());
-        QString locale = QLocale::system().name(); // e.g., "it_IT", "en_US", "de_DE"
+        QString configuredLanguage =
+            settings.value(QZSettings::app_language, QZSettings::default_app_language).toString().trimmed();
+        QString locale = configuredLanguage.compare(QStringLiteral("auto"), Qt::CaseInsensitive) == 0 ||
+                                 configuredLanguage.isEmpty()
+                             ? QLocale::system().name()
+                             : configuredLanguage;
+        locale.replace(QLatin1Char('-'), QLatin1Char('_'));
 
-        // Try to load translation for the current locale
-        // The .qm files are embedded in the application via translations.qrc
-        // Located in src/translations/ folder
-        if (translator->load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + locale)) {
-            app->installTranslator(translator);
-            qDebug() << "Translation loaded successfully for locale:" << locale;
-        } else {
-            // Try to load just the language part (e.g., "it" from "it_IT")
-            QString language = locale.split('_').at(0);
-            if (translator->load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + language)) {
+        auto tryLoadTranslation = [&](const QString &localeKey, const QString &sourceLabel) -> bool {
+            if (localeKey.isEmpty()) {
+                return false;
+            }
+            if (translator->load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + localeKey)) {
                 app->installTranslator(translator);
-                qDebug() << "Translation loaded successfully for language:" << language;
-            } else {
+                qDebug() << "Translation loaded successfully for" << sourceLabel << ":" << localeKey;
+                return true;
+            }
+            return false;
+        };
+
+        // "en" is the built-in source language, so we don't load any translator for it.
+        if (locale.startsWith(QStringLiteral("en"), Qt::CaseInsensitive)) {
+            qDebug() << "Language setting resolves to English. Using built-in source strings.";
+        } else {
+            bool loaded = tryLoadTranslation(locale, QStringLiteral("locale"));
+            if (!loaded && locale.contains(QLatin1Char('_'))) {
+                loaded = tryLoadTranslation(locale.section(QLatin1Char('_'), 0, 0), QStringLiteral("language"));
+            }
+            if (!loaded) {
                 qDebug() << "No translation available for locale:" << locale << "- using default (English)";
             }
         }

@@ -71,6 +71,8 @@ const QString QZSettings::code = QStringLiteral("code");
 const QString QZSettings::default_code = QStringLiteral("");
 //--------------------------------------------------------------------------------------------
 const QString QZSettings::ui_zoom = QStringLiteral("ui_zoom");
+const QString QZSettings::app_language = QStringLiteral("app_language");
+const QString QZSettings::default_app_language = QStringLiteral("auto");
 const QString QZSettings::bike_heartrate_service = QStringLiteral("bike_heartrate_service");
 const QString QZSettings::bike_resistance_offset = QStringLiteral("bike_resistance_offset");
 const QString QZSettings::bike_resistance_gain_f = QStringLiteral("bike_resistance_gain_f");

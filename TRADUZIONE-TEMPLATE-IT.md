@@ -344,7 +344,7 @@ linguist src/translations/qdomyos-zwift_it.ts
 - Salvataggio automatico
 
 ### Opzione 3: Weblate (Online - Più Facile)
-1. Setup Weblate (vedi `docs/WEBLATE-SETUP-IT.md`)
+1. Setup Weblate (vedi `docs/60_translation_platforms.md`)
 2. Traduci via browser
 3. Controllo qualità automatico
 4. Nessun software da installare

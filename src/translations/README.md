@@ -114,6 +114,8 @@ You can use online translation platforms like:
 - Crowdin (free for open source)
 - POEditor (free tier available)
 
+See setup guide: `docs/60_translation_platforms.md`
+
 ### 5. Submit Your Translation
 
 1. Fork the repository

@@ -1287,6 +1287,7 @@ import Qt.labs.platform 1.1
             property bool sportstech_esx500: false
             property bool proform_bike_325_csx_PFEX439210INT_0: false
             property bool proform_carbon_tlx_treadmill: false
+            property string app_language: "auto"
         }
 
 
@@ -1314,6 +1315,41 @@ import Qt.labs.platform 1.1
         }
 
         Component.onCompleted: window.settings_restart_to_apply = false;
+
+        property var appLanguageOptions: [
+            { label: qsTr("Auto (System)"), value: "auto" },
+            { label: qsTr("English"), value: "en" },
+            { label: qsTr("Italian"), value: "it" },
+            { label: qsTr("German"), value: "de" },
+            { label: qsTr("French"), value: "fr" },
+            { label: qsTr("Spanish"), value: "es" },
+            { label: qsTr("Portuguese"), value: "pt" },
+            { label: qsTr("Portuguese (Brazil)"), value: "pt_BR" },
+            { label: qsTr("Russian"), value: "ru" },
+            { label: qsTr("Chinese (Simplified)"), value: "zh_CN" },
+            { label: qsTr("Chinese (Traditional)"), value: "zh_TW" },
+            { label: qsTr("Japanese"), value: "ja" },
+            { label: qsTr("Korean"), value: "ko" },
+            { label: qsTr("Arabic"), value: "ar" },
+            { label: qsTr("Hindi"), value: "hi" },
+            { label: qsTr("Turkish"), value: "tr" },
+            { label: qsTr("Vietnamese"), value: "vi" },
+            { label: qsTr("Polish"), value: "pl" },
+            { label: qsTr("Ukrainian"), value: "uk" },
+            { label: qsTr("Dutch"), value: "nl" },
+            { label: qsTr("Thai"), value: "th" },
+            { label: qsTr("Indonesian"), value: "id" },
+            { label: qsTr("Romanian"), value: "ro" },
+            { label: qsTr("Czech"), value: "cs" },
+            { label: qsTr("Greek"), value: "el" },
+            { label: qsTr("Swedish"), value: "sv" },
+            { label: qsTr("Hungarian"), value: "hu" },
+            { label: qsTr("Finnish"), value: "fi" },
+            { label: qsTr("Norwegian"), value: "no" },
+            { label: qsTr("Danish"), value: "da" },
+            { label: qsTr("Hebrew"), value: "he" },
+            { label: qsTr("Catalan"), value: "ca" }
+        ]
 
         ColumnLayout {
             id: column1
@@ -1365,6 +1401,56 @@ import Qt.labs.platform 1.1
                         verticalAlignment: Text.AlignVCenter
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         width: column1.width * 0.8
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelAppLanguage
+                            text: qsTr("App Language:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: appLanguageCombo
+                            model: appLanguageOptions
+                            textRole: "label"
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: displayText = currentText
+                            Component.onCompleted: {
+                                var selected = settings.app_language
+                                var i
+                                for (i = 0; i < appLanguageOptions.length; i++) {
+                                    if (appLanguageOptions[i].value === selected) {
+                                        currentIndex = i
+                                        return
+                                    }
+                                }
+                                currentIndex = 0
+                            }
+                        }
+                        Button {
+                            id: okAppLanguageButton
+                            text: qsTr("OK")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                settings.app_language = appLanguageOptions[appLanguageCombo.currentIndex].value
+                                window.settings_restart_to_apply = true
+                                toast.show(qsTr("Setting saved!"))
+                            }
+                        }
+                    }
+                    Label {
+                        text: qsTr("Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
