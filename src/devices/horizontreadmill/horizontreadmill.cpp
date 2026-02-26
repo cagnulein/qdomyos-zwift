@@ -2484,6 +2484,8 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &horizontreadmill::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &horizontreadmill::changeInclinationRequested);
+                connect(virtualTreadmill, &virtualtreadmill::ftmsCharacteristicChanged, this,
+                        &horizontreadmill::ftmsCharacteristicChanged);
                 this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
             } else {
                 debug("creating virtual bike interface...");
@@ -2502,6 +2504,21 @@ void horizontreadmill::changeInclinationRequested(double grade, double percentag
     if (percentage < minInclination)
         percentage = minInclination;
     changeInclination(grade, percentage);
+}
+
+void horizontreadmill::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                                 const QByteArray &newValue) {
+    Q_UNUSED(characteristic);
+
+    if (newValue.isEmpty()) {
+        return;
+    }
+
+    // SW treadmills: forward FTMS Start (0x07) from virtual treadmill to the real treadmill only if stopped.
+    if ((quint8)newValue.at(0) == 0x07 && SW_TREADMILL && currentSpeed().value() == 0.0) {
+        qDebug() << "SW FTMS start received from virtual treadmill -> starting real treadmill";
+        start();
+    }
 }
 
 void horizontreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {

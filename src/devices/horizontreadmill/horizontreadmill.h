@@ -217,6 +217,7 @@ class horizontreadmill : public treadmill {
     void errorService(QLowEnergyService::ServiceError);
 
     void changeInclinationRequested(double grade, double percentage);
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };
 
 #endif // HORIZONTREADMILL_H
