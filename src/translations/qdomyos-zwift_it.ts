@@ -1563,7 +1563,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="1783"/>
         <source>Use Miles unit in UI</source>
-        <translation>Usa miglia nell'interfaccia</translation>
+        <translation>Usa miglia nell&apos;interfaccia</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="1797"/>
@@ -4844,7 +4844,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings.qml" line="11149"/>
         <source>Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.</source>
-        <translation>Il valore predefinito è “QZ”. Lascialo così in modo che anche altri utenti Strava vedano QZ; è una piccola forma di promozione che aiuta lo sviluppo dell'app. Se scegli di rimuoverlo, valuta di contribuire su Patreon o Buy Me a Coffee, oppure iscriviti allo Swag bag nella barra laterale sinistra per supportare lo sviluppo e l'assistenza.</translation>
+        <translation>Il valore predefinito è “QZ”. Lascialo così in modo che anche altri utenti Strava vedano QZ; è una piccola forma di promozione che aiuta lo sviluppo dell&apos;app. Se scegli di rimuoverlo, valuta di contribuire su Patreon o Buy Me a Coffee, oppure iscriviti allo Swag bag nella barra laterale sinistra per supportare lo sviluppo e l&apos;assistenza.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11162"/>
