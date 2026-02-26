@@ -137,7 +137,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             }
         }
         if (!this->noHeartService || heart_only) {
-            services << QBluetoothUuid::HeartRate;
+            services << QBluetoothUuid(QBluetoothUuid::ServiceClassUuid::HeartRate);
         }
 
         if (!pm5Mode) {
@@ -236,7 +236,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         if (!this->noHeartService || heart_only) {
 
             QLowEnergyCharacteristicData charDataHR;
-            charDataHR.setUuid(QBluetoothUuid::HeartRateMeasurement);
+            charDataHR.setUuid(QBluetoothUuid(QBluetoothUuid::CharacteristicType::HeartRateMeasurement));
             charDataHR.setValue(QByteArray(2, 0));
             charDataHR.setProperties(QLowEnergyCharacteristic::Notify);
             const QLowEnergyDescriptorData clientConfigHR(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
@@ -244,7 +244,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             charDataHR.addDescriptor(clientConfigHR);
 
             serviceDataHR.setType(QLowEnergyServiceData::ServiceTypePrimary);
-            serviceDataHR.setUuid(QBluetoothUuid::HeartRate);
+            serviceDataHR.setUuid(QBluetoothUuid(QBluetoothUuid::ServiceClassUuid::HeartRate));
             serviceDataHR.addCharacteristic(charDataHR);
         }
 
@@ -649,9 +649,10 @@ void virtualrower::rowerProvider() {
             value.append((char)((uint16_t)(strokeCount & 0xFF)));        // Stroke Count
             value.append((char)(((uint16_t)(strokeCount >> 8) & 0xFF))); // Stroke Count
 
-            value.append((char)(((uint16_t)(Rower->odometer() * 1000.0)) & 0xFF));       // Distance
-            value.append((char)(((uint16_t)(Rower->odometer() * 1000.0) >> 8) & 0xFF));  // Distance
-            value.append((char)(((uint16_t)(Rower->odometer() * 1000.0) >> 16) & 0xFF)); // Distance
+            uint32_t distanceMeters = static_cast<uint32_t>(Rower->odometer() * 1000.0);
+            value.append((char)(distanceMeters & 0xFF));        // Distance (LSB)
+            value.append((char)((distanceMeters >> 8) & 0xFF)); // Distance
+            value.append((char)((distanceMeters >> 16) & 0xFF)); // Distance (MSB of 24-bit field)
 
             value.append((char)((uint16_t)(paceSecs & 0xFF)));      // pace
             value.append((char)(((uint16_t)(paceSecs >> 8) & 0xFF))); // pace
@@ -704,7 +705,8 @@ void virtualrower::rowerProvider() {
         QByteArray valueHR;
         valueHR.append(char(0));                                   // Flags that specify the format of the value.
         valueHR.append(char(Rower->metrics_override_heartrate())); // Actual value.
-        QLowEnergyCharacteristic characteristicHR = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
+        QLowEnergyCharacteristic characteristicHR = serviceHR->characteristic(
+            QBluetoothUuid(QBluetoothUuid::CharacteristicType::HeartRateMeasurement));
 
         Q_ASSERT(characteristicHR.isValid());
         if (leController->state() != QLowEnergyController::ConnectedState) {
@@ -742,17 +744,17 @@ void virtualrower::setupPM5Services() {
     // Generic Access Service (0x1800) - Standard BLE GAP
     // ========================================
     serviceDataPM5GAP.setType(QLowEnergyServiceData::ServiceTypePrimary);
-    serviceDataPM5GAP.setUuid(QBluetoothUuid::GenericAccess);
+    serviceDataPM5GAP.setUuid(QBluetoothUuid(QBluetoothUuid::ServiceClassUuid::GenericAccess));
 
     // Device Name (0x2A00)
     QLowEnergyCharacteristicData charDeviceName;
-    charDeviceName.setUuid(QBluetoothUuid::DeviceName);
+    charDeviceName.setUuid(QBluetoothUuid(QBluetoothUuid::CharacteristicType::DeviceName));
     charDeviceName.setProperties(QLowEnergyCharacteristic::Read);
     charDeviceName.setValue(QByteArray("PM5 430000000"));
 
     // Appearance (0x2A01) - Generic value
     QLowEnergyCharacteristicData charAppearance;
-    charAppearance.setUuid(QBluetoothUuid::Appearance);
+    charAppearance.setUuid(QBluetoothUuid(QBluetoothUuid::CharacteristicType::Appearance));
     charAppearance.setProperties(QLowEnergyCharacteristic::Read);
     QByteArray appearanceValue;
     appearanceValue.append((char)0x00);
@@ -761,7 +763,8 @@ void virtualrower::setupPM5Services() {
 
     // Peripheral Preferred Connection Parameters (0x2A04)
     QLowEnergyCharacteristicData charConnParams;
-    charConnParams.setUuid(QBluetoothUuid::PeripheralPreferredConnectionParameters);
+    charConnParams.setUuid(
+        QBluetoothUuid(QBluetoothUuid::CharacteristicType::PeripheralPreferredConnectionParameters));
     charConnParams.setProperties(QLowEnergyCharacteristic::Read);
     QByteArray connParamsValue;
     connParamsValue.append((char)0x18); // Min interval (24 * 1.25ms = 30ms)
