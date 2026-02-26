@@ -31,28 +31,22 @@ cd "$PROJECT_ROOT"
 
 # Update translation files
 echo "Updating translation files..."
-echo "Running: lupdate src/qdomyos-zwift.pri -ts src/qdomyos-zwift.ts"
+echo "Running: lupdate src/qdomyos-zwift.pri"
 echo ""
 
-lupdate src/qdomyos-zwift.pri -ts src/qdomyos-zwift.ts
+lupdate src/qdomyos-zwift.pri
 
-if [ $? -eq 0 ]; then
-    echo ""
-    echo "✓ Translation file updated successfully!"
-    echo ""
-    echo "Next steps:"
-    echo "1. Open src/qdomyos-zwift.ts in Qt Linguist:"
-    echo "   linguist src/qdomyos-zwift.ts"
-    echo ""
-    echo "2. Or edit manually in a text editor"
-    echo ""
-    echo "3. Compile translations:"
-    echo "   lrelease src/qdomyos-zwift.ts"
-    echo ""
-    echo "4. Rebuild the application:"
-    echo "   qmake && make"
-else
-    echo ""
-    echo "✗ Error updating translation file"
-    exit 1
-fi
+echo ""
+echo "SUCCESS: Translation files updated successfully!"
+echo ""
+echo "Next steps:"
+echo "1. Open a translation file in Qt Linguist:"
+echo "   linguist src/translations/qdomyos-zwift_it.ts"
+echo ""
+echo "2. Or edit files manually in a text editor"
+echo ""
+echo "3. Compile translations:"
+echo "   lrelease src/qdomyos-zwift.pri"
+echo ""
+echo "4. Rebuild the application:"
+echo "   qmake && make"

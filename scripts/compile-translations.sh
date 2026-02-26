@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script to compile translation files (.ts → .qm)
+# Script to compile translation files (.ts -> .qm)
 
 set -e
 
@@ -25,30 +25,24 @@ echo "Found lrelease: $(which lrelease)"
 echo "Version: $(lrelease -version)"
 echo ""
 
-# Navigate to project root
-cd "$PROJECT_ROOT/src"
+# Navigate to translations folder
+cd "$PROJECT_ROOT/src/translations"
 
 # Compile translation files
 echo "Compiling translation files..."
 echo ""
 
-for ts_file in *.ts; do
+for ts_file in qdomyos-zwift_*.ts; do
     if [ -f "$ts_file" ]; then
-        qm_file="${ts_file%.ts}_it.qm"
-        echo "Compiling: $ts_file → $qm_file"
+        qm_file="${ts_file%.ts}.qm"
+        echo "Compiling: $ts_file -> $qm_file"
         lrelease "$ts_file" -qm "$qm_file"
-
-        if [ $? -eq 0 ]; then
-            echo "✓ $qm_file created successfully"
-        else
-            echo "✗ Error compiling $ts_file"
-            exit 1
-        fi
+        echo "SUCCESS: $qm_file created"
     fi
 done
 
 echo ""
-echo "✓ All translation files compiled successfully!"
+echo "SUCCESS: All translation files compiled successfully!"
 echo ""
 echo "Next steps:"
 echo "1. Rebuild the application to embed translations:"

@@ -51,6 +51,23 @@ jobs:
           # lupdate will create/update all .ts files defined in TRANSLATIONS
           lupdate src/qdomyos-zwift.pri
 
+      - name: Compile translation binaries (.qm)
+        run: |
+          echo "Compiling .ts files into .qm binaries..."
+          lrelease src/qdomyos-zwift.pri
+
+      - name: Verify generated .qm files
+        run: |
+          echo "Checking compiled translation files..."
+          ls -1 src/translations/*.qm
+
+      - name: qmake smoke check
+        run: |
+          echo "Validating qmake project configuration..."
+          qmake src/qdomyos-zwift.pro
+
+      - name: Check for translation changes
+        run: |
           echo ""
           echo "Checking for changes..."
 
@@ -78,8 +95,8 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-          # Commit to current branch (PR branch)
-          git add src/translations/
+          # Commit updated translation source files only
+          git add src/translations/*.ts
           git commit -m "chore: update translation strings [automated]
 
           Automatic update of translatable strings extracted from source code.
@@ -104,8 +121,8 @@ jobs:
           BRANCH_NAME="translations/auto-update-$(date +%Y%m%d-%H%M%S)"
           git checkout -b "$BRANCH_NAME"
 
-          # Add and commit changes
-          git add src/translations/
+          # Add updated translation source files only
+          git add src/translations/*.ts
           git commit -m "chore: update translation strings
 
           Automatic update of translatable strings extracted from source code.

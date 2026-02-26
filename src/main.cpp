@@ -863,20 +863,20 @@ int main(int argc, char *argv[]) {
 #endif
 
         // Load translations based on system locale
-        QTranslator translator;
+        QTranslator *translator = new QTranslator(app.data());
         QString locale = QLocale::system().name(); // e.g., "it_IT", "en_US", "de_DE"
 
         // Try to load translation for the current locale
         // The .qm files are embedded in the application via translations.qrc
         // Located in src/translations/ folder
-        if (translator.load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + locale)) {
-            app->installTranslator(&translator);
+        if (translator->load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + locale)) {
+            app->installTranslator(translator);
             qDebug() << "Translation loaded successfully for locale:" << locale;
         } else {
             // Try to load just the language part (e.g., "it" from "it_IT")
             QString language = locale.split('_').at(0);
-            if (translator.load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + language)) {
-                app->installTranslator(&translator);
+            if (translator->load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + language)) {
+                app->installTranslator(translator);
                 qDebug() << "Translation loaded successfully for language:" << language;
             } else {
                 qDebug() << "No translation available for locale:" << locale << "- using default (English)";

@@ -3,7 +3,7 @@
 ## Statistiche
 - **Totale stringhe**: 845
 - **Da tradurre**: 845 (100%)
-- **File**: `src/qdomyos-zwift.ts`
+- **File**: `src/translations/qdomyos-zwift_it.ts`
 
 ---
 
@@ -329,14 +329,14 @@ I placeholder come `%1`, `%2`, `%n` devono rimanere IDENTICI:
 ## 🛠️ Strumenti per Tradurre
 
 ### Opzione 1: Editor di Testo (Manuale)
-1. Apri `src/qdomyos-zwift.ts` in un editor
+1. Apri `src/translations/qdomyos-zwift_it.ts` in un editor
 2. Cerca `<translation type="unfinished"></translation>`
 3. Aggiungi traduzione: `<translation>Testo Italiano</translation>`
 4. Salva il file
 
 ### Opzione 2: Qt Linguist (GUI - Consigliato)
 ```bash
-linguist src/qdomyos-zwift.ts
+linguist src/translations/qdomyos-zwift_it.ts
 ```
 - Interfaccia grafica intuitiva
 - Mostra contesto (dove appare la stringa)
@@ -377,10 +377,10 @@ Dopo aver tradotto, verifica il progresso:
 
 ```bash
 # Conta stringhe tradotte
-grep -c '<translation>' src/qdomyos-zwift.ts
+grep -c '<translation>' src/translations/qdomyos-zwift_it.ts
 
 # Conta stringhe da tradurre
-grep -c 'translation type="unfinished"' src/qdomyos-zwift.ts
+grep -c 'translation type="unfinished"' src/translations/qdomyos-zwift_it.ts
 ```
 
 ---
@@ -396,7 +396,7 @@ Prima di committare le traduzioni, verifica:
 - [ ] Maiuscole/minuscole appropriate
 - [ ] Lunghezza testo ragionevole (pensa allo spazio UI)
 - [ ] Terminologia consistente (usa sempre la stessa parola)
-- [ ] File compila senza errori: `lrelease src/qdomyos-zwift.ts`
+- [ ] File compila senza errori: `lrelease src/translations/qdomyos-zwift_it.ts`
 
 ---
 
@@ -407,7 +407,7 @@ Prima di committare le traduzioni, verifica:
 ./scripts/update-translations.sh
 
 # 2. Traduci con Qt Linguist
-linguist src/qdomyos-zwift.ts
+linguist src/translations/qdomyos-zwift_it.ts
 
 # 3. Compila traduzioni
 ./scripts/compile-translations.sh
@@ -420,7 +420,7 @@ LC_ALL=it_IT.UTF-8 ./qdomyos-zwift
 # ...
 
 # 6. Commit
-git add src/qdomyos-zwift.ts src/qdomyos-zwift_it.qm
+git add src/translations/qdomyos-zwift_it.ts src/translations/qdomyos-zwift_it.qm
 git commit -m "i18n: Add Italian translations for main UI"
 ```
 
