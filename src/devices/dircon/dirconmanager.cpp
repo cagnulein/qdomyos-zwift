@@ -256,6 +256,13 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
         P1->sendCharacteristicNotification(0x##UUID, all##UUID);
 
 void DirconManager::bikeProvider() {
+    // If no hub riding frame has been produced for >=1s, force one on the Zwift Play channel.
+    if (writeP0003 && notif0004 && writeP0003->hubRidingDataIdleMs() >= 1000) {
+        const QByteArray hubData = writeP0003->buildCurrentHubRidingData();
+        notif0004->addAnswer(hubData);
+        qDebug() << "Dircon 0003 forced push after idle (0004 notify):" << hubData.toHex(' ');
+    }
+
     DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_NOTIF1_OP, 0, 0, 0)
     foreach (DirconProcessor *processor, processors) {
         DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_NOTIF2_OP, processor, 0, 0)
