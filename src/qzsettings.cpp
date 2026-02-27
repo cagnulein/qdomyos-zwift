@@ -631,6 +631,7 @@ const QString QZSettings::nordictrack_t65s_83_treadmill = QStringLiteral("nordic
 const QString QZSettings::horizon_treadmill_suspend_stats_pause =
     QStringLiteral("horizon_treadmill_suspend_stats_pause");
 const QString QZSettings::sportstech_sx600 = QStringLiteral("sportstech_sx600");
+const QString QZSettings::sportstech_esx500 = QStringLiteral("sportstech_esx500");
 const QString QZSettings::sole_elliptical_inclination = QStringLiteral("sole_elliptical_inclination");
 const QString QZSettings::proform_hybrid_trainer_xt = QStringLiteral("proform_hybrid_trainer_xt");
 const QString QZSettings::gears_restore_value = QStringLiteral("gears_restore_value");
@@ -747,6 +748,7 @@ const QString QZSettings::autolap_distance = QStringLiteral("autolap_distance");
 const QString QZSettings::nordictrack_s20_treadmill = QStringLiteral("nordictrack_s20_treadmill");
 const QString QZSettings::freemotion_coachbike_b22_7 = QStringLiteral("freemotion_coachbike_b22_7");
 const QString QZSettings::proform_cycle_trainer_300_ci = QStringLiteral("proform_cycle_trainer_300_ci");
+const QString QZSettings::nordictrack_gx_4_5_pro = QStringLiteral("nordictrack_gx_4_5_pro");
 const QString QZSettings::kingsmith_encrypt_g1_walking_pad = QStringLiteral("kingsmith_encrypt_g1_walking_pad");
 const QString QZSettings::proformtdf1ip = QStringLiteral("proformtdf1ip");
 const QString QZSettings::default_proformtdf1ip = QStringLiteral("");
@@ -1051,9 +1053,12 @@ const QString QZSettings::confirm_stop_workout = QStringLiteral("confirm_stop_wo
 const QString QZSettings::height = QStringLiteral("height");
 const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
+const QString QZSettings::proform_bike_325_csx_PFEX439210INT_0 = QStringLiteral("proform_bike_325_csx_PFEX439210INT_0");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 const QString QZSettings::trainprogram_auto_lap_on_segment = QStringLiteral("trainprogram_auto_lap_on_segment");
 const QString QZSettings::kingsmith_r2_enable_hw_buttons = QStringLiteral("kingsmith_r2_enable_hw_buttons");
+const QString QZSettings::step_gain = QStringLiteral("step_gain");
+const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform_carbon_tlx_treadmill");
 
 const QString QZSettings::shortcuts_enabled = QStringLiteral("shortcuts_enabled");
 const QString QZSettings::shortcut_speed_plus = QStringLiteral("shortcut_speed_plus");
@@ -1185,7 +1190,7 @@ const QString QZSettings::default_shortcut_lap = QStringLiteral("");
 const QString QZSettings::shortcut_start_stop = QStringLiteral("shortcut_start_stop");
 const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 926;
+const uint32_t allSettingsCount = 930;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1696,6 +1701,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_t65s_83_treadmill, QZSettings::default_nordictrack_t65s_83_treadmill},
     {QZSettings::horizon_treadmill_suspend_stats_pause, QZSettings::default_horizon_treadmill_suspend_stats_pause},
     {QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600},
+    {QZSettings::sportstech_esx500, QZSettings::default_sportstech_esx500},
     {QZSettings::sole_elliptical_inclination, QZSettings::default_sole_elliptical_inclination},
     {QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt},
     {QZSettings::gears_restore_value, QZSettings::default_gears_restore_value},
@@ -1805,6 +1811,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_s20_treadmill, QZSettings::default_nordictrack_s20_treadmill},
     {QZSettings::freemotion_coachbike_b22_7, QZSettings::default_freemotion_coachbike_b22_7},
     {QZSettings::proform_cycle_trainer_300_ci, QZSettings::default_proform_cycle_trainer_300_ci},
+    {QZSettings::nordictrack_gx_4_5_pro, QZSettings::default_nordictrack_gx_4_5_pro},
     {QZSettings::kingsmith_encrypt_g1_walking_pad, QZSettings::default_kingsmith_encrypt_g1_walking_pad},    
     {QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx},
     {QZSettings::proform_treadmill_l6_0s, QZSettings::default_proform_treadmill_l6_0s},
@@ -2060,6 +2067,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::height, QZSettings::default_height},
     {QZSettings::taurua_ic90, QZSettings::default_taurua_ic90},
     {QZSettings::proform_csx210, QZSettings::default_proform_csx210},
+    {QZSettings::proform_bike_325_csx_PFEX439210INT_0, QZSettings::default_proform_bike_325_csx_PFEX439210INT_0},
     {QZSettings::skandika_wiri_x2000_protocol, QZSettings::default_skandika_wiri_x2000_protocol},
     {QZSettings::trainprogram_auto_lap_on_segment, QZSettings::default_trainprogram_auto_lap_on_segment},
     {QZSettings::kingsmith_r2_enable_hw_buttons, QZSettings::default_kingsmith_r2_enable_hw_buttons},
@@ -2132,6 +2140,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::shortcut_auto_resistance, QZSettings::default_shortcut_auto_resistance},
     {QZSettings::shortcut_lap, QZSettings::default_shortcut_lap},
     {QZSettings::shortcut_start_stop, QZSettings::default_shortcut_start_stop},
+    {QZSettings::step_gain, QZSettings::default_step_gain},
+    {QZSettings::proform_carbon_tlx_treadmill, QZSettings::default_proform_carbon_tlx_treadmill},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

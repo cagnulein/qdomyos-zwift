@@ -30,6 +30,7 @@
 #include <QImageWriter>
 #include <QJsonDocument>
 #include <QNetworkAccessManager>
+#include <QNetworkCookieJar>
 #include <QNetworkInterface>
 #include <QOAuth2AuthorizationCodeFlow>
 #include <QOAuthHttpServerReplyHandler>
@@ -920,6 +921,20 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             garmin_connect_login();
         } else {
             qDebug() << "Garmin Connect: Startup check skipped (not enabled or credentials not configured)";
+        }
+    });
+
+    // Auto-download today's Garmin workout at startup (after 15 seconds to allow auth to complete)
+    QTimer::singleShot(15000, this, [this]() {
+        QSettings settings;
+        bool garmin_enabled = settings.value(QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled).toBool();
+        QString token = settings.value(QZSettings::garmin_access_token).toString();
+
+        if (garmin_enabled && !token.isEmpty()) {
+            qDebug() << "Garmin Connect: Auto-downloading today's workout...";
+            garmin_download_todays_workout();
+        } else {
+            qDebug() << "Garmin Connect: Workout auto-download skipped (not configured or not authenticated)";
         }
     });
 
@@ -4203,34 +4218,7 @@ void homeform::LargeButton(const QString &name) {
             int zoneNum = name.right(1).toInt(); // Gets last digit from preset_powerzone_X
             QString zoneSetting = QString("tile_preset_powerzone_%1_value").arg(zoneNum);
             double zoneValue = settings.value(zoneSetting, zoneNum).toDouble();
-
-            // Calculate target watts based on FTP and zone value
-            // Map zoneValue to the correct percentage within each power zone
-            double targetPerc;
-            if (zoneValue <= 1.9) {
-                // Zone 1: 0-55% FTP range
-                targetPerc = zoneValue * 0.50; // zoneValue 1.0->50%, safely within Zone 1 boundary
-                if (targetPerc > 0.55) targetPerc = 0.55;
-            } else if (zoneValue <= 2.9) {
-                // Zone 2: 56-75% FTP range
-                targetPerc = 0.56 + (zoneValue - 2.0) * 0.19; // zoneValue 2.0->56%, 3.0->75%
-            } else if (zoneValue <= 3.9) {
-                // Zone 3: 76-90% FTP range
-                targetPerc = 0.76 + (zoneValue - 3.0) * 0.14; // zoneValue 3.0->76%, 4.0->90%
-            } else if (zoneValue <= 4.9) {
-                // Zone 4: 91-105% FTP range
-                targetPerc = 0.91 + (zoneValue - 4.0) * 0.14; // zoneValue 4.0->91%, 5.0->105%
-            } else if (zoneValue <= 5.9) {
-                // Zone 5: 106-120% FTP range
-                targetPerc = 1.06 + (zoneValue - 5.0) * 0.14; // zoneValue 5.0->106%, 6.0->120%
-            } else if (zoneValue <= 6.9) {
-                // Zone 6: 121-150% FTP range
-                targetPerc = 1.21 + (zoneValue - 6.0) * 0.29; // zoneValue 6.0->121%, 7.0->150%
-            } else {
-                // Zone 7: 151%+ FTP range
-                targetPerc = 1.51 + (zoneValue - 7.0) * 0.19; // zoneValue 7.0->151%, 8.0->170%
-            }
-            double targetWatts = ftp * targetPerc;
+            double targetWatts = bike::powerZoneValueToWatts(zoneValue, ftp);
             bluetoothManager->device()->changePower(targetWatts);
         } else if (name.contains(QStringLiteral("erg_mode"))) {
             settings.setValue(QZSettings::zwift_erg, !settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool());
@@ -8838,6 +8826,36 @@ void homeform::garmin_connect_login() {
             qDebug() << "Garmin Connect: MFA code required - showing dialog";
             setGarminMfaRequested(true);
         });
+
+        connect(garminConnect, &GarminConnect::workoutDownloaded, this,
+                [this](const QString &filename, const QString &workoutName) {
+                    setToastRequested(QString("Garmin workout saved: %1").arg(workoutName));
+                    m_garminWorkoutPromptFile = filename;
+                    if (m_garminWorkoutPromptName != workoutName) {
+                        m_garminWorkoutPromptName = workoutName;
+                        emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
+                    }
+                    QString workoutDate;
+                    const QString baseName = QFileInfo(filename).completeBaseName();
+                    const int separatorPos = baseName.indexOf(QStringLiteral(" - "));
+                    if (separatorPos > 0) {
+                        const QString candidateDate = baseName.left(separatorPos).trimmed();
+                        static const QRegularExpression isoDatePattern(QStringLiteral("^\\d{4}-\\d{2}-\\d{2}$"));
+                        if (isoDatePattern.match(candidateDate).hasMatch()) {
+                            workoutDate = candidateDate;
+                        }
+                    }
+                    if (m_garminWorkoutPromptDate != workoutDate) {
+                        m_garminWorkoutPromptDate = workoutDate;
+                        emit garminWorkoutPromptDateChanged(m_garminWorkoutPromptDate);
+                    }
+                    setGarminWorkoutPromptRequested(true);
+                });
+
+        connect(garminConnect, &GarminConnect::workoutDownloadFailed, this,
+                [this](const QString &error) {
+                    qDebug() << "Garmin: Workout download failed:" << error;
+                });
     }
 
     // Always try to refresh token on startup for maximum token freshness
@@ -8900,6 +8918,130 @@ void homeform::garmin_connect_logout() {
     }
 }
 
+void homeform::garmin_start_downloaded_workout() {
+    const QString workoutFile = m_garminWorkoutPromptFile;
+    const QString workoutName = m_garminWorkoutPromptName;
+    m_garminWorkoutPromptFile.clear();
+    m_garminWorkoutPromptName.clear();
+    m_garminWorkoutPromptDate.clear();
+    emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
+    emit garminWorkoutPromptDateChanged(m_garminWorkoutPromptDate);
+    setGarminWorkoutPromptRequested(false);
+
+    if (workoutFile.isEmpty()) {
+        setToastRequested("No Garmin workout file available");
+        return;
+    }
+
+    if (!startTrainingProgramFromFile(workoutFile)) {
+        setToastRequested(QString("Failed to load Garmin workout: %1").arg(workoutName));
+        return;
+    }
+
+    trainprogram_autostart_requested();
+    setToastRequested(QString("Starting Garmin workout: %1").arg(workoutName));
+}
+
+void homeform::garmin_dismiss_downloaded_workout_prompt() {
+    m_garminWorkoutPromptFile.clear();
+    m_garminWorkoutPromptName.clear();
+    m_garminWorkoutPromptDate.clear();
+    emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
+    emit garminWorkoutPromptDateChanged(m_garminWorkoutPromptDate);
+    setGarminWorkoutPromptRequested(false);
+}
+
+bool homeform::isStravaLoggedIn() {
+    QSettings settings;
+    return !settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken).toString().isEmpty();
+}
+
+bool homeform::isPelotonLoggedIn() {
+    QSettings settings;
+    QString userId = settings.value(QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id).toString();
+    if (!userId.isEmpty()) {
+        QString key = QStringLiteral("peloton_accesstoken_") + userId;
+        if (!settings.value(key).toString().isEmpty())
+            return true;
+    }
+    return !settings.value(QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken).toString().isEmpty();
+}
+
+bool homeform::isIntervalsICULoggedIn() {
+    QSettings settings;
+    return !settings.value(QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken).toString().isEmpty();
+}
+
+void homeform::strava_logout() {
+    qDebug() << "Strava logout requested";
+    QSettings settings;
+    settings.setValue(QZSettings::strava_accesstoken, QStringLiteral(""));
+    settings.setValue(QZSettings::strava_refreshtoken, QStringLiteral(""));
+    settings.setValue(QZSettings::strava_lastrefresh, QStringLiteral(""));
+    settings.setValue(QZSettings::strava_expires, QStringLiteral(""));
+    if (strava) {
+        strava->setToken(QStringLiteral(""));
+        strava->setRefreshToken(QStringLiteral(""));
+    }
+    if (manager) {
+        manager->setCookieJar(new QNetworkCookieJar(manager));
+    }
+    clearWebViewCache();
+    qDebug() << "Strava: tokens cleared";
+}
+
+void homeform::peloton_logout() {
+    qDebug() << "Peloton logout requested";
+    if (pelotonHandler) {
+        pelotonHandler->peloton_logout();
+    }
+    clearWebViewCache();
+}
+
+void homeform::intervalsicu_logout() {
+    qDebug() << "Intervals.icu logout requested";
+    QSettings settings;
+    settings.setValue(QZSettings::intervalsicu_accesstoken, QStringLiteral(""));
+    settings.setValue(QZSettings::intervalsicu_refreshtoken, QStringLiteral(""));
+    settings.setValue(QZSettings::intervalsicu_athlete_id, QStringLiteral(""));
+    if (intervalsicu) {
+        intervalsicu->setToken(QStringLiteral(""));
+        intervalsicu->setRefreshToken(QStringLiteral(""));
+    }
+    if (intervalsicuManager) {
+        intervalsicuManager->setCookieJar(new QNetworkCookieJar(intervalsicuManager));
+    }
+    clearWebViewCache();
+    qDebug() << "Intervals.icu: tokens cleared";
+}
+
+void homeform::clearWebViewCache() {
+#ifdef Q_OS_ANDROID
+    QtAndroid::runOnAndroidThread([] {
+        QAndroidJniObject cookieManager = QAndroidJniObject::callStaticObjectMethod(
+            "android/webkit/CookieManager",
+            "getInstance",
+            "()Landroid/webkit/CookieManager;");
+        if (cookieManager.isValid()) {
+            cookieManager.callMethod<void>("removeAllCookies", "(Landroid/webkit/ValueCallback;)V",
+                                          static_cast<jobject>(nullptr));
+            cookieManager.callMethod<void>("flush", "()V");
+        }
+        QAndroidJniEnvironment env;
+        if (env->ExceptionCheck()) {
+            env->ExceptionClear();
+        }
+        qDebug() << "Android: WebView cookies cleared";
+    });
+#endif
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    lockscreen::clearWebViewCache();
+    qDebug() << "iOS: WebView cache cleared";
+#endif
+#endif
+}
+
 void homeform::garmin_upload_file_prepare() {
     qDebug() << "Garmin upload file prepare" << lastFitFileSaved;
 
@@ -8949,6 +9091,16 @@ void homeform::garmin_upload_file_prepare() {
         qDebug() << "Garmin: Upload failed:" << garminConnect->lastError();
         setToastRequested("Garmin: Upload failed - " + garminConnect->lastError());
     }
+}
+
+void homeform::garmin_download_todays_workout() {
+    if (!garminConnect) {
+        qDebug() << "Garmin: Not initialized, skipping workout download";
+        return;
+    }
+    QString trainingDir = getWritableAppDir() + QStringLiteral("training");
+    setToastRequested("Downloading Garmin daily workout...");
+    garminConnect->downloadTodaysWorkout(trainingDir);
 }
 
 bool homeform::generalPopupVisible() { return m_generalPopupVisible; }
