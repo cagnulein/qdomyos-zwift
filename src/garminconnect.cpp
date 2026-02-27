@@ -1763,6 +1763,9 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
     QString attrs;
     if (condTypeKey == "time" && endConditionValue > 0) {
         attrs += QString(" duration=\"%1\"").arg(garminSecondsToTime(static_cast<int>(endConditionValue)));
+    } else if (condTypeKey == "distance" && endConditionValue > 0) {
+        // Garmin provides distance in meters, QZ XML uses kilometers.
+        attrs += QString(" distance=\"%1\"").arg(endConditionValue / 1000.0, 0, 'f', 6);
     }
     if (targetTypeKey == "heart.rate.zone") {
         int hrMin = static_cast<int>(step["targetValueOne"].toDouble());
