@@ -630,6 +630,16 @@ uint16_t echelonconnectsport::watts() {
     if (currentCadence().value() == 0) {
         return 0;
     }
+
+    QSettings settings;
+    // If power sensor/pedal is enabled, use the actual power value from the external sensor
+    if (!settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+            .toString()
+            .startsWith(QStringLiteral("Disabled"))) {
+        return m_watt.value();
+    }
+
+    // Otherwise, calculate power from resistance table
     return wattsFromResistance(Resistance.value());
 }
 
