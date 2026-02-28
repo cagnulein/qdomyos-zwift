@@ -317,7 +317,7 @@ import Qt.labs.platform 1.1
             property bool horizon_paragon_x: false
 
             // from version 2.10.18
-            property real treadmill_step_speed: 0.5
+            property real treadmill_step_speed: 0.1
             property real treadmill_step_incline: 0.5
 
             // from version 2.10.19
@@ -926,7 +926,7 @@ import Qt.labs.platform 1.1
 
             // from version 2.16.45
             property bool toorx_srx_3500: false  
-            property real inclination_delay_seconds: 0.0
+            property real inclination_delay_seconds: 3.0
 
             // from version 2.16.47
             property string ergDataPoints: ""
@@ -1175,6 +1175,9 @@ import Qt.labs.platform 1.1
             // 2.19.2
             property bool tile_hr_time_in_zone_individual_mode: false
             property bool wahoo_without_wheel_diameter: false
+
+            property bool nordictrackadbbike_gear_resistance_mode: false
+            property int nordictrackadbbike_gear_debounce_ms: 100
 
             // 2.20.3
             property bool technogym_group_cycle: false
@@ -4446,6 +4449,35 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.nordictrackadbbike_resistance = checked; }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Gears Control Resistance (Separate Inc/Gear)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.nordictrackadbbike_gear_resistance_mode
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.nordictrackadbbike_gear_resistance_mode = checked; }
+                            }
+                            RowLayout {
+                                visible: settings.nordictrackadbbike_gear_resistance_mode
+                                Label {
+                                    text: qsTr("Gear Change Debounce (ms):")
+                                    Layout.fillWidth: true
+                                }
+                                SpinBox {
+                                    id: nordictrackadbbike_gear_debounce_ms
+                                    from: 10
+                                    to: 1000
+                                    stepSize: 50
+                                    editable: true
+                                    value: settings.nordictrackadbbike_gear_debounce_ms
+                                    onValueChanged: settings.nordictrackadbbike_gear_debounce_ms = value
+                                }
                             }
                         }
                     }

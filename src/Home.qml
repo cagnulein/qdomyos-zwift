@@ -169,6 +169,16 @@ HomeForm {
         console.log("home.qml completed");
     }
 
+    Connections {
+        target: rootItem
+        function onCloseCompleteScreenRequested() {
+            console.log("Closing complete screen as requested");
+            if (stackView.depth > 1) {
+                stackView.pop();
+            }
+        }
+    }
+
     GridView {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent

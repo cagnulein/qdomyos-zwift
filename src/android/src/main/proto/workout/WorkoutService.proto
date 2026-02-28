@@ -1,0 +1,38 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+import "workout/WorkoutState.proto";
+import "workout/WorkoutResult.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "WorkoutServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message StartWorkoutResponse {
+  WorkoutResult result = 1;
+  string workoutID = 2;
+}
+
+message WorkoutStateMessage {
+  WorkoutState workoutState = 1;
+}
+
+message WorkoutSourceMessage {
+  string workoutSource = 1;
+}
+
+service WorkoutService {
+  rpc StartNewWorkout(Empty) returns (StartWorkoutResponse) {}
+  rpc StartLoggedWorkout(WorkoutID) returns (StartWorkoutResponse) {}
+  rpc Pause(Empty) returns (WorkoutResult) {}
+  rpc Resume(Empty) returns (WorkoutResult) {}
+  rpc Stop(Empty) returns (WorkoutResult) {}
+
+  rpc GetWorkoutState(Empty) returns (WorkoutStateMessage) {}
+  rpc WorkoutStateChanged(Empty) returns (stream WorkoutStateMessage) {}
+
+  rpc GetCurrentWorkout(Empty) returns (WorkoutID) {}
+  rpc CurrentWorkoutChanged(Empty) returns (stream WorkoutID) {}
+
+  rpc GetWorkoutSource(Empty) returns (WorkoutSourceMessage) {}
+}

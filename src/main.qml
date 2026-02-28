@@ -255,18 +255,6 @@ ApplicationWindow {
            visible: false
        }
 
-    Timer {
-       id: pelotonAuthCheck
-       interval: 1000  // 1 second delay after startup
-       running: true
-       repeat: false
-       onTriggered: {
-           if (settings.peloton_password !== "password") {
-               popupPelotonAuth.visible = true
-           }
-       }
-    }
-
     Popup {
         id: popupClassificaHelper
          parent: Overlay.overlay
@@ -954,6 +942,16 @@ ApplicationWindow {
                     width: parent.width
                     onClicked: {
                         Qt.openUrlExternally("https://www.facebook.com/groups/149984563348738");
+                        drawer.close()
+                    }
+                }
+                ItemDelegate {
+                    id: launch_ifit
+                    text: qsTr("Launch iFit App")
+                    width: parent.width
+                    visible: OS_VERSION === "Android" ? true : false
+                    onClicked: {
+                        rootItem.launchIFitApp();
                         drawer.close()
                     }
                 }

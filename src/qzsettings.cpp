@@ -821,6 +821,8 @@ const QString QZSettings::peloton_treadmill_walk_level = QStringLiteral("peloton
 const QString QZSettings::peloton_treadmill_walking_min_speed = QStringLiteral("peloton_treadmill_walking_min_speed");
 const QString QZSettings::peloton_treadmill_running_min_speed = QStringLiteral("peloton_treadmill_running_min_speed");
 const QString QZSettings::nordictrackadbbike_resistance = QStringLiteral("nordictrackadbbike_resistance");
+const QString QZSettings::nordictrackadbbike_gear_resistance_mode = QStringLiteral("nordictrackadbbike_gear_resistance_mode");
+const QString QZSettings::nordictrackadbbike_gear_debounce_ms = QStringLiteral("nordictrackadbbike_gear_debounce_ms");
 const QString QZSettings::proform_treadmill_carbon_t7 = QStringLiteral("proform_treadmill_carbon_t7");
 const QString QZSettings::nordictrack_treadmill_exp_5i = QStringLiteral("nordictrack_treadmill_exp_5i");
 const QString QZSettings::dircon_id = QStringLiteral("dircon_id");
@@ -1061,7 +1063,7 @@ const QString QZSettings::step_gain = QStringLiteral("step_gain");
 const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform_carbon_tlx_treadmill");
 
 
-const uint32_t allSettingsCount = 865;
+const uint32_t allSettingsCount = 867;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1748,6 +1750,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::peloton_treadmill_walking_min_speed, QZSettings::default_peloton_treadmill_walking_min_speed},
     {QZSettings::peloton_treadmill_running_min_speed, QZSettings::default_peloton_treadmill_running_min_speed},
     {QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance},
+    {QZSettings::nordictrackadbbike_gear_resistance_mode, QZSettings::default_nordictrackadbbike_gear_resistance_mode},
+    {QZSettings::nordictrackadbbike_gear_debounce_ms, QZSettings::default_nordictrackadbbike_gear_debounce_ms},
     {QZSettings::proform_treadmill_carbon_t7, QZSettings::default_proform_treadmill_carbon_t7},
     {QZSettings::nordictrack_treadmill_exp_5i, QZSettings::default_nordictrack_treadmill_exp_5i},
     {QZSettings::dircon_id, QZSettings::default_dircon_id},

@@ -1,0 +1,34 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.activitylog";
+option java_outer_classname = "ActivityLogEventProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum ActivityLogEventType {
+  ACTIVITY_LOG_EVENT_WORKOUT_STARTED = 0;
+  ACTIVITY_LOG_EVENT_WORKOUT_MINIMUMS_REACHED = 1;
+  ACTIVITY_LOG_EVENT_UPLOAD_STARTED = 2;
+  ACTIVITY_LOG_EVENT_UPLOAD_SUCCESSFUL = 3;
+  ACTIVITY_LOG_EVENT_WORKOUT_COMPLETED_NOT_UPLOADING = 4;
+  ACTIVITY_LOG_EVENT_UPLOAD_RECOVERABLE_ERROR = 5;
+  ACTIVITY_LOG_EVENT_UPLOAD_TERMINAL_ERROR = 6;
+  ACTIVITY_LOG_EVENT_UNDER_MINIMUM_DURATION_ERROR = 7;
+  ACTIVITY_LOG_EVENT_UNDER_MINIMUM_DISTANCE_ERROR = 8;
+  ACTIVITY_LOG_EVENT_METADATA_UPDATED = 9;
+  ACTIVITY_LOG_EVENT_WORKOUT_COMPLETED_ANONYMOUSLY_NOT_UPLOADING = 10;
+}
+
+message ActivityLogEvent {
+  ActivityLogEventType eventType = 1;
+  string workoutID = 2;
+  string contentID = 3;
+  bool shouldUploadLog = 4;
+  string activityLogID = 5;
+  string errorCode = 6;
+  int32 minimumDurationSeconds = 7;
+  int32 workoutDurationSeconds = 8;
+  int32 minimumDistanceMeters = 9;
+  int32 workoutDistanceMeters = 10;
+  string workoutDriverFQN = 11;
+}

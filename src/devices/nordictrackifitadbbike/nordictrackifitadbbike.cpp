@@ -1,5 +1,5 @@
 #include "nordictrackifitadbbike.h"
-
+#include "virtualdevices/virtualbike.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -12,6 +12,11 @@
 #include <chrono>
 #include <math.h>
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
+
 using namespace std::chrono_literals;
 
 nordictrackifitadbbikeLogcatAdbThread::nordictrackifitadbbikeLogcatAdbThread(QString s) { Q_UNUSED(s) }
@@ -22,7 +27,7 @@ void nordictrackifitadbbikeLogcatAdbThread::run() {
     runAdbCommand("connect " + ip);
 
     while (1) {
-        runAdbTailCommand("logcat");
+        runAdbTailCommand("logcat -f");
         if(adbCommandPending.length() != 0) {
             runAdbCommand(adbCommandPending);
             adbCommandPending = "";
@@ -58,7 +63,52 @@ bool nordictrackifitadbbikeLogcatAdbThread::runCommand(QString command) {
 }
 
 void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
-#ifdef Q_OS_WINDOWS
+#ifdef Q_OS_ANDROID
+    // If process is already running, do nothing
+    if (logcatProcess && logcatProcess->state() == QProcess::Running) {
+        return;
+    }
+
+    // If process has terminated, cleanup
+    if (logcatProcess && logcatProcess->state() != QProcess::Running) {
+        logcatProcess->deleteLater();
+        logcatProcess = nullptr;
+    }
+
+    // If process doesn't exist, create it
+    if (!logcatProcess) {
+        logcatProcess = new QProcess;
+
+        QObject::connect(logcatProcess, &QProcess::readyReadStandardOutput, [this]() {
+            if (!logcatProcess) return;
+            QString output = logcatProcess->readAllStandardOutput();
+            // Log ALL logcat output via qDebug
+            qDebug() << "[LOGCAT]" << output;
+        });
+
+        QObject::connect(logcatProcess, &QProcess::readyReadStandardError, [this]() {
+            if (!logcatProcess) return;
+            auto output = logcatProcess->readAllStandardError();
+            qDebug() << "[LOGCAT_ERROR]" << output;
+        });
+
+        QObject::connect(logcatProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            [this](int exitCode, QProcess::ExitStatus exitStatus) {
+                qDebug() << "[LOGCAT] Process exited with code:" << exitCode << "status:" << exitStatus << "- will restart on next cycle";
+            });
+
+        qDebug() << "[LOGCAT] Starting logcat";
+        // Don't use waitForFinished() to keep the loop non-blocking
+        logcatProcess->start("logcat", QStringList());
+
+        if (!logcatProcess->waitForStarted(5000)) {
+            qDebug() << "[LOGCAT] Failed to start logcat process";
+            logcatProcess->deleteLater();
+            logcatProcess = nullptr;
+        }
+    }
+
+#elif defined Q_OS_WINDOWS
     auto process = new QProcess;
     QObject::connect(process, &QProcess::readyReadStandardOutput, [process, this]() {
         QString output = process->readAllStandardOutput();
@@ -91,12 +141,12 @@ void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
             emit onWatt(watt);
         if (hrmFound)
             emit onHRM(hrm);
-#ifdef Q_OS_WINDOWS        
+#ifdef Q_OS_WINDOWS
         if(adbCommandPending.length() != 0) {
             runAdbCommand(adbCommandPending);
             adbCommandPending = "";
         }
-#endif                                
+#endif
     });
     QObject::connect(process, &QProcess::readyReadStandardError, [process, this]() {
         auto output = process->readAllStandardError();
@@ -114,6 +164,9 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     bool nordictrack_ifit_adb_remote =
         settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
             .toBool();
+    bool nordictrackadbbike_gear_resistance_mode =
+        settings.value(QZSettings::nordictrackadbbike_gear_resistance_mode, QZSettings::default_nordictrackadbbike_gear_resistance_mode)
+            .toBool();
     m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -121,8 +174,15 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbbike::update);
+    
+    // Initialize gear debounce timer
+    gearDebounceTimer = new QTimer(this);
+    gearDebounceTimer->setSingleShot(true);
+    int debounceMs = settings.value(QZSettings::nordictrackadbbike_gear_debounce_ms, QZSettings::default_nordictrackadbbike_gear_debounce_ms).toInt();
+    gearDebounceTimer->setInterval(debounceMs);
+    connect(gearDebounceTimer, &QTimer::timeout, this, &nordictrackifitadbbike::onGearDebounceTimeout);
     ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
-    refresh->start(200ms);
+    refresh->start(debounceMs);
 
     socket = new QUdpSocket(this);
     bool result = socket->bind(QHostAddress::AnyIPv4, 8002);
@@ -161,6 +221,18 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     firstStateChanged = 1;
     // ********************************************************************************************************
 
+    // Initialize gRPC service on Android
+#ifdef Q_OS_ANDROID
+    initializeGrpcService();
+    if (grpcInitialized) {
+        startGrpcMetricsUpdates();
+        logcatAdbThread = new nordictrackifitadbbikeLogcatAdbThread("logcatAdbThread");
+        connect(logcatAdbThread, &nordictrackifitadbbikeLogcatAdbThread::debug, this, &nordictrackifitadbbike::debug);
+        logcatAdbThread->start();
+
+    }
+#endif
+
     if (nordictrack_ifit_adb_remote) {
 #ifdef Q_OS_ANDROID
         QAndroidJniObject IP = QAndroidJniObject::fromString(ip).object<jstring>();
@@ -190,7 +262,12 @@ bool nordictrackifitadbbike::inclinationAvailableByHardware() {
     settings.value(QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021)
         .toBool();
     bool nordictrackadbbike_resistance = settings.value(QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance).toBool();
+    bool nordictrackadbbike_gear_resistance_mode = settings.value(QZSettings::nordictrackadbbike_gear_resistance_mode, QZSettings::default_nordictrackadbbike_gear_resistance_mode).toBool();
 
+    // In gear resistance mode, inclination is available since gears handle resistance separately
+    if (nordictrackadbbike_gear_resistance_mode)
+        return true;
+    
     if(proform_studio_NTEX71021 || nordictrackadbbike_resistance)
         return false;   
     else
@@ -226,6 +303,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
         bool nordictrackadbbike_resistance = settings.value(QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance).toBool();
+        bool nordictrackadbbike_gear_resistance_mode = settings.value(QZSettings::nordictrackadbbike_gear_resistance_mode, QZSettings::default_nordictrackadbbike_gear_resistance_mode).toBool();
 
         double speed = 0;
         double cadence = 0;
@@ -253,9 +331,24 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
                     gear = getDouble(aValues.last());
-                    if(!nordictrackadbbike_resistance)
+                    
+                    if (nordictrackadbbike_gear_resistance_mode) {
+                        // In gear resistance mode: gears control resistance via gRPC, store for later use
+                        lastGearValue = gear;
+                        // Set gRPC resistance if gRPC is available
+                        #ifdef Q_OS_ANDROID
+                        if (grpcInitialized) {
+                            setGrpcResistance(gear);
+                        }
+                        #endif
+                        qDebug() << "Gear resistance mode: gear" << gear << "set as resistance via gRPC";
+                    } else if (!nordictrackadbbike_resistance) {
+                        // Standard mode: gears control inclination (existing behavior)
                         Resistance = gear;
-                    emit resistanceRead(Resistance.value());
+                        emit resistanceRead(Resistance.value());
+                    }
+                    // In resistance mode (nordictrackadbbike_resistance), gears are ignored for resistance
+                    
                     gearsAvailable = true;
                 }
             } else if (line.contains(QStringLiteral("Changed Resistance"))) {
@@ -349,6 +442,15 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             // Handle inclination changes with delay
             if (requestInclination != -100 && lastInclinationChanged.secsTo(now) > inclination_delay_seconds) {
                 bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+                bool nordictrackadbbike_gear_resistance_mode = settings.value(QZSettings::nordictrackadbbike_gear_resistance_mode, QZSettings::default_nordictrackadbbike_gear_resistance_mode).toBool();
+                
+                // Check if erg_mode has been disabled and we had an active watts target
+                if (!erg_mode && lastErgMode && hasActiveWattsTarget) {
+                    qDebug() << "ERG mode disabled, disabling constant watts target";
+                    disableGrpcWatts();
+                }
+                lastErgMode = erg_mode;
+                
                 if (requestInclination != -100 && erg_mode && requestResistance != -100) {
                     qDebug() << "forcing inclination based on the erg mode resistance request of" << requestResistance;
                     requestInclination = requestResistance;
@@ -359,16 +461,24 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                     if (inc != currentInclination().value()) {
                         bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
                         int x1 = 75;
-                        int y2 = (int)(616.18 - (17.223 * (inc + gears())));
+                        
+                        // In gear resistance mode, gears control resistance separately via gRPC, so don't add to inclination
+                        double inclinationValue = nordictrackadbbike_gear_resistance_mode ? inc : (inc + gears());
+                        
+                        if (nordictrackadbbike_gear_resistance_mode) {
+                            qDebug() << "Gear resistance mode: setting inclination to" << inc << "(not adding gears)";
+                        }
+                        
+                        int y2 = (int)(616.18 - (17.223 * inclinationValue));
                         int y1Resistance = (int)(616.18 - (17.223 * currentInclination().value()));
 
                         if(proform_studio || freemotion_coachbike_b22_7) {
                             x1 = 1827;
-                            y2 = (int)(806 - (21.375 * (inc + gears())));
+                            y2 = (int)(806 - (21.375 * inclinationValue));
                             y1Resistance = (int)(806 - (21.375 * currentInclination().value()));
                         } else if(proform_tdf_10_0) {
                             x1 = 75;
-                            y2 = (int)(477 - (12.5 * (inc + gears())));
+                            y2 = (int)(477 - (12.5 * inclinationValue));
                             y1Resistance = (int)(477 - (12.5 * currentInclination().value()));
                         }
 
@@ -392,24 +502,14 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 }
                 requestInclination = -100;
             }
-        } else {
-            // Non-ADB mode: handle via UDP socket as before
-            // only resistance
-            if(proform_studio_NTEX71021 || nordictrackadbbike_resistance) {
-                QByteArray message = (QString::number(requestResistance).toLocal8Bit()) + ";";
-                requestResistance = -1;
-                int ret = socket->writeDatagram(message, message.size(), sender, 8003);
-                qDebug() << QString::number(ret) + " >> " + message;
-            }
-            // inclination
-            else if (lastInclinationChanged.secsTo(now) > inclination_delay_seconds) {
-                lastInclinationChanged = now;
-                double r = currentResistance().value() + difficult() + gears();
-                QByteArray message = (QString::number(requestInclination).toLocal8Bit()) + ";" + QString::number(r).toLocal8Bit();
-                requestInclination = -100;
-                int ret = socket->writeDatagram(message, message.size(), sender, 8003);
-                qDebug() << QString::number(ret) + " >> " + message;
-            }
+
+            // In gear resistance mode, gears control resistance separately via gRPC, so don't add to message resistance
+            double gearValue = nordictrackadbbike_gear_resistance_mode ? 0 : gears();
+            double r = currentResistance().value() + difficult() + gearValue; // the inclination here is like the resistance for the other bikes
+            QByteArray message = (QString::number(requestInclination).toLocal8Bit()) + ";" + QString::number(r).toLocal8Bit();
+            requestInclination = -100;
+            int ret = socket->writeDatagram(message, message.size(), sender, 8003);
+            qDebug() << QString::number(ret) + " >> " + message;
         }
 
         if (watts())
@@ -566,11 +666,18 @@ resistance_t nordictrackifitadbbike::pelotonToBikeResistance(int pelotonResistan
            settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
 }
 
-void nordictrackifitadbbike::forceResistance(double resistance) {}
+void nordictrackifitadbbike::forceResistance(double resistance) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        setGrpcResistance(resistance);
+    }
+#endif
+}
 
 void nordictrackifitadbbike::update() {
 
     QSettings settings;
+    bool nordictrackadbbike_gear_resistance_mode = settings.value(QZSettings::nordictrackadbbike_gear_resistance_mode, QZSettings::default_nordictrackadbbike_gear_resistance_mode).toBool();
     update_metrics(false, 0);
 
     if (initRequest) {
@@ -596,9 +703,171 @@ void nordictrackifitadbbike::update() {
         // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
         requestStop = -1;
     }
+
+#ifdef Q_OS_ANDROID
+    // Use gRPC to fetch current metrics
+    if (grpcInitialized) {
+        double currentSpeed = getGrpcSpeed();
+        double currentIncline = getGrpcIncline();
+        double currentWatts = getGrpcWatts();
+        double currentCadence = getGrpcCadence();
+        double currentResistance = getGrpcResistance();
+        // Capture current time once and reuse below
+        QDateTime now = QDateTime::currentDateTime();
+        
+        // Update the metrics if they've changed
+        // Only update speed from gRPC if speed_power_based is disabled
+        bool speed_power_based = settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool();
+        if (!speed_power_based && currentSpeed != Speed.value()) {
+            Speed = currentSpeed;
+            emit debug(QString("gRPC Speed: %1").arg(currentSpeed));
+        } else if (speed_power_based) {
+            qDebug() << "speed_power_based enabled - ignoring gRPC speed, will calculate from power";
+        }
+        
+        if (currentIncline != Inclination.value()) {
+            Inclination = currentIncline;
+            emit debug(QString("gRPC Inclination: %1").arg(currentIncline));
+        }
+        
+        if (currentWatts != m_watt.value()) {
+            m_watt = currentWatts;
+            emit debug(QString("gRPC Watts: %1").arg(currentWatts));
+        }
+        
+        if (currentCadence != Cadence.value()) {
+            Cadence = currentCadence;
+            emit debug(QString("gRPC Cadence: %1").arg(currentCadence));
+        }
+        
+        if (currentResistance != Resistance.value()) {
+            Resistance = currentResistance;
+            emit debug(QString("gRPC Resistance: %1").arg(currentResistance));
+        }
+        
+        int currentFanSpeed = getGrpcFanSpeed();
+        if (currentFanSpeed != FanSpeed) {
+            FanSpeed = currentFanSpeed;
+            emit debug(QString("gRPC Fan Speed: %1").arg(currentFanSpeed));
+        }
+
+        // Read heart rate from gRPC if heart rate belt is disabled
+        QString heartRateBeltName = settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+        bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
+            double currentHeartRate = getGrpcHeartRate();
+            if (currentHeartRate > 0 && currentHeartRate != Heart.value()) {
+                Heart = currentHeartRate;
+                emit debug(QString("gRPC Heart Rate: %1").arg(currentHeartRate));
+            }
+        }
+
+        bool nordictrackadbbike_resistance = settings.value(QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance).toBool();
+        auto virtualBike = this->VirtualBike();
+
+        if (requestInclination != -100 && !nordictrackadbbike_resistance && !settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
+            QDateTime now = QDateTime::currentDateTime();
+            double inclination_delay_seconds = settings.value(QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds).toDouble();
+            
+            // Apply delay logic similar to ADB version
+            if (lastGrpcInclinationChanged.secsTo(now) > inclination_delay_seconds) {
+                double inc = qRound(requestInclination / 0.5) * 0.5;
+                double currentInc = qRound(currentInclination().value() / 0.5) * 0.5;
+                if (inc != currentInc) {
+                    emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
+                    setGrpcIncline(lastRawRequestedInclinationValue + (nordictrackadbbike_gear_resistance_mode ? 0 : gears()));
+                    lastGrpcInclinationChanged = now;
+                }
+            }
+            requestInclination = -100;
+            requestResistance = -1;
+        } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && !nordictrackadbbike_resistance) {
+            // in order to send the new gear value ASAP (similar to tacxneo2)
+            setGrpcIncline(lastRawRequestedInclinationValue + (nordictrackadbbike_gear_resistance_mode ? 0 : gears()));
+            requestResistance = -1;
+        }
+        
+        if(requestResistance != - 1) {
+            setGrpcResistance(requestResistance);
+            requestResistance = -1;
+        } else if (lastGearValue != gears()) {
+            if (nordictrackadbbike_gear_resistance_mode) {
+                // In gear resistance mode: use debounced gear changes to avoid overloading gRPC
+                pendingGearValue = gears();
+                gearChangesPending = true;
+                
+                // Update debounce timer interval and reset it
+                int debounceMs = settings.value(QZSettings::nordictrackadbbike_gear_debounce_ms, QZSettings::default_nordictrackadbbike_gear_debounce_ms).toInt();
+                gearDebounceTimer->setInterval(debounceMs);
+                gearDebounceTimer->stop();
+                gearDebounceTimer->start();
+                
+                qDebug() << QStringLiteral("Gear resistance mode: Debouncing gear change to: ") << gears() << QStringLiteral(" (debounce: ") << debounceMs << QStringLiteral("ms)");
+            } else if (!autoResistanceEnable && nordictrackadbbike_resistance) {
+                // Old resistance mode: gears change resistance incrementally (only when magnet is disabled)
+                qDebug() << QStringLiteral("Setting gRPC resistance based on gear change: ") << gears() << " lastGearValue: " << lastGearValue << " Resistance: " << Resistance.value();
+                setGrpcResistance(Resistance.value() + (gears() - lastGearValue));
+            }
+        }
+
+        // Update lastGearValue for gear change detection (only if not using debounced mode)
+        if (!nordictrackadbbike_gear_resistance_mode || !gearChangesPending) {
+            lastGearValue = gears();
+        }
+        
+        // Handle speed calculation from power when speed_power_based is enabled
+        if (speed_power_based) {
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            qDebug() << "speed_power_based with gRPC: calculated speed from power:" << Speed.value() << "km/h (watts:" << watts() << ")";
+        }
+
+        // Update calories and distance using the same logic as ADB path
+        if (watts()) {
+            double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+            KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
+                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(now))));
+        }
+        Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
+
+        lastRefreshCharacteristicChanged = now;
+    }
+#endif
 }
 
 uint16_t nordictrackifitadbbike::watts() { return m_watt.value(); }
+
+void nordictrackifitadbbike::onGearDebounceTimeout() {
+    QSettings settings;
+    bool nordictrackadbbike_gear_resistance_mode = settings.value(QZSettings::nordictrackadbbike_gear_resistance_mode, QZSettings::default_nordictrackadbbike_gear_resistance_mode).toBool();
+    
+    if (gearChangesPending && nordictrackadbbike_gear_resistance_mode) {
+        // Apply the final debounced gear value
+        qDebug() << QStringLiteral("Gear resistance mode: Applying debounced gRPC resistance to final gear value: ") << pendingGearValue;
+        setGrpcResistance(pendingGearValue);
+        
+        // Update tracking variables
+        lastGearValue = pendingGearValue;
+        gearChangesPending = false;
+        
+        emit debug(QString("Debounced gear change completed: gear %1 -> resistance %2").arg(pendingGearValue).arg(pendingGearValue));
+    }
+}
+
+void nordictrackifitadbbike::processPendingGearChange() {
+    // This method can be called externally to force immediate processing if needed
+    if (gearChangesPending) {
+        gearDebounceTimer->stop();
+        onGearDebounceTimeout();
+    }
+}
 
 void nordictrackifitadbbike::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)
@@ -748,3 +1017,273 @@ uint16_t nordictrackifitadbbike::wattsFromResistance(double inclination, double 
 }
 
 bool nordictrackifitadbbike::ifitCompatible() {return true;}
+
+// gRPC integration methods implementation
+void nordictrackifitadbbike::initializeGrpcService() {
+#ifdef Q_OS_ANDROID
+    if (!grpcInitialized) {
+        try {
+            QSettings settings;
+            QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+            
+            // Set Android context first
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "setContext",
+                "(Landroid/content/Context;)V",
+                QtAndroid::androidContext().object()
+            );
+            
+            // Now initialize the service with the host IP
+            QAndroidJniObject hostObj = QAndroidJniObject::fromString(ip);
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "initialize",
+                "(Ljava/lang/String;)V",
+                hostObj.object<jstring>()
+            );
+            grpcInitialized = true;
+            emit debug("gRPC service initialized successfully with host: " + ip);
+        } catch (...) {
+            emit debug("Failed to initialize gRPC service");
+            grpcInitialized = false;
+        }
+    }
+#endif
+}
+
+void nordictrackifitadbbike::startGrpcMetricsUpdates() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "startMetricsUpdates",
+            "()V"
+        );
+        emit debug("Started gRPC metrics updates");
+    }
+#endif
+}
+
+void nordictrackifitadbbike::stopGrpcMetricsUpdates() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "stopMetricsUpdates",
+            "()V"
+        );
+        emit debug("Stopped gRPC metrics updates");
+    }
+#endif
+}
+
+double nordictrackifitadbbike::getGrpcSpeed() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        double speed = QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentSpeed",
+            "()D"
+        );
+        qDebug() << "getGrpcSpeed() returned:" << speed << "km/h";
+        return speed;
+    }
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbbike::getGrpcIncline() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        double incline = QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentIncline",
+            "()D"
+        );
+        qDebug() << "getGrpcIncline() returned:" << incline << "%";
+        return incline;
+    }
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbbike::getGrpcWatts() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        double watts = QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentWatts",
+            "()D"
+        );
+        qDebug() << "getGrpcWatts() returned:" << watts << "W";
+        return watts;
+    }
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbbike::getGrpcCadence() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        double cadence = QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentRpm",
+            "()D"
+        );
+        qDebug() << "getGrpcCadence() returned:" << cadence << "rpm";
+        return cadence;
+    }
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbbike::getGrpcResistance() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        double resistance = QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentResistance",
+            "()D"
+        );
+        qDebug() << "getGrpcResistance() returned:" << resistance;
+        return resistance;
+    }
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbbike::getGrpcHeartRate() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        double heartRate = QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentHeartRate",
+            "()D"
+        );
+        qDebug() << "getGrpcHeartRate() returned:" << heartRate << "bpm";
+        return heartRate;
+    }
+#endif
+    return 0.0;
+}
+
+void nordictrackifitadbbike::setGrpcResistance(double resistance) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "adjustResistance",
+            "(D)V",
+            resistance - Resistance.value()
+        );
+        emit debug(QString("Set gRPC resistance to: %1").arg(resistance));
+    }
+#endif
+}
+
+void nordictrackifitadbbike::setGrpcIncline(double incline) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "adjustIncline",
+            "(D)V",
+            incline - Inclination.value()
+        );
+        emit debug(QString("Set gRPC incline to: %1").arg(incline));
+    }
+#endif
+}
+
+void nordictrackifitadbbike::setGrpcWatts(double watts) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "setWatts",
+            "(D)V",
+            watts
+        );
+        emit debug(QString("Set gRPC watts to: %1").arg(watts));
+        hasActiveWattsTarget = (watts > 0);
+    }
+#endif
+}
+
+void nordictrackifitadbbike::disableGrpcWatts() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "disableConstantWatts",
+            "()V"
+        );
+        emit debug("Disabled gRPC constant watts mode");
+        hasActiveWattsTarget = false;
+    }
+#endif
+}
+
+void nordictrackifitadbbike::changePower(int32_t power) {
+    // Call base class implementation first to set RequestedPower
+    bike::changePower(power);
+    
+    // If gRPC is available, use it to set the power directly
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized && power > 0) {
+        setGrpcWatts(static_cast<double>(power));
+        emit debug(QString("changePower: Set power to %1W via gRPC").arg(power));
+    } else {
+        emit debug(QString("changePower: Power request %1W (gRPC not available or power <= 0)").arg(power));
+    }
+#else
+    emit debug(QString("changePower: Power request %1W (Android gRPC not available)").arg(power));
+#endif
+}
+
+bool nordictrackifitadbbike::changeFanSpeed(uint8_t speed) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        setGrpcFanSpeed(static_cast<int>(speed));
+        FanSpeed = speed;
+        emit debug(QString("changeFanSpeed: Set fan speed to %1 via gRPC").arg(speed));
+        return true;
+    } else {
+        emit debug(QString("changeFanSpeed: Fan speed request %1 (gRPC not available)").arg(speed));
+        return false;
+    }
+#else
+    emit debug(QString("changeFanSpeed: Fan speed request %1 (Android gRPC not available)").arg(speed));
+    return false;
+#endif
+}
+
+void nordictrackifitadbbike::setGrpcFanSpeed(int fanSpeed) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "setFanSpeed",
+            "(I)V",
+            fanSpeed
+        );
+        emit debug(QString("Set gRPC fan speed to: %1").arg(fanSpeed));
+    }
+#endif
+}
+
+int nordictrackifitadbbike::getGrpcFanSpeed() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        int fanSpeed = QAndroidJniObject::callStaticMethod<jint>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentFanSpeed",
+            "()I"
+        );
+        qDebug() << "getGrpcFanSpeed() returned:" << fanSpeed;
+        return fanSpeed;
+    }
+#endif
+    return 0;
+}
