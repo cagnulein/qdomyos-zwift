@@ -85,13 +85,52 @@ char *getMacAddress(JNIEnv *env, jobject wifiInfoObj) {
 int getIpAddress(JNIEnv *env, jobject wifiInfoObj) {
     qDebug() << "getIpAddress.... ";
     if (wifiInfoObj == NULL) {
-        return NULL;
+        return 0;
     }
     jclass jclz = env->GetObjectClass(wifiInfoObj);
     jmethodID mid = env->GetMethodID(jclz, "getIpAddress", "()I");
     return env->CallIntMethod(wifiInfoObj, mid);
 }
 #endif
+
+static bool isValidUsableIPv4(const QHostAddress &address) {
+    return address.protocol() == QAbstractSocket::IPv4Protocol && !address.isLoopback() &&
+           !address.isNull() && address != QHostAddress::AnyIPv4;
+}
+
+static QHostAddress findLocalInterfaceIPv4() {
+    const auto interfaces = QNetworkInterface::allInterfaces();
+    QHostAddress fallbackAddress;
+
+    for (const QNetworkInterface &networkInterface : interfaces) {
+        const auto flags = networkInterface.flags();
+        const bool interfaceIsUsable =
+            flags.testFlag(QNetworkInterface::IsUp) && flags.testFlag(QNetworkInterface::IsRunning) &&
+            !flags.testFlag(QNetworkInterface::IsLoopBack);
+        if (!interfaceIsUsable) {
+            continue;
+        }
+
+        const auto entries = networkInterface.addressEntries();
+        for (const QNetworkAddressEntry &entry : entries) {
+            const QHostAddress address = entry.ip();
+            if (!isValidUsableIPv4(address)) {
+                continue;
+            }
+
+            // Android Wi-Fi interfaces are usually wlan*. Prefer them when available.
+            if (networkInterface.name().startsWith("wlan", Qt::CaseInsensitive)) {
+                return address;
+            }
+
+            if (fallbackAddress.isNull()) {
+                fallbackAddress = address;
+            }
+        }
+    }
+
+    return fallbackAddress;
+}
 
 QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
     // Attempt to find the interface that corresponds with the provided
@@ -115,13 +154,23 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
         }
     }
 #ifdef Q_OS_ANDROID
+    QHostAddress interfaceIp = findLocalInterfaceIPv4();
+    if (!interfaceIp.isNull()) {
+        qDebug() << "getIP from interface scan" << interfaceIp;
+        return interfaceIp;
+    }
+
     QAndroidJniEnvironment env;
     jobject wifiManagerObj = getWifiManagerObj(env, QtAndroid::androidContext().object());
     jobject wifiInfoObj = getWifiInfoObj(env, wifiManagerObj);
     int ip = getIpAddress(env, wifiInfoObj);
-    QHostAddress qip = QHostAddress(qFromBigEndian<quint32>(ip));
-    qDebug() << "getIP from JNI" << qip;
-    return qip;
+    if (ip != 0) {
+        QHostAddress qip = QHostAddress(qFromBigEndian<quint32>(ip));
+        if (isValidUsableIPv4(qip)) {
+            qDebug() << "getIP from JNI" << qip;
+            return qip;
+        }
+    }
 #endif
     return QHostAddress();
 }
