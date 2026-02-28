@@ -22,6 +22,10 @@ Page {
 		  property real ui_zoom: 100.0
 		  property bool theme_tile_icon_enabled: true
 		  property string theme_background_color: "#303030"
+		  property string theme_chrome_background_color: "#2B2B2B"
+		  property string theme_chrome_border_color: "#36FFFFFF"
+		  property string theme_chrome_overlay_color: "#1EFFFFFF"
+		  property string theme_chrome_text_color: "#FFFFFF"
 		}
 
     Item {
@@ -29,6 +33,20 @@ Page {
         height: rootItem.topBarHeight
         id: topBar
         visible: !window.lockTiles
+
+        Rectangle {
+            anchors.fill: row
+            radius: 18
+            color: settings.theme_chrome_background_color
+            border.width: 1
+            border.color: settings.theme_chrome_border_color
+            z: -1
+
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "#20FFFFFF" }
+                GradientStop { position: 1.0; color: "#06FFFFFF" }
+            }
+        }
 
         Row {
             id: row
@@ -108,6 +126,14 @@ Page {
                     id: start
                     width: 120
                     height: row.height - 4
+                    font.family: Qt.application.font.family
+
+                    background: Rectangle {
+                        radius: 14
+                        color: parent.down ? "#30FFFFFF" : settings.theme_chrome_overlay_color
+                        border.width: 1
+                        border.color: settings.theme_chrome_border_color
+                    }
 
                     // VoiceOver accessibility
                     Accessible.role: Accessible.Button
@@ -138,6 +164,14 @@ Page {
                     id: stop
                     width: 120
                     height: row.height - 4
+                    font.family: Qt.application.font.family
+
+                    background: Rectangle {
+                        radius: 14
+                        color: parent.down ? "#30FFFFFF" : settings.theme_chrome_overlay_color
+                        border.width: 1
+                        border.color: settings.theme_chrome_border_color
+                    }
 
                     // VoiceOver accessibility
                     Accessible.role: Accessible.Button
@@ -171,6 +205,13 @@ Page {
                     enabled: rootItem.lap
                     smooth: true
 
+                    background: Rectangle {
+                        radius: 14
+                        color: parent.down ? "#30FFFFFF" : settings.theme_chrome_overlay_color
+                        border.width: 1
+                        border.color: settings.theme_chrome_border_color
+                    }
+
                     // VoiceOver accessibility
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Lap")
@@ -195,6 +236,8 @@ Page {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
                 text: rootItem.info
+                color: settings.theme_chrome_text_color
+                font.family: Qt.application.font.family
             }
         }
 
@@ -206,6 +249,8 @@ Page {
             text: "This app should automatically connect to your bike/treadmill/rower. <b>If it doesn't, please check</b>:<br>1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;<br>2) both Bluetooth and Bluetooth permissions MUST be enabled<br>3) your bike/treadmill/rower should be turned on BEFORE starting this app<br>4) try to restart your device<br><br>If your bike/treadmill disconnects every 30 seconds try to disable the 'virtual device' setting on the left bar.<br><br>In case of issues, please feel free to contact me at roberto.viola83@gmail.com.<br><br><b>Have a nice ride!</b><br/ ><i>QZ specifically disclaims liability for<br>incidental or consequential damages and assumes<br>no responsibility or liability for any loss<br>or damage suffered by any person as a result of<br>the use or misuse of the app.</i><br><br>Roberto Viola"
             wrapMode: Label.WordWrap
             visible: rootItem.labelHelp
+            color: settings.theme_chrome_text_color
+            font.family: Qt.application.font.family
         }
     }
 }
@@ -215,4 +260,3 @@ Designer {
     D{i:0;autoSize:true;formeditorZoom:0.6600000262260437;height:480;width:640}
 }
 ##^##*/
-
