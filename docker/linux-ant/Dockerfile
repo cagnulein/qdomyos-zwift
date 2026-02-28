@@ -1,29 +1,36 @@
 # =============================================================================
-# QDomyos-Zwift: Multi-Stage Docker Build (x86-64 / Desktop Linux)
+# QDomyos-Zwift: Simplified Docker Build v3.0 (x86-64 / Ubuntu 24.04+)
 #
 # Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
 # Contributor: bassai-sho | AI-assisted development | License: GPL-3.0
 #
-# Cross-compiles QDomyos-Zwift for linux/amd64 platform (Ubuntu 20.04+, Debian 11+).
-# Uses Debian Bookworm with pinned Python 3.11.2 for stable ANT+ integration.
+# Compiles QDomyos-Zwift for linux/amd64 using system Qt5 (no bundled libraries).
+# Target: Ubuntu 24.04 LTS+ with Qt 5.15.13 and Python 3.12
 #
 # Build stages:
 #   1. Builder: Compiles Qt5/C++ application with embedded Python ANT+ support
 #   2. Artifact: Minimal busybox container for file extraction only
 #
-# Output: /qdomyos-zwift-x86-64-ant/ directory with binary, scripts, and configs
+# Output: /qdomyos-zwift-x86-64-ant/ directory with binary and scripts
+#         Users must install system Qt5 packages via apt-get
+#
+# Breaking changes from v2.x:
+#   - No bundled Qt5 libraries (removed ~100MB)
+#   - No RPATH patching
+#   - Requires Ubuntu 24.04+ / Debian 12+ on target system
+#   - Wrapper checks OS version and Qt5 availability
 #
 # Usage:
-#   docker buildx build --platform linux/amd64 -f docker/linux-ant/Dockerfile .
+#   docker buildx build --platform linux/amd64 -f Dockerfile-x86-64 .
 #   docker buildx build --build-arg ENABLE_DEBUG_LOGS=1 ...  # Debug mode
 # =============================================================================
 
 # --- Stage 1: The Builder ---
-FROM debian:bookworm AS builder
+FROM ubuntu:24.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install all necessary build dependencies
+# Install build dependencies (Ubuntu 24.04 Qt 5.15.13)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     git \
@@ -53,46 +60,46 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libqt5sql5-mysql \
     libqt5sql5-psql \
     libsqlite3-dev \
+    python3.12 \
+    python3.12-dev \
+    python3.12-venv \
     python3-pip \
-    python3=3.11.2-1+b1 \
-    python3-dev=3.11.2-1+b1 \
-    python3-venv=3.11.2-1+b1 \
     libusb-1.0-0-dev \
-    libudev-dev
+    libudev-dev \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set up the Python virtual environment for ANT+ support
-RUN python3.11 -m venv /opt/ant_venv && \
+# Set up Python virtual environment for ANT+ support
+RUN python3.12 -m venv /opt/ant_venv && \
     /opt/ant_venv/bin/pip install --upgrade pip --quiet && \
     /opt/ant_venv/bin/pip install openant pyusb pybind11 --quiet
 
-# Copy the entire project source into the container
+# Copy project source
 WORKDIR /app
 COPY . .
 
-# Generate devices.ini and validate immediately (fail-fast)
+# Generate devices.ini and validate (fail-fast)
 RUN set -e; \
     echo "Generating devices.ini from settings.qml..."; \
-    cd /app; \
     /opt/ant_venv/bin/python3 src/devices/antlinux/generate_devices.py src/settings.qml; \
     test -f src/devices.ini || { echo "ERROR: devices.ini not generated"; exit 1; }; \
     test -f src/devices/antlinux/devices_optimized.json || { echo "ERROR: devices_optimized.json not generated"; exit 1; }; \
-    test -d src/devices/antlinux/.menu_cache || { echo "ERROR: .menu_cache not created"; exit 1; }; \
     echo "Python artifacts validated"
 
-# Initialize only the needed submodules (avoid full recursive fetch)
+# Initialize needed submodules
 RUN git submodule update --init src/smtpclient/ && \
     git submodule update --init src/qmdnsengine/ && \
     git submodule update --init src/qthttpserver/ && \
     git submodule update --init tst/googletest/
 
-# Configure the project for an ANT+ build
+# Configure for ANT+ build
 RUN echo 'include(devices/antlinux/antlinux.pri)' >> src/qdomyos-zwift.pro && \
     echo '/opt/ant_venv/bin/python3' > src/.ant_venv_path && \
     sed -i '/QtHttpServer/d' src/qdomyos-zwift.pro && \
     find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + && \
     find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} +
 
-# Build and validate binary immediately (fail-fast)
+# Build binary (no bundling, no RPATH modification)
 ARG ENABLE_DEBUG_LOGS=0
 
 RUN set -e; \
@@ -111,15 +118,15 @@ RUN set -e; \
     fi; \
     mv qdomyos-zwift qdomyos-zwift-bin; \
     test -f qdomyos-zwift-bin || { echo "ERROR: Binary not created"; exit 1; }; \
-    echo "Build complete"
+    echo "Build complete - binary uses system Qt5"
 
 # --- Stage 2: Minimal Artifact Container ---
 FROM busybox:latest
 
-# Create the application directory structure
+# Create application directory
 RUN mkdir -p /qdomyos-zwift-x86-64-ant
 
-# Copy artifacts - now using unified wrapper from src/devices/antlinux/
+# Copy binary and scripts only (no bundled libraries/plugins)
 COPY --from=builder /app/src/qdomyos-zwift-bin /qdomyos-zwift-x86-64-ant/
 COPY src/devices/antlinux/qdomyos-zwift-wrapper.sh /qdomyos-zwift-x86-64-ant/qdomyos-zwift
 COPY src/devices/antlinux/setup-dashboard.sh /qdomyos-zwift-x86-64-ant/

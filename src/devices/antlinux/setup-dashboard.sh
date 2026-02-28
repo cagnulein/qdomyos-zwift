@@ -18,7 +18,7 @@
 #   sudo ./setup-dashboard.sh
 ################################################################################
 
-declare -r QZ_SETUP_VERSION="1.0.0"
+declare -r QZ_SETUP_VERSION="3.0.0"
 # Initialize critical global variables to satisfy 'set -u'
 UI_FD=2
 _UI_FD_VAR=2
@@ -110,18 +110,14 @@ get_service_config_path() {
 ################################################################################
 
 ################################################################################
-# Python Version Configuration
+# Python Version Configuration (v3.0: Python 3.12 primary, 3.11+ compatible)
 ################################################################################
-declare -r PYTHON_VERSION_MAJOR="3.11"
-declare -r PYTHON_VERSION_FULL="${PYTHON_VERSION_FULL}"
+declare -r PYTHON_VERSION_MAJOR="3.12"
+declare -r PYTHON_VERSION_FULL="3.12.3"
+declare -r PYTHON_VERSION_FALLBACK="3.11"  # Debian 12 compatibility
 declare -r PYTHON_LIB_NAME="libpython${PYTHON_VERSION_MAJOR}"
 declare -r PYTHON_PACKAGE="python${PYTHON_VERSION_MAJOR}"
 declare -r PYENV_VERSION_PATH=".pyenv/versions/${PYTHON_VERSION_FULL}"
-################################################################################
-
-################################################################################
-# Python Version Configuration
-################################################################################
 ################################################################################
 
 ################################################################################
@@ -132,8 +128,7 @@ user_in_group() {
     groups "$user" 2>/dev/null | grep -qw "$group"
 }
 
-# Optimized Python Resolver (Zero-fork priority)
-# Python 3.11 Resolver (detects python3 if it's version 3.11.x)
+# Optimized Python Resolver (v3.0: 3.12 primary, 3.11 fallback)
 resolve_python_bin() {
     local u_home=${1:-${TARGET_HOME:-$USER_HOME}}
 
@@ -143,23 +138,29 @@ resolve_python_bin() {
         return 0
     fi
     
-    # 2. Check pyenv (exact version)
+    # 2. Check pyenv (exact version 3.12)
     if [[ -x "${u_home}/${PYENV_VERSION_PATH}/bin/python3" ]]; then
         echo "${u_home}/${PYENV_VERSION_PATH}/bin/python3"
         return 0
     fi
     
-    # 3. Check for python3.11 command specifically
-    if command -v "${PYTHON_PACKAGE}" >/dev/null 2>&1; then
-        command -v "${PYTHON_PACKAGE}"
+    # 3. Check for python3.12 command specifically
+    if command -v python3.12 >/dev/null 2>&1; then
+        command -v python3.12
         return 0
     fi
     
-    # 4. Check if generic python3 is EXACTLY version 3.11.x
+    # 4. Fallback: Check for python3.11 (Debian 12 compatibility)
+    if command -v python3.11 >/dev/null 2>&1; then
+        command -v python3.11
+        return 0
+    fi
+    
+    # 5. Check if generic python3 is version 3.12 or 3.11
     if command -v python3 >/dev/null 2>&1; then
         local py_version
         py_version=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null)
-        if [[ "$py_version" == "3.11" ]]; then
+        if [[ "$py_version" == "3.12" ]] || [[ "$py_version" == "3.11" ]]; then
             command -v python3
             return 0
         fi
@@ -764,6 +765,7 @@ if [ "$USE_COLOR" = true ]; then
     declare -r BOLD_BLUE=$'\033[1;34m'
     declare -r BOLD_CYAN=$'\033[1;36m'   # Added for high-visibility selection
     declare -r BOLD_WHITE=$'\033[1;37m'
+    declare -r BOLD_YELLOW=$'\033[1;33m'
     declare -r ORANGE=$'\033[38;5;214m' # 256-color mode orange
     declare -r GRAY=$'\033[0;90m'
     declare -r BOLD_GRAY=$'\033[1;90m'
@@ -772,7 +774,7 @@ else
     # Color/format variables intentionally defined (may be used externally)
     declare -r RED=''; declare -r GREEN=''; declare -r YELLOW=''; declare -r BLUE=''; declare -r CYAN=''; declare -r WHITE=''; declare -r GRAY=''; declare -r NC=''
     declare -r BG_GREEN=''; declare -r BG_GRAY=''
-    declare -r BOLD=''; declare -r BOLD_RED=''; declare -r BOLD_GREEN=''; declare -r BOLD_BLUE=''; declare -r BOLD_CYAN=''; declare -r BOLD_WHITE=''
+    declare -r BOLD=''; declare -r BOLD_RED=''; declare -r BOLD_GREEN=''; declare -r BOLD_BLUE=''; declare -r BOLD_CYAN=''; declare -r BOLD_WHITE=''; declare -r BOLD_YELLOW=''
     declare -r ORANGE=''; declare -r BOLD_GRAY=''
 fi
  
@@ -3754,6 +3756,7 @@ _logic_check_pips() {
 }
 
 _logic_check_qt5_libs() {
+    # Check system Qt5 libraries only (v3.0 - no bundled libraries)
     local libs=("libQt5Core.so" "libQt5Qml.so" "libQt5Quick.so" "libQt5Bluetooth.so" "libusb-1.0.so")
     for lib in "${libs[@]}"; do
         local found=0
@@ -3767,6 +3770,7 @@ _logic_check_qt5_libs() {
 }
 
 _logic_check_qml_modules() {
+    # Check system QML modules only (v3.0 - no bundled libraries)
     local qmls=("QtLocation" "QtQuick.2" "QtQuick/Controls.2")
     for qml in "${qmls[@]}"; do
         [[ -d "/usr/lib/${ARCH_LIB_PATH}/qt5/qml/$qml" ]] || [[ -d "/usr/lib/qt5/qml/$qml" ]] || { echo "fail"; return 1; }
@@ -4925,7 +4929,7 @@ build_python_with_pyenv() {
     # ---------------------------------------------------------------------------
     local build_env=""
     local mode_label="Standard"
-    local est_time="10-15 minutes"
+    local est_time="~45 minutes"
 
     if [[ "$is_low_mem" == "true" ]]; then
         local cpu_arch
@@ -5283,6 +5287,16 @@ install_python_packages() {
 }
 
 install_qt5_libs() {
+    # Check for bundled Qt5 libraries first
+    local script_dir; script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+    local bundled_dir="${script_dir}/bundled-libs"
+    
+    if [[ -d "$bundled_dir" ]] && [[ -f "$bundled_dir/libQt5Core.so.5" ]]; then
+        draw_info_screen "BUNDLED QT5 DETECTED" "Qt5 libraries are bundled with the application.\nSystem Qt5 packages not required." 2
+        return 0
+    fi
+    
+    # No bundled libraries - install system Qt5 packages
     local libs=(
         libqt5core5a
         libqt5qml5
@@ -5782,7 +5796,8 @@ run_guided_mode() {
         # We don't need a specific request_fix prompt here because 
         # install_python311 has its own internal choice UI now.
         if install_python311; then
-            check_python311
+            check_python311 >/dev/null 2>&1
+            render_status_grid
             action_taken=true
         else
             return 1 # If they cancel Python, we can't proceed
@@ -5795,7 +5810,8 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_venv && check_venv
+            install_venv && check_venv >/dev/null 2>&1
+            render_status_grid
             action_taken=true
         fi
     fi
@@ -5806,7 +5822,8 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_python_packages && check_python_packages
+            install_python_packages && check_python_packages >/dev/null 2>&1
+            render_status_grid
             action_taken=true
         fi
     fi
@@ -5818,7 +5835,8 @@ run_guided_mode() {
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
             # Note: install_qt5_libs no longer installs python3-pip (prevents system leak)
-            install_qt5_libs && check_qt5_libs && check_qml_modules
+            install_qt5_libs && check_qt5_libs >/dev/null 2>&1 && check_qml_modules >/dev/null 2>&1
+            render_status_grid
             action_taken=true
         fi
     fi
@@ -5829,7 +5847,8 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_bluetooth && check_bluetooth
+            install_bluetooth && check_bluetooth >/dev/null 2>&1
+            render_status_grid
             action_taken=true
         fi
     fi
@@ -5840,7 +5859,8 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_plugdev && check_plugdev
+            install_plugdev && check_plugdev >/dev/null 2>&1
+            render_status_grid
             action_taken=true
         fi
     fi
@@ -5851,7 +5871,8 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_udev_rules && check_udev_rules
+            install_udev_rules && check_udev_rules >/dev/null 2>&1
+            render_status_grid
             action_taken=true
         fi
     fi
@@ -5862,7 +5883,8 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_lsusb && check_lsusb
+            install_lsusb && check_lsusb >/dev/null 2>&1
+            render_status_grid
             action_taken=true
         fi
     fi
@@ -5924,17 +5946,40 @@ run_uninstall_mode() {
         BOOT_WRITABLE=true
     fi
 
-    if [ "$is_rpi" = false ]; then
-        draw_error_screen "UNINSTALL DENIED" "Uninstall is only permitted on a Raspberry Pi or other verified headless system." 3
-        return 1
-    fi
-    if [ "${HAS_GUI:-false}" = true ]; then
-        draw_error_screen "UNINSTALL DENIED" "Uninstall is blocked when a GUI environment is detected for safety." 3
-        return 1
-    fi
-    if [ "$BOOT_WRITABLE" = false ]; then
-        draw_error_screen "UNINSTALL DENIED" "/boot partition is read-only. Cannot proceed with critical system changes." 3
-        return 1
+    # Check if forced uninstall mode is enabled
+    if [[ "${FORCE_UNINSTALL:-0}" -eq 1 ]]; then
+        # Force mode: skip platform checks but require explicit confirmation
+        clear_info_area
+        draw_sealed_row $((LOG_TOP + 2)) "   ${BOLD_RED}FORCE UNINSTALL MODE${NC}"
+        draw_sealed_row $((LOG_TOP + 3)) ""
+        draw_sealed_row $((LOG_TOP + 4)) "   You are running uninstall on a non-Raspberry Pi system."
+        draw_sealed_row $((LOG_TOP + 5)) "   This bypasses safety checks and may affect system stability."
+        draw_sealed_row $((LOG_TOP + 6)) ""
+        draw_sealed_row $((LOG_TOP + 7)) "   ${BOLD_YELLOW}Type YES to confirm forced uninstall:${NC}"
+        
+        exit_ui_mode
+        
+        if ! prompt_input_yes; then
+            enter_ui_mode
+            draw_info_screen "FORCE UNINSTALL CANCELLED" "Uninstall was cancelled by user." 2
+            return 1
+        fi
+        
+        enter_ui_mode
+    else
+        # Normal mode: enforce safety checks
+        if [ "$is_rpi" = false ]; then
+            draw_error_screen "UNINSTALL DENIED" "Uninstall is only permitted on a Raspberry Pi or other verified headless system.\n\nUse --uninstall-force to override (not recommended)." 3
+            return 1
+        fi
+        if [ "${HAS_GUI:-false}" = true ]; then
+            draw_error_screen "UNINSTALL DENIED" "Uninstall is blocked when a GUI environment is detected for safety.\n\nUse --uninstall-force to override (not recommended)." 3
+            return 1
+        fi
+        if [ "$BOOT_WRITABLE" = false ]; then
+            draw_error_screen "UNINSTALL DENIED" "/boot partition is read-only. Cannot proceed with critical system changes." 3
+            return 1
+        fi
     fi
 
     # 3. Build Dynamic Removal List
@@ -6048,7 +6093,7 @@ run_uninstall_mode() {
             # Update status after removal
             STATUS_MAP["python311"]="fail"
             IS_PYSYS_INSTALLED=false
-            draw_status_panel
+            render_status_grid
         else
             enter_ui_mode
             draw_info_screen "HIGH-RISK REMOVAL ABORTED" "Core system Python will be kept." 1
@@ -6059,7 +6104,7 @@ run_uninstall_mode() {
     if [[ "$sys_pkgs_cleanable" == "true" ]]; then
         local pkgs_to_remove="python3.11-venv python3-pip-whl python3-setuptools-whl ${PYTHON_LIB_NAME}"
         run_step "Removing Python Artifacts" "apt-get purge -y $pkgs_to_remove" || return 1
-        draw_status_panel
+        render_status_grid
     fi
     
     # C. Pyenv Python (The Isolated Build)
@@ -6071,7 +6116,7 @@ run_uninstall_mode() {
         # Update status after removal
         STATUS_MAP["python311"]="fail"
         IS_PYENV_INSTALLED=false
-        draw_status_panel
+        render_status_grid
     fi
     
     # D. Virtual Environment
@@ -6079,13 +6124,13 @@ run_uninstall_mode() {
         run_step "Removing Virtual Environment" "rm -rf \"$TARGET_HOME/ant_venv\"" || return 1
         # Update status after removal
         STATUS_MAP["venv"]="fail"
-        draw_status_panel
+        render_status_grid
     fi
     
     # E. Python Packages
     # Update PIPs status
     STATUS_MAP["pips"]="fail"
-    draw_status_panel
+    render_status_grid
 
     # F. Deep Clean Execution (System Runtime Packages)
     if [[ "$deep_clean_available" == "true" ]]; then
@@ -6097,12 +6142,12 @@ run_uninstall_mode() {
         STATUS_MAP["qml_modules"]="fail"
         STATUS_MAP["bluetooth"]="fail"
         STATUS_MAP["lsusb"]="fail"
-        draw_status_panel
+        render_status_grid
         
         if groups "$TARGET_USER" 2>/dev/null | grep -q plugdev; then
             run_step "Removing User from plugdev Group" "gpasswd -d $TARGET_USER plugdev" || return 1
             STATUS_MAP["plugdev"]="fail"
-            draw_status_panel
+            render_status_grid
         fi
     fi
 
@@ -6111,16 +6156,16 @@ run_uninstall_mode() {
         local svc_cmd="systemctl stop qz.service 2>/dev/null; systemctl disable qz.service 2>/dev/null; rm -f \"$SERVICE_FILE_QZ\" /etc/systemd/system/qz.service; systemctl daemon-reload"
         run_step "Removing QZ Service" "$svc_cmd" || return 1
         STATUS_MAP["qz_service"]="fail"
-        draw_status_panel
+        render_status_grid
     fi
     if [[ -f "/etc/udev/rules.d/99-ant-usb.rules" ]]; then
         run_step "Removing USB udev rules" "rm -f /etc/udev/rules.d/99-ant-usb.rules && udevadm control --reload-rules" || return 1
         STATUS_MAP["udev_rules"]="fail"
-        draw_status_panel
+        render_status_grid
     fi
     if [[ -d "$CONFIG_DIR" ]]; then 
         run_step "Removing Config Files" "rm -rf \"$CONFIG_DIR\"" || return 1
-        draw_status_panel
+        render_status_grid
     fi
 
     # H. Final Autoremove
@@ -7996,8 +8041,9 @@ USAGE:
     sudo ./setup_dashboard.sh --help
 
     Interactive options:
-        --uninstall    Start the uninstall menu immediately and exit
-        --pyenv        Force pyenv installation (skip system Python even if available)
+        --uninstall        Start the uninstall menu immediately and exit
+        --uninstall-force  Allow uninstall on non-Raspberry Pi systems (requires confirmation)
+        --pyenv            Force pyenv installation (skip system Python even if available)
 
 REQUIREMENTS:
     - Root privileges required for installation actions.
@@ -8047,6 +8093,10 @@ if [ $# -gt 0 ]; then
                 ;;
             --uninstall)
                 UNINSTALL_MODE=1
+                ;;
+            --uninstall-force)
+                UNINSTALL_MODE=1
+                FORCE_UNINSTALL=1
                 ;;
             --pyenv)
                 FORCE_PYENV=1
