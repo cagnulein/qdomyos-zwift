@@ -10,6 +10,11 @@
 #include <QAndroidJniObject>
 #endif
 
+#ifdef ANT_LINUX_ENABLED
+#include <QFile>
+#include <QRegularExpression>
+#endif
+
 using namespace std::chrono_literals;
 
 virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
@@ -390,6 +395,14 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 
 #elif defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
         pars.setInterval(30, 50);
+        #ifdef ANT_LINUX_ENABLED
+            // Check if we are on a low-spec device
+            QFile modelFile("/sys/firmware/devicetree/base/model");
+            if (modelFile.open(QIODevice::ReadOnly) && QString(modelFile.readAll()).contains(QRegularExpression("Pi (Zero|[1-3])"))) {
+                qInfo() << "[ANT+] Low-spec device detected. Slowing BLE advertising rate.";
+                pars.setInterval(500, 550); // Slow down to ~2Hz
+            }
+        #endif
         leController->startAdvertising(pars, advertisingData);
 #else
         leController->startAdvertising(pars, advertisingData, advertisingData);
@@ -416,6 +429,23 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     case 0x2AD9: // Fitness Machine Control Point
         if (writeP2AD9->writeProcess(0x2AD9, newValue, reply) == CP_OK) {
 
+            #ifdef ANT_LINUX_ENABLED
+            // Decodes the FTMS "Set Target Speed" command and relays it
+            // to the faketreadmill. This is necessary for the ANT+ broadcaster to get
+            // speed data in a virtual treadmill test setup.
+            // Op Code 0x03 is "Set Target Speed". Packet must be at least 3 bytes long.
+            if (newValue.length() >= 3 && static_cast<quint8>(newValue.at(0)) == 0x03) {
+                if (treadMill && treadMill->metaObject()->className() == QString("faketreadmill")) {
+                    // Speed is a uint16, little-endian, with a resolution of 0.01 km/h
+                    quint16 rawSpeed = (static_cast<quint8>(newValue.at(2)) << 8) | static_cast<quint8>(newValue.at(1));
+                    double speedKmh = static_cast<double>(rawSpeed) * 0.01;
+
+                    qInfo() << "[ANT+] Relaying FTMS speed request (" << speedKmh << "km/h) to faketreadmill.";
+                    // This is the missing link that calls changeSpeed() on the faketreadmill object.
+                    static_cast<treadmill *>(treadMill)->changeSpeed(speedKmh);
+                }
+            }
+            #endif
             QLowEnergyCharacteristic characteristic =
                 serviceFTMS->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9);
             Q_ASSERT(characteristic.isValid());

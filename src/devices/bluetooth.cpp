@@ -4236,6 +4236,12 @@ bool bluetooth::handleSignal(int signal) {
     if (signal == SIGNALS::SIG_INT) {
         qDebug() << QStringLiteral("SIGINT");
         QFile::remove(QStringLiteral("status.xml"));
+#ifdef ANT_LINUX_ENABLED
+        // This will trigger the aboutToQuit signal and allow for clean shutdown.
+        QCoreApplication::instance()->quit(); 
+        // DO NOT CALL exit() here. Let the event loop handle the termination.
+        return true; // The signal has been handled.
+#endif
         exit(EXIT_SUCCESS);
     }
     // Let the signal propagate as though we had not been there

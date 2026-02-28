@@ -49,6 +49,22 @@
 
 #include "handleurl.h"
 
+#ifdef ANT_LINUX_ENABLED
+#include <thread>
+#include <chrono>
+#include <atomic>
+#include <QPointer>
+#include "bluetoothdevicetype.h" 
+#include "devices/antlinux/AntManager.h"
+bool ant_footpod_enabled = false;
+bool ant_verbose = false;
+int ant_device_id = 54321;
+
+// This flag ensures we only ever initialize the AntManager once,
+// even if bluetoothDeviceConnected is emitted multiple times.
+std::atomic<bool> antManagerStarted(false);
+#endif
+
 bool logs = true;
 bool noWriteResistance = false;
 bool noHeartService = true;
@@ -180,6 +196,13 @@ void displayHelp() {
     printf("\nOther options:\n");
     printf("  -test-resistance              Enable resistance testing\n");
     printf("  -fit-file-saved-on-quit       Save FIT file on application quit\n");
+
+#ifdef ANT_LINUX_ENABLED
+    printf("\nANT+ Footpod Broadcaster options (Linux only):\n");
+    printf("  -ant-footpod                  Enable ANT+ footpod broadcasting\n");
+    printf("  -ant-device <id>              Set ANT+ device ID (1-65535, default: 54321)\n");
+    printf("  -ant-verbose                  Enable verbose logging for the Python ANT+ module\n");
+#endif
 
     exit(0);
 }
@@ -396,6 +419,23 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-mqtt-deviceid")) {
             mqtt_deviceid = argv[++i];
         }
+
+#ifdef ANT_LINUX_ENABLED
+        if (!qstrcmp(argv[i], "-ant-footpod")) {
+            ant_footpod_enabled = true;
+        }
+        if (!qstrcmp(argv[i], "-ant-verbose")) {
+            ant_verbose = true;
+        }
+        if (!qstrcmp(argv[i], "-ant-device")) {
+            if (i + 1 < argc) {
+                int id = atoi(argv[++i]);
+                if (id > 0 && id < 65536) {
+                    ant_device_id = id;
+                }
+            }
+        }
+#endif
     }
 
     if (nogui) {
@@ -824,6 +864,53 @@ int main(int argc, char *argv[]) {
     bluetooth bl(logs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance,
                  bikeResistanceOffset,
                  bikeResistanceGain); // FIXED: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
+    
+    #ifdef ANT_LINUX_ENABLED
+    if (ant_footpod_enabled) {
+        qInfo() << "[main] ANT+ feature enabled. Arming startup trigger...";
+
+        QObject::connect(&bl, &bluetooth::bluetoothDeviceConnected, [&](bluetoothdevice *dev) {
+            // Use a flag to ensure this logic only ever runs once, preventing duplicate starts.
+            static std::atomic<bool> antManagerStarted(false);
+            if (antManagerStarted.exchange(true)) {
+                return; // If the flag was already true, do nothing.
+            }
+
+            if (dev && dev->deviceType() == TREADMILL) {
+                
+                // --- START OF FINAL FIX ---
+                // Determine the correct startup delay based on the device type.
+                int startupDelayMs = 10000; // Default 10s delay for real hardware.
+
+                if (dev->metaObject()->className() == QString("faketreadmill")) {
+                    // For the faketreadmill, a short 2s delay is sufficient and improves test speed.
+                    startupDelayMs = 2000;
+                    // A fake device has no blocking hardware handshake (`btinit`).
+                    qInfo() << "[main] Fake treadmill detected. Using a 2-second startup delay for ANT+.";
+                } else {
+                    // A real treadmill has a long-running, blocking `btinit()` function (~8s) that
+                    // competes for USB resources. We must use a delayed timer to start the ANT+
+                    // manager *after* this blocking call is guaranteed to have finished.
+                    qInfo() << "[main] Real treadmill detected. Using a 10-second startup delay for ANT+.";
+                }
+
+                QTimer::singleShot(startupDelayMs, [dev = QPointer<bluetoothdevice>(dev)]() {
+                    if (dev && dev->connected()) {
+                        qInfo() << "[main] Initialization delay complete. Starting ANT+ Manager.";
+                        AntManager::instance().startForDevice(dev.data());
+                    } else {
+                        qWarning() << "[main] Device disconnected during initialization delay - ANT+ not started.";
+                    }
+                });
+              }
+        });
+
+        QObject::connect(app.get(), &QCoreApplication::aboutToQuit, &AntManager::instance(), [&]() {
+            qInfo() << "[main] Application shutting down. Stopping ANT+ Manager.";
+            AntManager::instance().stopForDevice(nullptr);
+        });
+    }
+    #endif
 
     QString mqtt_host = settings.value(QZSettings::mqtt_host, QZSettings::default_mqtt_host).toString();
     int mqtt_port = settings.value(QZSettings::mqtt_port, QZSettings::default_mqtt_port).toInt();
