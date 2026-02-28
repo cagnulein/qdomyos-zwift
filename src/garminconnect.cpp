@@ -1741,6 +1741,31 @@ static int garminPowerFromZone(double zoneValue) {
     return bike::powerZoneValueToWatts(zoneValue, ftp);
 }
 
+static int garminPowerFromFtpPercentage(double ftpPercentage) {
+    QSettings settings;
+    const double ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+    return qRound(ftp * (ftpPercentage / 100.0));
+}
+
+static int garminResolvePowerTargetValue(double rawValue, bool isPowerZone) {
+    if (rawValue <= 0.0) {
+        return -1;
+    }
+
+    // Garmin power.zone payloads can contain either zone indexes (1..7+) or FTP percentages (e.g. 98..142).
+    if (isPowerZone) {
+        if (rawValue <= 10.0) {
+            return garminPowerFromZone(rawValue);
+        }
+        if (rawValue <= 300.0) {
+            return garminPowerFromFtpPercentage(rawValue);
+        }
+    }
+
+    // Fallback: treat as direct watt target.
+    return qRound(rawValue);
+}
+
 static double garminSpeedMpsToKph(double speedMps) {
     return speedMps * 3.6;
 }
@@ -1777,23 +1802,15 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
     } else if (targetTypeKey.contains("power", Qt::CaseInsensitive)) {
         int power = -1;
         const bool isPowerZone = targetTypeKey.contains("zone", Qt::CaseInsensitive);
-        const bool isLikelyZoneValues =
-            (hasTargetOne && targetOne > 0 && targetOne <= 10) ||
-            (hasTargetTwo && targetTwo > 0 && targetTwo <= 10);
+        const int resolvedOne = hasTargetOne ? garminResolvePowerTargetValue(targetOne, isPowerZone) : -1;
+        const int resolvedTwo = hasTargetTwo ? garminResolvePowerTargetValue(targetTwo, isPowerZone) : -1;
 
-        if (isPowerZone || isLikelyZoneValues) {
-            double zone = (hasTargetOne && targetOne > 0) ? targetOne : targetTwo;
-            power = garminPowerFromZone(zone);
-        } else {
-            const double low = (hasTargetOne && targetOne > 0) ? targetOne : 0.0;
-            const double high = (hasTargetTwo && targetTwo > 0) ? targetTwo : 0.0;
-            if (low > 0.0 && high > 0.0) {
-                power = qRound((low + high) / 2.0);
-            } else if (low > 0.0) {
-                power = qRound(low);
-            } else if (high > 0.0) {
-                power = qRound(high);
-            }
+        if (resolvedOne > 0 && resolvedTwo > 0) {
+            power = qRound((resolvedOne + resolvedTwo) / 2.0);
+        } else if (resolvedOne > 0) {
+            power = resolvedOne;
+        } else if (resolvedTwo > 0) {
+            power = resolvedTwo;
         }
 
         if (power > 0) {
