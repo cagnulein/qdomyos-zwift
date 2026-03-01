@@ -81,6 +81,7 @@ class proformwifibike : public bike {
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     metric target_watts;
+    double lastGearValue = -1;
 
     bool initDone = false;
     bool initRequest = false;
