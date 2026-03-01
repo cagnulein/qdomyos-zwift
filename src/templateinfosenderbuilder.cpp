@@ -13,6 +13,7 @@
 #include <QTime>
 #include <QQmlFile>
 #include <limits>
+#include <QRegularExpression>>
 #ifdef Q_HTTPSERVER
 #include "webserverinfosender.h"
 #endif
@@ -303,9 +304,10 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue &val, TemplateInf
             key = kk.toString();
             if (key.startsWith(QStringLiteral("$"))) {
                 outObj.insert(key, 1);
-                QRegExp regex(key.mid(1));
+                QRegularExpression regex(key.mid(1));
                 for (auto &keypresent : settings.allKeys()) {
-                    if (regex.indexIn(keypresent) >= 0) {
+                    QRegularExpressionMatch match = regex.match(keypresent);
+                    if (match.hasMatch()) {
                         outObj.insert(keypresent, QJsonValue::fromVariant(settings.value(keypresent)));
                     }
                 }

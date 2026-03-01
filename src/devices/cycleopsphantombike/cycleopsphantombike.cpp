@@ -98,6 +98,10 @@ void cycleopsphantombike::forceInclination(double inclination) {
 }
 
 void cycleopsphantombike::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -348,14 +352,14 @@ void cycleopsphantombike::characteristicChanged(const QLowEnergyCharacteristic &
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
-    } else if (characteristic.uuid() == QBluetoothUuid::HeartRateMeasurement) {
+    } else if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::HeartRateMeasurement) {
         if (newValue.length() > 1 && !disable_hr_frommachinery) {
             Heart = newValue[1];
             heart = Heart.value();
         }
 
         emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
-    } else if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
+    } else if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement) {
         uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
         bool cadence_present = false;
         bool wheel_revs = false;
@@ -757,7 +761,7 @@ void cycleopsphantombike::stateChanged(QLowEnergyService::ServiceState state) {
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
-        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+        if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
         }
@@ -766,7 +770,7 @@ void cycleopsphantombike::stateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+        if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &cycleopsphantombike::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &cycleopsphantombike::characteristicWritten);
@@ -780,22 +784,21 @@ void cycleopsphantombike::stateChanged(QLowEnergyService::ServiceState state) {
 
             auto characteristics = s->characteristics();
             for (const QLowEnergyCharacteristic &c : characteristics) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+                qDebug() << QStringLiteral("char uuid") << c.uuid();
                 auto descriptors = c.descriptors();
                 for (const QLowEnergyDescriptor &d : descriptors) {
-                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid();
                 }
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
-                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    if (c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).isValid()) {
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                 << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
                                  << QStringLiteral(" is not valid");
                     }
 
@@ -805,12 +808,11 @@ void cycleopsphantombike::stateChanged(QLowEnergyService::ServiceState state) {
                     QByteArray descriptor;
                     descriptor.append((char)0x02);
                     descriptor.append((char)0x00);
-                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    if (c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).isValid()) {
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                 << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
                                  << QStringLiteral(" is not valid");
                     }
 
@@ -823,7 +825,7 @@ void cycleopsphantombike::stateChanged(QLowEnergyService::ServiceState state) {
                 const QBluetoothUuid CONTROL_POINT_UUID = QBluetoothUuid(QString("CA31A533-A858-4DC7-A650-FDEB6DAD4C14"));
 
                 if (c.properties() & QLowEnergyCharacteristic::Write &&
-                    c.uuid() == QBluetoothUuid::CyclingPowerControlPoint) {
+                    c.uuid() == QBluetoothUuid::CharacteristicType::CyclingPowerControlPoint) {
                     qDebug() << QStringLiteral("CyclingPowerControlPoint found");
                     gattWriteCharControlPointId = c;
                     gattPowerService = s;
@@ -938,7 +940,7 @@ void cycleopsphantombike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::stateChanged, this, &cycleopsphantombike::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

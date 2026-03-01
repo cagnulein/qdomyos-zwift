@@ -152,6 +152,8 @@ void domyosrower::forceResistance(resistance_t requestResistance) {
 }
 
 void domyosrower::update() {
+    if (!m_control)
+        return;
 
     uint8_t noOpData[] = {0xf0, 0xac, 0x9c};
 
@@ -741,7 +743,7 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
         QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
         emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
-        if (state == QLowEnergyService::ServiceDiscovered) {
+        if (state == QLowEnergyService::RemoteServiceDiscovered) {
 
             // qDebug() << gattCommunicationChannelService->characteristics();
 
@@ -756,7 +758,7 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
             connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                     &domyosrower::characteristicWritten);
             connect(gattCommunicationChannelService,
-                    static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                    &QLowEnergyService::errorOccurred,
                     this, &domyosrower::errorService);
             connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                     &domyosrower::descriptorWritten);
@@ -765,7 +767,7 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
             descriptor.append((char)0x01);
             descriptor.append((char)0x00);
             gattCommunicationChannelService->writeDescriptor(
-                gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                gattNotifyCharacteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
         }
     } else {
         QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
@@ -773,7 +775,7 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
 
         for (QLowEnergyService *s : qAsConst(gattCommunicationChannelServiceArray)) {
             qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
-            if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+            if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
                 qDebug() << QStringLiteral("not all services discovered");
 
                 return;
@@ -783,14 +785,14 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
         qDebug() << QStringLiteral("all services discovered!");
 
         for (QLowEnergyService *s : qAsConst(gattCommunicationChannelServiceArray)) {
-            if (s->state() == QLowEnergyService::ServiceDiscovered) {
+            if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
 
                 // establish hook into notifications
                 connect(s, &QLowEnergyService::characteristicChanged, this, &domyosrower::characteristicChanged);
                 connect(s, &QLowEnergyService::characteristicWritten, this, &domyosrower::characteristicWritten);
                 connect(s, &QLowEnergyService::characteristicRead, this, &domyosrower::characteristicRead);
                 connect(
-                    s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                    s, &QLowEnergyService::errorOccurred,
                     this, &domyosrower::errorService);
                 connect(s, &QLowEnergyService::descriptorWritten, this, &domyosrower::descriptorWritten);
                 connect(s, &QLowEnergyService::descriptorRead, this, &domyosrower::descriptorRead);
@@ -799,10 +801,10 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
 
                 auto characteristics_list = s->characteristics();
                 for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                    qDebug() << "char uuid" << c.uuid() << QStringLiteral("handle") << c.handle();
+                    qDebug() << "char uuid" << c.uuid();
                     auto descriptors_list = c.descriptors();
                     for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
-                        qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+                        qDebug() << QStringLiteral("descriptor uuid") << d.uuid();
                     }
 
                     if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
@@ -810,12 +812,12 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
                         QByteArray descriptor;
                         descriptor.append((char)0x01);
                         descriptor.append((char)0x00);
-                        if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                            s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                        if (c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).isValid()) {
+                            s->writeDescriptor(c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
                         } else {
                             qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
-                                     << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                     << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                     << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
+                                     
                                      << QStringLiteral(" is not valid");
                         }
 
@@ -825,12 +827,12 @@ void domyosrower::stateChanged(QLowEnergyService::ServiceState state) {
                         QByteArray descriptor;
                         descriptor.append((char)0x02);
                         descriptor.append((char)0x00);
-                        if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                            s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                        if (c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).isValid()) {
+                            s->writeDescriptor(c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
                         } else {
                             qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
-                                     << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                     << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                     << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
+                                     
                                      << QStringLiteral(" is not valid");
                         }
 
@@ -942,12 +944,12 @@ void domyosrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &domyosrower::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &domyosrower::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, &domyosrower::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &domyosrower::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

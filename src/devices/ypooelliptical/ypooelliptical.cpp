@@ -98,6 +98,10 @@ void ypooelliptical::forceResistance(resistance_t requestResistance) {
 }
 
 void ypooelliptical::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -215,7 +219,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     qDebug() << characteristic.uuid() << QStringLiteral("<<") << newvalue.toHex(' ');
 
-    if (characteristic.uuid() == QBluetoothUuid::HeartRate && newvalue.length() > 1) {
+    if (characteristic.uuid() == QBluetoothUuid::ServiceClassUuid::HeartRate && newvalue.length() > 1) {
         heartRate((uint8_t)newvalue[1]);
         emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         return;
@@ -765,7 +769,7 @@ void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
-        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+        if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
         }
@@ -785,13 +789,13 @@ void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
             continue;
         }
 
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+        if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &ypooelliptical::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &ypooelliptical::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &ypooelliptical::characteristicRead);
             connect(
-                s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                s, &QLowEnergyService::errorOccurred,
                 this, &ypooelliptical::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &ypooelliptical::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &ypooelliptical::descriptorRead);
@@ -800,22 +804,22 @@ void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
 
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+                qDebug() << QStringLiteral("char uuid") << c.uuid();
                 auto descriptors_list = c.descriptors();
                 for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
-                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid();
                 }
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
-                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    if (c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).isValid()) {
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                 << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
+
                                  << QStringLiteral(" is not valid");
                     }
 
@@ -825,12 +829,12 @@ void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
                     QByteArray descriptor;
                     descriptor.append((char)0x02);
                     descriptor.append((char)0x00);
-                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    if (c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).isValid()) {
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                 << c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).uuid()
+
                                  << QStringLiteral(" is not valid");
                     }
 
@@ -1004,7 +1008,7 @@ void ypooelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith(QStringLiteral("MYELLIPTICAL "))) {
             MYELLIPTICAL = true;
             qDebug() << "MYELLIPTICAL workaround ON!";
-        } else if(device.name().toUpper().startsWith(QStringLiteral("SF-")) && device.name().midRef(3).toInt() > 0) {
+        } else if(device.name().toUpper().startsWith(QStringLiteral("SF-")) && device.name().mid(3).toInt() > 0) {
             SKANDIKA = true;
             qDebug() << "SKANDIKA workaround ON!";
         } else if(device.name().toUpper().startsWith(QStringLiteral("DOMYOS-EL"))) {
@@ -1032,12 +1036,12 @@ void ypooelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &ypooelliptical::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &ypooelliptical::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, &ypooelliptical::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &ypooelliptical::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

@@ -1,8 +1,7 @@
 let main_ws = null;
 let main_ws_queue = [];
-
 class MainWSQueueElement {
-    constructor(msg_to_send, _inner_process, timeout, retry_num) {
+    constructor(msg_to_send, inner_process, timeout, retry_num) {
         this.msg_to_send = msg_to_send;
         this.needs_to_send = msg_to_send != null;
         this.timeout = timeout || 5000;
@@ -10,16 +9,14 @@ class MainWSQueueElement {
         this.timer = null;
         this.resolve = null;
         this.reject = null;
-        this._inner_process = _inner_process;
+        this._inner_process = inner_process;
     }
-
     inner_process_msg(msg) {
         if (this._inner_process)
             return this._inner_process(msg);
         else
             return {};
     }
-
     process_arrived_msg(msg) {
         let out = this.inner_process_msg(msg);
         if (out) {
@@ -32,7 +29,6 @@ class MainWSQueueElement {
         }
         return out;
     }
-
     enqueue() {
         main_ws_enqueue(this);
         return new Promise(function(resolve, reject) {
@@ -40,7 +36,6 @@ class MainWSQueueElement {
             this.reject = reject;
         }.bind(this));
     }
-
     pop_msg_to_send() {
         if (this.needs_to_send) {
             this.needs_to_send = false;
@@ -102,17 +97,41 @@ function main_ws_queue_process(msg) {
     }
 }
 
+// Function to get WebSocket port (HTTP port + 1)
+function getWebSocketPort() {
+    // Extract current port from URL
+    let currentPort = window.location.port;
+
+    // If port is not explicitly set in URL, use default ports (80 for HTTP, 443 for HTTPS)
+    if (!currentPort) {
+        currentPort = (window.location.protocol === 'https:') ? 443 : 80;
+    }
+
+    // Add 1 to get WebSocket port
+    return parseInt(currentPort) + 1;
+}
 
 function main_ws_connect() {
-    let socket = new WebSocket((location.protocol == 'https:'?'wss://' : 'ws://') + host_url + '/' + get_template_name() + '-ws');
+    // Get the WebSocket port (HTTP port + 1)
+    let wsPort = getWebSocketPort();
+
+    // Construct the WebSocket URL with the correct port
+    let wsProtocol = (location.protocol === 'https:') ? 'wss://' : 'ws://';
+    let wsHost = window.location.hostname;
+    let wsUrl = wsProtocol + wsHost + ':' + wsPort + '/' + get_template_name();
+
+    console.log('Connecting to WebSocket at: ' + wsUrl);
+
+    let socket = new WebSocket(wsUrl);
     socket.onopen = function (event) {
-        console.log('Upgrade HTTP connection OK');
+        console.log('WebSocket connection established successfully');
         main_ws = socket;
         main_ws_queue_process();
     };
+
     socket.onclose = function(e) {
         main_ws = null;
-        console.log('Socket is closed. Reconnect will be attempted in 30 second.', e.reason);
+        console.log('Socket is closed. Reconnect will be attempted in 5 seconds.', e.reason);
         setTimeout(function() {
             main_ws_connect();
         }, 5000);
@@ -123,12 +142,19 @@ function main_ws_connect() {
         console.error('Socket encountered error: ', err.message, 'Closing socket');
         socket.close();
     };
+
     socket.onmessage = function (event) {
-        console.log(event.data);
-        let msg = JSON.parse(event.data);
-        main_ws_queue_process(msg);
+        console.log('WS << ' + event.data);
+        try {
+            let msg = JSON.parse(event.data);
+            main_ws_queue_process(msg);
+        } catch (e) {
+            console.error('Error parsing WebSocket message:', e);
+        }
     };
 }
+
+// Initialize WebSocket connection
 main_ws_connect();
 
 if (typeof window !== 'undefined' && window.QZ_OFFLINE) {

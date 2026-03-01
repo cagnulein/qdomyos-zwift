@@ -1,6 +1,3 @@
-
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
 env:
@@ -25,7 +22,7 @@ concurrency:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   window-build:
-    runs-on: windows-2022
+    runs-on: windows-latest
     strategy:
       matrix:
         config:
@@ -33,36 +30,41 @@ jobs:
           - {python: false}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v2
       - name: Checkout submodule repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
           ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-      - name: Checkout googletest
-        uses: actions/checkout@v4
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
         with:
           repository: google/googletest
           path: "tst/googletest/"
           ref: "release-1.12.1"
-      - name: Checkout MSIX-Toolkit
-        uses: actions/checkout@v4
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
         with:
           repository: microsoft/MSIX-Toolkit
           path: "src/MSIX-Toolkit/"
           ref: b82af826d29e93e4c85d34fad8a405b6c49905e7
+
+      - uses: actions/checkout@v2
       - name: Checkout qHttpServer
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
         with:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
 
-      - uses: actions/setup-python@v5
+
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
-          cache: 'pip'
-          cache-dependency-path: .github/workflows/main.yml
+          python-version: 3.7
       - name: download python and paddleocr
         run: |
           python -VV
@@ -87,12 +89,12 @@ jobs:
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
         with:
-          cmake-version: '3.20.x'
+          cmake-version: '3.25.x'
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: '5.15.2'
+          version: '6.8.2'
           host: 'windows'
           modules: 'qtnetworkauth qtcharts'
           target: "desktop"
@@ -102,34 +104,18 @@ jobs:
           cache: 'true'
           cache-key-prefix: 'install-qt-action-windows'          
 
-      - name: Cache qthttpserver build
-        id: cache-qthttpserver-mingw
-        uses: actions/cache@v4
-        with:
-          path: src/qthttpserver
-          key: qthttpserver-mingw-${{ runner.os }}-qt5.15.2-v1
-
       - name: download 3rd party files for qthttpserver
-        if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
         run: |
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
-
       - name: Build qthttpserver
-        if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
         run: |
-            cd src\qthttpserver
+            cd src\qthttpserver 
             qmake
             make -j8
-            cd ../..
-
-      - name: Install qthttpserver
-        run: |
-            cd src\qthttpserver
             make install
             cd ../..
-
       - name: Secrets
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/qt6'
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
@@ -137,11 +123,8 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          cd ..
-
+          cd ..  
       - name: Build
         run: |
             qmake
@@ -218,7 +201,7 @@ jobs:
         if:  ${{ ! matrix.config.python }}
 
       # - name: Exit if not on master branch
-      #   if: github.ref == 'refs/heads/master'
+      #   if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/qt6'
       #   run: exit 1
 
       # - uses: actions/checkout@v3
@@ -375,7 +358,6 @@ jobs:
         run: |
           sudo apt-get install -y xvfb
           Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
-
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
       - name: Checkout submodule repo
@@ -397,12 +379,12 @@ jobs:
           path: "src/qthttpserver"
 
       - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
+        run: sudo apt update -y && sudo apt-get install -y qt6-base-dev qtchooser qmake6 qt6-base-dev-tools qml6-module-qtquick-controls libqt6bluetooth6 libqt6widgets6 libqt6positioning6 libqt6xml6 qt6-connectivity-dev qt6-positioning-dev libqt6charts6-dev libqt6charts6 libqt6networkauth6-dev libqt6websockets6-dev libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: '5.15.2'
+          version: '6.5.1'
           host: 'linux'
           modules: 'qtnetworkauth qtcharts'
           cache: 'true'
@@ -419,7 +401,6 @@ jobs:
         if: steps.cache-qthttpserver-linux.outputs.cache-hit != 'true'
         run: |
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
-
       - name: Build qthttpserver
         if: steps.cache-qthttpserver-linux.outputs.cache-hit != 'true'
         run: |
@@ -433,7 +414,6 @@ jobs:
             cd src/qthttpserver
             make install
             cd ../..
-
       - name: Compile Linux Desktop
         run: qmake; make -j8
 
@@ -543,7 +523,6 @@ jobs:
         run: |
           sudo apt-get install -y xvfb
           Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
-
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
@@ -554,10 +533,9 @@ jobs:
         run: |
           git submodule init
           git submodule update --init --recursive 
-
       - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
-
+        run: sudo apt update -y && sudo apt-get install -y qt6-base-dev qtchooser qmake6 qt6-base-dev-tools qml6-module-qtquick-controls libqt6bluetooth6 libqt6widgets6 libqt6positioning6 libqt6xml6 qt6-connectivity-dev qt6-positioning-dev libqt6charts6-dev libqt6charts6 libqt6networkauth6-dev libqt6websockets6-dev libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+          
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
 #        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
@@ -587,26 +565,77 @@ jobs:
 #          ndk-version: r21d
 
 # waiting github.com/jurplel/install-qt-action/issues/63
-      - name: Install Qt Android
-        uses: jdpurcell/install-qt-action@v5
+      - name: Install Qt Android (Host tools)
+        uses: jurplel/install-qt-action@v3
         with:
-          version: '5.15.0'
+          version: '6.5.1'
           host: 'linux'
-          target: 'android'
-          arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
+          target: 'desktop'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qt5compat qtspeech'
           dir: '${{ github.workspace }}/output/android/'
           cache: 'true'
-          cache-key-prefix: 'install-qt-action-android'                    
+          cache-key-prefix: 'install-qt-action-android-host'
+
+      - name: Install Qt Android (ARM64)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.5.1'
+          host: 'linux'
+          target: 'android'
+          arch: 'android_arm64_v8a'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qt5compat qtspeech'
+          dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android-arm64'
+
+      - name: Install Qt Android (ARMv7)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.5.1'
+          host: 'linux'
+          target: 'android'
+          arch: 'android_armv7'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qt5compat qtspeech'
+          dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android-armv7'
+
+      - name: Install Qt Android (x86)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.5.1'
+          host: 'linux'
+          target: 'android'
+          arch: 'android_x86'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qt5compat qtspeech'
+          dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android-x86'
+
+      - name: Install Qt Android (x86_64)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.5.1'
+          host: 'linux'
+          target: 'android'
+          arch: 'android_x86_64'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qt5compat qtspeech'
+          dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android-x86_64'                    
 
       - name: Install Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
+          java-version: '17'
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 8.7
           
-      - name: patching qt for bluetooth
-        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
+#      - name: patching qt for bluetooth
+#        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
@@ -668,8 +697,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
 
@@ -707,7 +734,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: fdroid-android-trial
-          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk
+          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
 
   android-emulator-test:
     runs-on: ubuntu-latest
@@ -836,13 +863,6 @@ jobs:
             echo "=== Looking for our app ==="
 
             grep -q "qdomyos" process_list.txt || (echo "App process not found in process list" && echo "TEST FAILED: App process not running" && exit 1)
-            adb shell pm list packages | grep org.cagnulen.qdomyoszwift
-            echo "=== Checking app info ==="
-            adb shell dumpsys package org.cagnulen.qdomyoszwift | grep -A5 -B5 "state"
-            echo "=== Logcat output for debugging ==="
-            adb logcat -d | grep -i "qdomyos\|crash\|error\|exception\|fatal" | tail -n 50
-            echo "=== Full recent logcat ==="
-            adb logcat -d | tail -n 100
             echo "App is running successfully"
 
             # Take a screenshot for verification
@@ -873,13 +893,10 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: android-emulator-test-evidence-api${{ matrix.api-level }}
+          name: android-emulator-test-evidence
           path: |
             screenshot.png
-            screenshot_orientation_*.png
             process_list.txt
-            full_logcat.txt
-            qdomyos_logcat.txt
           if-no-files-found: warn                
 
   ios-build:
@@ -907,7 +924,7 @@ jobs:
       - name: Install Qt iOS
         uses: jurplel/install-qt-action@v3
         with:
-          version: '5.15.2'
+          version: '6.5.1'
           host: 'mac'
           target: 'ios'
           modules: 'qtcharts  qtnetworkauth'
@@ -959,8 +976,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
           qmake CONFIG+=debug CONFIG+=iphonesimulator \
@@ -972,505 +987,8 @@ jobs:
         if: always()
         run: ccache --show-stats
 
-  window-msvc2019-build:
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        config:
-          - {python: true}
-          - {python: false}
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Checkout submodule repo
-        uses: actions/checkout@v4
-        with:
-          repository: bluetiger9/SmtpClient-for-Qt
-          path: "src/smtpclient/"
-          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-      - name: Checkout googletest
-        uses: actions/checkout@v4
-        with:
-          repository: google/googletest
-          path: "tst/googletest/"
-          ref: "release-1.12.1"
-      - name: Checkout qHttpServer
-        uses: actions/checkout@v4
-        with:
-          repository: qt-labs/qthttpserver
-          path: "src/qthttpserver"
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.7'
-          cache: 'pip'
-          cache-dependency-path: .github/workflows/main.yml
-      - name: download python and paddleocr
-        run: |
-          python -VV
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade setuptools
-          python -m pip install "protobuf<=3.20.2,>=3.1.0"
-          python -m pip install paddlepaddle==2.5.1
-          python -m pip install paddleocr
-          python -m pip install imutils
-          python -m pip install "Pillow<10.0.0"
-          python -m pip install opencv-python
-          python -m pip install numpy
-          python -m pip install pywin32
-        if: matrix.config.python
-
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v3
-        with:
-          version: '5.15.2'
-          host: 'windows'
-          modules: 'qtnetworkauth qtcharts'
-          target: "desktop"
-          arch: win64_msvc2019_64
-          dir: "${{github.workspace}}/qt/"
-          install-deps: "true"
-          cache: 'true'
-          cache-key-prefix: 'install-qt-action-windows'          
-
-      - name: Install MSVC compiler
-        uses: ilammy/msvc-dev-cmd@v1
-        with: 
-          # 14.1 is for vs2017, 14.2 is vs2019, following the upstream vcpkg build from Qv2ray-deps repo
-          toolset: 14.2
-          arch: x64
-
-      - name: Cache qthttpserver build
-        id: cache-qthttpserver-msvc2019
-        uses: actions/cache@v4
-        with:
-          path: src/qthttpserver
-          key: qthttpserver-msvc2019-${{ runner.os }}-qt5.15.2-v1
-
-      - name: download 3rd party files for qthttpserver
-        if: steps.cache-qthttpserver-msvc2019.outputs.cache-hit != 'true'
-        run: |
-            cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
-
-      - name: Build qthttpserver
-        if: steps.cache-qthttpserver-msvc2019.outputs.cache-hit != 'true'
-        run: |
-            cd src\qthttpserver
-            qmake
-            nmake
-            cd ../..
-
-      - name: Install qthttpserver
-        run: |
-            cd src\qthttpserver
-            nmake install
-            cd ../..
-
-      - name: Secrets
-        if: github.ref == 'refs/heads/master'
-        run: |
-          cd src
-          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
-          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
-          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          cd ..
-
-      - name: Cache vcpkg
-        id: cache-vcpkg-msvc2019
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.workspace }}\vcpkg\installed
-          key: vcpkg-msvc2019-x64-windows-protobuf-abseil-v1
-
-      - name: Clone vcpkg
-        if: steps.cache-vcpkg-msvc2019.outputs.cache-hit != 'true'
-        run: git clone https://github.com/microsoft/vcpkg.git
-        working-directory: ${{ runner.workspace }}
-
-      - name: Bootstrap vcpkg
-        if: steps.cache-vcpkg-msvc2019.outputs.cache-hit != 'true'
-        run: .\vcpkg\bootstrap-vcpkg.bat
-        working-directory: ${{ runner.workspace }}
-
-      - name: Create vcpkg.json
-        if: steps.cache-vcpkg-msvc2019.outputs.cache-hit != 'true'
-        working-directory: ${{ runner.workspace }}
-        run: |
-          echo '{
-            "name": "qdomyos-zwift",
-            "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-            "dependencies": [
-              "protobuf",
-              "protobuf-c",
-              "abseil"
-            ],
-            "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
-          }' > vcpkg.json
-
-      - name: Install dependencies
-        if: steps.cache-vcpkg-msvc2019.outputs.cache-hit != 'true'
-        run: |
-          .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=${{ runner.workspace }}\vcpkg\installed
-        working-directory: ${{ runner.workspace }}
-
-      - name: Build
-        run: |
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
-            qmake
-            nmake
-            cd src/debug
-            mkdir output
-            mkdir appx
-            cp qdomyos-zwift.* output/
-            cd output
-            windeployqt --qmldir ../../ qdomyos-zwift.exe
-            cp ../../../icons/iOS/iTunesArtwork@2x.png .
-            cp ../../AppxManifest.xml .
-            cp ../../windows/*.py .
-            cp ../../windows/*.bat .
-            cp ../../../windows_openssl/*.* .
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
-            mkdir adb
-            mkdir python
-            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
-            cp ../../adb/* adb/
-            cd ..
-            cd appx
-            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz
-        if: matrix.config.python
-
-      - name: Build without python
-        run: |
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
-            qmake           
-            nmake
-            cd src/debug
-            mkdir output
-            mkdir appx
-            cp qdomyos-zwift.* output/
-            cd output
-            windeployqt --qmldir ../../ qdomyos-zwift.exe
-            cp "C:/mingw64/bin/libwinpthread-1.dll" .
-            cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
-            cp "C:/mingw64/bin/libstdc++-6.dll" .              
-            cp ../../../icons/iOS/iTunesArtwork@2x.png .
-            cp ../../AppxManifest.xml .
-            cp ../../../windows_openssl/*.* .
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
-            mkdir adb
-            cp ../../adb/* adb/
-            cd ..
-            cd appx
-            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
-        if: matrix.config.python == false            
-
-      - name: patching qt for bluetooth
-        run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
-
-      - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output windows-msvc2019-binary.zip
-        if: matrix.config.python
-
-      - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output windows-msvc2019-binary-no-python.zip
-        if:  ${{ ! matrix.config.python }}
-
-      - name: Archive windows binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-msvc2019-binary
-          path: windows-msvc2019-binary.zip
-        if: matrix.config.python
-
-      - name: Archive windows binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-msvc2019-binary-no-python
-          path: windows-msvc2019-binary-no-python.zip
-        if:  ${{ ! matrix.config.python }}
-
-  window-msvc2019-aiserver-build:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Checkout submodule repo
-        uses: actions/checkout@v4
-        with:
-          repository: bluetiger9/SmtpClient-for-Qt
-          path: "src/smtpclient/"
-          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-      - name: Checkout googletest
-        uses: actions/checkout@v4
-        with:
-          repository: google/googletest
-          path: "tst/googletest/"
-          ref: "release-1.12.1"
-      - name: Checkout qHttpServer
-        uses: actions/checkout@v4
-        with:
-          repository: qt-labs/qthttpserver
-          path: "src/qthttpserver"
-
-      - name: Install CMake
-        uses: lukka/get-cmake@latest
-  
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v3
-        with:
-          version: '5.15.2'
-          host: 'windows'
-          modules: 'qtnetworkauth qtcharts'
-          target: "desktop"
-          arch: win64_msvc2019_64
-          dir: "${{github.workspace}}/qt/"
-          install-deps: "true"
-          cache: 'true'
-          cache-key-prefix: 'install-qt-action-windows'          
-
-      - name: Install MSVC compiler
-        uses: ilammy/msvc-dev-cmd@v1
-        with: 
-          # 14.1 is for vs2017, 14.2 is vs2019, following the upstream vcpkg build from Qv2ray-deps repo
-          toolset: 14.2
-          arch: x64
-
-      - name: Cache qthttpserver build
-        id: cache-qthttpserver-aiserver
-        uses: actions/cache@v4
-        with:
-          path: src/qthttpserver
-          key: qthttpserver-msvc2019-${{ runner.os }}-qt5.15.2-v1
-
-      - name: download 3rd party files for qthttpserver
-        if: steps.cache-qthttpserver-aiserver.outputs.cache-hit != 'true'
-        run: |
-            cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
-
-      - name: Build qthttpserver
-        if: steps.cache-qthttpserver-aiserver.outputs.cache-hit != 'true'
-        run: |
-            cd src\qthttpserver
-            qmake
-            nmake
-            cd ../..
-
-      - name: Install qthttpserver
-        run: |
-            cd src\qthttpserver
-            nmake install
-            cd ../..
-
-      - name: Secrets
-        if: github.ref == 'refs/heads/master'
-        run: |
-          cd src
-          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
-          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
-          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          cd ..
-
-      - name: Cache vcpkg
-        id: cache-vcpkg-aiserver
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.workspace }}\vcpkg\installed
-          key: vcpkg-msvc2019-x64-windows-protobuf-abseil-v1
-
-      - name: Clone vcpkg
-        if: steps.cache-vcpkg-aiserver.outputs.cache-hit != 'true'
-        run: git clone https://github.com/microsoft/vcpkg.git
-        working-directory: ${{ runner.workspace }}
-
-      - name: Bootstrap vcpkg
-        if: steps.cache-vcpkg-aiserver.outputs.cache-hit != 'true'
-        run: .\vcpkg\bootstrap-vcpkg.bat
-        working-directory: ${{ runner.workspace }}
-
-      - name: Create vcpkg.json
-        if: steps.cache-vcpkg-aiserver.outputs.cache-hit != 'true'
-        working-directory: ${{ runner.workspace }}
-        run: |
-          echo '{
-            "name": "qdomyos-zwift",
-            "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-            "dependencies": [
-              "protobuf",
-              "protobuf-c",
-              "abseil"
-            ],
-            "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
-          }' > vcpkg.json
-
-      - name: Install dependencies
-        if: steps.cache-vcpkg-aiserver.outputs.cache-hit != 'true'
-        run: |
-          .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=${{ runner.workspace }}\vcpkg\installed
-        working-directory: ${{ runner.workspace }}
-
-      - name: Build
-        run: |
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
-            cd src
-            echo "#define AISERVER" >> aiserver.h
-            cd ..
-            qmake
-            nmake
-            cd src/debug
-            mkdir output
-            mkdir appx
-            cp qdomyos-zwift.* output/
-            cd output
-            windeployqt --qmldir ../../ qdomyos-zwift.exe
-            cp ../../../icons/iOS/iTunesArtwork@2x.png .
-            cp ../../AppxManifest.xml .
-            cp ../../windows/zwift-incline-ai-server.py zwift-incline.py
-            cp ../../windows/zwift-incline-climb-portal-ai-server.py zwift-incline-climb-portal.py
-            cp ../../windows/zwift-workout-ai-server.py zwift-workout.py
-            cp ../../windows/*.bat .
-            cp ../../../windows_openssl/*.* .
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
-            mkdir adb
-            cp ../../adb/* adb/
-            cd ..
-            cd appx
-            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz                      
-
-      - name: patching qt for bluetooth
-        run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
-
-      - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output windows-msvc2019-ai-server-binary.zip
-
-      - name: Archive windows binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-msvc2019-ai-server-binary
-          path: windows-msvc2019-ai-server-binary.zip
-
-  raspberry-pi-build:
-    runs-on: ubuntu-22.04-arm
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Secrets
-        run: |
-          cd src
-          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
-          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
-          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          echo "#define LICENSE" >> secret.h
-          cd ..
-
-      - name: Build for Raspberry Pi
-        uses: docker://arm32v7/debian:bullseye-20241016
-        with:
-          args: >
-            bash -c "
-            set -ex &&
-            for i in 1 2 3; do apt-get update && break || sleep 5; done &&
-            for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql && break || sleep 5; done &&
-            export QT_SELECT=qt5 &&
-            export PATH=/usr/lib/qt5/bin:$PATH &&
-            cd /github/workspace &&
-            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
-            cat qdomyos-zwift.pro &&
-            qmake &&
-            make -j$(nproc)
-            "
-
-      - name: Rename binary
-        run: mv src/qdomyos-zwift src/qdomyos-zwift-32bit
-      
-      - name: Archive Raspberry Pi binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: raspberry-pi-binary
-          path: src/qdomyos-zwift-32bit
-
-  raspberry-pi-build-and-image-64bit:
-    runs-on: ubuntu-22.04-arm
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Secrets
-        run: |
-          cd src
-          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
-          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
-          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          echo "#define LICENSE" >> secret.h
-          cd ..
-
-      - name: Install Qt5 build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
-
-      - name: Build for Raspberry Pi 64-bit
-        run: |
-          export QT_SELECT=qt5
-          export PATH=/usr/lib/qt5/bin:$PATH
-          sed -i '/QtHttpServer/d' qdomyos-zwift.pro
-          find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} +
-          find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} +
-          cat qdomyos-zwift.pro
-          qmake
-          make -j$(nproc)
-
-      - name: Rename binary
-        run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit
-
-      - name: Archive Raspberry Pi 64bit binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: raspberry-pi-binary-64bit
-          path: src/qdomyos-zwift-64bit
-
   window-msvc2022-build:
     runs-on: windows-latest
-    if: github.event_name == 'schedule'
     strategy:
       matrix:
         config:
@@ -1478,17 +996,31 @@ jobs:
           - {python: false}    
 
     steps:
-      - name: Checkout PR code
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
         uses: actions/checkout@v2
         with:
-          ref: refs/pull/1508/head
-          submodules: recursive 
-    
-      - uses: actions/setup-python@v5
+          repository: bluetiger9/SmtpClient-for-Qt
+          path: "src/smtpclient/"
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
         with:
-          python-version: '3.7'
-          cache: 'pip'
-          cache-dependency-path: .github/workflows/main.yml
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
+
+      - uses: actions/checkout@v2
+      - name: Checkout qHttpServer
+        uses: actions/checkout@v2
+        with:
+          repository: qt-labs/qthttpserver
+          path: "src/qthttpserver"
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.7
       - name: download python and paddleocr
         run: |
           python -VV
@@ -1502,14 +1034,14 @@ jobs:
           python -m pip install opencv-python
           python -m pip install numpy
           python -m pip install pywin32
-        if: matrix.config.python
+        if: matrix.config.python          
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
           version: '6.8.2'
           host: 'windows'
-          modules: 'qtnetworkauth qtcharts qtconnectivity qtspeech qtpositioning qtwebsockets qtlocation qtmultimedia qtwebengine qtwebview qthttpserver qtwebchannel'
+          modules: 'qtnetworkauth qtcharts qtconnectivity qtspeech qtpositioning qtwebsockets qtlocation qtmultimedia qtwebengine qtwebview qtwebchannel qthttpserver'
           target: "desktop"
           arch: win64_msvc2022_64
           dir: "${{github.workspace}}/qt/"
@@ -1537,7 +1069,7 @@ jobs:
       #       cd ../..          
 
       - name: Secrets
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/qt6'
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
@@ -1545,30 +1077,17 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          cd ..
-
-      - name: Cache vcpkg
-        id: cache-vcpkg-msvc2022
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.workspace }}\vcpkg\installed
-          key: vcpkg-msvc2022-x64-windows-protobuf-abseil-v1
-
+          cd ..        
       - name: Clone vcpkg
-        if: steps.cache-vcpkg-msvc2022.outputs.cache-hit != 'true'
         run: git clone https://github.com/microsoft/vcpkg.git
         working-directory: ${{ runner.workspace }}
-
+  
       - name: Bootstrap vcpkg
-        if: steps.cache-vcpkg-msvc2022.outputs.cache-hit != 'true'
         run: .\vcpkg\bootstrap-vcpkg.bat
         working-directory: ${{ runner.workspace }}
-
+        
       - name: Create vcpkg.json
-        if: steps.cache-vcpkg-msvc2022.outputs.cache-hit != 'true'
         working-directory: ${{ runner.workspace }}
         run: |
           echo '{
@@ -1581,13 +1100,12 @@ jobs:
             ],
             "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
           }' > vcpkg.json
-
+      
       - name: Install dependencies
-        if: steps.cache-vcpkg-msvc2022.outputs.cache-hit != 'true'
         run: |
-           .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=${{ runner.workspace }}\vcpkg\installed
+          .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=${{ runner.workspace }}\vcpkg\installed
         working-directory: ${{ runner.workspace }}
-
+  
       - name: Build
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
@@ -1669,323 +1187,315 @@ jobs:
           path: windows-msvc2022-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
 
-  nordictrack-build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-22.04
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+  window-msvc2022-aiserver-build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          path: "src/smtpclient/"
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
+
+      - uses: actions/checkout@v2
+      - name: Checkout qHttpServer
+        uses: actions/checkout@v2
+        with:
+          repository: qt-labs/qthttpserver
+          path: "src/qthttpserver"      
+
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+  
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '5.15.2'
+          host: 'windows'
+          modules: 'qtnetworkauth qtcharts'
+          target: "desktop"
+          arch: win64_msvc2019_64
+          dir: "${{github.workspace}}/qt/"
+          install-deps: "true"
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-windows'          
+
+      - name: Install MSVC compiler
+        uses: ilammy/msvc-dev-cmd@v1
+        with: 
+          # 14.1 is for vs2017, 14.2 is vs2019, following the upstream vcpkg build from Qv2ray-deps repo
+          toolset: 14.2
+          arch: x64
+
+      - name: download 3rd party files for qthttpserver
+        run: |
+            cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+      - name: Build qthttpserver
+        run: |
+            cd src\qthttpserver 
+            qmake
+            nmake
+            nmake install
+            cd ../..          
+      - name: Secrets
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/qt6'
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h          
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          cd ..                    
+      - name: Clone vcpkg
+        run: git clone https://github.com/microsoft/vcpkg.git
+        working-directory: ${{ runner.workspace }}
+  
+      - name: Bootstrap vcpkg
+        run: .\vcpkg\bootstrap-vcpkg.bat
+        working-directory: ${{ runner.workspace }}
+        
+      - name: Create vcpkg.json
+        working-directory: ${{ runner.workspace }}
+        run: |
+          echo '{
+            "name": "qdomyos-zwift",
+            "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+            "dependencies": [
+              "protobuf",
+              "protobuf-c",
+              "abseil"
+            ],
+            "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
+          }' > vcpkg.json
+      
+      - name: Install dependencies
+        run: |
+          .\vcpkg\vcpkg install --triplet x64-windows --x-install-root=${{ runner.workspace }}\vcpkg\installed
+        working-directory: ${{ runner.workspace }}
+
+      - name: Build
+        run: |
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
+            cd src
+            echo "#define AISERVER" >> aiserver.h
+            cd ..
+            qmake
+            nmake
+            cd src/debug
+            mkdir output
+            mkdir appx
+            cp qdomyos-zwift.* output/
+            cd output
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
+            cp ../../../icons/iOS/iTunesArtwork@2x.png .
+            cp ../../AppxManifest.xml .
+            cp ../../windows/zwift-incline-ai-server.py zwift-incline.py
+            cp ../../windows/zwift-incline-climb-portal-ai-server.py zwift-incline-climb-portal.py
+            cp ../../windows/zwift-workout-ai-server.py zwift-workout.py
+            cp ../../windows/*.bat .
+            cp ../../../windows_openssl/*.* .
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
+            mkdir adb
+            cp ../../adb/* adb/
+            cd ..
+            cd appx
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz                      
+      - name: patching qt for bluetooth
+        run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
+
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output windows-msvc2022-ai-server-binary.zip
+
+      - name: Archive windows binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msvc2022-ai-server-binary
+          path: windows-msvc2022-ai-server-binary.zip
+
+  raspberry-pi-build:
+    runs-on: ubuntu-latest
     
-    strategy:
-      matrix:
-        variant:
-          - name: treadmill
-            setting_key: nordictrack_2950_ip
-            setting_value: localhost
-          - name: bike
-            setting_key: tdf_10_ip
-            setting_value: localhost
-          - name: rower
-            setting_key: proform_rower_ip
-            setting_value: localhost
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Xvfb install and run
-        run: |
-          sudo apt-get install -y xvfb
-          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
-
-      - name: Checkout PR code
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
         with:
-          ref: refs/pull/3478/head
-          token: ${{ secrets.GITHUB_TOKEN }}
-          submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
-        
-      - name: Checkout submodules with specific branches
+          submodules: recursive
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Secrets
         run: |
-          git submodule init
-          git submodule update --init --recursive 
-
-      - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
-
-      - name: Install Qt Android
-        uses: jdpurcell/install-qt-action@v5
-        with:
-          version: '5.15.0'
-          host: 'linux'
-          target: 'android'
-          arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
-          dir: '${{ github.workspace }}/output/android/'
-          cache: 'true'
-          cache-key-prefix: 'install-qt-action-android'                    
-
-      - name: Install Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
-          
-      - name: patching qt for bluetooth
-        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
-
-      - name: download 3rd party files for qthttpserver
-        run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
-
-      - name: Set Android NDK 21 && build
-        run: |
-          # Install NDK 21 after GitHub update
-          # https://github.com/actions/virtual-environments/issues/5595
-          ANDROID_ROOT="/usr/local/lib/android"
-          ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
-          SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
-          export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
-          export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
           echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
-          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          echo "#define LICENSE" >> secret.h
-          # Set variant-specific IP setting
-          sed -i 's/property string ${{ matrix.variant.setting_key }}: ""/property string ${{ matrix.variant.setting_key }}: "${{ matrix.variant.setting_value }}"/' settings.qml
-          cd ..          
-
-          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
-          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
-
-          # QTHTTPSERVER must use the same NDK
-          cd src/qthttpserver 
-          qmake
-          make -j8
-          make install
-          cd ../..          
-          
-          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
-          cp src/android-qdomyos-zwift-deployment-settings.json src/android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json
-          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json
-          sed -i 's/"android-debug"/"android-nordictrack-${{ matrix.variant.name }}"/g' src/android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json
-          sed -i 's/android-debug\.apk/android-debug-nordictrack-${{ matrix.variant.name }}.apk/g' src/android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json
-          cat src/android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json
-
-      - name: Build APK (not usable for production due to unpatched QT library)
-        run: cd src; androiddeployqt --input android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab; mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack-${{ matrix.variant.name }}.apk
-
-      - name: Archive nordictrack binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: nordictrack-${{ matrix.variant.name }}-android-trial
-          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack-${{ matrix.variant.name }}.apk
-
-  peloton-bike-plus-build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-22.04
-    if: github.event_name == 'schedule'
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      - name: Xvfb install and run
-        run: |
-          sudo apt-get install -y xvfb
-          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
-
-      - name: Checkout PR code
-        uses: actions/checkout@v3
-        with:
-          ref: refs/pull/3632/head
-          token: ${{ secrets.GITHUB_TOKEN }}
-          submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
-        
-      - name: Checkout submodules with specific branches
-        run: |
-          git submodule init
-          git submodule update --init --recursive 
-
-      - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
-
-      - name: Install Qt Android
-        uses: jdpurcell/install-qt-action@v5
-        with:
-          version: '5.15.0'
-          host: 'linux'
-          target: 'android'
-          arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
-          dir: '${{ github.workspace }}/output/android/'
-          cache: 'true'
-          cache-key-prefix: 'install-qt-action-android'                    
-
-      - name: Install Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
-          
-      - name: patching qt for bluetooth
-        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
-
-      - name: download 3rd party files for qthttpserver
-        run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
-
-      - name: Set Android NDK 21 && build
-        run: |
-          # Install NDK 21 after GitHub update
-          # https://github.com/actions/virtual-environments/issues/5595
-          ANDROID_ROOT="/usr/local/lib/android"
-          ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
-          SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
-          export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
-          export ANDROID_NDK_ROOT="${ANDROID_NDK}"
-          cd src
-          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
-          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           cd ..
-
-          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
-          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
-
-          # QTHTTPSERVER must use the same NDK
-          cd src/qthttpserver 
-          qmake
-          make -j8
-          make install
-          cd ../..          
-          
-          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
-          cp src/android-qdomyos-zwift-deployment-settings.json src/android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json
-          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json
-          sed -i 's/"android-debug"/"android-peloton-bike-plus"/g' src/android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json
-          sed -i 's/android-debug\.apk/android-debug-peloton-bike-plus.apk/g' src/android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json
-          cat src/android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json
-
-      - name: Build APK (not usable for production due to unpatched QT library)
-        run: cd src; androiddeployqt --input android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab; mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike-plus.apk
-
-      - name: Archive peloton-bike-plus binary
+      - name: Build for Raspberry Pi
+        uses: docker://arm32v7/debian:bookworm-20260202
+        with:
+          args: >
+            bash -c "
+            set -ex &&
+            for i in 1 2 3; do apt-get update && break || sleep 5; done &&
+            for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake ca-certificates apt-transport-https qmake6 qt6-base-dev qt6-base-dev-tools qt6-positioning-dev qt6-connectivity-dev libqt6charts6-dev qt6-multimedia-dev libqt6websockets6-dev libqt6networkauth6-dev libqt6opengl6-dev && break || sleep 5; done &&
+            export QT_SELECT=qt6 &&
+            export PATH=/usr/lib/qt6/bin:$PATH &&
+            cd /github/workspace &&
+            # Some Qt6 modules are missing on arm32 packages; strip only unavailable modules for CI build.
+            sed -i -E 's/\\b(httpserver|webview|texttospeech|location)\\b//g' src/qdomyos-zwift.pri &&
+            cat qdomyos-zwift.pro &&
+            qmake6 &&
+            make -j$(nproc)
+            "
+      - name: Rename binary
+        run: mv src/qdomyos-zwift src/qdomyos-zwift-32bit
+      
+      - name: Archive Raspberry Pi binary
         uses: actions/upload-artifact@v4
         with:
-          name: peloton-bike-plus-android-trial
-          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike-plus.apk
+          name: raspberry-pi-binary
+          path: src/qdomyos-zwift-32bit
 
-  peloton-bike-build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-22.04
-    if: github.event_name == 'schedule'
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+  raspberry-pi-build-and-image-64bit:
+    runs-on: ubuntu-22.04-arm
+    
     steps:
-      - name: Xvfb install and run
-        run: |
-          sudo apt-get install -y xvfb
-          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
-
-      - name: Checkout PR code
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
         with:
-          ref: refs/pull/3639/head
-          token: ${{ secrets.GITHUB_TOKEN }}
-          submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
-        
-      - name: Checkout submodules with specific branches
+          submodules: recursive
+
+      - name: Secrets
         run: |
-          git submodule init
-          git submodule update --init --recursive 
-
-      - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
-
-      - name: Install Qt Android
-        uses: jdpurcell/install-qt-action@v5
-        with:
-          version: '5.15.0'
-          host: 'linux'
-          target: 'android'
-          arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
-          dir: '${{ github.workspace }}/output/android/'
-          cache: 'true'
-          cache-key-prefix: 'install-qt-action-android'                    
-
-      - name: Install Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
-          
-      - name: patching qt for bluetooth
-        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
-
-      - name: download 3rd party files for qthttpserver
-        run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
-
-      - name: Set Android NDK 21 && build
-        run: |
-          # Install NDK 21 after GitHub update
-          # https://github.com/actions/virtual-environments/issues/5595
-          ANDROID_ROOT="/usr/local/lib/android"
-          ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
-          SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
-          export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
-          export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
           echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           cd ..
+      - name: Install Qt6 build dependencies
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            build-essential git cmake \
+            qmake6 qt6-base-dev qt6-base-dev-tools \
+            qt6-positioning-dev qt6-connectivity-dev libqt6charts6-dev \
+            qt6-multimedia-dev libqt6websockets6-dev libqt6networkauth6-dev libqt6opengl6-dev
 
-          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
-          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+      - name: Build for Raspberry Pi 64-bit
+        run: |
+          export QT_SELECT=qt6
+          export PATH=/usr/lib/qt6/bin:$PATH
+          # Ubuntu arm64 repo may miss some optional Qt6 modules; keep core qt6 build working in CI.
+          sed -i -E 's/\b(httpserver|webview|texttospeech|location)\b//g' src/qdomyos-zwift.pri
+          cat qdomyos-zwift.pro
+          qmake6
+          make -j$(nproc)
+            
+      - name: Rename binary
+        run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit
 
-          # QTHTTPSERVER must use the same NDK
-          cd src/qthttpserver 
-          qmake
-          make -j8
-          make install
-          cd ../..          
-          
-          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
-          cp src/android-qdomyos-zwift-deployment-settings.json src/android-qdomyos-zwift-peloton-bike-deployment-settings.json
-          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-peloton-bike-deployment-settings.json
-          sed -i 's/"android-debug"/"android-peloton-bike"/g' src/android-qdomyos-zwift-peloton-bike-deployment-settings.json
-          sed -i 's/android-debug\.apk/android-debug-peloton-bike.apk/g' src/android-qdomyos-zwift-peloton-bike-deployment-settings.json
-          cat src/android-qdomyos-zwift-peloton-bike-deployment-settings.json
-
-      - name: Build APK (not usable for production due to unpatched QT library)
-        run: cd src; androiddeployqt --input android-qdomyos-zwift-peloton-bike-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab; mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike.apk
-
-      - name: Archive peloton-bike binary
+      - name: Archive Raspberry Pi binary
         uses: actions/upload-artifact@v4
         with:
-          name: peloton-bike-android-trial
-          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike.apk
+          name: raspberry-pi-binary-64bit
+          path: src/qdomyos-zwift-64bit        
           
+      # Create a full Raspbian image with the application
+      - name: Install required tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y coreutils quilt parted qemu-user-static debootstrap zerofree zip dosfstools libarchive-tools libcap2-bin grep rsync xz-utils file git curl bc kpartx pigz arch-test
+      - name: Clone pi-gen tool
+        run: |
+          git clone https://github.com/RPi-Distro/pi-gen.git
+          cd pi-gen
+          
+          # Configure pi-gen for minimal Raspbian with our application
+          echo "IMG_NAME=qdomyos-zwift-raspbian" > config
+          echo "TARGET_HOSTNAME=qdomyos-zwift" >> config
+          echo "ENABLE_SSH=1" >> config
+          echo "FIRST_USER_NAME=pi" >> config
+          echo "FIRST_USER_PASS=raspberry" >> config 
+          echo "STAGE_LIST=\"stage0 stage1 stage2\"" >> config
+          echo "DEPLOY_ZIP=1" >> config
+      - name: Prepare custom stage for qdomyos-zwift
+        run: |
+          mkdir -p pi-gen/stage3/01-qdomyos-zwift/00-packages
+          mkdir -p pi-gen/stage3/01-qdomyos-zwift/00-run-chroot
+          mkdir -p pi-gen/stage3/01-qdomyos-zwift/01-files
+          mkdir -p pi-gen/stage3/01-qdomyos-zwift/01-files/home/pi/qdomyos-zwift
+          mkdir -p pi-gen/stage3/01-qdomyos-zwift/01-files/etc/systemd/system
+          
+          # Copy application binary
+          cp src/qdomyos-zwift-64bit pi-gen/stage3/01-qdomyos-zwift/01-files/home/pi/qdomyos-zwift/qdomyos-zwift
+          chmod +x pi-gen/stage3/01-qdomyos-zwift/01-files/home/pi/qdomyos-zwift/qdomyos-zwift
+          
+          # Create Qt dependencies package list
+          echo "qt6-base-dev qt6-base-dev-tools libqt6widgets6 libqt6bluetooth6 libqt6positioning6 libqt6xml6 qt6-connectivity-dev qt6-positioning-dev libqt6charts6-dev libqt6charts6 libqt6networkauth6-dev libqt6websockets6-dev libqt6opengl6-dev" > pi-gen/stage3/01-qdomyos-zwift/00-packages/00-packages-nr
+          
+          # Create systemd service file to autostart the application
+          cat > pi-gen/stage3/01-qdomyos-zwift/01-files/etc/systemd/system/qdomyos-zwift.service << EOL
+          [Unit]
+          Description=QDomyos-Zwift Service
+          After=network.target
+          
+          [Service]
+          ExecStart=/home/pi/qdomyos-zwift/qdomyos-zwift
+          WorkingDirectory=/home/pi/qdomyos-zwift
+          User=pi
+          Environment=DISPLAY=:0
+          
+          [Install]
+          WantedBy=multi-user.target
+          EOL
+          
+          # Setup script for enabling the service
+          cat > pi-gen/stage3/01-qdomyos-zwift/00-run-chroot/01-setup-service << EOL
+          #!/bin/bash
+          systemctl enable qdomyos-zwift.service
+          EOL
+          chmod +x pi-gen/stage3/01-qdomyos-zwift/00-run-chroot/01-setup-service
+      - name: Build Raspbian image
+        run: |
+          cd pi-gen
+          sudo ./build.sh
+          
+      - name: Archive Raspberry Pi full image
+        uses: actions/upload-artifact@v4
+        with:
+          name: qdomyos-zwift-raspbian-image
+          path: pi-gen/deploy/*.zip
+
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
-    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit]
+    needs: [linux-x86-build, window-msvc2022-build, ios-build, window-build, android-build, raspberry-pi-build]  # Specify the job dependencies
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -2007,41 +1517,25 @@ jobs:
           name: 'QZ nightly build - ${{ steps.date.outputs.date }}'
           body: |
             This is a nightly build of QZ.
-
             You can use this if you want to try new features without waiting for releases.
             From time to time, in development builds, old difficult-to-reproduce bugs are
             fixed, but it is also true that in the development process with the introduction
             of new complex code, the stability of the program may suffer compared to
             official releases, so **use it with caution**!
-
             ## Windows Builds:
             - **windows-msvc2019**: Recommended for Windows 10
             - **windows-msvc2022**: Recommended for Windows 11 (experimental, QT6)
             - **windows**: MinGW build (alternative version)
-
             ## Other Platforms:
             - **fdroid-android-trial**: Android build
-            - **nordictrack-treadmill-android-trial**: Nordictrack Treadmill build for iFIT2 Tablets
-            - **nordictrack-bike-android-trial**: Nordictrack Bike build for iFIT2 Tablets
-            - **nordictrack-rower-android-trial**: Nordictrack Rower build for iFIT2 Tablets
-            - **peloton-bike-plus-android-trial**: Peloton Bike Plus build with Grupetto backend
-            - **peloton-bike-android-trial**: Peloton Bike build with Grupetto backend
             - **raspberry-pi-binary**: Raspberry Pi build
-
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
           files: |
-            windows-msvc2019-binary-no-python/*
-            windows-msvc2019-binary/*
             windows-msvc2022-binary-no-python/*
             windows-msvc2022-binary/*
-            windows-msvc2019-ai-server-binary/*            
+            windows-msvc2022-ai-server-binary/*            
             windows-binary-no-python/*
             windows-binary/*
-            fdroid-android-trial/android-debug.apk
-            nordictrack-treadmill-android-trial/android-debug-nordictrack-treadmill.apk
-            nordictrack-bike-android-trial/android-debug-nordictrack-bike.apk
-            nordictrack-rower-android-trial/android-debug-nordictrack-rower.apk
-            peloton-bike-plus-android-trial/android-debug-peloton-bike-plus.apk
-            peloton-bike-android-trial/android-debug-peloton-bike.apk
+            fdroid-android-trial/*
             raspberry-pi-binary/qdomyos-zwift-32bit
             raspberry-pi-binary/qdomyos-zwift-64bit

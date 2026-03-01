@@ -1,37 +1,19 @@
 include(../defaults.pri)
-QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia
+QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia multimediawidgets network gui webview
 QTPLUGIN += qavfmediaplayer
 QT+= charts core-private sql concurrent
-
-qtHaveModule(httpserver) {
-    QT += httpserver
-    DEFINES += Q_HTTPSERVER
-    SOURCES += webserverinfosender.cpp
-    HEADERS += webserverinfosender.h
-
-    # android and iOS are using ChartJS
-    unix:android: {
-        QT+= webview
-        DEFINES += CHARTJS
-    }
-    ios: {
-        QT+= webview
-        DEFINES += CHARTJS
-    }
-#	 win32: {
-#	     DEFINES += CHARTJS
-#		}
-}
 
 CONFIG += c++17 console app_bundle optimize_full ltcg
 
 CONFIG += qmltypes
 
+QT_DEBUG_PLUGINS=1
+
 #win32: CONFIG += webengine
 #unix:!android: CONFIG += webengine
 
-win32:DEFINES += _ITERATOR_DEBUG_LEVEL=0
-win32:!mingw:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite -ldbghelp -L$$PWD 
+#win32:!mingw:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite -ldbghelp -L$$PWD
+win32:!mingw:LIBS += -ldbghelp -luser32 -L$$PWD
 
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
@@ -77,6 +59,11 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 
 
 # include(../qtzeroconf/qtzeroconf.pri)
+
+qtHaveModule(httpserver) {
+    SOURCES += webserverinfosender.cpp
+    HEADERS += webserverinfosender.h
+}
 
 SOURCES += \
     $$PWD/characteristics/characteristicnotifier0002.cpp \
@@ -309,6 +296,12 @@ smtpclient/src/mimepart.cpp \
 smtpclient/src/mimetext.cpp \
 smtpclient/src/quotedprintable.cpp \
 smtpclient/src/smtpclient.cpp \
+smtpclient/src/mimebase64encoder.cpp \
+smtpclient/src/mimebase64formatter.cpp \
+smtpclient/src/mimebytearrayattachment.cpp \
+smtpclient/src/mimecontentencoder.cpp \
+smtpclient/src/mimeqpencoder.cpp \
+smtpclient/src/mimeqpformatter.cpp \
 devices/snodebike/snodebike.cpp \
 devices/solebike/solebike.cpp \
 devices/soleelliptical/soleelliptical.cpp \
@@ -830,6 +823,13 @@ smtpclient/src/mimetext.h \
 smtpclient/src/quotedprintable.h \
 smtpclient/src/smtpclient.h \
 smtpclient/src/smtpexports.h \
+smtpclient/src/mimebase64encoder.h \
+smtpclient/src/mimebase64formatter.h \
+smtpclient/src/mimebytearrayattachment.h \
+smtpclient/src/mimecontentencoder.h \
+smtpclient/src/mimeqpencoder.h \
+smtpclient/src/mimeqpformatter.h \
+smtpclient/src/smtpmime_global.h \
 devices/snodebike/snodebike.h \
 devices/solebike/solebike.h \
 devices/soleelliptical/soleelliptical.h \

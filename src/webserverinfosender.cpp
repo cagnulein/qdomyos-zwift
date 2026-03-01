@@ -8,41 +8,80 @@
 WebServerInfoSender::WebServerInfoSender(const QString &id, QObject *parent) : TemplateInfoSender(id, parent) {
     fetcher = new QNetworkAccessManager(this);
     fetcher->setCookieJar(new QNoCookieJar());
-    connect(fetcher, SIGNAL(finished(QNetworkReply *)), this, SLOT(handleFetcherRequest(QNetworkReply *)));
-    connect(fetcher, SIGNAL(sslErrors(QNetworkReply *, const QList<QSslError> &)), this,
-            SLOT(ignoreSSLErrors(QNetworkReply *, const QList<QSslError> &)));
+    connect(fetcher, &QNetworkAccessManager::finished, this, &WebServerInfoSender::handleFetcherRequest);
+    connect(fetcher, &QNetworkAccessManager::sslErrors, this, &WebServerInfoSender::ignoreSSLErrors);
 }
-WebServerInfoSender::~WebServerInfoSender() { innerStop(); }
 
-void WebServerInfoSender::ignoreSSLErrors(QNetworkReply *repl, const QList<QSslError> &) { repl->ignoreSslErrors(); }
+WebServerInfoSender::~WebServerInfoSender() {
+    innerStop();
+}
 
-bool WebServerInfoSender::listen() {
-    if (!innerTcpServer) {
-        innerTcpServer = new QTcpServer(this);
-        connect(innerTcpServer, SIGNAL(acceptError(QAbstractSocket::SocketError)), this, SLOT(acceptError(QAbstractSocket::SocketError)));
+void WebServerInfoSender::ignoreSSLErrors(QNetworkReply *repl, const QList<QSslError> &) {
+    repl->ignoreSslErrors();
+}
+
+bool WebServerInfoSender::listenHttp() {
+    // In Qt6, QHttpServer doesn't provide direct listen/isListening methods
+    // We need to use a QTcpServer and bind the HttpServer to it
+    if (!tcpServer) {
+        tcpServer = new QTcpServer(this);
     }
-    if (!innerTcpServer->isListening()) {
-        if (innerTcpServer->listen(QHostAddress::Any, port)) {
+
+    if (!tcpServer->isListening()) {
+        bool success = tcpServer->listen(QHostAddress::Any, port);
+        if (success) {
             if (!port) {
-                settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_port"),
-                                  port = innerTcpServer->serverPort());
+                // Save the autoselected port
+                port = tcpServer->serverPort();
+                settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_port"), port);
             }
-            httpServer->bind(innerTcpServer);
 
-            connect(&watchdogTimer, SIGNAL(timeout()), this, SLOT(watchdogEvent()));
-            watchdogTimer.start(5000);
+            // Bind HTTP server to the TCP server
+            httpServer->bind(tcpServer);
 
+            qDebug() << QStringLiteral("HTTP Server listening on port") << port;
             return true;
         } else {
-            delete innerTcpServer;
-            innerTcpServer = 0;
+            qDebug() << "Failed to start TCP server for HTTP:" << tcpServer->errorString();
+            return false;
         }
     }
-    return false;
+
+    return tcpServer->isListening();
 }
 
-void WebServerInfoSender::acceptError(QAbstractSocket::SocketError socketError) {qDebug() << "WebServerInfoSender::acceptError" << socketError;}
-bool WebServerInfoSender::isRunning() const { return innerTcpServer && innerTcpServer->isListening(); }
+bool WebServerInfoSender::listenWebSocket() {
+    if (!webSocketServer) {
+        webSocketServer = new QWebSocketServer(QStringLiteral("WebSocket Server"), QWebSocketServer::NonSecureMode, this);
+
+        connect(webSocketServer, &QWebSocketServer::newConnection, this, &WebServerInfoSender::onNewWebSocketConnection);
+        connect(webSocketServer, &QWebSocketServer::serverError, [this](QWebSocketProtocol::CloseCode closeCode) {
+            qDebug() << "WebSocketServer error: " << closeCode;
+        });
+    }
+
+    // Use the port number right after HTTP port for WebSockets
+    wsPort = port + 1;
+
+    if (webSocketServer->listen(QHostAddress::Any, wsPort)) {
+        settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_wsport"), wsPort);
+        qDebug() << QStringLiteral("WebSocket Server listening on port") << wsPort;
+
+        connect(&watchdogTimer, &QTimer::timeout, this, &WebServerInfoSender::watchdogEvent);
+        watchdogTimer.start(5000);
+
+        return true;
+    } else {
+        qDebug() << "Failed to start WebSocket server:" << webSocketServer->errorString();
+        return false;
+    }
+}
+
+bool WebServerInfoSender::isRunning() const {
+    return tcpServer && tcpServer->isListening() &&
+           webSocketServer && webSocketServer->isListening();
+}
+
 bool WebServerInfoSender::send(const QString &data) {
     if (isRunning() && !data.isEmpty()) {
         QMutexLocker locker(&clientsMutex);
@@ -67,15 +106,29 @@ bool WebServerInfoSender::send(const QString &data) {
 }
 
 void WebServerInfoSender::innerStop() {
-    if (innerTcpServer) {
-        if (isRunning())
-            innerTcpServer->close();
+    // Stop watchdog timer
+    watchdogTimer.stop();
+
+    // Close WebSocket server
+    if (webSocketServer) {
+        if (webSocketServer->isListening())
+            webSocketServer->close();
+        webSocketServer->deleteLater();
+        webSocketServer = nullptr;
+    }
+
+    // Close TCP server (which HTTP server is bound to)
+    if (tcpServer) {
+        if (tcpServer->isListening())
+            tcpServer->close();
+        tcpServer->deleteLater();
+        tcpServer = nullptr;
+    }
+
+    // Delete HTTP server
+    if (httpServer) {
         httpServer->deleteLater();
-        clients.clear();
-        sendToClients.clear();
-        reply2Req.clear();
-        innerTcpServer = 0;
-        httpServer = 0;
+        httpServer = nullptr;
     }
 
     // Clear all collections
@@ -94,8 +147,11 @@ bool WebServerInfoSender::init() {
         port = settings.value(QStringLiteral("template_") + templateId + QStringLiteral("_port"), 6666).toInt(&ok);
         if (!ok)
             port = 6666;
+
+        // Create HTTP server if not exists
         if (!httpServer)
             httpServer = new QHttpServer(this);
+
         relative2Absolute.clear();
         for (auto fld : folders) {
             idx = fld.lastIndexOf('/');
@@ -104,6 +160,8 @@ bool WebServerInfoSender::init() {
                 relative = fld.mid(idx + 1);
                 qDebug() << QStringLiteral("Relative") << relative;
                 relative2Absolute.insert(relative, fld);
+
+                // Set up route for file serving
                 httpServer->route(QStringLiteral("/") + relative + QStringLiteral("/<arg>"),
                                   [this](const QUrl &url, const QHttpServerRequest &request) {
                                       QUrl urlreq = request.url();
@@ -113,7 +171,7 @@ bool WebServerInfoSender::init() {
                                       qDebug() << QStringLiteral("Path") << path << QStringLiteral("req") << reqId;
                                       path = relative2Absolute.value(reqId);
                                       if (path.isEmpty())
-                                          return QHttpServerResponse("text/plain", "Unautorized",
+                                          return QHttpServerResponse("text/plain", "Unauthorized",
                                                                      QHttpServerResponder::StatusCode::Forbidden);
                                       else {
                                           path += QStringLiteral("/%1").arg(url.path());
@@ -123,23 +181,46 @@ bool WebServerInfoSender::init() {
                                   });
             }
         }
-        if (listen()) {
-            qDebug() << QStringLiteral("WebServer listening on port") << port << QStringLiteral(" ")
-                     << relative2Absolute;
-            connect(httpServer, SIGNAL(newWebSocketConnection()), this, SLOT(onNewConnection()));
-            return true;
-        } else {
-            reinit();
+
+        // Start the HTTP server
+        if (listenHttp()) {
+            qDebug() << QStringLiteral("HTTP Server listening on port") << port;
+
+            // Start the WebSocket server on the next port
+            if (listenWebSocket()) {
+                qDebug() << QStringLiteral("WebSocket Server listening on port") << wsPort;
+                return true;
+            }
         }
+
+        // If we reach here, something failed
+        reinit();
     }
     return false;
 }
 
 void WebServerInfoSender::watchdogEvent() {
-    if(innerTcpServer->serverError() != QAbstractSocket::UnknownSocketError)
-        qDebug() << "WebServerInfoSender is " << innerTcpServer->serverError();
-    if(innerTcpServer && !innerTcpServer->isListening()) {
-        qDebug() << QStringLiteral("innerTcpServer is not LISTENING!");
+    // Check TCP server (which HTTP server is bound to)
+    if (tcpServer) {
+        if (tcpServer->serverError() != QAbstractSocket::UnknownSocketError) {
+            qDebug() << "TCP Server error: " << tcpServer->serverError();
+        }
+
+        if (!tcpServer->isListening()) {
+            qDebug() << QStringLiteral("TCP Server is not LISTENING!");
+        }
+    }
+
+    // Check WebSocket server
+    if (webSocketServer) {
+        // Just check if there's an error string
+        if (!webSocketServer->errorString().isEmpty()) {
+            qDebug() << "WebSocketServer error: " << webSocketServer->errorString();
+        }
+
+        if (!webSocketServer->isListening()) {
+            qDebug() << QStringLiteral("WebSocket Server is not LISTENING!");
+        }
     }
 }
 
@@ -158,8 +239,8 @@ void WebServerInfoSender::handleFetcherRequest(QNetworkReply *reply) {
         for (auto p : rHeaders) {
             for (auto line : p.second.split('\n')) {
                 QJsonArray arrv;
-                arrv.append(p.first.constData());
-                arrv.append(line.constData());
+                arrv.append(QString::fromUtf8(p.first));
+                arrv.append(QString::fromUtf8(line));
                 headers.append(arrv);
             }
         }
@@ -169,12 +250,12 @@ void WebServerInfoSender::handleFetcherRequest(QNetworkReply *reply) {
         init[QStringLiteral("statusText")] = statusText;
         init[QStringLiteral("responseURL")] = reply->url().toString();
         if (respType == QStringLiteral("arraybuffer") || respType == QStringLiteral("blob"))
-            out[QStringLiteral("body")] = QJsonValue(body.toBase64().constData());
+            out[QStringLiteral("body")] = QJsonValue(QString::fromUtf8(body.toBase64()));
         else
-            out[QStringLiteral("body")] = QJsonValue(body.constData());
+            out[QStringLiteral("body")] = QJsonValue(QString::fromUtf8(body));
         out[QStringLiteral("init")] = init;
         out[QStringLiteral("req")] = req;
-        out[QStringLiteral("DBG")] = error;
+        out[QStringLiteral("DBG")] = static_cast<int>(error);
         QJsonDocument toSend(out);
         requester->sendTextMessage(toSend.toJson());
         reply2Req.remove(reply);
@@ -235,8 +316,14 @@ void WebServerInfoSender::processFetcher(QWebSocket *sender, const QByteArray &d
     }
 }
 
-void WebServerInfoSender::onNewConnection() {
-    QWebSocket *pSocket = httpServer->nextPendingWebSocketConnection();
+void WebServerInfoSender::onNewWebSocketConnection() {
+    // Get the next pending connection from the WebSocket server
+    QWebSocket *pSocket = webSocketServer->nextPendingConnection();
+    if (!pSocket) {
+        qDebug() << "No pending WebSocket connection available";
+        return;
+    }
+
     QUrl requestUrl = pSocket->requestUrl();
     qDebug() << QStringLiteral("WebSocket connection") << requestUrl;
 
@@ -244,14 +331,13 @@ void WebServerInfoSender::onNewConnection() {
     
     // Handle different types of WebSocket connections based on the path
     if (requestUrl.path() == QStringLiteral("/fetcher")) {
-        connect(pSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(processFetcherRequest(QString)));
-        connect(pSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(processFetcherRawRequest(QByteArray)));
+        connect(pSocket, &QWebSocket::textMessageReceived, this, &WebServerInfoSender::processFetcherRequest);
+        connect(pSocket, &QWebSocket::binaryMessageReceived, this, &WebServerInfoSender::processFetcherRawRequest);
     } else {
         connect(pSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(processTextMessage(QString)));
         connect(pSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(processBinaryMessage(QByteArray)));
         sendToClients << QPointer<QWebSocket>(pSocket);
     }
-    connect(pSocket, SIGNAL(disconnected()), this, SLOT(socketDisconnected()));
 
     // Store the WebSocket connection
     clients << QPointer<QWebSocket>(pSocket);

@@ -9,7 +9,11 @@
 #ifdef Q_OS_ANDROID
 #include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
-#include <QAndroidJniObject>
+#include <QJniObject>
+#endif
+
+#ifdef Q_CC_MSVC
+#include <Windows.h> 
 #endif
 
 bluetooth::bluetooth(const discoveryoptions &options)
@@ -108,12 +112,12 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &bluetooth::finished);
 #else
         connect(&discoveryTimeout, &QTimer::timeout, this, &bluetooth::finished);
-        discoveryTimeout.start(10000);
+        discoveryTimeout.start(3000);
 #endif
 
         // Start a discovery
 #ifndef Q_OS_WIN
-        discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
+        discoveryAgent->setLowEnergyDiscoveryTimeout(3000);
 #endif
         this->startDiscovery();
     }
@@ -187,6 +191,7 @@ void bluetooth::finished() {
     bool heartRateBeltFound = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
     bool ftmsAccessoryFound = ftmsAccessoryName.startsWith(QStringLiteral("Disabled"));
     bool ss2k_peloton = settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool();
+    static int scanRetry = 0;
 
     if (ss2k_peloton)
         ftmsAccessoryFound = true;
@@ -212,7 +217,8 @@ void bluetooth::finished() {
         (!thinkriderDeviceFound && !thinkriderDeviceAvaiable())) {
 
         // force heartRateBelt off
-        forceHeartBeltOffForTimeout = true;
+        if(scanRetry++>4)
+            forceHeartBeltOffForTimeout = true;
     }
 
     this->startDiscovery();
@@ -1130,7 +1136,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("FEIER-EM-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MX-AS ")) ||
                         (b.name().startsWith(QStringLiteral("Domyos-EL")) && settings.value(QZSettings::domyos_elliptical_fmts, QZSettings::default_domyos_elliptical_fmts).toBool()) ||
-                        (b.name().toUpper().startsWith("SF-") && b.name().midRef(3).toInt() > 0) ||
+                        (b.name().toUpper().startsWith("SF-") && b.name().mid(3).toInt() > 0) ||
                         b.name().toUpper().startsWith(QStringLiteral("MYELLIPTICAL ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("CARDIOPOWER EEGO")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("E35")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
@@ -1595,7 +1601,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("TM XP_")) ||                           // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("THERUN  T15")) ||                      // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("BODYCRAFT_")) ||                         // Bodycraft T850 Treadmill
-                        (b.name().toUpper().startsWith(QStringLiteral("WT")) && b.name().length() == 5 && b.name().midRef(2).toInt() > 0) // WT treadmill (e.g. WT703)
+                        (b.name().toUpper().startsWith(QStringLiteral("WT")) && b.name().length() == 5 && b.name().mid(2).toInt() > 0) // WT treadmill (e.g. WT703)
                         ) &&
                        !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -1896,7 +1902,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(wahooKickrSnapBike, &wahookickrsnapbike::debug, this, &bluetooth::debug);
                 wahooKickrSnapBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(wahooKickrSnapBike);
-            } else if (((b.name().toUpper().startsWith("BIKE ") && (flywheel_life_fitness_ic8 || life_fitness_ic5) == false && technogym_bike && b.name().midRef(5).toInt() > 0) ||
+            } else if (((b.name().toUpper().startsWith("BIKE ") && (flywheel_life_fitness_ic8 || life_fitness_ic5) == false && technogym_bike && b.name().mid(5).toInt() > 0) ||
                         b.name().toUpper().startsWith("MYCYCLING")) &&
                        !technogymBike && filter) {
                 this->setLastBluetoothDevice(b);
@@ -3246,7 +3252,7 @@ void bluetooth::connectedAndDiscovered() {
         settings.value(QZSettings::android_antbike, QZSettings::default_android_antbike).toBool();
     if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() || android_antbike ||
         settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
-        QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",
+        QJniObject activity = QJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",
                                                                                "activity", "()Landroid/app/Activity;");
         KeepAwakeHelper::antObject(true)->callMethod<void>(
             "antStart", "(Landroid/app/Activity;ZZZZZZII)V", activity.object<jobject>(),
@@ -3262,10 +3268,11 @@ void bluetooth::connectedAndDiscovered() {
     }
 
     if (settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {
-        QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
-        QAndroidJniObject::callStaticMethod<void>(
+        QJniObject javaNotification = QJniObject::fromString("QZ is running!");
+        QJniObject contextNotif = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+        QJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
-            QtAndroid::androidContext().object(), javaNotification.object<jstring>());
+            contextNotif.object(), javaNotification.object<jstring>());
     }
 #endif
 
@@ -3274,20 +3281,26 @@ void bluetooth::connectedAndDiscovered() {
         settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() ||
         settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool()) {
         AndroidActivityResultReceiver *a = new AndroidActivityResultReceiver();
-        QAndroidJniObject MediaProjectionManager = QtAndroid::androidActivity().callObjectMethod(
+        QJniObject activityProj = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "activity", "()Landroid/app/Activity;");
+        QJniObject MediaProjectionManager = activityProj.callObjectMethod(
             "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;",
-            QAndroidJniObject::fromString("media_projection").object<jstring>());
-        QAndroidJniObject intent =
+            QJniObject::fromString("media_projection").object<jstring>());
+        QJniObject intent =
             MediaProjectionManager.callObjectMethod("createScreenCaptureIntent", "()Landroid/content/Intent;");
-        QtAndroid::startActivity(intent, 100, a);
+        // Qt6: Use QJniObject instead of QtAndroid::startActivity
+        QJniEnvironment env;
+        jclass activityClass = env->GetObjectClass(activityProj.object<jobject>());
+        jmethodID startActivityMethod = env->GetMethodID(activityClass, "startActivityForResult", "(Landroid/content/Intent;I)V");
+        env->CallVoidMethod(activityProj.object<jobject>(), startActivityMethod, intent.object<jobject>(), 100);
     }
 #endif
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
     if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Garmin", "init",
-                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+        QJniObject contextGarmin = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+        QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Garmin", "init",
+                                                  "(Landroid/content/Context;)V", contextGarmin.object());
 #else
 #ifndef IO_UNDER_QT
         if (!h) {
@@ -3317,6 +3330,32 @@ void bluetooth::connectedAndDiscovered() {
 }
 
 void bluetooth::gearUp() {
+    #ifdef Q_CC_MSVC
+    INPUT input = {0};
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = 'K';
+    
+    UINT result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        // Ottenere il codice di errore
+        DWORD error = GetLastError();
+        qDebug() << "Error sending key. Error code: " << error;
+    } else {
+        qDebug() << "Key pressed sent with success";
+    }
+    
+    input.ki.dwFlags = KEYEVENTF_KEYUP;
+    
+    result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        DWORD error = GetLastError();
+        qDebug() << "Error sending key. Error code: " << error;
+    } else {
+        qDebug() << "Key pressed sent with success";
+    }
+    #endif
+
+
     QSettings settings;
     bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
     foreach(zwiftclickremote* p, zwiftPlayDevice) {
@@ -3328,6 +3367,31 @@ void bluetooth::gearUp() {
 }
 
 void bluetooth::gearDown() {
+    #ifdef Q_CC_MSVC
+    INPUT input = {0};
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = 'I';
+    
+    UINT result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        // Ottenere il codice di errore
+        DWORD error = GetLastError();
+        qDebug() << "Error sending key. Error code: " << error;
+    } else {
+        qDebug() << "Key pressed sent with success";
+    }
+    
+    input.ki.dwFlags = KEYEVENTF_KEYUP;
+    
+    result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) {
+        DWORD error = GetLastError();
+        qDebug() << "Error sending key. Error code: " << error;
+    } else {
+        qDebug() << "Key pressed sent with success";
+    }
+    #endif
+
     QSettings settings;
     bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
     foreach(zwiftclickremote* p, zwiftPlayDevice) {
@@ -4353,6 +4417,6 @@ bool bluetooth::fitmetria_fanfit_isconnected(QString name) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
 void bluetooth::deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields) {
 
-    debug("deviceUpdated " + device.name() + " " + updateFields);
+    qDebug() << "deviceUpdated " << device.name() << " " << updateFields;
 }
 #endif
