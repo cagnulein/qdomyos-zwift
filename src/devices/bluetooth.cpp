@@ -543,9 +543,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString ftms_bike = settings.value(QZSettings::ftms_bike, QZSettings::default_ftms_bike).toString();
     QString ftms_treadmill = settings.value(QZSettings::ftms_treadmill, QZSettings::default_ftms_treadmill).toString();
     QString ftms_elliptical = settings.value(QZSettings::ftms_elliptical, QZSettings::default_ftms_elliptical).toString();
-    bool saris_trainer = settings.value(QZSettings::saris_trainer, QZSettings::default_saris_trainer).toBool();    
+    bool saris_trainer = settings.value(QZSettings::saris_trainer, QZSettings::default_saris_trainer).toBool();
     bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
     bool iconsole_rower = settings.value(QZSettings::iconsole_rower, QZSettings::default_iconsole_rower).toBool();
+    bool trx_route_key = settings.value(QZSettings::trx_route_key, QZSettings::default_trx_route_key).toBool();
 
     if (!heartRateBeltFound) {
 
@@ -2507,6 +2508,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 mcfBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(mcfBike);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) && !iconsole && trx_route_key) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                iconsole = new iconsolebike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(iconsole, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                connect(iconsole, &iconsolebike::debug, this, &bluetooth::debug);
+                iconsole->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(iconsole);
             } else if ((b.name().startsWith(QStringLiteral("TRX ROUTE KEY")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MASTERT40-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BH DUALKIT TREAD")) ||
@@ -2523,7 +2533,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(toorx);
             } else if (((b.name().toUpper().startsWith(QStringLiteral("BH DUALKIT")) && !b.name().toUpper().startsWith(QStringLiteral("BH DUALKIT TREAD"))) ||
                         b.name().toUpper().startsWith(QStringLiteral("BH-"))) && !iConceptBike && !toorx &&
-                       !iconcept_elliptical && filter) {
+                       !iconcept_elliptical && !iconsole && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 iConceptBike = new iconceptbike();
@@ -2535,7 +2545,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 iConceptBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(iConceptBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("BH DUALKIT"))) && !iConceptElliptical &&
-                       iconcept_elliptical && filter) {
+                       iconcept_elliptical && !iconsole && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 iConceptElliptical =
@@ -3607,6 +3617,11 @@ void bluetooth::restart() {
         delete toorx;
         toorx = nullptr;
     }
+    if (iconsole) {
+
+        delete iconsole;
+        iconsole = nullptr;
+    }
     if (iConceptBike) {
 
         delete iConceptBike;
@@ -4068,6 +4083,8 @@ bluetoothdevice *bluetooth::device() {
         return stagesBike;
     } else if (toorx) {
         return toorx;
+    } else if (iconsole) {
+        return iconsole;
     } else if (iConceptBike) {
         return iConceptBike;
     } else if (iConceptElliptical) {
