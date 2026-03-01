@@ -352,7 +352,7 @@ void GarminConnectTestSuite::test_scheduleJson_realLogDistanceWorkoutUsesDistanc
 
     const QString xml = garminConnectGenerateWorkoutXml(root["workout"].toObject());
 
-    EXPECT_EQ(xml.count("<row"), 3) << "Expected exactly 3 rows from 3 workout steps. XML was:\n"
+    EXPECT_EQ(xml.count("<row "), 3) << "Expected exactly 3 rows from 3 workout steps. XML was:\n"
                                      << xml.toStdString();
     EXPECT_FALSE(xml.contains("duration=\""))
         << "Distance-based workout should not emit row duration attributes. XML was:\n"
@@ -378,7 +378,7 @@ void GarminConnectTestSuite::test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAn
 
     const QString xml = garminConnectGenerateWorkoutXml(root["workout"].toObject());
 
-    EXPECT_EQ(xml.count("<row"), 1) << "Expected exactly 1 row from 1 workout step. XML was:\n"
+    EXPECT_EQ(xml.count("<row "), 1) << "Expected exactly 1 row from 1 workout step. XML was:\n"
                                      << xml.toStdString();
     EXPECT_TRUE(xml.contains("duration=\"01:00:00\""))
         << "Expected 3600s step duration serialized as 01:00:00. XML was:\n"
