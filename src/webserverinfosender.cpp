@@ -22,11 +22,15 @@ bool WebServerInfoSender::listen() {
         connect(innerTcpServer, SIGNAL(acceptError(QAbstractSocket::SocketError)), this, SLOT(acceptError(QAbstractSocket::SocketError)));
     }
     if (!innerTcpServer->isListening()) {
-        if (innerTcpServer->listen(QHostAddress::Any, port)) {
-            if (!port) {
-                settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_port"),
-                                  port = innerTcpServer->serverPort());
-            }
+        bool bound = innerTcpServer->listen(QHostAddress::Any, port);
+        if (!bound && port) {
+            qDebug() << QStringLiteral("Port") << port << QStringLiteral("in use, trying dynamic port");
+            bound = innerTcpServer->listen(QHostAddress::Any, 0);
+        }
+        if (bound) {
+            if (!port)
+                port = innerTcpServer->serverPort();
+            settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_port"), port);
             httpServer->bind(innerTcpServer);
 
             connect(&watchdogTimer, SIGNAL(timeout()), this, SLOT(watchdogEvent()));
