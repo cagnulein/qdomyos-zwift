@@ -14247,7 +14247,7 @@ import Qt.labs.platform 1.1
 
                     IndicatorOnlySwitch {
                         id: androidNotificationDelegate
-                        text: qsTr("Android Notification")
+                        text: qsTr("Allow Background Mode")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -14261,7 +14261,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Android Only: enable this to force Android to don't kill QZ when it's running on background")
+                        text: qsTr("On Android, adds a persistent notification to prevent QZ from being killed in the background. On iOS, plays silent audio to keep the app alive in the background.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
