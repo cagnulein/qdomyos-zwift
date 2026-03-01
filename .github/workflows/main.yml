@@ -819,10 +819,19 @@ jobs:
 
             echo "All permissions granted successfully"
 
-            # Start the main activity
+            # Bootstrap settings to force fake bike and skip wizard on emulator screenshots
+            # 1) First launch initializes app data directories
             adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
+            sleep 20
+            adb shell am force-stop org.cagnulen.qdomyoszwift
 
-            # Wait for app to start
+            # 2) Patch any detected Qt settings files; fallback to common Qt Android settings path
+            adb shell run-as org.cagnulen.qdomyoszwift sh -c 'set -e; found=0; for f in $(find . -type f \( -name "*.conf" -o -name "*.ini" \) 2>/dev/null); do found=1; grep -q "^\\[General\\]" "$f" || printf "[General]\\n" >> "$f"; grep -q "^applewatch_fakedevice=" "$f" && sed -i "s/^applewatch_fakedevice=.*/applewatch_fakedevice=true/" "$f" || printf "applewatch_fakedevice=true\\n" >> "$f"; grep -q "^bluetooth_lastdevice_name=" "$f" && sed -i "s/^bluetooth_lastdevice_name=.*/bluetooth_lastdevice_name=QZ-Fake-Bike/" "$f" || printf "bluetooth_lastdevice_name=QZ-Fake-Bike\\n" >> "$f"; grep -q "^skipLocationServicesDialog=" "$f" && sed -i "s/^skipLocationServicesDialog=.*/skipLocationServicesDialog=true/" "$f" || printf "skipLocationServicesDialog=true\\n" >> "$f"; done; if [ "$found" -eq 0 ]; then mkdir -p "./files/settings/Roberto Viola"; f="./files/settings/Roberto Viola/qDomyos-Zwift.conf"; printf "[General]\\napplewatch_fakedevice=true\\nbluetooth_lastdevice_name=QZ-Fake-Bike\\nskipLocationServicesDialog=true\\n" > "$f"; fi'
+
+            # 3) Relaunch with virtual bike argument for deterministic tile rendering
+            adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity --es applicationArguments "-only-virtualbike"
+
+            # Wait for app to start and settle on Home tiles
             sleep 90
 
             # Verify the app is running
