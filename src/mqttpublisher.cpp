@@ -439,7 +439,7 @@ void MQTTPublisher::removeDiscoveryConfig() {
     // Remove all discovery configs by publishing empty messages
     QStringList components = {"sensor", "binary_sensor", "number", "switch", "button"};
     QStringList entities = {
-        "speed_current", "speed_avg", "distance", "calories", "elapsed_time", "heart_current", "heart_avg",
+        "speed_current", "speed_avg", "distance", "calories", "elapsed_time", "elapsed_total_seconds", "heart_current", "heart_avg",
         "watts_current", "watts_avg", "connected", "paused", "resistance", "cadence", "inclination",
         "power", "fan_speed", "start", "stop", "pause"
     };
@@ -473,6 +473,7 @@ void MQTTPublisher::publishWorkoutData() {
     publishToTopic("elapsed/seconds", elapsedTime.second());
     publishToTopic("elapsed/minutes", elapsedTime.minute());
     publishToTopic("elapsed/hours", elapsedTime.hour());
+    publishToTopic("elapsed/total_seconds", QTime(0, 0).secsTo(elapsedTime));
 
     QTime lapTime = m_device->lapElapsedTime();
     publishToTopic("lap/elapsed/seconds", lapTime.second());
@@ -635,6 +636,7 @@ void MQTTPublisher::publishDiscoveryConfig() {
     publishSensorDiscovery("distance", "Distance", baseTopic + "distance", "km", "distance", "mdi:map-marker-distance");
     publishSensorDiscovery("calories", "Calories", baseTopic + "calories", "kcal", "", "mdi:fire");
     publishSensorDiscovery("elapsed_time", "Elapsed Time", baseTopic + "elapsed/minutes", "min", "duration", "mdi:timer");
+    publishSensorDiscovery("elapsed_total_seconds", "Elapsed Total Seconds", baseTopic + "elapsed/total_seconds", "s", "duration", "mdi:timer");
     publishSensorDiscovery("heart_current", "Heart Rate", baseTopic + "heart/current", "bpm", "", "mdi:heart-pulse");
     publishSensorDiscovery("heart_avg", "Average Heart Rate", baseTopic + "heart/avg", "bpm", "", "mdi:heart-pulse");
     publishSensorDiscovery("watts_current", "Power", baseTopic + "watts/current", "W", "power", "mdi:flash");

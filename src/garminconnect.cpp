@@ -1776,24 +1776,27 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
         attrs += QString(" looptimehr=\"%1\"").arg(loopTimeHr);
     } else if (targetTypeKey.contains("power", Qt::CaseInsensitive)) {
         int power = -1;
-        const bool isPowerZone = targetTypeKey.contains("zone", Qt::CaseInsensitive);
-        const bool isLikelyZoneValues =
-            (hasTargetOne && targetOne > 0 && targetOne <= 10) ||
-            (hasTargetTwo && targetTwo > 0 && targetTwo <= 10);
+        const double low = (hasTargetOne && targetOne > 0) ? targetOne : 0.0;
+        const double high = (hasTargetTwo && targetTwo > 0) ? targetTwo : 0.0;
+        const bool hasRange = (low > 0.0 && high > 0.0);
+        const bool zoneLikeRange = hasRange && low <= 10.0 && high <= 10.0;
+        const bool zoneLikeSingle =
+            (!hasRange) &&
+            (((low > 0.0) && low <= 10.0) || ((high > 0.0) && high <= 10.0));
 
-        if (isPowerZone || isLikelyZoneValues) {
-            double zone = (hasTargetOne && targetOne > 0) ? targetOne : targetTwo;
+        // Garmin may report targetType "power.zone" while values are already watts.
+        // Prefer direct watt targets, and only convert when values clearly look like zone numbers.
+        if (zoneLikeRange) {
+            power = garminPowerFromZone((low + high) / 2.0);
+        } else if (zoneLikeSingle) {
+            const double zone = (low > 0.0) ? low : high;
             power = garminPowerFromZone(zone);
-        } else {
-            const double low = (hasTargetOne && targetOne > 0) ? targetOne : 0.0;
-            const double high = (hasTargetTwo && targetTwo > 0) ? targetTwo : 0.0;
-            if (low > 0.0 && high > 0.0) {
-                power = qRound((low + high) / 2.0);
-            } else if (low > 0.0) {
-                power = qRound(low);
-            } else if (high > 0.0) {
-                power = qRound(high);
-            }
+        } else if (hasRange) {
+            power = qRound((low + high) / 2.0);
+        } else if (low > 0.0) {
+            power = qRound(low);
+        } else if (high > 0.0) {
+            power = qRound(high);
         }
 
         if (power > 0) {
@@ -1827,7 +1830,7 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
     xml += pad + "<row" + attrs + "/>\n";
 }
 
-static QString generateGarminWorkoutXml(const QJsonObject &workoutJson) {
+QString garminConnectGenerateWorkoutXml(const QJsonObject &workoutJson) {
     QString xml;
     xml += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     xml += "<rows>\n";
@@ -2115,7 +2118,7 @@ void GarminConnect::downloadWorkoutDetails(const QString &workoutIdentifier, con
             resolvedSportTypeKey = workoutPayload["sportType"].toObject()["sportTypeKey"].toString();
         }
 
-        const QString xmlContent = generateGarminWorkoutXml(workoutPayload);
+        const QString xmlContent = garminConnectGenerateWorkoutXml(workoutPayload);
 
         const QString subdir = garminTrainingSubdirFromSportTypeKey(resolvedSportTypeKey);
         const QString workoutRootDir = saveDir + "/" + subdir + "/Garmin";
