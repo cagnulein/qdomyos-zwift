@@ -324,6 +324,7 @@ devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.cpp \
 templateinfosender.cpp \
 templateinfosenderbuilder.cpp \
 devices/stagesbike/stagesbike.cpp \
+devices/kettlerc12bike/kettlerc12bike.cpp \
 devices/toorxtreadmill/toorxtreadmill.cpp \
 devices/treadmill.cpp \
 devices/truetreadmill/truetreadmill.cpp \
@@ -845,6 +846,7 @@ devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.h \
 templateinfosender.h \
 templateinfosenderbuilder.h \
 devices/stagesbike/stagesbike.h \
+devices/kettlerc12bike/kettlerc12bike.h \
 devices/toorxtreadmill/toorxtreadmill.h \
 gpx.h \
 devices/treadmill.h \

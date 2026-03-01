@@ -130,6 +130,7 @@
 #include "devices/sportstechrower/sportstechrower.h"
 #include "devices/sramAXSController/sramAXSController.h"
 #include "devices/stagesbike/stagesbike.h"
+#include "devices/kettlerc12bike/kettlerc12bike.h"
 
 #include "devices/renphobike/renphobike.h"
 #include "devices/tacxneo2/tacxneo2.h"
@@ -264,6 +265,7 @@ class bluetooth : public QObject, public SignalHandler {
     mcfbike *mcfBike = nullptr;
     npecablebike *npeCableBike = nullptr;
     stagesbike *stagesBike = nullptr;
+    kettlerc12bike *kettlerC12Bike = nullptr;
     solebike *soleBike = nullptr;
     soleelliptical *soleElliptical = nullptr;
     solef80treadmill *soleF80 = nullptr;
