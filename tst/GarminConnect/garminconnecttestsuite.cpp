@@ -1,4 +1,7 @@
 #include "garminconnecttestsuite.h"
+#include "garminconnect.h"
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QUrl>
 #include <QUrlQuery>
 #include <QString>
@@ -202,4 +205,21 @@ void GarminConnectTestSuite::test_fromEncodedToEncoded_roundTrip()
     // Verify NO unencoded characters
     EXPECT_FALSE(urlFromQt.contains("login-url=https://"))
         << "login-url should not have unencoded :// characters";
+}
+
+void GarminConnectTestSuite::test_workoutDetailsJson_powerZoneUsesAverageWatts()
+{
+    static const char *kWorkoutJson = R"json({"atpPlanId":null,"author":null,"avgTrainingSpeed":null,"consumer":null,"consumerImageURL":null,"consumerName":null,"consumerWebsiteURL":null,"createdDate":"2026-02-28T12:40:43.0","description":"120W","descriptionI18nKey":null,"estimateType":null,"estimatedAnaerobicTrainingEffect":0,"estimatedDistanceInMeters":null,"estimatedDistanceUnit":null,"estimatedDurationInSecs":4800,"estimatedTrainingEffect":2.5,"isSessionTransitionEnabled":null,"locale":null,"ownerId":68966589,"poolLength":null,"poolLengthUnit":null,"priorityType":"REQUIRED","shared":false,"sharedWithUsers":null,"sportType":{"displayOrder":2,"sportTypeId":2,"sportTypeKey":"cycling"},"subSportType":"GENERIC","trainingEffectLabel":"AEROBIC_BASE","trainingPlanId":null,"updatedDate":null,"uploadTimestamp":null,"workoutId":null,"workoutIndex":0,"workoutName":"Base","workoutNameI18nKey":null,"workoutPhrase":"POOR_SLEEP_BASE","workoutProvider":null,"workoutSegments":[{"avgTrainingSpeed":null,"description":null,"estimateType":null,"estimatedDistanceInMeters":null,"estimatedDistanceUnit":null,"estimatedDurationInSecs":null,"poolLength":null,"poolLengthUnit":null,"segmentOrder":1,"sportType":{"displayOrder":2,"sportTypeId":2,"sportTypeKey":"cycling"},"workoutSteps":[{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":4800,"endConditionZone":null,"equipmentType":null,"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":null,"stepOrder":1,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":null,"targetType":{"displayOrder":2,"workoutTargetTypeId":2,"workoutTargetTypeKey":"power.zone"},"targetValueOne":98,"targetValueTwo":142,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":null,"weightValue":null,"workoutProvider":null,"zoneNumber":null}]}],"workoutSourceId":null,"workoutThumbnailUrl":null,"workoutUuid":"3cb6ee63-7e3b-4ad8-8e07-a22d819e4985"})json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kWorkoutJson));
+    ASSERT_TRUE(doc.isObject()) << "Workout JSON fixture must be valid";
+
+    const QString xml = garminConnectGenerateWorkoutXml(doc.object());
+
+    EXPECT_TRUE(xml.contains("<row duration=\"01:20:00\" power=\"120\"/>"))
+        << "Expected average watt target 120 from bounds 98/142. XML was:\n"
+        << xml.toStdString();
+    EXPECT_FALSE(xml.contains("power=\"3854\""))
+        << "Power must not be misinterpreted as FTP zone conversion. XML was:\n"
+        << xml.toStdString();
 }

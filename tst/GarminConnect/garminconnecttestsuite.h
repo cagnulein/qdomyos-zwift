@@ -74,6 +74,14 @@ public:
      * We get back the EXACT same string (Qt doesn't modify encoding)
      */
     void test_fromEncodedToEncoded_roundTrip();
+
+    /**
+     * @brief Test workout JSON parsing for power targets.
+     *
+     * Uses a real Garmin workout details payload where targetType is "power.zone"
+     * but values are watt bounds; expected output is average power in watts.
+     */
+    void test_workoutDetailsJson_powerZoneUsesAverageWatts();
 };
 
 // Register individual tests with Google Test
@@ -99,6 +107,10 @@ TEST_F(GarminConnectTestSuite, ManualQueryParsingDecodesCorrectly) {
 
 TEST_F(GarminConnectTestSuite, FromEncodedToEncodedRoundTrip) {
     this->test_fromEncodedToEncoded_roundTrip();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonPowerZoneUsesAverageWatts) {
+    this->test_workoutDetailsJson_powerZoneUsesAverageWatts();
 }
 
 #endif // GARMINCONNECTTESTSUITE_H
