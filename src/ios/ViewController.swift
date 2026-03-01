@@ -17,7 +17,7 @@ class ViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if #available(iOS 17.0, *) {
+        if #available(iOS 16.0, *) {
             WorkoutTracking.authorizeHealthKit()
         } else {
             // Fallback on earlier versions

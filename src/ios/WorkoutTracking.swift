@@ -25,7 +25,7 @@ protocol WorkoutTrackingProtocol {
     func stopWorkOut()
 }
 
-@available(iOS 17.0, *)
+@available(iOS 16.0, *)
 @objc class WorkoutTracking: NSObject {
     static let shared = WorkoutTracking()
     public static var lastDateMetric = Date()
@@ -55,7 +55,7 @@ protocol WorkoutTrackingProtocol {
     }
 }
 
-@available(iOS 17.0, *)
+@available(iOS 16.0, *)
 extension WorkoutTracking {
     func setSport(_ sport: Int) {
         WorkoutTracking.sport = sport
@@ -141,7 +141,7 @@ extension WorkoutTracking {
     }
 }
 
-@available(iOS 17.0, *)
+@available(iOS 16.0, *)
 extension WorkoutTracking: WorkoutTrackingProtocol {
     
     @objc static func requestAuth() {
