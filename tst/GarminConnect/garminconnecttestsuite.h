@@ -82,6 +82,28 @@ public:
      * but values are watt bounds; expected output is average power in watts.
      */
     void test_workoutDetailsJson_powerZoneUsesAverageWatts();
+
+    /**
+     * @brief Test monthly calendar fixture parsing and fallback selection window.
+     *
+     * Uses a real-like calendar-service payload with fbtAdaptiveWorkout items and verifies
+     * that the nearest workout in [today, today+3] is selected.
+     */
+    void test_calendarFallbackJson_selectsNearestUpcomingWorkout();
+
+    /**
+     * @brief Test schedule endpoint fixture with nested "workout" payload.
+     *
+     * Verifies that workout XML generation uses root.workout content from schedule responses.
+     */
+    void test_scheduleJson_nestedWorkoutPayloadParses();
+
+    /**
+     * @brief Test real schedule payload from debug log (2026-02-27 run workout).
+     *
+     * Verifies that distance-based Garmin steps serialize to XML rows with distance only.
+     */
+    void test_scheduleJson_realLogDistanceWorkoutUsesDistanceOnly();
 };
 
 // Register individual tests with Google Test
@@ -111,6 +133,18 @@ TEST_F(GarminConnectTestSuite, FromEncodedToEncodedRoundTrip) {
 
 TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonPowerZoneUsesAverageWatts) {
     this->test_workoutDetailsJson_powerZoneUsesAverageWatts();
+}
+
+TEST_F(GarminConnectTestSuite, CalendarFallbackJsonSelectsNearestUpcomingWorkout) {
+    this->test_calendarFallbackJson_selectsNearestUpcomingWorkout();
+}
+
+TEST_F(GarminConnectTestSuite, ScheduleJsonNestedWorkoutPayloadParses) {
+    this->test_scheduleJson_nestedWorkoutPayloadParses();
+}
+
+TEST_F(GarminConnectTestSuite, ScheduleJsonRealLogDistanceWorkoutUsesDistanceOnly) {
+    this->test_scheduleJson_realLogDistanceWorkoutUsesDistanceOnly();
 }
 
 #endif // GARMINCONNECTTESTSUITE_H
