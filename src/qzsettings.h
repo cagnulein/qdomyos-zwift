@@ -2910,6 +2910,167 @@ class QZSettings {
     static constexpr bool default_kingsmith_r2_enable_hw_buttons = false;
 
     /**
+     * @brief Enable keyboard shortcuts
+     */
+    static const QString shortcuts_enabled;
+    static constexpr bool default_shortcuts_enabled = false;
+
+    static const QString shortcut_speed_plus;
+    static const QString default_shortcut_speed_plus;
+    static const QString shortcut_speed_minus;
+    static const QString default_shortcut_speed_minus;
+
+    static const QString shortcut_inclination_plus;
+    static const QString default_shortcut_inclination_plus;
+    static const QString shortcut_inclination_minus;
+    static const QString default_shortcut_inclination_minus;
+
+    static const QString shortcut_resistance_plus;
+    static const QString default_shortcut_resistance_plus;
+    static const QString shortcut_resistance_minus;
+    static const QString default_shortcut_resistance_minus;
+
+    static const QString shortcut_peloton_resistance_plus;
+    static const QString default_shortcut_peloton_resistance_plus;
+    static const QString shortcut_peloton_resistance_minus;
+    static const QString default_shortcut_peloton_resistance_minus;
+
+    static const QString shortcut_target_resistance_plus;
+    static const QString default_shortcut_target_resistance_plus;
+    static const QString shortcut_target_resistance_minus;
+    static const QString default_shortcut_target_resistance_minus;
+
+    static const QString shortcut_target_power_plus;
+    static const QString default_shortcut_target_power_plus;
+    static const QString shortcut_target_power_minus;
+    static const QString default_shortcut_target_power_minus;
+
+    static const QString shortcut_target_zone_plus;
+    static const QString default_shortcut_target_zone_plus;
+    static const QString shortcut_target_zone_minus;
+    static const QString default_shortcut_target_zone_minus;
+
+    static const QString shortcut_target_speed_plus;
+    static const QString default_shortcut_target_speed_plus;
+    static const QString shortcut_target_speed_minus;
+    static const QString default_shortcut_target_speed_minus;
+
+    static const QString shortcut_target_incline_plus;
+    static const QString default_shortcut_target_incline_plus;
+    static const QString shortcut_target_incline_minus;
+    static const QString default_shortcut_target_incline_minus;
+
+    static const QString shortcut_fan_plus;
+    static const QString default_shortcut_fan_plus;
+    static const QString shortcut_fan_minus;
+    static const QString default_shortcut_fan_minus;
+
+    static const QString shortcut_peloton_offset_plus;
+    static const QString default_shortcut_peloton_offset_plus;
+    static const QString shortcut_peloton_offset_minus;
+    static const QString default_shortcut_peloton_offset_minus;
+
+    static const QString shortcut_peloton_remaining_plus;
+    static const QString default_shortcut_peloton_remaining_plus;
+    static const QString shortcut_peloton_remaining_minus;
+    static const QString default_shortcut_peloton_remaining_minus;
+
+    static const QString shortcut_remaining_time_plus;
+    static const QString default_shortcut_remaining_time_plus;
+    static const QString shortcut_remaining_time_minus;
+    static const QString default_shortcut_remaining_time_minus;
+
+    static const QString shortcut_gears_plus;
+    static const QString default_shortcut_gears_plus;
+    static const QString shortcut_gears_minus;
+    static const QString default_shortcut_gears_minus;
+
+    static const QString shortcut_pid_hr_plus;
+    static const QString default_shortcut_pid_hr_plus;
+    static const QString shortcut_pid_hr_minus;
+    static const QString default_shortcut_pid_hr_minus;
+
+    static const QString shortcut_ext_incline_plus;
+    static const QString default_shortcut_ext_incline_plus;
+    static const QString shortcut_ext_incline_minus;
+    static const QString default_shortcut_ext_incline_minus;
+
+    static const QString shortcut_biggears_plus;
+    static const QString default_shortcut_biggears_plus;
+    static const QString shortcut_biggears_minus;
+    static const QString default_shortcut_biggears_minus;
+
+    static const QString shortcut_avs_cruise;
+    static const QString default_shortcut_avs_cruise;
+    static const QString shortcut_avs_climb;
+    static const QString default_shortcut_avs_climb;
+    static const QString shortcut_avs_sprint;
+    static const QString default_shortcut_avs_sprint;
+
+    static const QString shortcut_power_avg;
+    static const QString default_shortcut_power_avg;
+
+    static const QString shortcut_erg_mode;
+    static const QString default_shortcut_erg_mode;
+
+    static const QString shortcut_preset_resistance_1;
+    static const QString default_shortcut_preset_resistance_1;
+    static const QString shortcut_preset_resistance_2;
+    static const QString default_shortcut_preset_resistance_2;
+    static const QString shortcut_preset_resistance_3;
+    static const QString default_shortcut_preset_resistance_3;
+    static const QString shortcut_preset_resistance_4;
+    static const QString default_shortcut_preset_resistance_4;
+    static const QString shortcut_preset_resistance_5;
+    static const QString default_shortcut_preset_resistance_5;
+
+    static const QString shortcut_preset_speed_1;
+    static const QString default_shortcut_preset_speed_1;
+    static const QString shortcut_preset_speed_2;
+    static const QString default_shortcut_preset_speed_2;
+    static const QString shortcut_preset_speed_3;
+    static const QString default_shortcut_preset_speed_3;
+    static const QString shortcut_preset_speed_4;
+    static const QString default_shortcut_preset_speed_4;
+    static const QString shortcut_preset_speed_5;
+    static const QString default_shortcut_preset_speed_5;
+
+    static const QString shortcut_preset_inclination_1;
+    static const QString default_shortcut_preset_inclination_1;
+    static const QString shortcut_preset_inclination_2;
+    static const QString default_shortcut_preset_inclination_2;
+    static const QString shortcut_preset_inclination_3;
+    static const QString default_shortcut_preset_inclination_3;
+    static const QString shortcut_preset_inclination_4;
+    static const QString default_shortcut_preset_inclination_4;
+    static const QString shortcut_preset_inclination_5;
+    static const QString default_shortcut_preset_inclination_5;
+
+    static const QString shortcut_preset_powerzone_1;
+    static const QString default_shortcut_preset_powerzone_1;
+    static const QString shortcut_preset_powerzone_2;
+    static const QString default_shortcut_preset_powerzone_2;
+    static const QString shortcut_preset_powerzone_3;
+    static const QString default_shortcut_preset_powerzone_3;
+    static const QString shortcut_preset_powerzone_4;
+    static const QString default_shortcut_preset_powerzone_4;
+    static const QString shortcut_preset_powerzone_5;
+    static const QString default_shortcut_preset_powerzone_5;
+    static const QString shortcut_preset_powerzone_6;
+    static const QString default_shortcut_preset_powerzone_6;
+    static const QString shortcut_preset_powerzone_7;
+    static const QString default_shortcut_preset_powerzone_7;
+
+    static const QString shortcut_auto_resistance;
+    static const QString default_shortcut_auto_resistance;
+
+    static const QString shortcut_lap;
+    static const QString default_shortcut_lap;
+
+    static const QString shortcut_start_stop;
+    static const QString default_shortcut_start_stop;
+    
+    /*
      * @brief Gain multiplier applied to step count calculated from cadence for calibration purposes
      */
     static const QString step_gain;

@@ -60,8 +60,29 @@ ApplicationWindow {
     
     function getRightPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ? 
+        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
                AndroidStatusBar.rightInset : 0;
+    }
+
+    function isConfiguringShortcuts() {
+        // Check if a TextField in the shortcuts settings has active focus
+        // This prevents global shortcuts from intercepting key presses when configuring them
+        var focusItem = window.activeFocusItem;
+        if (!focusItem) return false;
+
+        // Walk up the parent hierarchy to check if we're inside settingsShortcutsPane
+        var current = focusItem;
+        while (current) {
+            if (current.objectName === "settingsShortcutsPane") {
+                return true;
+            }
+            current = current.parent;
+        }
+        return false;
+    }
+
+    function shortcutReady(sequence) {
+        return settings.shortcuts_enabled && !isConfiguringShortcuts() && String(sequence).length > 0;
     }
 
     signal gpx_open_clicked(url name)
@@ -106,6 +127,72 @@ ApplicationWindow {
         property bool volume_change_gears: false
         property string peloton_username: "username"
         property string peloton_password: "password"
+
+        property bool shortcuts_enabled: false
+        property string shortcut_speed_plus: ""
+        property string shortcut_speed_minus: ""
+        property string shortcut_inclination_plus: ""
+        property string shortcut_inclination_minus: ""
+        property string shortcut_resistance_plus: ""
+        property string shortcut_resistance_minus: ""
+        property string shortcut_peloton_resistance_plus: ""
+        property string shortcut_peloton_resistance_minus: ""
+        property string shortcut_target_resistance_plus: ""
+        property string shortcut_target_resistance_minus: ""
+        property string shortcut_target_power_plus: ""
+        property string shortcut_target_power_minus: ""
+        property string shortcut_target_zone_plus: ""
+        property string shortcut_target_zone_minus: ""
+        property string shortcut_target_speed_plus: ""
+        property string shortcut_target_speed_minus: ""
+        property string shortcut_target_incline_plus: ""
+        property string shortcut_target_incline_minus: ""
+        property string shortcut_fan_plus: ""
+        property string shortcut_fan_minus: ""
+        property string shortcut_peloton_offset_plus: ""
+        property string shortcut_peloton_offset_minus: ""
+        property string shortcut_peloton_remaining_plus: ""
+        property string shortcut_peloton_remaining_minus: ""
+        property string shortcut_remaining_time_plus: ""
+        property string shortcut_remaining_time_minus: ""
+        property string shortcut_gears_plus: ""
+        property string shortcut_gears_minus: ""
+        property string shortcut_pid_hr_plus: ""
+        property string shortcut_pid_hr_minus: ""
+        property string shortcut_ext_incline_plus: ""
+        property string shortcut_ext_incline_minus: ""
+        property string shortcut_biggears_plus: ""
+        property string shortcut_biggears_minus: ""
+        property string shortcut_avs_cruise: ""
+        property string shortcut_avs_climb: ""
+        property string shortcut_avs_sprint: ""
+        property string shortcut_power_avg: ""
+        property string shortcut_erg_mode: ""
+        property string shortcut_preset_resistance_1: ""
+        property string shortcut_preset_resistance_2: ""
+        property string shortcut_preset_resistance_3: ""
+        property string shortcut_preset_resistance_4: ""
+        property string shortcut_preset_resistance_5: ""
+        property string shortcut_preset_speed_1: ""
+        property string shortcut_preset_speed_2: ""
+        property string shortcut_preset_speed_3: ""
+        property string shortcut_preset_speed_4: ""
+        property string shortcut_preset_speed_5: ""
+        property string shortcut_preset_inclination_1: ""
+        property string shortcut_preset_inclination_2: ""
+        property string shortcut_preset_inclination_3: ""
+        property string shortcut_preset_inclination_4: ""
+        property string shortcut_preset_inclination_5: ""
+        property string shortcut_preset_powerzone_1: ""
+        property string shortcut_preset_powerzone_2: ""
+        property string shortcut_preset_powerzone_3: ""
+        property string shortcut_preset_powerzone_4: ""
+        property string shortcut_preset_powerzone_5: ""
+        property string shortcut_preset_powerzone_6: ""
+        property string shortcut_preset_powerzone_7: ""
+        property string shortcut_auto_resistance: ""
+        property string shortcut_lap: ""
+        property string shortcut_start_stop: ""
     }
 
 
@@ -1112,19 +1199,83 @@ ApplicationWindow {
             anchors.leftMargin: getLeftPadding()
             focus: true
             Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
-        Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
-        Keys.onPressed: (event)=> {
-            if (event.key === Qt.Key_MediaPrevious)
-                keyMediaPrevious();
-            else if (event.key === Qt.Key_MediaNext)
-                keyMediaNext();
-            else if (OS_VERSION === "Other" && event.key === Qt.Key_Z)
-                volumeDown();
-            else if (OS_VERSION === "Other" && event.key === Qt.Key_X)
-                volumeUp();
+            Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
+            Keys.onPressed: (event)=> {
+                if (event.key === Qt.Key_MediaPrevious) {
+                    keyMediaPrevious();
+                    event.accepted = true;
+                } else if (event.key === Qt.Key_MediaNext) {
+                    keyMediaNext();
+                    event.accepted = true;
+                } else {
+                    event.accepted = false;
+                }
+            }
 
-            event.accepted = settings.volume_change_gears;
-        }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_speed_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("speed") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_speed_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("speed") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_inclination_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("inclination") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_inclination_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("inclination") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_resistance_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("resistance") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_resistance_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("resistance") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_peloton_resistance_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("peloton_resistance") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_peloton_resistance_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("peloton_resistance") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_resistance_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("target_resistance") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_resistance_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("target_resistance") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_power_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("target_power") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_power_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("target_power") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_zone_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("target_zone") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_zone_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("target_zone") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_speed_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("target_speed") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_speed_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("target_speed") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_incline_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("target_inclination") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_incline_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("target_inclination") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_fan_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("fan") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_fan_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("fan") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_peloton_offset_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("peloton_offset") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_peloton_offset_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("peloton_offset") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_peloton_remaining_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("peloton_remaining") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_peloton_remaining_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("peloton_remaining") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_remaining_time_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("remainingtimetrainprogramrow") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_remaining_time_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("remainingtimetrainprogramrow") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_gears_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("gears") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_gears_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("gears") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_pid_hr_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("pid_hr") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_pid_hr_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("pid_hr") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_ext_incline_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("external_inclination") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_ext_incline_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("external_inclination") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_biggears_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("biggearsplus") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_biggears_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("biggearsminus") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_avs_cruise; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("autoVirtualShiftingCruise") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_avs_climb; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("autoVirtualShiftingClimb") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_avs_sprint; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("autoVirtualShiftingSprint") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_power_avg; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("powerAvg") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_erg_mode; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("erg_mode") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_resistance_1; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_resistance_1") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_resistance_2; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_resistance_2") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_resistance_3; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_resistance_3") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_resistance_4; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_resistance_4") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_resistance_5; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_resistance_5") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_1; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_1") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_2; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_2") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_3; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_3") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_4; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_4") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_5; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_5") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_inclination_1; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_inclination_1") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_inclination_2; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_inclination_2") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_inclination_3; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_inclination_3") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_inclination_4; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_inclination_4") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_inclination_5; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_inclination_5") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_powerzone_1; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_powerzone_1") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_powerzone_2; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_powerzone_2") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_powerzone_3; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_powerzone_3") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_powerzone_4; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_powerzone_4") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_powerzone_5; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_powerzone_5") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_powerzone_6; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_powerzone_6") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_powerzone_7; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_powerzone_7") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_auto_resistance; enabled: shortcutReady(sequence); onActivated: rootItem.setAutoResistance(!rootItem.autoResistance) }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_lap; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLap() }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_start_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStartStop() }
         }
     }
 }
