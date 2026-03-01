@@ -91,7 +91,7 @@ void fitplusbike::forceResistance(resistance_t requestResistance) {
     bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
     bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
     requestResistanceCompleted = false;
-    if (virtufit_etappe || merach_MRK || H9110_OSAKA) {
+    if (virtufit_etappe || merach_MRK || H9110_OSAKA || S18) {
         if (requestResistance == 1) {
             uint8_t res[] = {0x02, 0x44, 0x05, 0x01, 0xf9, 0xb9, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
@@ -309,7 +309,7 @@ void fitplusbike::update() {
         bool sportstech_sx600 =
             settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
 
-        if (virtufit_etappe || merach_MRK || sportstech_sx600 || H9110_OSAKA) {
+        if (virtufit_etappe || merach_MRK || sportstech_sx600 || H9110_OSAKA || S18) {
 
         } else {
             m_watt = wattFromHR(false);
@@ -584,7 +584,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (Flags.remainingTime) {
             // todo
         }
-    } else if (virtufit_etappe || merach_MRK || H9110_OSAKA || (sportstech_sx600 && !gattCommunicationChannelServiceFTMS)) {
+    } else if (virtufit_etappe || merach_MRK || H9110_OSAKA || S18 || (sportstech_sx600 && !gattCommunicationChannelServiceFTMS)) {
         if (newValue.length() != 15 && newValue.length() != 13)
             return;
 
@@ -758,6 +758,24 @@ void fitplusbike::btinit() {
     if (merach_MRK) {
         uint8_t initData1[] = {0xaa, 0x01, 0x00, 0x01, 0x55};
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    } else if (S18) {
+        uint8_t initData1[] = {0x02, 0xab, 0x06, 0x55, 0x26, 0x52, 0x57, 0x4b, 0x42, 0x11, 0xc3, 0x03};
+        uint8_t initData2[] = {0x02, 0x43, 0x01, 0x42, 0x03};
+        uint8_t initData3[] = {0x02, 0x42, 0x42, 0x03};
+        uint8_t initData4[] = {0x02, 0x44, 0x01, 0x45, 0x03};
+        uint8_t initData5[] = {0x02, 0x44, 0x02, 0x46, 0x03};
+        uint8_t initData6[] = {0x02, 0x41, 0x02, 0x43, 0x03};
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);        
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        
     } else if (H9110_OSAKA) {
         uint8_t initData1[] = {0x02, 0xab, 0x3b, 0x30, 0x2a, 0x0d, 0x60, 0x01, 0x14, 0x11, 0xe3, 0x03};
         uint8_t initData2[] = {0x02, 0x43, 0x01, 0x42, 0x03};
@@ -1018,6 +1036,10 @@ void fitplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("H9110 OSAKA workaround enabled!");
             max_resistance = 32;
             H9110_OSAKA = true;
+        } else if (device.name().toUpper().startsWith("S18")) {
+            qDebug() << QStringLiteral("S18 workaround enabled!");
+            max_resistance = 24;
+            S18 = true;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
