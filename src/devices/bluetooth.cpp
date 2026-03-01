@@ -1481,6 +1481,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->signalBluetoothDeviceConnected(speraXTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("LF")) && (b.name().length() == 18 || b.name().length() == 15)) &&
+                       ftms_treadmill.contains(QZSettings::default_ftms_treadmill) &&
                        !lifefitnessTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
