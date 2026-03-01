@@ -331,8 +331,10 @@ void GarminConnectTestSuite::test_scheduleJson_nestedWorkoutPayloadParses()
     const QString xml = garminConnectGenerateWorkoutXml(workoutPayload);
 
     EXPECT_TRUE(xml.contains("<rows>")) << "Expected workout XML root. XML was:\n" << xml.toStdString();
-    EXPECT_TRUE(xml.contains("pace=\"")) << "Expected running pace target from nested workout payload. XML was:\n"
-                                          << xml.toStdString();
+    EXPECT_TRUE(xml.contains("speed=\"")) << "Expected running speed target from nested workout payload. XML was:\n"
+                                           << xml.toStdString();
+    EXPECT_TRUE(xml.contains("forcespeed=\"1\"")) << "Expected forced speed for pace/speed targets. XML was:\n"
+                                                   << xml.toStdString();
     EXPECT_FALSE(xml.contains("power=\"3854\""))
         << "Nested schedule payload must not produce invalid power conversion. XML was:\n"
         << xml.toStdString();
@@ -361,5 +363,36 @@ void GarminConnectTestSuite::test_scheduleJson_realLogDistanceWorkoutUsesDistanc
         << xml.toStdString();
     EXPECT_TRUE(xml.contains("distance=\"9.656064\""))
         << "Expected 6-mile interval converted to 9.656064 km. XML was:\n"
+        << xml.toStdString();
+}
+
+void GarminConnectTestSuite::test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAndForceSpeed()
+{
+    static const char *kScheduleJsonFromLog = R"json({"associatedActivityDateTime":null,"associatedActivityId":null,"atpPlanTypeId":null,"calendarDate":"2026-02-25","consumer":null,"createdDate":"2026-02-24","itp":false,"nameChanged":false,"newName":null,"ownerId":116920806,"priority":null,"protected":false,"race":false,"tpType":null,"workout":{"atpPlanId":null,"author":null,"avgTrainingSpeed":2.8597210718525474,"consumer":null,"consumerImageURL":null,"consumerName":null,"consumerWebsiteURL":null,"createdDate":"2026-02-25T04:48:59.0","description":null,"descriptionI18nKey":null,"estimateType":"DISTANCE_ESTIMATED","estimatedDistanceInMeters":9656.064,"estimatedDistanceUnit":{"factor":null,"unitId":null,"unitKey":null},"estimatedDurationInSecs":3600,"isSessionTransitionEnabled":null,"locale":null,"ownerId":116920806,"poolLength":null,"poolLengthUnit":null,"shared":false,"sharedWithUsers":null,"sportType":{"displayOrder":1,"sportTypeId":1,"sportTypeKey":"running"},"subSportType":"GENERIC","trainingPlanId":null,"updatedDate":"2026-02-25T16:09:21.0","uploadTimestamp":null,"workoutId":1485541079,"workoutName":"Easy run","workoutNameI18nKey":null,"workoutProvider":"null","workoutSegments":[{"avgTrainingSpeed":null,"description":null,"estimateType":null,"estimatedDistanceInMeters":null,"estimatedDistanceUnit":null,"estimatedDurationInSecs":null,"poolLength":null,"poolLengthUnit":null,"segmentOrder":1,"sportType":{"displayOrder":1,"sportTypeId":1,"sportTypeKey":"running"},"workoutSteps":[{"category":null,"childStepId":null,"description":null,"endCondition":{"conditionTypeId":2,"conditionTypeKey":"time","displayOrder":2,"displayable":true},"endConditionCompare":null,"endConditionValue":3600,"endConditionZone":null,"equipmentType":{"displayOrder":0,"equipmentTypeId":0,"equipmentTypeKey":null},"exerciseName":null,"preferredEndConditionUnit":null,"providerExerciseSourceId":null,"secondaryTargetType":null,"secondaryTargetValueOne":null,"secondaryTargetValueTwo":null,"secondaryTargetValueUnit":null,"secondaryZoneNumber":null,"stepId":12558913161,"stepOrder":1,"stepType":{"displayOrder":3,"stepTypeId":3,"stepTypeKey":"interval"},"strokeType":{"displayOrder":0,"strokeTypeId":0,"strokeTypeKey":null},"targetType":{"displayOrder":6,"workoutTargetTypeId":6,"workoutTargetTypeKey":"pace.zone"},"targetValueOne":2.6867179,"targetValueTwo":2.68224,"targetValueUnit":null,"type":"ExecutableStepDTO","weightUnit":{"factor":453.59237,"unitId":9,"unitKey":"pound"},"weightValue":null,"workoutProvider":null,"zoneNumber":null}]}],"workoutSourceId":"null","workoutThumbnailUrl":null},"workoutScheduleId":1567468124})json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kScheduleJsonFromLog));
+    ASSERT_TRUE(doc.isObject()) << "Schedule JSON fixture from log must be valid";
+
+    const QJsonObject root = doc.object();
+    ASSERT_TRUE(root["workout"].isObject()) << "Expected nested workout object in schedule payload";
+
+    const QString xml = garminConnectGenerateWorkoutXml(root["workout"].toObject());
+
+    EXPECT_EQ(xml.count("<row"), 1) << "Expected exactly 1 row from 1 workout step. XML was:\n"
+                                     << xml.toStdString();
+    EXPECT_TRUE(xml.contains("duration=\"01:00:00\""))
+        << "Expected 3600s step duration serialized as 01:00:00. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("forcespeed=\"1\""))
+        << "Expected forcespeed enabled for pace.zone targets. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("lower_speed=\"9.656\""))
+        << "Expected lower pace bound converted from 2.68224 m/s to 9.656 km/h. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("upper_speed=\"9.672\""))
+        << "Expected upper pace bound converted from 2.6867179 m/s to 9.672 km/h. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("speed=\"9.664\""))
+        << "Expected average pace speed converted to 9.664 km/h. XML was:\n"
         << xml.toStdString();
 }

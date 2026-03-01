@@ -104,6 +104,13 @@ public:
      * Verifies that distance-based Garmin steps serialize to XML rows with distance only.
      */
     void test_scheduleJson_realLogDistanceWorkoutUsesDistanceOnly();
+
+    /**
+     * @brief Test real schedule payload from debug log (2026-02-25 Easy run).
+     *
+     * Verifies that time-based pace.zone targets serialize to speed bounds and forcespeed.
+     */
+    void test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAndForceSpeed();
 };
 
 // Register individual tests with Google Test
@@ -145,6 +152,10 @@ TEST_F(GarminConnectTestSuite, ScheduleJsonNestedWorkoutPayloadParses) {
 
 TEST_F(GarminConnectTestSuite, ScheduleJsonRealLogDistanceWorkoutUsesDistanceOnly) {
     this->test_scheduleJson_realLogDistanceWorkoutUsesDistanceOnly();
+}
+
+TEST_F(GarminConnectTestSuite, ScheduleJsonRealLogEasyRunPaceZoneSetsSpeedAndForceSpeed) {
+    this->test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAndForceSpeed();
 }
 
 #endif // GARMINCONNECTTESTSUITE_H
