@@ -54,3 +54,4 @@ src/inner_templates/googlemaps/cesium-key.js
 src/inner_templates/googlemaps/cesium-key.js
 src/qdomyos-zwift.pro.user.49de507
 /.vs
+src/translations/*.qm

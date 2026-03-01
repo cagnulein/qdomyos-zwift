@@ -1,0 +1,196 @@
+name: Update Translations
+
+on:
+  workflow_dispatch:  # Manual trigger
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday at midnight
+  pull_request:  # Run on every PR commit for testing
+    paths:
+      - 'src/**/*.cpp'
+      - 'src/**/*.h'
+      - 'src/**/*.qml'
+      - 'src/**/*.ui'
+      - 'src/**/*.ts'
+  push:  # Run on push to PR branches
+    branches:
+      - 'claude/**'  # All Claude Code branches
+      - 'translations/**'  # Translation-specific branches
+
+jobs:
+  update-translations:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Qt Linguist Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qtbase5-dev qttools5-dev-tools
+
+      - name: Detect workflow context
+        id: context
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ] || [ "${{ github.event_name }}" = "push" ]; then
+            echo "mode=testing" >> $GITHUB_OUTPUT
+            echo "🧪 Running in TESTING mode (PR/push to branch)"
+          else
+            echo "mode=production" >> $GITHUB_OUTPUT
+            echo "🚀 Running in PRODUCTION mode (scheduled/manual)"
+          fi
+
+      - name: Update translation files
+        run: |
+          echo "Extracting translatable strings from source code..."
+          echo "Updating 30 language files..."
+
+          # lupdate will create/update all .ts files defined in TRANSLATIONS
+          lupdate src/qdomyos-zwift.pri
+
+      - name: Compile translation binaries (.qm)
+        run: |
+          echo "Compiling .ts files into .qm binaries..."
+          lrelease src/qdomyos-zwift.pri
+
+      - name: Verify generated .qm files
+        run: |
+          echo "Checking compiled translation files..."
+          ls -1 src/translations/*.qm
+
+      - name: Check for translation changes
+        run: |
+          echo ""
+          echo "Checking for changes..."
+
+          # Check if there are changes in translations folder
+          if git diff --quiet src/translations/; then
+            echo "✅ No translation updates needed - files are up to date"
+            echo "HAS_CHANGES=false" >> $GITHUB_ENV
+          else
+            echo "📝 Translation files have been updated with new/modified strings"
+            echo "HAS_CHANGES=true" >> $GITHUB_ENV
+
+            # Show diff stats
+            echo ""
+            echo "Changes summary:"
+            git diff --stat src/translations/
+
+            echo ""
+            echo "Files modified:"
+            git diff --name-only src/translations/
+          fi
+
+      - name: Commit and push changes (Testing Mode)
+        if: env.HAS_CHANGES == 'true' && steps.context.outputs.mode == 'testing' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        env:
+          TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          # Commit updated translation source files only
+          git add src/translations/*.ts
+          git commit -m "chore: update translation strings [automated]
+
+          Automatic update of translatable strings extracted from source code.
+          Updated 30 language files in src/translations/
+
+          - Updated by GitHub Actions (Testing Mode)
+          - Triggered by: ${{ github.event_name }}
+          - Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+
+          # Push to remote branch explicitly (works also in detached HEAD on pull_request events)
+          git push origin HEAD:refs/heads/${TARGET_BRANCH}
+
+          echo "✅ Changes committed and pushed to current branch"
+
+      - name: Commit and push changes (Production Mode)
+        if: env.HAS_CHANGES == 'true' && steps.context.outputs.mode == 'production'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          # Create a new branch for production updates
+          BRANCH_NAME="translations/auto-update-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b "$BRANCH_NAME"
+
+          # Add updated translation source files only
+          git add src/translations/*.ts
+          git commit -m "chore: update translation strings
+
+          Automatic update of translatable strings extracted from source code.
+          Updated 30 language files in src/translations/
+
+          - Updated by GitHub Actions (Scheduled)
+          - Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+
+          # Push the branch
+          git push origin "$BRANCH_NAME"
+
+          # Store branch name for PR creation
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "✅ Changes pushed to new branch: $BRANCH_NAME"
+
+      - name: Create Pull Request (Production Mode Only)
+        if: env.HAS_CHANGES == 'true' && steps.context.outputs.mode == 'production'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ env.BRANCH_NAME }}
+          title: "🌍 Update translation strings"
+          body: |
+            ## Translation Update
+
+            This PR updates the translation file with new strings extracted from the source code.
+
+            ### Changes
+            - Extracted new translatable strings using `lupdate`
+            - Updated 30 language files in `src/translations/`
+            - Languages: Italian, German, French, Spanish, Portuguese, Russian, Chinese, Japanese, Korean, Arabic, Hindi, and 19 more
+
+            ### What to do next
+            1. Review the new strings in `src/translations/qdomyos-zwift_*.ts`
+            2. Contributors can now create PRs to add translations in their language
+            3. Edit the `.ts` file for your language and add translations in `<translation>` tags
+            4. Merge this PR to make new strings available
+
+            ### Translation Files
+            - Location: `src/translations/`
+            - Format: `qdomyos-zwift_LOCALE.ts` (e.g., `qdomyos-zwift_it.ts` for Italian)
+            - 30 languages supported
+
+            **Note:** Strings marked as `<translation type="unfinished">` need translation.
+
+            ---
+            *Generated automatically by GitHub Actions*
+          labels: |
+            translations
+            automation
+
+      - name: Summary
+        if: always()
+        run: |
+          echo ""
+          echo "============================================"
+          echo "Translation Workflow Summary"
+          echo "============================================"
+          echo "Mode: ${{ steps.context.outputs.mode }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Has changes: ${{ env.HAS_CHANGES }}"
+          echo "============================================"
+
+          if [ "${{ env.HAS_CHANGES }}" = "true" ]; then
+            if [ "${{ steps.context.outputs.mode }}" = "testing" ]; then
+              echo "✅ Translation files updated in current branch"
+              echo "   Review changes in: src/translations/"
+            else
+              echo "✅ Translation files updated and PR created"
+              echo "   Branch: ${{ env.BRANCH_NAME }}"
+            fi
+          else
+            echo "ℹ️  No updates needed - translation files are current"
+          fi
