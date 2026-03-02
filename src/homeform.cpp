@@ -48,6 +48,7 @@
 #include <QRegularExpression>
 #include <algorithm>
 #include <chrono>
+#include <memory>
 
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
@@ -978,10 +979,6 @@ void homeform::chartSaved(QString fileName) {
     chartImagesFilenames.append(fileName);
     if (chartImagesFilenames.length() >= 9) {
         sendMail();
-        qDebug() << "removing chart images";
-        for (const QString &f : qAsConst(chartImagesFilenames)) {
-            QFile::remove(f);
-        }
         chartImagesFilenames.clear();
     }
 }
@@ -9201,58 +9198,29 @@ void homeform::sendMail() {
     }
     WeightLoss = (miles ? bluetoothManager->device()->weightLoss() * 35.274 : bluetoothManager->device()->weightLoss());
 
-#ifdef SMTP_SERVER
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
-    SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
-    connect(&smtp, SIGNAL(smtpError(SmtpClient::SmtpError)), this, SLOT(smtpError(SmtpClient::SmtpError)));
-#else
-#pragma message "stmp server is unset!"
-    SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
-    return;
-#endif
-
-// We need to set the username (your email address) and the password
-// for smtp authentication.
-#ifdef SMTP_PASSWORD
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
-    smtp.setUser(STRINGIFY(SMTP_USERNAME));
-#else
-#pragma message "smtp username is unset!"
-    return;
-#endif
-#ifdef SMTP_PASSWORD
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
-    smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
-#else
-#pragma message "smtp password is unset!"
-    return;
-#endif
-
     // Now we create a MimeMessage object. This will be the email.
 
-    MimeMessage message;
+    auto message = std::make_shared<MimeMessage>();
+    const QStringList chartImagesToDelete = chartImagesFilenames;
 
-    message.setSender(new EmailAddress(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ")));
-    message.addRecipient(new EmailAddress(settings.value(QZSettings::user_email, QLatin1String("")).toString(),
-                                          settings.value(QZSettings::user_email, QLatin1String("")).toString()));
+    message->setSender(new EmailAddress(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ")));
+    message->addRecipient(new EmailAddress(settings.value(QZSettings::user_email, QLatin1String("")).toString(),
+                                           settings.value(QZSettings::user_email, QLatin1String("")).toString()));
     if (!Session.isEmpty()) {
         QString title = Session.constFirst().time.toString();
         if (!stravaPelotonActivityName.isEmpty()) {
             title +=
                 QStringLiteral(" ") + stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName;
         }
-        message.setSubject(title);
+        message->setSubject(title);
     } else {
-        message.setSubject(QStringLiteral("Test"));
+        message->setSubject(QStringLiteral("Test"));
     }
 
     // Now add some text to the email.
     // First we create a MimeText object.
 
-    MimeText text;
+    MimeText *text = new MimeText();
 
     QString textMessage = QStringLiteral("Great workout!\n\n");
 
@@ -9418,11 +9386,13 @@ void homeform::sendMail() {
     }
 
 #ifdef SMTP_SERVER
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
     textMessage += QStringLiteral("\n\nSMTP server: ") + QString(STRINGIFY(SMTP_SERVER));
 #endif
 
-    text.setText(textMessage);
-    message.addPart(&text);
+    text->setText(textMessage);
+    message->addPart(text);
 
     for (const QString &f : qAsConst(chartImagesFilenames)) {
 
@@ -9432,7 +9402,7 @@ void homeform::sendMail() {
         // An unique content id must be setted
         image->setContentId(f);
         image->setContentType(QStringLiteral("image/jpg"));
-        message.addPart(image);
+        message->addPart(image);
     }
 
     if (!lastFitFileSaved.isEmpty()) {
@@ -9443,7 +9413,7 @@ void homeform::sendMail() {
         // An unique content id must be setted
         fit->setContentId(lastFitFileSaved);
         fit->setContentType(QStringLiteral("application/octet-stream"));
-        message.addPart(fit);
+        message->addPart(fit);
     }
 
     if (!lastTrainProgramFileSaved.isEmpty()) {
@@ -9454,7 +9424,7 @@ void homeform::sendMail() {
         // An unique content id must be setted
         xml->setContentId(lastTrainProgramFileSaved);
         xml->setContentType(QStringLiteral("application/octet-stream"));
-        message.addPart(xml);
+        message->addPart(xml);
         lastTrainProgramFileSaved = "";
     }
 
@@ -9487,7 +9457,7 @@ void homeform::sendMail() {
         // An unique content id must be setted
         pelotonImage->setContentId(filenameJPG);
         pelotonImage->setContentType(QStringLiteral("image/jpg"));
-        message.addPart(pelotonImage);
+        message->addPart(pelotonImage);
     }
 
     /* THE SMTP SERVER DOESN'T LIKE THE ZIP FILE
@@ -9515,21 +9485,61 @@ void homeform::sendMail() {
         message.addPart(log);
     }*/
 
-    bool r = false;
-    uint8_t i = 0;
-    while (!r) {
-        qDebug() << "trying to send email #" << i;
-        r = smtp.connectToHost();
-        r = smtp.login();
-        r = smtp.sendMail(message);
-        if (i++ == 3)
-            break;
-    }
-    smtp.quit();
+    auto sendMailWorker = [this, message, filenameJPG, chartImagesToDelete]() mutable {
+#ifdef SMTP_SERVER
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+        SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
+        connect(&smtp, SIGNAL(smtpError(SmtpClient::SmtpError)), this, SLOT(smtpError(SmtpClient::SmtpError)));
+#else
+#pragma message "stmp server is unset!"
+        SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
+        return;
+#endif
 
-    // delete image variable
-    if(!filenameJPG.isEmpty())
-        QFile::remove(filenameJPG);
+// We need to set the username (your email address) and the password
+// for smtp authentication.
+#ifdef SMTP_PASSWORD
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+        smtp.setUser(STRINGIFY(SMTP_USERNAME));
+#else
+#pragma message "smtp username is unset!"
+        return;
+#endif
+#ifdef SMTP_PASSWORD
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+        smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
+#else
+#pragma message "smtp password is unset!"
+        return;
+#endif
+
+        bool r = false;
+        uint8_t i = 0;
+        while (!r) {
+            qDebug() << "trying to send email #" << i;
+            r = smtp.connectToHost();
+            r = smtp.login();
+            r = smtp.sendMail(*message);
+            if (i++ == 3)
+                break;
+        }
+        smtp.quit();
+
+        if (!filenameJPG.isEmpty()) {
+            QFile::remove(filenameJPG);
+        }
+
+        qDebug() << "removing chart images";
+        for (const QString &f : chartImagesToDelete) {
+            QFile::remove(f);
+        }
+    };
+    QThread *mailThread = QThread::create(sendMailWorker);
+    connect(mailThread, &QThread::finished, mailThread, &QObject::deleteLater);
+    mailThread->start();
 }
 
 #if defined(Q_OS_ANDROID)
