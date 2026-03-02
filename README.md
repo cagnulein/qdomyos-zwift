@@ -7,58 +7,125 @@ Zwift bridge for Treadmills and Bike!
 [<img src="docs/img/app_store.png">](https://apps.apple.com/app/id1543684531?fbclid=IwAR10H6y3mEgwkTlGJON3e8voYOh2wt3kLFOpFzoIXaYZ_N0y0pDvKxHMUaM)
 <a href="https://www.buymeacoffee.com/cagnulein" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
-![UI](docs/img/treadmill-bridge-schema.png)
-
-[![Video](https://img.youtube.com/vi/GgG3dMhmo2Y/0.jpg)](https://www.youtube.com/watch?v=GgG3dMhmo2Y)
-
-![UI](docs/img/ui.png)
-![UI](docs/img/realtime-chart.png)
-
-UI on Linux
-
-![UI](docs/img/ui-mac.png)
-
-UI on MacOS
+<table>
+<tr>
+  <td>
+<img src="icons/AppScreen/iOS%20Phones%20-%206.5_/screenshot1.jpeg" style="height: 400px !important; box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" >
+    </td>
+  <td>
+<img src="icons/AppScreen/iOS%20Phones%20-%206.5_/screenshot2.jpeg" style="height: 400px !important; box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" >
+    </td>
+  <td>
+<img src="icons/AppScreen/iOS%20Phones%20-%206.5_/screenshot3.jpeg" style="height: 400px !important; box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" >
+    </td>
+  <td>
+<img src="icons/AppScreen/iOS%20Phones%20-%206.5_/screenshot4.jpeg" style="height: 400px !important; box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" >
+    </td>
+  <td>
+<img src="icons/AppScreen/iOS%20Phones%20-%206.5_/screenshot5.jpeg" style="height: 400px !important; box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" >
+    </td>
+  </tr>
+</table>
 
 ### Features
 
-1. Domyos compatible
-2. Toorx TRX Route Key compatible
-3. Echelon Connect Sport compatible
-4. Zwift compatible
-5. Create, load and save train programs
-6. Measure distance, elevation gain and watts
-7. Gpx import (with difficulty slider)
-8. Realtime Charts
+# UI Features
 
-![First Success](docs/img/first_success.jpg)
+|Feature|Bike|Treadmill|Elliptical|Rower|Notes|
+|:---|:---:|:---:|:---:|:---:|---:|
+|Tiles Customization|X|X|X|X|Order and visibility of each tile|
+|Profiles|X|X|X|X|Different user or different fitness device profiles|
+|UI Zoom Customization|X|X|X|X||
+
+# Peloton Features
+
+|Feature|Bike|Treadmill|Elliptical|Rower|Notes|
+|:---|:---:|:---:|:---:|:---:|---:|
+|Bike metrics on the peloton app|X||X|||
+|Power zone with auto resistance|X|||||
+|Peloton real-time resistance conversion|X||X||with the possibility to customize it|
+|Peloton real-time auto-resistance|X||X||with the possibility to customize it|
+|Peloton auto speed and auto inclination||X|X||with the possibility to customize it|
+
+# Heart Rate Features
+
+|Feature|Bike|Treadmill|Elliptical|Rower|Notes|
+|:---|:---:|:---:|:---:|:---:|---:|
+|Heart Rate support|X|X|X|X|Apple Watch, ANT+ devices and Bluetooth devices|
+|Heart Rate Zones Customizations|X|X|X|X||
+|Ability to calculate Wattage from HR and Cadence|X||||for the bikes that doesn't have a power sensor|
+
+# 3rd Apps Compatibility
+
+|Feature|Bike|Treadmill|Elliptical|Rower|Notes|
+|:---|:---:|:---:|:---:|:---:|---:|
+|Zwift Compatibility|X|X|X|X||
+|Zwift Auto resistance|X||X|||
+|Zwift Auto inclination and speed||X|X||https://www.youtube.com/watch?v=KTQ2n7yeDbo|
+|Wahoo RGT Compatibility|X|X|X|X||
+|VzFit Compatibility|X|X|X|X||
+|Rouvy Compatibility|X|X|X|X||
+|IFIT app Compatibility|X|||||
+|Echelon app Compatibility|X|||||
+|Wahoo Dircon Compatibility|X|X|X|X|in order to send data to Zwift or RGT with Wifi only!|
+|One device only support for Zwift and Wahoo RGT|X|X|X|X|using Wahoo Dircon https://www.youtube.com/watch?v=gYYUXNWFAok|
+|BitGym Compatibility|X|X|X|X||
+
+# Training Program
+|Feature|Bike|Treadmill|Elliptical|Rower|Notes|
+|:---|:---:|:---:|:---:|:---:|---:|
+|Builtin video support (Kinomap like)|X|X|X|X|Files could be local or on the cloud!|
+|GPX auto following|X|X|X|X||
+|2D/3D maps for GPX|X|X|X|X||
+|ZWO (Zwift workout file) compatibility|X|X|X|X||
+|XML Workout file compatibility|X|X|X|X||
+|Auto follow workout based on your heart rate|X|X|X|X||
+|Random workout|X|X|X|X||
+
+
+# Statistics 
+
+|Feature|Bike|Treadmill|Elliptical|Rower|Notes|
+|:---|:---:|:---:|:---:|:---:|---:|
+|E-Mail report|X|X|X|X|at the end of the workout|
+|Strava integration|X|X|X|X|press stop at the end of the workout to auto upload it|
+
+# Misc
+
+|Feature|Bike|Treadmill|Elliptical|Rower|Notes|
+|:---|:---:|:---:|:---:|:---:|---:|
+|Resistance shifting with bluetooth remote|X||X|||
+|TTS support|X|X|X|X||
+|Zwift Play & Click support|X|||||
+|MQTT integration|X|X|X|X||
+|OpenSoundControl integration|X|X|X|X||
+
 
 ### Installation 
 
-You can install on multiple platforms.
-Read the [installation procedure](docs/10_Installation.md)
+  You can install it on multiple platforms.
+  Read the [installation procedure](docs/10_Installation.md)
 
 
 ### Tested on
 
-You can run the app on [Macintosh or Linux devices](docs/10_Installation.md). IOS and Android are also supported.
+  The QDomyos-Zwift application can run on [Macintosh or Linux devices](docs/10_Installation.md) iOS, and Android. 
+  It supports any [FTMS-compatible application](docs/20_supported_devices_and_applications.md) software and most [bluetooth enabled device](docs/20_supported_devices_and_applications.md).
 
-QDomyos-Zwift works on every [FTMS-compatible application](docs/20_supported_devices_and_applications.md), and virtually any [bluetooth enabled device](docs/20_supported_devices_and_applications.md).
-
-### No gui version
+### No GUI version
 
 run as
 
-$ sudo ./qdomyos-zwift -no-gui
+  $ sudo ./qdomyos-zwift -no-gui
 
 ### Reference
 
-https://github.com/ProH4Ck/treadmill-bridge
+  => GitHub Repository: [QDomyos-Zwift on GitHub](https://github.com/ProH4Ck/treadmill-bridge)
 
-https://www.livestrong.com/article/422012-what-is-10-degrees-in-incline-on-a-treadmill/
+  => Treadmill Incline Reference: [What Is 10 Degrees in Incline on a Treadmill?](https://www.livestrong.com/article/422012-what-is-10-degrees-in-incline-on-a-treadmill/)
 
-Icons used in this documentation comes from [flaticon.com](https://www.flaticon.com)
+  => Icon Attribution: Icons used in this documentation are from [Flaticon.com](https://www.flaticon.com)
 
 ### Blog
 
-https://robertoviola.cloud
+  => Related Blog: [Roberto Viola's Blog](https://robertoviola.cloud)

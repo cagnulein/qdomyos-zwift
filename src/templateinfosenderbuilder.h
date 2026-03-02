@@ -1,6 +1,7 @@
 #ifndef TEMPLATEINFOSENDERBUILDER_H
 #define TEMPLATEINFOSENDERBUILDER_H
-#include "bluetoothdevice.h"
+#include "fit_profile.hpp"
+#include "devices/bluetoothdevice.h"
 #include "templateinfosender.h"
 #include <QHash>
 #include <QJSEngine>
@@ -21,6 +22,9 @@ class TemplateInfoSenderBuilder : public QObject {
     void stop();
     QStringList templateIdList() const;
     ~TemplateInfoSenderBuilder();
+
+    void previewSessionOnChart(QList<SessionLine> *session, FIT_SPORT sport);
+    void previewSessionOnChart(QList<SessionLine> *session, FIT_SPORT sport, const QString &workoutName);
   signals:
     void activityDescriptionChanged(QString newDescription);
     void chartSaved(QString filename);
@@ -28,6 +32,12 @@ class TemplateInfoSenderBuilder : public QObject {
     void floatingClose();
     void pelotonOffset_Plus();
     void pelotonOffset_Minus();
+    void gears_Plus();
+    void gears_Minus();
+    void speed_Plus();
+    void speed_Minus();
+    void inclination_Plus();
+    void inclination_Minus();
     int pelotonOffset();
     bool pelotonAskStart();
     void peloton_start_workout();
@@ -35,6 +45,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void Start();
     void Pause();
     void Stop();
+    void autoResistance();
 
   private:
     bool validFileTemplateType(const QString &tp) const;
@@ -42,11 +53,13 @@ class TemplateInfoSenderBuilder : public QObject {
     QString activityDescription;
     void createTemplatesFromFolder(const QString &idInfo, const QString &folder, QStringList &dirTemplates);
     void clearSessionArray();
+    void clearPreviewSessionArray();
     bluetoothdevice *device = nullptr;
     QTimer updateTimer;
     QString masterId;
     QStringList foldersToLook;
     QJsonArray sessionArray;
+    QJsonArray previewSessionArray;
     QHash<QString, QVariant> context;
     QJSEngine *engine = nullptr;
     TemplateInfoSenderBuilder(QObject *parent);
@@ -64,16 +77,33 @@ class TemplateInfoSenderBuilder : public QObject {
     void onSetSpeed(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSetDifficult(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveChart(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onGetPelotonImage(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLap(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onPelotonOffsetPlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onPelotonOffsetMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onGearsPlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onGearsMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onSpeedPlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onSpeedMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onInclinationPlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onInclinationMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onPelotonStartWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onPelotonAbortWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onFloatingClose(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onAutoresistance(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onDeleteTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onGetTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onTrainingProgramPreview(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onGetWorkoutPreview(TemplateInfoSender *tempSender);
+    void onTrainingProgramOpen(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onTrainingProgramAutostart(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onWorkoutEditorEnv(TemplateInfoSender *tempSender);
+    void onWorkoutEditorStart(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onGetSessionArray(TemplateInfoSender *tempSender);
+    void onGetPreviewSessionArray(TemplateInfoSender *tempSender);
     void onGetLatLon(TemplateInfoSender *tempSender);
     void onNextInclination300Meters(TemplateInfoSender *tempSender);
     void onGetGPXBase64(TemplateInfoSender *tempSender);

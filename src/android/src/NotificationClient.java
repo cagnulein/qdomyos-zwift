@@ -16,12 +16,18 @@ public class NotificationClient
          private static Context _context;
          private static Intent serviceIntent = null;
 
+         private static final String EXTRA_FOREGROUND_SERVICE_TYPE = "FOREGROUND_SERVICE_TYPE";
+         private static final int FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE = 0x10;
+
 	 public NotificationClient() {}
 
 	 public static void notify(Context context, String message) {
                   _context = context;
                   serviceIntent = new Intent(context, ForegroundService.class);
 		  serviceIntent.putExtra("inputExtra", "QZ is Running");
+                  serviceIntent.putExtra(EXTRA_FOREGROUND_SERVICE_TYPE,
+                                         FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
+
 		  if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
 			   context.startForegroundService(serviceIntent);
 		  } else {

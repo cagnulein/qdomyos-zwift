@@ -93,7 +93,7 @@ Item {
         onLinkActivated: Qt.openUrlExternally(link)
     }
 
-    /*Button {
+    Button {
         id: restoreButton
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
@@ -101,7 +101,8 @@ Item {
         text: "Restore Purchases"
         onClicked: {
             console.log("restoring...");
+            toast.show("Restoring...");
             iapStore.restorePurchases();
         }
-    }*/
+    }
 }

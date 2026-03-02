@@ -17,7 +17,7 @@
 package org.cagnulen.qdomyoszwift;
 
 import android.os.RemoteException;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 
 import com.dsi.ant.channel.AntChannel;
 import com.dsi.ant.channel.AntCommandFailedException;
@@ -29,6 +29,11 @@ import com.dsi.ant.message.fromant.AcknowledgedDataMessage;
 import com.dsi.ant.message.fromant.ChannelEventMessage;
 import com.dsi.ant.message.fromant.MessageFromAntType;
 import com.dsi.ant.message.ipc.AntMessageParcel;
+
+import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import java.util.Random;
 
@@ -56,7 +61,7 @@ public class PowerChannelController {
     boolean openChannel() {
         if (null != mAntChannel) {
             if (mIsOpen) {
-                Log.w(TAG, "Channel was already open");
+                QLog.w(TAG, "Channel was already open");
             } else {
                 // Channel ID message contains device number, type and transmission type. In
                 // order for master (TX) channels and slave (RX) channels to connect, they
@@ -87,7 +92,8 @@ public class PowerChannelController {
                     mAntChannel.open();
                     mIsOpen = true;
 
-                    Log.d(TAG, "Opened channel with device number: " + POWER_SENSOR_ID);
+                    QLog.d(TAG, "Opened channel with device number: " + POWER_SENSOR_ID);
+
                 } catch (RemoteException e) {
                     channelError(e);
                 } catch (AntCommandFailedException e) {
@@ -96,7 +102,7 @@ public class PowerChannelController {
                 }
             }
         } else {
-            Log.w(TAG, "No channel available");
+            QLog.w(TAG, "No channel available");
         }
 
         return mIsOpen;
@@ -106,7 +112,7 @@ public class PowerChannelController {
     void channelError(RemoteException e) {
         String logString = "Remote service communication failed.";
 
-        Log.e(TAG, logString);
+        QLog.e(TAG, logString);
 
     }
 
@@ -136,7 +142,7 @@ public class PowerChannelController {
                     .append(failureReason);
         }
 
-        Log.e(TAG, logString.toString());
+        QLog.e(TAG, logString.toString());
 
         mAntChannel.release();
     }
@@ -152,7 +158,7 @@ public class PowerChannelController {
             mAntChannel = null;
         }
 
-        Log.e(TAG, "Channel Closed");
+        QLog.e(TAG, "Channel Closed");
     }
 
     /**
@@ -164,18 +170,49 @@ public class PowerChannelController {
         int cnt = 0;
         int eventCount = 0;
         int cumulativePower = 0;
+        Timer carousalTimer = null;
 
         @Override
         public void onChannelDeath() {
             // Display channel death message when channel dies
-            Log.e(TAG, "Channel Death");
+            QLog.e(TAG, "Channel Death");
         }
 
         @Override
         public void onReceiveMessage(MessageFromAntType messageType, AntMessageParcel antParcel) {
-            Log.d(TAG, "Rx: " + antParcel);
-            Log.d(TAG, "Message Type: " + messageType);
+            QLog.d(TAG, "Rx: " + antParcel);
+            QLog.d(TAG, "Message Type: " + messageType);
             byte[] payload = new byte[8];
+
+            if(carousalTimer == null) {
+               carousalTimer = new Timer(); // At this line a new Thread will be created
+               carousalTimer.scheduleAtFixedRate(new TimerTask() {
+                   @Override
+                   public void run() {
+                       QLog.d(TAG, "Tx Unsollicited");
+                       byte[] payload = new byte[8];
+                       eventCount = (eventCount + 1) & 0xFF;
+                       cumulativePower = (cumulativePower + power) & 0xFFFF;
+                       payload[0] = (byte) 0x10;
+                       payload[1] = (byte) eventCount;
+                       payload[2] = (byte) 0xFF;
+                       payload[3] = (byte) cadence;
+                       payload[4] = (byte) ((cumulativePower) & 0xFF);
+                       payload[5] = (byte) ((cumulativePower >> 8) & 0xFF);
+                       payload[6] = (byte) ((power) & 0xFF);
+                       payload[7] = (byte) ((power >> 8) & 0xFF);
+
+                       if (mIsOpen) {
+                           try {
+                               // Setting the data to be broadcast on the next channel period
+                               mAntChannel.setBroadcastData(payload);
+                           } catch (RemoteException e) {
+                               channelError(e);
+                           }
+                       }
+                   }
+               }, 0, 1000); // delay
+           }
 
             // Switching on message type to handle different types of messages
             switch (messageType) {
@@ -188,7 +225,7 @@ public class PowerChannelController {
                     // Rx Data
                     //updateData(new AcknowledgedDataMessage(antParcel).getPayload());
                     payload = new AcknowledgedDataMessage(antParcel).getPayload();
-                    Log.d(TAG, "AcknowledgedDataMessage: " + payload);
+                    QLog.d(TAG, "AcknowledgedDataMessage: " + payload);
 
                     if ((payload[0] == 0) && (payload[1] == 1) && (payload[2] == (byte)0xAA)) {
                         payload[0] = (byte) 0x01;
@@ -205,13 +242,33 @@ public class PowerChannelController {
                         } catch (RemoteException e) {
                             channelError(e);
                         }
+                    } else {
+                        eventCount = (eventCount + 1) & 0xFF;
+                        cumulativePower = (cumulativePower + power) & 0xFFFF;
+                        payload[0] = (byte) 0x10;
+                        payload[1] = (byte) eventCount;
+                        payload[2] = (byte) 0xFF;
+                        payload[3] = (byte) cadence;
+                        payload[4] = (byte) ((cumulativePower) & 0xFF);
+                        payload[5] = (byte) ((cumulativePower >> 8) & 0xFF);
+                        payload[6] = (byte) ((power) & 0xFF);
+                        payload[7] = (byte) ((power >> 8) & 0xFF);
+
+                        if (mIsOpen) {
+                            try {
+                                // Setting the data to be broadcast on the next channel period
+                                mAntChannel.setBroadcastData(payload);
+                            } catch (RemoteException e) {
+                                channelError(e);
+                            }
+                        }
                     }
                     break;
                 case CHANNEL_EVENT:
                     // Constructing channel event message from parcel
                     ChannelEventMessage eventMessage = new ChannelEventMessage(antParcel);
                     EventCode code = eventMessage.getEventCode();
-                    Log.d(TAG, "Event Code: " + code);
+                    QLog.d(TAG, "Event Code: " + code);
 
                     // Switching on event code to handle the different types of channel events
                     switch (code) {
@@ -263,7 +320,7 @@ public class PowerChannelController {
                             break;
                         case RX_SEARCH_TIMEOUT:
                             // TODO May want to keep searching
-                            Log.e(TAG, "No Device Found");
+                            QLog.e(TAG, "No Device Found");
                             break;
                         case CHANNEL_CLOSED:
                         case RX_FAIL:

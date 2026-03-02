@@ -57,6 +57,7 @@ ScrollView {
         property bool tts_avg_watt_kg: false
         property bool tts_max_watt_kg: false
         property bool tts_description_enabled: true
+        property bool tts_act_target_pace: false
     }
 
 
@@ -109,7 +110,7 @@ ScrollView {
                 id: okTTSSummarySec
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.tts_summary_sec = ttsSummarySecTextField.text
+                onClicked: { settings.tts_summary_sec = ttsSummarySecTextField.text; toast.show("Setting saved!"); }
             }
         }
         SwitchDelegate {
@@ -615,6 +616,20 @@ ScrollView {
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             Layout.fillWidth: true
             onClicked: settings.tts_act_target_speed = checked
+        }
+        SwitchDelegate {
+            id: ttsActualTargetPaceDelegate
+            text: qsTr("Actual Target Pace")
+            spacing: 0
+            bottomPadding: 0
+            topPadding: 0
+            rightPadding: 0
+            leftPadding: 0
+            clip: false
+            checked: settings.tts_act_target_pace
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            onClicked: settings.tts_act_target_pace = checked
         }
         SwitchDelegate {
             id: ttsActualTargetInclineDelegate

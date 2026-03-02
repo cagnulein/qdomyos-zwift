@@ -62,7 +62,7 @@
 
 class IAPRegisterMetaTypes {
   public:
-#ifndef Q_OS_WINRT
+#ifndef WIN32
     IAPRegisterMetaTypes() { qRegisterMetaType<InAppProduct::ProductType>("InAppProduct::ProductType"); }
 #endif
 } _registerIAPMetaTypes;

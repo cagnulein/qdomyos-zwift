@@ -10,14 +10,19 @@ static uint8_t random_value_uint8 = 0;
 
 metric::metric() {}
 
-void metric::setType(_metric_type t) { m_type = t; }
+void metric::setType(_metric_type t, BLUETOOTH_TYPE bt) {
+    m_type = t;
+    m_bluetooth_type = bt;
+}
 
 void metric::setValue(double v, bool applyGainAndOffset) {
     QSettings settings;
+    // these special cases are also in the valueRaw
     if (applyGainAndOffset) {
         if (m_type == METRIC_WATT) {
             if (v > 0) {
-                if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= 2.00) {
+                double maxGain = (m_bluetooth_type == ROWING) ? 5.00 : 2.00;
+                if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= maxGain) {
                     if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() != 1.0) {
                         qDebug() << QStringLiteral("watt value was ") << v
                                  << QStringLiteral("but it will be transformed to")
@@ -25,12 +30,10 @@ void metric::setValue(double v, bool applyGainAndOffset) {
                     }
                     v *= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
                 }
-                if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() < 0) {
-                    if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
-                        qDebug()
-                            << QStringLiteral("watt value was ") << v << QStringLiteral("but it will be transformed to")
-                            << v + settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
-                    }
+                if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
+                    qDebug()
+                        << QStringLiteral("watt value was ") << v << QStringLiteral("but it will be transformed to")
+                        << v + settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
                     v += settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
                 }
             }
@@ -43,7 +46,8 @@ void metric::setValue(double v, bool applyGainAndOffset) {
     }
 
     QDateTime now = QDateTime::currentDateTime();
-    if (v != m_value) {
+    if (v != m_value && v != INFINITY) {
+        m_valueChanged = now;
         if (m_last5.count() > 1) {
             double diff = v - m_value;
             double diffFromLastValue = qAbs(now.msecsTo(m_lastChanged));
@@ -52,8 +56,10 @@ void metric::setValue(double v, bool applyGainAndOffset) {
             else
                 m_rateAtSec = 0;
         }
-        m_lastChanged = now;
     }
+
+    // it has to be here, even if the value is the same, due to https://github.com/cagnulein/qdomyos-zwift/issues/1325
+    m_lastChanged = now;
 
     m_value = v;
 
@@ -61,15 +67,23 @@ void metric::setValue(double v, bool applyGainAndOffset) {
         return;
     }
 
-    if (value() != 0) {
+    if (value() != 0 && value() != INFINITY) {
         m_countValue++;
         m_lapCountValue++;
         m_totValue += value();
         m_lapTotValue += value();
+        m_last3.append(value());
         m_last5.append(value());
+        m_last20.append(value());
+
+        if (m_last3.count() > 3)
+            m_last3.removeAt(0);
 
         if (m_last5.count() > 5)
             m_last5.removeAt(0);
+
+        if (m_last20.count() > 20)
+            m_last20.removeAt(0);
 
         if (value() < m_min) {
             m_min = value();
@@ -78,14 +92,14 @@ void metric::setValue(double v, bool applyGainAndOffset) {
         if (value() < m_lapMin) {
             m_lapMin = value();
         }
-    }
 
-    if (value() > m_max) {
-        m_max = value();
-    }
+        if (value() > m_max) {
+            m_max = value();
+        }
 
-    if (value() > m_lapMax) {
-        m_lapMax = value();
+        if (value() > m_lapMax) {
+            m_lapMax = value();
+        }
     }
 }
 
@@ -97,12 +111,37 @@ void metric::clear(bool accumulator) {
     m_totValue = 0;
     m_countValue = 0;
     m_min = 999999999;
+    m_last3.clear();
     m_last5.clear();
+    m_last20.clear();
     clearLap(accumulator);
 #ifdef TEST
     random_value_uint8 = 0;
     random_value_uint32 = 0;
 #endif
+}
+
+double metric::valueRaw() {
+    double v = m_value;
+    QSettings settings;
+
+    if (m_type == METRIC_WATT) {
+        if (v > 0) {
+            double maxGain = (m_bluetooth_type == ROWING) ? 5.00 : 2.00;
+            if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= maxGain) {
+                v /= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+            }
+            if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
+                v -= settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+            }
+        }
+    } else if (m_type == METRIC_SPEED) {
+        if (v > 0) {
+            v /= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
+            v -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();
+        }
+    }
+    return v;
 }
 
 double metric::value() {
@@ -154,6 +193,81 @@ double metric::average5s() {
             return 0;
     }
 }
+
+double metric::average5sHarmonic() {
+    // If current value is 0, return 0 immediately (user stopped pedaling)
+    if (m_value == 0.0)
+        return 0.0;
+
+    if (m_last5.count() == 0)
+        return 0;
+    else {
+        double reciprocalSum = 0;
+        uint8_t c = 0;
+        QMutableListIterator<double> i(m_last5);
+        while (i.hasNext()) {
+            double b = i.next();
+            // If any value in buffer is 0, return 0 immediately
+            if (b == 0.0)
+                return 0.0;
+            reciprocalSum += (1.0 / b);
+            c++;
+        }
+
+        if (c > 0)
+            return (c / reciprocalSum);  // Harmonic mean: n / (1/x1 + 1/x2 + ... + 1/xn)
+        else
+            return 0;
+    }
+}
+
+double metric::average3sHarmonic() {
+    // If current value is 0, return 0 immediately (user stopped pedaling)
+    if (m_value == 0.0)
+        return 0.0;
+
+    if (m_last3.count() == 0)
+        return 0;
+    else {
+        double reciprocalSum = 0;
+        uint8_t c = 0;
+        QMutableListIterator<double> i(m_last3);
+        while (i.hasNext()) {
+            double b = i.next();
+            // If any value in buffer is 0, return 0 immediately
+            if (b == 0.0)
+                return 0.0;
+            reciprocalSum += (1.0 / b);
+            c++;
+        }
+
+        if (c > 0)
+            return (c / reciprocalSum);  // Harmonic mean: n / (1/x1 + 1/x2 + ... + 1/xn)
+        else
+            return 0;
+    }
+}
+
+double metric::average20s() {
+    if (m_last20.count() == 0)
+        return 0;
+    else {
+        double sum = 0;
+        uint8_t c = 0;
+        QMutableListIterator<double> i(m_last20);
+        while (i.hasNext()) {
+            double b = i.next();
+            sum += b;
+            c++;
+        }
+
+        if (c > 0)
+            return (sum / c);
+        else
+            return 0;
+    }
+}
+
 
 void metric::operator=(double v) { setValue(v); }
 
@@ -281,20 +395,18 @@ struct CompareBests {
     }
 };
 
-// VO2 (L/min) = 0.0108 x power (W) + 0.007 x body mass (kg)
-// power = 5 min peak power for a specific ride
-double metric::calculateVO2Max(QList<SessionLine> *session) {
+double metric::powerPeak(QList<SessionLine> *session, int seconds) {
     QList<IntervalBest> bests;
     QList<IntervalBest> _results;
 
-    uint windowSize = 5 * 60; // 5 mins
+    uint windowSize = seconds;
     double total = 0.0;
     QList<const SessionLine *> window;
 
     if (session->count() == 0)
         return -1;
 
-    // ride is shorter than the window size!
+           // ride is shorter than the window size!
     if (windowSize > session->last().elapsedTime)
         return -1;
 
@@ -324,7 +436,16 @@ double metric::calculateVO2Max(QList<SessionLine> *session) {
 
     std::sort(bests.begin(), bests.end(), CompareBests());
 
-    double peak = bests.first().avg;
+    if(bests.length() > 0)
+        return bests.first().avg;
+    else
+        return 0;
+}
+
+// VO2 (L/min) = 0.0108 x power (W) + 0.007 x body mass (kg)
+// power = 5 min peak power for a specific ride
+double metric::calculateVO2Max(QList<SessionLine> *session) {       
+    double peak = powerPeak(session, 5*60);
     QSettings settings;
     return ((0.0108 * peak + 0.007 * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()) /
             settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()) *
@@ -365,4 +486,45 @@ Women:
     } else {
         return (T * ((0.6309 * H) + (0.1988 * W) + (0.2017 * A) - 55.0969) / 4.184);
     }
+}
+
+double metric::calculateBMR() {
+    // Calculate Basal Metabolic Rate using Mifflin-St Jeor equation
+    // BMR (kcal/day) for males: 10 * weight(kg) + 6.25 * height(cm) - 5 * age + 5
+    // BMR (kcal/day) for females: 10 * weight(kg) + 6.25 * height(cm) - 5 * age - 161
+    
+    QSettings settings;
+    QString sex = settings.value(QZSettings::sex, QZSettings::default_sex).toString();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    double age = settings.value(QZSettings::age, QZSettings::default_age).toDouble();
+    double height = settings.value(QZSettings::height, QZSettings::default_height).toDouble();
+    
+    // Full Mifflin-St Jeor equation with height
+    if (sex.toLower().contains("female")) {
+        return (10 * weight) + (6.25 * height) - (5 * age) - 161;
+    } else {
+        return (10 * weight) + (6.25 * height) - (5 * age) + 5;
+    }
+}
+
+double metric::calculateActiveKCal(double totalKCal, double elapsed) {
+    QSettings settings;
+    bool activeOnly = settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
+    
+    if (!activeOnly) {
+        return totalKCal; // Return total calories if active-only mode is disabled
+    }
+    
+    // Calculate BMR in calories per second
+    double bmrPerDay = calculateBMR();
+    double bmrPerSecond = bmrPerDay / (24.0 * 60.0 * 60.0); // Convert from calories/day to calories/second
+    
+    // Calculate BMR calories for the elapsed time
+    double bmrForElapsed = bmrPerSecond * elapsed;
+    
+    // Active calories = Total calories - BMR calories for the elapsed time
+    double activeKCal = totalKCal - bmrForElapsed;
+    
+    // Ensure we don't return negative calories
+    return activeKCal > 0 ? activeKCal : 0;
 }
