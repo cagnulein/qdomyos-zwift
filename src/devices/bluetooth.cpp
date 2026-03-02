@@ -713,6 +713,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             }
             const QString deviceName = b.name();
             const QString upperDeviceName = deviceName.toUpper();
+            const bool isConfiguredFtmsRowerDevice =
+                !ftms_rower.contains(QZSettings::default_ftms_rower) &&
+                !deviceName.compare(ftms_rower, Qt::CaseInsensitive);
             bool isRI009R = upperDeviceName.contains(QStringLiteral("RI009R"));
             bool isTrxAppGateUsbBikeTC = false;
             if (upperDeviceName.startsWith(QStringLiteral("TC")) && deviceName.length() == 5) {
@@ -2765,7 +2768,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("TUNTURI T80-")) ||   // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("SW-BLE"))) ||       // FTMS
                         (b.name().startsWith(QStringLiteral("BF70")))) &&
-                       !fitshowTreadmill && !iconsole_elliptical && !horizonTreadmill && filter) {
+                       !fitshowTreadmill && !ftmsRower && !isConfiguredFtmsRowerDevice &&
+                       !iconsole_elliptical && !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 fitshowTreadmill = new fitshowtreadmill(this->pollDeviceTime, noConsole, noHeartService);
