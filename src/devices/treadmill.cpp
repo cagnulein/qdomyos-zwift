@@ -552,7 +552,10 @@ void treadmill::evaluateStepCount() {
         effectiveCadence = Cadence.value() * 2;
     }
 
-    StepCount += (Cadence.lastChanged().msecsTo(QDateTime::currentDateTime())) * (effectiveCadence / 60000);
+    QSettings settings;
+    double step_gain = settings.value(QZSettings::step_gain, QZSettings::default_step_gain).toDouble();
+
+    StepCount += (Cadence.lastChanged().msecsTo(QDateTime::currentDateTime())) * (effectiveCadence / 60000) * step_gain;
 }
 
 bool treadmill::cadenceFromAppleWatch() {

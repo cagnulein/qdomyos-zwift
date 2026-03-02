@@ -30,7 +30,8 @@ bool Serialport::isOpen() const {
 
 int Serialport::closePort() {
 #ifdef WIN32
-    return (int)!CloseHandle(devicePort);
+    if(devicePort != INVALID_HANDLE_VALUE)
+        return (int)!CloseHandle(devicePort);
 #else
     tcflush(devicePort, TCIOFLUSH); // Clear out the buffer
     return close(devicePort);
