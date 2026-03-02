@@ -98,6 +98,57 @@ The application follows a hierarchical device architecture:
 4. Update `qdomyos-zwift.pri` with new source files
 5. Add tests in `tst/Devices/` following existing patterns
 
+### Adding Device Detection to bluetooth.cpp
+
+**CRITICAL: Always verify device pattern conflicts before adding to bluetooth.cpp**
+
+When adding a new device pattern to `src/devices/bluetooth.cpp`, you **MUST** follow these verification steps:
+
+1. **Search for Similar Patterns**: Use grep/search to find all existing device patterns that might conflict
+   - Search for device name prefixes (e.g., if adding "KS-NG-", search for all "KS-" patterns)
+   - Check patterns in all device type cases (bikes, treadmills, ellipticals, rowers, etc.)
+
+2. **Analyze Pattern Specificity**: Understand the pattern hierarchy
+   - More specific patterns should be checked BEFORE less specific ones
+   - Example: "KS-NGCH-" is more specific than "KS-NG-"
+   - The order matters: devices are matched by the FIRST matching pattern in the if-else chain
+
+3. **Check Case Order**: Verify the order of device type cases in bluetooth.cpp
+   - Earlier cases take precedence over later cases
+   - Ensure more specific patterns in earlier cases won't prevent your pattern from matching
+   - Ensure your pattern won't incorrectly match devices intended for other cases
+
+4. **Document Conflicts**: When conflicts exist, verify they are intentional
+   - More specific patterns earlier in the chain should catch specific devices
+   - Your pattern should only catch devices not matched by more specific patterns
+   - Example: "KS-NGCH-X21C" (kingsmithR2Treadmill) should match before "KS-NG-" (horizontreadmill)
+
+5. **Test Pattern Matching**: Consider these scenarios
+   - Will your pattern match the intended device? (e.g., "KS-NG-X218")
+   - Will it incorrectly match other devices? (e.g., "KS-NGCH-X21C")
+   - Are there existing patterns that would match your device first?
+
+**Example Verification Process:**
+
+```bash
+# Search for similar patterns
+grep -n "KS-" src/devices/bluetooth.cpp
+
+# Review each match for conflicts
+# - kingsmithR2Treadmill has "KS-NGCH-X21C" (line 1323)
+# - horizontreadmill has "KS-MC" (line 1562)
+# - Adding "KS-NG-" to horizontreadmill is safe because:
+#   1. "KS-NGCH-" patterns are more specific
+#   2. kingsmithR2Treadmill case comes first (line 1312 vs 1560)
+#   3. "KS-NG-X218" won't match "KS-NGCH-" patterns
+```
+
+**Common Pitfalls:**
+- Adding a pattern without checking existing patterns
+- Not considering pattern order in the if-else chain
+- Adding overly broad patterns that match unintended devices
+- Not testing with actual device names
+
 ### Characteristics & Protocols
 - Bluetooth characteristics handlers in `src/characteristics/`
 - FTMS (Fitness Machine Service) protocol support
@@ -368,7 +419,55 @@ The ProForm 995i implementation serves as the reference example:
 - Test device detection thoroughly using the existing test infrastructure
 - Consider platform differences when adding new features
 
+## Updating Version Numbers
+
+When releasing a new version of QDomyos-Zwift, you must update the version number in **3 files**:
+
+### 1. Android Manifest
+**File**: `src/android/AndroidManifest.xml`
+
+Update both `versionName` and `versionCode`:
+```xml
+<manifest ... android:versionName="X.XX.XX" android:versionCode="XXXX" ...>
+```
+
+- `versionName`: The human-readable version (e.g., "2.20.26")
+- `versionCode`: Integer build number that must be incremented (e.g., 1274)
+
+### 2. Main QML File
+**File**: `src/main.qml`
+
+Update the version text displayed in the UI (around line 938):
+```qml
+ItemDelegate {
+    text: "version X.XX.XX"
+    width: parent.width
+}
+```
+
+### 3. Qt Project Include File
+**File**: `src/qdomyos-zwift.pri`
+
+Update the VERSION variable (around line 1011):
+```pri
+VERSION = X.XX.XX
+```
+
+### Version Numbering Convention
+
+- **Major.Minor.Patch** format (e.g., 2.20.26)
+- **Build number** must always increment, never reuse
+- Update all 3 files together to keep versions synchronized
+
+### iOS Version (Optional)
+
+iOS version is managed through Xcode project variables:
+- `MARKETING_VERSION` in project.pbxproj (corresponds to versionName)
+- `CURRENT_PROJECT_VERSION` in project.pbxproj (corresponds to versionCode)
+
+These are typically updated via Xcode IDE rather than manually editing files.
+
 ## Additional Memories
 
 - When adding a new setting in QML (setting-tiles.qml), you must:
-  * Add the property at the END of the properties list  
+  * Add the property at the END of the properties list

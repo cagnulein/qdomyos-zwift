@@ -42,6 +42,7 @@ class ypooelliptical : public elliptical {
     bool connected() override;
     double minStepInclination() override;
     bool inclinationSeparatedFromResistance() override;
+    bool inclinationAvailableByHardware() override;
 
   private:
     void writeCharacteristic(QLowEnergyCharacteristic* characteristic, QLowEnergyService *service, uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -93,6 +94,7 @@ class ypooelliptical : public elliptical {
     bool MX_AS = false;
     bool TRUE_ELLIPTICAL = false;
     bool FTMS = false;
+    bool SOLE_E25 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
