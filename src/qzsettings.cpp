@@ -1053,6 +1053,7 @@ const QString QZSettings::confirm_stop_workout = QStringLiteral("confirm_stop_wo
 const QString QZSettings::height = QStringLiteral("height");
 const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
+const QString QZSettings::nordictrack_vr21 = QStringLiteral("nordictrack_vr21");
 const QString QZSettings::proform_bike_325_csx_PFEX439210INT_0 = QStringLiteral("proform_bike_325_csx_PFEX439210INT_0");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 const QString QZSettings::trainprogram_auto_lap_on_segment = QStringLiteral("trainprogram_auto_lap_on_segment");
