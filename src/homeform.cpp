@@ -54,6 +54,73 @@
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
+namespace {
+class MailSenderThread : public QThread {
+  public:
+    MailSenderThread(MimeMessage *message, const QString &filenameJPG, const QList<QString> &chartImagesFilenamesForMail)
+        : message(message), filenameJPG(filenameJPG), chartImagesFilenamesForMail(chartImagesFilenamesForMail) {}
+
+  protected:
+    void run() override {
+#ifdef SMTP_SERVER
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+        SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
+#else
+#pragma message "stmp server is unset!"
+        SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
+        delete message;
+        return;
+#endif
+
+// We need to set the username (your email address) and the password
+// for smtp authentication.
+#ifdef SMTP_PASSWORD
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+        smtp.setUser(STRINGIFY(SMTP_USERNAME));
+#else
+#pragma message "smtp username is unset!"
+        delete message;
+        return;
+#endif
+#ifdef SMTP_PASSWORD
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+        smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
+#else
+#pragma message "smtp password is unset!"
+        delete message;
+        return;
+#endif
+
+        bool r = false;
+        uint8_t i = 0;
+        while (!r) {
+            qDebug() << "trying to send email #" << i;
+            r = smtp.connectToHost();
+            r = smtp.login();
+            r = smtp.sendMail(*message);
+            if (i++ == 3)
+                break;
+        }
+        smtp.quit();
+
+        if (!filenameJPG.isEmpty())
+            QFile::remove(filenameJPG);
+        for (const QString &f : qAsConst(chartImagesFilenamesForMail)) {
+            QFile::remove(f);
+        }
+        delete message;
+    }
+
+  private:
+    MimeMessage *message;
+    QString filenameJPG;
+    QList<QString> chartImagesFilenamesForMail;
+};
+} // namespace
+
 #ifndef STRAVA_CLIENT_ID
 #define STRAVA_CLIENT_ID 7976
 #if defined(WIN32)
@@ -9498,59 +9565,7 @@ void homeform::sendMail() {
         message.addPart(log);
     }*/
 
-    QThread *mailThread = QThread::create([message, filenameJPG, chartImagesFilenamesForMail]() {
-#ifdef SMTP_SERVER
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
-        SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
-#else
-#pragma message "stmp server is unset!"
-        SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
-        delete message;
-        return;
-#endif
-
-// We need to set the username (your email address) and the password
-// for smtp authentication.
-#ifdef SMTP_PASSWORD
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
-        smtp.setUser(STRINGIFY(SMTP_USERNAME));
-#else
-#pragma message "smtp username is unset!"
-        delete message;
-        return;
-#endif
-#ifdef SMTP_PASSWORD
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
-        smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
-#else
-#pragma message "smtp password is unset!"
-        delete message;
-        return;
-#endif
-
-        bool r = false;
-        uint8_t i = 0;
-        while (!r) {
-            qDebug() << "trying to send email #" << i;
-            r = smtp.connectToHost();
-            r = smtp.login();
-            r = smtp.sendMail(*message);
-            if (i++ == 3)
-                break;
-        }
-        smtp.quit();
-
-        // delete image variable
-        if(!filenameJPG.isEmpty())
-            QFile::remove(filenameJPG);
-        for (const QString &f : qAsConst(chartImagesFilenamesForMail)) {
-            QFile::remove(f);
-        }
-        delete message;
-    });
+    QThread *mailThread = new MailSenderThread(message, filenameJPG, chartImagesFilenamesForMail);
     QObject::connect(mailThread, &QThread::finished, mailThread, &QObject::deleteLater);
     mailThread->start();
 }
