@@ -307,6 +307,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             }
             index += 2;
         }
+        }
 
         if (Flags.totDistance) {
             if(!E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !TRUE_ELLIPTICAL && !FTMS && !SOLE_E25) {
