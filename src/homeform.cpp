@@ -53,6 +53,79 @@
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
+
+namespace {
+
+class AsyncMailThread : public QThread {
+  public:
+    AsyncMailThread(homeform *homeForm, const std::shared_ptr<MimeMessage> &message, const QString &filenameJPG,
+                    const QStringList &chartImagesToDelete)
+        : m_homeForm(homeForm), m_message(message), m_filenameJPG(filenameJPG),
+          m_chartImagesToDelete(chartImagesToDelete) {}
+
+  protected:
+    void run() override {
+#ifdef SMTP_SERVER
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+        SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
+        connect(&smtp, SIGNAL(smtpError(SmtpClient::SmtpError)), m_homeForm, SLOT(smtpError(SmtpClient::SmtpError)));
+#else
+#pragma message "stmp server is unset!"
+        SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
+        return;
+#endif
+
+// We need to set the username (your email address) and the password
+// for smtp authentication.
+#ifdef SMTP_PASSWORD
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+        smtp.setUser(STRINGIFY(SMTP_USERNAME));
+#else
+#pragma message "smtp username is unset!"
+        return;
+#endif
+#ifdef SMTP_PASSWORD
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+        smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
+#else
+#pragma message "smtp password is unset!"
+        return;
+#endif
+
+        bool r = false;
+        uint8_t i = 0;
+        while (!r) {
+            qDebug() << "trying to send email #" << i;
+            r = smtp.connectToHost();
+            r = smtp.login();
+            r = smtp.sendMail(*m_message);
+            if (i++ == 3)
+                break;
+        }
+        smtp.quit();
+
+        if (!m_filenameJPG.isEmpty()) {
+            QFile::remove(m_filenameJPG);
+        }
+
+        qDebug() << "removing chart images";
+        for (const QString &f : m_chartImagesToDelete) {
+            QFile::remove(f);
+        }
+    }
+
+  private:
+    homeform *m_homeForm;
+    std::shared_ptr<MimeMessage> m_message;
+    QString m_filenameJPG;
+    QStringList m_chartImagesToDelete;
+};
+
+} // namespace
+
 #ifndef STRAVA_CLIENT_ID
 #define STRAVA_CLIENT_ID 7976
 #if defined(WIN32)
@@ -9460,58 +9533,7 @@ void homeform::sendMail() {
         QImage image(filename);
         QImageWriter writer(filename, "png");
         writer.setFileName(filenameJPG);
-        writer.setFormat("jpg");
-        writer.setQuality(30);
-        writer.write(image);
-        QFile::remove(filename);        
-
-        // Create a MimeInlineFile object for each image
-        MimeInlineFile *pelotonImage = new MimeInlineFile((new QFile(filenameJPG)));
-
-        // An unique content id must be setted
-        SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
-        pelotonImage->setContentId(filenameJPG);
-        pelotonImage->setContentType(QStringLiteral("image/jpg"));
-        message->addPart(pelotonImage);
-    }
-
-    /* THE SMTP SERVER DOESN'T LIKE THE ZIP FILE
-    extern QString logfilename;
-    if (settings.value(QZSettings::log_debug).toBool() && QFile::exists(getWritableAppDir() + logfilename)) {
-        QString fileName = getWritableAppDir() + logfilename;
-        QFile f(fileName);
-        f.open(QIODevice::ReadOnly);
-        QTextStream ts(&f);
-        QByteArray b = f.readAll();
-        f.close();
-        QByteArray c = qCompress(b, 9);
-        QFile fc(fileName.replace(".log", ".zip"));
-        fc.open(QIODevice::WriteOnly);
-        c.remove(0, 4);
-        fc.write(c);
-        fc.close();
-
-        // Create a MimeInlineFile object for each image
-        MimeInlineFile *log = new MimeInlineFile((new QFile(fileName)));
-
-        // An unique content id must be setted
-        log->setContentId(fileName);
-        log->setContentType(QStringLiteral("application/octet-stream"));
-        message.addPart(log);
-    }*/
-
-    QThread *mailThread = QThread::create([message, filenameJPG, chartImagesToDelete]() mutable {
-        SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
-        smtp.setUser(STRINGIFY(SMTP_USERNAME));
-        smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
-
-        bool r = false;
-        uint8_t i = 0;
-        while (!r) {
-            qDebug() << "trying to send email #" << i;
-            r = smtp.connectToHost();
-            r = smtp.login();
-            r = smtp.sendMail(*message);
+    QThread *mailThread = new AsyncMailThread(this, message, filenameJPG, chartImagesToDelete);
             if (i++ == 3)
                 break;
         }
