@@ -331,22 +331,23 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
                 double divisor = 1.0;
-                if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS || SOLE_E25)
+                if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS || SOLE_E25) {
                     if(!TRUE_ELLIPTICAL) // TRUE ELLIPTICAL uses actual cadence value
                     divisor = 2.0;
                 
-                // For devices that don't send cumulative stride count (like TRUE_ELLIPTICAL),
-                // calculate step count from cadence changes BEFORE updating cadence
-                if(TRUE_ELLIPTICAL && !Flags.strideCount) {
-                    evaluateStepCount();
-                }
-                
-                uint16_t readCadence = ((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
-                                       (uint16_t)((uint8_t)lastPacket.at(index));
-
-                if(!TRUE_ELLIPTICAL || readCadence != 0xFFFF) {
-                     Cadence = ((double)readCadence / divisor) * cadence_gain + cadence_offset;
-                }
+                  // For devices that don't send cumulative stride count (like TRUE_ELLIPTICAL),
+                  // calculate step count from cadence changes BEFORE updating cadence
+                  if(TRUE_ELLIPTICAL && !Flags.strideCount) {
+                      evaluateStepCount();
+                  }
+                  
+                  uint16_t readCadence = ((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                         (uint16_t)((uint8_t)lastPacket.at(index));
+  
+                  if(!TRUE_ELLIPTICAL || readCadence != 0xFFFF) {
+                       Cadence = ((double)readCadence / divisor) * cadence_gain + cadence_offset;
+                  }
+              }
             }
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
