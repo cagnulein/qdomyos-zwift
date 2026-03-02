@@ -617,8 +617,7 @@ import Qt.labs.platform 1.1
             property bool ss2k_peloton: false
 
             // from version 2.12.16
-            property string computrainer_serialport: ""
-            property string daumbike_serialport: ""
+            property string computrainer_serialport: ""            
 
             // from version 2.12.18
             property bool strava_virtual_activity: true
@@ -1289,6 +1288,7 @@ import Qt.labs.platform 1.1
             property bool proform_bike_325_csx_PFEX439210INT_0: false
             property bool proform_carbon_tlx_treadmill: false
             property bool nordictrack_vr21: false
+			property string daumbike_serialport: ""
         }
 
 
