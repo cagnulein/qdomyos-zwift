@@ -9469,6 +9469,7 @@ void homeform::sendMail() {
         MimeInlineFile *pelotonImage = new MimeInlineFile((new QFile(filenameJPG)));
 
         // An unique content id must be setted
+        SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
         pelotonImage->setContentId(filenameJPG);
         pelotonImage->setContentType(QStringLiteral("image/jpg"));
         message->addPart(pelotonImage);
