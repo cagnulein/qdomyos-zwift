@@ -2890,6 +2890,8 @@ class QZSettings {
 
     static const QString proform_csx210;
     static constexpr bool default_proform_csx210 = false;
+    static const QString proform_400ri;
+    static constexpr bool default_proform_400ri = false;
     static const QString proform_bike_325_csx_PFEX439210INT_0;
     static constexpr bool default_proform_bike_325_csx_PFEX439210INT_0 = false;
 

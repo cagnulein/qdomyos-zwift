@@ -340,7 +340,7 @@ void proformbike::forceResistance(resistance_t requestResistance) {
             writeCharacteristic((uint8_t *)res16, sizeof(res16), QStringLiteral("resistance16"), false, true);
             break;
         }
-    } else if (proform_csx210) {
+    } else if (proform_csx210 || proform_400ri) {
         // ProForm CSX210 specific resistance frames (1-16)
         const uint8_t res1[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x02,
                                 0x00, 0x10, 0x01, 0x00, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -1138,6 +1138,18 @@ void proformbike::update() {
         uint8_t noOpData6_proform_cycle_trainer_400[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x81, 0xad, 0x00, 0x00, 0x00,
                                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+        // proform_400ri
+        uint8_t noOpData1_proform_400ri[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t noOpData2_proform_400ri[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x07, 0x13, 0x02, 0x00,
+                                             0x0d, 0x3c, 0x96, 0x31, 0x00, 0x10, 0x40, 0x40, 0x00, 0x80};
+        uint8_t noOpData3_proform_400ri[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x81, 0xbd, 0x00, 0x00, 0x00,
+                                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData4_proform_400ri[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t noOpData5_proform_400ri[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00,
+                                             0x0f, 0x80, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData6_proform_400ri[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0xfd, 0x00,
+                                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
         // proform_hybrid_trainer_PFEL03815
         uint8_t noOpData2_proform_hybrid_trainer_PFEL03815[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x07,
                                                                 0x13, 0x02, 0x00, 0x0d, 0x3c, 0x9e, 0x31,
@@ -1224,6 +1236,8 @@ void proformbike::update() {
         case 0:
             if (nordictrack_gx_4_5_pro) {
                 writeCharacteristic(noOpData1_nordictrack_gx_4_5_pro, sizeof(noOpData1_nordictrack_gx_4_5_pro), QStringLiteral("noOp"));
+            } else if (proform_400ri) {
+                writeCharacteristic(noOpData1_proform_400ri, sizeof(noOpData1_proform_400ri), QStringLiteral("noOp"));
             } else if (proform_csx210) {
                 writeCharacteristic(noOpData1_proform_csx210, sizeof(noOpData1_proform_csx210), QStringLiteral("noOp"));
             } else if (nordictrack_gx_2_7 || nordictrack_vr21 || proform_cycle_trainer_300_ci || proform_hybrid_trainer_PFEL03815 || proform_bike_sb || proform_bike_225_csx || proform_bike_325_csx || proform_bike_325_csx_PFEX439210INT_0 || proform_xbike || proform_225_csx_PFEX32925_INT_0) {
@@ -1237,6 +1251,8 @@ void proformbike::update() {
         case 1:
             if (nordictrack_gx_4_5_pro) {
                 writeCharacteristic(noOpData2_nordictrack_gx_4_5_pro, sizeof(noOpData2_nordictrack_gx_4_5_pro), QStringLiteral("noOp"));
+            } else if (proform_400ri) {
+                writeCharacteristic(noOpData2_proform_400ri, sizeof(noOpData2_proform_400ri), QStringLiteral("noOp"));
             } else if (proform_csx210) {
                 writeCharacteristic(noOpData2_proform_csx210, sizeof(noOpData2_proform_csx210), QStringLiteral("noOp"));
             } else if (proform_xbike) {
@@ -1278,6 +1294,8 @@ void proformbike::update() {
         case 2:
             if (nordictrack_gx_4_5_pro) {
                 writeCharacteristic(noOpData3_nordictrack_gx_4_5_pro, sizeof(noOpData3_nordictrack_gx_4_5_pro), QStringLiteral("noOp"));
+            } else if (proform_400ri) {
+                writeCharacteristic(noOpData3_proform_400ri, sizeof(noOpData3_proform_400ri), QStringLiteral("noOp"));
             } else if (proform_csx210) {
                 writeCharacteristic(noOpData3_proform_csx210, sizeof(noOpData3_proform_csx210), QStringLiteral("noOp"));
             } else if (proform_xbike) {
@@ -1320,6 +1338,11 @@ void proformbike::update() {
             if (nordictrack_gx_4_5_pro) {
                 writeCharacteristic(noOpData4_nordictrack_gx_4_5_pro, sizeof(noOpData4_nordictrack_gx_4_5_pro), QStringLiteral("noOp"));
                 innerWriteResistance();
+            } else if (proform_400ri) {
+                if (innerWriteResistance()) {
+                    QThread::msleep(400);
+                }
+                writeCharacteristic(noOpData4_proform_400ri, sizeof(noOpData4_proform_400ri), QStringLiteral("noOp"));
             } else if (proform_csx210) {
                 writeCharacteristic(noOpData4_proform_csx210, sizeof(noOpData4_proform_csx210), QStringLiteral("noOp"));
             } else if (proform_xbike) {
@@ -1347,6 +1370,8 @@ void proformbike::update() {
         case 4:
             if (nordictrack_gx_4_5_pro) {
                 writeCharacteristic(noOpData5_nordictrack_gx_4_5_pro, sizeof(noOpData5_nordictrack_gx_4_5_pro), QStringLiteral("noOp"));
+            } else if (proform_400ri) {
+                writeCharacteristic(noOpData5_proform_400ri, sizeof(noOpData5_proform_400ri), QStringLiteral("noOp"));
             } else if (proform_csx210) {
                 writeCharacteristic(noOpData5_proform_csx210, sizeof(noOpData5_proform_csx210), QStringLiteral("noOp"));
             } else if (proform_xbike) {
@@ -1382,6 +1407,8 @@ void proformbike::update() {
         case 5:
             if (nordictrack_gx_4_5_pro) {
                 writeCharacteristic(noOpData6_nordictrack_gx_4_5_pro, sizeof(noOpData6_nordictrack_gx_4_5_pro), QStringLiteral("noOp"));
+            } else if (proform_400ri) {
+                writeCharacteristic(noOpData6_proform_400ri, sizeof(noOpData6_proform_400ri), QStringLiteral("noOp"));
             } else if (proform_csx210) {
                 writeCharacteristic(noOpData6_proform_csx210, sizeof(noOpData6_proform_csx210), QStringLiteral("noOp"));
             } else if (proform_studio || proform_tdf_10)
@@ -1444,6 +1471,8 @@ void proformbike::update() {
 
         counterPoll++;
         if (counterPoll > 6) {
+            counterPoll = 0;
+        } else if (counterPoll == 6 && proform_400ri) {
             counterPoll = 0;
         } else if(counterPoll == 6 && (nordictrack_gx_4_5_pro || proform_bike_225_csx || proform_225_csx_PFEX32925_INT_0 || proform_bike_PFEVEX71316_0)) {
             counterPoll = 0;
@@ -2536,6 +2565,7 @@ void proformbike::btinit() {
     proform_xbike = settings.value(QZSettings::proform_xbike, QZSettings::default_proform_xbike).toBool();
     proform_225_csx_PFEX32925_INT_0 = settings.value(QZSettings::proform_225_csx_PFEX32925_INT_0, QZSettings::default_proform_225_csx_PFEX32925_INT_0).toBool();
     proform_csx210 = settings.value(QZSettings::proform_csx210, QZSettings::default_proform_csx210).toBool();
+    proform_400ri = settings.value(QZSettings::proform_400ri, QZSettings::default_proform_400ri).toBool();
     nordictrack_vr21 = settings.value(QZSettings::nordictrack_vr21, QZSettings::default_nordictrack_vr21).toBool();
     proform_bike_325_csx_PFEX439210INT_0 = settings.value(QZSettings::proform_bike_325_csx_PFEX439210INT_0, QZSettings::default_proform_bike_325_csx_PFEX439210INT_0).toBool();
     nordictrack_gx_4_5_pro = settings.value(QZSettings::nordictrack_gx_4_5_pro, QZSettings::default_nordictrack_gx_4_5_pro).toBool();
@@ -2543,7 +2573,7 @@ void proformbike::btinit() {
 
     if(nordictrack_GX4_5_bike || nordictrack_gx_4_5_pro)
         max_resistance = 25;
-    if(proform_csx210)
+    if(proform_csx210 || proform_400ri)
         max_resistance = 16;
     if(nordictrack_vr21)
         max_resistance = 25;
@@ -3363,6 +3393,64 @@ void proformbike::btinit() {
             writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
             QThread::msleep(400);
             writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+        } else if (proform_400ri) {
+            max_resistance = 16;
+
+            uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
+            uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t initData3[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x07, 0x04, 0x80, 0x8b,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t initData4[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x07, 0x04, 0x88, 0x93,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t initData5[] = {0xfe, 0x02, 0x0b, 0x02};
+            uint8_t initData6[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00,
+                                   0x00, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t initData7[] = {0xfe, 0x02, 0x0a, 0x02};
+            uint8_t initData8[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00,
+                                   0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t initData9[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t initData10[] = {0xfe, 0x02, 0x2c, 0x04};
+            uint8_t initData11[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
+                                    0x01, 0x52, 0x74, 0x94, 0xb2, 0xde, 0x08, 0x20, 0x5e, 0x8a};
+            uint8_t initData12[] = {0x01, 0x12, 0xbc, 0xec, 0x1a, 0x46, 0x90, 0xa8, 0xe6, 0x22,
+                                    0x64, 0xa4, 0xe2, 0x2e, 0x98, 0xd0, 0x0e, 0x7a, 0xac, 0x1c};
+            uint8_t initData13[] = {0xff, 0x08, 0x4a, 0xb6, 0x20, 0x98, 0x02, 0x00, 0x00, 0x93,
+                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData13, sizeof(initData13), QStringLiteral("init"), false, false);
             QThread::msleep(400);
         } else if (proform_cycle_trainer_400) {
             max_resistance = 16;

@@ -1289,6 +1289,7 @@ import Qt.labs.platform 1.1
             property bool proform_carbon_tlx_treadmill: false
             property bool nordictrack_vr21: false
             property bool gymstick_gx6_0_elliptical: false
+            property bool proform_400ri: false
         }
 
 
@@ -4233,7 +4234,8 @@ import Qt.labs.platform 1.1
                                     "Proform CSX210",
                                     "Nordictrack GX 4.5 Pro",
                                     "Proform 325 CSX PFEX439210 INT.0",
-                                    "NordicTrack VR21"
+                                    "NordicTrack VR21",
+                                    "Proform 400ri"
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -4272,7 +4274,8 @@ import Qt.labs.platform 1.1
                                                     settings.proform_csx210 ? 19 : 
                                                     settings.nordictrack_gx_4_5_pro ? 20 :
                                                     settings.proform_bike_325_csx_PFEX439210INT_0 ? 21 : 
-                                                    settings.nordictrack_vr21 ? 22 : 0;
+                                                    settings.nordictrack_vr21 ? 22 :
+                                                    settings.proform_400ri ? 23 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -4306,6 +4309,7 @@ import Qt.labs.platform 1.1
                                     settings.proform_xbike = false;
                                     settings.proform_225_csx_PFEX32925_INT_0 = false;
                                     settings.proform_csx210 = false;
+                                    settings.proform_400ri = false;
                                     settings.nordictrack_vr21 = false;
                                     settings.proform_bike_325_csx_PFEX439210INT_0 = false;
                                     settings.nordictrack_gx_4_5_pro = false;
@@ -4334,6 +4338,7 @@ import Qt.labs.platform 1.1
                                         case 20: settings.nordictrack_gx_4_5_pro = true; break;
                                         case 21: settings.proform_bike_325_csx_PFEX439210INT_0 = true; break;
                                         case 22: settings.nordictrack_vr21 = true; break;
+                                        case 23: settings.proform_400ri = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
