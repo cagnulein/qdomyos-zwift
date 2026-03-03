@@ -1288,6 +1288,7 @@ import Qt.labs.platform 1.1
             property bool proform_bike_325_csx_PFEX439210INT_0: false
             property bool proform_carbon_tlx_treadmill: false
             property bool nordictrack_vr21: false
+            property bool gymstick_gx6_0_elliptical: false
         }
 
 
@@ -10529,6 +10530,20 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+                    IndicatorOnlySwitch {
+                        id: gymstickGX60EllipticalDelegate
+                        text: qsTr("Gymstick GX6.0")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.gymstick_gx6_0_elliptical
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.gymstick_gx6_0_elliptical = checked; window.settings_restart_to_apply = true; }
                     }
 
                     AccordionElement {
