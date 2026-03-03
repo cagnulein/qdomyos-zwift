@@ -1,7 +1,7 @@
 #include "daumbike.h"
 #include "ios/lockscreen.h"
 #include "keepawakehelper.h"
-#include "virtualbike.h"
+#include "virtualdevices/virtualbike.h"
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
