@@ -34,7 +34,8 @@
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
-#include <QtAndroid>
+#include <QCoreApplication>
+#include <QJniObject>
 #endif
 
 #ifdef Q_OS_MACOS
@@ -554,9 +555,10 @@ int main(int argc, char *argv[]) {
     lockscreen::nslog(QString("quick_action profile " + profileName).toLatin1());
 #endif
 #else
-    QAndroidJniObject javaPath = QAndroidJniObject::fromString(homeform::getWritableAppDir());
-    QAndroidJniObject r = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Shortcuts", "getProfileExtras",
-                                                "(Landroid/content/Context;)Ljava/lang/String;", QtAndroid::androidContext().object());
+    QJniObject javaPath = QJniObject::fromString(homeform::getWritableAppDir());
+    QJniObject context = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+    QJniObject r = QJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Shortcuts", "getProfileExtras",
+                                                "(Landroid/content/Context;)Ljava/lang/String;", context.object());
     profileName = r.toString();
 #endif
     
@@ -751,69 +753,49 @@ int main(int argc, char *argv[]) {
                       settings.value(QZSettings::app_opening, QZSettings::default_app_opening).toInt() + 1);
 
 #if defined(Q_OS_ANDROID)
-    auto result = QtAndroid::checkPermission(QString("android.permission.READ_EXTERNAL_STORAGE"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.READ_EXTERNAL_STORAGE"}));
-        if (resultHash["android.permission.READ_EXTERNAL_STORAGE"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "READ_EXTERNAL_STORAGE denied!";
+    // Qt6 permission handling
+    // In Qt6, we use QJniObject for Android permission handling
+    QStringList permissions = {
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_FINE_LOCATION", 
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.BLUETOOTH_ADVERTISE", 
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.POST_NOTIFICATIONS"
+    };
+    
+    for (const QString &permission : permissions) {
+        // Check if permission is already granted
+        auto result = QJniObject::callStaticMethod<jboolean>(
+            "androidx/core/content/ContextCompat", 
+            "checkSelfPermission", 
+            "(Landroid/content/Context;Ljava/lang/String;)I", 
+            QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;").object(),
+            QJniObject::fromString(permission).object<jstring>()
+        );
+        
+        if (result != 0) { // PERMISSION_GRANTED = 0
+            qDebug() << "Requesting permission:" << permission;
+            // Request permission - Qt6 approach using JNI
+            // Create Java string array manually
+            QJniEnvironment env;
+            jobjectArray jPermissionArray = env.jniEnv()->NewObjectArray(1, env.jniEnv()->FindClass("java/lang/String"), nullptr);
+            env.jniEnv()->SetObjectArrayElement(jPermissionArray, 0, QJniObject::fromString(permission).object<jstring>());
+            
+            QJniObject::callStaticMethod<void>(
+                "androidx/core/app/ActivityCompat",
+                "requestPermissions",
+                "(Landroid/app/Activity;[Ljava/lang/String;I)V",
+                QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "activity", "()Landroid/app/Activity;").object(),
+                jPermissionArray,
+                1000 // request code
+            );
+        } else {
+            qDebug() << "Permission already granted:" << permission;
+        }
     }
-
-    result = QtAndroid::checkPermission(QString("android.permission.ACCESS_FINE_LOCATION"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.ACCESS_FINE_LOCATION"}));
-        if (resultHash["android.permission.ACCESS_FINE_LOCATION"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "ACCESS_FINE_LOCATION denied!";
-    }
-
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH"}));
-        if (resultHash["android.permission.BLUETOOTH"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH denied!";
-    }
-
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_ADMIN"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_ADMIN"}));
-        if (resultHash["android.permission.BLUETOOTH_ADMIN"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH_ADMIN denied!";
-    }
-
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_SCAN"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_SCAN"}));
-        if (resultHash["android.permission.BLUETOOTH_SCAN"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH_SCAN denied!";
-    }
-
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_ADVERTISE"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_ADVERTISE"}));
-        if (resultHash["android.permission.BLUETOOTH_ADVERTISE"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH_ADVERTISE denied!";
-    }
-
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_CONNECT"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_CONNECT"}));
-        if (resultHash["android.permission.BLUETOOTH_CONNECT"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH_CONNECT denied!";
-    }
-
-    result = QtAndroid::checkPermission(QString("android.permission.POST_NOTIFICATIONS"));
-    if (result == QtAndroid::PermissionResult::Denied) {
-        QtAndroid::PermissionResultMap resultHash =
-            QtAndroid::requestPermissionsSync(QStringList({"android.permission.POST_NOTIFICATIONS"}));
-        if (resultHash["android.permission.POST_NOTIFICATIONS"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "POST_NOTIFICATIONS denied!";
-    }    
 #endif
 
     /* test virtual echelon
@@ -880,11 +862,6 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_ANDROID
         engine.rootContext()->setContextProperty("fontManager", &fontManager);
 #endif
-        // Expose FileSearcher for fast recursive file searching
-        FileSearcher fileSearcher;
-        engine.rootContext()->setContextProperty("fileSearcher", &fileSearcher);
-
-        engine.load(url);
         homeform *h = new homeform(&engine, &bl);
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,
                          &homeform::aboutToQuit); // NOTE: clazy-unneeded-cast

@@ -36,6 +36,10 @@ elitesquarecontroller::elitesquarecontroller(bluetoothdevice *parentDevice) {
 }
 
 void elitesquarecontroller::update() {
+
+    if (!m_control)
+        return;
+
     // Just a simple heartbeat check - no handshake needed for Elite Square
     if (m_control && m_control->state() == QLowEnergyController::UnconnectedState) {
         // Try to reconnect if disconnected
@@ -80,6 +84,7 @@ void elitesquarecontroller::parseButtonData(const QByteArray &data) {
     if (data.size() < 11) {
         qDebug() << QStringLiteral("Invalid button data size: ") << data.size();
         return;
+
     }
 
     // Log the hex data for better debugging
@@ -161,26 +166,29 @@ void elitesquarecontroller::stateChanged(QLowEnergyService::ServiceState state) 
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
-        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+        if (s->state() != QLowEnergyService::RemoteServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
-        }
+
+    }
     }
 
-    if (state != QLowEnergyService::ServiceState::ServiceDiscovered) {
+    if (state != QLowEnergyService::ServiceState::RemoteServiceDiscovered) {
         qDebug() << QStringLiteral("ignoring this state");
         return;
+
     }
 
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+        if (s->state() == QLowEnergyService::RemoteServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &elitesquarecontroller::characteristicChanged);
-            connect(
-                s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
-                this, &elitesquarecontroller::errorService);
+            
+            // Updated for Qt6: Use errorOccurred instead of error signal
+            connect(s, &QLowEnergyService::errorOccurred, this, &elitesquarecontroller::errorService);
+            
             connect(s, &QLowEnergyService::descriptorWritten, this, &elitesquarecontroller::descriptorWritten);
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
@@ -200,8 +208,8 @@ void elitesquarecontroller::stateChanged(QLowEnergyService::ServiceState state) 
                             QByteArray descriptor;
                             descriptor.append((char)0x01);
                             descriptor.append((char)0x00);
-                            if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                                s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                            if (c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).isValid()) {
+                                s->writeDescriptor(c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
                                 connectionEstablished = true;
                                 qDebug() << QStringLiteral("Elite Square notification subscribed!");
                             } else {
@@ -257,30 +265,32 @@ void elitesquarecontroller::deviceDiscovered(const QBluetoothDeviceInfo &device)
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &elitesquarecontroller::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &elitesquarecontroller::serviceScanDone);
-        connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, &elitesquarecontroller::error);
+        
+        // Updated for Qt6: Use errorOccurred instead of error signal
+        connect(m_control, &QLowEnergyController::errorOccurred, this, &elitesquarecontroller::error);
+        
         connect(m_control, &QLowEnergyController::stateChanged, this, &elitesquarecontroller::controllerStateChanged);
 
-        connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, [this](QLowEnergyController::Error error) {
-                    Q_UNUSED(error);
-                    Q_UNUSED(this);
-                    emit debug(QStringLiteral("Cannot connect to Elite Square device."));
-                    emit disconnected();
-                });
+        // Updated for Qt6: Use errorOccurred instead of error signal
+        connect(m_control, &QLowEnergyController::errorOccurred, this, [this](QLowEnergyController::Error error) {
+            Q_UNUSED(error);
+            Q_UNUSED(this);
+            emit debug(QStringLiteral("Cannot connect to Elite Square device."));
+            emit disconnected();
+        });
+        
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
-                    Q_UNUSED(this);
-                    emit debug(QStringLiteral("Elite Square controller connected. Searching services..."));
-                    m_control->discoverServices();
-                });
+            Q_UNUSED(this);
+            emit debug(QStringLiteral("Elite Square controller connected. Searching services..."));
+            m_control->discoverServices();
+        });
+        
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
-                    Q_UNUSED(this);
-                    emit debug(QStringLiteral("Elite Square controller disconnected"));
-                    connectionEstablished = false;
-                    emit disconnected();
-                });
+            Q_UNUSED(this);
+            emit debug(QStringLiteral("Elite Square controller disconnected"));
+            connectionEstablished = false;
+            emit disconnected();
+        });
 
         // Connect to the device
         m_control->connectToDevice();
