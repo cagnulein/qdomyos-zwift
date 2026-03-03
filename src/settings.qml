@@ -617,7 +617,7 @@ import Qt.labs.platform 1.1
             property bool ss2k_peloton: false
 
             // from version 2.12.16
-            property string computrainer_serialport: ""
+            property string computrainer_serialport: ""            
 
             // from version 2.12.18
             property bool strava_virtual_activity: true
@@ -1288,6 +1288,7 @@ import Qt.labs.platform 1.1
             property bool proform_bike_325_csx_PFEX439210INT_0: false
             property bool proform_carbon_tlx_treadmill: false
             property bool nordictrack_vr21: false
+			property string daumbike_serialport: ""
         }
 
 
@@ -4483,6 +4484,37 @@ import Qt.labs.platform 1.1
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: { settings.computrainer_serialport = computrainerSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            }
+                        }
+                    }
+
+                    AccordionElement {
+                        id: daumBikeAccordion
+                        title: qsTr("Daum Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labeldaumBikeSerialPort
+                                text: qsTr("Serial Port:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: daumbikeSerialPortTextField
+                                text: settings.daumbike_serialport
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onAccepted: settings.daumbike_serialport = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okdaumBikeSerialPortButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.daumbike_serialport = daumbikeSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                             }
                         }
                     }

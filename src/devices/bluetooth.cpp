@@ -520,6 +520,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString proform_rower_ip = settings.value(QZSettings::proform_rower_ip, QZSettings::default_proform_rower_ip).toString();
     QString computrainerSerialPort =
         settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    QString daumBikeSerialPort =
+        settings.value(QZSettings::daumbike_serialport, QZSettings::default_daumbike_serialport).toString();
+#endif
     QString kettlerUsbSerialPort =
         settings.value(QZSettings::kettler_usb_serialport, QZSettings::default_kettler_usb_serialport).toString();
     QString csaferowerSerialPort = settings.value(QZSettings::csafe_rower, QZSettings::default_csafe_rower).toString();
@@ -849,6 +853,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(computrainerBike);
+#if !defined(Q_OS_ANDROID)
+            } else if (!daumBikeSerialPort.isEmpty() && !daumBike) {
+                this->stopDiscovery();
+                daumBike = new daumbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(daumBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                connect(daumBike, &daumbike::debug, this, &bluetooth::debug);
+                daumBike->deviceDiscovered(b);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(daumBike);
+#endif
             } else if (!kettlerUsbSerialPort.isEmpty() && !kettlerUsbBike) {
                 this->stopDiscovery();
                 kettlerUsbBike =
@@ -3872,6 +3889,13 @@ void bluetooth::restart() {
         delete computrainerBike;
         computrainerBike = nullptr;
     }
+#if !defined(Q_OS_ANDROID)
+    if (daumBike) {
+
+        delete daumBike;
+        daumBike = nullptr;
+    }
+#endif
     if (kettlerUsbBike) {
 
         delete kettlerUsbBike;
@@ -4236,6 +4260,10 @@ bluetoothdevice *bluetooth::device() {
 #ifndef Q_OS_IOS
     } else if (computrainerBike) {
         return computrainerBike;
+#if !defined(Q_OS_ANDROID)
+    } else if (daumBike) {
+        return daumBike;
+#endif
     } else if (kettlerUsbBike) {
         return kettlerUsbBike;
     } else if (csafeRower) {

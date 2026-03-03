@@ -38,6 +38,9 @@
 #include "devices/csaferower/csaferower.h"
 #include "devices/csafeelliptical/csafeelliptical.h"
 #endif
+#if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID)
+#include "devices/daumbike/daumbike.h"
+#endif
 #include "devices/concept2skierg/concept2skierg.h"
 #include "devices/crossrope/crossrope.h"
 #include "devices/cscbike/cscbike.h"
@@ -199,6 +202,9 @@ class bluetooth : public QObject, public SignalHandler {
     kettlerusbbike *kettlerUsbBike = nullptr;
     csaferower *csafeRower = nullptr;
     csafeelliptical *csafeElliptical = nullptr;
+#endif
+#if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID)
+    daumbike *daumBike = nullptr;
 #endif
     concept2skierg *concept2Skierg = nullptr;
     cycleopsphantombike *cycleopsphantomBike = nullptr;

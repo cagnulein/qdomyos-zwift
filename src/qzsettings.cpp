@@ -613,6 +613,8 @@ const QString QZSettings::domyos_bike_500_profile_v1 = QStringLiteral("domyos_bi
 const QString QZSettings::ss2k_peloton = QStringLiteral("ss2k_peloton");
 const QString QZSettings::computrainer_serialport = QStringLiteral("computrainer_serialport");
 const QString QZSettings::default_computrainer_serialport = QStringLiteral("");
+const QString QZSettings::daumbike_serialport = QStringLiteral("daumbike_serialport");
+const QString QZSettings::default_daumbike_serialport = QStringLiteral("");
 const QString QZSettings::kettler_usb_serialport = QStringLiteral("kettler_usb_serialport");
 const QString QZSettings::default_kettler_usb_serialport = QStringLiteral("");
 const QString QZSettings::kettler_usb_baudrate = QStringLiteral("kettler_usb_baudrate");
@@ -1062,7 +1064,7 @@ const QString QZSettings::step_gain = QStringLiteral("step_gain");
 const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform_carbon_tlx_treadmill");
 
 
-const uint32_t allSettingsCount = 865;
+const uint32_t allSettingsCount = 866;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1557,6 +1559,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::domyos_bike_500_profile_v1, QZSettings::domyos_bike_500_profile_v1},
     {QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton},
     {QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport},
+    {QZSettings::daumbike_serialport, QZSettings::default_daumbike_serialport},
     {QZSettings::kettler_usb_serialport, QZSettings::default_kettler_usb_serialport},
     {QZSettings::kettler_usb_baudrate, QZSettings::default_kettler_usb_baudrate},
     {QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity},
