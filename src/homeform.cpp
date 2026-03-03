@@ -9894,6 +9894,14 @@ void homeform::videoSeekPosition(int ms) {
 #endif
 #define INTERVALSICU_CLIENT_SECRET_S STRINGIFY(INTERVALSICU_CLIENT_SECRET)
 
+static QString normalizeOAuthMacroValue(const QString &value) {
+    QString normalized = value;
+    if (normalized.size() >= 2 && normalized.startsWith('\"') && normalized.endsWith('\"')) {
+        normalized = normalized.mid(1, normalized.size() - 2);
+    }
+    return normalized;
+}
+
 void homeform::intervalsicu_connect_clicked() {
     QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
 
@@ -9932,9 +9940,9 @@ QOAuth2AuthorizationCodeFlow *homeform::intervalsicu_connect() {
         // because Qt's automatic flow doesn't work correctly with Intervals.icu API
         intervalsicu->setAccessTokenUrl(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
 
-        intervalsicu->setClientIdentifier(QStringLiteral(INTERVALSICU_CLIENT_ID_S));
+        intervalsicu->setClientIdentifier(normalizeOAuthMacroValue(QStringLiteral(INTERVALSICU_CLIENT_ID_S)));
 #ifdef INTERVALSICU_CLIENT_SECRET_S
-        intervalsicu->setClientIdentifierSharedKey(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S));
+        intervalsicu->setClientIdentifierSharedKey(normalizeOAuthMacroValue(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S)));
 #endif
         intervalsicu->setScope(QStringLiteral("ACTIVITY:WRITE,CALENDAR:READ"));
 
@@ -10008,6 +10016,14 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
         intervalsicuAuthCode = values.value("code").toString();
         qDebug() << "Intervals.icu: Authorization code received";
 
+        const QString intervalsClientId = normalizeOAuthMacroValue(QStringLiteral(INTERVALSICU_CLIENT_ID_S));
+        const QString intervalsClientSecret = normalizeOAuthMacroValue(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S));
+        qDebug() << "Intervals.icu: OAuth client diagnostics"
+                 << "client_id=" << intervalsClientId
+                 << "secret_length=" << intervalsClientSecret.length()
+                 << "client_id_is_default=" << (intervalsClientId == QStringLiteral("YOUR_CLIENT_ID"))
+                 << "secret_is_default=" << (intervalsClientSecret == QStringLiteral("YOUR_CLIENT_SECRET"));
+
         // Do manual token exchange like Strava does in replyDataReceived
         // Use the existing intervalsicuManager (already created with SSL configured)
         QString urlstr = QStringLiteral("https://intervals.icu/api/oauth/token");
@@ -10018,9 +10034,9 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
 #endif
 
         QUrlQuery params;
-        params.addQueryItem(QStringLiteral("client_id"), QStringLiteral(INTERVALSICU_CLIENT_ID_S));
+        params.addQueryItem(QStringLiteral("client_id"), intervalsClientId);
 #ifdef INTERVALSICU_CLIENT_SECRET_S
-        params.addQueryItem(QStringLiteral("client_secret"), QStringLiteral(INTERVALSICU_CLIENT_SECRET_S));
+        params.addQueryItem(QStringLiteral("client_secret"), intervalsClientSecret);
 #endif
         params.addQueryItem(QStringLiteral("code"), intervalsicuAuthCode);
         params.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("authorization_code"));
@@ -10056,6 +10072,7 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
                 qDebug() << "Intervals.icu: Network error:" << reply->error();
                 qDebug() << "Intervals.icu: Error string:" << reply->errorString();
                 qDebug() << "Intervals.icu: HTTP status:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+                qDebug() << "Intervals.icu: Error response body:" << QString::fromUtf8(response);
                 setToastRequested("Intervals.icu: Authentication failed");
                 reply->deleteLater();
                 return;
@@ -10153,9 +10170,12 @@ void homeform::intervalsicu_refreshtoken() {
     QNetworkRequest request(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
 
+    const QString intervalsClientId = normalizeOAuthMacroValue(QStringLiteral(INTERVALSICU_CLIENT_ID_S));
+    const QString intervalsClientSecret = normalizeOAuthMacroValue(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S));
+
     QString data;
-    data += QStringLiteral("client_id=" INTERVALSICU_CLIENT_ID_S);
-    data += QStringLiteral("&client_secret=" INTERVALSICU_CLIENT_SECRET_S);
+    data += QStringLiteral("client_id=") + intervalsClientId;
+    data += QStringLiteral("&client_secret=") + intervalsClientSecret;
     data += QStringLiteral("&refresh_token=") + settings.value(QZSettings::intervalsicu_refreshtoken).toString();
     data += QStringLiteral("&grant_type=refresh_token");
 
@@ -10181,6 +10201,10 @@ void homeform::intervalsicu_refreshtoken() {
         }
         qDebug() << "Intervals.icu token refreshed successfully";
     } else {
+        qDebug() << "Intervals.icu refresh HTTP status:"
+                 << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qDebug() << "Intervals.icu refresh error string:" << reply->errorString();
+        qDebug() << "Intervals.icu refresh response body:" << QString::fromUtf8(response);
         qDebug() << "Intervals.icu token refresh failed";
     }
 }
