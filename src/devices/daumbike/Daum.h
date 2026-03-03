@@ -26,7 +26,7 @@
 #include <QThread>
 #include <QTimer>
 
-#if (defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)) && \
+#if (defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID))) && \
     (__has_include(<QSerialPort>) || __has_include(<QtSerialPort/QSerialPort>))
 #define DAUM_HAS_QSERIALPORT 1
 #if __has_include(<QSerialPort>)
