@@ -88,8 +88,21 @@ void ypooelliptical::forceResistance(resistance_t requestResistance) {
     } else {
         uint8_t write[] = {0x02, 0x44, 0x05, 0x01, 0x00, 0x40, 0x03};
 
-        write[3] = (uint8_t)(requestResistance);
-        write[5] = (uint8_t)(0x39 + requestResistance);
+        if (GYMSTICK_GX60) {
+            int16_t delta = (int16_t)requestResistance - (int16_t)Resistance.value();
+            if (delta > 127) {
+                delta = 127;
+            } else if (delta < -128) {
+                delta = -128;
+            }
+
+            write[3] = (uint8_t)(requestResistance);
+            write[4] = (uint8_t)((int8_t)delta);
+            write[5] = write[1] ^ write[2] ^ write[3] ^ write[4];
+        } else {
+            write[3] = (uint8_t)(requestResistance);
+            write[5] = (uint8_t)(0x39 + requestResistance);
+        }
 
         writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
 
@@ -109,7 +122,11 @@ void ypooelliptical::update() {
     }
 
     QSettings settings;
-    bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
+    bool gymstick_gx60_elliptical =
+        settings.value(QZSettings::gymstick_gx6_0_elliptical, QZSettings::default_gymstick_gx6_0_elliptical).toBool();
+    bool iconsole_elliptical =
+        settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool() ||
+        gymstick_gx60_elliptical;
 
     if (initRequest) {
         initRequest = false;
@@ -122,16 +139,26 @@ void ypooelliptical::update() {
             uint8_t init3[] = {0x02, 0x43, 0x01, 0x42, 0x03};
             uint8_t init4[] = {0x02, 0x44, 0x01, 0x45, 0x03};
             uint8_t init5[] = {0x02, 0x44, 0x05, 0x01, 0x00, 0x40, 0x03};
+            uint8_t init6[] = {0x02, 0x44, 0x0A, 0x00, 0x00, 0x00, 0x3C, 0xAA, 0x18, 0x00, 0xC0, 0x03};
+            uint8_t init7[] = {0x02, 0x44, 0x0B, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x4E, 0x03};
+            uint8_t init8[] = {0x02, 0x44, 0x02, 0x46, 0x03};
 
             writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
             writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init2, sizeof(init2), QStringLiteral("init"), false, true);
             writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init3, sizeof(init3), QStringLiteral("init"), false, true);
             writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
             writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init4, sizeof(init4), QStringLiteral("init"), false, true);
-            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init3, sizeof(init3), QStringLiteral("init"), false, true);
-            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init5, sizeof(init5), QStringLiteral("init"), false, true);
-            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
-            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init5, sizeof(init5), QStringLiteral("init"), false, true);
+
+            if (GYMSTICK_GX60) {
+                writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init6, sizeof(init6), QStringLiteral("init"), false, true);
+                writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init7, sizeof(init7), QStringLiteral("init"), false, true);
+                writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init8, sizeof(init8), QStringLiteral("init"), false, true);
+            } else {
+                writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init3, sizeof(init3), QStringLiteral("init"), false, true);
+                writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init5, sizeof(init5), QStringLiteral("init"), false, true);
+                writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
+                writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init5, sizeof(init5), QStringLiteral("init"), false, true);
+            }
         }
         initDone = true;
     } else if (bluetoothDevice.isValid() &&
@@ -215,8 +242,11 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    bool gymstick_gx60_elliptical =
+        settings.value(QZSettings::gymstick_gx6_0_elliptical, QZSettings::default_gymstick_gx6_0_elliptical).toBool();
     bool iconsole_elliptical =
-        settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
+        settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool() ||
+        gymstick_gx60_elliptical;
     double cadence_gain = settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
     double cadence_offset = settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
 
@@ -814,7 +844,11 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
 void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
     QSettings settings;
-    bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();    
+    bool gymstick_gx60_elliptical =
+        settings.value(QZSettings::gymstick_gx6_0_elliptical, QZSettings::default_gymstick_gx6_0_elliptical).toBool();
+    bool iconsole_elliptical =
+        settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool() ||
+        gymstick_gx60_elliptical;
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
@@ -977,7 +1011,11 @@ void ypooelliptical::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &c
 
 void ypooelliptical::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     QSettings settings;
-    bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();    
+    bool gymstick_gx60_elliptical =
+        settings.value(QZSettings::gymstick_gx6_0_elliptical, QZSettings::default_gymstick_gx6_0_elliptical).toBool();
+    bool iconsole_elliptical =
+        settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool() ||
+        gymstick_gx60_elliptical;
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     if (gattCustomService != nullptr) {
@@ -1082,6 +1120,16 @@ void ypooelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         }
 
         QSettings settings;
+        bool gymstick_gx60_elliptical =
+            settings.value(QZSettings::gymstick_gx6_0_elliptical, QZSettings::default_gymstick_gx6_0_elliptical)
+                .toBool();
+        if (gymstick_gx60_elliptical &&
+            (device.name().toUpper().startsWith(QStringLiteral("FS-")) ||
+             device.name().toUpper().startsWith(QStringLiteral("WASHER")))) {
+            GYMSTICK_GX60 = true;
+            qDebug() << "GYMSTICK_GX60 workaround ON!";
+        }
+
         QString ftms_elliptical_setting = settings.value(QZSettings::ftms_elliptical, QZSettings::default_ftms_elliptical).toString();
         if(ftms_elliptical_setting != QStringLiteral("Disabled") && device.name().toUpper() == ftms_elliptical_setting.toUpper()) {
             FTMS = true;
