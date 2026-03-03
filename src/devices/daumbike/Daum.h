@@ -25,8 +25,23 @@
 #include <QString>
 #include <QThread>
 #include <QTimer>
-#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+
+#if (defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)) && \
+    (__has_include(<QSerialPort>) || __has_include(<QtSerialPort/QSerialPort>))
+#define DAUM_HAS_QSERIALPORT 1
+#if __has_include(<QSerialPort>)
 #include <QSerialPort>
+#else
+#include <QtSerialPort/QSerialPort>
+#endif
+#else
+#define DAUM_HAS_QSERIALPORT 0
+#endif
+
+#ifdef Q_OS_ANDROID
+#define DAUM_HAS_ANDROID_USBSERIAL 1
+#else
+#define DAUM_HAS_ANDROID_USBSERIAL 0
 #endif
 
 /*
@@ -89,7 +104,7 @@ class Daum : public QThread {
 
     QTimer *timer_;
     QString serialDeviceName_;
-#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if DAUM_HAS_QSERIALPORT
     QSerialPort *serial_dev_;
 #else
     QObject *serial_dev_;

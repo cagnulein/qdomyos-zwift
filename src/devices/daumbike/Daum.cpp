@@ -21,6 +21,11 @@
 #include <QDate>
 #include <QRegularExpression>
 #include <QTime>
+#if DAUM_HAS_ANDROID_USBSERIAL
+#include <QAndroidJniEnvironment>
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
 
 Daum::Daum(QObject *parent, QString device, QString profile)
     : QThread(parent), timer_(nullptr), serialDeviceName_(device), serial_dev_(nullptr), deviceAddress_(-1),
@@ -48,7 +53,7 @@ int Daum::stop() {
 }
 
 bool Daum::discover(QString dev) {
-#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if DAUM_HAS_QSERIALPORT
     if (!openPort(dev)) {
         return false;
     }
@@ -71,6 +76,22 @@ bool Daum::discover(QString dev) {
     }
     data = s.readAll();
     closePort();
+#elif DAUM_HAS_ANDROID_USBSERIAL
+    if (!openPort(dev)) {
+        return false;
+    }
+
+    QByteArray data;
+    data.append(0x11);
+    data = WriteDataAndGetAnswer(data, 2);
+    if (data.length() < 2 || (int)data[0] != 0x11) {
+        closePort();
+        return false;
+    }
+    closePort();
+#else
+    Q_UNUSED(dev);
+    return false;
 #endif
     return true;
 }
@@ -108,7 +129,7 @@ double Daum::getHeartRate() const {
 
 bool Daum::openPort(QString dev) {
     QMutexLocker locker(&pvars);
-#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if DAUM_HAS_QSERIALPORT
     if (serial_dev_ == nullptr) {
         serial_dev_ = new QSerialPort();
     }
@@ -126,7 +147,15 @@ bool Daum::openPort(QString dev) {
     if (!serial_dev_->open(QSerialPort::ReadWrite)) {
         return false;
     }
-
+#elif DAUM_HAS_ANDROID_USBSERIAL
+    Q_UNUSED(dev);
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "open",
+                                              "(Landroid/content/Context;I)V",
+                                              QtAndroid::androidContext().object(),
+                                              9600);
+#else
+    Q_UNUSED(dev);
+    return false;
 #endif
 
     return true;
@@ -134,7 +163,7 @@ bool Daum::openPort(QString dev) {
 
 bool Daum::closePort() {
     QMutexLocker locker(&pvars);
-#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if DAUM_HAS_QSERIALPORT
     delete serial_dev_;
     serial_dev_ = nullptr;
 #endif
@@ -157,7 +186,7 @@ void Daum::run() {
         }
 
 // discard prev. read data
-#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if DAUM_HAS_QSERIALPORT
         serial_dev_->readAll();
 #endif
     }
@@ -293,7 +322,7 @@ void Daum::requestRealtimeData() {
     // Discard any existing data
     {
         QMutexLocker locker(&pvars);
-#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if DAUM_HAS_QSERIALPORT
         serial_dev_->readAll();
 #endif
         addr = deviceAddress_;
@@ -466,11 +495,10 @@ bool Daum::isPaused() const {
 
 QByteArray Daum::WriteDataAndGetAnswer(QByteArray const &dat, int response_bytes) {
     QMutexLocker locker(&pvars);
-
-#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)
-    QSerialPort &s(*serial_dev_);
-
     QByteArray ret;
+
+#if DAUM_HAS_QSERIALPORT
+    QSerialPort &s(*serial_dev_);
     if (!s.isOpen()) {
         return ret;
     }
@@ -497,6 +525,41 @@ QByteArray Daum::WriteDataAndGetAnswer(QByteArray const &dat, int response_bytes
     }
 
     s.readAll(); // discard additional data
+#elif DAUM_HAS_ANDROID_USBSERIAL
+    QAndroidJniEnvironment env;
+
+    QThread::msleep(serialWriteDelay_);
+    jbyteArray out = env->NewByteArray(dat.size());
+    env->SetByteArrayRegion(out, 0, dat.size(), reinterpret_cast<const jbyte *>(dat.constData()));
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", out);
+    env->DeleteLocalRef(out);
+
+    if (response_bytes > 0) {
+        int retries = 20;
+        do {
+            QAndroidJniObject dd =
+                QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
+            jint len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
+
+            if (len > 0) {
+                jbyteArray d = dd.object<jbyteArray>();
+                jbyte *b = env->GetByteArrayElements(d, 0);
+                int appendLen = qMin((int)len, response_bytes - ret.length());
+                ret.append(reinterpret_cast<const char *>(b), appendLen);
+                env->ReleaseByteArrayElements(d, b, JNI_ABORT);
+            } else {
+                QThread::msleep(50);
+            }
+        } while (--retries > 0 && ret.length() < response_bytes);
+
+        if (retries <= 0 && ret.length() < response_bytes) {
+            qWarning() << "failed to read desired (" << response_bytes << ") data from device. Read: " << ret.length();
+            ret.clear();
+        }
+    }
+#else
+    Q_UNUSED(dat);
+    Q_UNUSED(response_bytes);
 #endif
     return ret;
 }
