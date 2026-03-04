@@ -1,6 +1,7 @@
 #include "bluetooth.h"
 #include "homeform.h"
 #include <QBluetoothLocalDevice>
+#include <QRegularExpression>
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
@@ -712,6 +713,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             }
             const QString deviceName = b.name();
             const QString upperDeviceName = deviceName.toUpper();
+            const bool isConfiguredFtmsRowerDevice =
+                !ftms_rower.contains(QZSettings::default_ftms_rower) &&
+                !deviceName.compare(ftms_rower, Qt::CaseInsensitive);
             bool isRI009R = upperDeviceName.contains(QStringLiteral("RI009R"));
             bool isTrxAppGateUsbBikeTC = false;
             if (upperDeviceName.startsWith(QStringLiteral("TC")) && deviceName.length() == 5) {
@@ -1133,9 +1137,14 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("SF-") && b.name().midRef(3).toInt() > 0) ||
                         b.name().toUpper().startsWith(QStringLiteral("MYELLIPTICAL ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("CARDIOPOWER EEGO")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("TRUE ELLIPTICAL ")) &&
+                         b.name().length() > QStringLiteral("TRUE ELLIPTICAL ").length() &&
+                         QRegularExpression(QStringLiteral("TRUE ELLIPTICAL \\d{3,}$")).match(b.name().toUpper()).hasMatch()) ||  // TRUE ELLIPTICAL followed by digits
                         (b.name().toUpper().startsWith(QStringLiteral("E35")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("E25")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
-                        (b.name().startsWith(QStringLiteral("FS-")) && iconsole_elliptical) ||
+                        (b.name().startsWith(QStringLiteral("FS-")) &&
+                         (iconsole_elliptical || settings.value(QZSettings::gymstick_gx6_0_elliptical,
+                                                               QZSettings::default_gymstick_gx6_0_elliptical).toBool())) ||
                         !b.name().compare(ftms_elliptical, Qt::CaseInsensitive)) && !ypooElliptical && !horizonTreadmill && ftms_bike.contains(QZSettings::default_ftms_bike) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1404,8 +1413,13 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(shuaA5Treadmill);
             } else if (((b.name().toUpper().startsWith(QStringLiteral("TRUE")) &&
-                         !(b.name().toUpper().startsWith(QStringLiteral("TRUE TREADMILL ")) && b.name().length() == 19) &&
-                         !(b.name().toUpper().startsWith(QStringLiteral("TRUE 1000")))) ||
+                        !(b.name().toUpper().startsWith(QStringLiteral("TRUE TREADMILL ")) &&
+                          b.name().length() > QStringLiteral("TRUE TREADMILL ").length() &&
+                          QRegularExpression(QStringLiteral("TRUE TREADMILL \\d{3,}$")).match(b.name().toUpper()).hasMatch()) &&
+                        !(b.name().toUpper().startsWith(QStringLiteral("TRUE ELLIPTICAL ")) &&
+                          b.name().length() > QStringLiteral("TRUE ELLIPTICAL ").length() &&
+                          QRegularExpression(QStringLiteral("TRUE ELLIPTICAL \\d{3,}$")).match(b.name().toUpper()).hasMatch()) &&
+                        !(b.name().toUpper().startsWith(QStringLiteral("TRUE 1000")))) ||
                         b.name().toUpper().startsWith(QStringLiteral("ASSAULT TREADMILL ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("WDWAY")) && b.name().length() == 8) || // WdWay179
                         (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && !gem_module_inclination && !deviceHasService(b, QBluetoothUuid((quint16)0x1814)) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)))) &&
@@ -1551,7 +1565,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("AB300S-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("TF04-")) ||                           // Sport Synology Z5 Treadmill #2415
                         (b.name().toUpper().startsWith(QStringLiteral("TRUE TREADMILL ")) &&
-                         b.name().length() == 19) ||  // TRUE TREADMILL followed by 4 digits (e.g. TRUE TREADMILL 0000)
+                         b.name().length() > QStringLiteral("TRUE TREADMILL ").length() &&
+                         QRegularExpression(QStringLiteral("TRUE TREADMILL \\d{3,}$")).match(b.name().toUpper()).hasMatch()) ||  // TRUE TREADMILL followed by digits
                         (b.name().toUpper().startsWith(QStringLiteral("FIT-")) && !b.name().toUpper().startsWith(QStringLiteral("FIT-BK-"))) ||                            // FIT-1596 and sports tech f37s treadmill #2412
                         b.name().toUpper().startsWith(QStringLiteral("FIT-TM-")) ||                             // FIT-TM- treadmill with real inclination
                         b.name().toUpper().startsWith(QStringLiteral("LJJ-")) ||                            // LJJ-02351A
@@ -1857,6 +1872,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith("SPORT01-") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // Labgrey Magnetic Exercise Bike https://www.amazon.co.uk/dp/B0CXMF1NPY?_encoding=UTF8&psc=1&ref=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&ref_=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&social_share=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&skipTwisterOG=1
                         (b.name().toUpper().startsWith("FS-YK-")) ||
+                        (b.name().toUpper().startsWith("SPEEDBIKE S2")) || // Maxxus Speedbike S2
 						(b.name().toUpper().startsWith("B56-")) || // Titan Life B56 bike
                         (b.name().toUpper().startsWith(QStringLiteral("HT")) && (b.name().length() == 10)) ||
                         (b.name().toUpper().startsWith("ZUMO")) || (b.name().toUpper().startsWith("XS08-")) ||
@@ -2755,7 +2771,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("TUNTURI T80-")) ||   // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("SW-BLE"))) ||       // FTMS
                         (b.name().startsWith(QStringLiteral("BF70")))) &&
-                       !fitshowTreadmill && !iconsole_elliptical && !horizonTreadmill && filter) {
+                       !fitshowTreadmill && !ftmsRower && !isConfiguredFtmsRowerDevice &&
+                       !iconsole_elliptical && !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 fitshowTreadmill = new fitshowtreadmill(this->pollDeviceTime, noConsole, noHeartService);

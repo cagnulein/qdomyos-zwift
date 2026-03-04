@@ -237,6 +237,7 @@ const QString QZSettings::domyos_bike_display_calories = QStringLiteral("domyos_
 const QString QZSettings::domyos_elliptical_speed_ratio = QStringLiteral("domyos_elliptical_speed_ratio");
 const QString QZSettings::eslinker_cadenza = QStringLiteral("eslinker_cadenza");
 const QString QZSettings::eslinker_ypoo = QStringLiteral("eslinker_ypoo");
+const QString QZSettings::gymstick_gx6_0_elliptical = QStringLiteral("gymstick_gx6_0_elliptical");
 const QString QZSettings::echelon_watttable = QStringLiteral("echelon_watttable");
 const QString QZSettings::default_echelon_watttable = QStringLiteral("Echelon");
 const QString QZSettings::proform_wheel_ratio = QStringLiteral("proform_wheel_ratio");
@@ -1053,6 +1054,7 @@ const QString QZSettings::confirm_stop_workout = QStringLiteral("confirm_stop_wo
 const QString QZSettings::height = QStringLiteral("height");
 const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
+const QString QZSettings::nordictrack_vr21 = QStringLiteral("nordictrack_vr21");
 const QString QZSettings::proform_bike_325_csx_PFEX439210INT_0 = QStringLiteral("proform_bike_325_csx_PFEX439210INT_0");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 const QString QZSettings::trainprogram_auto_lap_on_segment = QStringLiteral("trainprogram_auto_lap_on_segment");
@@ -1061,7 +1063,7 @@ const QString QZSettings::step_gain = QStringLiteral("step_gain");
 const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform_carbon_tlx_treadmill");
 
 
-const uint32_t allSettingsCount = 865;
+const uint32_t allSettingsCount = 866;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1250,6 +1252,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio},
     {QZSettings::eslinker_cadenza, QZSettings::default_eslinker_cadenza},
     {QZSettings::eslinker_ypoo, QZSettings::default_eslinker_ypoo},
+    {QZSettings::gymstick_gx6_0_elliptical, QZSettings::default_gymstick_gx6_0_elliptical},
     {QZSettings::echelon_watttable, QZSettings::default_echelon_watttable},
     {QZSettings::proform_wheel_ratio, QZSettings::default_proform_wheel_ratio},
     {QZSettings::proform_tour_de_france_clc, QZSettings::default_proform_tour_de_france_clc},
