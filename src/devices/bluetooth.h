@@ -126,6 +126,7 @@
 #include "devices/sportsplusbike/sportsplusbike.h"
 #include "devices/sportsplusrower/sportsplusrower.h"
 #include "devices/sportstechbike/sportstechbike.h"
+#include "devices/sportstechbike_serial/sportstechbike_serial.h"
 #include "devices/sportstechelliptical/sportstechelliptical.h"
 #include "devices/sportstechrower/sportstechrower.h"
 #include "devices/sramAXSController/sramAXSController.h"
@@ -250,6 +251,7 @@ class bluetooth : public QObject, public SignalHandler {
     schwinnic4bike *schwinnIC4Bike = nullptr;
     technogymbike* technogymBike = nullptr;
     sportstechbike *sportsTechBike = nullptr;
+    sportstechbike_serial *sportsTechBikeSerial = nullptr;
     sportstechelliptical *sportsTechElliptical = nullptr;
     sportstechrower *sportsTechRower = nullptr;
     sportsplusbike *sportsPlusBike = nullptr;

@@ -522,6 +522,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
     QString kettlerUsbSerialPort =
         settings.value(QZSettings::kettler_usb_serialport, QZSettings::default_kettler_usb_serialport).toString();
+#ifdef Q_OS_ANDROID
+    QString sportstechSerialPort =
+        settings.value(QZSettings::sportstech_serialport, QZSettings::default_sportstech_serialport).toString();
+#endif
     QString csaferowerSerialPort = settings.value(QZSettings::csafe_rower, QZSettings::default_csafe_rower).toString();
     QString csafeellipticalSerialPort =
         settings.value(QZSettings::csafe_elliptical_port, QZSettings::default_csafe_elliptical_port).toString();
@@ -862,6 +866,21 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(kettlerUsbBike);
+#ifdef Q_OS_ANDROID
+            } else if (!sportstechSerialPort.isEmpty() && !sportsTechBikeSerial) {
+                this->stopDiscovery();
+                sportsTechBikeSerial =
+                    new sportstechbike_serial(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(sportsTechBikeSerial, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(sportsTechBikeSerial, &sportstechbike_serial::debug, this, &bluetooth::debug);
+                sportsTechBikeSerial->deviceDiscovered(b);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(sportsTechBikeSerial);
+#endif
             } else if (!csaferowerSerialPort.isEmpty() && !csafeRower) {
                 this->stopDiscovery();
                 csafeRower = new csaferower(noWriteResistance, noHeartService, false);
@@ -3838,6 +3857,11 @@ void bluetooth::restart() {
         delete sportsTechBike;
         sportsTechBike = nullptr;
     }
+    if (sportsTechBikeSerial) {
+
+        delete sportsTechBikeSerial;
+        sportsTechBikeSerial = nullptr;
+    }
     if (sportsTechElliptical) {
 
         delete sportsTechElliptical;
@@ -4197,6 +4221,8 @@ bluetoothdevice *bluetooth::device() {
         return schwinn170Bike;
     } else if (sportsTechBike) {
         return sportsTechBike;
+    } else if (sportsTechBikeSerial) {
+        return sportsTechBikeSerial;
     } else if (sportsTechElliptical) {
         return sportsTechElliptical;
     } else if (sportsTechRower) {
