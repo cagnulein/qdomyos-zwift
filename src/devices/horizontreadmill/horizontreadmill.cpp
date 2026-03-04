@@ -2421,10 +2421,11 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify &&
                     // if it's a FTMS treadmill and has FTMS and/or RSC service too
-                    ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid())
+                     ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid())
                        || (s->serviceUuid() == QBluetoothUuid::RunningSpeedAndCadence))
                       && !gattCustomService) ||
-                     (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()))) {
+                     (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid())) &&
+                    (!lifefitness_lf_treadmill || c.uuid() == _gattTreadmillDataId)) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
@@ -2442,7 +2443,8 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate &&
                                                                                                                       // if it's a FTMS treadmill and has FTMS and/or RSC service too
                            ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid()))
-                             && !gattCustomService))) {
+                             && !gattCustomService)) &&
+                           !lifefitness_lf_treadmill) {
                     QByteArray descriptor;
                     descriptor.append((char)0x02);
                     descriptor.append((char)0x00);
@@ -2563,6 +2565,12 @@ void horizontreadmill::serviceScanDone(void) {
     }
 
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
+            // LF FTMS treadmill: use only FTMS service (1826)
+            if (lifefitness_lf_treadmill && s != _FTMSServiceId) {
+                qDebug() << s << "skipping (LF treadmill will use only FTMS 1826)";
+                continue;
+            }
+
             // If DOMYOS without native service, discover only FTMS (1826)
             if (DOMYOS && !hasNativeDomyosService && s != _FTMSServiceId) {
                 qDebug() << s << "skipping (DOMYOS-TC will use only FTMS)";
@@ -2603,19 +2611,25 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         QSettings settings;
         bluetoothDevice = device;
+        const QString upperDeviceName = device.name().toUpper();
+        lifefitness_lf_treadmill = false;
 
-        if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TMP"))) {
+        if (upperDeviceName.startsWith(QStringLiteral("MOBVOI TMP"))) {
             mobvoi_tmp_treadmill = true;
             qDebug() << QStringLiteral("MOBVOI TMP workaround ON!");
-        } else if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
+        } else if (upperDeviceName.startsWith(QStringLiteral("MOBVOI TM"))) {
             mobvoi_treadmill = true;
             qDebug() << QStringLiteral("MOBVOI TM workaround ON!");
-        } else if (device.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL"))) {
+        } else if (upperDeviceName.startsWith(QStringLiteral("KETTLER TREADMILL"))) {
             kettler_treadmill = true;
             qDebug() << QStringLiteral("KETTLER TREADMILL workaround ON!");
-        } else if (device.name().toUpper().startsWith(QStringLiteral("WELLFIT TM"))) {
+        } else if (upperDeviceName.startsWith(QStringLiteral("WELLFIT TM"))) {
             wellfit_treadmill = true;
             qDebug() << QStringLiteral("WELLFIT TREADMILL workaround ON!");
+        } else if (upperDeviceName.startsWith(QStringLiteral("LF")) &&
+                   (device.name().length() == 18 || device.name().length() == 15)) {
+            lifefitness_lf_treadmill = true;
+            qDebug() << QStringLiteral("LIFEFITNESS LF treadmill workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("ANPLUS-"))) {
             anplus_treadmill = true;
             qDebug() << QStringLiteral("ANPLUS TREADMILL workaround ON!");
