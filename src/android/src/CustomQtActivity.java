@@ -1,5 +1,7 @@
 package org.cagnulen.qdomyoszwift;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,11 +16,30 @@ public class CustomQtActivity extends QtActivity {
 
     // Declare the native method that will be implemented in C++
     private static native void onInsetsChanged(int top, int bottom, int left, int right);
+    private static native void nativeOnOAuthCallback(String callbackUrl);
+
+    private void dispatchOAuthCallback(Intent intent) {
+        if (intent == null) {
+            return;
+        }
+
+        Uri data = intent.getData();
+        if (data == null) {
+            return;
+        }
+
+        String url = data.toString();
+        if (url.startsWith("https://robertoviola.cloud/peloton/callback")) {
+            Log.d(TAG, "dispatchOAuthCallback: " + url);
+            nativeOnOAuthCallback(url);
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: CustomQtActivity initialized");
+        dispatchOAuthCallback(getIntent());
 
         // This tells the OS that we want to handle the display cutout area ourselves
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -82,6 +103,13 @@ public class CustomQtActivity extends QtActivity {
                 return v.onApplyWindowInsets(insets);
             }
         });
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        dispatchOAuthCallback(intent);
     }
 
     // This method is still needed for the QML check

@@ -2657,6 +2657,89 @@ void peloton::callbackReceived(const QVariantMap &values) {
     }
 }
 
+void peloton::handleOAuthCallbackUrl(const QUrl &url) {
+#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
+    if (!url.isValid()) {
+        return;
+    }
+
+    if (url.host() != QStringLiteral("robertoviola.cloud") || !url.path().startsWith(QStringLiteral("/peloton/callback"))) {
+        return;
+    }
+
+    QUrlQuery query(url);
+    const QString code = query.queryItemValue(QStringLiteral("code"));
+    if (code.isEmpty()) {
+        return;
+    }
+
+    qDebug() << "Peloton OAuth callback URL received" << url;
+
+    QVariantMap values;
+    values.insert(QZSettings::peloton_code, code);
+    callbackReceived(values);
+
+
+    QNetworkRequest request(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token?")));
+    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    QString data;
+    data += QStringLiteral("client_id=" PELOTON_CLIENT_ID_S);
+    data += QStringLiteral("&code=") + code;
+    data += QStringLiteral("&grant_type=authorization_code");
+    data += QStringLiteral("&redirect_uri=https://robertoviola.cloud/peloton/callback");
+
+    if (manager) {
+        delete manager;
+        manager = nullptr;
+    }
+    manager = new QNetworkAccessManager(this);
+    QNetworkReply *reply = manager->post(request, data.toLatin1());
+
+    QEventLoop loop;
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    if (reply->error() != QNetworkReply::NoError) {
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+        }
+        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        return;
+    }
+
+    QJsonParseError parseError;
+    const QJsonDocument document = QJsonDocument::fromJson(reply->readAll(), &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        qDebug() << tr("JSON parser error") << parseError.errorString();
+        return;
+    }
+
+    tempAccessToken = document[QStringLiteral("access_token")].toString();
+    tempRefreshToken = document[QStringLiteral("refresh_token")].toString();
+    tempExpiresAt = QDateTime::currentDateTime();
+
+    if (tempAccessToken.isEmpty()) {
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+        }
+        return;
+    }
+
+    if(homeform::singleton()) {
+        homeform::singleton()->setPelotonPopupVisible(true);
+        homeform::singleton()->setToastRequested("Peloton Login OK!");
+    }
+
+    if(!timer->isActive()) {
+        peloton_credentials_wrong = false;
+        startEngine();
+    }
+#else
+    Q_UNUSED(url)
+#endif
+}
+
 QOAuth2AuthorizationCodeFlow *peloton::peloton_connect() {
     if (manager) {
 
@@ -2682,11 +2765,13 @@ QOAuth2AuthorizationCodeFlow *peloton::peloton_connect() {
     pelotonOAuth->setAccessTokenUrl(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token")));
     pelotonOAuth->setModifyParametersFunction(
         buildModifyParametersFunction(QUrl(QLatin1String("")), QUrl(QLatin1String(""))));
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     pelotonReplyHandler = new QOAuthHttpServerReplyHandler(QHostAddress(QStringLiteral("127.0.0.1")), 18080, this);
     connect(pelotonReplyHandler, &QOAuthHttpServerReplyHandler::replyDataReceived, this, &peloton::replyDataReceived);
     connect(pelotonReplyHandler, &QOAuthHttpServerReplyHandler::callbackReceived, this, &peloton::callbackReceived);
 
     pelotonOAuth->setReplyHandler(pelotonReplyHandler);
+#endif
 
     return pelotonOAuth;
 }
@@ -2743,9 +2828,17 @@ QAbstractOAuth::ModifyParametersFunction peloton::buildModifyParametersFunction(
             parameters->insert(QStringLiteral("responseType"), QStringLiteral("code")); /* Request refresh token*/
             parameters->insert(QStringLiteral("approval_prompt"),
                                QStringLiteral("force")); /* force user check scope again */
+#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
+            parameters->insert(QStringLiteral("redirect_uri"), QStringLiteral("https://robertoviola.cloud/peloton/callback"));
+#endif
             QByteArray code = parameters->value(QStringLiteral("code")).toByteArray();
             // DON'T TOUCH THIS LINE, THANKS Roberto Viola
             (*parameters)[QStringLiteral("code")] = QUrl::fromPercentEncoding(code); // NOTE: Old code replaced by
+        }
+        if (stage == QAbstractOAuth::Stage::RequestingAccessToken) {
+#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
+            parameters->insert(QStringLiteral("redirect_uri"), QStringLiteral("https://robertoviola.cloud/peloton/callback"));
+#endif
         }
         if (stage == QAbstractOAuth::Stage::RefreshingAccessToken) {
             parameters->insert(QStringLiteral("client_id"), clientIdentifier);

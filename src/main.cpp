@@ -18,6 +18,8 @@
 #include "virtualdevices/virtualtreadmill.h"
 #include <QDir>
 #include <QGuiApplication>
+#include <QFileOpenEvent>
+#include <QEvent>
 #include <QOperatingSystemVersion>
 #include <QQmlApplicationEngine>
 #include <QSettings>
@@ -48,6 +50,29 @@
 #include "osc.h"
 
 #include "handleurl.h"
+
+
+class OAuthCallbackEventFilter : public QObject {
+  public:
+    bool eventFilter(QObject *watched, QEvent *event) override {
+#ifdef Q_OS_IOS
+        Q_UNUSED(watched)
+        if (event->type() == QEvent::FileOpen) {
+            auto *fileEvent = static_cast<QFileOpenEvent *>(event);
+            const QUrl url = fileEvent->url();
+            if (url.isValid() && url.host() == QStringLiteral("robertoviola.cloud") &&
+                url.path().startsWith(QStringLiteral("/peloton/callback")) && homeform::singleton()) {
+                QMetaObject::invokeMethod(homeform::singleton(), "handleOAuthCallbackUrl", Qt::QueuedConnection,
+                                          Q_ARG(QString, url.toString()));
+            }
+        }
+#else
+        Q_UNUSED(watched)
+        Q_UNUSED(event)
+#endif
+        return false;
+    }
+};
 
 bool logs = true;
 bool noWriteResistance = false;
@@ -525,6 +550,9 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif
+
+    OAuthCallbackEventFilter oauthCallbackEventFilter;
+    app->installEventFilter(&oauthCallbackEventFilter);
 #ifdef CHARTJS
     QtWebView::initialize();
 #endif

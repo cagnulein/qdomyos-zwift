@@ -74,3 +74,11 @@ On WordPress/VPS, ensure both files are publicly served as raw JSON with no redi
 - `/apple-app-site-association` (or `/.well-known/apple-app-site-association`)
 
 Recommended approach is to place physical files in webroot and configure web server rewrite exceptions so WordPress does not intercept these paths.
+
+## In-app callback handling
+
+The app now handles `https://robertoviola.cloud/peloton/callback` directly on mobile:
+
+- Android: `CustomQtActivity` forwards incoming App Link intents to C++ (`nativeOnOAuthCallback`).
+- iOS: the Qt app event filter intercepts `QEvent::FileOpen` URL events and forwards them to OAuth handling.
+- C++: Peloton callback URL parsing/exchange is handled in `peloton::handleOAuthCallbackUrl`.

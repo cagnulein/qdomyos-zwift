@@ -1024,6 +1024,7 @@ public:
     void Plus(const QString &);
     void trainprogram_open_clicked(const QUrl &fileName);
     void trainprogram_autostart_requested();
+    void handleOAuthCallbackUrl(const QString &callbackUrl);
 
   private slots:
     void Start();
