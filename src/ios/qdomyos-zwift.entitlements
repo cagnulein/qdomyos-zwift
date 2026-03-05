@@ -10,5 +10,9 @@
 	<array>
 		<string>group.org.cagnulein.qdomyoszwift</string>
 	</array>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:robertoviola.cloud</string>
+	</array>
 </dict>
 </plist>
