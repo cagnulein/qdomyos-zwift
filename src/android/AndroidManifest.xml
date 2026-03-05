@@ -24,7 +24,7 @@
                                             <category android:name="android.intent.category.BROWSABLE" />
                                             <data
                                                 android:scheme="https"
-                                                android:host="qzfitness.com"
+                                                android:host="www.qzfitness.com"
                                                 android:pathPrefix="/peloton/callback" />
                                         </intent-filter>
                                         <meta-data
