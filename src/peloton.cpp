@@ -2663,7 +2663,7 @@ void peloton::handleOAuthCallbackUrl(const QUrl &url) {
         return;
     }
 
-    if (url.host() != QStringLiteral("robertoviola.cloud") || !url.path().startsWith(QStringLiteral("/peloton/callback"))) {
+    if (url.host() != QStringLiteral("qzfitness.com") || !url.path().startsWith(QStringLiteral("/peloton/callback"))) {
         return;
     }
 
@@ -2687,7 +2687,7 @@ void peloton::handleOAuthCallbackUrl(const QUrl &url) {
     data += QStringLiteral("client_id=" PELOTON_CLIENT_ID_S);
     data += QStringLiteral("&code=") + code;
     data += QStringLiteral("&grant_type=authorization_code");
-    data += QStringLiteral("&redirect_uri=https://robertoviola.cloud/peloton/callback");
+    data += QStringLiteral("&redirect_uri=https://qzfitness.com/peloton/callback");
 
     if (manager) {
         delete manager;
@@ -2829,7 +2829,7 @@ QAbstractOAuth::ModifyParametersFunction peloton::buildModifyParametersFunction(
             parameters->insert(QStringLiteral("approval_prompt"),
                                QStringLiteral("force")); /* force user check scope again */
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
-            parameters->insert(QStringLiteral("redirect_uri"), QStringLiteral("https://robertoviola.cloud/peloton/callback"));
+            parameters->insert(QStringLiteral("redirect_uri"), QStringLiteral("https://qzfitness.com/peloton/callback"));
 #endif
             QByteArray code = parameters->value(QStringLiteral("code")).toByteArray();
             // DON'T TOUCH THIS LINE, THANKS Roberto Viola
@@ -2837,7 +2837,7 @@ QAbstractOAuth::ModifyParametersFunction peloton::buildModifyParametersFunction(
         }
         if (stage == QAbstractOAuth::Stage::RequestingAccessToken) {
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
-            parameters->insert(QStringLiteral("redirect_uri"), QStringLiteral("https://robertoviola.cloud/peloton/callback"));
+            parameters->insert(QStringLiteral("redirect_uri"), QStringLiteral("https://qzfitness.com/peloton/callback"));
 #endif
         }
         if (stage == QAbstractOAuth::Stage::RefreshingAccessToken) {

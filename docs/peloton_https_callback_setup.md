@@ -1,4 +1,4 @@
-# Peloton OAuth HTTPS callback setup (robertoviola.cloud)
+# Peloton OAuth HTTPS callback setup (qzfitness.com)
 
 This document describes the mobile-side setup for migrating Peloton OAuth callback URLs to HTTPS with verified deep links.
 
@@ -6,18 +6,18 @@ This document describes the mobile-side setup for migrating Peloton OAuth callba
 
 Use the following callback URL in Peloton OAuth client configuration:
 
-- `https://robertoviola.cloud/peloton/callback`
+- `https://qzfitness.com/peloton/callback`
 
 ## iOS (Universal Links)
 
 The iOS app enables Associated Domains with:
 
-- `applinks:robertoviola.cloud`
+- `applinks:qzfitness.com`
 
 The domain must serve an `apple-app-site-association` file over HTTPS at one of:
 
-- `https://robertoviola.cloud/apple-app-site-association`
-- `https://robertoviola.cloud/.well-known/apple-app-site-association`
+- `https://qzfitness.com/apple-app-site-association`
+- `https://qzfitness.com/.well-known/apple-app-site-association`
 
 Example content:
 
@@ -42,12 +42,12 @@ Example content:
 
 The Android manifest declares an HTTPS App Link for:
 
-- host: `robertoviola.cloud`
+- host: `qzfitness.com`
 - path prefix: `/peloton/callback`
 
 The domain must serve this file exactly:
 
-- `https://robertoviola.cloud/.well-known/assetlinks.json`
+- `https://qzfitness.com/.well-known/assetlinks.json`
 
 Example content (replace certificate fingerprint):
 
@@ -77,7 +77,7 @@ Recommended approach is to place physical files in webroot and configure web ser
 
 ## In-app callback handling
 
-The app now handles `https://robertoviola.cloud/peloton/callback` directly on mobile:
+The app now handles `https://qzfitness.com/peloton/callback` directly on mobile:
 
 - Android: `CustomQtActivity` forwards incoming App Link intents to C++ (`nativeOnOAuthCallback`).
 - iOS: the Qt app event filter intercepts `QEvent::FileOpen` URL events and forwards them to OAuth handling.

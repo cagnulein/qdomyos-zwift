@@ -60,7 +60,7 @@ class OAuthCallbackEventFilter : public QObject {
         if (event->type() == QEvent::FileOpen) {
             auto *fileEvent = static_cast<QFileOpenEvent *>(event);
             const QUrl url = fileEvent->url();
-            if (url.isValid() && url.host() == QStringLiteral("robertoviola.cloud") &&
+            if (url.isValid() && url.host() == QStringLiteral("qzfitness.com") &&
                 url.path().startsWith(QStringLiteral("/peloton/callback")) && homeform::singleton()) {
                 QMetaObject::invokeMethod(homeform::singleton(), "handleOAuthCallbackUrl", Qt::QueuedConnection,
                                           Q_ARG(QString, url.toString()));
