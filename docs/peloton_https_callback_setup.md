@@ -27,7 +27,7 @@ Example content:
     "apps": [],
     "details": [
       {
-        "appID": "<APPLE_TEAM_ID>.org.cagnulein.qdomyoszwift",
+        "appID": "6335M7T29D.org.cagnulein.qdomyoszwift",
         "paths": [
           "/peloton/callback",
           "/peloton/callback/*"
@@ -57,10 +57,10 @@ Example content (replace certificate fingerprint):
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "org.cagnulen.qdomyoszwift",
-      "sha256_cert_fingerprints": [
-        "<RELEASE_KEY_SHA256_FINGERPRINT>"
-      ]
+        "package_name": "org.cagnulen.qdomyoszwift",
+        "sha256_cert_fingerprints": [
+          "FB:87:F4:97:72:0C:07:D4:04:7D:CB:A0:CA:DB:00:35:F8:C6:B0:4C:7D:8D:99:ED:20:2B:78:1E:5B:11:D6:B7"
+        ]
     }
   }
 ]
