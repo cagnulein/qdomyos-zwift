@@ -448,16 +448,37 @@ void toorxtreadmill::readSocket() {
         return;
 
     while (socket->bytesAvailable()) {
-        QByteArray line = socket->readAll();
-        qDebug() << QStringLiteral(" << ") + line.toHex(' ');
+        rxBuffer.append(socket->readAll());
+    }
 
-        if (line.length() == 17 && line.at(1) != 0x27) {
-            elapsed = GetElapsedTimeFromPacket(line);
-            Distance = GetDistanceFromPacket(line);
-            KCal = GetCaloriesFromPacket(line);
-            Speed = GetSpeedFromPacket(line);
-            Inclination = GetInclinationFromPacket(line);
-            Heart = GetHeartRateFromPacket(line);
+    if (rxBuffer.isEmpty())
+        return;
+
+    qDebug() << QStringLiteral(" << ") + rxBuffer.toHex(' ');
+
+    // RFCOMM can coalesce/split frames. Decode as 0x55 + command + payload_len + payload.
+    while (rxBuffer.size() >= 3) {
+        if (static_cast<uint8_t>(rxBuffer.at(0)) != 0x55) {
+            rxBuffer.remove(0, 1);
+            continue;
+        }
+
+        const uint8_t command = static_cast<uint8_t>(rxBuffer.at(1));
+        const int payloadLen = static_cast<uint8_t>(rxBuffer.at(2));
+        const int frameLen = payloadLen + 3;
+        if (rxBuffer.size() < frameLen)
+            break;
+
+        const QByteArray payload = rxBuffer.mid(3, payloadLen);
+        rxBuffer.remove(0, frameLen);
+
+        if (command == 0x0d && payloadLen >= 10) {
+            elapsed = GetElapsedTimeFromPacket(payload);
+            Distance = GetDistanceFromPacket(payload);
+            KCal = GetCaloriesFromPacket(payload);
+            Speed = GetSpeedFromPacket(payload);
+            Inclination = GetInclinationFromPacket(payload);
+            Heart = GetHeartRateFromPacket(payload);
 
             emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
             emit debug(QStringLiteral("Current incline: ") + QString::number(Inclination.value()));
@@ -468,34 +489,34 @@ void toorxtreadmill::readSocket() {
     }
 }
 
-uint8_t toorxtreadmill::GetHeartRateFromPacket(const QByteArray &packet) { return packet.at(16); }
+uint16_t toorxtreadmill::GetElapsedTimeFromPacket(const QByteArray &payload) {
+    return (static_cast<uint8_t>(payload.at(0)) << 8) | static_cast<uint8_t>(payload.at(1));
+}
 
-uint8_t toorxtreadmill::GetInclinationFromPacket(const QByteArray &packet) { return packet.at(15); }
+double toorxtreadmill::GetDistanceFromPacket(const QByteArray &payload) {
+    return static_cast<double>((static_cast<uint8_t>(payload.at(2)) << 8) | static_cast<uint8_t>(payload.at(3))) / 100.0;
+}
 
-double toorxtreadmill::GetSpeedFromPacket(const QByteArray &packet) {
+uint16_t toorxtreadmill::GetCaloriesFromPacket(const QByteArray &payload) {
+    return (static_cast<uint8_t>(payload.at(4)) << 8) | static_cast<uint8_t>(payload.at(5));
+}
+
+double toorxtreadmill::GetSpeedFromPacket(const QByteArray &payload) {
     QSettings settings;
-    // the treadmill send the speed in miles for some models
-    double miles = 1;
-    if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool())
-        miles = 1.60934;
-
-    double convertedData = ((double)((double)((uint8_t)packet.at(13)) * 100.0) + ((double)packet.at(14))) / 100.0;
-    return convertedData * miles;
+    // Some models report speed in miles, keep existing conversion toggle.
+    const double miles = settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool()
+                             ? 1.60934
+                             : 1.0;
+    const double rawSpeed = static_cast<uint8_t>(payload.at(6)) + (static_cast<uint8_t>(payload.at(7)) / 100.0);
+    return rawSpeed * miles;
 }
 
-uint16_t toorxtreadmill::GetCaloriesFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(11) << 8) | packet.at(12);
-    return convertedData;
+uint8_t toorxtreadmill::GetInclinationFromPacket(const QByteArray &payload) {
+    return static_cast<uint8_t>(payload.at(8));
 }
 
-double toorxtreadmill::GetDistanceFromPacket(const QByteArray &packet) {
-    double convertedData = (double)((packet.at(9) << 8) | packet.at(10)) / 100.0;
-    return convertedData;
-}
-
-uint16_t toorxtreadmill::GetElapsedTimeFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
-    return convertedData;
+uint8_t toorxtreadmill::GetHeartRateFromPacket(const QByteArray &payload) {
+    return static_cast<uint8_t>(payload.at(9));
 }
 
 void toorxtreadmill::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
