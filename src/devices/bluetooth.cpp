@@ -1579,6 +1579,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("KS-MC")) ||
                         b.name().toUpper().startsWith(QStringLiteral("FOCUS M3")) ||
                          b.name().toUpper().startsWith(QStringLiteral("ANPIUS-")) ||
+                         b.name().toUpper().startsWith(QStringLiteral("SWALK LITE-")) ||
                          b.name().toUpper().startsWith(QStringLiteral("KICKR RUN")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SPERAX_RM-01")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("TP1")) && b.name().length() == 3) ||
