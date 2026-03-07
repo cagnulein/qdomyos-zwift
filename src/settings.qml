@@ -1265,17 +1265,30 @@ import Qt.labs.platform 1.1
 			property real peloton_treadmill_walking_min_speed: 0.0
 			property real peloton_treadmill_running_min_speed: 0.0
 			property bool trainprogram_auto_lap_on_segment: false
+            
 			property bool power_avg_3s: false
 			property bool tile_power_avg_enabled: false
 			property int tile_power_avg_order: 77
 			property bool life_fitness_ic5: false
 			property bool technogym_bike: false
+            
 			property bool kingsmith_r2_enable_hw_buttons: false
 			property bool treadmill_direct_distance: false
+      
 			property bool domyos_treadmill_ts100: false
 			property bool thinkrider_controller: false
-			property bool weight_kg_unit: false
+			property bool weight_kg_unit: false 
 			property bool virtual_device_rower_pm5: false
+			property bool tile_heart_show_as_percent: false
+			property bool tile_hrv_enabled: false
+			property int tile_hrv_order: 78                 
+            property bool nordictrack_gx_4_5_pro: false            
+            property double step_gain: 1.0
+            property bool sportstech_esx500: false
+            property bool proform_bike_325_csx_PFEX439210INT_0: false
+            property bool proform_carbon_tlx_treadmill: false
+            property bool nordictrack_vr21: false
+            property bool gymstick_gx6_0_elliptical: false
         }
 
 
@@ -3944,6 +3957,20 @@ import Qt.labs.platform 1.1
                             Layout.fillWidth: true
                             onClicked: { settings.sportstech_sx600 = checked; window.settings_restart_to_apply = true; }
                         }
+                        IndicatorOnlySwitch {
+                            id: sportstechEsx500BikeDelegate
+                            text: qsTr("Sportstech ESX500 bike")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sportstech_esx500
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.sportstech_esx500 = checked; window.settings_restart_to_apply = true; }
+                        }
 										   }
                     }
                     AccordionElement {
@@ -4203,7 +4230,10 @@ import Qt.labs.platform 1.1
                                     "TDF 1.0 PFEVEX71316.0",
                                     "Proform XBike",
                                     "Proform 225 CSX PFEX32925 INT.0",
-                                    "Proform CSX210"
+                                    "Proform CSX210",
+                                    "Nordictrack GX 4.5 Pro",
+                                    "Proform 325 CSX PFEX439210 INT.0",
+                                    "NordicTrack VR21"
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -4239,7 +4269,10 @@ import Qt.labs.platform 1.1
                                                     settings.proform_bike_PFEVEX71316_0 ? 16 :
                                                     settings.proform_xbike ? 17 :
                                                     settings.proform_225_csx_PFEX32925_INT_0 ? 18 :
-                                                    settings.proform_csx210 ? 19 : 0;
+                                                    settings.proform_csx210 ? 19 : 
+                                                    settings.nordictrack_gx_4_5_pro ? 20 :
+                                                    settings.proform_bike_325_csx_PFEX439210INT_0 ? 21 : 
+                                                    settings.nordictrack_vr21 ? 22 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -4273,6 +4306,9 @@ import Qt.labs.platform 1.1
                                     settings.proform_xbike = false;
                                     settings.proform_225_csx_PFEX32925_INT_0 = false;
                                     settings.proform_csx210 = false;
+                                    settings.nordictrack_vr21 = false;
+                                    settings.proform_bike_325_csx_PFEX439210INT_0 = false;
+                                    settings.nordictrack_gx_4_5_pro = false;
 
                                     // Set corresponding setting for selected model
                                     switch (currentIndex) {
@@ -4295,6 +4331,9 @@ import Qt.labs.platform 1.1
                                         case 17: settings.proform_xbike = true; break;
                                         case 18: settings.proform_225_csx_PFEX32925_INT_0 = true; break;
                                         case 19: settings.proform_csx210 = true; break;
+                                        case 20: settings.nordictrack_gx_4_5_pro = true; break;
+                                        case 21: settings.proform_bike_325_csx_PFEX439210INT_0 = true; break;
+                                        case 22: settings.nordictrack_vr21 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -8410,6 +8449,44 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
 
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelStepGain
+                            text: qsTr("Step Count Gain:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: stepGainTextField
+                            text: settings.step_gain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.step_gain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okStepGainButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.step_gain = stepGainTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Multiplier applied to the step count calculated from cadence for calibration. Increase above 1.0 to count more steps, decrease below 1.0 to count fewer steps. Default is 1.0.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     NewPageElement {
                         title: qsTr("Inclination Overrides")
                         indicatRectColor: Material.color(Material.Grey)
@@ -8585,6 +8662,7 @@ import Qt.labs.platform 1.1
                                     "NordicTrack Series 7",
                                     "Proform Trainer 9.0 (PFTL69921-INT.4)",
                                     "Proform Sport 3.0",
+                                    "ProForm Carbon TLX PFTL90924C.7",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -8656,7 +8734,8 @@ import Qt.labs.platform 1.1
                                                     settings.proform_treadmill_995i ? 52 :
                                                     settings.nordictrack_series_7 ? 53 :
                                                     settings.proform_trainer_9_0 ? 54 :
-                                                    settings.proform_treadmill_sport_3_0 ? 55 : 0;
+                                                    settings.proform_treadmill_sport_3_0 ? 55 :
+                                                    settings.proform_carbon_tlx_treadmill ? 56 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -8726,6 +8805,7 @@ import Qt.labs.platform 1.1
                                     settings.nordictrack_series_7 = false;
                                     settings.proform_trainer_9_0 = false;
                                     settings.proform_treadmill_sport_3_0 = false;
+                                    settings.proform_carbon_tlx_treadmill = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -8784,6 +8864,7 @@ import Qt.labs.platform 1.1
                                         case 53: settings.nordictrack_series_7 = true; break;
                                         case 54: settings.proform_trainer_9_0 = true; break;
                                         case 55: settings.proform_treadmill_sport_3_0 = true; break;
+                                        case 56: settings.proform_carbon_tlx_treadmill = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -10449,6 +10530,20 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+                    IndicatorOnlySwitch {
+                        id: gymstickGX60EllipticalDelegate
+                        text: qsTr("Gymstick GX6.0")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.gymstick_gx6_0_elliptical
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.gymstick_gx6_0_elliptical = checked; window.settings_restart_to_apply = true; }
                     }
 
                     AccordionElement {

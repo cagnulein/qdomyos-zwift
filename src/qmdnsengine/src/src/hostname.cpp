@@ -26,6 +26,7 @@
 #include <QHostInfo>
 #include <QNetworkAddressEntry>
 #include <QNetworkInterface>
+#include <QSettings>
 
 #include <qmdnsengine/abstractserver.h>
 #include <qmdnsengine/dns.h>
@@ -35,6 +36,7 @@
 #include <qmdnsengine/record.h>
 
 #include "hostname_p.h"
+#include "qzsettings.h"
 
 using namespace QMdnsEngine;
 
@@ -47,10 +49,18 @@ HostnamePrivate::HostnamePrivate(Hostname *hostname, const QByteArray &desired, 
     connect(&registrationTimer, &QTimer::timeout, this, &HostnamePrivate::onRegistrationTimeout);
     connect(&rebroadcastTimer, &QTimer::timeout, this, &HostnamePrivate::onRebroadcastTimeout);
 
+    QSettings settings;
+    bool rouvy_compatibility = settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool();
+
     registrationTimer.setInterval(2 * 1000);
     registrationTimer.setSingleShot(true);
 
-    rebroadcastTimer.setInterval(5 * 1000); // 5 seconds 
+    // Keep mDNS hostname stable during active training sessions.
+    // Frequent rebroadcast triggers repeated probing and may cause "-2" renames on zwift.
+    if(!rouvy_compatibility)
+        rebroadcastTimer.setInterval(30 * 60 * 1000); // 30 minutes
+    else
+        rebroadcastTimer.setInterval(5 * 1000); // 5 seconds 
     rebroadcastTimer.setSingleShot(true);
 
     // Immediately assert the hostname

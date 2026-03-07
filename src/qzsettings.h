@@ -454,6 +454,9 @@ class QZSettings {
     static const QString tile_heart_order;
     static constexpr int default_tile_heart_order = 11;
 
+    static const QString tile_heart_show_as_percent;
+    static constexpr bool default_tile_heart_show_as_percent = false;
+
     static const QString tile_fan_enabled;
     static constexpr bool default_tile_fan_enabled = true;
 
@@ -694,6 +697,8 @@ class QZSettings {
     static constexpr bool default_eslinker_cadenza = true;
     static const QString eslinker_ypoo;
     static constexpr bool default_eslinker_ypoo = false;
+    static const QString gymstick_gx6_0_elliptical;
+    static constexpr bool default_gymstick_gx6_0_elliptical = false;
     /**
      *@brief Choose between the standard and MGARCEA watt table.
      */
@@ -1769,6 +1774,8 @@ class QZSettings {
 
     static const QString sportstech_sx600;
     static constexpr bool default_sportstech_sx600 = false;
+    static const QString sportstech_esx500;
+    static constexpr bool default_sportstech_esx500 = false;
 
     static const QString sole_elliptical_inclination;
     static constexpr bool default_sole_elliptical_inclination = false;
@@ -2066,7 +2073,9 @@ class QZSettings {
     static constexpr bool default_freemotion_coachbike_b22_7 = false;
 
     static const QString proform_cycle_trainer_300_ci;
+    static const QString nordictrack_gx_4_5_pro;
     static constexpr bool default_proform_cycle_trainer_300_ci = false;
+    static constexpr bool default_nordictrack_gx_4_5_pro = false;
 
     static const QString kingsmith_encrypt_g1_walking_pad;
     static constexpr bool default_kingsmith_encrypt_g1_walking_pad = false;
@@ -2835,6 +2844,18 @@ class QZSettings {
     static constexpr int default_tile_negative_inclination_order = 75;
 
     /**
+     * @brief Enable HRV (Heart Rate Variability) tile
+     */
+    static const QString tile_hrv_enabled;
+    static constexpr bool default_tile_hrv_enabled = false;
+
+    /**
+     * @brief Order of HRV tile
+     */
+    static const QString tile_hrv_order;
+    static constexpr int default_tile_hrv_order = 78;
+
+    /**
      * @brief Chart display mode: 0 = both charts, 1 = heart rate only, 2 = power only
      */
     static const QString chart_display_mode;
@@ -2869,6 +2890,11 @@ class QZSettings {
 
     static const QString proform_csx210;
     static constexpr bool default_proform_csx210 = false;
+    static const QString proform_bike_325_csx_PFEX439210INT_0;
+    static constexpr bool default_proform_bike_325_csx_PFEX439210INT_0 = false;
+
+    static const QString nordictrack_vr21;
+    static constexpr bool default_nordictrack_vr21 = false;
 
     /**
      * @brief Enable X-2000 protocol for Skandika Wiri bike (true for X-2000, false for standard protocol)
@@ -2887,6 +2913,15 @@ class QZSettings {
      */
     static const QString kingsmith_r2_enable_hw_buttons;
     static constexpr bool default_kingsmith_r2_enable_hw_buttons = false;
+
+    /**
+     * @brief Gain multiplier applied to step count calculated from cadence for calibration purposes
+     */
+    static const QString step_gain;
+    static constexpr double default_step_gain = 1.0;
+
+    static const QString proform_carbon_tlx_treadmill;
+    static constexpr bool default_proform_carbon_tlx_treadmill = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

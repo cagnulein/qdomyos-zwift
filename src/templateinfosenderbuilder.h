@@ -96,6 +96,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onGetTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onTrainingProgramPreview(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onGetWorkoutPreview(TemplateInfoSender *tempSender);
     void onTrainingProgramOpen(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onTrainingProgramAutostart(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onWorkoutEditorEnv(TemplateInfoSender *tempSender);

@@ -115,6 +115,9 @@ class lockscreen {
 
     // multi-window detection for iPadOS
     static bool isInMultiWindowMode();
+
+    // web view cache
+    static void clearWebViewCache();
 };
 
 #endif // LOCKSCREEN_H
