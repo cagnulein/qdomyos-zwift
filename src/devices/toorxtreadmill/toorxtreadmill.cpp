@@ -411,6 +411,9 @@ void toorxtreadmill::update() {
                     case 12: {
                         const uint8_t start6[] = {0x55, 0x07, 0x01, 0xff};
                         send((char *)start6, sizeof(start6));
+                        // Trigger one final incline write after start sequence completion.
+                        // On some Toorx/BH variants this helps the belt transition from idle to running state.
+                        requestInclination = 1;
                         start_phase = -1;
                         break;
                     }
