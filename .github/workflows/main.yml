@@ -423,6 +423,9 @@ jobs:
       - name: Test
         run: cd tst; GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 ./qdomyos-zwift-tests; cd ..
 
+      - name: Test DirCon loopback integration
+        run: cd tst; GTEST_OUTPUT=xml:test-results/dircon-loopback.xml GTEST_COLOR=1 ./qdomyos-zwift-tests --gtest_filter=DirconLoopbackTestSuite.*; cd ..
+
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: failure()
