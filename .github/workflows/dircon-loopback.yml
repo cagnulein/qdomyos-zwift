@@ -26,14 +26,12 @@ jobs:
 
       - name: Build qdomyos-zwift static library
         run: |
-          cd src
-          qmake
+          qmake src/qdomyos-zwift-lib.pro
           make -j"$(nproc)"
 
       - name: Build test binary
         run: |
-          cd tst
-          qmake
+          qmake tst/qdomyos-zwift-tests.pro
           make -j"$(nproc)"
 
       - name: Run DirCon loopback test (fakebike server -> dircon client)
