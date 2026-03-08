@@ -1,0 +1,42 @@
+name: DirCon loopback integration test
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+jobs:
+  linux-dircon-loopback:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt dependencies
+        run: |
+          sudo apt update -y
+          sudo apt-get install -y \
+            qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools \
+            qtquickcontrols2-5-dev qtconnectivity5-dev qtpositioning5-dev \
+            libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 \
+            libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev \
+            libqt5websockets5 libqt5websockets5-dev \
+            libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql \
+            libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev \
+            libxcb-shape0-dev libxcb-xkb-dev
+
+      - name: Build qdomyos-zwift static library
+        run: |
+          cd src
+          qmake
+          make -j"$(nproc)"
+
+      - name: Build test binary
+        run: |
+          cd tst
+          qmake
+          make -j"$(nproc)"
+
+      - name: Run DirCon loopback test (fakebike server -> dircon client)
+        run: |
+          cd tst
+          ./qdomyos-zwift-tests --gtest_filter=DirconLoopbackTestSuite.*
