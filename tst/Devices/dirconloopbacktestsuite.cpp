@@ -13,6 +13,7 @@
 #include "qzsettings.h"
 
 namespace {
+
 bool waitForCondition(const std::function<bool()> &predicate, int timeoutMs) {
     const QDateTime endTime = QDateTime::currentDateTime().addMSecs(timeoutMs);
     while (QDateTime::currentDateTime() < endTime) {
