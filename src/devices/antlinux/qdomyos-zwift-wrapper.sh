@@ -4,25 +4,10 @@
 ################################################################################
 # QDomyos-Zwift: Universal Runtime Wrapper Script (Multi-Architecture)
 #
-# Part of QDomyos-Zwift project: https://github.com/cagnulein/qdomyos-zwift
-# Contributor: bassai-sho | AI-assisted development | License: GPL-3.0
-#
-# Runtime validation and dependency checker for QDomyos-Zwift with ANT+ support.
-# Auto-detects system architecture (x86-64/ARM64), validates Python 3.11, Qt5,
-# and ANT+ dependencies, then launches the binary in a clean environment to
-# prevent snap/flatpak library conflicts.
-#
-# Platform: Multi-arch Linux (x86-64: Ubuntu 20.04+, Debian 11+)
-#                            (ARM64: Raspberry Pi 3+, Debian/RPi OS)
-# Key checks: Architecture validation, Python 3.11 libs, Qt5 runtime,
-#             QML modules, ANT+ venv/USB permissions
-#
-# Usage:
-#   ./qdomyos-zwift [OPTIONS]
-#   ./qdomyos-zwift -no-gui -ant-footpod    # Headless with ANT+
+# Version: 3.1.1 - Added QML subdirectory support
 ################################################################################
 
-declare -r QZ_WRAPPER_VERSION="3.0.0"
+declare -r QZ_WRAPPER_VERSION="3.1.1"
 
 set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -74,13 +59,6 @@ check_os_version() {
             echo ""
             echo "QDomyos-Zwift v3.0+ requires Ubuntu 24.04 or later."
             echo ""
-            echo -e "${C_YELLOW}Options:${C_RESET}"
-            echo "  1. Upgrade to Ubuntu 24.04 LTS (recommended)"
-            echo "     https://ubuntu.com/download/desktop"
-            echo ""
-            echo "  2. Use legacy v2.x build for Ubuntu 22.04"
-            echo "     https://github.com/cagnulein/qdomyos-zwift/releases"
-            echo ""
             exit 1
         fi
     # Debian 12+ required
@@ -93,18 +71,10 @@ check_os_version() {
             echo -e "${C_RED}╚════════════════════════════════════════════════════════════════════╝${C_RESET}"
             echo ""
             echo -e "${C_YELLOW}Your system:${C_RESET} $os_name"
-            echo -e "${C_YELLOW}Minimum required:${C_RESET} Debian 12 (Bookworm) / Raspberry Pi OS (Bookworm)"
-            echo ""
-            echo "QDomyos-Zwift v3.0+ requires Debian 12 or later."
+            echo -e "${C_YELLOW}Minimum required:${C_RESET} Debian 12 (Bookworm)"
             echo ""
             exit 1
         fi
-    else
-        # Unknown OS - warn but allow
-        echo -e "${C_YELLOW}WARNING: Unsupported OS detected: $os_name${C_RESET}" >&2
-        echo "QDomyos-Zwift is tested on Ubuntu 24.04+ and Debian 12+" >&2
-        echo "Continuing anyway..." >&2
-        echo "" >&2
     fi
     
     return 0
@@ -156,7 +126,6 @@ fi
 check_system_qt5() {
     local qt_missing=()
     
-    # Check for essential Qt5 libraries
     for lib in libQt5Core.so.5 libQt5Qml.so.5 libQt5Quick.so.5 libQt5Widgets.so.5 libQt5Bluetooth.so.5; do
         if ! ldconfig -p 2>/dev/null | grep -q "$lib"; then
             qt_missing+=("$lib")
@@ -174,21 +143,7 @@ check_system_qt5() {
             echo "  ✗ $lib"
         done
         echo ""
-        echo -e "${C_YELLOW}Install required packages:${C_RESET}"
-        echo ""
-        echo "  sudo apt-get update"
-        echo "  sudo apt-get install -y \\"
-        echo "    qtbase5-dev \\"
-        echo "    libqt5qml5 \\"
-        echo "    libqt5quick5 \\"
-        echo "    libqt5widgets5 \\"
-        echo "    libqt5bluetooth5 \\"
-        echo "    libqt5charts5 \\"
-        echo "    libqt5multimedia5 \\"
-        echo "    qml-module-qtquick2 \\"
-        echo "    qml-module-qtquick-controls2"
-        echo ""
-        echo "Then re-run this script."
+        echo "Install with: sudo apt-get install qtbase5-dev libqt5qml5 libqt5quick5 libqt5widgets5"
         echo ""
         exit 1
     fi
@@ -197,10 +152,9 @@ check_system_qt5() {
 }
 
 ################################################################################
-# Python 3.12 Check
+# Python Check
 ################################################################################
 check_python() {
-    # Check for Python 3.12 or 3.11 (Debian 12 uses 3.11)
     local python_found=false
     
     if command -v python3.12 >/dev/null 2>&1; then
@@ -215,7 +169,7 @@ check_python() {
     fi
     
     if [[ "$python_found" == "false" ]]; then
-        ERRORS+=("Python 3.11+ not found - install with: sudo apt-get install python3")
+        ERRORS+=("Python 3.11+ not found")
     fi
 }
 
@@ -227,7 +181,90 @@ if [[ ! -f "$DIR/qdomyos-zwift-bin" ]]; then
 fi
 
 ################################################################################
-# Display Authorization (Auto-enable for root)
+# Detect GUI Mode from Arguments
+################################################################################
+GUI_MODE=false
+for arg in "$@"; do
+    if [[ "$arg" == "-gui" ]]; then
+        GUI_MODE=true
+        break
+    elif [[ "$arg" == "-no-gui" ]]; then
+        GUI_MODE=false
+        break
+    fi
+done
+
+# If no explicit mode, assume GUI if DISPLAY is set
+if [[ "$GUI_MODE" == "false" ]] && [[ -z "$(printf '%s\n' "$@" | grep -E '^-no-gui$')" ]]; then
+    if [[ -n "${DISPLAY:-}" ]] || command -v Xorg >/dev/null 2>&1; then
+        GUI_MODE=true
+    fi
+fi
+
+################################################################################
+# QML Assets Check (GUI Mode Only)
+# Supports both root directory and qml/ subdirectory
+################################################################################
+if [[ "$GUI_MODE" == "true" ]]; then
+    # Check qml/ subdirectory first (preferred structure)
+    QML_DIR="$DIR/qml"
+    if [[ -d "$QML_DIR" ]]; then
+        QML_COUNT=$(find "$QML_DIR" -maxdepth 1 -name "*.qml" -type f 2>/dev/null | wc -l)
+        QML_LOCATION="qml subdirectory"
+        
+        # Set QML import path for subdirectory structure
+        export QML2_IMPORT_PATH="$QML_DIR:${QML2_IMPORT_PATH:-}"
+        
+        # Ensure binary can find main.qml in subdirectory
+        # Some Qt applications look for main.qml in current directory
+        if [[ -f "$QML_DIR/main.qml" ]] && [[ ! -f "$DIR/main.qml" ]]; then
+            # Create symlink to help binary find it
+            ln -sf "qml/main.qml" "$DIR/main.qml" 2>/dev/null || true
+        fi
+    else
+        # Fall back to root directory (legacy structure)
+        QML_COUNT=$(find "$DIR" -maxdepth 1 -name "*.qml" -type f 2>/dev/null | wc -l)
+        QML_LOCATION="root directory"
+    fi
+    
+    if [[ $QML_COUNT -eq 0 ]]; then
+        echo ""
+        echo -e "${C_RED}╔════════════════════════════════════════════════════════════════════╗${C_RESET}"
+        echo -e "${C_RED}║  ERROR: QML UI Assets Missing                                     ║${C_RESET}"
+        echo -e "${C_RED}╚════════════════════════════════════════════════════════════════════╝${C_RESET}"
+        echo ""
+        echo "GUI mode detected, but no *.qml files found in:"
+        echo "  $DIR (root directory)"
+        echo "  $DIR/qml (subdirectory)"
+        echo ""
+        echo -e "${C_YELLOW}This causes the binary to exit silently!${C_RESET}"
+        echo ""
+        echo "The Qt QML engine cannot load the UI without these files."
+        echo "The binary performs a clean abort (exit code 0377/-1)."
+        echo ""
+        echo -e "${C_YELLOW}Solutions:${C_RESET}"
+        echo ""
+        echo "  1. Download complete package with UI files:"
+        echo "     https://github.com/cagnulein/qdomyos-zwift/releases"
+        echo ""
+        echo "     Required files: main.qml, settings.qml, and 40+ other *.qml files"
+        echo "     Preferred location: $DIR/qml/"
+        echo "     Alternative: $DIR/"
+        echo ""
+        echo "  2. Run in headless mode:"
+        echo "     sudo $0 -no-gui -ant-footpod"
+        echo ""
+        exit 1
+    fi
+    
+    # Show where QML files were found
+    if [[ "${VERBOSE:-0}" == "1" ]]; then
+        echo -e "${C_GREEN}Found $QML_COUNT QML files in $QML_LOCATION${C_RESET}" >&2
+    fi
+fi
+
+################################################################################
+# Display Authorization
 ################################################################################
 if [[ "$EUID" -eq 0 ]] && [[ -n "${DISPLAY:-}" ]]; then
     xhost +local:root >/dev/null 2>&1 || true
@@ -251,7 +288,6 @@ fi
 ################################################################################
 # Launch Binary
 ################################################################################
-# Create runtime directory for root if needed
 if [[ "$EUID" -eq 0 ]]; then
     QZ_RUNTIME_DIR="/tmp/runtime-root-qz"
     mkdir -p "$QZ_RUNTIME_DIR"
@@ -260,13 +296,12 @@ else
     QZ_RUNTIME_DIR="/run/user/$(id -u)"
 fi
 
-# Resolve XAUTHORITY
 RESOLVED_XAUTH="${XAUTHORITY:-${USER_HOME}/.Xauthority}"
 if [[ -f "$RESOLVED_XAUTH" ]]; then
     chmod 644 "$RESOLVED_XAUTH" 2>/dev/null || true
 fi
 
-# Set minimal clean environment (no LD_LIBRARY_PATH needed - uses system Qt5)
+# Build environment with QML path if using subdirectory
 LAUNCH_ENV=(
     HOME="$USER_HOME"
     USER="${TARGET_USER}"
@@ -277,6 +312,11 @@ LAUNCH_ENV=(
     XDG_RUNTIME_DIR="$QZ_RUNTIME_DIR"
     DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-}"
 )
+
+# Add QML path if using subdirectory structure
+if [[ -n "${QML2_IMPORT_PATH:-}" ]]; then
+    LAUNCH_ENV+=("QML2_IMPORT_PATH=$QML2_IMPORT_PATH")
+fi
 
 # Signal forwarding
 forward_signal() {
@@ -290,7 +330,7 @@ trap 'forward_signal TERM' TERM
 trap 'forward_signal INT' INT
 trap 'forward_signal QUIT' QUIT
 
-# Launch with clean environment
+# Launch
 setsid env -i "${LAUNCH_ENV[@]}" "$DIR/qdomyos-zwift-bin" "$@" &
 child_pid=$!
 

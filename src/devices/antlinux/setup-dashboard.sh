@@ -18,7 +18,7 @@
 #   sudo ./setup-dashboard.sh
 ################################################################################
 
-declare -r QZ_SETUP_VERSION="3.0.0"
+declare -r QZ_SETUP_VERSION="3.1.1"
 # Initialize critical global variables to satisfy 'set -u'
 UI_FD=2
 _UI_FD_VAR=2
@@ -981,21 +981,24 @@ SVC_PYTHONHOME_STALE=false
 
 # Status grid definition: each entry is "Left Label|Left Key|Right Label|Right Key"
 declare -a STATUS_GRID=(
-    "Python 3.11 Library|python311|User in plugdev Group|plugdev"
+    "Python ${PYTHON_VERSION_MAJOR} Library|python311|User in plugdev|plugdev|ANT+ USB Dongle|ant_dongle"
     "Python Virtual Environment|venv|USB udev Rules|udev_rules"
     "Python PIPs|pkg_pips|lsusb Command|lsusb"
-    "Qt5 Runtime Libraries|qt5_libs|Configuration File|config_file"
-    "QML Modules|qml_modules|QZ Service|qz_service"
-    "Bluetooth Service|bluetooth|ANT+ USB Dongle|ant_dongle"
+    "Qt5 Runtime Libraries|qt5_libs|Config File|config_file"
+    "QML Modules|qml_modules|QML UI Files|qml_files"
+    "Bluetooth Service|bluetooth|QZ Service|qz_service"
 )
+# When set to 1, draw_status_row always renders 3 columns with a consistent
+# full-height vertical divider, even when R2 content is absent.
+STATUS_THREE_COLS=1
 
 # Render the status grid starting at given row (default 6)
 render_status_grid() {
     local start_row=${1:-6}
     local row=$start_row
     for entry in "${STATUS_GRID[@]}"; do
-        IFS='|' read -r L_label L_key R_label R_key <<< "$entry"
-        draw_status_row "$row" "$L_label" "$L_key" "$R_label" "$R_key"
+        IFS='|' read -r L_label L_key R_label R_key R2_label R2_key <<< "$entry"
+        draw_status_row "$row" "$L_label" "$L_key" "$R_label" "$R_key" "$R2_label" "$R2_key"
         ((row++))
     done
 }
@@ -1537,17 +1540,17 @@ init_symbol_cache() {
 }
 
 draw_status_row() {
-    local row=$1 L_label="$2" L_key="$3" R_label="$4" R_key="$5"
+    local row=$1 L_label="$2" L_key="$3" R_label="$4" R_key="$5" R2_label="${6:-}" R2_key="${7:-}"
     
     # --- DYNAMIC LABEL LOGIC FOR PYTHON ---
     if [[ "$L_key" == "python311" ]]; then
         if [[ "${IS_PYENV_INSTALLED:-false}" == "true" ]]; then
-            L_label="Python 3.11 Library (pyenv)"
+            L_label="Python ${DETECTED_PYTHON_VERSION:-$PYTHON_VERSION_MAJOR} Library (pyenv)"
         elif [[ "${IS_PYSYS_INSTALLED:-false}" == "true" ]]; then
-            L_label="Python 3.11 Library (system)"
+            L_label="Python ${DETECTED_PYTHON_VERSION:-$PYTHON_VERSION_MAJOR} Library (system)"
         else
             # Neither installed or not yet checked
-            L_label="Python 3.11 Library"
+            L_label="Python ${DETECTED_PYTHON_VERSION:-$PYTHON_VERSION_MAJOR} Library"
         fi
     fi
     
@@ -1652,18 +1655,64 @@ draw_status_row() {
     # Padding Calc
     local left_w=$(( (INNER_COLS - 3) / 2 ))
     local right_w=$(( INNER_COLS - 3 - left_w ))
-    
+
     local pad_l=$((left_w - L_len))
     [[ $pad_l -lt 0 ]] && pad_l=0
-    
-    local pad_r=$((right_w - R_len))
-    [[ $pad_r -lt 0 ]] && pad_r=0
-    
-    local L_padded R_padded
+
+    local L_padded
     printf -v L_padded "%s%*s" "$L_content" "$pad_l" ""
-    printf -v R_padded "%s%*s" "$R_content" "$pad_r" ""
-    
-    print_at "$row" "${BLUE}║${NC} ${L_padded}${BLUE}│${NC}${R_padded} ${BLUE}║${NC}"
+
+    if [[ "${STATUS_THREE_COLS:-0}" -eq 1 ]]; then
+        # ── 3-column layout: full-height vertical dividers ───────────────────
+        # Layout: ║ L(left_w)│R1(r1_w)│R2(r2_w) ║
+        # Layout: ║(1) sp(1) L │(1) sp(1) R1 │(1) sp(1) R2 ║(1) = 80
+        # Fixed structural chars = 7, so L+R1+R2 = INNER_COLS+2-7
+        # Split 40/30/30: r1=r2=col_total*3/10, left=remainder.
+        # With INNER_COLS=78: col_total=73 → r1=21, r2=21, left=31
+        local col_total=$(( INNER_COLS + 2 - 7 ))
+        local r1_w=$(( col_total * 3 / 10 ))
+        local r2_w=$(( col_total * 3 / 10 ))
+        left_w=$(( col_total - r1_w - r2_w ))
+
+        # Recompute L_padded with the corrected left_w
+        local pad_l_3col=$(( left_w - L_len ))
+        [[ $pad_l_3col -lt 0 ]] && pad_l_3col=0
+        printf -v L_padded "%s%*s" "$L_content" "$pad_l_3col" ""
+
+        # Build R2 content — empty unless this row has a third item
+        local R2_content="" R2_len=0
+        if [[ -n "$R2_key" ]]; then
+            local R2_color; R2_color=$(get_status_label_color "$R2_key")
+            local R2_sym;   R2_sym=$(get_symbol "$R2_key")
+            R2_content="${R2_sym} ${R2_color}${R2_label}${NC}"
+            R2_len=$(( 1 + 1 + ${#R2_label} ))
+        fi
+
+        # In 3-col mode suppress qz_service "(Stopped/Failed/Not Set)" annotation
+        # so R1 label fits comfortably within r1_w chars.
+        if [[ "$R_key" == "qz_service" && $qz_service_extra_len -gt 0 ]]; then
+            local R_sym_plain; R_sym_plain=$(get_symbol "$R_key")
+            local R_color_plain; R_color_plain=$(get_status_label_color "$R_key")
+            R_content="${R_sym_plain} ${R_color_plain}QZ Service${NC}"
+            R_len=$(( 1 + 1 + 10 ))   # sym + space + "QZ Service"
+        fi
+
+        local pad_r1=$(( r1_w - R_len  )); [[ $pad_r1 -lt 0 ]] && pad_r1=0
+        local pad_r2=$(( r2_w - R2_len )); [[ $pad_r2 -lt 0 ]] && pad_r2=0
+
+        local R1_padded R2_padded
+        printf -v R1_padded "%s%*s" "$R_content"  "$pad_r1" ""
+        printf -v R2_padded "%s%*s" "$R2_content" "$pad_r2" ""
+
+        print_at "$row" "${BLUE}║${NC} ${L_padded}${BLUE}│${NC} ${R1_padded}${BLUE}│${NC} ${R2_padded}${BLUE}║${NC}"
+    else
+        # ── Standard 2-column row ────────────────────────────────────────────
+        local pad_r=$((right_w - R_len))
+        [[ $pad_r -lt 0 ]] && pad_r=0
+        local R_padded
+        printf -v R_padded "%s%*s" "$R_content" "$pad_r" ""
+        print_at "$row" "${BLUE}║${NC} ${L_padded}${BLUE}│${NC}${R_padded} ${BLUE}║${NC}"
+    fi
 }
 
 draw_header_config_line() {
@@ -2317,7 +2366,7 @@ update_status_atomic() {
     local row_idx=0
     local start_row=6
     for entry in "${STATUS_GRID[@]}"; do
-        IFS='|' read -r L_label L_key R_label R_key <<< "$entry"
+        IFS='|' read -r L_label L_key R_label R_key R2_label R2_key <<< "$entry"
         local target_row=$(( start_row + row_idx ))
 
         local left_w=$(( (INNER_COLS - 3) / 2 ))
@@ -2327,11 +2376,11 @@ update_status_atomic() {
             # --- DYNAMIC LABEL LOGIC FOR PYTHON (LEFT COLUMN) ---
             if [[ "$L_key" == "python311" ]]; then
                 if [[ "${IS_PYENV_INSTALLED:-false}" == "true" ]]; then
-                    L_label="Python 3.11 Library (pyenv)"
+                    L_label="Python ${DETECTED_PYTHON_VERSION:-$PYTHON_VERSION_MAJOR} Library (pyenv)"
                 elif [[ "${IS_PYSYS_INSTALLED:-false}" == "true" ]]; then
-                    L_label="Python 3.11 Library (system)"
+                    L_label="Python ${DETECTED_PYTHON_VERSION:-$PYTHON_VERSION_MAJOR} Library (system)"
                 else
-                    L_label="Python 3.11 Library"
+                    L_label="Python ${DETECTED_PYTHON_VERSION:-$PYTHON_VERSION_MAJOR} Library"
                 fi
             fi
             # --------------------------------------
@@ -2344,15 +2393,22 @@ update_status_atomic() {
             # Print left half including left border and separator
             print_at_col "$target_row" 1 "${BLUE}║${NC} ${L_padded}${BLUE}│${NC}"
             return 0
-        elif [[ "$R_key" == "$key" ]]; then
+        elif [[ "$R_key" == "$key" || ( -n "$R2_key" && "$R2_key" == "$key" ) ]]; then
+            # Right side of this row — in 3-column mode (or merged row), repaint
+            # the entire row so all sub-columns stay consistent.
+            if [[ -n "$R2_key" || "${STATUS_THREE_COLS:-0}" -eq 1 ]]; then
+                draw_status_row "$target_row" "$L_label" "$L_key" "$R_label" "$R_key" "$R2_label" "$R2_key"
+                return 0
+            fi
+
             # --- DYNAMIC LABEL LOGIC FOR PYTHON (RIGHT COLUMN) ---
             if [[ "$R_key" == "python311" ]]; then
                 if [[ "${IS_PYENV_INSTALLED:-false}" == "true" ]]; then
-                    R_label="Python 3.11 Library (pyenv)"
+                    R_label="Python ${DETECTED_PYTHON_VERSION:-$PYTHON_VERSION_MAJOR} Library (pyenv)"
                 elif [[ "${IS_PYSYS_INSTALLED:-false}" == "true" ]]; then
-                    R_label="Python 3.11 Library (system)"
+                    R_label="Python ${DETECTED_PYTHON_VERSION:-$PYTHON_VERSION_MAJOR} Library (system)"
                 else
-                    R_label="Python 3.11 Library"
+                    R_label="Python ${DETECTED_PYTHON_VERSION:-$PYTHON_VERSION_MAJOR} Library"
                 fi
             fi
             # --------------------------------------
@@ -3429,46 +3485,13 @@ run_step() {
 # Global flag to track Python install type
 IS_PYENV_INSTALLED=false
 IS_PYSYS_INSTALLED=false
+# Populated by _logic_check_python311 with the actual detected version (e.g. "3.12" or "3.11")
+DETECTED_PYTHON_VERSION=""
 # Global flag to track runtime packages install status
 IS_RUNTIME_INSTALLED=false
 # Global flag to track core components install status
 IS_CORE_INSTALLED=false
 
-check_python311() {
-    update_status "python311" "working"
-    IS_PYENV_INSTALLED=false
-    IS_PYSYS_INSTALLED=false
-    
-    # 1. Check pyenv path first (Priority)
-    local pyenv_bin="$TARGET_HOME/.pyenv/versions/${PYTHON_VERSION_FULL}/bin/python3"
-    if [ -f "$pyenv_bin" ]; then
-        # Verify it's a healthy build
-        if "$pyenv_bin" -c "import _struct" 2>/dev/null; then
-            IS_PYENV_INSTALLED=true
-            update_status "python311" "pass"
-            return 0
-        fi
-    fi
-
-    # 2. Check standard system path (Only as a backup)
-    if command -v "${PYTHON_PACKAGE}" >/dev/null 2>&1; then
-        if "${PYTHON_PACKAGE}" -c "import _struct" 2>/dev/null; then
-            IS_PYSYS_INSTALLED=true
-            update_status "python311" "pass"
-            return 0
-        fi
-    fi
-
-    if [[ "$IS_PYENV_INSTALLED" == "true" ]]; then
-        # Verify shared library support
-        if ! ~/${PYENV_VERSION_PATH}/bin/python3 -c "import sysconfig; exit(0 if sysconfig.get_config_var('Py_ENABLE_SHARED') == 1 else 1)" 2>/dev/null; then
-            update_status "python311" "warn" # Mark as warning: exists but broken
-        fi
-    fi
-
-    update_status "python311" "fail"
-    return 1
-}
 
 check_venv() {
     update_status "venv" "working"
@@ -3634,76 +3657,89 @@ _logic_check_python311() {
     # Check pyenv installation first
     if [[ -f "${TARGET_HOME}/${PYENV_VERSION_PATH}/bin/python3" ]]; then
         if "${TARGET_HOME}/${PYENV_VERSION_PATH}/bin/python3" -c "import _struct" 2>/dev/null; then
-            IS_PYENV_INSTALLED=true
-            IS_PYSYS_INSTALLED=false
-            
-            # Verify it was built with --enable-shared
             if ! "${TARGET_HOME}/${PYENV_VERSION_PATH}/bin/python3" -c "import sysconfig; exit(0 if sysconfig.get_config_var('Py_ENABLE_SHARED') == 1 else 1)" 2>/dev/null; then
-                echo "warn"
-                return 0
+                echo "warn"; return 0
             fi
-            
-            # Verify library exists (pyenv should have it in expected location)
             local pyenv_lib="${TARGET_HOME}/${PYENV_VERSION_PATH}/lib"
             if [[ ! -f "$pyenv_lib/${PYTHON_LIB_NAME}.so" ]] && ! compgen -G "$pyenv_lib/${PYTHON_LIB_NAME}.so*" >/dev/null 2>&1; then
-                echo "warn"
-                return 0
+                echo "warn"; return 0
             fi
-            
-            echo "pass"
-            return 0
+            echo "pass"; return 0
         fi
     fi
-    
-    # Check for python3.11 command specifically
+
+    # Check for primary Python version (e.g. python3.12)
     if command -v "${PYTHON_PACKAGE}" >/dev/null 2>&1; then
         if "${PYTHON_PACKAGE}" -c "import _struct" 2>/dev/null; then
-            IS_PYENV_INSTALLED=false
-            IS_PYSYS_INSTALLED=true
-            
-            # Verify shared library can be found (critical for runtime)
             if ! _verify_python_library_available; then
-                echo "warn"
-                return 0
+                echo "warn"; return 0
             fi
-            
-            echo "pass"
-            return 0
+            echo "pass"; return 0
         fi
     fi
-    
-    # Check if generic python3 is EXACTLY version 3.11.x
+
+    # Check if generic python3 matches the primary or fallback supported version
     if command -v python3 >/dev/null 2>&1; then
         local py_version
         py_version=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null)
-        
-        if [[ "$py_version" == "3.11" ]]; then
+        if [[ "$py_version" == "$PYTHON_VERSION_MAJOR" || "$py_version" == "$PYTHON_VERSION_FALLBACK" ]]; then
             if python3 -c "import _struct" 2>/dev/null; then
-                IS_PYENV_INSTALLED=false
-                IS_PYSYS_INSTALLED=true
-                
-                # Verify shared library can be found (critical for runtime)
-                if ! _verify_python_library_available; then
-                    echo "warn"
-                    return 0
+                if ! _verify_python_library_available "libpython${py_version}"; then
+                    echo "warn"; return 0
                 fi
-                
-                echo "pass"
+                echo "pass"; return 0
+            fi
+        fi
+    fi
+
+    echo "fail"; return 1
+}
+
+# Detect and set Python globals (IS_PYENV_INSTALLED, IS_PYSYS_INSTALLED,
+# DETECTED_PYTHON_VERSION) inline in the parent shell — never in a subshell.
+# Called directly by check_python311 after run_check.
+_detect_python_globals() {
+    IS_PYENV_INSTALLED=false
+    IS_PYSYS_INSTALLED=false
+    DETECTED_PYTHON_VERSION=""
+
+    # 1. pyenv
+    if [[ -f "${TARGET_HOME}/${PYENV_VERSION_PATH}/bin/python3" ]]; then
+        if "${TARGET_HOME}/${PYENV_VERSION_PATH}/bin/python3" -c "import _struct" 2>/dev/null; then
+            IS_PYENV_INSTALLED=true
+            DETECTED_PYTHON_VERSION="$PYTHON_VERSION_MAJOR"
+            return 0
+        fi
+    fi
+
+    # 2. Explicit versioned binary (e.g. python3.12)
+    if command -v "${PYTHON_PACKAGE}" >/dev/null 2>&1; then
+        if "${PYTHON_PACKAGE}" -c "import _struct" 2>/dev/null; then
+            IS_PYSYS_INSTALLED=true
+            DETECTED_PYTHON_VERSION="$PYTHON_VERSION_MAJOR"
+            return 0
+        fi
+    fi
+
+    # 3. Generic python3 — read the actual version, accept primary or fallback
+    if command -v python3 >/dev/null 2>&1; then
+        local py_ver
+        py_ver=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null)
+        if [[ "$py_ver" == "$PYTHON_VERSION_MAJOR" || "$py_ver" == "$PYTHON_VERSION_FALLBACK" ]]; then
+            if python3 -c "import _struct" 2>/dev/null; then
+                IS_PYSYS_INSTALLED=true
+                DETECTED_PYTHON_VERSION="$py_ver"
                 return 0
             fi
         fi
     fi
-    
-    IS_PYENV_INSTALLED=false
-    IS_PYSYS_INSTALLED=false
-    echo "fail"
-    return 1
 }
 
 # Verify Python shared library can be found for runtime
 # Uses same robust detection as wrapper script
+# Optional $1: override lib base name (e.g. "libpython3.11") — defaults to PYTHON_LIB_NAME
 _verify_python_library_available() {
-    local lib_name="${PYTHON_LIB_NAME}.so"
+    local lib_name="${1:-$PYTHON_LIB_NAME}.so"
     
     # Method 1: Check common locations (fast)
     local common_paths=(
@@ -3776,6 +3812,29 @@ _logic_check_qml_modules() {
         [[ -d "/usr/lib/${ARCH_LIB_PATH}/qt5/qml/$qml" ]] || [[ -d "/usr/lib/qt5/qml/$qml" ]] || { echo "fail"; return 1; }
     done
     echo "pass"
+}
+
+_logic_check_qml_files() {
+    # Check for QML UI asset files (main.qml, settings.qml, etc.)
+    # Supports both qml/ subdirectory (v3.1.1+) and root directory (legacy)
+    local script_dir; script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+    local qml_count=0
+    
+    # Check qml/ subdirectory first (preferred structure)
+    if [[ -d "$script_dir/qml" ]]; then
+        qml_count=$(find "$script_dir/qml" -maxdepth 1 -name "*.qml" -type f 2>/dev/null | wc -l)
+    fi
+    
+    # Fall back to root directory if not found in subdirectory
+    if [[ $qml_count -eq 0 ]]; then
+        qml_count=$(find "$script_dir" -maxdepth 1 -name "*.qml" -type f 2>/dev/null | wc -l)
+    fi
+    
+    if [[ $qml_count -gt 0 ]]; then
+        echo "pass"
+    else
+        echo "fail"
+    fi
 }
 
 _logic_check_bluetooth() {
@@ -4022,12 +4081,20 @@ _logic_check_ant_dongle() {
     echo "warn"
 }
 
-check_python311()      { run_check "python311" "_logic_check_python311" true; }
+check_python311() {
+    run_check "python311" "_logic_check_python311" true
+    # _detect_python_globals sets globals inline; also persist DETECTED_PYTHON_VERSION
+    # to a file so run_all_checks (which runs us in a background subshell) can
+    # read it back into the parent shell after all checks complete.
+    _detect_python_globals
+    printf '%s' "$DETECTED_PYTHON_VERSION" > "${CHECK_CACHE_DIR}/python311.version" 2>/dev/null || true
+}
 check_venv()           { run_check "venv" "_logic_check_venv" true; }
 check_equipment()      { run_check "equipment" "_logic_check_equipment" true; }
 check_python_packages(){ run_check "pkg_pips" "_logic_check_pips" true; }
 check_qt5_libs()       { run_check "qt5_libs" "_logic_check_qt5_libs" true; }
 check_qml_modules()    { run_check "qml_modules" "_logic_check_qml_modules" true; }
+check_qml_files()      { run_check "qml_files" "_logic_check_qml_files" true; }
 check_bluetooth()      { run_check "bluetooth" "_logic_check_bluetooth" true; }
 check_lsusb()          { run_check "lsusb" "_logic_check_lsusb" true; }
 check_plugdev()        { run_check "plugdev" "_logic_check_plugdev" true; }
@@ -4116,6 +4183,22 @@ run_all_checks() {
             update_status_atomic "$key" "${STATUS_MAP[$key]}"
         fi
     done
+
+    # Restore python globals written by check_python311's subshell
+    local ver_file="${CHECK_CACHE_DIR}/python311.version"
+    if [[ -f "$ver_file" ]]; then
+        DETECTED_PYTHON_VERSION=$(cat "$ver_file")
+        # Reconstruct IS_PYSYS/IS_PYENV from what we know
+        if [[ "${STATUS_MAP[python311]}" == "pass" || "${STATUS_MAP[python311]}" == "warn" ]]; then
+            if [[ -f "${TARGET_HOME}/${PYENV_VERSION_PATH}/bin/python3" ]]; then
+                IS_PYENV_INSTALLED=true
+                IS_PYSYS_INSTALLED=false
+            else
+                IS_PYENV_INSTALLED=false
+                IS_PYSYS_INSTALLED=true
+            fi
+        fi
+    fi
 }
 
 # Global process management variables (placeholders so traps with set -u don't fail)

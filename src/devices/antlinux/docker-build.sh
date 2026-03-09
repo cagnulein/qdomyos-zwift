@@ -235,13 +235,24 @@ setup_and_verify_docker() {
         HAS_BUILDX=true
         info "Buildx version: $(docker buildx version 2>/dev/null | head -1 || echo 'unknown')"
         
-        # Ensure a buildx builder instance exists
+        # Ensure a healthy docker-container builder exists and is active.
+        # The default 'docker' driver cannot cross-compile; we need docker-container.
         if ! docker buildx ls 2>/dev/null | grep -q "multiarch-builder"; then
-            info "Creating buildx builder instance..."
+            info "Creating buildx builder instance (docker-container driver)..."
             docker buildx create --use --name multiarch-builder --driver docker-container >/dev/null 2>&1 || true
         else
-            # Use existing builder
             docker buildx use multiarch-builder >/dev/null 2>&1 || true
+        fi
+        # Bootstrap so the builder container is running before we check its driver.
+        # Without --bootstrap, docker-container builders start stopped and
+        # current_buildx_driver() sees the default "docker" driver instead.
+        # If bootstrap fails the builder may be corrupt — recreate it.
+        info "Bootstrapping buildx builder..."
+        if ! docker buildx inspect --bootstrap >/dev/null 2>&1; then
+            warn "Bootstrap failed — recreating multiarch-builder..."
+            docker buildx rm multiarch-builder >/dev/null 2>&1 || true
+            docker buildx create --use --name multiarch-builder --driver docker-container >/dev/null 2>&1 || true
+            docker buildx inspect --bootstrap >/dev/null 2>&1 || true
         fi
     else
         HAS_BUILDX=false
@@ -278,9 +289,12 @@ current_buildx_driver() {
         echo "none"
         return
     fi
-    
+    # 'docker buildx inspect' always reports the current builder's driver on a
+    # "Driver: <name>" line — reliable across all buildx versions, unlike the
+    # 'ls' output format which changed in v0.12 (current builder marked as
+    # "NAME *" rather than a leading "*" column, breaking awk /^\*/ patterns).
     local driver
-    driver=$(docker buildx ls 2>/dev/null | awk 'NR==1 {next} /^\*/ {print $3; exit}')
+    driver=$(docker buildx inspect 2>/dev/null | awk '/^Driver:/{print $2; exit}')
     echo "${driver:-docker}"
 }
 
@@ -437,11 +451,11 @@ main() {
             info "Buildx driver is 'docker'; skipping cache export/import (not supported)."
         fi
 
-        # The 'docker' buildx driver (local docker) does not accept --platform
-        # in some Docker/Buildx versions. Avoid passing the platform flag when
-        # the driver is 'docker' to prevent "unknown flag: --platform" errors.
-        if [[ "$DRIVER" == "docker" ]]; then
-            PLATFORM_FLAG=""
+        # If the driver is still 'docker' after bootstrap, the multiarch-builder
+        # failed to start. For arm64 cross-compilation this is fatal — without a
+        # docker-container driver the --platform flag is ignored and we build x86_64.
+        if [[ "$DRIVER" == "docker" ]] && [[ -n "$PLATFORM_FLAG" ]]; then
+            err "buildx driver is 'docker' (default local driver) — cannot honour $PLATFORM_FLAG.\nRun: docker buildx create --use --name multiarch-builder --driver docker-container\nThen retry."
         fi
 
         # Pass debug flag to Docker build as a build argument
@@ -453,7 +467,7 @@ main() {
         # Assemble buildx arguments into an array to ensure the final context
         # (.) is always passed and flags are only included when non-empty.
         BUILD_ARGS=()
-        
+
         # Check if --progress flag is supported (buildx 0.6.0+)
         # Older buildx versions don't support --progress
         if docker buildx build --help 2>&1 | grep -q -- '--progress'; then
