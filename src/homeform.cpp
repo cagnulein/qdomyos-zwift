@@ -41,9 +41,11 @@
 #include <QRandomGenerator>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QThread>
 #include <QTime>
 #include <QTimer>
 #include <QFile>
+#include <QUuid>
 #include <QUrlQuery>
 #include <QRegularExpression>
 #include <algorithm>
@@ -51,6 +53,73 @@
 
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
+
+namespace {
+class MailSenderThread : public QThread {
+  public:
+    MailSenderThread(MimeMessage *message, const QString &filenameJPG, const QList<QString> &chartImagesFilenamesForMail)
+        : message(message), filenameJPG(filenameJPG), chartImagesFilenamesForMail(chartImagesFilenamesForMail) {}
+
+  protected:
+    void run() override {
+#ifdef SMTP_SERVER
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+        SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
+#else
+#pragma message "stmp server is unset!"
+        SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
+        delete message;
+        return;
+#endif
+
+// We need to set the username (your email address) and the password
+// for smtp authentication.
+#ifdef SMTP_PASSWORD
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+        smtp.setUser(STRINGIFY(SMTP_USERNAME));
+#else
+#pragma message "smtp username is unset!"
+        delete message;
+        return;
+#endif
+#ifdef SMTP_PASSWORD
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
+        smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
+#else
+#pragma message "smtp password is unset!"
+        delete message;
+        return;
+#endif
+
+        bool r = false;
+        uint8_t i = 0;
+        while (!r) {
+            qDebug() << "trying to send email #" << i;
+            r = smtp.connectToHost();
+            r = smtp.login();
+            r = smtp.sendMail(*message);
+            if (i++ == 3)
+                break;
+        }
+        smtp.quit();
+
+        if (!filenameJPG.isEmpty())
+            QFile::remove(filenameJPG);
+        for (const QString &f : qAsConst(chartImagesFilenamesForMail)) {
+            QFile::remove(f);
+        }
+        delete message;
+    }
+
+  private:
+    MimeMessage *message;
+    QString filenameJPG;
+    QList<QString> chartImagesFilenamesForMail;
+};
+} // namespace
 
 #ifndef STRAVA_CLIENT_ID
 #define STRAVA_CLIENT_ID 7976
@@ -9210,42 +9279,12 @@ void homeform::sendMail() {
     }
     WeightLoss = (miles ? bluetoothManager->device()->weightLoss() * 35.274 : bluetoothManager->device()->weightLoss());
 
-#ifdef SMTP_SERVER
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
-    SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
-    connect(&smtp, SIGNAL(smtpError(SmtpClient::SmtpError)), this, SLOT(smtpError(SmtpClient::SmtpError)));
-#else
-#pragma message "stmp server is unset!"
-    SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
-    return;
-#endif
-
-// We need to set the username (your email address) and the password
-// for smtp authentication.
-#ifdef SMTP_PASSWORD
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
-    smtp.setUser(STRINGIFY(SMTP_USERNAME));
-#else
-#pragma message "smtp username is unset!"
-    return;
-#endif
-#ifdef SMTP_PASSWORD
-#define _STR(x) #x
-#define STRINGIFY(x) _STR(x)
-    smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
-#else
-#pragma message "smtp password is unset!"
-    return;
-#endif
-
     // Now we create a MimeMessage object. This will be the email.
 
-    MimeMessage message;
+    MimeMessage *message = new MimeMessage;
 
-    message.setSender(new EmailAddress(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ")));
-    message.addRecipient(new EmailAddress(settings.value(QZSettings::user_email, QLatin1String("")).toString(),
+    message->setSender(new EmailAddress(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ")));
+    message->addRecipient(new EmailAddress(settings.value(QZSettings::user_email, QLatin1String("")).toString(),
                                           settings.value(QZSettings::user_email, QLatin1String("")).toString()));
     if (!Session.isEmpty()) {
         QString title = Session.constFirst().time.toString();
@@ -9253,15 +9292,15 @@ void homeform::sendMail() {
             title +=
                 QStringLiteral(" ") + stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName;
         }
-        message.setSubject(title);
+        message->setSubject(title);
     } else {
-        message.setSubject(QStringLiteral("Test"));
+        message->setSubject(QStringLiteral("Test"));
     }
 
     // Now add some text to the email.
     // First we create a MimeText object.
 
-    MimeText text;
+    MimeText *text = new MimeText;
 
     QString textMessage = QStringLiteral("Great workout!\n\n");
 
@@ -9427,13 +9466,24 @@ void homeform::sendMail() {
     }
 
 #ifdef SMTP_SERVER
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
     textMessage += QStringLiteral("\n\nSMTP server: ") + QString(STRINGIFY(SMTP_SERVER));
 #endif
 
-    text.setText(textMessage);
-    message.addPart(&text);
+    text->setText(textMessage);
+    message->addPart(text);
 
+    QList<QString> chartImagesFilenamesForMail;
     for (const QString &f : qAsConst(chartImagesFilenames)) {
+        const QString tempChartImage = getWritableAppDir() + QUuid::createUuid().toString(QUuid::WithoutBraces) +
+                                       QStringLiteral("_mail.jpg");
+        if (QFile::copy(f, tempChartImage)) {
+            chartImagesFilenamesForMail.append(tempChartImage);
+        }
+    }
+
+    for (const QString &f : qAsConst(chartImagesFilenamesForMail)) {
 
         // Create a MimeInlineFile object for each image
         MimeInlineFile *image = new MimeInlineFile((new QFile(f)));
@@ -9441,7 +9491,7 @@ void homeform::sendMail() {
         // An unique content id must be setted
         image->setContentId(f);
         image->setContentType(QStringLiteral("image/jpg"));
-        message.addPart(image);
+        message->addPart(image);
     }
 
     if (!lastFitFileSaved.isEmpty()) {
@@ -9452,7 +9502,7 @@ void homeform::sendMail() {
         // An unique content id must be setted
         fit->setContentId(lastFitFileSaved);
         fit->setContentType(QStringLiteral("application/octet-stream"));
-        message.addPart(fit);
+        message->addPart(fit);
     }
 
     if (!lastTrainProgramFileSaved.isEmpty()) {
@@ -9463,7 +9513,7 @@ void homeform::sendMail() {
         // An unique content id must be setted
         xml->setContentId(lastTrainProgramFileSaved);
         xml->setContentType(QStringLiteral("application/octet-stream"));
-        message.addPart(xml);
+        message->addPart(xml);
         lastTrainProgramFileSaved = "";
     }
 
@@ -9496,7 +9546,7 @@ void homeform::sendMail() {
         // An unique content id must be setted
         pelotonImage->setContentId(filenameJPG);
         pelotonImage->setContentType(QStringLiteral("image/jpg"));
-        message.addPart(pelotonImage);
+        message->addPart(pelotonImage);
     }
 
     /* THE SMTP SERVER DOESN'T LIKE THE ZIP FILE
@@ -9524,21 +9574,9 @@ void homeform::sendMail() {
         message.addPart(log);
     }*/
 
-    bool r = false;
-    uint8_t i = 0;
-    while (!r) {
-        qDebug() << "trying to send email #" << i;
-        r = smtp.connectToHost();
-        r = smtp.login();
-        r = smtp.sendMail(message);
-        if (i++ == 3)
-            break;
-    }
-    smtp.quit();
-
-    // delete image variable
-    if(!filenameJPG.isEmpty())
-        QFile::remove(filenameJPG);
+    QThread *mailThread = new MailSenderThread(message, filenameJPG, chartImagesFilenamesForMail);
+    QObject::connect(mailThread, &QThread::finished, mailThread, &QObject::deleteLater);
+    mailThread->start();
 }
 
 #if defined(Q_OS_ANDROID)
@@ -9865,6 +9903,14 @@ void homeform::videoSeekPosition(int ms) {
 #endif
 #define INTERVALSICU_CLIENT_SECRET_S STRINGIFY(INTERVALSICU_CLIENT_SECRET)
 
+static QString normalizeOAuthMacroValue(const QString &value) {
+    QString normalized = value;
+    if (normalized.size() >= 2 && normalized.startsWith('\"') && normalized.endsWith('\"')) {
+        normalized = normalized.mid(1, normalized.size() - 2);
+    }
+    return normalized;
+}
+
 void homeform::intervalsicu_connect_clicked() {
     QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
 
@@ -9903,9 +9949,9 @@ QOAuth2AuthorizationCodeFlow *homeform::intervalsicu_connect() {
         // because Qt's automatic flow doesn't work correctly with Intervals.icu API
         intervalsicu->setAccessTokenUrl(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
 
-        intervalsicu->setClientIdentifier(QStringLiteral(INTERVALSICU_CLIENT_ID_S));
+        intervalsicu->setClientIdentifier(normalizeOAuthMacroValue(QStringLiteral(INTERVALSICU_CLIENT_ID_S)));
 #ifdef INTERVALSICU_CLIENT_SECRET_S
-        intervalsicu->setClientIdentifierSharedKey(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S));
+        intervalsicu->setClientIdentifierSharedKey(normalizeOAuthMacroValue(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S)));
 #endif
         intervalsicu->setScope(QStringLiteral("ACTIVITY:WRITE,CALENDAR:READ"));
 
@@ -9979,6 +10025,14 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
         intervalsicuAuthCode = values.value("code").toString();
         qDebug() << "Intervals.icu: Authorization code received";
 
+        const QString intervalsClientId = normalizeOAuthMacroValue(QStringLiteral(INTERVALSICU_CLIENT_ID_S));
+        const QString intervalsClientSecret = normalizeOAuthMacroValue(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S));
+        qDebug() << "Intervals.icu: OAuth client diagnostics"
+                 << "client_id=" << intervalsClientId
+                 << "secret_length=" << intervalsClientSecret.length()
+                 << "client_id_is_default=" << (intervalsClientId == QStringLiteral("YOUR_CLIENT_ID"))
+                 << "secret_is_default=" << (intervalsClientSecret == QStringLiteral("YOUR_CLIENT_SECRET"));
+
         // Do manual token exchange like Strava does in replyDataReceived
         // Use the existing intervalsicuManager (already created with SSL configured)
         QString urlstr = QStringLiteral("https://intervals.icu/api/oauth/token");
@@ -9989,9 +10043,9 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
 #endif
 
         QUrlQuery params;
-        params.addQueryItem(QStringLiteral("client_id"), QStringLiteral(INTERVALSICU_CLIENT_ID_S));
+        params.addQueryItem(QStringLiteral("client_id"), intervalsClientId);
 #ifdef INTERVALSICU_CLIENT_SECRET_S
-        params.addQueryItem(QStringLiteral("client_secret"), QStringLiteral(INTERVALSICU_CLIENT_SECRET_S));
+        params.addQueryItem(QStringLiteral("client_secret"), intervalsClientSecret);
 #endif
         params.addQueryItem(QStringLiteral("code"), intervalsicuAuthCode);
         params.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("authorization_code"));
@@ -10027,6 +10081,7 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
                 qDebug() << "Intervals.icu: Network error:" << reply->error();
                 qDebug() << "Intervals.icu: Error string:" << reply->errorString();
                 qDebug() << "Intervals.icu: HTTP status:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+                qDebug() << "Intervals.icu: Error response body:" << QString::fromUtf8(response);
                 setToastRequested("Intervals.icu: Authentication failed");
                 reply->deleteLater();
                 return;
@@ -10124,9 +10179,12 @@ void homeform::intervalsicu_refreshtoken() {
     QNetworkRequest request(QUrl(QStringLiteral("https://intervals.icu/api/oauth/token")));
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
 
+    const QString intervalsClientId = normalizeOAuthMacroValue(QStringLiteral(INTERVALSICU_CLIENT_ID_S));
+    const QString intervalsClientSecret = normalizeOAuthMacroValue(QStringLiteral(INTERVALSICU_CLIENT_SECRET_S));
+
     QString data;
-    data += QStringLiteral("client_id=" INTERVALSICU_CLIENT_ID_S);
-    data += QStringLiteral("&client_secret=" INTERVALSICU_CLIENT_SECRET_S);
+    data += QStringLiteral("client_id=") + intervalsClientId;
+    data += QStringLiteral("&client_secret=") + intervalsClientSecret;
     data += QStringLiteral("&refresh_token=") + settings.value(QZSettings::intervalsicu_refreshtoken).toString();
     data += QStringLiteral("&grant_type=refresh_token");
 
@@ -10152,6 +10210,10 @@ void homeform::intervalsicu_refreshtoken() {
         }
         qDebug() << "Intervals.icu token refreshed successfully";
     } else {
+        qDebug() << "Intervals.icu refresh HTTP status:"
+                 << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qDebug() << "Intervals.icu refresh error string:" << reply->errorString();
+        qDebug() << "Intervals.icu refresh response body:" << QString::fromUtf8(response);
         qDebug() << "Intervals.icu token refresh failed";
     }
 }

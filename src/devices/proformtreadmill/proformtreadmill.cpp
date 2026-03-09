@@ -7892,6 +7892,8 @@ void proformtreadmill::btinit() {
         uint8_t tlx_init_039[] = {0xfe, 0x02, 0x14, 0x03};
         uint8_t tlx_init_040[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10, 0x40, 0x10, 0x00, 0x80};
         uint8_t tlx_init_041[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_control_001[] = {0xfe, 0x02, 0x0d, 0x02};
+        uint8_t tlx_control_002[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x02, 0x00, 0x10, 0x02, 0x00, 0x23, 0x00, 0x00, 0x00, 0x00, 0x00};
 
         writeCharacteristic(tlx_init_001, sizeof(tlx_init_001), QStringLiteral("init"), false, true);
         QThread::msleep(sleepms);
@@ -7974,6 +7976,10 @@ void proformtreadmill::btinit() {
         writeCharacteristic(tlx_init_040, sizeof(tlx_init_040), QStringLiteral("init"), false, true);
         QThread::msleep(sleepms);
         writeCharacteristic(tlx_init_041, sizeof(tlx_init_041), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_control_001, sizeof(tlx_control_001), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_control_002, sizeof(tlx_control_002), QStringLiteral("init"), false, true);
         QThread::msleep(sleepms);
     } else {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};

@@ -667,7 +667,13 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         int index = 0;
 
         // potential bug, a casting to uint8 is required for the single byte values to avoid negative values
-        Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
+        if (newValue.length() < 2) {
+            qDebug() << "Invalid FTMS 0x2AD2 packet length" << newValue.length();
+            return;
+        }
+
+        Flags.word_flags = (((uint16_t)((uint8_t)newValue.at(1))) << 8) |
+                           ((uint16_t)((uint8_t)newValue.at(0)));
         index += 2;
 
         if (!Flags.moreData) {
@@ -1122,10 +1128,29 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         flags Flags;
         int index = 0;
-        Flags.word_flags = (newValue.at(2) << 16) | (newValue.at(1) << 8) | newValue.at(0);
+        if (newValue.length() < 3) {
+            qDebug() << "Invalid FTMS 0x2ACE packet length" << newValue.length();
+            return;
+        }
+
+        Flags.word_flags = (((uint32_t)((uint8_t)newValue.at(2))) << 16) |
+                           (((uint32_t)((uint8_t)newValue.at(1))) << 8) |
+                           ((uint32_t)((uint8_t)newValue.at(0)));
         index += 3;
 
+        auto ensureBytesAvailable = [&](int bytesNeeded, const QString &fieldName) {
+            if (newValue.length() < (index + bytesNeeded)) {
+                qDebug() << "FTMS 0x2ACE packet too short for" << fieldName << "length" << newValue.length()
+                         << "index" << index << "needed" << bytesNeeded;
+                return false;
+            }
+            return true;
+        };
+
         if (!Flags.moreData) {
+            if (!ensureBytesAvailable(2, QStringLiteral("speed")))
+                return;
+
             if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                   (uint16_t)((uint8_t)newValue.at(index)))) /
@@ -1140,6 +1165,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         if (Flags.avgSpeed) {
+            if (!ensureBytesAvailable(2, QStringLiteral("average speed")))
+                return;
+
             double avgSpeed;
             avgSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                  (uint16_t)((uint8_t)newValue.at(index)))) /
@@ -1149,6 +1177,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         if (Flags.totDistance) {
+            if (!ensureBytesAvailable(3, QStringLiteral("total distance")))
+                return;
+
             Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                                   (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                  (uint32_t)((uint8_t)newValue.at(index)))) /
@@ -1165,6 +1196,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.stepCount) {
+            if (!ensureBytesAvailable(4, QStringLiteral("step count")))
+                return;
+
             if (useMachineCadence) {
                 Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index))));
@@ -1176,20 +1210,29 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         if (Flags.strideCount) {
+            if (!ensureBytesAvailable(2, QStringLiteral("stride count")))
+                return;
             index += 2;
         }
 
         if (Flags.elevationGain) {
+            if (!ensureBytesAvailable(4, QStringLiteral("elevation gain")))
+                return;
             index += 2;
             index += 2;
         }
 
         if (Flags.rampAngle) {
+            if (!ensureBytesAvailable(4, QStringLiteral("ramp angle")))
+                return;
             index += 2;
             index += 2;
         }
 
         if (Flags.resistanceLvl) {
+            if (!ensureBytesAvailable(2, QStringLiteral("resistance")))
+                return;
+
             if(!TITAN_7000) {
                 Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                        (uint16_t)((uint8_t)newValue.at(index))));
@@ -1233,6 +1276,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         if (Flags.instantPower) {
+            if (!ensureBytesAvailable(2, QStringLiteral("instant power")))
+                return;
+
             double ftms_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)newValue.at(index))));
             m_rawWatt = ftms_watt;  // Always update rawWatt from FTMS bike data
@@ -1245,7 +1291,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             index += 2;
         }
 
-        if (Flags.avgPower && newValue.length() > index + 1) {
+        if (Flags.avgPower) {
+            if (!ensureBytesAvailable(2, QStringLiteral("average power")))
+                return;
+
             double avgPower;
             avgPower = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                  (uint16_t)((uint8_t)newValue.at(index))));
@@ -1253,7 +1302,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             index += 2;
         }
 
-        if (Flags.expEnergy && newValue.length() > index + 1) {
+        if (Flags.expEnergy) {
+            if (!ensureBytesAvailable(5, QStringLiteral("expended energy")))
+                return;
+
             /*KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                              (uint16_t)((uint8_t)newValue.at(index))));*/
             index += 2;
@@ -1282,7 +1334,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         else
 #endif
         {
-            if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
+            if (Flags.heartRate && !disable_hr_frommachinery) {
+                if (!ensureBytesAvailable(1, QStringLiteral("heart rate")))
+                    return;
+
                 Heart = ((double)(((uint8_t)newValue.at(index))));
                 // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));

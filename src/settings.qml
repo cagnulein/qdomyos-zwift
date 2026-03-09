@@ -1287,6 +1287,8 @@ import Qt.labs.platform 1.1
             property bool sportstech_esx500: false
             property bool proform_bike_325_csx_PFEX439210INT_0: false
             property bool proform_carbon_tlx_treadmill: false
+            property bool nordictrack_vr21: false
+            property bool gymstick_gx6_0_elliptical: false
         }
 
 
@@ -4230,7 +4232,8 @@ import Qt.labs.platform 1.1
                                     "Proform 225 CSX PFEX32925 INT.0",
                                     "Proform CSX210",
                                     "Nordictrack GX 4.5 Pro",
-                                    "Proform 325 CSX PFEX439210 INT.0"
+                                    "Proform 325 CSX PFEX439210 INT.0",
+                                    "NordicTrack VR21"
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -4268,7 +4271,8 @@ import Qt.labs.platform 1.1
                                                     settings.proform_225_csx_PFEX32925_INT_0 ? 18 :
                                                     settings.proform_csx210 ? 19 : 
                                                     settings.nordictrack_gx_4_5_pro ? 20 :
-                                                    settings.proform_bike_325_csx_PFEX439210INT_0 ? 21 : 0;
+                                                    settings.proform_bike_325_csx_PFEX439210INT_0 ? 21 : 
+                                                    settings.nordictrack_vr21 ? 22 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -4302,6 +4306,7 @@ import Qt.labs.platform 1.1
                                     settings.proform_xbike = false;
                                     settings.proform_225_csx_PFEX32925_INT_0 = false;
                                     settings.proform_csx210 = false;
+                                    settings.nordictrack_vr21 = false;
                                     settings.proform_bike_325_csx_PFEX439210INT_0 = false;
                                     settings.nordictrack_gx_4_5_pro = false;
 
@@ -4328,6 +4333,7 @@ import Qt.labs.platform 1.1
                                         case 19: settings.proform_csx210 = true; break;
                                         case 20: settings.nordictrack_gx_4_5_pro = true; break;
                                         case 21: settings.proform_bike_325_csx_PFEX439210INT_0 = true; break;
+                                        case 22: settings.nordictrack_vr21 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -10524,6 +10530,20 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+                    IndicatorOnlySwitch {
+                        id: gymstickGX60EllipticalDelegate
+                        text: qsTr("Gymstick GX6.0")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.gymstick_gx6_0_elliptical
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.gymstick_gx6_0_elliptical = checked; window.settings_restart_to_apply = true; }
                     }
 
                     AccordionElement {
