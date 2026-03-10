@@ -18,6 +18,7 @@
 #include <QDir>
 #include <QProcess>
 #include <QStandardPaths>
+#include <QCoreApplication>
 #include <QMutex>
 #include <chrono>
 #include <cmath>
@@ -57,8 +58,6 @@ inline int estimateCadence(double speed_kmh) noexcept {
 }
 
 QString getVenvSitePackages() {
-    // Cache the resolved venv site-packages path to avoid spawning a Python
-    // subprocess on every initialization. Use a mutex for thread-safety.
     static QString cachedPath;
     static bool pathResolved = false;
     static QMutex cacheMutex;
@@ -68,17 +67,33 @@ QString getVenvSitePackages() {
         return cachedPath;
     }
 
-    QByteArray sudoUser = qgetenv("SUDO_USER");
+    QString venvPythonPath;
     QByteArray qzUser = qgetenv("QZ_USER");
-    QString homePath = (!sudoUser.isEmpty()) ? "/home/" + QString::fromLocal8Bit(sudoUser) :
-                      (!qzUser.isEmpty())   ? "/home/" + QString::fromLocal8Bit(qzUser) : QDir::homePath();
-    
-    QString venvPythonPath = homePath + "/ant_venv/bin/python";
+
+    // 1. Primary Method: Use QZ_USER from the environment
+    if (!qzUser.isEmpty()) {
+        venvPythonPath = "/home/" + QString::fromLocal8Bit(qzUser) + "/ant_venv/bin/python";
+    } 
+    // 2. Simple Fallback (for manual terminal runs) + Troubleshooting Warning
+    else {
+        venvPythonPath = QDir::homePath() + "/ant_venv/bin/python";
+        
+        qWarning() << "[ANT+] -------------------------------------------------------------------";
+        qWarning() << "[ANT+] WARNING: QZ_USER environment variable is missing!";
+        qWarning() << "[ANT+] Using fallback path:" << venvPythonPath;
+        qWarning() << "[ANT+]";
+        qWarning() << "[ANT+] If using systemd, ensure your qz.service contains:";
+        qWarning() << "[ANT+] Environment=\"QZ_USER=your_username\"";
+        qWarning() << "[ANT+] -------------------------------------------------------------------";
+    }
+
+    // 3. Validation
     if (!QFile::exists(venvPythonPath)) {
-        qCritical() << "[ANT+] CRITICAL: Virtual environment not found at:" << venvPythonPath;
+        qCritical() << "[ANT+] ❌ CRITICAL: Python virtual environment not found at:" << venvPythonPath;
         return QString();
     }
 
+    // 4. Execute Python to get the site-packages path
     QProcess process;
     process.start(venvPythonPath, QStringList() << "-c" << "import site; print(site.getsitepackages()[0])");
     process.waitForFinished(3000);
@@ -91,7 +106,8 @@ QString getVenvSitePackages() {
             return cachedPath;
         }
     }
-    qCritical() << "[ANT+] Failed to determine venv site-packages path.";
+    
+    qCritical() << "[ANT+] ❌ Failed to determine venv site-packages path. Python script failed.";
     return QString();
 }
 
