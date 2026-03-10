@@ -1606,6 +1606,17 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 
+        // VICTORY: if switching from simulation params to target power,
+        // reset state by issuing Request Control (0x00) followed by Start/Resume (0x07)
+        if (VICTORY && b.length() > 0 && (uint8_t)b.at(0) == FTMS_SET_TARGET_POWER && last_ftms_command_was_simulation) {
+            qDebug() << "VICTORY workaround: switching from simulation to target power, sending REQUEST_CONTROL then START_RESUME";
+            uint8_t reqCtrl[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(reqCtrl, sizeof(reqCtrl), "injectWrite [VICTORY: request control]", false, true);
+            uint8_t startSim[] = {FTMS_START_RESUME};
+            writeCharacteristic(startSim, sizeof(startSim), "injectWrite [VICTORY: start simulation]", false, true);
+            last_ftms_command_was_simulation = false;
+        }
+
         // D500V2 workaround: track request control (0x00) and start simulation (0x07) commands
         // If we receive simulation params (0x11) without start simulation, inject it first
         if (D500V2 && b.length() > 0) {
@@ -1631,6 +1642,8 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
         // handling gears
         if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && (zwiftPlayService == nullptr || !gears_zwift_ratio)) {
+            // Track that last forwarded command is a simulation params
+            last_ftms_command_was_simulation = true;
             double min_inclination = settings.value(QZSettings::min_inclination, QZSettings::default_min_inclination).toDouble();
             double offset =
                 settings.value(QZSettings::zwift_inclination_offset, QZSettings::default_zwift_inclination_offset).toDouble();
@@ -1668,6 +1681,8 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             qDebug() << "discarding";
             return;
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
+            // Leaving simulation mode path
+            last_ftms_command_was_simulation = false;
             // handling watt gain and offset for erg mode
             double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
             double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
@@ -1902,6 +1917,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("VANRYSEL-HT")) {
             qDebug() << QStringLiteral("VANRYSEL-HT found");
             VANRYSEL_HT = true;
+        } else if(device.name().toUpper().startsWith("VICTORY")) {
+            qDebug() << QStringLiteral("VICTORY found");
+            VICTORY = true;
         } else if(device.name().toUpper().startsWith("MRK-S26C-")) {
             qDebug() << QStringLiteral("MRK-S26C found");
             MRK_S26C = true;

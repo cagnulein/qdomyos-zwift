@@ -179,6 +179,11 @@ class ftmsbike : public bike {
     bool ZIPRO_RAVE = false;
     bool SPEEDRACEX = false;
 
+    // VICTORY bike specific handling
+    bool VICTORY = false;
+    // Track if the last forwarded FTMS command was a simulation params (0x11)
+    bool last_ftms_command_was_simulation = false;
+
     uint8_t secondsToResetTimer = 5;
 
     int16_t T2_lastGear = 0;
