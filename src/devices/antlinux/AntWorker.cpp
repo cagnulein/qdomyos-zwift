@@ -63,37 +63,39 @@ QString getVenvSitePackages() {
     static QMutex cacheMutex;
 
     QMutexLocker locker(&cacheMutex);
-    if (pathResolved) {
-        return cachedPath;
-    }
+    if (pathResolved) return cachedPath;
 
     QString venvPythonPath;
     QByteArray qzUser = qgetenv("QZ_USER");
 
-    // 1. Primary Method: Use QZ_USER from the environment
+    // 1. Try environment variable first
     if (!qzUser.isEmpty()) {
         venvPythonPath = "/home/" + QString::fromLocal8Bit(qzUser) + "/ant_venv/bin/python";
     } 
-    // 2. Simple Fallback (for manual terminal runs) + Troubleshooting Warning
+    // 2. Fallback: Infer from executable path (Immune to sudo/systemd stripping variables)
     else {
-        venvPythonPath = QDir::homePath() + "/ant_venv/bin/python";
-        
-        qWarning() << "[ANT+] -------------------------------------------------------------------";
-        qWarning() << "[ANT+] WARNING: QZ_USER environment variable is missing!";
-        qWarning() << "[ANT+] Using fallback path:" << venvPythonPath;
-        qWarning() << "[ANT+]";
-        qWarning() << "[ANT+] If using systemd, ensure your qz.service contains:";
-        qWarning() << "[ANT+] Environment=\"QZ_USER=your_username\"";
-        qWarning() << "[ANT+] -------------------------------------------------------------------";
+        QString appDir = QCoreApplication::applicationDirPath();
+        if (appDir.startsWith("/home/")) {
+            int secondSlash = appDir.indexOf('/', 6); // Find slash after "/home/"
+            QString inferredHome = (secondSlash != -1) ? appDir.left(secondSlash) : appDir;
+            venvPythonPath = inferredHome + "/ant_venv/bin/python";
+            qInfo() << "[ANT+] QZ_USER missing. Inferred home directory from executable path:" << inferredHome;
+        } else {
+            venvPythonPath = QDir::homePath() + "/ant_venv/bin/python";
+            
+            qWarning() << "[ANT+] -------------------------------------------------------------------";
+            qWarning() << "[ANT+] ⚠️ WARNING: QZ_USER is missing AND executable is not in /home/!";
+            qWarning() << "[ANT+] 💡 FIX 1: If using systemd, ensure qz.service has: Environment=\"QZ_USER=your_username\"";
+            qWarning() << "[ANT+] 💡 FIX 2: If a wrapper script uses 'sudo', change it to 'sudo -E'.";
+            qWarning() << "[ANT+] -------------------------------------------------------------------";
+        }
     }
 
-    // 3. Validation
     if (!QFile::exists(venvPythonPath)) {
         qCritical() << "[ANT+] ❌ CRITICAL: Python virtual environment not found at:" << venvPythonPath;
         return QString();
     }
 
-    // 4. Execute Python to get the site-packages path
     QProcess process;
     process.start(venvPythonPath, QStringList() << "-c" << "import site; print(site.getsitepackages()[0])");
     process.waitForFinished(3000);
@@ -107,7 +109,7 @@ QString getVenvSitePackages() {
         }
     }
     
-    qCritical() << "[ANT+] ❌ Failed to determine venv site-packages path. Python script failed.";
+    qCritical() << "[ANT+] ❌ Failed to determine venv site-packages path.";
     return QString();
 }
 
