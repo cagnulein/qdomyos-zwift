@@ -1473,8 +1473,24 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 
+        bool isSimulationCommand = (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS);
+        bool isPowerTargetCommand = (b.at(0) == FTMS_SET_TARGET_POWER);
+
+        if (VICTORY) {
+            if (isSimulationCommand) {
+                victoryLastCommandWasSimulation = true;
+            } else if (isPowerTargetCommand && victoryLastCommandWasSimulation) {
+                qDebug() << "VICTORY workaround: switching from simulation to target power, sending control reset";
+                uint8_t requestControl[] = {FTMS_REQUEST_CONTROL};
+                writeCharacteristic(requestControl, sizeof(requestControl), "victory requestControl", false, true);
+                uint8_t startSimulation[] = {FTMS_START_RESUME};
+                writeCharacteristic(startSimulation, sizeof(startSimulation), "victory start simulation", false, true);
+                victoryLastCommandWasSimulation = false;
+            }
+        }
+
         // handling gears
-        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && (zwiftPlayService == nullptr || !gears_zwift_ratio)) {
+        if (isSimulationCommand && (zwiftPlayService == nullptr || !gears_zwift_ratio)) {
             double min_inclination = settings.value(QZSettings::min_inclination, QZSettings::default_min_inclination).toDouble();
             double offset =
                 settings.value(QZSettings::zwift_inclination_offset, QZSettings::default_zwift_inclination_offset).toDouble();
@@ -1504,7 +1520,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
             qDebug() << "applying gears mod" << gears() << slope;
 
-        } else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {
+        } else if(isSimulationCommand && zwiftPlayService != nullptr && gears_zwift_ratio) {
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
             
 #ifdef Q_OS_IOS
@@ -1540,10 +1556,10 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 #endif
             writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
             return;
-        } else if(b.at(0) == FTMS_SET_TARGET_POWER && !ergModeSupported) {
+        } else if(isPowerTargetCommand && !ergModeSupported) {
             qDebug() << "discarding";
             return;
-        } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
+        } else if(isPowerTargetCommand && b.length() > 2) {
             // handling watt gain and offset for erg mode
             double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
             double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
@@ -1738,6 +1754,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             resistance_lvl_mode = true;
             ergModeSupported = false;
             ZIPRO_RAVE = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("VICTORY"))) {
+            qDebug() << QStringLiteral("VICTORY found");
+            VICTORY = true;
         } else if ((bluetoothDevice.name().toUpper().startsWith("TITAN 7000"))) {
             qDebug() << QStringLiteral("Titan 7000 found");
             TITAN_7000 = true;
