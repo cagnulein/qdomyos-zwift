@@ -2598,7 +2598,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (upperDeviceName.startsWith(QStringLiteral("ICONSOLE+"))) ||
                         (upperDeviceName.startsWith(QStringLiteral("I-RUNNING"))) ||
                         (upperDeviceName.startsWith(QStringLiteral("DKN RUN"))) ||
-                        (upperDeviceName.startsWith(QStringLiteral("ADIDAS"))) ||
+                        (upperDeviceName.startsWith(QStringLiteral("ADIDAS "))) ||
                         (upperDeviceName.startsWith(QStringLiteral("REEBOK")))) &&
                        !trxappgateusb && !trxappgateusbBike && !toorx_bike && !toorx_ftms && !toorx_ftms_treadmill && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) &&
                            ftms_bike.contains(QZSettings::default_ftms_bike) &&
