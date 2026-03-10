@@ -170,6 +170,8 @@ class ftmsbike : public bike {
     bool S18 = false;
     bool JFICCYCLE = false;
     bool ZIPRO_RAVE = false;
+    bool VICTORY = false;
+    bool lastRoutedCommandWasIndoorSimulation = false;
 
     uint8_t secondsToResetTimer = 5;
 

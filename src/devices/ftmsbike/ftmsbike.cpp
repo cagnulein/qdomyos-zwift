@@ -1543,6 +1543,14 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && !ergModeSupported) {
             qDebug() << "discarding";
             return;
+        } else if (b.at(0) == FTMS_SET_TARGET_POWER && VICTORY && lastRoutedCommandWasIndoorSimulation) {
+            uint8_t requestControl[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(requestControl, sizeof(requestControl), "victory requestControl", false, true);
+
+            uint8_t startSimulation[] = {FTMS_START_RESUME};
+            writeCharacteristic(startSimulation, sizeof(startSimulation), "victory start simulation", false, true);
+
+            lastRoutedCommandWasIndoorSimulation = false;
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
             // handling watt gain and offset for erg mode
             double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
@@ -1574,6 +1582,12 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
         }*/
 
         writeCharacteristic((uint8_t*)b.data(), b.length(), "injectWrite ", false, true);
+
+        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
+            lastRoutedCommandWasIndoorSimulation = true;
+        } else if (b.at(0) == FTMS_SET_TARGET_POWER) {
+            lastRoutedCommandWasIndoorSimulation = false;
+        }
     }
 }
 
@@ -1801,6 +1815,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("JFICCYCLE")) {
             qDebug() << QStringLiteral("JFICCYCLE found");
             JFICCYCLE = true;
+        } else if(device.name().toUpper().startsWith("VICTORY")) {
+            qDebug() << QStringLiteral("VICTORY found");
+            VICTORY = true;
         }
 
 
