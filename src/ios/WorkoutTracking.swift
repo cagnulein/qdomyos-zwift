@@ -25,7 +25,7 @@ protocol WorkoutTrackingProtocol {
     func stopWorkOut()
 }
 
-@available(iOS 17.0, *)
+@available(iOS 16.0, *)
 @objc class WorkoutTracking: NSObject {
     static let shared = WorkoutTracking()
     public static var lastDateMetric = Date()
@@ -55,7 +55,7 @@ protocol WorkoutTrackingProtocol {
     }
 }
 
-@available(iOS 17.0, *)
+@available(iOS 16.0, *)
 extension WorkoutTracking {
     func setSport(_ sport: Int) {
         WorkoutTracking.sport = sport
@@ -141,7 +141,7 @@ extension WorkoutTracking {
     }
 }
 
-@available(iOS 17.0, *)
+@available(iOS 16.0, *)
 extension WorkoutTracking: WorkoutTrackingProtocol {
     
     @objc static func requestAuth() {
@@ -451,64 +451,67 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
 
         if(WorkoutTracking.sport == 2) {
             if #available(watchOSApplicationExtension 10.0, *) {
-                let wattPerInterval = HKQuantity(unit: HKUnit.watt(),
-                                                doubleValue: power)
-                
-                if(WorkoutTracking.lastDateMetric.distance(to: Date()) < 1) {
-                    return
-                }
-                
-                guard let powerType = HKQuantityType.quantityType(
-                    forIdentifier: .cyclingPower) else {
-                return
-                }
-                let wattPerIntervalSample = HKQuantitySample(type: powerType,
-                                                                quantity: wattPerInterval,
-                                                            start: WorkoutTracking.lastDateMetric,
-                                                            end: Date())
-                WorkoutTracking.workoutBuilder.add([wattPerIntervalSample]) {(success, error) in
-                    if let error = error {
-                        SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                if #available(iOS 17.0, *) {
+                    let wattPerInterval = HKQuantity(unit: HKUnit.watt(),
+                                                    doubleValue: power)
+                    
+                    if(WorkoutTracking.lastDateMetric.distance(to: Date()) < 1) {
+                        return
                     }
-                }
+                    
+                    guard let powerType = HKQuantityType.quantityType(
+                        forIdentifier: .cyclingPower) else {
+                        return
+                    }
+                    let wattPerIntervalSample = HKQuantitySample(type: powerType,
+                                                                    quantity: wattPerInterval,
+                                                                start: WorkoutTracking.lastDateMetric,
+                                                                end: Date())
+                    WorkoutTracking.workoutBuilder.add([wattPerIntervalSample]) {(success, error) in
+                        if let error = error {
+                            SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                        }
+                    }
 
-                let cadencePerInterval = HKQuantity(unit: HKUnit.count().unitDivided(by: HKUnit.second()),
-                                                    doubleValue: cadence / 60.0)
-                
-                guard let cadenceType = HKQuantityType.quantityType(
-                    forIdentifier: .cyclingCadence) else {
-                return
-                }
-                let cadencePerIntervalSample = HKQuantitySample(type: cadenceType,
-                                                                quantity: cadencePerInterval,
-                                                            start: WorkoutTracking.lastDateMetric,
-                                                            end: Date())
-                WorkoutTracking.workoutBuilder.add([cadencePerIntervalSample]) {(success, error) in
-                    if success {
-                        SwiftDebug.qtDebug("WorkoutTracking: OK")
+                    let cadencePerInterval = HKQuantity(unit: HKUnit.count().unitDivided(by: HKUnit.second()),
+                                                        doubleValue: cadence / 60.0)
+                    
+                    guard let cadenceType = HKQuantityType.quantityType(
+                        forIdentifier: .cyclingCadence) else {
+                        return
                     }
-                    if let error = error {
-                        SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                    let cadencePerIntervalSample = HKQuantitySample(type: cadenceType,
+                                                                    quantity: cadencePerInterval,
+                                                                start: WorkoutTracking.lastDateMetric,
+                                                                end: Date())
+                    WorkoutTracking.workoutBuilder.add([cadencePerIntervalSample]) {(success, error) in
+                        if success {
+                            SwiftDebug.qtDebug("WorkoutTracking: OK")
+                        }
+                        if let error = error {
+                            SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                        }
                     }
-                }
-                
-                let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
-                                                  doubleValue: (Speed / 3.6))
-                
-                guard let speedType = HKQuantityType.quantityType(
-                    forIdentifier: .cyclingSpeed) else {
-                return
-                }
-                let speedPerIntervalSample = HKQuantitySample(type: speedType,
-                                                                quantity: speedPerInterval,
-                                                            start: WorkoutTracking.lastDateMetric,
-                                                            end: Date())
-                WorkoutTracking.workoutBuilder.add([speedPerIntervalSample]) {(success, error) in
-                    if let error = error {
-                        SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                    
+                    let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
+                                                      doubleValue: (Speed / 3.6))
+                    
+                    guard let speedType = HKQuantityType.quantityType(
+                        forIdentifier: .cyclingSpeed) else {
+                        return
                     }
+                    let speedPerIntervalSample = HKQuantitySample(type: speedType,
+                                                                    quantity: speedPerInterval,
+                                                                start: WorkoutTracking.lastDateMetric,
+                                                                end: Date())
+                    WorkoutTracking.workoutBuilder.add([speedPerIntervalSample]) {(success, error) in
+                        if let error = error {
+                            SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                        }
+                    }
+                } else {
+                    // iOS < 17: cycling metrics not available; skip writing these samples
                 }
-
             } else {
                 // Fallback on earlier versions
             }
@@ -599,19 +602,23 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     return
                 }
 
-                let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
-                                                  doubleValue: (Speed / 3.6))
+                if #available(iOS 17.0, *) {
+                    let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
+                                                      doubleValue: (Speed / 3.6))
 
-                if let cyclingSpeedType = HKQuantityType.quantityType(forIdentifier: .cyclingSpeed) {
-                    let speedSample = HKQuantitySample(type: cyclingSpeedType,
-                                                       quantity: speedPerInterval,
-                                                       start: WorkoutTracking.lastDateMetric,
-                                                       end: Date())
-                    WorkoutTracking.workoutBuilder.add([speedSample]) { (success, error) in
-                        if let error = error {
-                            SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                    if let cyclingSpeedType = HKQuantityType.quantityType(forIdentifier: .cyclingSpeed) {
+                        let speedSample = HKQuantitySample(type: cyclingSpeedType,
+                                                           quantity: speedPerInterval,
+                                                           start: WorkoutTracking.lastDateMetric,
+                                                           end: Date())
+                        WorkoutTracking.workoutBuilder.add([speedSample]) { (success, error) in
+                            if let error = error {
+                                SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                            }
                         }
                     }
+                } else {
+                    // iOS < 17: cyclingSpeed not available; skip
                 }
 
                 if power > 0,
@@ -628,20 +635,24 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     }
                 }
 
-                if cadence > 0,
-                   let cyclingCadenceType = HKQuantityType.quantityType(forIdentifier: .cyclingCadence) {
-                    // For ellipticals, divide cadence by 2 to match QZ display (steps per minute vs revolutions per minute)
-                    let cadenceQuantity = HKQuantity(unit: HKUnit.count().unitDivided(by: HKUnit.second()),
-                                                     doubleValue: (cadence / 2.0) / 60.0)
-                    let cadenceSample = HKQuantitySample(type: cyclingCadenceType,
-                                                         quantity: cadenceQuantity,
-                                                         start: WorkoutTracking.lastDateMetric,
-                                                         end: Date())
-                    WorkoutTracking.workoutBuilder.add([cadenceSample]) { (success, error) in
-                        if let error = error {
-                            SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                if #available(iOS 17.0, *) {
+                    if cadence > 0,
+                       let cyclingCadenceType = HKQuantityType.quantityType(forIdentifier: .cyclingCadence) {
+                        // For ellipticals, divide cadence by 2 to match QZ display (steps per minute vs revolutions per minute)
+                        let cadenceQuantity = HKQuantity(unit: HKUnit.count().unitDivided(by: HKUnit.second()),
+                                                         doubleValue: (cadence / 2.0) / 60.0)
+                        let cadenceSample = HKQuantitySample(type: cyclingCadenceType,
+                                                             quantity: cadenceQuantity,
+                                                             start: WorkoutTracking.lastDateMetric,
+                                                             end: Date())
+                        WorkoutTracking.workoutBuilder.add([cadenceSample]) { (success, error) in
+                            if let error = error {
+                                SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                            }
                         }
                     }
+                } else {
+                    // iOS < 17: cyclingCadence not available; skip
                 }
 
                 let distanceDelta = max(0, distance - WorkoutTracking.previousDistance)

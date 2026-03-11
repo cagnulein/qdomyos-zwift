@@ -146,7 +146,7 @@ var pedometer = CMPedometer()
 
     @objc public func setHeartRate(heartRate: Int) -> Void
     {
-        if #available(iOS 17.0, *) {
+        if #available(iOS 16.0, *) {
             WorkoutTracking.shared.setBluetoothHeartRate(heartRate: Double(heartRate))
         }
     }

@@ -114,7 +114,7 @@ void lockscreen::request()
         Garmin = [[GarminConnect alloc] init];
     }
     // just to be sure, I built the library for iOS17 only but theorically we can use any iOS version
-    if (@available(iOS 17, *)) {
+    if (@available(iOS 16, *)) {
         workoutTracking = [[WorkoutTracking alloc] init];
         [WorkoutTracking requestAuth];
         _adb = [[AdbClient alloc] initWithVerbose:YES];
