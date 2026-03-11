@@ -1,0 +1,10 @@
+{
+  "name": "qdomyos-zwift",
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "dependencies": [
+    "protobuf",
+    "protobuf-c",
+    "abseil"
+  ],
+  "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
+}
