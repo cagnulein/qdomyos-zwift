@@ -7,13 +7,14 @@ let RSCMeasurementUuid = CBUUID(string: "0x2a53");
 let RSCControlPointUuid = CBUUID(string: "0x2a55");
 
 let treadmilldataUuid = CBUUID(string: "0x2ACD");
+let supported_inclination_rangeCharacteristicUuid = CBUUID(string: "0x2AD5");
 
 @objc public class virtualtreadmill_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerTreadmillZwift!
 
-    @objc public init(garmin_bluetooth_compatibility: Bool, bike_cadence_sensor: Bool) {
+    @objc public init(garmin_bluetooth_compatibility: Bool, bike_cadence_sensor: Bool, min_inclination: Double, max_inclination: Double) {
       super.init()
-        peripheralManager = BLEPeripheralManagerTreadmillZwift(garmin_bluetooth_compatibility: garmin_bluetooth_compatibility, bike_cadence_sensor: bike_cadence_sensor)
+        peripheralManager = BLEPeripheralManagerTreadmillZwift(garmin_bluetooth_compatibility: garmin_bluetooth_compatibility, bike_cadence_sensor: bike_cadence_sensor, min_inclination: min_inclination, max_inclination: max_inclination)
     }
     
     @objc public func updateHeartRate(HeartRate: UInt8)
@@ -57,6 +58,8 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
 class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate {
   private var garmin_bluetooth_compatibility: Bool = false
   private var bike_cadence_sensor: Bool = false
+  private var min_inclination: Double = 0.0
+  private var max_inclination: Double = 100.0
   private var peripheralManager: CBPeripheralManager!
   let SwiftDebug = swiftDebug()
 
@@ -67,6 +70,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   private var FitnessMachineService: CBMutableService!
   private var FitnessMachineFeatureCharacteristic: CBMutableCharacteristic!
   private var supported_resistance_level_rangeCharacteristic: CBMutableCharacteristic!
+  private var supported_inclination_rangeCharacteristic: CBMutableCharacteristic!
   private var FitnessMachineControlPointCharacteristic: CBMutableCharacteristic!
   private var indoorbikeCharacteristic: CBMutableCharacteristic!
   private var treadmilldataCharacteristic: CBMutableCharacteristic!
@@ -97,10 +101,12 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   private var notificationTimer: Timer! = nil
   //var delegate: BLEPeripheralManagerDelegate?
 
-  init(garmin_bluetooth_compatibility: Bool, bike_cadence_sensor: Bool) {
+  init(garmin_bluetooth_compatibility: Bool, bike_cadence_sensor: Bool, min_inclination: Double, max_inclination: Double) {
     super.init()
       self.garmin_bluetooth_compatibility = garmin_bluetooth_compatibility
       self.bike_cadence_sensor = bike_cadence_sensor
+      self.min_inclination = min_inclination
+      self.max_inclination = max_inclination
     peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
   }
   
@@ -136,7 +142,26 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
                                                                                           properties: supported_resistance_level_rangeProperties,
                                                                                           value: Data (bytes: [0x0A, 0x00, 0x96, 0x00, 0x0A, 0x00]),
                                                                                           permissions: supported_resistance_level_rangePermissions)
-            
+
+            // Supported Inclination Range (0x2AD5): Sint16 min, Sint16 max, UInt16 step, all in 0.1% units
+            let bleMinInclination: Int16 = Int16(self.min_inclination * 10.0)
+            let bleMaxInclination: Int16 = Int16(self.max_inclination * 10.0)
+            let bleStepInclination: UInt16 = 5 // 0.5% step
+            let inclinationRangeBytes: [UInt8] = [
+                UInt8(bleMinInclination & 0xFF),
+                UInt8((bleMinInclination >> 8) & 0xFF),
+                UInt8(bleMaxInclination & 0xFF),
+                UInt8((bleMaxInclination >> 8) & 0xFF),
+                UInt8(bleStepInclination & 0xFF),
+                UInt8((bleStepInclination >> 8) & 0xFF)
+            ]
+            let supported_inclination_rangeProperties: CBCharacteristicProperties = [.read]
+            let supported_inclination_rangePermissions: CBAttributePermissions = [.readable]
+            self.supported_inclination_rangeCharacteristic = CBMutableCharacteristic(type: supported_inclination_rangeCharacteristicUuid,
+                                                                                     properties: supported_inclination_rangeProperties,
+                                                                                     value: Data(bytes: inclinationRangeBytes),
+                                                                                     permissions: supported_inclination_rangePermissions)
+
             let FitnessMachineControlPointProperties: CBCharacteristicProperties = [.indicate, .write]
             let FitnessMachineControlPointPermissions: CBAttributePermissions = [.writeable]
             self.FitnessMachineControlPointCharacteristic = CBMutableCharacteristic(type: FitnessMachineControlPointUuid,
@@ -174,6 +199,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
             
             FitnessMachineService.characteristics = [FitnessMachineFeatureCharacteristic,
                                                      supported_resistance_level_rangeCharacteristic,
+                                                     supported_inclination_rangeCharacteristic,
                                                      FitnessMachineControlPointCharacteristic,
                                                      indoorbikeCharacteristic,
                                                      treadmilldataCharacteristic,
