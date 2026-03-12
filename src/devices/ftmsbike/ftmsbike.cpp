@@ -624,9 +624,11 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             return;
         }
 
-        if (messageType == 0x43 && newValue.length() >= 5) {
-            double vendorWatt = (double)(((uint16_t)((uint8_t)newValue.at(4)) << 8) |
-                                         (uint16_t)((uint8_t)newValue.at(3)));
+        if (messageType == 0x43 && newValue.length() >= 9) {
+            // On JOROTO-X2PRO the first 16-bit field is a cumulative counter.
+            // Instant power is carried in bytes 7-8.
+            double vendorWatt = (double)(((uint16_t)((uint8_t)newValue.at(8)) << 8) |
+                                         (uint16_t)((uint8_t)newValue.at(7)));
             m_rawWatt = vendorWatt;
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
