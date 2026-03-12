@@ -38,7 +38,7 @@ wahoodirconbike::wahoodirconbike(const DirconDeviceInfo &deviceInfo, bool noWrit
     // Start connection
     connectToDevice();
 
-#ifdef Q_OS_IOS
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
     h = new lockscreen();
     h->request();
 #endif
@@ -48,7 +48,7 @@ wahoodirconbike::~wahoodirconbike() {
     qDebug() << "WahooDirconBike: destroying instance";
     disconnectFromDevice();
 
-#ifdef Q_OS_IOS
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
     if (h) {
         delete h;
     }

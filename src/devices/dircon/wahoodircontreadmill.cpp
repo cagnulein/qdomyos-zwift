@@ -37,7 +37,7 @@ wahoodircontreadmill::wahoodircontreadmill(const DirconDeviceInfo &deviceInfo, b
     // Start connection
     connectToDevice();
 
-#ifdef Q_OS_IOS
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
     h = new lockscreen();
     h->request();
 #endif
@@ -47,7 +47,7 @@ wahoodircontreadmill::~wahoodircontreadmill() {
     qDebug() << "WahooDirconTreadmill: destroying instance";
     disconnectFromDevice();
 
-#ifdef Q_OS_IOS
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
     if (h) {
         delete h;
     }
