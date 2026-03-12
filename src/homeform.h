@@ -566,6 +566,7 @@ class homeform : public QObject {
     Q_INVOKABLE void strava_logout();
     Q_INVOKABLE void peloton_logout();
     Q_INVOKABLE void intervalsicu_logout();
+    Q_INVOKABLE void handleOAuthCallbackFromQml(const QString &callbackUrl);
 
 private:
     void clearWebViewCache();

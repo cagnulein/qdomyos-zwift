@@ -8105,6 +8105,10 @@ void homeform::handleOAuthCallbackUrl(const QString &callbackUrl) {
     }
 }
 
+void homeform::handleOAuthCallbackFromQml(const QString &callbackUrl) {
+    handleOAuthCallbackUrl(callbackUrl);
+}
+
 void homeform::trainprogram_preview(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_preview") << fileName;
 
