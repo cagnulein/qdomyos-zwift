@@ -64,6 +64,10 @@ class lockscreen {
     // volume
     double getVolume();
 
+    // background audio (keep-alive when iOS would kill the app)
+    void startBackgroundAudio();
+    void stopBackgroundAudio();
+
     // garmin
     bool urlParser(const char *url);
     void garminconnect_init();

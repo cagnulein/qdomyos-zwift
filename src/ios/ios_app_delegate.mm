@@ -80,5 +80,17 @@
 performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler
 {
 }
+
+- (void)applicationDidEnterBackground:(UIApplication *)application
+{
+    lockscreen ls;
+    ls.startBackgroundAudio();
+}
+
+- (void)applicationWillEnterForeground:(UIApplication *)application
+{
+    lockscreen ls;
+    ls.stopBackgroundAudio();
+}
 @end
 #endif
