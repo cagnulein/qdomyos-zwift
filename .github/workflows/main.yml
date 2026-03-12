@@ -1108,7 +1108,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ runner.workspace }}\vcpkg\installed
-          key: vcpkg-msvc2019-x64-windows-${{ hashFiles('vcpkg-deps.json') }}
+          key: vcpkg-msvc2019-x64-windows-protobuf-abseil-v1
 
       - name: Clone vcpkg
         if: steps.cache-vcpkg-msvc2019.outputs.cache-hit != 'true'
@@ -1123,7 +1123,17 @@ jobs:
       - name: Create vcpkg.json
         if: steps.cache-vcpkg-msvc2019.outputs.cache-hit != 'true'
         working-directory: ${{ runner.workspace }}
-        run: cp ${{ github.workspace }}/vcpkg-deps.json vcpkg.json
+        run: |
+          echo '{
+            "name": "qdomyos-zwift",
+            "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+            "dependencies": [
+              "protobuf",
+              "protobuf-c",
+              "abseil"
+            ],
+            "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
+          }' > vcpkg.json
 
       - name: Install dependencies
         if: steps.cache-vcpkg-msvc2019.outputs.cache-hit != 'true'
@@ -1301,7 +1311,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ runner.workspace }}\vcpkg\installed
-          key: vcpkg-msvc2019-x64-windows-${{ hashFiles('vcpkg-deps.json') }}
+          key: vcpkg-msvc2019-x64-windows-protobuf-abseil-v1
 
       - name: Clone vcpkg
         if: steps.cache-vcpkg-aiserver.outputs.cache-hit != 'true'
@@ -1316,7 +1326,17 @@ jobs:
       - name: Create vcpkg.json
         if: steps.cache-vcpkg-aiserver.outputs.cache-hit != 'true'
         working-directory: ${{ runner.workspace }}
-        run: cp ${{ github.workspace }}/vcpkg-deps.json vcpkg.json
+        run: |
+          echo '{
+            "name": "qdomyos-zwift",
+            "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+            "dependencies": [
+              "protobuf",
+              "protobuf-c",
+              "abseil"
+            ],
+            "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
+          }' > vcpkg.json
 
       - name: Install dependencies
         if: steps.cache-vcpkg-aiserver.outputs.cache-hit != 'true'
@@ -1675,7 +1695,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ runner.workspace }}\vcpkg\installed
-          key: vcpkg-msvc2022-x64-windows-${{ hashFiles('vcpkg-deps.json') }}
+          key: vcpkg-msvc2022-x64-windows-protobuf-abseil-v1
 
       - name: Clone vcpkg
         if: steps.cache-vcpkg-msvc2022.outputs.cache-hit != 'true'
@@ -1690,7 +1710,17 @@ jobs:
       - name: Create vcpkg.json
         if: steps.cache-vcpkg-msvc2022.outputs.cache-hit != 'true'
         working-directory: ${{ runner.workspace }}
-        run: cp ${{ github.workspace }}/vcpkg-deps.json vcpkg.json
+        run: |
+          echo '{
+            "name": "qdomyos-zwift",
+            "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+            "dependencies": [
+              "protobuf",
+              "protobuf-c",
+              "abseil"
+            ],
+            "builtin-baseline": "8c2fcacefba009d63672f9d137f192765e632c9f"
+          }' > vcpkg.json
 
       - name: Install dependencies
         if: steps.cache-vcpkg-msvc2022.outputs.cache-hit != 'true'
