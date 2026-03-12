@@ -112,6 +112,7 @@
 #include "signalhandler.h"
 #include "devices/skandikawiribike/skandikawiribike.h"
 #include "devices/smartrowrower/smartrowrower.h"
+#include "devices/sunnyfitstepper/sunnyfitstepper.h"
 #include "devices/smartspin2k/smartspin2k.h"
 #include "devices/snodebike/snodebike.h"
 #include "devices/strydrunpowersensor/strydrunpowersensor.h"
@@ -126,6 +127,7 @@
 #include "devices/sportsplusrower/sportsplusrower.h"
 #include "devices/sportstechbike/sportstechbike.h"
 #include "devices/sportstechelliptical/sportstechelliptical.h"
+#include "devices/sportstechrower/sportstechrower.h"
 #include "devices/sramAXSController/sramAXSController.h"
 #include "devices/stagesbike/stagesbike.h"
 
@@ -157,6 +159,7 @@
 
 #include "zwift_play/zwiftPlayDevice.h"
 #include "zwift_play/zwiftclickremote.h"
+#include "devices/thinkridercontroller/thinkridercontroller.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -252,6 +255,7 @@ class bluetooth : public QObject, public SignalHandler {
     technogymbike* technogymBike = nullptr;
     sportstechbike *sportsTechBike = nullptr;
     sportstechelliptical *sportsTechElliptical = nullptr;
+    sportstechrower *sportsTechRower = nullptr;
     sportsplusbike *sportsPlusBike = nullptr;
     sportsplusrower *sportsPlusRower = nullptr;
     inspirebike *inspireBike = nullptr;
@@ -273,6 +277,7 @@ class bluetooth : public QObject, public SignalHandler {
     echelonrower *echelonRower = nullptr;
     ftmsrower *ftmsRower = nullptr;
     smartrowrower *smartrowRower = nullptr;
+    sunnyfitstepper *sunnyfitStepper = nullptr;
     echelonstride *echelonStride = nullptr;
     echelonstairclimber *echelonStairclimber = nullptr;
     lifefitnesstreadmill *lifefitnessTreadmill = nullptr;
@@ -313,6 +318,7 @@ class bluetooth : public QObject, public SignalHandler {
     QList<eliteariafan *> eliteAriaFan;
     QList<zwiftclickremote* > zwiftPlayDevice;
     zwiftclickremote* zwiftClickRemote = nullptr;
+    thinkridercontroller* thinkriderController = nullptr;
     sramaxscontroller* sramAXSController = nullptr;
     elitesquarecontroller* eliteSquareController = nullptr;
     QString filterDevice = QLatin1String("");
@@ -350,6 +356,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool fitmetriaFanfitAvaiable();
     bool zwiftDeviceAvaiable();
     bool sramDeviceAvaiable();
+    bool thinkriderDeviceAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
 #ifdef Q_OS_WIN

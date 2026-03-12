@@ -188,6 +188,7 @@ class peloton : public QObject {
   public slots:
     void peloton_connect_clicked();
     void onUserProfileChanged();
+    void peloton_logout();
 
   private slots:
     void login_onfinish(QNetworkReply *reply);

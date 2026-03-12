@@ -30,6 +30,7 @@
 #include "mqttpublisher.h"
 #include "androidstatusbar.h"
 #include "fontmanager.h"
+#include "filesearcher.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -95,6 +96,7 @@ int8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
 QString power_sensor_name = QStringLiteral("Disabled");
 bool power_sensor_as_treadmill = false;
+bool smokeTest = false;
 QString logfilename = QStringLiteral("debug-") +
                       QDateTime::currentDateTime()
                           .toString()
@@ -159,6 +161,7 @@ void displayHelp() {
     printf("  -test-peloton                 Enable Peloton test mode\n");
     printf("  -test-hfb                     Enable Home Fitness Buddy test mode\n");
     printf("  -test-pzp                     Enable Power Zone Pack test mode\n");
+    printf("  -smoke-test                   Run smoke test (verify Qt loads, print SMOKE_OK, exit)\n");
     printf("  -train <program>              Specify training program\n");
 
     printf("\nPeloton options:\n");
@@ -323,6 +326,10 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             testHomeFitnessBudy = true;
         if (!qstrcmp(argv[i], "-test-pzp"))
             testPowerZonePack = true;
+        if (!qstrcmp(argv[i], "-smoke-test")) {
+            smokeTest = true;
+            nogui = true;
+        }
         if (!qstrcmp(argv[i], "-train")) {
 
             trainProgram = argv[++i];
@@ -530,7 +537,7 @@ int main(int argc, char *argv[]) {
 
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
-    if (getuid() && !testPeloton && !testHomeFitnessBudy && !testPowerZonePack) {
+    if (getuid() && !testPeloton && !testHomeFitnessBudy && !testPowerZonePack && !smokeTest) {
 
         printf("Runme as root!\n");
         return -1;
@@ -538,6 +545,11 @@ int main(int argc, char *argv[]) {
         printf("%s", "OK, you are root.\n");
 #endif
 #endif
+
+    if (smokeTest) {
+        printf("SMOKE_OK\n");
+        return 0;
+    }
 
     app->setOrganizationName(QStringLiteral("Roberto Viola"));
     app->setOrganizationDomain(QStringLiteral("robertoviola.cloud"));
@@ -657,7 +669,7 @@ int main(int argc, char *argv[]) {
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token")) {
+        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token") && !s.contains("garmin_device_serial") && !s.contains("garmin_email")) {
 
             qDebug() << s << settings.value(s);
         }
@@ -879,6 +891,10 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_ANDROID
         engine.rootContext()->setContextProperty("fontManager", &fontManager);
 #endif
+        // Expose FileSearcher for fast recursive file searching
+        FileSearcher fileSearcher;
+        engine.rootContext()->setContextProperty("fileSearcher", &fileSearcher);
+
         engine.load(url);
         homeform *h = new homeform(&engine, &bl);
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,
