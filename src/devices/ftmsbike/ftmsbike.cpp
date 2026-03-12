@@ -580,18 +580,27 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         return;
     }
 
-    if (JOROTO_X2PRO &&
+        auto updateJorotoDerivedSpeed = [&]() {
+            if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            }
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        };
+
+        if (JOROTO_X2PRO &&
         characteristic.uuid() == QBluetoothUuid(QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb")) &&
         newValue.length() >= 5) {
-        uint8_t messageType = (uint8_t)newValue.at(1);
+            uint8_t messageType = (uint8_t)newValue.at(1);
 
         // JOROTO-X2PRO exposes usable live metrics on this vendor channel while its FTMS
         // notifications under-report speed/power. Prefer the vendor payload when present.
         if (messageType == 0x42 && newValue.length() >= 7) {
+            double vendorSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(4)) << 8) |
+                                           (uint16_t)((uint8_t)newValue.at(3)))) / 100.0;
             if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                Speed = ((double)(((uint16_t)((uint8_t)newValue.at(4)) << 8) |
-                                  (uint16_t)((uint8_t)newValue.at(3)))) / 100.0;
-                emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+                Speed = vendorSpeed;
             }
 
             Resistance = (double)((uint8_t)newValue.at(5));
@@ -600,9 +609,17 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
 
             if (useMachineCadence) {
-                Cadence = (double)((uint8_t)newValue.at(6));
+                double vendorCadence = (double)((uint8_t)newValue.at(6));
+                if (vendorCadence > 0) {
+                    Cadence = vendorCadence;
+                    lastGoodCadence = now;
+                } else if (lastGoodCadence.msecsTo(now) > 2000) {
+                    Cadence = 0;
+                }
                 emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
             }
+
+            updateJorotoDerivedSpeed();
 
             return;
         }
@@ -622,6 +639,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             }
 
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+            updateJorotoDerivedSpeed();
             return;
         }
     }
