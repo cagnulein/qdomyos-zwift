@@ -16,6 +16,8 @@
 #include <QOAuth2AuthorizationCodeFlow>
 #include <QOAuthHttpServerReplyHandler>
 #include <QObject>
+#include <QTcpServer>
+#include <QTcpSocket>
 
 #include <QSettings>
 
@@ -123,11 +125,22 @@ class peloton : public QObject {
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *pelotonReplyHandler = nullptr;
     QString peloton_code;    
+    QString pelotonPendingState;
+    QTcpServer *pelotonDesktopRelayServer = nullptr;
     QOAuth2AuthorizationCodeFlow *peloton_connect();
     void peloton_refreshtoken();    
     QNetworkReply *replyPeloton;
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
+    bool exchangeAuthorizationCode(const QString &code);
+    bool isAcceptedCallbackUrl(const QUrl &url) const;
+    void completeOAuthLogin();
+#if !defined(Q_OS_ANDROID)
+    bool ensureDesktopRelayServer();
+    void stopDesktopRelayServer();
+    void handleDesktopRelayConnection();
+    void handleDesktopRelaySocketReadyRead();
+#endif
     // Save token with user-specific suffix
     QString getPelotonSettingKey(const QString& baseKey, const QString& userId) {
         if (userId.isEmpty()) {

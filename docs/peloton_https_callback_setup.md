@@ -82,3 +82,44 @@ The app now handles `https://www.qzfitness.com/peloton/callback` directly on mob
 - Android: `CustomQtActivity` forwards incoming App Link intents to C++ (`nativeOnOAuthCallback`).
 - iOS: the Qt app event filter intercepts `QEvent::FileOpen` URL events and forwards them to OAuth handling.
 - C++: Peloton callback URL parsing/exchange is handled in `peloton::handleOAuthCallbackUrl`.
+
+## Desktop relay flow
+
+Desktop builds also use the same Peloton redirect URL:
+
+- `https://www.qzfitness.com/peloton/callback`
+
+The difference is that QZ listens locally on:
+
+- `http://127.0.0.1:18080/peloton/callback`
+
+The callback page hosted on `www.qzfitness.com` must forward the received query string (`code`, `state`, `error`, etc.) to that local URL so the running desktop app can complete the login.
+
+Minimal browser-side example:
+
+```html
+<!doctype html>
+<html>
+<body>
+  <p>Completing Peloton login...</p>
+  <script>
+    const relayUrl = new URL("http://127.0.0.1:18080/peloton/callback");
+    relayUrl.search = window.location.search;
+
+    fetch(relayUrl.toString(), {
+      method: "GET",
+      mode: "cors"
+    }).finally(() => {
+      document.body.innerHTML = "<p>Peloton login sent to QZ. You can close this tab.</p>";
+    });
+  </script>
+</body>
+</html>
+```
+
+The local relay endpoint should reply with:
+
+- `Access-Control-Allow-Origin: https://www.qzfitness.com`
+- `Access-Control-Allow-Methods: GET, OPTIONS`
+- `Access-Control-Allow-Headers: Content-Type`
+- `Access-Control-Allow-Private-Network: true`
