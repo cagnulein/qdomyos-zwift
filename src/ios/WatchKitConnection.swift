@@ -23,8 +23,10 @@ class WatchKitConnection: NSObject {
     static let shared = WatchKitConnection()
     weak var delegate: WatchKitConnectionDelegate?
     static var currentHeartRate = 0
+    static var lastHeartRateUpdate = Date.distantPast
     static var distance = 0.0
     static var stepCadence = 0
+    static var lastStepCadenceUpdate = Date.distantPast
     static var kcal = 0.0
     static var totalKcal = 0.0
     static var speed = 0.0
@@ -107,6 +109,23 @@ extension WatchKitConnection: WatchKitConnectionProtocol {
 }
 
 extension WatchKitConnection: WCSessionDelegate {
+    private func intValue(from payload: Any?) -> Int? {
+        switch payload {
+        case let value as Int:
+            return value
+        case let value as Double:
+            return Int(value)
+        case let value as Float:
+            return Int(value)
+        case let value as NSNumber:
+            return value.intValue
+        case let value as String:
+            return Int(value)
+        default:
+            return nil
+        }
+    }
+
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         print("activationDidCompleteWith")
         delegate?.didFinishedActiveSession()
@@ -130,20 +149,17 @@ extension WatchKitConnection: WCSessionDelegate {
         
         print("didReceiveMessage with reply")
         print(message)
-        if(message.keys.first?.description == "heartRate") {
-            guard let heartReate = message.values.first as? String else {
-                return
-            }
-            guard let heartReateDouble = Double(heartReate) else {
-                return
-            }
-            WatchKitConnection.currentHeartRate = Int(heartReateDouble)
-        } else if(message.keys.first?.description == "stepCadence") {
-            guard let stepCadence = message.values.first as? String else {
-                return
-            }
-            WatchKitConnection.stepCadence = Int(stepCadence) ?? 0
+        if let heartRate = intValue(from: message["heartRate"]) {
+            WatchKitConnection.currentHeartRate = heartRate
+            WatchKitConnection.lastHeartRateUpdate = Date()
         }
+        if let stepCadence = intValue(from: message["stepCadence"]) {
+            WatchKitConnection.stepCadence = stepCadence
+            WatchKitConnection.lastStepCadenceUpdate = Date()
+        }
+
+        SwiftDebug.qtDebug("WatchKitConnection received payload: \(message)")
+        SwiftDebug.qtDebug("WatchKitConnection state HR=\(WatchKitConnection.currentHeartRate) CAD=\(WatchKitConnection.stepCadence)")
         
         replyValues["distance"] = WatchKitConnection.distance
         replyValues["kcal"] = WatchKitConnection.kcal
