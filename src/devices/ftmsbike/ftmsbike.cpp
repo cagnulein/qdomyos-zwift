@@ -596,7 +596,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         // JOROTO-X2PRO exposes usable live metrics on this vendor channel while its FTMS
         // notifications under-report speed/power. Prefer the vendor payload when present.
-        if (messageType == 0x42 && newValue.length() >= 7) {
+        if (messageType == 0x42 && newValue.length() >= 11) {
             double vendorSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(4)) << 8) |
                                            (uint16_t)((uint8_t)newValue.at(3)))) / 100.0;
             if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
@@ -619,29 +619,27 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
             }
 
-            updateJorotoDerivedSpeed();
-
-            return;
-        }
-
-        if (messageType == 0x43 && newValue.length() >= 9) {
-            // On JOROTO-X2PRO the first 16-bit field is a cumulative counter.
-            // Instant power is carried in bytes 7-8.
-            double vendorWatt = (double)(((uint16_t)((uint8_t)newValue.at(8)) << 8) |
-                                         (uint16_t)((uint8_t)newValue.at(7)));
+            // JOROTO-X2PRO exposes a power-like value in bytes 9-10 with 0.1 scaling.
+            double vendorWatt = ((double)(((uint16_t)((uint8_t)newValue.at(10)) << 8) |
+                                          (uint16_t)((uint8_t)newValue.at(9)))) / 10.0;
             m_rawWatt = vendorWatt;
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
                 m_watt = vendorWatt;
             }
-
             if(!wattReceived && m_watt.value() > 0) {
                 wattReceived = true;
             }
-
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+
             updateJorotoDerivedSpeed();
+
+            return;
+        }
+
+        if (messageType == 0x43 && newValue.length() >= 9) {
+            // This frame appears to carry counters/state, not instantaneous power.
             return;
         }
     }
