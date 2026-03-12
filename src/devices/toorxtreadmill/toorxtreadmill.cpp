@@ -28,6 +28,10 @@ void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             MASTERT409 = true;
             qDebug() << "MASTERT409 workarkound enabled";
         }
+        if (device.name().toUpper().contains(QStringLiteral("BH DUALKIT TREAD"))) {
+            BHDualkitTread = true;
+            qDebug() << "BH DUALKIT TREAD workaround enabled";
+        }
 
         // Create a discovery agent and connect to its signals
         discoveryAgent = new QBluetoothServiceDiscoveryAgent(this);
@@ -331,6 +335,85 @@ void toorxtreadmill::update() {
                     case 13: {
                         const uint8_t start[] = {0x55, 0x0f, 0x02, 0x06, 0x00};
                         socket->write((char *)start, sizeof(start));
+                        start_phase = -1;
+                        break;
+                    }
+                }
+            } else if (BHDualkitTread) {
+                switch (start_phase) {
+                    case 0: {
+                        const uint8_t init2[] = {0x55, 0x0c, 0x01, 0xff, 0x55, 0xbb, 0x01, 0xff, 0x55, 0x24, 0x01, 0xff,
+                                                 0x55, 0x25, 0x01, 0xff, 0x55, 0x26, 0x01, 0xff, 0x55, 0x27, 0x01, 0xff, 0x55, 0x02,
+                                                 0x01, 0xff, 0x55, 0x03, 0x01, 0xff, 0x55, 0x04, 0x01, 0xff, 0x55, 0x06, 0x01, 0xff,
+                                                 0x55, 0x1f, 0x01, 0xff, 0x55, 0xa0, 0x01, 0xff, 0x55, 0xb0, 0x01, 0xff, 0x55, 0xb2,
+                                                 0x01, 0xff, 0x55, 0xb3, 0x01, 0xff, 0x55, 0xb4, 0x01, 0xff, 0x55, 0xb5, 0x01, 0xff,
+                                                 0x55, 0xb6, 0x01, 0xff, 0x55, 0xb7, 0x01, 0xff, 0x55, 0xb8, 0x01, 0xff, 0x55, 0xb9,
+                                                 0x01, 0xff, 0x55, 0xba, 0x01, 0xff, 0x55, 0x0b, 0x01, 0xff, 0x55, 0x18, 0x01, 0xff,
+                                                 0x55, 0x19, 0x01, 0xff, 0x55, 0x1a, 0x01, 0xff, 0x55, 0x1b, 0x01, 0xff};
+                        send((char *)init2, sizeof(init2));
+                        start_phase++;
+                        break;
+                    }
+                    case 1:
+                        start_phase++;
+                        break;
+                    case 2: {
+                        const uint8_t poll[] = {0x55, 0x17, 0x01, 0x01};
+                        send((char *)poll, sizeof(poll));
+                        start_phase++;
+                        break;
+                    }
+                    case 3: {
+                        const uint8_t start0[] = {0x55, 0x0a, 0x01, 0x02};
+                        send((char *)start0, sizeof(start0));
+                        start_phase++;
+                        break;
+                    }
+                    case 4: {
+                        const uint8_t nativeInit[] = {0x55, 0x01, 0x06, 0x23, 0x01, 0x46, 0x00, 0xb4, 0x00};
+                        send((char *)nativeInit, sizeof(nativeInit));
+                        start_phase++;
+                        break;
+                    }
+                    case 5: {
+                        const uint8_t poll[] = {0x55, 0x17, 0x01, 0x01};
+                        send((char *)poll, sizeof(poll));
+                        start_phase++;
+                        break;
+                    }
+                    case 6: {
+                        const uint8_t start1[] = {0x55, 0x15, 0x01, 0x00};
+                        send((char *)start1, sizeof(start1));
+                        start_phase++;
+                        break;
+                    }
+                    case 7: {
+                        const uint8_t poll[] = {0x55, 0x17, 0x01, 0x01};
+                        send((char *)poll, sizeof(poll));
+                        start_phase++;
+                        break;
+                    }
+                    case 8: {
+                        const uint8_t start2[] = {0x55, 0x0f, 0x02, 0x01, 0x00};
+                        send((char *)start2, sizeof(start2));
+                        start_phase++;
+                        break;
+                    }
+                    case 9: {
+                        const uint8_t start3[] = {0x55, 0x11, 0x01, 0x01};
+                        send((char *)start3, sizeof(start3));
+                        start_phase++;
+                        break;
+                    }
+                    case 10: {
+                        const uint8_t poll[] = {0x55, 0x17, 0x01, 0x01};
+                        send((char *)poll, sizeof(poll));
+                        start_phase++;
+                        break;
+                    }
+                    case 11: {
+                        const uint8_t start4[] = {0x55, 0x08, 0x01, 0x01};
+                        send((char *)start4, sizeof(start4));
                         start_phase = -1;
                         break;
                     }
