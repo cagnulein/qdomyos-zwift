@@ -673,6 +673,11 @@ jobs:
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
 
+      - name: Prepare Android signing key
+        run: |
+          printf '%s' "${{ secrets.SIGNING_KEY }}" | base64 --decode > ${{ github.workspace }}/src/android/ci-signing-key.jks
+          echo "CI_ANDROID_SIGNING_KEYSTORE=${{ github.workspace }}/src/android/ci-signing-key.jks" >> $GITHUB_ENV
+
       - name: Build qthttpserver for Android
         run: |
           cd src/qthttpserver
@@ -698,6 +703,24 @@ jobs:
 
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+
+      - name: Re-sign APK for stable App Links fingerprint
+        run: |
+          APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
+          SIGNED_APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-signed.apk"
+          APKSIGNER=$(find /usr/local/lib/android/sdk/build-tools -name apksigner | sort | tail -n 1)
+          if [ -z "$APKSIGNER" ]; then
+            echo "apksigner not found"
+            exit 1
+          fi
+          "$APKSIGNER" sign \
+            --ks "$CI_ANDROID_SIGNING_KEYSTORE" \
+            --ks-key-alias "${{ secrets.ALIAS }}" \
+            --ks-pass "pass:${{ secrets.KEY_STORE_PASSWORD }}" \
+            --key-pass "pass:${{ secrets.KEY_PASSWORD }}" \
+            --out "$SIGNED_APK_PATH" \
+            "$APK_PATH"
+          mv "$SIGNED_APK_PATH" "$APK_PATH"
 
       - name: Show ccache stats
         if: always()
