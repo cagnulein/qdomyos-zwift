@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QString>
 #include <QList>
+#include <QHash>
 #include "qmdnsengine/browser.h"
 #include "qmdnsengine/cache.h"
 #include "qmdnsengine/resolver.h"
@@ -89,8 +90,7 @@ private:
     QMdnsEngine::Server *mdnsServer;
     QMdnsEngine::Browser *mdnsBrowser;
     QMdnsEngine::Cache *mdnsCache;
-    QMdnsEngine::Resolver *mdnsResolver;
-    QMdnsEngine::Service currentService; // Currently resolving service
+    QHash<QMdnsEngine::Resolver *, QMdnsEngine::Service> pendingResolvers;
 
     QList<DirconDeviceInfo> devices;
 

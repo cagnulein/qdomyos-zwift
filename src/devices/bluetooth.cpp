@@ -115,6 +115,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         // Create DirCon discovery for network-based devices
         dirconDiscovery = new DirconDiscovery(this);
         connect(dirconDiscovery, &DirconDiscovery::deviceDiscovered, this, &bluetooth::deviceFound);
+        connect(dirconDiscovery, &DirconDiscovery::deviceDiscovered, this, &bluetooth::onDirconDeviceDiscovered);
 
         // Start a discovery
 #ifndef Q_OS_WIN
@@ -273,6 +274,71 @@ void bluetooth::debug(const QString &text) {
     if (logs) {
 
         qDebug() << text;
+    }
+}
+
+bool bluetooth::tryConnectSelectedDirconDevice() {
+    if (!dirconDiscovery || filterDevice.isEmpty() || !filterDevice.contains(QStringLiteral("(DirCon)"))) {
+        return false;
+    }
+
+    const DirconDeviceInfo deviceInfo = dirconDiscovery->findDeviceByName(filterDevice);
+    if (deviceInfo.displayName.isEmpty()) {
+        qDebug() << "bluetooth::tryConnectSelectedDirconDevice() DirCon device not found:" << filterDevice;
+        return false;
+    }
+
+    connectDirconDevice(deviceInfo);
+    return true;
+}
+
+void bluetooth::connectDirconDevice(const DirconDeviceInfo &deviceInfo) {
+    qDebug() << "bluetooth::connectDirconDevice() Found DirCon device:"
+             << "name:" << deviceInfo.name
+             << "address:" << deviceInfo.address
+             << "port:" << deviceInfo.port
+             << "isTreadmill:" << deviceInfo.isTreadmill;
+
+    this->stopDiscovery();
+    if (dirconDiscovery) {
+        dirconDiscovery->stopDiscovery();
+    }
+
+    if (deviceInfo.isTreadmill) {
+        if (wahooDirconTreadmill) {
+            return;
+        }
+        wahooDirconTreadmill = new wahoodircontreadmill(deviceInfo, noWriteResistance, noHeartService);
+        emit deviceConnected(QBluetoothDeviceInfo());
+        connect(wahooDirconTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                &bluetooth::connectedAndDiscovered);
+        connect(wahooDirconTreadmill, &wahoodircontreadmill::debug, this, &bluetooth::debug);
+        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+            emit searchingStop();
+        }
+        this->signalBluetoothDeviceConnected(wahooDirconTreadmill);
+        qDebug() << "bluetooth::connectDirconDevice() WahooDirconTreadmill created and connected";
+        return;
+    }
+
+    if (wahooDirconBike) {
+        return;
+    }
+    wahooDirconBike =
+        new wahoodirconbike(deviceInfo, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+    emit deviceConnected(QBluetoothDeviceInfo());
+    connect(wahooDirconBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+    connect(wahooDirconBike, &wahoodirconbike::debug, this, &bluetooth::debug);
+    if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+        emit searchingStop();
+    }
+    this->signalBluetoothDeviceConnected(wahooDirconBike);
+    qDebug() << "bluetooth::connectDirconDevice() WahooDirconBike created and connected";
+}
+
+void bluetooth::onDirconDeviceDiscovered(const QString &displayName) {
+    if (filterDevice.compare(displayName, Qt::CaseInsensitive) == 0) {
+        tryConnectSelectedDirconDevice();
     }
 }
 
@@ -456,60 +522,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     // Check if filterDevice is a DirCon device
     if (!filterDevice.isEmpty() && filterDevice.contains(QStringLiteral("(DirCon)"))) {
         qDebug() << "bluetooth::deviceDiscovered() DirCon device selected:" << filterDevice;
-
-        if (!dirconDiscovery) {
-            qDebug() << "bluetooth::deviceDiscovered() dirconDiscovery is null!";
-            return;
-        }
-
-        // Find the device info from dirconDiscovery
-        DirconDeviceInfo deviceInfo = dirconDiscovery->findDeviceByName(filterDevice);
-
-        if (deviceInfo.displayName.isEmpty()) {
-            qDebug() << "bluetooth::deviceDiscovered() DirCon device not found:" << filterDevice;
-            return;
-        }
-
-        qDebug() << "bluetooth::deviceDiscovered() Found DirCon device:"
-                 << "name:" << deviceInfo.name
-                 << "address:" << deviceInfo.address
-                 << "port:" << deviceInfo.port
-                 << "isTreadmill:" << deviceInfo.isTreadmill;
-
-        this->stopDiscovery();
-
-        // Create appropriate device based on type
-        if (deviceInfo.isTreadmill) {
-            // Create treadmill
-            if (!wahooDirconTreadmill) {
-                wahooDirconTreadmill = new wahoodircontreadmill(deviceInfo, noWriteResistance, noHeartService);
-                emit deviceConnected(QBluetoothDeviceInfo());
-                connect(wahooDirconTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
-                        &bluetooth::connectedAndDiscovered);
-                connect(wahooDirconTreadmill, &wahoodircontreadmill::debug, this, &bluetooth::debug);
-                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
-                    emit searchingStop();
-                }
-                this->signalBluetoothDeviceConnected(wahooDirconTreadmill);
-                qDebug() << "bluetooth::deviceDiscovered() WahooDirconTreadmill created and connected";
-            }
-        } else {
-            // Create bike
-            if (!wahooDirconBike) {
-                wahooDirconBike = new wahoodirconbike(deviceInfo, noWriteResistance, noHeartService,
-                                                      bikeResistanceOffset, bikeResistanceGain);
-                emit deviceConnected(QBluetoothDeviceInfo());
-                connect(wahooDirconBike, &bluetoothdevice::connectedAndDiscovered, this,
-                        &bluetooth::connectedAndDiscovered);
-                connect(wahooDirconBike, &wahoodirconbike::debug, this, &bluetooth::debug);
-                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
-                    emit searchingStop();
-                }
-                this->signalBluetoothDeviceConnected(wahooDirconBike);
-                qDebug() << "bluetooth::deviceDiscovered() WahooDirconBike created and connected";
-            }
-        }
-
+        tryConnectSelectedDirconDevice();
         return;
     }
 

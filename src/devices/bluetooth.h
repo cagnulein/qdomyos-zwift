@@ -358,6 +358,8 @@ class bluetooth : public QObject, public SignalHandler {
     bool sramDeviceAvaiable();
     bool thinkriderDeviceAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
+    bool tryConnectSelectedDirconDevice();
+    void connectDirconDevice(const DirconDeviceInfo &deviceInfo);
 
 #ifdef Q_OS_WIN
     QTimer discoveryTimeout;
@@ -387,6 +389,7 @@ class bluetooth : public QObject, public SignalHandler {
     void heartRate(uint8_t heart);
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
   private slots:
+    void onDirconDeviceDiscovered(const QString &displayName);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
     void deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields);
 #endif
