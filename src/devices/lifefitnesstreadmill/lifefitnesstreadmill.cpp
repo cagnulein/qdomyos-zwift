@@ -1,6 +1,7 @@
 #include "lifefitnesstreadmill.h"
 
 #include "devices/ftmsbike/ftmsbike.h"
+#include "homeform.h"
 #include "ios/lockscreen.h"
 #include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
@@ -354,6 +355,14 @@ void lifefitnesstreadmill::forceIncline(double requestIncline) {
 
 void lifefitnesstreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+
+    if(gatt == QBluetoothUuid((quint16)0x1826)) {
+        QSettings settings;
+        settings.setValue(QZSettings::ftms_treadmill, bluetoothDevice.name());
+        qDebug() << "forcing FTMS treadmill since it has FTMS";
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("FTMS treadmill found, restart the app to apply the change");
+    }
 }
 
 void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
