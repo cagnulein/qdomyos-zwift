@@ -6,6 +6,7 @@
 #include <QMetaObject>
 #include "homeform.h"
 #include "lockscreen.h"
+#include "authutils.h"
 
 @interface QIOSApplicationDelegate <IQAppMessageDelegate, IQUIOverrideDelegate, IQDeviceEventDelegate>
 @end
@@ -107,7 +108,8 @@ performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult result))comp
     if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
         NSURL *url = userActivity.webpageURL;
         qDebug() << "QZ iOS continueUserActivity webpageURL="
-                 << (url ? QString::fromUtf8(url.absoluteString.UTF8String) : QStringLiteral("(null)"));
+                 << (url ? sanitizedOAuthCallbackUrl(QString::fromUtf8(url.absoluteString.UTF8String))
+                         : QStringLiteral("(null)"));
         if (url != nil && homeform::singleton()) {
             const QString callbackUrl = QString::fromUtf8(url.absoluteString.UTF8String);
             const QUrl qUrl(callbackUrl);

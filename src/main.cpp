@@ -50,7 +50,7 @@
 #include "osc.h"
 
 #include "handleurl.h"
-
+#include "authutils.h"
 
 class OAuthCallbackEventFilter : public QObject {
   public:
@@ -60,7 +60,7 @@ class OAuthCallbackEventFilter : public QObject {
         if (event->type() == QEvent::FileOpen) {
             auto *fileEvent = static_cast<QFileOpenEvent *>(event);
             const QUrl url = fileEvent->url();
-            qDebug() << "QZ iOS FileOpen event received" << url;
+            qDebug() << "QZ iOS FileOpen event received" << sanitizedOAuthCallbackUrl(url);
             if (url.isValid() && url.host() == QStringLiteral("www.qzfitness.com") &&
                 url.path().startsWith(QStringLiteral("/peloton/callback")) && homeform::singleton()) {
                 qDebug() << "QZ iOS FileOpen matched Peloton callback";

@@ -30,7 +30,7 @@ public class CustomQtActivity extends QtActivity {
 
         String url = data.toString();
         if (url.startsWith("https://www.qzfitness.com/peloton/callback")) {
-            Log.d(TAG, "dispatchOAuthCallback: " + url);
+            Log.d(TAG, "dispatchOAuthCallback: https://www.qzfitness.com/peloton/callback?code=XXXX&state=XXXX");
             nativeOnOAuthCallback(url);
         }
     }

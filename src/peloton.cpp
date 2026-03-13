@@ -9,6 +9,7 @@
 #endif
 #include "homeform.h"
 #include "peloton.h"
+#include "authutils.h"
 #include <chrono>
 #include <QMetaObject>
 #include <QNetworkCookieJar>
@@ -2662,11 +2663,17 @@ void peloton::networkRequestFinished(QNetworkReply *reply) {
 }
 
 void peloton::callbackReceived(const QVariantMap &values) {
-    qDebug() << QStringLiteral("peloton::callbackReceived") << values;
+    QVariantMap sanitizedValues = values;
+    if (sanitizedValues.contains(QZSettings::peloton_code)) {
+        sanitizedValues.insert(QZSettings::peloton_code, QStringLiteral("XXXX"));
+    }
+    if (sanitizedValues.contains(QStringLiteral("state"))) {
+        sanitizedValues.insert(QStringLiteral("state"), QStringLiteral("XXXX"));
+    }
+    qDebug() << QStringLiteral("peloton::callbackReceived") << sanitizedValues;
     if (!values.value(QZSettings::peloton_code).toString().isEmpty()) {
         peloton_code = values.value(QZSettings::peloton_code).toString();
-
-        qDebug() << peloton_code;
+        qDebug() << "Peloton authorization code received: XXXX";
     }
 }
 
@@ -2687,14 +2694,14 @@ void peloton::handleOAuthCallbackUrl(const QUrl &url) {
     }
 
     if (!pelotonPendingState.isEmpty() && state != pelotonPendingState) {
-        qDebug() << "Peloton OAuth callback state mismatch" << state << pelotonPendingState;
+        qDebug() << "Peloton OAuth callback state mismatch" << "received=XXXX expected=XXXX";
         if (homeform::singleton()) {
             homeform::singleton()->setToastRequested("Peloton Auth Failed!");
         }
         return;
     }
 
-    qDebug() << "Peloton OAuth callback URL received" << url;
+    qDebug() << "Peloton OAuth callback URL received" << sanitizedOAuthCallbackUrl(url);
 
     QVariantMap values;
     values.insert(QZSettings::peloton_code, code);

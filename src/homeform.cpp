@@ -16,6 +16,7 @@
 #include "templateinfosenderbuilder.h"
 #include "workoutmodel.h"
 #include "zwiftworkout.h"
+#include "authutils.h"
 
 #include <QAbstractOAuth2>
 #include <QApplication>
@@ -8094,10 +8095,10 @@ void homeform::trainprogram_autostart_requested() {
 }
 
 void homeform::handleOAuthCallbackUrl(const QString &callbackUrl) {
-    qDebug() << "homeform::handleOAuthCallbackUrl received" << callbackUrl;
+    qDebug() << "homeform::handleOAuthCallbackUrl received" << sanitizedOAuthCallbackUrl(callbackUrl);
     const QUrl url(callbackUrl);
     if (!url.isValid()) {
-        qDebug() << "Ignoring invalid OAuth callback URL" << callbackUrl;
+        qDebug() << "Ignoring invalid OAuth callback URL";
         return;
     }
 
