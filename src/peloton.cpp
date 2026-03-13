@@ -2811,18 +2811,18 @@ bool peloton::exchangeAuthorizationCode(const QString &code) {
     QNetworkRequest request(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token?")));
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
 
-    QString data;
-    data += QStringLiteral("client_id=" PELOTON_CLIENT_ID_S);
-    data += QStringLiteral("&code=") + code;
-    data += QStringLiteral("&grant_type=authorization_code");
-    data += QStringLiteral("&redirect_uri=") + kPelotonRedirectUri;
+    QUrlQuery body;
+    body.addQueryItem(QStringLiteral("client_id"), QStringLiteral(PELOTON_CLIENT_ID_S));
+    body.addQueryItem(QStringLiteral("code"), code);
+    body.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("authorization_code"));
+    body.addQueryItem(QStringLiteral("redirect_uri"), kPelotonRedirectUri);
 
     if (manager) {
         delete manager;
         manager = nullptr;
     }
     manager = new QNetworkAccessManager(this);
-    QNetworkReply *reply = manager->post(request, data.toLatin1());
+    QNetworkReply *reply = manager->post(request, body.toString(QUrl::FullyEncoded).toUtf8());
 
     QEventLoop loop;
     connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
@@ -3030,10 +3030,12 @@ void peloton::peloton_refreshtoken() {
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
     
     // set params
-    QString data;
-    data += QStringLiteral("client_id=" PELOTON_CLIENT_ID_S);
-    data += QStringLiteral("&refresh_token=") + (tempRefreshToken.isEmpty() ? getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).toString() : tempRefreshToken);
-    data += QStringLiteral("&grant_type=refresh_token");
+    QUrlQuery body;
+    body.addQueryItem(QStringLiteral("client_id"), QStringLiteral(PELOTON_CLIENT_ID_S));
+    body.addQueryItem(QStringLiteral("refresh_token"),
+                      tempRefreshToken.isEmpty() ? getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).toString()
+                                                 : tempRefreshToken);
+    body.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("refresh_token"));
     
     // make request
     if (manager) {
@@ -3042,7 +3044,7 @@ void peloton::peloton_refreshtoken() {
         manager = nullptr;
     }
     manager = new QNetworkAccessManager(this);
-    QNetworkReply *reply = manager->post(request, data.toLatin1());
+    QNetworkReply *reply = manager->post(request, body.toString(QUrl::FullyEncoded).toUtf8());
 
     // blocking request
     QEventLoop loop;
