@@ -8094,6 +8094,7 @@ void homeform::trainprogram_autostart_requested() {
 }
 
 void homeform::handleOAuthCallbackUrl(const QString &callbackUrl) {
+    qDebug() << "homeform::handleOAuthCallbackUrl received" << callbackUrl;
     const QUrl url(callbackUrl);
     if (!url.isValid()) {
         qDebug() << "Ignoring invalid OAuth callback URL" << callbackUrl;
@@ -8101,6 +8102,7 @@ void homeform::handleOAuthCallbackUrl(const QString &callbackUrl) {
     }
 
     if (pelotonHandler) {
+        qDebug() << "homeform::handleOAuthCallbackUrl routing to Peloton";
         pelotonHandler->handleOAuthCallbackUrl(url);
     }
 }
