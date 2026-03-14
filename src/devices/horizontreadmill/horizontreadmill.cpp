@@ -109,6 +109,8 @@ void horizontreadmill::btinit() {
         settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
     bool miles_unit =
         settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    static const QBluetoothUuid merachUnlockCharId(
+        QStringLiteral("59554c55-0000-6666-8888-4d4552414348"));
 
     uint8_t initData01_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x20, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
 
@@ -880,6 +882,14 @@ void horizontreadmill::btinit() {
         uint8_t write[] = {0x01, 0x00, 0x00, 0x03, 0x08, 0x00, 0x02, 0x09};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointIdYpooMiniPro, write, sizeof(write), "requestControl", false, false);
         QThread::msleep(500);
+    }
+
+    if (MERACH_TREADMILL && gattCustomService && gattWriteCharCustomService.isValid() &&
+        gattWriteCharCustomService.uuid() == merachUnlockCharId) {
+        uint8_t unlock[] = {0xaa, 0x01, 0x00, 0x01, 0x55};
+        writeCharacteristic(gattCustomService, gattWriteCharCustomService, unlock, sizeof(unlock),
+                            QStringLiteral("merachUnlock"), false, true);
+        QThread::msleep(200);
     }
 
     if(wellfit_treadmill || SW_TREADMILL || YPOO_MINI_PRO) {
@@ -2331,6 +2341,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QSettings settings;
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     QBluetoothUuid _gattWriteCharCustomService((quint16)0xFFF3);
+    QBluetoothUuid _gattWriteCharMerachUnlock(QStringLiteral("59554c55-0000-6666-8888-4d4552414348"));
     QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
@@ -2397,7 +2408,10 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }*/
 
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService && !BOWFLEX_T9 && !MX_TM &&
+                if (c.properties() & QLowEnergyCharacteristic::Write &&
+                    (c.uuid() == _gattWriteCharCustomService ||
+                     (MERACH_TREADMILL && c.uuid() == _gattWriteCharMerachUnlock)) &&
+                    !BOWFLEX_T9 && !MX_TM &&
                     !settings
                          .value(QZSettings::horizon_treadmill_force_ftms,
                                 QZSettings::default_horizon_treadmill_force_ftms)
@@ -2440,9 +2454,9 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
                 } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate &&
-                                                                                                                      // if it's a FTMS treadmill and has FTMS and/or RSC service too
-                           ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid()))
-                             && !gattCustomService))) {
+                           ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid()) &&
+                              !gattCustomService) ||
+                             (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid())))) {
                     QByteArray descriptor;
                     descriptor.append((char)0x02);
                     descriptor.append((char)0x00);
