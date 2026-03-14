@@ -2807,14 +2807,14 @@ void proformtreadmill::update() {
             }
         } else if (proform_trainer_8_0_pftl59721_int_0) {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
-            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e,
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00,
+                                   0x0f, 0x80, 0x02, 0x43, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData3[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x91, 0x00, 0x10, 0x90, 0x00,
                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t noOpData3[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t noOpData4[] = {0xfe, 0x02, 0x17, 0x03};
-            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x0c,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t noOpData6[] = {0xff, 0x05, 0x00, 0x80, 0x00, 0x00, 0xa5, 0x00, 0x00, 0x00,
+            uint8_t noOpData4[] = {0xfe, 0x02, 0x14, 0x03};
+            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00,
+                                   0x0a, 0x1b, 0x94, 0x30, 0x00, 0x00, 0x40, 0x50, 0x00, 0x80};
+            uint8_t noOpData6[] = {0xff, 0x02, 0x18, 0x37, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
             switch (counterPoll) {
@@ -2828,13 +2828,30 @@ void proformtreadmill::update() {
                 writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
                 break;
             case 3:
-                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), false, true);
                 break;
             case 4:
                 writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
                 break;
             case 5:
-                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"), false, true);
+                if (requestInclination != -100) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= 15) {
+                        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -100;
+                }
+                if (requestSpeed != -1) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                        emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                        forceSpeed(requestSpeed);
+                    }
+                    requestSpeed = -1;
+                }
                 if (requestStart != -1) {
                     emit debug(QStringLiteral("starting..."));
                     requestStart = -1;
@@ -3421,11 +3438,11 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         ((nordictrack10 || nordictrackt70 || proform_treadmill_1800i || proform_treadmill_z1300i || proform_treadmill_705_cst || proform_treadmill_705_cst_V78_239 ||
           proform_treadmill_8_0 || proform_treadmill_9_0 || nordictrack_incline_trainer_x7i || proform_treadmill_sport_8_5 || proform_treadmill_505_cst || proform_505_cst_80_44 ||
-          proform_proshox2 || proform_595i_proshox2 || proform_performance_300i || proform_performance_400i || proform_treadmill_705_cst_V80_44 ||
-          proform_trainer_8_0_pftl59721_int_0) &&
+          proform_proshox2 || proform_595i_proshox2 || proform_performance_300i || proform_performance_400i || proform_treadmill_705_cst_V80_44) &&
          (newValue.at(4) != 0x02 || (newValue.at(5) != 0x31 && newValue.at(5) != 0x34))) ||
 
-        ((norditrack_s25i_treadmill || nordictrack_treadmill_ultra_le || proform_treadmill_carbon_tls || proform_carbon_tlx_treadmill) && (newValue.at(4) != 0x02 || (newValue.at(5) != 0x2f))) ||
+        ((norditrack_s25i_treadmill || nordictrack_treadmill_ultra_le || proform_treadmill_carbon_tls || proform_carbon_tlx_treadmill ||
+          proform_trainer_8_0_pftl59721_int_0) && (newValue.at(4) != 0x02 || (newValue.at(5) != 0x2f))) ||
 
         ((nordictrack_t65s_treadmill || nordictrack_t65s_treadmill_81_miles || proform_pro_1000_treadmill || nordictrack_t65s_83_treadmill || nordictrack_s30_treadmill ||
           nordictrack_s20_treadmill || proform_treadmill_se || proform_cadence_lt || proform_8_5_treadmill || nordictrack_treadmill_exp_5i || proform_carbon_tl ||
