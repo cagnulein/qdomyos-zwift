@@ -33,9 +33,13 @@ HomeForm {
         property real ui_zoom: 100.0
         property bool theme_tile_icon_enabled: true
         property string theme_tile_background_color: "#303030"
+        property string theme_tile_glass_overlay_color: "#2BFFFFFF"
+        property int theme_tile_corner_radius: 20
+        property string theme_tile_primary_font: Qt.application.font.family
+        property string theme_tile_secondary_font: Qt.application.font.family
         property string theme_background_color: "#303030"
         property bool theme_tile_shadow_enabled: true
-        property string theme_tile_shadow_color: "#9C27B0"
+        property string theme_tile_shadow_color: "#26000000"
         property int theme_tile_secondline_textsize: 12
         property bool skipLocationServicesDialog: false
     }
@@ -62,6 +66,16 @@ HomeForm {
          focus: true
          palette.text: "white"
          closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+         background: Rectangle {
+             radius: 14
+             color: "#2F2F2F"
+             border.width: 1
+             border.color: "#36FFFFFF"
+             gradient: Gradient {
+                 GradientStop { position: 0.0; color: "#22FFFFFF" }
+                 GradientStop { position: 1.0; color: "#08FFFFFF" }
+             }
+         }
          enter: Transition
          {
              NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
@@ -75,6 +89,8 @@ HomeForm {
          Label {
              anchors.horizontalCenter: parent.horizontalCenter
              text: qsTr("New lap started!")
+             color: "white"
+             font.family: settings.theme_tile_secondary_font
             }
         }
     }
@@ -233,9 +249,9 @@ HomeForm {
             Rectangle {
                 width: 168 * settings.ui_zoom / 100
                 height: 123 * settings.ui_zoom / 100
-                radius: 3
+                radius: settings.theme_tile_corner_radius
                 border.width: 1
-                border.color: (settings.theme_tile_shadow_enabled ? settings.theme_tile_shadow_color : settings.theme_tile_background_color)
+                border.color: "#40FFFFFF"
                 color: settings.theme_tile_background_color
                 id: rect
 
@@ -247,12 +263,28 @@ HomeForm {
                 visible: settings.theme_tile_shadow_enabled
                 anchors.fill: rect
                 cached: true
-                horizontalOffset: 3
-                verticalOffset: 3
-                radius: 8.0
-                samples: 16
+                horizontalOffset: 0
+                verticalOffset: 10
+                radius: 18.0
+                samples: 37
                 color: settings.theme_tile_shadow_color
                 source: rect
+            }
+
+            Rectangle {
+                anchors.fill: rect
+                radius: rect.radius
+                color: "transparent"
+                border.width: 1
+                border.color: settings.theme_tile_glass_overlay_color
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: "#1FFFFFFF" }
+                    GradientStop { position: 0.45; color: "#12FFFFFF" }
+                    GradientStop { position: 1.0; color: "#06FFFFFF" }
+                }
+
+                // Ignore for VoiceOver - decorative only
+                Accessible.ignored: true
             }
 
             Timer {
@@ -287,6 +319,7 @@ HomeForm {
                 horizontalAlignment: Text.AlignHCenter
                 font.pointSize: valueFontSize * settings.ui_zoom / 100
                 font.bold: true
+                font.family: settings.theme_tile_primary_font
                 visible: !largeButton
 
                 // Ignore for VoiceOver - parent Item handles accessibility
@@ -305,6 +338,7 @@ HomeForm {
                 horizontalAlignment: Text.AlignHCenter
                 font.pointSize: settings.theme_tile_secondline_textsize * settings.ui_zoom / 100
                 font.bold: false
+                font.family: settings.theme_tile_secondary_font
                 visible: !largeButton
 
                 // Ignore for VoiceOver - parent Item handles accessibility
@@ -316,7 +350,8 @@ HomeForm {
                     top: myIcon.top
                 }
                 font.bold: true
-                     font.pointSize: labelFontSize
+                font.pointSize: labelFontSize
+                font.family: settings.theme_tile_secondary_font
                 color: "white"
                 text: name
                 anchors.left: parent.left
@@ -338,6 +373,12 @@ HomeForm {
                 anchors.leftMargin: 2
                 width: 48 * settings.ui_zoom / 100
                 height: 48 * settings.ui_zoom / 100
+                background: Rectangle {
+                    radius: 14
+                    color: parent.down ? "#3AFFFFFF" : "#26FFFFFF"
+                    border.width: 1
+                    border.color: parent.down ? "#4DFFFFFF" : "#35FFFFFF"
+                }
 
                 // VoiceOver accessibility
                 Accessible.role: Accessible.Button
@@ -357,6 +398,12 @@ HomeForm {
                 anchors.rightMargin: 2
                 width: 48 * settings.ui_zoom / 100
                 height: 48 * settings.ui_zoom / 100
+                background: Rectangle {
+                    radius: 14
+                    color: parent.down ? "#3AFFFFFF" : "#26FFFFFF"
+                    border.width: 1
+                    border.color: parent.down ? "#4DFFFFFF" : "#35FFFFFF"
+                }
 
                 // VoiceOver accessibility
                 Accessible.role: Accessible.Button
@@ -372,11 +419,14 @@ HomeForm {
                 onClicked: largeButton_clicked(objectName)
                 visible: largeButton
                 anchors.fill: rect
-                      background: Rectangle {
-                          color: largeButtonColor
-                            radius: 20
-                            }
+                background: Rectangle {
+                    color: largeButtonColor
+                    radius: 20
+                    border.width: 1
+                    border.color: "#40FFFFFF"
+                }
                 font.pointSize: 20 * settings.ui_zoom / 100
+                font.family: settings.theme_tile_primary_font
 
                 // VoiceOver accessibility
                 Accessible.role: Accessible.Button
@@ -403,7 +453,8 @@ HomeForm {
             id: dragHandle
             width: parent.width / 5
             height: 10
-            color: "#9C27B0"
+            radius: 6
+            color: "#4DFFFFFF"
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             visible: rootItem.chartFooterVisible || rootItem.videoVisible

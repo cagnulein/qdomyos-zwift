@@ -22,6 +22,8 @@ Page {
 		  property real ui_zoom: 100.0
 		  property bool theme_tile_icon_enabled: true
 		  property string theme_background_color: "#303030"
+		  property string theme_chrome_border_color: "#36FFFFFF"
+		  property string theme_chrome_overlay_color: "#1EFFFFFF"
 		}
 
     Item {
@@ -108,6 +110,14 @@ Page {
                     id: start
                     width: 120
                     height: row.height - 4
+                    font.family: Qt.application.font.family
+
+                    background: Rectangle {
+                        radius: 14
+                        color: parent.down ? "#30FFFFFF" : settings.theme_chrome_overlay_color
+                        border.width: 1
+                        border.color: settings.theme_chrome_border_color
+                    }
 
                     // VoiceOver accessibility
                     Accessible.role: Accessible.Button
@@ -138,6 +148,14 @@ Page {
                     id: stop
                     width: 120
                     height: row.height - 4
+                    font.family: Qt.application.font.family
+
+                    background: Rectangle {
+                        radius: 14
+                        color: parent.down ? "#30FFFFFF" : settings.theme_chrome_overlay_color
+                        border.width: 1
+                        border.color: settings.theme_chrome_border_color
+                    }
 
                     // VoiceOver accessibility
                     Accessible.role: Accessible.Button
@@ -215,4 +233,3 @@ Designer {
     D{i:0;autoSize:true;formeditorZoom:0.6600000262260437;height:480;width:640}
 }
 ##^##*/
-
