@@ -149,10 +149,12 @@
     <tr class="resistance" sort-order="8">
       <td class="icon">🆁</td>
       <td style="text-align: left">RESISTANCE</td>
-      <td><small>AVG</small></td>
+      <td class="resistance-avg-title"><small>AVG</small><br><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          onclick="ResistanceMinus()">-</button></td>
       <td class="resistance-avg">1</td>
       <td class="resistance-value values"><b>1</b></td>
-      <td><small>MAX</small></td>
+      <td class="resistance-max-title"><small>MAX</small><br><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          onclick="ResistancePlus()">+</button></td>
       <td class="resistance-max">1</td>
     </tr>
     <tr class="pelotonresistance" sort-order="9">
@@ -361,6 +363,34 @@
         msg: 'inclination_minus',
       }, function (msg) {
         if (msg.msg === 'R_inclination_minus') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function ResistancePlus() {
+      let el = new MainWSQueueElement({
+        msg: 'resistance_plus',
+      }, function (msg) {
+        if (msg.msg === 'R_resistance_plus') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function ResistanceMinus() {
+      let el = new MainWSQueueElement({
+        msg: 'resistance_minus',
+      }, function (msg) {
+        if (msg.msg === 'R_resistance_minus') {
           return msg.content;
         }
         return null;
