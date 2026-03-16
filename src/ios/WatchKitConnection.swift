@@ -130,9 +130,7 @@ extension WatchKitConnection: WCSessionDelegate {
         
         print("didReceiveMessage with reply")
         print(message)
-        
-        SwiftDebug.qtDebug("WatchKitConnection received payload: \(message)")
-        
+
         if(message.keys.first?.description == "heartRate") {
             guard let heartReate = message.values.first as? String else {
                 return
