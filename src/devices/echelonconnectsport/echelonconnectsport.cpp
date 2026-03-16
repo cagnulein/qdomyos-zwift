@@ -155,8 +155,8 @@ void echelonconnectsport::update() {
             changePower(RequestedPower.value());
         }
 
-               // sending poll every 2 seconds
-        if (sec1Update++ >= (2000 / refresh->interval())) {
+               // the stock app polls roughly once per second
+        if (sec1Update++ >= (1000 / refresh->interval())) {
             sec1Update = 0;
             sendPoll();
             // updateDisplay(elapsed);
@@ -380,13 +380,18 @@ double echelonconnectsport::GetDistanceFromPacket(const QByteArray &packet) {
 }
 
 void echelonconnectsport::btinit() {
+    uint8_t initData0[] = {0xf0, 0xa4, 0x00, 0x94};
     uint8_t initData1[] = {0xf0, 0xa1, 0x00, 0x91};
     uint8_t initData2[] = {0xf0, 0xa3, 0x00, 0x93};
     uint8_t initData3[] = {0xf0, 0xb0, 0x01, 0x01, 0xa2};
+    uint8_t initData4[] = {0xf0, 0xa5, 0x00, 0x95};
     // uint8_t initData4[] = { 0xf0, 0x60, 0x00, 0x50 }; // get sleep command
 
     // useless i guess
     // writeCharacteristic(initData4, sizeof(initData4), "get sleep", false, true);
+
+    // The stock app performs a short pre-init handshake before the repeated a1 bootstrap.
+    writeCharacteristic(initData0, sizeof(initData0), QStringLiteral("pre-init"), false, true);
 
     // in the snoof log it repeats this frame 4 times, i will have to analyze the response to understand if 4 times are
     // enough
@@ -397,7 +402,8 @@ void echelonconnectsport::btinit() {
 
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("start"), false, true);
+    writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("post-init"), false, true);
 
     initDone = true;
 
