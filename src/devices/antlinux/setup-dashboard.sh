@@ -981,11 +981,11 @@ SVC_PYTHONHOME_STALE=false
 
 # Status grid definition: each entry is "Left Label|Left Key|Right Label|Right Key"
 declare -a STATUS_GRID=(
-    "Python ${PYTHON_VERSION_MAJOR} Library|python311|User in plugdev|plugdev|ANT+ USB Dongle|ant_dongle"
+    "Python ${PYTHON_VERSION_MAJOR} Library|python311|User in plugdev|plugdev"
     "Python Virtual Environment|venv|USB udev Rules|udev_rules"
     "Python PIPs|pkg_pips|lsusb Command|lsusb"
     "Qt5 Runtime Libraries|qt5_libs|Config File|config_file"
-    "QML Modules|qml_modules|QML UI Files|qml_files"
+    "QML Modules|qml_modules|ANT+ USB Dongle|ant_dongle"
     "Bluetooth Service|bluetooth|QZ Service|qz_service"
 )
 # When set to 1, draw_status_row always renders 3 columns with a consistent
@@ -3806,35 +3806,9 @@ _logic_check_qt5_libs() {
 }
 
 _logic_check_qml_modules() {
-    # Check system QML modules only (v3.0 - no bundled libraries)
-    local qmls=("QtLocation" "QtQuick.2" "QtQuick/Controls.2")
-    for qml in "${qmls[@]}"; do
-        [[ -d "/usr/lib/${ARCH_LIB_PATH}/qt5/qml/$qml" ]] || [[ -d "/usr/lib/qt5/qml/$qml" ]] || { echo "fail"; return 1; }
-    done
-    echo "pass"
-}
-
-_logic_check_qml_files() {
-    # Check for QML UI asset files (main.qml, settings.qml, etc.)
-    # Supports both qml/ subdirectory (v3.1.1+) and root directory (legacy)
     local script_dir; script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-    local qml_count=0
-    
-    # Check qml/ subdirectory first (preferred structure)
-    if [[ -d "$script_dir/qml" ]]; then
-        qml_count=$(find "$script_dir/qml" -maxdepth 1 -name "*.qml" -type f 2>/dev/null | wc -l)
-    fi
-    
-    # Fall back to root directory if not found in subdirectory
-    if [[ $qml_count -eq 0 ]]; then
-        qml_count=$(find "$script_dir" -maxdepth 1 -name "*.qml" -type f 2>/dev/null | wc -l)
-    fi
-    
-    if [[ $qml_count -gt 0 ]]; then
-        echo "pass"
-    else
-        echo "fail"
-    fi
+    "$script_dir/check-qml-deps.sh" --binary "$script_dir/qdomyos-zwift-bin" \
+        >/dev/null 2>&1 && echo "pass" || echo "fail"
 }
 
 _logic_check_bluetooth() {
@@ -4094,7 +4068,6 @@ check_equipment()      { run_check "equipment" "_logic_check_equipment" true; }
 check_python_packages(){ run_check "pkg_pips" "_logic_check_pips" true; }
 check_qt5_libs()       { run_check "qt5_libs" "_logic_check_qt5_libs" true; }
 check_qml_modules()    { run_check "qml_modules" "_logic_check_qml_modules" true; }
-check_qml_files()      { run_check "qml_files" "_logic_check_qml_files" true; }
 check_bluetooth()      { run_check "bluetooth" "_logic_check_bluetooth" true; }
 check_lsusb()          { run_check "lsusb" "_logic_check_lsusb" true; }
 check_plugdev()        { run_check "plugdev" "_logic_check_plugdev" true; }
@@ -5409,6 +5382,9 @@ install_qt5_libs() {
         qml-module-qtquick-layouts
         qml-module-qtquick-window2
         qml-module-qtmultimedia
+        qml-module-qtwebview
+        qml-module-qt-labs-platform
+        qml-module-qtgraphicaleffects
         libusb-1.0-0
         bluez
         usbutils

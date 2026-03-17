@@ -125,13 +125,14 @@ fi
 ################################################################################
 check_system_qt5() {
     local qt_missing=()
-    
+
+    # --- .so library check (unchanged) ---
     for lib in libQt5Core.so.5 libQt5Qml.so.5 libQt5Quick.so.5 libQt5Widgets.so.5 libQt5Bluetooth.so.5; do
         if ! ldconfig -p 2>/dev/null | grep -q "$lib"; then
             qt_missing+=("$lib")
         fi
     done
-    
+
     if [[ ${#qt_missing[@]} -gt 0 ]]; then
         echo ""
         echo -e "${C_RED}╔════════════════════════════════════════════════════════════════════╗${C_RESET}"
@@ -147,7 +148,23 @@ check_system_qt5() {
         echo ""
         exit 1
     fi
-    
+
+    # --- QML module check (delegated to shared script) ---
+    local dep_script="$DIR/check-qml-deps.sh"
+    if [[ -f "$dep_script" ]]; then
+        local qml_errors
+        if ! qml_errors=$("$dep_script" --binary "$DIR/qdomyos-zwift-bin" --fix 2>&1); then
+            echo ""
+            echo -e "${C_RED}╔════════════════════════════════════════════════════════════════════╗${C_RESET}"
+            echo -e "${C_RED}║  ERROR: QML Runtime Modules Not Installed                         ║${C_RESET}"
+            echo -e "${C_RED}╚════════════════════════════════════════════════════════════════════╝${C_RESET}"
+            echo ""
+            echo "$qml_errors"
+            echo ""
+            exit 1
+        fi
+    fi
+
     return 0
 }
 
@@ -198,68 +215,6 @@ done
 if [[ "$GUI_MODE" == "false" ]] && [[ -z "$(printf '%s\n' "$@" | grep -E '^-no-gui$')" ]]; then
     if [[ -n "${DISPLAY:-}" ]] || command -v Xorg >/dev/null 2>&1; then
         GUI_MODE=true
-    fi
-fi
-
-################################################################################
-# QML Assets Check (GUI Mode Only)
-# Supports both root directory and qml/ subdirectory
-################################################################################
-if [[ "$GUI_MODE" == "true" ]]; then
-    # Check qml/ subdirectory first (preferred structure)
-    QML_DIR="$DIR/qml"
-    if [[ -d "$QML_DIR" ]]; then
-        QML_COUNT=$(find "$QML_DIR" -maxdepth 1 -name "*.qml" -type f 2>/dev/null | wc -l)
-        QML_LOCATION="qml subdirectory"
-        
-        # Set QML import path for subdirectory structure
-        export QML2_IMPORT_PATH="$QML_DIR:${QML2_IMPORT_PATH:-}"
-        
-        # Ensure binary can find main.qml in subdirectory
-        # Some Qt applications look for main.qml in current directory
-        if [[ -f "$QML_DIR/main.qml" ]] && [[ ! -f "$DIR/main.qml" ]]; then
-            # Create symlink to help binary find it
-            ln -sf "qml/main.qml" "$DIR/main.qml" 2>/dev/null || true
-        fi
-    else
-        # Fall back to root directory (legacy structure)
-        QML_COUNT=$(find "$DIR" -maxdepth 1 -name "*.qml" -type f 2>/dev/null | wc -l)
-        QML_LOCATION="root directory"
-    fi
-    
-    if [[ $QML_COUNT -eq 0 ]]; then
-        echo ""
-        echo -e "${C_RED}╔════════════════════════════════════════════════════════════════════╗${C_RESET}"
-        echo -e "${C_RED}║  ERROR: QML UI Assets Missing                                     ║${C_RESET}"
-        echo -e "${C_RED}╚════════════════════════════════════════════════════════════════════╝${C_RESET}"
-        echo ""
-        echo "GUI mode detected, but no *.qml files found in:"
-        echo "  $DIR (root directory)"
-        echo "  $DIR/qml (subdirectory)"
-        echo ""
-        echo -e "${C_YELLOW}This causes the binary to exit silently!${C_RESET}"
-        echo ""
-        echo "The Qt QML engine cannot load the UI without these files."
-        echo "The binary performs a clean abort (exit code 0377/-1)."
-        echo ""
-        echo -e "${C_YELLOW}Solutions:${C_RESET}"
-        echo ""
-        echo "  1. Download complete package with UI files:"
-        echo "     https://github.com/cagnulein/qdomyos-zwift/releases"
-        echo ""
-        echo "     Required files: main.qml, settings.qml, and 40+ other *.qml files"
-        echo "     Preferred location: $DIR/qml/"
-        echo "     Alternative: $DIR/"
-        echo ""
-        echo "  2. Run in headless mode:"
-        echo "     sudo $0 -no-gui -ant-footpod"
-        echo ""
-        exit 1
-    fi
-    
-    # Show where QML files were found
-    if [[ "${VERBOSE:-0}" == "1" ]]; then
-        echo -e "${C_GREEN}Found $QML_COUNT QML files in $QML_LOCATION${C_RESET}" >&2
     fi
 fi
 

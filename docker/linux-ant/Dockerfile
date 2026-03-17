@@ -56,6 +56,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libqt5quickcontrols2-5 \
     qtquickcontrols2-5-dev \
     qml-module-qtquick-controls2 \
+    qml-module-qtwebview \
+    qml-module-qtgraphicaleffects \
+    qml-module-qt-labs-platform \
+    qml-module-qtquick-dialogs \
+    qml-module-qtquick-layouts \
+    qml-module-qtquick-window2 \
+    qml-module-qtmultimedia \
     libqt5sql5-sqlite \
     libqt5sql5-mysql \
     libqt5sql5-psql \
@@ -91,8 +98,10 @@ RUN git submodule update --init src/smtpclient/ && \
     git submodule update --init src/qthttpserver/ && \
     git submodule update --init tst/googletest/
 
-# Configure for ANT+ build
-RUN echo 'include(devices/antlinux/antlinux.pri)' >> src/qdomyos-zwift.pro && \
+RUN echo "\ninclude(devices/antlinux/antlinux.pri)\n" >> src/qdomyos-zwift.pro && \
+    echo "=========================" && \
+    cat src/qdomyos-zwift.pro && \
+    echo "=========================" && \
     echo '/opt/ant_venv/bin/python3' > src/.ant_venv_path && \
     sed -i '/QtHttpServer/d' src/qdomyos-zwift.pro && \
     find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + && \
@@ -119,18 +128,13 @@ RUN set -e; \
 # --- Stage 2: Artifact Container ---
 FROM busybox:latest
 
-# Create application directory structure
-RUN mkdir -p /qdomyos-zwift-x86-64-ant/qml
-
 # Copy binary
 COPY --from=builder /app/src/qdomyos-zwift-bin /qdomyos-zwift-x86-64-ant/
-
-# Copy QML files to subdirectory (v3.1.1: cleaner structure)
-COPY --from=builder /app/src/*.qml /qdomyos-zwift-x86-64-ant/qml/
 
 # Copy scripts
 COPY src/devices/antlinux/qdomyos-zwift-wrapper.sh /qdomyos-zwift-x86-64-ant/qdomyos-zwift
 COPY src/devices/antlinux/setup-dashboard.sh /qdomyos-zwift-x86-64-ant/
+COPY src/devices/antlinux/check-qml-deps.sh /qdomyos-zwift-x86-64-ant/
 
 # Copy Python scripts
 COPY src/devices/antlinux/bt_provider.py /qdomyos-zwift-x86-64-ant/
@@ -145,6 +149,7 @@ COPY --from=builder /app/src/devices/antlinux/.menu_cache /qdomyos-zwift-x86-64-
 
 # Set permissions
 RUN chmod +x /qdomyos-zwift-x86-64-ant/qdomyos-zwift && \
-    chmod +x /qdomyos-zwift-x86-64-ant/setup-dashboard.sh || true
+    chmod +x /qdomyos-zwift-x86-64-ant/setup-dashboard.sh && \
+    chmod +x /qdomyos-zwift-x86-64-ant/check-qml-deps.sh || true
 
 CMD ["/bin/sh"]
