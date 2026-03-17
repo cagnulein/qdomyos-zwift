@@ -7,6 +7,43 @@
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
 
+double bike::powerZoneValueToFtpPercentage(double zoneValue) {
+    if (zoneValue <= 1.9) {
+        // Zone 1: 0-55% FTP range
+        double targetPerc = zoneValue * 0.50; // zoneValue 1.0->50%, safely within Zone 1 boundary
+        if (targetPerc > 0.55) {
+            targetPerc = 0.55;
+        }
+        return targetPerc;
+    }
+    if (zoneValue <= 2.9) {
+        // Zone 2: 56-75% FTP range
+        return 0.56 + (zoneValue - 2.0) * 0.19; // zoneValue 2.0->56%, 3.0->75%
+    }
+    if (zoneValue <= 3.9) {
+        // Zone 3: 76-90% FTP range
+        return 0.76 + (zoneValue - 3.0) * 0.14; // zoneValue 3.0->76%, 4.0->90%
+    }
+    if (zoneValue <= 4.9) {
+        // Zone 4: 91-105% FTP range
+        return 0.91 + (zoneValue - 4.0) * 0.14; // zoneValue 4.0->91%, 5.0->105%
+    }
+    if (zoneValue <= 5.9) {
+        // Zone 5: 106-120% FTP range
+        return 1.06 + (zoneValue - 5.0) * 0.14; // zoneValue 5.0->106%, 6.0->120%
+    }
+    if (zoneValue <= 6.9) {
+        // Zone 6: 121-150% FTP range
+        return 1.21 + (zoneValue - 6.0) * 0.29; // zoneValue 6.0->121%, 7.0->150%
+    }
+    // Zone 7: 151%+ FTP range
+    return 1.51 + (zoneValue - 7.0) * 0.19; // zoneValue 7.0->151%, 8.0->170%
+}
+
+int bike::powerZoneValueToWatts(double zoneValue, double ftp) {
+    return qRound(ftp * powerZoneValueToFtpPercentage(zoneValue));
+}
+
 virtualbike *bike::VirtualBike() { return dynamic_cast<virtualbike*>(this->VirtualDevice()); }
 
 void bike::changeResistance(resistance_t resistance) {

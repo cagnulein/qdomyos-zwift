@@ -82,7 +82,7 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
         for (uint32_t i = 0; i < repeat; i++) {
             trainrow row;
             if (!durationAsDistance(sportType, durationType))
-                row.duration = QTime(OnDuration / 3600, OnDuration / 60, OnDuration % 60, 0);
+                row.duration = QTime(OnDuration / 3600, (OnDuration % 3600) / 60, OnDuration % 60, 0);
             else
                 row.distance = OnDuration / 1000.0;
             if (sportType.toLower().contains(QStringLiteral("run"))) {
@@ -96,7 +96,7 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
             }
             list.append(row);
             if (!durationAsDistance(sportType, durationType))
-                row.duration = QTime(OffDuration / 3600, OffDuration / 60, OffDuration % 60, 0);
+                row.duration = QTime(OffDuration / 3600, (OffDuration % 3600) / 60, OffDuration % 60, 0);
             else
                 row.distance = OffDuration / 1000.0;
             if (sportType.toLower().contains(QStringLiteral("run"))) {
@@ -177,8 +177,8 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
                 trainrow row;
                 if (!durationAsDistance(sportType, durationType)) {
                     row.duration = QTime(0, 0, 1, 0);
-                    row.rampDuration = QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
-                    row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
+                    row.rampDuration = QTime((Duration - i) / 3600, ((Duration - i) % 3600) / 60, (Duration - i) % 60, 0);
+                    row.rampElapsed = QTime(i / 3600, (i % 3600) / 60, i % 60, 0);
                 } else {
                     row.distance = 0.001;
                 }
@@ -216,7 +216,7 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
 
         trainrow row;
         if (!durationAsDistance(sportType, durationType))
-            row.duration = QTime(Duration / 3600, Duration / 60, Duration % 60, 0);
+            row.duration = QTime(Duration / 3600, (Duration % 3600) / 60, Duration % 60, 0);
         else
             row.distance = ((double)Duration) / 1000.0;
         qDebug() << "TrainRow" << row.toString();
@@ -250,7 +250,7 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
         }
 
         if (!durationAsDistance(sportType, durationType))
-            row.duration = QTime(Duration / 3600, Duration / 60, Duration % 60, 0);
+            row.duration = QTime(Duration / 3600, (Duration % 3600) / 60, Duration % 60, 0);
         else
             row.distance = Duration / 1000.0;
 
@@ -383,6 +383,7 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
     QList<trainrow> list;
     QXmlStreamReader stream(input);
     double thresholdSecPerKm = 0;
+    double localFtpOverride = -1.0;
     QString sportType = QStringLiteral("");
     QString durationType = QStringLiteral("");
     if (description != nullptr)
@@ -425,6 +426,11 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
         } else if (name.toLower().contains(QStringLiteral("durationtype")) && durationType.length() == 0) {
             stream.readNext();
             durationType = stream.text().toString();
+        } else if (name.toLower().contains(QStringLiteral("ftpoverride")) && localFtpOverride < 0) {
+            stream.readNext();
+            double val = stream.text().toDouble();
+            if (val > 0)
+                localFtpOverride = val;
         } else if (!atts.isEmpty()) {
             // Apply pending text events to previous segment before starting new one
             if (currentSegmentStartIndex >= 0 && currentSegmentStartIndex < list.length() && !pendingTextEvents.isEmpty()) {
@@ -551,6 +557,19 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
     if (currentSegmentStartIndex >= 0 && currentSegmentStartIndex < list.length() && !pendingTextEvents.isEmpty()) {
         list[currentSegmentStartIndex].textEvents = pendingTextEvents;
         qDebug() << "Applied" << pendingTextEvents.length() << "text events to final trainrow at index" << currentSegmentStartIndex;
+    }
+
+    // Apply ftpOverride: scale power values relative to the FTP used during convertTag()
+    if (localFtpOverride > 0) {
+        double originalFtp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+        qDebug() << "ftpOverride" << localFtpOverride << "originalFtp" << originalFtp;
+        if (originalFtp > 0) {
+            double scale = localFtpOverride / originalFtp;
+            for (trainrow &row : list) {
+                if (row.power > 0)
+                    row.power *= scale;
+            }
+        }
     }
 
     return list;
