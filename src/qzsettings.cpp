@@ -322,6 +322,7 @@ const QString QZSettings::intervalsicu_date_prefix = QStringLiteral("intervalsic
 const QString QZSettings::cadence_sensor_name = QStringLiteral("cadence_sensor_name");
 const QString QZSettings::default_cadence_sensor_name = QStringLiteral("Disabled");
 const QString QZSettings::cadence_sensor_as_bike = QStringLiteral("cadence_sensor_as_bike");
+const QString QZSettings::cadence_sensor_as_treadmill = QStringLiteral("cadence_sensor_as_treadmill");
 const QString QZSettings::cadence_sensor_speed_ratio = QStringLiteral("cadence_sensor_speed_ratio");
 const QString QZSettings::power_hr_pwr1 = QStringLiteral("power_hr_pwr1");
 const QString QZSettings::power_hr_hr1 = QStringLiteral("power_hr_hr1");
@@ -1063,7 +1064,7 @@ const QString QZSettings::step_gain = QStringLiteral("step_gain");
 const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform_carbon_tlx_treadmill");
 
 
-const uint32_t allSettingsCount = 866;
+const uint32_t allSettingsCount = 867;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1324,6 +1325,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::strava_suffix, QZSettings::default_strava_suffix},
     {QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name},
     {QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike},
+    {QZSettings::cadence_sensor_as_treadmill, QZSettings::default_cadence_sensor_as_treadmill},
     {QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio},
     {QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1},
     {QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1},

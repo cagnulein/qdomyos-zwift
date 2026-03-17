@@ -18,6 +18,8 @@
 #include "virtualdevices/virtualtreadmill.h"
 #include <QDir>
 #include <QGuiApplication>
+#include <QFileOpenEvent>
+#include <QEvent>
 #include <QOperatingSystemVersion>
 #include <QQmlApplicationEngine>
 #include <QSettings>
@@ -48,6 +50,33 @@
 #include "osc.h"
 
 #include "handleurl.h"
+#include "authutils.h"
+
+class OAuthCallbackEventFilter : public QObject {
+  public:
+    bool eventFilter(QObject *watched, QEvent *event) override {
+#ifdef Q_OS_IOS
+        Q_UNUSED(watched)
+        if (event->type() == QEvent::FileOpen) {
+            auto *fileEvent = static_cast<QFileOpenEvent *>(event);
+            const QUrl url = fileEvent->url();
+            qDebug() << "QZ iOS FileOpen event received" << sanitizedOAuthCallbackUrl(url);
+            if (url.isValid() && url.host() == QStringLiteral("www.qzfitness.com") &&
+                url.path().startsWith(QStringLiteral("/peloton/callback")) && homeform::singleton()) {
+                qDebug() << "QZ iOS FileOpen matched Peloton callback";
+                QMetaObject::invokeMethod(homeform::singleton(), "handleOAuthCallbackUrl", Qt::QueuedConnection,
+                                          Q_ARG(QString, url.toString()));
+            } else {
+                qDebug() << "QZ iOS FileOpen ignored";
+            }
+        }
+#else
+        Q_UNUSED(watched)
+        Q_UNUSED(event)
+#endif
+        return false;
+    }
+};
 
 #ifdef ANT_LINUX_ENABLED
 #include <thread>
@@ -112,6 +141,7 @@ int8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
 QString power_sensor_name = QStringLiteral("Disabled");
 bool power_sensor_as_treadmill = false;
+bool smokeTest = false;
 QString logfilename = QStringLiteral("debug-") +
                       QDateTime::currentDateTime()
                           .toString()
@@ -176,6 +206,7 @@ void displayHelp() {
     printf("  -test-peloton                 Enable Peloton test mode\n");
     printf("  -test-hfb                     Enable Home Fitness Buddy test mode\n");
     printf("  -test-pzp                     Enable Power Zone Pack test mode\n");
+    printf("  -smoke-test                   Run smoke test (verify Qt loads, print SMOKE_OK, exit)\n");
     printf("  -train <program>              Specify training program\n");
 
     printf("\nPeloton options:\n");
@@ -347,6 +378,10 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             testHomeFitnessBudy = true;
         if (!qstrcmp(argv[i], "-test-pzp"))
             testPowerZonePack = true;
+        if (!qstrcmp(argv[i], "-smoke-test")) {
+            smokeTest = true;
+            nogui = true;
+        }
         if (!qstrcmp(argv[i], "-train")) {
 
             trainProgram = argv[++i];
@@ -565,13 +600,16 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif
+
+    OAuthCallbackEventFilter oauthCallbackEventFilter;
+    app->installEventFilter(&oauthCallbackEventFilter);
 #ifdef CHARTJS
     QtWebView::initialize();
 #endif
 
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
-    if (getuid() && !testPeloton && !testHomeFitnessBudy && !testPowerZonePack) {
+    if (getuid() && !testPeloton && !testHomeFitnessBudy && !testPowerZonePack && !smokeTest) {
 
         printf("Runme as root!\n");
         return -1;
@@ -579,6 +617,11 @@ int main(int argc, char *argv[]) {
         printf("%s", "OK, you are root.\n");
 #endif
 #endif
+
+    if (smokeTest) {
+        printf("SMOKE_OK\n");
+        return 0;
+    }
 
     app->setOrganizationName(QStringLiteral("Roberto Viola"));
     app->setOrganizationDomain(QStringLiteral("robertoviola.cloud"));

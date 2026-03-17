@@ -673,6 +673,11 @@ jobs:
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
 
+      - name: Prepare Android signing key
+        run: |
+          printf '%s' "${{ secrets.SIGNING_KEY }}" | base64 --decode > ${{ github.workspace }}/src/android/ci-signing-key.jks
+          echo "CI_ANDROID_SIGNING_KEYSTORE=${{ github.workspace }}/src/android/ci-signing-key.jks" >> $GITHUB_ENV
+
       - name: Build qthttpserver for Android
         run: |
           cd src/qthttpserver
@@ -698,6 +703,24 @@ jobs:
 
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+
+      - name: Re-sign APK for stable App Links fingerprint
+        run: |
+          APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
+          SIGNED_APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-signed.apk"
+          APKSIGNER=$(find /usr/local/lib/android/sdk/build-tools -name apksigner | sort | tail -n 1)
+          if [ -z "$APKSIGNER" ]; then
+            echo "apksigner not found"
+            exit 1
+          fi
+          "$APKSIGNER" sign \
+            --ks "$CI_ANDROID_SIGNING_KEYSTORE" \
+            --ks-key-alias "${{ secrets.ALIAS }}" \
+            --ks-pass "pass:${{ secrets.KEY_STORE_PASSWORD }}" \
+            --key-pass "pass:${{ secrets.KEY_PASSWORD }}" \
+            --out "$SIGNED_APK_PATH" \
+            "$APK_PATH"
+          mv "$SIGNED_APK_PATH" "$APK_PATH"
 
       - name: Show ccache stats
         if: always()
@@ -1375,9 +1398,6 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Secrets
         run: |
           cd src
@@ -1393,32 +1413,41 @@ jobs:
           cd ..
 
       - name: Build for Raspberry Pi
-        uses: docker://arm32v7/debian:bullseye-20241016
-        with:
-          args: >
+        run: |
+          docker run --rm --platform linux/arm/v6 \
+            -v ${{ github.workspace }}:/workspace -w /workspace \
+            balenalib/raspberry-pi-debian:bullseye-build \
             bash -c "
-            set -ex &&
-            for i in 1 2 3; do apt-get update && break || sleep 5; done &&
-            for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql && break || sleep 5; done &&
-            export QT_SELECT=qt5 &&
-            export PATH=/usr/lib/qt5/bin:$PATH &&
-            cd /github/workspace &&
-            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
-            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
-            cat qdomyos-zwift.pro &&
-            qmake &&
-            make -j$(nproc)
+              set -ex &&
+              for i in 1 2 3; do apt-get update && break || sleep 5; done &&
+              for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql && break || sleep 5; done &&
+              export QT_SELECT=qt5 &&
+              export PATH=/usr/lib/qt5/bin:\$PATH &&
+              sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
+              find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
+              find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
+              cat qdomyos-zwift.pro &&
+              qmake &&
+              make -j\$(nproc)
             "
 
       - name: Rename binary
-        run: mv src/qdomyos-zwift src/qdomyos-zwift-32bit
-      
+        run: mv src/qdomyos-zwift src/qdomyos-zwift-armv6hf
+
+      - name: Verify 32-bit binary targets ARMv6
+        run: |
+          ARCH=$(readelf -A src/qdomyos-zwift-armv6hf | grep 'Tag_CPU_arch:' | awk '{print $2}')
+          echo "Binary CPU architecture: $ARCH"
+          if [ "$ARCH" != "v6" ]; then
+            echo "::error::Binary targets $ARCH but must target v6 for Pi Zero W compatibility"
+            exit 1
+          fi
+
       - name: Archive Raspberry Pi binary
         uses: actions/upload-artifact@v4
         with:
-          name: raspberry-pi-binary
-          path: src/qdomyos-zwift-32bit
+          name: raspberry-pi-binary-armv6hf
+          path: src/qdomyos-zwift-armv6hf
 
   raspberry-pi-build-and-image-64bit:
     runs-on: ubuntu-22.04-arm
@@ -1443,30 +1472,141 @@ jobs:
           echo "#define LICENSE" >> secret.h
           cd ..
 
-      - name: Install Qt5 build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
-
       - name: Build for Raspberry Pi 64-bit
-        run: |
-          export QT_SELECT=qt5
-          export PATH=/usr/lib/qt5/bin:$PATH
-          sed -i '/QtHttpServer/d' qdomyos-zwift.pro
-          find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} +
-          find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} +
-          cat qdomyos-zwift.pro
-          qmake
-          make -j$(nproc)
+        uses: docker://arm64v8/debian:bullseye-20241016
+        with:
+          args: >
+            bash -c "
+            set -ex &&
+            for i in 1 2 3; do apt-get update && break || sleep 5; done &&
+            for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql && break || sleep 5; done &&
+            export QT_SELECT=qt5 &&
+            export PATH=/usr/lib/qt5/bin:$PATH &&
+            cd /github/workspace &&
+            sed -i '/QtHttpServer/d' qdomyos-zwift.pro &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/#include <QtHttpServer/\/\/#include <QtHttpServer/' {} + &&
+            find src -type f \( -name '*.cpp' -o -name '*.h' \) -exec sed -i 's/QHttpServer/\/\/QHttpServer/' {} + &&
+            cat qdomyos-zwift.pro &&
+            qmake &&
+            make -j$(nproc)
+            "
 
       - name: Rename binary
-        run: mv src/qdomyos-zwift src/qdomyos-zwift-64bit
+        run: mv src/qdomyos-zwift src/qdomyos-zwift-aarch64
+
+      - name: Verify 64-bit binary glibc compatibility
+        run: |
+          MAX_GLIBC=$(readelf -V src/qdomyos-zwift-aarch64 | grep -oP 'GLIBC_\K[0-9.]+' | sort -V | tail -1)
+          echo "Max required GLIBC version: $MAX_GLIBC"
+          if dpkg --compare-versions "$MAX_GLIBC" gt "2.31"; then
+            echo "::error::Binary requires GLIBC $MAX_GLIBC but Raspberry Pi OS Bullseye only has 2.31"
+            exit 1
+          fi
 
       - name: Archive Raspberry Pi 64bit binary
         uses: actions/upload-artifact@v4
         with:
-          name: raspberry-pi-binary-64bit
-          path: src/qdomyos-zwift-64bit
+          name: raspberry-pi-binary-aarch64
+          path: src/qdomyos-zwift-aarch64
+
+  raspberry-pi-smoke-test:
+    runs-on: ubuntu-22.04-arm
+    needs: [raspberry-pi-build, raspberry-pi-build-and-image-64bit]
+
+    steps:
+      - name: Download armv6hf binary
+        uses: actions/download-artifact@v4
+        with:
+          name: raspberry-pi-binary-armv6hf
+          path: bin32
+
+      - name: Download aarch64 binary
+        uses: actions/download-artifact@v4
+        with:
+          name: raspberry-pi-binary-aarch64
+          path: bin64
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: ELF metadata checks for armv6hf binary (Pi Zero W)
+        timeout-minutes: 5
+        run: |
+          chmod +x bin32/qdomyos-zwift-armv6hf
+          file bin32/qdomyos-zwift-armv6hf
+          readelf -A bin32/qdomyos-zwift-armv6hf | grep -E 'Tag_CPU|Tag_FP|Tag_ABI'
+
+          # Check CPU architecture is ARMv6
+          ARCH=$(readelf -A bin32/qdomyos-zwift-armv6hf | grep 'Tag_CPU_arch:' | awk '{print $2}')
+          if [ "$ARCH" != "v6" ]; then
+            echo "::error::Binary targets $ARCH, expected v6"
+            exit 1
+          fi
+          echo "PASS: CPU architecture is ARMv6"
+
+          # Check hard-float ABI
+          VFP=$(readelf -A bin32/qdomyos-zwift-armv6hf | grep 'Tag_ABI_VFP_args:' | awk '{print $2}')
+          if [ "$VFP" != "VFP" ]; then
+            echo "::error::Binary does not use hard-float ABI (Tag_ABI_VFP_args: $VFP)"
+            exit 1
+          fi
+          echo "PASS: Hard-float ABI (VFP registers)"
+
+          # Check dynamic linker / interpreter path
+          INTERP=$(readelf -l bin32/qdomyos-zwift-armv6hf | grep 'interpreter:' | grep -oP '/[^\]]+')
+          if [ "$INTERP" != "/lib/ld-linux-armhf.so.3" ]; then
+            echo "::error::Wrong interpreter: $INTERP, expected /lib/ld-linux-armhf.so.3"
+            exit 1
+          fi
+          echo "PASS: Interpreter is /lib/ld-linux-armhf.so.3"
+
+          echo "SUCCESS: All armv6hf ELF metadata checks passed"
+
+      - name: Runtime smoke test armv6hf binary
+        timeout-minutes: 10
+        continue-on-error: true
+        run: |
+          docker run --rm --platform linux/arm/v6 \
+            -v ${{ github.workspace }}/bin32:/app \
+            balenalib/raspberry-pi-debian:bullseye-run \
+            bash -c "
+              for i in 1 2 3; do apt-get update && break || sleep 5; done
+              for i in 1 2 3; do apt-get install -y --no-install-recommends \
+                libqt5core5a libqt5bluetooth5 libqt5charts5 libqt5widgets5 \
+                libqt5network5 libqt5websockets5 libqt5xml5 libqt5sql5 \
+                libqt5multimedia5 libqt5positioning5 libqt5qml5 libqt5quick5 \
+                libqt5texttospeech5 libqt5networkauth5 libqt5gui5 || true && break || sleep 5; done
+              OUTPUT=\$(/app/qdomyos-zwift-armv6hf -no-gui -smoke-test 2>&1) || true
+              echo \"\$OUTPUT\"
+              if echo \"\$OUTPUT\" | grep -q 'SMOKE_OK'; then
+                echo 'SUCCESS: armv6hf binary runs and Qt runtime loads'
+              else
+                echo '::error::armv6hf runtime smoke test failed - SMOKE_OK not found'
+                exit 1
+              fi
+            "
+
+      - name: Runtime smoke test aarch64 binary (ARM64 Bullseye - Pi 3/4/5)
+        timeout-minutes: 10
+        run: |
+          chmod +x bin64/qdomyos-zwift-aarch64
+          docker run --rm -v ${{ github.workspace }}/bin64:/app \
+            arm64v8/debian:bullseye-20241016 \
+            bash -c "
+              apt-get update && apt-get install -y --no-install-recommends \
+                libqt5core5a libqt5bluetooth5 libqt5charts5 libqt5widgets5 \
+                libqt5network5 libqt5websockets5 libqt5xml5 libqt5sql5 \
+                libqt5multimedia5 libqt5positioning5 libqt5qml5 libqt5quick5 \
+                libqt5texttospeech5 libqt5networkauth5 libqt5gui5 || true
+              OUTPUT=\$(/app/qdomyos-zwift-aarch64 -no-gui -smoke-test 2>&1) || true
+              echo \"\$OUTPUT\"
+              if echo \"\$OUTPUT\" | grep -q 'SMOKE_OK'; then
+                echo 'SUCCESS: aarch64 binary runs on ARM64 Bullseye'
+              else
+                echo '::error::aarch64 runtime smoke test failed - SMOKE_OK not found'
+                exit 1
+              fi
+            "
 
   window-msvc2022-build:
     runs-on: windows-latest
@@ -2038,7 +2178,7 @@ jobs:
           path: linux-binary-x86-64-ant.zip
 
   # Build the raspberry pi 64 bit variant with ant+ support
-  raspberry-pi-build-64bit-ant:
+  raspberry-pi-build-aarch64-ant:
     runs-on: ubuntu-latest
 
     steps:
@@ -2092,19 +2232,19 @@ jobs:
           docker rm qz-container
 
       - name: Zip artifact for deployment
-        run: zip -r raspberry-pi-binary-64bit-ant.zip qdomyos-zwift-arm64-ant
+        run: zip -r raspberry-pi-binary-aarch64-ant.zip qdomyos-zwift-aarch64-ant
 
       - name: Archive Raspberry Pi 64bit ANT+ binary
         uses: actions/upload-artifact@v4
         with:
-          name: raspberry-pi-binary-64bit-ant
-          path: raspberry-pi-binary-64bit-ant.zip
+          name: raspberry-pi-binary-aarch64-ant
+          path: raspberry-pi-binary-aarch64-ant.zip
 
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
-    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, raspberry-pi-build-64bit-ant, linux-x86-build-ant]
+    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, raspberry-pi-smoke-test, raspberry-pi-build-aarch64-ant, linux-x86-build-ant]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -2145,9 +2285,10 @@ jobs:
             - **nordictrack-rower-android-trial**: Nordictrack Rower build for iFIT2 Tablets
             - **peloton-bike-plus-android-trial**: Peloton Bike Plus build with Grupetto backend
             - **peloton-bike-android-trial**: Peloton Bike build with Grupetto backend
-            - **raspberry-pi-binary**: Raspberry Pi build
-            - **raspberry-pi-binary-64bit-ant**: 64-bit build with ANT+ Footpod support
-            - **linux-binary-x86-64-ant**: 64-bit build with ANT+ Footpod support for Desktop Linux (Ubuntu/Debian)
+            - **raspberry-pi-binary-armv6hf**: Raspberry Pi 32-bit (ARMv6 hard-float, Pi Zero W compatible)
+            - **raspberry-pi-binary-aarch64**: Raspberry Pi 64-bit (AArch64, Pi 3/4/5)
+            - **raspberry-pi-binary-aarch64-ant**: Raspberry Pi 64-bit build with ANT+ Footpod support
+            - **linux-binary-x86-64-ant**: Linux 64-bit build with ANT+ Footpod support for Desktop Linux (Ubuntu/Debian)
 
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
           files: |
@@ -2164,7 +2305,7 @@ jobs:
             nordictrack-rower-android-trial/android-debug-nordictrack-rower.apk
             peloton-bike-plus-android-trial/android-debug-peloton-bike-plus.apk
             peloton-bike-android-trial/android-debug-peloton-bike.apk
-            raspberry-pi-binary/qdomyos-zwift-32bit
-            raspberry-pi-binary/qdomyos-zwift-64bit
-            raspberry-pi-binary-64bit-ant/*
+            raspberry-pi-binary-armv6hf/qdomyos-zwift-armv6hf
+            raspberry-pi-binary-aarch64/qdomyos-zwift-aarch64
+            raspberry-pi-binary-aarch64-ant/*
             linux-binary-x86-64-ant/*
