@@ -1068,11 +1068,7 @@ const QString QZSettings::step_gain = QStringLiteral("step_gain");
 const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform_carbon_tlx_treadmill");
 
 
-<<<<<<< claude/volume-gearing-ios-SiMV4
-const uint32_t allSettingsCount = 857;
-=======
-const uint32_t allSettingsCount = 867;
->>>>>>> master
+const uint32_t allSettingsCount = 872;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
