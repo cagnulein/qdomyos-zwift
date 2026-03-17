@@ -1271,13 +1271,7 @@ import Qt.labs.platform 1.1
 			property int tile_power_avg_order: 77
 			property bool life_fitness_ic5: false
 			property bool technogym_bike: false
-<<<<<<< claude/volume-gearing-ios-SiMV4
-			property bool ios_volume_gears_sync: false
-			property bool ios_volume_gears_range: false
-			property real ios_volume_gears_min: 1.0
-			property real ios_volume_gears_max: 24.0
-=======
-            
+
 			property bool kingsmith_r2_enable_hw_buttons: false
 			property bool treadmill_direct_distance: false
       
@@ -1296,7 +1290,11 @@ import Qt.labs.platform 1.1
             property bool nordictrack_vr21: false
             property bool gymstick_gx6_0_elliptical: false
             property bool cadence_sensor_as_treadmill: false
->>>>>>> master
+
+			property bool ios_volume_gears_sync: false
+			property bool ios_volume_gears_range: false
+			property real ios_volume_gears_min: 1.0
+			property real ios_volume_gears_max: 24.0
         }
 
 
