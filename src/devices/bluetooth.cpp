@@ -2346,7 +2346,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(sportsPlusRower);
             } else if ((b.name().startsWith(yesoulbike::bluetoothName) || 
                         b.name().toUpper().startsWith("YS_G1M_")) && !yesoulBike && filter &&
-                       b.name().compare(ftms_treadmill, Qt::CaseInsensitive)) {
+                       b.name().compare(ftms_treadmill, Qt::CaseInsensitive) && b.name().compare(ftms_bike, Qt::CaseInsensitive)) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 yesoulBike =
