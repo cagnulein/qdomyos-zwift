@@ -385,6 +385,7 @@ void echelonconnectsport::btinit() {
     uint8_t initData2[] = {0xf0, 0xa3, 0x00, 0x93};
     uint8_t initData3[] = {0xf0, 0xb0, 0x01, 0x01, 0xa2};
     uint8_t initData4[] = {0xf0, 0xa5, 0x00, 0x95};
+    uint8_t initData5[] = {0xf0, 0x71, 0x03, 0x00, 0x00, 0xff, 0x63};
     // uint8_t initData4[] = { 0xf0, 0x60, 0x00, 0x50 }; // get sleep command
 
     // useless i guess
@@ -404,6 +405,7 @@ void echelonconnectsport::btinit() {
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("start"), false, true);
     writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("post-init"), false, true);
+    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("wake"), false, true);
 
     initDone = true;
 
