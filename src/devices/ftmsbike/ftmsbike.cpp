@@ -24,6 +24,72 @@ extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 
 using namespace std::chrono_literals;
 
+namespace {
+
+constexpr double kVirtualShiftPi = 3.14159;
+constexpr double kVirtualShiftGravity = 9.81;
+constexpr double kVirtualShiftRollingResistanceCoefficient = 0.00415;
+constexpr double kVirtualShiftWindResistanceCoefficient = 0.51;
+constexpr double kVirtualShiftWheelDiameter = 0.7;
+constexpr double kVirtualShiftDefaultChainring = 34.0;
+constexpr double kVirtualShiftDefaultCog = 14.0;
+constexpr uint16_t kVirtualShiftDifficulty = 100;
+
+double calculateVirtualShiftSpeed(double cadence, double gearRatio) {
+    return ((cadence * gearRatio) * (kVirtualShiftWheelDiameter * kVirtualShiftPi) / 60.0);
+}
+
+double calculateVirtualShiftedValue(double originalValue, double gearRatio) {
+    if (originalValue < 0.0) {
+        return originalValue * (1.0 / gearRatio);
+    }
+    return originalValue * gearRatio;
+}
+
+double calculateVirtualShiftTrackResistanceGrade(double totalWeight, double grade, double cadence, double gearRatio,
+                                                 double defaultGearRatio) {
+    const double relativeGearRatio = gearRatio / defaultGearRatio;
+    const double speed = calculateVirtualShiftSpeed(cadence, gearRatio);
+    const double realSpeed = calculateVirtualShiftSpeed(cadence, defaultGearRatio);
+
+    double windResistance = 0.5 * kVirtualShiftWindResistanceCoefficient * pow(realSpeed, 2);
+    windResistance *= (kVirtualShiftDifficulty / 100.0);
+
+    double gravitationalResistance = kVirtualShiftGravity * sin(atan(grade / 100.0)) * totalWeight;
+    gravitationalResistance *= (kVirtualShiftDifficulty / 100.0);
+
+    const double rollingResistance = kVirtualShiftGravity * totalWeight * kVirtualShiftRollingResistanceCoefficient;
+    const double gearedTotalResistance =
+        calculateVirtualShiftedValue(gravitationalResistance + rollingResistance, relativeGearRatio) + windResistance;
+
+    const double theoreticalGravitationalResistance = gearedTotalResistance - windResistance - rollingResistance;
+    const double normalizedResistance =
+        qBound(-1.0, theoreticalGravitationalResistance / (totalWeight * kVirtualShiftGravity), 1.0);
+
+    Q_UNUSED(speed);
+    return (tan(asin(normalizedResistance)) * 100.0) - 1.0;
+}
+
+double defaultVirtualShiftGearRatio(const QSettings &settings) {
+    const double configuredChainring =
+        settings.value(QZSettings::gear_crankset_size, QZSettings::default_gear_crankset_size).toDouble();
+    const double configuredCog =
+        settings.value(QZSettings::gear_cog_size, QZSettings::default_gear_cog_size).toDouble();
+
+    if (configuredChainring == QZSettings::default_gear_crankset_size &&
+        configuredCog == QZSettings::default_gear_cog_size) {
+        return kVirtualShiftDefaultChainring / kVirtualShiftDefaultCog;
+    }
+
+    if (configuredCog <= 0.0) {
+        return kVirtualShiftDefaultChainring / kVirtualShiftDefaultCog;
+    }
+
+    return configuredChainring / configuredCog;
+}
+
+}
+
 ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain) {
     QSettings settings;
@@ -424,59 +490,8 @@ void ftmsbike::update() {
         }
 
         if(zwiftPlayService && gears_zwift_ratio && lastGearValue != gears()) {
-            // Workaround: gear commands don't work until an inclination command has been sent first
-            if (!gearInclinationSent) {
-                qDebug() << "Sending initial inclination command (0.4%) before first gear command";
-                sendZwiftPlayInclination(0.4);
-            }
-
-            QSettings settings;
-            wheelCircumference::GearTable table;
-            wheelCircumference::GearTable::GearInfo g = table.getGear((int)gears());
-            double original_ratio = ((double)settings.value(QZSettings::gear_crankset_size, QZSettings::default_gear_crankset_size).toDouble()) /
-            ((double)settings.value(QZSettings::gear_cog_size, QZSettings::default_gear_cog_size).toDouble());
-
-            double current_ratio = ((double)g.crankset / (double)g.rearCog);
-
-            uint32_t gear_value = static_cast<uint32_t>(10000.0 * (current_ratio/original_ratio) * (42.0/14.0));
-
-            qDebug() << "zwift hub gear current ratio" << current_ratio << g.crankset << g.rearCog << "gear_value" << gear_value << "original_ratio" << original_ratio;
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            QByteArray proto = lockscreen::zwift_hub_setGearsCommand(gear_value);
-#else
-            QByteArray proto;
-#endif
-#elif defined Q_OS_ANDROID
-            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
-                "org/cagnulen/qdomyoszwift/ZwiftHubBike",
-                "setGearCommand",
-                "(I)[B",
-                gear_value);
-
-            if (!result.isValid()) {
-                qDebug() << "setGearCommand returned invalid value";
-                return;
-            }
-
-            jbyteArray array = result.object<jbyteArray>();
-            QAndroidJniEnvironment env;
-            jbyte* bytes = env->GetByteArrayElements(array, nullptr);
-            jsize length = env->GetArrayLength(array);
-
-            QByteArray proto((char*)bytes, length);
-
-            env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
-#else
-            QByteArray proto;
-            qDebug() << "ERROR: gear message not handled!";
-            return;
-#endif
-            writeCharacteristicZwiftPlay((uint8_t*)proto.data(), proto.length(), "gear", false, true);
-
-            uint8_t gearApply[] = {0x00, 0x08, 0x88, 0x04};
-            writeCharacteristicZwiftPlay(gearApply, sizeof(gearApply), "gearApply", false, true);
+            qDebug() << "virtual shifting gear change will be applied through FTMS simulation"
+                     << gears();
         }
 
         lastGearValue = gears();
@@ -1661,8 +1676,40 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             qDebug() << "applying gears mod" << gears() << slope;
 
         } else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {
-            int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
-            sendZwiftPlayInclination(((double)slope) / 100.0);
+            lastPacketFromFTMS.clear();
+            for (int i = 0; i < b.length(); i++) {
+                lastPacketFromFTMS.append(b.at(i));
+            }
+            qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
+
+            const int16_t slope = static_cast<int16_t>(static_cast<uint16_t>(static_cast<uint8_t>(b.at(3))) |
+                                                       (static_cast<uint16_t>(static_cast<uint8_t>(b.at(4))) << 8));
+            double gearedSlope = static_cast<double>(slope) / 100.0;
+
+            wheelCircumference::GearTable table;
+            const wheelCircumference::GearTable::GearInfo gear = table.getGear(static_cast<int>(gears()));
+            const double currentRatio =
+                gear.rearCog > 0 ? static_cast<double>(gear.crankset) / static_cast<double>(gear.rearCog) : 0.0;
+            const double defaultGearRatio = defaultVirtualShiftGearRatio(settings);
+            const double totalWeight =
+                settings.value(QZSettings::weight, QZSettings::default_weight).toDouble() +
+                settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toDouble();
+            const double cadence = currentCadence().value();
+
+            if (currentRatio > 0.0 && defaultGearRatio > 0.0 && totalWeight > 0.0 && cadence > 0.0) {
+                gearedSlope = calculateVirtualShiftTrackResistanceGrade(totalWeight, gearedSlope, cadence,
+                                                                        currentRatio, defaultGearRatio);
+            }
+
+            qDebug() << "virtual shifting"
+                     << "gear" << gears()
+                     << "rawSlope" << (((double)slope) / 100.0)
+                     << "gearedSlope" << gearedSlope
+                     << "cadence" << cadence
+                     << "currentRatio" << currentRatio
+                     << "defaultGearRatio" << defaultGearRatio;
+
+            sendZwiftPlayInclination(gearedSlope);
             return;
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && !ergModeSupported) {
             qDebug() << "discarding";
