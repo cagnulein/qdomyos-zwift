@@ -1106,6 +1106,7 @@ void homeform::volumeUp() {
         Plus(QStringLiteral("speed"));
     } else if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
 #ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
         // iOS Volume Gears Range mapping
         if (settings.value(QZSettings::ios_volume_gears_range, QZSettings::default_ios_volume_gears_range).toBool()) {
             double currentVolume = h->getVolume();
@@ -1133,6 +1134,9 @@ void homeform::volumeUp() {
 #else
         Plus(QStringLiteral("gears"));
 #endif
+#else
+        Plus(QStringLiteral("gears"));
+#endif
     }
 }
 
@@ -1143,6 +1147,7 @@ void homeform::volumeDown() {
         Minus(QStringLiteral("speed"));
     } else if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
 #ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
         // iOS Volume Gears Range mapping
         if (settings.value(QZSettings::ios_volume_gears_range, QZSettings::default_ios_volume_gears_range).toBool()) {
             double currentVolume = h->getVolume();
@@ -1167,6 +1172,9 @@ void homeform::volumeDown() {
         } else {
             Minus(QStringLiteral("gears"));
         }
+#else
+        Minus(QStringLiteral("gears"));
+#endif
 #else
         Minus(QStringLiteral("gears"));
 #endif
@@ -4328,6 +4336,7 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
     }
 
 #ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
     // iOS Volume Gears Sync on startup
     if (settings.value(QZSettings::ios_volume_gears_sync, QZSettings::default_ios_volume_gears_sync).toBool()) {
         double currentVolume = h->getVolume();
@@ -4343,6 +4352,7 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
             ((rower *)bluetoothManager->device())->setGears(volumeLevel);
         }
     }
+#endif
 #endif
 }
 
