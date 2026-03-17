@@ -3441,8 +3441,11 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
           proform_proshox2 || proform_595i_proshox2 || proform_performance_300i || proform_performance_400i || proform_treadmill_705_cst_V80_44) &&
          (newValue.at(4) != 0x02 || (newValue.at(5) != 0x31 && newValue.at(5) != 0x34))) ||
 
-        ((norditrack_s25i_treadmill || nordictrack_treadmill_ultra_le || proform_treadmill_carbon_tls || proform_carbon_tlx_treadmill ||
-          proform_trainer_8_0_pftl59721_int_0) && (newValue.at(4) != 0x02 || (newValue.at(5) != 0x2f))) ||
+        ((proform_trainer_8_0_pftl59721_int_0) &&
+         (newValue.at(4) != 0x02 || (newValue.at(5) != 0x2e && newValue.at(5) != 0x2f))) ||
+
+        ((norditrack_s25i_treadmill || nordictrack_treadmill_ultra_le || proform_treadmill_carbon_tls || proform_carbon_tlx_treadmill) &&
+         (newValue.at(4) != 0x02 || (newValue.at(5) != 0x2f))) ||
 
         ((nordictrack_t65s_treadmill || nordictrack_t65s_treadmill_81_miles || proform_pro_1000_treadmill || nordictrack_t65s_83_treadmill || nordictrack_s30_treadmill ||
           nordictrack_s20_treadmill || proform_treadmill_se || proform_cadence_lt || proform_8_5_treadmill || nordictrack_treadmill_exp_5i || proform_carbon_tl ||
