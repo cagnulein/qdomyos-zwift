@@ -521,7 +521,7 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Garmin"
+        text: "Garmin Workout Planned"
         informativeText: "Workout found:\n" + rootItem.garminWorkoutPromptName +
                          (rootItem.garminWorkoutPromptDate.length > 0 ? "\nDate: " + rootItem.garminWorkoutPromptDate : "") +
                          "\n\nDo you want to start it now?"
