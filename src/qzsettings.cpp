@@ -897,6 +897,7 @@ const QString QZSettings::iconsole_rower = QStringLiteral("iconsole_rower");
 const QString QZSettings::proform_treadmill_1500_pro = QStringLiteral("proform_treadmill_1500_pro");
 const QString QZSettings::proform_505_cst_80_44 = QStringLiteral("proform_505_cst_80_44");
 const QString QZSettings::proform_trainer_8_0 = QStringLiteral("proform_trainer_8_0");
+const QString QZSettings::proform_trainer_8_0_pftl59721_int_0 = QStringLiteral("proform_trainer_8_0_pftl59721_int_0");
 const QString QZSettings::tile_biggears_swap = QStringLiteral("tile_biggears_swap");
 const QString QZSettings::treadmill_follow_wattage = QStringLiteral("treadmill_follow_wattage");
 const QString QZSettings::fit_file_garmin_device_training_effect = QStringLiteral("fit_file_garmin_device_training_effect");
@@ -1064,7 +1065,7 @@ const QString QZSettings::step_gain = QStringLiteral("step_gain");
 const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform_carbon_tlx_treadmill");
 
 
-const uint32_t allSettingsCount = 867;
+const uint32_t allSettingsCount = 868;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1812,6 +1813,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_1500_pro, QZSettings::default_proform_treadmill_1500_pro},
     {QZSettings::proform_505_cst_80_44, QZSettings::default_proform_505_cst_80_44},
     {QZSettings::proform_trainer_8_0, QZSettings::default_proform_trainer_8_0},
+    {QZSettings::proform_trainer_8_0_pftl59721_int_0, QZSettings::default_proform_trainer_8_0_pftl59721_int_0},
     {QZSettings::tile_biggears_swap, QZSettings::default_tile_biggears_swap},
     {QZSettings::treadmill_follow_wattage, QZSettings::default_treadmill_follow_wattage},
     {QZSettings::fit_file_garmin_device_training_effect, QZSettings::default_fit_file_garmin_device_training_effect},
