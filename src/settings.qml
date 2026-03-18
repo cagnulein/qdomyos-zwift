@@ -1288,7 +1288,8 @@ import Qt.labs.platform 1.1
             property bool proform_bike_325_csx_PFEX439210INT_0: false
             property bool proform_carbon_tlx_treadmill: false
             property bool nordictrack_vr21: false
-            property bool gymstick_gx6_0_elliptical: false
+            property bool gymstick_gx6_0_elliptical: false            
+            property bool cadence_sensor_as_treadmill: false
             property string sportstech_serialport: ""
         }
 
@@ -11739,11 +11740,36 @@ import Qt.labs.platform 1.1
                                 checked: settings.cadence_sensor_as_bike
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.cadence_sensor_as_bike = checked; window.settings_restart_to_apply = true; }
+                                onClicked: {
+                                    settings.cadence_sensor_as_bike = checked;
+                                    if (checked)
+                                        settings.cadence_sensor_as_treadmill = false;
+                                    window.settings_restart_to_apply = true;
+                                }
+                            }
+
+                            IndicatorOnlySwitch {
+                                id: cadenceSensorAsTreadmillDelegate
+                                text: qsTr("Cadence Sensor as a Treadmill")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.cadence_sensor_as_treadmill
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    settings.cadence_sensor_as_treadmill = checked;
+                                    if (checked)
+                                        settings.cadence_sensor_as_bike = false;
+                                    window.settings_restart_to_apply = true;
+                                }
                             }
 
                             Label {
-                                text: qsTr("If your bike doesn’t have Bluetooth, this setting allows you to use a cadence sensor so your bike will work with QZ. Default is off.")
+                                text: qsTr("If your equipment doesn’t have Bluetooth, these settings allow you to use a cadence sensor so it will work with QZ as a bike or treadmill. Default is off.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
