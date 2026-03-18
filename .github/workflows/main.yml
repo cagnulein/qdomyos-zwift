@@ -2226,7 +2226,7 @@ jobs:
           docker create --name qz-container $IMAGE_TAG
           
           # Copy the final compiled binary from the container to the runner's workspace
-          docker cp qz-container:/qdomyos-zwift-arm64-ant ./qdomyos-zwift-arm64-ant
+          docker cp qz-container:/qdomyos-zwift-aarch64-ant ./qdomyos-zwift-aarch64-ant
           
           # Clean up by removing the temporary container
           docker rm qz-container

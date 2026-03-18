@@ -288,6 +288,36 @@ trap 'forward_signal TERM' TERM
 trap 'forward_signal INT' INT
 trap 'forward_signal QUIT' QUIT
 
+set_kickr_run_alias() {
+    local config_file
+    config_file="$(get_config_path "$USER_HOME")"
+
+    if [[ ! -f "$config_file" ]]; then
+        return 0
+    fi
+
+    # Not needed on Raspberry Pi - BlueZ on Pi OS does not expose
+    # the adapter alias to scanners in the same way as Ubuntu 24.04+
+    if [[ -f /sys/firmware/devicetree/base/model ]] && \
+       grep -qi "raspberry pi" /sys/firmware/devicetree/base/model 2>/dev/null; then
+        return 0
+    fi
+
+    local vt_enabled
+    vt_enabled=$(grep -i "^virtualtreadmill\s*=" "$config_file" 2>/dev/null \
+                 | tail -1 | cut -d'=' -f2 | tr -d ' \r')
+
+    if [[ "${vt_enabled,,}" != "true" ]]; then
+        return 0
+    fi
+
+    if command -v bluetoothctl >/dev/null 2>&1; then
+        bluetoothctl system-alias "KICKR RUN" 2>/dev/null || true
+    fi
+}
+
+set_kickr_run_alias
+
 # Launch
 setsid env -i "${LAUNCH_ENV[@]}" "$DIR/qdomyos-zwift-bin" "$@" &
 child_pid=$!

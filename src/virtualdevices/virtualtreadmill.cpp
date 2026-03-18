@@ -35,6 +35,9 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                 SLOT(dirconChangedInclination(double, double)));
         connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
                 SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
+        // --- ADDED: Route Dircon FTMS commands to the processing slot so speed changes register ---
+        connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
+                SLOT(characteristicChanged(QLowEnergyCharacteristic, QByteArray)));
     }
     if (!settings.value(QZSettings::virtual_device_bluetooth, QZSettings::default_virtual_device_bluetooth).toBool())
         return;
@@ -362,10 +365,21 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         QThread::msleep(100);
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)        
+#ifdef ANT_LINUX_ENABLED
+        bool isRaspberryPi = false;
+        QFile modelFile("/sys/firmware/devicetree/base/model");
+        if (modelFile.open(QIODevice::ReadOnly) && QString(modelFile.readAll()).contains(QRegularExpression("Pi (Zero|[1-3])"))) {
+            isRaspberryPi = true;
+            genericAccessServer = leController->addService(genericAccessServerData);
+            genericAttributeService = leController->addService(genericAttributeServiceData);
+        } else {
+            qInfo() << "[ANT+] Linux Desktop detected. Skipping custom GAP/GATT services to prevent crash.";
+        }
+#else
         genericAccessServer = leController->addService(genericAccessServerData);
         genericAttributeService = leController->addService(genericAttributeServiceData);
 #endif          
-        
+#endif        
         if (noHeartService == false) {
             serviceHR = leController->addService(serviceDataHR);
         }
@@ -396,9 +410,8 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 #elif defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
         pars.setInterval(30, 50);
         #ifdef ANT_LINUX_ENABLED
-            // Check if we are on a low-spec device
-            QFile modelFile("/sys/firmware/devicetree/base/model");
-            if (modelFile.open(QIODevice::ReadOnly) && QString(modelFile.readAll()).contains(QRegularExpression("Pi (Zero|[1-3])"))) {
+            // Check if we are on a low-spec Raspberry Pi and adjust advertising parameters accordingly to prevent crashes.
+            if (isRaspberryPi) {
                 qInfo() << "[ANT+] Low-spec device detected. Slowing BLE advertising rate.";
                 pars.setInterval(500, 550); // Slow down to ~2Hz
             }
@@ -446,21 +459,28 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 }
             }
             #endif
-            QLowEnergyCharacteristic characteristic =
-                serviceFTMS->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9);
-            Q_ASSERT(characteristic.isValid());
-            if (leController->state() != QLowEnergyController::ConnectedState) {
-                qDebug() << QStringLiteral("virtual treadmill not connected");
-    
-                return;
+
+            // --- ADDED: Safety check for Dircon (prevents crash if BLE is off) ---
+            if (serviceFTMS && leController) {
+                QLowEnergyCharacteristic characteristic =
+                    serviceFTMS->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9);
+                Q_ASSERT(characteristic.isValid());
+                if (leController->state() != QLowEnergyController::ConnectedState) {
+                    qDebug() << QStringLiteral("virtual treadmill not connected");
+        
+                    return;
+                }
+                try {
+                    qDebug() << QStringLiteral("virtualtreadmill::writeCharacteristic ") + serviceFTMS->serviceName() +
+                                    QStringLiteral(" ") + characteristic.name() + QStringLiteral(" ") + reply.toHex(' ');
+                    serviceFTMS->writeCharacteristic(characteristic, reply); // Potentially causes notification.
+                } catch (...) {
+                    qDebug() << QStringLiteral("virtual treadmill error!");
+                }
+            } else {
+                qDebug() << "virtual treadmill BLE not connected (Dircon active), skipping BLE reply";
             }
-            try {
-                qDebug() << QStringLiteral("virtualtreadmill::writeCharacteristic ") + serviceFTMS->serviceName() +
-                                QStringLiteral(" ") + characteristic.name() + QStringLiteral(" ") + reply.toHex(' ');
-                serviceFTMS->writeCharacteristic(characteristic, reply); // Potentially causes notification.
-            } catch (...) {
-                qDebug() << QStringLiteral("virtual treadmill error!");
-            }
+            // ---------------------------------------------------------------------
         }
         break;
     }
@@ -495,6 +515,9 @@ void virtualtreadmill::wahooCharacteristicChanged(const QLowEnergyCharacteristic
 }
 
 void virtualtreadmill::reconnect() {
+    // --- ADDED: Prevent crash if BLE is disabled ---
+    if (!leController) return;
+
     QSettings settings;
     bool bluetooth_relaxed =
         settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
@@ -537,6 +560,12 @@ void virtualtreadmill::reconnect() {
                                                  "startAdvertisingTreadmill",
                                                  "(Landroid/content/Context;)V",
                                                  QtAndroid::androidContext().object());
+#elif defined(ANT_LINUX_ENABLED) && defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+        // Mirror the constructor's Linux path exactly:
+        // single advertisingData arg, no scan response, correct interval.
+        // Prevents BLE connect/disconnect loop on Linux with BlueZ 5.72+.
+        pars.setInterval(30, 50);
+        leController->startAdvertising(pars, advertisingData);
 #else
         leController->startAdvertising(pars, advertisingData, advertisingData);
 #endif
@@ -545,6 +574,9 @@ void virtualtreadmill::reconnect() {
 
 
 void virtualtreadmill::treadmillProvider() {
+    // --- ADDED: Prevent crash if BLE is disabled ---
+    if (!leController) return; 
+
     const uint64_t slopeTimeoutSecs = 30;
     QSettings settings;
     bool bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
