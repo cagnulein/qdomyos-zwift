@@ -316,6 +316,7 @@ devices/solef80treadmill/solef80treadmill.cpp \
 devices/spirittreadmill/spirittreadmill.cpp \
 devices/sportsplusbike/sportsplusbike.cpp \
 devices/sportstechbike/sportstechbike.cpp \
+devices/sportstechbike_serial/sportstechbike_serial.cpp \
 devices/strydrunpowersensor/strydrunpowersensor.cpp \
 devices/tacxneo2/tacxneo2.cpp \
 tcpclientinfosender.cpp \
@@ -837,6 +838,7 @@ devices/solef80treadmill/solef80treadmill.h \
 devices/spirittreadmill/spirittreadmill.h \
 devices/sportsplusbike/sportsplusbike.h \
 devices/sportstechbike/sportstechbike.h \
+devices/sportstechbike_serial/sportstechbike_serial.h \
 devices/strydrunpowersensor/strydrunpowersensor.h \
 devices/tacxneo2/tacxneo2.h \
 tcpclientinfosender.h \

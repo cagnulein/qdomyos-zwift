@@ -1288,9 +1288,10 @@ import Qt.labs.platform 1.1
             property bool proform_bike_325_csx_PFEX439210INT_0: false
             property bool proform_carbon_tlx_treadmill: false
             property bool nordictrack_vr21: false
-            property bool gymstick_gx6_0_elliptical: false
-            property bool cadence_sensor_as_treadmill: false
+            property bool gymstick_gx6_0_elliptical: false            
+            property bool cadence_sensor_as_treadmill: false            
             property bool proform_trainer_8_0_pftl59721_int_0: false
+            property string sportstech_serialport: ""
         }
 
 
@@ -4553,6 +4554,38 @@ import Qt.labs.platform 1.1
                         }
                     }
 										}
+
+
+                    AccordionElement {
+                        id: sportstechSerialBikeAccordion
+                        title: qsTr("Sportstech Serial Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelSportstechSerialPort
+                                text: qsTr("Serial Port:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: sportstechSerialPortTextField
+                                text: settings.sportstech_serialport
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onAccepted: settings.sportstech_serialport = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okSportstechSerialPortButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.sportstech_serialport = sportstechSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            }
+                        }
+                    }
 
 
                     AccordionElement {
