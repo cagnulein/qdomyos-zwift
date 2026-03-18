@@ -41,6 +41,10 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
     bool fake_treadmill =
     settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
+#ifdef Q_OS_ANDROID
+    QString sportstechSerialPort =
+        settings.value(QZSettings::sportstech_serialport, QZSettings::default_sportstech_serialport).toString();
+#endif
 
     if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() && !pelotonBike) {
         pelotonBike = new pelotonbike(noWriteResistance, noHeartService);
@@ -52,6 +56,22 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         }
         // this signal is not associated to anything in this moment, since the homeform is not loaded yet
         this->signalBluetoothDeviceConnected(pelotonBike);
+#ifdef Q_OS_ANDROID
+    } else if (!sportstechSerialPort.isEmpty() && !sportsTechBikeSerial) {
+        sportsTechBikeSerial =
+            new sportstechbike_serial(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+        emit deviceConnected(QBluetoothDeviceInfo());
+        connect(sportsTechBikeSerial, &bluetoothdevice::connectedAndDiscovered, this,
+                &bluetooth::connectedAndDiscovered);
+        connect(sportsTechBikeSerial, &sportstechbike_serial::debug, this, &bluetooth::debug);
+        sportsTechBikeSerial->deviceDiscovered(QBluetoothDeviceInfo());
+        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+            emit searchingStop();
+        }
+        // Serial Sportstech should bypass BLE discovery entirely once configured.
+        this->signalBluetoothDeviceConnected(sportsTechBikeSerial);
+        return;
+#endif
     }/* else if (fake_bike) {
         fakeBike = new fakebike(noWriteResistance, noHeartService, false);
         emit deviceConnected(QBluetoothDeviceInfo());
