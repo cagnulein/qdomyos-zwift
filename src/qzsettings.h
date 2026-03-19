@@ -2927,6 +2927,8 @@ class QZSettings {
 
     static const QString proform_carbon_tlx_treadmill;
     static constexpr bool default_proform_carbon_tlx_treadmill = false;
+    static const QString proform_carbon_tl_PFTL59723_6;
+    static constexpr bool default_proform_carbon_tl_PFTL59723_6 = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
