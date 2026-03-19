@@ -488,7 +488,6 @@
 		87BE6FDE272D2A3E00C35795 /* moc_horizongr7bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BE6FDD272D2A3E00C35795 /* moc_horizongr7bike.cpp */; };
 		87BF116D298E28CA00B5B6E7 /* pelotonbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BF116C298E28CA00B5B6E7 /* pelotonbike.cpp */; };
 		87BF116F298E28EC00B5B6E7 /* moc_pelotonbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BF116E298E28EC00B5B6E7 /* moc_pelotonbike.cpp */; };
-		87BFEA2F2CEDDEEE00BDD759 /* ios_echelonconnectsport.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BFEA2E2CEDDEEE00BDD759 /* ios_echelonconnectsport.mm */; };
 		87C424262BC1294000503687 /* moc_treadmillErgTable.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C424252BC1294000503687 /* moc_treadmillErgTable.cpp */; };
 		87C481FA26DFA7C3006211AD /* eliterizer.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C481F926DFA7C3006211AD /* eliterizer.cpp */; };
 		87C481FC26DFA7D1006211AD /* moc_eliterizer.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C481FB26DFA7D1006211AD /* moc_eliterizer.cpp */; };
@@ -1567,8 +1566,6 @@
 		87BF116B298E28CA00B5B6E7 /* pelotonbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pelotonbike.h; path = ../src/devices/pelotonbike/pelotonbike.h; sourceTree = "<group>"; };
 		87BF116C298E28CA00B5B6E7 /* pelotonbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pelotonbike.cpp; path = ../src/devices/pelotonbike/pelotonbike.cpp; sourceTree = "<group>"; };
 		87BF116E298E28EC00B5B6E7 /* moc_pelotonbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_pelotonbike.cpp; sourceTree = "<group>"; };
-		87BFEA2D2CEDDEEE00BDD759 /* ios_echelonconnectsport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_echelonconnectsport.h; path = ../src/ios/ios_echelonconnectsport.h; sourceTree = SOURCE_ROOT; };
-		87BFEA2E2CEDDEEE00BDD759 /* ios_echelonconnectsport.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_echelonconnectsport.mm; path = ../src/ios/ios_echelonconnectsport.mm; sourceTree = SOURCE_ROOT; };
 		87C424252BC1294000503687 /* moc_treadmillErgTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_treadmillErgTable.cpp; sourceTree = "<group>"; };
 		87C481F826DFA7C3006211AD /* eliterizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eliterizer.h; path = ../src/devices/eliterizer/eliterizer.h; sourceTree = "<group>"; };
 		87C481F926DFA7C3006211AD /* eliterizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = eliterizer.cpp; path = ../src/devices/eliterizer/eliterizer.cpp; sourceTree = "<group>"; };
@@ -2402,8 +2399,6 @@
 				87F1BD702DC0D59600416506 /* moc_coresensor.cpp */,
 				8767CA5E2DA800590003001F /* ios_zwiftclickremote.h */,
 				8767CA5F2DA800590003001F /* ios_zwiftclickremote.mm */,
-				87BFEA2D2CEDDEEE00BDD759 /* ios_echelonconnectsport.h */,
-				87BFEA2E2CEDDEEE00BDD759 /* ios_echelonconnectsport.mm */,
 				8767CA522DA3C1FD0003001F /* elitesquarecontroller.h */,
 				8767CA532DA3C1FD0003001F /* elitesquarecontroller.cpp */,
 				8767CA542DA3C1FD0003001F /* moc_elitesquarecontroller.cpp */,
@@ -4038,7 +4033,6 @@
 				873824BB27E64707004F1B46 /* moc_prober_p.cpp in Compile Sources */,
 				877758B32C98627300BB1697 /* moc_sportstechelliptical.cpp in Compile Sources */,
 				8742C2B227C92C30007D3FA0 /* wahookickrsnapbike.cpp in Compile Sources */,
-				87BFEA2F2CEDDEEE00BDD759 /* ios_echelonconnectsport.mm in Compile Sources */,
 				87EB918327EE5FE7002535E1 /* moc_inappstore.cpp in Compile Sources */,
 				87CF516B293C87B000A7CABC /* moc_characteristicwriteprocessore005.cpp in Compile Sources */,
 				8780D949264FB8B800192D41 /* moc_smartspin2k.cpp in Compile Sources */,
