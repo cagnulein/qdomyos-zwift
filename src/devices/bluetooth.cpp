@@ -221,6 +221,12 @@ void bluetooth::finished() {
         forceHeartBeltOffForTimeout = true;
     }
 
+    if (!device() && !filterDevice.isEmpty() && filterDevice.contains(QStringLiteral("(DirCon)")) &&
+        tryConnectSelectedDirconDevice()) {
+        qDebug() << "bluetooth::finished() BLE scan completed, proceeding with DirCon connection";
+        return;
+    }
+
     this->startDiscovery();
 }
 
@@ -337,7 +343,8 @@ void bluetooth::connectDirconDevice(const DirconDeviceInfo &deviceInfo) {
 }
 
 void bluetooth::onDirconDeviceDiscovered(const QString &displayName) {
-    if (filterDevice.compare(displayName, Qt::CaseInsensitive) == 0) {
+    if (filterDevice.compare(displayName, Qt::CaseInsensitive) == 0 &&
+        (!discoveryAgent || !discoveryAgent->isActive())) {
         tryConnectSelectedDirconDevice();
     }
 }
@@ -519,11 +526,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
     QSettings settings;
 
-    // Check if filterDevice is a DirCon device
+    // When a DirCon device is selected, keep the BLE scan alive so accessories
+    // like Zwift Play can still be collected during the normal discovery window.
     if (!filterDevice.isEmpty() && filterDevice.contains(QStringLiteral("(DirCon)"))) {
-        qDebug() << "bluetooth::deviceDiscovered() DirCon device selected:" << filterDevice;
-        tryConnectSelectedDirconDevice();
-        return;
+        qDebug() << "bluetooth::deviceDiscovered() DirCon device selected, keeping BLE accessory scan active:"
+                 << filterDevice;
     }
 
     QString heartRateBeltName =
