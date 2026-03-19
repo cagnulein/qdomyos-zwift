@@ -635,6 +635,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::speed_Minus, this, &homeform::speedMinus);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::inclination_Plus, this, &homeform::inclinationPlus);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::inclination_Minus, this, &homeform::inclinationMinus);
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::resistance_Plus, this, [this]() { Plus(QStringLiteral("resistance")); });
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::resistance_Minus, this, [this]() { Minus(QStringLiteral("resistance")); });
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::pelotonOffset, this, &homeform::pelotonOffset);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::pelotonAskStart, this, &homeform::pelotonAskStart);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::peloton_start_workout, this,
