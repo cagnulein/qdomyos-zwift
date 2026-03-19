@@ -14,7 +14,6 @@
 #include <QDebug>
 #include "ios/AdbClient.h"
 #include "ios/ios_eliteariafan.h"
-#include "ios/ios_echelonconnectsport.h"
 #include "ios/ios_zwiftclickremote.h"
 #include "ios/ios_liveactivity.h"
 
@@ -51,7 +50,6 @@ static NSString *LockscreenStringFromCString(const char *message)
 }
 
 static ios_eliteariafan* ios_eliteAriaFan = nil;
-static ios_echelonconnectsport* ios_echelonConnectSport = nil;
 
 static zwift_protobuf_layer* zwiftProtobufLayer = nil;
 
@@ -524,17 +522,6 @@ void lockscreen::eliteAriaFan() {
 void lockscreen::eliteAriaFan_fanSpeedRequest(unsigned char speed) {
     if(ios_eliteAriaFan) {
         [ios_eliteAriaFan fanSpeedRequest:speed];
-    }
-}
-
-void lockscreen::echelonConnectSport(const char*  Name, void* deviceClass) {
-    NSString *deviceName = [NSString stringWithCString:Name encoding:NSASCIIStringEncoding];
-    ios_echelonConnectSport = [[ios_echelonconnectsport alloc] init:deviceName qtDevice:deviceClass];
-}
-
-void lockscreen::echelonConnectSport_WriteCharacteristic(unsigned char* qdata, unsigned char length) {
-    if(ios_echelonConnectSport) {
-        [ios_echelonConnectSport writeCharacteristc:qdata length:length ];
     }
 }
 

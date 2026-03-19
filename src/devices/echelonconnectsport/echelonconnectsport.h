@@ -19,6 +19,7 @@
 #endif
 #include <QtCore/qlist.h>
 #include <QtCore/qmutex.h>
+#include <QtCore/qqueue.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
@@ -45,6 +46,13 @@ class echelonconnectsport : public bike {
     bool connected() override;
 
   private:
+    struct WriteRequest {
+        QByteArray data;
+        QString info;
+        bool disable_log;
+        bool wait_for_response;
+    };
+
     const resistance_t max_resistance = 32;
     double bikeResistanceToPeloton(double resistance);
     double GetDistanceFromPacket(const QByteArray &packet);
@@ -53,6 +61,7 @@ class echelonconnectsport : public bike {
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+    void processWriteQueue();
     void startDiscover();
     void forceResistance(resistance_t requestResistance);
     void sendPoll();
@@ -80,13 +89,18 @@ class echelonconnectsport : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    QQueue<WriteRequest> writeQueue;
+    bool isWriting = false;
+    bool currentWriteWaitingForResponse = false;
+    QTimer *writeTimeoutTimer = nullptr;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
-    lockscreen* iOS_echelonConnectSport = nullptr;
 #endif
 
   Q_SIGNALS:
     void disconnected();
+    void packetReceived();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

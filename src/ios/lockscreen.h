@@ -84,10 +84,6 @@ class lockscreen {
     void eliteAriaFan();
     void eliteAriaFan_fanSpeedRequest(unsigned char speed);
 
-    // Echelon Connect Sport
-    void echelonConnectSport(const char*  Name, void* deviceClass);
-    void echelonConnectSport_WriteCharacteristic(unsigned char* qdata, unsigned char length);
-
     // Wahoo KICKR/SNAP Bike
     void wahooKickrSnapBike(const char* Name, void* deviceClass);
     void writeCharacteristic(unsigned char* qdata, unsigned char length);
