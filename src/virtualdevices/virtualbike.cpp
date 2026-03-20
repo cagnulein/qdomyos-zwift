@@ -7,6 +7,11 @@
 #include <QtMath>
 #include <chrono>
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
+
 using namespace std::chrono_literals;
 
 virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
@@ -103,6 +108,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             }
         } else if (ifit) {
             services << (QBluetoothUuid(QStringLiteral("00001533-1412-efde-1523-785feabcd123")));
+            services << (QBluetoothUuid(QStringLiteral("00001530-1212-efde-1523-785feabcd123")));
+            services << (QBluetoothUuid(QStringLiteral("00001400-555e-e99c-e511-f9f4f8daeb24")));
 
             this->noHeartService = true;
             if (!this->noHeartService) {
@@ -338,11 +345,13 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         } else if (ifit) {
             QLowEnergyCharacteristicData charData;
             charData.setUuid(QBluetoothUuid(QStringLiteral("00001534-1412-efde-1523-785feabcd123")));
-            charData.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::WriteNoResponse);
+            charData.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Read);
+            charData.setValue(QByteArray());
 
             QLowEnergyCharacteristicData charData2;
             charData2.setUuid(QBluetoothUuid(QStringLiteral("00001535-1412-efde-1523-785feabcd123")));
-            charData2.setProperties(QLowEnergyCharacteristic::Notify);
+            charData2.setProperties(QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Read);
+            charData2.setValue(QByteArray());
             QByteArray descriptor;
             descriptor.append((char)0x01);
             descriptor.append((char)0x00);
@@ -354,6 +363,56 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             serviceData.setUuid(QBluetoothUuid(QStringLiteral("00001533-1412-efde-1523-785feabcd123")));
             serviceData.addCharacteristic(charData);
             serviceData.addCharacteristic(charData2);
+
+            QLowEnergyCharacteristicData ifit1530PacketChar;
+            ifit1530PacketChar.setUuid(QBluetoothUuid(QStringLiteral("00001532-1212-efde-1523-785feabcd123")));
+            ifit1530PacketChar.setProperties(QLowEnergyCharacteristic::WriteNoResponse);
+
+            QLowEnergyCharacteristicData ifit1530ControlPointChar;
+            ifit1530ControlPointChar.setUuid(QBluetoothUuid(QStringLiteral("00001531-1212-efde-1523-785feabcd123")));
+            ifit1530ControlPointChar.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Notify);
+            ifit1530ControlPointChar.setValue(QByteArray());
+            ifit1530ControlPointChar.addDescriptor(clientConfig2);
+
+            QLowEnergyCharacteristicData ifit1530VersionChar;
+            ifit1530VersionChar.setUuid(QBluetoothUuid(QStringLiteral("00001534-1212-efde-1523-785feabcd123")));
+            ifit1530VersionChar.setProperties(QLowEnergyCharacteristic::Read);
+            ifit1530VersionChar.setValue(QByteArray());
+
+            serviceDataIfit1530.setType(QLowEnergyServiceData::ServiceTypePrimary);
+            serviceDataIfit1530.setUuid(QBluetoothUuid(QStringLiteral("00001530-1212-efde-1523-785feabcd123")));
+            serviceDataIfit1530.addCharacteristic(ifit1530PacketChar);
+            serviceDataIfit1530.addCharacteristic(ifit1530ControlPointChar);
+            serviceDataIfit1530.addCharacteristic(ifit1530VersionChar);
+
+            QLowEnergyCharacteristicData ifit1400Write1Char;
+            ifit1400Write1Char.setUuid(QBluetoothUuid(QStringLiteral("00001401-555e-e99c-e511-f9f4f8daeb24")));
+            ifit1400Write1Char.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Read);
+            ifit1400Write1Char.setValue(QByteArray());
+
+            QLowEnergyCharacteristicData ifit1400Notify1Char;
+            ifit1400Notify1Char.setUuid(QBluetoothUuid(QStringLiteral("00001402-555e-e99c-e511-f9f4f8daeb24")));
+            ifit1400Notify1Char.setProperties(QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Read);
+            ifit1400Notify1Char.setValue(QByteArray());
+            ifit1400Notify1Char.addDescriptor(clientConfig2);
+
+            QLowEnergyCharacteristicData ifit1400Write2Char;
+            ifit1400Write2Char.setUuid(QBluetoothUuid(QStringLiteral("00001403-555e-e99c-e511-f9f4f8daeb24")));
+            ifit1400Write2Char.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Read);
+            ifit1400Write2Char.setValue(QByteArray());
+
+            QLowEnergyCharacteristicData ifit1400Notify2Char;
+            ifit1400Notify2Char.setUuid(QBluetoothUuid(QStringLiteral("00001404-555e-e99c-e511-f9f4f8daeb24")));
+            ifit1400Notify2Char.setProperties(QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Read);
+            ifit1400Notify2Char.setValue(QByteArray());
+            ifit1400Notify2Char.addDescriptor(clientConfig2);
+
+            serviceDataIfit1400.setType(QLowEnergyServiceData::ServiceTypePrimary);
+            serviceDataIfit1400.setUuid(QBluetoothUuid(QStringLiteral("00001400-555e-e99c-e511-f9f4f8daeb24")));
+            serviceDataIfit1400.addCharacteristic(ifit1400Write1Char);
+            serviceDataIfit1400.addCharacteristic(ifit1400Notify1Char);
+            serviceDataIfit1400.addCharacteristic(ifit1400Write2Char);
+            serviceDataIfit1400.addCharacteristic(ifit1400Notify2Char);
         } else {
 
             serviceEchelon.setType(QLowEnergyServiceData::ServiceTypePrimary);
@@ -460,6 +519,10 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             }
         } else if (ifit) {
             service = leController->addService(serviceData);
+            QThread::msleep(100); // give time to Android to add the service async.ly
+            serviceIfit1530 = leController->addService(serviceDataIfit1530);
+            QThread::msleep(100); // give time to Android to add the service async.ly
+            serviceIfit1400 = leController->addService(serviceDataIfit1400);
         } else {
 
             service = leController->addService(serviceEchelon);
@@ -505,7 +568,18 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             pars.setInterval(100, 100);
         }
 
+#ifdef Q_OS_ANDROID
+        if (ifit) {
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                      "startAdvertisingIfit",
+                                                      "(Landroid/content/Context;)V",
+                                                      QtAndroid::androidContext().object());
+        } else {
+            leController->startAdvertising(pars, advertisingData, advertisingData);
+        }
+#else
         leController->startAdvertising(pars, advertisingData, advertisingData);
+#endif
 
         //! [Start Advertising]
     }
@@ -1294,6 +1368,10 @@ void virtualbike::reconnect() {
         }
     } else if (ifit) {
         service = leController->addService(serviceData);
+        QThread::msleep(100); // give time to Android to add the service async.ly
+        serviceIfit1530 = leController->addService(serviceDataIfit1530);
+        QThread::msleep(100); // give time to Android to add the service async.ly
+        serviceIfit1400 = leController->addService(serviceDataIfit1400);
     } else {
 
         service = leController->addService(serviceEchelon);
@@ -1311,7 +1389,18 @@ void virtualbike::reconnect() {
 
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
+#ifdef Q_OS_ANDROID
+    if (ifit) {
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                  "startAdvertisingIfit",
+                                                  "(Landroid/content/Context;)V",
+                                                  QtAndroid::androidContext().object());
+    } else {
+        leController->startAdvertising(pars, advertisingData, advertisingData);
+    }
+#else
     leController->startAdvertising(pars, advertisingData, advertisingData);
+#endif
 }
 
 void virtualbike::bikeProvider() {
