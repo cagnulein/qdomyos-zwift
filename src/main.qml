@@ -98,6 +98,17 @@ ApplicationWindow {
 
     property bool lockTiles: false
     property bool settings_restart_to_apply: false
+    property string startupScreen: (typeof STARTUP_SCREEN !== "undefined" && STARTUP_SCREEN) ? STARTUP_SCREEN.toString().toLowerCase() : ""
+
+    function applyStartupScreenHook() {
+        if (!startupScreen || startupScreen === "home") {
+            return
+        }
+
+        if (startupScreen === "settings" && stackView.currentItem && stackView.currentItem.objectName !== "settingsPage") {
+            stackView.push("settings.qml")
+        }
+    }
 
     Settings {
         id: settings
@@ -258,7 +269,7 @@ ApplicationWindow {
     Timer {
        id: pelotonAuthCheck
        interval: 1000  // 1 second delay after startup
-       running: true
+       running: startupScreen === ""
        repeat: false
        onTriggered: {
            if (settings.peloton_password !== "password") {
@@ -1126,6 +1137,14 @@ ApplicationWindow {
             event.accepted = settings.volume_change_gears;
         }
         }
+    }
+
+    Timer {
+        id: startupScreenTimer
+        interval: 700
+        running: startupScreen !== ""
+        repeat: false
+        onTriggered: applyStartupScreenHook()
     }
 }
 

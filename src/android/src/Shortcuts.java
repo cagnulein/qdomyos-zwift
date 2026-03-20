@@ -82,6 +82,21 @@ public class Shortcuts {
         return "";
     }
 
+    public static String getStartupScreenExtra(Context context) {
+        Intent intent = ((Activity)context).getIntent();
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            for (String key : extras.keySet()) {
+                Object value = extras.get(key);
+                if("startup_screen".equals(key)) {
+                    QLog.d("Shortcuts", "startup_screen: " + value.toString());
+                    return value.toString();
+                }
+            }
+        }
+        return "";
+    }
+
     public static void getAllExtras(Context context) {
         Intent intent = ((Activity)context).getIntent(); // Ottieni l'Intent che ha avviato l'attività
         Bundle extras = intent.getExtras();

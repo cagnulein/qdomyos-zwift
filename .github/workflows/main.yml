@@ -905,6 +905,99 @@ jobs:
             qdomyos_logcat.txt
           if-no-files-found: warn                
 
+  android-translation-screenshots:
+    runs-on: ubuntu-latest
+    needs: android-build
+    if: github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { locale: "en_US", language: "en", country: "US", label: "en-US" }
+          - { locale: "it_IT", language: "it", country: "IT", label: "it-IT" }
+          - { locale: "de_DE", language: "de", country: "DE", label: "de-DE" }
+          - { locale: "fr_FR", language: "fr", country: "FR", label: "fr-FR" }
+          - { locale: "es_ES", language: "es", country: "ES", label: "es-ES" }
+          - { locale: "ja_JP", language: "ja", country: "JP", label: "ja-JP" }
+          - { locale: "ar_SA", language: "ar", country: "SA", label: "ar-SA" }
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download APK Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fdroid-android-trial
+          path: apk-debug
+
+      - name: Setup Java for Android Emulator
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Run translation screenshot capture (${{ matrix.label }})
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          disable-animations: true
+          script: |
+            set -euxo pipefail
+
+            wait_for_boot() {
+              adb wait-for-device
+              until adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' | grep -q '^1$'; do
+                sleep 5
+              done
+              sleep 10
+            }
+
+            set_android_locale() {
+              adb shell setprop persist.sys.locale ${{ matrix.language }}-${{ matrix.country }} || true
+              adb shell setprop persist.sys.language ${{ matrix.language }} || true
+              adb shell setprop persist.sys.country ${{ matrix.country }} || true
+              adb shell stop
+              adb shell start
+              wait_for_boot
+            }
+
+            adb install apk-debug/android-debug.apk
+            wait_for_boot
+            set_android_locale
+
+            adb shell getprop persist.sys.locale > locale-${{ matrix.label }}.txt
+            adb logcat -c
+
+            adb shell am force-stop org.cagnulen.qdomyoszwift || true
+            adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity --es startup_screen home
+            sleep 90
+            adb shell screencap -p /sdcard/screenshot-home-${{ matrix.label }}.png
+            adb pull /sdcard/screenshot-home-${{ matrix.label }}.png screenshot-home-${{ matrix.label }}.png
+
+            adb shell am force-stop org.cagnulen.qdomyoszwift || true
+            adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity --es startup_screen settings
+            sleep 90
+            adb shell screencap -p /sdcard/screenshot-settings-${{ matrix.label }}.png
+            adb pull /sdcard/screenshot-settings-${{ matrix.label }}.png screenshot-settings-${{ matrix.label }}.png
+
+            adb logcat -d > logcat-${{ matrix.label }}.txt
+
+      - name: Upload translation screenshot artifact (${{ matrix.label }})
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-translation-screenshot-${{ matrix.label }}
+          path: |
+            screenshot-home-${{ matrix.label }}.png
+            screenshot-settings-${{ matrix.label }}.png
+            logcat-${{ matrix.label }}.txt
+            locale-${{ matrix.label }}.txt
+          if-no-files-found: warn
+
   ios-build:
     # The type of runner that the job will run on
     runs-on: macos-14

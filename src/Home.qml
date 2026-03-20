@@ -9,6 +9,7 @@ import QtMultimedia 5.15
 
 HomeForm {
     objectName: "home"
+    property bool ciStartupMode: (typeof STARTUP_SCREEN !== "undefined" && STARTUP_SCREEN.toString().toLowerCase() !== "")
     background: Rectangle {
         anchors.fill: parent
         width: parent.fill
@@ -115,7 +116,7 @@ HomeForm {
             rootItem.enableLocationServices()
         }
         onNoClicked: remindLocationServicesDialog.visible = true
-        visible: !rootItem.locationServices() && !locationServiceRequsted && !settings.skipLocationServicesDialog
+        visible: !ciStartupMode && !rootItem.locationServices() && !locationServiceRequsted && !settings.skipLocationServicesDialog
     }
 
     MessageDialog {
@@ -138,7 +139,7 @@ HomeForm {
     }
 
     Timer {
-        interval: 200; running: true; repeat: false
+        interval: 200; running: !ciStartupMode; repeat: false
         onTriggered: {
             if(rootItem.firstRun()) {
                 stackView.push("Wizard.qml")

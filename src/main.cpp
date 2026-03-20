@@ -128,6 +128,7 @@ double bikeResistanceGain = 1.0;
 QString power_sensor_name = QStringLiteral("Disabled");
 bool power_sensor_as_treadmill = false;
 bool smokeTest = false;
+QString startupScreen = "";
 QString logfilename = QStringLiteral("debug-") +
                       QDateTime::currentDateTime()
                           .toString()
@@ -217,6 +218,7 @@ void displayHelp() {
     printf("\nOther options:\n");
     printf("  -test-resistance              Enable resistance testing\n");
     printf("  -fit-file-saved-on-quit       Save FIT file on application quit\n");
+    printf("  -startup-screen <name>        Open a specific screen at startup (e.g. home, settings)\n");
 
     exit(0);
 }
@@ -364,6 +366,9 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-smoke-test")) {
             smokeTest = true;
             nogui = true;
+        }
+        if (!qstrcmp(argv[i], "-startup-screen")) {
+            startupScreen = QString::fromLocal8Bit(argv[++i]).trimmed().toLower();
         }
         if (!qstrcmp(argv[i], "-train")) {
 
@@ -607,6 +612,13 @@ int main(int argc, char *argv[]) {
     QAndroidJniObject r = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Shortcuts", "getProfileExtras",
                                                 "(Landroid/content/Context;)Ljava/lang/String;", QtAndroid::androidContext().object());
     profileName = r.toString();
+    if (startupScreen.isEmpty()) {
+        QAndroidJniObject startupScreenExtra = QAndroidJniObject::callStaticObjectMethod(
+            "org/cagnulen/qdomyoszwift/Shortcuts", "getStartupScreenExtra",
+            "(Landroid/content/Context;)Ljava/lang/String;", QtAndroid::androidContext().object());
+        startupScreen = startupScreenExtra.toString().trimmed();
+        startupScreen = startupScreen.toLower();
+    }
 #endif
     
     QFileInfo pp(profileName);
@@ -957,6 +969,7 @@ int main(int argc, char *argv[]) {
 #else
         engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Other"));
 #endif
+        engine.rootContext()->setContextProperty("STARTUP_SCREEN", startupScreen);
 #ifdef CHARTJS
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(true));
 #else
