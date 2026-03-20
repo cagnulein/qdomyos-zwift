@@ -128,6 +128,36 @@ user_in_group() {
     groups "$user" 2>/dev/null | grep -qw "$group"
 }
 
+# Returns the BlueZ major.minor version as an integer for comparison.
+# e.g. 5.66 → 566, 5.72 → 572
+get_bluez_version_int() {
+    local ver
+    ver=$(bluetoothctl --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | head -1)
+    if [[ -z "$ver" ]]; then
+        echo "0"
+        return
+    fi
+    local major minor
+    major="${ver%%.*}"
+    minor="${ver##*.}"
+    echo $(( major * 100 + minor ))
+}
+
+# Returns true if the current BlueZ version supports Just Works BLE peripheral
+# hosting without sending unsolicited Security Requests that disconnect phones.
+# BlueZ 5.70+ introduced enhanced security establishment that breaks this.
+bluez_supports_ble_peripheral_justworks() {
+    if [[ "$IS_PI" == "true" ]]; then
+        return 0  # Pi always works (BlueZ 5.66)
+    fi
+    local ver_int
+    ver_int=$(get_bluez_version_int)
+    if [[ "$ver_int" -gt 0 && "$ver_int" -lt 570 ]]; then
+        return 0  # Pre-5.70 desktop Linux also works
+    fi
+    return 1  # 5.70+ on desktop: unsolicited Security Request breaks connection
+}
+
 # Optimized Python Resolver (v3.0: 3.12 primary, 3.11 fallback)
 resolve_python_bin() {
     local u_home=${1:-${TARGET_HOME:-$USER_HOME}}
@@ -2918,7 +2948,28 @@ configure_emulation_flow() {
         if [[ $idx -eq 255 ]]; then return 1; fi
         
         if [[ "${options[$idx]}" == "Treadmill" ]]; then
-            
+
+            # --- 0. BLUEZ COMPATIBILITY CHECK ---
+            if ! bluez_supports_ble_peripheral_justworks; then
+                local bluez_ver
+                bluez_ver=$(bluetoothctl --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | head -1)
+                draw_bottom_panel_header "INCOMPATIBLE BLUEZ VERSION" "false"
+                clear_info_area
+                local r=$((LOG_TOP + 1))
+                draw_sealed_row "$r" "   Your BlueZ version ${BOLD_RED}${bluez_ver}${NC} sends an unsolicited Security"; ((r++))
+                draw_sealed_row "$r" "   request to connecting devices. Fitness apps (QZ, Zwift) treat"; ((r++))
+                draw_sealed_row "$r" "   this as unexpected and immediately disconnect."; ((r++))
+                draw_sealed_row "$r" "   ${YELLOW}This is a known BlueZ limitation introduced in v5.70+${NC}"; ((r++))
+                draw_sealed_row "$r" ""; ((r++))
+                draw_sealed_row "$r" "   ${CYAN}To use emulation, either:${NC}"; ((r++))
+                draw_sealed_row "$r" "   • Run on Raspberry Pi (BlueZ 5.66 - confirmed working)"; ((r++))
+                draw_sealed_row "$r" "   • Downgrade BlueZ: sudo apt install bluez=5.66-*"; ((r++))
+                draw_sealed_row "$r" "   • Use with no treadmill emulation)"; ((r++))
+                draw_bottom_border "Press any key to go back"
+                local k=""; safe_read_key k
+                continue
+            fi
+
             # --- 1. PREREQUISITE CHECK ---
             load_service_config >/dev/null 2>&1
             local ant_hw="${STATUS_MAP[ant_dongle]:-pending}"
