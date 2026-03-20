@@ -101,15 +101,20 @@ SOURCES += \
     $$PWD/devices/pitpatbike/pitpatbike.cpp \
     $$PWD/devices/speraxtreadmill/speraxtreadmill.cpp \
     $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
+    $$PWD/devices/sportstechrower/sportstechrower.cpp \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
     $$PWD/devices/sramAXSController/sramAXSController.cpp \
+    $$PWD/devices/thinkridercontroller/thinkridercontroller.cpp \
     $$PWD/devices/stairclimber.cpp \
     $$PWD/devices/echelonstairclimber/echelonstairclimber.cpp \
+    $$PWD/devices/sunnyfitstepper/sunnyfitstepper.cpp \
     $$PWD/devices/technogymbike/technogymbike.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
     $$PWD/fitdatabaseprocessor.cpp \
     $$PWD/devices/trxappgateusbrower/trxappgateusbrower.cpp \
     $$PWD/logwriter.cpp \
+    $$PWD/fitbackupwriter.cpp \
+    $$PWD/filesearcher.cpp \
     $$PWD/mqtt/qmqttauthenticationproperties.cpp \
     $$PWD/mqtt/qmqttclient.cpp \
     $$PWD/mqtt/qmqttconnection.cpp \
@@ -154,6 +159,7 @@ devices/ypooelliptical/ypooelliptical.cpp \
 devices/ziprotreadmill/ziprotreadmill.cpp \
 zwift_play/zwiftclickremote.cpp \
 devices/computrainerbike/Computrainer.cpp \
+devices/kettlerusbbike/KettlerUSB.cpp \
 PathController.cpp \
 characteristics/characteristicnotifier2a53.cpp \
 characteristics/characteristicnotifier2a5b.cpp \
@@ -163,6 +169,7 @@ characteristics/characteristicnotifier2ad9.cpp \
 characteristics/characteristicwriteprocessor.cpp \
 characteristics/characteristicwriteprocessore005.cpp \
 devices/computrainerbike/computrainerbike.cpp \
+devices/kettlerusbbike/kettlerusbbike.cpp \
 devices/fakeelliptical/fakeelliptical.cpp \
 devices/faketreadmill/faketreadmill.cpp \
 devices/lifefitnesstreadmill/lifefitnesstreadmill.cpp \
@@ -255,6 +262,7 @@ gpx.cpp \
 devices/heartratebelt/heartratebelt.cpp \
 homefitnessbuddy.cpp \
 homeform.cpp \
+garminconnect.cpp \
 devices/horizongr7bike/horizongr7bike.cpp \
 devices/horizontreadmill/horizontreadmill.cpp \
 devices/iconceptbike/iconceptbike.cpp \
@@ -362,6 +370,7 @@ HEADERS += \
     $$PWD/devices/cycleopsphantombike/cycleopsphantombike.h \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.h \
     $$PWD/devices/echelonstairclimber/echelonstairclimber.h \
+    $$PWD/devices/sunnyfitstepper/sunnyfitstepper.h \
     $$PWD/devices/elitesquarecontroller/elitesquarecontroller.h \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/jumprope.h \
@@ -374,8 +383,10 @@ HEADERS += \
     $$PWD/devices/pitpatbike/pitpatbike.h \
     $$PWD/devices/speraxtreadmill/speraxtreadmill.h \
     $$PWD/devices/sportsplusrower/sportsplusrower.h \
+    $$PWD/devices/sportstechrower/sportstechrower.h \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
     $$PWD/devices/sramAXSController/sramAXSController.h \
+    $$PWD/devices/thinkridercontroller/thinkridercontroller.h \
     $$PWD/devices/stairclimber.h \
     $$PWD/devices/technogymbike/technogymbike.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
@@ -384,6 +395,8 @@ HEADERS += \
     $$PWD/fitdatabaseprocessor.h \
     $$PWD/inclinationresistancetable.h \
     $$PWD/logwriter.h \
+    $$PWD/fitbackupwriter.h \
+    $$PWD/filesearcher.h \
     $$PWD/osc.h \
     $$PWD/oscpp/client.hpp \
     $$PWD/oscpp/detail/endian.hpp \
@@ -452,6 +465,7 @@ devices/wahookickrheadwind/wahookickrheadwind.h \
 devices/ypooelliptical/ypooelliptical.h \
 devices/ziprotreadmill/ziprotreadmill.h \
 devices/computrainerbike/Computrainer.h \
+devices/kettlerusbbike/KettlerUSB.h \
 PathController.h \
 characteristics/characteristicnotifier2a53.h \
 characteristics/characteristicnotifier2a5b.h \
@@ -460,6 +474,7 @@ characteristics/characteristicnotifier2acd.h \
 characteristics/characteristicnotifier2ad9.h \
 characteristics/characteristicwriteprocessore005.h \
 devices/computrainerbike/computrainerbike.h \
+devices/kettlerusbbike/kettlerusbbike.h \
 definitions.h \
 devices/fakeelliptical/fakeelliptical.h \
 devices/faketreadmill/faketreadmill.h \
@@ -763,8 +778,10 @@ fit-sdk/fit_zones_target_mesg.hpp \
 fit-sdk/fit_zones_target_mesg_listener.hpp \
 devices/flywheelbike/flywheelbike.h \
 devices/ftmsbike/ftmsbike.h \
+devices/ftmsbike/speedracex_defaults.h \
 devices/heartratebelt/heartratebelt.h \
 homeform.h \
+garminconnect.h \
 devices/horizontreadmill/horizontreadmill.h \
 devices/inspirebike/inspirebike.h \
 ios/lockscreen.h \
@@ -871,6 +888,7 @@ DISTFILES += \
     $$PWD/android/src/BleAdvertiser.java \
    $$PWD/android/src/CSafeRowerUSBHID.java \
     $$PWD/android/src/ContentHelper.java \
+    $$PWD/android/src/CustomQtActivity.java \
     $$PWD/android/src/Garmin.java \
    $$PWD/android/src/HidBridge.java \
     $$PWD/android/src/IQMessageReceiverWrapper.java \
@@ -936,7 +954,8 @@ DISTFILES += \
 	android/src/org/qtproject/qt/android/purchasing/Base64.java \
 	android/src/org/qtproject/qt/android/purchasing/Base64DecoderException.java \
 	ios/AppDelegate.swift \
-	ios/BLEPeripheralManager.swift
+	ios/BLEPeripheralManager.swift \
+	ios/LiveActivityManager.swift
 
 win32: DISTFILES += \
    $$PWD/adb/AdbWinApi.dll \
@@ -953,6 +972,7 @@ ios {
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
     ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
+    ios/ios_liveactivity.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
 	 fit-sdk/FitEncode.mm \
@@ -964,7 +984,8 @@ ios {
 
     SOURCES += ios/M3iNSQT.cpp
 
-    OBJECTIVE_HEADERS += ios/M3iNS.h
+    OBJECTIVE_HEADERS += ios/M3iNS.h \
+    ios/ios_liveactivity.h
 
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
@@ -973,6 +994,9 @@ ios {
 
     TARGET = qdomyoszwift
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
+    
+    # iOS Code Signing Configuration - handled manually in Xcode project
+    
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
 
@@ -992,4 +1016,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.20.7
+VERSION = 2.20.30

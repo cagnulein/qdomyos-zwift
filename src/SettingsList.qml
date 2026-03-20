@@ -7,18 +7,28 @@ import QtQuick.Dialogs 1.0
 
 ColumnLayout {
     signal loadSettings(url name)
-    FileDialog {
-        id: fileDialogSettings
-        title: "Please choose a file"
-        folder: shortcuts.home
-        onAccepted: {
-            console.log("You chose: " + fileDialogSettings.fileUrl)
-            loadSettings(fileDialogSettings.fileUrl)
-            fileDialogSettings.close()
-        }
-        onRejected: {
-            console.log("Canceled")
-            fileDialogSettings.close()
+    Loader {
+        id: fileDialogLoader
+        active: false
+        sourceComponent: Component {
+            FileDialog {
+                title: "Please choose a file"
+                folder: shortcuts.home
+                visible: true
+                onAccepted: {
+                    console.log("You chose: " + fileUrl)
+                    loadSettings(fileUrl)
+                    close()
+                    // Destroy and recreate the dialog for next use
+                    fileDialogLoader.active = false
+                }
+                onRejected: {
+                    console.log("Canceled")
+                    close()
+                    // Destroy the dialog
+                    fileDialogLoader.active = false
+                }
+            }
         }
     }
 
@@ -106,7 +116,8 @@ ColumnLayout {
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'settings')
-            fileDialogSettings.visible = true
+            // Create a fresh FileDialog instance
+            fileDialogLoader.active = true
         }
         anchors {
             bottom: parent.bottom

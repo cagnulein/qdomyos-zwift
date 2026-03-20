@@ -9,12 +9,19 @@
 #endif
 #include "homeform.h"
 #include "peloton.h"
+#include "authutils.h"
 #include <chrono>
+#include <QMetaObject>
+#include <QNetworkCookieJar>
 #include <QTimer>
 
 using namespace std::chrono_literals;
 
 const bool log_request = true;
+static const QString kPelotonRedirectUri = QStringLiteral("https://www.qzfitness.com/peloton/callback");
+#if !defined(Q_OS_ANDROID)
+static constexpr quint16 kPelotonDesktopRelayPort = 18080;
+#endif
 
 #define RAWHEADER request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift/") + QCoreApplication::applicationVersion());request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + (tempAccessToken.isEmpty() ?  getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toUtf8() : tempAccessToken.toUtf8()));
 
@@ -594,40 +601,40 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
         walking_pace[0].levels[i].display_name = QStringLiteral("Level %1").arg(i+1);
         walking_pace[0].levels[i].slug = QStringLiteral("level_%1").arg(i+1);
     }
-    // Recovery pace levels (< 1.3 mph to < 5.0 mph)
-    walking_pace[0].levels[0].slow_pace = 1.0;      // 0.0 mph
+    // Recovery pace levels (1.0 mph to 1.3-5.0 mph)
+    walking_pace[0].levels[0].slow_pace = 1.60934;  // 1.0 mph
     walking_pace[0].levels[0].fast_pace = 2.09214;  // 1.3 mph
     walking_pace[0].levels[0].speed = (walking_pace[0].levels[0].slow_pace + walking_pace[0].levels[0].fast_pace) / 2.0;
-    
-    walking_pace[0].levels[1].slow_pace = 1.0;      // 0.0 mph
+
+    walking_pace[0].levels[1].slow_pace = 1.60934;  // 1.0 mph
     walking_pace[0].levels[1].fast_pace = 2.89681;  // 1.8 mph
     walking_pace[0].levels[1].speed = (walking_pace[0].levels[1].slow_pace + walking_pace[0].levels[1].fast_pace) / 2.0;
-    
-    walking_pace[0].levels[2].slow_pace = 1.0;      // 0.0 mph
+
+    walking_pace[0].levels[2].slow_pace = 1.60934;  // 1.0 mph
     walking_pace[0].levels[2].fast_pace = 3.70148;  // 2.3 mph
     walking_pace[0].levels[2].speed = (walking_pace[0].levels[2].slow_pace + walking_pace[0].levels[2].fast_pace) / 2.0;
-    
-    walking_pace[0].levels[3].slow_pace = 1.0;      // 0.0 mph
-    walking_pace[0].levels[3].fast_pace = 4.18428;  // 2.6 mph
+
+    walking_pace[0].levels[3].slow_pace = 1.60934;  // 1.0 mph
+    walking_pace[0].levels[3].fast_pace = 4.50615;  // 2.8 mph
     walking_pace[0].levels[3].speed = (walking_pace[0].levels[3].slow_pace + walking_pace[0].levels[3].fast_pace) / 2.0;
-    
-    walking_pace[0].levels[4].slow_pace = 1.0;      // 0.0 mph
+
+    walking_pace[0].levels[4].slow_pace = 1.60934;  // 1.0 mph
     walking_pace[0].levels[4].fast_pace = 5.31082;  // 3.3 mph
     walking_pace[0].levels[4].speed = (walking_pace[0].levels[4].slow_pace + walking_pace[0].levels[4].fast_pace) / 2.0;
-    
-    walking_pace[0].levels[5].slow_pace = 1.0;      // 0.0 mph
+
+    walking_pace[0].levels[5].slow_pace = 1.60934;  // 1.0 mph
     walking_pace[0].levels[5].fast_pace = 5.95456;  // 3.7 mph
     walking_pace[0].levels[5].speed = (walking_pace[0].levels[5].slow_pace + walking_pace[0].levels[5].fast_pace) / 2.0;
-    
-    walking_pace[0].levels[6].slow_pace = 1.0;      // 0.0 mph
-    walking_pace[0].levels[6].fast_pace = 6.759;    // 4.2 mph
+
+    walking_pace[0].levels[6].slow_pace = 1.60934;  // 1.0 mph
+    walking_pace[0].levels[6].fast_pace = 6.75923;  // 4.2 mph
     walking_pace[0].levels[6].speed = (walking_pace[0].levels[6].slow_pace + walking_pace[0].levels[6].fast_pace) / 2.0;
-    
-    walking_pace[0].levels[7].slow_pace = 1.0;      // 0.0 mph
+
+    walking_pace[0].levels[7].slow_pace = 1.60934;  // 1.0 mph
     walking_pace[0].levels[7].fast_pace = 7.40296;  // 4.6 mph
     walking_pace[0].levels[7].speed = (walking_pace[0].levels[7].slow_pace + walking_pace[0].levels[7].fast_pace) / 2.0;
-    
-    walking_pace[0].levels[8].slow_pace = 1.0;      // 0.0 mph
+
+    walking_pace[0].levels[8].slow_pace = 1.60934;  // 1.0 mph
     walking_pace[0].levels[8].fast_pace = 8.04670;  // 5.0 mph
     walking_pace[0].levels[8].speed = (walking_pace[0].levels[8].slow_pace + walking_pace[0].levels[8].fast_pace) / 2.0;
 
@@ -641,35 +648,35 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     walking_pace[1].levels[0].slow_pace = 2.25308;  // 1.4 mph
     walking_pace[1].levels[0].fast_pace = 2.73588;  // 1.7 mph
     walking_pace[1].levels[0].speed = (walking_pace[1].levels[0].slow_pace + walking_pace[1].levels[0].fast_pace) / 2.0;
-    
+
     walking_pace[1].levels[1].slow_pace = 3.05775;  // 1.9 mph
     walking_pace[1].levels[1].fast_pace = 3.54055;  // 2.2 mph
     walking_pace[1].levels[1].speed = (walking_pace[1].levels[1].slow_pace + walking_pace[1].levels[1].fast_pace) / 2.0;
-    
+
     walking_pace[1].levels[2].slow_pace = 3.86242;  // 2.4 mph
     walking_pace[1].levels[2].fast_pace = 4.34522;  // 2.7 mph
     walking_pace[1].levels[2].speed = (walking_pace[1].levels[2].slow_pace + walking_pace[1].levels[2].fast_pace) / 2.0;
-    
-    walking_pace[1].levels[3].slow_pace = 4.50615;  // 2.8 mph
-    walking_pace[1].levels[3].fast_pace = 4.98895;  // 3.1 mph
+
+    walking_pace[1].levels[3].slow_pace = 4.66709;  // 2.9 mph
+    walking_pace[1].levels[3].fast_pace = 5.14989;  // 3.2 mph
     walking_pace[1].levels[3].speed = (walking_pace[1].levels[3].slow_pace + walking_pace[1].levels[3].fast_pace) / 2.0;
-    
+
     walking_pace[1].levels[4].slow_pace = 5.47176;  // 3.4 mph
     walking_pace[1].levels[4].fast_pace = 5.95456;  // 3.7 mph
     walking_pace[1].levels[4].speed = (walking_pace[1].levels[4].slow_pace + walking_pace[1].levels[4].fast_pace) / 2.0;
-    
+
     walking_pace[1].levels[5].slow_pace = 6.11549;  // 3.8 mph
     walking_pace[1].levels[5].fast_pace = 6.59829;  // 4.1 mph
     walking_pace[1].levels[5].speed = (walking_pace[1].levels[5].slow_pace + walking_pace[1].levels[5].fast_pace) / 2.0;
-    
+
     walking_pace[1].levels[6].slow_pace = 6.92016;  // 4.3 mph
     walking_pace[1].levels[6].fast_pace = 7.40296;  // 4.6 mph
     walking_pace[1].levels[6].speed = (walking_pace[1].levels[6].slow_pace + walking_pace[1].levels[6].fast_pace) / 2.0;
-    
+
     walking_pace[1].levels[7].slow_pace = 7.56390;  // 4.7 mph
     walking_pace[1].levels[7].fast_pace = 8.04670;  // 5.0 mph
     walking_pace[1].levels[7].speed = (walking_pace[1].levels[7].slow_pace + walking_pace[1].levels[7].fast_pace) / 2.0;
-    
+
     walking_pace[1].levels[8].slow_pace = 8.20764;  // 5.1 mph
     walking_pace[1].levels[8].fast_pace = 8.85137;  // 5.5 mph
     walking_pace[1].levels[8].speed = (walking_pace[1].levels[8].slow_pace + walking_pace[1].levels[8].fast_pace) / 2.0;
@@ -684,35 +691,35 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     walking_pace[2].levels[0].slow_pace = 2.89681;  // 1.8 mph
     walking_pace[2].levels[0].fast_pace = 3.37961;  // 2.1 mph
     walking_pace[2].levels[0].speed = (walking_pace[2].levels[0].slow_pace + walking_pace[2].levels[0].fast_pace) / 2.0;
-    
+
     walking_pace[2].levels[1].slow_pace = 3.70148;  // 2.3 mph
     walking_pace[2].levels[1].fast_pace = 4.18428;  // 2.6 mph
     walking_pace[2].levels[1].speed = (walking_pace[2].levels[1].slow_pace + walking_pace[2].levels[1].fast_pace) / 2.0;
-    
+
     walking_pace[2].levels[2].slow_pace = 4.50615;  // 2.8 mph
     walking_pace[2].levels[2].fast_pace = 4.98895;  // 3.1 mph
     walking_pace[2].levels[2].speed = (walking_pace[2].levels[2].slow_pace + walking_pace[2].levels[2].fast_pace) / 2.0;
-    
-    walking_pace[2].levels[3].slow_pace = 5.14989;  // 3.2 mph
-    walking_pace[2].levels[3].fast_pace = 5.63269;  // 3.5 mph
+
+    walking_pace[2].levels[3].slow_pace = 5.31082;  // 3.3 mph
+    walking_pace[2].levels[3].fast_pace = 5.79362;  // 3.6 mph
     walking_pace[2].levels[3].speed = (walking_pace[2].levels[3].slow_pace + walking_pace[2].levels[3].fast_pace) / 2.0;
-    
+
     walking_pace[2].levels[4].slow_pace = 6.11549;  // 3.8 mph
     walking_pace[2].levels[4].fast_pace = 6.59829;  // 4.1 mph
     walking_pace[2].levels[4].speed = (walking_pace[2].levels[4].slow_pace + walking_pace[2].levels[4].fast_pace) / 2.0;
-    
+
     walking_pace[2].levels[5].slow_pace = 6.75923;  // 4.2 mph
     walking_pace[2].levels[5].fast_pace = 7.24203;  // 4.5 mph
     walking_pace[2].levels[5].speed = (walking_pace[2].levels[5].slow_pace + walking_pace[2].levels[5].fast_pace) / 2.0;
-    
+
     walking_pace[2].levels[6].slow_pace = 7.56390;  // 4.7 mph
     walking_pace[2].levels[6].fast_pace = 8.04670;  // 5.0 mph
     walking_pace[2].levels[6].speed = (walking_pace[2].levels[6].slow_pace + walking_pace[2].levels[6].fast_pace) / 2.0;
-    
+
     walking_pace[2].levels[7].slow_pace = 8.20764;  // 5.1 mph
     walking_pace[2].levels[7].fast_pace = 8.69044;  // 5.4 mph
     walking_pace[2].levels[7].speed = (walking_pace[2].levels[7].slow_pace + walking_pace[2].levels[7].fast_pace) / 2.0;
-    
+
     walking_pace[2].levels[8].slow_pace = 9.01231;  // 5.6 mph
     walking_pace[2].levels[8].fast_pace = 9.49511;  // 5.9 mph
     walking_pace[2].levels[8].speed = (walking_pace[2].levels[8].slow_pace + walking_pace[2].levels[8].fast_pace) / 2.0;
@@ -727,35 +734,35 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     walking_pace[3].levels[0].slow_pace = 3.54055;  // 2.2 mph
     walking_pace[3].levels[0].fast_pace = 4.02335;  // 2.5 mph
     walking_pace[3].levels[0].speed = (walking_pace[3].levels[0].slow_pace + walking_pace[3].levels[0].fast_pace) / 2.0;
-    
+
     walking_pace[3].levels[1].slow_pace = 4.34522;  // 2.7 mph
     walking_pace[3].levels[1].fast_pace = 4.82802;  // 3.0 mph
     walking_pace[3].levels[1].speed = (walking_pace[3].levels[1].slow_pace + walking_pace[3].levels[1].fast_pace) / 2.0;
-    
+
     walking_pace[3].levels[2].slow_pace = 5.14989;  // 3.2 mph
     walking_pace[3].levels[2].fast_pace = 5.63269;  // 3.5 mph
     walking_pace[3].levels[2].speed = (walking_pace[3].levels[2].slow_pace + walking_pace[3].levels[2].fast_pace) / 2.0;
-    
+
     walking_pace[3].levels[3].slow_pace = 5.95456;  // 3.7 mph
     walking_pace[3].levels[3].fast_pace = 6.43736;  // 4.0 mph
     walking_pace[3].levels[3].speed = (walking_pace[3].levels[3].slow_pace + walking_pace[3].levels[3].fast_pace) / 2.0;
-    
+
     walking_pace[3].levels[4].slow_pace = 6.75923;  // 4.2 mph
     walking_pace[3].levels[4].fast_pace = 7.24203;  // 4.5 mph
     walking_pace[3].levels[4].speed = (walking_pace[3].levels[4].slow_pace + walking_pace[3].levels[4].fast_pace) / 2.0;
-    
+
     walking_pace[3].levels[5].slow_pace = 7.40296;  // 4.6 mph
     walking_pace[3].levels[5].fast_pace = 8.04670;  // 5.0 mph
     walking_pace[3].levels[5].speed = (walking_pace[3].levels[5].slow_pace + walking_pace[3].levels[5].fast_pace) / 2.0;
-    
+
     walking_pace[3].levels[6].slow_pace = 8.20764;  // 5.1 mph
     walking_pace[3].levels[6].fast_pace = 8.85137;  // 5.5 mph
     walking_pace[3].levels[6].speed = (walking_pace[3].levels[6].slow_pace + walking_pace[3].levels[6].fast_pace) / 2.0;
-    
-    walking_pace[3].levels[7].slow_pace = 9.01231;  // 5.6 mph
+
+    walking_pace[3].levels[7].slow_pace = 8.85137;  // 5.5 mph
     walking_pace[3].levels[7].fast_pace = 9.65605;  // 6.0 mph
     walking_pace[3].levels[7].speed = (walking_pace[3].levels[7].slow_pace + walking_pace[3].levels[7].fast_pace) / 2.0;
-    
+
     walking_pace[3].levels[8].slow_pace = 9.65605;  // 6.0 mph
     walking_pace[3].levels[8].fast_pace = 10.46072; // 6.5 mph
     walking_pace[3].levels[8].speed = (walking_pace[3].levels[8].slow_pace + walking_pace[3].levels[8].fast_pace) / 2.0;
@@ -766,41 +773,41 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
         walking_pace[4].levels[i].display_name = QStringLiteral("Level %1").arg(i+1);
         walking_pace[4].levels[i].slug = QStringLiteral("level_%1").arg(i+1);
     }
-    // Max pace levels (≥ 2.6 mph to ≥ 6.6 mph)
+    // Max pace levels (2.6-5.6 mph to 6.6-9.6 mph)
     walking_pace[4].levels[0].slow_pace = 4.18428;  // 2.6 mph
-    walking_pace[4].levels[0].fast_pace = 9.01231;  // 5.6 mph (2.6 + 3.0 mph)
+    walking_pace[4].levels[0].fast_pace = 9.01231;  // 5.6 mph
     walking_pace[4].levels[0].speed = (walking_pace[4].levels[0].slow_pace + walking_pace[4].levels[0].fast_pace) / 2.0;
-    
+
     walking_pace[4].levels[1].slow_pace = 4.98895;  // 3.1 mph
-    walking_pace[4].levels[1].fast_pace = 9.81698;  // 6.1 mph (3.1 + 3.0 mph)
+    walking_pace[4].levels[1].fast_pace = 9.81698;  // 6.1 mph
     walking_pace[4].levels[1].speed = (walking_pace[4].levels[1].slow_pace + walking_pace[4].levels[1].fast_pace) / 2.0;
-    
+
     walking_pace[4].levels[2].slow_pace = 5.79362;  // 3.6 mph
-    walking_pace[4].levels[2].fast_pace = 10.62165; // 6.6 mph (3.6 + 3.0 mph)
+    walking_pace[4].levels[2].fast_pace = 10.62165; // 6.6 mph
     walking_pace[4].levels[2].speed = (walking_pace[4].levels[2].slow_pace + walking_pace[4].levels[2].fast_pace) / 2.0;
-    
+
     walking_pace[4].levels[3].slow_pace = 6.59829;  // 4.1 mph
-    walking_pace[4].levels[3].fast_pace = 11.42632; // 7.1 mph (4.1 + 3.0 mph)
+    walking_pace[4].levels[3].fast_pace = 11.42632; // 7.1 mph
     walking_pace[4].levels[3].speed = (walking_pace[4].levels[3].slow_pace + walking_pace[4].levels[3].fast_pace) / 2.0;
-    
+
     walking_pace[4].levels[4].slow_pace = 7.40296;  // 4.6 mph
     walking_pace[4].levels[4].fast_pace = 12.23098; // 7.6 mph
     walking_pace[4].levels[4].speed = (walking_pace[4].levels[4].slow_pace + walking_pace[4].levels[4].fast_pace) / 2.0;
-    
+
     walking_pace[4].levels[5].slow_pace = 8.20764;  // 5.1 mph
-    walking_pace[4].levels[5].fast_pace = 13.03565; // 8.1 mph (5.1 + 3.0 mph)
+    walking_pace[4].levels[5].fast_pace = 13.03565; // 8.1 mph
     walking_pace[4].levels[5].speed = (walking_pace[4].levels[5].slow_pace + walking_pace[4].levels[5].fast_pace) / 2.0;
-    
+
     walking_pace[4].levels[6].slow_pace = 9.01231;  // 5.6 mph
-    walking_pace[4].levels[6].fast_pace = 13.84032; // 8.6 mph (5.6 + 3.0 mph)
+    walking_pace[4].levels[6].fast_pace = 13.84032; // 8.6 mph
     walking_pace[4].levels[6].speed = (walking_pace[4].levels[6].slow_pace + walking_pace[4].levels[6].fast_pace) / 2.0;
-    
+
     walking_pace[4].levels[7].slow_pace = 9.81698;  // 6.1 mph
-    walking_pace[4].levels[7].fast_pace = 14.64498; // 9.1 mph (6.1 + 3.0 mph)
+    walking_pace[4].levels[7].fast_pace = 14.64498; // 9.1 mph
     walking_pace[4].levels[7].speed = (walking_pace[4].levels[7].slow_pace + walking_pace[4].levels[7].fast_pace) / 2.0;
-    
+
     walking_pace[4].levels[8].slow_pace = 10.62165; // 6.6 mph
-    walking_pace[4].levels[8].fast_pace = 15.44965; // 9.6 mph (6.6 + 3.0 mph)
+    walking_pace[4].levels[8].fast_pace = 15.44965; // 9.6 mph
     walking_pace[4].levels[8].speed = (walking_pace[4].levels[8].slow_pace + walking_pace[4].levels[8].fast_pace) / 2.0;
 
     connect(timer, &QTimer::timeout, this, &peloton::checkWorkoutStatus);
@@ -1114,6 +1121,9 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
 
     if (log_request) {
         qDebug() << QStringLiteral("peloton::workout_onfinish") << workout;
+        if (isWalkingWorkout()) {
+            qDebug() << "Detected walking-based workout:" << current_workout_name << "Type:" << current_workout_type;
+        }
     } else {
         qDebug() << QStringLiteral("peloton::workout_onfinish");
     }
@@ -1179,14 +1189,14 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         r.average_cadence = (r.lower_cadence + r.upper_cadence) / 2;
 
         if (bluetoothManager && bluetoothManager->device()) {
-            if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+            if (bluetoothManager->device()->deviceType() == BIKE) {
                 r.lower_resistance = ((bike *)bluetoothManager->device())
                                          ->pelotonToBikeResistance(resistance_range[QStringLiteral("lower")].toInt());
                 r.upper_resistance = ((bike *)bluetoothManager->device())
                                          ->pelotonToBikeResistance(resistance_range[QStringLiteral("upper")].toInt());
                 r.average_resistance = ((bike *)bluetoothManager->device())
                                            ->pelotonToBikeResistance(r.average_requested_peloton_resistance);
-            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+            } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
                 r.lower_resistance =
                     ((elliptical *)bluetoothManager->device())
                         ->pelotonToEllipticalResistance(resistance_range[QStringLiteral("lower")].toInt());
@@ -1227,8 +1237,8 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
 
     bool atLeastOnePower = false;
     if (trainrows.empty() && !segments_segment_list.isEmpty() &&
-        bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
-        bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
+        bluetoothManager->device()->deviceType() != ROWING &&
+        bluetoothManager->device()->deviceType() != TREADMILL) {
         foreach (QJsonValue o, segments_segment_list) {
             QJsonArray subsegments_v2 = o["subsegments_v2"].toArray();
             if (!subsegments_v2.isEmpty()) {
@@ -1379,7 +1389,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         if (!atLeastOnePower) {
             trainrows.clear();
         }
-    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+    } else if (bluetoothManager->device()->deviceType() == ROWING) {
         QJsonObject target_metrics_data_list = ride[QStringLiteral("target_metrics_data")].toObject();
         QJsonArray pace_intensities_list = target_metrics_data_list[QStringLiteral("pace_intensities")].toArray();
 
@@ -1438,17 +1448,27 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     if (!target_metrics_data_list.isEmpty()) {
         QJsonArray target_metrics = target_metrics_data_list["target_metrics"].toArray();
         if (!target_metrics.isEmpty()) {
-            QJsonObject first_metric = target_metrics[0].toObject();
-            QJsonObject offsets = first_metric["offsets"].toObject();
-            if (!offsets.isEmpty()) {
-                first_target_metrics_start_offset = offsets["start"].toInt();
-                qDebug() << "First target metrics start offset:" << first_target_metrics_start_offset;
+            // Find the minimum start offset instead of assuming first element is chronologically first
+            int min_start_offset = INT_MAX;
+            for (const QJsonValue &metric : target_metrics) {
+                QJsonObject metric_obj = metric.toObject();
+                QJsonObject offsets = metric_obj["offsets"].toObject();
+                if (!offsets.isEmpty()) {
+                    int start = offsets["start"].toInt();
+                    if (start < min_start_offset) {
+                        min_start_offset = start;
+                    }
+                }
+            }
+            if (min_start_offset != INT_MAX) {
+                first_target_metrics_start_offset = min_start_offset;
+                qDebug() << "First target metrics start offset (minimum found):" << first_target_metrics_start_offset;
             }
         }
     }
     if (trainrows.empty() && !target_metrics_data_list.isEmpty() &&
-        bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
-        bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
+        bluetoothManager->device()->deviceType() != ROWING &&
+        bluetoothManager->device()->deviceType() != TREADMILL) {
         QJsonArray target_metrics = target_metrics_data_list["target_metrics"].toArray();
 
         bool atLeastOnePower = false;
@@ -1471,6 +1491,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
             QJsonObject segmentObj = segment.toObject();
             QJsonObject offsets = segmentObj["offsets"].toObject();
             QJsonArray metrics = segmentObj["metrics"].toArray();
+            QString segment_type = segmentObj["segment_type"].toString();
 
             int start = offsets["start"].toInt();
             int end = offsets["end"].toInt();
@@ -1490,6 +1511,16 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
             }
 
             lastEnd = end;
+
+            // Handle floor segments (bootcamp workouts)
+            if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
+                trainrow r;
+                r.duration = QTime(0, 0, 0).addSecs(end - start + 1);
+                r.power = -1; // No power target for floor segments
+                trainrows.append(r);
+                qDebug() << r.duration << "floor segment - no cycling metrics" << "time range" << start << "-" << end;
+                continue;
+            }
 
             trainrow r;
             r.duration = QTime(0, 0, 0).addSecs(end - start + 1);
@@ -1573,14 +1604,14 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                 r.average_cadence = (lowerCadence + upperCadence) / 2;
 
                 if (bluetoothManager && bluetoothManager->device()) {
-                    if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                    if (bluetoothManager->device()->deviceType() == BIKE) {
                         r.lower_resistance = ((bike *)bluetoothManager->device())
                                                  ->pelotonToBikeResistance(lowerResistance);
                         r.upper_resistance = ((bike *)bluetoothManager->device())
                                                  ->pelotonToBikeResistance(upperResistance);
                         r.average_resistance = ((bike *)bluetoothManager->device())
                                                    ->pelotonToBikeResistance(r.average_requested_peloton_resistance);
-                    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                    } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
                         r.lower_resistance = ((elliptical *)bluetoothManager->device())
                                                  ->pelotonToEllipticalResistance(lowerResistance);
                         r.upper_resistance = ((elliptical *)bluetoothManager->device())
@@ -1639,7 +1670,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         }
     }
     
-    if (trainrows.empty() && !target_metrics_data_list.isEmpty() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+    if (trainrows.empty() && !target_metrics_data_list.isEmpty() && bluetoothManager->device()->deviceType() == TREADMILL) {
         QJsonObject target_metrics_data = ride["target_metrics_data"].toObject();
         QJsonArray target_metrics = target_metrics_data["target_metrics"].toArray();
         
@@ -1650,7 +1681,11 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                                                        QZSettings::default_peloton_treadmill_level).toInt() - 1;
             int peloton_treadmill_walk_level = settings.value(QZSettings::peloton_treadmill_walk_level,
                                                        QZSettings::default_peloton_treadmill_walk_level).toInt() - 1;
-            
+            double peloton_treadmill_walking_min_speed = settings.value(QZSettings::peloton_treadmill_walking_min_speed,
+                                                       QZSettings::default_peloton_treadmill_walking_min_speed).toDouble();
+            double peloton_treadmill_running_min_speed = settings.value(QZSettings::peloton_treadmill_running_min_speed,
+                                                       QZSettings::default_peloton_treadmill_running_min_speed).toDouble();
+
             if (peloton_treadmill_level < 0 || peloton_treadmill_level > 9)
                 peloton_treadmill_level = 0;
             if (peloton_treadmill_walk_level < 0 || peloton_treadmill_walk_level > 9)
@@ -1691,20 +1726,49 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                     if (metricName == "pace_intensity") {
                         pace_intensity_lower = metricObj["lower"].toInt();
                         pace_intensity_upper = metricObj["upper"].toInt();
-                        
-                        if (current_workout_type == "walking") {
+
+                        if (isWalkingWorkout()) {
                             speed_lower = walking_pace[pace_intensity_lower].levels[peloton_treadmill_walk_level].slow_pace;
                             speed_upper = walking_pace[pace_intensity_upper].levels[peloton_treadmill_walk_level].fast_pace;
+
+                            // Apply walking min speed if set
+                            if (peloton_treadmill_walking_min_speed > 0.0) {
+                                if (speed_lower < peloton_treadmill_walking_min_speed)
+                                    speed_lower = peloton_treadmill_walking_min_speed;
+                                if (speed_upper < peloton_treadmill_walking_min_speed)
+                                    speed_upper = peloton_treadmill_walking_min_speed;
+                            }
                         } else {
                             speed_lower = treadmill_pace[pace_intensity_lower].levels[peloton_treadmill_level].slow_pace;
                             speed_upper = treadmill_pace[pace_intensity_upper].levels[peloton_treadmill_level].fast_pace;
+
+                            // Apply running min speed if set
+                            if (peloton_treadmill_running_min_speed > 0.0) {
+                                if (speed_lower < peloton_treadmill_running_min_speed)
+                                    speed_lower = peloton_treadmill_running_min_speed;
+                                if (speed_upper < peloton_treadmill_running_min_speed)
+                                    speed_upper = peloton_treadmill_running_min_speed;
+                            }
                         }
-                        
+
                         miles = 1; // the pace intensity are always in km/h
                     }
                     else if (metricName == "speed") {
                         speed_lower = metricObj["lower"].toDouble();
                         speed_upper = metricObj["upper"].toDouble();
+
+                        // Apply min speed based on workout type
+                        if (isWalkingWorkout() && peloton_treadmill_walking_min_speed > 0.0) {
+                            if (speed_lower < peloton_treadmill_walking_min_speed)
+                                speed_lower = peloton_treadmill_walking_min_speed;
+                            if (speed_upper < peloton_treadmill_walking_min_speed)
+                                speed_upper = peloton_treadmill_walking_min_speed;
+                        } else if (!isWalkingWorkout() && peloton_treadmill_running_min_speed > 0.0) {
+                            if (speed_lower < peloton_treadmill_running_min_speed)
+                                speed_lower = peloton_treadmill_running_min_speed;
+                            if (speed_upper < peloton_treadmill_running_min_speed)
+                                speed_upper = peloton_treadmill_running_min_speed;
+                        }
                     }
                     else if (metricName == "incline") {
                         inc_lower = metricObj["lower"].toDouble();
@@ -1826,7 +1890,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     trainrows.clear();
 
     if(!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
-        bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+        bluetoothManager->device()->deviceType() == BIKE) {
         QJsonArray targetMetrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
 
         if (targetMetrics.count() > 0)
@@ -1841,6 +1905,23 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             QJsonObject targetMetric = targetMetrics.at(i).toObject();
             QJsonObject offsets = targetMetric[QStringLiteral("offsets")].toObject();
             QJsonArray metrics = targetMetric[QStringLiteral("metrics")].toArray();
+            QString segment_type = targetMetric[QStringLiteral("segment_type")].toString();
+
+            // Handle floor segments (bootcamp workouts)
+            if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
+                trainrow r;
+                int offset_start = offsets[QStringLiteral("start")].toInt();
+                int offset_end = offsets[QStringLiteral("end")].toInt();
+                int duration = offset_end - offset_start;
+                if (i != 0) {
+                    duration++;
+                }
+                r.duration = QTime(0, 0, 0).addSecs(duration);
+                r.power = -1; // No power target for floor segments
+                trainrows.append(r);
+                qDebug() << i << r.duration << "floor segment - no cycling metrics";
+                continue;
+            }
 
                    // Find resistance and cadence metrics
             int lowerResistance = 0, upperResistance = 0, lowerCadence = 0, upperCadence = 0;
@@ -1880,14 +1961,14 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             r.average_cadence = (r.lower_cadence + r.upper_cadence) / 2;
 
             if (bluetoothManager && bluetoothManager->device()) {
-                if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                if (bluetoothManager->device()->deviceType() == BIKE) {
                         r.lower_resistance = ((bike *)bluetoothManager->device())
                                                  ->pelotonToBikeResistance(lowerResistance);
                         r.upper_resistance = ((bike *)bluetoothManager->device())
                                                  ->pelotonToBikeResistance(upperResistance);
                         r.average_resistance = ((bike *)bluetoothManager->device())
                                                    ->pelotonToBikeResistance(r.average_requested_peloton_resistance);
-                } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
                         r.lower_resistance =
                             ((elliptical *)bluetoothManager->device())
                                 ->pelotonToEllipticalResistance(lowerResistance);
@@ -1935,8 +2016,8 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         
         bool atLeastOnePower = false;
         if (trainrows.empty() && !targetMetricsList.isEmpty() &&
-            bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
-            bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
+            bluetoothManager->device()->deviceType() != ROWING &&
+            bluetoothManager->device()->deviceType() != TREADMILL) {
 
             int lastEnd = 60;
             
@@ -1956,10 +2037,11 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             for (QJsonValue metric : sortedMetrics) {
                 QJsonObject metricObj = metric.toObject();
                 QJsonObject offsets = metricObj[QStringLiteral("offsets")].toObject();
+                QString segment_type = metricObj[QStringLiteral("segment_type")].toString();
                 int start = offsets[QStringLiteral("start")].toInt();
                 int end = offsets[QStringLiteral("end")].toInt();
                 int len = end - start + 1;
-                
+
                 // Check if there's a gap from previous segment
                 if (!trainrows.isEmpty()) {
                    int prevEnd = start - 1; // Expected previous end
@@ -1972,8 +2054,18 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                        trainrows.append(gapRow);
                    }
                 }
-                
+
                 lastEnd = end;
+
+                // Handle floor segments (bootcamp workouts)
+                if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
+                    trainrow r;
+                    r.duration = QTime(0, len / 60, len % 60, 0);
+                    r.power = -1; // No power target for floor segments
+                    trainrows.append(r);
+                    qDebug() << r.duration << "floor segment - no cycling metrics" << "time range" << start << "-" << end;
+                    continue;
+                }
 
                 QJsonArray metricsArray = metricObj[QStringLiteral("metrics")].toArray();
                 if (!metricsArray.isEmpty()) {
@@ -2024,7 +2116,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             }
         }
     } else if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
-        bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        bluetoothManager->device()->deviceType() == TREADMILL) {
         double miles = 1;
         bool treadmill_force_speed =
             settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool();
@@ -2034,6 +2126,11 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         int peloton_treadmill_walk_level =
             settings.value(QZSettings::peloton_treadmill_walk_level, QZSettings::default_peloton_treadmill_walk_level).toInt() -
             1;
+        double peloton_treadmill_walking_min_speed = settings.value(QZSettings::peloton_treadmill_walking_min_speed,
+                                                   QZSettings::default_peloton_treadmill_walking_min_speed).toDouble();
+        double peloton_treadmill_running_min_speed = settings.value(QZSettings::peloton_treadmill_running_min_speed,
+                                                   QZSettings::default_peloton_treadmill_running_min_speed).toDouble();
+
         if(peloton_treadmill_level < 0 || peloton_treadmill_level > 9)
             peloton_treadmill_level = 0;
         if(peloton_treadmill_walk_level < 0 || peloton_treadmill_walk_level > 9)
@@ -2065,6 +2162,20 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                     if(oo[QStringLiteral("name")].toString().toLower() == "speed") {
                         speed_lower = oo[QStringLiteral("lower")].toDouble();
                         speed_upper = oo[QStringLiteral("upper")].toDouble();
+
+                        // Apply min speed based on workout type
+                        if (isWalkingWorkout() && peloton_treadmill_walking_min_speed > 0.0) {
+                            if (speed_lower < peloton_treadmill_walking_min_speed)
+                                speed_lower = peloton_treadmill_walking_min_speed;
+                            if (speed_upper < peloton_treadmill_walking_min_speed)
+                                speed_upper = peloton_treadmill_walking_min_speed;
+                        } else if (!isWalkingWorkout() && peloton_treadmill_running_min_speed > 0.0) {
+                            if (speed_lower < peloton_treadmill_running_min_speed)
+                                speed_lower = peloton_treadmill_running_min_speed;
+                            if (speed_upper < peloton_treadmill_running_min_speed)
+                                speed_upper = peloton_treadmill_running_min_speed;
+                        }
+
                         speed_average = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
                     } else if(oo[QStringLiteral("name")].toString().toLower() == "incline") {
                         inc_lower = oo[QStringLiteral("lower")].toDouble();
@@ -2075,12 +2186,28 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                         paceintensity_upper = oo[QStringLiteral("upper")].toInt();
                         paceintensity_avg = ((paceintensity_upper - paceintensity_lower) / 2.0) + paceintensity_lower;
                         if(paceintensity_lower < 7) {
-                            if (current_workout_type == "walking") {
+                            if (isWalkingWorkout()) {
                                 speed_lower = walking_pace[paceintensity_lower].levels[peloton_treadmill_walk_level].slow_pace;
                                 speed_upper = walking_pace[paceintensity_upper].levels[peloton_treadmill_walk_level].fast_pace;
+
+                                // Apply walking min speed if set
+                                if (peloton_treadmill_walking_min_speed > 0.0) {
+                                    if (speed_lower < peloton_treadmill_walking_min_speed)
+                                        speed_lower = peloton_treadmill_walking_min_speed;
+                                    if (speed_upper < peloton_treadmill_walking_min_speed)
+                                        speed_upper = peloton_treadmill_walking_min_speed;
+                                }
                             } else {
                                 speed_lower = treadmill_pace[paceintensity_lower].levels[peloton_treadmill_level].slow_pace;
                                 speed_upper = treadmill_pace[paceintensity_upper].levels[peloton_treadmill_level].fast_pace;
+
+                                // Apply running min speed if set
+                                if (peloton_treadmill_running_min_speed > 0.0) {
+                                    if (speed_lower < peloton_treadmill_running_min_speed)
+                                        speed_lower = peloton_treadmill_running_min_speed;
+                                    if (speed_upper < peloton_treadmill_running_min_speed)
+                                        speed_upper = peloton_treadmill_running_min_speed;
+                                }
                             }
                             speed_average = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
                             miles = 1; // the pace intensity are always in km/h
@@ -2169,7 +2296,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             }
         }
     } else if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
-               bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+               bluetoothManager->device()->deviceType() == ROWING) {
         QJsonArray target_metrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
         trainrows.reserve(target_metrics.count() + 2);
         for (int i = 0; i < target_metrics.count(); i++) {
@@ -2242,7 +2369,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         }
     }
     // Target METS it's quite useless so I removed, no one use this
-    /* else if (!segment_list.isEmpty() && bluetoothManager->device()->deviceType() != bluetoothdevice::BIKE) {
+    /* else if (!segment_list.isEmpty() && bluetoothManager->device()->deviceType() != BIKE) {
         trainrows.reserve(segment_list.count() + 1);
         foreach (QJsonValue o, segment_list) {
             int len = o["length"].toInt();
@@ -2431,9 +2558,17 @@ void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {
     pelotonAuthUrl = url.toString();
     emit pelotonAuthUrlChanged(pelotonAuthUrl);
 
-    if (strava_auth_external_webbrowser)
+    if (strava_auth_external_webbrowser) {
+#if !defined(Q_OS_ANDROID)
+        if (!ensureDesktopRelayServer()) {
+            if (homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Peloton desktop relay failed!");
+            }
+            return;
+        }
+#endif
         QDesktopServices::openUrl(url);
-    else {
+    } else {
         pelotonAuthWebVisible = true;
         emit pelotonWebVisibleChanged(pelotonAuthWebVisible);
     }
@@ -2528,12 +2663,55 @@ void peloton::networkRequestFinished(QNetworkReply *reply) {
 }
 
 void peloton::callbackReceived(const QVariantMap &values) {
-    qDebug() << QStringLiteral("peloton::callbackReceived") << values;
+    QVariantMap sanitizedValues = values;
+    if (sanitizedValues.contains(QZSettings::peloton_code)) {
+        sanitizedValues.insert(QZSettings::peloton_code, QStringLiteral("XXXX"));
+    }
+    if (sanitizedValues.contains(QStringLiteral("state"))) {
+        sanitizedValues.insert(QStringLiteral("state"), QStringLiteral("XXXX"));
+    }
+    qDebug() << QStringLiteral("peloton::callbackReceived") << sanitizedValues;
     if (!values.value(QZSettings::peloton_code).toString().isEmpty()) {
         peloton_code = values.value(QZSettings::peloton_code).toString();
-
-        qDebug() << peloton_code;
+        qDebug() << "Peloton authorization code received: XXXX";
     }
+}
+
+void peloton::handleOAuthCallbackUrl(const QUrl &url) {
+    if (!url.isValid()) {
+        return;
+    }
+
+    if (!isAcceptedCallbackUrl(url)) {
+        return;
+    }
+
+    QUrlQuery query(url);
+    const QString code = query.queryItemValue(QStringLiteral("code"));
+    const QString state = query.queryItemValue(QStringLiteral("state"));
+    if (code.isEmpty()) {
+        return;
+    }
+
+    if (!pelotonPendingState.isEmpty() && state != pelotonPendingState) {
+        qDebug() << "Peloton OAuth callback state mismatch" << "received=XXXX expected=XXXX";
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+        }
+        return;
+    }
+
+    qDebug() << "Peloton OAuth callback URL received" << sanitizedOAuthCallbackUrl(url);
+
+    QVariantMap values;
+    values.insert(QZSettings::peloton_code, code);
+    callbackReceived(values);
+    if (!exchangeAuthorizationCode(code)) {
+        return;
+    }
+
+    pelotonPendingState.clear();
+    completeOAuthLogin();
 }
 
 QOAuth2AuthorizationCodeFlow *peloton::peloton_connect() {
@@ -2561,18 +2739,47 @@ QOAuth2AuthorizationCodeFlow *peloton::peloton_connect() {
     pelotonOAuth->setAccessTokenUrl(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token")));
     pelotonOAuth->setModifyParametersFunction(
         buildModifyParametersFunction(QUrl(QLatin1String("")), QUrl(QLatin1String(""))));
-    pelotonReplyHandler = new QOAuthHttpServerReplyHandler(QHostAddress(QStringLiteral("127.0.0.1")), 18080, this);
-    connect(pelotonReplyHandler, &QOAuthHttpServerReplyHandler::replyDataReceived, this, &peloton::replyDataReceived);
-    connect(pelotonReplyHandler, &QOAuthHttpServerReplyHandler::callbackReceived, this, &peloton::callbackReceived);
-
-    pelotonOAuth->setReplyHandler(pelotonReplyHandler);
 
     return pelotonOAuth;
 }
 
+void peloton::peloton_logout() {
+    qDebug() << "Peloton logout";
+    QSettings settings;
+    // Clear base token keys
+    settings.setValue(QZSettings::peloton_accesstoken, QStringLiteral(""));
+    settings.setValue(QZSettings::peloton_refreshtoken, QStringLiteral(""));
+    settings.setValue(QZSettings::peloton_lastrefresh, QStringLiteral(""));
+    settings.setValue(QZSettings::peloton_expires, QStringLiteral(""));
+    settings.setValue(QZSettings::peloton_code, QStringLiteral(""));
+    // Clear user-specific tokens
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
+    if (!userId.isEmpty()) {
+        settings.remove(getPelotonSettingKey(QZSettings::peloton_accesstoken, userId));
+        settings.remove(getPelotonSettingKey(QZSettings::peloton_refreshtoken, userId));
+        settings.remove(getPelotonSettingKey(QZSettings::peloton_expires, userId));
+    }
+    settings.setValue(QZSettings::peloton_current_user_id, QStringLiteral(""));
+    // Clear in-memory tokens
+    tempAccessToken.clear();
+    tempRefreshToken.clear();
+    // Reset OAuth cookie jar
+    if (pelotonOAuth) {
+        pelotonOAuth->setToken(QStringLiteral(""));
+        pelotonOAuth->setRefreshToken(QStringLiteral(""));
+    }
+    if (manager) {
+        manager->setCookieJar(new QNetworkCookieJar(manager));
+    }
+#if !defined(Q_OS_ANDROID)
+    stopDesktopRelayServer();
+#endif
+    qDebug() << "Peloton: tokens cleared";
+}
+
 void peloton::peloton_connect_clicked() {
     timer->stop();
-    
+
     QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
 
     peloton_connect();
@@ -2585,15 +2792,20 @@ void peloton::peloton_connect_clicked() {
 }
 
 QAbstractOAuth::ModifyParametersFunction peloton::buildModifyParametersFunction(const QUrl &clientIdentifier, const QUrl &clientIdentifierSharedKey) {
-    return [clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
+    return [this, clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
         if (stage == QAbstractOAuth::Stage::RequestingAuthorization) {
             parameters->insert(QStringLiteral("audience"), QStringLiteral("https://api-3p.onepeloton.com/"));
             parameters->insert(QStringLiteral("responseType"), QStringLiteral("code")); /* Request refresh token*/
             parameters->insert(QStringLiteral("approval_prompt"),
                                QStringLiteral("force")); /* force user check scope again */
+            parameters->insert(QStringLiteral("redirect_uri"), kPelotonRedirectUri);
+            pelotonPendingState = parameters->value(QStringLiteral("state")).toString();
             QByteArray code = parameters->value(QStringLiteral("code")).toByteArray();
             // DON'T TOUCH THIS LINE, THANKS Roberto Viola
             (*parameters)[QStringLiteral("code")] = QUrl::fromPercentEncoding(code); // NOTE: Old code replaced by
+        }
+        if (stage == QAbstractOAuth::Stage::RequestingAccessToken) {
+            parameters->insert(QStringLiteral("redirect_uri"), kPelotonRedirectUri);
         }
         if (stage == QAbstractOAuth::Stage::RefreshingAccessToken) {
             parameters->insert(QStringLiteral("client_id"), clientIdentifier);
@@ -2601,6 +2813,210 @@ QAbstractOAuth::ModifyParametersFunction peloton::buildModifyParametersFunction(
         }
     };
 }
+
+bool peloton::exchangeAuthorizationCode(const QString &code) {
+    QNetworkRequest request(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token?")));
+    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    QUrlQuery body;
+    body.addQueryItem(QStringLiteral("client_id"), QStringLiteral(PELOTON_CLIENT_ID_S));
+    body.addQueryItem(QStringLiteral("code"), code);
+    body.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("authorization_code"));
+    body.addQueryItem(QStringLiteral("redirect_uri"), kPelotonRedirectUri);
+
+    if (manager) {
+        delete manager;
+        manager = nullptr;
+    }
+    manager = new QNetworkAccessManager(this);
+    QNetworkReply *reply = manager->post(request, body.toString(QUrl::FullyEncoded).toUtf8());
+
+    QEventLoop loop;
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    if (reply->error() != QNetworkReply::NoError) {
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+        }
+        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        return false;
+    }
+
+    QJsonParseError parseError;
+    const QJsonDocument document = QJsonDocument::fromJson(reply->readAll(), &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        qDebug() << tr("JSON parser error") << parseError.errorString();
+        return false;
+    }
+
+    tempAccessToken = document[QStringLiteral("access_token")].toString();
+    tempRefreshToken = document[QStringLiteral("refresh_token")].toString();
+    tempExpiresAt = QDateTime::currentDateTime();
+
+    if (tempAccessToken.isEmpty()) {
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+        }
+        return false;
+    }
+
+    return true;
+}
+
+bool peloton::isAcceptedCallbackUrl(const QUrl &url) const {
+    if (!url.path().startsWith(QStringLiteral("/peloton/callback"))) {
+        return false;
+    }
+
+    if (url.host() == QStringLiteral("www.qzfitness.com")) {
+        return true;
+    }
+
+#if !defined(Q_OS_ANDROID)
+    return url.host() == QStringLiteral("127.0.0.1") || url.host() == QStringLiteral("localhost");
+#else
+    return false;
+#endif
+}
+
+void peloton::completeOAuthLogin() {
+#if !defined(Q_OS_ANDROID)
+    stopDesktopRelayServer();
+#endif
+    if(homeform::singleton()) {
+        homeform::singleton()->setPelotonPopupVisible(true);
+        homeform::singleton()->setToastRequested("Peloton Login OK!");
+    }
+
+    if(!timer->isActive()) {
+        peloton_credentials_wrong = false;
+        startEngine();
+    }
+}
+
+#if !defined(Q_OS_ANDROID)
+bool peloton::ensureDesktopRelayServer() {
+    if (!pelotonDesktopRelayServer) {
+        pelotonDesktopRelayServer = new QTcpServer(this);
+        connect(pelotonDesktopRelayServer, &QTcpServer::newConnection, this, &peloton::handleDesktopRelayConnection);
+    }
+
+    if (pelotonDesktopRelayServer->isListening() &&
+        pelotonDesktopRelayServer->serverPort() == kPelotonDesktopRelayPort) {
+        return true;
+    }
+
+    const bool listening =
+        pelotonDesktopRelayServer->listen(QHostAddress(QStringLiteral("127.0.0.1")), kPelotonDesktopRelayPort);
+    if (!listening) {
+        qDebug() << "Peloton desktop relay failed to listen on port" << kPelotonDesktopRelayPort
+                 << pelotonDesktopRelayServer->errorString();
+        return false;
+    }
+
+    qDebug() << "Peloton desktop relay listening on 127.0.0.1:" << pelotonDesktopRelayServer->serverPort();
+    return true;
+}
+
+void peloton::stopDesktopRelayServer() {
+    if (pelotonDesktopRelayServer) {
+        if (pelotonDesktopRelayServer->isListening()) {
+            pelotonDesktopRelayServer->close();
+        }
+        delete pelotonDesktopRelayServer;
+        pelotonDesktopRelayServer = nullptr;
+    }
+}
+
+void peloton::handleDesktopRelayConnection() {
+    while (pelotonDesktopRelayServer && pelotonDesktopRelayServer->hasPendingConnections()) {
+        QTcpSocket *socket = pelotonDesktopRelayServer->nextPendingConnection();
+        if (!socket) {
+            continue;
+        }
+
+        socket->setProperty("pelotonRelayBuffer", QByteArray());
+        connect(socket, &QTcpSocket::readyRead, this, &peloton::handleDesktopRelaySocketReadyRead);
+        connect(socket, &QTcpSocket::disconnected, socket, &QObject::deleteLater);
+    }
+}
+
+void peloton::handleDesktopRelaySocketReadyRead() {
+    QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
+    if (!socket) {
+        return;
+    }
+
+    QByteArray buffer = socket->property("pelotonRelayBuffer").toByteArray();
+    buffer += socket->readAll();
+    socket->setProperty("pelotonRelayBuffer", buffer);
+
+    if (!buffer.contains("\r\n\r\n")) {
+        return;
+    }
+
+    const QList<QByteArray> lines = buffer.split('\n');
+    if (lines.isEmpty()) {
+        socket->disconnectFromHost();
+        return;
+    }
+
+    const QByteArray requestLine = lines.first().trimmed();
+    const QList<QByteArray> parts = requestLine.split(' ');
+    QByteArray method;
+    QByteArray target = "/";
+    if (parts.size() >= 2) {
+        method = parts.at(0).trimmed();
+        target = parts.at(1).trimmed();
+    }
+
+    QByteArray responseBody;
+    QByteArray statusLine;
+
+    if (method == "OPTIONS") {
+        statusLine = "HTTP/1.1 204 No Content\r\n";
+        responseBody.clear();
+    } else if (method == "GET") {
+        const QUrl requestUrl = QUrl(QStringLiteral("http://127.0.0.1:%1%2")
+                                         .arg(kPelotonDesktopRelayPort)
+                                         .arg(QString::fromUtf8(target)));
+        QMetaObject::invokeMethod(this, [this, requestUrl]() {
+            handleOAuthCallbackUrl(requestUrl);
+        }, Qt::QueuedConnection);
+
+        statusLine = "HTTP/1.1 200 OK\r\n";
+        responseBody = QByteArrayLiteral("<html><body><h2>QZ received the Peloton callback.</h2><p>You can close this tab.</p></body></html>");
+    } else {
+        statusLine = "HTTP/1.1 405 Method Not Allowed\r\n";
+        responseBody = QByteArrayLiteral("Method Not Allowed");
+    }
+
+    QByteArray response = statusLine;
+    response += "Access-Control-Allow-Origin: https://www.qzfitness.com\r\n";
+    response += "Access-Control-Allow-Methods: GET, OPTIONS\r\n";
+    response += "Access-Control-Allow-Headers: Content-Type\r\n";
+    response += "Access-Control-Allow-Private-Network: true\r\n";
+    response += "Cache-Control: no-store\r\n";
+    response += "Connection: close\r\n";
+    if (method == "GET") {
+        response += "Content-Type: text/html; charset=utf-8\r\n";
+    } else if (method == "OPTIONS") {
+        response += "Content-Length: 0\r\n";
+    } else {
+        response += "Allow: GET, OPTIONS\r\n";
+        response += "Content-Type: text/plain; charset=utf-8\r\n";
+    }
+    if (method != "OPTIONS") {
+        response += "Content-Length: " + QByteArray::number(responseBody.size()) + "\r\n";
+    }
+    response += "\r\n";
+    response += responseBody;
+
+    socket->write(response);
+    socket->disconnectFromHost();
+}
+#endif
 
 void peloton::peloton_refreshtoken() {
 
@@ -2621,10 +3037,12 @@ void peloton::peloton_refreshtoken() {
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
     
     // set params
-    QString data;
-    data += QStringLiteral("client_id=" PELOTON_CLIENT_ID_S);
-    data += QStringLiteral("&refresh_token=") + (tempRefreshToken.isEmpty() ? getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).toString() : tempRefreshToken);
-    data += QStringLiteral("&grant_type=refresh_token");
+    QUrlQuery body;
+    body.addQueryItem(QStringLiteral("client_id"), QStringLiteral(PELOTON_CLIENT_ID_S));
+    body.addQueryItem(QStringLiteral("refresh_token"),
+                      tempRefreshToken.isEmpty() ? getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).toString()
+                                                 : tempRefreshToken);
+    body.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("refresh_token"));
     
     // make request
     if (manager) {
@@ -2633,7 +3051,7 @@ void peloton::peloton_refreshtoken() {
         manager = nullptr;
     }
     manager = new QNetworkAccessManager(this);
-    QNetworkReply *reply = manager->post(request, data.toLatin1());
+    QNetworkReply *reply = manager->post(request, body.toString(QUrl::FullyEncoded).toUtf8());
 
     // blocking request
     QEventLoop loop;

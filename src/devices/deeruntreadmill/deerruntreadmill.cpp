@@ -16,7 +16,7 @@ using namespace std::chrono_literals;
 
 deerruntreadmill::deerruntreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
                                    double forceInitInclination) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
     this->noHeartService = noHeartService;
@@ -75,9 +75,22 @@ void deerruntreadmill::writeCharacteristic(const QLowEnergyCharacteristic charac
     }
 }
 
+void deerruntreadmill::waitForAPacket() {
+    QEventLoop loop;
+    QTimer timeout;
+    connect(this, &deerruntreadmill::packetReceived, &loop, &QEventLoop::quit);
+    timeout.singleShot(3000, &loop, SLOT(quit()));
+    loop.exec();
+}
+
 void deerruntreadmill::writeUnlockCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log) {
     QEventLoop loop;
     QTimer timeout;
+    
+    if(!unlock_service) {
+        qDebug() << "ERROR! Unlock service not found!";
+        return;
+    }
 
     connect(unlock_service, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
     timeout.singleShot(300ms, &loop, &QEventLoop::quit);
@@ -122,22 +135,80 @@ uint8_t deerruntreadmill::calculateXOR(uint8_t arr[], size_t size) {
     return result;
 }
 
+uint8_t deerruntreadmill::calculatePitPatChecksum(uint8_t arr[], size_t size) {
+    uint8_t result = 0;
+
+    if (size < 5) {
+        qDebug() << QStringLiteral("array too small for PitPat checksum");
+        return 0;
+    }
+
+    // For PitPat protocol:
+    // 1. XOR from byte 5 to byte (size - 3) for long messages (>= 7 bytes)
+    //    or from byte 2 to byte (size - 3) for short messages (< 7 bytes)
+    // 2. XOR the result with byte 1
+    size_t startIdx = (size < 7) ? 2 : 5;
+
+    for (size_t i = startIdx; i <= size - 3; i++) {
+        result ^= arr[i];
+    }
+
+    // XOR with byte 1 (command byte)
+    result ^= arr[1];
+
+    return result;
+}
+
+
+void deerruntreadmill::forceSpeedAndInclination(double requestSpeed, double requestInclination) {
+    QSettings settings;
+
+    if (pitpat) {
+        // PitPat speed template
+        // Pattern: 6a 17 00 00 00 00 [speed_high] [speed_low] 01 00 8a 00 04 00 00 00 00 00 12 2e 0c [checksum] 43
+        // Speed encoding: speed value * 1000 (e.g., 2.0 km/h = 2000 = 0x07d0)
+        uint8_t writeSpeed[] = {0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x03, 0xe8, 0x01, 0x08, 0x64, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x16, 0x7a, 0x67, 0x96, 0x43};
+
+        uint16_t speed = (uint16_t)(requestSpeed * 1000.0);
+        uint16_t incline = (uint16_t)(requestInclination);
+        writeSpeed[6] = (speed >> 8) & 0xFF;  // High byte
+        writeSpeed[7] = speed & 0xFF;          // Low byte
+        writeSpeed[9] = incline & 0xFF;          // Low byte
+        writeSpeed[21] = calculatePitPatChecksum(writeSpeed, sizeof(writeSpeed));  // Checksum at byte 21
+
+        writeCharacteristic(gattWriteCharacteristic, writeSpeed, sizeof(writeSpeed),
+                            QStringLiteral("forceSpeed PitPat speed=") + QString::number(requestSpeed) + QStringLiteral(" incline=") + QString::number(requestInclination), false, true);
+    } else if (superun_ba04) {
+        // Superun BA04 speed template
+        uint8_t writeSpeed[] = {0x4d, 0x00, 0x14, 0x17, 0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x04, 0x4c, 0x01, 0x00, 0x50, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0xb5, 0x7c, 0xdb, 0x43};
+
+        writeSpeed[2] = pollCounter;
+        writeSpeed[10] = ((int)((requestSpeed * 100)) >> 8) & 0xFF;
+        writeSpeed[11] = ((int)((requestSpeed * 100))) & 0xFF;
+        writeSpeed[25] = calculateXOR(writeSpeed, sizeof(writeSpeed));
+
+        writeCharacteristic(gattWriteCharacteristic, writeSpeed, sizeof(writeSpeed),
+                            QStringLiteral("forceSpeed BA04 speed=") + QString::number(requestSpeed), false, false);
+    } else {
+        // Default speed template
+        uint8_t writeSpeed[] = {0x4d, 0x00, 0xc9, 0x17, 0x6a, 0x17, 0x02, 0x00, 0x06, 0x40, 0x04, 0x4c, 0x01, 0x00, 0x50, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x85, 0x11, 0xd8, 0x43};
+
+        writeSpeed[2] = pollCounter;
+        writeSpeed[10] = ((int)((requestSpeed * 100)) >> 8) & 0xFF;
+        writeSpeed[11] = ((int)((requestSpeed * 100))) & 0xFF;
+        writeSpeed[25] = calculateXOR(writeSpeed, sizeof(writeSpeed));
+
+        writeCharacteristic(gattWriteCharacteristic, writeSpeed, sizeof(writeSpeed),
+                            QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, false);
+    }
+}
 
 void deerruntreadmill::forceSpeed(double requestSpeed) {
-    QSettings settings;
-    uint8_t writeSpeed[] = {0x4d, 0x00, 0xc9, 0x17, 0x6a, 0x17, 0x02, 0x00, 0x06, 0x40, 0x04, 0x4c, 0x01, 0x00, 0x50, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x85, 0x11, 0xd8, 0x43};
-
-    writeSpeed[2] = pollCounter;
-    writeSpeed[10] = ((int)((requestSpeed * 100)) >> 8) & 0xFF;
-    writeSpeed[11] = ((int)((requestSpeed * 100))) & 0xFF;
-    writeSpeed[25] = calculateXOR(writeSpeed, sizeof(writeSpeed));
-
-    writeCharacteristic(gattWriteCharacteristic, writeSpeed, sizeof(writeSpeed),
-                        QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, false);
+    forceSpeedAndInclination(requestSpeed, currentInclination().value());
 }
 
 void deerruntreadmill::forceIncline(double requestIncline) {
-
+    forceSpeedAndInclination(currentSpeed().value(), requestIncline);
 }
 
 void deerruntreadmill::changeInclinationRequested(double grade, double percentage) {
@@ -216,8 +287,7 @@ void deerruntreadmill::update() {
                 }
 
                 if (pitpat) {
-                    uint8_t startData[] = {0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x81, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x93, 0x43};
-                    writeCharacteristic(gattWriteCharacteristic, startData, sizeof(startData), QStringLiteral("pitpat start"), false, true);
+                    forceSpeed(1.0);
                 } else {
                     // should be:
                     // 0x49 = inited
@@ -240,13 +310,16 @@ void deerruntreadmill::update() {
                 emit tapeStarted();
             } else if (requestStop != -1) {
                 emit debug(QStringLiteral("stopping... ") + paused);
-                /*if (lastState == PAUSED) {
-                    uint8_t pause[] = {0x05, 0x00, 0x00, 0x00, 0x00, 0x2a, 0x07};
 
-                    writeCharacteristic(gattWriteCharacteristic, pause, sizeof(pause), QStringLiteral("pause"), false,
-                                        true);
-
-                } else*/ {
+                if (pitpat) {
+                    uint8_t stop[] = {
+                            0x6a, 0x17, 0x00, 0x00, 0x00,
+                            0x00, 0x00, 0x00, 0x05, 0x00, 
+                            0x8a, 0x00, 0x02, 0x00, 0x00, 
+                            0x00, 0x00, 0x00, 0x12, 0x2e, 
+                            0x0c, 0xaa, 0x43};
+                    writeCharacteristic(gattWriteCharacteristic, stop, sizeof(stop), QStringLiteral("stop"), false, true);
+                } else {
                     uint8_t stop[] = {0x4d, 0x00, 0x48, 0x17, 0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x50, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x85, 0x11, 0xd6, 0x43};
                     stop[2] = pollCounter;
 
@@ -318,6 +391,9 @@ void deerruntreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         speed = ((double)((value[3] << 8) | ((uint8_t)value[4])) / 1000.0);
     }
     double incline = 0.0;
+    if(pitpat) {
+        incline = (double)(value[11] & 0xFF);
+    }
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -392,15 +468,37 @@ void deerruntreadmill::btinit(bool startTape) {
         // PitPat treadmill initialization sequence
         uint8_t initData1[] = {0x6a, 0x05, 0xfd, 0xf8, 0x43};
         writeCharacteristic(gattWriteCharacteristic, initData1, sizeof(initData1), QStringLiteral("pitpat init 1"), false, true);
-        
+
         uint8_t unlockData[] = {0x6b, 0x05, 0x9d, 0x98, 0x43};
         writeUnlockCharacteristic(unlockData, sizeof(unlockData), QStringLiteral("pitpat unlock"), false);
-        
+
         uint8_t initData2[] = {0x6a, 0x05, 0xd7, 0xd2, 0x43};
         writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("pitpat init 2"), false, true);
-        
+
         uint8_t startData[] = {0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x81, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x93, 0x43};
         writeCharacteristic(gattWriteCharacteristic, startData, sizeof(startData), QStringLiteral("pitpat start"), false, true);
+    } else if (superun_ba04) {
+        // Superun BA04 treadmill initialization sequence
+        // Wait for initial packet from treadmill before sending init
+        emit debug(QStringLiteral("BA04: waiting for initial packet..."));
+        waitForAPacket();
+
+        // Init 1: pollCounter = 0
+        uint8_t initData1[] = {0x4d, 0x00, 0x00, 0x05, 0x6a, 0x05, 0xfd, 0xf8, 0x43};
+        initData1[2] = 0;  // pollCounter = 0
+        writeCharacteristic(gattWriteCharacteristic, initData1, sizeof(initData1), QStringLiteral("BA04 init 1"), false, true);
+
+        uint8_t initData2[] = {0x4d, 0x00, 0x00, 0x05, 0x6a, 0x05, 0xfd, 0xf8, 0x43};
+        initData1[2] = 1;  // pollCounter = 0
+        writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("BA04 init 2"), false, true);
+
+        // Init 2: pollCounter = 1
+        uint8_t initData3[] = {0x4d, 0x00, 0x01, 0x17, 0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x03, 0xe8, 0x05, 0x00, 0x50, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0xb5, 0x7c, 0x7c, 0x43};
+        initData3[2] = 2;  // pollCounter = 1
+        writeCharacteristic(gattWriteCharacteristic, initData3, sizeof(initData3), QStringLiteral("BA04 init 3"), false, true);
+
+        // Start pollCounter from 2 after init
+        pollCounter = 3;
     }
     initDone = true;
 }
@@ -413,7 +511,10 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattNotifyCharacteristicId((quint16)0xfff2);
     QBluetoothUuid _pitpatWriteCharacteristicId((quint16)0xfba1);
     QBluetoothUuid _pitpatNotifyCharacteristicId((quint16)0xfba2);
+    QBluetoothUuid _superunWriteCharacteristicId((quint16)0xff01);
+    QBluetoothUuid _superunNotifyCharacteristicId((quint16)0xff02);
     QBluetoothUuid _unlockCharacteristicId((quint16)0x2b2a);
+    QBluetoothUuid _unlockCharacteristicId2((quint16)0x2b11);
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -427,11 +528,16 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 qDebug() << QStringLiteral("unlock char uuid") << c.uuid() << QStringLiteral("handle") << c.handle()
                          << c.properties();
             }
-            
+
             unlock_characteristic = unlock_service->characteristic(_unlockCharacteristicId);
             if (unlock_characteristic.isValid()) {
                 emit debug(QStringLiteral("unlock characteristic found"));
+            } else {
+                qDebug() << "unlock char not found, let's try the other one";
+                unlock_characteristic = unlock_service->characteristic(_unlockCharacteristicId2);
             }
+            
+            qDebug() << "unlock_characteristic" << unlock_characteristic.isValid();
             return;
         }
 
@@ -445,6 +551,9 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         if (pitpat) {
             gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_pitpatWriteCharacteristicId);
             gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_pitpatNotifyCharacteristicId);
+        } else if (superun_ba04) {
+            gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_superunWriteCharacteristicId);
+            gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_superunNotifyCharacteristicId);
         } else {
             gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
             gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
@@ -488,7 +597,9 @@ void deerruntreadmill::characteristicWritten(const QLowEnergyCharacteristic &cha
 void deerruntreadmill::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xfff0);
     QBluetoothUuid _pitpatServiceId((quint16)0xfba0);
+    QBluetoothUuid _superunServiceId((quint16)0xffff);
     QBluetoothUuid _unlockServiceId((quint16)0x1801);
+    QBluetoothUuid _unlockServiceId2((quint16)0x1910);
     emit debug(QStringLiteral("serviceScanDone"));
 
     auto services_list = m_control->services();
@@ -497,17 +608,42 @@ void deerruntreadmill::serviceScanDone(void) {
         emit debug(s.toString());
     }
 
-    // Check if this is a pitpat treadmill by looking for the 0xfba0 service
-    if (services_list.contains(_pitpatServiceId)) {
+    // Try to create service objects for each variant
+    // On iOS, services_list.contains() doesn't work reliably, so we try to create the service directly
+    QLowEnergyService* pitpat_service = m_control->createServiceObject(_pitpatServiceId);
+    QLowEnergyService* superun_service = m_control->createServiceObject(_superunServiceId);
+    QLowEnergyService* default_service = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+
+    // Check which service was successfully created
+    if (pitpat_service) {
         pitpat = true;
         emit debug(QStringLiteral("Detected pitpat treadmill variant"));
-        gattCommunicationChannelService = m_control->createServiceObject(_pitpatServiceId);
+        gattCommunicationChannelService = pitpat_service;
         unlock_service = m_control->createServiceObject(_unlockServiceId);
-    } else {
+        if(!unlock_service) {
+            qDebug() << "unlock service not found, let's try with another one";
+            unlock_service = m_control->createServiceObject(_unlockServiceId2);
+        }
+        
+        qDebug() << "unlock service " << unlock_service;
+
+        // Clean up unused services
+        if (superun_service) delete superun_service;
+        if (default_service) delete default_service;
+    } else if (superun_service) {
+        superun_ba04 = true;
         pitpat = false;
-        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+        emit debug(QStringLiteral("Detected Superun BA04 treadmill variant"));
+        gattCommunicationChannelService = superun_service;
+
+        // Clean up unused services
+        if (default_service) delete default_service;
+    } else if (default_service) {
+        pitpat = false;
+        emit debug(QStringLiteral("Detected default treadmill variant"));
+        gattCommunicationChannelService = default_service;
     }
-    
+
     if (gattCommunicationChannelService) {
         connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
                 &deerruntreadmill::stateChanged);
@@ -515,7 +651,7 @@ void deerruntreadmill::serviceScanDone(void) {
     } else {
         emit debug(QStringLiteral("error on find Service"));
     }
-    
+
     if (pitpat && unlock_service) {
         connect(unlock_service, &QLowEnergyService::stateChanged, this,
                 &deerruntreadmill::stateChanged);

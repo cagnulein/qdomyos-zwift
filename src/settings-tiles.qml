@@ -14,8 +14,23 @@ ScrollView {
     //anchors.bottomMargin: footerSettings.height + 10
     id: settingsTilesPane
 
+    readonly property real speedPresetMilesConversion: 0.621371
+
+    function formatPresetSpeedValue(speedKmh) {
+        var visibleValue = settings.miles_unit ? speedKmh * speedPresetMilesConversion : speedKmh
+        return Number(visibleValue).toFixed(1).replace(/\.0$/, "")
+    }
+
+    function parsePresetSpeedValue(speedText) {
+        var parsedValue = parseFloat(speedText)
+        if (isNaN(parsedValue))
+            return 0
+        return settings.miles_unit ? parsedValue / speedPresetMilesConversion : parsedValue
+    }
+
     Settings {
         id: settings
+        property bool miles_unit: false
         property bool tile_speed_enabled: true
         property int  tile_speed_order: 0
         property bool tile_inclination_enabled: true
@@ -269,7 +284,16 @@ ScrollView {
         property bool tile_auto_virtual_shifting_climb_enabled: false
         property int  tile_auto_virtual_shifting_climb_order: 73
         property bool tile_auto_virtual_shifting_sprint_enabled: false
-        property int  tile_auto_virtual_shifting_sprint_order: 74               
+        property int  tile_auto_virtual_shifting_sprint_order: 74
+        property bool tile_negative_inclination_enabled: false
+        property int  tile_negative_inclination_order: 75
+        property bool tile_avg_pace_enabled: false
+        property int  tile_avg_pace_order: 76
+        property bool tile_power_avg_enabled: false
+        property int  tile_power_avg_order: 77
+        property bool tile_heart_show_as_percent: false
+        property bool tile_hrv_enabled: false
+        property int  tile_hrv_order: 78        
     }
 
 
@@ -431,7 +455,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: elevationEnabledAccordion
-            title: qsTr("Elevation")
+            title: qsTr("Elevation Gain")
             linkedBoolSetting: "tile_elevation_enabled"
             settings: settings
             accordionContent: RowLayout {
@@ -460,6 +484,49 @@ ScrollView {
                 }
             }
         }            
+
+        AccordionCheckElement {
+            id: negativeInclinationEnabledAccordion
+            title: qsTr("Negative Elevation Gain (Descent)")
+            linkedBoolSetting: "tile_negative_inclination_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: negativeInclinationOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_negative_inclination_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = negativeInclinationOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_negative_inclination_order = negativeInclinationOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Displays the total negative elevation gain (descent) in meters or feet accumulated during the workout.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
 
         AccordionCheckElement {
             id: caloriesEnabledAccordion
@@ -579,6 +646,38 @@ ScrollView {
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_pace_order = paceOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        AccordionCheckElement {
+            id: avgPaceEnabledAccordion
+            title: qsTr("Average Pace")
+            linkedBoolSetting: "tile_avg_pace_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelavgpaceOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: avgpaceOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_avg_pace_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = avgpaceOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okavgpaceOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_avg_pace_order = avgpaceOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -860,29 +959,59 @@ ScrollView {
             title: qsTr("Heart")
             linkedBoolSetting: "tile_heart_enabled"
             settings: settings
-            accordionContent: RowLayout {
-                spacing: 10
-                Label {
-                    id: labelheartrateOrder
-                    text: qsTr("order index:")
+            accordionContent: ColumnLayout {
+                SwitchDelegate {
+                    id: heartShowAsPercentSwitch
+                    text: qsTr("Show as %FC Max")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.tile_heart_show_as_percent
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignRight
+                    onClicked: settings.tile_heart_show_as_percent = checked
                 }
-                ComboBox {
-                    id: heartrateOrderTextField
-                    model: rootItem.tile_order
-                    displayText: settings.tile_heart_order
-                    Layout.fillHeight: false
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onActivated: {
-                        displayText = heartrateOrderTextField.currentValue
-                     }
+
+                Label {
+                    text: qsTr("When enabled, displays heart rate as percentage of maximum heart rate (%FC Max) instead of BPM. AVG and MAX values will also show percentages.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: Qt.application.font.pixelSize - 2
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
                 }
-                Button {
-                    id: okheartrateOrderButton
-                    text: "OK"
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_heart_order = heartrateOrderTextField.displayText; toast.show("Setting saved!"); }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelheartrateOrder
+                        text: qsTr("order index:")
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    ComboBox {
+                        id: heartrateOrderTextField
+                        model: rootItem.tile_order
+                        displayText: settings.tile_heart_order
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            displayText = heartrateOrderTextField.currentValue
+                         }
+                    }
+                    Button {
+                        id: okheartrateOrderButton
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_heart_order = heartrateOrderTextField.displayText; toast.show("Setting saved!"); }
+                    }
                 }
             }
         }
@@ -3028,13 +3157,13 @@ ScrollView {
                 RowLayout {
                     Label {
                         id: labelPresetSpeed1Value
-                        text: qsTr("value:")
+                        text: qsTr("value:") + (settings.miles_unit ? " (mph)" : " (km/h)")
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
                     TextField {
                         id: presetSpeed1ValueTextField
-                        text: settings.tile_preset_speed_1_value
+                        text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_1_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3043,7 +3172,11 @@ ScrollView {
                         id: okPresetSpeed1ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_1_value = presetSpeed1ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {
+                            settings.tile_preset_speed_1_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed1ValueTextField.displayText);
+                            presetSpeed1ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_1_value);
+                            toast.show("Setting saved!");
+                        }
                     }
                 }
                 RowLayout {
@@ -3137,13 +3270,13 @@ ScrollView {
                 RowLayout {
                     Label {
                         id: labelPresetSpeed2Value
-                        text: qsTr("value:")
+                        text: qsTr("value:") + (settings.miles_unit ? " (mph)" : " (km/h)")
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
                     TextField {
                         id: presetSpeed2ValueTextField
-                        text: settings.tile_preset_speed_2_value
+                        text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_2_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3152,7 +3285,11 @@ ScrollView {
                         id: okPresetSpeed2ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_2_value = presetSpeed2ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {
+                            settings.tile_preset_speed_2_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed2ValueTextField.displayText);
+                            presetSpeed2ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_2_value);
+                            toast.show("Setting saved!");
+                        }
                     }
                 }
                 RowLayout {
@@ -3246,13 +3383,13 @@ ScrollView {
                 RowLayout {
                     Label {
                         id: labelPresetSpeed3Value
-                        text: qsTr("value:")
+                        text: qsTr("value:") + (settings.miles_unit ? " (mph)" : " (km/h)")
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
                     TextField {
                         id: presetSpeed3ValueTextField
-                        text: settings.tile_preset_speed_3_value
+                        text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_3_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3261,7 +3398,11 @@ ScrollView {
                         id: okPresetSpeed3ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_3_value = presetSpeed3ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {
+                            settings.tile_preset_speed_3_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed3ValueTextField.displayText);
+                            presetSpeed3ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_3_value);
+                            toast.show("Setting saved!");
+                        }
                     }
                 }
                 RowLayout {
@@ -3355,13 +3496,13 @@ ScrollView {
                 RowLayout {
                     Label {
                         id: labelPresetSpeed4Value
-                        text: qsTr("value:")
+                        text: qsTr("value:") + (settings.miles_unit ? " (mph)" : " (km/h)")
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
                     TextField {
                         id: presetSpeed4ValueTextField
-                        text: settings.tile_preset_speed_4_value
+                        text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_4_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3370,7 +3511,11 @@ ScrollView {
                         id: okPresetSpeed4ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_4_value = presetSpeed4ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {
+                            settings.tile_preset_speed_4_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed4ValueTextField.displayText);
+                            presetSpeed4ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_4_value);
+                            toast.show("Setting saved!");
+                        }
                     }
                 }
                 RowLayout {
@@ -3464,13 +3609,13 @@ ScrollView {
                 RowLayout {
                     Label {
                         id: labelPresetSpeed5Value
-                        text: qsTr("value:")
+                        text: qsTr("value:") + (settings.miles_unit ? " (mph)" : " (km/h)")
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
                     TextField {
                         id: presetSpeed5ValueTextField
-                        text: settings.tile_preset_speed_5_value
+                        text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_5_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3479,7 +3624,11 @@ ScrollView {
                         id: okPresetSpeed5ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_5_value = presetSpeed5ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {
+                            settings.tile_preset_speed_5_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed5ValueTextField.displayText);
+                            presetSpeed5ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_5_value);
+                            toast.show("Setting saved!");
+                        }
                     }
                 }
                 RowLayout {
@@ -5401,6 +5550,94 @@ ScrollView {
 
         Label {
             text: qsTr("Button tile to switch automatic virtual shifting to Sprint profile.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: powerAvgEnabledAccordion
+            title: qsTr("Power Averaging")
+            linkedBoolSetting: "tile_power_avg_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: powerAvgOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_power_avg_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = powerAvgOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_power_avg_order = powerAvgOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Button tile to cycle through power averaging modes: Off, 3s avg (harmonic), 5s avg (harmonic). Tap to cycle between modes. Only for bikes.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: hrvEnabledAccordion
+            title: qsTr("HRV (Heart Rate Variability)")
+            linkedBoolSetting: "tile_hrv_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelhrvOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: hrvOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_hrv_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = hrvOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okhrvOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_hrv_order = hrvOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Shows Heart Rate Variability (HRV) from a compatible heart rate belt. Displays RMSSD value in milliseconds.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2

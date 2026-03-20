@@ -64,14 +64,65 @@ void heartratebelt::disconnectBluetooth() {
 
 void heartratebelt::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
-    Q_UNUSED(characteristic);
     emit packetReceived();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
+    // Handle Battery Service
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A19)) {
+        if(newValue.length() > 0) {
+            uint8_t battery = (uint8_t)newValue.at(0);
+            if(battery != battery_level) {
+                if(homeform::singleton())
+                    homeform::singleton()->setToastRequested(bluetoothDevice.name() + QStringLiteral(" Battery Level ") + QString::number(battery) + " %");
+            }
+            battery_level = battery;
+            qDebug() << QStringLiteral("battery: ") << battery;
+        }
+        return;
+    }
+
+    // Handle Heart Rate Measurement according to Bluetooth Heart Rate Profile
     if (newValue.length() > 1) {
-        Heart = (uint8_t)newValue[1];
+        uint8_t flags = (uint8_t)newValue[0];
+        int index = 1;
+
+        // Bit 0: Heart Rate Value Format
+        // 0 = UINT8, 1 = UINT16
+        bool hrFormat16bit = (flags & 0x01) != 0;
+
+        if (hrFormat16bit && newValue.length() > 2) {
+            // 16-bit heart rate value
+            Heart = (uint16_t)(((uint8_t)newValue[2] << 8) | (uint8_t)newValue[1]);
+            index = 3;
+        } else {
+            // 8-bit heart rate value
+            Heart = (uint8_t)newValue[1];
+            index = 2;
+        }
         emit heartRate((uint8_t)Heart.value());
+
+        // Bit 3: Energy Expended Status
+        // If set, 2 bytes of Energy Expended follow the HR value
+        bool energyExpendedPresent = (flags & 0x08) != 0;
+        if (energyExpendedPresent) {
+            index += 2; // Skip 2 bytes of energy expended
+        }
+
+        // Bit 4: RR-Interval
+        // If set, one or more RR-Interval values are present (2 bytes each)
+        // RR-Interval is in units of 1/1024 seconds
+        bool rrIntervalPresent = (flags & 0x10) != 0;
+        if (rrIntervalPresent) {
+            while (index + 1 < newValue.length()) {
+                uint16_t rrRaw = (uint16_t)(((uint8_t)newValue[index + 1] << 8) | (uint8_t)newValue[index]);
+                // Convert from 1/1024 seconds to milliseconds
+                double rrMs = (rrRaw / 1024.0) * 1000.0;
+                emit debug(QStringLiteral("RR-Interval: ") + QString::number(rrMs, 'f', 1) + QStringLiteral(" ms"));
+                emit rrIntervalReceived(rrMs);
+                index += 2;
+            }
+        }
     }
 
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
@@ -82,6 +133,35 @@ void heartratebelt::stateChanged(QLowEnergyService::ServiceState state) {
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     if (state == QLowEnergyService::ServiceDiscovered) {
+        // Check if this is the Battery Service
+        QLowEnergyService* service = qobject_cast<QLowEnergyService*>(sender());
+        if (service && service == gattBatteryService) {
+            // Handle Battery Service
+            auto characteristics_list = gattBatteryService->characteristics();
+            for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
+                emit debug(QStringLiteral("battery characteristic ") + c.uuid().toString());
+            }
+
+            connect(gattBatteryService, &QLowEnergyService::characteristicChanged, this,
+                    &heartratebelt::characteristicChanged);
+            connect(gattBatteryService,
+                    static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                    this, &heartratebelt::errorService);
+
+            // Enable notifications for battery level
+            for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
+                if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
+                    QByteArray descriptor;
+                    descriptor.append((char)0x01);
+                    descriptor.append((char)0x00);
+                    gattBatteryService->writeDescriptor(
+                        c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                }
+            }
+            return;
+        }
+
+        // Original code for Heart Rate Service
         auto characteristics_list = gattCommunicationChannelService->characteristics();
         for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
             emit debug(QStringLiteral("characteristic ") + c.uuid().toString());
@@ -134,7 +214,13 @@ void heartratebelt::serviceScanDone(void) {
             connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
                     &heartratebelt::stateChanged);
             gattCommunicationChannelService->discoverDetails();
-            return;
+        }
+        else if (s == QBluetoothUuid::BatteryService) {
+            QBluetoothUuid _gattBatteryServiceId(QBluetoothUuid::BatteryService);
+            gattBatteryService = m_control->createServiceObject(_gattBatteryServiceId);
+            connect(gattBatteryService, &QLowEnergyService::stateChanged, this,
+                    &heartratebelt::stateChanged);
+            gattBatteryService->discoverDetails();
         }
     }
 }

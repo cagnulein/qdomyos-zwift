@@ -43,7 +43,11 @@ public class Usbserial {
     static int lastReadLen = 0;
 
     public static void open(Context context) {
-        QLog.d("QZ","UsbSerial open");
+        open(context, 2400); // Default baud rate for Computrainer
+    }
+
+    public static void open(Context context, int baudRate) {
+        QLog.d("QZ","UsbSerial open with baud rate: " + baudRate);
         // Find all available drivers from attached devices.
         UsbManager manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         List<UsbSerialDriver> availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager);
@@ -98,13 +102,12 @@ public class Usbserial {
         port = driver.getPorts().get(0); // Most devices have just one port (port 0)
         try {
             port.open(connection);
-            port.setParameters(2400, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
+            port.setParameters(baudRate, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
+            QLog.d("QZ","UsbSerial port opened successfully at " + baudRate + " baud");
         }
         catch (IOException e) {
-            // Do something here
+            QLog.d("QZ","UsbSerial port open failed: " + e.getMessage());
         }
-
-        QLog.d("QZ","UsbSerial port opened");
     }
 
     public static void write (byte[] bytes) {

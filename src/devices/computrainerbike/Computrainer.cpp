@@ -902,6 +902,7 @@ int Computrainer::rawWrite(uint8_t *bytes, int size) // unix!!
         b[i] = bytes[i];
     env->SetByteArrayRegion(d, 0, size, b);
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", d);
+    env->DeleteLocalRef(d);
 #elif defined(WIN32)
     DWORD cBytes;
     rc = WriteFile(devicePort, bytes, size, &cBytes, NULL);
@@ -947,12 +948,38 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
     }
 
     QAndroidJniEnvironment env;
-    while (fullLen < size) {
+    int timeout = 0;
+    int maxRetries = 100; // Maximum number of retries (100 * 50ms = 5 seconds timeout)
+    int retryCount = 0;
+
+    while (fullLen < size && retryCount < maxRetries) {
+        // Push a new local frame to automatically manage JNI references
+        // This prevents local reference table overflow by cleaning up refs at the end of each iteration
+        if (env->PushLocalFrame(16) < 0) {
+            qDebug() << "Failed to push local frame";
+            return -1;
+        }
+
         QAndroidJniObject dd =
             QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
         jint len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
         jbyteArray d = dd.object<jbyteArray>();
         jbyte *b = env->GetByteArrayElements(d, 0);
+
+        // Check if we got any data
+        if (len <= 0) {
+            // No data available, release memory and retry after a short sleep
+            env->ReleaseByteArrayElements(d, b, 0);
+            env->PopLocalFrame(NULL); // Pop frame to release all local refs created in this iteration
+            qDebug() << "No data available, retry" << retryCount + 1 << "of" << maxRetries;
+            CTsleeper::msleep(50); // Sleep for 50ms before retrying
+            retryCount++;
+            continue;
+        }
+
+        // Reset retry counter when we get data
+        retryCount = 0;
+
         if (len + fullLen > size) {
             QByteArray tmpDebug;
             qDebug() << "buffer overflow! Truncate from" << len + fullLen << "requested" << size;
@@ -970,6 +997,10 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
             }
             qDebug() << len + fullLen - size << "bytes to the rxBuf" << tmpDebug.toHex(' ');
             qDebug() << size << QByteArray((const char *)b, size).toHex(' ');
+
+            // Release JNI memory before returning
+            env->ReleaseByteArrayElements(d, b, 0);
+            env->PopLocalFrame(NULL); // Pop frame to release all local refs created in this iteration
             return size;
         }
         for (int i = fullLen; i < len + fullLen; i++) {
@@ -977,6 +1008,16 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
         }
         qDebug() << len << QByteArray((const char *)b, len).toHex(' ');
         fullLen += len;
+
+        // Release JNI memory after processing
+        env->ReleaseByteArrayElements(d, b, 0);
+        env->PopLocalFrame(NULL); // Pop frame to release all local refs created in this iteration
+    }
+
+    // Check if we timed out
+    if (retryCount >= maxRetries) {
+        qDebug() << "rawRead timeout: no data after" << maxRetries << "retries";
+        return -1; // Timeout error
     }
 
     qDebug() << "FULL BUFFER RX: << " << fullLen << QByteArray((const char *)bytes, size).toHex(' ');

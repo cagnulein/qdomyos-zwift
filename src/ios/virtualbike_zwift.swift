@@ -250,7 +250,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
           let PowerFeaturePermissions: CBAttributePermissions = [.readable]
           self.PowerFeatureCharacteristic = CBMutableCharacteristic(type: PowerFeatureCharacteristicUUID,
                                                                  properties: PowerFeatureProperties,
-                                                                                   value: Data (bytes: [0x00, 0x00, 0x00, 0x08]),
+                                                                                   value: Data (bytes: [0x08, 0x00, 0x00, 0x00]),
                                                                                    permissions: PowerFeaturePermissions)
 
         let PowerSensorLocationProperties: CBCharacteristicProperties = [.read]
@@ -759,7 +759,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         let flags:UInt8 = 0x02
       //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
         var cadence: [UInt8] = [flags, (UInt8)(crankRevolutions & 0xFF), (UInt8)((crankRevolutions >> 8) & 0xFF),  (UInt8)(lastCrankEventTime & 0xFF), (UInt8)((lastCrankEventTime >> 8) & 0xFF)]
-      let cadenceData = Data(bytes: &cadence, count: MemoryLayout.size(ofValue: cadence))
+      let cadenceData = Data(bytes: &cadence, count: cadence.count)
       return cadenceData
     }
     
@@ -793,7 +793,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
             let flags:UInt8 = 0x20
             //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
             var power: [UInt8] = [flags, 0x00, (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF), (UInt8)(revolutions & 0xFF), (UInt8)((revolutions >> 8) & 0xFF),  (UInt8)(timestamp & 0xFF), (UInt8)((timestamp >> 8) & 0xFF)]
-            let powerData = Data(bytes: &power, count: MemoryLayout.size(ofValue: power))
+            let powerData = Data(bytes: &power, count: power.count)
             return powerData
         } else {
             let flags:UInt8 = 0x30
@@ -837,7 +837,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                                           (UInt8)(lastWheel & 0xFF), (UInt8)((lastWheel >> 8) & 0xFF),
                                           (UInt8)(crankRevolutions & 0xFF), (UInt8)((crankRevolutions >> 8) & 0xFF),
                                           (UInt8)(lastCrankEventTime & 0xFF), (UInt8)((lastCrankEventTime >> 8) & 0xFF)]
-                  let powerData = Data(bytes: &power, count: MemoryLayout.size(ofValue: power))
+                  let powerData = Data(bytes: &power, count: power.count)
                   return powerData
                 }
         }
@@ -845,7 +845,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   func calculateHeartRate() -> Data {
     //self.delegate?.BLEPeripheralManagerDidSendValue(self.heartRate)
     var heartRateBPM: [UInt8] = [0, self.heartRate, 0, 0, 0, 0, 0, 0]
-    let heartRateData = Data(bytes: &heartRateBPM, count: MemoryLayout.size(ofValue: heartRateBPM))
+    let heartRateData = Data(bytes: &heartRateBPM, count: heartRateBPM.count)
     return heartRateData
   }
     

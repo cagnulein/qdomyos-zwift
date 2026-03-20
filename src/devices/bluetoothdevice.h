@@ -1,6 +1,7 @@
 #ifndef BLUETOOTHDEVICE_H
 #define BLUETOOTHDEVICE_H
 
+#include "bluetoothdevicetype.h"
 #include "definitions.h"
 #include "metric.h"
 #include "qzsettings.h"
@@ -108,11 +109,19 @@ class bluetoothdevice : public QObject {
 
     /**
      * @brief calories Gets a metric object to get and set the amount of energy expended.
-     * Default implementation returns the protected KCal property. Units: kcal
+     * Default implementation returns the protected KCal property, potentially adjusted for active calories. Units: kcal
      * Other implementations could have different units.
      * @return
      */
     virtual metric calories();
+    virtual metric activeCalories();
+    virtual metric hrCalories();
+
+    /**
+     * @brief totalCalories Gets total calories (including BMR) regardless of active calories setting.
+     * @return Total calories metric
+     */
+    virtual metric totalCalories();
 
     /**
      * @brief jouls Gets a metric object to get and set the number of joules expended. Units: joules
@@ -226,9 +235,12 @@ class bluetoothdevice : public QObject {
      */
     double wattsMetricforUI() {
         QSettings settings;
+        bool power3s = settings.value(QZSettings::power_avg_3s, QZSettings::default_power_avg_3s).toBool();
         bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
-        if (power5s)
-            return wattsMetric().average5s();
+        if (power3s)
+            return wattsMetric().average3sHarmonic();
+        else if (power5s)
+            return wattsMetric().average5sHarmonic();
         else
             return wattsMetric().value();
     }
@@ -243,6 +255,11 @@ class bluetoothdevice : public QObject {
      * @brief elevationGain Gets a metric object to get and set the elevation gain. Units: ?
      */
     virtual metric elevationGain();
+
+    /**
+     * @brief negativeElevationGain Gets a metric object to get and set the negative elevation gain (descents). Units: ?
+     */
+    virtual metric negativeElevationGain();
 
     /**
      * @brief clearStats Clear the statistics.
@@ -443,7 +460,6 @@ class bluetoothdevice : public QObject {
      */
     void setTargetPowerZone(double pz) { TargetPowerZone = pz; }
 
-    enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL, JUMPROPE, STAIRCLIMBER };
     enum WORKOUT_EVENT_STATE { STARTED = 0, PAUSED = 1, RESUMED = 2, STOPPED = 3 };
 
     /**
@@ -473,10 +489,26 @@ class bluetoothdevice : public QObject {
     metric SkinTemperature;      // Skin temperature in °C or °F
     metric HeatStrainIndex;      // Heat Strain Index (0-25.4, scaled by 10)
 
+    /**
+     * @brief HRV Heart Rate Variability metric (RMSSD). Unit: milliseconds
+     */
+    metric currentHRV() { return HRV; }
+
+    /**
+     * @brief Get and clear accumulated RR-intervals for FIT file saving
+     * @return List of RR-intervals in milliseconds
+     */
+    QList<double> getRRIntervalsAndClear() {
+        QList<double> intervals = rrIntervalsForFit;
+        rrIntervalsForFit.clear();
+        return intervals;
+    }
+
   public Q_SLOTS:
     virtual void start();
     virtual void stop(bool pause);
     virtual void heartRate(uint8_t heart);
+    virtual void rrIntervalReceived(double rrInterval);
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
     virtual void speedSensor(double speed);
@@ -548,6 +580,8 @@ class bluetoothdevice : public QObject {
      * @brief KCal The number of kilocalories expended in the session. Units: kcal
      */
     metric KCal;
+    metric activeKCal;
+    metric hrKCal;
 
     /**
      * @brief Speed The simulated speed of the device. Units: km/h
@@ -574,6 +608,21 @@ class bluetoothdevice : public QObject {
      * @brief Heart rate. Unit: beats per minute
      */
     metric Heart;
+
+    /**
+     * @brief HRV Heart Rate Variability (RMSSD). Unit: milliseconds
+     */
+    metric HRV;
+
+    /**
+     * @brief RR-intervals buffer for HRV calculation
+     */
+    QList<double> rrIntervals;
+
+    /**
+     * @brief RR-intervals buffer for FIT file saving (cleared after each SessionLine)
+     */
+    QList<double> rrIntervalsForFit;
 
     int8_t requestStart = -1;
     int8_t requestStop = -1;
@@ -617,6 +666,11 @@ class bluetoothdevice : public QObject {
      * @brief elevationAcc The elevation gain. Units: meters
      */
     metric elevationAcc;
+
+    /**
+     * @brief negativeElevationAcc The negative elevation gain (descents). Units: meters
+     */
+    metric negativeElevationAcc;
 
     /**
      * @brief m_watt Metric to get and set the power read from the trainer or from the power sensor Unit: watts
@@ -776,6 +830,11 @@ class bluetoothdevice : public QObject {
      * @brief update_hr_from_external Updates heart rate from Garmin Companion App or Apple Watch
      */
     void update_hr_from_external();
+
+    /**
+     * @brief update_ios_live_activity Updates iOS Live Activity with throttling (max 1 update per second)
+     */
+    void update_ios_live_activity();
 
     /**
      * @brief calculateMETS Calculate the METS (Metabolic Equivalent of Tasks)

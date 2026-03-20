@@ -40,6 +40,7 @@ class stagesbike : public bike {
     bool connected() override;
     resistance_t maxResistance() override { return 100; }
     bool ergManagedBySS2K() override { return true; }
+    bool inclinationAvailableBySoftware() override { return true; }
 
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic,
@@ -78,6 +79,7 @@ class stagesbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool noVirtualDevice = false;
+    bool DR = false;
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;

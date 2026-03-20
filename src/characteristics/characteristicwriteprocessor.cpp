@@ -10,7 +10,7 @@ CharacteristicWriteProcessor::CharacteristicWriteProcessor(double bikeResistance
 void CharacteristicWriteProcessor::changePower(uint16_t power) { Bike->changePower(power); }
 
 void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr, uint8_t cw) {
-    bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
+    BLUETOOTH_TYPE dt = Bike->deviceType();
     QSettings settings;
     bool force_resistance =
         settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
@@ -64,7 +64,7 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
 
     qDebug() << "changeSlope CRR = " << fCRR << CRR_offset << "CW = " << fCW;
 
-    if (dt == bluetoothdevice::BIKE) {
+    if (dt == BIKE) {
 
         // if the bike doesn't have the inclination by hardware, i'm simulating inclination with the value received
         // from Zwift
@@ -82,9 +82,9 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
             Bike->changeResistance((resistance_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset + 1 +
                                    CRR_offset + CW_offset); // resistance start from 1
         }
-    } else if (dt == bluetoothdevice::TREADMILL) {
+    } else if (dt == TREADMILL) {
         emit changeInclination(grade, percentage);
-    } else if (dt == bluetoothdevice::ELLIPTICAL) {
+    } else if (dt == ELLIPTICAL) {
         bool inclinationAvailableByHardware = ((elliptical *)Bike)->inclinationAvailableByHardware();
         qDebug() << "inclinationAvailableByHardware" << inclinationAvailableByHardware << "erg_mode" << erg_mode;
         emit changeInclination(grade, percentage);

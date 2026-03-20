@@ -37,16 +37,19 @@ class heartratebelt : public treadmill {
 
   private:
     QLowEnergyService *gattCommunicationChannelService = nullptr;
+    QLowEnergyService *gattBatteryService = nullptr;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
     QDateTime connectingTime;  // Timestamp when entering connecting state
     static const int CONNECTION_TIMEOUT = 10000; // 10 seconds in milliseconds
     QTimer* updateTimer;  // Timer for periodic updates
+    uint8_t battery_level = 0;
 
   signals:
     void disconnected();
     void debug(QString string);
     void packetReceived();
     void heartRate(uint8_t heart) override;
+    void rrIntervalReceived(double rrInterval);
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

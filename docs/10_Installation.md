@@ -9,7 +9,7 @@ These instructions build the app itself, not the test project.
 ## On a Linux System (from source)
 
 ```buildoutcfg
-$ sudo apt update && sudo apt upgrade # this is very important on raspberry pi: you need the bluetooth firmware updated!
+$ sudo apt update && sudo apt upgrade # this is very important on Raspberry Pi: you need the bluetooth firmware updated!
 $ sudo apt install git qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtbase5-private-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qml-module* libqt5texttospeech5-dev libqt5texttospeech5 libqt5location5-plugins qtlocation5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 g++ make qtbase5-dev libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
 $ git clone https://github.com/cagnulein/qdomyos-zwift.git
 $ cd qdomyos-zwift
@@ -34,16 +34,15 @@ Download and install https://download.qt.io/archive/qt/5.12/5.12.12/qt-opensourc
 
 ![raspi](../docs/img/raspi-bike.jpg)
 
-This guide will walk you through steps to setup an autonomous, headless raspberry bridge.
+This guide will walk you through steps to setup an autonomous, headless Raspberry Pi bridge.
 
 
 ### Initial System Preparation
 
-You can install a lightweight version of embedded OS to speed up your raspberry booting time.
+You can install a lightweight version of embedded OS to speed up your Raspberry booting time.
 
 #### Prepare your SD Card 
-Get the latest [Raspberry Pi Imager](https://www.raspberrypi.org/software/) and install, on a SD card, the Raspberry lite OS version.  
-Boot on the raspberry (default credentials are pi/raspberry)
+Get the latest [Raspberry Pi Imager](https://www.raspberrypi.org/software/) and install, on a SD card, [`Raspberry Pi OS Lite 64bit`](https://www.raspberrypi.com/software/operating-systems/). Boot up the Raspberry Pi (default credentials are pi/raspberry)
 
 #### Change default credentials
 
@@ -56,7 +55,7 @@ Boot on the raspberry (default credentials are pi/raspberry)
 `System Options` > `Wireless LAN`
 Enter an SSID and your wifi password.
 
-Your raspberry will fetch a DHCP address at boot time, which can be painful : 
+Your Raspberry will fetch a DHCP address at boot time, which can be painful : 
 - The IP address might change at every boot
 - This process takes approximately 10 seconds at boot time.
 
@@ -77,7 +76,7 @@ Apply the changes `sudo systemctl restart dhcpcd.service` and ensure you have in
 
 #### Enable SSH access
 
-You might want to access your raspberry remotely while it is attached to your fitness equipment. 
+You might want to access your Raspberry remotely while it is attached to your fitness equipment. 
 
 `sudo raspi-config` > `Interface Options` > `SSH`
 
@@ -86,15 +85,17 @@ You might want to access your raspberry remotely while it is attached to your fi
 This option allows a faster boot. `sudo raspi-config` > `System Options` > `Network at boot` > `No`
 
 #### Reboot and test connectivity 
-Reboot your raspberry `sudo reboot now`
+Reboot your Raspberry `sudo reboot now`
 
 Congratulations !  
-Your raspberry should be reachable from your local network via SSH.
+Your Raspberry should be reachable from your local network via SSH.
 
 
 ### QDOMYOS-ZWIFT installation
 
-#### Update your raspberry (mandatory !)
+Qdomyos-zwift can be compiled from source (hard), or using a binary (easy). **Only one is required**.
+
+#### Update your Raspberry (mandatory !)
 
 Before installing qdomyos-zwift, let's ensure we have an up-to-date system.
 
@@ -103,7 +104,7 @@ Before installing qdomyos-zwift, let's ensure we have an up-to-date system.
 
 This operation takes a moment to complete.
 
-#### Install qdomyos-zwift from sources
+#### Option 1. Install qdomyos-zwift from sources 
 
 ```bash
 sudo apt install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtbase5-private-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 qtlocation5-dev qtquickcontrols2-5-dev libqt5texttospeech5-dev libqt5texttospeech5 g++ make qtbase5-dev libqt5sql5 libqt5sql5-mysql libqt5sql5-psql
@@ -126,20 +127,117 @@ Please note :
 - Don't build the application with `-j4` option (this will fail)
 - Build operation is circa 45 minutes (subsequent builds are faster)
 
+#### Option 2. Install qdomyos-zwift from binary
+
+Ensure you're logged in to GitHub and download `https://github.com/cagnulein/qdomyos-zwift/actions/runs/19521021942/artifacts/4622513957`. Extract the zip file and copy the QZ binary to the Raspberry Pi Zero 2 W. If you get a 404 Not Found you might have to login to GitHub first.
+
+Make it executable:
+```
+chmod +x qdomyos-zwift-64bit
+```
+
+Install required libraries and dependencies for headless mode:
+```
+sudo apt install libqt5charts5 libqt5multimedia5 libqt5bluetooth5 libqt5xml5t64 libqt5positioning5 libqt5networkauth5 libqt5websockets5 libqt5texttospeech5 libqt5sql5t64 
+```
+
+If you are running Raspberry Pi Desktop OS, and you want to run the QZ UI, additonally add the qml libraries.
+```
+sudo apt install libqt5charts5 libqt5multimedia5 libqt5bluetooth5 libqt5xml5t64 libqt5positioning5 libqt5networkauth5 libqt5websockets5 libqt5texttospeech5 libqt5sql5t64 *qml*
+```
+
+
+#### Unblock Bluetooth (if using Bluetooth)
+
+Unblock Bluetooth:
+```
+sudo rfkill unblock bluetooth
+```
+
+Troubleshooting Bluetooth not working:
+Errors:
+```
+Fri Nov 21 18:05:07 2025 1763708707500 Debug:   Bluez 5 detected.
+qt.bluetooth.bluez: Aborting device discovery due to offline Bluetooth Adapter
+Fri Nov 21 18:05:07 2025 1763708707540 Debug:   Aborting device discovery due to offline Bluetooth Adapter
+^C"SIGINT"
+Fri Nov 21 18:05:21 2025 1763708721033 Debug: devices/bluetooth.cpp virtual bool bluetooth::handleSignal(int) "SIGINT"
+```
+
+Check if Bluetooth is blocked/down:
+```
+$ rfkill list
+0: hci0: Bluetooth
+        Soft blocked: yes
+        Hard blocked: no
+1: phy0: Wireless LAN
+        Soft blocked: no
+        Hard blocked: no
+```
+```
+$ hciconfig -a
+hci0:   Type: Primary  Bus: UART
+        BD Address: B8:27:EB:A2:85:70  ACL MTU: 1021:8  SCO MTU: 64:1
+        DOWN
+        RX bytes:3629 acl:0 sco:0 events:280 errors:0
+        TX bytes:48392 acl:0 sco:0 commands:280 errors:0
+        Features: 0xbf 0xfe 0xcf 0xfe 0xdb 0xff 0x7b 0x87
+        Packet type: DM1 DM3 DM5 DH1 DH3 DH5 HV1 HV2 HV3
+        Link policy: RSWITCH SNIFF
+        Link mode: PERIPHERAL ACCEPT
+```
+
+Unblock Bluetooth:
+
+```
+sudo rfkill unblock bluetooth
+```
+
+
 #### Test your installation 
 It is now time to check everything's fine 
 
-`./qdomyos-zwift -no-gui -heart-service`
+`sudo ./qdomyos-zwift-64bit -no-gui -heart-service`
 
 ![initial setup](../docs/img/raspi_initial-startup.png)
 
 Test your access from your fitness device. 
 
+Check logs to see if it's running:
+```
+journalctl -u qz.service -f
+```
+
+#### Update QZ config file
+
+Running headless you need to update `/root/.config/'Roberto Viola'/qDomyos-Zwift.conf` with specific settings for your set up. If you already have it working on an iPhone/Android, follow this guide to deploy QZ with the UI, replicate the settings in the UI, check everything works, then take a copy of `/root/.config/'Roberto Viola'/qDomyos-Zwift.conf` to use with the headless deployment.
+
+For my set up, I add:
+
+Nordictrack C1650:
+```
+norditrack_s25_treadmill=true
+proformtreadmillip=172.31.2.36
+```
+Zwift specific options (auto inclination not there yet in the Raspberry Pi version):
+```
+zwift_api_autoinclination=true
+zwift_inclination_gain=1
+zwift_inclination_offset=0
+zwift_username=user@myemail.com
+zwift_password=Password1
+```
+
+Check it works:
+```
+sudo ./qdomyos-zwift-64bit -no-gui -no-console -no-log
+```
+
 #### Automate QDOMYOS-ZWIFT at startup
 
 You might want to have QDOMYOS-ZWIFT to start automatically at boot time. 
 
-Let's create a systemd service that we'll enable at boot sequence.
+Let's create a systemd service that we'll enable at boot sequence. **Update ExecStart with the path and full name with commandline options for your qz binary. Update ExecStop with the full name of the binary.**
 
 `sudo vi /lib/systemd/system/qz.service`
 
@@ -325,7 +423,7 @@ sudo tail -f /var/log/qz-treadmill-monitor.log
 
 ### (optional) Enable overlay FS
 
-Once that everything is working as expected, and if you dedicate your Raspberry pi to this usage, you might want to enable the read-only overlay FS.
+Once that everything is working as expected, and if you dedicate your Raspberry Pi to this usage, you might want to enable the read-only overlay FS.
 
 By enabling the overlay read-only system, your SD card will be read-only only and every file written will be to RAM.
 Then at each reboot the RAM is erased and you'll revert to the initial status of the overlay file-system.
@@ -350,7 +448,19 @@ Reboot immediately.
 
 ## Other tricks 
 
-I use some [3m magic scratches](https://www.amazon.fr/Command-Languettes-Accrochage-Tableaux-Larges/dp/B00X7792IE/ref=sr_1_5?dchild=1&keywords=accroche+tableau&qid=1616515278&sr=8-5) to attach my raspberry to my bike.
-I use the USB port from the bike console (always powered as long as the bike is plugged to main), maximum power is 500mA and this is enough for the raspberry.
+I use some [3m magic scratches](https://www.amazon.fr/Command-Languettes-Accrochage-Tableaux-Larges/dp/B00X7792IE/ref=sr_1_5?dchild=1&keywords=accroche+tableau&qid=1616515278&sr=8-5) to attach my Raspberry to my bike.
+I use the USB port from the bike console (always powered as long as the bike is plugged to main), maximum power is 500mA and this is enough for the Raspberry.
 
-You can easily remove the raspberry pi from the bike if required.
+You can easily remove the Raspberry Pi from the bike if required.
+
+
+## Trouobleshooting QZ on RPI
+
+Run qz as root
+
+For Zwift, check Zwift detects QZ. Check bluetooth
+
+If Zwift isn't detecting speed from your exercise device, double check your .conf is correct. If you're not sure, Check the setup works using iPhone/Android phone, then replicate the settings by using Raspberry Pi Desktop OS and qz -qml to view the QZ UI. Change settings to match working iPhone/Android.
+
+
+

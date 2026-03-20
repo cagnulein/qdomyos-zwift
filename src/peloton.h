@@ -16,6 +16,8 @@
 #include <QOAuth2AuthorizationCodeFlow>
 #include <QOAuthHttpServerReplyHandler>
 #include <QObject>
+#include <QTcpServer>
+#include <QTcpSocket>
 
 #include <QSettings>
 
@@ -25,10 +27,18 @@
 #include "filedownloader.h"
 #include "homefitnessbuddy.h"
 
+// Include secret.h if it exists
+#if __has_include("secret.h")
+#include "secret.h"
+#endif
+
+// Warn only if PELOTON_SECRET_KEY is not defined
+#ifndef PELOTON_SECRET_KEY
 #if defined(WIN32)
 #pragma message("DEFINE PELOTON_SECRET_KEY!!!")
 #else
 #warning "DEFINE PELOTON_SECRET_KEY!!!"
+#endif
 #endif
 
 #define PELOTON_CLIENT_ID_S STRINGIFY(PELOTON_SECRET_KEY)
@@ -71,6 +81,15 @@ class peloton : public QObject {
     }
     QString getPelotonWorkoutUrl();
 
+    // Helper function to determine if workout is walking-based
+    bool isWalkingWorkout() const {
+        // Check if it's a walking discipline or a walking bootcamp
+        return current_workout_type == "walking" ||
+               (current_workout_type == "circuit" &&
+                (current_workout_name.contains("Walk", Qt::CaseInsensitive) ||
+                 current_workout_name.contains("Walking", Qt::CaseInsensitive)));
+    }
+
   private:
     _PELOTON_API current_api = peloton_api;
     const int peloton_workout_second_resolution = 1;
@@ -106,11 +125,22 @@ class peloton : public QObject {
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *pelotonReplyHandler = nullptr;
     QString peloton_code;    
+    QString pelotonPendingState;
+    QTcpServer *pelotonDesktopRelayServer = nullptr;
     QOAuth2AuthorizationCodeFlow *peloton_connect();
     void peloton_refreshtoken();    
     QNetworkReply *replyPeloton;
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
+    bool exchangeAuthorizationCode(const QString &code);
+    bool isAcceptedCallbackUrl(const QUrl &url) const;
+    void completeOAuthLogin();
+#if !defined(Q_OS_ANDROID)
+    bool ensureDesktopRelayServer();
+    void stopDesktopRelayServer();
+    void handleDesktopRelayConnection();
+    void handleDesktopRelaySocketReadyRead();
+#endif
     // Save token with user-specific suffix
     QString getPelotonSettingKey(const QString& baseKey, const QString& userId) {
         if (userId.isEmpty()) {
@@ -171,6 +201,8 @@ class peloton : public QObject {
   public slots:
     void peloton_connect_clicked();
     void onUserProfileChanged();
+    void peloton_logout();
+    void handleOAuthCallbackUrl(const QUrl &url);
 
   private slots:
     void login_onfinish(QNetworkReply *reply);

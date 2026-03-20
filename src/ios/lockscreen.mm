@@ -3,17 +3,20 @@
 #import <UIKit/UIKit.h>
 #import <WatchConnectivity/WatchConnectivity.h>
 #import <CoreBluetooth/CoreBluetooth.h>
+#import <WebKit/WKWebsiteDataStore.h>
 #import <AVFoundation/AVFoundation.h>
 #import <ConnectIQ/ConnectIQ.h>
 #import "qdomyoszwift-Swift2.h"
+#import "swiftDebug.h"
+#import "swiftDebugBridge.h"
 #include "ios/lockscreen.h"
 #include "devices/bluetoothdevice.h"
 #include <QDebug>
 #include "ios/AdbClient.h"
 #include "ios/ios_eliteariafan.h"
 #include "ios/ios_echelonconnectsport.h"
-#include "ios/ios_wahookickrsnapbike.h"
 #include "ios/ios_zwiftclickremote.h"
+#include "ios/ios_liveactivity.h"
 
 @class virtualbike_ios_swift;
 @class virtualbike_zwift;
@@ -32,6 +35,20 @@ static WorkoutTracking* workoutTracking = nil;
 static GarminConnect* Garmin = 0;
 
 static AdbClient *_adb = 0;
+
+static NSString *LockscreenStringFromCString(const char *message)
+{
+    if (!message)
+    {
+        return nil;
+    }
+    NSString *string = [[NSString alloc] initWithCString:message encoding:NSUTF8StringEncoding];
+    if (!string)
+    {
+        string = [NSString stringWithFormat:@"(invalid UTF8) %s", message];
+    }
+    return string;
+}
 
 static ios_eliteariafan* ios_eliteAriaFan = nil;
 static ios_echelonconnectsport* ios_echelonConnectSport = nil;
@@ -129,6 +146,11 @@ void lockscreen::setKcal(double kcal)
     [h setKcalWithKcal:kcal];
 }
 
+void lockscreen::setTotalKcal(double totalKcal)
+{
+    [h setTotalKcalWithTotalKcal:totalKcal];
+}
+
 void lockscreen::setDistance(double distance)
 {
     [h setDistanceWithDistance:distance * 0.621371];
@@ -143,6 +165,12 @@ void lockscreen::setPower(double power)
 {
     [h setPowerWithPower:power];
 }
+
+void lockscreen::setElevationGain(double elevationGain)
+{
+    [h setElevationGainWithElevationGain:elevationGain];
+}
+
 void lockscreen::setCadence(double cadence)
 {
     [h setCadenceWithCadence:cadence];
@@ -150,6 +178,12 @@ void lockscreen::setCadence(double cadence)
 void lockscreen::setSpeed(double speed)
 {
     [h setSpeedWithSpeed:speed];
+}
+void lockscreen::setHeartRate(unsigned char heartRate)
+{
+    if(h != nil) {
+        [h setHeartRateWithHeartRate:heartRate];
+    }
 }
 
 
@@ -172,9 +206,15 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
         [_virtualbike updateCadenceWithCrankRevolutions:crankRevolutions LastCrankEventTime:lastCrankEventTime];
 }
 
-void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance) {
+void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance, double totalKcal, bool useMiles, unsigned char heartRate) {
     if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:watt cadence:cadence*2 speed:speed * 100 kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance];
+        [workoutTracking addMetricsWithPower:watt cadence:cadence*2 speed:speed * 100 kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:totalKcal elevationGain:0];
+
+    // Start Live Activity on first update, then keep updating
+    if (!ios_liveactivity::isLiveActivityRunning()) {
+        ios_liveactivity::startLiveActivity("QZ", useMiles);
+    }
+    ios_liveactivity::updateLiveActivity(speed, cadence, watt, heartRate, currentDistance, currentCalories, useMiles);
 }
 
 void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator, bool watt_bike_emulator)
@@ -185,6 +225,11 @@ void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_co
 void lockscreen::virtualrower_ios()
 {
     _virtualrower = [[virtualrower_zwift alloc] init];
+}
+
+void lockscreen::virtualrower_ios_pm5(bool pm5Mode)
+{
+    _virtualrower = [[virtualrower_zwift alloc] initWithPm5Mode:pm5Mode];
 }
 
 double lockscreen::virtualbike_getCurrentSlope()
@@ -223,20 +268,20 @@ double lockscreen::virtualbike_getPowerRequested()
     return 0;
 }
 
-bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, signed short Gears, UInt16 currentCalories, UInt32 Distance)
+bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, signed short Gears, UInt16 currentCalories, UInt32 Distance, UInt8 deviceType)
 {
     if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:0 deviceType: bluetoothdevice::BLUETOOTH_TYPE::BIKE distance:Distance];
+        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:0 deviceType: deviceType distance:Distance totalKcal:0 elevationGain:0];
 
     if(_virtualbike_zwift != nil)
         return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime Gears:Gears];
     return 0;
 }
 
-bool lockscreen::virtualrower_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, UInt16 StrokesCount, UInt32 Distance, UInt16 KCal, UInt16 Pace)
+bool lockscreen::virtualrower_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, UInt16 StrokesCount, UInt32 Distance, UInt16 KCal, UInt16 Pace, UInt8 deviceType)
 {
     if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:KCal steps:0 deviceType: bluetoothdevice::BLUETOOTH_TYPE::ROWING distance:Distance];
+        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:KCal steps:0 deviceType: deviceType distance:Distance totalKcal:0 elevationGain:0];
 
     if(_virtualrower != nil)
         return [_virtualrower updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime StrokesCount:StrokesCount Distance:Distance KCal:KCal Pace:Pace];
@@ -249,11 +294,17 @@ void lockscreen::virtualrower_setHeartRate(unsigned char heartRate)
         [_virtualrower updateHeartRateWithHeartRate:heartRate];
 }
 
+void lockscreen::virtualrower_setPM5Mode(bool enabled)
+{
+    if(_virtualrower != nil)
+        [_virtualrower setPM5ModeWithEnabled:enabled];
+}
+
 
 // virtual treadmill
-void lockscreen::virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility)
+void lockscreen::virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility, bool bike_cadence_sensor)
 {
-    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] initWithGarmin_bluetooth_compatibility:garmin_bluetooth_compatibility];
+    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] initWithGarmin_bluetooth_compatibility:garmin_bluetooth_compatibility bike_cadence_sensor:bike_cadence_sensor];
 }
 
 void lockscreen::virtualtreadmill_setHeartRate(unsigned char heartRate)
@@ -298,11 +349,12 @@ double lockscreen::virtualtreadmill_getRequestedSpeed()
     return 0;
 }
 
-bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, unsigned short currentCalories, qint32 currentSteps,  unsigned short elapsedSeconds)
+bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, double elevationGain, unsigned short currentCalories, qint32 currentSteps,  unsigned short elapsedSeconds, UInt8 deviceType)
 {
-    if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:currentSteps deviceType:bluetoothdevice::BLUETOOTH_TYPE::TREADMILL distance:currentDistance];
-    
+    if(workoutTracking != nil && !appleWatchAppInstalled()) {
+        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:0 elevationGain:elevationGain];
+    }
+
     if(_virtualtreadmill_zwift != nil)
         return [_virtualtreadmill_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt currentInclination:currentInclination currentDistance:currentDistance elapsedTimeSeconds:elapsedSeconds];
     return 0;
@@ -370,11 +422,21 @@ double lockscreen::getVolume()
 }
 
 void lockscreen::debug(const char* debugstring) {
-    qDebug() << debugstring;
+    SwiftDebugLogCString(debugstring);
 }
 
 void lockscreen::nslog(const char* log) {
-    NSLog([[NSString alloc] initWithUTF8String:log]);
+    if (!log)
+    {
+        return;
+    }
+    NSString *string = [[NSString alloc] initWithUTF8String:log];
+    if (!string)
+    {
+        string = [NSString stringWithFormat:@"(invalid UTF8) %s", log];
+    }
+    SwiftDebugLogNSString(string);
+    NSLog(@"%@", string);
 }
 
 void lockscreen::set_action_profile(const char* profile) {
@@ -386,21 +448,71 @@ const char* lockscreen::get_action_profile() {
 }
 
 void lockscreen::adb_connect(const char*  IP) {
-    if(_adb == 0) return;
-    
-    [_adb connect:[NSString stringWithCString:IP encoding:NSASCIIStringEncoding] didResponse:^(BOOL succ, NSString *result) {
-        
-        qDebug() << result;
+    if(_adb == 0) {
+        SwiftDebugLogNSString(@"ADB connect skipped: client not initialized");
+        return;
+    }
+
+    NSString *ipString = nil;
+    if (IP)
+    {
+        ipString = [NSString stringWithCString:IP encoding:NSASCIIStringEncoding];
+    }
+
+    if (!ipString)
+    {
+        NSString *loggedAddress = LockscreenStringFromCString(IP);
+        if (loggedAddress)
+        {
+            SwiftDebugLogNSString([NSString stringWithFormat:@"ADB connect aborted: invalid address %@", loggedAddress]);
+        }
+        else
+        {
+            SwiftDebugLogNSString(@"ADB connect aborted: address is null");
+        }
+        return;
+    }
+
+    SwiftDebugLogNSString([NSString stringWithFormat:@"ADB connect request: %@", ipString]);
+
+    [_adb connect:ipString didResponse:^(BOOL succ, NSString *result) {
+        NSString *response = result ?: @"(no response)";
+        SwiftDebugLogNSString([NSString stringWithFormat:@"ADB connect %@: %@", succ ? @"success" : @"failure", response]);
 
     }];
 }
     
 void lockscreen::adb_sendcommand(const char* command) {
-    if(_adb == 0) return;
-    
-    [_adb shell:[NSString stringWithCString:command encoding:NSASCIIStringEncoding] didResponse:^(BOOL succ, NSString *result) {
-        
-        qDebug() << result;
+    if(_adb == 0) {
+        SwiftDebugLogNSString(@"ADB sendcommand skipped: client not initialized");
+        return;
+    }
+
+    NSString *commandString = nil;
+    if (command)
+    {
+        commandString = [NSString stringWithCString:command encoding:NSASCIIStringEncoding];
+    }
+
+    if (!commandString)
+    {
+        NSString *loggedCommand = LockscreenStringFromCString(command);
+        if (loggedCommand)
+        {
+            SwiftDebugLogNSString([NSString stringWithFormat:@"ADB sendcommand aborted: invalid command %@", loggedCommand]);
+        }
+        else
+        {
+            SwiftDebugLogNSString(@"ADB sendcommand aborted: command is null");
+        }
+        return;
+    }
+
+    SwiftDebugLogNSString([NSString stringWithFormat:@"ADB sendcommand request: %@", commandString]);
+
+    [_adb shell:commandString didResponse:^(BOOL succ, NSString *result) {
+        NSString *response = result ?: @"(no response)";
+        SwiftDebugLogNSString([NSString stringWithFormat:@"ADB sendcommand %@: %@", succ ? @"success" : @"failure", response]);
 
     }];
 }
@@ -491,19 +603,6 @@ uint32_t lockscreen::zwift_hub_getCadenceFromBuffer(const QByteArray& buffer) {
     return cadence;
 }
 
-static ios_wahookickrsnapbike* ios_wahooKickrSnapBike = nil;
-
-void lockscreen::wahooKickrSnapBike(const char* Name, void* deviceClass) {
-    NSString *deviceName = [NSString stringWithCString:Name encoding:NSASCIIStringEncoding];
-    ios_wahooKickrSnapBike = [[ios_wahookickrsnapbike alloc] init:deviceName qtDevice:deviceClass];
-}
-
-void lockscreen::writeCharacteristic(unsigned char* qdata, unsigned char length) {
-    if(ios_wahooKickrSnapBike) {
-        [ios_wahooKickrSnapBike writeCharacteristic:qdata length:length];
-    }
-}
-
 static NSMutableDictionary<NSValue*, ios_zwiftclickremote*>* ios_zwiftClickRemotes = nil;
 
 void lockscreen::zwiftClickRemote(const char* Name, const char* UUID, void* deviceClass) {
@@ -528,13 +627,58 @@ void lockscreen::zwiftClickRemote(const char* Name, const char* UUID, void* devi
 
 void lockscreen::zwiftClickRemote_WriteCharacteristic(unsigned char* qdata, unsigned char length, void* deviceClass) {
     if (ios_zwiftClickRemotes == nil) return;
-    
+
     // Get the specific remote for this device
     NSValue *key = [NSValue valueWithPointer:deviceClass];
     ios_zwiftclickremote *remote = [ios_zwiftClickRemotes objectForKey:key];
-    
+
     if(remote) {
         [remote writeCharacteristic:qdata length:length];
+    }
+}
+
+bool lockscreen::isInMultiWindowMode() {
+    // Check if we're on iPad and in multi-window mode (Stage Manager, Split View, Slide Over)
+    if (UIDevice.currentDevice.userInterfaceIdiom != UIUserInterfaceIdiomPad) {
+        return false;
+    }
+
+    if (@available(iOS 13.0, *)) {
+        // Get the foreground active scene
+        for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+            if (scene.activationState == UISceneActivationStateForegroundActive &&
+                [scene isKindOfClass:[UIWindowScene class]]) {
+                UIWindowScene *windowScene = (UIWindowScene *)scene;
+
+                // Get the window bounds and screen bounds
+                CGRect windowBounds = windowScene.coordinateSpace.bounds;
+                CGRect screenBounds = windowScene.screen.bounds;
+
+                // If window is smaller than screen in either dimension, we're in multi-window mode
+                // Add a small tolerance for floating point comparison
+                if (windowBounds.size.width < screenBounds.size.width - 1 ||
+                    windowBounds.size.height < screenBounds.size.height - 1) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+void lockscreen::clearWebViewCache() {
+    if (@available(iOS 9.0, *)) {
+        NSSet *websiteDataTypes = [WKWebsiteDataStore allWebsiteDataTypes];
+        NSDate *dateFrom = [NSDate dateWithTimeIntervalSince1970:0];
+        [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:websiteDataTypes
+                                                  modifiedSince:dateFrom
+                                              completionHandler:^{}];
+    }
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
+    NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    for (NSHTTPCookie *cookie in cookieStorage.cookies) {
+        [cookieStorage deleteCookie:cookie];
     }
 }
 #endif

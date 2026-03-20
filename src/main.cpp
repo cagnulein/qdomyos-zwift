@@ -18,10 +18,13 @@
 #include "virtualdevices/virtualtreadmill.h"
 #include <QDir>
 #include <QGuiApplication>
+#include <QFileOpenEvent>
+#include <QEvent>
 #include <QOperatingSystemVersion>
 #include <QQmlApplicationEngine>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QList>
 #ifdef CHARTJS
 #include <QtWebView/QtWebView>
 #endif
@@ -29,6 +32,7 @@
 #include "mqttpublisher.h"
 #include "androidstatusbar.h"
 #include "fontmanager.h"
+#include "filesearcher.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -46,6 +50,33 @@
 #include "osc.h"
 
 #include "handleurl.h"
+#include "authutils.h"
+
+class OAuthCallbackEventFilter : public QObject {
+  public:
+    bool eventFilter(QObject *watched, QEvent *event) override {
+#ifdef Q_OS_IOS
+        Q_UNUSED(watched)
+        if (event->type() == QEvent::FileOpen) {
+            auto *fileEvent = static_cast<QFileOpenEvent *>(event);
+            const QUrl url = fileEvent->url();
+            qDebug() << "QZ iOS FileOpen event received" << sanitizedOAuthCallbackUrl(url);
+            if (url.isValid() && url.host() == QStringLiteral("www.qzfitness.com") &&
+                url.path().startsWith(QStringLiteral("/peloton/callback")) && homeform::singleton()) {
+                qDebug() << "QZ iOS FileOpen matched Peloton callback";
+                QMetaObject::invokeMethod(homeform::singleton(), "handleOAuthCallbackUrl", Qt::QueuedConnection,
+                                          Q_ARG(QString, url.toString()));
+            } else {
+                qDebug() << "QZ iOS FileOpen ignored";
+            }
+        }
+#else
+        Q_UNUSED(watched)
+        Q_UNUSED(event)
+#endif
+        return false;
+    }
+};
 
 bool logs = true;
 bool noWriteResistance = false;
@@ -61,6 +92,11 @@ QString peloton_password = "";
 QString pzp_username = "";
 QString pzp_password = "";
 bool fit_file_saved_on_quit = false;
+QString mqtt_host = "";
+int mqtt_port = -1;
+QString mqtt_username = "";
+QString mqtt_password = "";
+QString mqtt_deviceid = "";
 bool testResistance = false;
 bool forceQml = true;
 bool miles = false;
@@ -89,6 +125,7 @@ int8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
 QString power_sensor_name = QStringLiteral("Disabled");
 bool power_sensor_as_treadmill = false;
+bool smokeTest = false;
 QString logfilename = QStringLiteral("debug-") +
                       QDateTime::currentDateTime()
                           .toString()
@@ -153,6 +190,7 @@ void displayHelp() {
     printf("  -test-peloton                 Enable Peloton test mode\n");
     printf("  -test-hfb                     Enable Home Fitness Buddy test mode\n");
     printf("  -test-pzp                     Enable Power Zone Pack test mode\n");
+    printf("  -smoke-test                   Run smoke test (verify Qt loads, print SMOKE_OK, exit)\n");
     printf("  -train <program>              Specify training program\n");
 
     printf("\nPeloton options:\n");
@@ -162,6 +200,13 @@ void displayHelp() {
     printf("\nPower Zone Pack options:\n");
     printf("  -pzp-username <username>      Set Power Zone Pack username\n");
     printf("  -pzp-password <password>      Set Power Zone Pack password\n");
+
+    printf("\nMQTT options:\n");
+    printf("  -mqtt-host <hostname>         Set MQTT broker hostname\n");
+    printf("  -mqtt-port <port>             Set MQTT broker port (default: 1883)\n");
+    printf("  -mqtt-username <username>     Set MQTT username\n");
+    printf("  -mqtt-password <password>     Set MQTT password\n");
+    printf("  -mqtt-deviceid <deviceid>     Set MQTT device ID\n");
 
     printf("\nOther options:\n");
     printf("  -test-resistance              Enable resistance testing\n");
@@ -310,6 +355,10 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             testHomeFitnessBudy = true;
         if (!qstrcmp(argv[i], "-test-pzp"))
             testPowerZonePack = true;
+        if (!qstrcmp(argv[i], "-smoke-test")) {
+            smokeTest = true;
+            nogui = true;
+        }
         if (!qstrcmp(argv[i], "-train")) {
 
             trainProgram = argv[++i];
@@ -366,6 +415,21 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         }
         if (!qstrcmp(argv[i], "-power-sensor-as-treadmill")) {
             power_sensor_as_treadmill = true;
+        }
+        if (!qstrcmp(argv[i], "-mqtt-host")) {
+            mqtt_host = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-mqtt-port")) {
+            mqtt_port = atoi(argv[++i]);
+        }
+        if (!qstrcmp(argv[i], "-mqtt-username")) {
+            mqtt_username = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-mqtt-password")) {
+            mqtt_password = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-mqtt-deviceid")) {
+            mqtt_deviceid = argv[++i];
         }
     }
 
@@ -496,13 +560,16 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif
+
+    OAuthCallbackEventFilter oauthCallbackEventFilter;
+    app->installEventFilter(&oauthCallbackEventFilter);
 #ifdef CHARTJS
     QtWebView::initialize();
 #endif
 
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
-    if (getuid() && !testPeloton && !testHomeFitnessBudy && !testPowerZonePack) {
+    if (getuid() && !testPeloton && !testHomeFitnessBudy && !testPowerZonePack && !smokeTest) {
 
         printf("Runme as root!\n");
         return -1;
@@ -510,6 +577,11 @@ int main(int argc, char *argv[]) {
         printf("%s", "OK, you are root.\n");
 #endif
 #endif
+
+    if (smokeTest) {
+        printf("SMOKE_OK\n");
+        return 0;
+    }
 
     app->setOrganizationName(QStringLiteral("Roberto Viola"));
     app->setOrganizationDomain(QStringLiteral("robertoviola.cloud"));
@@ -594,6 +666,21 @@ int main(int argc, char *argv[]) {
         settings.setValue(QZSettings::virtual_device_bluetooth, virtual_device_bluetooth);
         settings.setValue(QZSettings::power_sensor_name, power_sensor_name);
         settings.setValue(QZSettings::power_sensor_as_treadmill, power_sensor_as_treadmill);
+        if (mqtt_host.length() > 0) {
+            settings.setValue(QZSettings::mqtt_host, mqtt_host);
+        }
+        if (mqtt_port != -1) {
+            settings.setValue(QZSettings::mqtt_port, mqtt_port);
+        }
+        if (mqtt_username.length() > 0) {
+            settings.setValue(QZSettings::mqtt_username, mqtt_username);
+        }
+        if (mqtt_password.length() > 0) {
+            settings.setValue(QZSettings::mqtt_password, mqtt_password);
+        }
+        if (mqtt_deviceid.length() > 0) {
+            settings.setValue(QZSettings::mqtt_deviceid, mqtt_deviceid);
+        }
     }
 #endif
 
@@ -604,10 +691,17 @@ int main(int argc, char *argv[]) {
     }
 #endif
     
+    // Register custom meta types used in queued invocations
+    qRegisterMetaType<SessionLine>("SessionLine");
+    qRegisterMetaType<QList<SessionLine>>("QList<SessionLine>");
+    qRegisterMetaType<BLUETOOTH_TYPE>("BLUETOOTH_TYPE");
+    qRegisterMetaType<uint32_t>("uint32_t");
+    qRegisterMetaType<FIT_SPORT>("FIT_SPORT");
+
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token")) {
+        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token") && !s.contains("garmin_device_serial") && !s.contains("garmin_email")) {
 
             qDebug() << s << settings.value(s);
         }
@@ -628,7 +722,7 @@ int main(int argc, char *argv[]) {
         l.append(SessionLine(i%20,i%10,i,i%300,i%10,i%180,i%6,i%120,i,i, d));
     }
     QString path = homeform::getWritableAppDir();
-    qfit::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit", l, bluetoothdevice::BIKE);
+    qfit::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit", l, BIKE);
     return 0;
 #endif
 
@@ -829,6 +923,10 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_ANDROID
         engine.rootContext()->setContextProperty("fontManager", &fontManager);
 #endif
+        // Expose FileSearcher for fast recursive file searching
+        FileSearcher fileSearcher;
+        engine.rootContext()->setContextProperty("fileSearcher", &fileSearcher);
+
         engine.load(url);
         homeform *h = new homeform(&engine, &bl);
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,

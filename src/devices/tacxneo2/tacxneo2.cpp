@@ -18,7 +18,7 @@
 using namespace std::chrono_literals;
 
 tacxneo2::tacxneo2(bool noWriteResistance, bool noHeartService) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
@@ -218,8 +218,9 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
     uint8_t heart = 0;
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    static bool validCadenceFrom2ad2 = false;
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B)) {
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B) && !validCadenceFrom2ad2) {
         lastPacket = newValue;
 
         uint8_t index = 1;
@@ -261,18 +262,32 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         int16_t deltaT = LastCrankEventTimeRead - oldLastCrankEventTime;
         if (deltaT < 0) {
-            deltaT = LastCrankEventTimeRead + 65535 - oldLastCrankEventTime;
+            deltaT = LastCrankEventTimeRead + 65536 - oldLastCrankEventTime;
         }
 
         // Tacx Neo flywheel spins up when freewheeling in a low virtual gear (Issue #2157)
         if(m_watt.value() == 0) {
             Cadence = 0;
         } else if (CrankRevsRead != oldCrankRevs && deltaT) {
-            double cadence = (((double)CrankRevsRead - (double)oldCrankRevs) / (double)deltaT) * 1024.0 * 60.0;
-            if (cadence >= 0 && cadence < 255) {
-                Cadence = cadence;
+            // Calculate crank revolution delta, handling potential rollover
+            int32_t crankDelta = (int32_t)CrankRevsRead - (int32_t)oldCrankRevs;
+
+            // Detect invalid data: if crank revs decreased significantly (not a simple rollover)
+            if (crankDelta < 0 && crankDelta > -100) {
+                // Assume 16-bit rollover for crank revs
+                crankDelta += 65536;
+            } else if (crankDelta < -100) {
+                // Invalid data - large negative jump, skip this update
+                qDebug() << "Invalid crank data detected (CSC): crankDelta =" << crankDelta << "deltaT =" << deltaT;
+                // Keep last good cadence, will timeout after 2s
+            } else if (crankDelta > 0 && deltaT > 0) {
+                // Valid positive change
+                double cadence = (crankDelta / (double)deltaT) * 1024.0 * 60.0;
+                if (cadence >= 0 && cadence < 255) {
+                    Cadence = cadence;
+                }
+                lastGoodCadence = now;
             }
-            lastGoodCadence = now;
         } else if (lastGoodCadence.msecsTo(now) > 2000) {
             Cadence = 0;
         }
@@ -345,14 +360,15 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         uint16_t time_division = 1024;
         uint8_t index = 4;
 
-        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                .toString()
-                .startsWith(QStringLiteral("Disabled"))) {
-            if (newValue.length() > 3) {
-                m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
+        if (newValue.length() > 3) {
+            double tacx_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
+            m_rawWatt = tacx_watt;  // Always update rawWatt from TACX bike data
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                m_watt = tacx_watt;  // Only update watt if no external power sensor
+                emit powerChanged(m_watt.value());
             }
-
-            emit powerChanged(m_watt.value());
             emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
         }
 
@@ -416,22 +432,37 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
                 int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
                 if (deltaT < 0) {
-                    deltaT = LastCrankEventTime + time_division - oldLastCrankEventTime;
+                    // Handle rollover - use 65536 for proper wraparound calculation
+                    deltaT = LastCrankEventTime + 65536 - oldLastCrankEventTime;
                 }
 
                 if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                         .toString()
                         .startsWith(QStringLiteral("Disabled"))) {
                     if (CrankRevs != oldCrankRevs && deltaT) {
-                        double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
-                        if (!crank_rev_present)
-                            cadence =
-                                cadence /
-                                2; // I really don't like this, there is no relationship between wheel rev and crank rev
-                        if (cadence >= 0) {
-                            Cadence = cadence;
+                        // Calculate crank revolution delta, handling potential rollover
+                        int32_t crankDelta = CrankRevs - oldCrankRevs;
+
+                        // Detect invalid data: if crank revs decreased significantly (not a simple rollover)
+                        // or if deltaT is still unreasonably small after rollover correction
+                        if (crankDelta < 0 && crankDelta > -100) {
+                            // Assume 16-bit rollover for crank revs
+                            crankDelta += 65536;
+                        } else if (crankDelta < -100) {
+                            // Invalid data - large negative jump, skip this update
+                            qDebug() << "Invalid crank data detected: crankDelta =" << crankDelta << "deltaT =" << deltaT;
+                        } else if (crankDelta > 0 && deltaT > 0) {
+                            // Valid positive change
+                            double cadence = (crankDelta / (double)deltaT) * time_division * 60;
+                            if (!crank_rev_present)
+                                cadence =
+                                    cadence /
+                                    2; // I really don't like this, there is no relationship between wheel rev and crank rev
+                            if (cadence >= 0 && cadence < 255) {
+                                Cadence = cadence;
+                            }
+                            lastGoodCadence = now;
                         }
-                        lastGoodCadence = now;
                     } else if (lastGoodCadence.msecsTo(now) > 2000) {
                         Cadence = 0;
                     }
@@ -569,6 +600,8 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index)))) /
                           2.0;
+                if(Cadence.value() > 0)
+                    validCadenceFrom2ad2 = true;
             }
             index += 2;
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
@@ -635,11 +668,14 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         if (Flags.instantPower) {
             // power table from an user
+            double tacx_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));
+            m_rawWatt = tacx_watt;  // Always update rawWatt from TACX bike data
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                            .toString()
-                           .startsWith(QStringLiteral("Disabled")))
-                m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)newValue.at(index))));
+                           .startsWith(QStringLiteral("Disabled"))) {
+                m_watt = tacx_watt;  // Only update watt if no external power sensor
+            }
             index += 2;
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
         }
@@ -716,9 +752,13 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         update_hr_from_external();
     }
 
-    if (Cadence.value() > 0) {
-        CrankRevs++;
-        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+
+    if (characteristic.uuid() != QBluetoothUuid((quint16)0xFFF4) && characteristic.uuid() != QBluetoothUuid(QStringLiteral("6e40fec2-b5a3-f393-e0a9-e50e24dcca9e")) && 
+        THINK_X == false) { // THINK_X sends the crank revs in the power characteristic
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
     }
 
 #ifdef Q_OS_IOS

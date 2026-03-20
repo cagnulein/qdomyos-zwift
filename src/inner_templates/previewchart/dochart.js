@@ -31,6 +31,7 @@ var ftp = 200;
 var ftpZones = [];
 var maxHeartRate = 190;
 var heartZones = [];
+var miles = 1;
 
 function process_arr(arr) {
     let watts = [];
@@ -142,7 +143,7 @@ function process_arr(arr) {
         pelotonreqresistance.push(pelotonreqresistanceel);
 
         speedel.x = time;
-        speedel.y = el.speed;
+        speedel.y = el.speed * miles; // Convert to user's preferred unit (km/h or mph)
         speed.push(speedel);
         inclinationel.x = time;
         inclinationel.y = el.inclination;
@@ -184,14 +185,14 @@ function process_arr(arr) {
     $('.summary_watts_max').text(Math.floor(watts_max) + ' W');
     $('.summary_jouls').text(totalJouls + ' kJ');
     $('.summary_calories').text(totalCalories + ' kcal');
-    $('.summary_distance').text(totalDistance.toFixed(2) + ' km');
+    $('.summary_distance').text((totalDistance * miles).toFixed(2) + (miles === 1 ? ' km' : ' mi'));
     $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' rpm');
     $('.summary_cadence_max').text(Math.floor(cadence_max) + ' rpm');
     $('.summary_resistance_avg').text(avgResistance + ' lvl');
     $('.summary_heart_avg').text(Math.floor(heart_avg) + ' bpm');
     $('.summary_heart_max').text(Math.floor(heart_max) + ' bpm');
-    $('.summary_speed_avg').text(speed_avg.toFixed(1) + ' km/h');
-    $('.summary_speed_max').text(speed_max.toFixed(1) + ' km/h');
+    $('.summary_speed_avg').text((speed_avg * miles).toFixed(1) + (miles === 1 ? ' km/h' : ' mph'));
+    $('.summary_speed_max').text((speed_max * miles).toFixed(1) + (miles === 1 ? ' km/h' : ' mph'));
 
     const backgroundFill = {
       id: 'custom_canvas_background_color',
@@ -903,7 +904,7 @@ function process_arr(arr) {
                 {
                     backgroundColor: window.chartColors.blue,
                     borderColor: window.chartColors.blue,
-                    label: 'Speed',
+                    label: 'Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
                     //cubicInterpolationMode: 'monotone',
                     data: speed,
                     fill: false,
@@ -998,7 +999,7 @@ function process_arr(arr) {
 
 function dochart_init() {
     onSettingsOK = true;
-    keys_arr = ['ftp', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value']
+    keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value']
     let el = new MainWSQueueElement({
             msg: 'getsettings',
             content: {
@@ -1043,6 +1044,9 @@ function dochart_init() {
                     } else if (key === 'heart_rate_zone4') {
                         heart_rate_zone4 = msg.content[key];
                         heartZones[3] = Math.round(maxHeartRate * (msg.content[key] / 100));
+                    } else if (key === 'miles_unit') {
+                        if(msg.content[key] === true || msg.content[key] === 'true')
+                            miles = 0.621371;
                     }
                 }
                 if(heart_max_override_enable) {

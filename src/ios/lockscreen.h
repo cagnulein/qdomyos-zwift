@@ -10,14 +10,17 @@ class lockscreen {
     long heartRate();
     long stepCadence();
     void setKcal(double kcal);
+    void setTotalKcal(double totalKcal);
     void setDistance(double distance);
     void setSteps(double steps);
     void setSpeed(double speed);
     void setPower(double power);
     void setCadence(double cadence);
+    void setElevationGain(double elevationGain);
+    void setHeartRate(unsigned char heartRate);
     void startWorkout(unsigned short deviceType);
     void stopWorkout();
-    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance);
+    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance, double totalKcal, bool useMiles, unsigned char heartRate);
     bool appleWatchAppInstalled();
 
     // virtualbike
@@ -30,21 +33,23 @@ class lockscreen {
     double virtualbike_getCurrentCRR();
     double virtualbike_getCurrentCW();
     double virtualbike_getPowerRequested();
-    bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt, unsigned short CrankRevolutions, unsigned short LastCrankEventTime, signed short Gears, unsigned short currentCalories, unsigned int Distance);
+    bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt, unsigned short CrankRevolutions, unsigned short LastCrankEventTime, signed short Gears, unsigned short currentCalories, unsigned int Distance, unsigned char deviceType);
     int virtualbike_getLastFTMSMessage(unsigned char *message);
 
     // virtualrower
     void virtualrower_ios();
+    void virtualrower_ios_pm5(bool pm5Mode);
     void virtualrower_setHeartRate(unsigned char heartRate);
+    void virtualrower_setPM5Mode(bool enabled);
     bool virtualrower_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                  unsigned short currentCadence, unsigned short currentWatt,
                                  unsigned short CrankRevolutions, unsigned short LastCrankEventTime,
                                  unsigned short StrokesCount, unsigned int Distance, unsigned short KCal,
-                                 unsigned short Pace);
+                                 unsigned short Pace, unsigned char deviceType);
     int virtualrower_getLastFTMSMessage(unsigned char *message);
 
     // virtualtreadmill
-    void virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility);
+    void virtualtreadmill_zwift_ios(bool garmin_bluetooth_compatibility, bool bike_cadence_sensor);
     void virtualtreadmill_setHeartRate(unsigned char heartRate);
     double virtualtreadmill_getCurrentSlope();
     uint64_t virtualtreadmill_lastChangeCurrentSlope();
@@ -52,8 +57,9 @@ class lockscreen {
     double virtualtreadmill_getRequestedSpeed();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                      unsigned short currentCadence, unsigned short currentWatt,
-                                     unsigned short currentInclination, unsigned long long currentDistance, unsigned short currentCalories, 
-                                     qint32 currentSteps, unsigned short elapsedSeconds);
+                                     unsigned short currentInclination, unsigned long long currentDistance, double elevationGain,
+                                     unsigned short currentCalories, qint32 currentSteps, unsigned short elapsedSeconds,
+                                     unsigned char deviceType);
 
     // volume
     double getVolume();
@@ -107,6 +113,11 @@ class lockscreen {
     static void set_action_profile(const char* profile);
     static const char* get_action_profile();
 
+    // multi-window detection for iPadOS
+    static bool isInMultiWindowMode();
+
+    // web view cache
+    static void clearWebViewCache();
 };
 
 #endif // LOCKSCREEN_H

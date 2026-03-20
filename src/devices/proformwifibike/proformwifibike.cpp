@@ -17,7 +17,7 @@ using namespace std::chrono_literals;
 proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                  double bikeResistanceGain) {
     QSettings settings;
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     m_rawWatt.setType(metric::METRIC_WATT);
     target_watts.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -488,7 +488,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled")))
-                m_watt = m_rawWatt.value();
+                m_watt.setValue(m_rawWatt.value(), false);
             emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
         } else if (!values[QStringLiteral("Watt attuali")].isUndefined()) {
             double watt = values[QStringLiteral("Watt attuali")].toString().toDouble();
