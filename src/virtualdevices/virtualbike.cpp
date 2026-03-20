@@ -6,6 +6,10 @@
 #include <QSettings>
 #include <QtMath>
 #include <chrono>
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
 
 using namespace std::chrono_literals;
 
@@ -86,8 +90,6 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         } else if (yesoul) {
             advertisingData.setLocalName(QStringLiteral("YS_G1MMAX_02033"));
             advertisingData.setManufacturerData(0x027d, QByteArray::fromHex("010500ffff"));
-            advertisingData.setServiceData(QBluetoothUuid((QBluetoothUuid::ServiceClassUuid)0x1826),
-                                           QByteArray::fromHex("012000"));
         } else {
             advertisingData.setLocalName(QStringLiteral("ECHEX-5s-113399"));
         }
@@ -727,7 +729,18 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             pars.setInterval(100, 100);
         }
 
+#ifdef Q_OS_ANDROID
+        if (yesoul) {
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                     "startAdvertisingYesoul",
+                                                     "(Landroid/content/Context;)V",
+                                                     QtAndroid::androidContext().object());
+        } else {
+            leController->startAdvertising(pars, advertisingData, advertisingData);
+        }
+#else
         leController->startAdvertising(pars, advertisingData, advertisingData);
+#endif
 
         //! [Start Advertising]
     }
@@ -1507,6 +1520,7 @@ void virtualbike::reconnect() {
     bool echelon =
         settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
+    bool yesoul = settings.value(QZSettings::virtual_device_yesoul, QZSettings::default_virtual_device_yesoul).toBool();
 
     qDebug() << QStringLiteral("virtualbike::reconnect");
     leController->disconnectFromDevice();
@@ -1562,7 +1576,18 @@ void virtualbike::reconnect() {
 
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
+#ifdef Q_OS_ANDROID
+    if (yesoul) {
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                 "startAdvertisingYesoul",
+                                                 "(Landroid/content/Context;)V",
+                                                 QtAndroid::androidContext().object());
+    } else {
+        leController->startAdvertising(pars, advertisingData, advertisingData);
+    }
+#else
     leController->startAdvertising(pars, advertisingData, advertisingData);
+#endif
 }
 
 void virtualbike::bikeProvider() {
