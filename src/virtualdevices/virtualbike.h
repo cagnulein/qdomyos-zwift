@@ -35,6 +35,7 @@ class virtualbike : public virtualdevice {
     virtualbike(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false,
                 int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     bool connected() override;
+    void relayEchelonPacket(const QBluetoothUuid &sourceUuid, const QByteArray &value);
     bool ftmsDeviceConnected() { return lastFTMSFrameReceived != 0 || lastDirconFTMSFrameReceived != 0; }
     qint64 whenLastFTMSFrameReceived() {
         if (lastFTMSFrameReceived != 0)

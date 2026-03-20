@@ -239,7 +239,6 @@ double echelonconnectsport::bikeResistanceToPeloton(double resistance) {
 void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                                 const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
-    Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
@@ -250,6 +249,10 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 #endif
 
     qDebug() << " << " + newValue.toHex(' ');
+
+    if (auto *virtualBike = VirtualBike()) {
+        virtualBike->relayEchelonPacket(characteristic.uuid(), newValue);
+    }
 
     lastPacket = newValue;
 
@@ -607,6 +610,17 @@ void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         m_control->connectToDevice();
         return;
     }
+}
+
+void echelonconnectsport::proxyVirtualBikeCommand(const QByteArray &value) {
+    if (!gattCommunicationChannelService || !gattWriteCharacteristic.isValid() || !m_control ||
+        m_control->state() == QLowEnergyController::UnconnectedState) {
+        qDebug() << QStringLiteral("proxyVirtualBikeCommand ignored because the Echelon bike is not ready");
+        return;
+    }
+
+    writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(value.constData())), value.size(),
+                        QStringLiteral("virtual echelon proxy"));
 }
 
 bool echelonconnectsport::connected() {

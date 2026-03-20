@@ -43,6 +43,7 @@ class echelonconnectsport : public bike {
     resistance_t maxResistance() override { return max_resistance; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     bool connected() override;
+    void proxyVirtualBikeCommand(const QByteArray &value);
 
   private:
     const resistance_t max_resistance = 32;
