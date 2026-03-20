@@ -703,6 +703,8 @@ class QZSettings {
     static constexpr bool default_eslinker_cadenza = true;
     static const QString eslinker_ypoo;
     static constexpr bool default_eslinker_ypoo = false;
+    static const QString gymstick_gx6_0_elliptical;
+    static constexpr bool default_gymstick_gx6_0_elliptical = false;
     /**
      *@brief Choose between the standard and MGARCEA watt table.
      */
@@ -948,6 +950,9 @@ class QZSettings {
 
     static const QString cadence_sensor_as_bike;
     static constexpr bool default_cadence_sensor_as_bike = false;
+
+    static const QString cadence_sensor_as_treadmill;
+    static constexpr bool default_cadence_sensor_as_treadmill = false;
 
     static const QString cadence_sensor_speed_ratio;
     static constexpr float default_cadence_sensor_speed_ratio = 0.33;
@@ -2455,6 +2460,8 @@ class QZSettings {
 
     static const QString proform_trainer_8_0;
     static constexpr bool default_proform_trainer_8_0 = false;
+    static const QString proform_trainer_8_0_pftl59721_int_0;
+    static constexpr bool default_proform_trainer_8_0_pftl59721_int_0 = false;
 
     static const QString tile_biggears_swap;
     static constexpr bool default_tile_biggears_swap = false;
@@ -2897,6 +2904,9 @@ class QZSettings {
     static const QString proform_bike_325_csx_PFEX439210INT_0;
     static constexpr bool default_proform_bike_325_csx_PFEX439210INT_0 = false;
 
+    static const QString nordictrack_vr21;
+    static constexpr bool default_nordictrack_vr21 = false;
+
     /**
      * @brief Enable X-2000 protocol for Skandika Wiri bike (true for X-2000, false for standard protocol)
      */
@@ -2923,6 +2933,8 @@ class QZSettings {
 
     static const QString proform_carbon_tlx_treadmill;
     static constexpr bool default_proform_carbon_tlx_treadmill = false;
+    static const QString proform_carbon_tl_PFTL59723_6;
+    static constexpr bool default_proform_carbon_tl_PFTL59723_6 = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

@@ -521,7 +521,7 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: qsTr("Garmin")
+        text: qsTr("Garmin Workout Planned")
         informativeText: qsTr("Workout found:\n") + rootItem.garminWorkoutPromptName +
                          (rootItem.garminWorkoutPromptDate.length > 0 ? qsTr("\nDate: ") + rootItem.garminWorkoutPromptDate : "") +
                          qsTr("\n\nDo you want to start it now?")
@@ -976,7 +976,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.20.27"
+                    text: "version 2.20.30"
                     width: parent.width
                 }
 

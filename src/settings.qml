@@ -1286,7 +1286,12 @@ import Qt.labs.platform 1.1
             property double step_gain: 1.0
             property bool sportstech_esx500: false
             property bool proform_bike_325_csx_PFEX439210INT_0: false
-            property bool proform_carbon_tlx_treadmill: false
+            property bool proform_carbon_tlx_treadmill: false            
+            property bool nordictrack_vr21: false
+            property bool gymstick_gx6_0_elliptical: false
+            property bool cadence_sensor_as_treadmill: false
+            property bool proform_trainer_8_0_pftl59721_int_0: false
+            property bool proform_carbon_tl_PFTL59723_6: false
             property string app_language: "auto"
         }
 
@@ -4316,7 +4321,8 @@ import Qt.labs.platform 1.1
                                     "Proform 225 CSX PFEX32925 INT.0",
                                     "Proform CSX210",
                                     "Nordictrack GX 4.5 Pro",
-                                    "Proform 325 CSX PFEX439210 INT.0"
+                                    "Proform 325 CSX PFEX439210 INT.0",
+                                    "NordicTrack VR21"
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -4354,7 +4360,8 @@ import Qt.labs.platform 1.1
                                                     settings.proform_225_csx_PFEX32925_INT_0 ? 18 :
                                                     settings.proform_csx210 ? 19 : 
                                                     settings.nordictrack_gx_4_5_pro ? 20 :
-                                                    settings.proform_bike_325_csx_PFEX439210INT_0 ? 21 : 0;
+                                                    settings.proform_bike_325_csx_PFEX439210INT_0 ? 21 : 
+                                                    settings.nordictrack_vr21 ? 22 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -4388,6 +4395,7 @@ import Qt.labs.platform 1.1
                                     settings.proform_xbike = false;
                                     settings.proform_225_csx_PFEX32925_INT_0 = false;
                                     settings.proform_csx210 = false;
+                                    settings.nordictrack_vr21 = false;
                                     settings.proform_bike_325_csx_PFEX439210INT_0 = false;
                                     settings.nordictrack_gx_4_5_pro = false;
 
@@ -4414,6 +4422,7 @@ import Qt.labs.platform 1.1
                                         case 19: settings.proform_csx210 = true; break;
                                         case 20: settings.nordictrack_gx_4_5_pro = true; break;
                                         case 21: settings.proform_bike_325_csx_PFEX439210INT_0 = true; break;
+                                        case 22: settings.nordictrack_vr21 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -8743,6 +8752,8 @@ import Qt.labs.platform 1.1
                                     "Proform Trainer 9.0 (PFTL69921-INT.4)",
                                     "Proform Sport 3.0",
                                     "ProForm Carbon TLX PFTL90924C.7",
+                                    "Proform Trainer 8.0 PFTL59721-INT.0",
+                                    "ProForm Carbon TL PFTL59723.6",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -8815,7 +8826,9 @@ import Qt.labs.platform 1.1
                                                     settings.nordictrack_series_7 ? 53 :
                                                     settings.proform_trainer_9_0 ? 54 :
                                                     settings.proform_treadmill_sport_3_0 ? 55 :
-                                                    settings.proform_carbon_tlx_treadmill ? 56 : 0;
+                                                    settings.proform_carbon_tlx_treadmill ? 56 :
+                                                    settings.proform_trainer_8_0_pftl59721_int_0 ? 57 :
+                                                    settings.proform_carbon_tl_PFTL59723_6 ? 58 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -8886,6 +8899,8 @@ import Qt.labs.platform 1.1
                                     settings.proform_trainer_9_0 = false;
                                     settings.proform_treadmill_sport_3_0 = false;
                                     settings.proform_carbon_tlx_treadmill = false;
+                                    settings.proform_trainer_8_0_pftl59721_int_0 = false;
+                                    settings.proform_carbon_tl_PFTL59723_6 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -8945,6 +8960,8 @@ import Qt.labs.platform 1.1
                                         case 54: settings.proform_trainer_9_0 = true; break;
                                         case 55: settings.proform_treadmill_sport_3_0 = true; break;
                                         case 56: settings.proform_carbon_tlx_treadmill = true; break;
+                                        case 57: settings.proform_trainer_8_0_pftl59721_int_0 = true; break;
+                                        case 58: settings.proform_carbon_tl_PFTL59723_6 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -10611,6 +10628,20 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+                    IndicatorOnlySwitch {
+                        id: gymstickGX60EllipticalDelegate
+                        text: qsTr("Gymstick GX6.0")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.gymstick_gx6_0_elliptical
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.gymstick_gx6_0_elliptical = checked; window.settings_restart_to_apply = true; }
+                    }
 
                     AccordionElement {
                         id: proformEllipticalAccordion
@@ -11772,11 +11803,36 @@ import Qt.labs.platform 1.1
                                 checked: settings.cadence_sensor_as_bike
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.cadence_sensor_as_bike = checked; window.settings_restart_to_apply = true; }
+                                onClicked: {
+                                    settings.cadence_sensor_as_bike = checked;
+                                    if (checked)
+                                        settings.cadence_sensor_as_treadmill = false;
+                                    window.settings_restart_to_apply = true;
+                                }
+                            }
+
+                            IndicatorOnlySwitch {
+                                id: cadenceSensorAsTreadmillDelegate
+                                text: qsTr("Cadence Sensor as a Treadmill")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.cadence_sensor_as_treadmill
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    settings.cadence_sensor_as_treadmill = checked;
+                                    if (checked)
+                                        settings.cadence_sensor_as_bike = false;
+                                    window.settings_restart_to_apply = true;
+                                }
                             }
 
                             Label {
-                                text: qsTr("If your bike doesn’t have Bluetooth, this setting allows you to use a cadence sensor so your bike will work with QZ. Default is off.")
+                                text: qsTr("If your equipment doesn’t have Bluetooth, these settings allow you to use a cadence sensor so it will work with QZ as a bike or treadmill. Default is off.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
