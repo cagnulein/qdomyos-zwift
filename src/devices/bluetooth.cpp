@@ -2071,6 +2071,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(echelonStairclimber, &echelonstairclimber::inclinationChanged, this, &bluetooth::inclinationChanged);
                 echelonStairclimber->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(echelonStairclimber);
+            } else if (b.name().toUpper().startsWith(QLatin1String("STEPCLIMBER ")) &&
+                       !stairmaster8G && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                stairmaster8G = new stairmaster8g(this->pollDeviceTime, noConsole, noHeartService);
+                emit deviceConnected(b);
+                connect(stairmaster8G, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(stairmaster8G, &stairmaster8g::debug, this, &bluetooth::debug);
+                connect(stairmaster8G, &stairmaster8g::speedChanged, this, &bluetooth::speedChanged);
+                connect(stairmaster8G, &stairmaster8g::inclinationChanged, this, &bluetooth::inclinationChanged);
+                stairmaster8G->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(stairmaster8G);
             } else if (b.name().toUpper().startsWith(QLatin1String("SF-S")) &&
                        !sunnyfitStepper && filter) {
                 this->setLastBluetoothDevice(b);
@@ -3718,6 +3731,11 @@ void bluetooth::restart() {
         delete echelonStairclimber;
         echelonStairclimber = nullptr;
     }
+    if (stairmaster8G) {
+
+        delete stairmaster8G;
+        stairmaster8G = nullptr;
+    }
     if (sunnyfitStepper) {
 
         delete sunnyfitStepper;
@@ -4157,6 +4175,8 @@ bluetoothdevice *bluetooth::device() {
         return echelonStride;
     } else if (echelonStairclimber) {
         return echelonStairclimber;
+    } else if (stairmaster8G) {
+        return stairmaster8G;
     } else if (sunnyfitStepper) {
         return sunnyfitStepper;
     } else if (octaneTreadmill) {

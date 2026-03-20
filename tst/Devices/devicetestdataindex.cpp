@@ -341,6 +341,11 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("ECH-UK-", DeviceNameComparison::StartsWithIgnoreCase)
         ->acceptDeviceName("ECH-SD-SPT", DeviceNameComparison::StartsWithIgnoreCase);
 
+    // Stairmaster 8G
+    RegisterNewDeviceTestData(DeviceIndex::Stairmaster8G)
+        ->expectDevice<stairmaster8g>()
+        ->acceptDeviceName("StepClimber ", DeviceNameComparison::StartsWithIgnoreCase);
+
 
     // TODO: check if this is actually used
     // Elite Sterzo Smart
