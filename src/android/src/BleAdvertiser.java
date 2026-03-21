@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseSettings;
@@ -38,6 +39,7 @@ import java.util.UUID;
 public class BleAdvertiser {
     private static final UUID SERVICE_UUID = UUID.fromString("00001826-0000-1000-8000-00805f9b34fb");
     private static final UUID IFIT_SERVICE_DATA_UUID = UUID.fromString("0000fcf1-0000-1000-8000-00805f9b34fb");
+    private static final String IFIT_DEVICE_NAME = "I_EB";
     // PM5 Concept2 UUIDs
     private static final UUID PM5_DISCOVERY_SERVICE_UUID = UUID.fromString("CE060000-43E5-11E4-916C-0800200C9A66");
     private static final UUID PM5_ROWING_SERVICE_UUID = UUID.fromString("CE060030-43E5-11E4-916C-0800200C9A66");
@@ -128,7 +130,22 @@ public class BleAdvertiser {
     public static void startAdvertisingIfit(Context context) {
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager != null) {
-            android.bluetooth.le.BluetoothLeAdvertiser advertiser = bluetoothManager.getAdapter().getBluetoothLeAdvertiser();
+            BluetoothAdapter adapter = bluetoothManager.getAdapter();
+            if (adapter == null) {
+                QLog.e("BleAdvertiser", "Unable to start iFIT advertising: Bluetooth adapter is null");
+                return;
+            }
+
+            if (!IFIT_DEVICE_NAME.equals(adapter.getName())) {
+                boolean renamed = adapter.setName(IFIT_DEVICE_NAME);
+                QLog.d("BleAdvertiser", "Setting iFIT adapter name to " + IFIT_DEVICE_NAME + ": " + renamed);
+            }
+
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser = adapter.getBluetoothLeAdvertiser();
+            if (advertiser == null) {
+                QLog.e("BleAdvertiser", "Unable to start iFIT advertising: BluetoothLeAdvertiser is null");
+                return;
+            }
 
             AdvertiseSettings settings = new AdvertiseSettings.Builder()
                     .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
@@ -137,13 +154,15 @@ public class BleAdvertiser {
                     .build();
 
             AdvertiseData advertiseData = new AdvertiseData.Builder()
-                    .setIncludeDeviceName(true)
                     .addServiceData(new ParcelUuid(IFIT_SERVICE_DATA_UUID), SERVICE_DATA_IFIT)
                     .build();
 
-            if (advertiser != null) {
-                advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
-            }
+            AdvertiseData scanResponse = new AdvertiseData.Builder()
+                    .setIncludeDeviceName(true)
+                    .build();
+
+            QLog.d("BleAdvertiser", "Starting iFIT advertising with service data " + IFIT_SERVICE_DATA_UUID.toString());
+            advertiser.startAdvertising(settings, advertiseData, scanResponse, advertiseCallback);
         }
     }
 
