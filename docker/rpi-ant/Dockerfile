@@ -11,12 +11,9 @@
 #   1. Builder: Compiles Qt5/C++ application with embedded Python ANT+ support
 #   2. Artifact: Minimal busybox container for file extraction only
 #
-# Output: /qdomyos-zwift-arm64-ant/ directory with binary, scripts, configs, and
+# Output: /qdomyos-zwift-aarch64-ant/ directory with binary, scripts, configs, and
 #         bundled Qt5 libraries for cross-Raspberry-Pi-OS-version compatibility
 #
-# Usage:
-#   docker buildx build --platform linux/arm64 -f docker/rpi-ant/Dockerfile .
-#   docker buildx build --build-arg ENABLE_DEBUG_LOGS=1 ...  # Debug mode
 # =============================================================================
 
 # --- Stage 1: The Builder ---
@@ -124,27 +121,27 @@ RUN set -e; \
 FROM busybox:latest
 
 # Copy binary
-COPY --from=builder /app/src/qdomyos-zwift-bin /qdomyos-zwift-arm64-ant/
+COPY --from=builder /app/src/qdomyos-zwift-bin /qdomyos-zwift-aarch64-ant/
 
 # Copy scripts
-COPY src/devices/antlinux/qdomyos-zwift-wrapper.sh /qdomyos-zwift-arm64-ant/qdomyos-zwift
-COPY src/devices/antlinux/setup-dashboard.sh /qdomyos-zwift-arm64-ant/
-COPY src/devices/antlinux/check-qml-deps.sh /qdomyos-zwift-arm64-ant/
+COPY src/devices/antlinux/qdomyos-zwift-wrapper.sh /qdomyos-zwift-aarch64-ant/qdomyos-zwift
+COPY src/devices/antlinux/setup-dashboard.sh /qdomyos-zwift-aarch64-ant/
+COPY src/devices/antlinux/check-qml-deps.sh /qdomyos-zwift-aarch64-ant/
 
 # Copy Python scripts
-COPY src/devices/antlinux/bt_provider.py /qdomyos-zwift-arm64-ant/
-COPY src/devices/antlinux/test_ant.py /qdomyos-zwift-arm64-ant/
-COPY src/devices/antlinux/ant_broadcaster.py /qdomyos-zwift-arm64-ant/
+COPY src/devices/antlinux/bt_provider.py /qdomyos-zwift-aarch64-ant/
+COPY src/devices/antlinux/test_ant.py /qdomyos-zwift-aarch64-ant/
+COPY src/devices/antlinux/ant_broadcaster.py /qdomyos-zwift-aarch64-ant/
 
 # Copy documentation and config
-COPY src/devices/antlinux/README.md /qdomyos-zwift-arm64-ant/
-COPY --from=builder /app/src/devices.ini /qdomyos-zwift-arm64-ant/devices.ini
-COPY --from=builder /app/src/devices/antlinux/devices_optimized.json /qdomyos-zwift-arm64-ant/devices_optimized.json
-COPY --from=builder /app/src/devices/antlinux/.menu_cache /qdomyos-zwift-arm64-ant/.menu_cache
+COPY src/devices/antlinux/README.md /qdomyos-zwift-aarch64-ant/
+COPY --from=builder /app/src/devices.ini /qdomyos-zwift-aarch64-ant/devices.ini
+COPY --from=builder /app/src/devices/antlinux/devices_optimized.json /qdomyos-zwift-aarch64-ant/devices_optimized.json
+COPY --from=builder /app/src/devices/antlinux/.menu_cache /qdomyos-zwift-aarch64-ant/.menu_cache
 
 # Set permissions
-RUN chmod +x /qdomyos-zwift-arm64-ant/qdomyos-zwift && \
-    chmod +x /qdomyos-zwift-arm64-ant/setup-dashboard.sh && \
-    chmod +x /qdomyos-zwift-arm64-ant/check-qml-deps.sh || true
+RUN chmod +x /qdomyos-zwift-aarch64-ant/qdomyos-zwift && \
+    chmod +x /qdomyos-zwift-aarch64-ant/setup-dashboard.sh && \
+    chmod +x /qdomyos-zwift-aarch64-ant/check-qml-deps.sh || true
 
 CMD ["/bin/sh"]

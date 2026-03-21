@@ -22,7 +22,7 @@ declare -r QZ_SETUP_VERSION="3.1.1"
 # Initialize critical global variables to satisfy 'set -u'
 UI_FD=2
 _UI_FD_VAR=2
-LOG_TOP=13
+LOG_TOP=11
 LOG_BOTTOM=21
 INNER_COLS=78
 INFO_WIDTH=78
@@ -800,12 +800,19 @@ if [ "$USE_COLOR" = true ]; then
     declare -r GRAY=$'\033[0;90m'
     declare -r BOLD_GRAY=$'\033[1;90m'
     declare -r BG_GRAY=$'\033[100m'
+    declare -r REVERSE_ON=$'\033[7m'
+    declare -r REVERSE_OFF=$'\033[27m'
+    declare -r BG_BLUE=$'\033[44m'       # Blue background for STATUS header
+    declare -r BG_CYAN=$'\033[46m'       # Cyan background for info panel header  
+    declare -r DARK=$'\033[0;30m'        # Dark/black text for use on light backgrounds
 else
     # Color/format variables intentionally defined (may be used externally)
     declare -r RED=''; declare -r GREEN=''; declare -r YELLOW=''; declare -r BLUE=''; declare -r CYAN=''; declare -r WHITE=''; declare -r GRAY=''; declare -r NC=''
     declare -r BG_GREEN=''; declare -r BG_GRAY=''
     declare -r BOLD=''; declare -r BOLD_RED=''; declare -r BOLD_GREEN=''; declare -r BOLD_BLUE=''; declare -r BOLD_CYAN=''; declare -r BOLD_WHITE=''; declare -r BOLD_YELLOW=''
     declare -r ORANGE=''; declare -r BOLD_GRAY=''
+    declare -r REVERSE_ON=''; declare -r REVERSE_OFF=''
+    declare -r BG_BLUE=''; declare -r BG_CYAN=''; declare -r DARK=''
 fi
  
 SYMBOL_PASS="✓"
@@ -816,7 +823,7 @@ SYMBOL_PENDING="●"
 SYMBOL_LOCKED="◈"
 SYMBOL_WORKING="⟳"
 SYMBOL_LOCKED="◈"
-PROTECTED_ITEMS=("python311" "qt5_libs" "qml_modules" "bluetooth" "lsusb")
+PROTECTED_ITEMS=("python311" "qt5_libs" "qml_modules" "bluetooth" "lsusb" "bluez_compat")
 
 # Many variables below are intentionally defined for optional export or indirect use
 # Disable these ShellCheck warnings in bulk to reduce noise during iterative cleanup
@@ -960,15 +967,6 @@ init_width_calculator() {
     _WIDTH_CALC_INITIALIZED=1
 }
 
-
-# ============================================================================
-# LAYOUT CONFIGURATION
-# ============================================================================ 
-    
-# Standard 24-line terminal geometry
-LOG_TOP=13
-LOG_BOTTOM=21
-
 # Compute terminal widths dynamically and cap inner width to 78 columns so
 # the UI never attempts to render wider than the standard 80-column layout.
 local_cols=$(tput cols 2>/dev/null || echo 80)
@@ -997,6 +995,9 @@ declare -A STATUS_MAP=(
     ["config_file"]="pending"
     ["qz_service"]="pending"
     ["ant_dongle"]="pending"
+    ["bluez_compat"]="pending"
+    ["ant_footpod_flag"]="pending"
+    ["service_enabled"]="pending"
 )
 
 # Capture detailed failure info for services (populated when a unit reports 'failed')
@@ -1007,17 +1008,14 @@ declare -A SERVICE_FAILURE_INFO=()
 # "Generate & Install Service" even when the unit is running/stopped.
 SVC_PYTHONHOME_STALE=false
 
-
-
-# Status grid definition: each entry is "Left Label|Left Key|Right Label|Right Key"
 declare -a STATUS_GRID=(
-    "Python ${PYTHON_VERSION_MAJOR} Library|python311|User in plugdev|plugdev"
-    "Python Virtual Environment|venv|USB udev Rules|udev_rules"
-    "Python PIPs|pkg_pips|lsusb Command|lsusb"
-    "Qt5 Runtime Libraries|qt5_libs|Config File|config_file"
-    "QML Modules|qml_modules|ANT+ USB Dongle|ant_dongle"
-    "Bluetooth Service|bluetooth|QZ Service|qz_service"
+    "Python ${PYTHON_VERSION_MAJOR} Library|python311|User in plugdev|plugdev|ANT+ USB Dongle|ant_dongle"
+    "Python Virtual Environment|venv|USB udev Rules|udev_rules|lsusb Command|lsusb"
+    "Python PIPs|pkg_pips|Qt5 Runtime Libs|qt5_libs|QML Modules|qml_modules"
+    "Config File|config_file|Bluetooth Service|bluetooth|BLE Peripheral|bluez_compat"
+    "QZ Service|qz_service|ANT+ Flag|ant_footpod_flag|Boot Enabled|service_enabled"
 )
+
 # When set to 1, draw_status_row always renders 3 columns with a consistent
 # full-height vertical divider, even when R2 content is absent.
 STATUS_THREE_COLS=1
@@ -1609,6 +1607,44 @@ draw_status_row() {
                 ;;
         esac
     fi
+
+    # --- DYNAMIC LABEL LOGIC FOR BLUEZ COMPAT (R2 column) ---
+    if [[ "$R2_key" == "bluez_compat" ]]; then
+        local bver
+        bver=$(bluetoothctl --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | head -1)
+        if [[ "$IS_PI" == "true" ]]; then
+            R2_label="Pi BlueZ ${bver:-?}"
+        else
+            local bver_int=0
+            if [[ -n "$bver" ]]; then
+                local bmaj="${bver%%.*}" bmin="${bver##*.}"
+                bver_int=$(( bmaj * 100 + bmin ))
+            fi
+            if [[ $bver_int -gt 0 && $bver_int -lt 570 ]]; then
+                R2_label="v${bver} compatible"
+            else
+                R2_label="No BLE Emulation"
+            fi
+        fi
+    fi
+
+    # --- DYNAMIC LABEL LOGIC FOR ANT+ FLAG ---
+    # Show "warn" as informational — service may not be installed yet
+    if [[ "$R_key" == "ant_footpod_flag" ]]; then
+        if [[ "${STATUS_MAP[qz_service]:-pending}" == "pending" || \
+              "${STATUS_MAP[qz_service]:-pending}" == "fail" ]]; then
+            R_label="ANT+ Flag"  # greyed pending - no service to check
+        fi
+    fi
+
+    # --- DYNAMIC LABEL LOGIC FOR SERVICE ENABLED ---
+    if [[ "$R2_key" == "service_enabled" ]]; then
+        local svc_en="${STATUS_MAP[service_enabled]:-pending}"
+        [[ "$svc_en" == "pass" ]] && R2_label="Autostart on" || R2_label="No Autostart"
+    fi
+
+    # --------------------------------------
+
     # Check left side too
     if [[ "$L_key" == "qz_service" ]]; then
         local svc_status; svc_status=$(get_service_status)
@@ -1662,7 +1698,11 @@ draw_status_row() {
 
     # Right Column
     local R_content R_len
-    if [[ "$R_key" == "equipment_model" ]]; then
+    if [[ -z "$R_key" ]]; then
+        # No R1 item for this row — render blank, not a pending dot
+        R_content=""
+        R_len=0
+    elif [[ "$R_key" == "equipment_model" ]]; then
         local max_w=$(( (INNER_COLS / 2) - 18 ))
         local trunc_m="${R_val}"
         if [[ ${#R_val} -gt $max_w ]]; then trunc_m="${R_val:0:$max_w}"; fi
@@ -1734,7 +1774,7 @@ draw_status_row() {
         printf -v R1_padded "%s%*s" "$R_content"  "$pad_r1" ""
         printf -v R2_padded "%s%*s" "$R2_content" "$pad_r2" ""
 
-        print_at "$row" "${BLUE}║${NC} ${L_padded}${BLUE}│${NC} ${R1_padded}${BLUE}│${NC} ${R2_padded}${BLUE}║${NC}"
+        print_at "$row" "${BLUE}║${NC} ${L_padded}${BLUE}║${NC} ${R1_padded}${BLUE}║${NC} ${R2_padded}${BLUE}║${NC}"
     else
         # ── Standard 2-column row ────────────────────────────────────────────
         local pad_r=$((right_w - R_len))
@@ -1784,8 +1824,8 @@ draw_header_equipment_line() {
     # 2. Calculate Available Space
     # Fixed Labels:
     # "  Equipment : " (14 chars)
-    # " | Model: "     (10 chars)
-    # " | BLE: "       ( 8 chars)
+    # " • Model: "     (10 chars)
+    # " • BLE: "       ( 8 chars)
     # Total Overhead: 32 chars
     local avail_width=$(( inner_w - 32 ))
 
@@ -1822,7 +1862,7 @@ draw_header_equipment_line() {
     [[ "$bt_name" == "None" ]] && ble_disp="${GRAY}${bt_name}${NC}"
 
     # 7. Construct Line
-    local line="  Equipment : ${type_disp}${CYAN} | Model: ${model_disp}${CYAN} | BLE: ${ble_disp}"
+    local line="  Equipment : ${type_disp}${CYAN} • Model: ${model_disp}${CYAN} • BLE: ${ble_disp}"
     
     # 8. Calculate Raw Length for Padding (Sum of labels + value lengths)
     local raw_len=$(( 14 + type_len + 10 + ${#trunc_m} + 8 + ${#trunc_b} ))
@@ -1883,7 +1923,7 @@ draw_top_panel() {
     local inner_w=${INNER_COLS:-80}
     
     # 1. Top Border (Row 0)
-    draw_hr 0 "╔" "╗" "QZ ANT+ BRIDGE SETUP & DIAGNOSTICS UTILITY" "" "" ""
+    draw_hr 0 "╔" "╗" "QZ ANT+ BRIDGE SETUP & DIAGNOSTICS UTILITY" "${BG_BLUE}${BOLD_WHITE}" "" ""
 
     # 2. User / Host / Env Line (Row 1)
     local u_str="${TARGET_USER:-root}"
@@ -1895,16 +1935,14 @@ draw_top_panel() {
     # Get first IP address only (fast, no external DNS lookup)
     h_ip=$(hostname -I 2>/dev/null | cut -d' ' -f1)
     
+    # Truncate hostname to prevent Env: being cut off
+    [[ ${#h_name} -gt 28 ]] && h_name="${h_name:0:26}…"
     local host_str="${h_name}"
     [[ -n "$h_ip" ]] && host_str="${h_name} (${h_ip})"
-
-    # Get Environment
     local env_str="Headless"
-    if [[ "${HAS_GUI:-false}" == true ]]; then env_str="GUI"; fi
-    
-    # Construct Line: "  User: adam | Host: mypi (192.168.1.5) | Env: Headless"
-    local line="  User: ${u_str} | Host: ${host_str} | Env: ${env_str}"
-    
+    if [[ "${HAS_GUI:-false}" == true ]]; then env_str="Desktop GUI"; fi
+    local line="  ${u_str} @ ${host_str}  •  ${env_str}"
+
     # Safety truncation if hostname/IP is very long
     if [[ ${#line} -gt $((inner_w)) ]]; then
         line="${line:0:$((inner_w - 1))}…"
@@ -1924,7 +1962,7 @@ draw_top_panel() {
     draw_header_equipment_line
 
     # 4. Status Divider (Row 5)
-    draw_hr 5 "╠" "╣" "STATUS" "$BOLD_WHITE" "" ""
+    draw_hr 5 "╠" "╣" "STATUS" "${BG_BLUE}${BOLD_WHITE}" "" ""
     
     # 5. Status Grid (Rows 6-11)
     render_status_grid 6
@@ -1960,9 +1998,8 @@ render_dashboard_atomic() {
     draw_top_panel
     
     # UPDATE: Pass "true" to explicitly show "L: Legend" on the main dashboard
-    draw_bottom_panel_header "$header_text" "true"
-    
     clear_info_area
+    draw_bottom_panel_header "$header_text" "true"  
     
     if [[ -n "$CURRENT_INSTRUCTION" ]]; then
         draw_instructions_bottom "$CURRENT_INSTRUCTION"
@@ -1992,7 +2029,7 @@ draw_hr() {
     
     if [[ -n "$text" ]]; then
         # Blue borders -> Space -> Colored Text -> Reset -> Space
-        start_str="${BLUE}═══  ${color}${text}${NC}  "
+        start_str="${BLUE}═══${color}  ${text}  ${NC}"
         start_len=$(( 3 + 2 + ${#text} + 2 ))
     fi
     
@@ -2177,7 +2214,7 @@ clear_info_area() {
     local empty_row="${BLUE}║${NC}${empty_space}${BLUE}║${NC}"
     
     # Loop through rows and use print_at (which handles buffering/direct automatically)
-    for ((r=${LOG_TOP:-13}; r<=${LOG_BOTTOM:-21}; r++)); do
+    for ((r=$((${LOG_TOP:-11} + 1 )); r<=${LOG_BOTTOM:-21}; r++)); do
         print_at "$r" "$empty_row"
     done
 }
@@ -2212,12 +2249,14 @@ draw_error_screen() {
     enter_ui_mode
     clear_info_area
 
+    draw_bottom_panel_header "$title" "false"
+
     # Start at the very top row of the info area (Row 13)
-    local row=$((LOG_TOP))
+    local row=$((LOG_TOP + 2))
     
     # Title - High visibility
     draw_sealed_row "$row" "   ${BOLD_RED}▶ ${title}${NC}"
-    row=$((row + 1))
+    ((row++))
     draw_sealed_row "$row" "   $(printf '%.0s─' $(seq 1 $((INNER_COLS - 6))))"
 
     # Wrap message - leave room for borders
@@ -2225,7 +2264,7 @@ draw_error_screen() {
     IFS=$'\n' read -r -d '' -a wrapped < <(printf '%b' "$msg" | fold -s -w $((INFO_WIDTH - 6)) && printf '\0')
 
     for line in "${wrapped[@]}"; do
-        row=$((row + 1))
+        ((row++))
         # Safety: Stop if we reach the bottom row to preserve the footer area
         if [ "$row" -le "$LOG_BOTTOM" ]; then
             draw_sealed_row "$row" "   ${RED}${line}${NC}"
@@ -2234,7 +2273,7 @@ draw_error_screen() {
 
     # Fill remaining rows with empty borders to keep UI clean
     while [ "$row" -lt "$LOG_BOTTOM" ]; do
-        row=$((row + 1))
+        ((row++))
         draw_sealed_row "$row" ""
     done
 
@@ -2267,14 +2306,14 @@ draw_info_screen() {
     clear_info_area
 
     # Draw Title
-    local row=$((LOG_TOP + 1))
+    local row=$((LOG_TOP + 2))
     draw_sealed_row "$row" "   ${BOLD_BLUE}${title}${NC}"
 
     # Wrap and Draw Message
     local wrapped
     IFS=$'\n' read -r -d '' -a wrapped < <(printf '%b' "$msg" | fold -s -w $((INFO_WIDTH - 3)) && printf '\0')
     for line in "${wrapped[@]}"; do
-        row=$((row + 1))
+        ((row++))
         draw_sealed_row "$row" "   ${NC}${line}${NC}"
     done
 
@@ -2308,9 +2347,8 @@ draw_bottom_panel_header() {
         legend_color="$GRAY"
     fi
     
-    # Row 12 is the standard middle divider
-    # Args: Row, Left, Right, Title, TitleColor, Legend, LegendColor
-    draw_hr 12 "╠" "╣" "$title" "$BOLD_WHITE" "$legend_text" "$legend_color"
+    # Divider sits at LOG_TOP, which shifts automatically with the status grid size
+    draw_hr "${LOG_TOP}" "╠" "╣" "$title" "${BG_BLUE}${BOLD_WHITE}" "$legend_text" "$legend_color"
 }
 
 draw_instructions_bottom() {
@@ -2366,9 +2404,9 @@ show_legend_popup() {
     p_row "" 
     p_row "   ${GREEN}${SYMBOL_PASS}${NC}  Ready       — Working correctly"
     p_row "   ${YELLOW}${SYMBOL_STOPPED}${NC}  Stopped     — Service inactive"
-    p_row "   ${YELLOW}${SYMBOL_WARN}${NC}  Warning     — Restart required"
+    p_row "   ${YELLOW}${SYMBOL_WARN}${NC}  Warning     — Needs restart or attention"
     p_row "   ${RED}${SYMBOL_FAIL}${NC}  Missing     — Mandatory (Needs installation)"
-    p_row "   ${GRAY}${SYMBOL_PENDING}${NC}  Pending     — Missing but optional"
+    p_row "   ${GRAY}${SYMBOL_PENDING}${NC}  Pending     — Missing but optional or not supported"
     p_row "   ${BOLD_GRAY}${SYMBOL_LOCKED}${NC}  Protected   — System-managed item"
 
     draw_bottom_border "Press any key to continue"
@@ -2955,7 +2993,7 @@ configure_emulation_flow() {
                 bluez_ver=$(bluetoothctl --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | head -1)
                 draw_bottom_panel_header "INCOMPATIBLE BLUEZ VERSION" "false"
                 clear_info_area
-                local r=$((LOG_TOP + 1))
+                local r=$((LOG_TOP + 2))
                 draw_sealed_row "$r" "   Your BlueZ version ${BOLD_RED}${bluez_ver}${NC} sends an unsolicited Security"; ((r++))
                 draw_sealed_row "$r" "   request to connecting devices. Fitness apps (QZ, Zwift) treat"; ((r++))
                 draw_sealed_row "$r" "   this as unexpected and immediately disconnect."; ((r++))
@@ -2964,7 +3002,7 @@ configure_emulation_flow() {
                 draw_sealed_row "$r" "   ${CYAN}To use emulation, either:${NC}"; ((r++))
                 draw_sealed_row "$r" "   • Run on Raspberry Pi (BlueZ 5.66 - confirmed working)"; ((r++))
                 draw_sealed_row "$r" "   • Downgrade BlueZ: sudo apt install bluez=5.66-*"; ((r++))
-                draw_sealed_row "$r" "   • Use with no treadmill emulation)"; ((r++))
+                draw_sealed_row "$r" "   • Use headless mode: -no-gui -ant-footpod (no BLE emulation)"; ((r++))
                 draw_bottom_border "Press any key to go back"
                 local k=""; safe_read_key k
                 continue
@@ -3866,6 +3904,45 @@ _logic_check_bluetooth() {
     systemctl is-active --quiet bluetooth.service 2>/dev/null && echo "pass" || echo "fail"
 }
 
+_logic_check_ant_footpod_flag() {
+    load_service_config >/dev/null 2>&1
+    if [[ "${SERVICE_FLAGS[ant_footpod]:-false}" == "true" ]]; then
+        echo "pass"
+    else
+        echo "warn"
+    fi
+}
+
+_logic_check_service_enabled() {
+    is_service_enabled 2>/dev/null && echo "pass" || echo "pending"
+}
+
+check_bluez_compat() {
+    run_check "bluez_compat" "_logic_check_bluez_compat" true; 
+}
+
+_logic_check_bluez_compat() {
+    # Pass on Pi (BlueZ 5.66 confirmed working).
+    # Pass on desktop Linux with BlueZ < 5.70 (Just Works pairing works).
+    # Warn on desktop Linux with BlueZ 5.70+ — unsolicited SMP Security Request
+    # causes phone to disconnect before GATT opens. Emulation is blocked via
+    # configure_emulation_flow(). Core ANT+ headless operation is unaffected.
+    # See: bluez_supports_ble_peripheral_justworks() and configure_emulation_flow()
+    if [[ "$IS_PI" == "true" ]]; then
+        echo "pass"; return
+    fi
+    local ver
+    ver=$(bluetoothctl --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | head -1)
+    if [[ -z "$ver" ]]; then echo "pass"; return; fi  # can't detect = don't block
+    local major="${ver%%.*}" minor="${ver##*.}"
+    local ver_int=$(( major * 100 + minor ))
+    if [[ $ver_int -ge 570 ]]; then
+        echo "pending"
+    else
+        echo "pass"
+    fi
+}
+
 _logic_check_lsusb() {
     command -v lsusb >/dev/null 2>&1 && echo "pass" || echo "fail"
 }
@@ -4126,6 +4203,8 @@ check_udev_rules()     { run_check "udev_rules" "_logic_check_udev_rules" true; 
 check_config_file()    { run_check "config_file" "_logic_check_config_file" true; }
 check_qz_service()     { run_check "qz_service" "_logic_check_qz_service" true; }
 check_ant_dongle()     { run_check "ant_dongle" "_logic_check_ant_dongle" true; }
+check_ant_footpod_flag() { run_check "ant_footpod_flag" "_logic_check_ant_footpod_flag" true; }
+check_service_enabled()  { run_check "service_enabled"  "_logic_check_service_enabled"  true; }
 
 run_all_checks() {
     local mode="${1:-dashboard}" # "dashboard" or "splash"
@@ -4135,16 +4214,17 @@ run_all_checks() {
     local -a status_keys=(
         "python311" "venv" "pkg_pips" "qt5_libs" "qml_modules"
         "bluetooth" "plugdev" "udev_rules" "lsusb"
-        "config_file" "qz_service" "ant_dongle"
+        "config_file" "qz_service" "ant_dongle" "bluez_compat"
+        "ant_footpod_flag" "service_enabled"
     )
     
     # These are the middle-parts of the function names (check_NAME_fast)
     local -a func_parts=(
         "python311" "venv" "python_packages" "qt5_libs" "qml_modules"
         "bluetooth" "plugdev" "udev_rules" "lsusb"
-        "config_file" "qz_service" "ant_dongle"
+        "config_file" "qz_service" "ant_dongle" "bluez_compat"
+        "ant_footpod_flag" "service_enabled"
     )
-
     local total_checks=${#status_keys[@]}
 
     # 1. Launch all checks in background
@@ -4453,7 +4533,8 @@ perform_bluetooth_scan() {
         chmod 0666 "$bt_fifo" 2>/dev/null
         
         # Start Python
-        "$venv_py" -u "$py_script" >"$bt_fifo" 2>&1 < /dev/null &
+        #"$venv_py" -u "$py_script" >"$bt_fifo" 2>&1 < /dev/null &
+        "$venv_py" -u "$py_script" >"$bt_fifo" 2>/tmp/bt_stderr.log < /dev/null &
         BT_SCAN_PID=$!
         
         sleep 0.5
@@ -4488,14 +4569,18 @@ perform_bluetooth_scan() {
                 break
             fi
 
-            if ! kill -0 "$BT_SCAN_PID" 2>/dev/null; then py_status="STOPPED"; fi
+            if ! kill -0 "$BT_SCAN_PID" 2>/dev/null; then
+                py_status="STOPPED"
+                STOP_SCAN=1
+                exec 4<&- 2>/dev/null || true   # close FIFO immediately to prevent read -u 4 blocking
+            fi
 
             # B. DATA INGESTION
             local raw_data
             local batch_count=0
             local max_batch=50 
             
-            if read -u 4 -t 0.02 -r raw_data 2>/dev/null; then
+            if [[ $STOP_SCAN -eq 0 ]] && read -u 4 -t 0.02 -r raw_data 2>/dev/null; then
                 while true; do
                     if (( batch_count % 10 == 0 )); then
                         if read -rsn1 -t 0.001 _unused </dev/tty 2>/dev/null; then
@@ -4507,7 +4592,7 @@ perform_bluetooth_scan() {
                     raw_data=${raw_data//$'\r'/}
                     
                     # DEBUG: Uncomment to log raw data
-                    # echo "DEBUG: raw_data='$raw_data'" >> /tmp/bt_scan_debug.log
+                    echo "DEBUG: raw_data='$raw_data'" >> /tmp/bt_scan_debug.log
                     
                     if [[ "$raw_data" == STATUS\|* ]]; then
                         local _ status_msg
@@ -4545,14 +4630,18 @@ perform_bluetooth_scan() {
                                     fi
                                     
                                     if [[ $valid -eq 1 ]]; then
-                                        local clean_label="${l//[$'\e']\[[0-9;]*m/}"
+                                        local clean_label="${l//[$'\e']\\[[0-9;]*m/}"
                                         clean_label="${clean_label//[^[:print:]]/}"
+                                        clean_label="${clean_label#"${clean_label%%[![:space:]]*}"}"
+                                        clean_label="${clean_label%"${clean_label##*[![:space:]]}"}"
                                         
-                                        local new_idx=${#macs[@]}
-                                        macs+=("$m")
-                                        rssis+=("$r")
-                                        devices+=("$clean_label")
-                                        MAC_INDEX["$m"]=$new_idx
+                                        if [[ -n "$clean_label" ]]; then
+                                            local new_idx=${#macs[@]}
+                                            macs+=("$m")
+                                            rssis+=("$r")
+                                            devices+=("$clean_label")
+                                            MAC_INDEX["$m"]=$new_idx
+                                        fi
                                     fi
                                 fi
                             fi
@@ -4561,14 +4650,14 @@ perform_bluetooth_scan() {
 
                     ((batch_count++))
                     if (( batch_count >= max_batch )); then break; fi
-                    if ! read -u 4 -t 0 -r raw_data 2>/dev/null; then break; fi
+                    if [[ $STOP_SCAN -eq 1 ]] || ! read -u 4 -t 0 -r raw_data 2>/dev/null; then break; fi
                 done
             fi
             
             if [[ $STOP_SCAN -eq 1 ]]; then break; fi
 
             # C. THROTTLED RENDER
-            if (( SECONDS > last_draw_time )); then
+            if (( SECONDS >= last_draw_time + 2 )); then
                 last_draw_time=$SECONDS
                 ((loop_count++))
 
@@ -4617,85 +4706,83 @@ perform_bluetooth_scan() {
                 else
                     title+="${py_status}..."
                 fi
+                # --- ATOMIC SCAN RENDER ---
+                # Two-tier render to minimise PTY bytes per frame:
+                # Tier 1 (device list changed): redraw device rows only - no full clear
+                # Tier 2 (RSSI update): redraw device rows in-place
+                # Both tiers update header + spinner atomically.
+                # Never uses clear_info_area - eliminates the 900-byte burst
+                # that was causing PTY buffer saturation and display freeze.
+                local count_changed=0
+                last_device_count=${#macs[@]}
+
+                # --- DIAGNOSTIC LOGGING ---
+                {
+                    echo "=== RENDER at SECONDS=$SECONDS last_draw=$last_draw_time loop=$loop_count ==="
+                    echo "  macs count=${#macs[@]} last_device_count=$last_device_count count_changed=$count_changed"
+                    for ((di=0; di<${#macs[@]}; di++)); do
+                        echo "  device[$di]: mac=${macs[$di]} rssi=${rssis[$di]} name='${devices[$di]}'"
+                    done
+                } >> /tmp/bt_scan_debug.log
+
+                ATOMIC_RENDER_MODE=1
+                ATOMIC_BUFFER=""
+
+                # Always update header and spinner
                 draw_bottom_panel_header "$title" "false"
-                
-                # Clear when: device count changed OR first iteration
-                if [[ ${#macs[@]} -ne $last_device_count ]] || [[ $loop_count -eq 1 ]]; then
-                    clear_info_area
-                    last_device_count=${#macs[@]}
-                fi
-                
-                # Spacer row at top
-                draw_sealed_row "$LOG_TOP" ""
-                
-                # Render devices (7 max with spacer row)
-                for ((i=0; i<7; i++)); do
-                    local row=$((LOG_TOP + 1 + i))
+                draw_bottom_border "Scanning... ${spin_chars[$((loop_count % 10))]} | Any key to stop"
+
+                # Redraw device rows (always - covers both RSSI update and new devices)
+                for ((i=0; i<8; i++)); do
+                    local row=$((LOG_TOP + 2 + i))
                     if [ "$i" -lt "${#macs[@]}" ]; then
                         local s=${rssis[$i]}
                         local s_col r_col
-                        # Cache RSSI bars for performance
                         if [[ -n "${RSSI_BAR_CACHE[${s}_bar]:-}" ]]; then
                             s_col="${RSSI_BAR_CACHE[${s}_bar]}"; r_col="${RSSI_BAR_CACHE[${s}_num]}"
                         else
                             read -r s_col r_col < <(draw_rssi_bar_fixed "$s" 10)
-                            RSSI_BAR_CACHE[${s}_bar]="$s_col"
-                            RSSI_BAR_CACHE[${s}_num]="$r_col"
+                            RSSI_BAR_CACHE[${s}_bar]="$s_col"; RSSI_BAR_CACHE[${s}_num]="$r_col"
                         fi
-
-                        local name="${devices[$i]}"
-                        local mac="${macs[$i]}"
+                        local name="${devices[$i]}" mac="${macs[$i]}"
                         local is_connected="${IS_CONNECTED[$mac]:-0}"
-                        
-                        # Determine color: Connected devices in cyan, saved devices in cyan, others white
                         local color="$BOLD_WHITE"
-                        if [[ $is_connected -eq 1 ]]; then
-                            color="$BOLD_CYAN"
-                        elif [[ -n "$saved_name" && "$name" == "$saved_name" ]]; then
-                            color="$BOLD_CYAN"
-                        fi
-                        
-                        # Add [CONNECTED] tag for connected devices
+                        [[ $is_connected -eq 1 ]] && color="$BOLD_CYAN"
+                        [[ -n "$saved_name" && "$name" == "$saved_name" ]] && color="$BOLD_CYAN"
                         local display_name="$name"
-                        if [[ $is_connected -eq 1 ]]; then
-                            display_name="${name} ${GREEN}[CONNECTED]${NC}"
-                        fi
-
-                        local vis_name="$display_name"
-                        # Adjust max length to account for [CONNECTED] tag (12 chars)
-                        local max_len=38
-                        if [[ $is_connected -eq 1 ]]; then
-                            max_len=26  # 38 - 12 for [CONNECTED]
-                            if [[ ${#name} -gt $max_len ]]; then
-                                vis_name="${name:0:$max_len} ${GREEN}[CONNECTED]${NC}"
-                            fi
-                        else
-                            if [[ ${#name} -gt $max_len ]]; then
-                                vis_name="${name:0:$max_len}"
-                            fi
-                        fi
-                        
-                        # Calculate padding (accounting for ANSI codes)
-                        local plain_len=${#name}
-                        if [[ $is_connected -eq 1 ]]; then
-                            plain_len=$(( plain_len + 12 ))  # " [CONNECTED]"
-                        fi
+                        [[ $is_connected -eq 1 ]] && display_name="${name} ${GREEN}[CONNECTED]${NC}"
+                        local max_len=38; [[ $is_connected -eq 1 ]] && max_len=26
+                        [[ ${#name} -gt $max_len ]] && display_name="${name:0:$max_len}${is_connected:+ ${GREEN}[CONNECTED]${NC}}"
+                        local plain_len=${#name}; [[ $is_connected -eq 1 ]] && plain_len=$((plain_len+12))
                         local pad_n=$(( 40 - plain_len )); [[ $pad_n -lt 0 ]] && pad_n=0
-                        local padding_n=""
-                        if (( pad_n > 0 )); then printf -v padding_n '%*s' "$pad_n" ""; fi
-                        local name_col="${color}${vis_name}${NC}${padding_n}"
-                        
+                        local padding_n=""; (( pad_n > 0 )) && printf -v padding_n '%*s' "$pad_n" ""
+                        local name_col="${color}${display_name}${NC}${padding_n}"
                         local mac_col; printf -v mac_col '%-17s' "${macs[$i]}"
-                        draw_sealed_row "$row" "  ${name_col}  ${mac_col}  ${s_col} ${r_col}"
-                    else
-                        draw_sealed_row "$row" ""
+                        
+                        # Direct print_at bypasses get_vis_width subshell spawns
+                        # Device rows are fixed-width and known to fit INNER_COLS
+                        print_at "$row" "${BLUE}║${NC}  ${name_col}  ${mac_col}  ${s_col} ${r_col} ${BLUE}║${NC}"
+                    elif [[ $count_changed -eq 1 ]]; then
+                        # Only blank out rows beyond device list when count changed
+                        local _blank; printf -v _blank "%*s" "$INNER_COLS" ""
+                        print_at "$row" "${BLUE}║${NC}${_blank}${BLUE}║${NC}"
                     fi
                 done
 
-                draw_bottom_border "Scanning... ${spin_chars[$((loop_count % 10))]} | Any key to stop"
+                # Flush atomically
+                local fd="${UI_FD:-2}"
+                printf "%b" "$ATOMIC_BUFFER" >&"$fd"
+
+                # --- DIAGNOSTIC: log buffer size and flush confirmation ---
+                echo "  ATOMIC_BUFFER size=${#ATOMIC_BUFFER} flush_done=yes" >> /tmp/bt_scan_debug.log
+                ATOMIC_RENDER_MODE=0
+                ATOMIC_BUFFER=""
             fi
         done
-
+        # SAFETY: ensure atomic mode is always off when exiting scan loop
+        ATOMIC_RENDER_MODE=0
+        ATOMIC_BUFFER=""
+        
         # --- PHASE 2: SELECTION ---
         stop_bt_engine
         
@@ -5694,10 +5781,10 @@ show_unified_menu() {
     fi
 
     # Terminal Geometry
-    local top_row=${LOG_TOP:-13}
+    local top_row=${LOG_TOP:-11}
     local bottom_row=${LOG_BOTTOM:-21}
     local full_height=$(( bottom_row - top_row + 1 ))
-    local content_height=$(( full_height - 2 ))
+    local content_height=$(( full_height - 3 ))
     
     # Column Widths
     local menu_width=$INNER_COLS
@@ -5729,11 +5816,14 @@ show_unified_menu() {
                 local cur_r=$(( top_row + r ))
                 local menu_text=""
                 
-                if (( r == 0 || r == full_height - 1 )); then
+                if (( r == 0 )); then
+                    : # Header row — drawn by draw_bottom_panel_header, never overwrite
+                elif (( r == full_height - 1 || r == 1 )); then
                     printf -v menu_text "%*s" "$menu_width" ""
+                    print_at_col "$cur_r" 2 "$menu_text"
                 else
-                    local item_idx=$(( start_idx + r - 1 ))
-                    if (( item_idx < total_count )); then
+                    local item_idx=$(( start_idx + r - 2 ))
+                    if (( item_idx >= 0 && item_idx < total_count )); then
                         local item_txt="${_ref_items[$item_idx]}"
                         if (( item_idx == selected )); then
                             menu_text=$(printf "   ${CYAN}► ${BOLD_CYAN}%-$(($menu_width - 5))s${NC}" "$item_txt")
@@ -5743,13 +5833,12 @@ show_unified_menu() {
                     else
                         printf -v menu_text "%*s" "$menu_width" ""
                     fi
+                    # Print the Left (Menu) part
+                    print_at_col "$cur_r" 2 "$menu_text"
                 fi
-                
-                # Print the Left (Menu) part
-                print_at_col "$cur_r" 2 "$menu_text"
 
                 # Print the help part (Right side)
-                if [[ "$has_help" == "true" ]]; then                 
+                if [[ "$has_help" == "true" && $r -ne 0 ]]; then             
                     # Clear gap and help area
                     printf -v clear_help "%*s" $((INNER_COLS - help_start_col + 2)) ""
                     print_at_col "$cur_r" $((help_start_col - 1)) "$clear_help"
@@ -5760,7 +5849,7 @@ show_unified_menu() {
             if [[ "$has_help" == "true" ]]; then
                 local help_text="${_ref_help[$selected]:-}"
                 local help_width=$(( INNER_COLS - help_start_col ))
-                local help_row=$(( top_row + 1 ))
+                local help_row=$(( top_row + 2 ))
                 
                 # Simple word wrap and print
                 echo "$help_text" | fold -s -w "$help_width" | while read -r line; do
@@ -6680,7 +6769,7 @@ perform_ant_test() {
                     stale_count=0
                 fi
 
-                draw_sealed_row $((LOG_TOP + 1)) "   ${BOLD_WHITE}$(printf '%-15s' "$stage")${NC}ID:54321   ${CYAN}Pace:${pace}  Cad:${cad}  Spd:${spd}${NC}"
+                draw_sealed_row $((LOG_TOP + 2)) "   ${BOLD_WHITE}$(printf '%-15s' "$stage")${NC}ID:54321   ${CYAN}Pace:${pace}  Cad:${cad}  Spd:${spd}${NC}"
 
                 local line_without_bar="   ${CYAN}[ $(printf '%2d' "$t_now")s / $(printf '%2d' "$t_max")s ]${NC}  "
                 local line_vis; line_vis=$(get_display_width "$line_without_bar")
@@ -6691,13 +6780,13 @@ perform_ant_test() {
                 [[ $fill -gt $bar_w ]] && fill=$bar_w
                 
                 local p_bar="${BG_GREEN}$(printf '%*s' "$fill" "")${BG_GRAY}$(printf '%*s' "$((bar_w - fill))" "")${NC}"
-                draw_sealed_row $((LOG_TOP + 2)) "${line_without_bar}${p_bar}"
+                draw_sealed_row $((LOG_TOP + 3)) "${line_without_bar}${p_bar}"
                 
                 last_displayed_line="$line"
             else
                 if [[ "$line" != "$last_displayed_line" ]]; then
                     local spin_char="${spinner[$((sc % 10))]}"
-                    draw_sealed_row $((LOG_TOP + 1)) "   ${CYAN}${spin_char}${NC}  Waiting for staging data..."
+                    draw_sealed_row $((LOG_TOP + 2)) "   ${CYAN}${spin_char}${NC}  Waiting for staging data..."
                     ((sc++))
                     last_displayed_line="$line"
                 fi
@@ -6907,26 +6996,24 @@ ant_tools_menu() {
     local options=(
         "ANT+ Diagnostics (Hardware Test)"
         "ANT+ Broadcast Monitor"
-        "Back to Main Menu"
     )
-    
+
     local help_texts=(
         "Run ANT+ dongle diagnostics to verify USB communication, check signal quality, and test footpod detection. Helps troubleshoot connectivity issues with your ANT+ sensors."
         "Real-time view of ANT+ broadcast speed, cadence, distance, and system resource usage. Requires the QZ service to be running."
-        "Return to the main menu."
     )
     
     enter_ui_mode
     
     while true; do
         local choice
-        show_unified_menu options 0 "ANT+ TOOLS" "FULL" "true" "" help_texts
+        show_unified_menu options 0 "ANT+ TOOLS" "FULL" "false" "" help_texts
         choice=$?
         
         case $choice in
             0) perform_ant_test; check_config_file >/dev/null ;;
             1) monitor_ant_broadcasting ;;
-            2) break ;;
+            255) break ;;
         esac
     done
     
@@ -7943,11 +8030,11 @@ prompt_restart_service() {
     # 3. Draw the Prompt
     draw_bottom_panel_header "CONFIGURATION CHANGED" "false"
     clear_info_area
-    draw_sealed_row $((LOG_TOP + 1)) "   ${YELLOW}Settings have been updated.${NC}"
-    draw_sealed_row $((LOG_TOP + 2)) "   ${prompt_msg}"
+    draw_sealed_row $((LOG_TOP + 2)) "   ${YELLOW}Settings have been updated.${NC}"
+    draw_sealed_row $((LOG_TOP + 3)) "   ${prompt_msg}"
 
     # 4. Input handling (Yes = 0, No = 1)
-    if prompt_yes_no 4; then
+    if prompt_yes_no 5; then
         $action_func
     fi
     
