@@ -342,7 +342,7 @@ Verify automatic startup service works correctly.
 sudo systemctl status qz
 ```
 
-**Expected:** Active (running)
+**Expected:** Active (running). Dashboard shows **QZ Service ✓** and **Autostart on ✓** in the status panel.
 
 **Restart service:**
 ```bash
@@ -365,41 +365,35 @@ journalctl -u qz -n 50
 
 **Expected:** No errors, shows normal startup sequence
 
+### Smart Monitor Alternative
+
+If Smart Monitor is configured instead of standard autostart, check both units:
+
+```bash
+sudo systemctl status qz-treadmill-monitor
+sudo systemctl status qz
+```
+
+**Expected:**
+- `qz-treadmill-monitor`: Active (running), enabled at boot
+- `qz`: Active or inactive depending on treadmill presence
+- Dashboard shows **QZ Monitor ✓** and **Smart Monitor ✓**
+
+**View monitor log:**
+```bash
+journalctl -u qz-treadmill-monitor -n 20
+```
+
+**Expected:** Log entries showing treadmill scan activity and QZ start/stop events.
+
 ### Pass Criteria
 
 **PASS if:**
-- Service starts automatically on boot ✓
-- Service can be stopped/started/restarted ✓
+- Service (standard or Smart Monitor) starts automatically on boot ✓
+- QZ can be stopped/started/restarted ✓
 - Logs show no errors ✓
 - Application functions normally in service mode ✓
-
----
-
-## Validation Checklist
-
-### Pre-Release Checklist
-
-Before marking a release as validated:
-
-- [ ] System validation passes on all supported platforms
-- [ ] ANT+ hardware test passes with multiple watch models
-- [ ] Application test passes in both GUI and server modes
-- [ ] Extended run test (30+ minutes) shows stability
-- [ ] Service mode works correctly
-- [ ] Documentation updated for any changes
-- [ ] No critical bugs in issue tracker
-- [ ] Tested on fresh installation (not just upgrade)
-
-### Pull Request Validation
-
-Before approving a pull request:
-
-- [ ] System validation passes
-- [ ] ANT+ hardware test passes
-- [ ] Application test passes for affected functionality
-- [ ] No new errors or warnings
-- [ ] Code changes reviewed
-- [ ] Tests run on both x86-64 and ARM64 (if applicable)
+- Dashboard shows correct boot label (Autostart on / Smart Monitor) ✓
 
 ---
 

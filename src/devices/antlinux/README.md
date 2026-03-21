@@ -303,7 +303,7 @@ The application won't work properly until all dependencies are resolved.
 ✓ **Done!** Everything is working.
 
 **Optional next steps:**
-- [Set up auto-start on boot](#optional-auto-start-on-boot)
+- [Set up auto-start on boot](#optional-auto-start-on-boot) — Standard Service or Smart Monitor
 - [Pair your watch (first time)](#pairing-your-watch)
 - [Learn about command options](#advanced-command-options)
 
@@ -357,15 +357,21 @@ The transition at 7.0 km/h matches the natural walk-run transition zone identifi
 
 ### Optional: Auto-Start on Boot
 
-Want the application to start automatically when your system boots?
+Want the application to start automatically when your system boots? Choose between two modes:
 
-**Easiest method - use the dashboard:**
+---
+
+#### Option 1: Standard Service
+
+QZ runs continuously from boot, regardless of whether your treadmill is on.
+
+**Set up via the dashboard:**
 
 ```bash
 sudo ./setup-dashboard.sh
 ```
 
-Select "Service Configuration" → "Generate Service"
+Select **QZ Service Control → Generate & Install Service**
 
 The dashboard:
 - Creates the systemd service file at the correct location
@@ -391,6 +397,41 @@ sudo systemctl disable qz  # Disable auto-start
 journalctl -u qz -f        # Live log view
 journalctl -u qz -n 50     # Last 50 lines
 ```
+
+---
+
+#### Option 2: Smart Monitor (Auto-detect treadmill)
+
+QZ starts automatically when your treadmill is detected over Bluetooth, and stops ~15 minutes after it disappears. Ideal if you share the machine or want to save resources.
+
+> **Requires:** Bluetooth Scanning must be completed first so the dashboard knows your treadmill's BLE name. Smart Monitor also requires the standard QZ service to be installed first — use Option 1 to install it, then return here.
+
+**Set up via the dashboard:**
+
+```bash
+sudo ./setup-dashboard.sh
+```
+
+Select **QZ Service Control → Smart Monitor**
+
+The dashboard:
+- Verifies your treadmill device name is saved
+- Generates a monitor script watching for your specific treadmill
+- Installs and enables the monitor as a boot service
+- Starts monitoring immediately
+
+**The dashboard status panel shows:**
+- `QZ Monitor ✓` — monitor is running
+- `Smart Monitor ✓` — auto-starts on boot
+
+**Manage the monitor:**
+```bash
+sudo systemctl status qz-treadmill-monitor   # Check monitor status
+sudo systemctl stop qz-treadmill-monitor     # Stop monitor
+journalctl -u qz-treadmill-monitor -f        # Live monitor log
+```
+
+**To remove Smart Monitor** and return to standard mode: dashboard → **QZ Service Control → Remove Smart Monitor**
 
 ---
 

@@ -37,11 +37,15 @@ Docker provides a consistent, isolated build environment with all required depen
 ## Prerequisites
 
 **What you need:**
-- Linux system (x86-64 or ARM64)
+- Linux system: **Ubuntu 24.04 LTS** (x86-64, recommended) or Raspberry Pi OS Bookworm (ARM64)
 - Docker (version 20.10 or newer)
 - Git
 - ~10GB free disk space
 - 30-60 minutes for build time
+
+**Python versions used:**
+- x86-64 build (Ubuntu 24.04): **Python 3.12**
+- ARM64 build (Raspberry Pi Bookworm): **Python 3.11**
 
 **Install Docker on Ubuntu/Debian:**
 ```bash
@@ -56,6 +60,22 @@ newgrp docker  # Or logout and login
 docker --version
 docker run hello-world
 ```
+
+---
+
+## Virtual Treadmill Limitation
+
+> **⚠ BlueZ Version Requirement**
+>
+> The virtual treadmill (KICKR RUN emulation) requires BlueZ < 5.70.
+> Ubuntu 24.04 ships with BlueZ 5.72 which is **not compatible** with virtual treadmill emulation.
+>
+> | Platform | BlueZ | Virtual Treadmill |
+> |----------|-------|-------------------|
+> | Raspberry Pi OS Bookworm | 5.66 | ✓ Supported |
+> | Ubuntu 24.04 LTS | 5.72 | ✗ Not supported |
+>
+> Core ANT+ footpod broadcasting is **unaffected** by this limitation. On Ubuntu, use headless ANT+ mode: `sudo ./qdomyos-zwift -no-gui -ant-footpod`
 
 ---
 
@@ -75,10 +95,10 @@ cd qdomyos-zwift
 ```bash
 cd src/devices/antlinux
 
-# For desktop Linux (x86-64):
+# For desktop Linux (x86-64, Ubuntu 24.04):
 ./docker-build.sh --arch x86-64
 
-# For Raspberry Pi (ARM64):
+# For Raspberry Pi (ARM64, Bookworm):
 ./docker-build.sh --arch arm64
 ```
 
@@ -108,7 +128,7 @@ sudo ./setup-dashboard.sh
 The `docker-build.sh` script:
 1. ✓ Creates a Docker container with all build dependencies
 2. ✓ Compiles Qt application with ANT+ support
-3. ✓ Bundles all required libraries and files
+3. ✓ Bundles all required scripts and data files
 4. ✓ Creates deployment package (.zip)
 5. ✓ Cleans up temporary files
 
@@ -127,18 +147,24 @@ The `docker-build.sh` script:
 
 ### Build Output Structure
 
-The created package contains:
+The output directory mirrors the Docker image artifact stage exactly:
+
 ```
 qdomyos-zwift-ARCH-ant/
-├── qdomyos-zwift           # Wrapper script
+├── qdomyos-zwift           # Wrapper script (entry point — always use this)
 ├── qdomyos-zwift-bin       # Compiled binary
-├── setup-dashboard.sh      # Setup dashboard
-├── test_ant.py            # ANT+ test script
-├── ant_broadcaster.py      # ANT+ module
-├── devices.ini            # Device mappings
-├── devices_optimized.json # Device menu data
-└── .menu_cache/           # Menu cache directory
+├── setup-dashboard.sh      # Interactive setup and diagnostics dashboard
+├── check-qml-deps.sh       # QML dependency checker utility
+├── bt_provider.py          # Bluetooth device scanner
+├── test_ant.py             # ANT+ hardware test script
+├── ant_broadcaster.py      # ANT+ broadcast module
+├── devices.ini             # Device mappings (generated from settings.qml at build time)
+├── devices_optimized.json  # Device selection menu data
+├── .menu_cache/            # Pre-built device menu cache
+└── README.md               # End-user documentation
 ```
+
+> **Note:** Qt5 runtime libraries are **not bundled** in the package. The target system must have Qt5 installed via `apt-get`. The `check-qml-deps.sh` script and setup dashboard verify this automatically.
 
 ---
 
@@ -164,7 +190,7 @@ sudo ./setup-dashboard.sh
 ```bash
 sudo ./setup-dashboard.sh
 ```
-Select "ANT+ Test" from menu
+Select **ANT+ Tools → ANT+ Diagnostics (Hardware Test)** from menu.
 
 **Direct test (advanced):**
 ```bash
@@ -179,6 +205,12 @@ sudo ~/ant_venv/bin/python3 ./test_ant.py
 
 ### Step 3: Full Application Test
 
+**Ubuntu 24.04 (GUI mode — no QZ settings required):**
+```bash
+sudo ./qdomyos-zwift -gui -ant-footpod
+```
+
+**Headless / Raspberry Pi:**
 ```bash
 sudo ./qdomyos-zwift -no-gui -ant-footpod
 ```
@@ -249,6 +281,7 @@ export MAKE_OPTS="-j2"  # Use only 2 CPU cores
 - Python library issues
 - Treadmill configuration
 - ANT+ dongle detection
+- BlueZ version compatibility (virtual treadmill)
 
 ---
 
