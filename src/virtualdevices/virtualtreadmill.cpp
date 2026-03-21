@@ -14,7 +14,6 @@
 #include <QFile>
 #include <QRegularExpression>
 #endif
-
 using namespace std::chrono_literals;
 
 virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
@@ -35,9 +34,6 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                 SLOT(dirconChangedInclination(double, double)));
         connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
                 SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
-        // --- ADDED: Route Dircon FTMS commands to the processing slot so speed changes register ---
-        connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
-                SLOT(characteristicChanged(QLowEnergyCharacteristic, QByteArray)));
     }
     if (!settings.value(QZSettings::virtual_device_bluetooth, QZSettings::default_virtual_device_bluetooth).toBool())
         return;
@@ -268,11 +264,6 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         charDataFIT2.setUuid((QBluetoothUuid::CharacteristicType)0x2A01);
         QByteArray valueFIT2;
         valueFIT2.append((char)0x00);
-#ifdef ANT_LINUX_ENABLED
-        // Appearance is uint16_t - always 2 bytes. On Pi this path
-        // already works; on desktop the missing byte causes Attribute Not Found.
-        valueFIT2.append((char)0x00);
-#endif
         charDataFIT2.setValue(valueFIT2);
         charDataFIT2.setProperties(QLowEnergyCharacteristic::Read);
 
@@ -372,32 +363,10 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         QThread::msleep(100);
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)        
-#ifdef ANT_LINUX_ENABLED
-        isRaspberryPi = false;
-        QFile modelFile("/sys/firmware/devicetree/base/model");
-        if (modelFile.open(QIODevice::ReadOnly) && QString(modelFile.readAll()).contains(QRegularExpression("Pi (Zero|[1-3])"))) {
-            isRaspberryPi = true;
-        }
-
-        // 0x1800 Generic Access (Device Name + Appearance) - required by all
-        // BLE clients. Must be registered on both Pi and Linux desktop.
-        genericAccessServer = leController->addService(genericAccessServerData);
-        if (!genericAccessServer) {
-            qCritical() << "[ANT+] FAILED to register 0x1800 Generic Access service - phone will disconnect on Appearance query";
-        }
-        if (isRaspberryPi) {
-            // 0x1801 Generic Attribute (Service Changed) - safe on Pi (BlueZ 5.66).
-            // On desktop BlueZ 5.72+ owns this service and re-registering it
-            // triggers a Service Changed loop causing immediate disconnection.
-            genericAttributeService = leController->addService(genericAttributeServiceData);
-        } else {
-            qInfo() << "[ANT+] Linux Desktop detected. Skipping 0x1801 Generic Attribute service to prevent Service Changed loop.";
-        }
-#else
         genericAccessServer = leController->addService(genericAccessServerData);
         genericAttributeService = leController->addService(genericAttributeServiceData);
 #endif          
-#endif        
+        
         if (noHeartService == false) {
             serviceHR = leController->addService(serviceDataHR);
         }
@@ -429,7 +398,8 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         pars.setInterval(30, 50);
         #ifdef ANT_LINUX_ENABLED
             // Check if we are on a low-spec Raspberry Pi and adjust advertising parameters accordingly to prevent crashes.
-            if (isRaspberryPi) {
+            QFile modelFile("/sys/firmware/devicetree/base/model");
+            if (modelFile.open(QIODevice::ReadOnly) && QString(modelFile.readAll()).contains(QRegularExpression("Pi (Zero|[1-3])"))) {
                 qInfo() << "[ANT+] Low-spec device detected. Slowing BLE advertising rate.";
                 pars.setInterval(500, 550); // Slow down to ~2Hz
             }
@@ -460,45 +430,21 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     case 0x2AD9: // Fitness Machine Control Point
         if (writeP2AD9->writeProcess(0x2AD9, newValue, reply) == CP_OK) {
 
-            #ifdef ANT_LINUX_ENABLED
-            // Decodes the FTMS "Set Target Speed" command and relays it
-            // to the faketreadmill. This is necessary for the ANT+ broadcaster to get
-            // speed data in a virtual treadmill test setup.
-            // Op Code 0x03 is "Set Target Speed". Packet must be at least 3 bytes long.
-            if (newValue.length() >= 3 && static_cast<quint8>(newValue.at(0)) == 0x03) {
-                if (treadMill && treadMill->metaObject()->className() == QString("faketreadmill")) {
-                    // Speed is a uint16, little-endian, with a resolution of 0.01 km/h
-                    quint16 rawSpeed = (static_cast<quint8>(newValue.at(2)) << 8) | static_cast<quint8>(newValue.at(1));
-                    double speedKmh = static_cast<double>(rawSpeed) * 0.01;
-
-                    qInfo() << "[ANT+] Relaying FTMS speed request (" << speedKmh << "km/h) to faketreadmill.";
-                    // This is the missing link that calls changeSpeed() on the faketreadmill object.
-                    static_cast<treadmill *>(treadMill)->changeSpeed(speedKmh);
-                }
+            QLowEnergyCharacteristic characteristic =
+                serviceFTMS->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9);
+            Q_ASSERT(characteristic.isValid());
+            if (leController->state() != QLowEnergyController::ConnectedState) {
+                qDebug() << QStringLiteral("virtual treadmill not connected");
+    
+                return;
             }
-            #endif
-
-            // --- ADDED: Safety check for Dircon (prevents crash if BLE is off) ---
-            if (serviceFTMS && leController) {
-                QLowEnergyCharacteristic characteristic =
-                    serviceFTMS->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9);
-                Q_ASSERT(characteristic.isValid());
-                if (leController->state() != QLowEnergyController::ConnectedState) {
-                    qDebug() << QStringLiteral("virtual treadmill not connected");
-        
-                    return;
-                }
-                try {
-                    qDebug() << QStringLiteral("virtualtreadmill::writeCharacteristic ") + serviceFTMS->serviceName() +
-                                    QStringLiteral(" ") + characteristic.name() + QStringLiteral(" ") + reply.toHex(' ');
-                    serviceFTMS->writeCharacteristic(characteristic, reply); // Potentially causes notification.
-                } catch (...) {
-                    qDebug() << QStringLiteral("virtual treadmill error!");
-                }
-            } else {
-                qDebug() << "virtual treadmill BLE not connected (Dircon active), skipping BLE reply";
+            try {
+                qDebug() << QStringLiteral("virtualtreadmill::writeCharacteristic ") + serviceFTMS->serviceName() +
+                                QStringLiteral(" ") + characteristic.name() + QStringLiteral(" ") + reply.toHex(' ');
+                serviceFTMS->writeCharacteristic(characteristic, reply); // Potentially causes notification.
+            } catch (...) {
+                qDebug() << QStringLiteral("virtual treadmill error!");
             }
-            // ---------------------------------------------------------------------
         }
         break;
     }
@@ -533,43 +479,42 @@ void virtualtreadmill::wahooCharacteristicChanged(const QLowEnergyCharacteristic
 }
 
 void virtualtreadmill::reconnect() {
-    if (!leController) return;
-
     QSettings settings;
     bool bluetooth_relaxed =
         settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
+
     if (bluetooth_relaxed) {
         return;
     }
 
     qDebug() << "virtualtreadmill reconnect " << treadMill->connected();
-
-    // =========================================================================
-    // PATH 1: ORIGINAL — All platforms except ANT+ Linux builds
-    // Service re-registration on every reconnect (standard Qt BLE peripheral
-    // behaviour on Android, iOS, Windows, macOS and non-ANT+ Linux).
-    // =========================================================================
-#if !defined(ANT_LINUX_ENABLED)
+    
     if (ftmsServiceEnable())
         serviceFTMS = leController->addService(serviceDataFTMS);
     QThread::msleep(100);
+    
     if (RSCEnable())
         serviceRSC = leController->addService(serviceDataRSC);
     QThread::msleep(100);
+    
     serviceDIS = leController->addService(serviceDataDIS);
     QThread::msleep(100);
+    
     serviceWahoo = leController->addService(serviceDataWahoo);
     QThread::msleep(100);
+
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     genericAccessServer = leController->addService(genericAccessServerData);
     genericAttributeService = leController->addService(genericAttributeServiceData);
-#endif
+#endif      
+    
     if (noHeartService == false) {
         serviceHR = leController->addService(serviceDataHR);
     }
 
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
+
     if (serviceFTMS || serviceRSC || serviceWahoo) {
 #ifdef Q_OS_ANDROID
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
@@ -580,83 +525,10 @@ void virtualtreadmill::reconnect() {
         leController->startAdvertising(pars, advertisingData, advertisingData);
 #endif
     }
-
-    // =========================================================================
-    // PATH 2: ANT+ LINUX — Raspberry Pi and Linux Desktop with ANT+ enabled
-    //
-    // --- Background ---
-    // Qt uses the BlueZ kernel ATT interface (raw HCI) for BLE peripheral mode.
-    // This works correctly on Raspberry Pi OS (BlueZ 5.66 and earlier).
-    //
-    // From BlueZ 5.70+, enhanced LE security establishment was introduced.
-    // On these versions, bluetoothd sends an unsolicited SMP Security Request
-    // (0x0B) to every connecting device before Qt's ATT channel can open.
-    // Fitness apps (QZ, Zwift) treat this as unexpected and immediately
-    // disconnect. This cannot be resolved via btmgmt settings or pairing agents
-    // because it is sent by bluetoothd's Security Manager independently of Qt.
-    //
-    // As a result, virtual treadmill / KICKR RUN emulation is intentionally
-    // disabled for BlueZ 5.70+ desktop Linux via setup-dashboard.sh, which
-    // checks the BlueZ version before allowing emulation to be configured.
-    // Users on incompatible systems are directed to Raspberry Pi or to
-    // downgrade BlueZ. See: setup-dashboard.sh::bluez_supports_ble_peripheral_justworks()
-    //
-    // --- Differences from Path 1 ---
-    //   - Services are NOT re-added on reconnect. BlueZ kernel ATT registers
-    //     them permanently at construction time. Re-adding triggers a Service
-    //     Changed indication (0x2A05) causing the remote client to disconnect
-    //     and retry in an infinite loop (confirmed on BlueZ 5.66+).
-    //   - 0x1800 (Generic Access) is re-registered on desktop only. Pi's BlueZ
-    //     handles GAP natively. Without it, phones reject the connection when
-    //     querying Appearance (0x2A01) with "Attribute Not Found".
-    //   - 0x1801 (Generic Attribute / Service Changed) is never re-registered
-    //     on desktop. BlueZ owns this service and re-registering it causes a
-    //     GATT table conflict that triggers the Service Changed loop.
-    //   - Single-arg startAdvertising used (no scan response packet). The
-    //     two-arg form causes duplicate name advertisements on Linux which
-    //     confuse some BLE clients.
-    //   - Signal temporarily disconnected around startAdvertising to prevent
-    //     BlueZ emitting a spurious UnconnectedState during the advertising
-    //     restart, which would fire a second reconnect() call immediately.
-    // =========================================================================
-#else // ANT_LINUX_ENABLED
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
-    if (!isRaspberryPi) {
-        genericAccessServer = leController->addService(genericAccessServerData);
-        // 0x1801 intentionally omitted: BlueZ owns Service Changed on desktop
-    }
-#endif
-
-    QLowEnergyAdvertisingParameters pars;
-    if (serviceFTMS || serviceRSC || serviceWahoo) {
-        disconnect(leController, &QLowEnergyController::disconnected,
-                   this, &virtualtreadmill::reconnect);
-
-        pars.setInterval(30, 50);
-        leController->startAdvertising(pars, advertisingData);
-
-        if (!isRaspberryPi) {
-            // Delay re-attaching on desktop: BlueZ emits a spurious
-            // UnconnectedState after startAdvertising which would immediately
-            // fire reconnect() again if the signal is already live.
-            QTimer::singleShot(600, this, [this]() {
-                if (leController) {
-                    connect(leController, &QLowEnergyController::disconnected,
-                            this, &virtualtreadmill::reconnect);
-                }
-            });
-        } else {
-            connect(leController, &QLowEnergyController::disconnected,
-                    this, &virtualtreadmill::reconnect);
-        }
-    }
-#endif // ANT_LINUX_ENABLED
 }
 
-void virtualtreadmill::treadmillProvider() {
-    // --- ADDED: Prevent crash if BLE is disabled ---
-    if (!leController) return; 
 
+void virtualtreadmill::treadmillProvider() {
     const uint64_t slopeTimeoutSecs = 30;
     QSettings settings;
     bool bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();

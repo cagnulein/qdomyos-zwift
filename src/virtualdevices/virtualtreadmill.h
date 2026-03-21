@@ -79,10 +79,6 @@ class virtualtreadmill : public virtualdevice {
 
     bool m_autoInclinationEnabled = false;
 
-#ifdef ANT_LINUX_ENABLED
-    bool isRaspberryPi = false;
-#endif
-
     bool ftmsServiceEnable();
     bool ftmsTreadmillEnable();
     bool RSCEnable();
