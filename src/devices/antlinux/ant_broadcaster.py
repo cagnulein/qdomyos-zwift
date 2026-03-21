@@ -110,6 +110,7 @@ class AntBroadcaster:
         self._current_cadence = 0.0
         self._stride_accumulator = 0.0
         self._total_time = 0.0
+        self._time_moving = 0.0      # Elapsed seconds only while speed > 0
         self._stride_count = 0
         self._last_tick = 0.0
         self._last_log_time = 0.0
@@ -165,6 +166,8 @@ class AntBroadcaster:
 
             self._total_time += dt
             self._total_distance += speed * dt
+            if speed > 0:
+                self._time_moving += dt
 
             if current_cadence > 0:
                 stride_rate_sps = (current_cadence * 0.5) / 60.0
@@ -207,7 +210,7 @@ class AntBroadcaster:
                 # Write metrics to RAM disk at 1Hz for dashboard monitoring (throttled from 4Hz broadcast)
                 if self._metrics_file and (now - self._last_metrics_write >= 1.0):
                     self._last_metrics_write = now
-                    self._write_metrics(speed, current_cadence, self._total_distance / 1000.0)
+                    self._write_metrics(speed, current_cadence, self._total_distance / 1000.0, self._time_moving)
 
             except Exception as e:
                 log.error("Broadcast error: %s. Stopping thread.", e, exc_info=True)
@@ -223,7 +226,7 @@ class AntBroadcaster:
 
         log.info("ANT+ broadcasting thread finished.")
     
-    def _write_metrics(self, speed_mps: float, cadence_spm: float, distance_km: float):
+    def _write_metrics(self, speed_mps: float, cadence_spm: float, distance_km: float, time_moving_s: float = 0.0):
         """Atomically write metrics to RAM disk for dashboard monitoring.
         
         Uses tmp+rename for atomic writes to prevent partial reads.
@@ -233,11 +236,22 @@ class AntBroadcaster:
             return
         
         import json
-        
+
+        # Compute pace: minutes per km from speed, "--:--" when stopped
+        if speed_mps > 0.1:
+            pace_sec_per_km = 1000.0 / speed_mps          # seconds per km
+            pace_m = int(pace_sec_per_km // 60)
+            pace_s = int(pace_sec_per_km % 60)
+            pace_str = f"{pace_m}:{pace_s:02d}"
+        else:
+            pace_str = "--:--"
+
         metrics = {
             "speed_kmh": round(speed_mps * 3.6, 2),
             "cadence_spm": int(cadence_spm),
             "distance_km": round(distance_km, 3),
+            "pace_min_per_km": pace_str,
+            "time_moving_s": int(time_moving_s),
             "timestamp_ms": int(time.time() * 1000)
         }
         
@@ -416,8 +430,7 @@ class AntBroadcaster:
             self._current_cadence = 0.0
             self._stride_accumulator = 0.0
             self._total_time = 0.0
-            self._stride_count = 0
-            self._last_tick = 0.0
+            self._time_moving = 0.0
             self._last_log_time = 0.0
             self._last_broadcast_time = 0
             self._broadcast_counter = 0

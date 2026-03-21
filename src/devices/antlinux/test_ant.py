@@ -164,17 +164,6 @@ def estimate_cadence(speed_kmh: float) -> int:
     # Round to nearest even number (Garmin displays even values)
     return int(cadence + 0.5) & ~1
 
-
-
-def calculate_pace(speed_kmh: float) -> str:
-    """Calculates and formats the pace in min/km as MM:SS."""
-    if speed_kmh <= 0:
-        return "00:00"
-    pace_min_per_km = 60.0 / speed_kmh
-    minutes = int(pace_min_per_km)
-    seconds = int((pace_min_per_km - minutes) * 60)
-    return f"{minutes}:{seconds:02d}"
-
 def calculate_pace(speed_kmh: float) -> str:
     """Calculates and formats the expected pace in min/km."""
     if speed_kmh < 0.5:

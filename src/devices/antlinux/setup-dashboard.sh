@@ -47,7 +47,7 @@ _debug_trace() {
                 printf "[CRASH DETECTED] Previous command failed with exit code %d at line %d.\n" "$exit_code" "$((BASH_LINENO-1))"
             fi
         fi
-    } >> /tmp/qz_crash_trace.log
+    } >> "${TEMP_DIR:-/tmp}/qz_crash_trace.log"
 }
 
 # Check if running as root
@@ -852,6 +852,8 @@ export CONFIG_FILE=$(get_config_path "$TARGET_HOME")
 export CONFIG_DIR="$(dirname "$CONFIG_FILE")"
 export DEVICES_INI="$SCRIPT_DIR/devices.ini"
 export SERVICE_FILE_QZ="$SYSTEMD_SYSTEM_DIR/qz.service"
+export SERVICE_FILE_MONITOR="$SYSTEMD_SYSTEM_DIR/qz-treadmill-monitor.service"
+export MONITOR_SCRIPT="$SCRIPT_DIR/qz-treadmill-monitor.sh"
 
 # Determine active service file
 ACTIVE_SERVICE_FILE="$SERVICE_FILE_QZ"
@@ -1012,7 +1014,7 @@ declare -a STATUS_GRID=(
     "Python ${PYTHON_VERSION_MAJOR} Library|python311|User in plugdev|plugdev|ANT+ USB Dongle|ant_dongle"
     "Python Virtual Environment|venv|USB udev Rules|udev_rules|lsusb Command|lsusb"
     "Python PIPs|pkg_pips|Qt5 Runtime Libs|qt5_libs|QML Modules|qml_modules"
-    "Config File|config_file|Bluetooth Service|bluetooth|BLE Peripheral|bluez_compat"
+    "QZ Config File|config_file|Bluetooth Service|bluetooth|BLE Peripheral|bluez_compat"
     "QZ Service|qz_service|ANT+ Flag|ant_footpod_flag|Boot Enabled|service_enabled"
 )
 
@@ -1219,6 +1221,7 @@ _resolve_ui_fd() {
 UI_LOCKED=0
 ATOMIC_RENDER_MODE=0
 ATOMIC_BUFFER=""
+QZ_MONITOR_ACTIVE=0   # NOTE: not reliably set via run_check subshell; use is_monitor_active() at render time
 
 print_at() {
     local row=$1
@@ -1585,6 +1588,9 @@ draw_status_row() {
     # --- DYNAMIC LABEL LOGIC FOR QZ SERVICE ---
     local qz_service_extra_len=0
     if [[ "$R_key" == "qz_service" ]]; then
+        if is_monitor_active 2>/dev/null; then
+            R_label="QZ Monitor"
+        else
         local svc_status; svc_status=$(get_service_status)
         case "$svc_status" in
             "running")
@@ -1606,6 +1612,7 @@ draw_status_row() {
                 R_label="QZ Service"
                 ;;
         esac
+        fi
     fi
 
     # --- DYNAMIC LABEL LOGIC FOR BLUEZ COMPAT (R2 column) ---
@@ -1640,13 +1647,24 @@ draw_status_row() {
     # --- DYNAMIC LABEL LOGIC FOR SERVICE ENABLED ---
     if [[ "$R2_key" == "service_enabled" ]]; then
         local svc_en="${STATUS_MAP[service_enabled]:-pending}"
-        [[ "$svc_en" == "pass" ]] && R2_label="Autostart on" || R2_label="No Autostart"
+        if [[ "$svc_en" == "pass" ]]; then
+            if systemctl is-enabled --quiet qz-treadmill-monitor.service 2>/dev/null; then
+                R2_label="Smart Monitor"
+            else
+                R2_label="Autostart on"
+            fi
+        else
+            R2_label="No Autostart"
+        fi
     fi
 
     # --------------------------------------
 
     # Check left side too
     if [[ "$L_key" == "qz_service" ]]; then
+        if is_monitor_active 2>/dev/null; then
+            L_label="QZ Monitor"
+        else
         local svc_status; svc_status=$(get_service_status)
         case "$svc_status" in
             "running")
@@ -1668,6 +1686,7 @@ draw_status_row() {
                 L_label="QZ Service"
                 ;;
         esac
+        fi
     fi
     # --------------------------------------
 
@@ -2511,7 +2530,7 @@ render_screen_atomic() {
     # If a modal UI is active (e.g. service/profile editor), skip
     # full-screen atomic refreshes to avoid clobbering the modal panel.
     if [[ "${UI_MODAL_ACTIVE:-0}" -eq 1 ]]; then
-        printf '%s\n' "[DEBUG] render_screen_atomic skipped due to UI_MODAL_ACTIVE=1" >> /tmp/qz_profile_debug.log 2>/dev/null || true
+        printf '%s\n' "[DEBUG] render_screen_atomic skipped due to UI_MODAL_ACTIVE=1" >> "${TEMP_DIR:-/tmp}/qz_profile_debug.log" 2>/dev/null || true
         return 0
     fi
     local buf
@@ -3914,6 +3933,10 @@ _logic_check_ant_footpod_flag() {
 }
 
 _logic_check_service_enabled() {
+    # Pass if either the standard service or the smart monitor is enabled at boot
+    if systemctl is-enabled --quiet qz-treadmill-monitor.service 2>/dev/null; then
+        echo "pass"; return 0
+    fi
     is_service_enabled 2>/dev/null && echo "pass" || echo "pending"
 }
 
@@ -3960,6 +3983,14 @@ _logic_check_config_file() {
 }
 
 _logic_check_qz_service() {
+    # 0. Smart Service (monitor) takes priority over standard qz.service
+    QZ_MONITOR_ACTIVE=0
+    if systemctl is-active --quiet qz-treadmill-monitor.service 2>/dev/null; then
+        QZ_MONITOR_ACTIVE=1
+        echo "pass"
+        return 0
+    fi
+
     local s; s=$(get_service_status)
     
     # 1. If not installed, it's optional/pending (Gray circle ◈)
@@ -4534,7 +4565,7 @@ perform_bluetooth_scan() {
         
         # Start Python
         #"$venv_py" -u "$py_script" >"$bt_fifo" 2>&1 < /dev/null &
-        "$venv_py" -u "$py_script" >"$bt_fifo" 2>/tmp/bt_stderr.log < /dev/null &
+        "$venv_py" -u "$py_script" >"$bt_fifo" 2>"${TEMP_DIR:-/tmp}/bt_stderr.log" < /dev/null &
         BT_SCAN_PID=$!
         
         sleep 0.5
@@ -4592,7 +4623,7 @@ perform_bluetooth_scan() {
                     raw_data=${raw_data//$'\r'/}
                     
                     # DEBUG: Uncomment to log raw data
-                    echo "DEBUG: raw_data='$raw_data'" >> /tmp/bt_scan_debug.log
+#                     # echo "DEBUG: raw_data='$raw_data'" >> /tmp/bt_scan_debug.log
                     
                     if [[ "$raw_data" == STATUS\|* ]]; then
                         local _ status_msg
@@ -4605,7 +4636,7 @@ perform_bluetooth_scan() {
                         IFS='|' read -r m r l <<< "$raw_data"
                         
                         # DEBUG: Uncomment to log parsed values
-                        # echo "DEBUG: m='$m' r='$r' l='$l'" >> /tmp/bt_scan_debug.log
+#                         # echo "DEBUG: m='$m' r='$r' l='$l'" >> /tmp/bt_scan_debug.log
                         
                         if [[ -n "$m" && "$m" != "ERROR" ]]; then
                             # Strict MAC Check
@@ -4716,14 +4747,14 @@ perform_bluetooth_scan() {
                 local count_changed=0
                 last_device_count=${#macs[@]}
 
-                # --- DIAGNOSTIC LOGGING ---
-                {
-                    echo "=== RENDER at SECONDS=$SECONDS last_draw=$last_draw_time loop=$loop_count ==="
-                    echo "  macs count=${#macs[@]} last_device_count=$last_device_count count_changed=$count_changed"
-                    for ((di=0; di<${#macs[@]}; di++)); do
-                        echo "  device[$di]: mac=${macs[$di]} rssi=${rssis[$di]} name='${devices[$di]}'"
-                    done
-                } >> /tmp/bt_scan_debug.log
+                # --- DIAGNOSTIC LOGGING (uncomment redirect to enable) ---
+                # {
+                #     echo "=== RENDER at SECONDS=$SECONDS last_draw=$last_draw_time loop=$loop_count ==="
+                #     echo "  macs count=${#macs[@]} last_device_count=$last_device_count count_changed=$count_changed"
+                #     for ((di=0; di<${#macs[@]}; di++)); do
+                #         echo "  device[$di]: mac=${macs[$di]} rssi=${rssis[$di]} name='${devices[$di]}'"
+                #     done
+                # } >> "${TEMP_DIR:-/tmp}/bt_scan_debug.log"
 
                 ATOMIC_RENDER_MODE=1
                 ATOMIC_BUFFER=""
@@ -4774,7 +4805,7 @@ perform_bluetooth_scan() {
                 printf "%b" "$ATOMIC_BUFFER" >&"$fd"
 
                 # --- DIAGNOSTIC: log buffer size and flush confirmation ---
-                echo "  ATOMIC_BUFFER size=${#ATOMIC_BUFFER} flush_done=yes" >> /tmp/bt_scan_debug.log
+#                 echo "  ATOMIC_BUFFER size=${#ATOMIC_BUFFER} flush_done=yes" >> /tmp/bt_scan_debug.log
                 ATOMIC_RENDER_MODE=0
                 ATOMIC_BUFFER=""
             fi
@@ -5618,10 +5649,10 @@ prompt_yes_no() {
             # Handle ESC -> Return 2 (Back)
             if [[ -z "${k2:-}" ]]; then return 2; fi
             
-            if [[ "${k2:-}" == "[A" ]]; then 
+            if [[ "${k2:-}" == "[A" || "${k2:-}" == "OA" ]]; then 
                 ((selected--)); [[ $selected -lt 0 ]] && selected=$((num_options - 1))
                 flush_input_buffer
-            elif [[ "${k2:-}" == "[B" ]]; then 
+            elif [[ "${k2:-}" == "[B" || "${k2:-}" == "OB" ]]; then 
                 ((selected++)); [[ $selected -ge $num_options ]] && selected=0
                 flush_input_buffer
             fi
@@ -5640,9 +5671,9 @@ prompt_input_yes() {
     local old_stty
 
     # 0. Debugging setup (must run as root for full access)
-    : > /tmp/qz_crash_trace.log
+    : > "${TEMP_DIR:-/tmp}/qz_crash_trace.log"
     trap '_debug_trace' DEBUG
-    if [ -n "${SUDO_USER:-}" ]; then chown "${SUDO_USER}:${SUDO_USER}" /tmp/qz_crash_trace.log 2>/dev/null || true; fi
+    if [ -n "${SUDO_USER:-}" ]; then chown "${SUDO_USER}:${SUDO_USER}" "${TEMP_DIR:-/tmp}/qz_crash_trace.log" 2>/dev/null || true; fi
 
     # 1. Save original terminal state
     old_stty=$(stty -g 2>/dev/null || true)
@@ -5875,11 +5906,14 @@ show_unified_menu() {
             fi
             
             # Handle Arrow Keys
-            if [[ "$k2" == "[A" ]]; then 
+            # Support both CSI sequences (ESC [ A/B) and SS3 sequences (ESC O A/B)
+            # CSI = standard xterm; SS3 = application cursor key mode (DECCKM), used by
+            # some terminal emulators (e.g. XFCE Terminal) after certain tput operations.
+            if [[ "$k2" == "[A" || "$k2" == "OA" ]]; then 
                 ((selected--))
                 [[ $selected -lt 0 ]] && selected=$((total_count - 1))
                 flush_input_buffer # Clear the queue
-            elif [[ "$k2" == "[B" ]]; then 
+            elif [[ "$k2" == "[B" || "$k2" == "OB" ]]; then 
                 ((selected++))
                 [[ $selected -ge $total_count ]] && selected=0
                 flush_input_buffer # Clear the queue
@@ -6845,8 +6879,8 @@ monitor_ant_broadcasting() {
     local row_speed=$((LOG_TOP + 3))
     local row_cadence=$((LOG_TOP + 4))
     local row_distance=$((LOG_TOP + 5))
-    local row_blank2=$((LOG_TOP + 6))
-    local row_blank3=$((LOG_TOP + 7))
+    local row_pace=$((LOG_TOP + 6))
+    local row_time_moving=$((LOG_TOP + 7))
     
     # System metrics rows (same as ANT+ data rows)
     local row_system_status=$row_speed
@@ -6863,7 +6897,7 @@ monitor_ant_broadcasting() {
     print_at $row_headers "${BLUE}║${NC} ${left_content}${BLUE}│${NC} ${right_content}${BLUE}║${NC}"
     
     # Draw empty rows with separator to create clean vertical line through entire panel
-    for r in $row_blank1 $row_speed $row_cadence $row_distance $row_blank2 $row_blank3; do
+    for r in $row_blank1 $row_speed $row_cadence $row_distance $row_pace $row_time_moving; do
         printf -v empty_left "%-${left_w}s" ""
         printf -v empty_right "%-${right_w}s" ""
         print_at $r "${BLUE}║${NC} ${empty_left}${BLUE}│${NC} ${empty_right}${BLUE}║${NC}"
@@ -6873,6 +6907,8 @@ monitor_ant_broadcasting() {
     print_at_col $row_speed 3 "${GREEN}Speed:${NC}"
     print_at_col $row_cadence 3 "${GREEN}Cadence:${NC}"
     print_at_col $row_distance 3 "${GREEN}Distance:${NC}"
+    print_at_col $row_pace 3 "${GREEN}Pace:${NC}"
+    print_at_col $row_time_moving 3 "${GREEN}Moving:${NC}"
     
     # And permanent labels on right side
     local right_start_col=$((sep_col + 2))
@@ -6883,7 +6919,7 @@ monitor_ant_broadcasting() {
     draw_bottom_border "Press Esc to return | Updates every 1s"
     
     # Track previous values to avoid unnecessary updates
-    local prev_speed="" prev_cadence="" prev_distance="" prev_status="" prev_cpu="" prev_mem=""
+    local prev_speed="" prev_cadence="" prev_distance="" prev_pace="" prev_time_moving="" prev_status="" prev_cpu="" prev_mem=""
     
     # Value column positions
     local left_value_col=15   # After "Speed:      "
@@ -6899,26 +6935,28 @@ monitor_ant_broadcasting() {
         fi
         
         # Initialize variables with placeholder values
-        local speed="--:--"
-        local cadence="--"
-        local distance="--:--"
+        local speed="--" cadence="--" distance="--" pace="--:--" time_moving="00:00"
         local timestamp="0"
         local data_available=false
         local status_indicator="${YELLOW}◯${NC} Waiting"
         
         # Try to read ANT metrics from JSON
         if [[ -f "$metrics_file" ]]; then
-            local raw_speed raw_cadence raw_distance
+            local raw_speed raw_cadence raw_distance raw_pace raw_time_moving
             if command -v jq >/dev/null 2>&1; then
                 raw_speed=$(jq -r '.speed_kmh // ""' "$metrics_file" 2>/dev/null || echo "")
                 raw_cadence=$(jq -r '.cadence_spm // ""' "$metrics_file" 2>/dev/null || echo "")
                 raw_distance=$(jq -r '.distance_km // ""' "$metrics_file" 2>/dev/null || echo "")
+                raw_pace=$(jq -r '.pace_min_per_km // ""' "$metrics_file" 2>/dev/null || echo "")
+                raw_time_moving=$(jq -r '.time_moving_s // "0"' "$metrics_file" 2>/dev/null || echo "0")
                 timestamp=$(jq -r '.timestamp_ms // 0' "$metrics_file" 2>/dev/null || echo "0")
             else
                 # Fallback: grep-based parsing if jq not installed
                 raw_speed=$(grep -oP '"speed_kmh":\s*\K[0-9.]+' "$metrics_file" 2>/dev/null || echo "")
                 raw_cadence=$(grep -oP '"cadence_spm":\s*\K[0-9]+' "$metrics_file" 2>/dev/null || echo "")
                 raw_distance=$(grep -oP '"distance_km":\s*\K[0-9.]+' "$metrics_file" 2>/dev/null || echo "")
+                raw_pace=$(grep -oP '"pace_min_per_km":\s*"\K[^"]+' "$metrics_file" 2>/dev/null || echo "")
+                raw_time_moving=$(grep -oP '"time_moving_s":\s*\K[0-9]+' "$metrics_file" 2>/dev/null || echo "0")
                 timestamp=$(grep -oP '"timestamp_ms":\s*\K[0-9]+' "$metrics_file" 2>/dev/null || echo "0")
             fi
             
@@ -6927,6 +6965,17 @@ monitor_ant_broadcasting() {
                 speed="$raw_speed"
                 cadence="$raw_cadence"
                 distance="$raw_distance"
+                pace="${raw_pace:-"--:--"}"
+                # Format time_moving_s as MM:SS or H:MM:SS
+                local tm_s="${raw_time_moving:-0}"
+                local tm_h=$(( tm_s / 3600 ))
+                local tm_m=$(( (tm_s % 3600) / 60 ))
+                local tm_sec=$(( tm_s % 60 ))
+                if [[ $tm_h -gt 0 ]]; then
+                    printf -v time_moving "%d:%02d:%02d" "$tm_h" "$tm_m" "$tm_sec"
+                else
+                    printf -v time_moving "%02d:%02d" "$tm_m" "$tm_sec"
+                fi
                 data_available=true
             fi
         fi
@@ -6964,6 +7013,16 @@ monitor_ant_broadcasting() {
         if [[ "$distance" != "$prev_distance" ]]; then
             print_at_col $row_distance $left_value_col "${BOLD}$(printf "%-10s" "$distance") km${NC}  "
             prev_distance="$distance"
+        fi
+
+        if [[ "$pace" != "$prev_pace" ]]; then
+            print_at_col $row_pace $left_value_col "${BOLD}$(printf "%-10s" "$pace") min/km${NC}"
+            prev_pace="$pace"
+        fi
+
+        if [[ "$time_moving" != "$prev_time_moving" ]]; then
+            print_at_col $row_time_moving $left_value_col "${BOLD}$(printf "%-10s" "$time_moving")${NC}      "
+            prev_time_moving="$time_moving"
         fi
         
         # Right column - System metrics
@@ -7647,17 +7706,269 @@ disable_service_ui() {
     enter_ui_mode || true
 }
 
+################################################################################
+# Smart Service (Treadmill Auto-Detect Monitor)
+################################################################################
+
+# Helper: true if monitor service file exists
+is_monitor_installed() {
+    [[ -f "$SERVICE_FILE_MONITOR" ]]
+}
+
+# Helper: true if monitor service is active
+is_monitor_active() {
+    systemctl is-active --quiet qz-treadmill-monitor.service 2>/dev/null
+}
+
+generate_smart_service_ui() {
+    exit_ui_mode || true
+
+    # Require a saved BLE device name
+    local bt_name="${CONFIG_STRING[bluetooth_lastdevice_name]:-}"
+    if [[ -z "$bt_name" && -f "$CONFIG_FILE" ]]; then
+        bt_name=$(grep -E '^bluetooth_lastdevice_name=' "$CONFIG_FILE" 2>/dev/null \
+                  | cut -d'=' -f2- | tr -d '\r' | xargs || true)
+    fi
+    bt_name=$(strip_ansi "${bt_name:-}")
+
+    if [[ -z "$bt_name" || "$bt_name" == "None" ]]; then
+        draw_bottom_panel_header "NO DEVICE CONFIGURED" "false"
+        clear_info_area
+        local r=$((LOG_TOP + 2))
+        draw_sealed_row "$r" "   No treadmill BLE device is saved."; ((r++))
+        draw_sealed_row "$r" ""; ((r++))
+        draw_sealed_row "$r" "   Smart Monitor needs a device name to watch for."; ((r++))
+        draw_sealed_row "$r" "   Run Bluetooth Scanning now to select your treadmill?"; ((r++))
+        draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Cancel"
+
+        prompt_yes_no 7
+        local scan_resp=$?
+        if [[ $scan_resp -eq 0 ]]; then
+            perform_bluetooth_scan "true"
+            # Re-read bt_name after scan
+            bt_name="${CONFIG_STRING[bluetooth_lastdevice_name]:-}"
+            if [[ -z "$bt_name" && -f "$CONFIG_FILE" ]]; then
+                bt_name=$(grep -E '^bluetooth_lastdevice_name=' "$CONFIG_FILE" 2>/dev/null \
+                          | cut -d'=' -f2- | tr -d '\r' | xargs || true)
+            fi
+            bt_name=$(strip_ansi "${bt_name:-}")
+        fi
+        # If still no device after scan (or user declined), abort
+        if [[ -z "$bt_name" || "$bt_name" == "None" ]]; then
+            enter_ui_mode || true
+            return 1
+        fi
+    fi
+
+    draw_bottom_panel_header "SMART MONITOR SETUP" "false"
+    clear_info_area
+    local r=$((LOG_TOP + 2))
+    draw_sealed_row "$r" "   Treadmill: ${BOLD_CYAN}${bt_name}${NC}"; ((r++))
+    draw_sealed_row "$r" ""; ((r++))
+    draw_sealed_row "$r" "   QZ will start when the treadmill is detected and"; ((r++))
+    draw_sealed_row "$r" "   stop ~15 min after it can no longer be found."; ((r++))
+    draw_sealed_row "$r" ""; ((r++))
+    draw_sealed_row "$r" "   Install Smart Monitor now?"
+    draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Cancel"
+
+    prompt_yes_no 8
+    local resp=$?
+    if [[ $resp -ne 0 ]]; then
+        enter_ui_mode || true
+        return 0
+    fi
+
+    draw_bottom_panel_header "INSTALLING SMART MONITOR" "false"
+    clear_info_area
+    local msg_row=$((LOG_TOP + 3))
+
+    # Step 1: disable standard service if running
+    show_status_message "Checking standard service..."
+    if systemctl is-enabled --quiet qz.service 2>/dev/null; then
+        show_status_message "Disabling standard service..."
+        run_as_root_or_sudo systemctl disable qz.service >/dev/null 2>&1 || true
+        run_as_root_or_sudo systemctl stop qz.service >/dev/null 2>&1 || true
+    fi
+
+    # Step 2: Write the monitor script via heredoc (bt_name injected here)
+    show_status_message "Writing monitor script..."
+    local escaped_bt_name
+    escaped_bt_name=$(printf '%s' "$bt_name" | sed 's/[[\.*^$()+?{|]/\\&/g')
+
+    run_as_root_or_sudo bash -c "cat > '${MONITOR_SCRIPT}'" << MONITOR_SCRIPT_EOF
+#!/bin/bash
+# qz-treadmill-monitor.sh
+# Auto-generated by setup-dashboard.sh — do not edit manually.
+# Regenerate via: setup-dashboard.sh -> QZ Service Control -> Smart Monitor
+#
+# Watches for the treadmill over Bluetooth and starts/stops qz.service accordingly.
+# - When QZ is stopped: scans every DETECT_INTERVAL seconds (fast, to catch power-on)
+# - When QZ is running: checks every CHECK_INTERVAL seconds (slow, to avoid scan conflicts)
+# - QZ is stopped only after MISSING_THRESHOLD consecutive missed scans (prevents false stops)
+
+TARGET_DEVICE="${bt_name}"
+DETECT_INTERVAL=30     # seconds between scans when QZ is stopped
+CHECK_INTERVAL=300     # seconds between checks when QZ is running (5 min)
+SCAN_TIMEOUT=10        # seconds per BLE scan
+MISSING_THRESHOLD=3    # consecutive missed scans before stopping QZ (~15 min)
+SERVICE_NAME="qz"
+
+# Log to RAM disk to prevent SD card wear.
+# /dev/shm is a tmpfs; if unavailable fall back to /tmp (also usually tmpfs on Pi).
+if [[ -d /dev/shm && -w /dev/shm ]]; then
+    LOG_FILE="/dev/shm/qz-treadmill-monitor.log"
+else
+    LOG_FILE="/tmp/qz-treadmill-monitor.log"
+fi
+
+# Max log size before rotation (bytes). 256KB keeps ~days of entries in RAM.
+LOG_MAX_BYTES=262144
+
+log() {
+    echo "\$(date '+%Y-%m-%d %H:%M:%S') \$*" >> "\$LOG_FILE"
+    # Rotate when log exceeds size cap: keep the newest half
+    local size
+    size=\$(stat -c%s "\$LOG_FILE" 2>/dev/null || echo 0)
+    if (( size > LOG_MAX_BYTES )); then
+        local lines; lines=\$(wc -l < "\$LOG_FILE" 2>/dev/null || echo 0)
+        local keep=\$(( lines / 2 ))
+        local tmp="\${LOG_FILE}.tmp"
+        tail -n "\$keep" "\$LOG_FILE" > "\$tmp" 2>/dev/null && mv "\$tmp" "\$LOG_FILE" 2>/dev/null || true
+    fi
+}
+
+scan_for_treadmill() {
+    bluetoothctl scan on &>/dev/null &
+    local scan_pid=\$!
+    sleep "\$SCAN_TIMEOUT"
+    bluetoothctl devices | grep -q "\$TARGET_DEVICE"
+    local result=\$?
+    kill "\$scan_pid" 2>/dev/null
+    bluetoothctl scan off &>/dev/null
+    return \$result   # 0=found 1=not found
+}
+
+missing_count=0
+log "qz-treadmill-monitor started. Watching for: \$TARGET_DEVICE"
+
+while true; do
+    if systemctl is-active --quiet "\$SERVICE_NAME"; then
+        # QZ running — verify treadmill still present at slow interval
+        sleep "\$CHECK_INTERVAL"
+        if scan_for_treadmill; then
+            missing_count=0
+            log "Treadmill present. QZ continues."
+        else
+            ((missing_count++))
+            log "Treadmill not found (\${missing_count}/\${MISSING_THRESHOLD})."
+            if (( missing_count >= MISSING_THRESHOLD )); then
+                log "Threshold reached. Stopping QZ service."
+                systemctl stop "\$SERVICE_NAME"
+                missing_count=0
+            fi
+        fi
+    else
+        # QZ stopped — poll frequently for treadmill power-on
+        if scan_for_treadmill; then
+            log "Treadmill detected. Starting QZ service."
+            systemctl start "\$SERVICE_NAME"
+            missing_count=0
+        fi
+        sleep "\$DETECT_INTERVAL"
+    fi
+done
+MONITOR_SCRIPT_EOF
+
+    run_as_root_or_sudo chmod +x "$MONITOR_SCRIPT"
+
+    # Step 3: Write the systemd unit
+    show_status_message "Writing systemd unit..."
+    run_as_root_or_sudo bash -c "cat > '${SERVICE_FILE_MONITOR}'" << UNIT_EOF
+[Unit]
+Description=QZ Treadmill Auto-Detect Monitor
+After=bluetooth.service
+Requires=bluetooth.service
+
+[Service]
+Type=simple
+ExecStart=${MONITOR_SCRIPT}
+Restart=always
+RestartSec=10
+User=root
+
+[Install]
+WantedBy=multi-user.target
+UNIT_EOF
+
+    # Step 4: Enable and start
+    show_status_message "Enabling monitor service..."
+    run_as_root_or_sudo systemctl daemon-reload >/dev/null 2>&1
+    run_as_root_or_sudo systemctl enable qz-treadmill-monitor.service >/dev/null 2>&1
+    run_as_root_or_sudo systemctl start qz-treadmill-monitor.service >/dev/null 2>&1
+
+    # Step 5: Verify
+    sleep 1
+    if systemctl is-active --quiet qz-treadmill-monitor.service 2>/dev/null; then
+        run_check "qz_service" "_logic_check_qz_service" false >/dev/null 2>&1
+        run_check "service_enabled" "_logic_check_service_enabled" false >/dev/null 2>&1
+        draw_info_screen "SMART MONITOR ENABLED" \
+            "Auto-detect monitor is now active.\n\nWatching for: ${bt_name}\n\nQZ starts when treadmill is detected.\nQZ stops ~15 min after treadmill disappears.\nAuto-start on boot: enabled.\n\nStatus row shows: QZ Monitor" "wait"
+    else
+        draw_error_screen "INSTALL FAILED" \
+            "Monitor service failed to start.\nCheck: journalctl -u qz-treadmill-monitor -n 20" "wait"
+    fi
+
+    enter_ui_mode || true
+}
+
+remove_smart_service_ui() {
+    exit_ui_mode || true
+    draw_bottom_panel_header "REMOVE SMART MONITOR" "false"
+    clear_info_area
+    draw_sealed_row $((LOG_TOP + 1)) ""
+    draw_sealed_row $((LOG_TOP + 2)) "   This will stop and remove the auto-detect monitor."
+    draw_sealed_row $((LOG_TOP + 3)) "   QZ service will remain installed but stopped."
+    draw_sealed_row $((LOG_TOP + 4)) "   Use 'Start Service' or 'Enable Auto-Start' to resume."
+    draw_sealed_row $((LOG_TOP + 5)) ""
+    draw_sealed_row $((LOG_TOP + 6)) "   Confirm removal?"
+    draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Cancel"
+
+    prompt_yes_no 8
+    local resp=$?
+
+    if [[ $resp -eq 0 ]]; then
+        show_status_message "Stopping monitor..."
+        run_as_root_or_sudo systemctl stop qz-treadmill-monitor.service >/dev/null 2>&1 || true
+        show_status_message "Disabling monitor..."
+        run_as_root_or_sudo systemctl disable qz-treadmill-monitor.service >/dev/null 2>&1 || true
+        show_status_message "Removing files..."
+        run_as_root_or_sudo rm -f "$SERVICE_FILE_MONITOR" "$MONITOR_SCRIPT" >/dev/null 2>&1 || true
+        run_as_root_or_sudo systemctl daemon-reload >/dev/null 2>&1
+        QZ_MONITOR_ACTIVE=0
+        run_check "qz_service" "_logic_check_qz_service" false >/dev/null 2>&1
+        run_check "service_enabled" "_logic_check_service_enabled" false >/dev/null 2>&1
+        draw_info_screen "SMART MONITOR REMOVED" \
+            "Monitor removed. QZ service is still installed but stopped.\n\nTo resume:\n  • 'Start Service' — start QZ once manually\n  • 'Enable Auto-Start' — restart QZ on every boot\n  • 'Smart Monitor' — reinstall auto-detect" "wait"
+    else
+        draw_info_screen "REMOVAL ABORTED" "No changes were made." 1
+    fi
+
+    enter_ui_mode || true
+}
+
 remove_service_ui() {
     # Use the UI-consistent Yes/No overlay instead of a plain tty prompt
     exit_ui_mode || true
     draw_bottom_panel_header "REMOVE SERVICE"
     clear_info_area
-    draw_sealed_row $((LOG_TOP + 1)) "   This will stop and remove the installed service file."
-    draw_sealed_row $((LOG_TOP + 2)) "   Confirm removal?"
+    draw_sealed_row $((LOG_TOP + 1)) ""
+    draw_sealed_row $((LOG_TOP + 2)) "   This will stop and remove the installed service file."
+    draw_sealed_row $((LOG_TOP + 3)) ""
+    draw_sealed_row $((LOG_TOP + 4)) "   Confirm removal?"
     draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Cancel"
 
     # prompt_yes_no renders an overlay and returns selected index (0=Yes)
-    prompt_yes_no 4
+    prompt_yes_no 6
     local resp=$?
 
     if [[ $resp -eq 0 ]]; then
@@ -7678,6 +7989,14 @@ remove_service_ui() {
         show_status_message "Removing service files..."
         draw_bottom_border ""
         run_as_root_or_sudo rm -f "$SYSTEMD_SYSTEM_DIR/qz.service" >/dev/null 2>&1 || true
+
+        # Also remove smart monitor if installed (keep things clean)
+        if [[ -f "$SERVICE_FILE_MONITOR" ]]; then
+            run_as_root_or_sudo systemctl stop qz-treadmill-monitor.service >/dev/null 2>&1 || true
+            run_as_root_or_sudo systemctl disable qz-treadmill-monitor.service >/dev/null 2>&1 || true
+            run_as_root_or_sudo rm -f "$SERVICE_FILE_MONITOR" "$MONITOR_SCRIPT" >/dev/null 2>&1 || true
+            QZ_MONITOR_ACTIVE=0
+        fi
         
         # Step 4: Reload systemd
         show_status_message "Reloading systemd..."
@@ -7912,6 +8231,13 @@ is_service_enabled() {
     run_as_root_or_sudo systemctl is-enabled --quiet qz.service 2>/dev/null
 }
 
+# Returns true if either the standard service or the smart monitor is enabled at boot
+is_any_service_enabled() {
+    is_service_enabled 2>/dev/null && return 0
+    systemctl is-enabled --quiet qz-treadmill-monitor.service 2>/dev/null && return 0
+    return 1
+}
+
 build_service_menu_options() {
     local opts=()
     local failure_info failure_type suggested_fix
@@ -7919,25 +8245,53 @@ build_service_menu_options() {
     failure_info=$(detect_service_failure_type)
     failure_type="${failure_info%%|*}"
     suggested_fix="${failure_info##*|}"
-    
+
+    # Smart monitor controls — determine labels based on installed state
+    local monitor_installed=false
+    local smart_svc_label="Smart Monitor"
+    if [[ -f "$SERVICE_FILE_MONITOR" ]]; then
+        monitor_installed=true
+        smart_svc_label="Smart Monitor Settings"   # Tension 3: was "Reconfigure Smart Monitor"
+    fi
+
+    # Tension 2: Override labels when monitor active (Start/Stop/Restart are manual overrides)
+    local start_label="Start Service"
+    local stop_label="Stop Service"
+    local restart_label="Restart Service"
+    if $monitor_installed; then
+        start_label="Override: Start QZ Now"
+        stop_label="Override: Stop QZ Now"
+        restart_label="Override: Restart QZ Now"
+    fi
+
+    # Tension 7: Mode-aware Enable/Disable Auto-Start labels
+    local enable_label="Enable Auto-Start"
+    local disable_label="Disable Auto-Start"
+    if $monitor_installed; then
+        enable_label="Enable Smart Monitor"
+        disable_label="Disable Smart Monitor"
+    fi
+
     case "$failure_type" in
         NO_SERVICE)
+            # Smart Monitor requires qz.service to be installed first — do not offer it here
             opts+=("Generate & Install Service")
             ;;
         WRONG_PATH|PERMISSION)
-            opts+=("Start Service")
+            # Broken service — fix or remove before adding Smart Monitor
+            opts+=("$start_label")
             opts+=("Regenerate Service")
             opts+=("View Error Details")
             opts+=("Remove Broken Service")
             ;;
         MISSING_MODULE)
-            opts+=("Start Service")
+            opts+=("$start_label")
             opts+=("🔧 FIX NOW: Install Python Packages")
             opts+=("View Error Details")
             opts+=("Regenerate Service")
             ;;
         PYTHON_LIB|BLUETOOTH|GENERIC_FAIL)
-            opts+=("Start Service")
+            opts+=("$start_label")
             opts+=("View Error Details")
             opts+=("Regenerate Service")
             opts+=("Remove Service")
@@ -7948,31 +8302,46 @@ build_service_menu_options() {
             opts+=("Remove Service")
             ;;
         STOPPED)
-            opts+=("Start Service")
-            opts+=("Configure Service Flags")
+            # qz.service installed — Smart Monitor is available
+            opts+=("$start_label")
+            opts+=("$smart_svc_label")
+            opts+=("QZ Runtime Flags")
             opts+=("Regenerate Service")
-            if is_service_enabled; then
-                opts+=("Disable Auto-Start")
+            if is_any_service_enabled; then
+                opts+=("$disable_label")
             else
-                opts+=("Enable Auto-Start")
+                opts+=("$enable_label")
             fi
             opts+=("Remove Service")
             ;;
         RUNNING)
-            opts+=("Restart Service")
-            opts+=("Stop Service")
-            opts+=("Configure Service Flags")
+            # qz.service running — Smart Monitor is available
+            opts+=("$restart_label")
+            opts+=("$stop_label")
+            opts+=("$smart_svc_label")
+            opts+=("QZ Runtime Flags")
             if [[ "${SVC_PYTHONHOME_STALE:-false}" == "true" ]]; then
                 opts+=("⚠ Regenerate Service (PYTHONHOME)")
             fi
-            if is_service_enabled; then
-                opts+=("Disable Auto-Start")
+            if is_any_service_enabled; then
+                opts+=("$disable_label")
             else
-                opts+=("Enable Auto-Start")
+                opts+=("$enable_label")
             fi
             opts+=("Remove Service")
             ;;
     esac
+
+    # If smart monitor is installed: show Remove Smart Monitor instead of Remove Service
+    if $monitor_installed; then
+        local filtered=()
+        for o in "${opts[@]}"; do
+            [[ "$o" == "Remove Service" ]] && continue
+            filtered+=("$o")
+        done
+        opts=("${filtered[@]}")
+        opts+=("Remove Smart Monitor")
+    fi
     
     printf '%s\n' "${opts[@]}"
 }
@@ -7989,20 +8358,24 @@ get_action_for_choice() {
             printf '%s' "remove_service_ui" ;;
         *"🔧 FIX NOW: Install Python Packages"*)
             printf '%s' "install_venv_packages_ui" ;;
-        *"Configure Service Flags"*)
+        *"QZ Runtime Flags"*|*"Configure Service Flags"*)    # Tension 6: both match for safety
             printf '%s' "configure_service_flags_ui" ;;
         *"Generate & Install Service"*)
             printf '%s' "install_service_ui" ;;
-        *"Start Service"*)
+        *"Override: Start QZ Now"*|*"Start Service"*)         # Tension 2
             printf '%s' "start_service_ui" ;;
-        *"Stop Service"*)
+        *"Override: Stop QZ Now"*|*"Stop Service"*)           # Tension 2
             printf '%s' "stop_service_ui" ;;
-        *"Restart Service"*)
+        *"Override: Restart QZ Now"*|*"Restart Service"*)     # Tension 2
             printf '%s' "restart_service_ui" ;;
-        *"Enable Auto-Start"*)
+        *"Enable Smart Monitor"*|*"Enable Auto-Start"*)       # Tension 7
             printf '%s' "enable_service_ui" ;;
-        *"Disable Auto-Start"*)
+        *"Disable Smart Monitor"*|*"Disable Auto-Start"*)     # Tension 7
             printf '%s' "disable_service_ui" ;;
+        *"Remove Smart Monitor"*)
+            printf '%s' "remove_smart_service_ui" ;;
+        *"Smart Monitor"*)
+            printf '%s' "generate_smart_service_ui" ;;
         *) printf '%s' "" ;;
     esac
 }
@@ -8076,13 +8449,22 @@ service_menu_flow() {
         for opt in "${options[@]}"; do
             case "$opt" in
                 *"Regenerate Service"*) help_texts+=("Service is failing. Click to regenerate with correct configuration.") ;;
-                *"View Error Details"*) help_texts+=("See detailed error logs to diagnose the service failure.") ;;                *"Remove Broken Service"*|*"Remove Service"*) help_texts+=("Delete the service file completely.") ;;
+                *"View Error Details"*) help_texts+=("See detailed error logs to diagnose the service failure.") ;;
+                *"Remove Broken Service"*|*"Remove Service"*) help_texts+=("Delete the service file completely.") ;;
                 *"🔧 FIX NOW: Install Python Packages"*) help_texts+=("Install required Python packages for the service.") ;;
-                *"Configure Service Flags"*) help_texts+=("Configure systemd service flags including logging, console output, and polling intervals.") ;;
-                *"Generate & Install Service"*) help_texts+=("Create and install the qz.service systemd unit file to enable background operation.") ;;
+                *"QZ Runtime Flags"*) help_texts+=("Configure the QZ service flags: logging, console output, ANT+ device ID, and polling interval. These apply whether QZ is started manually or by the Smart Monitor.") ;;
+                *"Generate & Install Service"*) help_texts+=("Create and install the qz.service systemd unit file. Once installed, Smart Monitor (auto-detect) also becomes available.") ;;
+                *"Remove Smart Monitor"*) help_texts+=("Stop and remove the auto-detect monitor. QZ service remains installed but stopped — use Start Service or Enable Auto-Start to resume standard mode.") ;;
+                *"Smart Monitor Settings"*) help_texts+=("Smart Monitor is active. Re-run setup to update the treadmill device name or reinstall the monitor with current QZ service flags.") ;;
+                *"Smart Monitor"*) help_texts+=("QZ starts automatically when your treadmill is detected over Bluetooth and stops ~15 minutes after it disappears. Requires Bluetooth Scanning to have been completed.") ;;
+                *"Override: Start QZ Now"*) help_texts+=("Manually start QZ now. The Smart Monitor will continue managing automatic start/stop — it will stop QZ again if the treadmill disappears.") ;;
+                *"Override: Stop QZ Now"*) help_texts+=("Manually stop QZ now. The Smart Monitor will restart it automatically when your treadmill is next detected.") ;;
+                *"Override: Restart QZ Now"*) help_texts+=("Manually restart QZ to apply a config change. The Smart Monitor will resume automatic management after the restart.") ;;
                 *"Start Service"*) help_texts+=("Start the QZ service. Use this to recover from a failure or start a stopped service.") ;;
                 *"Stop Service"*) help_texts+=("Stop the currently running QZ service. This terminates the background process.") ;;
                 *"Restart Service"*) help_texts+=("Restart the QZ service to apply configuration changes.") ;;
+                *"Enable Smart Monitor"*) help_texts+=("Enable the Smart Monitor to start automatically on boot. QZ will start and stop with treadmill presence from next reboot.") ;;
+                *"Disable Smart Monitor"*) help_texts+=("Disable Smart Monitor auto-start on boot. The monitor will not restart after a reboot — start it manually from this menu.") ;;
                 *"Enable Auto-Start"*) help_texts+=("Enable QZ to start automatically on system boot.") ;;
                 *"Disable Auto-Start"*) help_texts+=("Disable automatic startup on boot. Service must be started manually.") ;;
                 *"⚠ Regenerate Service"*) help_texts+=("Update service to include PYTHONHOME environment variable.") ;;
@@ -8090,8 +8472,28 @@ service_menu_flow() {
             esac
         done
         
-        # 5. Show the menu
-        show_unified_menu options "$selected" "SERVICE CONFIGURATION" "FULL" "false" "" help_texts
+        # 5. Show the menu (Approach A: draw mode banner as static line before menu call)
+        local menu_title="SERVICE CONFIGURATION"
+        local failure_state="${failure_type:-UNKNOWN}"
+        local mode_banner=""
+
+        if is_monitor_installed; then
+            menu_title="SERVICE CONFIG  [Monitor Mode]"
+            mode_banner="  ${CYAN}◈ Smart Monitor active — QZ starts/stops with treadmill${NC}"
+        elif [[ "$failure_state" == "RUNNING" ]]; then
+            mode_banner="  ${GRAY}◈ Standard mode — QZ runs continuously${NC}"
+        elif [[ "$failure_state" == "STOPPED" ]]; then
+            mode_banner="  ${GRAY}◈ Standard mode — QZ is stopped${NC}"
+        fi
+
+        # Draw mode banner in the spacer row (LOG_TOP+1) before show_unified_menu
+        # show_unified_menu leaves row LOG_TOP+1 blank — we reuse it for the banner
+        if [[ -n "$mode_banner" ]]; then
+            draw_bottom_panel_header "$menu_title" "false"
+            print_at $((LOG_TOP + 1)) "$mode_banner"
+        fi
+
+        show_unified_menu options "$selected" "$menu_title" "FULL" "false" "" help_texts
         local exit_code=$?
         
         # Handle Exit/Back
