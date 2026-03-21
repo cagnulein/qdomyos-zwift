@@ -1181,7 +1181,7 @@ import Qt.labs.platform 1.1
             property int ant_bike_device_number: 0
             property int ant_heart_device_number: 0
             property int peloton_treadmill_walk_level: 1
-            property int pid_heart_zone_erg_mode_watt_step: 5
+            property int pid_heart_zone_erg_mode_watt_step: 5            
             
             // Automatic Virtual Shifting settings
             property bool automatic_virtual_shifting_enabled: false
@@ -1292,6 +1292,7 @@ import Qt.labs.platform 1.1
             property bool cadence_sensor_as_treadmill: false
             property bool proform_trainer_8_0_pftl59721_int_0: false
             property bool proform_carbon_tl_PFTL59723_6: false
+            property bool nordictrack_treadmill_commercial_le: false
         }
 
 
@@ -8660,6 +8661,7 @@ import Qt.labs.platform 1.1
                                     "Nordictrack T6.5S v81 Miles",
                                     "Nordictrack Elite 800",
                                     "Nordictrack Ultra LE",
+                                    "Nordictrack Commercial LE",
                                     "Proform Carbon TLS",
                                     "Proform 995i",
                                     "NordicTrack Series 7",
@@ -8735,14 +8737,15 @@ import Qt.labs.platform 1.1
                                                     settings.nordictrack_t65s_treadmill_81_miles ? 48 : 
                                                     settings.nordictrack_elite_800 ? 49 :
                                                     settings.nordictrack_treadmill_ultra_le ? 50 :
-                                                    settings.proform_treadmill_carbon_tls ? 51 :
-                                                    settings.proform_treadmill_995i ? 52 :
-                                                    settings.nordictrack_series_7 ? 53 :
-                                                    settings.proform_trainer_9_0 ? 54 :
-                                                    settings.proform_treadmill_sport_3_0 ? 55 :
-                                                    settings.proform_carbon_tlx_treadmill ? 56 :
-                                                    settings.proform_trainer_8_0_pftl59721_int_0 ? 57 :
-                                                    settings.proform_carbon_tl_PFTL59723_6 ? 58 : 0;
+                                                    settings.nordictrack_treadmill_commercial_le ? 51 :
+                                                    settings.proform_treadmill_carbon_tls ? 52 :
+                                                    settings.proform_treadmill_995i ? 53 :
+                                                    settings.nordictrack_series_7 ? 54 :
+                                                    settings.proform_trainer_9_0 ? 55 :
+                                                    settings.proform_treadmill_sport_3_0 ? 56 :
+                                                    settings.proform_carbon_tlx_treadmill ? 57 :
+                                                    settings.proform_trainer_8_0_pftl59721_int_0 ? 58 :
+                                                    settings.proform_carbon_tl_PFTL59723_6 ? 59 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -8807,6 +8810,7 @@ import Qt.labs.platform 1.1
                                     settings.nordictrack_t65s_treadmill_81_miles = false;
                                     settings.nordictrack_elite_800 = false;
                                     settings.nordictrack_treadmill_ultra_le = false;
+                                    settings.nordictrack_treadmill_commercial_le = false;
                                     settings.proform_treadmill_carbon_tls = false;
                                     settings.proform_treadmill_995i = false;
                                     settings.nordictrack_series_7 = false;
@@ -8868,14 +8872,15 @@ import Qt.labs.platform 1.1
                                         case 48: settings.nordictrack_t65s_treadmill_81_miles = true; break;
                                         case 49: settings.nordictrack_elite_800 = true; break;
                                         case 50: settings.nordictrack_treadmill_ultra_le = true; break;
-                                        case 51: settings.proform_treadmill_carbon_tls = true; break;
-                                        case 52: settings.proform_treadmill_995i = true; break;
-                                        case 53: settings.nordictrack_series_7 = true; break;
-                                        case 54: settings.proform_trainer_9_0 = true; break;
-                                        case 55: settings.proform_treadmill_sport_3_0 = true; break;
-                                        case 56: settings.proform_carbon_tlx_treadmill = true; break;
-                                        case 57: settings.proform_trainer_8_0_pftl59721_int_0 = true; break;
-                                        case 58: settings.proform_carbon_tl_PFTL59723_6 = true; break;
+                                        case 51: settings.nordictrack_treadmill_commercial_le = true; break;
+                                        case 52: settings.proform_treadmill_carbon_tls = true; break;
+                                        case 53: settings.proform_treadmill_995i = true; break;
+                                        case 54: settings.nordictrack_series_7 = true; break;
+                                        case 55: settings.proform_trainer_9_0 = true; break;
+                                        case 56: settings.proform_treadmill_sport_3_0 = true; break;
+                                        case 57: settings.proform_carbon_tlx_treadmill = true; break;
+                                        case 58: settings.proform_trainer_8_0_pftl59721_int_0 = true; break;
+                                        case 59: settings.proform_carbon_tl_PFTL59723_6 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;

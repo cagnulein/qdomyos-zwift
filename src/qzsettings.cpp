@@ -255,6 +255,7 @@ const QString QZSettings::yesoul_peloton_formula = QStringLiteral("yesoul_peloto
 const QString QZSettings::nordictrack_10_treadmill = QStringLiteral("nordictrack_10_treadmill");
 const QString QZSettings::nordictrack_t65s_treadmill = QStringLiteral("nordictrack_t65s_treadmill");
 const QString QZSettings::nordictrack_treadmill_ultra_le = QStringLiteral("nordictrack_treadmill_ultra_le");
+const QString QZSettings::nordictrack_treadmill_commercial_le = QStringLiteral("nordictrack_treadmill_commercial_le");
 const QString QZSettings::proform_treadmill_carbon_tls = QStringLiteral("proform_treadmill_carbon_tls");
 const QString QZSettings::proform_treadmill_995i = QStringLiteral("proform_treadmill_995i");
 const QString QZSettings::nordictrack_series_7 = QStringLiteral("nordictrack_series_7");
@@ -1272,6 +1273,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_10_treadmill, QZSettings::default_nordictrack_10_treadmill},
     {QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill},
     {QZSettings::nordictrack_treadmill_ultra_le, QZSettings::default_nordictrack_treadmill_ultra_le},
+    {QZSettings::nordictrack_treadmill_commercial_le, QZSettings::default_nordictrack_treadmill_commercial_le},
     {QZSettings::proform_treadmill_carbon_tls, QZSettings::default_proform_treadmill_carbon_tls},
     {QZSettings::toorx_3_0, QZSettings::default_toorx_3_0},
     {QZSettings::toorx_65s_evo, QZSettings::default_toorx_65s_evo},
