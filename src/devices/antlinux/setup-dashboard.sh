@@ -846,8 +846,14 @@ IS_PI=false
 grep -q "Raspberry Pi" /proc/cpuinfo 2>/dev/null && IS_PI=true
 : "${IS_PI:-}" >/dev/null 2>&1
 
-# Paths
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Paths — resolve to canonical absolute path so all derived paths remain correct
+# regardless of install directory name (e.g. arm64-ant vs aarch64-ant) or symlinks.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+if command -v readlink >/dev/null 2>&1; then
+    _sr="$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null)"
+    [[ -n "$_sr" ]] && SCRIPT_DIR="$(dirname "$_sr")"
+    unset _sr
+fi
 export CONFIG_FILE=$(get_config_path "$TARGET_HOME")
 export CONFIG_DIR="$(dirname "$CONFIG_FILE")"
 export DEVICES_INI="$SCRIPT_DIR/devices.ini"
@@ -1015,7 +1021,7 @@ declare -a STATUS_GRID=(
     "Python Virtual Environment|venv|USB udev Rules|udev_rules|lsusb Command|lsusb"
     "Python PIPs|pkg_pips|Qt5 Runtime Libs|qt5_libs|QML Modules|qml_modules"
     "QZ Config File|config_file|Bluetooth Service|bluetooth|BLE Peripheral|bluez_compat"
-    "QZ Service|qz_service|ANT+ Flag|ant_footpod_flag|Boot Enabled|service_enabled"
+    "QZ Service|qz_service|ANT+ Flag|ant_footpod_flag|Overlay FS|overlay_fs"
 )
 
 # When set to 1, draw_status_row always renders 3 columns with a consistent
@@ -1586,32 +1592,55 @@ draw_status_row() {
     fi
     
     # --- DYNAMIC LABEL LOGIC FOR QZ SERVICE ---
+    # The label encodes both service state AND boot/monitor state in one cell,
+    # since service_enabled is no longer a separate grid entry.
     local qz_service_extra_len=0
-    if [[ "$R_key" == "qz_service" ]]; then
+    if [[ "$R_key" == "qz_service" || "$L_key" == "qz_service" ]]; then
+        local _qz_label _qz_extra_len=0
         if is_monitor_active 2>/dev/null; then
-            R_label="QZ Monitor"
+            _qz_label="QZ Monitor"
         else
-        local svc_status; svc_status=$(get_service_status)
-        case "$svc_status" in
-            "running")
-                R_label="QZ Service"
-                ;;
-            "stopped")
-                R_label="QZ Service  ${GRAY}(Stopped)${NC}"
-                qz_service_extra_len=11  # "  (Stopped)" visible chars
-                ;;
-            "failed")
-                R_label="QZ Service  ${GRAY}(Failed)${NC}"
-                qz_service_extra_len=10  # "  (Failed)" visible chars
-                ;;
-            "not-installed")
-                R_label="QZ Service  ${GRAY}(Not Set)${NC}"
-                qz_service_extra_len=11  # "  (Not Set)" visible chars
-                ;;
-            *)
-                R_label="QZ Service"
-                ;;
-        esac
+            local svc_status; svc_status=$(get_service_status)
+            # Append boot indicator as a short suffix — keeps label compact
+            local _boot_sfx=""
+            local _svc_en="${STATUS_MAP[service_enabled]:-pending}"
+            if [[ "$_svc_en" == "pass" ]]; then
+                if systemctl is-enabled --quiet qz-treadmill-monitor.service 2>/dev/null; then
+                    _boot_sfx=" ${GRAY}▸ Monitor${NC}"
+                    _qz_extra_len=9  # " ▸ Monitor" visible
+                else
+                    _boot_sfx=" ${GRAY}▸ Boot${NC}"
+                    _qz_extra_len=7  # " ▸ Boot" visible
+                fi
+            fi
+            case "$svc_status" in
+                "running")
+                    _qz_label="QZ Service${_boot_sfx}" ;;
+                "stopped")
+                    _qz_label="QZ Service  ${GRAY}(Stopped)${NC}${_boot_sfx}"
+                    _qz_extra_len=$(( 11 + _qz_extra_len )) ;;
+                "failed")
+                    _qz_label="QZ Service  ${GRAY}(Failed)${NC}${_boot_sfx}"
+                    _qz_extra_len=$(( 10 + _qz_extra_len )) ;;
+                "not-installed")
+                    _qz_label="QZ Service  ${GRAY}(Not Set)${NC}${_boot_sfx}"
+                    _qz_extra_len=$(( 11 + _qz_extra_len )) ;;
+                *)
+                    _qz_label="QZ Service${_boot_sfx}" ;;
+            esac
+        fi
+        if [[ "$R_key" == "qz_service" ]]; then
+            R_label="$_qz_label"; qz_service_extra_len=$_qz_extra_len
+        fi
+        if [[ "$L_key" == "qz_service" ]]; then
+            L_label="$_qz_label"; qz_service_extra_len=$_qz_extra_len
+        fi
+    fi
+
+    # --- DYNAMIC LABEL LOGIC FOR QML MODULES (R2 column) ---
+    if [[ "$R2_key" == "qml_modules" ]]; then
+        if [[ "${IS_PI:-false}" == "true" && "${HAS_GUI:-false}" != "true" ]]; then
+            R2_label="QML (headless)"   # Not needed; pending = grey ◈
         fi
     fi
 
@@ -1644,51 +1673,37 @@ draw_status_row() {
         fi
     fi
 
-    # --- DYNAMIC LABEL LOGIC FOR SERVICE ENABLED ---
-    if [[ "$R2_key" == "service_enabled" ]]; then
-        local svc_en="${STATUS_MAP[service_enabled]:-pending}"
-        if [[ "$svc_en" == "pass" ]]; then
-            if systemctl is-enabled --quiet qz-treadmill-monitor.service 2>/dev/null; then
-                R2_label="Smart Monitor"
+    # --- DYNAMIC LABEL LOGIC FOR OVERLAY FS (Pi only, R2 column) ---
+    if [[ "$R2_key" == "overlay_fs" ]]; then
+        if [[ "$IS_PI" != "true" ]]; then
+            R2_label=""   # Not applicable on desktop Linux — cell left blank
+        else
+            local ov_live=false ov_cfg=false boot_cfg=false
+            mount 2>/dev/null | grep -q 'overlay on /' && ov_live=true
+            # Direct file reads — consistent with _logic_check_overlay_fs, no sudo needed
+            local _cmdline=""
+            [[ -f /boot/firmware/cmdline.txt ]] && _cmdline="/boot/firmware/cmdline.txt"
+            [[ -z "$_cmdline" && -f /boot/cmdline.txt ]] && _cmdline="/boot/cmdline.txt"
+            [[ -n "$_cmdline" ]] && grep -q "boot=overlay" "$_cmdline" 2>/dev/null && ov_cfg=true
+            grep -q "defaults.*,ro" /etc/fstab 2>/dev/null && boot_cfg=true
+
+            if $ov_live; then
+                if $boot_cfg; then
+                    R2_label="SD Protected"      # ● yellow — actively protected right now
+                else
+                    R2_label="Overlay Active"    # ● yellow — overlay live, boot still writable
+                fi
+            elif $ov_cfg && $boot_cfg; then
+                R2_label="Protected (reboot)"    # ✓ green  — configured, takes effect on reboot
+            elif $ov_cfg; then
+                R2_label="Overlay (reboot)"      # ◈ grey   — overlay only, pending reboot
+            elif $boot_cfg; then
+                R2_label="Boot RO (reboot)"      # ◈ grey   — boot only, pending reboot
             else
-                R2_label="Autostart on"
+                R2_label="SD (write wear)"       # ◈ grey   — no protection; writes go to SD card
             fi
-        else
-            R2_label="No Autostart"
         fi
     fi
-
-    # --------------------------------------
-
-    # Check left side too
-    if [[ "$L_key" == "qz_service" ]]; then
-        if is_monitor_active 2>/dev/null; then
-            L_label="QZ Monitor"
-        else
-        local svc_status; svc_status=$(get_service_status)
-        case "$svc_status" in
-            "running")
-                L_label="QZ Service"
-                ;;
-            "stopped")
-                L_label="QZ Service  ${GRAY}(Stopped)${NC}"
-                qz_service_extra_len=11  # "  (Stopped)" visible chars
-                ;;
-            "failed")
-                L_label="QZ Service  ${GRAY}(Failed)${NC}"
-                qz_service_extra_len=10  # "  (Failed)" visible chars
-                ;;
-            "not-installed")
-                L_label="QZ Service  ${GRAY}(Not Set)${NC}"
-                qz_service_extra_len=11  # "  (Not Set)" visible chars
-                ;;
-            *)
-                L_label="QZ Service"
-                ;;
-        esac
-        fi
-    fi
-    # --------------------------------------
 
     local L_val="${STATUS_MAP[$L_key]:-pending}"
     local R_val="${STATUS_MAP[$R_key]:-pending}"
@@ -2030,6 +2045,11 @@ render_dashboard_atomic() {
     local fd="${UI_FD:-2}"
     printf "%b" "$ATOMIC_BUFFER" >&"$fd"
     
+    # Park cursor below the visible UI area after the atomic flush.
+    # Prevents the cursor (at \e[H = row 1, col 1 after the clear) from
+    # appearing as a stray character in the top panel during subsequent renders.
+    printf "\e[%d;1H" "$(( ${LOG_BOTTOM:-21} + 2 ))" >&"$fd" 2>/dev/null || true
+
     # CRITICAL: Turn off buffering so subsequent interactive menus work immediately!
     ATOMIC_RENDER_MODE=0
     ATOMIC_BUFFER=""
@@ -2273,11 +2293,6 @@ draw_error_screen() {
     # Start at the very top row of the info area (Row 13)
     local row=$((LOG_TOP + 2))
     
-    # Title - High visibility
-    draw_sealed_row "$row" "   ${BOLD_RED}▶ ${title}${NC}"
-    ((row++))
-    draw_sealed_row "$row" "   $(printf '%.0s─' $(seq 1 $((INNER_COLS - 6))))"
-
     # Wrap message - leave room for borders
     local wrapped
     IFS=$'\n' read -r -d '' -a wrapped < <(printf '%b' "$msg" | fold -s -w $((INFO_WIDTH - 6)) && printf '\0')
@@ -3144,15 +3159,15 @@ configure_emulation_flow() {
             # ... (Rest of logic remains the same) ...
             draw_bottom_panel_header "EMULATION SETUP (ANT+ TEST)" "false"
             clear_info_area
-            local r=$((LOG_TOP))
-            draw_sealed_row "$r" ""  # Top spacer
+            local r=$((LOG_TOP + 1))
+            draw_sealed_row "$r" ""  # Top spacer (consistent with other screens)
             draw_sealed_row $((r + 1)) "   Configure QZ as emulated treadmill '${BOLD_CYAN}KICKR RUN${NC}' for testing ANT+?"
             local desc_r=$((r + 5))
             draw_sealed_row "$desc_r"       "   • Configures QZ to act as a virtual treadmill broadcasting ANT+."
             draw_sealed_row $((desc_r + 1)) "   • Used to verify ANT+ dongle functionality with watches."
             draw_sealed_row $((desc_r + 2)) "   • Requires a second QZ app (phone/tablet) to control speed."
             
-            if prompt_yes_no 2; then
+            if prompt_yes_no 3; then
                 show_status_message "Applying emulation configuration..."
                 draw_bottom_border ""
                 if [[ -f "$DEVICES_INI" ]]; then
@@ -3426,8 +3441,12 @@ select_equipment_flow() {
 }
 
 run_setup_wizard() {
-    # 1. INTRO
-    draw_info_screen "QUICK SETUP WIZARD" "This will guide you through:\n1. Equipment Selection\n2. Bluetooth Pairing (if applicable)\n3. User Profile\n4. Service Activation\n\nExisting settings may be overwritten." "wait"
+    # 1. INTRO — update step count based on platform
+    local step_count=4
+    [[ "$IS_PI" == "true" ]] && step_count=6
+    local intro_steps="1. Equipment Selection\n2. Bluetooth Pairing (if applicable)\n3. User Profile\n4. Service Activation"
+    [[ "$IS_PI" == "true" ]] && intro_steps="${intro_steps}\n5. Smart Monitor (optional)\n6. SD Card Protection (optional)"
+    draw_info_screen "QUICK SETUP WIZARD" "This will guide you through:\n${intro_steps}\n\nExisting settings may be overwritten." "wait"
     
     # 2. EQUIPMENT
     # Pass "true" to suppress intermediate restart prompts
@@ -3457,9 +3476,73 @@ run_setup_wizard() {
     # 4. PROFILE (with wizard mode enabled)
     configure_user_profile "true"
 
-    # 5. FINALIZE
+    # 5. FINALIZE service
     # Regenerate service file to ensure all new settings (like -name) are applied
     generate_service_file >/dev/null
+
+    # --- PI-ONLY OPTIONAL STEPS ---
+    if [[ "$IS_PI" == "true" ]]; then
+
+        # 5. SMART MONITOR (optional — only if: not virtual, BT device saved, service installed)
+        local _bt="${CONFIG_STRING[bluetooth_lastdevice_name]:-}"
+        [[ -z "$_bt" && -f "$CONFIG_FILE" ]] && \
+            _bt=$(grep -E '^bluetooth_lastdevice_name=' "$CONFIG_FILE" 2>/dev/null | tail -n1 | cut -d= -f2- | tr -d '\r' | xargs || true)
+        local _is_virtual="${CONFIG_BOOL[fakedevice_treadmill]:-false}"
+        local _svc_installed=false
+        [[ -f "$SERVICE_FILE_QZ" ]] && _svc_installed=true
+
+        if [[ "$_is_virtual" != "true" && -n "$_bt" && "$_svc_installed" == "true" && ! -f "$SERVICE_FILE_MONITOR" ]]; then
+            draw_bottom_panel_header "WIZARD: SMART MONITOR" "false"
+            clear_info_area
+            local r=$((LOG_TOP + 1))
+            draw_sealed_row "$r" ""; ((r++))
+            draw_sealed_row "$r" "   Smart Monitor starts QZ when your treadmill is detected over"; ((r++))
+            draw_sealed_row "$r" "   Bluetooth and stops it ~15 minutes after it disappears."; ((r++))
+            draw_sealed_row "$r" ""; ((r++))
+            draw_sealed_row "$r" "   Device: ${CYAN}${_bt}${NC}"; ((r++))
+            draw_sealed_row "$r" ""; ((r++))
+            draw_sealed_row "$r" "   Set up Smart Monitor now?"; ((r++))
+            draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Skip"
+            prompt_yes_no 8
+            local _sm_resp=$?
+            if [[ $_sm_resp -eq 0 ]]; then
+                generate_smart_service_ui
+            fi
+        elif [[ -f "$SERVICE_FILE_MONITOR" ]]; then
+            draw_info_screen "SMART MONITOR" "Smart Monitor is already installed.\nDevice: ${CONFIG_STRING[bluetooth_lastdevice_name]:-unknown}" 1
+        fi
+
+        # 6. OVERLAY FS / SD CARD PROTECTION (optional — only if service is installed)
+        if [[ "$_svc_installed" == "true" ]]; then
+            local _ov_cfg=false _boot_cfg=false
+            sudo raspi-config nonint get_overlay_now 2>/dev/null  && _ov_cfg=true
+            sudo raspi-config nonint get_bootro_conf 2>/dev/null  && _boot_cfg=true
+
+            if ! $_ov_cfg; then
+                draw_bottom_panel_header "WIZARD: SD CARD PROTECTION" "false"
+                clear_info_area
+                local r=$((LOG_TOP + 1))
+                draw_sealed_row "$r" ""; ((r++))
+                draw_sealed_row "$r" "   Overlay FS protects your SD card by redirecting all writes"; ((r++))
+                draw_sealed_row "$r" "   to RAM. Changes are lost on reboot — ideal for a dedicated"; ((r++))
+                draw_sealed_row "$r" "   QZ device that never needs reconfiguring."; ((r++))
+                draw_sealed_row "$r" ""; ((r++))
+                draw_sealed_row "$r" "   ${YELLOW}⚠  Only enable once your setup is complete.${NC}"; ((r++))
+                draw_sealed_row "$r" "   Requires a reboot to take effect."; ((r++))
+                draw_sealed_row "$r" ""; ((r++))
+                draw_sealed_row "$r" "   Enable SD card protection now?"; ((r++))
+                draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Skip"
+                prompt_yes_no 10
+                local _ov_resp=$?
+                if [[ $_ov_resp -eq 0 ]]; then
+                    overlay_fs_ui "enable" "wizard"
+                fi
+            else
+                draw_info_screen "SD PROTECTION" "Overlay FS is already configured.\nSD card protection is active." 1
+            fi
+        fi
+    fi
+    # --- END PI-ONLY STEPS ---
 
     # FIX: Explicit completion message
     draw_info_screen "SETUP COMPLETED" "All settings have been saved successfully.\n\nThe service must now be restarted to apply changes." 2
@@ -3914,6 +3997,13 @@ _logic_check_qt5_libs() {
 }
 
 _logic_check_qml_modules() {
+    # QML modules are only required when running the desktop GUI.
+    # On a headless Pi (no DISPLAY/WAYLAND_DISPLAY) they are not needed for
+    # ANT+ footpod mode (-no-gui -ant-footpod), so report pending (grey ◈)
+    # rather than fail (red ✗) to avoid misleading the user.
+    if [[ "${IS_PI:-false}" == "true" && "${HAS_GUI:-false}" != "true" ]]; then
+        echo "pending"; return 0
+    fi
     local script_dir; script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
     "$script_dir/check-qml-deps.sh" --binary "$script_dir/qdomyos-zwift-bin" \
         >/dev/null 2>&1 && echo "pass" || echo "fail"
@@ -4236,6 +4326,44 @@ check_qz_service()     { run_check "qz_service" "_logic_check_qz_service" true; 
 check_ant_dongle()     { run_check "ant_dongle" "_logic_check_ant_dongle" true; }
 check_ant_footpod_flag() { run_check "ant_footpod_flag" "_logic_check_ant_footpod_flag" true; }
 check_service_enabled()  { run_check "service_enabled"  "_logic_check_service_enabled"  true; }
+check_overlay_fs()       { run_check "overlay_fs" "_logic_check_overlay_fs" true; }
+
+_logic_check_overlay_fs() {
+    # Pi-only. On desktop Linux this cell is intentionally blank.
+    if [[ "${IS_PI:-false}" != "true" ]]; then
+        echo "pending"; return 0   # pending = grey ◈ = visually absent
+    fi
+
+    # Live state: overlay is actually mounted right now → highlight in yellow
+    if mount 2>/dev/null | grep -q 'overlay on /'; then
+        echo "warn"; return 0
+    fi
+
+    # Configured states — read directly from files (no sudo, works in background subshell).
+    # These are exactly the same checks raspi-config get_overlay_now / get_bootro_conf perform.
+    local ov_cfg=false boot_cfg=false
+
+    # get_overlay_now: checks for boot=overlay in kernel cmdline config file
+    local cmdline_file=""
+    [[ -f /boot/firmware/cmdline.txt ]] && cmdline_file="/boot/firmware/cmdline.txt"
+    [[ -z "$cmdline_file" && -f /boot/cmdline.txt ]] && cmdline_file="/boot/cmdline.txt"
+    if [[ -n "$cmdline_file" ]] && grep -q "boot=overlay" "$cmdline_file" 2>/dev/null; then
+        ov_cfg=true
+    fi
+
+    # get_bootro_conf: checks for ro mount option on boot partition in fstab
+    if grep -q "defaults.*,ro" /etc/fstab 2>/dev/null; then
+        boot_cfg=true
+    fi
+
+    if $ov_cfg && $boot_cfg; then
+        echo "pass"     # green ✓ — both fully protected, pending reboot
+    elif $ov_cfg || $boot_cfg; then
+        echo "pending"  # grey ◈ — partial: one protected, one not
+    else
+        echo "pending"  # grey ◈ — neither configured; off is normal/unconfigured, not a failure
+    fi
+}
 
 run_all_checks() {
     local mode="${1:-dashboard}" # "dashboard" or "splash"
@@ -4246,7 +4374,7 @@ run_all_checks() {
         "python311" "venv" "pkg_pips" "qt5_libs" "qml_modules"
         "bluetooth" "plugdev" "udev_rules" "lsusb"
         "config_file" "qz_service" "ant_dongle" "bluez_compat"
-        "ant_footpod_flag" "service_enabled"
+        "ant_footpod_flag" "service_enabled" "overlay_fs"
     )
     
     # These are the middle-parts of the function names (check_NAME_fast)
@@ -4254,7 +4382,7 @@ run_all_checks() {
         "python311" "venv" "python_packages" "qt5_libs" "qml_modules"
         "bluetooth" "plugdev" "udev_rules" "lsusb"
         "config_file" "qz_service" "ant_dongle" "bluez_compat"
-        "ant_footpod_flag" "service_enabled"
+        "ant_footpod_flag" "service_enabled" "overlay_fs"
     )
     local total_checks=${#status_keys[@]}
 
@@ -5889,6 +6017,10 @@ show_unified_menu() {
                         ((help_row++))
                     fi
                 done
+                # Park cursor below the visible UI area after the fold pipeline.
+                # This prevents the subshell's final cursor position from bleeding
+                # into border characters. Use LOG_BOTTOM+2 (off-screen row).
+                printf "\e[%d;1H" "$(( ${LOG_BOTTOM:-21} + 2 ))" >&"${UI_FD:-2}" 2>/dev/null || true
             fi
             
             prev_selected=$selected
@@ -5940,7 +6072,6 @@ prompt_success_menu() {
         "User Profile" 
         "QZ Service Control" 
         "ANT+ Tools"
-        "Exit"
     )
     
     local help_texts=(
@@ -5950,15 +6081,25 @@ prompt_success_menu() {
         "Configure your personal training profile including weight, age, gender, and distance unit preferences. This data is used for accurate power and calorie calculations."
         "Manage the QZ systemd service: start, stop, restart, enable auto-start on boot, or configure service flags like logging and ANT+ footpod support."
         "Access ANT+ diagnostics and monitoring tools: test hardware, verify watch pairing, and monitor live broadcast data."
-        "Exit the setup dashboard and return to the shell. All configuration changes are saved automatically."
     )
+
+    # Pi Tools — Raspberry Pi only
+    if [[ "${IS_PI:-false}" == "true" ]]; then
+        options+=("Pi System Tools")
+        help_texts+=("Raspberry Pi specific settings: enable or disable SD card protection (Overlay FS) to prevent SD card wear and corruption on power loss.")
+    fi
+
+    options+=("Exit")
+    help_texts+=("Exit the setup dashboard and return to the shell. All configuration changes are saved automatically.")
     
     enter_ui_mode
     
     show_unified_menu options 0 "$title" "FULL" "true" "" help_texts
     local idx=$?
     
-    if [[ $idx -eq 255 ]]; then return 6; fi # Exit is now index 6
+    # Exit index is last item regardless of Pi Tools presence
+    local exit_idx=$(( ${#options[@]} - 1 ))
+    if [[ $idx -eq 255 || $idx -eq $exit_idx ]]; then return $exit_idx; fi
     return "$idx"
 }
 
@@ -7063,6 +7204,9 @@ ant_tools_menu() {
     )
     
     enter_ui_mode
+
+    # Clear residual content from the calling menu's help text panel
+    clear_info_area
     
     while true; do
         local choice
@@ -7080,6 +7224,177 @@ ant_tools_menu() {
 }
 
 ### Milestone 1-4: Service config, generation and validators
+
+# ============================================================================
+# OVERLAY FS / SD CARD PROTECTION  (Raspberry Pi only)
+# ============================================================================
+
+# Check current overlay + boot partition state.
+# Sets globals: OV_LIVE, OV_CFG, BOOT_CFG (true/false strings)
+# Uses direct file reads — consistent with _logic_check_overlay_fs and draw_status_row,
+# and works regardless of sudo availability.
+_overlay_read_state() {
+    OV_LIVE=false; OV_CFG=false; BOOT_CFG=false
+
+    # Live: overlay filesystem currently mounted
+    mount 2>/dev/null | grep -q 'overlay on /' && OV_LIVE=true
+
+    # Configured: boot=overlay present in kernel cmdline (what raspi-config get_overlay_now checks)
+    local _cmdline=""
+    [[ -f /boot/firmware/cmdline.txt ]] && _cmdline="/boot/firmware/cmdline.txt"
+    [[ -z "$_cmdline" && -f /boot/cmdline.txt ]] && _cmdline="/boot/cmdline.txt"
+    [[ -n "$_cmdline" ]] && grep -q "boot=overlay" "$_cmdline" 2>/dev/null && OV_CFG=true
+
+    # Boot RO: boot partition has ro mount option in fstab (what raspi-config get_bootro_conf checks)
+    grep -q "defaults.*,ro" /etc/fstab 2>/dev/null && BOOT_CFG=true
+}
+
+# overlay_fs_ui [enable|disable|toggle] [wizard]
+# Presents a confirmation screen and applies the change.
+# When called from wizard, skips the "already enabled" guard.
+overlay_fs_ui() {
+    local action="${1:-toggle}"   # enable | disable | toggle
+    local caller="${2:-menu}"     # menu | wizard
+
+    exit_ui_mode || true
+
+    local OV_LIVE OV_CFG BOOT_CFG
+    _overlay_read_state
+
+    # Auto-detect direction when toggling
+    if [[ "$action" == "toggle" ]]; then
+        if $OV_CFG || $OV_LIVE; then action="disable"; else action="enable"; fi
+    fi
+
+    # --- ENABLE ---
+    if [[ "$action" == "enable" ]]; then
+        if $OV_LIVE && [[ "$caller" != "wizard" ]]; then
+            draw_info_screen "ALREADY ACTIVE" \
+                "Overlay FS is already running.\nSD card writes are already redirected to RAM." 2
+            enter_ui_mode || true; return 0
+        fi
+
+        draw_bottom_panel_header "ENABLE SD PROTECTION" "false"
+        clear_info_area
+
+        local options=("Enable + Reboot Now" "Enable (Reboot Later)")
+        local help_texts=(
+            "Enable SD protection and reboot immediately. Overlay FS and boot write-protect activate on reboot. ⚠ Any changes made after reboot will be lost on next reboot."
+            "Configure SD protection but stay in the dashboard. ⚠ Reboot before making any changes you want to keep. To reconfigure later, disable protection first."
+        )
+        enter_ui_mode || true
+        show_unified_menu options 0 "ENABLE SD PROTECTION" "FULL" "false" "" help_texts
+        local choice=$?
+        exit_ui_mode || true
+
+        case $choice in
+            0|1)
+                show_status_message "Enabling Overlay FS..."
+                if sudo raspi-config nonint do_overlayfs 0 2>/dev/null; then
+                    run_check "overlay_fs" "_logic_check_overlay_fs" false >/dev/null 2>&1
+                    if [[ $choice -eq 0 ]]; then
+                        draw_info_screen "SD PROTECTION ENABLED" \
+                            "Overlay FS enabled. Rebooting now..." 1
+                        sudo systemctl reboot
+                    else
+                        draw_info_screen "SD PROTECTION ENABLED" \
+                            "Overlay FS configured.\n\nReboot when ready — protection activates on next boot.\nRemember: any changes made after reboot will not persist." "wait"
+                    fi
+                else
+                    draw_error_screen "ENABLE FAILED" \
+                        "raspi-config reported an error enabling Overlay FS.\nEnsure raspi-config is installed and up to date." "wait"
+                fi
+                ;;
+            *) : ;;  # Cancel or ESC
+        esac
+
+    # --- DISABLE ---
+    else
+        if ! $OV_CFG && ! $OV_LIVE && ! $BOOT_CFG && [[ "$caller" != "wizard" ]]; then
+            draw_info_screen "ALREADY DISABLED" \
+                "Overlay FS is not enabled. SD card is in normal read-write mode." 2
+            enter_ui_mode || true; return 0
+        fi
+
+        draw_bottom_panel_header "DISABLE SD PROTECTION" "false"
+        clear_info_area
+
+        local options=("Disable + Reboot Now" "Disable (Reboot Later)")
+        local _live_warn=""
+        $OV_LIVE && _live_warn=" ⚠ Overlay is currently active — unsaved RAM changes will be lost."
+        local help_texts=(
+            "Disable protection and reboot immediately. SD card and boot partition return to normal read-write mode.${_live_warn}"
+            "Configure disable but stay in the dashboard. Reboot when ready — SD card returns to read-write mode on next boot.${_live_warn}"
+        )
+        enter_ui_mode || true
+        show_unified_menu options 0 "DISABLE SD PROTECTION" "FULL" "false" "" help_texts
+        local choice=$?
+        exit_ui_mode || true
+
+        case $choice in
+            0|1)
+                show_status_message "Disabling Overlay FS..."
+                if sudo raspi-config nonint do_overlayfs 1 2>/dev/null; then
+                    run_check "overlay_fs" "_logic_check_overlay_fs" false >/dev/null 2>&1
+                    if [[ $choice -eq 0 ]]; then
+                        draw_info_screen "SD PROTECTION DISABLED" \
+                            "Overlay FS disabled. Rebooting now..." 1
+                        sudo systemctl reboot
+                    else
+                        draw_info_screen "SD PROTECTION DISABLED" \
+                            "Overlay FS disabled.\n\nReboot when ready — SD card returns to read-write mode on next boot." "wait"
+                    fi
+                else
+                    draw_error_screen "DISABLE FAILED" \
+                        "raspi-config reported an error disabling Overlay FS.\nEnsure raspi-config is installed and up to date." "wait"
+                fi
+                ;;
+            *) : ;;
+        esac
+    fi
+
+    enter_ui_mode || true
+}
+
+pi_tools_menu() {
+    # Guard — should never be called on non-Pi, but belt-and-braces
+    if [[ "$IS_PI" != "true" ]]; then return 0; fi
+
+    enter_ui_mode
+
+    # Clear residual content from the calling menu's help text panel
+    # before show_unified_menu redraws — prevents stale characters showing
+    clear_info_area
+
+    while true; do
+        # Read current state for dynamic labels
+        local OV_LIVE OV_CFG BOOT_CFG
+        _overlay_read_state
+
+        local ov_label="Enable SD Protection"
+        local ov_help="Enable Overlay FS and write-protect the boot partition. All writes will go to RAM and be lost on reboot — ideal for a dedicated always-on QZ device."
+        if $OV_LIVE; then
+            ov_label="SD Protection: ACTIVE"
+            ov_help="Overlay FS is running. Writes go to RAM only. Select to disable (requires reboot)."
+        elif $OV_CFG || $BOOT_CFG; then
+            ov_label="SD Protection (reboot needed)"
+            ov_help="Overlay FS is configured but not yet active. Reboot to apply, or select to disable."
+        fi
+
+        local options=("$ov_label")
+        local help_texts=("$ov_help")
+
+        show_unified_menu options 0 "PI SYSTEM TOOLS" "FULL" "false" "" help_texts
+        local choice=$?
+
+        case $choice in
+            0) overlay_fs_ui "toggle" "menu" ;;
+            255) break ;;
+        esac
+    done
+
+    exit_ui_mode
+}
 # Persistent service flags storage
 declare -A SERVICE_FLAGS
 # Prefer the target user's home so config changes persist to the expected user
@@ -7257,10 +7572,20 @@ generate_service_file() {
     local bin
     
     local script_dir
-    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    # Resolve to canonical absolute path (follows symlinks) so WorkingDirectory
+    # in the service file always points to the real location regardless of how
+    # setup-dashboard.sh was invoked or what the install directory is named.
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+    # If readlink -f is available, use it for full symlink resolution
+    if command -v readlink >/dev/null 2>&1; then
+        local _resolved
+        _resolved="$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null)"
+        [[ -n "$_resolved" ]] && script_dir="$(dirname "$_resolved")"
+    fi
     
     # Look for the wrapper script (renamed by docker build)
     local wrapper="$script_dir/qdomyos-zwift"
+    local binary="$script_dir/qdomyos-zwift-bin"
     
     # Check if wrapper exists and has version
     local wrapper_version=""
@@ -7275,7 +7600,13 @@ generate_service_file() {
             sed -i '1i#!/bin/bash' "$wrapper" || true
         fi
         chmod +x "$wrapper" || true
-        bin="$wrapper"
+
+        # Wrapper v3.0+ handles QZ_SKIP_QML_CHECK natively — no patching needed.
+        # For older wrapper versions, inject a compatibility shim.
+        if ! grep -q "QZ_SKIP_QML_CHECK\|QZ_WRAPPER_VERSION" "$wrapper" 2>/dev/null; then
+            local inject='# QML check bypass for headless/service mode (setup-dashboard.sh compat shim)\nfor _a in "$@"; do [[ "$_a" == "-no-gui" ]] && export QZ_SKIP_QML_CHECK=1 && break; done'
+            sed -i "1a\\${inject}" "$wrapper" 2>/dev/null || true
+        fi
         
         # Advise if version is missing or unexpected (but don't prevent)
         if [[ -z "$wrapper_version" ]]; then
@@ -7284,9 +7615,16 @@ generate_service_file() {
             # Advise about version but continue
             echo "ℹ Info: Wrapper version is '$wrapper_version' (expected 1.0 or 2.0)" >&2
         fi
+        # Wrapper is the correct entry point — use it
+        bin="$wrapper"
     else
-        # Wrapper not found, try to detect binary directly
-        bin=$(detect_binary_path 2>/dev/null) || bin="<binary-not-found>"
+        # Wrapper not found, fall back to binary or detect
+        if [[ -f "$binary" ]]; then
+            bin="$binary"
+            chmod +x "$bin" 2>/dev/null || true
+        else
+            bin=$(detect_binary_path 2>/dev/null) || bin="<binary-not-found>"
+        fi
     fi
 
     # Ensure absolute path
@@ -7343,6 +7681,14 @@ generate_service_file() {
     # but the wrapper does not rely on them for normal operation.
     local exec_cmd="${bin} ${flags}"
 
+    # WorkingDirectory: use script_dir (guaranteed to exist — it's where this
+    # script and qdomyos-zwift-bin live). Using dirname($bin) risks CHDIR failure
+    # if the bin path resolves through a symlink or overlay that differs at runtime.
+    local work_dir="$script_dir"
+    local bin_dir; bin_dir="$(dirname "$bin")"
+    # Prefer bin_dir if it exists and differs; fall back to script_dir otherwise
+    [[ -d "$bin_dir" ]] && work_dir="$bin_dir"
+
     cat > "$tmp" <<EOF
 [Unit]
 Description=qdomyos-zwift service
@@ -7352,7 +7698,7 @@ After=multi-user.target
 User=root
 Group=plugdev
 Environment="QZ_USER=${user}"
-WorkingDirectory=$(dirname "$bin")
+WorkingDirectory=${work_dir}
 Environment="LD_LIBRARY_PATH=${ld_path}"
 ${python_home:+Environment="PYTHONHOME=${python_home}"}
 ExecStart=/bin/bash -c '${exec_cmd}'
@@ -8472,25 +8818,10 @@ service_menu_flow() {
             esac
         done
         
-        # 5. Show the menu (Approach A: draw mode banner as static line before menu call)
+        # 5. Show the menu
         local menu_title="SERVICE CONFIGURATION"
-        local failure_state="${failure_type:-UNKNOWN}"
-        local mode_banner=""
-
         if is_monitor_installed; then
             menu_title="SERVICE CONFIG  [Monitor Mode]"
-            mode_banner="  ${CYAN}◈ Smart Monitor active — QZ starts/stops with treadmill${NC}"
-        elif [[ "$failure_state" == "RUNNING" ]]; then
-            mode_banner="  ${GRAY}◈ Standard mode — QZ runs continuously${NC}"
-        elif [[ "$failure_state" == "STOPPED" ]]; then
-            mode_banner="  ${GRAY}◈ Standard mode — QZ is stopped${NC}"
-        fi
-
-        # Draw mode banner in the spacer row (LOG_TOP+1) before show_unified_menu
-        # show_unified_menu leaves row LOG_TOP+1 blank — we reuse it for the banner
-        if [[ -n "$mode_banner" ]]; then
-            draw_bottom_panel_header "$menu_title" "false"
-            print_at $((LOG_TOP + 1)) "$mode_banner"
         fi
 
         show_unified_menu options "$selected" "$menu_title" "FULL" "false" "" help_texts
@@ -8596,7 +8927,8 @@ check_final_status() {
                     3) configure_user_profile ;;
                     4) service_menu_flow ;;
                     5) ant_tools_menu ;;
-                    6) finish_and_exit 0 ;;
+                    6) [[ "${IS_PI:-false}" == "true" ]] && pi_tools_menu || finish_and_exit 0 ;;
+                    7) finish_and_exit 0 ;;  # Pi only: Exit shifts to 7
                 esac
             fi
         else
@@ -8612,7 +8944,8 @@ check_final_status() {
                 3) configure_user_profile ;;
                 4) service_menu_flow ;;
                 5) ant_tools_menu ;;
-                6) finish_and_exit 0 ;;
+                6) [[ "${IS_PI:-false}" == "true" ]] && pi_tools_menu || finish_and_exit 0 ;;
+                7) finish_and_exit 0 ;;  # Pi only: Exit shifts to 7
             esac
         fi
         sleep 0.05

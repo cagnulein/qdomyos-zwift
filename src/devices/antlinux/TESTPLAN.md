@@ -83,11 +83,15 @@ All items should show **✓ PASS**:
 | Python 3.11 Library | ✓ | Python 3.11 installed and shared library available |
 | Virtual Environment | ✓ | ant_venv exists |
 | Python Packages | ✓ | openant, usb, pybind11, bleak installed |
-| Qt5 Libraries | ✓ | 17 Qt5 libraries present |
-| QML Modules | ✓ | 9 QML modules available |
+| Qt5 Libraries | ✓ | Qt5 runtime libraries present |
+| QML Modules | ✓ | QML modules available |
 | USB Permissions | ✓ | plugdev group membership and udev rules |
 | ANT+ Dongle | ✓ | Dongle detected via lsusb |
 | Bluetooth Service | ✓ | Bluetooth daemon running |
+| QZ Config File | ✓ | Configuration file exists |
+| QZ Service | ✓ | Service installed and running (label includes boot state) |
+| BLE Peripheral | ✓ / ◈ | BlueZ version compatibility (Pi: always pass; desktop: warn if ≥5.70) |
+| Overlay FS | ✓ / ● / ✗ | SD card protection state — Raspberry Pi only; blank on desktop |
 
 **Overall system status:** READY
 
@@ -124,7 +128,7 @@ Verify ANT+ dongle and watch communication works independently of treadmill. Thi
 sudo ./setup-dashboard.sh
 ```
 
-1. Select "ANT+ Test" from main menu
+1. Select **ANT+ Tools → ANT+ Diagnostics (Hardware Test)** from main menu
 2. Watch displays in dashboard interface
 3. Put watch in "Add Sensor → Foot Pod" mode
 4. Observe test progress
@@ -290,8 +294,8 @@ Broadcasting footpod data...
 
 **During run:**
 ```
-Speed: 8.0 km/h | Pace: 7:30 min/km | Cadence: 165 SPM | Distance: 0.52 km
-Speed: 8.0 km/h | Pace: 7:30 min/km | Cadence: 165 SPM | Distance: 0.55 km
+Speed: 8.0 km/h | Pace: 7:30 min/km | Cadence: 165 SPM | Distance: 0.52 km | Moving: 03:54
+Speed: 8.0 km/h | Pace: 7:30 min/km | Cadence: 165 SPM | Distance: 0.55 km | Moving: 04:09
 ...
 ```
 
@@ -394,6 +398,92 @@ journalctl -u qz-treadmill-monitor -n 20
 - Logs show no errors ✓
 - Application functions normally in service mode ✓
 - Dashboard shows correct boot label (Autostart on / Smart Monitor) ✓
+
+---
+
+## Test 5: SD Card Protection (Raspberry Pi only)
+
+### Purpose
+Verify Overlay FS enables and disables correctly via the dashboard, and that the status panel reflects the correct state.
+
+### Prerequisites
+- Raspberry Pi with raspi-config installed
+- System validation passed
+- Setup complete (service installed)
+
+### Procedure
+
+**Enable via dashboard:**
+```bash
+sudo ./setup-dashboard.sh
+```
+Select **Pi System Tools → Enable SD Protection**, choose "Enable (Reboot Later)".
+
+**Verify configured but not yet active:**
+```bash
+sudo raspi-config nonint get_overlay_now && echo "enabled" || echo "disabled"
+```
+**Expected:** `enabled`
+
+Dashboard status panel should show **Overlay FS ◈ SD Protected** (pending reboot).
+
+**Reboot and verify active:**
+```bash
+sudo reboot
+# After reboot:
+mount | grep 'overlay on /'
+```
+**Expected:** overlay mount entry visible. Dashboard shows **Overlay FS ● SD Protected** (yellow — active).
+
+**Disable via dashboard:**
+Select **Pi System Tools** → toggle option → choose "Disable + Reboot Now".
+
+**Verify disabled after reboot:**
+```bash
+sudo raspi-config nonint get_overlay_now && echo "enabled" || echo "disabled"
+mount | grep 'overlay on /'
+```
+**Expected:** `disabled`, no overlay mount. Dashboard shows **Overlay FS ✗ SD Exposed**.
+
+### Pass Criteria
+
+**PASS if:**
+- Enable configures overlay correctly ✓
+- Dashboard shows `SD Protected` after enable (pending reboot) ✓
+- Overlay active after reboot (yellow indicator) ✓
+- Dashboard warns that writes are non-persistent when active ✓
+- Disable removes overlay on next reboot ✓
+- Status returns to `SD Exposed` after disable ✓
+
+---
+
+## Validation Checklist
+
+### Pre-Release Checklist
+
+Before marking a release as validated:
+
+- [ ] System validation passes on all supported platforms
+- [ ] ANT+ hardware test passes with multiple watch models
+- [ ] Application test passes in both GUI and server modes
+- [ ] Extended run test (30+ minutes) shows stability
+- [ ] Service mode works correctly
+- [ ] Smart Monitor starts/stops QZ with treadmill presence (Pi)
+- [ ] Overlay FS enables and disables correctly (Pi)
+- [ ] Documentation updated for any changes
+- [ ] No critical bugs in issue tracker
+- [ ] Tested on fresh installation (not just upgrade)
+
+### Pull Request Validation
+
+Before approving a pull request:
+
+- [ ] System validation passes
+- [ ] ANT+ hardware test passes
+- [ ] Application test passes for affected functionality
+- [ ] No new errors or warnings
+- [ ] Code changes reviewed
+- [ ] Tests run on both x86-64 and ARM64 (if applicable)
 
 ---
 

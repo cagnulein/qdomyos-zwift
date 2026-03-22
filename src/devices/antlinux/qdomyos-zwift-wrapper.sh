@@ -10,7 +10,14 @@
 declare -r QZ_WRAPPER_VERSION="3.1.1"
 
 set -e
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Resolve canonical script path — follows symlinks so DIR is the real on-disk
+# location regardless of how the script is invoked or what the directory is named
+# (arm64-ant, aarch64-ant, x86-64-ant, etc.)
+_SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || realpath "${BASH_SOURCE[0]}" 2>/dev/null)"
+if [[ -z "$_SCRIPT_PATH" ]]; then
+    _SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/$(basename "${BASH_SOURCE[0]}")"
+fi
+DIR="$(dirname "$_SCRIPT_PATH")"
 
 declare -r C_RED="\033[0;31m"
 declare -r C_YELLOW="\033[1;33m"
@@ -149,19 +156,25 @@ check_system_qt5() {
         exit 1
     fi
 
-    # --- QML module check (delegated to shared script) ---
-    local dep_script="$DIR/check-qml-deps.sh"
-    if [[ -f "$dep_script" ]]; then
-        local qml_errors
-        if ! qml_errors=$("$dep_script" --binary "$DIR/qdomyos-zwift-bin" --fix 2>&1); then
-            echo ""
-            echo -e "${C_RED}╔════════════════════════════════════════════════════════════════════╗${C_RESET}"
-            echo -e "${C_RED}║  ERROR: QML Runtime Modules Not Installed                         ║${C_RESET}"
-            echo -e "${C_RED}╚════════════════════════════════════════════════════════════════════╝${C_RESET}"
-            echo ""
-            echo "$qml_errors"
-            echo ""
-            exit 1
+    # --- QML module check (delegated to shared script, GUI mode only) ---
+    # Skipped when _SKIP_QML=true (headless, -no-gui, or QZ_SKIP_QML_CHECK=1)
+    if [[ "${_SKIP_QML:-false}" == "false" ]]; then
+        local dep_script="$DIR/check-qml-deps.sh"
+        if [[ -f "$dep_script" ]]; then
+            local qml_errors
+            if ! qml_errors=$("$dep_script" --binary "$DIR/qdomyos-zwift-bin" --fix 2>&1); then
+                echo ""
+                echo -e "${C_RED}╔════════════════════════════════════════════════════════════════════╗${C_RESET}"
+                echo -e "${C_RED}║  ERROR: QML Runtime Modules Not Installed                         ║${C_RESET}"
+                echo -e "${C_RED}╚════════════════════════════════════════════════════════════════════╝${C_RESET}"
+                echo ""
+                echo "$qml_errors"
+                echo ""
+                echo "Run 'sudo ./setup-dashboard.sh' to install missing modules."
+                echo "Or set QZ_SKIP_QML_CHECK=1 to bypass (headless/ANT+ only mode)."
+                echo ""
+                exit 1
+            fi
         fi
     fi
 
@@ -193,8 +206,8 @@ check_python() {
 ################################################################################
 # Binary Check
 ################################################################################
-if [[ ! -f "$DIR/qdomyos-zwift-bin" ]]; then
-    ERRORS+=("Binary not found: $DIR/qdomyos-zwift-bin")
+if [[ ! -x "$DIR/qdomyos-zwift-bin" ]]; then
+    ERRORS+=("Binary not found or not executable: $DIR/qdomyos-zwift-bin")
 fi
 
 ################################################################################
@@ -216,6 +229,29 @@ if [[ "$GUI_MODE" == "false" ]] && [[ -z "$(printf '%s\n' "$@" | grep -E '^-no-g
     if [[ -n "${DISPLAY:-}" ]] || command -v Xorg >/dev/null 2>&1; then
         GUI_MODE=true
     fi
+fi
+
+################################################################################
+# QML Skip Detection
+#
+# Skip check-qml-deps.sh when any of these is true:
+#   a) -no-gui appears in the argument list  (service/headless mode)
+#   b) QZ_SKIP_QML_CHECK=1 set in environment (explicit override)
+#   c) Neither DISPLAY nor WAYLAND_DISPLAY is set (headless environment)
+#
+# QML modules are only needed for GUI mode — headless ANT+ operation does not
+# use QML at all, so failing here before the binary even starts is wrong.
+################################################################################
+_SKIP_QML=false
+_NO_GUI_ARG=false
+for _a in "$@"; do
+    [[ "$_a" == "-no-gui" ]] && { _NO_GUI_ARG=true; break; }
+done
+
+if [[ "${QZ_SKIP_QML_CHECK:-0}" == "1" ]] || \
+   [[ "$_NO_GUI_ARG" == "true" ]] || \
+   [[ -z "${DISPLAY:-}" && -z "${WAYLAND_DISPLAY:-}" ]]; then
+    _SKIP_QML=true
 fi
 
 ################################################################################
@@ -276,23 +312,7 @@ if [[ -n "${QML2_IMPORT_PATH:-}" ]]; then
     LAUNCH_ENV+=("QML2_IMPORT_PATH=$QML2_IMPORT_PATH")
 fi
 
-# Signal forwarding
-forward_signal() {
-    local sig="$1"
-    if [[ -n "${child_pid:-}" ]]; then
-        kill -s "$sig" -- -"$child_pid" 2>/dev/null || true
-    fi
-}
-
-trap 'forward_signal TERM' TERM
-trap 'forward_signal INT' INT
-trap 'forward_signal QUIT' QUIT
-
-# Launch
-setsid env -i "${LAUNCH_ENV[@]}" "$DIR/qdomyos-zwift-bin" "$@" &
-child_pid=$!
-
-set +e
-wait "$child_pid"
-rc=$?
-exit $rc
+# exec replaces this shell process so signals (SIGINT, SIGTERM, SIGQUIT) go
+# directly to qdomyos-zwift-bin — required for clean systemctl stop shutdown
+# via KillSignal=SIGINT in the systemd unit (bash was absorbing signals before)
+exec env -i "${LAUNCH_ENV[@]}" "$DIR/qdomyos-zwift-bin" "$@"

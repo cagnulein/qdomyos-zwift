@@ -92,6 +92,7 @@ cd qdomyos-zwift-$ARCH-ant
 - `qdomyos-zwift` - Main application wrapper (always use this)
 - `qdomyos-zwift-bin` - Application binary (don't run directly)
 - `setup-dashboard.sh` - Interactive setup and configuration dashboard
+- `check-qml-deps.sh` - QML module checker (GUI mode only; not needed headless)
 - `test_ant.py` - ANT+ hardware test
 - `devices.ini` - Treadmill device mappings
 - `devices_optimized.json` - Device menu data
@@ -134,7 +135,7 @@ sudo ./setup-dashboard.sh
 
 **What gets installed (if needed):**
 - Python 3.11 (via apt or pyenv automatically)
-- Qt5 libraries and QML modules
+- Qt5 libraries and QML modules (QML not required on headless Raspberry Pi)
 - Virtual environment with ANT+ packages
 - USB permissions (plugdev group, udev rules)
 - Bluetooth service configuration
@@ -236,7 +237,7 @@ sudo ./setup-dashboard.sh
 sudo ./setup-dashboard.sh
 ```
 
-Select "ANT+ Test" from the menu.
+Select **ANT+ Tools → ANT+ Diagnostics (Hardware Test)** from the menu.
 
 **What happens:**
 - Simulates a treadmill running at different speeds
@@ -420,9 +421,10 @@ The dashboard:
 - Installs and enables the monitor as a boot service
 - Starts monitoring immediately
 
-**The dashboard status panel shows:**
-- `QZ Monitor ✓` — monitor is running
-- `Smart Monitor ✓` — auto-starts on boot
+**The status panel shows a single QZ Service cell that reflects both state and mode:**
+- `QZ Monitor` — monitor is actively running (treadmill detected, QZ started)
+- `QZ Service ▸ Monitor` — service installed, monitor enabled at boot (treadmill not yet detected)
+- `QZ Service ▸ Boot` — standard service running with autostart (no Smart Monitor)
 
 **Manage the monitor:**
 ```bash
@@ -436,6 +438,40 @@ journalctl -u qz-treadmill-monitor -f        # Live monitor log
 ---
 
 **Manual setup:** See [Appendix C: Manual Service Configuration](#appendix-c-manual-service-configuration)
+
+---
+
+### Optional: SD Card Protection (Raspberry Pi only)
+
+If you're running on a Raspberry Pi as a dedicated always-on device, Overlay FS protects your SD card from wear and corruption by redirecting all filesystem writes to RAM. Changes made while protection is active are lost on reboot.
+
+> **Important:** Enable this only once your setup is complete. Any configuration changes made after enabling (including service regeneration) will not survive a reboot unless you disable protection first.
+
+**Set up via the dashboard:**
+
+```bash
+sudo ./setup-dashboard.sh
+```
+
+Select **Pi System Tools → Enable SD Protection**
+
+The dashboard:
+- Enables Overlay FS and write-protects the boot partition
+- Offers to reboot immediately or later
+- Shows current state in the status panel (`SD Protected`, `Overlay Active`, `Protected (reboot)`, or `SD (write wear)` when not configured)
+
+**Check current state:**
+```bash
+# Is overlay active right now?
+mount | grep 'overlay on /'
+
+# Is it configured for next boot?
+sudo raspi-config nonint get_overlay_now && echo "enabled" || echo "disabled"
+```
+
+**To disable** (e.g. before updating or reconfiguring): dashboard → **Pi System Tools** → select the toggle option, then reboot.
+
+> **Note:** The Quick Setup Wizard also offers SD Card Protection as an optional final step on Raspberry Pi.
 
 ---
 
@@ -612,6 +648,22 @@ sudo systemctl restart qz
 - `sudo ./setup-dashboard.sh`
 - `sudo ./qdomyos-zwift -no-gui -ant-footpod`
 - `sudo ~/ant_venv/bin/python3 ./test_ant.py`
+
+---
+
+#### Service Fails with CHDIR Error (`status=200/CHDIR`)
+
+**Symptom:** `journalctl -u qz` shows `Failed at step CHDIR spawning /bin/bash: No such file or directory`
+
+**Cause:** The `WorkingDirectory` baked into the service file points to a path that no longer exists — typically because the install directory was renamed or moved (e.g. `qdomyos-zwift-arm64-ant` vs `qdomyos-zwift-aarch64-ant`).
+
+**Solution:** Regenerate the service file from the current install location:
+
+```bash
+sudo ./setup-dashboard.sh
+```
+
+Select **QZ Service Control → Regenerate Service**. The dashboard re-derives the correct path from its own location and rewrites the service file.
 
 ---
 
