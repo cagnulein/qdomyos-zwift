@@ -42,6 +42,9 @@ public class BleAdvertiser {
     private static final UUID PM5_ROWING_SERVICE_UUID = UUID.fromString("CE060030-43E5-11E4-916C-0800200C9A66");
     private static final byte[] SERVICE_DATA_ROWER = {0x01, 0x10, 0x00};
     private static final byte[] SERVICE_DATA_TREADMILL = {0x01, 0x01, 0x00};
+    private static final byte[] SERVICE_DATA_YESOUL = {0x01, 0x20, 0x00};
+    private static final byte[] MANUFACTURER_DATA_YESOUL = {0x01, 0x05, 0x00, (byte) 0xff, (byte) 0xff};
+    private static final int MANUFACTURER_ID_YESOUL = 0x027d;
 
     public static void startAdvertisingRower(Context context) {
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
@@ -111,6 +114,30 @@ public class BleAdvertiser {
                     .setIncludeDeviceName(true)
                     .addServiceUuid(new ParcelUuid(SERVICE_UUID))
                     .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA_TREADMILL)
+                    .build();
+
+            if (advertiser != null) {
+                advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
+            }
+        }
+    }
+
+    public static void startAdvertisingYesoul(Context context) {
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager != null) {
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser = bluetoothManager.getAdapter().getBluetoothLeAdvertiser();
+
+            AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true)
+                    .build();
+
+            AdvertiseData advertiseData = new AdvertiseData.Builder()
+                    .setIncludeDeviceName(true)
+                    .addServiceUuid(new ParcelUuid(SERVICE_UUID))
+                    .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA_YESOUL)
+                    .addManufacturerData(MANUFACTURER_ID_YESOUL, MANUFACTURER_DATA_YESOUL)
                     .build();
 
             if (advertiser != null) {

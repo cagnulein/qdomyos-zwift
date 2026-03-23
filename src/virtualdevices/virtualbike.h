@@ -58,6 +58,10 @@ class virtualbike : public virtualdevice {
     QLowEnergyService *serviceChanged = nullptr;
     QLowEnergyService *serviceWattAtomBike = nullptr;
     QLowEnergyService *serviceZwiftPlayBike = nullptr;
+    QLowEnergyService *serviceYesoulDeviceInfo = nullptr;
+    QLowEnergyService *serviceYesoulFF00 = nullptr;
+    QLowEnergyService *serviceYesoulFFF0 = nullptr;
+    QLowEnergyService *serviceYesoulFAB0 = nullptr;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataBattery;
@@ -67,6 +71,10 @@ class virtualbike : public virtualdevice {
     QLowEnergyServiceData serviceEchelon;
     QLowEnergyServiceData serviceDataWattAtomBike;
     QLowEnergyServiceData serviceDataZwiftPlayBike;
+    QLowEnergyServiceData serviceDataYesoulDeviceInfo;
+    QLowEnergyServiceData serviceDataYesoulFF00;
+    QLowEnergyServiceData serviceDataYesoulFFF0;
+    QLowEnergyServiceData serviceDataYesoulFAB0;
     QTimer bikeTimer;
     bluetoothdevice *Bike;
     CharacteristicWriteProcessor2AD9 *writeP2AD9 = 0;
