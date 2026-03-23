@@ -120,6 +120,11 @@ class AntBroadcaster:
         self._cadence_ramp_step = 12.5
         self._time_mod_base = 256000
         
+        # Distance calibration scale factor (loaded from ant_calibration.conf at start)
+        # scale_factor = treadmill_distance / accumulated_ant_distance
+        # Default 1.0 = no scaling. Values < 1.0 compress distance, > 1.0 expand.
+        self._distance_scale = 1.0
+
         # Metrics for dashboard monitoring (RAM disk only, avoid SD card wear)
         self._metrics_file = None
         self._last_metrics_write = 0.0
@@ -180,7 +185,7 @@ class AntBroadcaster:
             elapsed_ms = int(self._total_time * 1000)
             speed_int = int(speed)
             speed_frac = int((speed - speed_int) * 256.0) & 0xFF
-            distance_int = int(self._total_distance) & 0xFF
+            distance_int = int(self._total_distance * self._distance_scale) & 0xFF
 
             try:
                 if (self._broadcast_counter & 0x07) == 7:
@@ -279,6 +284,23 @@ class AntBroadcaster:
         if not _openant_available:
             log.error("The 'openant' library is not available.")
             return False
+
+        # Load distance calibration factor from sibling config file if present
+        try:
+            cal_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ant_calibration.conf")
+            if os.path.isfile(cal_file):
+                with open(cal_file) as f:
+                    for line in f:
+                        line = line.strip()
+                        if line.startswith("distance_scale="):
+                            val = float(line.split("=", 1)[1].strip())
+                            if 0.5 <= val <= 2.0:  # Sanity-clamp: 50%-200%
+                                self._distance_scale = val
+                                log.info("Distance calibration loaded: scale=%.4f (%.1f%%)", val, val * 100)
+                            else:
+                                log.warning("Calibration scale %.4f out of range [0.5, 2.0], ignored", val)
+        except Exception as e:
+            log.warning("Could not load ant_calibration.conf: %s", e)
 
         try:
             _reset_ant_dongle_once()
@@ -458,3 +480,13 @@ class AntBroadcaster:
             if self._speed_mps < 0.1:
                 self._current_cadence = 0.0
                 self._target_cadence = 0.0
+
+    def get_session_distance(self) -> float:
+        """Return accumulated raw distance in metres for this session (unscaled).
+        
+        Used by the calibration wizard to capture the broadcaster's own tally
+        so it can be compared against the treadmill's displayed distance.
+        The raw (unscaled) value is returned so the wizard always computes
+        the correct factor regardless of any previously loaded calibration.
+        """
+        return self._total_distance

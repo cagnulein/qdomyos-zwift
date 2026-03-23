@@ -7022,6 +7022,7 @@ monitor_ant_broadcasting() {
     local row_distance=$((LOG_TOP + 5))
     local row_pace=$((LOG_TOP + 6))
     local row_time_moving=$((LOG_TOP + 7))
+    local row_calibration=$((LOG_TOP + 8))
     
     # System metrics rows (same as ANT+ data rows)
     local row_system_status=$row_speed
@@ -7038,7 +7039,7 @@ monitor_ant_broadcasting() {
     print_at $row_headers "${BLUE}║${NC} ${left_content}${BLUE}│${NC} ${right_content}${BLUE}║${NC}"
     
     # Draw empty rows with separator to create clean vertical line through entire panel
-    for r in $row_blank1 $row_speed $row_cadence $row_distance $row_pace $row_time_moving; do
+    for r in $row_blank1 $row_speed $row_cadence $row_distance $row_pace $row_time_moving $row_calibration; do
         printf -v empty_left "%-${left_w}s" ""
         printf -v empty_right "%-${right_w}s" ""
         print_at $r "${BLUE}║${NC} ${empty_left}${BLUE}│${NC} ${empty_right}${BLUE}║${NC}"
@@ -7050,6 +7051,18 @@ monitor_ant_broadcasting() {
     print_at_col $row_distance 3 "${GREEN}Distance:${NC}"
     print_at_col $row_pace 3 "${GREEN}Pace:${NC}"
     print_at_col $row_time_moving 3 "${GREEN}Moving:${NC}"
+
+    # Calibration row — read once (static for the session, not polled)
+    local _cal_scale="1.0000"
+    local _cal_file="${SCRIPT_DIR}/ant_calibration.conf"
+    if [[ -f "$_cal_file" ]]; then
+        local _cs; _cs=$(grep "^distance_scale=" "$_cal_file" 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
+        [[ -n "$_cs" ]] && _cal_scale="$_cs"
+    fi
+    local _cal_pct; _cal_pct=$(python3 -c "print(f'{float(\"$_cal_scale\")*100:.1f}')" 2>/dev/null || echo "100.0")
+    local _cal_color="${GRAY}"
+    [[ "$_cal_scale" != "1.0000" && "$_cal_scale" != "1.0" ]] && _cal_color="${CYAN}"
+    print_at_col $row_calibration 3 "${GRAY}Calibration: ${_cal_color}${_cal_scale} (${_cal_pct}%)${NC}"
     
     # And permanent labels on right side
     local right_start_col=$((sep_col + 2))
@@ -7192,15 +7205,201 @@ monitor_ant_broadcasting() {
     exit_ui_mode
 }
 
+ant_distance_calibration() {
+    # -----------------------------------------------------------------------
+    # ANT+ Distance Calibration Wizard
+    #
+    # Purpose: derive a distance_scale factor so ANT+ distance matches the
+    # treadmill's own display.  Saved to ant_calibration.conf alongside the
+    # other scripts; loaded by ant_broadcaster.py at each session start.
+    #
+    # Why needed: Garmin watches compute distance from stride count × stride
+    # length (their own calibration). The distance_int byte we send is integer
+    # metres only. A scale factor corrects both sources of divergence without
+    # any change to the ANT+ protocol or C++ code.
+    # -----------------------------------------------------------------------
+    local cal_file="${SCRIPT_DIR}/ant_calibration.conf"
+    local metrics_file="/dev/shm/qz_ant_metrics.json"
+    [[ ! -f "$metrics_file" ]] && metrics_file="/tmp/qz_ant_metrics.json"
+
+    enter_ui_mode
+
+    # --- Check QZ is running with ANT+ active --------------------------------
+    local svc_status; svc_status=$(get_service_status)
+    if [[ "$svc_status" != "running" ]] || [[ ! -f "$metrics_file" ]]; then
+        draw_info_screen "ANT+ NOT ACTIVE" \
+            "QZ must be running with ANT+ enabled before calibrating.\n\nStart QZ via QZ Service Control, wait for your watch to pair, then return here." "wait"
+        exit_ui_mode
+        return 0
+    fi
+
+    # --- Show current calibration factor ------------------------------------
+    local current_scale=1.0
+    if [[ -f "$cal_file" ]]; then
+        local stored; stored=$(grep "^distance_scale=" "$cal_file" 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
+        [[ -n "$stored" ]] && current_scale="$stored"
+    fi
+    local current_pct; current_pct=$(python3 -c "print(f'{float(\"$current_scale\")*100:.1f}')" 2>/dev/null || echo "100.0")
+
+    # --- Instructions screen ------------------------------------------------
+    draw_bottom_panel_header "ANT+ DISTANCE CALIBRATION" "false"
+    clear_info_area
+    local r=$((LOG_TOP + 1))
+    draw_sealed_row "$r" ""; ((r++))
+    draw_sealed_row "$r" "   Current scale factor: ${CYAN}${current_scale}${NC}  (${current_pct}%)"; ((r++))
+    draw_sealed_row "$r" ""; ((r++))
+    draw_sealed_row "$r" "   HOW TO CALIBRATE:"; ((r++))
+    draw_sealed_row "$r" "   1. Start a run — recommended 3 km at steady 8 km/h"; ((r++))
+    draw_sealed_row "$r" "   2. Note the distance on your treadmill display when done"; ((r++))
+    draw_sealed_row "$r" "   3. Return here to enter the treadmill distance"; ((r++))
+    draw_sealed_row "$r" "   4. A new scale factor is saved for all future sessions"; ((r++))
+    draw_sealed_row "$r" ""; ((r++))
+    draw_sealed_row "$r" "   ${GRAY}The wizard reads ANT+ distance from the live metrics file.${NC}"; ((r++))
+    draw_bottom_border "Enter: Start  |  Esc: Back"
+
+    local key; read -rsn1 key 2>/dev/null
+    # Handle escape
+    local ord=${#key}
+    if [[ "$key" == $'\x1b' ]] || [[ $ord -eq 0 ]]; then
+        exit_ui_mode; return 0
+    fi
+
+    # --- Live distance monitor while user runs ------------------------------
+    local start_dist=0.0
+    # Snapshot the current accumulated distance as baseline
+    if [[ -f "$metrics_file" ]]; then
+        start_dist=$(python3 -c "
+import json,sys
+try:
+    d=json.load(open('$metrics_file'))
+    print(d.get('distance_km',0)*1000)
+except:
+    print(0)
+" 2>/dev/null || echo "0")
+    fi
+
+    draw_bottom_panel_header "ANT+ DISTANCE CALIBRATION" "false"
+    draw_bottom_border "Enter: Done — stop and enter treadmill distance  |  Esc: Abort"
+
+    local done=false
+    local live_dist=0.0
+    while [[ "$done" == "false" ]]; do
+        # Read current ANT+ accumulated distance from metrics
+        if [[ -f "$metrics_file" ]]; then
+            local raw_dist
+            raw_dist=$(python3 -c "
+import json
+try:
+    d=json.load(open('$metrics_file'))
+    print(d.get('distance_km',0)*1000)
+except:
+    print(0)
+" 2>/dev/null || echo "0")
+            live_dist=$(python3 -c "d=${raw_dist}-${start_dist}; print(f'{max(0,d):.0f}')" 2>/dev/null || echo "0")
+        fi
+
+        # Redraw live distance
+        clear_info_area
+        local r2=$((LOG_TOP + 1))
+        draw_sealed_row "$r2" ""; ((r2++))
+        draw_sealed_row "$r2" "   ${CYAN}ANT+ Session Distance: ${live_dist} m${NC}"; ((r2++))
+        draw_sealed_row "$r2" ""; ((r2++))
+        draw_sealed_row "$r2" "   Run your calibration distance on the treadmill."; ((r2++))
+        draw_sealed_row "$r2" "   Press Enter when finished to enter the treadmill reading."; ((r2++))
+
+        # Non-blocking key check (1s poll)
+        IFS= read -rsn1 -t 1 key 2>/dev/null || key=""
+        if [[ "$key" == "" ]]; then continue; fi
+        ord=${#key}
+        if [[ "$key" == $'\x1b' ]] || [[ $ord -eq 0 && "$key" == "" && ${#key} -eq 0 ]]; then
+            exit_ui_mode; return 0
+        fi
+        if [[ "$key" == $'\n' ]] || [[ "$key" == $'\r' ]] || [[ "$key" == "" ]]; then
+            done=true
+        fi
+    done
+
+    # --- Guard: need at least 100m to calibrate meaningfully ----------------
+    local ant_dist_m=$live_dist
+    if (( ant_dist_m < 100 )); then
+        draw_info_screen "TOO SHORT TO CALIBRATE" \
+            "Only ${ant_dist_m}m recorded. Run at least 100m for a useful calibration.\n\nFor best accuracy use 3km at steady speed." "wait"
+        exit_ui_mode; return 0
+    fi
+
+    # --- Enter treadmill distance -------------------------------------------
+    draw_bottom_panel_header "ANT+ DISTANCE CALIBRATION" "false"
+    clear_info_area
+    local r3=$((LOG_TOP + 1))
+    draw_sealed_row "$r3" ""; ((r3++))
+    draw_sealed_row "$r3" "   ANT+ recorded: ${CYAN}${ant_dist_m} m${NC}"; ((r3++))
+    draw_sealed_row "$r3" ""; ((r3++))
+    draw_sealed_row "$r3" "   Enter the distance shown on the treadmill display (metres):"; ((r3++))
+    draw_sealed_row "$r3" "   e.g. if treadmill showed 3.00 km, enter: 3000"; ((r3++))
+    draw_sealed_row "$r3" ""; ((r3++))
+
+    local treadmill_dist_str
+    treadmill_dist_str=$(edit_field_inline $((LOG_TOP + 7)) "   Treadmill distance (m): " "" 6) || true
+    treadmill_dist_str=$(echo "$treadmill_dist_str" | tr -d '[:space:]')
+
+    # Validate input
+    if ! [[ "$treadmill_dist_str" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+        draw_info_screen "INVALID INPUT" "\"${treadmill_dist_str}\" is not a valid distance.\nEnter a number in metres, e.g. 3000" "wait"
+        exit_ui_mode; return 0
+    fi
+
+    local treadmill_dist_m=$treadmill_dist_str
+    if (( $(python3 -c "print(1 if float('$treadmill_dist_m') < 50 else 0)") )); then
+        draw_info_screen "INVALID INPUT" "Distance must be at least 50m." "wait"
+        exit_ui_mode; return 0
+    fi
+
+    # --- Calculate and save scale factor ------------------------------------
+    local new_scale
+    new_scale=$(python3 -c "
+ant=${ant_dist_m}; tread=float('${treadmill_dist_m}')
+scale = tread / ant if ant > 0 else 1.0
+# Clamp to reasonable range
+scale = max(0.5, min(2.0, scale))
+print(f'{scale:.4f}')
+" 2>/dev/null || echo "1.0000")
+
+    local new_pct; new_pct=$(python3 -c "print(f'{float(\"$new_scale\")*100:.1f}')" 2>/dev/null || echo "100.0")
+
+    # Write config file
+    {
+        echo "# ANT+ distance calibration"
+        echo "# Generated by setup-dashboard.sh on $(date '+%Y-%m-%d %H:%M')"
+        echo "# ant_dist=${ant_dist_m}m  treadmill_dist=${treadmill_dist_m}m"
+        echo "distance_scale=${new_scale}"
+    } > "$cal_file" 2>/dev/null
+
+    # --- Confirm ------------------------------------------------------------
+    local direction="no change"
+    local diff_m; diff_m=$(python3 -c "print(f'{abs(float(\"$treadmill_dist_m\")-float(\"$ant_dist_m\")):.0f}')" 2>/dev/null || echo "?")
+    if python3 -c "exit(0 if float('$new_scale') > 1.001 else 1)" 2>/dev/null; then
+        direction="distance increased by ~${diff_m}m per ${ant_dist_m}m"
+    elif python3 -c "exit(0 if float('$new_scale') < 0.999 else 1)" 2>/dev/null; then
+        direction="distance reduced by ~${diff_m}m per ${ant_dist_m}m"
+    fi
+
+    draw_info_screen "CALIBRATION SAVED" \
+        "Scale factor: ${new_scale}  (${new_pct}%)\n${direction}\n\nSaved to: $(basename "$cal_file")\nTakes effect at next QZ start.\n\nTo recalibrate: repeat this wizard.\nTo reset: delete ${cal_file}" "wait"
+
+    exit_ui_mode
+}
+
 ant_tools_menu() {
     local options=(
         "ANT+ Diagnostics (Hardware Test)"
         "ANT+ Broadcast Monitor"
+        "Distance Calibration"
     )
 
     local help_texts=(
         "Run ANT+ dongle diagnostics to verify USB communication, check signal quality, and test footpod detection. Helps troubleshoot connectivity issues with your ANT+ sensors."
         "Real-time view of ANT+ broadcast speed, cadence, distance, and system resource usage. Requires the QZ service to be running."
+        "Calibrate ANT+ distance to match your treadmill display. Run a known distance, enter the treadmill reading, and the scale factor is saved for all future sessions."
     )
     
     enter_ui_mode
@@ -7216,6 +7415,7 @@ ant_tools_menu() {
         case $choice in
             0) perform_ant_test; check_config_file >/dev/null ;;
             1) monitor_ant_broadcasting ;;
+            2) ant_distance_calibration ;;
             255) break ;;
         esac
     done

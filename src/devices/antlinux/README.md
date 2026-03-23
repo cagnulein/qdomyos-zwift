@@ -251,6 +251,8 @@ Select **ANT+ Tools → ANT+ Diagnostics (Hardware Test)** from the menu.
 
 If test fails, the dashboard shows specific troubleshooting steps.
 
+> **Distance accuracy:** If watch distance differs from your treadmill display after a real run, use **ANT+ Tools → Distance Calibration** to correct it. See [Watch Distance Doesn't Match Treadmill](#watch-distance-doesnt-match-treadmill) in Troubleshooting.
+
 ---
 
 #### Test 2: Full Application Test
@@ -305,6 +307,7 @@ The application won't work properly until all dependencies are resolved.
 
 **Optional next steps:**
 - [Set up auto-start on boot](#optional-auto-start-on-boot) — Standard Service or Smart Monitor
+- [Calibrate ANT+ distance](#watch-distance-doesnt-match-treadmill) — if watch distance differs from treadmill
 - [Pair your watch (first time)](#pairing-your-watch)
 - [Learn about command options](#advanced-command-options)
 
@@ -579,6 +582,33 @@ ls -la ~/.config/"Roberto Viola"/qDomyos-Zwift.conf
 # or for root
 sudo ls -la /root/.config/"Roberto Viola"/qDomyos-Zwift.conf
 ```
+
+---
+
+#### Watch Distance Doesn't Match Treadmill
+
+**Symptom:** Watch shows a different distance than the treadmill display after a run — typically a few percent off.
+
+**Cause:** Garmin watches compute distance from stride count × stride length using their own internal calibration. The ANT+ distance byte is integer metres only (no sub-metre precision). Small systematic differences accumulate over longer runs.
+
+**Solution:** Run the built-in calibration wizard:
+
+```bash
+sudo ./setup-dashboard.sh
+```
+
+Select **ANT+ Tools → Distance Calibration**
+
+**How it works:**
+1. Start a calibration run — recommended 3 km at a steady 8 km/h
+2. The dashboard shows live ANT+ session distance as you run
+3. When done, press Enter and enter the distance shown on your treadmill display
+4. A scale factor is calculated and saved to `ant_calibration.conf`
+5. Takes effect at the next QZ start — no service restart needed
+
+The **ANT+ Broadcast Monitor** shows the active calibration factor (`Calibration: 0.9709 (97.1%)`) so you can confirm it's loaded.
+
+> **Reset calibration:** delete `ant_calibration.conf` from the install directory to return to 1.0 (no correction).
 
 ---
 
