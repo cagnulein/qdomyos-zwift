@@ -326,9 +326,9 @@ ScrollView {
                 }
                 Button {
                     id: okSpeedOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_speed_order = speedOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_speed_order = speedOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -371,9 +371,9 @@ ScrollView {
                 }
                 Button {
                     id: okinclinationOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_inclination_order = inclinationOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_inclination_order = inclinationOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -432,9 +432,9 @@ ScrollView {
                     }
                     Button {
                         id: okcadenceOrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_cadence_order = cadenceOrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_cadence_order = cadenceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
             }
@@ -478,9 +478,9 @@ ScrollView {
                 }
                 Button {
                     id: okelevationOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_elevation_order = elevationOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_elevation_order = elevationOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }            
@@ -508,9 +508,9 @@ ScrollView {
                      }
                 }
                 Button {
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_negative_inclination_order = negativeInclinationOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_negative_inclination_order = negativeInclinationOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -553,9 +553,9 @@ ScrollView {
                 }
                 Button {
                     id: okcaloriesOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_calories_order = caloriesOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_calories_order = caloriesOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -598,9 +598,9 @@ ScrollView {
                 }
                 Button {
                     id: okodometerOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_odometer_order = odometerOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_odometer_order = odometerOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -643,9 +643,9 @@ ScrollView {
                 }
                 Button {
                     id: okpaceOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_pace_order = paceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_pace_order = paceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -675,9 +675,9 @@ ScrollView {
                 }
                 Button {
                     id: okavgpaceOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_avg_pace_order = avgpaceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_avg_pace_order = avgpaceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -720,9 +720,9 @@ ScrollView {
                 }
                 Button {
                     id: okresistanceOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_resistance_order = resistanceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_resistance_order = resistanceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -765,9 +765,9 @@ ScrollView {
                 }
                 Button {
                     id: okwattOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_watt_order = wattOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_watt_order = wattOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -810,9 +810,9 @@ ScrollView {
                 }
                 Button {
                     id: okweightLossOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_weight_loss_order = weightLossOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_weight_loss_order = weightLossOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -856,9 +856,9 @@ ScrollView {
                 }
                 Button {
                     id: okavgwattOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_avgwatt_order = avgwattOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_avgwatt_order = avgwattOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -902,9 +902,9 @@ ScrollView {
 							}
 					 Button {
 					     id: okavgwattLapOrderButton
-						  text: "OK"
+						  text: qsTr("OK")
 						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-						  onClicked: {settings.tile_avg_watt_lap_order = avgwattLapOrderTextField.displayText; toast.show("Setting saved!"); }
+						  onClicked: {settings.tile_avg_watt_lap_order = avgwattLapOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						}
 					}
 				}
@@ -934,9 +934,9 @@ ScrollView {
                 }
                 Button {
                     id: okftpOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_ftp_order = ftpOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_ftp_order = ftpOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1008,9 +1008,9 @@ ScrollView {
                     }
                     Button {
                         id: okheartrateOrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_heart_order = heartrateOrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_heart_order = heartrateOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
             }
@@ -1041,9 +1041,9 @@ ScrollView {
                 }
                 Button {
                     id: okfanOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_fan_order = fanOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_fan_order = fanOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1086,9 +1086,9 @@ ScrollView {
                 }
                 Button {
                     id: okjoulsOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_jouls_order = joulsOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_jouls_order = joulsOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1131,9 +1131,9 @@ ScrollView {
                 }
                 Button {
                     id: okelapsedOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_elapsed_order = elapsedOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_elapsed_order = elapsedOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1176,9 +1176,9 @@ ScrollView {
                 }
                 Button {
                     id: okmovingTimeOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_moving_time_order = movingTimeOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_moving_time_order = movingTimeOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1221,9 +1221,9 @@ ScrollView {
                 }
                 Button {
                     id: okpelotonOffsetOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_peloton_offset_order = pelotonOffsetOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_peloton_offset_order = pelotonOffsetOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1266,9 +1266,9 @@ ScrollView {
                 }
                 Button {
                     id: okPelotonRemainingOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_peloton_remaining_order = pelotonRemainingOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_peloton_remaining_order = pelotonRemainingOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1312,9 +1312,9 @@ ScrollView {
                 }
                 Button {
                     id: okpelotonDifficultyOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_peloton_difficulty_order = pelotonDifficultyOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_peloton_difficulty_order = pelotonDifficultyOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }*/
@@ -1344,9 +1344,9 @@ ScrollView {
                 }
                 Button {
                     id: oklapElapsedOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_lapelapsed_order = lapElapsedOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_lapelapsed_order = lapElapsedOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1391,9 +1391,9 @@ ScrollView {
                     }
                     Button {
                         id: okpeloton_resistanceOrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_peloton_resistance_order = peloton_resistanceOrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_peloton_resistance_order = peloton_resistanceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
             }
@@ -1437,9 +1437,9 @@ ScrollView {
                 }
                 Button {
                     id: oktarget_resistanceOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_target_resistance_order = target_resistanceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_target_resistance_order = target_resistanceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1483,9 +1483,9 @@ ScrollView {
                 }
                 Button {
                     id: oktarget_peloton_resistanceOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_target_peloton_resistance_order = target_peloton_resistanceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_target_peloton_resistance_order = target_peloton_resistanceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1528,9 +1528,9 @@ ScrollView {
                 }
                 Button {
                     id: oktarget_cadenceOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_target_cadence_order = target_cadenceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_target_cadence_order = target_cadenceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1573,9 +1573,9 @@ ScrollView {
                 }
                 Button {
                     id: oktarget_powerOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_target_power_order = target_powerOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_target_power_order = target_powerOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1619,9 +1619,9 @@ ScrollView {
                 }
                 Button {
                     id: oktarget_zoneOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_target_zone_order = target_zoneOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_target_zone_order = target_zoneOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1664,9 +1664,9 @@ ScrollView {
                 }
                 Button {
                     id: oktarget_speedOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_target_speed_order = target_speedOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_target_speed_order = target_speedOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1696,9 +1696,9 @@ ScrollView {
                 }
                 Button {
                     id: oktarget_paceOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_target_pace_order = target_paceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_target_pace_order = target_paceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1728,9 +1728,9 @@ ScrollView {
                 }
                 Button {
                     id: oktarget_inclineOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_target_incline_order = target_inclineOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_target_incline_order = target_inclineOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1759,9 +1759,9 @@ ScrollView {
                 }
                 Button {
                     id: okwatt_kgOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_watt_kg_order = watt_kgOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_watt_kg_order = watt_kgOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1804,9 +1804,9 @@ ScrollView {
                 }
                 Button {
                     id: okgearsOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_gears_order = gearsOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_gears_order = gearsOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1847,9 +1847,9 @@ ScrollView {
                          }
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_biggears_order = biggearsOrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_biggears_order = biggearsOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 SwitchDelegate {
@@ -1906,9 +1906,9 @@ ScrollView {
                 }
                 Button {
                     id: okremainingTimeTrainingProgramRowOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_remainingtimetrainprogramrow_order = remainingTimeTrainingProgramRowOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_remainingtimetrainprogramrow_order = remainingTimeTrainingProgramRowOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1951,9 +1951,9 @@ ScrollView {
                 }
                 Button {
                     id: oknextRowsTrainingProgramOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_nextrowstrainprogram_order = nextRowsTrainingProgramOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_nextrowstrainprogram_order = nextRowsTrainingProgramOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -1996,9 +1996,9 @@ ScrollView {
                 }
                 Button {
                     id: okmetsOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_mets_order = metsOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_mets_order = metsOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2041,9 +2041,9 @@ ScrollView {
                 }
                 Button {
                     id: oktargetmetsOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_targetmets_order = targetmetsOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_targetmets_order = targetmetsOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2073,9 +2073,9 @@ ScrollView {
                 }
                 Button {
                     id: okdatetimeOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_datetime_order = datetimeOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_datetime_order = datetimeOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2118,9 +2118,9 @@ ScrollView {
                 }
                 Button {
                     id: okstrokes_countOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_strokes_count_order = strokes_countOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_strokes_count_order = strokes_countOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2163,9 +2163,9 @@ ScrollView {
                 }
                 Button {
                     id: okstrokes_lengthOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_strokes_length_order = strokes_lengthOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_strokes_length_order = strokes_lengthOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2208,9 +2208,9 @@ ScrollView {
                 }
                 Button {
                     id: oksteeringAngleOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_steering_angle_order = steeringAngleOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_steering_angle_order = steeringAngleOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2253,9 +2253,9 @@ ScrollView {
                 }
                 Button {
                     id: okpidHROrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_pid_hr_order = pidHROrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_pid_hr_order = pidHROrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2298,9 +2298,9 @@ ScrollView {
                 }
                 Button {
                     id: okextInclineOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_ext_incline_order = extInclineOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_ext_incline_order = extInclineOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2343,9 +2343,9 @@ ScrollView {
                 }
                 Button {
                     id: okStrideLengthOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_instantaneous_stride_length_order = strideLengthOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_instantaneous_stride_length_order = strideLengthOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2388,9 +2388,9 @@ ScrollView {
                 }
                 Button {
                     id: okGroundContactOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_ground_contact_order = groundContactOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_ground_contact_order = groundContactOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2433,9 +2433,9 @@ ScrollView {
                 }
                 Button {
                     id: okVerticalOscillationOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_vertical_oscillation_order = verticalOscillationOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_vertical_oscillation_order = verticalOscillationOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2478,9 +2478,9 @@ ScrollView {
                 }
                 Button {
                     id: okPacelast500mOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_pace_last500m_order = pacelast500mOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_pace_last500m_order = pacelast500mOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2510,9 +2510,9 @@ ScrollView {
                 }
                 Button {
                     id: okStepCountOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_step_count_order = stepCountOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_step_count_order = stepCountOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2542,9 +2542,9 @@ ScrollView {
                 }
                 Button {
                     id: okErgModeOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_erg_mode_order = ergModeOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_erg_mode_order = ergModeOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -2571,9 +2571,9 @@ ScrollView {
                      }
                 }
                 Button {
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_rss_order = rssOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_rss_order = rssOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }        
@@ -2604,9 +2604,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance1OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_1_order = presetResistance1TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_1_order = presetResistance1TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -2625,9 +2625,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance1ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_1_value = presetResistance1ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_1_value = presetResistance1ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -2646,9 +2646,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance1LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_1_label = presetResistance1LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_1_label = presetResistance1LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -2660,7 +2660,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetResistance1
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetResistance1ColorTextField.text = colorPresetResistance1.color
 									}
@@ -2680,9 +2680,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetResistance1ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_resistance_1_color = presetResistance1ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_resistance_1_color = presetResistance1ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -2713,9 +2713,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance2OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_2_order = presetResistance2TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_2_order = presetResistance2TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -2734,9 +2734,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance2ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_2_value = presetResistance2ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_2_value = presetResistance2ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -2755,9 +2755,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance2LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_2_label = presetResistance2LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_2_label = presetResistance2LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -2769,7 +2769,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetResistance2
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetResistance2ColorTextField.text = colorPresetResistance2.color
 									}
@@ -2789,9 +2789,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetResistance2ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_resistance_2_color = presetResistance2ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_resistance_2_color = presetResistance2ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -2822,9 +2822,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance3OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_3_order = presetResistance3TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_3_order = presetResistance3TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -2843,9 +2843,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance3ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_3_value = presetResistance3ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_3_value = presetResistance3ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -2864,9 +2864,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance3LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_3_label = presetResistance3LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_3_label = presetResistance3LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -2878,7 +2878,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetResistance3
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetResistance3ColorTextField.text = colorPresetResistance3.color
 									}
@@ -2898,9 +2898,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetResistance3ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_resistance_3_color = presetResistance3ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_resistance_3_color = presetResistance3ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -2931,9 +2931,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance4OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_4_order = presetResistance4TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_4_order = presetResistance4TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -2952,9 +2952,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance4ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_4_value = presetResistance4ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_4_value = presetResistance4ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -2973,9 +2973,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance4LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_4_label = presetResistance4LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_4_label = presetResistance4LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -2987,7 +2987,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetResistance4
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetResistance4ColorTextField.text = colorPresetResistance4.color
 									}
@@ -3007,9 +3007,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetResistance4ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_resistance_4_color = presetResistance4ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_resistance_4_color = presetResistance4ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -3040,9 +3040,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance5OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_5_order = presetResistance5TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_5_order = presetResistance5TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3061,9 +3061,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance5ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_5_value = presetResistance5ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_5_value = presetResistance5ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3082,9 +3082,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetResistance5LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_resistance_5_label = presetResistance5LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_resistance_5_label = presetResistance5LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -3096,7 +3096,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetResistance5
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetResistance5ColorTextField.text = colorPresetResistance5.color
 									}
@@ -3116,9 +3116,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetResistance5ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_resistance_5_color = presetResistance5ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_resistance_5_color = presetResistance5ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -3149,9 +3149,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed1OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_1_order = presetSpeed1TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_1_order = presetSpeed1TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3170,12 +3170,12 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed1ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {
                             settings.tile_preset_speed_1_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed1ValueTextField.displayText);
                             presetSpeed1ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_1_value);
-                            toast.show("Setting saved!");
+                            toast.show(qsTr("Setting saved!"));
                         }
                     }
                 }
@@ -3195,9 +3195,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed1LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_1_label = presetSpeed1LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_1_label = presetSpeed1LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -3209,7 +3209,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetSpeed1
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetSpeed1ColorTextField.text = colorPresetSpeed1.color
 									}
@@ -3229,9 +3229,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetSpeed1ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_speed_1_color = presetSpeed1ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_speed_1_color = presetSpeed1ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -3262,9 +3262,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed2OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_2_order = presetSpeed2TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_2_order = presetSpeed2TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3283,12 +3283,12 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed2ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {
                             settings.tile_preset_speed_2_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed2ValueTextField.displayText);
                             presetSpeed2ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_2_value);
-                            toast.show("Setting saved!");
+                            toast.show(qsTr("Setting saved!"));
                         }
                     }
                 }
@@ -3308,9 +3308,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed2LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_2_label = presetSpeed2LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_2_label = presetSpeed2LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -3322,7 +3322,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetSpeed2
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetSpeed2ColorTextField.text = colorPresetSpeed2.color
 									}
@@ -3342,9 +3342,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetSpeed2ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_speed_2_color = presetSpeed2ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_speed_2_color = presetSpeed2ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -3375,9 +3375,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed3OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_3_order = presetSpeed3TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_3_order = presetSpeed3TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3396,12 +3396,12 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed3ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {
                             settings.tile_preset_speed_3_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed3ValueTextField.displayText);
                             presetSpeed3ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_3_value);
-                            toast.show("Setting saved!");
+                            toast.show(qsTr("Setting saved!"));
                         }
                     }
                 }
@@ -3421,9 +3421,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed3LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_3_label = presetSpeed3LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_3_label = presetSpeed3LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -3435,7 +3435,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetSpeed3
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetSpeed3ColorTextField.text = colorPresetSpeed3.color
 									}
@@ -3455,9 +3455,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetSpeed3ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_speed_3_color = presetSpeed3ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_speed_3_color = presetSpeed3ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -3488,9 +3488,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed4OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_4_order = presetSpeed4TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_4_order = presetSpeed4TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3509,12 +3509,12 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed4ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {
                             settings.tile_preset_speed_4_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed4ValueTextField.displayText);
                             presetSpeed4ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_4_value);
-                            toast.show("Setting saved!");
+                            toast.show(qsTr("Setting saved!"));
                         }
                     }
                 }
@@ -3534,9 +3534,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed4LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_4_label = presetSpeed4LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_4_label = presetSpeed4LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -3548,7 +3548,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetSpeed4
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetSpeed4ColorTextField.text = colorPresetSpeed4.color
 									}
@@ -3568,9 +3568,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetSpeed4ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_speed_4_color = presetSpeed4ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_speed_4_color = presetSpeed4ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -3601,9 +3601,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed5OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_5_order = presetSpeed5TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_5_order = presetSpeed5TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3622,12 +3622,12 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed5ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {
                             settings.tile_preset_speed_5_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed5ValueTextField.displayText);
                             presetSpeed5ValueTextField.text = settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_5_value);
-                            toast.show("Setting saved!");
+                            toast.show(qsTr("Setting saved!"));
                         }
                     }
                 }
@@ -3647,9 +3647,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetSpeed5LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_speed_5_label = presetSpeed5LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_speed_5_label = presetSpeed5LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -3661,7 +3661,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetSpeed5
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetSpeed5ColorTextField.text = colorPresetSpeed5.color
 									}
@@ -3681,9 +3681,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetSpeed5ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_speed_5_color = presetSpeed5ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_speed_5_color = presetSpeed5ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -3714,9 +3714,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination1OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_1_order = presetInclination1TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_1_order = presetInclination1TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3735,9 +3735,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination1ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_1_value = presetInclination1ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_1_value = presetInclination1ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3756,9 +3756,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination1LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_1_label = presetInclination1LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_1_label = presetInclination1LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -3770,7 +3770,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetInclination1
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetInclination1ColorTextField.text = colorPresetInclination1.color
 									}
@@ -3790,9 +3790,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetInclination1ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_inclination_1_color = presetInclination1ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_inclination_1_color = presetInclination1ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -3823,9 +3823,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination2OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_2_order = presetInclination2TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_2_order = presetInclination2TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3844,9 +3844,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination2ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_2_value = presetInclination2ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_2_value = presetInclination2ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3865,9 +3865,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination2LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_2_label = presetInclination2LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_2_label = presetInclination2LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
             }
@@ -3880,7 +3880,7 @@ ScrollView {
 						  }
 						ColorDialog {
 						  id: colorPresetInclination2
-						  title: "Please choose a color"
+						  title: qsTr("Please choose a color")
 						  onAccepted: {
 						      presetInclination2ColorTextField.text = colorPresetInclination2.color
 							  }
@@ -3900,9 +3900,9 @@ ScrollView {
 						}
 					 Button {
 					     id: okPresetInclination2ColorButton
-						  text: "OK"
+						  text: qsTr("OK")
 						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-						  onClicked: {settings.tile_preset_inclination_2_color = presetInclination2ColorTextField.displayText; toast.show("Setting saved!"); }
+						  onClicked: {settings.tile_preset_inclination_2_color = presetInclination2ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						}
 					}
         }
@@ -3932,9 +3932,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination3OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_3_order = presetInclination3TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_3_order = presetInclination3TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3953,9 +3953,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination3ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_3_value = presetInclination3ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_3_value = presetInclination3ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -3974,9 +3974,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination3LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_3_label = presetInclination3LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_3_label = presetInclination3LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -3988,7 +3988,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetInclination3
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetInclination3ColorTextField.text = colorPresetInclination3.color
 									}
@@ -4008,9 +4008,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetInclination3ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_inclination_3_color = presetInclination3ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_inclination_3_color = presetInclination3ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -4041,9 +4041,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination4OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_4_order = presetInclination4TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_4_order = presetInclination4TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4062,9 +4062,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination4ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_4_value = presetInclination4ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_4_value = presetInclination4ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4083,9 +4083,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination4LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_4_label = presetInclination4LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_4_label = presetInclination4LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
 						}
 					 RowLayout {
@@ -4097,7 +4097,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetInclination4
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetInclination4ColorTextField.text = colorPresetInclination4.color
 									}
@@ -4117,9 +4117,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetInclination4ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_inclination_4_color = presetInclination4ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_inclination_4_color = presetInclination4ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -4150,9 +4150,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination5OrderButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_5_order = presetInclination5TextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_5_order = presetInclination5TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4171,9 +4171,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination5ValueButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_5_value = presetInclination5ValueTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_5_value = presetInclination5ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4192,9 +4192,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetInclination5LabelButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_inclination_5_label = presetInclination5LabelTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_inclination_5_label = presetInclination5LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
 					 RowLayout {
@@ -4206,7 +4206,7 @@ ScrollView {
 								}
 						  ColorDialog {
 						      id: colorPresetInclination5
-								title: "Please choose a color"
+								title: qsTr("Please choose a color")
 								onAccepted: {
 								    presetInclination5ColorTextField.text = colorPresetInclination5.color
 									}
@@ -4226,9 +4226,9 @@ ScrollView {
 						  }
 						  Button {
 						      id: okPresetInclination5ColorButton
-								text: "OK"
+								text: qsTr("OK")
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: {settings.tile_preset_inclination_5_color = presetInclination5ColorTextField.displayText; toast.show("Setting saved!"); }
+								onClicked: {settings.tile_preset_inclination_5_color = presetInclination5ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
 					 }
             }
@@ -4257,9 +4257,9 @@ ScrollView {
                         }
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_1_order = presetPowerZone1OrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_1_order = presetPowerZone1OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4276,9 +4276,9 @@ ScrollView {
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_1_value = parseFloat(presetPowerZone1Value.text); toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_1_value = parseFloat(presetPowerZone1Value.text); toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4294,9 +4294,9 @@ ScrollView {
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_1_label = presetPowerZone1Label.text; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_1_label = presetPowerZone1Label.text; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4308,7 +4308,7 @@ ScrollView {
                     }
                     ColorDialog {
                         id: colorPresetPowerzone1
-                        title: "Please choose a color"
+                        title: qsTr("Please choose a color")
                         onAccepted: {
                             presetPowerzone1ColorTextField.text = colorPresetPowerzone1.color
                         }
@@ -4326,9 +4326,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetPowerzone1ColorButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_1_color = presetPowerzone1ColorTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_1_color = presetPowerzone1ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }                
             }
@@ -4358,9 +4358,9 @@ ScrollView {
                         }
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_2_order = presetPowerZone2OrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_2_order = presetPowerZone2OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4377,9 +4377,9 @@ ScrollView {
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_2_value = parseFloat(presetPowerZone2Value.text); toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_2_value = parseFloat(presetPowerZone2Value.text); toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4395,9 +4395,9 @@ ScrollView {
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_2_label = presetPowerZone2Label.text; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_2_label = presetPowerZone2Label.text; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4409,7 +4409,7 @@ ScrollView {
                     }
                     ColorDialog {
                         id: colorPresetPowerzone2
-                        title: "Please choose a color"
+                        title: qsTr("Please choose a color")
                         onAccepted: {
                             presetPowerzone2ColorTextField.text = colorPresetPowerzone2.color
                         }
@@ -4427,9 +4427,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetPowerzone2ColorButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_2_color = presetPowerzone2ColorTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_2_color = presetPowerzone2ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }                
             }
@@ -4459,9 +4459,9 @@ ScrollView {
                         }
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_3_order = presetPowerZone3OrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_3_order = presetPowerZone3OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4478,9 +4478,9 @@ ScrollView {
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_3_value = parseFloat(presetPowerZone3Value.text); toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_3_value = parseFloat(presetPowerZone3Value.text); toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4496,9 +4496,9 @@ ScrollView {
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_3_label = presetPowerZone3Label.text; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_3_label = presetPowerZone3Label.text; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4510,7 +4510,7 @@ ScrollView {
                     }
                     ColorDialog {
                         id: colorPresetPowerzone3
-                        title: "Please choose a color"
+                        title: qsTr("Please choose a color")
                         onAccepted: {
                             presetPowerzone3ColorTextField.text = colorPresetPowerzone3.color
                         }
@@ -4528,9 +4528,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetPowerzone3ColorButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_3_color = presetPowerzone3ColorTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_3_color = presetPowerzone3ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }                
             }
@@ -4560,9 +4560,9 @@ ScrollView {
                         }
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_4_order = presetPowerZone4OrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_4_order = presetPowerZone4OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4579,9 +4579,9 @@ ScrollView {
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_4_value = parseFloat(presetPowerZone4Value.text); toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_4_value = parseFloat(presetPowerZone4Value.text); toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4597,9 +4597,9 @@ ScrollView {
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_4_label = presetPowerZone4Label.text; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_4_label = presetPowerZone4Label.text; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4611,7 +4611,7 @@ ScrollView {
                     }
                     ColorDialog {
                         id: colorPresetPowerzone4
-                        title: "Please choose a color"
+                        title: qsTr("Please choose a color")
                         onAccepted: {
                             presetPowerzone4ColorTextField.text = colorPresetPowerzone4.color
                         }
@@ -4629,9 +4629,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetPowerzone4ColorButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_4_color = presetPowerzone4ColorTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_4_color = presetPowerzone4ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
             }
@@ -4661,9 +4661,9 @@ ScrollView {
                         }
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_5_order = presetPowerZone5OrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_5_order = presetPowerZone5OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4680,9 +4680,9 @@ ScrollView {
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_5_value = parseFloat(presetPowerZone5Value.text); toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_5_value = parseFloat(presetPowerZone5Value.text); toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4698,9 +4698,9 @@ ScrollView {
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_5_label = presetPowerZone5Label.text; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_5_label = presetPowerZone5Label.text; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4712,7 +4712,7 @@ ScrollView {
                     }
                     ColorDialog {
                         id: colorPresetPowerzone5
-                        title: "Please choose a color"
+                        title: qsTr("Please choose a color")
                         onAccepted: {
                             presetPowerzone5ColorTextField.text = colorPresetPowerzone5.color
                         }
@@ -4730,9 +4730,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetPowerzone5ColorButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_5_color = presetPowerzone5ColorTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_5_color = presetPowerzone5ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
             }
@@ -4762,9 +4762,9 @@ ScrollView {
                         }
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_6_order = presetPowerZone6OrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_6_order = presetPowerZone6OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4781,9 +4781,9 @@ ScrollView {
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_6_value = parseFloat(presetPowerZone6Value.text); toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_6_value = parseFloat(presetPowerZone6Value.text); toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4799,9 +4799,9 @@ ScrollView {
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_6_label = presetPowerZone6Label.text; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_6_label = presetPowerZone6Label.text; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4813,7 +4813,7 @@ ScrollView {
                     }
                     ColorDialog {
                         id: colorPresetPowerzone6
-                        title: "Please choose a color"
+                        title: qsTr("Please choose a color")
                         onAccepted: {
                             presetPowerzone6ColorTextField.text = colorPresetPowerzone6.color
                         }
@@ -4831,9 +4831,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetPowerzone6ColorButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_6_color = presetPowerzone6ColorTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_6_color = presetPowerzone6ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
             }
@@ -4863,9 +4863,9 @@ ScrollView {
                         }
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_7_order = presetPowerZone7OrderTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_7_order = presetPowerZone7OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4882,9 +4882,9 @@ ScrollView {
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_7_value = parseFloat(presetPowerZone7Value.text); toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_7_value = parseFloat(presetPowerZone7Value.text); toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4900,9 +4900,9 @@ ScrollView {
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_7_label = presetPowerZone7Label.text; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_7_label = presetPowerZone7Label.text; toast.show(qsTr("Setting saved!")); }
                     }
                 }
                 RowLayout {
@@ -4914,7 +4914,7 @@ ScrollView {
                     }
                     ColorDialog {
                         id: colorPresetPowerzone7
-                        title: "Please choose a color"
+                        title: qsTr("Please choose a color")
                         onAccepted: {
                             presetPowerzone7ColorTextField.text = colorPresetPowerzone7.color
                         }
@@ -4932,9 +4932,9 @@ ScrollView {
                     }
                     Button {
                         id: okPresetPowerzone7ColorButton
-                        text: "OK"
+                        text: qsTr("OK")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: {settings.tile_preset_powerzone_7_color = presetPowerzone7ColorTextField.displayText; toast.show("Setting saved!"); }
+                        onClicked: {settings.tile_preset_powerzone_7_color = presetPowerzone7ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
                 }
             }
@@ -4978,9 +4978,9 @@ ScrollView {
                 }
                 Button {
                     id: okHrTimeInZone1OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_hr_time_in_zone_1_order = hrTimeInZone1OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_hr_time_in_zone_1_order = hrTimeInZone1OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5023,9 +5023,9 @@ ScrollView {
                 }
                 Button {
                     id: okHrTimeInZone2OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_hr_time_in_zone_2_order = hrTimeInZone2OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_hr_time_in_zone_2_order = hrTimeInZone2OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5068,9 +5068,9 @@ ScrollView {
                 }
                 Button {
                     id: okHrTimeInZone3OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_hr_time_in_zone_3_order = hrTimeInZone3OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_hr_time_in_zone_3_order = hrTimeInZone3OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5113,9 +5113,9 @@ ScrollView {
                 }
                 Button {
                     id: okHrTimeInZone4OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_hr_time_in_zone_4_order = hrTimeInZone4OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_hr_time_in_zone_4_order = hrTimeInZone4OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5158,9 +5158,9 @@ ScrollView {
                 }
                 Button {
                     id: okHrTimeInZone5OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_hr_time_in_zone_5_order = hrTimeInZone5OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_hr_time_in_zone_5_order = hrTimeInZone5OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5189,7 +5189,7 @@ ScrollView {
                 checked: settings.tile_hr_time_in_zone_individual_mode
                 onClicked: {
                     settings.tile_hr_time_in_zone_individual_mode = checked
-                    toast.show("Setting saved!")
+                    toast.show(qsTr("Setting saved!"))
                 }
             }
         }
@@ -5232,9 +5232,9 @@ ScrollView {
                 }
                 Button {
                     id: okcoretemperatureOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_coretemperature_order = coretemperatureOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_coretemperature_order = coretemperatureOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5277,9 +5277,9 @@ ScrollView {
                 }
                 Button {
                     id: okHeatTimeInZone1OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_heat_time_in_zone_1_order = heatTimeInZone1OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_heat_time_in_zone_1_order = heatTimeInZone1OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5322,9 +5322,9 @@ ScrollView {
                 }
                 Button {
                     id: okHeatTimeInZone2OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_heat_time_in_zone_2_order = heatTimeInZone2OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_heat_time_in_zone_2_order = heatTimeInZone2OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5367,9 +5367,9 @@ ScrollView {
                 }
                 Button {
                     id: okHeatTimeInZone3OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_heat_time_in_zone_3_order = heatTimeInZone3OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_heat_time_in_zone_3_order = heatTimeInZone3OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5412,9 +5412,9 @@ ScrollView {
                 }
                 Button {
                     id: okHeatTimeInZone4OrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_heat_time_in_zone_4_order = heatTimeInZone4OrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_heat_time_in_zone_4_order = heatTimeInZone4OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5455,9 +5455,9 @@ ScrollView {
                      }
                 }
                 Button {
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_auto_virtual_shifting_cruise_order = autoVirtualShiftingCruiseOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_auto_virtual_shifting_cruise_order = autoVirtualShiftingCruiseOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5498,9 +5498,9 @@ ScrollView {
                      }
                 }
                 Button {
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_auto_virtual_shifting_climb_order = autoVirtualShiftingClimbOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_auto_virtual_shifting_climb_order = autoVirtualShiftingClimbOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5541,9 +5541,9 @@ ScrollView {
                      }
                 }
                 Button {
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_auto_virtual_shifting_sprint_order = autoVirtualShiftingSprintOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_auto_virtual_shifting_sprint_order = autoVirtualShiftingSprintOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5584,9 +5584,9 @@ ScrollView {
                      }
                 }
                 Button {
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_power_avg_order = powerAvgOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_power_avg_order = powerAvgOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -5629,9 +5629,9 @@ ScrollView {
                 }
                 Button {
                     id: okhrvOrderButton
-                    text: "OK"
+                    text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_hrv_order = hrvOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_hrv_order = hrvOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }

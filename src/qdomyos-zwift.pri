@@ -875,9 +875,46 @@ exists(secret.h): HEADERS += secret.h
    charts.ui \
 	mainwindow.ui
 
+# Translation files - 30 most used languages worldwide
+TRANSLATIONS += \
+    $$PWD/translations/qdomyos-zwift_it.ts \
+    $$PWD/translations/qdomyos-zwift_de.ts \
+    $$PWD/translations/qdomyos-zwift_fr.ts \
+    $$PWD/translations/qdomyos-zwift_es.ts \
+    $$PWD/translations/qdomyos-zwift_pt.ts \
+    $$PWD/translations/qdomyos-zwift_pt_BR.ts \
+    $$PWD/translations/qdomyos-zwift_ru.ts \
+    $$PWD/translations/qdomyos-zwift_zh_CN.ts \
+    $$PWD/translations/qdomyos-zwift_zh_TW.ts \
+    $$PWD/translations/qdomyos-zwift_ja.ts \
+    $$PWD/translations/qdomyos-zwift_ko.ts \
+    $$PWD/translations/qdomyos-zwift_ar.ts \
+    $$PWD/translations/qdomyos-zwift_hi.ts \
+    $$PWD/translations/qdomyos-zwift_tr.ts \
+    $$PWD/translations/qdomyos-zwift_vi.ts \
+    $$PWD/translations/qdomyos-zwift_pl.ts \
+    $$PWD/translations/qdomyos-zwift_uk.ts \
+    $$PWD/translations/qdomyos-zwift_nl.ts \
+    $$PWD/translations/qdomyos-zwift_th.ts \
+    $$PWD/translations/qdomyos-zwift_id.ts \
+    $$PWD/translations/qdomyos-zwift_ro.ts \
+    $$PWD/translations/qdomyos-zwift_cs.ts \
+    $$PWD/translations/qdomyos-zwift_el.ts \
+    $$PWD/translations/qdomyos-zwift_sv.ts \
+    $$PWD/translations/qdomyos-zwift_hu.ts \
+    $$PWD/translations/qdomyos-zwift_fi.ts \
+    $$PWD/translations/qdomyos-zwift_no.ts \
+    $$PWD/translations/qdomyos-zwift_da.ts \
+    $$PWD/translations/qdomyos-zwift_he.ts \
+    $$PWD/translations/qdomyos-zwift_ca.ts
+
+# Qt will automatically compile .ts to .qm files during build
+# .qm files will be embedded in the application
+
 RESOURCES += \
    icons.qrc \
-	qml.qrc
+	qml.qrc \
+	translations.qrc
 
 DISTFILES += \
     $$PWD/android/libs/android_antlib_4-16-0.aar \

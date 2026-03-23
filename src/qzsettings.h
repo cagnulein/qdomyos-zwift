@@ -139,6 +139,12 @@ class QZSettings {
     static constexpr float default_ui_zoom = 100.0;
 
     /**
+     *@brief Preferred application language. Use "auto" to follow system locale.
+     */
+    static const QString app_language;
+    static const QString default_app_language;
+
+    /**
      *@brief Disable (true) or use (false) the device's heart rate service.
      */
     static const QString bike_heartrate_service;

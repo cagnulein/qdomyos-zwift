@@ -98,6 +98,17 @@ ApplicationWindow {
 
     property bool lockTiles: false
     property bool settings_restart_to_apply: false
+    property string startupScreen: (typeof STARTUP_SCREEN !== "undefined" && STARTUP_SCREEN) ? STARTUP_SCREEN.toString().toLowerCase() : ""
+
+    function applyStartupScreenHook() {
+        if (!startupScreen || startupScreen === "home") {
+            return
+        }
+
+        if (startupScreen === "settings" && stackView.currentItem && stackView.currentItem.objectName !== "settingsPage") {
+            stackView.push("settings.qml")
+        }
+    }
 
     Settings {
         id: settings
@@ -242,8 +253,8 @@ ApplicationWindow {
 
     MessageDialog {
            id: popupPelotonAuth
-           text: "Peloton Authentication Change"
-           informativeText: "Peloton has moved to a new authentication system. Username and password are no longer required.\n\nWould you like to switch to the new authentication method now?"
+           text: qsTr("Peloton Authentication Change")
+           informativeText: qsTr("Peloton has moved to a new authentication system. Username and password are no longer required.\n\nWould you like to switch to the new authentication method now?")
            buttons: (MessageDialog.Yes | MessageDialog.No)
            onYesClicked: {
                settings.peloton_username = "username"
@@ -258,7 +269,7 @@ ApplicationWindow {
     Timer {
        id: pelotonAuthCheck
        interval: 1000  // 1 second delay after startup
-       running: true
+       running: startupScreen === ""
        repeat: false
        onTriggered: {
            if (settings.peloton_password !== "password") {
@@ -503,8 +514,8 @@ ApplicationWindow {
 
     MessageDialog {
         id: popupRestartApp
-        text: "Settings changed"
-        informativeText: "In order to apply the changes you need to restart the app.\nDo you want to do it now?"
+        text: qsTr("Settings changed")
+        informativeText: qsTr("In order to apply the changes you need to restart the app.\nDo you want to do it now?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: Qt.callLater(Qt.quit)
         onNoClicked: this.visible = false;
@@ -512,8 +523,8 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Strava"
-        informativeText: "Do you want to upload the workout to Strava?"
+        text: qsTr("Strava")
+        informativeText: qsTr("Do you want to upload the workout to Strava?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {strava_upload_file_prepare(); rootItem.stravaUploadRequested = false;}
         onNoClicked: {rootItem.stravaUploadRequested = false;}
@@ -521,10 +532,10 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Garmin Workout Planned"
-        informativeText: "Workout found:\n" + rootItem.garminWorkoutPromptName +
-                         (rootItem.garminWorkoutPromptDate.length > 0 ? "\nDate: " + rootItem.garminWorkoutPromptDate : "") +
-                         "\n\nDo you want to start it now?"
+        text: qsTr("Garmin Workout Planned")
+        informativeText: qsTr("Workout found:\n") + rootItem.garminWorkoutPromptName +
+                         (rootItem.garminWorkoutPromptDate.length > 0 ? qsTr("\nDate: ") + rootItem.garminWorkoutPromptDate : "") +
+                         qsTr("\n\nDo you want to start it now?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: { rootItem.garmin_start_downloaded_workout(); }
         onNoClicked: { rootItem.garmin_dismiss_downloaded_workout_prompt(); }
@@ -1126,6 +1137,14 @@ ApplicationWindow {
             event.accepted = settings.volume_change_gears;
         }
         }
+    }
+
+    Timer {
+        id: startupScreenTimer
+        interval: 700
+        running: startupScreen !== ""
+        repeat: false
+        onTriggered: applyStartupScreenHook()
     }
 }
 
