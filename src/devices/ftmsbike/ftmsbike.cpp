@@ -222,6 +222,10 @@ resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
     return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }
 
+bool ftmsbike::currentResistanceValueAvailable() {
+    return resistance_received;
+}
+
 void ftmsbike::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;

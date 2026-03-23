@@ -4768,11 +4768,16 @@ void homeform::Plus(const QString &name) {
         if (bluetoothManager->device()) {
             auto dev = bluetoothManager->device();
             double current = dev->currentResistance().value();
+            bool useRequestedResistance = !dev->currentResistanceValueAvailable();
             double diff = dev->difficult();
             if (diff == 0) diff = 1.0; // safety
             resistance_t maxRes = dev->maxResistance();
 
             if (dev->deviceType() == BIKE) {
+                double requested = ((bike *)dev)->lastRequestedResistance().value();
+                if (useRequestedResistance && requested > 0) {
+                    current = requested;
+                }
                 double g = ((bike *)dev)->gears();
                 double target = current + 1; // device-space target
                 int raw = qRound((target - g) / diff);
@@ -4780,6 +4785,10 @@ void homeform::Plus(const QString &name) {
                 if (raw > maxRes) raw = maxRes;
                 ((bike *)dev)->changeResistance(raw);
             } else if (dev->deviceType() == ROWING) {
+                double requested = ((rower *)dev)->lastRequestedResistance().value();
+                if (useRequestedResistance && requested > 0) {
+                    current = requested;
+                }
                 double g = ((rower *)dev)->gears();
                 double target = current + 1; // device-space target
                 int raw = qRound((target - g) / diff);
@@ -4787,6 +4796,10 @@ void homeform::Plus(const QString &name) {
                 if (raw > maxRes) raw = maxRes;
                 ((rower *)dev)->changeResistance(raw);
             } else if (dev->deviceType() == ELLIPTICAL) {
+                double requested = ((elliptical *)dev)->lastRequestedResistance().value();
+                if (useRequestedResistance && requested > 0) {
+                    current = requested;
+                }
                 double g = ((elliptical *)dev)->gears();
                 double target = current + 1; // device-space target
                 // elliptical::changeResistance does not use difficult(), but keep formula consistent
@@ -5066,11 +5079,16 @@ void homeform::Minus(const QString &name) {
         if (bluetoothManager->device()) {
             auto dev = bluetoothManager->device();
             double current = dev->currentResistance().value();
+            bool useRequestedResistance = !dev->currentResistanceValueAvailable();
             double diff = dev->difficult();
             if (diff == 0) diff = 1.0; // safety
             resistance_t maxRes = dev->maxResistance();
 
             if (dev->deviceType() == BIKE) {
+                double requested = ((bike *)dev)->lastRequestedResistance().value();
+                if (useRequestedResistance && requested > 0) {
+                    current = requested;
+                }
                 double g = ((bike *)dev)->gears();
                 double target = current - 1; // device-space target
                 int raw = qRound((target - g) / diff);
@@ -5078,6 +5096,10 @@ void homeform::Minus(const QString &name) {
                 if (raw > maxRes) raw = maxRes;
                 ((bike *)dev)->changeResistance(raw);
             } else if (dev->deviceType() == ROWING) {
+                double requested = ((rower *)dev)->lastRequestedResistance().value();
+                if (useRequestedResistance && requested > 0) {
+                    current = requested;
+                }
                 double g = ((rower *)dev)->gears();
                 double target = current - 1; // device-space target
                 int raw = qRound((target - g) / diff);
@@ -5085,6 +5107,10 @@ void homeform::Minus(const QString &name) {
                 if (raw > maxRes) raw = maxRes;
                 ((rower *)dev)->changeResistance(raw);
             } else if (dev->deviceType() == ELLIPTICAL) {
+                double requested = ((elliptical *)dev)->lastRequestedResistance().value();
+                if (useRequestedResistance && requested > 0) {
+                    current = requested;
+                }
                 double g = ((elliptical *)dev)->gears();
                 double target = current - 1; // device-space target
                 // elliptical::changeResistance does not use difficult(), but keep formula consistent
