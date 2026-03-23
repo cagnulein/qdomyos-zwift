@@ -39,7 +39,7 @@ public class BleAdvertiser {
     private static final UUID SERVICE_UUID = UUID.fromString("00001826-0000-1000-8000-00805f9b34fb");
     private static final UUID IFIT_SERVICE_UUID = UUID.fromString("00001533-1412-efde-1523-785feabcd123");
     private static final String IFIT_DEVICE_NAME = "I_EB";
-    private static final int IFIT_MANUFACTURER_ID = 0x0A15;
+    private static final int IFIT_MANUFACTURER_ID = 0x01A5;
     // PM5 Concept2 UUIDs
     private static final UUID PM5_DISCOVERY_SERVICE_UUID = UUID.fromString("CE060000-43E5-11E4-916C-0800200C9A66");
     private static final UUID PM5_ROWING_SERVICE_UUID = UUID.fromString("CE060030-43E5-11E4-916C-0800200C9A66");
