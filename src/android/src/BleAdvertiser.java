@@ -40,8 +40,32 @@ public class BleAdvertiser {
     // PM5 Concept2 UUIDs
     private static final UUID PM5_DISCOVERY_SERVICE_UUID = UUID.fromString("CE060000-43E5-11E4-916C-0800200C9A66");
     private static final UUID PM5_ROWING_SERVICE_UUID = UUID.fromString("CE060030-43E5-11E4-916C-0800200C9A66");
+    private static final byte[] SERVICE_DATA_BIKE = {0x01, 0x02, 0x00};
     private static final byte[] SERVICE_DATA_ROWER = {0x01, 0x10, 0x00};
     private static final byte[] SERVICE_DATA_TREADMILL = {0x01, 0x01, 0x00};
+
+    public static void startAdvertisingBike(Context context) {
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager != null) {
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser = bluetoothManager.getAdapter().getBluetoothLeAdvertiser();
+
+            AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true)
+                    .build();
+
+            AdvertiseData advertiseData = new AdvertiseData.Builder()
+                    .setIncludeDeviceName(true)
+                    .addServiceUuid(new ParcelUuid(SERVICE_UUID))
+                    .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA_BIKE)
+                    .build();
+
+            if (advertiser != null) {
+                advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
+            }
+        }
+    }
 
     public static void startAdvertisingRower(Context context) {
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
