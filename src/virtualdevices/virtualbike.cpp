@@ -14,6 +14,15 @@
 
 using namespace std::chrono_literals;
 
+#ifdef Q_OS_ANDROID
+static jobject androidActivityContext() {
+    QAndroidJniObject activity =
+        QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity",
+                                                  "()Landroid/app/Activity;");
+    return activity.object();
+}
+#endif
+
 virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                          double bikeResistanceGain) {
     Bike = t;
@@ -515,7 +524,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                       "startAdvertisingBike",
                                                       "(Landroid/content/Context;)V",
-                                                      QtAndroid::androidContext().object());
+                                                      androidActivityContext());
         } else {
             leController->startAdvertising(pars, advertisingData, advertisingData);
         }
@@ -1372,7 +1381,7 @@ void virtualbike::reconnect() {
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                   "startAdvertisingBike",
                                                   "(Landroid/content/Context;)V",
-                                                  QtAndroid::androidContext().object());
+                                                  androidActivityContext());
     } else {
         leController->startAdvertising(pars, advertisingData, advertisingData);
     }
