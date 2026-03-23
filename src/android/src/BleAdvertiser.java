@@ -37,16 +37,16 @@ import java.util.UUID;
 
 public class BleAdvertiser {
     private static final UUID SERVICE_UUID = UUID.fromString("00001826-0000-1000-8000-00805f9b34fb");
-    private static final UUID IFIT_SERVICE_DATA_UUID = UUID.fromString("0000fcf1-0000-1000-8000-00805f9b34fb");
+    private static final UUID IFIT_SERVICE_UUID = UUID.fromString("00001533-1412-efde-1523-785feabcd123");
+    private static final String IFIT_DEVICE_NAME = "I_EB";
+    private static final int IFIT_MANUFACTURER_ID = 0x0A15;
     // PM5 Concept2 UUIDs
     private static final UUID PM5_DISCOVERY_SERVICE_UUID = UUID.fromString("CE060000-43E5-11E4-916C-0800200C9A66");
     private static final UUID PM5_ROWING_SERVICE_UUID = UUID.fromString("CE060030-43E5-11E4-916C-0800200C9A66");
     private static final byte[] SERVICE_DATA_ROWER = {0x01, 0x10, 0x00};
     private static final byte[] SERVICE_DATA_TREADMILL = {0x01, 0x01, 0x00};
-    private static final byte[] SERVICE_DATA_IFIT = new byte[] {
-            0x04, (byte) 0x90, 0x02, 0x69, (byte) 0xde, 0x06, 0x5f, (byte) 0xca,
-            0x60, 0x39, (byte) 0x89, (byte) 0xfc, 0x27, (byte) 0xb1, (byte) 0xce, 0x6d,
-            0x3f, (byte) 0xfa, 0x24, 0x2f, 0x03, (byte) 0xe4
+    private static final byte[] IFIT_MANUFACTURER_DATA = new byte[] {
+            0x02, (byte) 0xcc, (byte) 0xe5, (byte) 0x82, 0x00, 0x04, (byte) 0xdd, (byte) 0xc7, 0x08
     };
 
     public static void startAdvertisingRower(Context context) {
@@ -134,6 +134,11 @@ public class BleAdvertiser {
                 return;
             }
 
+            if (!IFIT_DEVICE_NAME.equals(adapter.getName())) {
+                boolean renamed = adapter.setName(IFIT_DEVICE_NAME);
+                QLog.d("BleAdvertiser", "Setting iFIT adapter name to " + IFIT_DEVICE_NAME + ": " + renamed);
+            }
+
             android.bluetooth.le.BluetoothLeAdvertiser advertiser = adapter.getBluetoothLeAdvertiser();
             if (advertiser == null) {
                 QLog.e("BleAdvertiser", "Unable to start iFIT advertising: BluetoothLeAdvertiser is null");
@@ -147,11 +152,16 @@ public class BleAdvertiser {
                     .build();
 
             AdvertiseData advertiseData = new AdvertiseData.Builder()
-                    .addServiceData(new ParcelUuid(IFIT_SERVICE_DATA_UUID), SERVICE_DATA_IFIT)
+                    .addManufacturerData(IFIT_MANUFACTURER_ID, IFIT_MANUFACTURER_DATA)
                     .build();
 
-            QLog.d("BleAdvertiser", "Starting iFIT advertising with service data " + IFIT_SERVICE_DATA_UUID.toString());
-            advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
+            AdvertiseData scanResponse = new AdvertiseData.Builder()
+                    .setIncludeDeviceName(true)
+                    .addServiceUuid(new ParcelUuid(IFIT_SERVICE_UUID))
+                    .build();
+
+            QLog.d("BleAdvertiser", "Starting iFIT advertising with manufacturer data " + IFIT_MANUFACTURER_ID);
+            advertiser.startAdvertising(settings, advertiseData, scanResponse, advertiseCallback);
         }
     }
 
