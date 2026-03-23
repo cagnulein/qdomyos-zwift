@@ -369,22 +369,31 @@ uint16_t iconsolebike::GetCadenceFromPacket(const QByteArray &packet) {
         return 0;
     }
 
-    // Bytes 6-7: Cadence (16-bit big-endian)
+    // The bike exposes a shared motion value in bytes 8-9.
+    // Empirically, dividing by 4 maps the raw value back to the console RPM.
     uint16_t raw = ((uint8_t)packet[8] << 8) | (uint8_t)packet[9];
 
-    return raw;  // Convert to actual RPM
+    if (raw <= 0x0101) {
+        return 0;
+    }
+
+    return qRound(raw / 4.0);
 }
 
 double iconsolebike::GetSpeedFromPacket(const QByteArray &packet) {
-    if (packet.length() < 18) {
+    if (packet.length() < 10) {
         return 0.0;
     }
 
-    // Bytes 16-17: Speed (16-bit big-endian, units of 0.01 km/h)
-    uint16_t raw = ((uint8_t)packet[16] << 8) | (uint8_t)packet[17];
+    // The same motion value in bytes 8-9 also tracks console speed.
+    // The iConsole bike reports it on a different scale than RPM.
+    uint16_t raw = ((uint8_t)packet[8] << 8) | (uint8_t)packet[9];
 
-    // Formula: raw / 100.0 to get km/h
-    return raw / 100.0;
+    if (raw <= 0x0101) {
+        return 0.0;
+    }
+
+    return raw / 11.0;
 }
 
 uint16_t iconsolebike::GetPowerFromPacket(const QByteArray &packet) {
@@ -392,10 +401,14 @@ uint16_t iconsolebike::GetPowerFromPacket(const QByteArray &packet) {
         return 0;
     }
 
-    // Bytes 8-9: Power (16-bit big-endian)
+    // Bytes 6-7 track the bike's instantaneous watt reading in tenths of a watt.
     uint16_t raw = ((uint8_t)packet[6] << 8) | (uint8_t)packet[7];
 
-    return raw / 10;  // Convert to actual RPM
+    if (raw <= 0x0101) {
+        return 0;
+    }
+
+    return qRound(raw / 10.0);
 }
 
 uint8_t iconsolebike::GetResistanceFromPacket(const QByteArray &packet) {
