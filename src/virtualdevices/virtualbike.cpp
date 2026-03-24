@@ -10,18 +10,10 @@
 
 #ifdef Q_OS_ANDROID
 #include <QAndroidJniObject>
+#include <QtAndroid>
 #endif
 
 using namespace std::chrono_literals;
-
-#ifdef Q_OS_ANDROID
-static jobject androidActivityContext() {
-    QAndroidJniObject activity =
-        QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity",
-                                                  "()Landroid/app/Activity;");
-    return activity.object();
-}
-#endif
 
 virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                          double bikeResistanceGain) {
@@ -524,7 +516,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                       "startAdvertisingEchelon",
                                                       "(Landroid/content/Context;)V",
-                                                      androidActivityContext());
+                                                      QtAndroid::androidContext().object());
         } else {
             leController->startAdvertising(pars, advertisingData, advertisingData);
         }
@@ -1381,7 +1373,7 @@ void virtualbike::reconnect() {
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                   "startAdvertisingEchelon",
                                                   "(Landroid/content/Context;)V",
-                                                  androidActivityContext());
+                                                  QtAndroid::androidContext().object());
     } else {
         leController->startAdvertising(pars, advertisingData, advertisingData);
     }

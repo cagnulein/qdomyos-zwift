@@ -46,36 +46,45 @@ public class BleAdvertiser {
     private static final byte[] SERVICE_DATA_TREADMILL = {0x01, 0x01, 0x00};
 
     public static void startAdvertisingEchelon(Context context) {
-        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
-        if (bluetoothManager != null) {
-            android.bluetooth.BluetoothAdapter adapter = bluetoothManager.getAdapter();
-            if (adapter == null) {
-                QLog.e("BleAdvertiser", "Bluetooth adapter is null for Echelon advertising");
+        try {
+            if (context == null) {
+                QLog.e("BleAdvertiser", "Context is null for Echelon advertising");
                 return;
             }
 
-            android.bluetooth.le.BluetoothLeAdvertiser advertiser = adapter.getBluetoothLeAdvertiser();
-
-            AdvertiseSettings settings = new AdvertiseSettings.Builder()
-                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
-                    .setConnectable(true)
-                    .build();
-
-            AdvertiseData advertiseData = new AdvertiseData.Builder()
-                    .addServiceUuid(new ParcelUuid(ECHELON_SERVICE_UUID))
-                    .build();
-
-            if (advertiser != null) {
-                try {
-                    adapter.setName(ECHELON_DEVICE_NAME);
-                } catch (SecurityException | IllegalArgumentException e) {
-                    QLog.e("BleAdvertiser", "Unable to set Echelon device name: " + e.getMessage());
+            BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+            if (bluetoothManager != null) {
+                android.bluetooth.BluetoothAdapter adapter = bluetoothManager.getAdapter();
+                if (adapter == null) {
+                    QLog.e("BleAdvertiser", "Bluetooth adapter is null for Echelon advertising");
+                    return;
                 }
-                advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
-            } else {
-                QLog.e("BleAdvertiser", "BluetoothLeAdvertiser is null for Echelon advertising");
+
+                android.bluetooth.le.BluetoothLeAdvertiser advertiser = adapter.getBluetoothLeAdvertiser();
+
+                AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                        .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                        .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                        .setConnectable(true)
+                        .build();
+
+                AdvertiseData advertiseData = new AdvertiseData.Builder()
+                        .addServiceUuid(new ParcelUuid(ECHELON_SERVICE_UUID))
+                        .build();
+
+                if (advertiser != null) {
+                    try {
+                        adapter.setName(ECHELON_DEVICE_NAME);
+                    } catch (SecurityException | IllegalArgumentException e) {
+                        QLog.e("BleAdvertiser", "Unable to set Echelon device name: " + e.getMessage());
+                    }
+                    advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
+                } else {
+                    QLog.e("BleAdvertiser", "BluetoothLeAdvertiser is null for Echelon advertising");
+                }
             }
+        } catch (Throwable t) {
+            QLog.e("BleAdvertiser", "Echelon advertising crash: " + t.toString());
         }
     }
 
