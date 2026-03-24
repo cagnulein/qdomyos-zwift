@@ -1801,6 +1801,15 @@ draw_status_row() {
             R_len=$(( 1 + 1 + 10 ))   # sym + space + "QZ Service"
         fi
 
+        # Same suppression for L column — qz_service in left position overflows left_w
+        if [[ "$L_key" == "qz_service" && $qz_service_extra_len -gt 0 ]]; then
+            local L_sym_plain; L_sym_plain=$(get_symbol "$L_key")
+            local L_color_plain; L_color_plain=$(get_status_label_color "$L_key")
+            L_content="${L_sym_plain} ${L_color_plain}QZ Service${NC}"
+            L_len=$(( 1 + 1 + 10 ))   # sym + space + "QZ Service"
+            printf -v L_padded "%s%*s" "$L_content" "$(( left_w - L_len ))" ""
+        fi
+
         local pad_r1=$(( r1_w - R_len  )); [[ $pad_r1 -lt 0 ]] && pad_r1=0
         local pad_r2=$(( r2_w - R2_len )); [[ $pad_r2 -lt 0 ]] && pad_r2=0
 
@@ -3515,8 +3524,11 @@ run_setup_wizard() {
         # 6. OVERLAY FS / SD CARD PROTECTION (optional — only if service is installed)
         if [[ "$_svc_installed" == "true" ]]; then
             local _ov_cfg=false _boot_cfg=false
-            sudo raspi-config nonint get_overlay_now 2>/dev/null  && _ov_cfg=true
-            sudo raspi-config nonint get_bootro_conf 2>/dev/null  && _boot_cfg=true
+            local _wiz_cmdline=""
+            [[ -f /boot/firmware/cmdline.txt ]] && _wiz_cmdline="/boot/firmware/cmdline.txt"
+            [[ -z "$_wiz_cmdline" && -f /boot/cmdline.txt ]] && _wiz_cmdline="/boot/cmdline.txt"
+            [[ -n "$_wiz_cmdline" ]] && grep -q "boot=overlay" "$_wiz_cmdline" 2>/dev/null && _ov_cfg=true
+            grep -q "defaults.*,ro" /etc/fstab 2>/dev/null && _boot_cfg=true
 
             if ! $_ov_cfg; then
                 draw_bottom_panel_header "WIZARD: SD CARD PROTECTION" "false"
@@ -3545,7 +3557,15 @@ run_setup_wizard() {
     # --- END PI-ONLY STEPS ---
 
     # FIX: Explicit completion message
-    draw_info_screen "SETUP COMPLETED" "All settings have been saved successfully.\n\nThe service must now be restarted to apply changes." 2
+    local _completion_msg="All settings have been saved successfully.\n\nThe service must now be restarted to apply changes."
+    _completion_msg="${_completion_msg}\n\n${GRAY}Optional next steps (after your first run):"
+    _completion_msg="${_completion_msg}\n  • ANT+ Tools → Distance Calibration — if watch distance differs from treadmill"
+    if [[ "$IS_PI" == "true" ]]; then
+        _completion_msg="${_completion_msg}\n  • Pi System Tools → Enable SD Protection — once setup is fully complete${NC}"
+    else
+        _completion_msg="${_completion_msg}${NC}"
+    fi
+    draw_info_screen "SETUP COMPLETED" "$_completion_msg" 2
 
     # Final Prompt
     prompt_restart_service
@@ -8794,10 +8814,10 @@ build_service_menu_options() {
 
     # Smart monitor controls — determine labels based on installed state
     local monitor_installed=false
-    local smart_svc_label="Smart Monitor"
+    local smart_svc_label="Install Smart Monitor"
     if [[ -f "$SERVICE_FILE_MONITOR" ]]; then
         monitor_installed=true
-        smart_svc_label="Smart Monitor Settings"   # Tension 3: was "Reconfigure Smart Monitor"
+        smart_svc_label="Smart Monitor Settings"
     fi
 
     # Tension 2: Override labels when monitor active (Start/Stop/Restart are manual overrides)
