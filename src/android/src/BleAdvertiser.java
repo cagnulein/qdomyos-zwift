@@ -48,7 +48,13 @@ public class BleAdvertiser {
     public static void startAdvertisingEchelon(Context context) {
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager != null) {
-            android.bluetooth.le.BluetoothLeAdvertiser advertiser = bluetoothManager.getAdapter().getBluetoothLeAdvertiser();
+            android.bluetooth.BluetoothAdapter adapter = bluetoothManager.getAdapter();
+            if (adapter == null) {
+                QLog.e("BleAdvertiser", "Bluetooth adapter is null for Echelon advertising");
+                return;
+            }
+
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser = adapter.getBluetoothLeAdvertiser();
 
             AdvertiseSettings settings = new AdvertiseSettings.Builder()
                     .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
@@ -61,8 +67,14 @@ public class BleAdvertiser {
                     .build();
 
             if (advertiser != null) {
-                bluetoothManager.getAdapter().setName(ECHELON_DEVICE_NAME);
+                try {
+                    adapter.setName(ECHELON_DEVICE_NAME);
+                } catch (SecurityException | IllegalArgumentException e) {
+                    QLog.e("BleAdvertiser", "Unable to set Echelon device name: " + e.getMessage());
+                }
                 advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
+            } else {
+                QLog.e("BleAdvertiser", "BluetoothLeAdvertiser is null for Echelon advertising");
             }
         }
     }
