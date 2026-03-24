@@ -223,6 +223,10 @@ resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
 }
 
 void ftmsbike::forceResistance(resistance_t requestResistance) {
+    if (DOMYOS) {
+        lastDomyosResistanceCommand = QDateTime::currentDateTime();
+        lastDomyosRequestedResistance = requestResistance;
+    }
 
     QSettings settings;
     bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
@@ -377,6 +381,7 @@ void ftmsbike::update() {
         bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
         if (requestResistance != -1 || lastGearValue != gears()) {
+            bool deferResistanceRequest = false;
             if (requestResistance > 100) {
                 requestResistance = 100;
             } // TODO, use the bluetooth value
@@ -396,12 +401,34 @@ void ftmsbike::update() {
                 // FTMS bike. This condition handles the peloton requests
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike || resistance_lvl_mode || ergModeNotSupported) &&
                     (requestPower == 0 || requestPower == -1 || resistance_lvl_mode || ergModeNotSupported)) {
+                    if (DOMYOS) {
+                        QDateTime now = QDateTime::currentDateTime();
+                        const qint64 sinceLastDomyosResistance = lastDomyosResistanceCommand.msecsTo(now);
+                        if (now < domyosResistanceRetryAfter) {
+                            qDebug() << "Deferring DOMYOS resistance write due to control-point backoff"
+                                     << "requested:" << rR
+                                     << "retryAfterMs:" << now.msecsTo(domyosResistanceRetryAfter);
+                            deferResistanceRequest = true;
+                        } else if (sinceLastDomyosResistance >= 0 && sinceLastDomyosResistance < 1500) {
+                            qDebug() << "Deferring DOMYOS resistance write due to rate limit"
+                                     << "requested:" << rR
+                                     << "elapsedMs:" << sinceLastDomyosResistance;
+                            deferResistanceRequest = true;
+                        }
+                    }
+
+                    if (deferResistanceRequest) {
+                        requestResistance = rR;
+                    } else {
                     init();
 
                     forceResistance(rR);
+                    }
                 }
             }
-            requestResistance = -1;
+            if (!deferResistanceRequest) {
+                requestResistance = -1;
+            }
         }
         
         // gpx scenario for example
@@ -589,6 +616,24 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             battery_level = b;
         }
         return;
+    }
+
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD9) && newValue.length() >= 3) {
+        const uint8_t responseCode = (uint8_t)newValue.at(0);
+        const uint8_t requestCode = (uint8_t)newValue.at(1);
+        const uint8_t resultCode = (uint8_t)newValue.at(2);
+
+        if (DOMYOS && responseCode == FTMS_RESPONSE_CODE && requestCode == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
+            if (resultCode == FTMS_CONTROL_NOT_PERMITTED) {
+                domyosResistanceRetryAfter = now.addMSecs(3000);
+                initDone = false;
+                qDebug() << "DOMYOS resistance command rejected with CONTROL_NOT_PERMITTED"
+                         << "lastRequestedResistance:" << lastDomyosRequestedResistance
+                         << "backoffUntil:" << domyosResistanceRetryAfter;
+            } else if (resultCode == FTMS_SUCCESS) {
+                domyosResistanceRetryAfter = now;
+            }
+        }
     }
     
     if(characteristic.uuid() == QBluetoothUuid(QStringLiteral("00000002-19ca-4651-86e5-fa29dcdd09d1")) && newValue.at(0) == 0x03) {
