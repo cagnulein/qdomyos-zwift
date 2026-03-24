@@ -25,6 +25,7 @@ import Qt.labs.platform 1.1
             scrollTimer.start()
         }
 
+        // always add a property at the end of the file to avoid corruption of the settings when loading old versions
         Settings {
             id: settings
             property real ui_zoom: 100.0
