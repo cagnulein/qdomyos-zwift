@@ -520,9 +520,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         }
 
 #ifdef Q_OS_ANDROID
-        if (!echelon && !ifit && !heart_only && !cadence && !power) {
+        if (echelon) {
             QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
-                                                      "startAdvertisingBike",
+                                                      "startAdvertisingEchelon",
                                                       "(Landroid/content/Context;)V",
                                                       androidActivityContext());
         } else {
@@ -1377,9 +1377,9 @@ void virtualbike::reconnect() {
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
 #ifdef Q_OS_ANDROID
-    if (!echelon && !ifit && !heart_only && !cadence && !power) {
+    if (echelon) {
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
-                                                  "startAdvertisingBike",
+                                                  "startAdvertisingEchelon",
                                                   "(Landroid/content/Context;)V",
                                                   androidActivityContext());
     } else {

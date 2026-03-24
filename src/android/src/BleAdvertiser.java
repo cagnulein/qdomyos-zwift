@@ -37,14 +37,15 @@ import java.util.UUID;
 
 public class BleAdvertiser {
     private static final UUID SERVICE_UUID = UUID.fromString("00001826-0000-1000-8000-00805f9b34fb");
+    private static final UUID ECHELON_SERVICE_UUID = UUID.fromString("0bf669f0-45f2-11e7-9598-0800200c9a66");
+    private static final String ECHELON_DEVICE_NAME = "ECHEX-5s-160880";
     // PM5 Concept2 UUIDs
     private static final UUID PM5_DISCOVERY_SERVICE_UUID = UUID.fromString("CE060000-43E5-11E4-916C-0800200C9A66");
     private static final UUID PM5_ROWING_SERVICE_UUID = UUID.fromString("CE060030-43E5-11E4-916C-0800200C9A66");
-    private static final byte[] SERVICE_DATA_BIKE = {0x01, 0x02, 0x00};
     private static final byte[] SERVICE_DATA_ROWER = {0x01, 0x10, 0x00};
     private static final byte[] SERVICE_DATA_TREADMILL = {0x01, 0x01, 0x00};
 
-    public static void startAdvertisingBike(Context context) {
+    public static void startAdvertisingEchelon(Context context) {
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager != null) {
             android.bluetooth.le.BluetoothLeAdvertiser advertiser = bluetoothManager.getAdapter().getBluetoothLeAdvertiser();
@@ -56,12 +57,11 @@ public class BleAdvertiser {
                     .build();
 
             AdvertiseData advertiseData = new AdvertiseData.Builder()
-                    .setIncludeDeviceName(true)
-                    .addServiceUuid(new ParcelUuid(SERVICE_UUID))
-                    .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA_BIKE)
+                    .addServiceUuid(new ParcelUuid(ECHELON_SERVICE_UUID))
                     .build();
 
             if (advertiser != null) {
+                bluetoothManager.getAdapter().setName(ECHELON_DEVICE_NAME);
                 advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
             }
         }
