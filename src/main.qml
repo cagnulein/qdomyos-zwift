@@ -532,6 +532,15 @@ ApplicationWindow {
     }
 
     MessageDialog {
+        text: "Echelon Unlock"
+        informativeText: "The bike has been unlocked and cadence is flowing.\n\nDo you want to switch to the classic Bluetooth bridge for this session?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.echelon_switch_to_classic_bridge(); }
+        onNoClicked: { rootItem.echelon_dismiss_bridge_switch_prompt(); }
+        visible: rootItem.echelonBridgeSwitchPromptRequested
+    }
+
+    MessageDialog {
         id: stravaLogoutConfirm
         text: qsTr("Strava")
         informativeText: qsTr("You are already connected to Strava. Do you want to log out?")

@@ -16,8 +16,9 @@
 using namespace std::chrono_literals;
 
 virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
-                         double bikeResistanceGain) {
+                         double bikeResistanceGain, bool forceClassicMode) {
     Bike = t;
+    this->forceClassicMode = forceClassicMode;
 
     this->noHeartService = noHeartService;
     this->bikeResistanceGain = bikeResistanceGain;
@@ -31,8 +32,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     bool service_changed = settings.value(QZSettings::service_changed, QZSettings::default_service_changed).toBool();
     bool heart_only =
         settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
-    bool echelon =
-        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    bool echelon = isEchelonVirtualEnabled();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
     bool garmin_bluetooth_compatibility = settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool();
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
@@ -542,6 +542,12 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         &virtualbike::error);
 }
 
+bool virtualbike::isEchelonVirtualEnabled() const {
+    QSettings settings;
+    return !forceClassicMode &&
+           settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+}
+
 // zwift play emulator protobuf
 
 // Decode a protobuf varint starting from startIndex
@@ -595,8 +601,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     QByteArray reply;
     QSettings settings;
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
-    bool echelon =
-        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    bool echelon = isEchelonVirtualEnabled();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
 
     double normalizeWattage = Bike->wattsMetricforUI();
@@ -1320,8 +1325,7 @@ void virtualbike::reconnect() {
     bool service_changed = settings.value(QZSettings::service_changed, QZSettings::default_service_changed).toBool();
     bool heart_only =
         settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
-    bool echelon =
-        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    bool echelon = isEchelonVirtualEnabled();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
 
     qDebug() << QStringLiteral("virtualbike::reconnect");
@@ -1392,8 +1396,7 @@ void virtualbike::bikeProvider() {
     bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool();
     bool heart_only =
         settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
-    bool echelon =
-        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    bool echelon = isEchelonVirtualEnabled();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
     bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
 

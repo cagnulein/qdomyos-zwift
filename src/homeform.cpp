@@ -1,4 +1,5 @@
 #include "homeform.h"
+#include "devices/echelonconnectsport/echelonconnectsport.h"
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #include "ios/ios_liveactivity.h"
@@ -9058,6 +9059,27 @@ void homeform::garmin_dismiss_downloaded_workout_prompt() {
     emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
     emit garminWorkoutPromptDateChanged(m_garminWorkoutPromptDate);
     setGarminWorkoutPromptRequested(false);
+}
+
+void homeform::echelon_switch_to_classic_bridge() {
+    setEchelonBridgeSwitchPromptRequested(false);
+
+    if (!bluetoothManager || !bluetoothManager->device()) {
+        setToastRequested(QStringLiteral("No active Echelon device found"));
+        return;
+    }
+
+    auto *echelonBike = dynamic_cast<echelonconnectsport *>(bluetoothManager->device());
+    if (!echelonBike) {
+        setToastRequested(QStringLiteral("The connected device is not an Echelon Connect Sport"));
+        return;
+    }
+
+    echelonBike->switchToClassicVirtualBikeBridge();
+}
+
+void homeform::echelon_dismiss_bridge_switch_prompt() {
+    setEchelonBridgeSwitchPromptRequested(false);
 }
 
 bool homeform::isStravaLoggedIn() {
