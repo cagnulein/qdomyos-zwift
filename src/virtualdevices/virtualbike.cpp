@@ -79,20 +79,20 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
-        if (!echelon && !ifit) {
+        if (ifit) {
+            advertisingData.setLocalName(QStringLiteral("I_EB"));
+        } else if (echelon) {
+            advertisingData.setLocalName(QStringLiteral("ECHEX-5s-113399"));
+        } else {
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
         advertisingData.setLocalName(QStringLiteral("QZPI"));
 #else            
         advertisingData.setLocalName(QStringLiteral("QZ"));
 #endif
-        } else if (ifit) {
-            advertisingData.setLocalName(QStringLiteral("I_EB"));
-        } else {
-            advertisingData.setLocalName(QStringLiteral("ECHEX-5s-113399"));
         }
         QList<QBluetoothUuid> services;
 
-        if (!echelon && !ifit) {
+        if (!ifit) {
             if (!heart_only) {
                 if (!cadence && !power) {
                     services << ((QBluetoothUuid::ServiceClassUuid)0x1826);
@@ -107,16 +107,13 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             if (!this->noHeartService || heart_only) {
                 services << QBluetoothUuid::HeartRate;
             }
+            if (echelon) {
+                services << (QBluetoothUuid(QStringLiteral("0bf669f0-45f2-11e7-9598-0800200c9a66")));
+            }
         } else if (ifit) {
             services << (QBluetoothUuid(QStringLiteral("00001533-1412-efde-1523-785feabcd123")));
 
             this->noHeartService = true;
-            if (!this->noHeartService) {
-                services << QBluetoothUuid::HeartRate;
-            }
-        } else {
-            services << (QBluetoothUuid(QStringLiteral("0bf669f0-45f2-11e7-9598-0800200c9a66")));
-
             if (!this->noHeartService) {
                 services << QBluetoothUuid::HeartRate;
             }
@@ -125,7 +122,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         advertisingData.setServices(services);
         //! [Advertising Data]
 
-        if (!echelon && !ifit) {
+        if (!ifit) {
             if (!heart_only) {
                 if (!cadence && !power) {
 
@@ -360,8 +357,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             serviceData.setUuid(QBluetoothUuid(QStringLiteral("00001533-1412-efde-1523-785feabcd123")));
             serviceData.addCharacteristic(charData);
             serviceData.addCharacteristic(charData2);
-        } else {
+        }
 
+        if (echelon && !ifit) {
             serviceEchelon.setType(QLowEnergyServiceData::ServiceTypePrimary);
             serviceEchelon.setUuid((QBluetoothUuid(QStringLiteral("0bf669f0-45f2-11e7-9598-0800200c9a66"))));
 
@@ -389,11 +387,11 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                                                          descriptor3);
             charData3.addDescriptor(clientConfig4);
 
-            serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
-            serviceData.setUuid(QBluetoothUuid(QStringLiteral("0bf669f1-45f2-11e7-9598-0800200c9a66")));
-            serviceData.addCharacteristic(charData);
-            serviceData.addCharacteristic(charData3);
-            serviceData.addCharacteristic(charData2);
+            serviceDataEchelonControl.setType(QLowEnergyServiceData::ServiceTypePrimary);
+            serviceDataEchelonControl.setUuid(QBluetoothUuid(QStringLiteral("0bf669f1-45f2-11e7-9598-0800200c9a66")));
+            serviceDataEchelonControl.addCharacteristic(charData);
+            serviceDataEchelonControl.addCharacteristic(charData3);
+            serviceDataEchelonControl.addCharacteristic(charData2);
         }
 
         if (battery) {
@@ -447,7 +445,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         if (service_changed)
             serviceChanged = leController->addService(serviceDataChanged);
 
-        if (!echelon && !ifit) {
+        if (!ifit) {
             if (!heart_only) {
                 if (!cadence && !power) {
 
@@ -466,11 +464,12 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             }
         } else if (ifit) {
             service = leController->addService(serviceData);
-        } else {
+        }
 
-            service = leController->addService(serviceEchelon);
+        if (echelon && !ifit) {
+            leController->addService(serviceEchelon);
             QThread::msleep(100); // give time to Android to add the service async.ly
-            service = leController->addService(serviceData);
+            serviceEchelonControl = leController->addService(serviceDataEchelonControl);
         }
         QThread::msleep(100); // give time to Android to add the service async.ly
 
@@ -482,7 +481,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             serviceHR = leController->addService(serviceDataHR);
         }
 
-        if (!echelon && !ifit) {
+        if (!ifit) {
             if (!heart_only) {
                 if (!cadence && !power) {
                     QObject::connect(serviceFIT, &QLowEnergyService::characteristicChanged, this,
@@ -499,8 +498,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         } else if (ifit) {
             QObject::connect(service, &QLowEnergyService::characteristicChanged, this,
                              &virtualbike::characteristicChanged);
-        } else {
-            QObject::connect(service, &QLowEnergyService::characteristicChanged, this,
+        }
+        if (echelon && !ifit && serviceEchelonControl) {
+            QObject::connect(serviceEchelonControl, &QLowEnergyService::characteristicChanged, this,
                              &virtualbike::characteristicChanged);
         }
 
@@ -609,7 +609,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     switch (characteristic.uuid().toUInt16()) {
 
     case 0x2AD9: // Fitness Machine Control Point
-        if (!echelon && !ifit) {
+        if (!ifit) {
             lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
             emit ftmsCharacteristicChanged(characteristic, newValue);
         }
@@ -1087,10 +1087,15 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             return;
         }
 
+        if (!serviceEchelonControl) {
+            qDebug() << QStringLiteral("virtual echelon service not available");
+            return;
+        }
+
         QLowEnergyCharacteristic characteristic =
-            service->characteristic(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
+            serviceEchelonControl->characteristic(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
         QLowEnergyCharacteristic characteristic2 =
-            service->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+            serviceEchelonControl->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
 
         Q_ASSERT(characteristic.isValid());
         if (leController->state() != QLowEnergyController::ConnectedState) {
@@ -1113,7 +1118,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply.append(0x07);
             reply.append(0x04);
             reply.append(0xd3);
-            writeCharacteristic(service, characteristic, reply);
+            writeCharacteristic(serviceEchelonControl, characteristic, reply);
             echelonWriteStatus();
             echelonInitDone = true;
         } else if (((uint8_t)newValue.at(1)) == 0xA3) {
@@ -1125,7 +1130,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply.append(0x20);
             reply.append(0x01);
             reply.append(0xb6);
-            writeCharacteristic(service, characteristic, reply);
+            writeCharacteristic(serviceEchelonControl, characteristic, reply);
         } else if (((uint8_t)newValue.at(1)) == 0xA4) {
 
             // f0 a4 .. .. ..
@@ -1135,7 +1140,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply.append((char)0x00);
             reply.append(0x95);
 
-            writeCharacteristic(service, characteristic, reply);
+            writeCharacteristic(serviceEchelonControl, characteristic, reply);
         } else if (((uint8_t)newValue.at(1)) == 0xA5) {
 
             // f0 a5 01 0e a4
@@ -1144,7 +1149,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply.append(0x01);
             reply.append(0x0e);
             reply.append(0xa4);
-            writeCharacteristic(service, characteristic, reply);
+            writeCharacteristic(serviceEchelonControl, characteristic, reply);
         }
         // f0 b0 01 00 a1
         else if (((uint8_t)newValue.at(1)) == 0xB0 && ((uint8_t)newValue.at(3)) == 0x00) {
@@ -1155,7 +1160,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply.append(0x01);
             reply.append((char)0x00);
             reply.append(0xc1);
-            writeCharacteristic(service, characteristic, reply);
+            writeCharacteristic(serviceEchelonControl, characteristic, reply);
         }
         // f0 b0 01 01 a2
         else if (((uint8_t)newValue.at(1)) == 0xB0) {
@@ -1166,28 +1171,28 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply.append(0x01);
             reply.append(0x01);
             reply.append(0xc2);
-            writeCharacteristic(service, characteristic2, reply);
+            writeCharacteristic(serviceEchelonControl, characteristic2, reply);
             echelonWriteResistance();
         } else if (((uint8_t)newValue.at(1)) == 0xA0) {
 
             reply = newValue;
-            writeCharacteristic(service, characteristic, reply);
+            writeCharacteristic(serviceEchelonControl, characteristic, reply);
         }
     }
 }
 
 void virtualbike::relayEchelonPacket(const QBluetoothUuid &sourceUuid, const QByteArray &value) {
-    if (!service || !leController || leController->state() != QLowEnergyController::ConnectedState) {
+    if (!serviceEchelonControl || !leController || leController->state() != QLowEnergyController::ConnectedState) {
         return;
     }
 
     QLowEnergyCharacteristic targetCharacteristic;
     if (sourceUuid == QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66"))) {
         targetCharacteristic =
-            service->characteristic(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
+            serviceEchelonControl->characteristic(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
     } else if (sourceUuid == QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66"))) {
         targetCharacteristic =
-            service->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+            serviceEchelonControl->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
     } else {
         return;
     }
@@ -1197,7 +1202,7 @@ void virtualbike::relayEchelonPacket(const QBluetoothUuid &sourceUuid, const QBy
         return;
     }
 
-    writeCharacteristic(service, targetCharacteristic, value);
+    writeCharacteristic(serviceEchelonControl, targetCharacteristic, value);
 }
 
 int virtualbike::iFit_pelotonToBikeResistance(int pelotonResistance) {
@@ -1332,7 +1337,7 @@ void virtualbike::reconnect() {
         serviceChanged = leController->addService(serviceDataChanged);
     }
 
-    if (!echelon && !ifit) {
+    if (!ifit) {
         if (!heart_only) {
             if (!cadence && !power) {
 
@@ -1351,11 +1356,12 @@ void virtualbike::reconnect() {
         }
     } else if (ifit) {
         service = leController->addService(serviceData);
-    } else {
+    }
 
-        service = leController->addService(serviceEchelon);
+    if (echelon && !ifit) {
+        leController->addService(serviceEchelon);
         QThread::msleep(100); // give time to Android to add the service async.ly
-        service = leController->addService(serviceData);
+        serviceEchelonControl = leController->addService(serviceDataEchelonControl);
     }
     QThread::msleep(100); // give time to Android to add the service async.ly
 
@@ -1476,7 +1482,7 @@ void virtualbike::bikeProvider() {
 
     QByteArray value;
 
-    if (!echelon && !ifit) {
+    if (!ifit) {
         if (!heart_only) {
             if (!cadence && !power) {
                 value.clear();
@@ -1577,12 +1583,11 @@ void virtualbike::bikeProvider() {
             characteristicChanged(characteristic, copy);
 */
         }
-    } else {
+    }
 
-        if (echelonInitDone) {
-            echelonWriteStatus();
-            echelonWriteResistance();
-        }
+    if (echelon && echelonInitDone) {
+        echelonWriteStatus();
+        echelonWriteResistance();
     }
     // characteristic
     //        = service->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
@@ -1655,21 +1660,21 @@ void virtualbike::echelonWriteStatus() {
     }
     value.append(sum);
 
-    if (!service) {
-        qDebug() << QStringLiteral("service not available");
+    if (!serviceEchelonControl) {
+        qDebug() << QStringLiteral("serviceEchelonControl not available");
 
         return;
     }
 
     QLowEnergyCharacteristic characteristic =
-        service->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+        serviceEchelonControl->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
     Q_ASSERT(characteristic.isValid());
     if (leController->state() != QLowEnergyController::ConnectedState) {
         qDebug() << QStringLiteral("virtual bike not connected");
 
         return;
     }
-    writeCharacteristic(service, characteristic, value);
+    writeCharacteristic(serviceEchelonControl, characteristic, value);
 }
 
 void virtualbike::echelonWriteResistance() {
@@ -1697,8 +1702,13 @@ void virtualbike::echelonWriteResistance() {
     }
     resistance.append(sum);
     if (oldresistance != ((resistance_t)Bike->currentResistance().value())) {
+        if (!serviceEchelonControl) {
+            qDebug() << QStringLiteral("serviceEchelonControl not available");
+            return;
+        }
+
         QLowEnergyCharacteristic characteristic =
-            service->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+            serviceEchelonControl->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
         Q_ASSERT(characteristic.isValid());
         if (leController->state() != QLowEnergyController::ConnectedState) {
             qDebug() << QStringLiteral("virtual bike not connected");
@@ -1706,7 +1716,7 @@ void virtualbike::echelonWriteResistance() {
             return;
         }
 
-        writeCharacteristic(service, characteristic, resistance);
+        writeCharacteristic(serviceEchelonControl, characteristic, resistance);
     }
     oldresistance = ((resistance_t)CurrentResistance);
 }
