@@ -69,7 +69,6 @@ public class BleAdvertiser {
                         .build();
 
                 AdvertiseData advertiseData = new AdvertiseData.Builder()
-                        .addServiceUuid(new ParcelUuid(SERVICE_UUID))
                         .addServiceUuid(new ParcelUuid(ECHELON_SERVICE_UUID))
                         .build();
 

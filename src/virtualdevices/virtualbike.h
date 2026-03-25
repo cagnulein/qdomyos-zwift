@@ -56,7 +56,6 @@ class virtualbike : public virtualdevice {
     QLowEnergyService *serviceBattery = nullptr;
     QLowEnergyService *serviceFIT = nullptr;
     QLowEnergyService *service = nullptr;
-    QLowEnergyService *serviceEchelonControl = nullptr;
     QLowEnergyService *serviceChanged = nullptr;
     QLowEnergyService *serviceWattAtomBike = nullptr;
     QLowEnergyService *serviceZwiftPlayBike = nullptr;
@@ -65,7 +64,6 @@ class virtualbike : public virtualdevice {
     QLowEnergyServiceData serviceDataBattery;
     QLowEnergyServiceData serviceDataFIT;
     QLowEnergyServiceData serviceData;
-    QLowEnergyServiceData serviceDataEchelonControl;
     QLowEnergyServiceData serviceDataChanged;
     QLowEnergyServiceData serviceEchelon;
     QLowEnergyServiceData serviceDataWattAtomBike;
