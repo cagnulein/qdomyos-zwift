@@ -2717,6 +2717,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("TM4800-"))) {
             qDebug() << QStringLiteral("TM4800 treadmill found");
             TM4800 = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TM4500"))) {
+            qDebug() << QStringLiteral("TM4500 treadmill found");
+            TM4500 = true;
+            minInclination = -3.0;
         } else if (device.name().toUpper().startsWith(QStringLiteral("TM6500-"))) {
             qDebug() << QStringLiteral("TM6500 treadmill found");
             TM6500 = true;
