@@ -750,6 +750,9 @@ class QZSettings {
     static const QString nordictrack_treadmill_ultra_le;
     static constexpr bool default_nordictrack_treadmill_ultra_le = false;
 
+    static const QString nordictrack_treadmill_commercial_le;
+    static constexpr bool default_nordictrack_treadmill_commercial_le = false;
+
     static const QString proform_treadmill_carbon_tls;
     static constexpr bool default_proform_treadmill_carbon_tls = false;
 
