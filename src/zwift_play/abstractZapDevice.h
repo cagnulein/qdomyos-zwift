@@ -7,7 +7,6 @@
 #include <QSettings>
 #include <QTimer>
 #include <QDateTime>
-#include <QByteArrayView>
 #include "zapConstants.h"
 #include "localKeyProvider.h"
 #include "zapCrypto.h"
