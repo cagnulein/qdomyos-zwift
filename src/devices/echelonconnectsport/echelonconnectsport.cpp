@@ -209,6 +209,16 @@ resistance_t echelonconnectsport::pelotonToBikeResistance(int pelotonResistance)
 resistance_t echelonconnectsport::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
+    QSettings settings;
+    bool powerSensorEnabled =
+        !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+             .toString()
+             .startsWith(QStringLiteral("Disabled"));
+
+    if (powerSensorEnabled) {
+        return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), maxResistance());
+    }
+
     if (Cadence.value() == 0)
         return 1;
 
