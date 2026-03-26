@@ -14257,7 +14257,7 @@ import Qt.labs.platform 1.1
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
                                     currentIndex: settings.mywhoosh_link_left_up
                                     onActivated: settings.mywhoosh_link_left_up = currentIndex
                                 }
@@ -14270,7 +14270,7 @@ import Qt.labs.platform 1.1
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
                                     currentIndex: settings.mywhoosh_link_left_down
                                     onActivated: settings.mywhoosh_link_left_down = currentIndex
                                 }
@@ -14283,7 +14283,7 @@ import Qt.labs.platform 1.1
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
                                     currentIndex: settings.mywhoosh_link_left_left
                                     onActivated: settings.mywhoosh_link_left_left = currentIndex
                                 }
@@ -14296,7 +14296,7 @@ import Qt.labs.platform 1.1
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
                                     currentIndex: settings.mywhoosh_link_left_right
                                     onActivated: settings.mywhoosh_link_left_right = currentIndex
                                 }
@@ -14309,7 +14309,7 @@ import Qt.labs.platform 1.1
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
                                     currentIndex: settings.mywhoosh_link_left_shoulder
                                     onActivated: settings.mywhoosh_link_left_shoulder = currentIndex
                                 }
@@ -14322,7 +14322,7 @@ import Qt.labs.platform 1.1
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
                                     currentIndex: settings.mywhoosh_link_left_power
                                     onActivated: settings.mywhoosh_link_left_power = currentIndex
                                 }
@@ -14343,7 +14343,7 @@ import Qt.labs.platform 1.1
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
                                     currentIndex: settings.mywhoosh_link_right_y
                                     onActivated: settings.mywhoosh_link_right_y = currentIndex
                                 }
@@ -14356,7 +14356,7 @@ import Qt.labs.platform 1.1
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
                                     currentIndex: settings.mywhoosh_link_right_a
                                     onActivated: settings.mywhoosh_link_right_a = currentIndex
                                 }
@@ -14369,7 +14369,7 @@ import Qt.labs.platform 1.1
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
                                     currentIndex: settings.mywhoosh_link_right_b
                                     onActivated: settings.mywhoosh_link_right_b = currentIndex
                                 }
@@ -14382,7 +14382,7 @@ import Qt.labs.platform 1.1
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
                                     currentIndex: settings.mywhoosh_link_right_z
                                     onActivated: settings.mywhoosh_link_right_z = currentIndex
                                 }
@@ -14395,7 +14395,7 @@ import Qt.labs.platform 1.1
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
                                     currentIndex: settings.mywhoosh_link_right_shoulder
                                     onActivated: settings.mywhoosh_link_right_shoulder = currentIndex
                                 }
@@ -14408,7 +14408,7 @@ import Qt.labs.platform 1.1
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
                                     currentIndex: settings.mywhoosh_link_right_power
                                     onActivated: settings.mywhoosh_link_right_power = currentIndex
                                 }

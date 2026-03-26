@@ -18,6 +18,8 @@ class MyWhooshLink : public QObject {
     Q_OBJECT
 
 public:
+    static MyWhooshLink *instance();
+
     enum Action {
         Disabled = 0,
         GearUp = 1,
@@ -26,17 +28,21 @@ public:
         SteerRight = 4,
         UTurn = 5,
         CameraAngle = 6,
-        Emote = 7
-        // Space for future actions: PowerUp, RideOn, etc.
+        Emote = 7,
+        Tuck = 8
     };
     Q_ENUM(Action)
 
     explicit MyWhooshLink(bluetooth *manager = nullptr, QObject *parent = nullptr);
     ~MyWhooshLink();
 
+    bool isEnabled() const;
     bool isRunning() const;
+    bool overrideLocalGears() const;
     void start();
     void stop();
+    void handleGearUp(bool pressed = true);
+    void handleGearDown(bool pressed = true);
 
 public slots:
     // Zwift Play button handlers
@@ -63,6 +69,8 @@ private slots:
     void checkServerStatus();
 
 private:
+    static MyWhooshLink *s_instance;
+
     void sendAction(Action action, bool keyDown = true);
     void sendSteering(int value);
     QString actionToJsonField(Action action) const;

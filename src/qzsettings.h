@@ -2938,7 +2938,7 @@ class QZSettings {
     static const QString mywhoosh_link_override_gears;
     static constexpr bool default_mywhoosh_link_override_gears = false;
 
-    // Left Controller Button Mappings (0=Disabled, 1=GearUp, 2=GearDown, 3=SteerLeft, 4=SteerRight, 5=UTurn, 6=CameraAngle, 7=Emote)
+    // Left Controller Button Mappings (0=Disabled, 1=GearUp, 2=GearDown, 3=SteerLeft, 4=SteerRight, 5=UTurn, 6=CameraAngle, 7=Emote, 8=Tuck)
     static const QString mywhoosh_link_left_up;
     static constexpr int default_mywhoosh_link_left_up = 1; // GearUp
 

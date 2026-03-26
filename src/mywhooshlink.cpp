@@ -7,6 +7,12 @@
 #include <QNetworkInterface>
 #include <QDebug>
 
+MyWhooshLink *MyWhooshLink::s_instance = nullptr;
+
+MyWhooshLink *MyWhooshLink::instance() {
+    return s_instance;
+}
+
 MyWhooshLink::MyWhooshLink(bluetooth *manager, QObject *parent)
     : QObject(parent)
     , tcpServer(nullptr)
@@ -20,6 +26,7 @@ MyWhooshLink::MyWhooshLink(bluetooth *manager, QObject *parent)
     , leftPaddlePressed(false)
     , rightPaddlePressed(false)
 {
+    s_instance = this;
     qDebug() << "MyWhooshLink: Constructor called";
     loadSettings();
 
@@ -39,6 +46,9 @@ MyWhooshLink::MyWhooshLink(bluetooth *manager, QObject *parent)
 
 MyWhooshLink::~MyWhooshLink() {
     stop();
+    if (s_instance == this) {
+        s_instance = nullptr;
+    }
 }
 
 void MyWhooshLink::loadSettings() {
@@ -80,8 +90,16 @@ void MyWhooshLink::loadSettings() {
                                   QZSettings::default_mywhoosh_link_emote_value).toInt();
 }
 
+bool MyWhooshLink::isEnabled() const {
+    return enabled;
+}
+
 bool MyWhooshLink::isRunning() const {
     return tcpServer && tcpServer->isListening();
+}
+
+bool MyWhooshLink::overrideLocalGears() const {
+    return overrideGears;
 }
 
 void MyWhooshLink::start() {
@@ -216,6 +234,8 @@ QString MyWhooshLink::actionToJsonField(Action action) const {
             return QStringLiteral("CameraAngle");
         case Emote:
             return QStringLiteral("Emote");
+        case Tuck:
+            return QStringLiteral("Tuck");
         default:
             return QString();
     }
@@ -237,6 +257,8 @@ QString MyWhooshLink::actionToJsonValue(Action action, bool keyDown) const {
             return QString::number(currentCameraAngle);
         case Emote:
             return QString::number(currentEmote);
+        case Tuck:
+            return QStringLiteral("true");
         default:
             return QString();
     }
@@ -244,6 +266,11 @@ QString MyWhooshLink::actionToJsonValue(Action action, bool keyDown) const {
 
 void MyWhooshLink::sendAction(Action action, bool keyDown) {
     if (action == Disabled) {
+        return;
+    }
+
+    const bool isContinuousAction = action == SteerLeft || action == SteerRight;
+    if (!keyDown && !isContinuousAction) {
         return;
     }
 
@@ -293,7 +320,7 @@ void MyWhooshLink::sendSteering(int value) {
 
 void MyWhooshLink::cycleCameraAngle() {
     currentCameraAngle++;
-    if (currentCameraAngle > 4) {
+    if (currentCameraAngle > 10) {
         currentCameraAngle = 1;
     }
     settings.setValue(QZSettings::mywhoosh_link_camera_value, currentCameraAngle);
@@ -301,10 +328,18 @@ void MyWhooshLink::cycleCameraAngle() {
 
 void MyWhooshLink::cycleEmote() {
     currentEmote++;
-    if (currentEmote > 5) {
+    if (currentEmote > 6) {
         currentEmote = 1;
     }
     settings.setValue(QZSettings::mywhoosh_link_emote_value, currentEmote);
+}
+
+void MyWhooshLink::handleGearUp(bool pressed) {
+    sendAction(GearUp, pressed);
+}
+
+void MyWhooshLink::handleGearDown(bool pressed) {
+    sendAction(GearDown, pressed);
 }
 
 // Zwift Play button handlers

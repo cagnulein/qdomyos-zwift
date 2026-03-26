@@ -1,5 +1,6 @@
 #include "bluetooth.h"
 #include "homeform.h"
+#include "mywhooshlink.h"
 #include <QBluetoothLocalDevice>
 #include <QRegularExpression>
 #include <QDateTime>
@@ -3196,8 +3197,28 @@ void bluetooth::connectedAndDiscovered() {
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
-                connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
-                connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
+                connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, this, [this]() {
+                    auto *myWhoosh = MyWhooshLink::instance();
+                    if (myWhoosh && myWhoosh->isEnabled()) {
+                        myWhoosh->handleGearUp(true);
+                        if (!myWhoosh->overrideLocalGears() && this->device() && this->device()->deviceType() == BIKE) {
+                            static_cast<bike *>(this->device())->gearUp();
+                        }
+                    } else if (this->device() && this->device()->deviceType() == BIKE) {
+                        static_cast<bike *>(this->device())->gearUp();
+                    }
+                });
+                connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, this, [this]() {
+                    auto *myWhoosh = MyWhooshLink::instance();
+                    if (myWhoosh && myWhoosh->isEnabled()) {
+                        myWhoosh->handleGearDown(true);
+                        if (!myWhoosh->overrideLocalGears() && this->device() && this->device()->deviceType() == BIKE) {
+                            static_cast<bike *>(this->device())->gearDown();
+                        }
+                    } else if (this->device() && this->device()->deviceType() == BIKE) {
+                        static_cast<bike *>(this->device())->gearDown();
+                    }
+                });
                 zwiftClickRemote->deviceDiscovered(b);
                 if(homeform::singleton())
                     homeform::singleton()->setToastRequested("Zwift Click Connected!");
@@ -3262,8 +3283,45 @@ void bluetooth::connectedAndDiscovered() {
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(zwiftPlayDevice.last(), &zwiftclickremote::debug, this, &bluetooth::debug);
-                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
-                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, this, [this]() {
+                    auto *myWhoosh = MyWhooshLink::instance();
+                    if (myWhoosh && myWhoosh->isEnabled()) {
+                        myWhoosh->handleGearUp(true);
+                        if (!myWhoosh->overrideLocalGears() && this->device() && this->device()->deviceType() == BIKE) {
+                            static_cast<bike *>(this->device())->gearUp();
+                        }
+                    } else if (this->device() && this->device()->deviceType() == BIKE) {
+                        static_cast<bike *>(this->device())->gearUp();
+                    }
+                });
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, this, [this]() {
+                    auto *myWhoosh = MyWhooshLink::instance();
+                    if (myWhoosh && myWhoosh->isEnabled()) {
+                        myWhoosh->handleGearDown(true);
+                        if (!myWhoosh->overrideLocalGears() && this->device() && this->device()->deviceType() == BIKE) {
+                            static_cast<bike *>(this->device())->gearDown();
+                        }
+                    } else if (this->device() && this->device()->deviceType() == BIKE) {
+                        static_cast<bike *>(this->device())->gearDown();
+                    }
+                });
+                if (MyWhooshLink::instance() && MyWhooshLink::instance()->isEnabled()) {
+                    auto *myWhoosh = MyWhooshLink::instance();
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftUp, myWhoosh, &MyWhooshLink::handleLeftUp);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftDown, myWhoosh, &MyWhooshLink::handleLeftDown);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftLeft, myWhoosh, &MyWhooshLink::handleLeftLeft);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftRight, myWhoosh, &MyWhooshLink::handleLeftRight);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftShoulder, myWhoosh, &MyWhooshLink::handleLeftShoulder);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPower, myWhoosh, &MyWhooshLink::handleLeftPower);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPaddle, myWhoosh, &MyWhooshLink::handleLeftPaddle);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightY, myWhoosh, &MyWhooshLink::handleRightY);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightZ, myWhoosh, &MyWhooshLink::handleRightZ);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightA, myWhoosh, &MyWhooshLink::handleRightA);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightB, myWhoosh, &MyWhooshLink::handleRightB);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightShoulder, myWhoosh, &MyWhooshLink::handleRightShoulder);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPower, myWhoosh, &MyWhooshLink::handleRightPower);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPaddle, myWhoosh, &MyWhooshLink::handleRightPaddle);
+                }
                 if((zwiftPlayDevice.last()->typeZap == AbstractZapDevice::LEFT && !zwiftplay_swap) ||
                    (zwiftPlayDevice.last()->typeZap == AbstractZapDevice::RIGHT && zwiftplay_swap)) {
                     connect((bike*)this->device(), &bike::gearOkUp, this, &bluetooth::gearUp);
