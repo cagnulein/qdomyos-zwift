@@ -44,6 +44,7 @@ class fakebike : public bike {
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     double maxGears() override;
     double minGears() override;
+    void switchToClassicVirtualBikeBridge();
     
   private:
     QTimer *refresh;
@@ -79,5 +80,8 @@ class fakebike : public bike {
     void update();
     
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+
+  private:
+    void createVirtualBike(bool forceClassicMode = false);
 };
 #endif // FAKEBIKE_H

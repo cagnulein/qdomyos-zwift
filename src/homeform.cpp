@@ -1,5 +1,6 @@
 #include "homeform.h"
 #include "devices/echelonconnectsport/echelonconnectsport.h"
+#include "devices/fakebike/fakebike.h"
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #include "ios/ios_liveactivity.h"
@@ -9069,13 +9070,17 @@ void homeform::echelon_switch_to_classic_bridge() {
         return;
     }
 
-    auto *echelonBike = dynamic_cast<echelonconnectsport *>(bluetoothManager->device());
-    if (!echelonBike) {
-        setToastRequested(QStringLiteral("The connected device is not an Echelon Connect Sport"));
+    if (auto *echelonBike = dynamic_cast<echelonconnectsport *>(bluetoothManager->device())) {
+        echelonBike->switchToClassicVirtualBikeBridge();
         return;
     }
 
-    echelonBike->switchToClassicVirtualBikeBridge();
+    if (auto *testBike = dynamic_cast<fakebike *>(bluetoothManager->device())) {
+        testBike->switchToClassicVirtualBikeBridge();
+        return;
+    }
+
+    setToastRequested(QStringLiteral("The connected device is neither an Echelon Connect Sport nor a fakebike"));
 }
 
 void homeform::echelon_dismiss_bridge_switch_prompt() {
