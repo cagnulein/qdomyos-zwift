@@ -107,6 +107,10 @@ fileprivate struct CanonicalWorkoutPayload: Codable {
                 - Every leaf step must include durationSeconds.
                 - Use repeat blocks when the workout has repeated intervals.
                 - A node can either be a leaf step with durationSeconds, or a repeat block with repeat and steps.
+                - For bike workouts, prefer only powerWatts targets. Do not set cadenceRpm, resistance, or pelotonResistance.
+                - Unless the user explicitly asks for steady, endurance, zone 2, flat, constant, or recovery riding, avoid a single long flat block.
+                - Prefer structured workouts with progressions, over-unders, interval sets, pyramids, surges, and clear warmup/cooldown when appropriate.
+                - For bike workouts, vary power across steps so the workout is not monotonous by default.
                 - Do not include markdown, comments, or explanations.
                 - Prefer 3 to 12 steps.
                 """
@@ -120,7 +124,9 @@ fileprivate struct CanonicalWorkoutPayload: Codable {
                             return
                         }
                         do {
-                            let normalized = try self.normalizeCanonicalJson(jsonCandidate, fallbackDevice: device)
+                            let normalized = try self.normalizeCanonicalJson(jsonCandidate,
+                                                                             fallbackDevice: device,
+                                                                             prompt: prompt)
                             completion(normalized as NSString, nil)
                         } catch {
                             completion(nil, "Canonical workout validation failed: \(error.localizedDescription)" as NSString)
@@ -288,21 +294,13 @@ fileprivate struct CanonicalWorkoutPayload: Codable {
                                         heartRateMax: nil,
                                         mets: nil)
         default:
-            let resistance: Int
-            let cadence: Int
             let power: Int
             switch lowerIntensity {
             case "easy":
-                resistance = 14
-                cadence = 80
                 power = 140
             case "hard":
-                resistance = 30
-                cadence = 95
                 power = 260
             default:
-                resistance = 22
-                cadence = 88
                 power = 200
             }
             return CanonicalWorkoutStep(name: name,
@@ -310,8 +308,8 @@ fileprivate struct CanonicalWorkoutPayload: Codable {
                                         repeatCount: nil,
                                         steps: nil,
                                         powerWatts: power,
-                                        cadenceRpm: cadence,
-                                        resistance: resistance,
+                                        cadenceRpm: nil,
+                                        resistance: nil,
                                         inclinePercent: nil,
                                         speedKph: nil,
                                         forceSpeed: nil,
@@ -331,15 +329,23 @@ fileprivate struct CanonicalWorkoutPayload: Codable {
         return String(text[start...end])
     }
 
-    private func normalizeCanonicalJson(_ rawJson: String, fallbackDevice: String) throws -> String {
+    private func normalizeCanonicalJson(_ rawJson: String, fallbackDevice: String, prompt: String) throws -> String {
         let data = Data(rawJson.utf8)
         let decoder = JSONDecoder()
         let payload = try decoder.decode(CanonicalWorkoutPayload.self, from: data)
+        let normalizedDeviceKey = payload.device.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? normalizedDevice(fallbackDevice)
+            : normalizedDevice(payload.device)
+        let normalizedSteps = normalizeSteps(payload.steps, device: normalizedDeviceKey)
         let normalized = CanonicalWorkoutPayload(
             schemaVersion: 1,
             title: payload.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "AI Workout" : payload.title,
-            device: payload.device.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? normalizedDevice(fallbackDevice) : normalizedDevice(payload.device),
-            steps: normalizeSteps(payload.steps)
+            device: normalizedDeviceKey,
+            steps: enrichMonotonyIfNeeded(
+                expandStructuredPromptIfNeeded(normalizedSteps, device: normalizedDeviceKey, prompt: prompt),
+                device: normalizedDeviceKey,
+                prompt: prompt
+            )
         )
         let encoder = JSONEncoder()
         if #available(iOS 13.0, *) {
@@ -351,10 +357,191 @@ fileprivate struct CanonicalWorkoutPayload: Codable {
         return String(decoding: normalizedData, as: UTF8.self)
     }
 
-    private func normalizeSteps(_ steps: [CanonicalWorkoutStep]) -> [CanonicalWorkoutStep] {
+    private func expandStructuredPromptIfNeeded(_ steps: [CanonicalWorkoutStep],
+                                                device: String,
+                                                prompt: String) -> [CanonicalWorkoutStep] {
+        let lowerPrompt = prompt.lowercased()
+        let wantsWarmup = lowerPrompt.contains("warmup") || lowerPrompt.contains("warm up")
+        let wantsCooldown = lowerPrompt.contains("cooldown") || lowerPrompt.contains("cool down")
+
+        guard wantsWarmup && wantsCooldown, steps.count == 1, let onlyStep = steps.first,
+              let totalDuration = onlyStep.durationSeconds, totalDuration >= 15 * 60 else {
+            return steps
+        }
+
+        let totalMinutes = max(15, totalDuration / 60)
+        let warmupMinutes = max(5, min(10, totalMinutes / 6))
+        let cooldownMinutes = max(5, min(10, totalMinutes / 6))
+        let mainMinutes = max(5, totalMinutes - warmupMinutes - cooldownMinutes)
+
+        return [
+            makeStep(name: "Warmup", minutes: warmupMinutes, device: device, intensity: "easy"),
+            makeStep(name: onlyStep.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Main Set" : onlyStep.name,
+                     minutes: mainMinutes,
+                     device: device,
+                     intensity: inferredIntensity(from: prompt)),
+            makeStep(name: "Cooldown", minutes: cooldownMinutes, device: device, intensity: "easy")
+        ]
+    }
+
+    private func inferredIntensity(from prompt: String) -> String {
+        let lower = prompt.lowercased()
+        if lower.contains("hard") || lower.contains("threshold") || lower.contains("vo2") || lower.contains("sprint") {
+            return "hard"
+        }
+        if lower.contains("easy") || lower.contains("recovery") || lower.contains("recover") {
+            return "easy"
+        }
+        return "moderate"
+    }
+
+    private func enrichMonotonyIfNeeded(_ steps: [CanonicalWorkoutStep], device: String, prompt: String) -> [CanonicalWorkoutStep] {
+        guard device == "bike", !shouldPreserveSteadyWorkout(prompt), isFlatBikeWorkout(steps) else {
+            return steps
+        }
+
+        let totalMinutes = max(20, totalDurationMinutes(for: steps))
+        return dynamicBikeWorkout(totalMinutes: totalMinutes, intensity: inferredIntensity(from: prompt))
+    }
+
+    private func shouldPreserveSteadyWorkout(_ prompt: String) -> Bool {
+        let lower = prompt.lowercased()
+        return lower.contains("steady") ||
+            lower.contains("endurance") ||
+            lower.contains("zone 2") ||
+            lower.contains("z2") ||
+            lower.contains("flat") ||
+            lower.contains("constant") ||
+            lower.contains("recovery") ||
+            lower.contains("easy spin")
+    }
+
+    private func isFlatBikeWorkout(_ steps: [CanonicalWorkoutStep]) -> Bool {
+        let leafSteps = flattenedLeafSteps(steps)
+        guard !leafSteps.isEmpty else {
+            return true
+        }
+
+        let powerValues = Set(leafSteps.compactMap { $0.powerWatts })
+        if leafSteps.count <= 2 {
+            return true
+        }
+        return powerValues.count <= 1
+    }
+
+    private func flattenedLeafSteps(_ steps: [CanonicalWorkoutStep]) -> [CanonicalWorkoutStep] {
+        steps.flatMap { step in
+            if let nested = step.steps, !nested.isEmpty {
+                let repeated = max(1, step.repeatCount ?? 1)
+                return (0..<repeated).flatMap { _ in flattenedLeafSteps(nested) }
+            }
+            return [step]
+        }
+    }
+
+    private func totalDurationMinutes(for steps: [CanonicalWorkoutStep]) -> Int {
+        let totalSeconds = flattenedLeafSteps(steps).reduce(0) { partial, step in
+            partial + max(0, step.durationSeconds ?? 0)
+        }
+        return max(1, totalSeconds / 60)
+    }
+
+    private func dynamicBikeWorkout(totalMinutes: Int, intensity: String) -> [CanonicalWorkoutStep] {
+        let normalizedDuration = max(20, totalMinutes)
+        var plan: [(String, Int, String)] = []
+
+        switch intensity {
+        case "hard":
+            plan = [
+                ("Warmup", 4, "easy"),
+                ("Build", 4, "moderate"),
+                ("Primer", 2, "hard"),
+                ("Hard Interval 1", 3, "hard"),
+                ("Recovery 1", 2, "easy"),
+                ("Hard Interval 2", 3, "hard"),
+                ("Recovery 2", 2, "easy"),
+                ("Hard Interval 3", 3, "hard"),
+                ("Recovery 3", 2, "easy"),
+                ("Hard Interval 4", 3, "hard"),
+                ("Recovery 4", 2, "easy"),
+                ("Over", 2, "hard"),
+                ("Under", 2, "moderate"),
+                ("Over", 2, "hard"),
+                ("Under", 2, "moderate"),
+                ("Over", 2, "hard"),
+                ("Recovery", 2, "easy"),
+                ("Cooldown", 6, "easy")
+            ]
+        case "easy":
+            plan = [
+                ("Warmup", 5, "easy"),
+                ("Build", 5, "moderate"),
+                ("Tempo Lift 1", 4, "moderate"),
+                ("Easy Spin 1", 2, "easy"),
+                ("Tempo Lift 2", 4, "moderate"),
+                ("Easy Spin 2", 2, "easy"),
+                ("Tempo Lift 3", 4, "moderate"),
+                ("Easy Spin 3", 2, "easy"),
+                ("Steady Finish", 6, "easy"),
+                ("Cooldown", 5, "easy")
+            ]
+        default:
+            plan = [
+                ("Warmup", 5, "easy"),
+                ("Build", 5, "moderate"),
+                ("Tempo 1", 6, "moderate"),
+                ("Reset 1", 2, "easy"),
+                ("Tempo 2", 6, "moderate"),
+                ("Reset 2", 2, "easy"),
+                ("Tempo 3", 6, "moderate"),
+                ("Surge 1", 1, "hard"),
+                ("Settle 1", 2, "moderate"),
+                ("Surge 2", 1, "hard"),
+                ("Settle 2", 2, "moderate"),
+                ("Cooldown", 5, "easy")
+            ]
+        }
+
+        plan = scaledPlan(plan, totalMinutes: normalizedDuration)
+        return plan.map { name, minutes, stepIntensity in
+            makeStep(name: name, minutes: minutes, device: "bike", intensity: stepIntensity)
+        }
+    }
+
+    private func scaledPlan(_ plan: [(String, Int, String)], totalMinutes: Int) -> [(String, Int, String)] {
+        let baseTotal = max(1, plan.reduce(0) { $0 + $1.1 })
+        var scaled = plan.enumerated().map { index, item -> (String, Int, String) in
+            let raw = Double(item.1) * Double(totalMinutes) / Double(baseTotal)
+            let rounded = index == plan.count - 1 ? max(1, totalMinutes) : max(1, Int(raw.rounded()))
+            return (item.0, rounded, item.2)
+        }
+
+        var currentTotal = scaled.reduce(0) { $0 + $1.1 }
+        if currentTotal == totalMinutes {
+            return scaled
+        }
+
+        var adjustableIndex = max(0, min(1, scaled.count - 1))
+        if scaled.count > 2 {
+            adjustableIndex = scaled.count / 2
+        }
+
+        while currentTotal < totalMinutes {
+            scaled[adjustableIndex].1 += 1
+            currentTotal += 1
+        }
+        while currentTotal > totalMinutes && scaled[adjustableIndex].1 > 1 {
+            scaled[adjustableIndex].1 -= 1
+            currentTotal -= 1
+        }
+
+        return scaled
+    }
+
+    private func normalizeSteps(_ steps: [CanonicalWorkoutStep], device: String) -> [CanonicalWorkoutStep] {
         steps.compactMap { step in
             if let nested = step.steps, !nested.isEmpty {
-                let normalizedNested = normalizeSteps(nested)
+                let normalizedNested = normalizeSteps(nested, device: device)
                 guard !normalizedNested.isEmpty else {
                     return nil
                 }
@@ -388,13 +575,13 @@ fileprivate struct CanonicalWorkoutPayload: Codable {
                 repeatCount: nil,
                 steps: nil,
                 powerWatts: step.powerWatts,
-                cadenceRpm: step.cadenceRpm,
-                resistance: step.resistance,
+                cadenceRpm: device == "bike" ? nil : step.cadenceRpm,
+                resistance: device == "bike" ? nil : step.resistance,
                 inclinePercent: step.inclinePercent,
                 speedKph: step.speedKph,
                 forceSpeed: step.forceSpeed,
                 fanSpeed: step.fanSpeed,
-                pelotonResistance: step.pelotonResistance,
+                pelotonResistance: device == "bike" ? nil : step.pelotonResistance,
                 heartRateZone: step.heartRateZone,
                 heartRateMin: step.heartRateMin,
                 heartRateMax: step.heartRateMax,

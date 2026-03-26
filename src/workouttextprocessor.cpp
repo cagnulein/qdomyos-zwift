@@ -43,6 +43,18 @@ static QString segmentLabel(const QString &segment) {
     return QStringLiteral("Interval");
 }
 
+static bool promptMentionsWarmup(const QString &text) {
+    const QString lower = text.toLower();
+    return lower.contains(QStringLiteral("warmup")) || lower.contains(QStringLiteral("warm up")) ||
+           lower.contains(QStringLiteral("riscald"));
+}
+
+static bool promptMentionsCooldown(const QString &text) {
+    const QString lower = text.toLower();
+    return lower.contains(QStringLiteral("cooldown")) || lower.contains(QStringLiteral("cool down")) ||
+           lower.contains(QStringLiteral("defatic"));
+}
+
 static ParsedDuration parseDurationToken(const QString &numberToken, const QString &unitToken) {
     ParsedDuration out;
     const QString number = numberToken.trimmed();
@@ -74,6 +86,9 @@ static ParsedDuration parseDurationToken(const QString &numberToken, const QStri
 
     if (unit.startsWith(QStringLiteral("s")) || unit.startsWith(QStringLiteral("sec"))) {
         out.seconds = qRound(value);
+    } else if (unit.startsWith(QStringLiteral("h")) || unit.startsWith(QStringLiteral("hr")) ||
+               unit.startsWith(QStringLiteral("ore"))) {
+        out.seconds = qRound(value * 3600.0);
     } else {
         out.seconds = qRound(value * 60.0);
     }
@@ -197,23 +212,15 @@ static void applyDefaultTargets(trainrow &row, const QString &deviceKey, const Q
     switch (score) {
     case 1:
         row.power = qRound(ftp * 0.6);
-        row.cadence = 80;
-        row.resistance = 15;
         break;
     case 2:
         row.power = qRound(ftp * 0.75);
-        row.cadence = 88;
-        row.resistance = 20;
         break;
     case 3:
         row.power = qRound(ftp * 0.92);
-        row.cadence = 95;
-        row.resistance = 26;
         break;
     default:
         row.power = qRound(ftp * 1.15);
-        row.cadence = 100;
-        row.resistance = 32;
         break;
     }
 }
@@ -328,6 +335,21 @@ static QList<trainrow> parsePlainTextPrompt(const QString &prompt, const QString
     }
 
     if (!rows.isEmpty()) {
+        if (rows.size() == 1 && promptMentionsWarmup(prompt) && promptMentionsCooldown(prompt)) {
+            const int totalSeconds = QTime(0, 0, 0).secsTo(rows.first().duration);
+            if (totalSeconds >= 15 * 60) {
+                const int totalMinutes = qMax(15, totalSeconds / 60);
+                const int warmupMinutes = qMax(5, qMin(10, totalMinutes / 6));
+                const int cooldownMinutes = qMax(5, qMin(10, totalMinutes / 6));
+                const int mainMinutes = qMax(5, totalMinutes - warmupMinutes - cooldownMinutes);
+
+                QList<trainrow> structuredRows;
+                structuredRows.append(makeRow(QStringLiteral("warmup easy"), deviceKey, warmupMinutes * 60));
+                structuredRows.append(makeRow(prompt, deviceKey, mainMinutes * 60));
+                structuredRows.append(makeRow(QStringLiteral("cooldown easy"), deviceKey, cooldownMinutes * 60));
+                return structuredRows;
+            }
+        }
         return rows;
     }
 
@@ -397,10 +419,10 @@ WorkoutTextProcessor::Result WorkoutTextProcessor::fromCanonicalJson(const QStri
                 if (step.contains(QStringLiteral("inclinePercent"))) {
                     row.inclination = step.value(QStringLiteral("inclinePercent")).toDouble();
                 }
-                if (step.contains(QStringLiteral("resistance"))) {
+                if (deviceKey != QStringLiteral("bike") && step.contains(QStringLiteral("resistance"))) {
                     row.resistance = step.value(QStringLiteral("resistance")).toInt();
                 }
-                if (step.contains(QStringLiteral("cadenceRpm"))) {
+                if (deviceKey != QStringLiteral("bike") && step.contains(QStringLiteral("cadenceRpm"))) {
                     row.cadence = step.value(QStringLiteral("cadenceRpm")).toInt();
                 }
                 if (step.contains(QStringLiteral("powerWatts"))) {
@@ -409,7 +431,7 @@ WorkoutTextProcessor::Result WorkoutTextProcessor::fromCanonicalJson(const QStri
                 if (step.contains(QStringLiteral("fanSpeed"))) {
                     row.fanspeed = step.value(QStringLiteral("fanSpeed")).toInt();
                 }
-                if (step.contains(QStringLiteral("pelotonResistance"))) {
+                if (deviceKey != QStringLiteral("bike") && step.contains(QStringLiteral("pelotonResistance"))) {
                     row.requested_peloton_resistance = step.value(QStringLiteral("pelotonResistance")).toInt();
                 }
                 if (step.contains(QStringLiteral("heartRateZone"))) {
