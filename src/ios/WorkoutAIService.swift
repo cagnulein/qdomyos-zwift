@@ -7,7 +7,7 @@ import FoundationModels
 fileprivate struct CanonicalWorkoutStep: Codable {
     let name: String
     let durationSeconds: Int?
-    let repeat: Int?
+    let repeatCount: Int?
     let steps: [CanonicalWorkoutStep]?
     let powerWatts: Int?
     let cadenceRpm: Int?
@@ -21,6 +21,25 @@ fileprivate struct CanonicalWorkoutStep: Codable {
     let heartRateMin: Int?
     let heartRateMax: Int?
     let mets: Int?
+    
+    private enum CodingKeys: String, CodingKey {
+        case name
+        case durationSeconds
+        case repeatCount = "repeat"
+        case steps
+        case powerWatts
+        case cadenceRpm
+        case resistance
+        case inclinePercent
+        case speedKph
+        case forceSpeed
+        case fanSpeed
+        case pelotonResistance
+        case heartRateZone
+        case heartRateMin
+        case heartRateMax
+        case mets
+    }
 }
 
 fileprivate struct CanonicalWorkoutPayload: Codable {
@@ -140,7 +159,11 @@ fileprivate struct CanonicalWorkoutPayload: Codable {
         )
 
         let encoder = JSONEncoder()
-        encoder.outputFormatting = [.withoutEscapingSlashes]
+        if #available(iOS 13.0, *) {
+            encoder.outputFormatting = [.withoutEscapingSlashes]
+        } else {
+            // Fallback on earlier versions
+        }
         let data = try? encoder.encode(payload)
         return String(data: data ?? Data(), encoding: .utf8) ?? "{}"
     }
@@ -189,7 +212,7 @@ fileprivate struct CanonicalWorkoutPayload: Codable {
             }
             return CanonicalWorkoutStep(name: name,
                                         durationSeconds: durationSeconds,
-                                        repeat: nil,
+                                        repeatCount: nil,
                                         steps: nil,
                                         powerWatts: nil,
                                         cadenceRpm: nil,
@@ -219,7 +242,7 @@ fileprivate struct CanonicalWorkoutPayload: Codable {
             }
             return CanonicalWorkoutStep(name: name,
                                         durationSeconds: durationSeconds,
-                                        repeat: nil,
+                                        repeatCount: nil,
                                         steps: nil,
                                         powerWatts: nil,
                                         cadenceRpm: cadence,
@@ -249,7 +272,7 @@ fileprivate struct CanonicalWorkoutPayload: Codable {
             }
             return CanonicalWorkoutStep(name: name,
                                         durationSeconds: durationSeconds,
-                                        repeat: nil,
+                                        repeatCount: nil,
                                         steps: nil,
                                         powerWatts: power,
                                         cadenceRpm: cadence,
@@ -283,7 +306,7 @@ fileprivate struct CanonicalWorkoutPayload: Codable {
             }
             return CanonicalWorkoutStep(name: name,
                                         durationSeconds: durationSeconds,
-                                        repeat: nil,
+                                        repeatCount: nil,
                                         steps: nil,
                                         powerWatts: power,
                                         cadenceRpm: cadence,
@@ -318,7 +341,11 @@ fileprivate struct CanonicalWorkoutPayload: Codable {
             steps: normalizeSteps(payload.steps)
         )
         let encoder = JSONEncoder()
-        encoder.outputFormatting = [.withoutEscapingSlashes]
+        if #available(iOS 13.0, *) {
+            encoder.outputFormatting = [.withoutEscapingSlashes]
+        } else {
+            // Fallback on earlier versions
+        }
         let normalizedData = try encoder.encode(normalized)
         return String(decoding: normalizedData, as: UTF8.self)
     }
@@ -333,7 +360,7 @@ fileprivate struct CanonicalWorkoutPayload: Codable {
                 return CanonicalWorkoutStep(
                     name: step.name,
                     durationSeconds: nil,
-                    repeat: max(1, step.repeat ?? 1),
+                    repeatCount: max(1, step.repeatCount ?? 1),
                     steps: normalizedNested,
                     powerWatts: nil,
                     cadenceRpm: nil,
@@ -357,7 +384,7 @@ fileprivate struct CanonicalWorkoutPayload: Codable {
             return CanonicalWorkoutStep(
                 name: step.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Step" : step.name,
                 durationSeconds: durationSeconds,
-                repeat: nil,
+                repeatCount: nil,
                 steps: nil,
                 powerWatts: step.powerWatts,
                 cadenceRpm: step.cadenceRpm,
