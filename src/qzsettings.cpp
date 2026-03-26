@@ -310,6 +310,7 @@ const QString QZSettings::watt_gain = QStringLiteral("watt_gain");
 const QString QZSettings::power_avg_5s = QStringLiteral("power_avg_5s");
 const QString QZSettings::power_avg_3s = QStringLiteral("power_avg_3s");
 const QString QZSettings::instant_power_on_pause = QStringLiteral("instant_power_on_pause");
+const QString QZSettings::toputure_teb1 = QStringLiteral("toputure_teb1");
 const QString QZSettings::speed_offset = QStringLiteral("speed_offset");
 const QString QZSettings::speed_gain = QStringLiteral("speed_gain");
 const QString QZSettings::filter_device = QStringLiteral("filter_device");
@@ -1051,6 +1052,12 @@ const QString QZSettings::tile_negative_inclination_order = QStringLiteral("tile
 const QString QZSettings::tile_hrv_enabled = QStringLiteral("tile_hrv_enabled");
 const QString QZSettings::tile_hrv_order = QStringLiteral("tile_hrv_order");
 const QString QZSettings::chart_display_mode = QStringLiteral("chart_display_mode");
+const QString QZSettings::ios_live_activity_compact_leading_metric =
+    QStringLiteral("ios_live_activity_compact_leading_metric");
+const QString QZSettings::default_ios_live_activity_compact_leading_metric = QStringLiteral("Heart Rate");
+const QString QZSettings::ios_live_activity_compact_trailing_metric =
+    QStringLiteral("ios_live_activity_compact_trailing_metric");
+const QString QZSettings::default_ios_live_activity_compact_trailing_metric = QStringLiteral("Watt");
 const QString QZSettings::calories_active_only = QStringLiteral("calories_active_only");
 const QString QZSettings::calories_from_hr = QStringLiteral("calories_from_hr");
 const QString QZSettings::confirm_stop_workout = QStringLiteral("confirm_stop_workout");
@@ -1067,7 +1074,7 @@ const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
 
 
-const uint32_t allSettingsCount = 870;
+const uint32_t allSettingsCount = 873;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1323,6 +1330,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::power_avg_5s, QZSettings::default_power_avg_5s},
     {QZSettings::power_avg_3s, QZSettings::default_power_avg_3s},
     {QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause},
+    {QZSettings::toputure_teb1, QZSettings::default_toputure_teb1},
     {QZSettings::speed_offset, QZSettings::default_speed_offset},
     {QZSettings::speed_gain, QZSettings::default_speed_gain},
     {QZSettings::filter_device, QZSettings::default_filter_device},
@@ -1941,6 +1949,10 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_hrv_enabled, QZSettings::default_tile_hrv_enabled},
     {QZSettings::tile_hrv_order, QZSettings::default_tile_hrv_order},
     {QZSettings::chart_display_mode, QZSettings::default_chart_display_mode},
+    {QZSettings::ios_live_activity_compact_leading_metric,
+     QZSettings::default_ios_live_activity_compact_leading_metric},
+    {QZSettings::ios_live_activity_compact_trailing_metric,
+     QZSettings::default_ios_live_activity_compact_trailing_metric},
     {QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike},
     {QZSettings::calories_active_only, QZSettings::default_calories_active_only},
     {QZSettings::calories_from_hr, QZSettings::default_calories_from_hr},

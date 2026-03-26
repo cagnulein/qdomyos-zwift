@@ -25,6 +25,7 @@ import Qt.labs.platform 1.1
             scrollTimer.start()
         }
 
+        // always add a property at the end of the file to avoid corruption of the settings when loading old versions
         Settings {
             id: settings
             property real ui_zoom: 100.0
@@ -1291,7 +1292,10 @@ import Qt.labs.platform 1.1
             property bool gymstick_gx6_0_elliptical: false
             property bool cadence_sensor_as_treadmill: false
             property bool proform_trainer_8_0_pftl59721_int_0: false
-            property bool proform_carbon_tl_PFTL59723_6: false
+            property bool proform_carbon_tl_PFTL59723_6: false            
+            property bool toputure_teb1: false
+            property string ios_live_activity_compact_leading_metric: "Heart Rate"
+            property string ios_live_activity_compact_trailing_metric: "Watt"
             property bool nordictrack_treadmill_commercial_le: false
         }
 
@@ -4742,6 +4746,44 @@ import Qt.labs.platform 1.1
                             }
                         }
                     }
+
+                    AccordionElement {
+                        id: toputureBikeAccordion
+                        title: qsTr("Toputure Bikes")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                id: toputureTeb1Delegate
+                                text: qsTr("Toputure TEB1")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.toputure_teb1
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.toputure_teb1 = checked
+                            }
+
+                            Label {
+                                text: qsTr("Enable the special SPORT01 instant power formula only for the Toputure TEB1 bike. Leave disabled to use the standard FTMS instant power reported by the device.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }
                 }                
             }
 
@@ -5225,6 +5267,61 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("iOS Live Activity Left Metric:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: iosLiveActivityCompactLeadingMetricComboBox
+                            model: rootItem.metrics
+                            displayText: settings.ios_live_activity_compact_leading_metric
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: displayText = currentValue
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ios_live_activity_compact_leading_metric = iosLiveActivityCompactLeadingMetricComboBox.displayText; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("iOS Live Activity Right Metric:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: iosLiveActivityCompactTrailingMetricComboBox
+                            model: rootItem.metrics
+                            displayText: settings.ios_live_activity_compact_trailing_metric
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: displayText = currentValue
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ios_live_activity_compact_trailing_metric = iosLiveActivityCompactTrailingMetricComboBox.displayText; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("iOS only: choose which two metrics are shown in the compact Dynamic Island bar for Live Activities. Default is Heart Rate on the left and Watt on the right.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
