@@ -39,6 +39,7 @@ class bike : public bluetoothdevice {
     void clearStats() override;
     void setLap() override;
     void setPaused(bool p) override;
+    int metricValueForSetting(const QString &setting) override;
     uint8_t metrics_override_heartrate() override;
     void setGears(double d);
     double gears();

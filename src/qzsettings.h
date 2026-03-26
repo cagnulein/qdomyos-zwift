@@ -2869,6 +2869,18 @@ class QZSettings {
     static const QString chart_display_mode;
     static constexpr int default_chart_display_mode = 0;
 
+    /**
+     * @brief Metric shown on the leading side of the iOS Dynamic Island compact Live Activity.
+     */
+    static const QString ios_live_activity_compact_leading_metric;
+    static const QString default_ios_live_activity_compact_leading_metric;
+
+    /**
+     * @brief Metric shown on the trailing side of the iOS Dynamic Island compact Live Activity.
+     */
+    static const QString ios_live_activity_compact_trailing_metric;
+    static const QString default_ios_live_activity_compact_trailing_metric;
+
    /**
      * @brief Calculate only active calories (exclude basal metabolic rate)
      */
