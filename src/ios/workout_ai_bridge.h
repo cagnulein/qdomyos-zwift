@@ -14,19 +14,4 @@ void ios_workout_ai_free_string(char *value);
 }
 #endif
 
-#ifdef __OBJC__
-#import <Foundation/Foundation.h>
-
-@interface WorkoutAIIntentBridge : NSObject
-- (NSString * _Nullable)generateCanonicalWorkoutForPrompt:(NSString *)prompt
-                                                   device:(NSString *)device
-                                                    error:(NSString * _Nullable * _Nullable)error;
-- (BOOL)queueCanonicalWorkout:(NSString *)canonicalJson
-                    autoStart:(BOOL)autoStart
-                        error:(NSString * _Nullable * _Nullable)error;
-- (void)consumePendingWorkoutRequestIfNeeded;
-@end
-
-#endif
-
 #endif // WORKOUT_AI_BRIDGE_H

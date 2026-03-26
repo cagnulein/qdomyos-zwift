@@ -1,6 +1,6 @@
 #ifndef IO_UNDER_QT
+#import <Foundation/Foundation.h>
 #import "workout_ai_bridge.h"
-#import "qdomyoszwift-Swift2.h"
 
 #include "../homeform.h"
 #include "../trainprogram.h"
@@ -83,7 +83,7 @@ bool queueOrProcessCanonicalWorkout(NSString *canonicalJson, bool autoStart, NSS
 
     NSDictionary *payload = @{
         @"canonicalJson": canonicalJson,
-        @"autoStart": @(autoStart)
+        @"autoStart": [NSNumber numberWithBool:autoStart]
     };
     NSError *writeError = nil;
     NSData *data = [NSJSONSerialization dataWithJSONObject:payload options:0 error:&writeError];
@@ -103,67 +103,6 @@ bool queueOrProcessCanonicalWorkout(NSString *canonicalJson, bool autoStart, NSS
 }
 } // namespace
 
-@implementation WorkoutAIIntentBridge
-
-- (NSString * _Nullable)generateCanonicalWorkoutForPrompt:(NSString *)prompt
-                                                   device:(NSString *)device
-                                                    error:(NSString * _Nullable * _Nullable)error {
-    WorkoutAIService *service = [[WorkoutAIService alloc] init];
-    __block NSString *resultJson = nil;
-    __block NSString *resultError = nil;
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-
-    [service generateCanonicalWorkoutWithPrompt:prompt
-                                         device:device
-                                     completion:^(NSString * _Nullable json, NSString * _Nullable serviceError) {
-        resultJson = json;
-        resultError = serviceError;
-        dispatch_semaphore_signal(semaphore);
-    }];
-
-    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 20 * NSEC_PER_SEC);
-    long waitResult = dispatch_semaphore_wait(semaphore, timeout);
-    if (waitResult != 0) {
-        if (error) {
-            *error = @"Timed out while waiting for Apple Foundation Models";
-        }
-        return nil;
-    }
-
-    if (!resultJson && error) {
-        *error = resultError ?: @"Workout AI generation failed";
-    }
-    return resultJson;
-}
-
-- (BOOL)queueCanonicalWorkout:(NSString *)canonicalJson
-                    autoStart:(BOOL)autoStart
-                        error:(NSString * _Nullable * _Nullable)error {
-    return queueOrProcessCanonicalWorkout(canonicalJson, autoStart, error);
-}
-
-- (void)consumePendingWorkoutRequestIfNeeded {
-    NSError *readError = nil;
-    NSData *data = [NSData dataWithContentsOfFile:pendingRequestPath() options:0 error:&readError];
-    if (!data || readError || !homeform::singleton()) {
-        return;
-    }
-
-    NSDictionary *payload = [NSJSONSerialization JSONObjectWithData:data options:0 error:&readError];
-    if (![payload isKindOfClass:[NSDictionary class]] || readError) {
-        return;
-    }
-
-    NSString *canonicalJson = payload[@"canonicalJson"];
-    BOOL autoStart = [payload[@"autoStart"] boolValue];
-    QString errorText;
-    if (saveAndMaybeStartWorkoutJson(QString::fromUtf8(canonicalJson.UTF8String), autoStart, &errorText)) {
-        [[NSFileManager defaultManager] removeItemAtPath:pendingRequestPath() error:nil];
-    }
-}
-
-@end
-
 static char *dupNSString(NSString *value) {
     if (!value) {
         return nullptr;
@@ -181,30 +120,11 @@ static char *dupNSString(NSString *value) {
     return buffer;
 }
 
-bool ios_workout_ai_generate_canonical_json(const char *prompt, const char *device, char **outJson, char **outError) {
-    @autoreleasepool {
-        WorkoutAIIntentBridge *bridge = [[WorkoutAIIntentBridge alloc] init];
-        NSString *error = nil;
-        NSString *json = [bridge generateCanonicalWorkoutForPrompt:[NSString stringWithUTF8String:prompt ?: ""]
-                                                            device:[NSString stringWithUTF8String:device ?: ""]
-                                                             error:&error];
-        if (outJson) {
-            *outJson = dupNSString(json);
-        }
-        if (outError) {
-            *outError = dupNSString(error);
-        }
-        return json != nil;
-    }
-}
-
 bool ios_workout_ai_queue_canonical_workout(const char *canonicalJson, bool autoStart, char **outError) {
     @autoreleasepool {
-        WorkoutAIIntentBridge *bridge = [[WorkoutAIIntentBridge alloc] init];
+        NSString *canonicalWorkout = [NSString stringWithUTF8String:canonicalJson ?: ""];
         NSString *error = nil;
-        BOOL ok = [bridge queueCanonicalWorkout:[NSString stringWithUTF8String:canonicalJson ?: ""]
-                                      autoStart:autoStart
-                                          error:&error];
+        BOOL ok = queueOrProcessCanonicalWorkout(canonicalWorkout, autoStart, &error);
         if (outError) {
             *outError = dupNSString(error);
         }
@@ -214,8 +134,23 @@ bool ios_workout_ai_queue_canonical_workout(const char *canonicalJson, bool auto
 
 void ios_workout_ai_consume_pending_request_if_needed(void) {
     @autoreleasepool {
-        WorkoutAIIntentBridge *bridge = [[WorkoutAIIntentBridge alloc] init];
-        [bridge consumePendingWorkoutRequestIfNeeded];
+        NSError *readError = nil;
+        NSData *data = [NSData dataWithContentsOfFile:pendingRequestPath() options:0 error:&readError];
+        if (!data || readError || !homeform::singleton()) {
+            return;
+        }
+
+        NSDictionary *payload = [NSJSONSerialization JSONObjectWithData:data options:0 error:&readError];
+        if (![payload isKindOfClass:[NSDictionary class]] || readError) {
+            return;
+        }
+
+        NSString *canonicalJson = payload[@"canonicalJson"];
+        BOOL autoStart = [payload[@"autoStart"] boolValue];
+        QString errorText;
+        if (saveAndMaybeStartWorkoutJson(QString::fromUtf8(canonicalJson.UTF8String), autoStart, &errorText)) {
+            [[NSFileManager defaultManager] removeItemAtPath:pendingRequestPath() error:nil];
+        }
     }
 }
 

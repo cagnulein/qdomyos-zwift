@@ -1,6 +1,37 @@
 import Foundation
 import AppIntents
 
+@_silgen_name("ios_workout_ai_queue_canonical_workout")
+private func ios_workout_ai_queue_canonical_workout(_ canonicalJson: UnsafePointer<CChar>?,
+                                                    _ autoStart: Bool,
+                                                    _ outError: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>?) -> Bool
+
+@_silgen_name("ios_workout_ai_free_string")
+private func ios_workout_ai_free_string(_ value: UnsafeMutablePointer<CChar>?)
+
+@available(iOS 16.0, *)
+private func queueCanonicalWorkoutFromIntent(_ canonicalJson: String,
+                                             autoStart: Bool) throws {
+    var errorPointer: UnsafeMutablePointer<CChar>?
+    let queued = canonicalJson.withCString { jsonPointer in
+        ios_workout_ai_queue_canonical_workout(jsonPointer, autoStart, &errorPointer)
+    }
+
+    let errorMessage: String? = {
+        guard let errorPointer else {
+            return nil
+        }
+        defer { ios_workout_ai_free_string(errorPointer) }
+        return String(cString: errorPointer)
+    }()
+
+    if !queued {
+        throw NSError(domain: "QZWorkoutIntent",
+                      code: 1,
+                      userInfo: [NSLocalizedDescriptionKey: errorMessage ?? "Unable to queue workout"])
+    }
+}
+
 @available(iOS 16.0, *)
 enum WorkoutShortcutDevice: String, AppEnum {
     case bike
@@ -37,31 +68,24 @@ struct StartQuickWorkoutIntent: AppIntent {
     static var description = IntentDescription("Create a structured workout and optionally start it in QZ.")
     static var openAppWhenRun = true
 
-    @Parameter(title: "Duration Minutes")
-    var durationMinutes: Int = 45
+    @Parameter(title: "Duration Minutes", default: 45)
+    var durationMinutes: Int
 
-    @Parameter(title: "Device")
-    var device: WorkoutShortcutDevice = .bike
+    @Parameter(title: "Device", default: .bike)
+    var device: WorkoutShortcutDevice
 
-    @Parameter(title: "Intensity")
-    var intensity: WorkoutShortcutIntensity = .moderate
+    @Parameter(title: "Intensity", default: .moderate)
+    var intensity: WorkoutShortcutIntensity
 
-    @Parameter(title: "Start Immediately")
-    var startImmediately: Bool = true
+    @Parameter(title: "Start Immediately", default: true)
+    var startImmediately: Bool
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let service = WorkoutAIService()
         let canonicalJson = service.buildQuickWorkoutCanonicalJson(durationMinutes: durationMinutes,
                                                                   device: device.rawValue,
                                                                   intensity: intensity.rawValue)
-        let bridge = WorkoutAIIntentBridge()
-        var error: NSString?
-        let queued = bridge.queueCanonicalWorkout(canonicalJson, autoStart: startImmediately, error: &error)
-        if !queued {
-            throw NSError(domain: "QZWorkoutIntent",
-                          code: 1,
-                          userInfo: [NSLocalizedDescriptionKey: (error as String?) ?? "Unable to queue workout"])
-        }
+        try queueCanonicalWorkoutFromIntent(canonicalJson, autoStart: startImmediately)
 
         let message: String
         if startImmediately {
@@ -82,11 +106,11 @@ struct GenerateCustomWorkoutIntent: AppIntent {
     @Parameter(title: "Request")
     var request: String
 
-    @Parameter(title: "Device")
-    var device: WorkoutShortcutDevice = .bike
+    @Parameter(title: "Device", default: .bike)
+    var device: WorkoutShortcutDevice
 
-    @Parameter(title: "Start Immediately")
-    var startImmediately: Bool = true
+    @Parameter(title: "Start Immediately", default: true)
+    var startImmediately: Bool
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let service = WorkoutAIService()
@@ -102,13 +126,12 @@ struct GenerateCustomWorkoutIntent: AppIntent {
             }
         }
 
-        let bridge = WorkoutAIIntentBridge()
-        var error: NSString?
-        let queued = bridge.queueCanonicalWorkout(canonicalJson, autoStart: startImmediately, error: &error)
-        if !queued {
+        do {
+            try queueCanonicalWorkoutFromIntent(canonicalJson, autoStart: startImmediately)
+        } catch {
             throw NSError(domain: "QZWorkoutIntent",
                           code: 3,
-                          userInfo: [NSLocalizedDescriptionKey: (error as String?) ?? "Unable to queue generated workout"])
+                          userInfo: [NSLocalizedDescriptionKey: error.localizedDescription])
         }
 
         let message = startImmediately ? "Generating and starting your custom workout in QZ."
@@ -120,25 +143,23 @@ struct GenerateCustomWorkoutIntent: AppIntent {
 @available(iOS 16.0, *)
 struct QZWorkoutShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
-        [
-            AppShortcut(
-                intent: StartQuickWorkoutIntent(),
-                phrases: [
-                    "Start a workout in \(.applicationName)",
-                    "Create a workout in \(.applicationName)"
-                ],
-                shortTitle: "Quick Workout",
-                systemImageName: "figure.indoor.cycle"
-            ),
-            AppShortcut(
-                intent: GenerateCustomWorkoutIntent(),
-                phrases: [
-                    "Generate a custom workout in \(.applicationName)",
-                    "Create a custom workout in \(.applicationName)"
-                ],
-                shortTitle: "Custom Workout",
-                systemImageName: "waveform.and.mic"
-            )
-        ]
+        AppShortcut(
+            intent: StartQuickWorkoutIntent(),
+            phrases: [
+                "Start a workout in \(.applicationName)",
+                "Create a workout in \(.applicationName)"
+            ],
+            shortTitle: "Quick Workout",
+            systemImageName: "figure.indoor.cycle"
+        )
+        AppShortcut(
+            intent: GenerateCustomWorkoutIntent(),
+            phrases: [
+                "Generate a custom workout in \(.applicationName)",
+                "Create a custom workout in \(.applicationName)"
+            ],
+            shortTitle: "Custom Workout",
+            systemImageName: "waveform.and.mic"
+        )
     }
 }

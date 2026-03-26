@@ -1,4 +1,5 @@
 import Foundation
+import Darwin
 
 #if canImport(FoundationModels)
 import FoundationModels
@@ -401,4 +402,37 @@ fileprivate struct CanonicalWorkoutPayload: Codable {
             )
         }
     }
+}
+
+@_cdecl("ios_workout_ai_generate_canonical_json")
+public func ios_workout_ai_generate_canonical_json(_ prompt: UnsafePointer<CChar>?,
+                                                   _ device: UnsafePointer<CChar>?,
+                                                   _ outJson: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>?,
+                                                   _ outError: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>?) -> Bool {
+    let promptText = prompt.map { String(cString: $0) } ?? ""
+    let deviceText = device.map { String(cString: $0) } ?? ""
+    let service = WorkoutAIService()
+
+    let semaphore = DispatchSemaphore(value: 0)
+    var resultJson: String?
+    var resultError: String?
+
+    service.generateCanonicalWorkout(prompt: promptText, device: deviceText) { json, error in
+        resultJson = json as String?
+        resultError = error as String?
+        semaphore.signal()
+    }
+
+    let waitResult = semaphore.wait(timeout: DispatchTime.now() + .seconds(20))
+    if waitResult == .timedOut && resultJson == nil && resultError == nil {
+        resultError = "Timed out while waiting for Apple Foundation Models"
+    }
+
+    if let outJson {
+        outJson.pointee = resultJson.flatMap { strdup($0) }
+    }
+    if let outError {
+        outError.pointee = resultError.flatMap { strdup($0) }
+    }
+    return resultJson != nil
 }
