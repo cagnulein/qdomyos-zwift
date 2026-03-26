@@ -21,6 +21,7 @@ SOURCES += \
         Devices/devicetestdataindex.cpp \
         Erg/ergtabletestsuite.cpp \
         GarminConnect/garminconnecttestsuite.cpp \
+        ToolTests/qfittestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
         ToolTests/testtrainingloadtestsuite.cpp \
         Tools/testsettings.cpp \
@@ -53,8 +54,11 @@ HEADERS += \
     Devices/deviceindex.h \
     Devices/devicenamepatterngroup.h \
     Devices/devicetestdataindex.h \
+    Devices/TestOctaneTreadmillZR8.h \
+    Devices/TestSunnyfitStepper.h \
     Erg/ergtabletestsuite.h \
     GarminConnect/garminconnecttestsuite.h \
+    ToolTests/qfittestsuite.h \
     ToolTests/testsettingstestsuite.h \
     ToolTests/testtrainingloadtestsuite.h \
     Tools/devicetypeid.h \

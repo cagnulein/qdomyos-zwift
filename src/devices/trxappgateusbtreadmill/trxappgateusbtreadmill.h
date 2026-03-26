@@ -41,6 +41,7 @@ class trxappgateusbtreadmill : public treadmill {
     double GetInclinationFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
+    uint16_t GetHeartFromPacket(const QByteArray &packet);
     uint16_t GetElapsedFromPacket(const QByteArray &packet);
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);

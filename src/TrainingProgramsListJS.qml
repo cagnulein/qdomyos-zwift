@@ -22,6 +22,32 @@ ColumnLayout {
     }
 
     property var selectedFileUrl: ""
+    property bool isSearching: false
+
+    // Model for search results
+    ListModel {
+        id: searchResultsModel
+    }
+
+    // Function to perform C++-based recursive search
+    function searchRecursively(folderUrl, filter) {
+        searchResultsModel.clear()
+
+        if (!filter || filter.trim() === "") {
+            isSearching = false
+            return
+        }
+
+        isSearching = true
+
+        // Call C++ FileSearcher for fast recursive search
+        var results = fileSearcher.searchRecursively(folderUrl, filter, ["*.xml", "*.zwo"])
+
+        // Populate search results model
+        for (var i = 0; i < results.length; i++) {
+            searchResultsModel.append(results[i])
+        }
+    }
 
     Loader {
         id: fileDialogLoader
@@ -79,21 +105,36 @@ ColumnLayout {
                     TextField {
                         id: filterField
                         Layout.fillWidth: true
+                        placeholderText: "Search (recursive)..."
 
                         function updateFilter() {
-                            var text = filterField.text
-                            var filter = "*"
-                            for(var i = 0; i<text.length; i++)
-                               filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
-                            filter+="*"
-                            folderModel.nameFilters = [filter + ".zwo", filter + ".xml"]
+                            var text = filterField.text.trim()
+
+                            if (text === "") {
+                                // No filter - use normal folder browsing
+                                isSearching = false
+                            } else {
+                                // Trigger recursive C++ search
+                                var baseFolder = "file://" + rootItem.getWritableAppDir() + 'training'
+                                searchRecursively(baseFolder, text)
+                            }
                         }
 
-                        onTextChanged: updateFilter()
+                        onTextChanged: {
+                            searchTimer.restart()
+                        }
+
+                        Timer {
+                            id: searchTimer
+                            interval: 300
+                            repeat: false
+                            onTriggered: filterField.updateFilter()
+                        }
                     }
 
                     Button {
                         text: "←"
+                        visible: !isSearching
                         onClicked: folderModel.folder = folderModel.parentFolder
                     }
                 }
@@ -114,62 +155,80 @@ ColumnLayout {
                         showDirsFirst: true
                     }
 
-                    model: folderModel
+                    model: isSearching ? searchResultsModel : folderModel
 
-                    delegate: Component {
-                        Rectangle {
-                            width: ListView.view.width
-                            height: 50
-                            color: ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor
+                    delegate: Rectangle {
+                        width: ListView.view.width
+                        height: 50
+                        color: ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor
 
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.margins: 10
-                                spacing: 10
+                        // Determine item properties based on which model is active
+                        property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
+                        property string itemFileName: isSearching ? model.fileName : folderModel.get(index, "fileName")
+                        property string itemFileUrl: isSearching ? model.filePath : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL'))
+                        property string itemRelativePath: isSearching ? model.relativePath : ""
 
-                                Text {
-                                    id: fileIcon
-                                    text: folderModel.isFolder(index) ? "📁" : "📄"
-                                    font.pixelSize: 24
-                                }
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 10
+                            spacing: 10
+
+                            Text {
+                                id: fileIcon
+                                text: isItemFolder ? "📁" : "📄"
+                                font.pixelSize: 24
+                            }
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
 
                                 Text {
                                     id: fileName
                                     Layout.fillWidth: true
-                                    text: !folderModel.isFolder(index) ?
-                                          folderModel.get(index, "fileName").substring(0, folderModel.get(index, "fileName").length-4) :
-                                          folderModel.get(index, "fileName")
-                                    color: folderModel.isFolder(index) ? Material.color(Material.Orange) : "white"
+                                    text: !isItemFolder ?
+                                          itemFileName.substring(0, itemFileName.length-4) :
+                                          itemFileName
+                                    color: isItemFolder ? Material.color(Material.Orange) : "white"
                                     font.pixelSize: 16
                                     elide: Text.ElideRight
                                 }
 
                                 Text {
-                                    text: "›"
-                                    font.pixelSize: 24
+                                    Layout.fillWidth: true
+                                    text: itemRelativePath
                                     color: Material.color(Material.Grey)
-                                    visible: !ListView.isCurrentItem
+                                    font.pixelSize: 12
+                                    elide: Text.ElideMiddle
+                                    visible: isSearching && itemRelativePath !== ""
                                 }
                             }
 
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    list.currentIndex = index
-                                    let fileUrl = folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL');
+                            Text {
+                                text: "›"
+                                font.pixelSize: 24
+                                color: Material.color(Material.Grey)
+                                visible: !ListView.isCurrentItem
+                            }
+                        }
 
-                                    if (folderModel.isFolder(index)) {
-                                        // Navigate to folder
-                                        folderModel.folder = fileUrl
-                                    } else if (fileUrl) {
-                                        // Load preview and show detail view
-                                        console.log('Loading preview for: ' + fileUrl);
-                                        trainprogram_preview(fileUrl)
-                                        pendingWorkoutUrl = fileUrl
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                list.currentIndex = index
 
-                                        // Wait for preview to load then push detail view
-                                        detailViewTimer.restart()
+                                if (isItemFolder) {
+                                    // Navigate to folder (only in browse mode)
+                                    if (!isSearching) {
+                                        folderModel.folder = itemFileUrl
                                     }
+                                } else if (itemFileUrl) {
+                                    // Load preview and show detail view
+                                    trainprogram_preview(itemFileUrl)
+                                    pendingWorkoutUrl = itemFileUrl
+
+                                    // Wait for preview to load then push detail view
+                                    detailViewTimer.restart()
                                 }
                             }
                         }
@@ -255,93 +314,12 @@ ColumnLayout {
                 }
 
                 // WebView con grafico
+                // Preview data is now loaded via WebSocket, no runJavaScript needed
                 WebView {
                     id: previewWebView
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
-
-                    Component.onCompleted: {
-                        // Update workout after a short delay to ensure data is loaded
-                        updateTimer.restart()
-                    }
-
-                    Timer {
-                        id: updateTimer
-                        interval: 400
-                        repeat: false
-                        onTriggered: previewWebView.updateWorkout()
-                    }
-
-                    function updateWorkout() {
-                        if (!rootItem.preview_workout_points) return;
-
-                        // Build arrays for the workout data
-                        var watts = [];
-                        var speed = [];
-                        var inclination = [];
-                        var resistance = [];
-                        var cadence = [];
-
-                        var hasWatts = false;
-                        var hasSpeed = false;
-                        var hasInclination = false;
-                        var hasResistance = false;
-                        var hasCadence = false;
-
-                        for (var i = 0; i < rootItem.preview_workout_points; i++) {
-                            if (rootItem.preview_workout_watt && rootItem.preview_workout_watt[i] !== undefined && rootItem.preview_workout_watt[i] > 0) {
-                                watts.push({ x: i, y: rootItem.preview_workout_watt[i] });
-                                hasWatts = true;
-                            }
-                            if (rootItem.preview_workout_speed && rootItem.preview_workout_speed[i] !== undefined && rootItem.preview_workout_speed[i] > 0) {
-                                speed.push({ x: i, y: rootItem.preview_workout_speed[i] });
-                                hasSpeed = true;
-                            }
-                            if (rootItem.preview_workout_inclination && rootItem.preview_workout_inclination[i] !== undefined && rootItem.preview_workout_inclination[i] > -200) {
-                                inclination.push({ x: i, y: rootItem.preview_workout_inclination[i] });
-                                hasInclination = true;
-                            }
-                            if (rootItem.preview_workout_resistance && rootItem.preview_workout_resistance[i] !== undefined && rootItem.preview_workout_resistance[i] >= 0) {
-                                resistance.push({ x: i, y: rootItem.preview_workout_resistance[i] });
-                                hasResistance = true;
-                            }
-                            if (rootItem.preview_workout_cadence && rootItem.preview_workout_cadence[i] !== undefined && rootItem.preview_workout_cadence[i] > 0) {
-                                cadence.push({ x: i, y: rootItem.preview_workout_cadence[i] });
-                                hasCadence = true;
-                            }
-                        }
-
-                        // Determine device type based on available data
-                        var deviceType = 'bike'; // default
-
-                        // Priority 1: If has resistance, it's a bike (regardless of inclination)
-                        if (hasResistance) {
-                            deviceType = 'bike';
-                        }
-                        // Priority 2: If has speed or inclination (without resistance), it's a treadmill
-                        else if (hasSpeed || hasInclination) {
-                            deviceType = 'treadmill';
-                        }
-                        // Priority 3: If has power or cadence (bike metrics), it's a bike
-                        else if (hasWatts || hasCadence) {
-                            deviceType = 'bike';
-                        }
-
-                        // Call JavaScript function in the WebView
-                        var data = {
-                            points: rootItem.preview_workout_points,
-                            watts: watts,
-                            speed: speed,
-                            inclination: inclination,
-                            resistance: resistance,
-                            cadence: cadence,
-                            deviceType: deviceType,
-                            miles_unit: settings.value("miles_unit", false)
-                        };
-
-                        runJavaScript("if(window.setWorkoutData) window.setWorkoutData(" + JSON.stringify(data) + ");");
-                    }
                 }
             }
         }
