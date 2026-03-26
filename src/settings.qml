@@ -1293,6 +1293,7 @@ import Qt.labs.platform 1.1
             property bool cadence_sensor_as_treadmill: false
             property bool proform_trainer_8_0_pftl59721_int_0: false
             property bool proform_carbon_tl_PFTL59723_6: false
+            property bool toputure_teb1: false
         }
 
 
@@ -4739,6 +4740,44 @@ import Qt.labs.platform 1.1
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.ant_bike_device_number = antBikeDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                 }
+                            }
+                        }
+                    }
+
+                    AccordionElement {
+                        id: toputureBikeAccordion
+                        title: qsTr("Toputure Bikes")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                id: toputureTeb1Delegate
+                                text: qsTr("Toputure TEB1")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.toputure_teb1
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.toputure_teb1 = checked
+                            }
+
+                            Label {
+                                text: qsTr("Enable the special SPORT01 instant power formula only for the Toputure TEB1 bike. Leave disabled to use the standard FTMS instant power reported by the device.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
                             }
                         }
                     }

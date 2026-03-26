@@ -912,6 +912,9 @@ class QZSettings {
     static const QString instant_power_on_pause;
     static constexpr bool default_instant_power_on_pause = false;
 
+    static const QString toputure_teb1;
+    static constexpr bool default_toputure_teb1 = false;
+
     /**
      * @brief Adjusts value in a metric object that's configured specifically for measuring SPEED.
      */
