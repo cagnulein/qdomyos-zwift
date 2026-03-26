@@ -37,6 +37,33 @@ Page {
         }
     }
 
+    function hasAnyUploadServiceConfigured() {
+        return rootItem &&
+               (rootItem.isStravaLoggedIn() ||
+                rootItem.isGarminUploadConfigured() ||
+                rootItem.isIntervalsICUUploadConfigured())
+    }
+
+    function openUploadMenu(delegateItem, workoutId, workoutTitle) {
+        if (!workoutModel || !hasAnyUploadServiceConfigured()) {
+            return
+        }
+
+        var details = workoutModel.getWorkoutDetails(workoutId)
+        if (!details.filePath || details.filePath === "") {
+            return
+        }
+
+        uploadMenu.workoutId = workoutId
+        uploadMenu.workoutTitle = workoutTitle
+        uploadMenu.filePath = details.filePath
+
+        var popupPoint = delegateItem.mapToItem(workoutHistoryPage, delegateItem.width / 2, delegateItem.height / 2)
+        uploadMenu.x = Math.max(8, popupPoint.x - 40)
+        uploadMenu.y = Math.max(8, popupPoint.y - 20)
+        uploadMenu.open()
+    }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 10
@@ -413,7 +440,39 @@ Page {
                     // Push the ChartJsTest view
                     stackView.push("PreviewChart.qml")
                 }
+
+                onPressAndHold: {
+                    workoutHistoryPage.openUploadMenu(swipeDelegate, model.id, model.title)
+                }
             }
+        }
+    }
+
+    Menu {
+        id: uploadMenu
+
+        property int workoutId: -1
+        property string workoutTitle: ""
+        property string filePath: ""
+
+        title: workoutTitle
+
+        MenuItem {
+            text: "Upload to Strava"
+            visible: rootItem && rootItem.isStravaLoggedIn()
+            onTriggered: rootItem.uploadHistoricalWorkoutToStrava(uploadMenu.filePath)
+        }
+
+        MenuItem {
+            text: "Upload to Garmin"
+            visible: rootItem && rootItem.isGarminUploadConfigured()
+            onTriggered: rootItem.uploadHistoricalWorkoutToGarmin(uploadMenu.filePath)
+        }
+
+        MenuItem {
+            text: "Upload to Intervals.icu"
+            visible: rootItem && rootItem.isIntervalsICUUploadConfigured()
+            onTriggered: rootItem.uploadHistoricalWorkoutToIntervalsICU(uploadMenu.filePath)
         }
     }
 
