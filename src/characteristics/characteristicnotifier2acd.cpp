@@ -9,7 +9,14 @@ CharacteristicNotifier2ACD::CharacteristicNotifier2ACD(bluetoothdevice *Bike, QO
 int CharacteristicNotifier2ACD::notify(QByteArray &value) {
     BLUETOOTH_TYPE dt = Bike->deviceType();
     if (dt == TREADMILL || dt == ELLIPTICAL) {
-        value.append(0x0E);       // Inclination, distance and average speed available
+        QSettings settings;
+        bool bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+
+        if (bike_cadence_sensor) {
+            value.append(0x0C);       // Inclination and distance available (old behavior)
+        } else {
+            value.append(0x0E);       // Inclination, distance and average speed available
+        }
         //value.append((char)0x01); // heart rate available
         value.append((char)0x05); // HeartRate(8) | ElapsedTime(10)
 
@@ -23,7 +30,8 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
         // average speed in 0.01 km/h (distance from startup / elapsed time)
         double elapsed_time_seconds = 0.0;
         uint16_t averageSpeed = 0;
-        {
+        QByteArray averageSpeedBytes;
+        if (!bike_cadence_sensor) {
             QTime sessionElapsedTime = Bike->elapsedTime();
             elapsed_time_seconds = (double)sessionElapsedTime.hour() * 3600.0 +
                                    (double)sessionElapsedTime.minute() * 60.0 +
@@ -34,10 +42,16 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
                 double avg_kmh = (distance_m * 3.6) / elapsed_time_seconds;
                 averageSpeed = (uint16_t)qRound(avg_kmh * 100.0);
             }
+            averageSpeedBytes.append(static_cast<char>(averageSpeed & 0xFF));
+            averageSpeedBytes.append(static_cast<char>((averageSpeed >> 8) & 0xFF));
+        } else {
+            elapsed_time_seconds = 0.0;
+            QTime sessionElapsedTime = Bike->elapsedTime();
+            elapsed_time_seconds = (double)sessionElapsedTime.hour() * 3600.0 +
+                                   (double)sessionElapsedTime.minute() * 60.0 +
+                                   (double)sessionElapsedTime.second() +
+                                   (double)sessionElapsedTime.msec() / 1000.0;
         }
-        QByteArray averageSpeedBytes;
-        averageSpeedBytes.append(static_cast<char>(averageSpeed & 0xFF));
-        averageSpeedBytes.append(static_cast<char>((averageSpeed >> 8) & 0xFF));
 
         // peloton wants the distance from the qz startup to handle stacked classes
         // https://github.com/cagnulein/qdomyos-zwift/issues/2018
@@ -53,7 +67,6 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
         
         uint16_t normalizeIncline = 0;
 
-        QSettings settings;
         bool real_inclination_to_virtual_treamill_bridge = settings.value(QZSettings::real_inclination_to_virtual_treamill_bridge, QZSettings::default_real_inclination_to_virtual_treamill_bridge).toBool();
         double inclination = ((treadmill *)Bike)->currentInclination().value();
         if(real_inclination_to_virtual_treamill_bridge) {
@@ -88,8 +101,10 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
         elapsedBytes.append(static_cast<char>((ftms_elapsed_time_field >> 8) & 0xFF));
 
         value.append(speedBytes); // Actual value.
-        value.append(averageSpeedBytes); // Average speed value.
-        
+        if (!bike_cadence_sensor) {
+            value.append(averageSpeedBytes); // Average speed value.
+        }
+
         value.append(distanceBytes); // Actual value.
 
         value.append(inclineBytes); // incline

@@ -86,6 +86,11 @@ void deerruntreadmill::waitForAPacket() {
 void deerruntreadmill::writeUnlockCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log) {
     QEventLoop loop;
     QTimer timeout;
+    
+    if(!unlock_service) {
+        qDebug() << "ERROR! Unlock service not found!";
+        return;
+    }
 
     connect(unlock_service, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
     timeout.singleShot(300ms, &loop, &QEventLoop::quit);
@@ -155,22 +160,24 @@ uint8_t deerruntreadmill::calculatePitPatChecksum(uint8_t arr[], size_t size) {
 }
 
 
-void deerruntreadmill::forceSpeed(double requestSpeed) {
+void deerruntreadmill::forceSpeedAndInclination(double requestSpeed, double requestInclination) {
     QSettings settings;
 
     if (pitpat) {
         // PitPat speed template
         // Pattern: 6a 17 00 00 00 00 [speed_high] [speed_low] 01 00 8a 00 04 00 00 00 00 00 12 2e 0c [checksum] 43
         // Speed encoding: speed value * 1000 (e.g., 2.0 km/h = 2000 = 0x07d0)
-        uint8_t writeSpeed[] = {0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x07, 0x6c, 0x01, 0x00, 0x8a, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12, 0x2e, 0x0c, 0xc3, 0x43};
+        uint8_t writeSpeed[] = {0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x03, 0xe8, 0x01, 0x08, 0x64, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x16, 0x7a, 0x67, 0x96, 0x43};
 
         uint16_t speed = (uint16_t)(requestSpeed * 1000.0);
+        uint16_t incline = (uint16_t)(requestInclination);
         writeSpeed[6] = (speed >> 8) & 0xFF;  // High byte
         writeSpeed[7] = speed & 0xFF;          // Low byte
+        writeSpeed[9] = incline & 0xFF;          // Low byte
         writeSpeed[21] = calculatePitPatChecksum(writeSpeed, sizeof(writeSpeed));  // Checksum at byte 21
 
         writeCharacteristic(gattWriteCharacteristic, writeSpeed, sizeof(writeSpeed),
-                            QStringLiteral("forceSpeed PitPat speed=") + QString::number(requestSpeed), false, true);
+                            QStringLiteral("forceSpeed PitPat speed=") + QString::number(requestSpeed) + QStringLiteral(" incline=") + QString::number(requestInclination), false, true);
     } else if (superun_ba04) {
         // Superun BA04 speed template
         uint8_t writeSpeed[] = {0x4d, 0x00, 0x14, 0x17, 0x6a, 0x17, 0x00, 0x00, 0x00, 0x00, 0x04, 0x4c, 0x01, 0x00, 0x50, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0xb5, 0x7c, 0xdb, 0x43};
@@ -196,8 +203,12 @@ void deerruntreadmill::forceSpeed(double requestSpeed) {
     }
 }
 
-void deerruntreadmill::forceIncline(double requestIncline) {
+void deerruntreadmill::forceSpeed(double requestSpeed) {
+    forceSpeedAndInclination(requestSpeed, currentInclination().value());
+}
 
+void deerruntreadmill::forceIncline(double requestIncline) {
+    forceSpeedAndInclination(currentSpeed().value(), requestIncline);
 }
 
 void deerruntreadmill::changeInclinationRequested(double grade, double percentage) {
@@ -380,6 +391,9 @@ void deerruntreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         speed = ((double)((value[3] << 8) | ((uint8_t)value[4])) / 1000.0);
     }
     double incline = 0.0;
+    if(pitpat) {
+        incline = (double)(value[11] & 0xFF);
+    }
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -500,6 +514,7 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _superunWriteCharacteristicId((quint16)0xff01);
     QBluetoothUuid _superunNotifyCharacteristicId((quint16)0xff02);
     QBluetoothUuid _unlockCharacteristicId((quint16)0x2b2a);
+    QBluetoothUuid _unlockCharacteristicId2((quint16)0x2b11);
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -517,7 +532,12 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             unlock_characteristic = unlock_service->characteristic(_unlockCharacteristicId);
             if (unlock_characteristic.isValid()) {
                 emit debug(QStringLiteral("unlock characteristic found"));
+            } else {
+                qDebug() << "unlock char not found, let's try the other one";
+                unlock_characteristic = unlock_service->characteristic(_unlockCharacteristicId2);
             }
+            
+            qDebug() << "unlock_characteristic" << unlock_characteristic.isValid();
             return;
         }
 
@@ -579,6 +599,7 @@ void deerruntreadmill::serviceScanDone(void) {
     QBluetoothUuid _pitpatServiceId((quint16)0xfba0);
     QBluetoothUuid _superunServiceId((quint16)0xffff);
     QBluetoothUuid _unlockServiceId((quint16)0x1801);
+    QBluetoothUuid _unlockServiceId2((quint16)0x1910);
     emit debug(QStringLiteral("serviceScanDone"));
 
     auto services_list = m_control->services();
@@ -587,22 +608,42 @@ void deerruntreadmill::serviceScanDone(void) {
         emit debug(s.toString());
     }
 
-    // Check if this is a pitpat treadmill by looking for the 0xfba0 service
-    if (services_list.contains(_pitpatServiceId)) {
+    // Try to create service objects for each variant
+    // On iOS, services_list.contains() doesn't work reliably, so we try to create the service directly
+    QLowEnergyService* pitpat_service = m_control->createServiceObject(_pitpatServiceId);
+    QLowEnergyService* superun_service = m_control->createServiceObject(_superunServiceId);
+    QLowEnergyService* default_service = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+
+    // Check which service was successfully created
+    if (pitpat_service) {
         pitpat = true;
         emit debug(QStringLiteral("Detected pitpat treadmill variant"));
-        gattCommunicationChannelService = m_control->createServiceObject(_pitpatServiceId);
+        gattCommunicationChannelService = pitpat_service;
         unlock_service = m_control->createServiceObject(_unlockServiceId);
-    } else if (services_list.contains(_superunServiceId)) {
+        if(!unlock_service) {
+            qDebug() << "unlock service not found, let's try with another one";
+            unlock_service = m_control->createServiceObject(_unlockServiceId2);
+        }
+        
+        qDebug() << "unlock service " << unlock_service;
+
+        // Clean up unused services
+        if (superun_service) delete superun_service;
+        if (default_service) delete default_service;
+    } else if (superun_service) {
         superun_ba04 = true;
         pitpat = false;
         emit debug(QStringLiteral("Detected Superun BA04 treadmill variant"));
-        gattCommunicationChannelService = m_control->createServiceObject(_superunServiceId);
-    } else {
+        gattCommunicationChannelService = superun_service;
+
+        // Clean up unused services
+        if (default_service) delete default_service;
+    } else if (default_service) {
         pitpat = false;
-        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+        emit debug(QStringLiteral("Detected default treadmill variant"));
+        gattCommunicationChannelService = default_service;
     }
-    
+
     if (gattCommunicationChannelService) {
         connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
                 &deerruntreadmill::stateChanged);
@@ -610,7 +651,7 @@ void deerruntreadmill::serviceScanDone(void) {
     } else {
         emit debug(QStringLiteral("error on find Service"));
     }
-    
+
     if (pitpat && unlock_service) {
         connect(unlock_service, &QLowEnergyService::stateChanged, this,
                 &deerruntreadmill::stateChanged);

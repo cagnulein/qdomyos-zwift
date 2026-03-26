@@ -27,6 +27,8 @@ class metric {
     QDateTime valueChanged() { return m_valueChanged; }
     double average();
     double average5s();
+    double average5sHarmonic();
+    double average3sHarmonic();
     double average20s();
 
     // rate of the current metric in a second, useful to know how many Kcal i will burn in a
@@ -65,6 +67,7 @@ class metric {
     double m_min = 999999999;
     double m_max = 0;
     double m_offset = 0;
+    QList<double> m_last3;
     QList<double> m_last5;
     QList<double> m_last20;
 

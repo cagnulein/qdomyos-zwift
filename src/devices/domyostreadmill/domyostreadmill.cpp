@@ -73,50 +73,98 @@ domyostreadmill::domyostreadmill(uint32_t pollDeviceTime, bool noConsole, bool n
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &domyostreadmill::update);
     refresh->start(pollDeviceTime);
+
+    // Initialize write timeout timer
+    writeTimeoutTimer = new QTimer(this);
+    writeTimeoutTimer->setSingleShot(true);
+    connect(writeTimeoutTimer, &QTimer::timeout, this, [this]() {
+        qDebug() << QStringLiteral("writeCharacteristic timeout - processing next in queue");
+        isWriting = false;
+        currentWriteWaitingForResponse = false;
+        processWriteQueue();
+    });
+
+    // Connect packetReceived signal to handle wait_for_response = true case
+    connect(this, &domyostreadmill::packetReceived, this, [this]() {
+        // Only process if we were waiting for a response
+        if (currentWriteWaitingForResponse && isWriting) {
+            // Stop timeout timer
+            writeTimeoutTimer->stop();
+
+            // Mark writing as complete and process next item in queue
+            isWriting = false;
+            currentWriteWaitingForResponse = false;
+            processWriteQueue();
+        }
+    });
 }
 
 void domyostreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                           bool wait_for_response) {
-    QEventLoop loop;
-    QTimer timeout;
+    // Create write request and add to queue
+    WriteRequest request;
+    request.data = QByteArray((const char *)data, data_len);
+    request.info = info;
+    request.disable_log = disable_log;
+    request.wait_for_response = wait_for_response;
 
-    if (wait_for_response) {
-        connect(this, &domyostreadmill::packetReceived, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-    } else {
-        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+    writeQueue.enqueue(request);
+
+    // Start processing if not already writing
+    processWriteQueue();
+}
+
+void domyostreadmill::processWriteQueue() {
+    // If already writing or queue is empty, do nothing
+    if (isWriting || writeQueue.isEmpty()) {
+        return;
     }
 
-    if (gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
+    // Check connection state
+    if (!gattCommunicationChannelService ||
+        gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
         m_control->state() == QLowEnergyController::UnconnectedState) {
         qDebug() << QStringLiteral("writeCharacteristic error because the connection is closed");
-
+        // Clear the queue on disconnection
+        writeQueue.clear();
+        isWriting = false;
         return;
     }
 
     if (!gattWriteCharacteristic.isValid()) {
         qDebug() << QStringLiteral("gattWriteCharacteristic is invalid");
+        // Clear the queue on invalid characteristic
+        writeQueue.clear();
+        isWriting = false;
         return;
     }
 
+    // Get next request from queue
+    WriteRequest request = writeQueue.dequeue();
+    isWriting = true;
+    currentWriteWaitingForResponse = request.wait_for_response;
+
+    // Update write buffer
     if (writeBuffer) {
         delete writeBuffer;
     }
-    writeBuffer = new QByteArray((const char *)data, data_len);
+    writeBuffer = new QByteArray(request.data);
 
+    // Write the characteristic
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
-    if (!disable_log) {
+    if (!request.disable_log) {
         qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ')
-                 << QStringLiteral(" // ") + info;
+                 << QStringLiteral(" // ") + request.info;
     }
 
-    loop.exec();
+    // Start timeout timer (300ms as before)
+    writeTimeoutTimer->start(300);
 
-    if (timeout.isActive() == false) {
-        qDebug() << QStringLiteral(" exit for timeout");
-    }
+    // Note: The actual completion will be signaled by:
+    // - characteristicWritten (if wait_for_response = false)
+    // - packetReceived (if wait_for_response = true)
+    // which will call processWriteQueue() again to process the next item
 }
 
 void domyostreadmill::updateDisplay(uint16_t elapsed) {
@@ -409,6 +457,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     bool domyos_treadmill_buttons =
         settings.value(QZSettings::domyos_treadmill_buttons, QZSettings::default_domyos_treadmill_buttons).toBool();
     bool domyos_treadmill_t900a = settings.value(QZSettings::domyos_treadmill_t900a, QZSettings::default_domyos_treadmill_t900a).toBool();
+    domyos_treadmill_sync_start = settings.value(QZSettings::domyos_treadmill_sync_start, QZSettings::default_domyos_treadmill_sync_start).toBool();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -761,13 +810,27 @@ void domyostreadmill::btinit(bool startTape) {
     writeCharacteristic(initDataStart4, sizeof(initDataStart4), QStringLiteral("init"), false, true);
     writeCharacteristic(initDataStart5, sizeof(initDataStart5), QStringLiteral("init"), false, true);
 
-    if (startTape) {
-        // writeCharacteristic(initDataStart6, sizeof(initDataStart6), "init", false, false);
-        // writeCharacteristic(initDataStart7, sizeof(initDataStart7), "init", false, true);
+    // Old behavior (before commit c90093046): these lines were always executed
+    // New behavior (after commit c90093046): these lines are only executed if startTape is true
+    if (domyos_treadmill_sync_start) {
+        // Old behavior: always execute these lines
         forceSpeedOrIncline(lastSpeed, lastInclination);
 
         writeCharacteristic(initDataStart8, sizeof(initDataStart8), QStringLiteral("init"), false, false);
         writeCharacteristic(initDataStart9, sizeof(initDataStart9), QStringLiteral("init"), false, true);
+    }
+
+    if (startTape) {
+        // writeCharacteristic(initDataStart6, sizeof(initDataStart6), "init", false, false);
+        // writeCharacteristic(initDataStart7, sizeof(initDataStart7), "init", false, true);
+
+        if (!domyos_treadmill_sync_start) {
+            // New behavior: only execute if startTape is true
+            forceSpeedOrIncline(lastSpeed, lastInclination);
+
+            writeCharacteristic(initDataStart8, sizeof(initDataStart8), QStringLiteral("init"), false, false);
+            writeCharacteristic(initDataStart9, sizeof(initDataStart9), QStringLiteral("init"), false, true);
+        }
 
         writeCharacteristic(initDataStart10, sizeof(initDataStart10), QStringLiteral("init"), false, false);
         writeCharacteristic(initDataStart11, sizeof(initDataStart11), QStringLiteral("init"), false, true);
@@ -823,6 +886,17 @@ void domyostreadmill::characteristicWritten(const QLowEnergyCharacteristic &char
                                             const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
+
+    // If the current write is NOT waiting for a response, we can process the next one
+    if (!currentWriteWaitingForResponse) {
+        // Stop timeout timer
+        writeTimeoutTimer->stop();
+
+        // Mark writing as complete and process next item in queue
+        isWriting = false;
+        processWriteQueue();
+    }
+    // Otherwise, we need to wait for packetReceived signal
 }
 
 void domyostreadmill::serviceScanDone(void) {
@@ -909,3 +983,5 @@ bool domyostreadmill::connected() {
 }
 
 void domyostreadmill::searchingStop() { searchStopped = true; }
+
+double domyostreadmill::minStepSpeed() { return 0.1; }
