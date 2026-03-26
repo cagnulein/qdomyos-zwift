@@ -373,7 +373,11 @@ Page {
                                 }
 
                                 Text {
-                                    text: "📏 " + distance.toFixed(2) + " km"
+                                    text: {
+                                        var useMiles = settings && settings.miles_unit
+                                        var displayDistance = useMiles ? (distance / 1.60934) : distance
+                                        return "📏 " + displayDistance.toFixed(2) + (useMiles ? " mi" : " km")
+                                    }
                                 }
                             }
 
