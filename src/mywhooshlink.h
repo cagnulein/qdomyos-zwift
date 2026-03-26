@@ -73,6 +73,11 @@ private:
 
     void sendAction(Action action, bool keyDown = true);
     void sendSteering(int value);
+    void processIncomingData(const QByteArray &data);
+    void logIncomingJson(const QJsonDocument &doc) const;
+    void logInterestingJsonValue(const QString &path, const QJsonValue &value) const;
+    void logInterestingJsonObject(const QJsonObject &object, const QString &prefix = QString()) const;
+    bool isInterestingField(const QString &fieldName) const;
     QString actionToJsonField(Action action) const;
     QString actionToJsonValue(Action action, bool keyDown) const;
     void cycleCameraAngle();
@@ -114,6 +119,7 @@ private:
 
     void loadSettings();
     void sendJsonMessage(const QJsonObject &message);
+    QByteArray receiveBuffer;
 };
 
 #endif // MYWHOOSHLINK_H

@@ -3,6 +3,7 @@
 #include "bluetooth.h"
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QJsonArray>
 #include <QHostAddress>
 #include <QNetworkInterface>
 #include <QDebug>
@@ -191,9 +192,94 @@ void MyWhooshLink::onReadyRead() {
     if (client) {
         QByteArray data = client->readAll();
         qDebug() << "MyWhooshLink: Received data from client:" << data;
-        // Currently we don't expect to receive data from MyWhoosh
-        // Future: handle bidirectional communication (slope, ERG mode)
+        processIncomingData(data);
     }
+}
+
+void MyWhooshLink::processIncomingData(const QByteArray &data) {
+    receiveBuffer.append(data);
+
+    int newlineIndex = receiveBuffer.indexOf('\n');
+    while (newlineIndex >= 0) {
+        QByteArray line = receiveBuffer.left(newlineIndex).trimmed();
+        receiveBuffer.remove(0, newlineIndex + 1);
+
+        if (!line.isEmpty()) {
+            QJsonParseError error;
+            QJsonDocument doc = QJsonDocument::fromJson(line, &error);
+            if (error.error == QJsonParseError::NoError && !doc.isNull()) {
+                logIncomingJson(doc);
+            } else {
+                qDebug() << "MyWhooshLink: Incoming non-JSON message:" << line;
+            }
+        }
+
+        newlineIndex = receiveBuffer.indexOf('\n');
+    }
+}
+
+void MyWhooshLink::logIncomingJson(const QJsonDocument &doc) const {
+    if (doc.isObject()) {
+        QJsonObject object = doc.object();
+        qDebug() << "MyWhooshLink: Incoming JSON object:" << QJsonDocument(object).toJson(QJsonDocument::Compact);
+        if (object.contains(QStringLiteral("MessageType"))) {
+            qDebug() << "MyWhooshLink: MessageType =" << object.value(QStringLiteral("MessageType")).toVariant().toString();
+        }
+        logInterestingJsonObject(object);
+    } else if (doc.isArray()) {
+        QJsonArray array = doc.array();
+        qDebug() << "MyWhooshLink: Incoming JSON array:" << QJsonDocument(array).toJson(QJsonDocument::Compact);
+        for (int i = 0; i < array.size(); ++i) {
+            logInterestingJsonValue(QStringLiteral("[%1]").arg(i), array.at(i));
+        }
+    }
+}
+
+void MyWhooshLink::logInterestingJsonValue(const QString &path, const QJsonValue &value) const {
+    if (value.isObject()) {
+        logInterestingJsonObject(value.toObject(), path);
+        return;
+    }
+
+    if (value.isArray()) {
+        QJsonArray array = value.toArray();
+        for (int i = 0; i < array.size(); ++i) {
+            logInterestingJsonValue(path + QStringLiteral("[%1]").arg(i), array.at(i));
+        }
+        return;
+    }
+
+    if (!path.isEmpty() && isInterestingField(path.section('.', -1))) {
+        qDebug() << "MyWhooshLink: Interesting incoming field" << path << "=" << value.toVariant();
+    }
+}
+
+void MyWhooshLink::logInterestingJsonObject(const QJsonObject &object, const QString &prefix) const {
+    for (auto it = object.begin(); it != object.end(); ++it) {
+        const QString path = prefix.isEmpty() ? it.key() : prefix + QStringLiteral(".") + it.key();
+        if (isInterestingField(it.key()) && !it.value().isObject() && !it.value().isArray()) {
+            qDebug() << "MyWhooshLink: Interesting incoming field" << path << "=" << it.value().toVariant();
+        }
+        logInterestingJsonValue(path, it.value());
+    }
+}
+
+bool MyWhooshLink::isInterestingField(const QString &fieldName) const {
+    const QString key = fieldName.toLower();
+    return key.contains(QStringLiteral("incl")) ||
+           key.contains(QStringLiteral("grade")) ||
+           key.contains(QStringLiteral("slope")) ||
+           key.contains(QStringLiteral("elev")) ||
+           key.contains(QStringLiteral("erg")) ||
+           key.contains(QStringLiteral("targetpower")) ||
+           key.contains(QStringLiteral("target_power")) ||
+           key == QStringLiteral("power") ||
+           key == QStringLiteral("watts") ||
+           key.contains(QStringLiteral("resistance")) ||
+           key.contains(QStringLiteral("cadence")) ||
+           key.contains(QStringLiteral("heartrate")) ||
+           key.contains(QStringLiteral("heart_rate")) ||
+           key == QStringLiteral("hr");
 }
 
 void MyWhooshLink::sendJsonMessage(const QJsonObject &message) {
