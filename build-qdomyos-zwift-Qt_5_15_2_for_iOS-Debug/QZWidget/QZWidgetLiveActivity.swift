@@ -11,6 +11,59 @@ import SwiftUI
 
 // QZWorkoutAttributes is defined in QZWorkoutAttributes.swift (shared file)
 
+@available(iOS 16.1, *)
+private struct CompactMetricStyle {
+    let icon: String
+    let color: Color
+}
+
+@available(iOS 16.1, *)
+private func compactMetricStyle(for metric: String) -> CompactMetricStyle {
+    switch metric {
+    case "Heart Rate":
+        return CompactMetricStyle(icon: "heart.fill", color: .red)
+    case "Watt", "AVG Watt", "Target Power", "FTP", "Watt/Kg":
+        return CompactMetricStyle(icon: "bolt.fill", color: .yellow)
+    case "Cadence", "Target Cadence":
+        return CompactMetricStyle(icon: "arrow.clockwise", color: .primary)
+    case "Speed", "Pace":
+        return CompactMetricStyle(icon: "speedometer", color: .blue)
+    case "Calories", "Weight Loss":
+        return CompactMetricStyle(icon: "flame.fill", color: .orange)
+    case "Odometer", "Elevation":
+        return CompactMetricStyle(icon: "map", color: .green)
+    case "Resistance", "Peloton Resistance", "Target Resistance", "Target Peloton Resistance", "Peloton Offset":
+        return CompactMetricStyle(icon: "dial.low.fill", color: .mint)
+    case "Lap Elapsed", "Elapsed", "Moving Time", "Date Time":
+        return CompactMetricStyle(icon: "timer", color: .primary)
+    case "Fan":
+        return CompactMetricStyle(icon: "fan.fill", color: .cyan)
+    case "Inclination":
+        return CompactMetricStyle(icon: "mountain.2.fill", color: .brown)
+    case "Jouls":
+        return CompactMetricStyle(icon: "bolt.circle.fill", color: .yellow)
+    default:
+        return CompactMetricStyle(icon: "gauge.with.dots.needle.33percent", color: .primary)
+    }
+}
+
+@available(iOS 16.1, *)
+private struct CompactMetricView: View {
+    let metric: String
+    let value: Int
+
+    var body: some View {
+        let style = compactMetricStyle(for: metric)
+
+        HStack(spacing: 2) {
+            Image(systemName: style.icon)
+                .foregroundColor(style.color)
+            Text("\(value)")
+                .font(.caption2)
+        }
+    }
+}
+
 // MARK: - Live Activity Widget
 @available(iOS 16.1, *)
 struct QZWidgetLiveActivity: Widget {
@@ -61,21 +114,9 @@ struct QZWidgetLiveActivity: Widget {
                     .padding(.horizontal)
                 }
             } compactLeading: {
-                // Compact leading (left side of Dynamic Island)
-                HStack(spacing: 2) {
-                    Image(systemName: "heart.fill")
-                        .foregroundColor(.red)
-                    Text("\(context.state.heartRate)")
-                        .font(.caption2)
-                }
+                CompactMetricView(metric: context.state.compactLeadingMetric, value: context.state.compactLeadingValue)
             } compactTrailing: {
-                // Compact trailing (right side of Dynamic Island)
-                HStack(spacing: 2) {
-                    Image(systemName: "bolt.fill")
-                        .foregroundColor(.yellow)
-                    Text("\(Int(context.state.power))")
-                        .font(.caption2)
-                }
+                CompactMetricView(metric: context.state.compactTrailingMetric, value: context.state.compactTrailingValue)
             } minimal: {
                 // Minimal view (when multiple activities)
                 Image(systemName: "figure.run")
@@ -154,7 +195,11 @@ struct QZWidgetLiveActivity_Previews: PreviewProvider {
         heartRate: 145,
         distance: 12500,  // meters (will be displayed as 12.50 km or 7.77 mi)
         kcal: 320,
-        useMiles: false
+        useMiles: false,
+        compactLeadingMetric: "Heart Rate",
+        compactLeadingValue: 145,
+        compactTrailingMetric: "Watt",
+        compactTrailingValue: 200
     )
 
     static var previews: some View {
