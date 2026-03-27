@@ -323,8 +323,9 @@ public class ChannelService extends Service {
             if(Ant.treadmill && sdmChannelController == null) {
                 sdmChannelController = new SDMChannelController(acquireChannel());
             } else if(powerChannelController == null) {
-                powerChannelController = new PowerChannelController(acquireChannel());
-                speedChannelController = new SpeedChannelController(acquireChannel());
+                // Temporarily disabled: power and cadence ANT+ sensors (keeping only the FE trainer via ANT+)
+                // powerChannelController = new PowerChannelController(acquireChannel());
+                // speedChannelController = new SpeedChannelController(acquireChannel());
             }
         }
 
