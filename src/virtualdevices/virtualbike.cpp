@@ -1,5 +1,6 @@
 #include "virtualdevices/virtualbike.h"
 #include "devices/bike.h"
+#include "devices/echelonconnectsport/echelonconnectsport.h"
 #include <QThread>
 #include <QDataStream>
 #include <QMetaEnum>
@@ -7,11 +8,17 @@
 #include <QtMath>
 #include <chrono>
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
+
 using namespace std::chrono_literals;
 
 virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
-                         double bikeResistanceGain) {
+                         double bikeResistanceGain, bool forceClassicMode) {
     Bike = t;
+    this->forceClassicMode = forceClassicMode;
 
     this->noHeartService = noHeartService;
     this->bikeResistanceGain = bikeResistanceGain;
@@ -25,8 +32,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     bool service_changed = settings.value(QZSettings::service_changed, QZSettings::default_service_changed).toBool();
     bool heart_only =
         settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
-    bool echelon =
-        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    bool echelon = isEchelonVirtualEnabled();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
     bool garmin_bluetooth_compatibility = settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool();
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
@@ -505,7 +511,18 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             pars.setInterval(100, 100);
         }
 
+#ifdef Q_OS_ANDROID
+        if (echelon) {
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                      "startAdvertisingEchelon",
+                                                      "(Landroid/content/Context;)V",
+                                                      QtAndroid::androidContext().object());
+        } else {
+            leController->startAdvertising(pars, advertisingData, advertisingData);
+        }
+#else
         leController->startAdvertising(pars, advertisingData, advertisingData);
+#endif
 
         //! [Start Advertising]
     }
@@ -523,6 +540,12 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         leController,
         static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), this,
         &virtualbike::error);
+}
+
+bool virtualbike::isEchelonVirtualEnabled() const {
+    QSettings settings;
+    return !forceClassicMode &&
+           settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
 }
 
 // zwift play emulator protobuf
@@ -578,8 +601,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     QByteArray reply;
     QSettings settings;
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
-    bool echelon =
-        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    bool echelon = isEchelonVirtualEnabled();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
 
     double normalizeWattage = Bike->wattsMetricforUI();
@@ -1062,6 +1084,14 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     //******************** ECHELON ***************
     if (characteristic.uuid().toString().contains(QStringLiteral("0bf669f2-45f2-11e7-9598-0800200c9a66"))) {
+        if (auto *realEchelon = dynamic_cast<echelonconnectsport *>(Bike); realEchelon && realEchelon->connected()) {
+            // When QZ is backed by a real Echelon Connect Sport, the virtual bike must not synthesize
+            // any handshake reply. We forward the exact app payload to the bike and let the bike's own
+            // notifications be mirrored back to the client.
+            realEchelon->proxyVirtualBikeCommand(newValue);
+            return;
+        }
+
         QLowEnergyCharacteristic characteristic =
             service->characteristic(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
         QLowEnergyCharacteristic characteristic2 =
@@ -1077,18 +1107,17 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         QByteArray reply;
         if (((uint8_t)newValue.at(1)) == 0xA1) {
 
-            // f0 a1 06 01 0b 00 33 0c 03 e5
-            // f0 a1 06 01 0b 00 33 06 03 df
+            // Observed in the Echelon app handshake for Connect Sport.
             reply.append(0xf0);
             reply.append(0xa1);
             reply.append(0x06);
-            reply.append((char)0x01);
-            reply.append(0x0b);
             reply.append((char)0x00);
-            reply.append(0x33);
-            reply.append(0x0c);
-            reply.append(0x03);
-            reply.append(0xe5);
+            reply.append(0x07);
+            reply.append((char)0x01);
+            reply.append(0x29);
+            reply.append(0x07);
+            reply.append(0x04);
+            reply.append(0xd3);
             writeCharacteristic(service, characteristic, reply);
             echelonWriteStatus();
             echelonInitDone = true;
@@ -1111,6 +1140,15 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply.append((char)0x00);
             reply.append(0x95);
 
+            writeCharacteristic(service, characteristic, reply);
+        } else if (((uint8_t)newValue.at(1)) == 0xA5) {
+
+            // f0 a5 01 0e a4
+            reply.append(0xf0);
+            reply.append(0xa5);
+            reply.append(0x01);
+            reply.append(0x0e);
+            reply.append(0xa4);
             writeCharacteristic(service, characteristic, reply);
         }
         // f0 b0 01 00 a1
@@ -1141,6 +1179,30 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply);
         }
     }
+}
+
+void virtualbike::relayEchelonPacket(const QBluetoothUuid &sourceUuid, const QByteArray &value) {
+    if (!service || !leController || leController->state() != QLowEnergyController::ConnectedState) {
+        return;
+    }
+
+    QLowEnergyCharacteristic targetCharacteristic;
+    if (sourceUuid == QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66"))) {
+        targetCharacteristic =
+            service->characteristic(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
+    } else if (sourceUuid == QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66"))) {
+        targetCharacteristic =
+            service->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+    } else {
+        return;
+    }
+
+    if (!targetCharacteristic.isValid()) {
+        qDebug() << QStringLiteral("virtual echelon target characteristic is invalid");
+        return;
+    }
+
+    writeCharacteristic(service, targetCharacteristic, value);
 }
 
 int virtualbike::iFit_pelotonToBikeResistance(int pelotonResistance) {
@@ -1263,8 +1325,7 @@ void virtualbike::reconnect() {
     bool service_changed = settings.value(QZSettings::service_changed, QZSettings::default_service_changed).toBool();
     bool heart_only =
         settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
-    bool echelon =
-        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    bool echelon = isEchelonVirtualEnabled();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
 
     qDebug() << QStringLiteral("virtualbike::reconnect");
@@ -1311,7 +1372,18 @@ void virtualbike::reconnect() {
 
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
+#ifdef Q_OS_ANDROID
+    if (echelon) {
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                  "startAdvertisingEchelon",
+                                                  "(Landroid/content/Context;)V",
+                                                  QtAndroid::androidContext().object());
+    } else {
+        leController->startAdvertising(pars, advertisingData, advertisingData);
+    }
+#else
     leController->startAdvertising(pars, advertisingData, advertisingData);
+#endif
 }
 
 void virtualbike::bikeProvider() {
@@ -1324,8 +1396,7 @@ void virtualbike::bikeProvider() {
     bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool();
     bool heart_only =
         settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
-    bool echelon =
-        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    bool echelon = isEchelonVirtualEnabled();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
     bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
 

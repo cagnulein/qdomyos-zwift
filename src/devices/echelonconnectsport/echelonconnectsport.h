@@ -43,6 +43,8 @@ class echelonconnectsport : public bike {
     resistance_t maxResistance() override { return max_resistance; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     bool connected() override;
+    void proxyVirtualBikeCommand(const QByteArray &value);
+    void switchToClassicVirtualBikeBridge();
 
   private:
     const resistance_t max_resistance = 32;
@@ -76,6 +78,9 @@ class echelonconnectsport : public bike {
 
     bool initDone = false;
     bool initRequest = false;
+    bool unlockResponseReceived = false;
+    bool classicBridgePromptShown = false;
+    bool classicVirtualBridgeActive = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
@@ -104,6 +109,10 @@ class echelonconnectsport : public bike {
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
+
+    void maybePromptForClassicBridge();
+    void requestClassicBridgePrompt();
+    void createVirtualBike(bool forceClassicMode = false);
 };
 
 #endif // ECHELONCONNECTSPORT_H

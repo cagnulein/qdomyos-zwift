@@ -1,4 +1,5 @@
 #include "fakebike.h"
+#include "homeform.h"
 #include "virtualdevices/virtualbike.h"
 
 #include <QBluetoothLocalDevice>
@@ -114,11 +115,7 @@ void fakebike::update() {
 #endif
 #endif
             if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual bike interface..."));
-            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-            connect(virtualBike, &virtualbike::changeInclination, this, &fakebike::changeInclinationRequested);
-            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakebike::ftmsCharacteristicChanged);
-            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+            createVirtualBike();
         }
     }
     if (!firstStateChanged)
@@ -166,6 +163,23 @@ void fakebike::update() {
 void fakebike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QByteArray b = newValue;
     qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
+}
+
+void fakebike::createVirtualBike(bool forceClassicMode) {
+    emit debug(QStringLiteral("creating virtual bike interface..."));
+    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, 4, 1.0, forceClassicMode);
+    connect(virtualBike, &virtualbike::changeInclination, this, &fakebike::changeInclinationRequested);
+    connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakebike::ftmsCharacteristicChanged);
+    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+}
+
+void fakebike::switchToClassicVirtualBikeBridge() {
+    if (homeform::singleton()) {
+        homeform::singleton()->setEchelonBridgeSwitchPromptRequested(false);
+        homeform::singleton()->setToastRequested(QStringLiteral("Switching to classic Bluetooth bridge"));
+    }
+
+    createVirtualBike(true);
 }
 
 void fakebike::changeInclinationRequested(double grade, double percentage) {
