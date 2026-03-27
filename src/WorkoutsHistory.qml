@@ -3,10 +3,17 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtCharts 2.15
 import Qt.labs.calendar 1.0
+import Qt.labs.settings 1.0
 
 Page {
     id: workoutHistoryPage
 
+
+
+    Settings {
+        id: settings
+        property bool miles_unit: false
+    }
 
     // Signal for chart preview
     signal fitfile_preview_clicked(var url)
