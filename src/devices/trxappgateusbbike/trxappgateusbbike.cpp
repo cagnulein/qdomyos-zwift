@@ -682,39 +682,24 @@ void trxappgateusbbike::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         QThread::msleep(400);
     } else if (bike_type == TYPE::REEBOK || bike_type == TYPE::REEBOK_2) {
+        const uint8_t initData0[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData1[] = {0xf0, 0xa0, 0x32, 0x01, 0xc3};
-        const uint8_t initData2[] = {0xf0, 0xa3, 0x32, 0x01, 0x01, 0xc7};
-        const uint8_t initData3[] = {0xf0, 0xa4, 0x32, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xd1};
+        const uint8_t initData2[] = {0xf0, 0xa1, 0x32, 0x01, 0xc4};
+        const uint8_t initData3[] = {0xf0, 0xa3, 0x32, 0x01, 0x01, 0xc7};
         const uint8_t initData4[] = {0xf0, 0xa5, 0x32, 0x01, 0x02, 0xca};
 
-        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData0, sizeof(initData0), QStringLiteral("init"), false, true);
         QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         QThread::msleep(400);
 
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
+        for (int i = 0; i < 10; ++i) {
+            writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+            QThread::msleep(400);
+        }
+
         writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         QThread::msleep(400);
     } else if (bike_type == TYPE::TUNTURI || bike_type == TYPE::TUNTURI_2) {
