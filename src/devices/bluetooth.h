@@ -112,6 +112,7 @@
 #include "signalhandler.h"
 #include "devices/skandikawiribike/skandikawiribike.h"
 #include "devices/smartrowrower/smartrowrower.h"
+#include "devices/stairmaster8g/stairmaster8g.h"
 #include "devices/sunnyfitstepper/sunnyfitstepper.h"
 #include "devices/smartspin2k/smartspin2k.h"
 #include "devices/snodebike/snodebike.h"
@@ -273,6 +274,7 @@ class bluetooth : public QObject, public SignalHandler {
     echelonrower *echelonRower = nullptr;
     ftmsrower *ftmsRower = nullptr;
     smartrowrower *smartrowRower = nullptr;
+    stairmaster8g *stairmaster8G = nullptr;
     sunnyfitstepper *sunnyfitStepper = nullptr;
     echelonstride *echelonStride = nullptr;
     echelonstairclimber *echelonStairclimber = nullptr;
