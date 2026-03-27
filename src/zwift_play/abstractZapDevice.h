@@ -7,14 +7,11 @@
 #include <QSettings>
 #include <QTimer>
 #include <QDateTime>
-//#include "localKeyProvider.h"
-//#include "zapCrypto.h"
 #include "zapConstants.h"
+#include "localKeyProvider.h"
+#include "zapCrypto.h"
+#include "encryptionUtils.h"
 #include "qzsettings.h"
-#ifdef Q_OS_ANDROID
-#include <QAndroidJniObject>
-#include <QAndroidJniEnvironment>
-#endif
 
 class AbstractZapDevice: public QObject {
     Q_OBJECT
@@ -29,7 +26,7 @@ class AbstractZapDevice: public QObject {
     QByteArray REQUEST_START;
     QByteArray RESPONSE_START;
 
-    AbstractZapDevice() {
+    AbstractZapDevice() : zapEncryption(localKeyProvider) {
         RIDE_ON = QByteArray::fromRawData("\x52\x69\x64\x65\x4F\x6E", 6);  // "RideOn"
         REQUEST_START = QByteArray::fromRawData("\x00\x09", 2);  // {0, 9}
         RESPONSE_START = QByteArray::fromRawData("\x01\x03", 2);  // {1, 3}
@@ -57,23 +54,15 @@ class AbstractZapDevice: public QObject {
 
 #define DEBOUNCE (!gears_volume_debouncing || risingEdge <= 0)
 
-#ifdef Q_OS_ANDROID_ENCRYPTION
-        QAndroidJniEnvironment env;
-        jbyteArray d = env->NewByteArray(bytes.length());
-        jbyte *b = env->GetByteArrayElements(d, 0);
-        for (int i = 0; i < bytes.length(); i++)
-            b[i] = bytes[i];
-        env->SetByteArrayRegion(d, 0, bytes.length(), b);
+        if (bytes.startsWith(RIDE_ON + RESPONSE_START)) {
+            processDevicePublicKeyResponse(bytes);
+            return 0;
+        }
 
-        int button = QAndroidJniObject::callStaticMethod<int>(
-            "org/cagnulen/qdomyoszwift/ZapClickLayer", "processCharacteristic", "([B)I", d);
-        env->DeleteLocalRef(d);
-        if(button == 1)
-            emit plus();
-        else if(button == 2)
-            emit minus();
-        return button;
-#else
+        if (bytes.size() > static_cast<int>(sizeof(qint32)) + EncryptionUtils::MAC_LENGTH) {
+            return processEncryptedData(bytes);
+        }
+
         switch(bytes[0]) {
         case 0x37:
             lastFrame = QDateTime::currentDateTime();
@@ -298,35 +287,26 @@ class AbstractZapDevice: public QObject {
             break;
         }
         return 1;
-#endif
     }
 
     QByteArray buildHandshakeStart() {
-#ifdef Q_OS_ANDROID_ENCRYPTION
-        QAndroidJniObject result =
-            QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/ZapClickLayer", "buildHandshakeStart", "()[B");
-        if (result.isValid()) {
-            jsize length = QAndroidJniEnvironment()->GetArrayLength(result.object<jbyteArray>());
-            jbyte* bytes = QAndroidJniEnvironment()->GetByteArrayElements(result.object<jbyteArray>(), nullptr);
-            QByteArray byteArray(reinterpret_cast<char*>(bytes), length);
-            QAndroidJniEnvironment()->ReleaseByteArrayElements(result.object<jbyteArray>(), bytes, JNI_ABORT);
-            return byteArray;
-        }
-#endif
-        QByteArray a;
-        a.append(0x52);
-        a.append(0x69);
-        a.append(0x64);
-        a.append(0x65);
-        a.append(0x4f);
-        a.append(0x6e);
-        return a;
+        return RIDE_ON + REQUEST_START + localKeyProvider.getPublicKeyBytes();
     }
 
   protected:
-    virtual void processEncryptedData(const QByteArray& bytes) = 0;
+    virtual int processEncryptedData(const QByteArray& bytes) = 0;
+    ZapCrypto zapEncryption;
 
   private:
+    void processDevicePublicKeyResponse(const QByteArray &bytes) {
+        devicePublicKeyBytes = bytes.mid(RIDE_ON.size() + RESPONSE_START.size());
+        if (!devicePublicKeyBytes.isEmpty()) {
+            zapEncryption.initialise(devicePublicKeyBytes);
+            qDebug() << "Device Public Key -" << devicePublicKeyBytes.toHex(' ');
+        }
+    }
+
+    LocalKeyProvider localKeyProvider;
     QByteArray devicePublicKeyBytes;
     static volatile int8_t risingEdge;
     static QTimer* autoRepeatTimer;    // Static timer for auto-repeat
@@ -351,6 +331,20 @@ class AbstractZapDevice: public QObject {
   signals:
     void plus();
     void minus();
+    void leftUp(bool pressed);
+    void leftDown(bool pressed);
+    void leftLeft(bool pressed);
+    void leftRight(bool pressed);
+    void leftShoulder(bool pressed);
+    void leftPower(bool pressed);
+    void leftPaddle(int value);
+    void rightY(bool pressed);
+    void rightZ(bool pressed);
+    void rightA(bool pressed);
+    void rightB(bool pressed);
+    void rightShoulder(bool pressed);
+    void rightPower(bool pressed);
+    void rightPaddle(int value);
 };
 
 #endif // ABSTRACTZAPDEVICE_H
