@@ -10,6 +10,10 @@
 #include <QAndroidJniObject>
 #endif
 
+#ifdef ANT_LINUX_ENABLED
+#include <QFile>
+#include <QRegularExpression>
+#endif
 using namespace std::chrono_literals;
 
 virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
@@ -392,6 +396,14 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 
 #elif defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
         pars.setInterval(30, 50);
+        #ifdef ANT_LINUX_ENABLED
+            // Check if we are on a low-spec Raspberry Pi and adjust advertising parameters accordingly to prevent crashes.
+            QFile modelFile("/sys/firmware/devicetree/base/model");
+            if (modelFile.open(QIODevice::ReadOnly) && QString(modelFile.readAll()).contains(QRegularExpression("Pi (Zero|[1-3])"))) {
+                qInfo() << "[ANT+] Low-spec device detected. Slowing BLE advertising rate.";
+                pars.setInterval(500, 550); // Slow down to ~2Hz
+            }
+        #endif
         leController->startAdvertising(pars, advertisingData);
 #else
         leController->startAdvertising(pars, advertisingData, advertisingData);
