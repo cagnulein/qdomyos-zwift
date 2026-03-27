@@ -2631,6 +2631,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(trxappgateusb);
             } else if (isTrxAppGateUsbBikeTC ||
                         (upperDeviceName.startsWith(QStringLiteral("TUN ")) ||
+                        (upperDeviceName.startsWith(QStringLiteral("ADIDAS")) && upperDeviceName.length() == 10 &&
+                         upperDeviceName.at(6).isDigit() && upperDeviceName.at(7).isDigit() &&
+                         upperDeviceName.at(8).isDigit() && upperDeviceName.at(9).isDigit()) ||
                         upperDeviceName.startsWith(QStringLiteral("FITHIWAY")) ||
                         upperDeviceName.startsWith(QStringLiteral("FIT HI WAY")) ||
                         upperDeviceName.startsWith(QStringLiteral("BIKZU_")) ||
