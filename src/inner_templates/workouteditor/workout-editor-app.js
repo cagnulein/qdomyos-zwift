@@ -7,7 +7,8 @@
         programFiles: {}, // Map of program name -> file object (with url, path, etc.)
         showAdvanced: false,
         lastSaved: '',
-        loading: false
+        loading: false,
+        dictationHint: ''
     };
 
     const selectors = {};
@@ -199,6 +200,7 @@
         selectors.repeatSelection = document.getElementById('repeatSelection');
         selectors.clearIntervals = document.getElementById('clearIntervals');
         selectors.newWorkout = document.getElementById('newWorkout');
+        selectors.generateFromText = document.getElementById('generateFromText');
         selectors.saveWorkout = document.getElementById('saveWorkout');
         selectors.saveStartWorkout = document.getElementById('saveStartWorkout');
         selectors.programSelect = document.getElementById('programSelect');
@@ -209,6 +211,11 @@
         selectors.statusIntervals = document.getElementById('statusIntervals');
         selectors.statusMessage = document.getElementById('statusMessage');
         selectors.offlineBanner = document.getElementById('offlineBanner');
+        selectors.promptDialog = document.getElementById('promptDialog');
+        selectors.promptDialogMessage = document.getElementById('promptDialogMessage');
+        selectors.promptDialogInput = document.getElementById('promptDialogInput');
+        selectors.promptDialogCancel = document.getElementById('promptDialogCancel');
+        selectors.promptDialogGenerate = document.getElementById('promptDialogGenerate');
 
         // Initialize custom dialog system for iOS WebView compatibility
         dialog.init();
@@ -262,6 +269,9 @@
             updateControls();
             announce('New workout ready');
         });
+        selectors.generateFromText.addEventListener('click', () => {
+            openPromptDialog();
+        });
         selectors.saveWorkout.addEventListener('click', () => saveWorkflow(false));
         selectors.saveStartWorkout.addEventListener('click', () => saveWorkflow(true));
         selectors.loadProgram.addEventListener('click', () => {
@@ -295,6 +305,8 @@
             }
             refreshProgramList();
         });
+        selectors.promptDialogCancel.addEventListener('click', closePromptDialog);
+        selectors.promptDialogGenerate.addEventListener('click', generateFromPrompt);
     }
 
     function bootstrap() {
@@ -327,6 +339,7 @@
                 return;
             }
             state.miles = !!content.miles;
+            state.dictationHint = content.dictationHint || '';
             if (content.device) {
                 state.device = content.device;
             }
@@ -423,6 +436,54 @@
                 })
                 .finally(() => setWorking(false));
         }, 300); // Give backend time to load the file
+    }
+
+    function openPromptDialog() {
+        selectors.promptDialogMessage.textContent = state.dictationHint ||
+            'Describe the workout in plain text. On iOS and Android you can also use keyboard dictation in this text box.';
+        selectors.promptDialog.classList.remove('hidden');
+        setTimeout(() => selectors.promptDialogInput.focus(), 100);
+    }
+
+    function closePromptDialog() {
+        selectors.promptDialog.classList.add('hidden');
+    }
+
+    function generateFromPrompt() {
+        const prompt = (selectors.promptDialogInput.value || '').trim();
+        if (!prompt) {
+            announce('Write or dictate a prompt first', true);
+            return;
+        }
+        if (window.QZ_OFFLINE) {
+            announce('Offline: prompt generation is not available', true);
+            return;
+        }
+
+        setWorking(true);
+        sendMessage('workouteditor_generate_from_text', {
+            prompt,
+            device: state.device
+        }, 'R_workouteditor_generate_from_text').then(content => {
+            const rows = Array.isArray(content && content.list) ? content.list : [];
+            if (!rows.length) {
+                announce((content && content.error) || 'Unable to generate a workout', true);
+                return;
+            }
+
+            state.intervals = rows.map((row, idx) => convertRow(row, idx));
+            selectors.name.value = content.name || 'Prompt Workout';
+            state.lastSaved = '';
+            renderIntervals();
+            updateChart();
+            updateStatus();
+            updateControls();
+            closePromptDialog();
+            announce(content.warning || 'Workout generated from text');
+        }).catch(err => {
+            console.error(err);
+            announce('Unable to generate workout from text', true);
+        }).finally(() => setWorking(false));
     }
 
     async function deleteProgram(name) {
@@ -1449,6 +1510,8 @@
     function setWorking(active) {
         state.loading = active;
         [selectors.saveWorkout, selectors.saveStartWorkout, selectors.loadProgram, selectors.deleteProgram, selectors.refreshPrograms, selectors.addInterval, selectors.clearIntervals]
+            .forEach(btn => btn && (btn.disabled = active));
+        [selectors.generateFromText, selectors.promptDialogGenerate]
             .forEach(btn => btn && (btn.disabled = active));
         updateControls();
     }

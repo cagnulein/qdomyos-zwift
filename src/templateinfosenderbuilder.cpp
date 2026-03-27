@@ -19,9 +19,13 @@
 #include "homeform.h"
 #include "tcpclientinfosender.h"
 #include "trainprogram.h"
+#include "workouttextprocessor.h"
 #include "zwiftworkout.h"
 #include "qzsettings.h"
 #include <chrono>
+#ifdef Q_OS_IOS
+#include "ios/workout_ai_bridge.h"
+#endif
 
 using namespace std::chrono_literals;
 
@@ -783,6 +787,9 @@ void TemplateInfoSenderBuilder::onWorkoutEditorEnv(TemplateInfoSender *tempSende
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     outObj[QStringLiteral("miles")] = miles;
+    outObj[QStringLiteral("supportsPromptGeneration")] = true;
+    outObj[QStringLiteral("dictationHint")] =
+        QStringLiteral("You can type or use your mobile keyboard dictation inside the prompt box.");
     if (device) {
         outObj[QStringLiteral("device")] = deviceTypeToKey(device->deviceType());
     } else {
@@ -791,6 +798,74 @@ void TemplateInfoSenderBuilder::onWorkoutEditorEnv(TemplateInfoSender *tempSende
     QJsonObject main;
     main[QStringLiteral("content")] = outObj;
     main[QStringLiteral("msg")] = QStringLiteral("R_workouteditor_env");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onWorkoutEditorGenerateFromText(const QJsonValue &msgContent,
+                                                                TemplateInfoSender *tempSender) {
+    if (!tempSender || !msgContent.isObject()) {
+        return;
+    }
+
+    const QJsonObject content = msgContent.toObject();
+    const QString prompt = content.value(QStringLiteral("prompt")).toString().trimmed();
+    const QString deviceKey = content.value(QStringLiteral("device")).toString().trimmed();
+
+    QJsonObject main;
+    QJsonObject outObj;
+
+    if (prompt.isEmpty()) {
+        outObj[QStringLiteral("error")] = QStringLiteral("Prompt is empty");
+        main[QStringLiteral("content")] = outObj;
+        main[QStringLiteral("msg")] = QStringLiteral("R_workouteditor_generate_from_text");
+        QJsonDocument out(main);
+        tempSender->send(out.toJson());
+        return;
+    }
+
+    WorkoutTextProcessor::Result result;
+
+#ifdef Q_OS_IOS
+    char *canonicalJson = nullptr;
+    char *providerError = nullptr;
+    if (ios_workout_ai_generate_canonical_json(prompt.toUtf8().constData(), deviceKey.toUtf8().constData(),
+                                               &canonicalJson, &providerError)) {
+        result = WorkoutTextProcessor::fromCanonicalJson(QString::fromUtf8(canonicalJson ? canonicalJson : ""),
+                                                         deviceKey);
+    }
+    QString iosError = providerError ? QString::fromUtf8(providerError) : QString();
+    ios_workout_ai_free_string(canonicalJson);
+    ios_workout_ai_free_string(providerError);
+    if (result.rows.isEmpty()) {
+        result = WorkoutTextProcessor::fromPromptFallback(prompt, deviceKey);
+        if (!iosError.isEmpty()) {
+            result.warning = QStringLiteral("Apple AI unavailable, fallback used: %1").arg(iosError);
+        }
+    }
+#else
+    result = WorkoutTextProcessor::fromPromptFallback(prompt, deviceKey);
+#endif
+
+    QJsonArray outArr;
+    for (const auto &row : result.rows) {
+        QJsonObject item;
+        TRAINPROGRAM_FIELD_TO_STRING();
+        outArr.append(item);
+    }
+
+    outObj[QStringLiteral("list")] = outArr;
+    outObj[QStringLiteral("name")] =
+        sanitizeTrainingProgramName(result.title.isEmpty() ? QStringLiteral("Prompt Workout") : result.title);
+    if (!result.warning.isEmpty()) {
+        outObj[QStringLiteral("warning")] = result.warning;
+    }
+    if (result.rows.isEmpty()) {
+        outObj[QStringLiteral("error")] = QStringLiteral("Unable to generate a workout from the prompt");
+    }
+
+    main[QStringLiteral("content")] = outObj;
+    main[QStringLiteral("msg")] = QStringLiteral("R_workouteditor_generate_from_text");
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -1376,6 +1451,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("workouteditor_start")) {
                     onWorkoutEditorStart(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("workouteditor_generate_from_text")) {
+                    onWorkoutEditorGenerateFromText(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("appendactivitydescription")) {
                     onAppendActivityDescription(jsonObject[QStringLiteral("content")], sender);
