@@ -37,11 +37,17 @@ import java.util.UUID;
 
 public class BleAdvertiser {
     private static final UUID SERVICE_UUID = UUID.fromString("00001826-0000-1000-8000-00805f9b34fb");
+    private static final UUID IFIT_SERVICE_UUID = UUID.fromString("00001533-1412-efde-1523-785feabcd123");
+    private static final String IFIT_DEVICE_NAME = "I_EB";
+    private static final int IFIT_MANUFACTURER_ID = 0x01A5;
     // PM5 Concept2 UUIDs
     private static final UUID PM5_DISCOVERY_SERVICE_UUID = UUID.fromString("CE060000-43E5-11E4-916C-0800200C9A66");
     private static final UUID PM5_ROWING_SERVICE_UUID = UUID.fromString("CE060030-43E5-11E4-916C-0800200C9A66");
     private static final byte[] SERVICE_DATA_ROWER = {0x01, 0x10, 0x00};
     private static final byte[] SERVICE_DATA_TREADMILL = {0x01, 0x01, 0x00};
+    private static final byte[] IFIT_MANUFACTURER_DATA = new byte[] {
+            0x02, (byte) 0xcc, 0x3c, (byte) 0x82, 0x00, 0x07, (byte) 0xdd, 0x1e, (byte) 0xdd
+    };
 
     public static void startAdvertisingRower(Context context) {
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
@@ -116,6 +122,46 @@ public class BleAdvertiser {
             if (advertiser != null) {
                 advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
             }
+        }
+    }
+
+    public static void startAdvertisingIfit(Context context) {
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager != null) {
+            android.bluetooth.BluetoothAdapter adapter = bluetoothManager.getAdapter();
+            if (adapter == null) {
+                QLog.e("BleAdvertiser", "Unable to start iFIT advertising: Bluetooth adapter is null");
+                return;
+            }
+
+            if (!IFIT_DEVICE_NAME.equals(adapter.getName())) {
+                boolean renamed = adapter.setName(IFIT_DEVICE_NAME);
+                QLog.d("BleAdvertiser", "Setting iFIT adapter name to " + IFIT_DEVICE_NAME + ": " + renamed);
+            }
+
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser = adapter.getBluetoothLeAdvertiser();
+            if (advertiser == null) {
+                QLog.e("BleAdvertiser", "Unable to start iFIT advertising: BluetoothLeAdvertiser is null");
+                return;
+            }
+
+            AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true)
+                    .build();
+
+            AdvertiseData advertiseData = new AdvertiseData.Builder()
+                    .addManufacturerData(IFIT_MANUFACTURER_ID, IFIT_MANUFACTURER_DATA)
+                    .build();
+
+            AdvertiseData scanResponse = new AdvertiseData.Builder()
+                    .setIncludeDeviceName(true)
+                    .addServiceUuid(new ParcelUuid(IFIT_SERVICE_UUID))
+                    .build();
+
+            QLog.d("BleAdvertiser", "Starting iFIT advertising with manufacturer data " + IFIT_MANUFACTURER_ID);
+            advertiser.startAdvertising(settings, advertiseData, scanResponse, advertiseCallback);
         }
     }
 
