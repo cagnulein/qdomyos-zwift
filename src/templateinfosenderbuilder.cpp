@@ -1217,6 +1217,24 @@ void TemplateInfoSenderBuilder::onInclinationMinus(const QJsonValue &msgContent,
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onResistancePlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
+    QJsonObject main, outObj;
+    emit resistance_Plus();
+    main[QStringLiteral("msg")] = QStringLiteral("R_resistance_plus");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onResistanceMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
+    QJsonObject main, outObj;
+    emit resistance_Minus();
+    main[QStringLiteral("msg")] = QStringLiteral("R_resistance_minus");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onPelotonStartWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     Q_UNUSED(msgContent);
     QJsonObject main, outObj;
@@ -1402,6 +1420,12 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("inclination_minus")) {
                     onInclinationMinus(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("resistance_plus")) {
+                    onResistancePlus(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("resistance_minus")) {
+                    onResistanceMinus(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("peloton_start_workout")) {
                     onPelotonStartWorkout(jsonObject[QStringLiteral("content")], sender);

@@ -13,15 +13,30 @@ Item {
     height: parent.height
     width: parent.width
     visible: true
+    property bool callbackHandled: false
+
     // Signal to notify the parent stack when we want to go back
     signal goBack()
 
     WebView {
+        id: pelotonWebView
         anchors.fill: parent
         height: parent.height
         width: parent.width
         visible: !rootItem.pelotonPopupVisible
         url: rootItem.getPelotonAuthUrl
+
+        onLoadingChanged: {
+            if (callbackHandled || !loadRequest.url) {
+                return;
+            }
+
+            var currentUrl = loadRequest.url.toString()
+            if (currentUrl.indexOf("https://www.qzfitness.com/peloton/callback") === 0) {
+                callbackHandled = true
+                rootItem.handleOAuthCallbackFromQml(currentUrl)
+            }
+        }
     }
 
     Popup {
@@ -31,6 +46,8 @@ Item {
         onEnabledChanged: { if(rootItem.pelotonPopupVisible) popupPelotonConnectedWeb.open() }
         onClosed: {
             rootItem.pelotonPopupVisible = false;
+            callbackHandled = false;
+            pelotonWebView.url = "";
             // Attempt to go back to the previous view after the popup is closed
             goBack();
         }
@@ -73,5 +90,6 @@ Item {
     // Component is being completed
     Component.onCompleted: {
         console.log("WebPelotonAuth loaded")
+        callbackHandled = false
     }
 }

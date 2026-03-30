@@ -14,6 +14,26 @@
 
 using namespace std::chrono_literals;
 
+namespace {
+bool isSportsPlusHTVariantName(const QString &name) {
+    if (!name.startsWith(QStringLiteral("HT"), Qt::CaseInsensitive) || name.length() != 10) {
+        return false;
+    }
+
+    bool ok = false;
+    name.mid(2).toUInt(&ok);
+    return ok;
+}
+
+uint16_t decodePackedBcd(const QByteArray &packet, int highIndex, int lowIndex) {
+    const uint8_t high = static_cast<uint8_t>(packet.at(highIndex));
+    const uint8_t low = static_cast<uint8_t>(packet.at(lowIndex));
+
+    return static_cast<uint16_t>(((high & 0xF0) >> 4) * 1000) + static_cast<uint16_t>((high & 0x0F) * 100) +
+           static_cast<uint16_t>(((low & 0xF0) >> 4) * 10) + static_cast<uint16_t>(low & 0x0F);
+}
+} // namespace
+
 sportsplusbike::sportsplusbike(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
@@ -101,7 +121,6 @@ void sportsplusbike::update() {
             // updateDisplay(elapsed);
         }
 
-        QSettings settings;
         uint8_t noOpData[] = {0x20, 0x01, 0x09, 0x00, 0x2a};
         if (requestResistance < 0) {
             requestResistance = 0;
@@ -140,7 +159,39 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     double kcal = 0;
     bool cadence_eval = false;
 
-    if (!sp_ht_9600ie && !carefitness_bike) {
+    if (ht_variant_bike) {
+        // HTxxxxxxxx devices use the SportsPlus FFF0 container with a different 12-byte payload layout.
+        if ((uint8_t)newValue.at(1) == 0x00) {
+            double speed = GetSpeedFromPacket(newValue);
+            if (!firstCharChanged) {
+                Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
+            }
+            // The visible speed is BCD-encoded, but cadence still tracks the legacy raw-speed mapping.
+            cadence = ((((static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(2))) << 8) |
+                         static_cast<uint8_t>(newValue.at(3))) /
+                        10.0)) +
+                      12.0;
+            cadence_eval = true;
+            Speed = speed;
+            emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+            lastTimeCharChanged = now;
+        } else if ((uint8_t)newValue.at(1) == 0x10) {
+            double watt = GetWattFromPacket(newValue);
+            emit debug(QStringLiteral("Current watt: ") + QString::number(watt));
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                m_watt = watt;
+            }
+        }
+        kcal = KCal.value();
+        if (m_watt.value() > 0 && lastRefreshCharacteristicChanged.msecsTo(now) > 0) {
+            kcal += ((((0.048 * ((double)watts()) + 1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(now))));
+        }
+    } else if (!sp_ht_9600ie && !carefitness_bike) {
         if (newValue.at(1) == 0x20) {
             double speed = GetSpeedFromPacket(newValue);
             if (!firstCharChanged) {
@@ -287,7 +338,9 @@ uint16_t sportsplusbike::GetElapsedFromPacket(const QByteArray &packet) {
 double sportsplusbike::GetSpeedFromPacket(const QByteArray &packet) {
     QSettings settings;
     bool sp_ht_9600ie = settings.value(QZSettings::sp_ht_9600ie, QZSettings::default_sp_ht_9600ie).toBool();
-    if (sp_ht_9600ie) {
+    if (ht_variant_bike) {
+        return static_cast<double>(decodePackedBcd(packet, 2, 3)) / 10.0;
+    } else if (sp_ht_9600ie) {
         uint16_t convertedData = (packet.at(2) * 100);
         uint8_t hexint = ((uint8_t)packet.at(3));
         convertedData += (((hexint & 0xF0) >> 4) * 10) + (hexint & 0x0F);
@@ -301,11 +354,17 @@ double sportsplusbike::GetSpeedFromPacket(const QByteArray &packet) {
 }
 
 double sportsplusbike::GetKcalFromPacket(const QByteArray &packet) {
+    if (ht_variant_bike) {
+        return KCal.value();
+    }
     uint16_t convertedData = (packet.at(6) << 8) | ((uint8_t)packet.at(7));
     return (double)(convertedData);
 }
 
 double sportsplusbike::GetWattFromPacket(const QByteArray &packet) {
+    if (ht_variant_bike) {
+        return static_cast<double>(decodePackedBcd(packet, 9, 10));
+    }
     uint16_t convertedData = (packet.at(2) << 8) | ((uint8_t)packet.at(3));
     double data = ((double)(convertedData));
     return data;
@@ -458,6 +517,7 @@ void sportsplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+        ht_variant_bike = isSportsPlusHTVariantName(bluetoothDevice.name());
         if ((bluetoothDevice.name().toUpper().contains(QStringLiteral("CARE")) &&
              bluetoothDevice.name().length() >= 11)) // CARE9040177 - Carefitness CV-351)
         {

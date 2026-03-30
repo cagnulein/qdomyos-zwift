@@ -979,7 +979,7 @@ void horizontreadmill::update() {
             requestInclination = treadmillInclinationOverrideReverse(requestInclination);
 
             // this treadmill doesn't send the incline, so i'm forcing it manually
-            if(schwinn_810_treadmill || FIT_TM) {
+            if(schwinn_810_treadmill || yesoul_treadmill || FIT_TM) {
                 Inclination = requestInclination;
             }
 
@@ -1264,7 +1264,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         if(BOWFLEX_T9) {
             requestSpeed *= miles_conversion;   // this treadmill wants the speed in miles, at least seems so!!
         }
-        if(TM4800 || TM6500 || T3G_ELITE || WT_TREADMILL || THERUN_T15) {
+        if(TM4800 || TM6500 || T3G_ELITE || WT_TREADMILL || THERUN_T15 || MERACH_TREADMILL) {
             bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
             if(miles) {
                 requestSpeed *= miles_conversion;   // these treadmills want the speed in miles when miles_unit is enabled
@@ -2487,6 +2487,8 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &horizontreadmill::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &horizontreadmill::changeInclinationRequested);
+                connect(virtualTreadmill, &virtualtreadmill::ftmsCharacteristicChanged, this,
+                        &horizontreadmill::ftmsCharacteristicChanged);
                 this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
             } else {
                 debug("creating virtual bike interface...");
@@ -2505,6 +2507,21 @@ void horizontreadmill::changeInclinationRequested(double grade, double percentag
     if (percentage < minInclination)
         percentage = minInclination;
     changeInclination(grade, percentage);
+}
+
+void horizontreadmill::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                                 const QByteArray &newValue) {
+    Q_UNUSED(characteristic);
+
+    if (newValue.isEmpty()) {
+        return;
+    }
+
+    // SW treadmills: forward FTMS Start (0x07) from virtual treadmill to the real treadmill only if stopped.
+    if ((quint8)newValue.at(0) == 0x07 && SW_TREADMILL && currentSpeed().value() == 0.0) {
+        qDebug() << "SW FTMS start received from virtual treadmill -> starting real treadmill";
+        start();
+    }
 }
 
 void horizontreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -2651,6 +2668,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("SCHWINN 810"))) {
             schwinn_810_treadmill = true;
             qDebug() << QStringLiteral("Schwinn 810 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("YESOUL"))) {
+            yesoul_treadmill = true;
+            qDebug() << QStringLiteral("YESOUL TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("TREADMILL"))) { // Technogym Run
             technogymrun = true;
             qDebug() << QStringLiteral("Technogym Run TREADMILL workaround ON!");
@@ -2706,10 +2726,17 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("TM4800-"))) {
             qDebug() << QStringLiteral("TM4800 treadmill found");
             TM4800 = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TM4500"))) {
+            qDebug() << QStringLiteral("TM4500 treadmill found");
+            TM4500 = true;
+            minInclination = -3.0;
         } else if (device.name().toUpper().startsWith(QStringLiteral("TM6500-"))) {
             qDebug() << QStringLiteral("TM6500 treadmill found");
             TM6500 = true;
             minInclination = -3.0;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("MRK-T"))) {
+            qDebug() << QStringLiteral("MERACH treadmill workaround ON!");
+            MERACH_TREADMILL = true;
         } else if (device.name().toUpper().startsWith(QStringLiteral("WT")) && device.name().length() == 5) {
             qDebug() << QStringLiteral("WT treadmill found");
             WT_TREADMILL = true;

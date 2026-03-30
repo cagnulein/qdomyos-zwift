@@ -15,6 +15,7 @@
 #endif
 
 #include <chrono>
+#include "homeform.h"
 
 using namespace std::chrono_literals;
 
@@ -82,12 +83,27 @@ void strydrunpowersensor::update() {
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
         QSettings settings;
+        bool cadence_as_treadmill = settings
+                                        .value(QZSettings::cadence_sensor_as_treadmill,
+                                               QZSettings::default_cadence_sensor_as_treadmill)
+                                        .toBool();
         bool power_as_treadmill =
-            settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
-        update_metrics(false, watts(), !power_as_treadmill);
+            settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill)
+                .toBool();
+        update_metrics(false, watts(), !(power_as_treadmill || cadence_as_treadmill));
+
+        if (lastGoodCadence.secsTo(QDateTime::currentDateTime()) > 5 && !charNotified) {
+            readMethod = true;
+            qDebug() << "no cadence for 5 secs, switching to reading method";
+        }
+
+        if (readMethod && cadenceService) {
+            cadenceService->readCharacteristic(cadenceChar);
+        }
 
         if (requestInclination != -100) {
             Inclination = treadmillInclinationOverrideReverse(requestInclination);
+            emit inclinationChanged(Inclination.value(), Inclination.value());
             qDebug() << QStringLiteral("writing incline ") << requestInclination;
             requestInclination = -100;
         }
@@ -110,10 +126,31 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
     Q_UNUSED(characteristic);
     QDateTime now = QDateTime::currentDateTime();
     QSettings settings;
+    bool cadence_as_treadmill = settings
+                                    .value(QZSettings::cadence_sensor_as_treadmill,
+                                           QZSettings::default_cadence_sensor_as_treadmill)
+                                    .toBool();
     bool power_as_treadmill =
-        settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
+        settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill)
+            .toBool();
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool treadmill_from_sensor = power_as_treadmill || cadence_as_treadmill;
+
+    charNotified = true;
+
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A19)) {
+        uint8_t battery = newValue.at(0);
+        if (battery != battery_level) {
+            if (homeform::singleton()) {
+                homeform::singleton()->setToastRequested(bluetoothDevice.name() + QStringLiteral(" Battery Level ") +
+                                                         QString::number(battery) + " %");
+            }
+        }
+        battery_level = battery;
+        qDebug() << QStringLiteral("battery: ") << battery;
+        return;
+    }
 
     if (characteristic.uuid() == QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement) {
         lastPacket = newValue;
@@ -363,7 +400,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
 
         Cadence = cadence;
         emit cadenceChanged(cadence);
-        if (power_as_treadmill) {
+        if (treadmill_from_sensor) {
             Speed = speed;
 
             emit speedChanged(speed);
@@ -428,7 +465,9 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
 
         if (CrankRevs != oldCrankRevs && deltaT) {
             double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;
-            if ((cadence >= 0 && cadence < 256 && CrankPresent) || (!CrankPresent && WheelPresent))
+
+            if ((cadence >= 0 && (cadence < 256 || _CrankRevs == 0) && CrankPresent) ||
+                (!CrankPresent && WheelPresent))
                 Cadence = cadence;
             lastGoodCadence = now;
         } else if (lastGoodCadence.msecsTo(now) > 2000) {
@@ -439,7 +478,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
 
         oldLastCrankEventTime = LastCrankEventTime;
         oldCrankRevs = CrankRevs;
-        if (power_as_treadmill) {
+        if (treadmill_from_sensor) {
             Speed =
                 Cadence.value() *
                 settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio)
@@ -538,11 +577,18 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
                 continue;
             }
 
+            if (s->serviceUuid() == QBluetoothUuid::CyclingSpeedAndCadence) {
+                cadenceService = s;
+            }
+
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid();
+                if (c.uuid() == QBluetoothUuid::CharacteristicType::CSCMeasurement) {
+                    cadenceChar = c;
+                }
+                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
                 auto descriptors_list = c.descriptors();
                 for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid();
@@ -651,6 +697,7 @@ void strydrunpowersensor::characteristicWritten(const QLowEnergyCharacteristic &
 void strydrunpowersensor::characteristicRead(const QLowEnergyCharacteristic &characteristic,
                                              const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
+    characteristicChanged(characteristic, newValue);
 }
 
 void strydrunpowersensor::serviceScanDone(void) {
