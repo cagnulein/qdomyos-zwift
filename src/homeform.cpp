@@ -119,21 +119,14 @@ class MailSenderThread : public QThread {
         return;
 #endif
 
-        bool r = false;
-        uint8_t i = 0;
-        while (!r) {
-            qDebug() << "trying to send email #" << i;
-            r = smtp.connectToHost();
-            r = smtp.login();
-            r = smtp.sendMail(*message);
-            if (i++ == 3)
-                break;
-        }
+        qDebug() << "trying to send email";
+        smtp.connectToHost();
+        smtp.sendMail(*message);
         smtp.quit();
 
         if (!filenameJPG.isEmpty())
             QFile::remove(filenameJPG);
-        for (const QString &f : qAsConst(chartImagesFilenamesForMail)) {
+        for (const QString &f : std::as_const(chartImagesFilenamesForMail)) {
             QFile::remove(f);
         }
         delete message;
@@ -9429,9 +9422,10 @@ void homeform::sendMail() {
 
     MimeMessage *message = new MimeMessage;
 
-    message->setSender(new EmailAddress(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ")));
     const QString userEmail = settings.value(QZSettings::user_email, QLatin1String("")).toString();
+    const EmailAddress sender(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ"));
     const EmailAddress recipient(userEmail, userEmail);
+    message->setSender(sender);
     message->addRecipient(recipient);
     if (!Session.isEmpty()) {
         QString title = Session.constFirst().time.toString();
