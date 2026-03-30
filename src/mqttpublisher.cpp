@@ -1,6 +1,5 @@
 #include "mqttpublisher.h"
 #include "qzsettings.h"
-#include "homeform.h"
 #include "devices/elliptical.h"
 #include <QDebug>
 #include <QJsonObject>
@@ -13,8 +12,8 @@ MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QString username
     , m_port(port)
     , m_device(nullptr)
 {
-    m_client = new QMqttClient();
-    m_timer = new QTimer();
+    m_client = new QMqttClient(this);
+    m_timer = new QTimer(this);
     m_manager = manager;
     m_username = username;
     m_password = password;
@@ -29,6 +28,11 @@ MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QString username
     connect(m_client, &QMqttClient::disconnected, this, &MQTTPublisher::onDisconnected);
     connect(m_client, &QMqttClient::errorChanged, this, &MQTTPublisher::onError);
     connect(m_client, &QMqttClient::messageReceived, this, &MQTTPublisher::onMessageReceived);
+    if (m_manager) {
+        connect(m_manager, &bluetooth::bluetoothDeviceConnected, this, &MQTTPublisher::onBluetoothDeviceConnected);
+        connect(m_manager, &bluetooth::bluetoothDeviceDisconnected, this, &MQTTPublisher::onBluetoothDeviceDisconnected);
+        m_device = m_manager->device();
+    }
 
     setupMQTTClient();
     start();
@@ -63,6 +67,14 @@ MQTTPublisher::~MQTTPublisher() {
 
 void MQTTPublisher::setDevice(bluetoothdevice* device) {
     m_device = device;
+}
+
+void MQTTPublisher::onBluetoothDeviceConnected(bluetoothdevice *device) {
+    m_device = device;
+}
+
+void MQTTPublisher::onBluetoothDeviceDisconnected() {
+    m_device = nullptr;
 }
 
 QString MQTTPublisher::getUserNickname() const {
@@ -453,9 +465,11 @@ void MQTTPublisher::removeDiscoveryConfig() {
 }
 
 void MQTTPublisher::publishWorkoutData() {
-
-    if(!m_device && m_manager && m_manager->device()) {
-        m_device = m_manager->device();
+    if (m_manager) {
+        bluetoothdevice *currentDevice = m_manager->device();
+        if (currentDevice != m_device.data()) {
+            m_device = currentDevice;
+        }
     }
 
     if (!isConnected() || !m_device) return;
