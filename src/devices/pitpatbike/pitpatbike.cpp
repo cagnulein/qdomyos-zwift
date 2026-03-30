@@ -40,6 +40,11 @@ void pitpatbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStr
     QEventLoop loop;
     QTimer timeout;
 
+    if (!gattCommunicationChannelService || !m_control) {
+        qDebug() << QStringLiteral("writeCharacteristic error because the BLE service/controller is missing");
+        return;
+    }
+
     // if there are some crash here, maybe it's better to use 2 separate event for the characteristicChanged.
     // one for the resistance changed event (spontaneous), and one for the other ones.
     if (wait_for_response) {
@@ -66,7 +71,12 @@ void pitpatbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStr
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
+                                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+    }
 
     if (!disable_log) {
         qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
