@@ -7,7 +7,6 @@
 #include <QSettings>
 #include <QTimer>
 #include <QDateTime>
-#include <QByteArrayView>
 #include <QtGlobal>
 #if 0
 #include "zapConstants.h"
