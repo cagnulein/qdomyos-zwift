@@ -577,7 +577,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
                 continue;
             }
 
-            if (s->serviceUuid() == QBluetoothUuid::CyclingSpeedAndCadence) {
+            if (s->serviceUuid() == QBluetoothUuid::ServiceClassUuid::CyclingSpeedAndCadence) {
                 cadenceService = s;
             }
 
@@ -588,7 +588,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
                 if (c.uuid() == QBluetoothUuid::CharacteristicType::CSCMeasurement) {
                     cadenceChar = c;
                 }
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+                qDebug() << QStringLiteral("char uuid") << c.uuid();
                 auto descriptors_list = c.descriptors();
                 for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid();
