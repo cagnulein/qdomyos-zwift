@@ -9430,8 +9430,9 @@ void homeform::sendMail() {
     MimeMessage *message = new MimeMessage;
 
     message->setSender(new EmailAddress(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ")));
-    message->addRecipient(new EmailAddress(settings.value(QZSettings::user_email, QLatin1String("")).toString(),
-                                          settings.value(QZSettings::user_email, QLatin1String("")).toString()));
+    const QString userEmail = settings.value(QZSettings::user_email, QLatin1String("")).toString();
+    const EmailAddress recipient(userEmail, userEmail);
+    message->addRecipient(recipient);
     if (!Session.isEmpty()) {
         QString title = Session.constFirst().time.toString();
         if (!stravaPelotonActivityName.isEmpty()) {
