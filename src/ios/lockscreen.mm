@@ -3,6 +3,7 @@
 #import <UIKit/UIKit.h>
 #import <WatchConnectivity/WatchConnectivity.h>
 #import <CoreBluetooth/CoreBluetooth.h>
+#import <WebKit/WKWebsiteDataStore.h>
 #import <AVFoundation/AVFoundation.h>
 #import <ConnectIQ/ConnectIQ.h>
 #import "qdomyoszwift-Swift2.h"
@@ -205,15 +206,22 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
         [_virtualbike updateCadenceWithCrankRevolutions:crankRevolutions LastCrankEventTime:lastCrankEventTime];
 }
 
-void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance, double totalKcal, bool useMiles, unsigned char heartRate) {
+void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt,
+                                       unsigned short currentCalories, unsigned long long currentSteps,
+                                       unsigned char deviceType, double currentDistance, double totalKcal,
+                                       bool useMiles, unsigned char heartRate, const char *compactLeadingMetric,
+                                       int compactLeadingValue, const char *compactTrailingMetric,
+                                       int compactTrailingValue) {
     if(workoutTracking != nil && !appleWatchAppInstalled())
         [workoutTracking addMetricsWithPower:watt cadence:cadence*2 speed:speed * 100 kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:totalKcal elevationGain:0];
 
     // Start Live Activity on first update, then keep updating
     if (!ios_liveactivity::isLiveActivityRunning()) {
-        ios_liveactivity::startLiveActivity("QZ", useMiles);
+        ios_liveactivity::startLiveActivity("QZ", useMiles, compactLeadingMetric, compactTrailingMetric);
     }
-    ios_liveactivity::updateLiveActivity(speed, cadence, watt, heartRate, currentDistance, currentCalories, useMiles);
+    ios_liveactivity::updateLiveActivity(speed, cadence, watt, heartRate, currentDistance, currentCalories, useMiles,
+                                         compactLeadingMetric, compactLeadingValue, compactTrailingMetric,
+                                         compactTrailingValue);
 }
 
 void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator, bool watt_bike_emulator)
@@ -351,7 +359,6 @@ double lockscreen::virtualtreadmill_getRequestedSpeed()
 bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, double elevationGain, unsigned short currentCalories, qint32 currentSteps,  unsigned short elapsedSeconds, UInt8 deviceType)
 {
     if(workoutTracking != nil && !appleWatchAppInstalled()) {
-        // Use elevationGain directly from QZ instead of recalculating
         [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:0 elevationGain:elevationGain];
     }
 
@@ -665,5 +672,20 @@ bool lockscreen::isInMultiWindowMode() {
     }
 
     return false;
+}
+
+void lockscreen::clearWebViewCache() {
+    if (@available(iOS 9.0, *)) {
+        NSSet *websiteDataTypes = [WKWebsiteDataStore allWebsiteDataTypes];
+        NSDate *dateFrom = [NSDate dateWithTimeIntervalSince1970:0];
+        [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:websiteDataTypes
+                                                  modifiedSince:dateFrom
+                                              completionHandler:^{}];
+    }
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
+    NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    for (NSHTTPCookie *cookie in cookieStorage.cookies) {
+        [cookieStorage deleteCookie:cookie];
+    }
 }
 #endif

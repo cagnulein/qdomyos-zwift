@@ -13,28 +13,43 @@
 
 static LiveActivityBridge* _liveActivityManager = nil;
 
-void ios_liveactivity::startLiveActivity(const char* deviceName, bool useMiles) {
+void ios_liveactivity::startLiveActivity(const char* deviceName, bool useMiles, const char* compactLeadingMetric,
+                                         const char* compactTrailingMetric) {
     if (@available(iOS 16.1, *)) {
         if (_liveActivityManager == nil) {
             _liveActivityManager = [[LiveActivityBridge alloc] init];
         }
         NSString *name = [NSString stringWithCString:deviceName encoding:NSUTF8StringEncoding];
-        [_liveActivityManager startActivityWithDeviceName:name useMiles:useMiles];
+        NSString *leadingMetric = [NSString stringWithCString:compactLeadingMetric encoding:NSUTF8StringEncoding];
+        NSString *trailingMetric = [NSString stringWithCString:compactTrailingMetric encoding:NSUTF8StringEncoding];
+        [_liveActivityManager startActivityWithDeviceName:name
+                                                 useMiles:useMiles
+                                     compactLeadingMetric:leadingMetric
+                                    compactTrailingMetric:trailingMetric];
         qDebug() << "Live Activity started for device:" << deviceName << "useMiles:" << useMiles;
     } else {
         qDebug() << "Live Activities require iOS 16.1 or later";
     }
 }
 
-void ios_liveactivity::updateLiveActivity(double speed, double cadence, double power, int heartRate, double distance, double kcal, bool useMiles) {
+void ios_liveactivity::updateLiveActivity(double speed, double cadence, double power, int heartRate, double distance,
+                                          double kcal, bool useMiles, const char* compactLeadingMetric,
+                                          int compactLeadingValue, const char* compactTrailingMetric,
+                                          int compactTrailingValue) {
     if (@available(iOS 16.1, *)) {
         if (_liveActivityManager != nil) {
+            NSString *leadingMetric = [NSString stringWithCString:compactLeadingMetric encoding:NSUTF8StringEncoding];
+            NSString *trailingMetric = [NSString stringWithCString:compactTrailingMetric encoding:NSUTF8StringEncoding];
             [_liveActivityManager updateActivityWithSpeed:speed
                                                   cadence:cadence
                                                     power:power
                                                 heartRate:heartRate
                                                  distance:distance
                                                      kcal:kcal
+                                       compactLeadingMetric:leadingMetric
+                                        compactLeadingValue:compactLeadingValue
+                                      compactTrailingMetric:trailingMetric
+                                       compactTrailingValue:compactTrailingValue
                                                  useMiles:useMiles];
         }
     }

@@ -520,6 +520,47 @@ ApplicationWindow {
         visible: rootItem.stravaUploadRequested
     }
 
+    MessageDialog {
+        text: "Garmin Workout Planned"
+        informativeText: "Workout found:\n" + rootItem.garminWorkoutPromptName +
+                         (rootItem.garminWorkoutPromptDate.length > 0 ? "\nDate: " + rootItem.garminWorkoutPromptDate : "") +
+                         "\n\nDo you want to start it now?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.garmin_start_downloaded_workout(); }
+        onNoClicked: { rootItem.garmin_dismiss_downloaded_workout_prompt(); }
+        visible: rootItem.garminWorkoutPromptRequested
+    }
+
+    MessageDialog {
+        id: stravaLogoutConfirm
+        text: qsTr("Strava")
+        informativeText: qsTr("You are already connected to Strava. Do you want to log out?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.strava_logout(); }
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
+    MessageDialog {
+        id: pelotonLogoutConfirm
+        text: qsTr("Peloton")
+        informativeText: qsTr("You are already connected to Peloton. Do you want to log out?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.peloton_logout(); }
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
+    MessageDialog {
+        id: intervalsICULogoutConfirm
+        text: qsTr("Intervals.icu")
+        informativeText: qsTr("You are already connected to Intervals.icu. Do you want to log out?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.intervalsicu_logout(); }
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
         Material.primary: settings.theme_status_bar_background_color
@@ -935,7 +976,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.20.26"
+                    text: "version 2.21.0"
                     width: parent.width
                 }
 
@@ -951,9 +992,14 @@ ApplicationWindow {
                     }
                     width: parent.width
                     onClicked: {
-                        stackView.push("WebStravaAuth.qml")
-                        strava_connect_clicked()
-                        drawer.close()
+                        if (rootItem.isStravaLoggedIn()) {
+                            stravaLogoutConfirm.visible = true
+                            drawer.close()
+                        } else {
+                            stackView.push("WebStravaAuth.qml")
+                            strava_connect_clicked()
+                            drawer.close()
+                        }
                     }
                 }
 
@@ -968,12 +1014,17 @@ ApplicationWindow {
                     }
                     width: parent.width
                     onClicked: {
-                        stackView.push("WebPelotonAuth.qml")
-                        stackView.currentItem.goBack.connect(function() {
-                            stackView.pop();
-                        })
-                        peloton_connect_clicked()
-                        drawer.close()
+                        if (rootItem.isPelotonLoggedIn()) {
+                            pelotonLogoutConfirm.visible = true
+                            drawer.close()
+                        } else {
+                            stackView.push("WebPelotonAuth.qml")
+                            stackView.currentItem.goBack.connect(function() {
+                                stackView.pop();
+                            })
+                            peloton_connect_clicked()
+                            drawer.close()
+                        }
                     }
                 }
 
@@ -1017,9 +1068,14 @@ ApplicationWindow {
                     }
                     width: parent.width
                     onClicked: {
-                        stackView.push("WebIntervalsICUAuth.qml")
-                        intervalsicu_connect_clicked()
-                        drawer.close()
+                        if (rootItem.isIntervalsICULoggedIn()) {
+                            intervalsICULogoutConfirm.visible = true
+                            drawer.close()
+                        } else {
+                            stackView.push("WebIntervalsICUAuth.qml")
+                            intervalsicu_connect_clicked()
+                            drawer.close()
+                        }
                     }
                 }
 

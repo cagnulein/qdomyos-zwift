@@ -20,7 +20,11 @@ class lockscreen {
     void setHeartRate(unsigned char heartRate);
     void startWorkout(unsigned short deviceType);
     void stopWorkout();
-    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance, double totalKcal, bool useMiles, unsigned char heartRate);
+    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories,
+                               unsigned long long currentSteps, unsigned char deviceType, double currentDistance,
+                               double totalKcal, bool useMiles, unsigned char heartRate,
+                               const char *compactLeadingMetric, int compactLeadingValue,
+                               const char *compactTrailingMetric, int compactTrailingValue);
     bool appleWatchAppInstalled();
 
     // virtualbike
@@ -115,6 +119,9 @@ class lockscreen {
 
     // multi-window detection for iPadOS
     static bool isInMultiWindowMode();
+
+    // web view cache
+    static void clearWebViewCache();
 };
 
 #endif // LOCKSCREEN_H

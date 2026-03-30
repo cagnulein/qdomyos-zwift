@@ -19,8 +19,14 @@ public struct QZWorkoutAttributes: ActivityAttributes {
         public var distance: Double
         public var kcal: Double
         public var useMiles: Bool
+        public var compactLeadingMetric: String
+        public var compactLeadingValue: Int
+        public var compactTrailingMetric: String
+        public var compactTrailingValue: Int
 
-        public init(speed: Double, cadence: Double, power: Double, heartRate: Int, distance: Double, kcal: Double, useMiles: Bool) {
+        public init(speed: Double, cadence: Double, power: Double, heartRate: Int, distance: Double, kcal: Double,
+                    useMiles: Bool, compactLeadingMetric: String, compactLeadingValue: Int,
+                    compactTrailingMetric: String, compactTrailingValue: Int) {
             self.speed = speed
             self.cadence = cadence
             self.power = power
@@ -28,6 +34,10 @@ public struct QZWorkoutAttributes: ActivityAttributes {
             self.distance = distance
             self.kcal = kcal
             self.useMiles = useMiles
+            self.compactLeadingMetric = compactLeadingMetric
+            self.compactLeadingValue = compactLeadingValue
+            self.compactTrailingMetric = compactTrailingMetric
+            self.compactTrailingValue = compactTrailingValue
         }
     }
 

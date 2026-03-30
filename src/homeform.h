@@ -192,6 +192,9 @@ class homeform : public QObject {
     Q_PROPERTY(QString toastRequested READ toastRequested NOTIFY toastRequestedChanged WRITE setToastRequested)
     Q_PROPERTY(bool stravaUploadRequested READ stravaUploadRequested NOTIFY stravaUploadRequestedChanged WRITE setStravaUploadRequested)
     Q_PROPERTY(bool garminMfaRequested READ garminMfaRequested NOTIFY garminMfaRequestedChanged WRITE setGarminMfaRequested)
+    Q_PROPERTY(bool garminWorkoutPromptRequested READ garminWorkoutPromptRequested NOTIFY garminWorkoutPromptRequestedChanged WRITE setGarminWorkoutPromptRequested)
+    Q_PROPERTY(QString garminWorkoutPromptName READ garminWorkoutPromptName NOTIFY garminWorkoutPromptNameChanged)
+    Q_PROPERTY(QString garminWorkoutPromptDate READ garminWorkoutPromptDate NOTIFY garminWorkoutPromptDateChanged)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -480,6 +483,9 @@ class homeform : public QObject {
     QString toastRequested() { return m_toastRequested; }
     bool stravaUploadRequested() { return m_stravaUploadRequested; }
     bool garminMfaRequested() { return m_garminMfaRequested; }
+    bool garminWorkoutPromptRequested() { return m_garminWorkoutPromptRequested; }
+    QString garminWorkoutPromptName() { return m_garminWorkoutPromptName; }
+    QString garminWorkoutPromptDate() { return m_garminWorkoutPromptDate; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool pelotonPopupVisible();
@@ -541,10 +547,36 @@ class homeform : public QObject {
         m_garminMfaRequested = value;
         emit garminMfaRequestedChanged(value);
     }
+    void setGarminWorkoutPromptRequested(bool value) {
+        if (m_garminWorkoutPromptRequested == value) {
+            return;
+        }
+        m_garminWorkoutPromptRequested = value;
+        emit garminWorkoutPromptRequestedChanged(value);
+    }
     Q_INVOKABLE void garmin_connect_login();
     Q_INVOKABLE void garmin_submit_mfa_code(const QString &mfaCode);
     Q_INVOKABLE void garmin_connect_logout();
+    Q_INVOKABLE void garmin_start_downloaded_workout();
+    Q_INVOKABLE void garmin_dismiss_downloaded_workout_prompt();
 
+    Q_INVOKABLE bool isStravaLoggedIn();
+    Q_INVOKABLE bool isPelotonLoggedIn();
+    Q_INVOKABLE bool isIntervalsICULoggedIn();
+    Q_INVOKABLE bool isGarminUploadConfigured();
+    Q_INVOKABLE bool isIntervalsICUUploadConfigured();
+    Q_INVOKABLE void uploadHistoricalWorkoutToStrava(const QString &filePath);
+    Q_INVOKABLE void uploadHistoricalWorkoutToGarmin(const QString &filePath);
+    Q_INVOKABLE void uploadHistoricalWorkoutToIntervalsICU(const QString &filePath);
+    Q_INVOKABLE void strava_logout();
+    Q_INVOKABLE void peloton_logout();
+    Q_INVOKABLE void intervalsicu_logout();
+    Q_INVOKABLE void handleOAuthCallbackFromQml(const QString &callbackUrl);
+
+private:
+    void clearWebViewCache();
+
+public:
     void setGeneralPopupVisible(bool value);
     void setPelotonPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
@@ -821,6 +853,7 @@ class homeform : public QObject {
     DataObject *autoVirtualShiftingClimb;
     DataObject *autoVirtualShiftingSprint;
     DataObject *powerAvg;
+    DataObject *hrv;
 
   private:
     static homeform *m_singleton;
@@ -880,6 +913,10 @@ class homeform : public QObject {
     QString m_toastRequested = "";
     bool m_stravaUploadRequested = false;
     bool m_garminMfaRequested = false;
+    bool m_garminWorkoutPromptRequested = false;
+    QString m_garminWorkoutPromptName = QStringLiteral("");
+    QString m_garminWorkoutPromptDate = QStringLiteral("");
+    QString m_garminWorkoutPromptFile = QStringLiteral("");
     FitDatabaseProcessor *fitProcessor = nullptr;
     WorkoutModel *workoutModel = nullptr;
     int m_pelotonLoginState = -1;
@@ -993,6 +1030,7 @@ class homeform : public QObject {
     void Plus(const QString &);
     void trainprogram_open_clicked(const QUrl &fileName);
     void trainprogram_autostart_requested();
+    void handleOAuthCallbackUrl(const QString &callbackUrl);
 
   private slots:
     void Start();
@@ -1069,6 +1107,7 @@ class homeform : public QObject {
     void onToastRequested(QString message);
     void strava_upload_file_prepare();
     void garmin_upload_file_prepare();
+    void garmin_download_todays_workout();
     void handleRestoreDefaultWheelDiameter();
     void StartFromDevice();  // Called when physical start button pressed on hardware
     void PauseFromDevice();  // Called when physical pause button pressed on hardware
@@ -1102,6 +1141,9 @@ class homeform : public QObject {
     void toastRequestedChanged(QString value);
     void stravaUploadRequestedChanged(bool value);
     void garminMfaRequestedChanged(bool value);
+    void garminWorkoutPromptRequestedChanged(bool value);
+    void garminWorkoutPromptNameChanged(QString value);
+    void garminWorkoutPromptDateChanged(QString value);
     void generalPopupVisibleChanged(bool value);
     void pelotonPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
