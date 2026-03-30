@@ -279,7 +279,7 @@ void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QStrin
     if(!m_device) return;
     
     if(deviceType == "bike" && m_device->deviceType() == BIKE) {
-        bike* bikeDevice = static_cast<bike*>(m_device);
+        bike* bikeDevice = static_cast<bike*>(m_device.data());
         
         if(command == "resistance") {
             bikeDevice->changeResistance(value.toInt());
@@ -298,7 +298,7 @@ void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QStrin
         }
         
     } else if(deviceType == "treadmill" && m_device->deviceType() == TREADMILL) {
-        treadmill* treadDevice = static_cast<treadmill*>(m_device);
+        treadmill* treadDevice = static_cast<treadmill*>(m_device.data());
         
         if(command == "speed") {
             treadDevice->changeSpeed(value.toDouble());
@@ -309,7 +309,7 @@ void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QStrin
         }
         
     } else if(deviceType == "rowing" && m_device->deviceType() == ROWING) {
-        rower* rowDevice = static_cast<rower*>(m_device);
+        rower* rowDevice = static_cast<rower*>(m_device.data());
         
         if(command == "resistance") {
             rowDevice->changeResistance(value.toInt());
@@ -322,7 +322,7 @@ void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QStrin
         }
         
     } else if(deviceType == "elliptical" && m_device->deviceType() == ELLIPTICAL) {
-        elliptical* ellipticalDevice = static_cast<elliptical*>(m_device);
+        elliptical* ellipticalDevice = static_cast<elliptical*>(m_device.data());
         
         if(command == "resistance") {
             ellipticalDevice->changeResistance(value.toInt());
@@ -557,7 +557,7 @@ void MQTTPublisher::publishWorkoutData() {
     // Device Specific Metrics
     switch (m_device->deviceType()) {
         case BIKE: {
-            bike* bikeDevice = static_cast<bike*>(m_device);
+            bike* bikeDevice = static_cast<bike*>(m_device.data());
             publishToTopic("bike/gears", bikeDevice->gears());
             publishToTopic("bike/target_resistance", bikeDevice->lastRequestedResistance().value());
             publishToTopic("bike/target_peloton_resistance", bikeDevice->lastRequestedPelotonResistance().value());
@@ -592,7 +592,7 @@ void MQTTPublisher::publishWorkoutData() {
             break;
         }
         case TREADMILL: {
-            treadmill* treadDevice = static_cast<treadmill*>(m_device);
+            treadmill* treadDevice = static_cast<treadmill*>(m_device.data());
             publishToTopic("treadmill/target_speed", treadDevice->lastRequestedSpeed().value());
             publishToTopic("treadmill/target_inclination", treadDevice->lastRequestedInclination().value());
 
@@ -614,7 +614,7 @@ void MQTTPublisher::publishWorkoutData() {
             break;
         }
         case ROWING: {
-            rower* rowDevice = static_cast<rower*>(m_device);
+            rower* rowDevice = static_cast<rower*>(m_device.data());
             metric cadence = m_device->currentCadence();
             publishToTopic("rowing/cadence/current", cadence.value());
             publishToTopic("rowing/cadence/avg", cadence.average());
