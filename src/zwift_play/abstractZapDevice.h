@@ -7,10 +7,16 @@
 #include <QSettings>
 #include <QTimer>
 #include <QDateTime>
+#include <QByteArrayView>
+#include <QtGlobal>
+#if 0
 #include "zapConstants.h"
 #include "localKeyProvider.h"
 #include "zapCrypto.h"
 #include "encryptionUtils.h"
+#endif
+#include "zapConstants.h"
+#include "controllerNotification.h"
 #include "qzsettings.h"
 
 class AbstractZapDevice: public QObject {
@@ -26,7 +32,7 @@ class AbstractZapDevice: public QObject {
     QByteArray REQUEST_START;
     QByteArray RESPONSE_START;
 
-    AbstractZapDevice() : zapEncryption(localKeyProvider) {
+    AbstractZapDevice() {
         RIDE_ON = QByteArray::fromRawData("\x52\x69\x64\x65\x4F\x6E", 6);  // "RideOn"
         REQUEST_START = QByteArray::fromRawData("\x00\x09", 2);  // {0, 9}
         RESPONSE_START = QByteArray::fromRawData("\x01\x03", 2);  // {1, 3}
@@ -53,15 +59,6 @@ class AbstractZapDevice: public QObject {
         qDebug() << zapType << characteristicName << bytes.toHex() << zwiftplay_swap << gears_volume_debouncing << risingEdge << lastFrame;
 
 #define DEBOUNCE (!gears_volume_debouncing || risingEdge <= 0)
-
-        if (bytes.startsWith(RIDE_ON + RESPONSE_START)) {
-            processDevicePublicKeyResponse(bytes);
-            return 0;
-        }
-
-        if (bytes.size() > static_cast<int>(sizeof(qint32)) + EncryptionUtils::MAC_LENGTH) {
-            return processEncryptedData(bytes);
-        }
 
         switch(bytes[0]) {
         case 0x37:
@@ -106,6 +103,7 @@ class AbstractZapDevice: public QObject {
             break;
         case 0x07: // zwift play
             lastFrame = QDateTime::currentDateTime();
+            processPlainControllerNotification(bytes);
             if(bytes.length() > 5 && bytes[bytes.length() - 5] == 0x40 && (
                     (((uint8_t)bytes[bytes.length() - 4]) == 0xc7 && zapType == RIGHT) ||
                     (((uint8_t)bytes[bytes.length() - 4]) == 0xc8 && zapType == LEFT)
@@ -182,6 +180,7 @@ class AbstractZapDevice: public QObject {
             return 1;
         case 0x23: // zwift ride
             lastFrame = QDateTime::currentDateTime();
+            processPlainControllerNotification(bytes);
             if(bytes.length() > 12 &&
                 ((((uint8_t)bytes[12]) == 0xc7 && zapType == RIGHT) ||
                  (((uint8_t)bytes[12]) == 0xc8 && zapType == LEFT))
@@ -290,28 +289,101 @@ class AbstractZapDevice: public QObject {
     }
 
     QByteArray buildHandshakeStart() {
-        return RIDE_ON + REQUEST_START + localKeyProvider.getPublicKeyBytes();
+        QByteArray a;
+        a.append(0x52);
+        a.append(0x69);
+        a.append(0x64);
+        a.append(0x65);
+        a.append(0x4f);
+        a.append(0x6e);
+        return a;
     }
 
   protected:
     virtual int processEncryptedData(const QByteArray& bytes) = 0;
-    ZapCrypto zapEncryption;
 
   private:
-    void processDevicePublicKeyResponse(const QByteArray &bytes) {
-        devicePublicKeyBytes = bytes.mid(RIDE_ON.size() + RESPONSE_START.size());
-        if (!devicePublicKeyBytes.isEmpty()) {
-            zapEncryption.initialise(devicePublicKeyBytes);
-            qDebug() << "Device Public Key -" << devicePublicKeyBytes.toHex(' ');
+    bool processPlainControllerNotification(const QByteArray &bytes) {
+        ControllerNotification bestCandidate;
+        int bestScore = 0;
+
+        for (int offset = 1; offset < bytes.size() && offset < 20; ++offset) {
+            ControllerNotification candidate(bytes.mid(offset));
+            int score = candidate.fieldsSeen();
+            if (candidate.hasActiveInput()) {
+                score += 10;
+            }
+            if (score > bestScore) {
+                bestCandidate = candidate;
+                bestScore = score;
+            }
         }
+
+        if (bestScore == 0 || !bestCandidate.hasParsedFields()) {
+            return false;
+        }
+
+        processButtonNotification(bestCandidate);
+        return true;
     }
 
-    LocalKeyProvider localKeyProvider;
-    QByteArray devicePublicKeyBytes;
+    void processButtonNotification(const ControllerNotification& notification) {
+        ControllerNotification &lastButtonState = notification.isRightController() ? lastRightButtonState : lastLeftButtonState;
+        bool &lastButtonStateValid = notification.isRightController() ? lastRightButtonStateValid : lastLeftButtonStateValid;
+
+        if (!lastButtonStateValid) {
+            qDebug() << notification.toString();
+        } else {
+            QString diff = notification.diff(lastButtonState);
+            if (!diff.isEmpty())
+                qDebug() << diff;
+        }
+
+        const bool paddlePressed = qAbs(notification.steerBrakeValue()) >= 100;
+        const bool previousPaddlePressed = lastButtonStateValid && qAbs(lastButtonState.steerBrakeValue()) >= 100;
+
+        if (notification.isRightController()) {
+            emitIfChanged(notification.buttonYPressed(), lastButtonStateValid ? lastButtonState.buttonYPressed() : false, &AbstractZapDevice::rightY);
+            emitIfChanged(notification.buttonZPressed(), lastButtonStateValid ? lastButtonState.buttonZPressed() : false, &AbstractZapDevice::rightZ);
+            emitIfChanged(notification.buttonAPressed(), lastButtonStateValid ? lastButtonState.buttonAPressed() : false, &AbstractZapDevice::rightA);
+            emitIfChanged(notification.buttonBPressed(), lastButtonStateValid ? lastButtonState.buttonBPressed() : false, &AbstractZapDevice::rightB);
+            emitIfChanged(notification.shoulderButtonPressed(), lastButtonStateValid ? lastButtonState.shoulderButtonPressed() : false, &AbstractZapDevice::rightShoulder);
+            emitIfChanged(notification.powerButtonPressed(), lastButtonStateValid ? lastButtonState.powerButtonPressed() : false, &AbstractZapDevice::rightPower);
+            if (paddlePressed != previousPaddlePressed) {
+                emit rightPaddle(paddlePressed ? 100 : 0);
+            }
+        } else {
+            emitIfChanged(notification.buttonYPressed(), lastButtonStateValid ? lastButtonState.buttonYPressed() : false, &AbstractZapDevice::leftUp);
+            emitIfChanged(notification.buttonZPressed(), lastButtonStateValid ? lastButtonState.buttonZPressed() : false, &AbstractZapDevice::leftLeft);
+            emitIfChanged(notification.buttonAPressed(), lastButtonStateValid ? lastButtonState.buttonAPressed() : false, &AbstractZapDevice::leftRight);
+            emitIfChanged(notification.buttonBPressed(), lastButtonStateValid ? lastButtonState.buttonBPressed() : false, &AbstractZapDevice::leftDown);
+            emitIfChanged(notification.shoulderButtonPressed(), lastButtonStateValid ? lastButtonState.shoulderButtonPressed() : false, &AbstractZapDevice::leftShoulder);
+            emitIfChanged(notification.powerButtonPressed(), lastButtonStateValid ? lastButtonState.powerButtonPressed() : false, &AbstractZapDevice::leftPower);
+            if (paddlePressed != previousPaddlePressed) {
+                emit leftPaddle(paddlePressed ? -100 : 0);
+            }
+        }
+
+        lastButtonState = notification;
+        lastButtonStateValid = true;
+    }
+
+    bool emitIfChanged(bool current, bool previous, void (AbstractZapDevice::*signal)(bool)) {
+        if (current == previous) {
+            return false;
+        }
+        (this->*signal)(current);
+        return true;
+    }
+
     static volatile int8_t risingEdge;
     static QTimer* autoRepeatTimer;    // Static timer for auto-repeat
     static bool lastButtonPlus;  // Static track of which button was last pressed
     static QDateTime lastFrame;
+    ControllerNotification lastLeftButtonState;
+    ControllerNotification lastRightButtonState;
+    bool lastLeftButtonStateValid = false;
+    bool lastRightButtonStateValid = false;
 
   private slots:
     void handleAutoRepeat() {

@@ -157,7 +157,6 @@ devices/wahookickrheadwind/wahookickrheadwind.cpp \
 windows_zwift_workout_paddleocr_thread.cpp \
 devices/ypooelliptical/ypooelliptical.cpp \
 devices/ziprotreadmill/ziprotreadmill.cpp \
-zwift_play/zwiftclickremote.cpp \
 devices/computrainerbike/Computrainer.cpp \
 devices/kettlerusbbike/KettlerUSB.cpp \
 PathController.cpp \
@@ -447,11 +446,6 @@ windows_zwift_workout_paddleocr_thread.h \
 devices/fakerower/fakerower.h \
 zwift-api/PlayerStateWrapper.h \
 zwift-api/zwift_client_auth.h \
-zwift_play/abstractZapDevice.h \
-zwift_play/zapBleUuids.h \
-zwift_play/zapConstants.h \
-zwift_play/zwiftPlayDevice.h \
-zwift_play/zwiftclickremote.h \
 virtualdevices/virtualdevice.h \
 androidactivityresultreceiver.h \
 androidadblog.h \

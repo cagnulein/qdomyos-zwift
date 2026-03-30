@@ -18,39 +18,7 @@ public:
 
 protected:
     int processEncryptedData(const QByteArray& bytes) override {
-        try {
-            qDebug() << "Encrypted:" << bytes.toHex();
-
-            QByteArray counter = bytes.left(sizeof(int));
-            QByteArray payload = bytes.mid(sizeof(int), bytes.length() - sizeof(int));
-
-            QByteArray data = zapEncryption.decrypt(counter, payload);
-            if (data.isEmpty()) {
-                return 0;
-            }
-            qDebug() << data.toHex(' ') << counter.toHex(' ') << payload.toHex(' ');
-            char type = data[0];
-            QByteArray message = data.mid(1);
-
-            switch (type) {
-                case ZapConstants::CONTROLLER_NOTIFICATION_MESSAGE_TYPE:
-                    processButtonNotification(ControllerNotification(message));
-                    break;
-                case ZapConstants::EMPTY_MESSAGE_TYPE:
-                    qDebug() << "Empty Message";
-                    break;
-                case ZapConstants::BATTERY_LEVEL_TYPE:
-                    break;
-                case ZapConstants::CLICK_TYPE:
-                case 0x37:
-                    return processClickButtonNotification(data);
-                default:
-                    qDebug() << "Unprocessed - Type:" << static_cast<unsigned char>(type) << "Data:" << data.toHex();
-                    break;
-            }
-        } catch (std::exception& ex) {
-            qDebug() << "Decrypt failed:" << ex.what();
-        }
+        Q_UNUSED(bytes)
         return 0;
     }
 

@@ -35,30 +35,39 @@ public:
             const int value = static_cast<int>(rawValue);
             switch (fieldNumber) {
                 case 1:
+                    ++m_fieldsSeen;
                     m_isRightController = value == BTN_PRESSED;
                     break;
                 case 2:
+                    ++m_fieldsSeen;
                     m_buttonYPressed = value == BTN_PRESSED;
                     break;
                 case 3:
+                    ++m_fieldsSeen;
                     m_buttonZPressed = value == BTN_PRESSED;
                     break;
                 case 4:
+                    ++m_fieldsSeen;
                     m_buttonAPressed = value == BTN_PRESSED;
                     break;
                 case 5:
+                    ++m_fieldsSeen;
                     m_buttonBPressed = value == BTN_PRESSED;
                     break;
                 case 6:
+                    ++m_fieldsSeen;
                     m_shoulderButtonPressed = value == BTN_PRESSED;
                     break;
                 case 7:
+                    ++m_fieldsSeen;
                     m_powerButtonPressed = value == BTN_PRESSED;
                     break;
                 case 8:
+                    ++m_fieldsSeen;
                     m_steerBrakeValue = decodeSignedValue(value);
                     break;
                 case 9:
+                    ++m_fieldsSeen;
                     m_somethingValue = value;
                     break;
                 default:
@@ -106,6 +115,12 @@ public:
     bool powerButtonPressed() const { return m_powerButtonPressed; }
     int steerBrakeValue() const { return m_steerBrakeValue; }
     int somethingValue() const { return m_somethingValue; }
+    int fieldsSeen() const { return m_fieldsSeen; }
+    bool hasParsedFields() const { return m_fieldsSeen > 0; }
+    bool hasActiveInput() const {
+        return m_buttonYPressed || m_buttonZPressed || m_buttonAPressed || m_buttonBPressed ||
+               m_shoulderButtonPressed || m_powerButtonPressed || m_steerBrakeValue != 0 || m_somethingValue != 0;
+    }
 
 private:
     static bool readVarInt(const QByteArray &message, int &index, quint64 &value) {
@@ -137,6 +152,7 @@ private:
     bool m_powerButtonPressed = false;
     int m_steerBrakeValue = 0;
     int m_somethingValue = 0;
+    int m_fieldsSeen = 0;
 
     static QString diffField(const QString& title, bool newValue, bool oldValue) {
         return newValue != oldValue ? title + "=" + (newValue ? "Pressed " : "Released ") : "";
