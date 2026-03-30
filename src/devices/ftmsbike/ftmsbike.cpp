@@ -340,6 +340,9 @@ void ftmsbike::sendZwiftPlayInclination(double inclination) {
 
 void ftmsbike::update() {
 
+    if(!m_control)
+        return;
+
     QSettings settings;
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
