@@ -83,23 +83,38 @@ void lifefitnesstreadmill::waitForAPacket() {
 
 void lifefitnesstreadmill::btinit() {
     if (gattWriteChar4CustomService2.isValid()) {
-
+        // Mirror the Life Fitness app init sequence seen in the Android btsnoop
+        // before enabling FTMS notifications.
+        uint8_t emptyData[1] = {0x00};
         uint8_t initData1[1] = {0x01};
-        uint8_t initData2a[20] = {0x38, 0x66, 0x65, 0x64, 0x61, 0x38, 0x38, 0x39, 0x31, 0x64,
-                                  0x62, 0x61, 0x34, 0x30, 0x31, 0x66, 0x38, 0x39, 0x39, 0x30};
-        uint8_t initData2b[12] = {0x30, 0x32, 0x33, 0x30, 0x37, 0x39, 0x35, 0x66, 0x30, 0x38, 0x36, 0x30};
-        uint8_t initData3[1] = {0x00};
+        uint8_t initData2[32] = {0x38, 0x61, 0x32, 0x34, 0x63, 0x38, 0x34, 0x61,
+                                 0x61, 0x34, 0x63, 0x30, 0x34, 0x30, 0x30, 0x63,
+                                 0x39, 0x36, 0x65, 0x64, 0x31, 0x66, 0x61, 0x61,
+                                 0x32, 0x30, 0x66, 0x61, 0x34, 0x35, 0x39, 0x34};
+        uint8_t initData3[1] = {0x01};
         uint8_t initData4[7] = {0x00, 0x00, 0x00, 0x01, 0xb8, 0x5b, 0x5d};
         uint8_t initData5[1] = {0x02};
 
+        auto writeProfileField = [&](quint16 uuid, const QString &info) {
+            QLowEnergyCharacteristic c = gattCustomService2->characteristic(QBluetoothUuid(uuid));
+            if (c.isValid())
+                writeCharacteristic(gattCustomService2, c, emptyData, 0, info, false, false);
+        };
+
         writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData1, sizeof(initData1),
                             QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService2, gattWriteChar3CustomService2, initData2a, sizeof(initData2a),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService2, gattWriteChar3CustomService2, initData2b, sizeof(initData2b),
+        writeProfileField(0x2A8A, QStringLiteral("init first name"));
+        writeProfileField(0x2A90, QStringLiteral("init last name"));
+        writeProfileField(0x2A87, QStringLiteral("init email"));
+        writeProfileField(0x2A80, QStringLiteral("init age"));
+        writeProfileField(0x2A8C, QStringLiteral("init gender"));
+        writeProfileField(0x2AA2, QStringLiteral("init language"));
+        writeCharacteristic(gattCustomService2, gattWriteChar3CustomService2, initData2, sizeof(initData2),
                             QStringLiteral("init"), false, false);
         writeCharacteristic(gattCustomService2, gattWriteChar4CustomService2, initData3, sizeof(initData3),
                             QStringLiteral("init"), false, false);
+        writeProfileField(0x2A98, QStringLiteral("init weight"));
+        writeProfileField(0x2A8E, QStringLiteral("init height"));
         writeCharacteristic(gattCustomService1, gattWriteChar2CustomService1, initData4, sizeof(initData4),
                             QStringLiteral("init"), false, false);
         writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData5, sizeof(initData5),
