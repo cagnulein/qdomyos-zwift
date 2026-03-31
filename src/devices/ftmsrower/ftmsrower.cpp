@@ -419,7 +419,8 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     
     if (Flags.instantPace) {
         instantPace =
-            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                      (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
 
@@ -438,20 +439,26 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
         double avgPace;
         avgPace =
-            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                      (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
         emit debug(QStringLiteral("Current Average Pace: ") + QString::number(avgPace));
     }
+
+    bool mrkR15AvgPowerAvailable = false;
+    uint16_t mrkR15AvgPower = 0;
+    bool powerProvidedByFrame = false;
 
     if (Flags.instantPower) {
         double watt =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
+        powerProvidedByFrame = true;
         if (!filterWattNull || watt != 0) {
             if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
                 m_watt = watt;
         }        
-    } else if(!PM5) {
+    } else if(!PM5 && !MRK_R15) {
         qDebug() << "rower doesn't send wattage, let's calculate it...";
         if(Speed.value() > 0)
             m_watt = rower::calculateWattsFromPace(instantPace);
@@ -467,19 +474,37 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         avgPower =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
+        if (MRK_R15) {
+            powerProvidedByFrame = true;
+            mrkR15AvgPowerAvailable = true;
+            mrkR15AvgPower = (uint16_t)avgPower;
+        }
         emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
+    }
+
+    if (MRK_R15 && mrkR15AvgPowerAvailable) {
+        if (!filterWattNull || mrkR15AvgPower != 0) {
+            if ((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
+                m_watt = mrkR15AvgPower;
+        }
+        emit debug(QStringLiteral("MRK-R15 using average watt: ") + QString::number(m_watt.value()));
+    } else if (MRK_R15 && !powerProvidedByFrame) {
+        emit debug(QStringLiteral("MRK-R15 split FTMS frame without power, keeping previous watt: ") +
+                   QString::number(m_watt.value()));
     }
 
     if (Flags.resistanceLvl) {
         Resistance =
-            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                      (uint16_t)((uint8_t)newValue.at(index))));
         emit resistanceRead(Resistance.value());
         index += 2;
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
     }
 
     if (Flags.expEnergy && index + 1 < newValue.length()) {
-        KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+        KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                        (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
 
         // energy per hour
@@ -851,6 +876,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("MRK-R11S-"))) {
             MRK_R11S = true;
             qDebug() << "MRK_R11S found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("MRK-R15-"))) {
+            MRK_R15 = true;
+            qDebug() << "MRK_R15 found! using average watt";
         } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
             PM5 = true;
             qDebug() << "PM5 found!";
