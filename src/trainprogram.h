@@ -152,6 +152,7 @@ private slots:
     void changeTimestamp(QTime source, QTime actual);
     void toastRequest(QString message);
     void zwiftLoginState(bool ok);
+    void intervalTransitionApplied();
 
   private:
     void end();
