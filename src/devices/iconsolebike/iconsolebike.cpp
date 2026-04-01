@@ -242,12 +242,18 @@ void iconsolebike::readSocket() {
 
     // Parse metrics if this is a polling response
     if (initDone && data.length() >= 20 && data[0] == (char)0xF0 && data[1] == (char)0xB2) {
-        // Metrics packet received
+        // Metrics packet received.
+        // packet[8] == 0x01 marks a valid cadence/speed/power frame.
+        // When packet[8] == 0x02 the cadence field (packet[9]) carries
+        // unrelated data; skip updating those metrics to avoid the
+        // jumping readings seen on the Ride6 iPlus at low resistance.
         QSettings settings;
-        Cadence = GetCadenceFromPacket(data);
-        Speed = GetSpeedFromPacket(data);
-        m_watt = GetPowerFromPacket(data);
         Resistance = GetResistanceFromPacket(data);
+        if ((uint8_t)data[8] == 0x01) {
+            Cadence = GetCadenceFromPacket(data);
+            Speed = GetSpeedFromPacket(data);
+            m_watt = GetPowerFromPacket(data);
+        }
 
         // Calculate KCal based on watts and body weight
         if (watts()) {
@@ -365,19 +371,19 @@ void iconsolebike::forceResistance(resistance_t requestResistance) {
 }
 
 uint16_t iconsolebike::GetCadenceFromPacket(const QByteArray &packet) {
-    if (packet.length() < 9) {
+    if (packet.length() < 10) {
         return 0;
     }
 
-    // The bike exposes a shared motion value in bytes 8-9.
-    // Empirically, dividing by 4 maps the raw value back to the console RPM.
-    uint16_t raw = ((uint8_t)packet[8] << 8) | (uint8_t)packet[9];
+    // packet[9] encodes cadence in RPM directly (1:1 mapping).
+    // Verified against three sessions: [9]=58→60 rpm, [9]=79→80 rpm, [9]=97→100 rpm.
+    uint8_t raw = (uint8_t)packet[9];
 
-    if (raw <= 0x0101) {
+    if (raw <= 1) {
         return 0;
     }
 
-    return qRound(raw / 4.0);
+    return raw;
 }
 
 double iconsolebike::GetSpeedFromPacket(const QByteArray &packet) {
@@ -385,15 +391,16 @@ double iconsolebike::GetSpeedFromPacket(const QByteArray &packet) {
         return 0.0;
     }
 
-    // The same motion value in bytes 8-9 also tracks console speed.
-    // The iConsole bike reports it on a different scale than RPM.
-    uint16_t raw = ((uint8_t)packet[8] << 8) | (uint8_t)packet[9];
+    // Speed is derived from cadence via the fixed gear ratio of this bike.
+    // Empirically measured constant across three sessions:
+    //   22 kph / 58 rpm = 0.379,  30 kph / 79 rpm = 0.380,  37 kph / 97 rpm = 0.381
+    uint8_t raw = (uint8_t)packet[9];
 
-    if (raw <= 0x0101) {
+    if (raw <= 1) {
         return 0.0;
     }
 
-    return raw / 11.0;
+    return raw * 0.38;
 }
 
 uint16_t iconsolebike::GetPowerFromPacket(const QByteArray &packet) {
@@ -401,14 +408,31 @@ uint16_t iconsolebike::GetPowerFromPacket(const QByteArray &packet) {
         return 0;
     }
 
-    // Bytes 6-7 track the bike's instantaneous watt reading in tenths of a watt.
-    uint16_t raw = ((uint8_t)packet[6] << 8) | (uint8_t)packet[7];
-
-    if (raw <= 0x0101) {
+    // Bytes [16-17] form a big-endian uint16 that encodes resistance-adjusted
+    // power.  Unlike bytes [6-7] (which vary only with cadence), [16-17]
+    // increases both with cadence and with resistance, so it correctly
+    // reflects the change in effort when the load is varied at constant rpm.
+    //
+    // Calibration from three independent sessions (Maarten, 2026-03-29):
+    //   res=8, 58 rpm  → [16-17]≈2367, bike display=60 W  → 2367/41=57.7 W  (-3.8%)
+    //   res=8, 79 rpm  → [16-17]≈3906, bike display=90 W  → 3906/41=95.3 W  (+5.9%)  ← average 42.4
+    //   res=8, 97 rpm  → [16-17]≈5338, bike display=130 W → 5338/41=130.2 W (+0.2%)
+    // Cross-check (Kinomap btsnoop 2026-04-01, res 8→11 at ~66 rpm):
+    //   res= 8, 66 rpm → [16-17]≈2648 → 64.6 W   (cadence-only formula gives 70.8 W — unchanged)
+    //   res=11, 66 rpm → [16-17]≈3900 → 95.1 W   (correctly 47% higher at higher resistance)
+    // The divisor 41 is the arithmetic mean of the three calibration points.
+    if (packet.length() < 18) {
         return 0;
     }
 
-    return qRound(raw / 10.0);
+    uint16_t power_raw = ((uint8_t)packet[16] << 8) | (uint8_t)packet[17];
+    uint8_t cadence_raw = (uint8_t)packet[9];
+
+    if (cadence_raw <= 1 || power_raw <= 0x0101) {
+        return 0;
+    }
+
+    return qRound(power_raw / 41.0);
 }
 
 uint8_t iconsolebike::GetResistanceFromPacket(const QByteArray &packet) {
