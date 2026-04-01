@@ -102,7 +102,156 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
         if (!echelon && !ifit) {
             if (!heart_only) {
-                if (!cadence && !power) {
+                if (virtual_device_tacx) {
+                    services << (QBluetoothUuid::ServiceClassUuid::CyclingPower);
+                    services << (QBluetoothUuid::ServiceClassUuid::CyclingSpeedAndCadence);
+                    services << ((QBluetoothUuid::ServiceClassUuid)0x1826);
+                    services << (QBluetoothUuid(QStringLiteral("6e40fec1-b5a3-f393-e0a9-e50e24dcca9e")));
+
+                    serviceDataFIT.setType(QLowEnergyServiceData::ServiceTypePrimary);
+
+                    QLowEnergyCharacteristicData charDataFIT;
+                    charDataFIT.setUuid(
+                        (QBluetoothUuid::CharacteristicType)0x2ACC); // FitnessMachineFeatureCharacteristicUuid
+                    QByteArray valueFIT;
+                    valueFIT.append((char)0x83); // average speed, cadence and resistance level supported
+                    valueFIT.append((char)0x14); // heart rate and elapsed time
+                    valueFIT.append((char)0x00);
+                    valueFIT.append((char)0x00);
+                    valueFIT.append((char)0x0C); // resistance and power target supported
+                    valueFIT.append((char)0xE0); // indoor simulation, wheel and spin down supported
+                    valueFIT.append((char)0x00);
+                    valueFIT.append((char)0x00);
+                    charDataFIT.setValue(valueFIT);
+                    charDataFIT.setProperties(QLowEnergyCharacteristic::Read);
+
+                    QLowEnergyCharacteristicData charDataFIT2;
+                    charDataFIT2.setUuid(
+                        (QBluetoothUuid::CharacteristicType)0x2AD6); // supported_resistance_level_rangeCharacteristicUuid
+                    charDataFIT2.setProperties(QLowEnergyCharacteristic::Read);
+                    QByteArray valueFIT2;
+                    valueFIT2.append((char)0x0A); // min resistance value
+                    valueFIT2.append((char)0x00); // min resistance value
+                    valueFIT2.append((char)0x96); // max resistance value
+                    valueFIT2.append((char)0x00); // max resistance value
+                    valueFIT2.append((char)0x0A); // step resistance
+                    valueFIT2.append((char)0x00); // step resistance
+                    charDataFIT2.setValue(valueFIT2);
+
+                    QLowEnergyCharacteristicData charDataFIT3;
+                    charDataFIT3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
+                    charDataFIT3.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate |
+                                               QLowEnergyCharacteristic::Notify);
+                    QByteArray descriptor9;
+                    descriptor9.append((char)0x03);
+                    descriptor9.append((char)0x00);
+                    const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                                  descriptor9);
+                    charDataFIT3.addDescriptor(cpClientConfig);
+
+                    QLowEnergyCharacteristicData charDataFIT4;
+                    charDataFIT4.setUuid((QBluetoothUuid::CharacteristicType)0x2AD2); // indoor bike
+                    charDataFIT4.setProperties(QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Read);
+                    QByteArray descriptor;
+                    descriptor.append((char)0x01);
+                    descriptor.append((char)0x00);
+                    const QLowEnergyDescriptorData clientConfig4(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                                 descriptor);
+                    charDataFIT4.addDescriptor(clientConfig4);
+
+                    QLowEnergyCharacteristicData charDataFIT5;
+                    charDataFIT5.setUuid((QBluetoothUuid::CharacteristicType)0x2ADA); // Fitness Machine status
+                    charDataFIT5.setProperties(QLowEnergyCharacteristic::Notify);
+                    QByteArray descriptor5;
+                    descriptor5.append((char)0x01);
+                    descriptor5.append((char)0x00);
+                    const QLowEnergyDescriptorData clientConfig5(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                                 descriptor5);
+                    charDataFIT5.addDescriptor(clientConfig5);
+
+                    QLowEnergyCharacteristicData charDataFIT6;
+                    charDataFIT6.setUuid((QBluetoothUuid::CharacteristicType)0x2AD3);
+                    charDataFIT6.setProperties(QLowEnergyCharacteristic::Read);
+                    QByteArray valueFIT6;
+                    valueFIT6.append((char)0x00);
+                    valueFIT6.append((char)0x01);
+                    charDataFIT6.setValue(valueFIT6);
+
+                    serviceDataFIT.setUuid((QBluetoothUuid::ServiceClassUuid)0x1826); // FitnessMachineServiceUuid
+                    serviceDataFIT.addCharacteristic(charDataFIT);
+                    serviceDataFIT.addCharacteristic(charDataFIT2);
+                    serviceDataFIT.addCharacteristic(charDataFIT3);
+                    serviceDataFIT.addCharacteristic(charDataFIT4);
+                    serviceDataFIT.addCharacteristic(charDataFIT5);
+                    serviceDataFIT.addCharacteristic(charDataFIT6);
+
+                    QLowEnergyCharacteristicData charData;
+                    charData.setUuid(QBluetoothUuid::CharacteristicType::CyclingPowerFeature);
+                    charData.setProperties(QLowEnergyCharacteristic::Read);
+                    QByteArray value;
+                    value.append((char)0x08); // crank supported
+                    value.append((char)0x00);
+                    value.append((char)0x00);
+                    value.append((char)0x00);
+                    charData.setValue(value);
+
+                    QLowEnergyCharacteristicData charData2;
+                    charData2.setUuid(QBluetoothUuid::CharacteristicType::SensorLocation);
+                    charData2.setProperties(QLowEnergyCharacteristic::Read);
+                    QByteArray valueLocation;
+                    valueLocation.append((char)13); // rear hub
+                    charData2.setValue(valueLocation);
+
+                    QLowEnergyCharacteristicData charData3;
+                    charData3.setUuid(QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement);
+                    charData3.setProperties(QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Read);
+                    charData3.addDescriptor(clientConfig4);
+
+                    serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
+                    serviceData.setUuid(QBluetoothUuid::ServiceClassUuid::CyclingPower);
+                    serviceData.addCharacteristic(charData);
+                    serviceData.addCharacteristic(charData3);
+                    serviceData.addCharacteristic(charData2);
+
+                    QLowEnergyCharacteristicData charDataCSC;
+                    charDataCSC.setUuid(QBluetoothUuid::CharacteristicType::CSCFeature);
+                    charDataCSC.setProperties(QLowEnergyCharacteristic::Read);
+                    QByteArray valueCSC;
+                    valueCSC.append((char)0x03); // crank and wheel supported
+                    valueCSC.append((char)0x00);
+                    charDataCSC.setValue(valueCSC);
+
+                    QLowEnergyCharacteristicData charDataCSC2;
+                    charDataCSC2.setUuid(QBluetoothUuid::CharacteristicType::SensorLocation);
+                    charDataCSC2.setProperties(QLowEnergyCharacteristic::Read);
+                    charDataCSC2.setValue(valueLocation);
+
+                    QLowEnergyCharacteristicData charDataCSC3;
+                    charDataCSC3.setUuid(QBluetoothUuid::CharacteristicType::CSCMeasurement);
+                    charDataCSC3.setProperties(QLowEnergyCharacteristic::Read | QLowEnergyCharacteristic::Notify);
+                    charDataCSC3.addDescriptor(clientConfig4);
+
+                    serviceDataCSC.setType(QLowEnergyServiceData::ServiceTypePrimary);
+                    serviceDataCSC.setUuid(QBluetoothUuid::ServiceClassUuid::CyclingSpeedAndCadence);
+                    serviceDataCSC.addCharacteristic(charDataCSC);
+                    serviceDataCSC.addCharacteristic(charDataCSC3);
+                    serviceDataCSC.addCharacteristic(charDataCSC2);
+
+                    QLowEnergyCharacteristicData tacxReadChar;
+                    tacxReadChar.setUuid(QBluetoothUuid(QStringLiteral("6e40fec2-b5a3-f393-e0a9-e50e24dcca9e")));
+                    tacxReadChar.setProperties(QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Read);
+                    tacxReadChar.addDescriptor(clientConfig4);
+
+                    QLowEnergyCharacteristicData tacxWriteChar;
+                    tacxWriteChar.setUuid(QBluetoothUuid(QStringLiteral("6e40fec3-b5a3-f393-e0a9-e50e24dcca9e")));
+                    tacxWriteChar.setProperties(QLowEnergyCharacteristic::Write |
+                                                QLowEnergyCharacteristic::WriteNoResponse);
+
+                    serviceDataTacxCustom.setType(QLowEnergyServiceData::ServiceTypePrimary);
+                    serviceDataTacxCustom.setUuid(QBluetoothUuid(QStringLiteral("6e40fec1-b5a3-f393-e0a9-e50e24dcca9e")));
+                    serviceDataTacxCustom.addCharacteristic(tacxReadChar);
+                    serviceDataTacxCustom.addCharacteristic(tacxWriteChar);
+                } else if (!cadence && !power) {
                     services << ((QBluetoothUuid::ServiceClassUuid)0x1826);
                 } // FitnessMachineServiceUuid
                 else if (power) {
@@ -176,7 +325,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
       
         if (!echelon && !ifit) {
             if (!heart_only) {
-                if (!cadence && !power) {
+                if (virtual_device_tacx) {
+                    // Tacx mode exposes FTMS plus Tacx-specific power/CSC/custom services.
+                } else if (!cadence && !power) {
 
                     serviceDataFIT.setType(QLowEnergyServiceData::ServiceTypePrimary);
                     QLowEnergyCharacteristicData charDataFIT;
@@ -498,7 +649,15 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
         if (!echelon && !ifit) {
             if (!heart_only) {
-                if (!cadence && !power) {
+                if (virtual_device_tacx) {
+                    serviceFIT = leController->addService(serviceDataFIT);
+                    QThread::msleep(100); // give time to Android to add the service async.ly
+                    service = leController->addService(serviceData);
+                    QThread::msleep(100); // give time to Android to add the service async.ly
+                    serviceCSC = leController->addService(serviceDataCSC);
+                    QThread::msleep(100); // give time to Android to add the service async.ly
+                    serviceTacxCustom = leController->addService(serviceDataTacxCustom);
+                } else if (!cadence && !power) {
 
                     serviceFIT = leController->addService(serviceDataFIT);
 
@@ -538,7 +697,12 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
         if (!echelon && !ifit) {
             if (!heart_only) {
-                if (!cadence && !power) {
+                if (virtual_device_tacx) {
+                    QObject::connect(serviceFIT, &QLowEnergyService::characteristicChanged, this,
+                                     &virtualbike::characteristicChanged);
+                    QObject::connect(serviceTacxCustom, &QLowEnergyService::characteristicChanged, this,
+                                     &virtualbike::characteristicChanged);
+                } else if (!cadence && !power) {
                     QObject::connect(serviceFIT, &QLowEnergyService::characteristicChanged, this,
                                      &virtualbike::characteristicChanged);
                     QObject::connect(serviceWattAtomBike, &QLowEnergyService::characteristicChanged, this,
@@ -1355,8 +1519,15 @@ void virtualbike::reconnect() {
 
     if (!echelon && !ifit) {
         if (!heart_only) {
-            if (!cadence && !power) {
-
+            if (virtual_device_tacx) {
+                serviceFIT = leController->addService(serviceDataFIT);
+                QThread::msleep(100); // give time to Android to add the service async.ly
+                service = leController->addService(serviceData);
+                QThread::msleep(100); // give time to Android to add the service async.ly
+                serviceCSC = leController->addService(serviceDataCSC);
+                QThread::msleep(100); // give time to Android to add the service async.ly
+                serviceTacxCustom = leController->addService(serviceDataTacxCustom);
+            } else if (!cadence && !power) {
                 serviceFIT = leController->addService(serviceDataFIT);
 
                 if(zwift_play_emulator) {
@@ -1425,6 +1596,7 @@ void virtualbike::bikeProvider() {
     bool echelon =
         settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
+    bool virtual_device_tacx = settings.value(QZSettings::virtual_device_tacx, QZSettings::default_virtual_device_tacx).toBool();
     bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
 
     double normalizeWattage = Bike->wattsMetricforUI();
@@ -1508,7 +1680,46 @@ void virtualbike::bikeProvider() {
 
     if (!echelon && !ifit) {
         if (!heart_only) {
-            if (!cadence && !power) {
+            if (virtual_device_tacx) {
+                value.clear();
+                if (notif2AD2->notify(value) == CN_OK) {
+                    if (!serviceFIT) {
+                        qDebug() << QStringLiteral("serviceFIT not available");
+                        return;
+                    }
+
+                    QLowEnergyCharacteristic characteristic =
+                        serviceFIT->characteristic((QBluetoothUuid::CharacteristicType)0x2AD2);
+                    Q_ASSERT(characteristic.isValid());
+                    writeCharacteristic(serviceFIT, characteristic, value);
+                }
+
+                value.clear();
+                if (notif2A63->notify(value) == CN_OK) {
+                    if (!service) {
+                        qDebug() << QStringLiteral("tacx power service not available");
+                        return;
+                    }
+
+                    QLowEnergyCharacteristic characteristic =
+                        service->characteristic(QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement);
+                    Q_ASSERT(characteristic.isValid());
+                    writeCharacteristic(service, characteristic, value);
+                }
+
+                value.clear();
+                if (notif2A5B->notify(value) == CN_OK) {
+                    if (!serviceCSC) {
+                        qDebug() << QStringLiteral("tacx csc service not available");
+                        return;
+                    }
+
+                    QLowEnergyCharacteristic characteristic =
+                        serviceCSC->characteristic(QBluetoothUuid::CharacteristicType::CSCMeasurement);
+                    Q_ASSERT(characteristic.isValid());
+                    writeCharacteristic(serviceCSC, characteristic, value);
+                }
+            } else if (!cadence && !power) {
                 value.clear();
                 if (notif2AD2->notify(value) == CN_OK) {
                     if (!serviceFIT) {
