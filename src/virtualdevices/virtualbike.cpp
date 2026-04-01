@@ -566,8 +566,17 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         }
 
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingBike",
-                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+        if (virtual_device_tacx) {
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                      "startAdvertisingTacxNeo2T",
+                                                      "(Landroid/content/Context;)V",
+                                                      QtAndroid::androidContext().object());
+        } else {
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                      "startAdvertisingBike",
+                                                      "(Landroid/content/Context;)V",
+                                                      QtAndroid::androidContext().object());
+        }
 #else
         leController->startAdvertising(pars, advertisingData, advertisingData);
 #endif
@@ -1333,6 +1342,9 @@ void virtualbike::reconnect() {
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
     bool virtual_device_tacx = settings.value(QZSettings::virtual_device_tacx, QZSettings::default_virtual_device_tacx).toBool();
 
+    if (virtual_device_tacx)
+        power = true;
+
     qDebug() << QStringLiteral("virtualbike::reconnect");
     leController->disconnectFromDevice();
 
@@ -1381,8 +1393,17 @@ void virtualbike::reconnect() {
 #endif
 
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingBike",
-                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+    if (virtual_device_tacx) {
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                  "startAdvertisingTacxNeo2T",
+                                                  "(Landroid/content/Context;)V",
+                                                  QtAndroid::androidContext().object());
+    } else {
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                  "startAdvertisingBike",
+                                                  "(Landroid/content/Context;)V",
+                                                  QtAndroid::androidContext().object());
+    }
 #else
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
