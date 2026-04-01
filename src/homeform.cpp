@@ -100,10 +100,10 @@ class MailSenderThread : public QThread {
 
 // We need to set the username (your email address) and the password
 // for smtp authentication.
-#ifdef SMTP_PASSWORD
+#ifdef SMTP_USERNAME
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
-        smtp.setUser(STRINGIFY(SMTP_USERNAME));
+        const QString smtpUser = QStringLiteral(STRINGIFY(SMTP_USERNAME));
 #else
 #pragma message "smtp username is unset!"
         delete message;
@@ -112,7 +112,7 @@ class MailSenderThread : public QThread {
 #ifdef SMTP_PASSWORD
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
-        smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
+        const QString smtpPassword = QStringLiteral(STRINGIFY(SMTP_PASSWORD));
 #else
 #pragma message "smtp password is unset!"
         delete message;
@@ -120,7 +120,15 @@ class MailSenderThread : public QThread {
 #endif
 
         qDebug() << "trying to send email";
-        smtp.connectToHost();
+        if (!smtp.connectToHost()) {
+            delete message;
+            return;
+        }
+        if (!smtp.login(smtpUser, smtpPassword)) {
+            smtp.quit();
+            delete message;
+            return;
+        }
         smtp.sendMail(*message);
         smtp.quit();
 
