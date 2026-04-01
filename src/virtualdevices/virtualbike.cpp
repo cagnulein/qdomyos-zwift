@@ -812,6 +812,109 @@ qint32 virtualbike::decodeSInt(const QByteArray& bytes) {
    return decoded;
 }
 
+quint8 virtualbike::tacxAntChecksum(const QByteArray &payload) {
+    quint8 checksum = 0;
+    for (char byte : payload) {
+        checksum ^= static_cast<quint8>(byte);
+    }
+    return checksum;
+}
+
+QByteArray virtualbike::buildTacxAntResponse(quint8 page) const {
+    QByteArray response;
+    response.reserve(13);
+    response.append(char(0xA4));
+    response.append(char(0x09));
+    response.append(char(0x4E));
+    response.append(char(0x05));
+    response.append(char(page));
+
+    switch (page) {
+    case 0x50: // Manufacturer information
+        response.append(char(0xFF));
+        response.append(char(0x01)); // hardware revision
+        response.append(char(0x59)); // Garmin/Tacx manufacturer id LSB
+        response.append(char(0x00)); // Garmin/Tacx manufacturer id MSB
+        response.append(char(0xAB)); // Neo 2T model id LSB
+        response.append(char(0x10)); // Neo 2T model id MSB
+        response.append(char(0x00));
+        break;
+    case 0x51: // Product information
+        response.append(char(0x00)); // supplementary software revision
+        response.append(char(0x07)); // main software revision
+        response.append(char(0x04)); // build/revision
+        response.append(char(0xCB)); // serial 17867 LSB
+        response.append(char(0x45));
+        response.append(char(0x00));
+        response.append(char(0x00));
+        break;
+    case 0x36: // FE-C capabilities
+        response.append(char(0x19));
+        response.append(char(0x00));
+        response.append(char(0x32));
+        response.append(char(0x00));
+        response.append(char(0x03));
+        response.append(char(0x00));
+        response.append(char(0x00));
+        break;
+    case 0xFA:
+    case 0xFB:
+    case 0xFC:
+        // Tacx app polls these vendor-specific pages during startup; a stable stub is enough to progress.
+        response.append(char(0x00));
+        response.append(char(0x00));
+        response.append(char(0x64));
+        response.append(char(0x00));
+        response.append(char(0x00));
+        response.append(char(page));
+        response.append(char(0x00));
+        break;
+    default:
+        return QByteArray();
+    }
+
+    response.append(char(tacxAntChecksum(response)));
+    return response;
+}
+
+void virtualbike::writeTacxCustomNotification(const QByteArray &value) {
+    if (!serviceTacxCustom || leController->state() != QLowEnergyController::ConnectedState) {
+        qDebug() << "tacx custom notification skipped" << value.toHex(' ');
+        return;
+    }
+
+    QLowEnergyCharacteristic characteristic =
+        serviceTacxCustom->characteristic(QBluetoothUuid(QStringLiteral("6e40fec2-b5a3-f393-e0a9-e50e24dcca9e")));
+    if (!characteristic.isValid()) {
+        qDebug() << "tacx custom read characteristic not available";
+        return;
+    }
+
+    writeCharacteristic(serviceTacxCustom, characteristic, value);
+}
+
+void virtualbike::handleTacxCustomWrite(const QByteArray &newValue) {
+    if (newValue.size() < 13 || static_cast<quint8>(newValue.at(0)) != 0xA4) {
+        qDebug() << "Unhandled Tacx custom write" << newValue.toHex(' ');
+        return;
+    }
+
+    const quint8 messageId = static_cast<quint8>(newValue.at(2));
+    const quint8 page = static_cast<quint8>(newValue.at(4));
+
+    if (messageId == 0x4F && page == 0x46) {
+        const quint8 requestedPage = static_cast<quint8>(newValue.at(10));
+        QByteArray response = buildTacxAntResponse(requestedPage);
+        qDebug() << "Tacx request page" << Qt::hex << requestedPage << "->" << response.toHex(' ');
+        if (!response.isEmpty()) {
+            writeTacxCustomNotification(response);
+        }
+        return;
+    }
+
+    qDebug() << "Unhandled Tacx ANT custom opcode" << Qt::hex << messageId << page << newValue.toHex(' ');
+}
+
 void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QByteArray reply;
     QSettings settings;
@@ -826,6 +929,11 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     qDebug() << QStringLiteral("characteristicChanged ") + QString::number(characteristic.uuid().toUInt16()) +
                     QStringLiteral(" ") + newValue.toHex(' ');
+
+    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("6e40fec3-b5a3-f393-e0a9-e50e24dcca9e"))) {
+        handleTacxCustomWrite(newValue);
+        return;
+    }
 
     switch (characteristic.uuid().toUInt16()) {
 
