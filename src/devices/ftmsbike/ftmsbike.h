@@ -117,6 +117,8 @@ class ftmsbike : public bike {
     QDateTime lastRefreshCharacteristicChangedPower = QDateTime::currentDateTime();
     QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
     QDateTime lastRefreshCharacteristicChanged2ACE = QDateTime::currentDateTime();
+    QDateTime lastDomyosResistanceCommand = QDateTime::currentDateTime().addSecs(-60);
+    QDateTime domyosResistanceRetryAfter = QDateTime::currentDateTime().addSecs(-60);
     bool ftmsFrameReceived = false;
     uint8_t firstStateChanged = 0;
     int8_t bikeResistanceOffset = 4;
@@ -139,6 +141,7 @@ class ftmsbike : public bike {
 
     // D500V2 workaround: track if we're awaiting start simulation command after request control
     bool awaiting_start_simulation_after_request_control = false;
+    resistance_t lastDomyosRequestedResistance = -1;
 
     bool DU30_bike = false;
     bool ICSE = false;

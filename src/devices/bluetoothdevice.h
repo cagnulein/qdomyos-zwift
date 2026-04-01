@@ -480,6 +480,11 @@ class bluetoothdevice : public QObject {
     virtual uint8_t metrics_override_heartrate();
 
     /**
+     * @brief metricValueForSetting Returns the current value for a metric selected by name.
+     */
+    virtual int metricValueForSetting(const QString &setting);
+
+    /**
      * @brief Overridden in subclasses to specify the maximum resistance level supported by the device.
      */
     virtual resistance_t maxResistance();
