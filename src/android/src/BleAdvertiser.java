@@ -133,15 +133,21 @@ public class BleAdvertiser {
                     .setConnectable(true)
                     .build();
 
+            // Keep the primary packet small enough for legacy BLE advertising on Android.
+            // Yesoul needs both the public name and manufacturer data, so the FTMS UUID/data
+            // is moved into the scan response similarly to the PM5 path above.
             AdvertiseData advertiseData = new AdvertiseData.Builder()
                     .setIncludeDeviceName(true)
-                    .addServiceUuid(new ParcelUuid(SERVICE_UUID))
-                    .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA_YESOUL)
                     .addManufacturerData(MANUFACTURER_ID_YESOUL, MANUFACTURER_DATA_YESOUL)
                     .build();
 
+            AdvertiseData scanResponse = new AdvertiseData.Builder()
+                    .addServiceUuid(new ParcelUuid(SERVICE_UUID))
+                    .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA_YESOUL)
+                    .build();
+
             if (advertiser != null) {
-                advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
+                advertiser.startAdvertising(settings, advertiseData, scanResponse, advertiseCallback);
             }
         }
     }
