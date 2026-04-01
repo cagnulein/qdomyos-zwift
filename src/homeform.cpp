@@ -103,7 +103,6 @@ class MailSenderThread : public QThread {
 #ifdef SMTP_USERNAME
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
-        const QString smtpUser = QStringLiteral(STRINGIFY(SMTP_USERNAME));
 #else
 #pragma message "smtp username is unset!"
         delete message;
@@ -112,7 +111,6 @@ class MailSenderThread : public QThread {
 #ifdef SMTP_PASSWORD
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
-        const QString smtpPassword = QStringLiteral(STRINGIFY(SMTP_PASSWORD));
 #else
 #pragma message "smtp password is unset!"
         delete message;
@@ -120,15 +118,8 @@ class MailSenderThread : public QThread {
 #endif
 
         qDebug() << "trying to send email";
-        if (!smtp.connectToHost()) {
-            delete message;
-            return;
-        }
-        if (!smtp.login(smtpUser, smtpPassword)) {
-            smtp.quit();
-            delete message;
-            return;
-        }
+        smtp.connectToHost();
+        smtp.login(QStringLiteral(STRINGIFY(SMTP_USERNAME)), QStringLiteral(STRINGIFY(SMTP_PASSWORD)));
         smtp.sendMail(*message);
         smtp.quit();
 
