@@ -333,11 +333,7 @@ void bike::setLap() {
     }    
 }
 
-uint8_t bike::metrics_override_heartrate() {
-
-    QSettings settings;
-    QString setting =
-        settings.value(QZSettings::peloton_heartrate_metric, QZSettings::default_peloton_heartrate_metric).toString();
+int bike::metricValueForSetting(const QString &setting) {
     if (!setting.compare(QStringLiteral("Heart Rate"))) {
         return qRound(currentHeart().value());
     } else if (!setting.compare(QStringLiteral("Speed"))) {
@@ -415,6 +411,14 @@ uint8_t bike::metrics_override_heartrate() {
         return qRound(RequestedCadence.value());
     }
     return qRound(currentHeart().value());
+}
+
+uint8_t bike::metrics_override_heartrate() {
+
+    QSettings settings;
+    QString setting =
+        settings.value(QZSettings::peloton_heartrate_metric, QZSettings::default_peloton_heartrate_metric).toString();
+    return static_cast<uint8_t>(qBound(0, metricValueForSetting(setting), 255));
 }
 
 bool bike::inclinationAvailableByHardware() { return false; }
