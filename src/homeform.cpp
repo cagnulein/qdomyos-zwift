@@ -58,6 +58,29 @@ homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
 namespace {
+QString uploadActivityLabelFromSport(FIT_SPORT sport) {
+    switch (sport) {
+    case FIT_SPORT_RUNNING:
+    case FIT_SPORT_WALKING:
+        return QStringLiteral("Run");
+    case FIT_SPORT_ROWING:
+        return QStringLiteral("Row");
+    default:
+        return QStringLiteral("Ride");
+    }
+}
+
+QString uploadActivityLabelFromFitFile(const QString &fitFilePath) {
+    if (!QFile::exists(fitFilePath)) {
+        return QStringLiteral("Ride");
+    }
+
+    QList<SessionLine> session;
+    FIT_SPORT sport = FIT_SPORT_INVALID;
+    qfit::open(fitFilePath, &session, &sport);
+    return uploadActivityLabelFromSport(sport);
+}
+
 class MailSenderThread : public QThread {
   public:
     MailSenderThread(MimeMessage *message, const QString &filenameJPG, const QList<QString> &chartImagesFilenamesForMail)
@@ -8610,13 +8633,17 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
                 QStringLiteral("https://members.onepeloton.com/classes/cycling?modal=classDetailsModal&classId=") +
                 pelotonHandler->current_ride_id;
     } else {
-        if (bluetoothManager->device()->deviceType() == TREADMILL) {
-            activityName = prefix + QStringLiteral("Run") + activityName;
-        } else if (bluetoothManager->device()->deviceType() == ROWING) {
-            activityName = prefix + QStringLiteral("Row") + activityName;
+        QString activityLabel = QStringLiteral("Ride");
+        if (bluetoothManager && bluetoothManager->device()) {
+            if (bluetoothManager->device()->deviceType() == TREADMILL) {
+                activityLabel = QStringLiteral("Run");
+            } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                activityLabel = QStringLiteral("Row");
+            }
         } else {
-            activityName = prefix + QStringLiteral("Ride") + activityName;
+            activityLabel = uploadActivityLabelFromFitFile(remotename);
         }
+        activityName = prefix + activityLabel + activityName;
     }
     activityNamePart.setHeader(QNetworkRequest::ContentTypeHeader,
                                QVariant(QStringLiteral("text/plain;charset=utf-8")));
@@ -9092,6 +9119,13 @@ bool homeform::isStravaLoggedIn() {
     return !settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken).toString().isEmpty();
 }
 
+bool homeform::isGarminUploadConfigured() {
+    QSettings settings;
+    return settings.value(QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled).toBool() &&
+           !settings.value(QZSettings::garmin_email, QZSettings::default_garmin_email).toString().isEmpty() &&
+           !settings.value(QZSettings::garmin_password, QZSettings::default_garmin_password).toString().isEmpty();
+}
+
 bool homeform::isPelotonLoggedIn() {
     QSettings settings;
     QString userId = settings.value(QZSettings::peloton_current_user_id, QZSettings::default_peloton_current_user_id).toString();
@@ -9106,6 +9140,59 @@ bool homeform::isPelotonLoggedIn() {
 bool homeform::isIntervalsICULoggedIn() {
     QSettings settings;
     return !settings.value(QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken).toString().isEmpty();
+}
+
+bool homeform::isIntervalsICUUploadConfigured() {
+    QSettings settings;
+    return settings.value(QZSettings::intervalsicu_upload_enabled, QZSettings::default_intervalsicu_upload_enabled).toBool() &&
+           !settings.value(QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken).toString().isEmpty() &&
+           !settings.value(QZSettings::intervalsicu_athlete_id, QZSettings::default_intervalsicu_athlete_id).toString().isEmpty();
+}
+
+void homeform::uploadHistoricalWorkoutToStrava(const QString &filePath) {
+    QFile f(filePath);
+    if (!f.open(QFile::OpenModeFlag::ReadOnly)) {
+        setToastRequested("Strava: unable to open FIT file");
+        return;
+    }
+
+    strava_upload_file(f.readAll(), filePath);
+}
+
+void homeform::uploadHistoricalWorkoutToGarmin(const QString &filePath) {
+    if (filePath.isEmpty() || !QFile::exists(filePath)) {
+        setToastRequested("Garmin: FIT file not found");
+        return;
+    }
+
+    if (!isGarminUploadConfigured()) {
+        setToastRequested("Garmin is not configured");
+        return;
+    }
+
+    if (!garminConnect || !garminConnect->isAuthenticated()) {
+        garmin_connect_login();
+    }
+
+    if (!garminConnect || !garminConnect->isAuthenticated()) {
+        setToastRequested("Garmin: Not authenticated. Please login first.");
+        return;
+    }
+
+    setToastRequested("Uploading to Garmin Connect...");
+    if (!garminConnect->uploadFitFile(filePath)) {
+        setToastRequested("Garmin: Upload failed - " + garminConnect->lastError());
+    }
+}
+
+void homeform::uploadHistoricalWorkoutToIntervalsICU(const QString &filePath) {
+    QFile f(filePath);
+    if (!f.open(QFile::OpenModeFlag::ReadOnly)) {
+        setToastRequested("Intervals.icu: unable to open FIT file");
+        return;
+    }
+
+    intervalsicu_upload_file(f.readAll(), filePath);
 }
 
 void homeform::strava_logout() {
@@ -10330,12 +10417,16 @@ bool homeform::intervalsicu_upload_file(const QByteArray &data, const QString &r
     if (!stravaPelotonActivityName.isEmpty()) {
         activityName = stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName;
     } else {
-        if (bluetoothManager->device()->deviceType() == TREADMILL) {
-            activityName = prefix + QStringLiteral("Run");
-        } else if (bluetoothManager->device()->deviceType() == ROWING) {
-            activityName = prefix + QStringLiteral("Row");
+        if (bluetoothManager && bluetoothManager->device()) {
+            if (bluetoothManager->device()->deviceType() == TREADMILL) {
+                activityName = prefix + QStringLiteral("Run");
+            } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                activityName = prefix + QStringLiteral("Row");
+            } else {
+                activityName = prefix + QStringLiteral("Ride");
+            }
         } else {
-            activityName = prefix + QStringLiteral("Ride");
+            activityName = prefix + uploadActivityLabelFromFitFile(remotename);
         }
     }
 

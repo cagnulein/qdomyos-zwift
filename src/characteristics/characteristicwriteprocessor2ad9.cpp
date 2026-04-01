@@ -83,6 +83,8 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
                 reply.append((quint8)FTMS_NOT_SUPPORTED);
             }
         } else if (dt == TREADMILL || dt == ELLIPTICAL) {
+            // Forward FTMS writes (including Start/Stop) to listeners for treadmill/elliptical devices.
+            emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(), data);
             char a, b;
             if ((char)data.at(0) == 0x02) {
                 // Set Target Speed

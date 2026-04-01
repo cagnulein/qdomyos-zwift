@@ -750,6 +750,9 @@ class QZSettings {
     static const QString nordictrack_treadmill_ultra_le;
     static constexpr bool default_nordictrack_treadmill_ultra_le = false;
 
+    static const QString nordictrack_treadmill_commercial_le;
+    static constexpr bool default_nordictrack_treadmill_commercial_le = false;
+
     static const QString proform_treadmill_carbon_tls;
     static constexpr bool default_proform_treadmill_carbon_tls = false;
 
@@ -911,6 +914,9 @@ class QZSettings {
 
     static const QString instant_power_on_pause;
     static constexpr bool default_instant_power_on_pause = false;
+
+    static const QString toputure_teb1;
+    static constexpr bool default_toputure_teb1 = false;
 
     /**
      * @brief Adjusts value in a metric object that's configured specifically for measuring SPEED.
@@ -2865,6 +2871,18 @@ class QZSettings {
      */
     static const QString chart_display_mode;
     static constexpr int default_chart_display_mode = 0;
+
+    /**
+     * @brief Metric shown on the leading side of the iOS Dynamic Island compact Live Activity.
+     */
+    static const QString ios_live_activity_compact_leading_metric;
+    static const QString default_ios_live_activity_compact_leading_metric;
+
+    /**
+     * @brief Metric shown on the trailing side of the iOS Dynamic Island compact Live Activity.
+     */
+    static const QString ios_live_activity_compact_trailing_metric;
+    static const QString default_ios_live_activity_compact_trailing_metric;
 
    /**
      * @brief Calculate only active calories (exclude basal metabolic rate)
