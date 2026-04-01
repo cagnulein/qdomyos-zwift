@@ -65,6 +65,14 @@ class trainrow {
     double longitude = NAN;
     double altitude = NAN;
     double azimuth = NAN;
+
+    // Text events with time offsets
+    struct TextEvent {
+        uint32_t timeoffset = 0;  // Time offset in seconds from the start of this row
+        QString message;
+    };
+    QList<TextEvent> textEvents;
+
     QString toString() const;
 };
 
@@ -76,8 +84,9 @@ class trainprogram : public QObject {
                  bool videoAvailable = false);
     void save(const QString &filename);
     static trainprogram *load(const QString &filename, bluetooth *b, QString Extension);
-    static QList<trainrow> loadXML(const QString &filename, bluetoothdevice::BLUETOOTH_TYPE device_type);
+    static QList<trainrow> loadXML(const QString &filename, BLUETOOTH_TYPE device_type);
     static bool saveXML(const QString &filename, const QList<trainrow> &rows);
+    static bool hasTargetPower(const QString &filename);
     QTime totalElapsedTime();
     QTime currentRowElapsedTime();
     QTime currentRowRemainingTime();
@@ -87,8 +96,8 @@ class trainprogram : public QObject {
     double totalDistance();
     trainrow currentRow();
     trainrow getRowFromCurrent(uint32_t offset);
-    void increaseElapsedTime(uint32_t i);
-    void decreaseElapsedTime(uint32_t i);
+    void increaseElapsedTime(int32_t i);
+    void decreaseElapsedTime(int32_t i);
     int32_t offsetElapsedTime() { return offset; }
     void clearRows();
     double avgSpeedFromGpxStep(int gpxStep, int seconds);
@@ -97,6 +106,7 @@ class trainprogram : public QObject {
     double weightedInclination(int step);
     double medianInclination(int step);
     bool overridePowerForCurrentRow(double power);
+    bool overrideZoneHRForCurrentRow(uint8_t zone);
     bool powerzoneWorkout() {
         foreach(trainrow r, rows) {
             if(r.power != -1) return true;
@@ -167,6 +177,9 @@ private slots:
     int lastStepTimestampChanged = 0;
     double lastCurrentStepDistance = 0.0;
     QTime lastCurrentStepTime = QTime(0, 0, 0);
+    
+    int64_t currentTimerJitter = 0;
+    QDateTime lastSchedulerCall = QDateTime::currentDateTime();
 
     QUdpSocket* pelotonOCRsocket = nullptr;
     void pelotonOCRcomputeTime(QString t);
@@ -174,7 +187,10 @@ private slots:
     AuthToken* zwift_auth_token = nullptr;
     World* zwift_world = nullptr;
     int zwift_player_id = -1;
-    
+
+    // Track which text events have been shown for each row
+    QSet<QString> shownTextEvents;  // Format: "row_index:timeoffset"
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

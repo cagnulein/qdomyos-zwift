@@ -21,6 +21,7 @@
 #include <QtCore/qmutex.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
+#include <QtCore/qqueue.h>
 
 #include <QDateTime>
 #include <QObject>
@@ -43,8 +44,10 @@ class wahookickrsnapbike : public bike {
     bool connected() override;
     resistance_t maxResistance() override { return 100; }
     bool inclinationAvailableByHardware() override;
+    bool inclinationAvailableBySoftware() override { return true; }
     double maxGears() override;
     double minGears() override;
+
 
     enum OperationCode : uint8_t {
         _unlock = 32,
@@ -58,8 +61,22 @@ class wahookickrsnapbike : public bike {
         _setSimWindSpeed = 71,
         _setWheelCircumference = 72,
     };
+    
+    // Variabili per iOS (pubbliche per permettere all'implementazione iOS di impostarle)
+    bool zwift_found = false;
+    bool wahoo_found = false;
+        
+    // Wrapper per characteristicChanged che accetta direttamente QBluetoothUuid
+    void handleCharacteristicValueChanged(const QBluetoothUuid &uuid, const QByteArray &newValue);
 
-  private:    
+  private:
+    // Structure for async write queue
+    struct WriteRequest {
+        QByteArray data;
+        QString info;
+        bool disable_log;
+        bool wait_for_response;
+    };
     QByteArray unlockCommand();
     QByteArray setResistanceMode(double resistance);
     QByteArray setStandardMode(uint8_t level);
@@ -73,6 +90,7 @@ class wahookickrsnapbike : public bike {
 
     bool writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
+    void processWriteQueue();
     uint16_t wattsFromResistance(double resistance);
     metric ResistanceFromFTMSAccessory;
     void startDiscover();
@@ -81,9 +99,16 @@ class wahookickrsnapbike : public bike {
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
 
+    // Bluetooth LE services and characteristics (unified for all platforms)
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyService *gattPowerChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
+
+    // Async write queue management
+    QQueue<WriteRequest> writeQueue;
+    bool isWriting = false;
+    bool currentWriteWaitingForResponse = false;
+    QTimer *writeTimeoutTimer = nullptr;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -107,12 +132,13 @@ class wahookickrsnapbike : public bike {
 
     bool WAHOO_KICKR = false;
     bool KICKR_BIKE = false;
+    bool KICKR_SNAP = false;
     
     bool lastCommandErgMode = false;
 
     volatile int notificationSubscribed = 0;
 
-    resistance_t lastForcedResistance = -1;    
+    resistance_t lastForcedResistance = -1;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
@@ -125,23 +151,21 @@ class wahookickrsnapbike : public bike {
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void resistanceFromFTMSAccessory(resistance_t res) override;
-
-  private slots:
-
-    void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
-    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
-    void stateChanged(QLowEnergyService::ServiceState state);
-    void controllerStateChanged(QLowEnergyController::ControllerState state);
-
+    void restoreDefaultWheelDiameter();
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
+    void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void stateChanged(QLowEnergyService::ServiceState state);
+    void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
+    void controllerStateChanged(QLowEnergyController::ControllerState state);
+
+  private slots:
+    void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
-
     void inclinationChanged(double grade, double percentage);
 };
 #endif // WAHOOKICKRSNAPBIKE_H

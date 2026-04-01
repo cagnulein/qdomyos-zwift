@@ -39,6 +39,7 @@ class tacxneo2 : public bike {
     void changePower(int32_t power) override;
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    bool inclinationAvailableBySoftware() override { return true; }
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -48,6 +49,7 @@ class tacxneo2 : public bike {
     uint16_t watts() override;
     double bikeResistanceToPeloton(double resistance);
     void setUserConfiguration(double wheelDiameter, double gearRatio);
+    double gearsFlywheelCheck(double inclination, double gears);
 
     QTimer *refresh;
 

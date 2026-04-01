@@ -39,12 +39,14 @@ class nordictrackifitadbtreadmillLogcatAdbThread : public QThread {
     void onSpeedInclination(double speed, double inclination);
     void debug(QString message);
     void onWatt(double watt);
+    void onCadence(double cadence);
 
   private:
     QString adbCommandPending = "";
     double speed = 0;
     double inclination = 0;
     double watt = 0;
+    double cadence = 0;
     QString name;
     struct adbfile {
         QDateTime date;
@@ -60,7 +62,7 @@ class nordictrackifitadbtreadmill : public treadmill {
   public:
     nordictrackifitadbtreadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
-    bool canStartStop() override { return false; }
+    bool canStartStop() override;
     double minStepSpeed() override { return 0.1; }
 
   private:
@@ -77,12 +79,14 @@ class nordictrackifitadbtreadmill : public treadmill {
     uint8_t firstStateChanged = 0;
     uint16_t m_watts = 0;
     bool wattReadFromTM = false;
+    bool cadenceReadFromTM = false;
 
     bool initDone = false;
     bool initRequest = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool proform_trainer_9_0 = false;
 
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
@@ -92,6 +96,8 @@ class nordictrackifitadbtreadmill : public treadmill {
 #endif
 
     int x14i_inclination_lookuptable(double reqInclination);
+    int proform_trainer_9_0_speed_lookuptable(double reqSpeed);
+    int proform_trainer_9_0_inclination_lookuptable(double reqInclination);
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
@@ -107,6 +113,7 @@ class nordictrackifitadbtreadmill : public treadmill {
 
     void onSpeedInclination(double speed, double inclination);
     void onWatt(double watt);
+    void onCadence(double cadence);
 
     void processPendingDatagrams();
     void changeInclinationRequested(double grade, double percentage);

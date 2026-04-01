@@ -65,21 +65,24 @@ class nordictrackifitadbbike : public bike {
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool inclinationAvailableByHardware() override;
+    bool inclinationAvailableBySoftware() override { return true; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     bool ifitCompatible() override;
 
   private:
-    const resistance_t max_resistance = 17; // max inclination for s22i
+    const resistance_t max_resistance = 20; // max inclination for s22i
     void forceResistance(double resistance);
     uint16_t watts() override;
     double getDouble(QString v);
     uint16_t wattsFromResistance(double inclination, double cadence);
+    double bikeResistanceToPeloton(resistance_t resistance);
 
     QTimer *refresh;
 
     uint8_t sec1Update = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     QDateTime lastInclinationChanged = QDateTime::currentDateTime();
+    QDateTime lastResistanceChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     uint16_t m_watts = 0;
 

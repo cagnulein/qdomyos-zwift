@@ -4,6 +4,7 @@
 #include "devices/bluetoothdevice.h"
 #include "virtualdevices/virtualbike.h"
 #include <QObject>
+#include <QElapsedTimer>
 
 class bike : public bluetoothdevice {
 
@@ -11,6 +12,8 @@ class bike : public bluetoothdevice {
 
   public:
     bike();
+    static double powerZoneValueToFtpPercentage(double zoneValue);
+    static int powerZoneValueToWatts(double zoneValue, double ftp);
 
     virtualbike *VirtualBike();
 
@@ -23,18 +26,20 @@ class bike : public bluetoothdevice {
     double currentCrankRevolutions() override;
     uint16_t lastCrankEventTime() override;
     bool connected() override;
-    virtual double maxGears() { return 9999.0; }
+    double defaultMaxGears() { return 9999.0; }
+    virtual double maxGears() { return defaultMaxGears(); }
     virtual double minGears() { return -9999.0; }
     virtual uint16_t watts();
     virtual resistance_t pelotonToBikeResistance(int pelotonResistance);
     virtual resistance_t resistanceFromPowerRequest(uint16_t power);
     virtual uint16_t powerFromResistanceRequest(resistance_t requestResistance);
     virtual bool ergManagedBySS2K() { return false; }
-    bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
+    BLUETOOTH_TYPE deviceType() override;
     metric pelotonResistance();
     void clearStats() override;
     void setLap() override;
     void setPaused(bool p) override;
+    int metricValueForSetting(const QString &setting) override;
     uint8_t metrics_override_heartrate() override;
     void setGears(double d);
     double gears();
@@ -50,7 +55,9 @@ class bike : public bluetoothdevice {
      */
     metric currentSteeringAngle() { return m_steeringAngle; }
     virtual bool inclinationAvailableByHardware();
+    virtual bool inclinationAvailableBySoftware();
     bool ergModeSupportedAvailableByHardware() { return ergModeSupported; }
+    virtual bool ergModeSupportedAvailableBySoftware() { return ergModeSupported; }
 
   public Q_SLOTS:
     void changeResistance(resistance_t res) override;
@@ -80,6 +87,10 @@ class bike : public bluetoothdevice {
     void resistanceChanged(resistance_t resistance);
     void resistanceRead(resistance_t resistance);
     void steeringAngleChanged(double angle);
+    void gearOkUp(); // Signal when gear up succeeds
+    void gearOkDown(); // Signal when gear down succeeds
+    void gearFailedUp();   // Signal when gear up hits max
+    void gearFailedDown(); // Signal when gear down hits min
 
   protected:
     metric RequestedResistance;
@@ -103,6 +114,25 @@ class bike : public bluetoothdevice {
     metric m_steeringAngle;
 
     double m_speedLimit = 0;
+
+    // Sim mode support: convert inclination to power for devices without native inclination
+    bool m_slopeControlEnabled = false;
+    double m_currentSlopePercent = 0.0;
+    int m_lastSlopeTargetPower = -1;
+    bool m_slopePowerChangeInProgress = false;
+    QElapsedTimer m_slopePowerTimer;
+
+    // Physics-based power calculation from slope
+    virtual double computeSlopeTargetPower(double gradePercent, double speedKmh);
+
+    // Update power based on current slope and speed (called periodically)
+    virtual void updateSlopeTargetPower(bool force = false);
+
+    // Check if device supports native inclination control
+    virtual bool supportsNativeInclination() const { return true; }
+
+    // Helper: get current speed for slope calculations
+    double getCurrentSpeedForSlope();
 
     uint16_t wattFromHR(bool useSpeedAndCadence);
 };

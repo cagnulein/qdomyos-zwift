@@ -1,6 +1,7 @@
 #ifndef BLUETOOTHDEVICE_H
 #define BLUETOOTHDEVICE_H
 
+#include "bluetoothdevicetype.h"
 #include "definitions.h"
 #include "metric.h"
 #include "qzsettings.h"
@@ -108,11 +109,19 @@ class bluetoothdevice : public QObject {
 
     /**
      * @brief calories Gets a metric object to get and set the amount of energy expended.
-     * Default implementation returns the protected KCal property. Units: kcal
+     * Default implementation returns the protected KCal property, potentially adjusted for active calories. Units: kcal
      * Other implementations could have different units.
      * @return
      */
     virtual metric calories();
+    virtual metric activeCalories();
+    virtual metric hrCalories();
+
+    /**
+     * @brief totalCalories Gets total calories (including BMR) regardless of active calories setting.
+     * @return Total calories metric
+     */
+    virtual metric totalCalories();
 
     /**
      * @brief jouls Gets a metric object to get and set the number of joules expended. Units: joules
@@ -145,6 +154,11 @@ class bluetoothdevice : public QObject {
      * @brief lapElapsedTime Gets the time elapsed on the current lap.
      */
     virtual QTime lapElapsedTime();
+
+    /**
+     * @brief lapOdometer Gets the distance elapsed on the current lap.
+     */
+    virtual double lapOdometer();
 
     /**
      * @brief connected Gets a value to indicate if the device is connected.
@@ -217,6 +231,21 @@ class bluetoothdevice : public QObject {
     metric wattsMetric();
 
     /**
+     * @brief wattsMetricforUi Show the wattage applying averaging in case the user requested this.  Units: watts
+     */
+    double wattsMetricforUI() {
+        QSettings settings;
+        bool power3s = settings.value(QZSettings::power_avg_3s, QZSettings::default_power_avg_3s).toBool();
+        bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
+        if (power3s)
+            return wattsMetric().average3sHarmonic();
+        else if (power5s)
+            return wattsMetric().average5sHarmonic();
+        else
+            return wattsMetric().value();
+    }
+
+    /**
      * @brief changeFanSpeed Tries to change the fan speed.
      * @param speed The requested fan speed. Units: depends on device
      */
@@ -226,6 +255,11 @@ class bluetoothdevice : public QObject {
      * @brief elevationGain Gets a metric object to get and set the elevation gain. Units: ?
      */
     virtual metric elevationGain();
+
+    /**
+     * @brief negativeElevationGain Gets a metric object to get and set the negative elevation gain (descents). Units: ?
+     */
+    virtual metric negativeElevationGain();
 
     /**
      * @brief clearStats Clear the statistics.
@@ -354,6 +388,24 @@ class bluetoothdevice : public QObject {
     uint32_t secondsForHeartZone(uint8_t zone);
 
     /**
+     * @brief currentHeatZone Gets a metric object to get or set the current heat zone. Units: depends on
+     * implementation (based on Heat Strain Index: Zone 1: 0-1.99, Zone 2: 2-2.99, Zone 3: 3-6.99, Zone 4: 7+)
+     */
+    metric currentHeatZone() { return HeatZone; }
+
+    /**
+     * @brief maxHeatZone Gets the maximum number of heat zones.
+     */
+    uint8_t maxHeatZone() { return maxheatzone; }
+
+    /**
+     * @brief secondsForHeatZone Gets the number of seconds in the current heat zone.
+     * 
+     * @param zone The heat zone.
+     */
+    uint32_t secondsForHeatZone(uint8_t zone);
+
+    /**
      * @brief currentPowerZone Gets a metric object to get or set the current power zome. Units: depends on
      * implementation.
      * @return
@@ -388,6 +440,13 @@ class bluetoothdevice : public QObject {
     void setHeartZone(double hz);
 
     /**
+     * @brief setHeatZone Set the current heat zone based on Heat Strain Index.
+     * This is equivalent to currentHeatZone().setvalue(hz)
+     * @param heatStrainIndex The heat strain index to determine zone. Unit: depends on implementation.
+     */
+    void setHeatZone(double heatStrainIndex);
+
+    /**
      * @brief setPowerZone Set the current power zone.
      * This is equivalent to currentPowerZone().setvalue(pz)
      * @param pz The power zone. Unit: depends on implementation.
@@ -401,7 +460,6 @@ class bluetoothdevice : public QObject {
      */
     void setTargetPowerZone(double pz) { TargetPowerZone = pz; }
 
-    enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL, JUMPROPE };
     enum WORKOUT_EVENT_STATE { STARTED = 0, PAUSED = 1, RESUMED = 2, STOPPED = 3 };
 
     /**
@@ -422,17 +480,47 @@ class bluetoothdevice : public QObject {
     virtual uint8_t metrics_override_heartrate();
 
     /**
+     * @brief metricValueForSetting Returns the current value for a metric selected by name.
+     */
+    virtual int metricValueForSetting(const QString &setting);
+
+    /**
      * @brief Overridden in subclasses to specify the maximum resistance level supported by the device.
      */
     virtual resistance_t maxResistance();
+
+    // Metrics for core temperature data
+    metric CoreBodyTemperature;  // Core body temperature in °C or °F
+    metric SkinTemperature;      // Skin temperature in °C or °F
+    metric HeatStrainIndex;      // Heat Strain Index (0-25.4, scaled by 10)
+
+    /**
+     * @brief HRV Heart Rate Variability metric (RMSSD). Unit: milliseconds
+     */
+    metric currentHRV() { return HRV; }
+
+    /**
+     * @brief Get and clear accumulated RR-intervals for FIT file saving
+     * @return List of RR-intervals in milliseconds
+     */
+    QList<double> getRRIntervalsAndClear() {
+        QList<double> intervals = rrIntervalsForFit;
+        rrIntervalsForFit.clear();
+        return intervals;
+    }
 
   public Q_SLOTS:
     virtual void start();
     virtual void stop(bool pause);
     virtual void heartRate(uint8_t heart);
+    virtual void rrIntervalReceived(double rrInterval);
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
     virtual void speedSensor(double speed);
+    virtual void coreBodyTemperature(double coreBodyTemperature);
+    virtual void skinTemperature(double skinTemperature);
+    virtual void heatStrainIndex(double heatStrainIndex);
+    virtual void inclinationSensor(double grade, double inclination);
     virtual void changeResistance(resistance_t res);
     virtual void changePower(int32_t power);
     virtual void changeInclination(double grade, double percentage);
@@ -497,6 +585,8 @@ class bluetoothdevice : public QObject {
      * @brief KCal The number of kilocalories expended in the session. Units: kcal
      */
     metric KCal;
+    metric activeKCal;
+    metric hrKCal;
 
     /**
      * @brief Speed The simulated speed of the device. Units: km/h
@@ -523,6 +613,21 @@ class bluetoothdevice : public QObject {
      * @brief Heart rate. Unit: beats per minute
      */
     metric Heart;
+
+    /**
+     * @brief HRV Heart Rate Variability (RMSSD). Unit: milliseconds
+     */
+    metric HRV;
+
+    /**
+     * @brief RR-intervals buffer for HRV calculation
+     */
+    QList<double> rrIntervals;
+
+    /**
+     * @brief RR-intervals buffer for FIT file saving (cleared after each SessionLine)
+     */
+    QList<double> rrIntervalsForFit;
 
     int8_t requestStart = -1;
     int8_t requestStop = -1;
@@ -568,9 +673,19 @@ class bluetoothdevice : public QObject {
     metric elevationAcc;
 
     /**
-     * @brief m_watt Metric to get and set the power expended in the session. Unit: watts
+     * @brief negativeElevationAcc The negative elevation gain (descents). Units: meters
+     */
+    metric negativeElevationAcc;
+
+    /**
+     * @brief m_watt Metric to get and set the power read from the trainer or from the power sensor Unit: watts
      */
     metric m_watt;
+    
+    /**
+     * @brief m_rawWatt Metric to get and set the power from the trainer only. Unit: watts
+     */
+    metric m_rawWatt;
 
     /**
      * @brief WattKg Metric to get and set the watt kg for the session (what's this?). Unit: watt kg
@@ -651,6 +766,11 @@ class bluetoothdevice : public QObject {
     metric HeartZone;
 
     /**
+     * @brief HeatZone A metric to get and set the current heat zone. Unit: depends on implementation
+     */
+    metric HeatZone;
+
+    /**
      * @brief PowerZone A metric to get and set the current power zone. Unit: depends on implementation
      */
     metric PowerZone;
@@ -664,12 +784,23 @@ class bluetoothdevice : public QObject {
      * @brief _ergTable The current erg table
      */
     ergTable _ergTable;
+    
+    /**
+     * @brief StepCount A metric to get and set the step count. Unit: step
+     */
+    metric StepCount;
 
     /**
      * @brief Collect the number of seconds in each zone for the current heart rate
      */
     static const uint8_t maxhrzone = 5;
     metric hrZonesSeconds[maxhrzone];
+
+    /**
+     * @brief Collect the number of seconds in each zone for the current heat strain index
+     */
+    static const uint8_t maxheatzone = 4;
+    metric heatZonesSeconds[maxheatzone];
 
     bluetoothdevice::WORKOUT_EVENT_STATE lastState;
 
@@ -704,6 +835,11 @@ class bluetoothdevice : public QObject {
      * @brief update_hr_from_external Updates heart rate from Garmin Companion App or Apple Watch
      */
     void update_hr_from_external();
+
+    /**
+     * @brief update_ios_live_activity Updates iOS Live Activity with throttling (max 1 update per second)
+     */
+    void update_ios_live_activity();
 
     /**
      * @brief calculateMETS Calculate the METS (Metabolic Equivalent of Tasks)

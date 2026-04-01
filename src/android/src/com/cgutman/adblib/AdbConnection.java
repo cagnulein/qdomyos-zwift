@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.util.HashMap;
+import org.cagnulen.qdomyoszwift.QLog;
 
 /**
  * This class represents an ADB connection.
@@ -124,10 +125,13 @@ public class AdbConnection implements Closeable {
 					try {
 						/* Read and parse a message off the socket's input stream */
 						AdbProtocol.AdbMessage msg = AdbProtocol.AdbMessage.parseAdbMessage(inputStream);
+						QLog.d("AdbConnection", "connectionThread - Received packet: command=0x" + Integer.toHexString(msg.command) + ", arg0=" + msg.arg0 + ", arg1=" + msg.arg1);
 						
 						/* Verify magic and checksum */
-						if (!AdbProtocol.validateMessage(msg))
+						if (!AdbProtocol.validateMessage(msg)) {
+							QLog.w("AdbConnection", "connectionThread - Invalid message, dropping packet");
 							continue;
+						}
 						
 						switch (msg.command)
 						{
@@ -175,21 +179,25 @@ public class AdbConnection implements Closeable {
 							break;
 							
 						case AdbProtocol.CMD_AUTH:
+							QLog.d("AdbConnection", "connectionThread - Received AUTH packet, type=" + msg.arg0);
 							
 							byte[] packet;
 							
 							if (msg.arg0 == AdbProtocol.AUTH_TYPE_TOKEN)
 							{
 								/* This is an authentication challenge */
+								QLog.d("AdbConnection", "connectionThread - AUTH_TYPE_TOKEN challenge, sentSignature=" + conn.sentSignature);
 								if (conn.sentSignature)
 								{
 									/* We've already tried our signature, so send our public key */
+									QLog.d("AdbConnection", "connectionThread - Sending RSA public key");
 									packet = AdbProtocol.generateAuth(AdbProtocol.AUTH_TYPE_RSA_PUBLIC,
 											conn.crypto.getAdbPublicKeyPayload());
 								}
 								else
 								{
 									/* We'll sign the token */
+									QLog.d("AdbConnection", "connectionThread - Signing token with private key");
 									packet = AdbProtocol.generateAuth(AdbProtocol.AUTH_TYPE_SIGNATURE,
 											conn.crypto.signAdbTokenPayload(msg.payload));
 									conn.sentSignature = true;
@@ -198,16 +206,22 @@ public class AdbConnection implements Closeable {
 								/* Write the AUTH reply */
 								conn.outputStream.write(packet);
 								conn.outputStream.flush();
+								QLog.d("AdbConnection", "connectionThread - AUTH response sent");
+							}
+							else {
+								QLog.w("AdbConnection", "connectionThread - Unhandled AUTH type: " + msg.arg0);
 							}
 							break;
 						
 						case AdbProtocol.CMD_CNXN:
+							QLog.d("AdbConnection", "connectionThread - Received CNXN packet! maxData=" + msg.arg1);
 							synchronized (conn) {
 								/* We need to store the max data size */
 								conn.maxData = msg.arg1;
 							
 								/* Mark us as connected and unwait anyone waiting on the connection */
 								conn.connected = true;
+								QLog.d("AdbConnection", "connectionThread - Connection established! Notifying waiting threads");
 								conn.notifyAll();
 							}
 							break;
@@ -219,6 +233,7 @@ public class AdbConnection implements Closeable {
 					} catch (Exception e) {
 						/* The cleanup is taken care of by a combination of this thread
 						 * and close() */
+						QLog.e("AdbConnection", "connectionThread - Exception in connection thread: " + e.getClass().getSimpleName() + ": " + e.getMessage(), e);
 						break;
 					}
 				}
@@ -270,23 +285,32 @@ public class AdbConnection implements Closeable {
 		if (connected)
 			throw new IllegalStateException("Already connected");
 		
+		QLog.d("AdbConnection", "connect() - Starting ADB connection");
+		
 		/* Write the CONNECT packet */
 		outputStream.write(AdbProtocol.generateConnect());
 		outputStream.flush();
+		QLog.d("AdbConnection", "connect() - CONNECT packet sent, starting connection thread");
 		
 		/* Start the connection thread to respond to the peer */
 		connectAttempted = true;
 		connectionThread.start();
+		QLog.d("AdbConnection", "connect() - Connection thread started, waiting for connection...");
 		
 		/* Wait for the connection to go live */
 		synchronized (this) {
-			if (!connected)
+			if (!connected) {
+				QLog.d("AdbConnection", "connect() - Waiting for connection to complete...");
 				wait();
+				QLog.d("AdbConnection", "connect() - Wait completed, connected=" + connected);
+			}
 			
 			if (!connected) {
+				QLog.e("AdbConnection", "connect() - Connection failed after wait");
 				throw new IOException("Connection failed");
 			}
 		}
+		QLog.d("AdbConnection", "connect() - Successfully connected!");
 	}
 	
 	/**

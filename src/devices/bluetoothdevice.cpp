@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QSettings>
 #include <QTime>
+#include <cmath>
 
 #ifdef Q_OS_ANDROID
 #include <QAndroidJniObject>
@@ -20,7 +21,7 @@ bluetoothdevice::~bluetoothdevice() {
     }
 }
 
-bluetoothdevice::BLUETOOTH_TYPE bluetoothdevice::deviceType() { return bluetoothdevice::UNKNOWN; }
+BLUETOOTH_TYPE bluetoothdevice::deviceType() { return UNKNOWN; }
 void bluetoothdevice::start() { requestStart = 1; lastStart = QDateTime::currentMSecsSinceEpoch(); }
 void bluetoothdevice::stop(bool pause) {
     requestStop = 1;
@@ -108,7 +109,53 @@ QTime bluetoothdevice::maxPace() {
 
 double bluetoothdevice::odometerFromStartup() { return Distance.valueRaw(); }
 double bluetoothdevice::odometer() { return Distance.value(); }
-metric bluetoothdevice::calories() { return KCal; }
+double bluetoothdevice::lapOdometer() { return Distance.lapValue(); }
+metric bluetoothdevice::calories() { 
+    QSettings settings;
+    bool activeOnly = settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
+    bool fromHR = settings.value(QZSettings::calories_from_hr, QZSettings::default_calories_from_hr).toBool();
+    
+    if (fromHR && Heart.value() > 0) {
+        // Calculate calories based on heart rate
+        double totalHRKCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value());
+        hrKCal.setValue(totalHRKCal);
+        
+        if (activeOnly) {
+            activeKCal.setValue(metric::calculateActiveKCal(hrKCal.value(), elapsed.value()));
+            return activeKCal;
+        } else {
+            return hrKCal;
+        }
+    } else {
+        // Power-based calculation (current behavior)
+        if (activeOnly) {
+            activeKCal.setValue(metric::calculateActiveKCal(KCal.value(), elapsed.value()));
+            return activeKCal;
+        } else {
+            return KCal; 
+        }
+    }
+}
+
+metric bluetoothdevice::totalCalories() { 
+    QSettings settings;
+    bool fromHR = settings.value(QZSettings::calories_from_hr, QZSettings::default_calories_from_hr).toBool();
+    
+    if (fromHR && Heart.value() > 0) {
+        return hrKCal; // Return HR-based total calories
+    } else {
+        return KCal;   // Return power-based total calories
+    }
+}
+
+metric bluetoothdevice::activeCalories() {
+    return activeKCal;
+}
+
+metric bluetoothdevice::hrCalories() {
+    return hrKCal;
+}
+
 metric bluetoothdevice::jouls() { return m_jouls; }
 uint8_t bluetoothdevice::fanSpeed() { return FanSpeed; };
 bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
@@ -131,7 +178,50 @@ bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
 }
 bool bluetoothdevice::connected() { return false; }
 metric bluetoothdevice::elevationGain() { return elevationAcc; }
-void bluetoothdevice::heartRate(uint8_t heart) { Heart.setValue(heart); }
+metric bluetoothdevice::negativeElevationGain() { return negativeElevationAcc; }
+void bluetoothdevice::heartRate(uint8_t heart) {
+    Heart.setValue(heart);
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    // Write heart rate from Bluetooth to Apple Health during workout
+    lockscreen h;
+    if(heart > 0)
+        h.setHeartRate(heart);
+#endif
+#endif
+}
+void bluetoothdevice::coreBodyTemperature(double coreBodyTemperature) { CoreBodyTemperature.setValue(coreBodyTemperature); }
+void bluetoothdevice::skinTemperature(double skinTemperature) { SkinTemperature.setValue(skinTemperature); }
+void bluetoothdevice::heatStrainIndex(double heatStrainIndex) { HeatStrainIndex.setValue(heatStrainIndex); }
+void bluetoothdevice::rrIntervalReceived(double rrInterval) {
+    // RR-interval is in milliseconds
+    // Add to buffer for RMSSD calculation (keep max 30 samples for real-time HRV display)
+    // Using 30 samples (~20-30 seconds of data) gives more responsive and accurate HRV
+    // than using longer windows which can include heart rate transitions
+    rrIntervals.append(rrInterval);
+    while (rrIntervals.size() > 30) {
+        rrIntervals.removeFirst();
+    }
+
+    // Also add to FIT file buffer (will be cleared when SessionLine is created)
+    rrIntervalsForFit.append(rrInterval);
+
+    // Calculate RMSSD when we have at least 5 RR-intervals
+    if (rrIntervals.size() >= 5) {
+        double sumSquaredDiff = 0.0;
+        int count = 0;
+        for (int i = 1; i < rrIntervals.size(); i++) {
+            double diff = rrIntervals.at(i) - rrIntervals.at(i - 1);
+            sumSquaredDiff += diff * diff;
+            count++;
+        }
+        if (count > 0) {
+            double rmssd = sqrt(sumSquaredDiff / count);
+            HRV.setValue(rmssd);
+            qDebug() << "HRV (RMSSD):" << rmssd << "ms from" << rrIntervals.size() << "RR-intervals";
+        }
+    }
+}
 void bluetoothdevice::disconnectBluetooth() {
     if (m_control) {
         m_control->disconnectFromDevice();
@@ -149,6 +239,7 @@ double bluetoothdevice::inclinationDifficultOffset() { return m_inclination_diff
 void bluetoothdevice::cadenceSensor(uint8_t cadence) { Q_UNUSED(cadence) }
 void bluetoothdevice::powerSensor(uint16_t power) { Q_UNUSED(power) }
 void bluetoothdevice::speedSensor(double speed) { Q_UNUSED(speed) }
+void bluetoothdevice::inclinationSensor(double grade, double inclination) { Q_UNUSED(grade); Q_UNUSED(inclination) }
 void bluetoothdevice::instantaneousStrideLengthSensor(double length) { Q_UNUSED(length); }
 void bluetoothdevice::groundContactSensor(double groundContact) { Q_UNUSED(groundContact); }
 void bluetoothdevice::verticalOscillationSensor(double verticalOscillation) { Q_UNUSED(verticalOscillation); }
@@ -187,7 +278,7 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts, const b
         !power_as_bike && !power_as_treadmill)
         watt_calc = false;
 
-    if(deviceType() == bluetoothdevice::BIKE && !from_accessory)  // append only if it's coming from the bike, not from the power sensor
+    if(deviceType() == BIKE && !from_accessory)  // append only if it's coming from the bike, not from the power sensor
         _ergTable.collectData(Cadence.value(), m_watt.value(), Resistance.value());
 
     if (!_firstUpdate && !paused) {
@@ -226,9 +317,14 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts, const b
     METS = calculateMETS();
     if (currentInclination().value() > 0)
         elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
+    else if (currentInclination().value() < 0)
+        negativeElevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * fabs(currentInclination().value() / 100.0) * deltaTime;
 
     _lastTimeUpdate = current;
     _firstUpdate = false;
+
+    // Update iOS Live Activity with throttling
+    update_ios_live_activity();
 }
 
 void bluetoothdevice::update_hr_from_external() {
@@ -249,11 +345,23 @@ void bluetoothdevice::update_hr_from_external() {
 #ifndef IO_UNDER_QT
             lockscreen h;
             long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
+            QSettings settings;
+            bool activeOnly = settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
+            
+            if (activeOnly) {
+                // When active calories setting is enabled, send both total and active calories
+                h.setKcal(calories().value()); // This will be active calories
+                h.setTotalKcal(totalCalories().value()); // This will be total calories
+            } else {
+                // When disabled, send total calories as before
+                h.setKcal(calories().value()); // This will be total calories
+            }
             h.setDistance(Distance.value());
             h.setSpeed(Speed.value());
             h.setPower(m_watt.value());
             h.setCadence(Cadence.value());
+            h.setSteps(StepCount.value());
+            h.setElevationGain(elevationGain().value());
             Heart = appleWatchHeartRate;
             qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
 #endif
@@ -265,6 +373,43 @@ void bluetoothdevice::update_hr_from_external() {
     }
 #endif
     }
+    // Note: workoutTrackingUpdate is now called from update_ios_live_activity() with throttling
+}
+
+void bluetoothdevice::update_ios_live_activity() {
+    #ifdef Q_OS_IOS
+    #ifndef IO_UNDER_QT
+    static QDateTime lastUpdate;
+    QDateTime current = QDateTime::currentDateTime();
+
+    // Throttle updates: only update if at least 1 second has passed since last update
+    if (!lastUpdate.isValid() || lastUpdate.msecsTo(current) >= 1000) {
+        QSettings settings;
+        lockscreen h;
+        double kcal = calories().value();
+        if(kcal < 0)
+            kcal = 0;
+        bool useMiles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+        QString compactLeadingMetric =
+            settings.value(QZSettings::ios_live_activity_compact_leading_metric,
+                           QZSettings::default_ios_live_activity_compact_leading_metric)
+                .toString();
+        QString compactTrailingMetric =
+            settings.value(QZSettings::ios_live_activity_compact_trailing_metric,
+                           QZSettings::default_ios_live_activity_compact_trailing_metric)
+                .toString();
+        QByteArray compactLeadingMetricUtf8 = compactLeadingMetric.toUtf8();
+        QByteArray compactTrailingMetricUtf8 = compactTrailingMetric.toUtf8();
+        h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(),
+                                deviceType(), odometer() * 1000.0, totalCalories().value(), useMiles,
+                                (uint8_t)Heart.value(), compactLeadingMetricUtf8.constData(),
+                                metricValueForSetting(compactLeadingMetric), compactTrailingMetricUtf8.constData(),
+                                metricValueForSetting(compactTrailingMetric));
+
+        lastUpdate = current;
+    }
+    #endif
+    #endif
 }
 
 void bluetoothdevice::clearStats() {
@@ -273,17 +418,24 @@ void bluetoothdevice::clearStats() {
     moving.clear(true);
     Speed.clear(false);
     KCal.clear(true);
+    hrKCal.clear(true);
+    activeKCal.clear(true);
     Distance.clear(true);
     Distance1s.clear(true);
     Heart.clear(false);
     m_jouls.clear(true);
     elevationAcc = 0;
+    negativeElevationAcc = 0;
     m_watt.clear(false);
+    m_rawWatt.clear(false);
     WeightLoss.clear(false);
     WattKg.clear(false);
     Cadence.clear(false);
     for(int i=0; i<maxHeartZone(); i++) {
         hrZonesSeconds[i].clear(false);
+    }
+    for(int i=0; i<maxHeatZone(); i++) {
+        heatZonesSeconds[i].clear(false);
     }    
 }
 
@@ -294,16 +446,22 @@ void bluetoothdevice::setPaused(bool p) {
     elapsed.setPaused(p);
     Speed.setPaused(p);
     KCal.setPaused(p);
+    hrKCal.setPaused(p);
+    activeKCal.setPaused(p);
     Distance.setPaused(p);
     Distance1s.setPaused(p);
     Heart.setPaused(p);
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
+    m_rawWatt.setPaused(p);
     WeightLoss.setPaused(p);
     WattKg.setPaused(p);
     Cadence.setPaused(p);
     for(int i=0; i<maxHeartZone(); i++) {
         hrZonesSeconds[i].setPaused(p);
+    }
+    for(int i=0; i<maxHeatZone(); i++) {
+        heatZonesSeconds[i].setPaused(p);
     }    
 }
 
@@ -313,16 +471,22 @@ void bluetoothdevice::setLap() {
     elapsed.setLap(true);
     Speed.setLap(false);
     KCal.setLap(true);
+    hrKCal.setLap(true);
+    activeKCal.setLap(true);
     Distance.setLap(true);
     Distance1s.setLap(true);
     Heart.setLap(false);
     m_jouls.setLap(true);
     m_watt.setLap(false);
+    m_rawWatt.setLap(false);
     WeightLoss.setLap(false);
     WattKg.setLap(false);
     Cadence.setLap(false);
     for(int i=0; i<maxHeartZone(); i++) {
         hrZonesSeconds[i].setLap(false);
+    }
+    for(int i=0; i<maxHeatZone(); i++) {
+        heatZonesSeconds[i].setLap(false);
     }    
 }
 
@@ -365,82 +529,64 @@ uint8_t bluetoothdevice::metrics_override_heartrate() {
     QSettings settings;
     QString setting =
         settings.value(QZSettings::peloton_heartrate_metric, QZSettings::default_peloton_heartrate_metric).toString();
+    return static_cast<uint8_t>(qBound(0, metricValueForSetting(setting), 255));
+}
+
+int bluetoothdevice::metricValueForSetting(const QString &setting) {
     if (!setting.compare(QStringLiteral("Heart Rate"))) {
-        return currentHeart().value();
+        return qRound(currentHeart().value());
     } else if (!setting.compare(QStringLiteral("Speed"))) {
-
-        return currentSpeed().value();
+        return qRound(currentSpeed().value());
     } else if (!setting.compare(QStringLiteral("Inclination"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Cadence"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Elevation"))) {
-
-        return elevationGain().value();
+        return qRound(elevationGain().value());
     } else if (!setting.compare(QStringLiteral("Calories"))) {
-
-        return calories().value();
+        return qRound(calories().value());
     } else if (!setting.compare(QStringLiteral("Odometer"))) {
-
-        return odometer();
+        return qRound(odometer());
     } else if (!setting.compare(QStringLiteral("Pace"))) {
-
         return currentPace().second();
     } else if (!setting.compare(QStringLiteral("Resistance"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Watt"))) {
-
-        return wattsMetric().value();
+        return qRound(wattsMetric().value());
     } else if (!setting.compare(QStringLiteral("Weight Loss"))) {
-
-        return weightLoss();
+        return qRound(weightLoss());
     } else if (!setting.compare(QLatin1String("Watt/Kg"))) {
-
-        return wattKg().value();
+        return qRound(wattKg().value());
     } else if (!setting.compare(QStringLiteral("AVG Watt"))) {
-
-        return wattsMetric().average();
+        return qRound(wattsMetric().average());
     } else if (!setting.compare(QStringLiteral("FTP"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Fan"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Jouls"))) {
-
-        return jouls().value();
+        return qRound(jouls().value());
     } else if (!setting.compare(QStringLiteral("Lap Elapsed"))) {
-
         return lapElapsedTime().second();
     } else if (!setting.compare(QStringLiteral("Elapsed"))) {
-
-        return elapsed.value();
+        return qRound(elapsed.value());
     } else if (!setting.compare(QStringLiteral("Moving Time"))) {
-
         return movingTime().second();
     } else if (!setting.compare(QStringLiteral("Peloton Offset"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Peloton Resistance"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Date Time"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Target Resistance"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Target Peloton Resistance"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Target Power"))) {
-
+        return 0;
+    } else if (!setting.compare(QStringLiteral("Target Cadence"))) {
         return 0;
     }
-    return currentHeart().value();
+    return qRound(currentHeart().value());
 }
 
 void bluetoothdevice::changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters) {
@@ -473,9 +619,9 @@ void bluetoothdevice::setGPXFile(QString filename) {
     }
 }
 
-void bluetoothdevice::setHeartZone(double hz) { 
+void bluetoothdevice::setHeartZone(double hz) {
     HeartZone = hz;
-    if(isPaused() == false) {
+    if(isPaused() == false && currentHeart().value() > 0) {
         hz = hz - 1;
         if(hz >= maxHeartZone() ) {
             hrZonesSeconds[maxHeartZone() - 1].setValue(hrZonesSeconds[maxHeartZone() - 1].value() + 1);
@@ -487,9 +633,39 @@ void bluetoothdevice::setHeartZone(double hz) {
     }
 }
 
+void bluetoothdevice::setHeatZone(double heatStrainIndex) {
+    // Determine heat zone based on Heat Strain Index values
+    uint8_t zone;
+    if (heatStrainIndex >= 0 && heatStrainIndex <= 1.99) {
+        zone = 1;
+    } else if (heatStrainIndex < 3.0) {
+        zone = 2;
+    } else if (heatStrainIndex < 7.0) {
+        zone = 3;
+    } else {
+        zone = 4;
+    }
+    
+    HeatZone = zone;
+    if(isPaused() == false && heatStrainIndex > 0) {
+        // Convert to 0-based index for array access
+        uint8_t zoneIndex = zone - 1;
+        if(zoneIndex < maxHeatZone()) {
+            heatZonesSeconds[zoneIndex].setValue(heatZonesSeconds[zoneIndex].value() + 1);
+        }
+    }
+}
+
 uint32_t bluetoothdevice::secondsForHeartZone(uint8_t zone) {
     if(zone < maxHeartZone()) {
        return hrZonesSeconds[zone].value();
+    }
+    return 0;
+}
+
+uint32_t bluetoothdevice::secondsForHeatZone(uint8_t zone) {
+    if(zone < maxHeatZone()) {
+       return heatZonesSeconds[zone].value();
     }
     return 0;
 }

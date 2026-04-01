@@ -1,4 +1,5 @@
 #include "ftmsbike.h"
+#include "speedracex_defaults.h"
 #include "homeform.h"
 #include "virtualdevices/virtualbike.h"
 #include <QBluetoothLocalDevice>
@@ -26,7 +27,7 @@ using namespace std::chrono_literals;
 ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain) {
     QSettings settings;
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -34,6 +35,7 @@ ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResis
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
+    ergModeSupported = true; // by default ftms devices SHOULD have ergMode supported
     connect(refresh, &QTimer::timeout, this, &ftmsbike::update);
     refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
     wheelCircumference::GearTable g;
@@ -44,8 +46,10 @@ void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, con
                                    bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
+    QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
-    if(!zwiftPlayService) {
+    if(!zwiftPlayService || !gears_zwift_ratio) {
         qDebug() << QStringLiteral("zwiftPlayService is null!");
         return;
     }
@@ -81,13 +85,15 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
                                    bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
+    QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
     if(!gattFTMSService) {
         qDebug() << QStringLiteral("gattFTMSService is null!");
         return false;
     }
     
-    if(zwiftPlayService) {
+    if(zwiftPlayService && gears_zwift_ratio) {
         qDebug() << QStringLiteral("zwiftPlayService is present!");
         return false;
     }
@@ -105,7 +111,7 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+    if (gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse && !DOMYOS) {
         gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer,
                                              QLowEnergyService::WriteWithoutResponse);
     } else {
@@ -125,6 +131,13 @@ void ftmsbike::init() {
     if (initDone)
         return;
 
+    if(ICSE || HAMMER) {
+        uint8_t write[] = {FTMS_REQUEST_CONTROL};
+        bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
+        write[0] = {FTMS_RESET};
+        ret = writeCharacteristic(write, sizeof(write), "reset", false, true);
+    }
+    
     uint8_t write[] = {FTMS_REQUEST_CONTROL};
     bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
     write[0] = {FTMS_START_RESUME};
@@ -136,10 +149,14 @@ void ftmsbike::init() {
     }
 }
 
+ftmsbike::~ftmsbike() {
+}
+
 void ftmsbike::zwiftPlayInit() {
     QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
-    if(zwiftPlayService) {
+    if(zwiftPlayService && gears_zwift_ratio) {
         uint8_t rideOn[] = {0x52, 0x69, 0x64, 0x65, 0x4f, 0x6e, 0x02, 0x01};
         writeCharacteristicZwiftPlay(rideOn, sizeof(rideOn), "rideOn", false, true);
 
@@ -178,7 +195,7 @@ void ftmsbike::zwiftPlayInit() {
 }
 
 void ftmsbike::forcePower(int16_t requestPower) {
-    if(resistance_lvl_mode) { 
+    if((resistance_lvl_mode || TITAN_7000) && !MAGNUS && !SS2K) {
         forceResistance(resistanceFromPowerRequest(requestPower));
     } else {
         uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
@@ -200,34 +217,38 @@ uint16_t ftmsbike::wattsFromResistance(double resistance) {
     return _ergTable.estimateWattage(Cadence.value(), resistance);
 }
 
+
 resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-    if (Cadence.value() == 0)
-        return 1;
-
-    for (resistance_t i = 1; i < max_resistance; i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                     << wattsFromResistance(i + 1) << power;
-            return i;
-        }
-    }
-    if (power < wattsFromResistance(1))
-        return 1;
-    else
-        return max_resistance;
+    return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }
 
 void ftmsbike::forceResistance(resistance_t requestResistance) {
+    if (DOMYOS) {
+        lastDomyosResistanceCommand = QDateTime::currentDateTime();
+        lastDomyosRequestedResistance = requestResistance;
+    }
 
     QSettings settings;
+    bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
     if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
-        resistance_lvl_mode == false && _3G_Cardio_RB == false) {
-        uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false) {
+
+        uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
-        requestResistance = fr;
+        if(ergModeNotSupported) {
+            if(requestResistance < 0) {
+                qDebug() << "Negative resistance detected:" << requestResistance << "using fallback value 1";
+                requestResistance = 1;
+            }
+            requestResistance = _inclinationResistanceTable.estimateInclination(requestResistance) * 10.0;
+            qDebug() << "ergMode Not Supported so the resistance will be" << requestResistance;
+        } else {
+            requestResistance = fr;
+        }    
+
+        if(TITAN_7000)
+            Resistance = requestResistance;
 
         write[3] = ((uint16_t)requestResistance * 10) & 0xFF;
         write[4] = ((uint16_t)requestResistance * 10) >> 8;
@@ -235,16 +256,92 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         writeCharacteristic(write, sizeof(write),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance));
     } else {
-        uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
-        if(_3G_Cardio_RB)
-            requestResistance = requestResistance * 10;
-        write[1] = ((uint8_t)(requestResistance));
-        writeCharacteristic(write, sizeof(write),
-                            QStringLiteral("forceResistance ") + QString::number(requestResistance));
+
+        if(requestResistance < 0) {
+            qDebug() << "Negative resistance detected:" << requestResistance << "using fallback value 1";
+            requestResistance = 1;
+        }
+
+        if(SL010 || SPORT01)
+            Resistance = requestResistance;
+        
+        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28) {
+            uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
+            write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
+            write[2] = ((uint16_t)requestResistance * 10) >> 8;
+            writeCharacteristic(write, sizeof(write),
+                                QStringLiteral("forceResistance ") + QString::number(requestResistance));
+        } else {
+            uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
+            if(_3G_Cardio_RB || SL010)
+                requestResistance = requestResistance * 10;
+            write[1] = ((uint8_t)(requestResistance));
+            writeCharacteristic(write, sizeof(write),
+                                QStringLiteral("forceResistance ") + QString::number(requestResistance));
+        }
     }
 }
 
+void ftmsbike::forceInclination(double requestInclination) {
+    // FTMS SET_INDOOR_BIKE_SIMULATION_PARAMS command
+    // Byte 0: OpCode
+    // Byte 1-2: Wind Speed (sint16, 0.001 m/s)
+    // Byte 3-4: Grade/Inclination (sint16, 0.01%)
+    // Byte 5-6: Coefficient of Rolling Resistance (uint8, 0.0001)
+
+    uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
+
+    // Convert inclination to FTMS format (multiply by 100 for 0.01% units)
+    int16_t inclination = (int16_t)(requestInclination * 100.0);
+
+    // Pack Grade in bytes 3-4 as little-endian sint16
+    write[3] = ((uint16_t)inclination) & 0xFF;
+    write[4] = ((uint16_t)inclination) >> 8;
+
+    writeCharacteristic(write, sizeof(write),
+                        QStringLiteral("forceInclination ") + QString::number(requestInclination));
+}
+
+void ftmsbike::sendZwiftPlayInclination(double inclination) {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    QByteArray message = lockscreen::zwift_hub_inclinationCommand(inclination);
+#else
+    QByteArray message;
+#endif
+#elif defined(Q_OS_ANDROID)
+    QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+        "org/cagnulen/qdomyoszwift/ZwiftHubBike",
+        "inclinationCommand",
+        "(D)[B",
+        inclination);
+
+    if(!result.isValid()) {
+        qDebug() << "inclinationCommand returned invalid value";
+        return;
+    }
+
+    jbyteArray array = result.object<jbyteArray>();
+    QAndroidJniEnvironment env;
+    jbyte* bytes = env->GetByteArrayElements(array, nullptr);
+    jsize length = env->GetArrayLength(array);
+
+    QByteArray message((char*)bytes, length);
+
+    env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
+#else
+    QByteArray message;
+    qDebug() << "implement zwift hub protobuf!";
+    return;
+#endif
+    writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
+    gearInclinationSent = true;
+}
+
 void ftmsbike::update() {
+
+    QSettings settings;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -252,6 +349,11 @@ void ftmsbike::update() {
 
     if (initRequest) {
         zwiftPlayInit();
+
+        // when we are emulating the zwift protocol, zwift doesn't senf the start simulation frames, so we have to send them
+        if(settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool())
+            init();
+
         initRequest = false;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
@@ -275,9 +377,11 @@ void ftmsbike::update() {
             forceResistance(currentResistance().value());
         }
 
-        auto virtualBike = this->VirtualBike();
+        auto virtualBike = this->VirtualBike();        
+        bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
         if (requestResistance != -1 || lastGearValue != gears()) {
+            bool deferResistanceRequest = false;
             if (requestResistance > 100) {
                 requestResistance = 100;
             } // TODO, use the bluetooth value
@@ -285,37 +389,86 @@ void ftmsbike::update() {
                 requestResistance = 1;
             }
 
-            if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
-                emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+            double gearMultiplier = 5;
+            if(REEBOK)
+                gearMultiplier = 1;
+            resistance_t rR = requestResistance + (gears() * gearMultiplier);
+
+            if (rR != currentResistance().value() || lastGearValue != gears()) {
+                bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
+                qDebug() << QStringLiteral("writing resistance ") << requestResistance << ergModeNotSupported << requestPower << resistance_lvl_mode;
                 // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a
-                // FTMS bike. This condition handles the peloton requests                
-                if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike || resistance_lvl_mode) &&
-                    (requestPower == 0 || requestPower == -1)) {
+                // FTMS bike. This condition handles the peloton requests
+                if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike || resistance_lvl_mode || ergModeNotSupported) &&
+                    (requestPower == 0 || requestPower == -1 || resistance_lvl_mode || ergModeNotSupported)) {
+                    if (DOMYOS) {
+                        QDateTime now = QDateTime::currentDateTime();
+                        const qint64 sinceLastDomyosResistance = lastDomyosResistanceCommand.msecsTo(now);
+                        if (now < domyosResistanceRetryAfter) {
+                            qDebug() << "Deferring DOMYOS resistance write due to control-point backoff"
+                                     << "requested:" << rR
+                                     << "retryAfterMs:" << now.msecsTo(domyosResistanceRetryAfter);
+                            deferResistanceRequest = true;
+                        } else if (sinceLastDomyosResistance >= 0 && sinceLastDomyosResistance < 1500) {
+                            qDebug() << "Deferring DOMYOS resistance write due to rate limit"
+                                     << "requested:" << rR
+                                     << "elapsedMs:" << sinceLastDomyosResistance;
+                            deferResistanceRequest = true;
+                        }
+                    }
+
+                    if (deferResistanceRequest) {
+                        requestResistance = rR;
+                    } else {
                     init();
-                    forceResistance(requestResistance + (gears() * 5));
+
+                    forceResistance(rR);
+                    }
                 }
             }
-            requestResistance = -1;
+            if (!deferResistanceRequest) {
+                requestResistance = -1;
+            }
         }
+        
+        // gpx scenario for example
+        if(!virtualBike || !virtualBike->ftmsDeviceConnected()) {
+            if ((requestInclination != -100 || (lastGearValue != gears() && requestInclination != -100))) {
+                emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
+                forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
+                                                                // i'm using the gears in the inclination
+                requestInclination = -100;
+            } else if(lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
+                // in order to send the new gear value ASAP
+                forceInclination(lastRawRequestedInclinationValue + gears());   // since this bike doesn't have the concept of resistance,
+                                                                // i'm using the gears in the inclination
+            }
+        }
+
         if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
             qDebug() << "injecting fake ftms frame in order to send the new gear value ASAP" << lastPacketFromFTMS.toHex(' ');
             ftmsCharacteristicChanged(QLowEnergyCharacteristic(), lastPacketFromFTMS);
         }
 
-        QSettings settings;
-        if(zwiftPlayService && lastGearValue != gears()) {
+        if(zwiftPlayService && gears_zwift_ratio && lastGearValue != gears()) {
+            // Workaround: gear commands don't work until an inclination command has been sent first
+            if (!gearInclinationSent) {
+                qDebug() << "Sending initial inclination command (0.4%) before first gear command";
+                sendZwiftPlayInclination(0.4);
+            }
+
             QSettings settings;
             wheelCircumference::GearTable table;
             wheelCircumference::GearTable::GearInfo g = table.getGear((int)gears());
             double original_ratio = ((double)settings.value(QZSettings::gear_crankset_size, QZSettings::default_gear_crankset_size).toDouble()) /
             ((double)settings.value(QZSettings::gear_cog_size, QZSettings::default_gear_cog_size).toDouble());
-            
+
             double current_ratio = ((double)g.crankset / (double)g.rearCog);
-            
+
             uint32_t gear_value = static_cast<uint32_t>(10000.0 * (current_ratio/original_ratio) * (42.0/14.0));
-            
+
             qDebug() << "zwift hub gear current ratio" << current_ratio << g.crankset << g.rearCog << "gear_value" << gear_value << "original_ratio" << original_ratio;
- 
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             QByteArray proto = lockscreen::zwift_hub_setGearsCommand(gear_value);
@@ -355,12 +508,44 @@ void ftmsbike::update() {
 
         lastGearValue = gears();
 
-        if (requestPower != -1) {
+        // Power request routing logic:
+        // 1. No virtualBike: route directly to bike
+        // 2. VirtualBike not connected to FTMS: route directly to bike  
+        // 3. ZwiftPlay with gear ratio: route directly to bike
+        // 4. ErgMode supported + power sensor: use delta power system (bypass FTMS routing)
+        bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                                .toString()
+                                .startsWith(QStringLiteral("Disabled"));
+        if (requestPower != -1 && (!virtualBike || !virtualBike->ftmsDeviceConnected() || (zwiftPlayService != nullptr && gears_zwift_ratio) || (ergModeSupported && power_sensor))) {
             qDebug() << QStringLiteral("writing power") << requestPower;
             init();
             forcePower(requestPower);
             requestPower = -1;
         }
+        // Continuous ERG for resistance-level bikes:
+        // Re-evaluate resistance when cadence changes to maintain target power.
+        // Without this, resistance is only set once when Zwift sends a new power target,
+        // and cadence changes don't trigger resistance adjustment.
+        if (resistance_lvl_mode && !ergModeSupported &&
+            lastRequestedPower().value() > 0 && autoResistance()) {
+            resistance_t newR = resistanceFromPowerRequest(
+                (uint16_t)lastRequestedPower().value());
+            if (newR != m_lastErgResistance && newR > 0) {
+                // ERG death spiral protection: below 50 RPM, only allow resistance decreases
+                if (Cadence.value() > 0 && Cadence.value() < 50 && newR > m_lastErgResistance) {
+                    qDebug() << "ERG death spiral protection: cadence" << Cadence.value()
+                             << "< 50, blocking resistance increase"
+                             << m_lastErgResistance << "->" << newR;
+                } else {
+                    qDebug() << "continuous ERG: cadence" << Cadence.value()
+                             << "target" << lastRequestedPower().value()
+                             << "resistance" << m_lastErgResistance << "->" << newR;
+                    forceResistance(newR);
+                    m_lastErgResistance = newR;
+                }
+            }
+        }
+
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
 
@@ -376,7 +561,7 @@ void ftmsbike::update() {
 
             QSettings settings;
             if (settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool()) {
-                uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+                uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
 
                 writeCharacteristic(write, sizeof(write), QStringLiteral("init SS2K"));
             }
@@ -398,6 +583,17 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     bool heart = false;
+    bool watt_ignore_builtin =
+        settings.value(QZSettings::watt_ignore_builtin, QZSettings::default_watt_ignore_builtin).toBool();
+    bool externalCadenceSensorEnabled =
+        !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+             .toString()
+             .startsWith(QStringLiteral("Disabled"));
+    bool externalPowerSensorEnabled =
+        !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+             .toString()
+             .startsWith(QStringLiteral("Disabled"));
+    bool useMachineCadence = !externalCadenceSensorEnabled && !externalPowerSensorEnabled;
 
     qDebug() << characteristic.uuid() << newValue.length() << QStringLiteral(" << ") << newValue.toHex(' ');
 
@@ -411,15 +607,76 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         return;
     }
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A19)) { // Battery Service
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A19) && !D2RIDE) { // Battery Service
         if(newValue.length() > 0) {
             uint8_t b = (uint8_t)newValue.at(0);
             if(b != battery_level)
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested(QStringLiteral("Battery Level ") + QString::number(b) + " %");
+                    homeform::singleton()->setToastRequested(bluetoothDevice.name() + QStringLiteral(" Battery Level ") + QString::number(b) + " %");
             battery_level = b;
         }
         return;
+    }
+
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD9) && newValue.length() >= 3) {
+        const uint8_t responseCode = (uint8_t)newValue.at(0);
+        const uint8_t requestCode = (uint8_t)newValue.at(1);
+        const uint8_t resultCode = (uint8_t)newValue.at(2);
+
+        if (DOMYOS && responseCode == FTMS_RESPONSE_CODE && requestCode == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
+            if (resultCode == FTMS_CONTROL_NOT_PERMITTED) {
+                domyosResistanceRetryAfter = now.addMSecs(3000);
+                initDone = false;
+                qDebug() << "DOMYOS resistance command rejected with CONTROL_NOT_PERMITTED"
+                         << "lastRequestedResistance:" << lastDomyosRequestedResistance
+                         << "backoffUntil:" << domyosResistanceRetryAfter;
+            } else if (resultCode == FTMS_SUCCESS) {
+                domyosResistanceRetryAfter = now;
+            }
+        }
+    }
+    
+    if(characteristic.uuid() == QBluetoothUuid(QStringLiteral("00000002-19ca-4651-86e5-fa29dcdd09d1")) && newValue.at(0) == 0x03) {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        m_watt =  lockscreen::zwift_hub_getPowerFromBuffer(newValue.mid(1));
+        qDebug() << "Current power: " << m_watt.value();
+
+        if (useMachineCadence) {
+            Cadence =  lockscreen::zwift_hub_getCadenceFromBuffer(newValue.mid(1));
+        }
+        qDebug() << "Current cadence: " << Cadence.value();
+#endif
+#endif
+        return;
+    }
+
+    if(T2 && characteristic.uuid() == QBluetoothUuid(QStringLiteral("6e400003-b5a3-f393-e0a9-e50e24dcca9e")) && newValue.length() == 62) {
+        int16_t gears = ((int16_t)(((int16_t)((uint8_t)newValue.at(55)) << 8) |
+                          (int16_t)((uint8_t)newValue.at(54))));
+
+        qDebug() << QStringLiteral("T2 gears event, actual gear") << gears << QStringLiteral("previous value") << T2_lastGear;
+
+        if (gears < T2_lastGear) {
+            for (int i = 0; i < T2_lastGear - gears; ++i) {
+                gearDown();
+            }
+        } else if (gears > T2_lastGear) {
+            for (int i = 0; i < gears - T2_lastGear; ++i) {
+                gearUp();
+            }
+        }
+
+        T2_lastGear = gears;
+        return;
+    }
+
+    // Wattbike Atom First Generation - Display Gears
+    if(WATTBIKE && characteristic.uuid() == QBluetoothUuid(QStringLiteral("b4cc1224-bc02-4cae-adb9-1217ad2860d1")) &&
+        newValue.length() > 3 && newValue.at(1) == 0x03 && (uint8_t)newValue.at(2) == 0xb6) {
+        uint8_t gear = newValue.at(3);
+        qDebug() << "watt bike gears" << gear;
+        setGears(gear);
     }
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
@@ -445,9 +702,23 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             uint16_t word_flags;
         };
 
+        // clean time in case for a long period we don't receive values
+        if(lastRefreshCharacteristicChanged2AD2.secsTo(now) > secondsToResetTimer) {
+            qDebug() << "clearing lastRefreshCharacteristicChanged2AD2" << lastRefreshCharacteristicChanged2AD2 << now;
+            lastRefreshCharacteristicChanged2AD2 = now;
+        }
+
         flags Flags;
         int index = 0;
-        Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
+
+        // potential bug, a casting to uint8 is required for the single byte values to avoid negative values
+        if (newValue.length() < 2) {
+            qDebug() << "Invalid FTMS 0x2AD2 packet length" << newValue.length();
+            return;
+        }
+
+        Flags.word_flags = (((uint16_t)((uint8_t)newValue.at(1))) << 8) |
+                           ((uint16_t)((uint8_t)newValue.at(0)));
         index += 2;
 
         if (!Flags.moreData) {
@@ -471,12 +742,17 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                        100.0;
             index += 2;
             emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
+            // Use average speed if instant speed is not available (moreData flag set)
+            if (Flags.moreData) {
+                if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                    Speed = avgSpeed;
+                    emit debug(QStringLiteral("Current Speed (from average): ") + QString::number(Speed.value()));
+                }
+            }
         }
 
         if (Flags.instantCadence) {
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled"))) {
+            if (useMachineCadence) {
                 Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index)))) /
                           2.0;
@@ -492,6 +768,13 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                          2.0;
             index += 2;
             emit debug(QStringLiteral("Current Average Cadence: ") + QString::number(avgCadence));
+            // Use average cadence if instant cadence is not available
+            if (!Flags.instantCadence) {
+                if (useMachineCadence) {
+                    Cadence = avgCadence;
+                    emit debug(QStringLiteral("Current Cadence (from average): ") + QString::number(Cadence.value()));
+                }
+            }
         }
 
         if (Flags.totDistance) {
@@ -512,12 +795,19 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.resistanceLvl) {
-            Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)newValue.at(index))));
-            emit resistanceRead(Resistance.value());
-            index += 2;
-            emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
-            resistance_received = true;
+            double d = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));            
+            index += 2;            
+            if(d > 0) {
+                if(BIKE_)
+                    d = d / 10.0;
+                // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
+                if(!SL010 && !TITAN_7000 && !SPORT01)
+                    Resistance = d;
+                emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+                emit resistanceRead(Resistance.value());
+                resistance_received = true;
+            }
         }
             double ac = 0.01243107769;
             double bc = 1.145964912;
@@ -528,15 +818,26 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             double cr = 97.62165482;
 
             if (Cadence.value() && m_watt.value()) {
-                m_pelotonResistance =
+                double res =
                     (((sqrt(pow(br, 2.0) - 4.0 * ar *
-                                               (cr - (m_watt.value() * 132.0 /
-                                                      (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
-                       br) /
-                      (2.0 * ar)) *
-                     settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
- settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
-                if (!resistance_received && !DU30_bike) {
+                                                (cr - (m_watt.value() * 132.0 /
+                                                        (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                        br) /
+                        (2.0 * ar)) *
+                        settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                        settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+
+                if (isnan(res)) {
+                    if (Cadence.value() > 0) {
+                        // let's keep the last good value
+                    } else {
+                        m_pelotonResistance = 0;
+                    }
+                } else {
+                    m_pelotonResistance = res;
+                }
+
+                if (!resistance_received && !DU30_bike && !SL010) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
                     emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
@@ -548,11 +849,52 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             // power table from an user
             if(DU30_bike) {
                 m_watt = wattsFromResistance(Resistance.value());
-            } else if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled")))
-                m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+            } else if (SPORT01 && settings.value(QZSettings::toputure_teb1, QZSettings::default_toputure_teb1).toBool()) {
+                // Custom power calculation for SPORT01
+                // Resistance multipliers for levels 1-10
+                const double k[10] = {0.60, 0.75, 0.85, 0.95, 1.00, 1.18, 1.40, 1.70, 2.00, 2.40};
+
+                // Baseline power curve coefficients (MyWhoosh cadence-power at resistance 5)
+                double ac = 0.01243107769;
+                double bc = 1.145964912;
+                double cc = -23.50977444;
+
+                // Calculate baseline power from cadence (resistance level 5 baseline)
+                double baseline_watt = ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc;
+
+                // Get current resistance level (1-10) and apply multiplier
+                int resistance_level = (int)Resistance.value();
+                if(resistance_level < 1) resistance_level = 1;
+                if(resistance_level > 10) resistance_level = 10;
+
+                // Apply resistance multiplier
+                m_watt = baseline_watt * k[resistance_level - 1];
+
+                if(m_watt.value() < 0) m_watt = 0;
+
+                emit debug(QStringLiteral("Current Watt (SPORT01 formula - R%1 x%2): %3")
+                    .arg(resistance_level).arg(k[resistance_level - 1]).arg(m_watt.value()));
+            } else if (MRK_S26C) {
+                m_watt = Cadence.value() * (Resistance.value() * 1.16);
+                emit debug(QStringLiteral("Current Watt (MRK-S26C formula): ") + QString::number(m_watt.value()));
+            } else if ((LYDSTO || DMASUN) && watt_ignore_builtin) {
+                m_watt = wattFromHR(true);
+                emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+            } else {
+                double ftms_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)newValue.at(index))));
+                m_rawWatt = ftms_watt;  // Always update rawWatt from FTMS bike data
+                if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                        .toString()
+                        .startsWith(QStringLiteral("Disabled"))) {
+                    m_watt = ftms_watt;  // Only update watt if no external power sensor
+                }
+
+                if(!wattReceived && m_watt.value() > 0) {
+                    wattReceived = true;
+                }
+            }
             index += 2;
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
         } else if(DOMYOS) {
@@ -567,6 +909,15 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                                  (uint16_t)((uint8_t)newValue.at(index))));
             index += 2;
             emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
+            // Use average power if instant power is zero or not available
+            if ((!Flags.instantPower || m_watt.value() == 0) && avgPower > 0 && !wattReceived) {
+                if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                        .toString()
+                        .startsWith(QStringLiteral("Disabled"))) {
+                    m_watt = avgPower;
+                    emit debug(QStringLiteral("Current Watt (from average): ") + QString::number(m_watt.value()));
+                }
+            }
         }
 
         if (Flags.expEnergy && newValue.length() > index + 1) {
@@ -621,6 +972,180 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         lastRefreshCharacteristicChanged2AD2 = now;
+        ftmsFrameReceived = true;
+    } else if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement && !ftmsFrameReceived) {
+        uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
+        bool cadence_present = false;
+        bool wheel_revs = false;
+        bool crank_rev_present = false;
+        uint16_t time_division = 1024;
+        uint8_t index = 4;
+
+        if (newValue.length() > 3) {
+            double ftms_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
+            m_rawWatt = ftms_watt;  // Always update rawWatt from FTMS bike data
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                m_watt = ftms_watt;  // Only update watt if no external power sensor
+                emit powerChanged(m_watt.value());
+            }
+            emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
+        }
+
+        if(THINK_X) {
+
+            if ((flags & 0x1) == 0x01) // Pedal Power Balance Present
+            {
+                index += 1;
+            }
+            if ((flags & 0x2) == 0x02) // Pedal Power Balance Reference
+            {
+            }
+            if ((flags & 0x4) == 0x04) // Accumulated Torque Present
+            {
+                index += 2;
+            }
+            if ((flags & 0x8) == 0x08) // Accumulated Torque Source
+            {
+            }
+
+            if ((flags & 0x10) == 0x10) // Wheel Revolution Data Present
+            {
+                cadence_present = true;
+                wheel_revs = true;
+            }
+
+            if ((flags & 0x20) == 0x20) // Crank Revolution Data Present
+            {
+                cadence_present = true;
+                crank_rev_present = true;
+            }
+
+            if (cadence_present) {
+                if (wheel_revs && !crank_rev_present) {
+                    time_division = 2048;
+                    CrankRevs =
+                        (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) |
+                         ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                         ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)));
+                    index += 4;
+
+                    LastCrankEventTime =
+                        (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+
+                    index += 2; // wheel event time
+
+                } else if (wheel_revs && crank_rev_present) {
+                    index += 4; // wheel revs
+                    index += 2; // wheel event time
+                }
+
+                if (crank_rev_present) {
+                    CrankRevs =
+                        (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+                    index += 2;
+
+                    LastCrankEventTime =
+                        (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+                    index += 2;
+                }
+
+                int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
+                if (deltaT < 0) {
+                    deltaT = LastCrankEventTime + time_division - oldLastCrankEventTime;
+                }
+
+                if (useMachineCadence) {
+                    if (CrankRevs != oldCrankRevs && deltaT) {
+                        double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
+                        if (!crank_rev_present)
+                            cadence =
+                                cadence /
+                                2; // I really don't like this, there is no relationship between wheel rev and crank rev
+                        if (cadence >= 0) {
+                            Cadence = cadence;
+                        }
+                        lastGoodCadence = now;
+                    } else if (lastGoodCadence.msecsTo(now) > 2000) {
+                        Cadence = 0;
+                    }
+                }
+
+                qDebug() << QStringLiteral("Current Cadence: ") << Cadence.value() << CrankRevs << oldCrankRevs << deltaT
+                         << time_division << LastCrankEventTime << oldLastCrankEventTime;
+
+                oldLastCrankEventTime = LastCrankEventTime;
+                oldCrankRevs = CrankRevs;
+
+                if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                    Speed = Cadence.value() * settings
+                                                  .value(QZSettings::cadence_sensor_speed_ratio,
+                                                         QZSettings::default_cadence_sensor_speed_ratio)
+                                                  .toDouble();
+                } else {
+                    Speed = metric::calculateSpeedFromPower(
+                        watts(), Inclination.value(), Speed.value(),
+                        fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                }
+                emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+
+                Distance += ((Speed.value() / 3600000.0) *
+                             ((double)lastRefreshCharacteristicChangedPower.msecsTo(now)));
+                emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+
+                // if we change this, also change the wattsFromResistance function. We can create a standard function in
+                // order to have all the costants in one place (I WANT MORE TIME!!!)
+                double ac = 0.01243107769;
+                double bc = 1.145964912;
+                double cc = -23.50977444;
+
+                double ar = 0.1469553975;
+                double br = -5.841344538;
+                double cr = 97.62165482;
+
+                double res =
+                    (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                               (cr - (m_watt.value() * 132.0 /
+                                                      (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                       br) /
+                      (2.0 * ar)) *
+                     settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+
+                if (isnan(res)) {
+                    if (Cadence.value() > 0) {
+                        // let's keep the last good value
+                    } else {
+                        m_pelotonResistance = 0;
+                    }
+                } else {
+                    m_pelotonResistance = res;
+                }
+
+                qDebug() << QStringLiteral("Current Peloton Resistance: ") + QString::number(m_pelotonResistance.value());
+
+                if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance)
+                        .toBool())
+                    Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
+                else
+                    Resistance = m_pelotonResistance;
+                emit resistanceRead(Resistance.value());
+                qDebug() << QStringLiteral("Current Resistance Calculated: ") + QString::number(Resistance.value());
+
+                if (watts())
+                    KCal +=
+                        ((((0.048 * ((double)watts()) + 1.19) *
+                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                          200.0) /
+                         (60000.0 / ((double)lastRefreshCharacteristicChangedPower.msecsTo(
+                                        now)))); //(( (0.048* Output in watts +1.19) * body weight
+                                                                          // in kg * 3.5) / 200 ) / 60
+                emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+
+                lastRefreshCharacteristicChangedPower = now;
+            }
+        }        
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE)) {
         union flags {
             struct {
@@ -648,10 +1173,29 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         flags Flags;
         int index = 0;
-        Flags.word_flags = (newValue.at(2) << 16) | (newValue.at(1) << 8) | newValue.at(0);
+        if (newValue.length() < 3) {
+            qDebug() << "Invalid FTMS 0x2ACE packet length" << newValue.length();
+            return;
+        }
+
+        Flags.word_flags = (((uint32_t)((uint8_t)newValue.at(2))) << 16) |
+                           (((uint32_t)((uint8_t)newValue.at(1))) << 8) |
+                           ((uint32_t)((uint8_t)newValue.at(0)));
         index += 3;
 
+        auto ensureBytesAvailable = [&](int bytesNeeded, const QString &fieldName) {
+            if (newValue.length() < (index + bytesNeeded)) {
+                qDebug() << "FTMS 0x2ACE packet too short for" << fieldName << "length" << newValue.length()
+                         << "index" << index << "needed" << bytesNeeded;
+                return false;
+            }
+            return true;
+        };
+
         if (!Flags.moreData) {
+            if (!ensureBytesAvailable(2, QStringLiteral("speed")))
+                return;
+
             if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                   (uint16_t)((uint8_t)newValue.at(index)))) /
@@ -666,6 +1210,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         if (Flags.avgSpeed) {
+            if (!ensureBytesAvailable(2, QStringLiteral("average speed")))
+                return;
+
             double avgSpeed;
             avgSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                  (uint16_t)((uint8_t)newValue.at(index)))) /
@@ -675,22 +1222,29 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         if (Flags.totDistance) {
+            if (!ensureBytesAvailable(3, QStringLiteral("total distance")))
+                return;
+
             Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                                   (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                  (uint32_t)((uint8_t)newValue.at(index)))) /
                        1000.0;
             index += 3;
         } else {
-            Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged2ACE.msecsTo(now)));
+            // Only calculate distance if 2AD2 hasn't already done it recently (within 2000ms)
+            if (lastRefreshCharacteristicChanged2AD2.msecsTo(now) > 2000) {
+                Distance += ((Speed.value() / 3600000.0) *
+                ((double)lastRefreshCharacteristicChanged2ACE.msecsTo(now)));
+            }
         }
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.stepCount) {
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled"))) {
+            if (!ensureBytesAvailable(4, QStringLiteral("step count")))
+                return;
+
+            if (useMachineCadence) {
                 Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index))));
             }
@@ -701,23 +1255,35 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         if (Flags.strideCount) {
+            if (!ensureBytesAvailable(2, QStringLiteral("stride count")))
+                return;
             index += 2;
         }
 
         if (Flags.elevationGain) {
+            if (!ensureBytesAvailable(4, QStringLiteral("elevation gain")))
+                return;
             index += 2;
             index += 2;
         }
 
         if (Flags.rampAngle) {
+            if (!ensureBytesAvailable(4, QStringLiteral("ramp angle")))
+                return;
             index += 2;
             index += 2;
         }
 
         if (Flags.resistanceLvl) {
-            Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)newValue.at(index))));
-            emit resistanceRead(Resistance.value());
+            if (!ensureBytesAvailable(2, QStringLiteral("resistance")))
+                return;
+
+            if(!TITAN_7000) {
+                Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                       (uint16_t)((uint8_t)newValue.at(index))));
+                emit resistanceRead(Resistance.value());
+                resistance_received = true;
+            }
             index += 2;
             emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
         } else if(!DU30_bike) {
@@ -730,7 +1296,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             double cr = 97.62165482;
 
             if (Cadence.value() && m_watt.value()) {
-                m_pelotonResistance =
+                double res =
                     (((sqrt(pow(br, 2.0) - 4.0 * ar *
                                                (cr - (m_watt.value() * 132.0 /
                                                       (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
@@ -738,22 +1304,42 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                       (2.0 * ar)) *
                      settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
                     settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+
+                if (isnan(res)) {
+                    if (Cadence.value() > 0) {
+                        // let's keep the last good value
+                    } else {
+                        m_pelotonResistance = 0;
+                    }
+                } else {
+                    m_pelotonResistance = res;
+                }
+
                 Resistance = m_pelotonResistance;
                 emit resistanceRead(Resistance.value());
             }
         }
 
         if (Flags.instantPower) {
+            if (!ensureBytesAvailable(2, QStringLiteral("instant power")))
+                return;
+
+            double ftms_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));
+            m_rawWatt = ftms_watt;  // Always update rawWatt from FTMS bike data
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
-                    .startsWith(QStringLiteral("Disabled")))
-                m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)newValue.at(index))));
+                    .startsWith(QStringLiteral("Disabled"))) {
+                m_watt = ftms_watt;  // Only update watt if no external power sensor
+            }
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
             index += 2;
         }
 
-        if (Flags.avgPower && newValue.length() > index + 1) {
+        if (Flags.avgPower) {
+            if (!ensureBytesAvailable(2, QStringLiteral("average power")))
+                return;
+
             double avgPower;
             avgPower = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                  (uint16_t)((uint8_t)newValue.at(index))));
@@ -761,9 +1347,12 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             index += 2;
         }
 
-        if (Flags.expEnergy && newValue.length() > index + 1) {
-            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint16_t)((uint8_t)newValue.at(index))));
+        if (Flags.expEnergy) {
+            if (!ensureBytesAvailable(5, QStringLiteral("expended energy")))
+                return;
+
+            /*KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));*/
             index += 2;
 
             // energy per hour
@@ -771,16 +1360,16 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
             // energy per minute
             index += 1;
-        } else {
-            if (watts())
-                KCal += ((((0.048 * ((double)watts()) + 1.19) *
-                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                          200.0) /
-                         (60000.0 /
-                          ((double)lastRefreshCharacteristicChanged2ACE.msecsTo(
-                              now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                // kg * 3.5) / 200 ) / 60
         }
+
+        if (watts() && !ftmsFrameReceived)
+            KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                        settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                        200.0) /
+                        (60000.0 /
+                        ((double)lastRefreshCharacteristicChanged2ACE.msecsTo(
+                            now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                            // kg * 3.5) / 200 ) / 60
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
@@ -790,7 +1379,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         else
 #endif
         {
-            if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
+            if (Flags.heartRate && !disable_hr_frommachinery) {
+                if (!ensureBytesAvailable(1, QStringLiteral("heart rate")))
+                    return;
+
                 Heart = ((double)(((uint8_t)newValue.at(index))));
                 // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
@@ -827,13 +1419,22 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         update_hr_from_external();
     }
 
+    if(resistance_received && requestPower == -1) {
+        // Apply the same gears modification as in ftmsCharacteristicChanged
+        double gears_modified_inclination = Inclination.value();
+        if (gears() != 0) {
+            gears_modified_inclination += (gears() * GEARS_SLOPE_MULTIPLIER / 100.0);
+        }
+        _inclinationResistanceTable.collectData(gears_modified_inclination, Resistance.value(), m_watt.value());
+    }
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
     bool ios_peloton_workaround =
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-        h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+                h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
     }
 #endif
@@ -853,6 +1454,10 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+        if (!s) {
+            qDebug() << QStringLiteral("stateChanged skipping null service object");
+            continue;
+        }
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
         if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
@@ -868,6 +1473,10 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+        if (!s) {
+            qDebug() << QStringLiteral("skipping null service object during subscription setup");
+            continue;
+        }
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &ftmsbike::characteristicChanged);
@@ -881,7 +1490,18 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
-            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || ICSE || SCH_190U) {
+            if (ICSE) {
+                QBluetoothUuid ftmsService((quint16)0x1826);
+                QBluetoothUuid CSCService((quint16)0x1816);
+                if (s->serviceUuid() != ftmsService && s->serviceUuid() != CSCService) {
+                    qDebug() << QStringLiteral("ICSE bike wants to be subscribed only to FTMS and CSC services in order "
+                                               "to send metrics")
+                             << s->serviceUuid();
+                    continue;
+                }
+            }
+            
+            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
                     qDebug() << QStringLiteral("hammer racer bike wants to be subscribed only to FTMS service in order "
@@ -934,7 +1554,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
 
                 QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
+                if ((c.properties() & QLowEnergyCharacteristic::Write || c.properties() & QLowEnergyCharacteristic::WriteNoResponse) && c.uuid() == _gattWriteCharControlPointId) {
                     qDebug() << QStringLiteral("FTMS service and Control Point found");
                     gattWriteCharControlPointId = c;
                     gattFTMSService = s;
@@ -954,10 +1574,14 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
         settings.setValue(QZSettings::domyosbike_notfmts, true);
         if(homeform::singleton())
             homeform::singleton()->setToastRequested("Domyos bike presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
+    } else if(gattFTMSService == nullptr && PM5) {
+        settings.setValue(QZSettings::ftms_rower, bluetoothDevice.name());
+        if(homeform::singleton())
+            homeform::singleton()->setToastRequested("PM5 rower found. Restart QZ to apply the fix, thanks.");
     }
 
     if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
-        settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool()) {
+        (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_290R || SMB1 || FIT_BK)) {
         init();
     }
 
@@ -1001,28 +1625,79 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
 void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
 
-    if (!autoResistance() || resistance_lvl_mode) {
-        qDebug() << "ignoring routing FTMS packet to the bike from virtualbike because of auto resistance OFF or resistance lvl mode is on"
-                 << characteristic.uuid() << newValue.toHex(' ');
+    QSettings settings;
+    bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                            .toString()
+                            .startsWith(QStringLiteral("Disabled"));
+    
+    bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
+    bool isPowerCommand = (newValue.length() > 0 && (uint8_t)newValue.at(0) == FTMS_SET_TARGET_POWER);
+    
+    // FTMS routing filter logic:
+    // - Block simulation commands (0x11) when resistance_lvl_mode=true
+    // - Allow power commands (0x05) only when no external power sensor (delta power system handles external sensors)
+    bool allowPowerRouting = (!power_sensor && ergModeSupported && isPowerCommand);
+    
+    if (!autoResistance() || (resistance_lvl_mode && !allowPowerRouting) || ergModeNotSupported) {
+        // For bikes that don't support ERG natively but accept resistance levels (e.g. SpeedRaceX),
+        // intercept power commands and route through changePower() which converts power→resistance
+        if (isPowerCommand && !ergModeSupported && resistance_lvl_mode && autoResistance() && newValue.length() > 2) {
+            uint16_t power = (((uint8_t)newValue.at(1)) + (newValue.at(2) << 8));
+            qDebug() << "routing power command through changePower() for resistance_lvl_mode bike, power:" << power;
+            changePower(power);
+        } else {
+            qDebug() << "ignoring routing FTMS packet to the bike from virtualbike because of auto resistance OFF or resistance lvl mode is on or ergModeNotSupported"
+                     << characteristic.uuid() << newValue.toHex(' ') << "ergModeNotSupported:" << ergModeNotSupported
+                     << "resistance_lvl_mode:" << resistance_lvl_mode << "power_sensor:" << power_sensor << "isPowerCommand:" << isPowerCommand;
+        }
         return;
     }
 
     QByteArray b = newValue;
-    QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 
+        // D500V2 workaround: track request control (0x00) and start simulation (0x07) commands
+        // If we receive simulation params (0x11) without start simulation, inject it first
+        if (D500V2 && b.length() > 0) {
+            uint8_t commandCode = (uint8_t)b.at(0);
+
+            if (commandCode == FTMS_REQUEST_CONTROL) {
+                // Command 0x00: Request Control - expect start simulation next
+                awaiting_start_simulation_after_request_control = true;
+                qDebug() << "D500V2 workaround: received REQUEST_CONTROL (0x00), now awaiting START_RESUME (0x07)";
+            } else if (commandCode == FTMS_START_RESUME) {
+                // Command 0x07: Start Resume - no longer awaiting
+                awaiting_start_simulation_after_request_control = false;
+                qDebug() << "D500V2 workaround: received START_RESUME (0x07), ready for simulation params";
+            } else if (commandCode == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && D500V2 && awaiting_start_simulation_after_request_control) {
+                // Command 0x11: Set Simulation Params - but we're still awaiting start simulation
+                // For D500V2, inject the start simulation command (0x07) first
+                qDebug() << "D500V2 workaround: received SET_INDOOR_BIKE_SIMULATION_PARAMS (0x11) without START_RESUME, injecting 0x07 first";
+                uint8_t startSimulation[] = {FTMS_START_RESUME};
+                writeCharacteristic(startSimulation, sizeof(startSimulation), "injectWrite [D500V2 workaround: start simulation 0x07]", false, true);
+                awaiting_start_simulation_after_request_control = false;
+            }
+        }
+
         // handling gears
-        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService == nullptr) {
+        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && (zwiftPlayService == nullptr || !gears_zwift_ratio)) {
             double min_inclination = settings.value(QZSettings::min_inclination, QZSettings::default_min_inclination).toDouble();
+            double offset =
+                settings.value(QZSettings::zwift_inclination_offset, QZSettings::default_zwift_inclination_offset).toDouble();
+            double gain =
+                settings.value(QZSettings::zwift_inclination_gain, QZSettings::default_zwift_inclination_gain).toDouble();
+
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
                 lastPacketFromFTMS.append(b.at(i));
             qDebug() << "lastPacketFromFTMS" << lastPacketFromFTMS.toHex(' ');
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
+
             if (gears() != 0) {
-                slope += (gears() * 50);
+                slope += (gears() * GEARS_SLOPE_MULTIPLIER);
             }
 
             if(min_inclination > (((double)slope) / 100.0)) {
@@ -1030,50 +1705,39 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
                 qDebug() << "grade override due to min_inclination " << min_inclination;
             }
 
+            slope *= gain;
+            slope += (offset * 100);
+
             b[3] = slope & 0xFF;
-            b[4] = slope >> 8;            
+            b[4] = slope >> 8;
 
             qDebug() << "applying gears mod" << gears() << slope;
-        } else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr) {
+
+        } else if(b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && zwiftPlayService != nullptr && gears_zwift_ratio) {
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
-            
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            QByteArray message = lockscreen::zwift_hub_inclinationCommand(((double)slope) / 100.0);
-#else
-            QByteArray message;
-#endif
-#elif defined(Q_OS_ANDROID)
-            QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
-                "org/cagnulen/qdomyoszwift/ZwiftHubBike",
-                "inclinationCommand",
-                "(D)[B",
-                slope);
-
-            if(!result.isValid()) {
-                qDebug() << "inclinationCommand returned invalid value";
-                return;
-            }
-
-            jbyteArray array = result.object<jbyteArray>();
-            QAndroidJniEnvironment env;
-            jbyte* bytes = env->GetByteArrayElements(array, nullptr);
-            jsize length = env->GetArrayLength(array);
-
-            QByteArray message((char*)bytes, length);
-
-            env->ReleaseByteArrayElements(array, bytes, JNI_ABORT);
-#else
-            QByteArray message;
-            qDebug() << "implement zwift hub protobuf!";
+            sendZwiftPlayInclination(((double)slope) / 100.0);
             return;
-#endif
-            writeCharacteristicZwiftPlay((uint8_t*)message.data(), message.length(), "gearInclination", false, false);
-            return;
-        } else if(b.at(0) == FTMS_SET_TARGET_POWER && zwiftPlayService != nullptr) {
+        } else if(b.at(0) == FTMS_SET_TARGET_POWER && !ergModeSupported) {
             qDebug() << "discarding";
             return;
         } else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
+            // handling watt gain and offset for erg mode
+            double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+            double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+            double bike_power_offset = settings.value(QZSettings::bike_power_offset, QZSettings::default_bike_power_offset).toDouble();
+
+            if (watt_gain != 1.0 || watt_offset != 0 || bike_power_offset != 0) {
+                uint16_t powerRequested = (((uint8_t)b.at(1)) + (b.at(2) << 8));
+                qDebug() << "applying watt_gain/watt_offset from" << powerRequested;
+                powerRequested = ((powerRequested / watt_gain) - watt_offset + bike_power_offset);
+                qDebug() << "to" << powerRequested;
+
+                b[1] = powerRequested & 0xFF;
+                b[2] = powerRequested >> 8;
+            }
+        }
+        // gears on erg mode is quite useless and it's confusing
+        /* else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
             lastPacketFromFTMS.clear();
             for(int i=0; i<b.length(); i++)
                 lastPacketFromFTMS.append(b.at(i));
@@ -1085,17 +1749,21 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             b[1] = power & 0xFF;
             b[2] = power >> 8;
             qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << power;
-        }
+        }*/
 
         writeCharacteristic((uint8_t*)b.data(), b.length(), "injectWrite ", false, true);
     }
 }
 
 void ftmsbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+    static bool connectedAndDiscoveredOk = false;
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     initRequest = true;
-    emit connectedAndDiscovered();
+    if(!connectedAndDiscoveredOk) {
+        connectedAndDiscoveredOk = true;
+        emit connectedAndDiscovered();
+    }    
 }
 
 void ftmsbike::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -1128,10 +1796,22 @@ void ftmsbike::serviceScanDone(void) {
     bool JK_fitness_577 = bluetoothDevice.name().toUpper().startsWith("DHZ-");
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         if ((JK_fitness_577 && s == ftmsService) || !JK_fitness_577) {
-            gattCommunicationChannelService.append(m_control->createServiceObject(s));
-            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                    &ftmsbike::stateChanged);
-            gattCommunicationChannelService.constLast()->discoverDetails();
+            QLowEnergyService *service = m_control->createServiceObject(s);
+            if (!service) {
+                qWarning() << QStringLiteral("createServiceObject returned null for service") << s;
+                continue;
+            }
+
+            gattCommunicationChannelService.append(service);
+            connect(service, &QLowEnergyService::stateChanged, this, &ftmsbike::stateChanged);
+            service->discoverDetails();
+
+            // watt bikes has the 6 as default gear value
+            if(s == QBluetoothUuid(QStringLiteral("b4cc1223-bc02-4cae-adb9-1217ad2860d1")) && SS2K == false) {
+                WATTBIKE = true;
+                qDebug() << QStringLiteral("restoring gear 6 to watt bikes");
+                setGears(6);
+            }
         }
     }
 }
@@ -1163,7 +1843,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             max_resistance = 16;
         } else if ((bluetoothDevice.name().toUpper().startsWith("MAGNUS "))) {
             qDebug() << QStringLiteral("MAGNUS found");
-            resistance_lvl_mode = true;
+            MAGNUS = true;
+            resistance_lvl_mode = true;            
+            ergModeSupported = true;
         } else if ((bluetoothDevice.name().toUpper().startsWith("DU30-"))) {
             qDebug() << QStringLiteral("DU30 found");
             max_resistance = 32;
@@ -1171,17 +1853,154 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("ICSE") && bluetoothDevice.name().length() == 4)) {
             qDebug() << QStringLiteral("ICSE found");
             ICSE = true;
+            secondsToResetTimer = 15;
+            autoResistanceEnable = false;  // Disable auto resistance for ICSE bikes
+            qDebug() << QStringLiteral("ICSE: autoResistance disabled by default");
         } else if ((bluetoothDevice.name().toUpper().startsWith("DOMYOS"))) {
             qDebug() << QStringLiteral("DOMYOS found");
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            max_resistance = 32;
             DOMYOS = true;
+        } else if (bluetoothDevice.name().toUpper().startsWith("D500V2")) {
+            qDebug() << QStringLiteral("D500V2 found - enabling workaround for start simulation command");
+            D500V2 = true;           
         } else if ((bluetoothDevice.name().toUpper().startsWith("3G Cardio RB"))) {
             qDebug() << QStringLiteral("_3G_Cardio_RB found");
             _3G_Cardio_RB = true;
         } else if((bluetoothDevice.name().toUpper().startsWith("SCH_190U"))) {
             qDebug() << QStringLiteral("SCH_190U found");
             SCH_190U = true;
+            max_resistance = 100;
+        } else if((bluetoothDevice.name().toUpper().startsWith("SCH_290R"))) {
+            qDebug() << QStringLiteral("SCH_290R found");
+            SCH_290R = true;
+            max_resistance = 100;
+        } else if(bluetoothDevice.name().toUpper().startsWith("D2RIDE")) {
+            qDebug() << QStringLiteral("D2RIDE found");
+            D2RIDE = true;
+        } else if(bluetoothDevice.name().toUpper().startsWith("VFSPINBIKE")) {
+            qDebug() << QStringLiteral("VFSPINBIKE found");
+            VFSPINBIKE = true;
+        } else if(bluetoothDevice.name().toUpper().startsWith("SMARTSPIN2K")) {
+            qDebug() << QStringLiteral("SS2K found");
+            SS2K = true;
+        } else if(bluetoothDevice.name().toUpper().startsWith("DIRETO XR")) {
+            qDebug() << QStringLiteral("DIRETO XR found");
+            DIRETO_XR = true;
+        } else if(bluetoothDevice.name().toUpper().startsWith("JFBK5.0") || bluetoothDevice.name().toUpper().startsWith("JFBK7.0")) {
+            qDebug() << QStringLiteral("JFBK5.0 found");
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            JFBK5_0 = true;
+        } else if((bluetoothDevice.name().toUpper().startsWith("BIKE-"))) {
+            qDebug() << QStringLiteral("BIKE- found");
+            BIKE_ = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("SMB1"))) {
+            qDebug() << QStringLiteral("SMB1 found");
+            SMB1 = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("SPAX-BK-"))) {
+            qDebug() << QStringLiteral("SPAX-BK found");
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("LYDSTO"))) {
+            qDebug() << QStringLiteral("LYDSTO found");
+            LYDSTO = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("DMASUN-") && bluetoothDevice.name().toUpper().endsWith("-BIKE"))) {
+            qDebug() << QStringLiteral("DMASUN bike found");
+            DMASUN = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("SL010-"))) {
+            qDebug() << QStringLiteral("SL010 found");
+            SL010 = true;
+            max_resistance = 25;
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("REEBOK"))) {
+            qDebug() << QStringLiteral("REEBOK found");
+            REEBOK = true;
+            max_resistance = 32;
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("RAVE"))) {
+            qDebug() << QStringLiteral("Zipro Rave found");
+            max_resistance = 32;
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            ZIPRO_RAVE = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("TITAN 7000"))) {
+            qDebug() << QStringLiteral("Titan 7000 found");
+            TITAN_7000 = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("T2 "))) {
+            qDebug() << QStringLiteral("T2 found");
+            T2 = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith(QStringLiteral("FIT-BK-")))) {
+            qDebug() << QStringLiteral("FIT-BK found");
+            FIT_BK = true;
+            ergModeSupported = false; // this bike doesn't have ERG mode natively
+        } else if ((bluetoothDevice.name().toUpper().startsWith(QStringLiteral("EXPERT-SX9")))) {
+            qDebug() << QStringLiteral("EXPERT-SX9 found");
+            EXPERT_SX9 = true;
+            ergModeSupported = false; // this bike doesn't have ERG mode natively            
+        } else if (((bluetoothDevice.name().toUpper().startsWith("YS_G1MPLUS")))) {
+            qDebug() << QStringLiteral("YS_G1MPLUS found");
+            YS_G1MPLUS = true;
+            max_resistance = 100;
+        } else if (bluetoothDevice.name().toUpper().startsWith(QStringLiteral("PM5"))) {
+            PM5 = true;
+            qDebug() << QStringLiteral("PM5 found");
+        } else if(device.name().toUpper().startsWith(QStringLiteral("THINK X")) || device.name().toUpper().startsWith(QStringLiteral("THINK-"))) {
+            THINK_X = true;
+            qDebug() << "THINK X workaround enabled!";
+        } else if(device.name().toUpper().startsWith(QStringLiteral("WLT8828"))) {
+            qDebug() << QStringLiteral("WLT8828 found");
+            WLT8828 = true;
+            max_resistance = 32;
+            resistance_lvl_mode = true;
+            ergModeSupported = false; // this bike doesn't have ERG mode natively
+        } else if(device.name().toUpper().startsWith("VANRYSEL-HT")) {
+            qDebug() << QStringLiteral("VANRYSEL-HT found");
+            VANRYSEL_HT = true;
+        } else if(device.name().toUpper().startsWith("MRK-S26C-")) {
+            qDebug() << QStringLiteral("MRK-S26C found");
+            MRK_S26C = true;
+        } else if(device.name().toUpper().startsWith("MRK-S28-")) {
+            qDebug() << QStringLiteral("MRK-S28 found");
+            MRK_S28 = true;
+            resistance_lvl_mode = true;
+        } else if(device.name().toUpper().startsWith("HAMMER")) {
+            qDebug() << QStringLiteral("HAMMER found");
+            HAMMER = true;
+        } else if(device.name().toUpper().startsWith("YPBM") && device.name().length() == 10) {
+            qDebug() << QStringLiteral("YPBM found");
+            YPBM = true;
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            max_resistance = 32;
+        } else if(device.name().toUpper().startsWith("SPORT01")) {
+            qDebug() << QStringLiteral("SPORT01 found");
+            SPORT01 = true;
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            max_resistance = 10;
+            Resistance = 1; // Initialize resistance to 1 for SPORT01
+        } else if(device.name().toUpper().startsWith("FS-YK-")) {
+            qDebug() << QStringLiteral("FS-YK- found");
+            FS_YK = true;
+            ergModeSupported = false; // this bike doesn't have ERG mode natively
+        } else if(device.name().toUpper().startsWith("S18")) {
+            qDebug() << QStringLiteral("S18 found");
+            S18 = true;
+            max_resistance = 24;
+        } else if(device.name().toUpper().startsWith("SPEEDRACEX")) {
+            qDebug() << QStringLiteral("SpeedRaceX found");
+            SPEEDRACEX = true;
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            max_resistance = 32;
+            _ergTable.loadDefaultData(kSpeedRaceXDefaultErgData);
         }
-        
+
+
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
             resistance_lvl_mode = true;
         }
@@ -1226,8 +2045,19 @@ bool ftmsbike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
+void ftmsbike::setWheelDiameter(double diameter) {
+    uint8_t write[] = {FTMS_SET_WHEEL_CIRCUMFERENCE, 0x00, 0x00};
+
+    diameter = diameter * 10.0;
+
+    write[1] = ((uint16_t)diameter) & 0xFF;
+    write[2] = ((uint16_t)diameter) >> 8;
+
+    writeCharacteristic(write, sizeof(write), QStringLiteral("setWheelCircumference ") + QString::number(diameter));
+}
+
 uint16_t ftmsbike::watts() {
-    if (currentCadence().value() == 0) {
+    if (currentCadence().value() == 0 && !VANRYSEL_HT) {
         return 0;
     }
 
@@ -1239,22 +2069,34 @@ void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState stat
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        gearInclinationSent = false;
         m_control->connectToDevice();
     }
 }
 
 double ftmsbike::maxGears() {
-    if(zwiftPlayService != nullptr) {
+    QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+
+    if((zwiftPlayService != nullptr) && gears_zwift_ratio) {
         wheelCircumference::GearTable g;
         return g.maxGears;
+    } else if(WATTBIKE) {
+        return 22;
     } else {
         return 9999.0;
     }
 }
 
 double ftmsbike::minGears() {
-    if(zwiftPlayService != nullptr)
+    QSettings settings;
+    bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+
+    if((zwiftPlayService != nullptr) && gears_zwift_ratio ) {
         return 1;
-    else
+    } else if(WATTBIKE) {
+        return 1;
+    } else {
         return -9999.0;
+    }
 }

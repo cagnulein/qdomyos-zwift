@@ -15,7 +15,7 @@
 using namespace std::chrono_literals;
 
 trxappgateusbtreadmill::trxappgateusbtreadmill() {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     initDone = false;
@@ -41,7 +41,7 @@ void trxappgateusbtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse && (treadmill_type != TYPE::ADIDAS)) {
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse && (treadmill_type != TYPE::ADIDAS && treadmill_type != TYPE::DKN && treadmill_type != TYPE::DKN_2  && treadmill_type != TYPE::DKN_3)) {
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
                                                              QLowEnergyService::WriteWithoutResponse);
     } else {
@@ -269,6 +269,8 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             update_hr_from_external();
+        } else if (heartRateBeltName == bluetoothDevice.name()) {
+            Heart = GetHeartFromPacket(lastPacket);
         }
     }
     FanSpeed = 0;
@@ -335,6 +337,10 @@ double trxappgateusbtreadmill::GetDistanceFromPacket(const QByteArray &packet) {
     uint16_t convertedData = ((packet.at(6) - 1) * 100) + (packet.at(7) - 1);
     double data = ((double)(convertedData)) / 100.0f;
     return data;
+}
+
+uint16_t trxappgateusbtreadmill::GetHeartFromPacket(const QByteArray &packet) {
+    return ((uint16_t)((uint8_t)packet.at(10) - 1) * 100) + ((uint16_t)((uint8_t)packet.at(11)) - 1);
 }
 
 double trxappgateusbtreadmill::GetInclinationFromPacket(const QByteArray &packet) {

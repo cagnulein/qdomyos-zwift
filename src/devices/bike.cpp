@@ -3,8 +3,46 @@
 #include "qdebugfixup.h"
 #include "homeform.h"
 #include <QSettings>
+#include <cmath>
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
+
+double bike::powerZoneValueToFtpPercentage(double zoneValue) {
+    if (zoneValue <= 1.9) {
+        // Zone 1: 0-55% FTP range
+        double targetPerc = zoneValue * 0.50; // zoneValue 1.0->50%, safely within Zone 1 boundary
+        if (targetPerc > 0.55) {
+            targetPerc = 0.55;
+        }
+        return targetPerc;
+    }
+    if (zoneValue <= 2.9) {
+        // Zone 2: 56-75% FTP range
+        return 0.56 + (zoneValue - 2.0) * 0.19; // zoneValue 2.0->56%, 3.0->75%
+    }
+    if (zoneValue <= 3.9) {
+        // Zone 3: 76-90% FTP range
+        return 0.76 + (zoneValue - 3.0) * 0.14; // zoneValue 3.0->76%, 4.0->90%
+    }
+    if (zoneValue <= 4.9) {
+        // Zone 4: 91-105% FTP range
+        return 0.91 + (zoneValue - 4.0) * 0.14; // zoneValue 4.0->91%, 5.0->105%
+    }
+    if (zoneValue <= 5.9) {
+        // Zone 5: 106-120% FTP range
+        return 1.06 + (zoneValue - 5.0) * 0.14; // zoneValue 5.0->106%, 6.0->120%
+    }
+    if (zoneValue <= 6.9) {
+        // Zone 6: 121-150% FTP range
+        return 1.21 + (zoneValue - 6.0) * 0.29; // zoneValue 6.0->121%, 7.0->150%
+    }
+    // Zone 7: 151%+ FTP range
+    return 1.51 + (zoneValue - 7.0) * 0.19; // zoneValue 7.0->151%, 8.0->170%
+}
+
+int bike::powerZoneValueToWatts(double zoneValue, double ftp) {
+    return qRound(ftp * powerZoneValueToFtpPercentage(zoneValue));
+}
 
 virtualbike *bike::VirtualBike() { return dynamic_cast<virtualbike*>(this->VirtualDevice()); }
 
@@ -62,17 +100,33 @@ void bike::changePower(int32_t power) {
         return;
     }
 
-    requestPower = power; // used by some bikes that have ERG mode builtin
     QSettings settings;
+    bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                             .toString()
+                             .startsWith(QStringLiteral("Disabled"));
+    double erg_filter_upper =
+        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
+    double erg_filter_lower =
+        settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
+    
+    // Apply bike power offset
+    int bike_power_offset = settings.value(QZSettings::bike_power_offset, QZSettings::default_bike_power_offset).toInt();
+    power += bike_power_offset;
+    qDebug() << QStringLiteral("changePower: original power with offset applied: ") + QString::number(power) + QStringLiteral(" (offset: ") + QString::number(bike_power_offset) + QStringLiteral(")");
+
+    requestPower = power; // used by some bikes that have ERG mode builtin
+    
+    if(power_sensor && ergModeSupported && m_rawWatt.value() > 0 && m_watt.value() > 0 && fabs(requestPower - m_watt.average5s()) < qMax(erg_filter_upper, erg_filter_lower)) {
+        qDebug() << "applying delta watt to power request m_rawWatt" << m_rawWatt.average5s() << "watt" << m_watt.average5s() << "req" << requestPower;
+        // the concept here is to trying to add or decrease the delta from the power sensor
+        requestPower += (requestPower - m_watt.average5s());
+    }
+        
     bool force_resistance =
         settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
             .toBool();
     // bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool(); //Not used
     // anywhere in code
-    double erg_filter_upper =
-        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
-    double erg_filter_lower =
-        settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
     double deltaDown = wattsMetric().value() - ((double)power);
     double deltaUp = ((double)power) - wattsMetric().value();
     qDebug() << QStringLiteral("filter  ") + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +
@@ -96,30 +150,84 @@ double bike::gears() {
     }
     return m_gears + gears_offset;
 }
+
 void bike::setGears(double gears) {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
     double gears_offset = settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble();
     gears -= gears_offset;
     qDebug() << "setGears" << gears;
+
+    // Gear boundary handling with smart clamping logic:
+    // - If we're trying to set a gear outside valid range AND we're already at a valid gear,
+    //   reject the change (normal case: user at gear 1 tries to go to 0.5, should fail)
+    // - If we're trying to set a gear outside valid range BUT we're currently below minimum,
+    //   clamp to valid range (startup case: system starts at 0, first gearUp with 0.5 gain 
+    //   goes to 0.5, should be clamped to 1 to allow the system to reach valid state)
+    // This prevents the system from getting stuck below minGears due to fractional gains
+    // while preserving normal boundary rejection behavior for users at valid gear positions
     if(gears_zwift_ratio && (gears > 24 || gears < 1)) {
-        qDebug() << "new gear value ignored because of gears_zwift_ratio setting!";
-        return;
+        if(gears > 24) {
+            if(m_gears >= 24) {
+                qDebug() << "new gear value ignored - already at zwift ratio maximum: 24";
+                emit gearFailedUp();
+                return;
+            } else {
+                qDebug() << "gear value clamped to zwift ratio maximum: 24";
+                gears = 24;
+                emit gearFailedUp();
+            }
+        } else {
+            if(m_gears >= 1) {
+                qDebug() << "new gear value ignored - already at zwift ratio minimum: 1";
+                emit gearFailedDown();
+                return;
+            } else {
+                qDebug() << "gear value clamped to zwift ratio minimum: 1"; 
+                gears = 1;
+                emit gearFailedDown();
+            }
+        }
     }
+
     if(gears > maxGears()) {
-        qDebug() << "new gear value ignored because of maxGears" << maxGears();
-        return;
+        if(m_gears >= maxGears()) {
+            qDebug() << "new gear value ignored - already at maxGears" << maxGears();
+            emit gearFailedUp();
+            return;
+        } else {
+            qDebug() << "gear value clamped to maxGears" << maxGears();
+            gears = maxGears();
+            emit gearFailedUp();
+        }
     }
+
     if(gears < minGears()) {
-        qDebug() << "new gear value ignored because of minGears" << minGears();
-        return;
+        if(m_gears >= minGears()) {
+            qDebug() << "new gear value ignored - already at or above minGears" << minGears();
+            emit gearFailedDown();
+            return;
+        } else {
+            qDebug() << "gear value clamped to minGears" << minGears();
+            gears = minGears();
+            emit gearFailedDown();
+        }
     }
+
+    if(m_gears > gears) {
+        emit gearOkDown();
+    } else {
+        emit gearOkUp();
+    }
+
     m_gears = gears;
     if(homeform::singleton()) {
         homeform::singleton()->updateGearsValue();
     }
+
     if (settings.value(QZSettings::gears_restore_value, QZSettings::default_gears_restore_value).toBool())
         settings.setValue(QZSettings::gears_current_value, m_gears);
+
     if (lastRawRequestedResistanceValue != -1) {
         changeResistance(lastRawRequestedResistanceValue);
     }
@@ -141,7 +249,7 @@ resistance_t bike::resistanceFromPowerRequest(uint16_t power) { return power / 1
 void bike::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 void bike::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 
-bluetoothdevice::BLUETOOTH_TYPE bike::deviceType() { return bluetoothdevice::BIKE; }
+BLUETOOTH_TYPE bike::deviceType() { return BIKE; }
 
 void bike::clearStats() {
 
@@ -155,6 +263,7 @@ void bike::clearStats() {
     m_jouls.clear(true);
     elevationAcc = 0;
     m_watt.clear(false);
+    m_rawWatt.clear(false);
     WeightLoss.clear(false);
 
     RequestedPelotonResistance.clear(false);
@@ -182,6 +291,7 @@ void bike::setPaused(bool p) {
     Heart.setPaused(p);
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
+    m_rawWatt.setPaused(p);
     WeightLoss.setPaused(p);
     m_pelotonResistance.setPaused(p);
     Cadence.setPaused(p);
@@ -207,6 +317,7 @@ void bike::setLap() {
     Heart.setLap(false);
     m_jouls.setLap(true);
     m_watt.setLap(false);
+    m_rawWatt.setLap(false);
     WeightLoss.setLap(false);
     WattKg.setLap(false);
 
@@ -222,11 +333,7 @@ void bike::setLap() {
     }    
 }
 
-uint8_t bike::metrics_override_heartrate() {
-
-    QSettings settings;
-    QString setting =
-        settings.value(QZSettings::peloton_heartrate_metric, QZSettings::default_peloton_heartrate_metric).toString();
+int bike::metricValueForSetting(const QString &setting) {
     if (!setting.compare(QStringLiteral("Heart Rate"))) {
         return qRound(currentHeart().value());
     } else if (!setting.compare(QStringLiteral("Speed"))) {
@@ -306,7 +413,17 @@ uint8_t bike::metrics_override_heartrate() {
     return qRound(currentHeart().value());
 }
 
+uint8_t bike::metrics_override_heartrate() {
+
+    QSettings settings;
+    QString setting =
+        settings.value(QZSettings::peloton_heartrate_metric, QZSettings::default_peloton_heartrate_metric).toString();
+    return static_cast<uint8_t>(qBound(0, metricValueForSetting(setting), 255));
+}
+
 bool bike::inclinationAvailableByHardware() { return false; }
+
+bool bike::inclinationAvailableBySoftware() { return false; }
 
 uint16_t bike::wattFromHR(bool useSpeedAndCadence) {
     QSettings settings;
@@ -393,7 +510,136 @@ double bike::gearsZwiftRatio() {
         case 23:
             return 5.14;
         case 24:
-            return 5.49;                        
+            return 5.49;
     }
     return 1;
+}
+
+// Sim mode support: Physics-based power calculation from slope gradient
+double bike::computeSlopeTargetPower(double gradePercent, double speedKmh) {
+    QSettings settings;
+    const double riderWeight = settings.value(QZSettings::weight, QZSettings::default_weight).toDouble();
+    const double bikeWeight = settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toDouble();
+    const double rollingCoeff = settings.value(QZSettings::rolling_resistance, QZSettings::default_rolling_resistance).toDouble();
+
+    double totalMass = riderWeight + bikeWeight;
+    if (!std::isfinite(totalMass) || totalMass < 1.0) {
+        totalMass = 75.0 + 10.0; // fallback to reasonable defaults
+    }
+
+    double speedMs = speedKmh / 3.6; // convert km/h to m/s
+    if (!std::isfinite(speedMs) || speedMs < 0.0) {
+        speedMs = 0.0;
+    }
+
+    // Calculate slope angle components
+    const double slope = gradePercent / 100.0;
+    const double denom = std::sqrt(1.0 + slope * slope);
+    const double sinTheta = (denom > 0.0) ? (slope / denom) : 0.0;
+    const double cosTheta = (denom > 0.0) ? (1.0 / denom) : 1.0;
+
+    const double g = 9.80665; // m/s² - gravitational acceleration
+
+    // 1. Gravitational resistance (climbing/descending)
+    double powerGravity = totalMass * g * speedMs * sinTheta;
+
+    // 2. Rolling resistance
+    double powerRolling = totalMass * g * rollingCoeff * speedMs * cosTheta;
+
+    // 3. Aerodynamic resistance
+    const double airDensity = 1.204;      // kg/m³ at 20°C
+    const double dragCoefficient = 0.4;   // Cd - typical cycling position
+    const double frontalArea = 1.0;       // m² - approximate frontal area
+    double cda = dragCoefficient * frontalArea;
+    double powerAerodynamic = 0.5 * airDensity * cda * std::pow(std::max(0.0, speedMs), 3);
+
+    // Total power required
+    double totalPower = powerGravity + powerRolling + powerAerodynamic;
+    if (!std::isfinite(totalPower)) {
+        totalPower = 0.0;
+    }
+    if (totalPower < 0.0) {
+        totalPower = 0.0;
+    }
+
+    qDebug() << "computeSlopeTargetPower grade%:" << gradePercent
+             << "speedKmh:" << speedKmh
+             << "powerGravity:" << powerGravity
+             << "powerRolling:" << powerRolling
+             << "powerAero:" << powerAerodynamic
+             << "total:" << totalPower;
+
+    return totalPower;
+}
+
+// Helper: get current speed for slope calculations with fallback to cadence-based estimation
+double bike::getCurrentSpeedForSlope() {
+    double speedKmh = Speed.value();
+    if (!std::isfinite(speedKmh) || speedKmh < 0.0) {
+        speedKmh = 0.0;
+    }
+
+    // If speed is very low, estimate from cadence
+    if (speedKmh < 5.0) {
+        double cadence = Cadence.value();
+        if (std::isfinite(cadence) && cadence > 0.0) {
+            // Rough approximation: 90 RPM ≈ 27 km/h
+            speedKmh = std::max(0.5, cadence * 0.3);
+        }
+    }
+
+    return speedKmh;
+}
+
+// Update power target based on current slope and speed
+void bike::updateSlopeTargetPower(bool force) {
+    qDebug() << "updateSlopeTargetPower called - force:" << force
+             << "autoRes:" << autoResistance()
+             << "slopeEnabled:" << m_slopeControlEnabled
+             << "currentGrade:" << m_currentSlopePercent;
+
+    if (!autoResistance()) {
+        qDebug() << "updateSlopeTargetPower skipped: auto resistance disabled";
+        return;
+    }
+
+    if (!m_slopeControlEnabled && !force) {
+        qDebug() << "updateSlopeTargetPower skipped: slope control inactive";
+        return;
+    }
+
+    // Apply gear offset to grade (0.5 scaling factor)
+    double grade = m_currentSlopePercent + (gears() / 2.0);
+
+    // Get current speed (with fallback to cadence-based estimation)
+    double speedKmh = getCurrentSpeedForSlope();
+
+    // Compute required power using physics model
+    double targetPower = computeSlopeTargetPower(grade, speedKmh);
+    int powerValue = static_cast<int>(std::round(targetPower));
+    powerValue = qBound(0, powerValue, 2000);
+
+    // Hysteresis: avoid too frequent changes
+    if (!force) {
+        if (!m_slopePowerTimer.isValid()) {
+            m_slopePowerTimer.start();
+        }
+        if (m_slopePowerTimer.elapsed() < 500 &&
+            m_lastSlopeTargetPower >= 0 &&
+            std::abs(powerValue - m_lastSlopeTargetPower) < 3) {
+            qDebug() << "updateSlopeTargetPower skipped: within hysteresis"
+                     << powerValue << "vs" << m_lastSlopeTargetPower;
+            return;
+        }
+    }
+
+    // Apply power change
+    m_lastSlopeTargetPower = powerValue;
+    m_slopePowerTimer.restart();
+    m_slopePowerChangeInProgress = true;
+
+    qDebug() << "updateSlopeTargetPower -> changePower:" << powerValue;
+    changePower(powerValue);
+
+    m_slopePowerChangeInProgress = false;
 }

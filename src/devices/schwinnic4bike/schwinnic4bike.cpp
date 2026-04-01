@@ -10,6 +10,7 @@
 
 #include <QThread>
 #include <math.h>
+#include <limits>
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
@@ -20,7 +21,7 @@
 using namespace std::chrono_literals;
 
 schwinnic4bike::schwinnic4bike(bool noWriteResistance, bool noHeartService) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -272,8 +273,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (Flags.heartRate) {
 
             heart = ((double)(((uint8_t)newValue.at(index))));
-            // index += 1; //NOTE: clang-analyzer-deadcode..DeadStores
-            emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
+            // index += 1; //NOTE: clang-analyzer-deadcode..DeadStores            
         }
     }
 
@@ -350,12 +350,16 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         emit resistanceRead(Resistance.value());
     } else {
         Resistance = ResistanceFromFTMSAccessory.value();
+        m_pelotonResistance = bikeResistanceToPeloton(ResistanceFromFTMSAccessory.value());
     }
 
     lastRefreshCharacteristicChanged = now;
 
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-        if (heart == 0.0) {
+        if (heart == 0.0 || disable_hr_frommachinery) {
             update_hr_from_external();
         } else {
             Heart = heart;
@@ -369,12 +373,13 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
 
-        h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+                h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
     }
 #endif
 #endif
 
+    emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
     emit debug(QStringLiteral("Current Peloton Resistance: ") + QString::number(m_pelotonResistance.value()));
     emit debug(QStringLiteral("Current Calculated Resistance: ") + QString::number(Resistance.value()));
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
@@ -626,6 +631,21 @@ uint16_t schwinnic4bike::wattsFromResistance(double resistance) {
 void schwinnic4bike::resistanceFromFTMSAccessory(resistance_t res) {
     ResistanceFromFTMSAccessory = res;
     qDebug() << QStringLiteral("resistanceFromFTMSAccessory") << res;
+}
+
+double schwinnic4bike::bikeResistanceToPeloton(double bikeResistance) {
+    // brute-force inverse of pelotonToBikeResistance with current settings
+    double bestPeloton = 0;
+    double bestDiff = std::numeric_limits<double>::max();
+    for (int peloton = 0; peloton <= 100; peloton++) {
+        resistance_t converted = pelotonToBikeResistance(peloton);
+        double diff = qFabs((double)converted - bikeResistance);
+        if (diff < bestDiff) {
+            bestDiff = diff;
+            bestPeloton = peloton;
+        }
+    }
+    return bestPeloton;
 }
 
 /*

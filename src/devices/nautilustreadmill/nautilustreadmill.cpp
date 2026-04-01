@@ -21,7 +21,7 @@ nautilustreadmill::nautilustreadmill(uint32_t pollDeviceTime, bool noConsole, bo
 #ifdef Q_OS_IOS
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
     this->noHeartService = noHeartService;
@@ -347,7 +347,12 @@ void nautilustreadmill::serviceScanDone(void) {
 
             gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
             if (!gattCommunicationChannelService) {
-                return;
+                _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("4b2387a0-be8e-11e3-8039-0002a5d5c51b"));
+
+                gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+                if (!gattCommunicationChannelService) {
+                    return;
+                }
             }
         }
     }

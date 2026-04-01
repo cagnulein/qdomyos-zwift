@@ -171,6 +171,12 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
         ->configureSettingsWith(QZSettings::csafe_rower, "COMX", "");
 
+    // CSafe Elliptical
+    RegisterNewDeviceTestData(DeviceIndex::CSafeElliptical)
+        ->expectDevice<csafeelliptical>()
+        ->acceptDeviceName("", DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith(QZSettings::csafe_elliptical_port, "COMX", "");
+
     cscBikeName = "CyclingSpeedCadenceBike-";
     RegisterNewDeviceTestData(DeviceIndex::CSCBike)
         ->expectDevice<cscbike>()
@@ -212,10 +218,15 @@ void DeviceTestDataIndex::Initialize() {
                 }
             });
 
+    // Cyclops Phantom Bike
+    RegisterNewDeviceTestData(DeviceIndex::CyclopsPhantomBike)
+        ->expectDevice<cycleopsphantombike>()
+        ->acceptDeviceName("INDOORCYCLE", DeviceNameComparison::StartsWithIgnoreCase);
+
     // DeerRun Treadmill
     RegisterNewDeviceTestData(DeviceIndex::DeerRunTreadmill)
         ->expectDevice<deerruntreadmill>()
-        ->acceptDeviceName("PITPAT", DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceName("PITPAT-T", DeviceNameComparison::StartsWithIgnoreCase);
 
     // Domyos bike
     RegisterNewDeviceTestData(DeviceIndex::DomyosBike)
@@ -539,6 +550,9 @@ void DeviceTestDataIndex::Initialize() {
         "D2RIDE",
         "DIRETO X",
         "MERACH-667-",
+        "MRK-S26S-",
+        "MRK-S26C-",
+        "MRK-S28-",
         "SMB1",
         "UBIKE FTMS",
         "INRIDE"
@@ -552,6 +566,7 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("DBF", DeviceNameComparison::StartsWithIgnoreCase, 6) // DBF135
         ->acceptDeviceName("KSU", DeviceNameComparison::StartsWithIgnoreCase, 7) // KSU1102
         ->acceptDeviceName("VOLT", DeviceNameComparison::StartsWithIgnoreCase, 4)
+        ->acceptDeviceName("XQ0201118141", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceName("F","ARROW",DeviceNameComparison::IgnoreCase) // FI9110 Arrow, https://www.fitnessdigital.it/bicicletta-smart-bike-ion-fitness-arrow-connect/p/10022863/ IO Fitness Arrow
         ->acceptDeviceName("ICSE", DeviceNameComparison::StartsWithIgnoreCase, 4)
         ->acceptDeviceName("FLX", DeviceNameComparison::StartsWithIgnoreCase, 10)
@@ -566,6 +581,9 @@ void DeviceTestDataIndex::Initialize() {
         ->rejectDeviceName("DT-0123456789", DeviceNameComparison::IgnoreCase) // too short for Sole SB700
         ->rejectDeviceName("DBF13", DeviceNameComparison::IgnoreCase) // too short for DBF135
         ->rejectDeviceName("DBF1355", DeviceNameComparison::IgnoreCase) // too long for DBF135
+        ->rejectDeviceName("XQ020111814", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("XQ02ABC18141", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("XQ02011181411", DeviceNameComparison::IgnoreCase)
 
         ->excluding(ftmsBikeConfigureExclusions);
 
@@ -917,6 +935,10 @@ void DeviceTestDataIndex::Initialize() {
             }
         });
 
+    // Pitpat Bike
+    RegisterNewDeviceTestData(DeviceIndex::PitpatBike)
+        ->expectDevice<pitpatbike>()
+        ->acceptDeviceName("PITPAT-S", DeviceNameComparison::StartsWithIgnoreCase);
 
     // Proform Bike
     RegisterNewDeviceTestData(DeviceIndex::ProformBike)
@@ -1260,7 +1282,7 @@ void DeviceTestDataIndex::Initialize() {
     // Toorx AppGate USB Bike
     RegisterNewDeviceTestData(DeviceIndex::ToorxAppGateUSBBike)
         ->expectDevice<trxappgateusbbike>()        
-        ->acceptDeviceNames({"TUN ","PASYOU-"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"TUN ","PASYOU-","IBIKING+",}, DeviceNameComparison::StartsWithIgnoreCase)
         ->configureSettingsWith(
             [](const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations) -> void
             {
@@ -1286,7 +1308,6 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("TOORX", DeviceNameComparison::StartsWith)
         ->acceptDeviceNames({"I-CONSOIE+",
                              "I-CONSOLE+",
-                             "IBIKING+",
                              "ICONSOLE+",
                              "VIFHTR2.1",
                              "REEBOK",
@@ -1498,5 +1519,3 @@ void DeviceTestDataIndex::Initialize() {
 
     }
 }
-
-

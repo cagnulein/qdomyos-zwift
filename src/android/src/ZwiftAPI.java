@@ -17,7 +17,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.os.Looper;
 import android.os.Handler;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import com.garmin.android.connectiq.ConnectIQ;
 import com.garmin.android.connectiq.ConnectIQAdbStrategy;
 import com.garmin.android.connectiq.IQApp;
@@ -49,17 +49,17 @@ public class ZwiftAPI {
             // Ora puoi usare 'message' come un oggetto normale
         } catch (InvalidProtocolBufferException e) {
             // Gestisci l'eccezione se il messaggio non può essere parsato
-            Log.e(TAG, e.toString());
+            QLog.e(TAG, e.toString());
         }
     }
 
     public static float getAltitude() {
-        Log.d(TAG, "getAltitude " + playerState.getAltitude());
+        QLog.d(TAG, "getAltitude " + playerState.getAltitude());
         return playerState.getAltitude();
     }
 
     public static float getDistance() {
-        Log.d(TAG, "getDistance " + playerState.getDistance());
+        QLog.d(TAG, "getDistance " + playerState.getDistance());
         return playerState.getDistance();
     }
 }

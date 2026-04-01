@@ -82,7 +82,7 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
         for (uint32_t i = 0; i < repeat; i++) {
             trainrow row;
             if (!durationAsDistance(sportType, durationType))
-                row.duration = QTime(OnDuration / 3600, OnDuration / 60, OnDuration % 60, 0);
+                row.duration = QTime(OnDuration / 3600, (OnDuration % 3600) / 60, OnDuration % 60, 0);
             else
                 row.distance = OnDuration / 1000.0;
             if (sportType.toLower().contains(QStringLiteral("run"))) {
@@ -96,7 +96,7 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
             }
             list.append(row);
             if (!durationAsDistance(sportType, durationType))
-                row.duration = QTime(OffDuration / 3600, OffDuration / 60, OffDuration % 60, 0);
+                row.duration = QTime(OffDuration / 3600, (OffDuration % 3600) / 60, OffDuration % 60, 0);
             else
                 row.distance = OffDuration / 1000.0;
             if (sportType.toLower().contains(QStringLiteral("run"))) {
@@ -129,26 +129,45 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
         if (sportType.toLower().contains(QStringLiteral("run")) && !durationAsDistance(sportType, durationType)) {
             double speed = speedFromPace(Pace);
             int speedDelta = qAbs(qCeil((((60.0 / speed) * 60.0) * (PowerHigh - PowerLow)) * 10)) + 1;
+
+            // Ensure we don't divide by zero
+            speedDelta = qMax(1, speedDelta);
+
+            // Calculate base duration step and remaining seconds
             int durationStep = Duration / speedDelta;
-            int spareSeconds = Duration - (durationStep * speedDelta);
-            int spareSum = 0;
+            int remainingSeconds = Duration % speedDelta;
+
+            int totalElapsed = 0;
+
             for (int i = 0; i < speedDelta; i++) {
                 trainrow row;
-                int spare = 0;
-                if (spareSeconds)
-                    spare = (i % spareSeconds == 0 && i > 0) ? 1 : 0;
-                spareSum += spare;
-                row.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
-                row.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
-                row.rampDuration = QTime(0, 0, 0, 0).addSecs(Duration - (durationStep * i) - spareSum);
+
+                // Distribute remaining seconds evenly across iterations
+                int extraSecond = (i < remainingSeconds) ? 1 : 0;
+                int currentStepDuration = durationStep + extraSecond;
+
+                // Set row duration
+                row.duration = QTime(0, 0, 0, 0).addSecs(currentStepDuration);
+                row.rampElapsed = QTime(0, 0, 0, 0).addSecs(totalElapsed);
+                row.rampDuration = QTime(0, 0, 0, 0).addSecs(Duration - totalElapsed);
+
+                // Update total elapsed time
+                totalElapsed += currentStepDuration;
+
                 row.forcespeed = 1;
+
+                // Calculate speed based on tag type
                 if (!qstricmp(tag, "Ramp") || !qstricmp(tag, "Warmup")) {
                     row.speed = (double)qFloor(((((60.0 / speed) * 60.0) * (PowerLow)) + (0.1 * i)) * 10.0) / 10.0;
                 } else {
                     row.speed = (double)qFloor(((((60.0 / speed) * 60.0) * (PowerLow)) - (0.1 * i)) * 10.0) / 10.0;
                 }
-                if(Incline != -100)
+
+                // Set inclination if provided
+                if (Incline != -100) {
                     row.inclination = Incline * 100;
+                }
+
                 qDebug() << "TrainRow" << row.toString();
                 list.append(row);
             }
@@ -158,8 +177,8 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
                 trainrow row;
                 if (!durationAsDistance(sportType, durationType)) {
                     row.duration = QTime(0, 0, 1, 0);
-                    row.rampDuration = QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
-                    row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
+                    row.rampDuration = QTime((Duration - i) / 3600, ((Duration - i) % 3600) / 60, (Duration - i) % 60, 0);
+                    row.rampElapsed = QTime(i / 3600, (i % 3600) / 60, i % 60, 0);
                 } else {
                     row.distance = 0.001;
                 }
@@ -197,7 +216,7 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
 
         trainrow row;
         if (!durationAsDistance(sportType, durationType))
-            row.duration = QTime(Duration / 3600, Duration / 60, Duration % 60, 0);
+            row.duration = QTime(Duration / 3600, (Duration % 3600) / 60, Duration % 60, 0);
         else
             row.distance = ((double)Duration) / 1000.0;
         qDebug() << "TrainRow" << row.toString();
@@ -231,7 +250,7 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
         }
 
         if (!durationAsDistance(sportType, durationType))
-            row.duration = QTime(Duration / 3600, Duration / 60, Duration % 60, 0);
+            row.duration = QTime(Duration / 3600, (Duration % 3600) / 60, Duration % 60, 0);
         else
             row.distance = Duration / 1000.0;
 
@@ -364,12 +383,17 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
     QList<trainrow> list;
     QXmlStreamReader stream(input);
     double thresholdSecPerKm = 0;
+    double localFtpOverride = -1.0;
     QString sportType = QStringLiteral("");
     QString durationType = QStringLiteral("");
     if (description != nullptr)
         description->clear();
     if (tags != nullptr)
         tags->clear();
+
+    // Storage for text events to associate with current workout segment
+    QList<trainrow::TextEvent> pendingTextEvents;
+    int currentSegmentStartIndex = -1;
 
     while (!stream.atEnd()) {
         stream.readNext();
@@ -390,10 +414,34 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
             if (atts.hasAttribute(QStringLiteral("name"))) {
                 tags->append("#" + atts.value(QStringLiteral("name")).toString() + " ");
             }
+        } else if (name.toLower().contains(QStringLiteral("textevent"))) {
+            // Parse text event
+            if (atts.hasAttribute(QStringLiteral("timeoffset")) && atts.hasAttribute(QStringLiteral("message"))) {
+                trainrow::TextEvent evt;
+                evt.timeoffset = atts.value(QStringLiteral("timeoffset")).toUInt();
+                evt.message = atts.value(QStringLiteral("message")).toString();
+                pendingTextEvents.append(evt);
+                qDebug() << "Found textevent: timeoffset=" << evt.timeoffset << " message=" << evt.message;
+            }
         } else if (name.toLower().contains(QStringLiteral("durationtype")) && durationType.length() == 0) {
             stream.readNext();
             durationType = stream.text().toString();
+        } else if (name.toLower().contains(QStringLiteral("ftpoverride")) && localFtpOverride < 0) {
+            stream.readNext();
+            double val = stream.text().toDouble();
+            if (val > 0)
+                localFtpOverride = val;
         } else if (!atts.isEmpty()) {
+            // Apply pending text events to previous segment before starting new one
+            if (currentSegmentStartIndex >= 0 && currentSegmentStartIndex < list.length() && !pendingTextEvents.isEmpty()) {
+                list[currentSegmentStartIndex].textEvents = pendingTextEvents;
+                qDebug() << "Applied" << pendingTextEvents.length() << "text events to trainrow at index" << currentSegmentStartIndex;
+            }
+
+            // Mark start of new segment and clear pending text events
+            currentSegmentStartIndex = list.length();
+            pendingTextEvents.clear();
+
             if (name.contains(QStringLiteral("IntervalsT"))) {
                 uint32_t repeat = 1;
                 uint32_t OnDuration = 1;
@@ -504,5 +552,25 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
             }
         }
     }
+
+    // Apply any remaining text events to the last segment
+    if (currentSegmentStartIndex >= 0 && currentSegmentStartIndex < list.length() && !pendingTextEvents.isEmpty()) {
+        list[currentSegmentStartIndex].textEvents = pendingTextEvents;
+        qDebug() << "Applied" << pendingTextEvents.length() << "text events to final trainrow at index" << currentSegmentStartIndex;
+    }
+
+    // Apply ftpOverride: scale power values relative to the FTP used during convertTag()
+    if (localFtpOverride > 0) {
+        double originalFtp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+        qDebug() << "ftpOverride" << localFtpOverride << "originalFtp" << originalFtp;
+        if (originalFtp > 0) {
+            double scale = localFtpOverride / originalFtp;
+            for (trainrow &row : list) {
+                if (row.power > 0)
+                    row.power *= scale;
+            }
+        }
+    }
+
     return list;
 }

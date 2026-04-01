@@ -2,7 +2,7 @@
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
-#include "virtualdevices/virtualtreadmill.h".h"
+#include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QEventLoop>
@@ -16,7 +16,7 @@ using namespace std::chrono_literals;
 
 sportstechelliptical::sportstechelliptical(bool noWriteResistance, bool noHeartService, int8_t ellipticalResistanceOffset,
                                double ellipticalResistanceGain) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;

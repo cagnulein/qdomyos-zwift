@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.content.IntentFilter;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.app.Service;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -35,7 +35,7 @@ public class Shortcuts {
 
             List<ShortcutInfo> shortcuts = new ArrayList<>();
 
-            Log.d("Shortcuts", folder);
+            QLog.d("Shortcuts", folder);
             File[] files = new File(folder, "profiles").listFiles();
             if (files != null) {
                 for (int i = 0; i < files.length && i < 5; i++) { // Limit to 5 shortcuts
@@ -45,7 +45,7 @@ public class Shortcuts {
                     if (dotIndex > 0) { // Check if there is a dot, indicating an extension exists
                         fileNameWithoutExtension = fileNameWithoutExtension.substring(0, dotIndex);
                     }
-                    Log.d("Shortcuts", file.getAbsolutePath());
+                    QLog.d("Shortcuts", file.getAbsolutePath());
                     Intent intent = new Intent(context, context.getClass());
                     intent.setAction(Intent.ACTION_VIEW);
                     intent.putExtra("profile_path", file.getAbsolutePath());
@@ -74,7 +74,7 @@ public class Shortcuts {
             for (String key : extras.keySet()) {
                 Object value = extras.get(key);
                 if("profile_path".equals(key)) {
-                    Log.d("Shortcuts", "profile_path: " + value.toString());
+                    QLog.d("Shortcuts", "profile_path: " + value.toString());
                     return value.toString();
                 }
             }
@@ -88,7 +88,7 @@ public class Shortcuts {
         if (extras != null) {
             for (String key : extras.keySet()) {
                 Object value = extras.get(key);
-                Log.d("Shortcuts", "Key: " + key + ", Value: " + value.toString());
+                QLog.d("Shortcuts", "Key: " + key + ", Value: " + value.toString());
             }
         }
     }

@@ -58,10 +58,13 @@ class horizontreadmill : public treadmill {
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
+    QLowEnergyCharacteristic gattWriteCharControlPointIdYpooMiniPro;
     QLowEnergyService *gattFTMSService = nullptr;
     QLowEnergyCharacteristic gattWriteCharCustomService;
     QLowEnergyService *gattCustomService = nullptr;
     volatile int notificationSubscribed = 0;
+
+    static inline const QBluetoothUuid DomyosServiceId{QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455")};
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -90,17 +93,37 @@ class horizontreadmill : public treadmill {
     bool kettler_treadmill = false;
     bool wellfit_treadmill = false;
     bool sole_tt8_treadmill = false;
+    bool sole_s77_treadmill = false;
     bool anplus_treadmill = false;
     bool tunturi_t60_treadmill = false;
     bool trx3500_treadmill = false;
     bool sole_f85_treadmill = false;
     bool sole_f89_treadmill = false;
     bool schwinn_810_treadmill = false;
+    bool yesoul_treadmill = false;
     bool technogymrun = false;
     bool disableAutoPause = false;
     bool HORIZON_78AT_treadmill = false;
     bool ICONCEPT_FTMS_treadmill = false;
+    bool iconcept_ftms_treadmill_inclination_table = false;
     bool DOMYOS = false;
+    bool domyos_treadmill_ts100 = false;
+    bool SW_TREADMILL = false;
+    bool BOWFLEX_T9 = false;
+    bool YPOO_MINI_PRO = false;
+    bool MX_TM = false;
+    bool FIT = false;
+    bool FIT_TM = false;
+    bool T3G_PRO = false;
+    bool T3G_ELITE = false;
+    bool TP1 = false;
+    bool T01 = false;
+    bool TM4800 = false;
+    bool TM4500 = false;
+    bool TM6500 = false;
+    bool WT_TREADMILL = false;
+    bool THERUN_T15 = false;
+    bool MERACH_TREADMILL = false;
 
     void testProfileCRC();
     void updateProfileCRC();
@@ -197,6 +220,7 @@ class horizontreadmill : public treadmill {
     void errorService(QLowEnergyService::ServiceError);
 
     void changeInclinationRequested(double grade, double percentage);
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };
 
 #endif // HORIZONTREADMILL_H

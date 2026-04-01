@@ -57,6 +57,8 @@ class cscbike : public bike {
     uint8_t firstStateChanged = 0;
     bool charNotified = false;
 
+    uint8_t battery_level = 0;
+
     bool initDone = false;
     bool initRequest = false;
 

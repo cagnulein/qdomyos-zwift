@@ -42,6 +42,7 @@ class ypooelliptical : public elliptical {
     bool connected() override;
     double minStepInclination() override;
     bool inclinationSeparatedFromResistance() override;
+    bool inclinationAvailableByHardware() override;
 
   private:
     void writeCharacteristic(QLowEnergyCharacteristic* characteristic, QLowEnergyService *service, uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -50,6 +51,7 @@ class ypooelliptical : public elliptical {
     uint16_t watts();
     void forceResistance(resistance_t requestResistance);
     void forceInclination(double inclination);
+    void evaluateStepCount();
 
     QTimer *refresh;
 
@@ -63,11 +65,15 @@ class ypooelliptical : public elliptical {
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
+    QDateTime lastStrideCountChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
+    uint16_t lastStrideCount = 0;
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     const uint8_t max_resistance = 72; // 24;
     const uint8_t default_resistance = 6;
+    metric instantCadence;
 
     bool initDone = false;
     bool initRequest = false;
@@ -77,8 +83,19 @@ class ypooelliptical : public elliptical {
 
     uint8_t counterPoll = 0;
     bool SCH_590E = false;
+    bool SCH_411_510E = false;
     bool E35 = false;
     bool KETTLER = false;
+    bool CARDIOPOWER_EEGO = false;
+    bool MYELLIPTICAL = false;
+    bool SKANDIKA = false;
+    bool DOMYOS = false;
+    bool FEIER = false;
+    bool MX_AS = false;
+    bool TRUE_ELLIPTICAL = false;
+    bool FTMS = false;
+    bool SOLE_E25 = false;
+    bool GYMSTICK_GX60 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

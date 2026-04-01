@@ -1,3 +1,4 @@
+#include "homeform.h"
 #include "wahookickrheadwind.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -279,6 +280,10 @@ void wahookickrheadwind::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QSettings settings;
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
+
+    if(homeform::singleton())
+        homeform::singleton()->setToastRequested(device.name() + QStringLiteral(" connected!"));
+
     {
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
