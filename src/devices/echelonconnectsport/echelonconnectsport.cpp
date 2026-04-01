@@ -676,6 +676,15 @@ void echelonconnectsport::proxyVirtualBikeCommand(const QByteArray &value) {
         return;
     }
 
+    // On the real-bike passthrough path the app's unlock handshake is proxied to the bike, but the
+    // corresponding A5 reply is not guaranteed to surface back as a bike notification. Mark the
+    // unlock flow as seen so the popup can still appear once cadence starts flowing.
+    if (!unlockResponseReceived && value.size() > 1 && static_cast<uint8_t>(value.at(0)) == 0xf0 &&
+        static_cast<uint8_t>(value.at(1)) != 0xa0) {
+        unlockResponseReceived = true;
+        maybePromptForClassicBridge();
+    }
+
     writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(value.constData())), value.size(),
                         QStringLiteral("virtual echelon proxy"));
 }
