@@ -773,12 +773,6 @@ void domyosbike::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
     qDebug() << QStringLiteral("domyosbike::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                     m_control->errorString();
-
-    writeTimeoutTimer->stop();
-    writeQueue.clear();
-    isWriting = false;
-
-    m_control->disconnectFromDevice();
 }
 
 void domyosbike::error(QLowEnergyController::Error err) {
@@ -943,6 +937,10 @@ void domyosbike::controllerStateChanged(QLowEnergyController::ControllerState st
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        writeTimeoutTimer->stop();
+        writeQueue.clear();
+        isWriting = false;
+        gattCommunicationChannelService = nullptr;
         m_control->connectToDevice();
     }
 }
