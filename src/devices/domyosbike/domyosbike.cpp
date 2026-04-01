@@ -30,46 +30,78 @@ domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testRes
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &domyosbike::update);
     refresh->start(300ms);
+
+    writeTimeoutTimer = new QTimer(this);
+    writeTimeoutTimer->setSingleShot(true);
+    connect(writeTimeoutTimer, &QTimer::timeout, this, [this]() {
+        qDebug() << QStringLiteral("writeCharacteristic timeout - processing next in queue");
+        isWriting = false;
+        currentWriteWaitingForResponse = false;
+        processWriteQueue();
+    });
+
+    connect(this, &domyosbike::packetReceived, this, [this]() {
+        if (currentWriteWaitingForResponse && isWriting) {
+            writeTimeoutTimer->stop();
+            isWriting = false;
+            currentWriteWaitingForResponse = false;
+            processWriteQueue();
+        }
+    });
 }
 
 domyosbike::~domyosbike() { qDebug() << QStringLiteral("~domyosbike()"); }
 
 void domyosbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                      bool wait_for_response) {
-    QEventLoop loop;
-    QTimer timeout;
+    WriteRequest request;
+    request.data = QByteArray((const char *)data, data_len);
+    request.info = info;
+    request.disable_log = disable_log;
+    request.wait_for_response = wait_for_response;
 
-    if (wait_for_response) {
-        connect(this, &domyosbike::packetReceived, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-    } else {
-        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-    }
+    writeQueue.enqueue(request);
+    processWriteQueue();
+}
 
-    if (gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
-        m_control->state() == QLowEnergyController::UnconnectedState) {
-        qDebug() << QStringLiteral("writeCharacteristic error because the connection is closed");
+void domyosbike::processWriteQueue() {
+    if (isWriting || writeQueue.isEmpty()) {
         return;
     }
+
+    if (!gattCommunicationChannelService ||
+        gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
+        m_control->state() == QLowEnergyController::UnconnectedState) {
+        qDebug() << QStringLiteral("writeCharacteristic error because the connection is closed");
+        writeQueue.clear();
+        isWriting = false;
+        return;
+    }
+
+    if (!gattWriteCharacteristic.isValid()) {
+        qDebug() << QStringLiteral("gattWriteCharacteristic is invalid");
+        writeQueue.clear();
+        isWriting = false;
+        return;
+    }
+
+    WriteRequest request = writeQueue.dequeue();
+    isWriting = true;
+    currentWriteWaitingForResponse = request.wait_for_response;
 
     if (writeBuffer) {
         delete writeBuffer;
     }
-    writeBuffer = new QByteArray((const char *)data, data_len);
+    writeBuffer = new QByteArray(request.data);
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
-    if (!disable_log) {
+    if (!request.disable_log) {
         qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
-                        QStringLiteral(" // ") + info;
+                        QStringLiteral(" // ") + request.info;
     }
 
-    loop.exec();
-
-    if (timeout.isActive() == false) {
-        qDebug() << QStringLiteral(" exit for timeout");
-    }
+    writeTimeoutTimer->start(300);
 }
 
 void domyosbike::updateDisplay(uint16_t elapsed) {
@@ -664,6 +696,12 @@ void domyosbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const
 void domyosbike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     qDebug() << QStringLiteral("characteristicWritten ") + newValue.toHex(' ');
+
+    if (!currentWriteWaitingForResponse) {
+        writeTimeoutTimer->stop();
+        isWriting = false;
+        processWriteQueue();
+    }
 }
 
 void domyosbike::serviceScanDone(void) {
@@ -696,6 +734,10 @@ void domyosbike::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
     qDebug() << QStringLiteral("domyosbike::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                     m_control->errorString();
+
+    writeTimeoutTimer->stop();
+    writeQueue.clear();
+    isWriting = false;
 
     m_control->disconnectFromDevice();
 }
