@@ -360,6 +360,7 @@ const QString QZSettings::log_debug = QStringLiteral("log_debug");
 const QString QZSettings::virtual_device_onlyheart = QStringLiteral("virtual_device_onlyheart");
 const QString QZSettings::virtual_device_echelon = QStringLiteral("virtual_device_echelon");
 const QString QZSettings::virtual_device_ifit = QStringLiteral("virtual_device_ifit");
+const QString QZSettings::virtual_device_yesoul = QStringLiteral("virtual_device_yesoul");
 const QString QZSettings::virtual_device_rower = QStringLiteral("virtual_device_rower");
 const QString QZSettings::virtual_device_rower_pm5 = QStringLiteral("virtual_device_rower_pm5");
 const QString QZSettings::virtual_device_force_bike = QStringLiteral("virtual_device_force_bike");
@@ -1074,7 +1075,7 @@ const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
 
 
-const uint32_t allSettingsCount = 873;
+const uint32_t allSettingsCount = 874;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1368,6 +1369,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart},
     {QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon},
     {QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit},
+    {QZSettings::virtual_device_yesoul, QZSettings::default_virtual_device_yesoul},
     {QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower},
     {QZSettings::virtual_device_rower_pm5, QZSettings::default_virtual_device_rower_pm5},
     {QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike},

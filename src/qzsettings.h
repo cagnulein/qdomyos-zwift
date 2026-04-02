@@ -1067,6 +1067,11 @@ class QZSettings {
     static const QString virtual_device_ifit;
     static constexpr bool default_virtual_device_ifit = false;
     /**
+     *@brief Enables a virtual bluetooth bridge to the Yesoul App.
+     */
+    static const QString virtual_device_yesoul;
+    static constexpr bool default_virtual_device_yesoul = false;
+    /**
      *@brief Instructs QZ to send a rower Bluetooth profile instead of a bike profile to third party apps that support
      *rowing (examples: Kinomap and BitGym). This should be off for Zwift.
      */

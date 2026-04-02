@@ -304,7 +304,7 @@ import Qt.labs.platform 1.1
             property bool log_debug: false
             property bool virtual_device_onlyheart: false
             property bool virtual_device_echelon: false
-            property bool virtual_device_ifit: false
+            property bool virtual_device_ifit: false            
             property bool virtual_device_rower: false
             property bool virtual_device_force_bike: false
             property bool volume_change_gears: false
@@ -1297,6 +1297,8 @@ import Qt.labs.platform 1.1
             property string ios_live_activity_compact_leading_metric: "Heart Rate"
             property string ios_live_activity_compact_trailing_metric: "Watt"
             property bool nordictrack_treadmill_commercial_le: false
+            
+            property bool virtual_device_yesoul: false
         }
 
 
@@ -13720,6 +13722,34 @@ import Qt.labs.platform 1.1
 
                                     Label {
                                         text: qsTr("Enables a virtual Bluetooth bridge to the iFit App. This setting requires that at least one device be Android. For example, this setting does NOT work with QZ on iOS and iFit to iOS, but DOES work with QZ on iOS and iFit to Android. On Android remember to rename your device into I_EL into the android settings and reboot your device.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
+                                    IndicatorOnlySwitch {
+                                        id: virtualDeviceYesoulDelegate
+                                        text: qsTr("Virtual Yesoul")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_yesoul
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: { settings.virtual_device_yesoul = checked; window.settings_restart_to_apply = true; }
+                                    }
+
+                                    Label {
+                                        text: qsTr("Enables a virtual Bluetooth bridge to the Yesoul app using the FTMS and proprietary Yesoul services observed from a real YS_G1MMAX session. Default is off.")
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: Qt.application.font.pixelSize - 2
