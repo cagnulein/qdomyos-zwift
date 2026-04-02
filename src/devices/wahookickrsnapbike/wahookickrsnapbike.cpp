@@ -352,35 +352,48 @@ void wahookickrsnapbike::update() {
                     inclinationChanged(lastGrade, lastGrade);
                 }
             } else if ((requestResistance != -1 || lastGearValue != gears()) && KICKR_BIKE == false) {
-                if (requestResistance > 100) {
-                    requestResistance = 100;
-                } else if (requestResistance == 0) {
-                    requestResistance = 1;
-                }
+                const bool simGradeControlActive =
+                    requestInclination != -100 || lastRawRequestedInclinationValue != -100;
 
-                auto virtualBike = this->VirtualBike();
-                if (requestResistance != currentResistance().value() && requestResistance != -1 &&
-                    ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
-                    emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-                    lastForcedResistance = requestResistance;
-                    QByteArray a = setResistanceMode(((double)requestResistance) / 100.0);
-                    uint8_t b[20];
-                    memcpy(b, a.constData(), a.length());
-                    writeCharacteristic(b, a.length(), "setResistance", false, false);
-                } else if (requestResistance != currentResistance().value() &&
-                ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) && lastGearValue != gears()) {
-                    emit debug(QStringLiteral("writing resistance due to gears changed ") + QString::number(lastForcedResistance));
-                    if(lastForcedResistance == -1)
-                        lastForcedResistance = 1;
-                    lastForcedResistance = ((double)lastForcedResistance + (gears() - lastGearValue));
-                    QByteArray a = setResistanceMode(lastForcedResistance / 100.0);
-                    uint8_t b[20];
-                    memcpy(b, a.constData(), a.length());
-                    writeCharacteristic(b, a.length(), "setResistance", false, false);
-                } else if (virtualBike && virtualBike->ftmsDeviceConnected() && lastGearValue != gears()) {
+                if (simGradeControlActive && lastGearValue != gears()) {
+                    // When an external incline source is active (virtual bridge, GPX, manual incline),
+                    // a gear change must refresh only the sim-grade path.
+                    // If no incline was ever requested, keep the existing resistance behavior.
                     inclinationChanged(lastGrade, lastGrade);
+                    requestResistance = -1;
+                } else {
+                    if (requestResistance > 100) {
+                        requestResistance = 100;
+                    } else if (requestResistance == 0) {
+                        requestResistance = 1;
+                    }
+
+                    auto virtualBike = this->VirtualBike();
+                    if (requestResistance != currentResistance().value() && requestResistance != -1 &&
+                        ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
+                        emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+                        lastForcedResistance = requestResistance;
+                        QByteArray a = setResistanceMode(((double)requestResistance) / 100.0);
+                        uint8_t b[20];
+                        memcpy(b, a.constData(), a.length());
+                        writeCharacteristic(b, a.length(), "setResistance", false, false);
+                    } else if (requestResistance != currentResistance().value() &&
+                               ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
+                               lastGearValue != gears()) {
+                        emit debug(QStringLiteral("writing resistance due to gears changed ") +
+                                   QString::number(lastForcedResistance));
+                        if(lastForcedResistance == -1)
+                            lastForcedResistance = 1;
+                        lastForcedResistance = ((double)lastForcedResistance + (gears() - lastGearValue));
+                        QByteArray a = setResistanceMode(lastForcedResistance / 100.0);
+                        uint8_t b[20];
+                        memcpy(b, a.constData(), a.length());
+                        writeCharacteristic(b, a.length(), "setResistance", false, false);
+                    } else if (virtualBike && virtualBike->ftmsDeviceConnected() && lastGearValue != gears()) {
+                        inclinationChanged(lastGrade, lastGrade);
+                    }
+                    requestResistance = -1;
                 }
-                requestResistance = -1;
             }
         }
 
@@ -812,7 +825,8 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
             auto virtualBike =
                 new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&wahookickrsnapbike::debug);
-            connect(virtualBike, &virtualbike::changeInclination, this, &wahookickrsnapbike::inclinationChanged);
+            connect(virtualBike, &virtualbike::changeInclination, this,
+                    static_cast<void (bike::*)(double, double)>(&bike::changeInclination));
             this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
