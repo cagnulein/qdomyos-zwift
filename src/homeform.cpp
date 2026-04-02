@@ -79,6 +79,35 @@ QString uploadActivityLabelFromFitFile(const QString &fitFilePath) {
     return uploadActivityLabelFromSport(sport);
 }
 
+#ifdef Q_OS_ANDROID
+bool clearAndroidJniException(const char *context) {
+    QAndroidJniEnvironment env;
+    if (!env->ExceptionCheck()) {
+        return false;
+    }
+
+    env->ExceptionDescribe();
+    env->ExceptionClear();
+    qWarning() << "Android JNI exception cleared during" << context;
+    return true;
+}
+
+QString fallbackFileNameFromUri(const QString &uriString) {
+    QUrl url(uriString);
+    QString fileName = url.fileName();
+    if (!fileName.isEmpty()) {
+        return fileName;
+    }
+
+    const QString lastSegment = url.path().section('/', -1);
+    if (!lastSegment.isEmpty()) {
+        return lastSegment;
+    }
+
+    return QStringLiteral("imported_file");
+}
+#endif
+
 class MailSenderThread : public QThread {
   public:
     MailSenderThread(MimeMessage *message, const QString &filenameJPG, const QList<QString> &chartImagesFilenamesForMail)
@@ -7972,13 +8001,24 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 
     QAndroidJniObject jUriString = QAndroidJniObject::fromString(uriString);
     QAndroidJniObject jUri = QAndroidJniObject::callStaticObjectMethod("android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUriString.object<jstring>());
+    if (clearAndroidJniException("Uri.parse") || !jUri.isValid()) {
+        return fallbackFileNameFromUri(uriString);
+    }
     QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
         "org/cagnulen/qdomyoszwift/ContentHelper",
         "getFileName",
         "(Landroid/content/Context;Landroid/net/Uri;)Ljava/lang/String;",
         QtAndroid::androidContext().object(),
         jUri.object());
-    return result.toString();
+    if (clearAndroidJniException("ContentHelper.getFileName") || !result.isValid()) {
+        return fallbackFileNameFromUri(uriString);
+    }
+
+    QString fileName = result.toString();
+    if (fileName.isEmpty()) {
+        fileName = fallbackFileNameFromUri(uriString);
+    }
+    return fileName;
 #else
     return uriString;
 #endif
@@ -7986,40 +8026,77 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 
 QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
 #ifdef Q_OS_ANDROID        
-    QString fileNameLocal = "";
     qDebug() << "Android Version:" << QOperatingSystemVersion::current();
-    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 13))
-        fileNameLocal = getFileNameFromContentUri(file.toString());
-    if(fileNameLocal.contains(getWritableAppDir() + subfolder + "/")) {
+    const QString sourcePath = QQmlFile::urlToLocalFileOrQrc(file);
+    const QString destinationDir = getWritableAppDir() + subfolder + "/";
+    QDir().mkpath(destinationDir);
+
+    if (!sourcePath.isEmpty() && sourcePath.startsWith(destinationDir)) {
         qDebug() << "no need to copy file, the file is already in QZ subfolder" << file << subfolder;
-        return file.toString();
+        return sourcePath;
     }
-    
-    QString filename = "";
-    QFile fileFile(QQmlFile::urlToLocalFileOrQrc(file));
-    // android <14 fallback
-    if(fileNameLocal.length() == 0) {
-        qDebug() << "android <14 fallback" << fileNameLocal << filename << file.fileName();
-        filename = file.fileName();
-    } else {
-        QFileInfo f(fileNameLocal);
-        filename = f.fileName();        
+
+    QString filename;
+    if (file.toString().startsWith(QStringLiteral("content"))) {
+        filename = getFileNameFromContentUri(file.toString());
     }
-    QString dest = getWritableAppDir() + subfolder + "/" + filename;
-    qDebug() << file.fileName() << fileNameLocal << filename;
+    if (filename.isEmpty() && !sourcePath.isEmpty()) {
+        filename = QFileInfo(sourcePath).fileName();
+    }
+    if (filename.isEmpty()) {
+        filename = QFileInfo(file.fileName()).fileName();
+    }
+    if (filename.isEmpty()) {
+        filename = QStringLiteral("imported_file");
+    }
+
+    const QString dest = destinationDir + filename;
+    qDebug() << file.fileName() << sourcePath << filename;
     QFile::remove(dest);
+
+    if (file.toString().startsWith(QStringLiteral("content"))) {
+        QAndroidJniObject jUriString = QAndroidJniObject::fromString(file.toString());
+        QAndroidJniObject jUri = QAndroidJniObject::callStaticObjectMethod(
+            "android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUriString.object<jstring>());
+        if (clearAndroidJniException("Uri.parse for copy") || !jUri.isValid()) {
+            qWarning() << "Unable to parse content URI for copy" << file;
+            return QString();
+        }
+
+        QAndroidJniObject jDest = QAndroidJniObject::fromString(dest);
+        jboolean copied = QAndroidJniObject::callStaticMethod<jboolean>(
+            "org/cagnulen/qdomyoszwift/ContentHelper",
+            "copyContentToFile",
+            "(Landroid/content/Context;Landroid/net/Uri;Ljava/lang/String;)Z",
+            QtAndroid::androidContext().object(),
+            jUri.object(),
+            jDest.object<jstring>());
+        if (clearAndroidJniException("ContentHelper.copyContentToFile")) {
+            QFile::remove(dest);
+            return QString();
+        }
+
+        qDebug() << "copyContentToFile" << dest << static_cast<bool>(copied);
+        if (!copied || !QFile::exists(dest)) {
+            QFile::remove(dest);
+            return QString();
+        }
+        return dest;
+    }
+
+    QFile fileFile(sourcePath);
     bool copy = fileFile.copy(dest);
     qDebug() << "copy" << dest << copy << fileFile.exists() << fileFile.isReadable();
-    return dest;
+    return copy ? dest : QString();
 #endif
     return file.toString();
 }
 
 void homeform::profile_open_clicked(const QUrl &fileName) {
-    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
 #ifdef Q_OS_ANDROID
     copyAndroidContentsURI(fileName, "profiles");
 #else
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
     QFileInfo fileInfo(file);
     bool r = file.copy(getWritableAppDir() + "profiles/" + fileInfo.fileName());
     qDebug() << "profile copy" << r << getWritableAppDir() + "profiles/" + fileInfo.fileName();
@@ -8027,12 +8104,10 @@ void homeform::profile_open_clicked(const QUrl &fileName) {
 }
 
 void homeform::trainprogram_open_other_folder(const QUrl &fileName) {
-    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
     copyAndroidContentsURI(fileName, "training");
 }
 
 void homeform::gpx_open_other_folder(const QUrl &fileName) {
-    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
     copyAndroidContentsURI(fileName, "gpx");
 }
 
@@ -9792,12 +9867,18 @@ void homeform::saveSettings(const QUrl &filename) {
 void homeform::loadSettings(const QUrl &filename) {
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(filename));
-    copyAndroidContentsURI(filename, "settings");
+    QString settingsFile = file.fileName();
+#ifdef Q_OS_ANDROID
+    const QString copiedSettingsFile = copyAndroidContentsURI(filename, "settings");
+    if (!copiedSettingsFile.isEmpty()) {
+        settingsFile = copiedSettingsFile;
+    }
+#endif
 
     qDebug() << "homeform::loadSettings" << file.fileName();
 
     QSettings settings;
-    QSettings settings2Load(file.fileName(), QSettings::IniFormat);
+    QSettings settings2Load(settingsFile, QSettings::IniFormat);
     auto settings2LoadAllKeys = settings2Load.allKeys();
     for (const QString &s : qAsConst(settings2LoadAllKeys)) {
         if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
