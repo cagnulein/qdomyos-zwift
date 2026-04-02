@@ -88,6 +88,27 @@ public class BleAdvertiser {
         }
     }
 
+    public static void stopAdvertising(Context context) {
+        try {
+            if (context == null) {
+                return;
+            }
+
+            BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+            if (bluetoothManager == null || bluetoothManager.getAdapter() == null) {
+                return;
+            }
+
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser =
+                    bluetoothManager.getAdapter().getBluetoothLeAdvertiser();
+            if (advertiser != null) {
+                advertiser.stopAdvertising(advertiseCallback);
+            }
+        } catch (Throwable t) {
+            QLog.e("BleAdvertiser", "stopAdvertising crash: " + t.toString());
+        }
+    }
+
     public static void startAdvertisingRower(Context context) {
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager != null) {

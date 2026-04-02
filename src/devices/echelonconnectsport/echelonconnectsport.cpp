@@ -592,11 +592,12 @@ void echelonconnectsport::requestClassicBridgePrompt() {
     homeform::singleton()->setEchelonBridgeSwitchPromptRequested(true);
 }
 
-void echelonconnectsport::createVirtualBike(bool forceClassicMode) {
+void echelonconnectsport::createVirtualBike(bool forceClassicMode, DirconManager *existingDirconManager) {
     qDebug() << QStringLiteral("creating virtual bike interface...")
              << (forceClassicMode ? QStringLiteral("(classic bridge)") : QStringLiteral("(echelon bridge)"));
     auto virtualBike =
-        new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain, forceClassicMode);
+        new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain,
+                        forceClassicMode, existingDirconManager);
     connect(virtualBike, &virtualbike::changeInclination, this, &echelonconnectsport::changeInclination);
     this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
 }
@@ -612,7 +613,12 @@ void echelonconnectsport::switchToClassicVirtualBikeBridge() {
         homeform::singleton()->setToastRequested(QStringLiteral("Switching to classic Bluetooth bridge"));
     }
 
-    createVirtualBike(true);
+    DirconManager *existingDirconManager = nullptr;
+    if (auto *virtualBike = dynamic_cast<virtualbike *>(VirtualBike())) {
+        existingDirconManager = virtualBike->detachDirconManager();
+    }
+
+    createVirtualBike(true, existingDirconManager);
 }
 
 void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device) {

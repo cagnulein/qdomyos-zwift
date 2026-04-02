@@ -34,9 +34,11 @@ class virtualbike : public virtualdevice {
   public:
     virtualbike(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false,
                 int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0,
-                bool forceClassicMode = false);
+                bool forceClassicMode = false, DirconManager *existingDirconManager = nullptr);
+    ~virtualbike() override;
     bool connected() override;
     void relayEchelonPacket(const QBluetoothUuid &sourceUuid, const QByteArray &value);
+    DirconManager *detachDirconManager();
     bool ftmsDeviceConnected() { return lastFTMSFrameReceived != 0 || lastDirconFTMSFrameReceived != 0; }
     qint64 whenLastFTMSFrameReceived() {
         if (lastFTMSFrameReceived != 0)
@@ -101,6 +103,7 @@ class virtualbike : public virtualdevice {
     void echelonWriteResistance();
     void echelonWriteStatus();
     bool isEchelonVirtualEnabled() const;
+    void attachDirconManager(DirconManager *manager);
 
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);

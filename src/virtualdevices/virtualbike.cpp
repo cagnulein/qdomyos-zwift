@@ -16,7 +16,7 @@
 using namespace std::chrono_literals;
 
 virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
-                         double bikeResistanceGain, bool forceClassicMode) {
+                         double bikeResistanceGain, bool forceClassicMode, DirconManager *existingDirconManager) {
     Bike = t;
     this->forceClassicMode = forceClassicMode;
 
@@ -38,14 +38,10 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
     bool watt_bike_emulator = settings.value(QZSettings::watt_bike_emulator, QZSettings::default_watt_bike_emulator).toBool();
 
-    if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
-        dirconManager = new DirconManager(Bike, bikeResistanceOffset, bikeResistanceGain, this);
-        connect(dirconManager, SIGNAL(changeInclination(double, double)), this,
-                SIGNAL(changeInclination(double, double)));
-        connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
-                SLOT(dirconFtmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
-        connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
-                SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
+    if (existingDirconManager) {
+        attachDirconManager(existingDirconManager);
+    } else if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
+        attachDirconManager(new DirconManager(Bike, bikeResistanceOffset, bikeResistanceGain, this));
     }
     if (!settings.value(QZSettings::virtual_device_bluetooth, QZSettings::default_virtual_device_bluetooth).toBool())
         return;
@@ -540,6 +536,51 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         leController,
         static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), this,
         &virtualbike::error);
+}
+
+virtualbike::~virtualbike() {
+    bikeTimer.stop();
+
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "stopAdvertising",
+                                              "(Landroid/content/Context;)V",
+                                              QtAndroid::androidContext().object());
+#endif
+
+    if (leController) {
+        leController->disconnect(this);
+        leController->stopAdvertising();
+        leController->disconnectFromDevice();
+        delete leController;
+        leController = nullptr;
+    }
+}
+
+void virtualbike::attachDirconManager(DirconManager *manager) {
+    if (!manager) {
+        return;
+    }
+
+    dirconManager = manager;
+    dirconManager->setParent(this);
+    connect(dirconManager, SIGNAL(changeInclination(double, double)), this,
+            SIGNAL(changeInclination(double, double)));
+    connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
+            SLOT(dirconFtmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
+    connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
+            SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
+}
+
+DirconManager *virtualbike::detachDirconManager() {
+    if (!dirconManager) {
+        return nullptr;
+    }
+
+    disconnect(dirconManager, nullptr, this, nullptr);
+    dirconManager->setParent(nullptr);
+    auto preservedDirconManager = dirconManager;
+    dirconManager = nullptr;
+    return preservedDirconManager;
 }
 
 bool virtualbike::isEchelonVirtualEnabled() const {

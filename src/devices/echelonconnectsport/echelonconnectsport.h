@@ -112,7 +112,7 @@ class echelonconnectsport : public bike {
 
     void maybePromptForClassicBridge();
     void requestClassicBridgePrompt();
-    void createVirtualBike(bool forceClassicMode = false);
+    void createVirtualBike(bool forceClassicMode = false, DirconManager *existingDirconManager = nullptr);
 };
 
 #endif // ECHELONCONNECTSPORT_H
