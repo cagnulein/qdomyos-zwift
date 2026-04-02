@@ -31,6 +31,8 @@ fakebike::fakebike(bool noWriteResistance, bool noHeartService, bool noVirtualDe
 
 void fakebike::update() {
     QSettings settings;
+    const bool virtualEchelonEnabled =
+        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     /*
@@ -158,6 +160,8 @@ void fakebike::update() {
         Resistance = requestResistance;
         m_pelotonResistance = requestResistance;
     }
+
+    maybePromptForClassicBridge(virtualEchelonEnabled);
 }
 
 void fakebike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
@@ -174,12 +178,27 @@ void fakebike::createVirtualBike(bool forceClassicMode) {
 }
 
 void fakebike::switchToClassicVirtualBikeBridge() {
+    if (classicVirtualBridgeActive) {
+        return;
+    }
+
+    classicVirtualBridgeActive = true;
     if (homeform::singleton()) {
         homeform::singleton()->setEchelonBridgeSwitchPromptRequested(false);
         homeform::singleton()->setToastRequested(QStringLiteral("Switching to classic Bluetooth bridge"));
     }
 
     createVirtualBike(true);
+}
+
+void fakebike::maybePromptForClassicBridge(bool virtualEchelonEnabled) {
+    if (!virtualEchelonEnabled || classicVirtualBridgeActive || classicBridgePromptShown || Cadence.value() <= 0 ||
+        !homeform::singleton()) {
+        return;
+    }
+
+    classicBridgePromptShown = true;
+    homeform::singleton()->setEchelonBridgeSwitchPromptRequested(true);
 }
 
 void fakebike::changeInclinationRequested(double grade, double percentage) {

@@ -57,6 +57,8 @@ class fakebike : public bike {
 
     bool initDone = false;
     bool initRequest = false;
+    bool classicBridgePromptShown = false;
+    bool classicVirtualBridgeActive = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
@@ -83,5 +85,6 @@ class fakebike : public bike {
 
   private:
     void createVirtualBike(bool forceClassicMode = false);
+    void maybePromptForClassicBridge(bool virtualEchelonEnabled);
 };
 #endif // FAKEBIKE_H
