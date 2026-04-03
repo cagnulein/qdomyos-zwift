@@ -267,8 +267,11 @@ ColumnLayout {
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'training')
-            // Create a fresh FileDialog instance
-            fileDialogLoader.active = true
+            if (Qt.platform.os === "android") {
+                rootItem.openAndroidDocumentPicker("profile")
+            } else {
+                fileDialogLoader.active = true
+            }
         }
         anchors {
             bottom: parent.bottom

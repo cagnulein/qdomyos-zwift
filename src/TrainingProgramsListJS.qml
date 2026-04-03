@@ -242,7 +242,11 @@ ColumnLayout {
                     height: 50
                     text: "Other folders"
                     onClicked: {
-                        fileDialogLoader.active = true
+                        if (Qt.platform.os === "android") {
+                            rootItem.openAndroidDocumentPicker("training")
+                        } else {
+                            fileDialogLoader.active = true
+                        }
                     }
                 }
 

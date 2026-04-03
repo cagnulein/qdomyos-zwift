@@ -6,6 +6,7 @@
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#include <QtAndroidExtras/QAndroidActivityResultReceiver>
 #include <jni.h>
 #include <QAndroidJniObject>
 #endif
@@ -106,6 +107,64 @@ QString fallbackFileNameFromUri(const QString &uriString) {
 
     return QStringLiteral("imported_file");
 }
+
+constexpr int AndroidDocumentPickerProfileRequestCode = 4101;
+constexpr int AndroidDocumentPickerTrainingRequestCode = 4102;
+constexpr int AndroidDocumentPickerGpxRequestCode = 4103;
+constexpr int AndroidDocumentPickerSettingsRequestCode = 4104;
+constexpr jint AndroidActivityResultOk = -1;
+constexpr jint AndroidIntentFlagGrantReadUriPermission = 0x00000001;
+constexpr jint AndroidIntentFlagGrantWriteUriPermission = 0x00000002;
+constexpr jint AndroidIntentFlagGrantPersistableUriPermission = 0x00000040;
+
+class AndroidDocumentPickerReceiver : public QAndroidActivityResultReceiver {
+  public:
+    explicit AndroidDocumentPickerReceiver(int requestCode) : requestCode(requestCode) {}
+
+    void handleActivityResult(int receiverRequestCode, int resultCode, const QAndroidJniObject &data) override {
+        qDebug() << "AndroidDocumentPickerReceiver::handleActivityResult" << receiverRequestCode << resultCode;
+
+        if (receiverRequestCode != requestCode || resultCode != AndroidActivityResultOk || !data.isValid() ||
+            !homeform::singleton()) {
+            delete this;
+            return;
+        }
+
+        QAndroidJniObject uri = data.callObjectMethod("getData", "()Landroid/net/Uri;");
+        if (clearAndroidJniException("Intent.getData") || !uri.isValid()) {
+            delete this;
+            return;
+        }
+
+        jint flags = data.callMethod<jint>("getFlags", "()I");
+        clearAndroidJniException("Intent.getFlags");
+
+        QAndroidJniObject contentResolver =
+            QtAndroid::androidContext().callObjectMethod("getContentResolver", "()Landroid/content/ContentResolver;");
+        if (contentResolver.isValid()) {
+            const jint persistFlags =
+                flags & (AndroidIntentFlagGrantReadUriPermission | AndroidIntentFlagGrantWriteUriPermission);
+            if (persistFlags != 0) {
+                contentResolver.callMethod<void>("takePersistableUriPermission", "(Landroid/net/Uri;I)V",
+                                                 uri.object<jobject>(), persistFlags);
+                clearAndroidJniException("ContentResolver.takePersistableUriPermission");
+            }
+        }
+
+        QAndroidJniObject uriString = uri.callObjectMethod("toString", "()Ljava/lang/String;");
+        if (clearAndroidJniException("Uri.toString") || !uriString.isValid()) {
+            delete this;
+            return;
+        }
+
+        QMetaObject::invokeMethod(homeform::singleton(), "handleAndroidDocumentPicked", Qt::QueuedConnection,
+                                  Q_ARG(int, requestCode), Q_ARG(QString, uriString.toString()));
+        delete this;
+    }
+
+  private:
+    int requestCode;
+};
 #endif
 
 class MailSenderThread : public QThread {
@@ -8094,7 +8153,10 @@ QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
 
 void homeform::profile_open_clicked(const QUrl &fileName) {
 #ifdef Q_OS_ANDROID
-    copyAndroidContentsURI(fileName, "profiles");
+    const QString copiedFile = copyAndroidContentsURI(fileName, "profiles");
+    if (!copiedFile.isEmpty()) {
+        loadSettings(QUrl::fromLocalFile(copiedFile));
+    }
 #else
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
     QFileInfo fileInfo(file);
@@ -8104,11 +8166,17 @@ void homeform::profile_open_clicked(const QUrl &fileName) {
 }
 
 void homeform::trainprogram_open_other_folder(const QUrl &fileName) {
-    copyAndroidContentsURI(fileName, "training");
+    const QString copiedFile = copyAndroidContentsURI(fileName, "training");
+    if (!copiedFile.isEmpty()) {
+        trainprogram_open_clicked(QUrl::fromLocalFile(copiedFile));
+    }
 }
 
 void homeform::gpx_open_other_folder(const QUrl &fileName) {
-    copyAndroidContentsURI(fileName, "gpx");
+    const QString copiedFile = copyAndroidContentsURI(fileName, "gpx");
+    if (!copiedFile.isEmpty()) {
+        gpx_open_clicked(QUrl::fromLocalFile(copiedFile));
+    }
 }
 
 bool homeform::startTrainingProgramFromFile(const QString &filePath) {
@@ -8125,6 +8193,67 @@ bool homeform::startTrainingProgramFromFile(const QString &filePath) {
     }
     trainprogram_open_clicked(QUrl::fromLocalFile(localPath));
     return true;
+}
+
+void homeform::openAndroidDocumentPicker(const QString &kind) {
+#ifdef Q_OS_ANDROID
+    int requestCode = 0;
+    if (kind == QStringLiteral("profile")) {
+        requestCode = AndroidDocumentPickerProfileRequestCode;
+    } else if (kind == QStringLiteral("training")) {
+        requestCode = AndroidDocumentPickerTrainingRequestCode;
+    } else if (kind == QStringLiteral("gpx")) {
+        requestCode = AndroidDocumentPickerGpxRequestCode;
+    } else if (kind == QStringLiteral("settings")) {
+        requestCode = AndroidDocumentPickerSettingsRequestCode;
+    } else {
+        qWarning() << "Unknown Android document picker kind" << kind;
+        return;
+    }
+
+    QAndroidJniObject action = QAndroidJniObject::fromString(QStringLiteral("android.intent.action.OPEN_DOCUMENT"));
+    QAndroidJniObject intent("android/content/Intent", "(Ljava/lang/String;)V", action.object<jstring>());
+    intent.callObjectMethod("addCategory", "(Ljava/lang/String;)Landroid/content/Intent;",
+                            QAndroidJniObject::fromString(QStringLiteral("android.intent.category.OPENABLE"))
+                                .object<jstring>());
+    intent.callObjectMethod("setType", "(Ljava/lang/String;)Landroid/content/Intent;",
+                            QAndroidJniObject::fromString(QStringLiteral("*/*")).object<jstring>());
+    intent.callObjectMethod("addFlags", "(I)Landroid/content/Intent;",
+                            AndroidIntentFlagGrantReadUriPermission | AndroidIntentFlagGrantPersistableUriPermission);
+    if (clearAndroidJniException("Intent setup for ACTION_OPEN_DOCUMENT")) {
+        return;
+    }
+
+    QtAndroid::startActivity(intent, requestCode, new AndroidDocumentPickerReceiver(requestCode));
+#else
+    Q_UNUSED(kind)
+#endif
+}
+
+void homeform::handleAndroidDocumentPicked(int requestCode, const QString &uriString) {
+#ifdef Q_OS_ANDROID
+    const QUrl uri(uriString);
+    switch (requestCode) {
+    case AndroidDocumentPickerProfileRequestCode:
+        profile_open_clicked(uri);
+        break;
+    case AndroidDocumentPickerTrainingRequestCode:
+        trainprogram_open_other_folder(uri);
+        break;
+    case AndroidDocumentPickerGpxRequestCode:
+        gpx_open_other_folder(uri);
+        break;
+    case AndroidDocumentPickerSettingsRequestCode:
+        loadSettings(uri);
+        break;
+    default:
+        qWarning() << "Unknown Android document picker request code" << requestCode << uriString;
+        break;
+    }
+#else
+    Q_UNUSED(requestCode)
+    Q_UNUSED(uriString)
+#endif
 }
 
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
