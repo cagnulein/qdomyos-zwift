@@ -107,9 +107,15 @@ class virtualbike : public virtualdevice {
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);
     void writeTacxCustomNotification(const QByteArray &value);
+    void broadcastTacxCustomData();
     void handleTacxCustomWrite(const QByteArray &newValue);
     QByteArray buildTacxAntResponse(quint8 page) const;
+    QByteArray buildTacxAntBroadcast(quint8 page);
     static quint8 tacxAntChecksum(const QByteArray &payload);
+    quint8 tacxBroadcastPageToggle = 0;
+    quint8 tacxUpdateEventCount = 0;
+    quint16 tacxAccumulatedPower = 0;
+    qint64 tacxLastBroadcastMs = 0;
     
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

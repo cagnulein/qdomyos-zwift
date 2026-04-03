@@ -750,7 +750,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
     //! [Provide Heartbeat]
     QObject::connect(&bikeTimer, &QTimer::timeout, this, &virtualbike::bikeProvider);
-    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool() || zwift_play_emulator)
+    if (virtual_device_tacx)
+        bikeTimer.start(250ms);
+    else if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool() || zwift_play_emulator)
         bikeTimer.start(50ms);
     else
         bikeTimer.start(1s);
@@ -875,6 +877,74 @@ QByteArray virtualbike::buildTacxAntResponse(quint8 page) const {
 
     response.append(char(tacxAntChecksum(response)));
     return response;
+}
+
+QByteArray virtualbike::buildTacxAntBroadcast(quint8 page) {
+    QByteArray response;
+    response.reserve(13);
+    response.append(char(0xA4));
+    response.append(char(0x09));
+    response.append(char(0x4E));
+    response.append(char(0x05));
+    response.append(char(page));
+
+    const quint16 currentPower = qBound<quint16>(0, qRound(Bike->wattsMetricforUI()), 0x0FFF);
+    const quint8 currentCadence = qBound<quint8>(0, qRound(Bike->currentCadence().value()), 0xFF);
+    const quint8 currentHeartRate = qBound<quint8>(0, qRound(Bike->currentHeart().value()), 0xFF);
+    const quint16 currentSpeed =
+        qBound<quint16>(0, qRound((Bike->currentSpeed().value() / 3.6) * 1000.0), 0xFFFF);
+
+    switch (page) {
+    case 0x10: {
+        const quint8 elapsedTime = qBound<quint8>(0, int(Bike->elapsedTime().msecsSinceStartOfDay() / 250), 0xFF);
+        const quint8 distanceTravelled = qBound<quint8>(0, qRound(Bike->odometer() * 1000.0) % 256, 0xFF);
+        response.append(char(elapsedTime));
+        response.append(char(distanceTravelled));
+        response.append(char(currentSpeed & 0xFF));
+        response.append(char((currentSpeed >> 8) & 0xFF));
+        response.append(char(currentHeartRate));
+        response.append(char(0x19)); // basic FE capabilities
+        response.append(char(0x30)); // "in use" state
+        break;
+    }
+    case 0x19: {
+        ++tacxUpdateEventCount;
+        tacxAccumulatedPower += currentPower;
+        response.append(char(tacxUpdateEventCount));
+        response.append(char(currentCadence));
+        response.append(char(tacxAccumulatedPower & 0xFF));
+        response.append(char((tacxAccumulatedPower >> 8) & 0xFF));
+        response.append(char(currentPower & 0xFF));
+        response.append(char((currentPower >> 8) & 0x0F));
+        response.append(char(0x00));
+        break;
+    }
+    default:
+        return QByteArray();
+    }
+
+    response.append(char(tacxAntChecksum(response)));
+    return response;
+}
+
+void virtualbike::broadcastTacxCustomData() {
+    if (!serviceTacxCustom || !leController || leController->state() != QLowEnergyController::ConnectedState) {
+        return;
+    }
+
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    if (now - tacxLastBroadcastMs < 250) {
+        return;
+    }
+    tacxLastBroadcastMs = now;
+
+    const quint8 page = tacxBroadcastPageToggle == 0 ? 0x10 : 0x19;
+    tacxBroadcastPageToggle = (tacxBroadcastPageToggle + 1) % 2;
+
+    const QByteArray response = buildTacxAntBroadcast(page);
+    if (!response.isEmpty()) {
+        writeTacxCustomNotification(response);
+    }
 }
 
 void virtualbike::writeTacxCustomNotification(const QByteArray &value) {
@@ -1827,6 +1897,8 @@ void virtualbike::bikeProvider() {
                     Q_ASSERT(characteristic.isValid());
                     writeCharacteristic(serviceCSC, characteristic, value);
                 }
+
+                broadcastTacxCustomData();
             } else if (!cadence && !power) {
                 value.clear();
                 if (notif2AD2->notify(value) == CN_OK) {
