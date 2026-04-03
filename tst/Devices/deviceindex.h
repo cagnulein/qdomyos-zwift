@@ -130,6 +130,7 @@ public:
     DEFINE_DEVICE(Shuaa5Treadmill, "Shuaa5 Treadmill");
     DEFINE_DEVICE(SkandikaWiryBike, "Skandika Wiry Bike");
     DEFINE_DEVICE(SmartRowRower, "Smart Row Rower");
+    DEFINE_DEVICE(Stairmaster8G, "Stairmaster 8G");
     DEFINE_DEVICE(SnodeBikeFS, "Snode Bike FS");
     DEFINE_DEVICE(SoleBike, "Sole Bike");
     DEFINE_DEVICE(SoleElliptical, "Sole Elliptical");

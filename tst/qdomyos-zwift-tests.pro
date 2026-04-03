@@ -55,6 +55,7 @@ HEADERS += \
     Devices/devicenamepatterngroup.h \
     Devices/devicetestdataindex.h \
     Devices/TestOctaneTreadmillZR8.h \
+    Devices/TestStairmaster8G.h \
     Devices/TestSunnyfitStepper.h \
     Erg/ergtabletestsuite.h \
     GarminConnect/garminconnecttestsuite.h \
