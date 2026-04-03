@@ -982,6 +982,15 @@ void virtualbike::handleTacxCustomWrite(const QByteArray &newValue) {
         return;
     }
 
+    if (messageId == 0x4F && page == 0x33) {
+        const quint16 rawIncline = static_cast<quint8>(newValue.at(9)) |
+                                   (static_cast<quint16>(static_cast<quint8>(newValue.at(10))) << 8);
+        const double requestIncline = (static_cast<int>(rawIncline) - 20000) / 100.0;
+        qDebug() << "Tacx track resistance incline request" << requestIncline << newValue.toHex(' ');
+        emit changeInclination(requestIncline, requestIncline);
+        return;
+    }
+
     qDebug() << "Unhandled Tacx ANT custom opcode" << Qt::hex << messageId << page << newValue.toHex(' ');
 }
 
