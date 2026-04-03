@@ -125,6 +125,10 @@ void echelonconnectsport::sendPoll() {
 }
 
 void echelonconnectsport::update() {
+
+    if (!m_control)
+        return;
+
     QSettings settings;
     bool useNativeIOS = false;
 
@@ -435,7 +439,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
         QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
         qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
-        if (state == QLowEnergyService::ServiceDiscovered) {
+        if (state == QLowEnergyService::RemoteServiceDiscovered) {
             // qDebug() << gattCommunicationChannelService->characteristics();
 
             gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
@@ -445,13 +449,13 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
             Q_ASSERT(gattNotify1Characteristic.isValid());
             Q_ASSERT(gattNotify2Characteristic.isValid());
 
-                   // establish hook into notifications
+            // establish hook into notifications
             connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
                     &echelonconnectsport::characteristicChanged);
             connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                     &echelonconnectsport::characteristicWritten);
             connect(gattCommunicationChannelService,
-                    static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                    &QLowEnergyService::errorOccurred,
                     this, &echelonconnectsport::errorService);
             connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                     &echelonconnectsport::descriptorWritten);
@@ -508,9 +512,9 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
-            gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattNotify1Characteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
         gattCommunicationChannelService->writeDescriptor(
-            gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattNotify2Characteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
     }
 }
 
@@ -590,12 +594,12 @@ void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &echelonconnectsport::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &echelonconnectsport::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, &echelonconnectsport::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &echelonconnectsport::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
