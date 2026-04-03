@@ -915,6 +915,7 @@ void horizontreadmill::update() {
                // gattWriteCharacteristic.isValid() &&
                // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
+        bool speedCommandSent = false;
 
         QSettings settings;
         bool horizon_treadmill_7_8 =
@@ -969,6 +970,20 @@ void horizontreadmill::update() {
                 forceSpeedNeed) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 forceSpeed(float_one_point_round(requestSpeed));
+                speedCommandSent = true;
+
+                if (MERACH_TREADMILL && requestInclination == -100) {
+                    double inclineToRestore = lastRequestedInclination().value();
+                    if (inclineToRestore <= minInclination)
+                        inclineToRestore = lastRawInclinationRequested();
+                    if (inclineToRestore <= minInclination)
+                        inclineToRestore = currentInclination().value();
+
+                    if (inclineToRestore > minInclination) {
+                        emit debug(QStringLiteral("MERACH sync incline ") + QString::number(inclineToRestore));
+                        forceIncline(inclineToRestore);
+                    }
+                }
             }
             requestSpeed = -1;
         }
@@ -998,6 +1013,20 @@ void horizontreadmill::update() {
                
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
+
+                if (MERACH_TREADMILL && !speedCommandSent) {
+                    double speedToRestore = lastRequestedSpeed().value();
+                    if (speedToRestore <= 0)
+                        speedToRestore = lastRawSpeedRequested();
+                    if (speedToRestore <= 0)
+                        speedToRestore = currentSpeed().value();
+
+                    if (speedToRestore > 0) {
+                        speedToRestore = float_one_point_round(speedToRestore);
+                        emit debug(QStringLiteral("MERACH sync speed ") + QString::number(speedToRestore));
+                        forceSpeed(speedToRestore);
+                    }
+                }
 
                 // this treadmill doesn't send the incline, so i'm forcing it manually
                 if(SW_TREADMILL || mobvoi_treadmill) {
