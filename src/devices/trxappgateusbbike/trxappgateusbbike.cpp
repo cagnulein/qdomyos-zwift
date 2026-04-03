@@ -83,6 +83,8 @@ void trxappgateusbbike::forceResistance(resistance_t requestResistance) {
         resistance[2] = 0x23;
     } else if (bike_type == FAL_SPORTS) {
         resistance[2] = 0x1b;
+    } else if (bike_type == ADIDAS_C1) {
+        resistance[2] = 0x5b;
     }
 
     resistance[4] = requestResistance + 1;
@@ -189,6 +191,10 @@ void trxappgateusbbike::update() {
         } else if (bike_type == TYPE::TAURUA_IC90) {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x01, 0x31, 0xc4};
+            writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+        } else if (bike_type == TYPE::ADIDAS_C1) {
+
+            const uint8_t noOpData[] = {0xf0, 0xa2, 0x5b, 0x01, 0xee};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else {
 
@@ -844,6 +850,75 @@ void trxappgateusbbike::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)initData8, sizeof(initData8), QStringLiteral("init"), false, true);
+    } else if (bike_type == TYPE::ADIDAS_C1) {
+        const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x00, 0x91};
+        const uint8_t initData2[] = {0xf0, 0xa0, 0x5b, 0x01, 0xec};
+        const uint8_t initData3[] = {0xf0, 0xa1, 0x5b, 0x01, 0xed};
+        const uint8_t initData4[] = {0xf0, 0xa3, 0x5b, 0x01, 0x01, 0xf0};
+        const uint8_t initData5[] = {0xf0, 0xa4, 0x5b, 0x01, 0x01, 0x01, 0x01, 0x01,
+                                     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xfa};
+        const uint8_t initData6[] = {0xf0, 0xa5, 0x5b, 0x01, 0x02, 0xf3};
+
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+
+        // Captured Adidas C-1 sessions repeat A0/A1 probes before switching to normal polling.
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
     } else {
 
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
@@ -1152,6 +1227,15 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     const QString deviceName = device.name();
     const QString upperDeviceName = deviceName.toUpper();
+    bool isAdidasC1Name = upperDeviceName.startsWith(QStringLiteral("ADIDAS")) && upperDeviceName.length() == 10;
+    if (isAdidasC1Name) {
+        for (int idx = 6; idx < upperDeviceName.length(); ++idx) {
+            if (!upperDeviceName.at(idx).isDigit()) {
+                isAdidasC1Name = false;
+                break;
+            }
+        }
+    }
     bool isTrxAppGateTcName = false;
     if (upperDeviceName.startsWith(QStringLiteral("TC")) && deviceName.length() == 5) {
         isTrxAppGateTcName = true;
@@ -1217,6 +1301,9 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (upperDeviceName.startsWith(QStringLiteral("REEBOK"))) {
             bike_type = TYPE::REEBOK;
             qDebug() << QStringLiteral("REEBOK bike found");
+        } else if (isAdidasC1Name) {
+            bike_type = TYPE::ADIDAS_C1;
+            qDebug() << QStringLiteral("ADIDAS_C1 bike found");
         } else if (upperDeviceName.startsWith(QStringLiteral("TUN "))) {
             bike_type = TYPE::TUNTURI;
             qDebug() << QStringLiteral("TUNTURI bike found");
