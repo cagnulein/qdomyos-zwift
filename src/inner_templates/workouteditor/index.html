@@ -46,6 +46,11 @@
                     </select>
                 </label>
                 <button id="newWorkout" class="small">New</button>
+                <button id="generateFromText" class="small icon-button" title="Generate workout from text" aria-label="Generate workout from text">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 15a4 4 0 0 0 4-4V7a4 4 0 1 0-8 0v4a4 4 0 0 0 4 4Zm7-4a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V21H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-3.08A7 7 0 0 0 19 11Z" fill="currentColor"></path>
+                    </svg>
+                </button>
                 <button id="saveWorkout" class="primary small">Save</button>
                 <button id="saveStartWorkout" class="primary small">Save &amp; Start</button>
                 <label class="checkbox-label">
@@ -109,6 +114,23 @@
             <div class="custom-dialog-footer">
                 <button id="customDialogCancel" class="small">Cancel</button>
                 <button id="customDialogConfirm" class="small primary">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="promptDialog" class="custom-dialog hidden">
+        <div class="custom-dialog-overlay"></div>
+        <div class="custom-dialog-content prompt-dialog-content">
+            <div class="custom-dialog-header">
+                <h3>Generate Workout</h3>
+            </div>
+            <div class="custom-dialog-body prompt-dialog-body">
+                <p id="promptDialogMessage">Describe the workout in plain text. On iOS and Android you can also use keyboard dictation in this text box.</p>
+                <textarea id="promptDialogInput" rows="8" placeholder="Example: 10 min warmup, 6x 2 min hard / 1 min easy, 5 min cooldown"></textarea>
+            </div>
+            <div class="custom-dialog-footer prompt-dialog-footer">
+                <button id="promptDialogCancel" class="small">Cancel</button>
+                <button id="promptDialogGenerate" class="small primary">Generate</button>
             </div>
         </div>
     </div>
