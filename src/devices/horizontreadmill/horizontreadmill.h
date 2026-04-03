@@ -74,6 +74,7 @@ class horizontreadmill : public treadmill {
     uint8_t firstStateChanged = 0;
     double lastSpeed = 0.0;
     double lastInclination = 0;
+    qint64 lastNonZeroSpeedTimestamp = 0;
     bool horizonPaused = false;
     double lastHorizonForceSpeed = 0;
     double minInclination = 0.0;
