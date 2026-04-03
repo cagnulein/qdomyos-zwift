@@ -785,7 +785,7 @@ import Qt.labs.platform 1.1
             property bool proform_treadmill_8_0: false
 
             // from version 2.13.50
-            property bool zero_zt2500_treadmill: false
+            property bool zero_zt2500_treadmill: false            
 
             // from version 2.13.52
             property bool kingsmith_encrypt_v5: false
@@ -1297,6 +1297,8 @@ import Qt.labs.platform 1.1
             property string ios_live_activity_compact_leading_metric: "Heart Rate"
             property string ios_live_activity_compact_trailing_metric: "Watt"
             property bool nordictrack_treadmill_commercial_le: false
+
+            property bool umay_s100_treadmill: false
 
             // MyWhoosh Link settings
             property bool mywhoosh_link_enabled: false
@@ -9295,6 +9297,19 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.zero_zt2500_treadmill = checked; window.settings_restart_to_apply = true; }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("UMAY S100")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.umay_s100_treadmill
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.umay_s100_treadmill = checked; window.settings_restart_to_apply = true; }
                             }
                         }
                     }

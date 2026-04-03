@@ -518,6 +518,7 @@ QStringList bluetoothdevice::metrics() {
     r.append(QStringLiteral("Target Peloton Resistance"));
     r.append(QStringLiteral("Target Cadence"));
     r.append(QStringLiteral("Target Power"));
+    r.append(QStringLiteral("Gear"));
     r.append(QStringLiteral("Watt/Kg"));
     return r;
 }

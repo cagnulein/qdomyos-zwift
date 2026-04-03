@@ -416,6 +416,9 @@ int bike::metricValueForSetting(const QString &setting) {
     } else if (!setting.compare(QStringLiteral("Target Power"))) {
 
         return qRound(RequestedPower.value());
+    } else if (!setting.compare(QStringLiteral("Gear"))) {
+
+        return qRound(gears());
     } else if (!setting.compare(QStringLiteral("Watt/Kg"))) {
         return qRound(wattKg().value());
     } else if (!setting.compare(QStringLiteral("Target Cadence"))) {
