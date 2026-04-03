@@ -41,6 +41,7 @@ protocol WorkoutTrackingProtocol {
     static let configuration = HKWorkoutConfiguration()
     static var workoutBuilder: HKWorkoutBuilder!
     static var workoutInProgress: Bool = false
+    private let initialHeartRateLookback: TimeInterval = 10 * 60
     private var heartRateQuery: HKAnchoredObjectQuery?
     private var heartRateQueryAnchor: HKQueryAnchor?
     private let heartRateUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
@@ -96,7 +97,10 @@ extension WorkoutTracking {
             return
         }
 
-        let predicate = HKQuery.predicateForSamples(withStart: Date(), end: nil, options: .strictStartDate)
+        let startDate = Date().addingTimeInterval(-initialHeartRateLookback)
+        fetchLatestHeartRateSample(since: startDate)
+
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: nil, options: .strictStartDate)
         let query = HKAnchoredObjectQuery(type: heartRateType, predicate: predicate, anchor: heartRateQueryAnchor, limit: HKObjectQueryNoLimit) { [weak self] _, samples, _, newAnchor, error in
             self?.handleHeartRateSamples(samples, error: error)
             self?.heartRateQueryAnchor = newAnchor
@@ -108,6 +112,20 @@ extension WorkoutTracking {
         }
 
         heartRateQuery = query
+        WorkoutTracking.healthStore.execute(query)
+    }
+
+    private func fetchLatestHeartRateSample(since startDate: Date) {
+        guard let heartRateType = heartRateType else {
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: nil, options: .strictStartDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+        let query = HKSampleQuery(type: heartRateType, predicate: predicate, limit: 1, sortDescriptors: [sortDescriptor]) { [weak self] _, samples, error in
+            self?.handleHeartRateSamples(samples, error: error)
+        }
+
         WorkoutTracking.healthStore.execute(query)
     }
 
@@ -133,6 +151,10 @@ extension WorkoutTracking {
         }
 
         let bpm = latestSample.quantity.doubleValue(for: heartRateUnit)
+
+        guard bpm > 0 else {
+            return
+        }
 
         DispatchQueue.main.async {
             WatchKitConnection.currentHeartRate = Int(round(bpm))
