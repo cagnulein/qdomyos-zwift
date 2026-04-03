@@ -646,12 +646,12 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     m_watt = (double)((((uint8_t)newValue.at(10)) << 8) | ((uint8_t)newValue.at(9))) / 10.0;
             }
 
-            /*if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool())
-                Speed = (double)((((uint8_t)newValue.at(4)) << 10) | ((uint8_t)newValue.at(9))) / 100.0;
-            else*/
-            Speed = metric::calculateSpeedFromPower(
-                watts(), Inclination.value(), Speed.value(),
-                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool())
+                Speed = (double)((((uint8_t)newValue.at(4)) << 8) | ((uint8_t)newValue.at(3))) / 100.0;
+            else
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
 
         } else if (newValue.length() == 13) {
 
