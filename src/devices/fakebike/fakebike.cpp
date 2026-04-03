@@ -1,4 +1,5 @@
 #include "fakebike.h"
+#include "homeform.h"
 #include "virtualdevices/virtualbike.h"
 
 #include <QBluetoothLocalDevice>
@@ -30,6 +31,8 @@ fakebike::fakebike(bool noWriteResistance, bool noHeartService, bool noVirtualDe
 
 void fakebike::update() {
     QSettings settings;
+    const bool virtualEchelonEnabled =
+        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     /*
@@ -114,11 +117,7 @@ void fakebike::update() {
 #endif
 #endif
             if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual bike interface..."));
-            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-            connect(virtualBike, &virtualbike::changeInclination, this, &fakebike::changeInclinationRequested);
-            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakebike::ftmsCharacteristicChanged);
-            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+            createVirtualBike();
         }
     }
     if (!firstStateChanged)
@@ -161,11 +160,51 @@ void fakebike::update() {
         Resistance = requestResistance;
         m_pelotonResistance = requestResistance;
     }
+
+    maybePromptForClassicBridge(virtualEchelonEnabled);
 }
 
 void fakebike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QByteArray b = newValue;
     qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
+}
+
+void fakebike::createVirtualBike(bool forceClassicMode, DirconManager *existingDirconManager) {
+    emit debug(QStringLiteral("creating virtual bike interface..."));
+    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, 4, 1.0, forceClassicMode,
+                                       existingDirconManager);
+    connect(virtualBike, &virtualbike::changeInclination, this, &fakebike::changeInclinationRequested);
+    connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakebike::ftmsCharacteristicChanged);
+    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+}
+
+void fakebike::switchToClassicVirtualBikeBridge() {
+    if (classicVirtualBridgeActive) {
+        return;
+    }
+
+    classicVirtualBridgeActive = true;
+    if (homeform::singleton()) {
+        homeform::singleton()->setEchelonBridgeSwitchPromptRequested(false);
+        homeform::singleton()->setToastRequested(QStringLiteral("Switching to classic Bluetooth bridge"));
+    }
+
+    DirconManager *existingDirconManager = nullptr;
+    if (auto *virtualBike = dynamic_cast<virtualbike *>(VirtualBike())) {
+        existingDirconManager = virtualBike->detachDirconManager();
+    }
+
+    createVirtualBike(true, existingDirconManager);
+}
+
+void fakebike::maybePromptForClassicBridge(bool virtualEchelonEnabled) {
+    if (!virtualEchelonEnabled || classicVirtualBridgeActive || classicBridgePromptShown || Cadence.value() <= 0 ||
+        !homeform::singleton()) {
+        return;
+    }
+
+    classicBridgePromptShown = true;
+    homeform::singleton()->setEchelonBridgeSwitchPromptRequested(true);
 }
 
 void fakebike::changeInclinationRequested(double grade, double percentage) {
