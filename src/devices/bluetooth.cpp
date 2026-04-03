@@ -3199,22 +3199,16 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
                 connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, this, [this]() {
                     auto *myWhoosh = MyWhooshLink::instance();
-                    if (myWhoosh && myWhoosh->isEnabled()) {
+                    if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
                         myWhoosh->handleGearUp(true);
-                        if (!myWhoosh->overrideLocalGears() && this->device() && this->device()->deviceType() == BIKE) {
-                            static_cast<bike *>(this->device())->gearUp();
-                        }
                     } else if (this->device() && this->device()->deviceType() == BIKE) {
                         static_cast<bike *>(this->device())->gearUp();
                     }
                 });
                 connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, this, [this]() {
                     auto *myWhoosh = MyWhooshLink::instance();
-                    if (myWhoosh && myWhoosh->isEnabled()) {
+                    if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
                         myWhoosh->handleGearDown(true);
-                        if (!myWhoosh->overrideLocalGears() && this->device() && this->device()->deviceType() == BIKE) {
-                            static_cast<bike *>(this->device())->gearDown();
-                        }
                     } else if (this->device() && this->device()->deviceType() == BIKE) {
                         static_cast<bike *>(this->device())->gearDown();
                     }
@@ -3285,22 +3279,16 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftPlayDevice.last(), &zwiftclickremote::debug, this, &bluetooth::debug);
                 connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, this, [this]() {
                     auto *myWhoosh = MyWhooshLink::instance();
-                    if (myWhoosh && myWhoosh->isEnabled()) {
+                    if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
                         myWhoosh->handleGearUp(true);
-                        if (!myWhoosh->overrideLocalGears() && this->device() && this->device()->deviceType() == BIKE) {
-                            static_cast<bike *>(this->device())->gearUp();
-                        }
                     } else if (this->device() && this->device()->deviceType() == BIKE) {
                         static_cast<bike *>(this->device())->gearUp();
                     }
                 });
                 connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, this, [this]() {
                     auto *myWhoosh = MyWhooshLink::instance();
-                    if (myWhoosh && myWhoosh->isEnabled()) {
+                    if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
                         myWhoosh->handleGearDown(true);
-                        if (!myWhoosh->overrideLocalGears() && this->device() && this->device()->deviceType() == BIKE) {
-                            static_cast<bike *>(this->device())->gearDown();
-                        }
                     } else if (this->device() && this->device()->deviceType() == BIKE) {
                         static_cast<bike *>(this->device())->gearDown();
                     }
