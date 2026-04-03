@@ -2,6 +2,7 @@
 #include "devices/bike.h"
 #include "qdebugfixup.h"
 #include "homeform.h"
+#include "mywhooshlink.h"
 #include <QSettings>
 #include <cmath>
 
@@ -155,6 +156,7 @@ void bike::setGears(double gears) {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
     double gears_offset = settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble();
+    const double previousGears = m_gears;
     gears -= gears_offset;
     qDebug() << "setGears" << gears;
 
@@ -223,6 +225,15 @@ void bike::setGears(double gears) {
     m_gears = gears;
     if(homeform::singleton()) {
         homeform::singleton()->updateGearsValue();
+    }
+
+    if (MyWhooshLink::instance() && MyWhooshLink::instance()->isEnabled() &&
+        !qFuzzyCompare(previousGears + 1.0, m_gears + 1.0)) {
+        if (m_gears > previousGears) {
+            MyWhooshLink::instance()->handleGearUp(true);
+        } else if (m_gears < previousGears) {
+            MyWhooshLink::instance()->handleGearDown(true);
+        }
     }
 
     if (settings.value(QZSettings::gears_restore_value, QZSettings::default_gears_restore_value).toBool())

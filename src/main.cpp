@@ -50,6 +50,7 @@
 #include "osc.h"
 
 #include "handleurl.h"
+#include "mywhooshlink.h"
 #include "authutils.h"
 
 class OAuthCallbackEventFilter : public QObject {
@@ -879,6 +880,12 @@ int main(int argc, char *argv[]) {
     QString OSC_ip = settings.value(QZSettings::OSC_ip, QZSettings::default_OSC_ip).toString();
     if(OSC_ip.length() > 0) {
         OSC* osc = new OSC(&bl);
+    }
+
+    // MyWhoosh Link integration
+    bool mywhoosh_link_enabled = settings.value(QZSettings::mywhoosh_link_enabled, QZSettings::default_mywhoosh_link_enabled).toBool();
+    if(mywhoosh_link_enabled) {
+        MyWhooshLink* mywhooshLink = new MyWhooshLink(&bl);
     }
 
 #ifdef Q_OS_IOS

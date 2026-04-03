@@ -1074,8 +1074,25 @@ const QString QZSettings::step_gain = QStringLiteral("step_gain");
 const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform_carbon_tlx_treadmill");
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
 
+// MyWhoosh Link settings
+const QString QZSettings::mywhoosh_link_enabled = QStringLiteral("mywhoosh_link_enabled");
+const QString QZSettings::mywhoosh_link_override_gears = QStringLiteral("mywhoosh_link_override_gears");
+const QString QZSettings::mywhoosh_link_left_up = QStringLiteral("mywhoosh_link_left_up");
+const QString QZSettings::mywhoosh_link_left_down = QStringLiteral("mywhoosh_link_left_down");
+const QString QZSettings::mywhoosh_link_left_left = QStringLiteral("mywhoosh_link_left_left");
+const QString QZSettings::mywhoosh_link_left_right = QStringLiteral("mywhoosh_link_left_right");
+const QString QZSettings::mywhoosh_link_left_shoulder = QStringLiteral("mywhoosh_link_left_shoulder");
+const QString QZSettings::mywhoosh_link_left_power = QStringLiteral("mywhoosh_link_left_power");
+const QString QZSettings::mywhoosh_link_right_y = QStringLiteral("mywhoosh_link_right_y");
+const QString QZSettings::mywhoosh_link_right_a = QStringLiteral("mywhoosh_link_right_a");
+const QString QZSettings::mywhoosh_link_right_b = QStringLiteral("mywhoosh_link_right_b");
+const QString QZSettings::mywhoosh_link_right_z = QStringLiteral("mywhoosh_link_right_z");
+const QString QZSettings::mywhoosh_link_right_shoulder = QStringLiteral("mywhoosh_link_right_shoulder");
+const QString QZSettings::mywhoosh_link_right_power = QStringLiteral("mywhoosh_link_right_power");
+const QString QZSettings::mywhoosh_link_camera_value = QStringLiteral("mywhoosh_link_camera_value");
+const QString QZSettings::mywhoosh_link_emote_value = QStringLiteral("mywhoosh_link_emote_value");
 
-const uint32_t allSettingsCount = 874;
+const uint32_t allSettingsCount = 890;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1970,6 +1987,22 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_sport_3_0, QZSettings::default_proform_treadmill_sport_3_0},
     {QZSettings::garmin_oauth1_token, QZSettings::default_garmin_oauth1_token},
     {QZSettings::garmin_oauth1_token_secret, QZSettings::default_garmin_oauth1_token_secret},
+    {QZSettings::mywhoosh_link_enabled, QZSettings::default_mywhoosh_link_enabled},
+    {QZSettings::mywhoosh_link_override_gears, QZSettings::default_mywhoosh_link_override_gears},
+    {QZSettings::mywhoosh_link_left_up, QZSettings::default_mywhoosh_link_left_up},
+    {QZSettings::mywhoosh_link_left_down, QZSettings::default_mywhoosh_link_left_down},
+    {QZSettings::mywhoosh_link_left_left, QZSettings::default_mywhoosh_link_left_left},
+    {QZSettings::mywhoosh_link_left_right, QZSettings::default_mywhoosh_link_left_right},
+    {QZSettings::mywhoosh_link_left_shoulder, QZSettings::default_mywhoosh_link_left_shoulder},
+    {QZSettings::mywhoosh_link_left_power, QZSettings::default_mywhoosh_link_left_power},
+    {QZSettings::mywhoosh_link_right_y, QZSettings::default_mywhoosh_link_right_y},
+    {QZSettings::mywhoosh_link_right_a, QZSettings::default_mywhoosh_link_right_a},
+    {QZSettings::mywhoosh_link_right_b, QZSettings::default_mywhoosh_link_right_b},
+    {QZSettings::mywhoosh_link_right_z, QZSettings::default_mywhoosh_link_right_z},
+    {QZSettings::mywhoosh_link_right_shoulder, QZSettings::default_mywhoosh_link_right_shoulder},
+    {QZSettings::mywhoosh_link_right_power, QZSettings::default_mywhoosh_link_right_power},
+    {QZSettings::mywhoosh_link_camera_value, QZSettings::default_mywhoosh_link_camera_value},
+    {QZSettings::mywhoosh_link_emote_value, QZSettings::default_mywhoosh_link_emote_value},
     {QZSettings::step_gain, QZSettings::default_step_gain},
     {QZSettings::proform_carbon_tlx_treadmill, QZSettings::default_proform_carbon_tlx_treadmill},
     {QZSettings::proform_carbon_tl_PFTL59723_6, QZSettings::default_proform_carbon_tl_PFTL59723_6},
