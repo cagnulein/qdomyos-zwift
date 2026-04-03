@@ -33,67 +33,75 @@ echelonconnectsport::echelonconnectsport(bool noWriteResistance, bool noHeartSer
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &echelonconnectsport::update);
     refresh->start(200ms);
+
+    writeTimeoutTimer = new QTimer(this);
+    writeTimeoutTimer->setSingleShot(true);
+    connect(writeTimeoutTimer, &QTimer::timeout, this, [this]() {
+        qDebug() << QStringLiteral("writeCharacteristic timeout - processing next in queue");
+        isWriting = false;
+        currentWriteWaitingForResponse = false;
+        processWriteQueue();
+    });
+
+    connect(this, &echelonconnectsport::packetReceived, this, [this]() {
+        if (currentWriteWaitingForResponse && isWriting) {
+            writeTimeoutTimer->stop();
+            isWriting = false;
+            currentWriteWaitingForResponse = false;
+            processWriteQueue();
+        }
+    });
 }
 
 void echelonconnectsport::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                               bool wait_for_response) {
-    QSettings settings;
-    bool useNativeIOS = false;
+    WriteRequest request;
+    request.data = QByteArray((const char *)data, data_len);
+    request.info = info;
+    request.disable_log = disable_log;
+    request.wait_for_response = wait_for_response;
 
-#ifdef Q_OS_IOS
-    useNativeIOS = settings.value(QZSettings::ios_btdevice_native, QZSettings::default_ios_btdevice_native).toBool();
-#endif
+    writeQueue.enqueue(request);
+    processWriteQueue();
+}
 
-    QEventLoop loop;
-    QTimer timeout;
-
-    if (!useNativeIOS) {
-        // if there are some crash here, maybe it's better to use 2 separate event for the characteristicChanged.
-        // one for the resistance changed event (spontaneous), and one for the other ones.
-        if (wait_for_response) {
-            connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
-            timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-        } else {
-            connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
-            timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-        }
-
-        if (gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
-            m_control->state() == QLowEnergyController::UnconnectedState) {
-            qDebug() << QStringLiteral("writeCharacteristic error because the connection is closed");
-            return;
-        }
-
-        if (!gattWriteCharacteristic.isValid()) {
-            qDebug() << QStringLiteral("gattWriteCharacteristic is invalid");
-            return;
-        }
+void echelonconnectsport::processWriteQueue() {
+    if (isWriting || writeQueue.isEmpty()) {
+        return;
     }
+
+    if (!gattCommunicationChannelService ||
+        gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
+        m_control->state() == QLowEnergyController::UnconnectedState) {
+        qDebug() << QStringLiteral("writeCharacteristic error because the connection is closed");
+        writeQueue.clear();
+        isWriting = false;
+        return;
+    }
+
+    if (!gattWriteCharacteristic.isValid()) {
+        qDebug() << QStringLiteral("gattWriteCharacteristic is invalid");
+        writeQueue.clear();
+        isWriting = false;
+        return;
+    }
+
+    WriteRequest request = writeQueue.dequeue();
+    isWriting = true;
+    currentWriteWaitingForResponse = request.wait_for_response;
 
     if (writeBuffer) {
         delete writeBuffer;
     }
-    writeBuffer = new QByteArray((const char *)data, data_len);
+    writeBuffer = new QByteArray(request.data);
 
-#ifdef Q_OS_IOS
-    if (useNativeIOS) {
-#ifndef IO_UNDER_QT
-        iOS_echelonConnectSport->echelonConnectSport_WriteCharacteristic((unsigned char*)writeBuffer->data(), data_len);
-#endif
-    } else
-#endif
-    {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+
+    if (!request.disable_log) {
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + request.info;
     }
 
-    if (!disable_log) {
-        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
-                        QStringLiteral(" // ") + info;
-    }
-
-    if (!useNativeIOS) {
-        loop.exec();
-    }
+    writeTimeoutTimer->start(300);
 }
 
 void echelonconnectsport::forceResistance(resistance_t requestResistance) {
@@ -125,14 +133,7 @@ void echelonconnectsport::sendPoll() {
 }
 
 void echelonconnectsport::update() {
-    QSettings settings;
-    bool useNativeIOS = false;
-
-#ifdef Q_OS_IOS
-    useNativeIOS = settings.value(QZSettings::ios_btdevice_native, QZSettings::default_ios_btdevice_native).toBool();
-#endif
-
-    if (!useNativeIOS && m_control->state() == QLowEnergyController::UnconnectedState) {
+    if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
     }
@@ -140,13 +141,12 @@ void echelonconnectsport::update() {
     if (initRequest) {
         initRequest = false;
         btinit();
-    } else if ((useNativeIOS ||
-                (bluetoothDevice.isValid() &&
-                 m_control->state() == QLowEnergyController::DiscoveredState &&
-                 gattCommunicationChannelService &&
-                 gattWriteCharacteristic.isValid() &&
-                 gattNotify1Characteristic.isValid() &&
-                 gattNotify2Characteristic.isValid())) &&
+    } else if ((bluetoothDevice.isValid() &&
+                m_control->state() == QLowEnergyController::DiscoveredState &&
+                gattCommunicationChannelService &&
+                gattWriteCharacteristic.isValid() &&
+                gattNotify1Characteristic.isValid() &&
+                gattNotify2Characteristic.isValid()) &&
                initDone) {
         update_metrics(true, watts());
 
@@ -253,13 +253,9 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    bool useNativeIOS = false;
-
-#ifdef Q_OS_IOS
-    useNativeIOS = settings.value(QZSettings::ios_btdevice_native, QZSettings::default_ios_btdevice_native).toBool();
-#endif
 
     qDebug() << " << " + newValue.toHex(' ');
+    emit packetReceived();
 
     lastPacket = newValue;
 
@@ -372,7 +368,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     qDebug() << QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime);
     qDebug() << QStringLiteral("Current Watt: ") + QString::number(watts());
 
-    if (!useNativeIOS && m_control && m_control->error() != QLowEnergyController::NoError) {
+    if (m_control && m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
 }
@@ -420,42 +416,30 @@ void echelonconnectsport::btinit() {
 }
 
 void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
-    QSettings settings;
-    bool useNativeIOS = false;
+    QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("0bf669f2-45f2-11e7-9598-0800200c9a66"));
+    QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66"));
+    QBluetoothUuid _gattNotify2CharacteristicId(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66"));
 
-#ifdef Q_OS_IOS
-    useNativeIOS = settings.value(QZSettings::ios_btdevice_native, QZSettings::default_ios_btdevice_native).toBool();
-#endif
+    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
+    qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
-    if (!useNativeIOS) {
-        QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("0bf669f2-45f2-11e7-9598-0800200c9a66"));
-        QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66"));
-        QBluetoothUuid _gattNotify2CharacteristicId(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66"));
+    if (state == QLowEnergyService::ServiceDiscovered) {
+        gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
+        gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
+        gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
+        Q_ASSERT(gattWriteCharacteristic.isValid());
+        Q_ASSERT(gattNotify1Characteristic.isValid());
+        Q_ASSERT(gattNotify2Characteristic.isValid());
 
-        QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
-        qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
-
-        if (state == QLowEnergyService::ServiceDiscovered) {
-            // qDebug() << gattCommunicationChannelService->characteristics();
-
-            gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
-            gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
-            gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
-            Q_ASSERT(gattWriteCharacteristic.isValid());
-            Q_ASSERT(gattNotify1Characteristic.isValid());
-            Q_ASSERT(gattNotify2Characteristic.isValid());
-
-                   // establish hook into notifications
-            connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
-                    &echelonconnectsport::characteristicChanged);
-            connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
-                    &echelonconnectsport::characteristicWritten);
-            connect(gattCommunicationChannelService,
-                    static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
-                    this, &echelonconnectsport::errorService);
-            connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
-                    &echelonconnectsport::descriptorWritten);
-        }
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
+                &echelonconnectsport::characteristicChanged);
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
+                &echelonconnectsport::characteristicWritten);
+        connect(gattCommunicationChannelService,
+                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                this, &echelonconnectsport::errorService);
+        connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
+                &echelonconnectsport::descriptorWritten);
     }
 
     // ******************************************* virtual bike init *************************************
@@ -503,7 +487,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
     firstStateChanged = 1;
     // ********************************************************************************************************
 
-    if (!useNativeIOS && state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::ServiceDiscovered) {
         QByteArray descriptor;
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
@@ -525,31 +509,27 @@ void echelonconnectsport::characteristicWritten(const QLowEnergyCharacteristic &
                                                 const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     qDebug() << QStringLiteral("characteristicWritten ") + newValue.toHex(' ');
+
+    if (!currentWriteWaitingForResponse) {
+        writeTimeoutTimer->stop();
+        isWriting = false;
+        processWriteQueue();
+    }
 }
 
 void echelonconnectsport::serviceScanDone(void) {
     qDebug() << QStringLiteral("serviceScanDone");
 
-    QSettings settings;
-    bool useNativeIOS = false;
+    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("0bf669f1-45f2-11e7-9598-0800200c9a66"));
 
-#ifdef Q_OS_IOS
-    useNativeIOS = settings.value(QZSettings::ios_btdevice_native, QZSettings::default_ios_btdevice_native).toBool();
-#endif
-
-    if (!useNativeIOS) {
-            QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("0bf669f1-45f2-11e7-9598-0800200c9a66"));
-
-            gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-            connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
-                    &echelonconnectsport::stateChanged);
-            if(gattCommunicationChannelService != nullptr) {
-                gattCommunicationChannelService->discoverDetails();
-            } else {
-                if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("Bluetooth Service Error! Restart the bike!");
-                m_control->disconnectFromDevice();
-            }
+    gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &echelonconnectsport::stateChanged);
+    if (gattCommunicationChannelService != nullptr) {
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        if (homeform::singleton())
+            homeform::singleton()->setToastRequested("Bluetooth Service Error! Restart the bike!");
+        m_control->disconnectFromDevice();
     }
 }
 
@@ -568,20 +548,6 @@ void echelonconnectsport::error(QLowEnergyController::Error err) {
 void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     qDebug() << QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                     device.address().toString() + ')';
-
-    QSettings settings;
-    bool useNativeIOS = false;
-
-#ifdef Q_OS_IOS
-    useNativeIOS = settings.value(QZSettings::ios_btdevice_native, QZSettings::default_ios_btdevice_native).toBool();
-    if (useNativeIOS) {
-#ifndef IO_UNDER_QT
-        iOS_echelonConnectSport = new lockscreen();
-        iOS_echelonConnectSport->echelonConnectSport(device.name().toStdString().c_str(), this);
-        return;
-#endif
-    }
-#endif
 
     if (device.name().startsWith(QStringLiteral("ECH"))) {
         bluetoothDevice = device;
@@ -620,16 +586,6 @@ void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool echelonconnectsport::connected() {
-    QSettings settings;
-    bool useNativeIOS = false;
-
-#ifdef Q_OS_IOS
-    useNativeIOS = settings.value(QZSettings::ios_btdevice_native, QZSettings::default_ios_btdevice_native).toBool();
-    if (useNativeIOS) {
-        return true;
-    }
-#endif
-
     if (!m_control) {
         return false;
     }
@@ -766,21 +722,12 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
 
 void echelonconnectsport::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
-    QSettings settings;
-    bool useNativeIOS = false;
-    
-#ifdef Q_OS_IOS
-    useNativeIOS = settings.value(QZSettings::ios_btdevice_native, QZSettings::default_ios_btdevice_native).toBool();
-#endif
-    
-    if (state == QLowEnergyController::UnconnectedState
-        && (m_control || useNativeIOS)
-        ) {
+
+    if (state == QLowEnergyController::UnconnectedState && m_control) {
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        if(!useNativeIOS)
-            m_control->connectToDevice();
+        m_control->connectToDevice();
 
     }
 }
