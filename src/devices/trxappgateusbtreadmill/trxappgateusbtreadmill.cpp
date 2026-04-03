@@ -277,7 +277,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 
     QTime now = QTime::currentTime();
     if (!firstCharChanged) {
-        DistanceCalculated += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
+        Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
         if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             kcal =
                 KCal.value() + ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
@@ -300,7 +300,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
     emit debug(QStringLiteral("Current Elapsed from the treadmill (not used): ") +
                QString::number(GetElapsedFromPacket(lastPacket)));
-    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(DistanceCalculated));
+    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
@@ -309,7 +309,6 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     Speed = speed;
     Inclination = incline;
     KCal = kcal;
-    Distance = distance;
 
     firstCharChanged = false;
 
