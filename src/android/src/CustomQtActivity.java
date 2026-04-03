@@ -17,6 +17,7 @@ public class CustomQtActivity extends QtActivity {
     // Declare the native method that will be implemented in C++
     private static native void onInsetsChanged(int top, int bottom, int left, int right);
     private static native void nativeOnOAuthCallback(String callbackUrl);
+    private static native void nativeOnDocumentPicked(int requestCode, int resultCode, String uriString);
 
     private void dispatchOAuthCallback(Intent intent) {
         if (intent == null) {
@@ -110,6 +111,26 @@ public class CustomQtActivity extends QtActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         dispatchOAuthCallback(intent);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        String uriString = "";
+        if (data != null && data.getData() != null) {
+            uriString = data.getData().toString();
+        }
+        Log.d(TAG, "onActivityResult requestCode=" + requestCode + " resultCode=" + resultCode + " uri=" + uriString);
+        nativeOnDocumentPicked(requestCode, resultCode, uriString);
+    }
+
+    public void openDocumentPicker(String mimeType, int requestCode) {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType((mimeType == null || mimeType.isEmpty()) ? "*/*" : mimeType);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivityForResult(Intent.createChooser(intent, "Select file"), requestCode);
     }
 
     // This method is still needed for the QML check

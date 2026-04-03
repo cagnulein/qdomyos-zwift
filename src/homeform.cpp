@@ -6,7 +6,6 @@
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
-#include <QtAndroidExtras/QAndroidActivityResultReceiver>
 #include <jni.h>
 #include <QAndroidJniObject>
 #endif
@@ -113,41 +112,6 @@ constexpr int AndroidDocumentPickerTrainingRequestCode = 4102;
 constexpr int AndroidDocumentPickerGpxRequestCode = 4103;
 constexpr int AndroidDocumentPickerSettingsRequestCode = 4104;
 constexpr jint AndroidActivityResultOk = -1;
-constexpr jint AndroidIntentFlagGrantReadUriPermission = 0x00000001;
-
-class AndroidDocumentPickerReceiver : public QAndroidActivityResultReceiver {
-  public:
-    explicit AndroidDocumentPickerReceiver(int requestCode) : requestCode(requestCode) {}
-
-    void handleActivityResult(int receiverRequestCode, int resultCode, const QAndroidJniObject &data) override {
-        qDebug() << "AndroidDocumentPickerReceiver::handleActivityResult" << receiverRequestCode << resultCode;
-
-        if (receiverRequestCode != requestCode || resultCode != AndroidActivityResultOk || !data.isValid() ||
-            !homeform::singleton()) {
-            delete this;
-            return;
-        }
-
-        QAndroidJniObject uri = data.callObjectMethod("getData", "()Landroid/net/Uri;");
-        if (clearAndroidJniException("Intent.getData") || !uri.isValid()) {
-            delete this;
-            return;
-        }
-
-        QAndroidJniObject uriString = uri.callObjectMethod("toString", "()Ljava/lang/String;");
-        if (clearAndroidJniException("Uri.toString") || !uriString.isValid()) {
-            delete this;
-            return;
-        }
-
-        QMetaObject::invokeMethod(homeform::singleton(), "handleAndroidDocumentPicked", Qt::QueuedConnection,
-                                  Q_ARG(int, requestCode), Q_ARG(QString, uriString.toString()));
-        delete this;
-    }
-
-  private:
-    int requestCode;
-};
 #endif
 
 class MailSenderThread : public QThread {
@@ -1126,6 +1090,31 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnOAuthCallback(JNIEnv *en
         QMetaObject::invokeMethod(homeform::singleton(), "handleOAuthCallbackUrl", Qt::QueuedConnection,
                                   Q_ARG(QString, url));
     }
+}
+
+JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnDocumentPicked(JNIEnv *env, jclass clazz, jint requestCode,
+                                                                       jint resultCode, jstring uriString) {
+    Q_UNUSED(clazz)
+    if (resultCode != AndroidActivityResultOk || !homeform::singleton()) {
+        return;
+    }
+
+    QString uri;
+    if (uriString) {
+        const char *uriChars = env->GetStringUTFChars(uriString, nullptr);
+        uri = QString::fromUtf8(uriChars ? uriChars : "");
+        if (uriChars) {
+            env->ReleaseStringUTFChars(uriString, uriChars);
+        }
+    }
+
+    if (uri.isEmpty()) {
+        return;
+    }
+
+    QMetaObject::invokeMethod(homeform::singleton(), "handleAndroidDocumentPicked", Qt::QueuedConnection,
+                              Q_ARG(int, static_cast<int>(requestCode)), Q_ARG(QString, uri));
 }
 
 JNIEXPORT void JNICALL
@@ -8181,32 +8170,30 @@ bool homeform::startTrainingProgramFromFile(const QString &filePath) {
 void homeform::openAndroidDocumentPicker(const QString &kind) {
 #ifdef Q_OS_ANDROID
     int requestCode = 0;
+    QString mimeType = QStringLiteral("*/*");
     if (kind == QStringLiteral("profile")) {
         requestCode = AndroidDocumentPickerProfileRequestCode;
+        mimeType = QStringLiteral("*/*");
     } else if (kind == QStringLiteral("training")) {
         requestCode = AndroidDocumentPickerTrainingRequestCode;
+        mimeType = QStringLiteral("*/*");
     } else if (kind == QStringLiteral("gpx")) {
         requestCode = AndroidDocumentPickerGpxRequestCode;
+        mimeType = QStringLiteral("*/*");
     } else if (kind == QStringLiteral("settings")) {
         requestCode = AndroidDocumentPickerSettingsRequestCode;
+        mimeType = QStringLiteral("*/*");
     } else {
         qWarning() << "Unknown Android document picker kind" << kind;
         return;
     }
 
-    QAndroidJniObject action = QAndroidJniObject::fromString(QStringLiteral("android.intent.action.GET_CONTENT"));
-    QAndroidJniObject intent("android/content/Intent", "(Ljava/lang/String;)V", action.object<jstring>());
-    intent.callObjectMethod("addCategory", "(Ljava/lang/String;)Landroid/content/Intent;",
-                            QAndroidJniObject::fromString(QStringLiteral("android.intent.category.OPENABLE"))
-                                .object<jstring>());
-    intent.callObjectMethod("setType", "(Ljava/lang/String;)Landroid/content/Intent;",
-                            QAndroidJniObject::fromString(QStringLiteral("*/*")).object<jstring>());
-    intent.callObjectMethod("addFlags", "(I)Landroid/content/Intent;", AndroidIntentFlagGrantReadUriPermission);
-    if (clearAndroidJniException("Intent setup for ACTION_GET_CONTENT")) {
+    QAndroidJniObject javaMimeType = QAndroidJniObject::fromString(mimeType);
+    QtAndroid::androidActivity().callMethod<void>("openDocumentPicker", "(Ljava/lang/String;I)V",
+                                                  javaMimeType.object<jstring>(), requestCode);
+    if (clearAndroidJniException("CustomQtActivity.openDocumentPicker")) {
         return;
     }
-
-    QtAndroid::startActivity(intent, requestCode, new AndroidDocumentPickerReceiver(requestCode));
 #else
     Q_UNUSED(kind)
 #endif
