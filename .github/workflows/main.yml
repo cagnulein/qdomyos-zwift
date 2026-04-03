@@ -2118,12 +2118,131 @@ jobs:
         with:
           name: peloton-bike-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike.apk
+
+  # Build the linux x86-64 variant with ant+ support
+  linux-x86-build-ant:
+    runs-on: ubuntu-24.04
+
+    steps:
+      # Step 1: Check out the repository's source code, including submodules
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # Step 2: Set up QEMU for x86 runner.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      # Step 3: Set up Docker Buildx, the modern builder toolkit
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Step 4: Create the secrets file before the build starts, so it can be copied into the image
+      - name: Create Secrets File
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          echo "#define LICENSE" >> secret.h
+          cd ..
+
+      # Step 5: Build the x86-64 binary using the dedicated Dockerfile and extract it
+      - name: Build and Extract x86-64 Binary
+        run: |
+          IMAGE_TAG="qdomyos-zwift-x86-builder:latest"
           
+          # Build the native linux/amd64 image using its dedicated Dockerfile.
+          # No --platform flag is needed as we are building for the runner's native architecture.
+          docker buildx build --no-cache -t $IMAGE_TAG --load . -f docker/linux-ant/Dockerfile
+          
+          echo "Build complete. Extracting binary..."
+          
+          docker create --name qz-container $IMAGE_TAG
+          docker cp qz-container:/qdomyos-zwift-x86-64-ant ./qdomyos-zwift-x86-64-ant
+          docker rm qz-container
+
+      - name: Zip artifact for deployment
+        run: zip -r linux-binary-x86-64-ant.zip qdomyos-zwift-x86-64-ant
+
+      - name: Archive Linux x86-64 ANT+ binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-binary-x86-64-ant
+          path: linux-binary-x86-64-ant.zip
+
+  # Build the raspberry pi 64 bit variant with ant+ support
+  raspberry-pi-build-aarch64-ant:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository's source code, including submodules
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # Step 2: Set up QEMU for ARM emulation on the x86 runner. This is essential.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      # Step 3: Set up Docker Buildx, the modern builder toolkit
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Step 4: Create the secrets file before the build starts, so it can be copied into the image
+      - name: Create Secrets File
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          echo "#define LICENSE" >> secret.h
+          cd ..
+
+      # Step 5: Build the ARM64 binary using the dedicated Dockerfile and extract it
+      - name: Build and Extract ARM64 Binary
+        run: |
+          # Define a tag for the build image for easy reference
+          IMAGE_TAG="qdomyos-zwift-ant-builder:latest"
+          
+          # Build the multi-platform image using the specified Dockerfile.
+          # The '--load' flag makes the final image available to the runner's local Docker daemon.
+          # The '--no-cache' flag prevents older artifacts from being used
+          docker buildx build --no-cache --platform linux/arm64 -t $IMAGE_TAG --load . -f docker/rpi-ant/Dockerfile
+          
+          echo "Build complete. Extracting binary from the image..."
+          
+          # Create a temporary container from the newly built image
+          docker create --name qz-container $IMAGE_TAG
+          
+          # Copy the final compiled binary from the container to the runner's workspace
+          docker cp qz-container:/qdomyos-zwift-aarch64-ant ./qdomyos-zwift-aarch64-ant
+          
+          # Clean up by removing the temporary container
+          docker rm qz-container
+
+      - name: Zip artifact for deployment
+        run: zip -r raspberry-pi-binary-aarch64-ant.zip qdomyos-zwift-aarch64-ant
+
+      - name: Archive Raspberry Pi 64bit ANT+ binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: raspberry-pi-binary-aarch64-ant
+          path: raspberry-pi-binary-aarch64-ant.zip
+
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
-    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, raspberry-pi-smoke-test]
+    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, raspberry-pi-smoke-test, raspberry-pi-build-aarch64-ant, linux-x86-build-ant]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -2166,6 +2285,8 @@ jobs:
             - **peloton-bike-android-trial**: Peloton Bike build with Grupetto backend
             - **raspberry-pi-binary-armv6hf**: Raspberry Pi 32-bit (ARMv6 hard-float, Pi Zero W compatible)
             - **raspberry-pi-binary-aarch64**: Raspberry Pi 64-bit (AArch64, Pi 3/4/5)
+            - **raspberry-pi-binary-aarch64-ant**: Raspberry Pi 64-bit build with ANT+ Footpod support
+            - **linux-binary-x86-64-ant**: Linux 64-bit build with ANT+ Footpod support for Desktop Linux (Ubuntu/Debian)
 
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
           files: |
@@ -2184,3 +2305,5 @@ jobs:
             peloton-bike-android-trial/android-debug-peloton-bike.apk
             raspberry-pi-binary-armv6hf/qdomyos-zwift-armv6hf
             raspberry-pi-binary-aarch64/qdomyos-zwift-aarch64
+            raspberry-pi-binary-aarch64-ant/*
+            linux-binary-x86-64-ant/*
