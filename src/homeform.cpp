@@ -114,8 +114,6 @@ constexpr int AndroidDocumentPickerGpxRequestCode = 4103;
 constexpr int AndroidDocumentPickerSettingsRequestCode = 4104;
 constexpr jint AndroidActivityResultOk = -1;
 constexpr jint AndroidIntentFlagGrantReadUriPermission = 0x00000001;
-constexpr jint AndroidIntentFlagGrantWriteUriPermission = 0x00000002;
-constexpr jint AndroidIntentFlagGrantPersistableUriPermission = 0x00000040;
 
 class AndroidDocumentPickerReceiver : public QAndroidActivityResultReceiver {
   public:
@@ -134,21 +132,6 @@ class AndroidDocumentPickerReceiver : public QAndroidActivityResultReceiver {
         if (clearAndroidJniException("Intent.getData") || !uri.isValid()) {
             delete this;
             return;
-        }
-
-        jint flags = data.callMethod<jint>("getFlags", "()I");
-        clearAndroidJniException("Intent.getFlags");
-
-        QAndroidJniObject contentResolver =
-            QtAndroid::androidContext().callObjectMethod("getContentResolver", "()Landroid/content/ContentResolver;");
-        if (contentResolver.isValid()) {
-            const jint persistFlags =
-                flags & (AndroidIntentFlagGrantReadUriPermission | AndroidIntentFlagGrantWriteUriPermission);
-            if (persistFlags != 0) {
-                contentResolver.callMethod<void>("takePersistableUriPermission", "(Landroid/net/Uri;I)V",
-                                                 uri.object<jobject>(), persistFlags);
-                clearAndroidJniException("ContentResolver.takePersistableUriPermission");
-            }
         }
 
         QAndroidJniObject uriString = uri.callObjectMethod("toString", "()Ljava/lang/String;");
@@ -8211,16 +8194,15 @@ void homeform::openAndroidDocumentPicker(const QString &kind) {
         return;
     }
 
-    QAndroidJniObject action = QAndroidJniObject::fromString(QStringLiteral("android.intent.action.OPEN_DOCUMENT"));
+    QAndroidJniObject action = QAndroidJniObject::fromString(QStringLiteral("android.intent.action.GET_CONTENT"));
     QAndroidJniObject intent("android/content/Intent", "(Ljava/lang/String;)V", action.object<jstring>());
     intent.callObjectMethod("addCategory", "(Ljava/lang/String;)Landroid/content/Intent;",
                             QAndroidJniObject::fromString(QStringLiteral("android.intent.category.OPENABLE"))
                                 .object<jstring>());
     intent.callObjectMethod("setType", "(Ljava/lang/String;)Landroid/content/Intent;",
                             QAndroidJniObject::fromString(QStringLiteral("*/*")).object<jstring>());
-    intent.callObjectMethod("addFlags", "(I)Landroid/content/Intent;",
-                            AndroidIntentFlagGrantReadUriPermission | AndroidIntentFlagGrantPersistableUriPermission);
-    if (clearAndroidJniException("Intent setup for ACTION_OPEN_DOCUMENT")) {
+    intent.callObjectMethod("addFlags", "(I)Landroid/content/Intent;", AndroidIntentFlagGrantReadUriPermission);
+    if (clearAndroidJniException("Intent setup for ACTION_GET_CONTENT")) {
         return;
     }
 
