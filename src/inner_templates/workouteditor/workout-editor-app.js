@@ -465,9 +465,26 @@
             .finally(() => setWorking(false));
     }
 
+    function extractRowLabel(row) {
+        if (row.name && row.name !== 'null') {
+            return row.name;
+        }
+        const textEvents = Array.isArray(row.textEvents) ? row.textEvents : [];
+        for (const event of textEvents) {
+            if (!event || typeof event.message !== 'string') {
+                continue;
+            }
+            const message = event.message.trim();
+            if (message) {
+                return message;
+            }
+        }
+        return '';
+    }
+
     function convertRow(row, idx) {
         const out = {};
-        out.name = row.name || `Interval ${idx + 1}`;
+        out.name = extractRowLabel(row) || `Interval ${idx + 1}`;
         if (!out.name || out.name === 'null') {
             out.name = `Interval ${idx + 1}`;
         }
