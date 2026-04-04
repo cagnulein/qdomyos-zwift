@@ -11,6 +11,7 @@
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
 #include <QtCore/qbytearray.h>
+#include <QtCore/qqueue.h>
 
 #ifndef Q_OS_ANDROID
 #include <QtCore/qcoreapplication.h>
@@ -84,10 +85,25 @@ class ftmsbike : public bike {
     bool inclinationAvailableBySoftware() override { return !resistance_lvl_mode; }
 
   private:
+    struct WriteRequest {
+        QByteArray data;
+        QString info;
+        bool disable_log = false;
+        bool wait_for_response = false;
+        QLowEnergyService *service = nullptr;
+        QLowEnergyCharacteristic characteristic;
+        bool write_without_response = false;
+    };
+
     bool writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+    bool enqueueWrite(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic, uint8_t *data,
+                      uint8_t data_len, const QString &info, bool disable_log, bool wait_for_response,
+                      bool write_without_response);
+    void processWriteQueue();
+    void completeCurrentWrite();
     void zwiftPlayInit();
     void startDiscover();
     void setWheelDiameter(double diameter);
@@ -190,6 +206,12 @@ class ftmsbike : public bike {
 
     bool wattReceived = false;
     bool gearInclinationSent = false;
+
+    QQueue<WriteRequest> writeQueue;
+    bool isWriting = false;
+    bool currentWriteWaitingForResponse = false;
+    QLowEnergyService *currentWriteService = nullptr;
+    QTimer *writeTimeoutTimer = nullptr;
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;

@@ -38,14 +38,20 @@ ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResis
     ergModeSupported = true; // by default ftms devices SHOULD have ergMode supported
     connect(refresh, &QTimer::timeout, this, &ftmsbike::update);
     refresh->start(settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt());
+
+    writeTimeoutTimer = new QTimer(this);
+    writeTimeoutTimer->setSingleShot(true);
+    connect(writeTimeoutTimer, &QTimer::timeout, this, [this]() {
+        qDebug() << QStringLiteral("writeCharacteristic timeout - processing next in queue");
+        completeCurrentWrite();
+    });
+
     wheelCircumference::GearTable g;
     g.printTable();
 }
 
 void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                    bool wait_for_response) {
-    QEventLoop loop;
-    QTimer timeout;
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
@@ -54,37 +60,12 @@ void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, con
         return;
     }
 
-    if (wait_for_response) {
-        connect(zwiftPlayService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-    } else {
-        connect(zwiftPlayService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-    }
-
-    if (writeBuffer) {
-        delete writeBuffer;
-    }
-    writeBuffer = new QByteArray((const char *)data, data_len);
-
-    if (zwiftPlayWriteChar.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        zwiftPlayService->writeCharacteristic(zwiftPlayWriteChar, *writeBuffer,
-                                             QLowEnergyService::WriteWithoutResponse);
-    } else {
-        zwiftPlayService->writeCharacteristic(zwiftPlayWriteChar, *writeBuffer);
-    }
-
-    if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
-    }
-
-    loop.exec();
+    enqueueWrite(zwiftPlayService, zwiftPlayWriteChar, data, data_len, info, disable_log, wait_for_response,
+                 zwiftPlayWriteChar.properties() & QLowEnergyCharacteristic::WriteNoResponse);
 }
 
 bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                    bool wait_for_response) {
-    QEventLoop loop;
-    QTimer timeout;
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
@@ -98,33 +79,74 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
         return false;
     }
 
-    if (wait_for_response) {
-        connect(gattFTMSService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-    } else {
-        connect(gattFTMSService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+    return enqueueWrite(gattFTMSService, gattWriteCharControlPointId, data, data_len, info, disable_log,
+                        wait_for_response,
+                        gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse &&
+                            !DOMYOS);
+}
+
+bool ftmsbike::enqueueWrite(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic, uint8_t *data,
+                            uint8_t data_len, const QString &info, bool disable_log, bool wait_for_response,
+                            bool write_without_response) {
+    if (!service || !characteristic.isValid()) {
+        qDebug() << QStringLiteral("writeCharacteristic error because service/characteristic is invalid");
+        return false;
+    }
+
+    WriteRequest request;
+    request.data = QByteArray((const char *)data, data_len);
+    request.info = info;
+    request.disable_log = disable_log;
+    request.wait_for_response = wait_for_response;
+    request.service = service;
+    request.characteristic = characteristic;
+    request.write_without_response = write_without_response;
+
+    writeQueue.enqueue(request);
+    processWriteQueue();
+    return true;
+}
+
+void ftmsbike::processWriteQueue() {
+    if (isWriting || writeQueue.isEmpty()) {
+        return;
+    }
+
+    WriteRequest request = writeQueue.dequeue();
+    if (!request.service || request.service->state() != QLowEnergyService::ServiceDiscovered) {
+        qDebug() << QStringLiteral("writeCharacteristic error because the connection is closed");
+        writeQueue.clear();
+        return;
     }
 
     if (writeBuffer) {
         delete writeBuffer;
     }
-    writeBuffer = new QByteArray((const char *)data, data_len);
+    writeBuffer = new QByteArray(request.data);
 
-    if (gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse && !DOMYOS) {
-        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer,
-                                             QLowEnergyService::WriteWithoutResponse);
+    isWriting = true;
+    currentWriteWaitingForResponse = request.wait_for_response;
+    currentWriteService = request.service;
+
+    if (request.write_without_response) {
+        request.service->writeCharacteristic(request.characteristic, *writeBuffer, QLowEnergyService::WriteWithoutResponse);
     } else {
-        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
+        request.service->writeCharacteristic(request.characteristic, *writeBuffer);
     }
 
-    if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
+    if (!request.disable_log) {
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + request.info);
     }
 
-    loop.exec();
+    writeTimeoutTimer->start(300);
+}
 
-    return true;
+void ftmsbike::completeCurrentWrite() {
+    writeTimeoutTimer->stop();
+    isWriting = false;
+    currentWriteWaitingForResponse = false;
+    currentWriteService = nullptr;
+    processWriteQueue();
 }
 
 void ftmsbike::init() {
@@ -574,6 +596,10 @@ void ftmsbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    if (isWriting && currentWriteWaitingForResponse && sender() == currentWriteService) {
+        completeCurrentWrite();
+    }
+
     QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
@@ -1771,6 +1797,10 @@ void ftmsbike::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByt
 }
 
 void ftmsbike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    if (isWriting && !currentWriteWaitingForResponse && sender() == currentWriteService) {
+        completeCurrentWrite();
+    }
+
     Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
