@@ -260,6 +260,11 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
                                QZSettings::default_domyos_elliptical_speed_ratio)
                     .toDouble();
             m_watt = GetWattFromM7Packet(newValue);
+            if (watts()) {
+                KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
+                         (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                        QDateTime::currentDateTime()))));
+            }
             Resistance = (uint8_t)newValue.at(18);
 
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
