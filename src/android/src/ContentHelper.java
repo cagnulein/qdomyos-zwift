@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import org.cagnulen.qdomyoszwift.QLog;
@@ -83,5 +84,45 @@ public class ContentHelper {
             } catch (Exception ignored) {
             }
         }
+    }
+
+    public static String importContentToAppDir(Context context, Uri uri, String destinationDirPath) {
+        if (context == null || uri == null || destinationDirPath == null || destinationDirPath.isEmpty()) {
+            return "";
+        }
+
+        String fileName = sanitizeFileName(getFileName(context, uri));
+        if (fileName.isEmpty()) {
+            fileName = "imported_file";
+        }
+
+        File destinationDir = new File(destinationDirPath);
+        if (!destinationDir.exists() && !destinationDir.mkdirs()) {
+            QLog.d("ContentHelper", "importContentToAppDir could not create " + destinationDirPath);
+            return "";
+        }
+
+        File destinationFile = new File(destinationDir, fileName);
+        if (destinationFile.exists() && !destinationFile.delete()) {
+            QLog.d("ContentHelper", "importContentToAppDir could not replace " + destinationFile.getAbsolutePath());
+            return "";
+        }
+
+        if (!copyContentToFile(context, uri, destinationFile.getAbsolutePath())) {
+            if (destinationFile.exists()) {
+                destinationFile.delete();
+            }
+            return "";
+        }
+
+        return destinationFile.getAbsolutePath();
+    }
+
+    private static String sanitizeFileName(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value.replace('\\', '_').replace('/', '_').trim();
     }
 }

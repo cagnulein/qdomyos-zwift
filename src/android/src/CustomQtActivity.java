@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.SparseArray;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowInsets;
@@ -17,13 +18,12 @@ public class CustomQtActivity extends QtActivity {
     private static final int DOCUMENT_PICKER_TRAINING_REQUEST_CODE = 4102;
     private static final int DOCUMENT_PICKER_GPX_REQUEST_CODE = 4103;
     private static final int DOCUMENT_PICKER_SETTINGS_REQUEST_CODE = 4104;
-    private static final int DOCUMENT_PICKER_PERMISSION_FLAGS =
-        Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+    private final SparseArray<String> pendingImportDirectories = new SparseArray<>();
 
     // Declare the native method that will be implemented in C++
     private static native void onInsetsChanged(int top, int bottom, int left, int right);
     private static native void nativeOnOAuthCallback(String callbackUrl);
-    private static native void nativeOnDocumentPicked(int requestCode, int resultCode, String uriString);
+    private static native void nativeOnDocumentPicked(int requestCode, int resultCode, String localPath);
 
     private void dispatchOAuthCallback(Intent intent) {
         if (intent == null) {
@@ -121,42 +121,25 @@ public class CustomQtActivity extends QtActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        String uriString = "";
-        int flags = 0;
-        String action = "";
-        int clipItemCount = 0;
-        if (data != null && data.getData() != null) {
-            uriString = data.getData().toString();
-        }
         if (isDocumentPickerRequest(requestCode)) {
-            if (data != null) {
-                flags = data.getFlags();
-                action = data.getAction() == null ? "" : data.getAction();
-                if (data.getClipData() != null) {
-                    clipItemCount = data.getClipData().getItemCount();
-                }
-                tryTakePersistableUriPermission(data);
-            }
-            Log.d(TAG, "onActivityResult requestCode=" + requestCode
-                + " resultCode=" + resultCode
-                + " action=" + action
-                + " flags=0x" + Integer.toHexString(flags)
-                + " clipItems=" + clipItemCount
-                + " uri=" + uriString);
-            nativeOnDocumentPicked(requestCode, resultCode, uriString);
+            handleDocumentPickerResult(requestCode, resultCode, data);
             return;
         }
 
+        String uriString = "";
+        if (data != null && data.getData() != null) {
+            uriString = data.getData().toString();
+        }
         Log.d(TAG, "onActivityResult passthrough requestCode=" + requestCode + " resultCode=" + resultCode + " uri=" + uriString);
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void openDocumentPicker(String mimeType, int requestCode) {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+    public void openDocumentPicker(String mimeType, int requestCode, String destinationDir) {
+        pendingImportDirectories.put(requestCode, destinationDir == null ? "" : destinationDir);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType((mimeType == null || mimeType.isEmpty()) ? "*/*" : mimeType);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
         startActivityForResult(Intent.createChooser(intent, "Select file"), requestCode);
     }
 
@@ -172,22 +155,38 @@ public class CustomQtActivity extends QtActivity {
             || requestCode == DOCUMENT_PICKER_SETTINGS_REQUEST_CODE;
     }
 
-    private void tryTakePersistableUriPermission(Intent data) {
-        if (data == null || data.getData() == null) {
-            return;
+    private void handleDocumentPickerResult(int requestCode, int resultCode, Intent data) {
+        String destinationDir = pendingImportDirectories.get(requestCode, "");
+        pendingImportDirectories.remove(requestCode);
+
+        String action = "";
+        int flags = 0;
+        int clipItemCount = 0;
+        String uriString = "";
+        String localPath = "";
+
+        if (data != null) {
+            action = data.getAction() == null ? "" : data.getAction();
+            flags = data.getFlags();
+            if (data.getClipData() != null) {
+                clipItemCount = data.getClipData().getItemCount();
+            }
+            if (data.getData() != null) {
+                Uri uri = data.getData();
+                uriString = uri.toString();
+                if (resultCode == RESULT_OK) {
+                    localPath = ContentHelper.importContentToAppDir(this, uri, destinationDir);
+                }
+            }
         }
 
-        int grantedFlags = data.getFlags() & DOCUMENT_PICKER_PERMISSION_FLAGS;
-        if (grantedFlags == 0) {
-            Log.d(TAG, "takePersistableUriPermission skipped: no granted read/write flags");
-            return;
-        }
-
-        try {
-            getContentResolver().takePersistableUriPermission(data.getData(), grantedFlags);
-            Log.d(TAG, "takePersistableUriPermission success flags=0x" + Integer.toHexString(grantedFlags));
-        } catch (Exception e) {
-            Log.d(TAG, "takePersistableUriPermission failed " + e);
-        }
+        Log.d(TAG, "handleDocumentPickerResult requestCode=" + requestCode
+            + " resultCode=" + resultCode
+            + " action=" + action
+            + " flags=0x" + Integer.toHexString(flags)
+            + " clipItems=" + clipItemCount
+            + " uri=" + uriString
+            + " localPath=" + localPath);
+        nativeOnDocumentPicked(requestCode, resultCode, localPath);
     }
 }

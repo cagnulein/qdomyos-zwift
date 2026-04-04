@@ -1094,27 +1094,27 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnOAuthCallback(JNIEnv *en
 
 JNIEXPORT void JNICALL
 Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnDocumentPicked(JNIEnv *env, jclass clazz, jint requestCode,
-                                                                       jint resultCode, jstring uriString) {
+                                                                       jint resultCode, jstring localPathString) {
     Q_UNUSED(clazz)
     if (resultCode != AndroidActivityResultOk || !homeform::singleton()) {
         return;
     }
 
-    QString uri;
-    if (uriString) {
-        const char *uriChars = env->GetStringUTFChars(uriString, nullptr);
-        uri = QString::fromUtf8(uriChars ? uriChars : "");
-        if (uriChars) {
-            env->ReleaseStringUTFChars(uriString, uriChars);
+    QString localPath;
+    if (localPathString) {
+        const char *pathChars = env->GetStringUTFChars(localPathString, nullptr);
+        localPath = QString::fromUtf8(pathChars ? pathChars : "");
+        if (pathChars) {
+            env->ReleaseStringUTFChars(localPathString, pathChars);
         }
     }
 
-    if (uri.isEmpty()) {
+    if (localPath.isEmpty()) {
         return;
     }
 
     QMetaObject::invokeMethod(homeform::singleton(), "handleAndroidDocumentPicked", Qt::QueuedConnection,
-                              Q_ARG(int, static_cast<int>(requestCode)), Q_ARG(QString, uri));
+                              Q_ARG(int, static_cast<int>(requestCode)), Q_ARG(QString, localPath));
 }
 
 JNIEXPORT void JNICALL
@@ -8171,26 +8171,31 @@ void homeform::openAndroidDocumentPicker(const QString &kind) {
 #ifdef Q_OS_ANDROID
     int requestCode = 0;
     QString mimeType = QStringLiteral("*/*");
+    QString destinationDir;
     if (kind == QStringLiteral("profile")) {
         requestCode = AndroidDocumentPickerProfileRequestCode;
-        mimeType = QStringLiteral("*/*");
+        destinationDir = getWritableAppDir() + QStringLiteral("profiles/");
     } else if (kind == QStringLiteral("training")) {
         requestCode = AndroidDocumentPickerTrainingRequestCode;
-        mimeType = QStringLiteral("*/*");
+        mimeType = QStringLiteral("text/*");
+        destinationDir = getWritableAppDir() + QStringLiteral("training/");
     } else if (kind == QStringLiteral("gpx")) {
         requestCode = AndroidDocumentPickerGpxRequestCode;
-        mimeType = QStringLiteral("*/*");
+        mimeType = QStringLiteral("text/*");
+        destinationDir = getWritableAppDir() + QStringLiteral("gpx/");
     } else if (kind == QStringLiteral("settings")) {
         requestCode = AndroidDocumentPickerSettingsRequestCode;
-        mimeType = QStringLiteral("*/*");
+        destinationDir = getWritableAppDir() + QStringLiteral("settings/");
     } else {
         qWarning() << "Unknown Android document picker kind" << kind;
         return;
     }
 
     QAndroidJniObject javaMimeType = QAndroidJniObject::fromString(mimeType);
-    QtAndroid::androidActivity().callMethod<void>("openDocumentPicker", "(Ljava/lang/String;I)V",
-                                                  javaMimeType.object<jstring>(), requestCode);
+    QAndroidJniObject javaDestinationDir = QAndroidJniObject::fromString(destinationDir);
+    QtAndroid::androidActivity().callMethod<void>("openDocumentPicker", "(Ljava/lang/String;ILjava/lang/String;)V",
+                                                  javaMimeType.object<jstring>(), requestCode,
+                                                  javaDestinationDir.object<jstring>());
     if (clearAndroidJniException("CustomQtActivity.openDocumentPicker")) {
         return;
     }
@@ -8199,29 +8204,34 @@ void homeform::openAndroidDocumentPicker(const QString &kind) {
 #endif
 }
 
-void homeform::handleAndroidDocumentPicked(int requestCode, const QString &uriString) {
+void homeform::handleAndroidDocumentPicked(int requestCode, const QString &localPath) {
 #ifdef Q_OS_ANDROID
-    const QUrl uri(uriString);
+    if (localPath.isEmpty()) {
+        qWarning() << "Android document picker returned empty local path for request code" << requestCode;
+        return;
+    }
+
+    const QUrl localUrl = QUrl::fromLocalFile(localPath);
     switch (requestCode) {
     case AndroidDocumentPickerProfileRequestCode:
-        profile_open_clicked(uri);
+        loadSettings(localUrl);
         break;
     case AndroidDocumentPickerTrainingRequestCode:
-        trainprogram_open_other_folder(uri);
+        trainprogram_open_clicked(localUrl);
         break;
     case AndroidDocumentPickerGpxRequestCode:
-        gpx_open_other_folder(uri);
+        gpx_open_clicked(localUrl);
         break;
     case AndroidDocumentPickerSettingsRequestCode:
-        loadSettings(uri);
+        loadSettings(localUrl);
         break;
     default:
-        qWarning() << "Unknown Android document picker request code" << requestCode << uriString;
+        qWarning() << "Unknown Android document picker request code" << requestCode << localPath;
         break;
     }
 #else
     Q_UNUSED(requestCode)
-    Q_UNUSED(uriString)
+    Q_UNUSED(localPath)
 #endif
 }
 
