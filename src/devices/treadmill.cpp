@@ -570,30 +570,44 @@ bool treadmill::cadenceFromAppleWatch() {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     lockscreen h;
-    if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {        
-        evaluateStepCount();
-        Cadence = h.getFootCad();
-        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
-        return true;
+    if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+        long garminCadence = h.getFootCad();
+        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(garminCadence);
+        // Ignore transient Garmin cadence spikes while the treadmill is not moving yet.
+        if (garminCadence > 0 && Speed.value() > 0.0) {
+            evaluateStepCount();
+            Cadence = garminCadence;
+            return true;
+        }
+        return false;
     } else if (h.appleWatchAppInstalled() && 
                 settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                    .toString()
                    .startsWith(QStringLiteral("Disabled"))) {
-        evaluateStepCount();
         long appleWatchCadence = h.stepCadence();
-        Cadence = appleWatchCadence;
-        qDebug() << QStringLiteral("Current Cadence: ") << QString::number(Cadence.value());
-        return true;
+        qDebug() << QStringLiteral("Current Cadence: ") << QString::number(appleWatchCadence);
+        if (appleWatchCadence > 0) {
+            evaluateStepCount();
+            Cadence = appleWatchCadence;
+            return true;
+        }
+        return false;
     }
 #endif
 #endif
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
-        evaluateStepCount();
-        Cadence = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
-        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
-        return true;
+        jint garminCadence =
+            QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
+        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(garminCadence);
+        // Ignore transient Garmin cadence spikes while the treadmill is not moving yet.
+        if (garminCadence > 0 && Speed.value() > 0.0) {
+            evaluateStepCount();
+            Cadence = garminCadence;
+            return true;
+        }
+        return false;
     }
 #endif    
 
@@ -887,4 +901,3 @@ QTime treadmill::speedToPace(double Speed) {
                      (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
     }
 }
-

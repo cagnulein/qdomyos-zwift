@@ -5917,8 +5917,7 @@ void homeform::update() {
 
                 pace = 0;
             }
-            strideLength =
-                ((treadmill *)bluetoothManager->device())->currentStrideLength().value() * cm_inches_conversion;
+            strideLength = ((treadmill *)bluetoothManager->device())->currentStrideLength().value();
             groundContact = ((treadmill *)bluetoothManager->device())->currentGroundContact().value();
             verticalOscillation = ((treadmill *)bluetoothManager->device())->currentVerticalOscillation().value();
             stepCount = ((treadmill *)bluetoothManager->device())->currentStepCount().value();
