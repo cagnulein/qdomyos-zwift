@@ -246,7 +246,50 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
             }
         }
 
-        Resistance = newValue.at(18);
+        const bool isM7Device = bluetoothDevice.name().startsWith(QStringLiteral("Nautilus M7"), Qt::CaseInsensitive);
+        if (bt_variant == 1 && isM7Device) {
+            // Nautilus M7 sends 20-byte TLV-like packets on the legacy fallback UUID:
+            // `0x5e` packets carry the live metrics, while `0x31` packets do not.
+            if ((uint8_t)newValue.at(1) != 0x5e) {
+                return;
+            }
+
+            double speed =
+                GetSpeedFromM7Packet(newValue) *
+                settings.value(QZSettings::domyos_elliptical_speed_ratio,
+                               QZSettings::default_domyos_elliptical_speed_ratio)
+                    .toDouble();
+            m_watt = GetWattFromM7Packet(newValue);
+            Resistance = (uint8_t)newValue.at(18);
+
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                Cadence = (uint8_t)newValue.at(5);
+            }
+
+            Speed = speed;
+            Distance += ((Speed.value() / 3600000.0) *
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+            lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+
+            emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+            emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
+            emit debug(QStringLiteral("Current inclination: ") + QString::number(Inclination.value()));
+            emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
+            emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+            emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+            emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
+            emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
+            emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+            return;
+        }
+
+        Resistance = (uint8_t)newValue.at(18);
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
         return;
     }
@@ -320,6 +363,16 @@ double nautiluselliptical::GetSpeedFromPacket(const QByteArray &packet) {
     }
 
     return data;
+}
+
+double nautiluselliptical::GetSpeedFromM7Packet(const QByteArray &packet) {
+    uint16_t convertedData = ((uint8_t)packet.at(2)) | (((uint8_t)packet.at(3)) << 8);
+    return (double)convertedData / 100.0f;
+}
+
+double nautiluselliptical::GetWattFromM7Packet(const QByteArray &packet) {
+    uint16_t convertedData = ((uint8_t)packet.at(7)) | (((uint8_t)packet.at(8)) << 8);
+    return (double)convertedData / 100.0f;
 }
 
 double nautiluselliptical::GetKcalFromPacket(const QByteArray &packet) {
@@ -530,4 +583,13 @@ void nautiluselliptical::controllerStateChanged(QLowEnergyController::Controller
         initDone = false;
         m_control->connectToDevice();
     }
+}
+
+uint16_t nautiluselliptical::watts() {
+    if (bt_variant == 1 &&
+        bluetoothDevice.name().startsWith(QStringLiteral("Nautilus M7"), Qt::CaseInsensitive)) {
+        return m_watt.value();
+    }
+
+    return elliptical::watts();
 }
