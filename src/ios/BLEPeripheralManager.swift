@@ -16,6 +16,8 @@ import CoreBluetooth
 let heartRateServiceUUID = CBUUID(string: "0x180D")
 let heartRateCharacteristicUUID = CBUUID(string: "0x2A37")
 
+let TACXServiceUUID = CBUUID(string: "6E40FEC1-B5A3-F393-E0A9-E50E24DCCA9E")
+
 let CSCServiceUUID = CBUUID(string: "0x1816")
 let CSCFeatureCharacteristicUUID = CBUUID(string: "0x2A5C")
 let SensorLocationCharacteristicUUID = CBUUID(string: "0x2A5D")
