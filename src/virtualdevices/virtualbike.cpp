@@ -861,13 +861,23 @@ QByteArray virtualbike::buildTacxAntResponse(quint8 page) const {
         break;
     case 0xFA:
     case 0xFB:
-    case 0xFC:
         // Tacx app polls these vendor-specific pages during startup; a stable stub is enough to progress.
         response.append(char(0x00));
         response.append(char(0x00));
         response.append(char(0x64));
         response.append(char(0x00));
         response.append(char(0x00));
+        response.append(char(page));
+        response.append(char(0x00));
+        break;
+    case 0xFC:
+        // Tacx app polls these vendor-specific pages during startup; a stable stub is enough to progress.
+        response.append(char(0x00));
+        response.append(char(0x00));
+        response.append(char(0x64));
+        response.append(char(0x00));
+        response.append(char((tacxLastProprietaryInclineRaw >> 8) & 0xFF));
+        response.append(char(tacxLastProprietaryInclineRaw & 0xFF));
         response.append(char(page));
         response.append(char(0x00));
         break;
@@ -938,10 +948,16 @@ void virtualbike::broadcastTacxCustomData() {
     }
     tacxLastBroadcastMs = now;
 
-    const quint8 page = tacxBroadcastPageToggle == 0 ? 0x10 : 0x19;
-    tacxBroadcastPageToggle = (tacxBroadcastPageToggle + 1) % 2;
+    QByteArray response;
+    if (tacxBroadcastPageToggle == 0) {
+        response = buildTacxAntBroadcast(0x10);
+    } else if (tacxBroadcastPageToggle == 1) {
+        response = buildTacxAntBroadcast(0x19);
+    } else {
+        response = buildTacxAntResponse(0xFC);
+    }
+    tacxBroadcastPageToggle = (tacxBroadcastPageToggle + 1) % 3;
 
-    const QByteArray response = buildTacxAntBroadcast(page);
     if (!response.isEmpty()) {
         writeTacxCustomNotification(response);
     }
@@ -995,8 +1011,14 @@ void virtualbike::handleTacxCustomWrite(const QByteArray &newValue) {
         const qint16 rawIncline =
             (static_cast<qint16>(static_cast<quint8>(newValue.at(9))) << 8) |
             static_cast<quint8>(newValue.at(10));
+        tacxLastProprietaryInclineRaw = static_cast<quint16>(rawIncline);
         const double requestIncline = rawIncline / 100.0;
         qDebug() << "Tacx proprietary incline request" << requestIncline << newValue.toHex(' ');
+        const QByteArray response = buildTacxAntResponse(0xFC);
+        if (!response.isEmpty()) {
+            qDebug() << "Tacx proprietary incline response" << response.toHex(' ');
+            writeTacxCustomNotification(response);
+        }
         emit changeInclination(requestIncline, requestIncline);
         return;
     }

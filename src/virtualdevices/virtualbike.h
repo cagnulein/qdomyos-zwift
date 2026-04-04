@@ -116,6 +116,7 @@ class virtualbike : public virtualdevice {
     quint8 tacxUpdateEventCount = 0;
     quint16 tacxAccumulatedPower = 0;
     qint64 tacxLastBroadcastMs = 0;
+    quint16 tacxLastProprietaryInclineRaw = 0;
     
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
