@@ -5913,8 +5913,7 @@ void homeform::update() {
 
                 pace = 0;
             }
-            strideLength =
-                ((treadmill *)bluetoothManager->device())->currentStrideLength().value() * cm_inches_conversion;
+            strideLength = ((treadmill *)bluetoothManager->device())->currentStrideLength().value();
             groundContact = ((treadmill *)bluetoothManager->device())->currentGroundContact().value();
             verticalOscillation = ((treadmill *)bluetoothManager->device())->currentVerticalOscillation().value();
             stepCount = ((treadmill *)bluetoothManager->device())->currentStepCount().value();
@@ -5947,7 +5946,7 @@ void homeform::update() {
                 ((treadmill *)bluetoothManager->device())->currentStepCount().value(), 'f', 0));
             this->rss->setValue(QString::number(_rss, 'f', 0));
 
-            this->instantaneousStrideLengthCM->setValue(QString::number(strideLength, 'f', 0));
+            this->instantaneousStrideLengthCM->setValue(QString::number(strideLengthDisplay, 'f', 0));
             this->instantaneousStrideLengthCM->setSecondLine(
                 QStringLiteral("AVG: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentStrideLength().average(), 'f', 0) +
