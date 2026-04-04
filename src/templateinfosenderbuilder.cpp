@@ -532,6 +532,16 @@ void TemplateInfoSenderBuilder::onGetTrainingProgram(const QJsonValue &msgConten
         for (auto &row : lst) {
             QJsonObject item;
             TRAINPROGRAM_FIELD_TO_STRING();
+            if (!row.textEvents.isEmpty()) {
+                QJsonArray textEvents;
+                for (const auto &evt : row.textEvents) {
+                    QJsonObject textEvent;
+                    textEvent[QStringLiteral("timeoffset")] = static_cast<int>(evt.timeoffset);
+                    textEvent[QStringLiteral("message")] = evt.message;
+                    textEvents.append(textEvent);
+                }
+                item[QStringLiteral("textEvents")] = textEvents;
+            }
             outArr.append(item);
         }
     }
