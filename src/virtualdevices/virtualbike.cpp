@@ -86,7 +86,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         advertisingData.setIncludePowerLevel(true);
 
         if(virtual_device_tacx) {
-          advertisingData.setLocalName(QStringLiteral("TACX SMART BIKE"));
+          advertisingData.setLocalName(QStringLiteral("QZ SMART TRAINER"));
         } else if (!echelon && !ifit) {
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
         advertisingData.setLocalName(QStringLiteral("QZPI"));
@@ -291,27 +291,27 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             QLowEnergyCharacteristicData manufacturerNameChar;
             manufacturerNameChar.setUuid(QBluetoothUuid::CharacteristicType::ManufacturerNameString);
             manufacturerNameChar.setProperties(QLowEnergyCharacteristic::Read);
-            manufacturerNameChar.setValue(QByteArray("Tacx"));
+            manufacturerNameChar.setValue(QByteArray("QZ"));
         
             QLowEnergyCharacteristicData modelNumberChar;
             modelNumberChar.setUuid(QBluetoothUuid::CharacteristicType::ModelNumberString);
             modelNumberChar.setProperties(QLowEnergyCharacteristic::Read);
-            modelNumberChar.setValue(QByteArray("Neo"));
+            modelNumberChar.setValue(QByteArray("Smart Trainer"));
         
             QLowEnergyCharacteristicData serialNumberChar;
             serialNumberChar.setUuid(QBluetoothUuid::CharacteristicType::SerialNumberString);
             serialNumberChar.setProperties(QLowEnergyCharacteristic::Read);
-            serialNumberChar.setValue(QByteArray("17867"));
+            serialNumberChar.setValue(QByteArray("QZ-0001"));
         
             QLowEnergyCharacteristicData hardwareRevChar;
             hardwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::HardwareRevisionString);
             hardwareRevChar.setProperties(QLowEnergyCharacteristic::Read);
-            hardwareRevChar.setValue(QByteArray("0"));
+            hardwareRevChar.setValue(QByteArray("1"));
         
             QLowEnergyCharacteristicData firmwareRevChar;
             firmwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::FirmwareRevisionString);
             firmwareRevChar.setProperties(QLowEnergyCharacteristic::Read);
-            firmwareRevChar.setValue(QByteArray("0.7.4"));
+            firmwareRevChar.setValue(QByteArray("5.0.0"));
         
             // Create Device Information Service        
             serviceDataDIS.setType(QLowEnergyServiceData::ServiceTypePrimary);
@@ -834,19 +834,19 @@ QByteArray virtualbike::buildTacxAntResponse(quint8 page) const {
     switch (page) {
     case 0x50: // Manufacturer information
         response.append(char(0xFF));
-        response.append(char(0x01)); // hardware revision
-        response.append(char(0x59)); // Garmin/Tacx manufacturer id LSB
-        response.append(char(0x00)); // Garmin/Tacx manufacturer id MSB
-        response.append(char(0xAB)); // Neo 2T model id LSB
-        response.append(char(0x10)); // Neo 2T model id MSB
+        response.append(char(0x05)); // hardware revision
+        response.append(char(0xFF)); // generic/private manufacturer id LSB
+        response.append(char(0xFF)); // generic/private manufacturer id MSB
+        response.append(char(0x01)); // generic model id LSB
+        response.append(char(0x00)); // generic model id MSB
         response.append(char(0x00));
         break;
     case 0x51: // Product information
         response.append(char(0x00)); // supplementary software revision
-        response.append(char(0x07)); // main software revision
-        response.append(char(0x04)); // build/revision
-        response.append(char(0xCB)); // serial 17867 LSB
-        response.append(char(0x45));
+        response.append(char(0x32)); // main software revision
+        response.append(char(0x00)); // build/revision
+        response.append(char(0x01)); // generic serial LSB
+        response.append(char(0x00));
         response.append(char(0x00));
         response.append(char(0x00));
         break;
