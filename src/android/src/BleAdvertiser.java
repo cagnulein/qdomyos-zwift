@@ -46,7 +46,7 @@ public class BleAdvertiser {
     private static final byte[] SERVICE_DATA_ROWER = {0x01, 0x10, 0x00};
     private static final byte[] SERVICE_DATA_TREADMILL = {0x01, 0x01, 0x00};
     private static final byte[] IFIT_MANUFACTURER_DATA = new byte[] {
-            0x02, (byte) 0xcc, 0x0b, (byte) 0x82, 0x00, 0x07, (byte) 0xdd, (byte) 0xfd, 0x68
+            0x02, (byte) 0xcc, 0x3c, (byte) 0x82, 0x00, 0x07, (byte) 0xdd, (byte) 0x1e, 0xdd
     };
 
     public static void startAdvertisingRower(Context context) {
