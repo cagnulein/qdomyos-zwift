@@ -239,6 +239,7 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
             Heart = (uint8_t)KeepAwakeHelper::heart();
         else
 #endif
+        const bool isM7Device = bluetoothDevice.name().startsWith(QStringLiteral("Nautilus M7"), Qt::CaseInsensitive);
         {
             uint8_t heart = ((uint8_t)newValue.at(16));
             if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && heart != 0) {
@@ -246,11 +247,17 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
             }
         }
 
-        const bool isM7Device = bluetoothDevice.name().startsWith(QStringLiteral("Nautilus M7"), Qt::CaseInsensitive);
         if (bt_variant == 1 && isM7Device) {
-            // Nautilus M7 sends 20-byte TLV-like packets on the legacy fallback UUID:
-            // `0x5e` packets carry the live metrics, while `0x31` packets do not.
-            if ((uint8_t)newValue.at(1) != 0x5e) {
+            const uint8_t packetType = (uint8_t)newValue.at(1);
+
+            // Nautilus M7 splits the live data between 2 packet types:
+            // 0x31 carries status/resistance, 0x5e carries speed/cadence/watt.
+            if (packetType == 0x31) {
+                Resistance = (uint8_t)newValue.at(19);
+                return;
+            }
+
+            if (packetType != 0x5e) {
                 return;
             }
 
@@ -265,8 +272,6 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
                          (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                         QDateTime::currentDateTime()))));
             }
-            Resistance = (uint8_t)newValue.at(18);
-
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
