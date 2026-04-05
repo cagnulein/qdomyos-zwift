@@ -426,8 +426,11 @@ The dashboard:
 
 **The status panel shows a single QZ Service cell that reflects both state and mode:**
 - `QZ Monitor` — monitor is actively running (treadmill detected, QZ started)
-- `QZ Service ▸ Monitor` — service installed, monitor enabled at boot (treadmill not yet detected)
-- `QZ Service ▸ Boot` — standard service running with autostart (no Smart Monitor)
+- `QZ Service ▸ Mon` — service installed, monitor enabled at boot (treadmill not yet detected)
+- `QZ Service ▸ Boot` — standard service with autostart (no Smart Monitor)
+- `QZ Service (Off) ▸ Mon` — service stopped, monitor will restart it when treadmill appears
+- `QZ Service (Off)` — service stopped, no autostart configured
+- `QZ Service (Err)` — service failed; check **QZ Service Control → View Error Details**
 
 **Manage the monitor:**
 ```bash
@@ -461,7 +464,7 @@ Select **Pi System Tools → Enable SD Protection**
 The dashboard:
 - Enables Overlay FS and write-protects the boot partition
 - Offers to reboot immediately or later
-- Shows current state in the status panel (`SD Protected`, `Overlay Active`, `Protected (reboot)`, or `SD (write wear)` when not configured)
+- Shows current state in the status panel (`SD Protected`, `Overlay Active`, `Protected (reboot)`, or `SD card wear` when not configured)
 
 **Check current state:**
 ```bash
@@ -587,9 +590,9 @@ sudo ls -la /root/.config/"Roberto Viola"/qDomyos-Zwift.conf
 
 #### Watch Distance Doesn't Match Treadmill
 
-**Symptom:** Watch shows a different distance than the treadmill display after a run — typically a few percent off.
+**Symptom:** Watch shows a different distance than the treadmill display after a run — typically a few percent off, with ANT+ reporting more than the treadmill.
 
-**Cause:** Garmin watches compute distance from stride count × stride length using their own internal calibration. The ANT+ distance byte is integer metres only (no sub-metre precision). Small systematic differences accumulate over longer runs.
+**Cause:** The ANT+ broadcaster calculates distance from BLE-reported belt speed × elapsed time (labelled **ANT+ dist** in the monitor). Treadmill displays typically derive their distance from a separate internal counter calibrated conservatively — most consumer treadmills under-read actual belt distance by 3–8%. Wheel/roller rounding errors are negligible (under 0.3% over 3km). The calibration aligns your watch to the treadmill display; ANT+ dist is likely the more accurate physical measurement.
 
 **Solution:** Run the built-in calibration wizard:
 
@@ -599,16 +602,27 @@ sudo ./setup-dashboard.sh
 
 Select **ANT+ Tools → Distance Calibration**
 
+**Shortcut:** If QZ is already running, open **ANT+ Tools → ANT+ Broadcast Monitor** and press **C** — the wizard opens pre-populated with the current session's ANT+ distance, skipping the live-run phase.
+
 **How it works:**
-1. Start a calibration run — recommended 3 km at a steady 8 km/h
-2. The dashboard shows live ANT+ session distance as you run
-3. When done, press Enter and enter the distance shown on your treadmill display
-4. A scale factor is calculated and saved to `ant_calibration.conf`
-5. Takes effect at the next QZ start — no service restart needed
+1. Complete a run of at least 100m (3 km at steady speed recommended for accuracy)
+2. Note the distance shown on your treadmill display
+3. Enter that distance in the wizard
+4. A scale factor is calculated and saved — pace is also scaled so it stays consistent with the calibrated distance
 
-The **ANT+ Broadcast Monitor** shows the active calibration factor (`Calibration: 0.9709 (97.1%)`) so you can confirm it's loaded.
+**What gets scaled:**
+- Distance sent to watch ✓
+- Speed bytes (so pace is consistent) ✓
+- Cadence is **not** scaled — it's a physical step count, not a distance derivative
 
-> **Reset calibration:** delete `ant_calibration.conf` from the install directory to return to 1.0 (no correction).
+The **ANT+ Broadcast Monitor** shows both distances side by side:
+- **ANT+ dist** — calculated from BLE speed × time (unscaled)
+- **Watch dist** — after calibration factor applied (what the watch receives)
+- **Scale row** — active factor and a note on why the two values differ
+
+> **Config location:** `ant_calibration.conf` is saved alongside `qDomyos-Zwift.conf` in `~/.config/Roberto Viola/`. Takes effect at the next QZ start.
+
+> **Reset calibration:** delete `ant_calibration.conf` to return to 1.0 (no correction).
 
 ---
 

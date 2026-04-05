@@ -183,8 +183,16 @@ class AntBroadcaster:
                     self._stride_accumulator -= num_strides
 
             elapsed_ms = int(self._total_time * 1000)
-            speed_int = int(speed)
-            speed_frac = int((speed - speed_int) * 256.0) & 0xFF
+
+            # Apply calibration scale to the speed broadcast.
+            # This makes the watch's pace consistent with the calibrated distance —
+            # if distance is compressed by 5%, pace slows by 5% to match.
+            # The raw speed is kept for _total_distance accumulation (internal accounting);
+            # only the bytes sent over ANT+ use the scaled value.
+            # Cadence is NOT scaled — it's a physical stride count, not a speed derivative.
+            calibrated_speed = speed * self._distance_scale
+            speed_int  = int(calibrated_speed)
+            speed_frac = int((calibrated_speed - speed_int) * 256.0) & 0xFF
             distance_int = int(self._total_distance * self._distance_scale) & 0xFF
 
             try:
@@ -215,7 +223,10 @@ class AntBroadcaster:
                 # Write metrics to RAM disk at 1Hz for dashboard monitoring (throttled from 4Hz broadcast)
                 if self._metrics_file and (now - self._last_metrics_write >= 1.0):
                     self._last_metrics_write = now
-                    self._write_metrics(speed, current_cadence, self._total_distance / 1000.0, self._time_moving)
+                    self._write_metrics(speed, current_cadence,
+                                       self._total_distance / 1000.0,
+                                       self._total_distance * self._distance_scale / 1000.0,
+                                       self._time_moving)
 
             except Exception as e:
                 log.error("Broadcast error: %s. Stopping thread.", e, exc_info=True)
@@ -231,7 +242,9 @@ class AntBroadcaster:
 
         log.info("ANT+ broadcasting thread finished.")
     
-    def _write_metrics(self, speed_mps: float, cadence_spm: float, distance_km: float, time_moving_s: float = 0.0):
+    def _write_metrics(self, speed_mps: float, cadence_spm: float,
+                       distance_km: float, calibrated_distance_km: float,
+                       time_moving_s: float = 0.0):
         """Atomically write metrics to RAM disk for dashboard monitoring.
         
         Uses tmp+rename for atomic writes to prevent partial reads.
@@ -242,9 +255,11 @@ class AntBroadcaster:
         
         import json
 
-        # Compute pace: minutes per km from speed, "--:--" when stopped
-        if speed_mps > 0.1:
-            pace_sec_per_km = 1000.0 / speed_mps          # seconds per km
+        # Pace from calibrated speed — consistent with what the watch receives.
+        # The watch derives pace from speed bytes, which are now scaled.
+        calibrated_speed_mps = speed_mps * self._distance_scale
+        if calibrated_speed_mps > 0.1:
+            pace_sec_per_km = 1000.0 / calibrated_speed_mps
             pace_m = int(pace_sec_per_km // 60)
             pace_s = int(pace_sec_per_km % 60)
             pace_str = f"{pace_m}:{pace_s:02d}"
@@ -252,10 +267,13 @@ class AntBroadcaster:
             pace_str = "--:--"
 
         metrics = {
-            "speed_kmh": round(speed_mps * 3.6, 2),
-            "cadence_spm": int(cadence_spm),
-            "distance_km": round(distance_km, 3),
-            "pace_min_per_km": pace_str,
+            "speed_kmh": round(speed_mps * 3.6, 2),                         # BLE speed (unscaled)
+            "calibrated_speed_kmh": round(calibrated_speed_mps * 3.6, 2),   # Scaled (what watch sees)
+            "cadence_spm": int(cadence_spm),                                 # Physical stride rate, unscaled
+            "distance_km": round(distance_km, 3),                            # ANT+ calculated (BLE speed × time)
+            "calibrated_distance_km": round(calibrated_distance_km, 3),      # Scaled to treadmill reference
+            "distance_scale": round(self._distance_scale, 4),
+            "pace_min_per_km": pace_str,                                     # Calibrated pace (matches watch)
             "time_moving_s": int(time_moving_s),
             "timestamp_ms": int(time.time() * 1000)
         }
@@ -287,7 +305,22 @@ class AntBroadcaster:
 
         # Load distance calibration factor from sibling config file if present
         try:
-            cal_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ant_calibration.conf")
+            # Config lives alongside qDomyos-Zwift.conf in ~/.config/Roberto Viola/
+            # Use QZ_USER (set by systemd) or HOME to locate the right user's config dir.
+            _home = None
+            _qz_user = os.environ.get("QZ_USER", "")
+            if _qz_user:
+                import pwd as _pwd
+                try:
+                    _home = _pwd.getpwnam(_qz_user).pw_dir
+                except Exception:
+                    pass
+            if not _home:
+                _home = os.environ.get("HOME", "")
+            if _home:
+                cal_file = os.path.join(_home, ".config", "Roberto Viola", "ant_calibration.conf")
+            else:
+                cal_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ant_calibration.conf")
             if os.path.isfile(cal_file):
                 with open(cal_file) as f:
                     for line in f:

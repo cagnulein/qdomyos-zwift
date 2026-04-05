@@ -1592,39 +1592,43 @@ draw_status_row() {
     fi
     
     # --- DYNAMIC LABEL LOGIC FOR QZ SERVICE ---
-    # The label encodes both service state AND boot/monitor state in one cell,
-    # since service_enabled is no longer a separate grid entry.
+    # The label encodes both service state AND boot/monitor state in one cell.
+    # All labels are sized to fit within left_w=31 chars without suppression.
+    # States: running=full name, off/err=short suffix, suffix ▸Boot/▸Mon for boot mode.
     local qz_service_extra_len=0
     if [[ "$R_key" == "qz_service" || "$L_key" == "qz_service" ]]; then
         local _qz_label _qz_extra_len=0
         if is_monitor_active 2>/dev/null; then
+            # Monitor is actively running right now
             _qz_label="QZ Monitor"
         else
             local svc_status; svc_status=$(get_service_status)
-            # Append boot indicator as a short suffix — keeps label compact
+            # Boot-mode suffix — shown when any service is enabled at boot
             local _boot_sfx=""
             local _svc_en="${STATUS_MAP[service_enabled]:-pending}"
             if [[ "$_svc_en" == "pass" ]]; then
                 if systemctl is-enabled --quiet qz-treadmill-monitor.service 2>/dev/null; then
-                    _boot_sfx=" ${GRAY}▸ Monitor${NC}"
-                    _qz_extra_len=9  # " ▸ Monitor" visible
+                    _boot_sfx=" ${GRAY}▸ Mon${NC}"
+                    _qz_extra_len=5  # " ▸ Mon" visible
                 else
                     _boot_sfx=" ${GRAY}▸ Boot${NC}"
-                    _qz_extra_len=7  # " ▸ Boot" visible
+                    _qz_extra_len=6  # " ▸ Boot" visible
                 fi
             fi
             case "$svc_status" in
                 "running")
+                    # Service is up — show full name
                     _qz_label="QZ Service${_boot_sfx}" ;;
                 "stopped")
-                    _qz_label="QZ Service  ${GRAY}(Stopped)${NC}${_boot_sfx}"
-                    _qz_extra_len=$(( 11 + _qz_extra_len )) ;;
+                    # Service installed but not running — "(Off)" keeps it short
+                    _qz_label="QZ Service ${GRAY}(Off)${NC}${_boot_sfx}"
+                    _qz_extra_len=$(( 5 + _qz_extra_len )) ;;
                 "failed")
-                    _qz_label="QZ Service  ${GRAY}(Failed)${NC}${_boot_sfx}"
-                    _qz_extra_len=$(( 10 + _qz_extra_len )) ;;
+                    _qz_label="QZ Service ${GRAY}(Err)${NC}${_boot_sfx}"
+                    _qz_extra_len=$(( 5 + _qz_extra_len )) ;;
                 "not-installed")
-                    _qz_label="QZ Service  ${GRAY}(Not Set)${NC}${_boot_sfx}"
-                    _qz_extra_len=$(( 11 + _qz_extra_len )) ;;
+                    _qz_label="QZ Service ${GRAY}(—)${NC}${_boot_sfx}"
+                    _qz_extra_len=$(( 3 + _qz_extra_len )) ;;
                 *)
                     _qz_label="QZ Service${_boot_sfx}" ;;
             esac
@@ -1700,7 +1704,7 @@ draw_status_row() {
             elif $boot_cfg; then
                 R2_label="Boot RO (reboot)"      # ◈ grey   — boot only, pending reboot
             else
-                R2_label="SD (write wear)"       # ◈ grey   — no protection; writes go to SD card
+                R2_label="SD card wear"       # ◈ grey   — no protection; writes go to SD card
             fi
         fi
     fi
@@ -1790,24 +1794,6 @@ draw_status_row() {
             local R2_sym;   R2_sym=$(get_symbol "$R2_key")
             R2_content="${R2_sym} ${R2_color}${R2_label}${NC}"
             R2_len=$(( 1 + 1 + ${#R2_label} ))
-        fi
-
-        # In 3-col mode suppress qz_service "(Stopped/Failed/Not Set)" annotation
-        # so R1 label fits comfortably within r1_w chars.
-        if [[ "$R_key" == "qz_service" && $qz_service_extra_len -gt 0 ]]; then
-            local R_sym_plain; R_sym_plain=$(get_symbol "$R_key")
-            local R_color_plain; R_color_plain=$(get_status_label_color "$R_key")
-            R_content="${R_sym_plain} ${R_color_plain}QZ Service${NC}"
-            R_len=$(( 1 + 1 + 10 ))   # sym + space + "QZ Service"
-        fi
-
-        # Same suppression for L column — qz_service in left position overflows left_w
-        if [[ "$L_key" == "qz_service" && $qz_service_extra_len -gt 0 ]]; then
-            local L_sym_plain; L_sym_plain=$(get_symbol "$L_key")
-            local L_color_plain; L_color_plain=$(get_status_label_color "$L_key")
-            L_content="${L_sym_plain} ${L_color_plain}QZ Service${NC}"
-            L_len=$(( 1 + 1 + 10 ))   # sym + space + "QZ Service"
-            printf -v L_padded "%s%*s" "$L_content" "$(( left_w - L_len ))" ""
         fi
 
         local pad_r1=$(( r1_w - R_len  )); [[ $pad_r1 -lt 0 ]] && pad_r1=0
@@ -7040,9 +7026,10 @@ monitor_ant_broadcasting() {
     local row_speed=$((LOG_TOP + 3))
     local row_cadence=$((LOG_TOP + 4))
     local row_distance=$((LOG_TOP + 5))
-    local row_pace=$((LOG_TOP + 6))
-    local row_time_moving=$((LOG_TOP + 7))
-    local row_calibration=$((LOG_TOP + 8))
+    local row_cal_dist=$((LOG_TOP + 6))
+    local row_pace=$((LOG_TOP + 7))
+    local row_time_moving=$((LOG_TOP + 8))
+    local row_calibration=$((LOG_TOP + 9))
     
     # System metrics rows (same as ANT+ data rows)
     local row_system_status=$row_speed
@@ -7059,22 +7046,23 @@ monitor_ant_broadcasting() {
     print_at $row_headers "${BLUE}║${NC} ${left_content}${BLUE}│${NC} ${right_content}${BLUE}║${NC}"
     
     # Draw empty rows with separator to create clean vertical line through entire panel
-    for r in $row_blank1 $row_speed $row_cadence $row_distance $row_pace $row_time_moving $row_calibration; do
+    for r in $row_blank1 $row_speed $row_cadence $row_distance $row_cal_dist $row_pace $row_time_moving $row_calibration; do
         printf -v empty_left "%-${left_w}s" ""
         printf -v empty_right "%-${right_w}s" ""
         print_at $r "${BLUE}║${NC} ${empty_left}${BLUE}│${NC} ${empty_right}${BLUE}║${NC}"
     done
     
     # Now draw permanent labels on left side
-    print_at_col $row_speed 3 "${GREEN}Speed:${NC}"
-    print_at_col $row_cadence 3 "${GREEN}Cadence:${NC}"
-    print_at_col $row_distance 3 "${GREEN}Distance:${NC}"
-    print_at_col $row_pace 3 "${GREEN}Pace:${NC}"
+    print_at_col $row_speed    3 "${GREEN}BLE speed:${NC}"
+    print_at_col $row_cadence  3 "${GREEN}Cadence:${NC}"
+    print_at_col $row_distance 3 "${GREEN}ANT+ dist:${NC}"
+    print_at_col $row_cal_dist 3 "${GREEN}Watch dist:${NC}"
+    print_at_col $row_pace     3 "${GREEN}Pace:${NC}"
     print_at_col $row_time_moving 3 "${GREEN}Moving:${NC}"
 
     # Calibration row — read once (static for the session, not polled)
     local _cal_scale="1.0000"
-    local _cal_file="${SCRIPT_DIR}/ant_calibration.conf"
+    local _cal_file="${CONFIG_DIR}/ant_calibration.conf"
     if [[ -f "$_cal_file" ]]; then
         local _cs; _cs=$(grep "^distance_scale=" "$_cal_file" 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
         [[ -n "$_cs" ]] && _cal_scale="$_cs"
@@ -7082,7 +7070,14 @@ monitor_ant_broadcasting() {
     local _cal_pct; _cal_pct=$(python3 -c "print(f'{float(\"$_cal_scale\")*100:.1f}')" 2>/dev/null || echo "100.0")
     local _cal_color="${GRAY}"
     [[ "$_cal_scale" != "1.0000" && "$_cal_scale" != "1.0" ]] && _cal_color="${CYAN}"
-    print_at_col $row_calibration 3 "${GRAY}Calibration: ${_cal_color}${_cal_scale} (${_cal_pct}%)${NC}"
+    # Build calibration row: factor + brief note explaining the two distance rows
+    local _cal_note=""
+    if [[ "$_cal_scale" == "1.0000" || "$_cal_scale" == "1.0" ]]; then
+        _cal_note="  ${GRAY}No calibration — ANT+ dist = Watch dist${NC}"
+    else
+        _cal_note="  ${GRAY}Treadmill displays typically under-read 3-8% vs belt speed${NC}"
+    fi
+    print_at_col $row_calibration 3 "${GRAY}Scale: ${_cal_color}${_cal_scale} (${_cal_pct}%)${NC}${_cal_note}"
     
     # And permanent labels on right side
     local right_start_col=$((sep_col + 2))
@@ -7090,10 +7085,10 @@ monitor_ant_broadcasting() {
     print_at_col $row_system_cpu $right_start_col "${GRAY}CPU:${NC}"
     print_at_col $row_system_mem $right_start_col "${GRAY}Memory:${NC}"
     
-    draw_bottom_border "Press Esc to return | Updates every 1s"
+    draw_bottom_border "Esc: Back | C: Calibrate with this session's distance"
     
     # Track previous values to avoid unnecessary updates
-    local prev_speed="" prev_cadence="" prev_distance="" prev_pace="" prev_time_moving="" prev_status="" prev_cpu="" prev_mem=""
+    local prev_speed="" prev_cadence="" prev_distance="" prev_cal_distance="" prev_pace="" prev_time_moving="" prev_status="" prev_cpu="" prev_mem=""
     
     # Value column positions
     local left_value_col=15   # After "Speed:      "
@@ -7109,18 +7104,19 @@ monitor_ant_broadcasting() {
         fi
         
         # Initialize variables with placeholder values
-        local speed="--" cadence="--" distance="--" pace="--:--" time_moving="00:00"
+        local speed="--" cadence="--" distance="--" cal_distance="--" pace="--:--" time_moving="00:00"
         local timestamp="0"
         local data_available=false
         local status_indicator="${YELLOW}◯${NC} Waiting"
         
         # Try to read ANT metrics from JSON
         if [[ -f "$metrics_file" ]]; then
-            local raw_speed raw_cadence raw_distance raw_pace raw_time_moving
+            local raw_speed raw_cadence raw_distance raw_cal_distance raw_pace raw_time_moving
             if command -v jq >/dev/null 2>&1; then
                 raw_speed=$(jq -r '.speed_kmh // ""' "$metrics_file" 2>/dev/null || echo "")
                 raw_cadence=$(jq -r '.cadence_spm // ""' "$metrics_file" 2>/dev/null || echo "")
                 raw_distance=$(jq -r '.distance_km // ""' "$metrics_file" 2>/dev/null || echo "")
+                raw_cal_distance=$(jq -r '.calibrated_distance_km // ""' "$metrics_file" 2>/dev/null || echo "")
                 raw_pace=$(jq -r '.pace_min_per_km // ""' "$metrics_file" 2>/dev/null || echo "")
                 raw_time_moving=$(jq -r '.time_moving_s // "0"' "$metrics_file" 2>/dev/null || echo "0")
                 timestamp=$(jq -r '.timestamp_ms // 0' "$metrics_file" 2>/dev/null || echo "0")
@@ -7129,6 +7125,7 @@ monitor_ant_broadcasting() {
                 raw_speed=$(grep -oP '"speed_kmh":\s*\K[0-9.]+' "$metrics_file" 2>/dev/null || echo "")
                 raw_cadence=$(grep -oP '"cadence_spm":\s*\K[0-9]+' "$metrics_file" 2>/dev/null || echo "")
                 raw_distance=$(grep -oP '"distance_km":\s*\K[0-9.]+' "$metrics_file" 2>/dev/null || echo "")
+                raw_cal_distance=$(grep -oP '"calibrated_distance_km":\s*\K[0-9.]+' "$metrics_file" 2>/dev/null || echo "")
                 raw_pace=$(grep -oP '"pace_min_per_km":\s*"\K[^"]+' "$metrics_file" 2>/dev/null || echo "")
                 raw_time_moving=$(grep -oP '"time_moving_s":\s*\K[0-9]+' "$metrics_file" 2>/dev/null || echo "0")
                 timestamp=$(grep -oP '"timestamp_ms":\s*\K[0-9]+' "$metrics_file" 2>/dev/null || echo "0")
@@ -7139,6 +7136,11 @@ monitor_ant_broadcasting() {
                 speed="$raw_speed"
                 cadence="$raw_cadence"
                 distance="$raw_distance"
+                if [[ -n "$raw_cal_distance" ]]; then
+                    cal_distance="$raw_cal_distance"
+                else
+                    cal_distance="$raw_distance"
+                fi
                 pace="${raw_pace:-"--:--"}"
                 # Format time_moving_s as MM:SS or H:MM:SS
                 local tm_s="${raw_time_moving:-0}"
@@ -7189,6 +7191,20 @@ monitor_ant_broadcasting() {
             prev_distance="$distance"
         fi
 
+        if [[ "$cal_distance" != "$prev_cal_distance" ]]; then
+            # Show calibrated distance (what the watch receives via ANT+).
+            # When no calibration is loaded (scale=1.0) this equals Actual dist.
+            # Difference from Actual dist reflects the calibration factor —
+            # typically the treadmill display reads ~3-8% less than belt speed.
+            local _cal_suffix="  "
+            if [[ "$_cal_scale" != "1.0000" && "$_cal_scale" != "1.0" ]]; then
+                # Show the scale factor inline so the user can see what's applied
+                _cal_suffix=" ${GRAY}(×${_cal_scale})${NC}"
+            fi
+            print_at_col $row_cal_dist $left_value_col "${BOLD}$(printf "%-10s" "$cal_distance") km${NC}${_cal_suffix}"
+            prev_cal_distance="$cal_distance"
+        fi
+
         if [[ "$pace" != "$prev_pace" ]]; then
             print_at_col $row_pace $left_value_col "${BOLD}$(printf "%-10s" "$pace") min/km${NC}"
             prev_pace="$pace"
@@ -7215,10 +7231,64 @@ monitor_ant_broadcasting() {
             prev_mem="$mem_percent"
         fi
         
-        # Poll with 1s timeout, check for escape
+        # Poll with 1s timeout, check for escape or calibration shortcut
         read -rsn1 -t 1 key
         if [[ "$key" == $'\e' ]]; then
             break
+        fi
+        if [[ "${key,,}" == "c" ]]; then
+            # Capture current session distance in metres and pass to calibration wizard.
+            # The wizard skips the live-run phase and goes straight to "enter treadmill distance".
+            # Pass distance in metres if session has meaningful data (>= 100m).
+            # If too short or no data yet, pass empty string → full wizard path.
+            local _cal_dist=""
+            if [[ -n "$distance" && "$distance" != "--" ]]; then
+                local _cal_dist_raw
+                _cal_dist_raw=$(python3 -c "print(f'{float(\"$distance\")*1000:.0f}')" 2>/dev/null || echo "0")
+                python3 -c "exit(0 if float(\"${_cal_dist_raw}\") >= 100 else 1)" 2>/dev/null && _cal_dist="$_cal_dist_raw"
+            fi
+            exit_ui_mode
+            ant_distance_calibration "$_cal_dist"
+            # Redraw the monitor header after returning from calibration
+            enter_ui_mode
+            draw_header
+            draw_bottom_panel_header "ANT+ BROADCAST MONITOR" "false"
+            clear_info_area
+            # Reinstate the static layout rows
+            print_at $row_headers "${BLUE}║${NC} $(pad_display "${CYAN}ANT+ Broadcast${NC}" $left_w)${BLUE}│${NC} $(pad_display "${GRAY}System${NC}" $right_w)${BLUE}║${NC}"
+            for r in $row_blank1 $row_speed $row_cadence $row_distance $row_cal_dist $row_pace $row_time_moving $row_calibration; do
+                printf -v empty_left  "%-${left_w}s"  ""
+                printf -v empty_right "%-${right_w}s" ""
+                print_at $r "${BLUE}║${NC} ${empty_left}${BLUE}│${NC} ${empty_right}${BLUE}║${NC}"
+            done
+            print_at_col $row_speed        3 "${GREEN}BLE speed:${NC}"
+            print_at_col $row_cadence      3 "${GREEN}Cadence:${NC}"
+            print_at_col $row_distance     3 "${GREEN}ANT+ dist:${NC}"
+            print_at_col $row_cal_dist     3 "${GREEN}Watch dist:${NC}"
+            print_at_col $row_pace         3 "${GREEN}Pace:${NC}"
+            print_at_col $row_time_moving  3 "${GREEN}Moving:${NC}"
+            print_at_col $row_system_status $right_start_col "${GRAY}Status:${NC}"
+            print_at_col $row_system_cpu    $right_start_col "${GRAY}CPU:${NC}"
+            print_at_col $row_system_mem    $right_start_col "${GRAY}Memory:${NC}"
+            # Reload calibration display (scale factor may have changed)
+            _cal_scale="1.0000"
+            if [[ -f "$_cal_file" ]]; then
+                local _cs_new; _cs_new=$(grep "^distance_scale=" "$_cal_file" 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
+                [[ -n "$_cs_new" ]] && _cal_scale="$_cs_new"
+            fi
+            _cal_pct=$(python3 -c "print(f'{float(\"$_cal_scale\")*100:.1f}')" 2>/dev/null || echo "100.0")
+            _cal_color="${GRAY}"
+            [[ "$_cal_scale" != "1.0000" && "$_cal_scale" != "1.0" ]] && _cal_color="${CYAN}"
+            local _cal_note_r=""
+            if [[ "$_cal_scale" == "1.0000" || "$_cal_scale" == "1.0" ]]; then
+                _cal_note_r="  ${GRAY}No calibration — ANT+ dist = Watch dist${NC}"
+            else
+                _cal_note_r="  ${GRAY}Treadmill displays typically under-read 3-8% vs belt speed${NC}"
+            fi
+            print_at_col $row_calibration 3 "${GRAY}Scale: ${_cal_color}${_cal_scale} (${_cal_pct}%)${NC}${_cal_note_r}"
+            draw_bottom_border "Esc: Back | C: Calibrate with this session's distance"
+            # Reset prev values to force full redraw on next tick
+            prev_speed="" prev_cadence="" prev_distance="" prev_cal_distance="" prev_pace="" prev_time_moving="" prev_status="" prev_cpu="" prev_mem=""
         fi
     done
     
@@ -7229,22 +7299,29 @@ ant_distance_calibration() {
     # -----------------------------------------------------------------------
     # ANT+ Distance Calibration Wizard
     #
-    # Purpose: derive a distance_scale factor so ANT+ distance matches the
-    # treadmill's own display.  Saved to ant_calibration.conf alongside the
-    # other scripts; loaded by ant_broadcaster.py at each session start.
+    # Usage: ant_distance_calibration [pre_dist_m]
+    #   pre_dist_m — optional: ANT+ distance in metres already recorded
+    #                (passed from monitor shortcut — skips live-run phase)
     #
-    # Why needed: Garmin watches compute distance from stride count × stride
-    # length (their own calibration). The distance_int byte we send is integer
-    # metres only. A scale factor corrects both sources of divergence without
-    # any change to the ANT+ protocol or C++ code.
+    # When called without argument: shows instructions then runs live monitor.
+    # When called with pre_dist_m:  skips straight to "enter treadmill distance".
+    #
+    # Config saved to: CONFIG_DIR/ant_calibration.conf
+    # Loaded by ant_broadcaster.py at each session start.
+    #
+    # Why ANT+ over-reports vs treadmill display:
+    #   ANT+ records speed × time from BLE data (actual belt speed).
+    #   Many treadmill displays under-read intentionally (~3-8% conservative).
+    #   Calibrating against the treadmill display makes the watch agree with it.
     # -----------------------------------------------------------------------
-    local cal_file="${SCRIPT_DIR}/ant_calibration.conf"
+    local pre_dist_m="${1:-}"       # Pre-populated from monitor shortcut, or empty
+    local cal_file="${CONFIG_DIR}/ant_calibration.conf"
     local metrics_file="/dev/shm/qz_ant_metrics.json"
     [[ ! -f "$metrics_file" ]] && metrics_file="/tmp/qz_ant_metrics.json"
 
     enter_ui_mode
 
-    # --- Check QZ is running with ANT+ active --------------------------------
+    # --- Check QZ is running with ANT+ active (always required) -------------
     local svc_status; svc_status=$(get_service_status)
     if [[ "$svc_status" != "running" ]] || [[ ! -f "$metrics_file" ]]; then
         draw_info_screen "ANT+ NOT ACTIVE" \
@@ -7261,53 +7338,42 @@ ant_distance_calibration() {
     fi
     local current_pct; current_pct=$(python3 -c "print(f'{float(\"$current_scale\")*100:.1f}')" 2>/dev/null || echo "100.0")
 
-    # --- Instructions screen ------------------------------------------------
-    draw_bottom_panel_header "ANT+ DISTANCE CALIBRATION" "false"
-    clear_info_area
-    local r=$((LOG_TOP + 1))
-    draw_sealed_row "$r" ""; ((r++))
-    draw_sealed_row "$r" "   Current scale factor: ${CYAN}${current_scale}${NC}  (${current_pct}%)"; ((r++))
-    draw_sealed_row "$r" ""; ((r++))
-    draw_sealed_row "$r" "   HOW TO CALIBRATE:"; ((r++))
-    draw_sealed_row "$r" "   1. Start a run — recommended 3 km at steady 8 km/h"; ((r++))
-    draw_sealed_row "$r" "   2. Note the distance on your treadmill display when done"; ((r++))
-    draw_sealed_row "$r" "   3. Return here to enter the treadmill distance"; ((r++))
-    draw_sealed_row "$r" "   4. A new scale factor is saved for all future sessions"; ((r++))
-    draw_sealed_row "$r" ""; ((r++))
-    draw_sealed_row "$r" "   ${GRAY}The wizard reads ANT+ distance from the live metrics file.${NC}"; ((r++))
-    draw_bottom_border "Enter: Start  |  Esc: Back"
+    local ant_dist_m=""
 
-    local key; read -rsn1 key 2>/dev/null
-    # Handle escape
-    local ord=${#key}
-    if [[ "$key" == $'\x1b' ]] || [[ $ord -eq 0 ]]; then
-        exit_ui_mode; return 0
-    fi
+    if [[ -n "$pre_dist_m" ]] && python3 -c "exit(0 if float('${pre_dist_m}') >= 100 else 1)" 2>/dev/null; then
+        # ----------------------------------------------------------------
+        # SHORTCUT PATH: called from monitor with distance already known
+        # ----------------------------------------------------------------
+        ant_dist_m="$pre_dist_m"
+    else
+        # ----------------------------------------------------------------
+        # FULL PATH: instructions + live run monitor
+        # ----------------------------------------------------------------
+        draw_bottom_panel_header "ANT+ DISTANCE CALIBRATION" "false"
+        clear_info_area
+        local r=$((LOG_TOP + 1))
+        draw_sealed_row "$r" ""; ((r++))
+        draw_sealed_row "$r" "   Current scale factor: ${CYAN}${current_scale}${NC}  (${current_pct}%)"; ((r++))
+        draw_sealed_row "$r" ""; ((r++))
+        draw_sealed_row "$r" "   HOW TO CALIBRATE:"; ((r++))
+        draw_sealed_row "$r" "   1. Start a run — recommended 3 km at a steady speed"; ((r++))
+        draw_sealed_row "$r" "   2. Note the distance on your treadmill display when done"; ((r++))
+        draw_sealed_row "$r" "   3. Return here to enter the treadmill distance"; ((r++))
+        draw_sealed_row "$r" "   4. A new scale factor is saved for all future sessions"; ((r++))
+        draw_sealed_row "$r" ""; ((r++))
+        draw_sealed_row "$r" "   ${GRAY}Note: treadmill displays often under-read actual belt distance.${NC}"; ((r++))
+        draw_sealed_row "$r" "   ${GRAY}Calibrating aligns your watch with the treadmill display.${NC}"; ((r++))
+        draw_bottom_border "Enter: Start live monitor  |  Esc: Back"
 
-    # --- Live distance monitor while user runs ------------------------------
-    local start_dist=0.0
-    # Snapshot the current accumulated distance as baseline
-    if [[ -f "$metrics_file" ]]; then
-        start_dist=$(python3 -c "
-import json,sys
-try:
-    d=json.load(open('$metrics_file'))
-    print(d.get('distance_km',0)*1000)
-except:
-    print(0)
-" 2>/dev/null || echo "0")
-    fi
+        local key; read -rsn1 key 2>/dev/null
+        if [[ "$key" == $'\x1b' ]]; then
+            exit_ui_mode; return 0
+        fi
 
-    draw_bottom_panel_header "ANT+ DISTANCE CALIBRATION" "false"
-    draw_bottom_border "Enter: Done — stop and enter treadmill distance  |  Esc: Abort"
-
-    local done=false
-    local live_dist=0.0
-    while [[ "$done" == "false" ]]; do
-        # Read current ANT+ accumulated distance from metrics
+        # Snapshot baseline distance
+        local start_dist=0.0
         if [[ -f "$metrics_file" ]]; then
-            local raw_dist
-            raw_dist=$(python3 -c "
+            start_dist=$(python3 -c "
 import json
 try:
     d=json.load(open('$metrics_file'))
@@ -7315,35 +7381,52 @@ try:
 except:
     print(0)
 " 2>/dev/null || echo "0")
-            live_dist=$(python3 -c "d=${raw_dist}-${start_dist}; print(f'{max(0,d):.0f}')" 2>/dev/null || echo "0")
         fi
 
-        # Redraw live distance
-        clear_info_area
-        local r2=$((LOG_TOP + 1))
-        draw_sealed_row "$r2" ""; ((r2++))
-        draw_sealed_row "$r2" "   ${CYAN}ANT+ Session Distance: ${live_dist} m${NC}"; ((r2++))
-        draw_sealed_row "$r2" ""; ((r2++))
-        draw_sealed_row "$r2" "   Run your calibration distance on the treadmill."; ((r2++))
-        draw_sealed_row "$r2" "   Press Enter when finished to enter the treadmill reading."; ((r2++))
+        draw_bottom_panel_header "ANT+ DISTANCE CALIBRATION" "false"
+        draw_bottom_border "Enter: Done — record treadmill distance  |  Esc: Abort"
 
-        # Non-blocking key check (1s poll)
-        IFS= read -rsn1 -t 1 key 2>/dev/null || key=""
-        if [[ "$key" == "" ]]; then continue; fi
-        ord=${#key}
-        if [[ "$key" == $'\x1b' ]] || [[ $ord -eq 0 && "$key" == "" && ${#key} -eq 0 ]]; then
-            exit_ui_mode; return 0
-        fi
-        if [[ "$key" == $'\n' ]] || [[ "$key" == $'\r' ]] || [[ "$key" == "" ]]; then
-            done=true
-        fi
-    done
+        local done=false
+        local live_dist=0
+        while [[ "$done" == "false" ]]; do
+            if [[ -f "$metrics_file" ]]; then
+                local raw_dist
+                raw_dist=$(python3 -c "
+import json
+try:
+    d=json.load(open('$metrics_file'))
+    print(d.get('distance_km',0)*1000)
+except:
+    print(0)
+" 2>/dev/null || echo "0")
+                live_dist=$(python3 -c "d=${raw_dist}-${start_dist}; print(f'{max(0,d):.0f}')" 2>/dev/null || echo "0")
+            fi
+
+            clear_info_area
+            local r2=$((LOG_TOP + 1))
+            draw_sealed_row "$r2" ""; ((r2++))
+            draw_sealed_row "$r2" "   ${CYAN}ANT+ Session Distance: ${live_dist} m${NC}"; ((r2++))
+            draw_sealed_row "$r2" ""; ((r2++))
+            draw_sealed_row "$r2" "   Run your calibration distance on the treadmill."; ((r2++))
+            draw_sealed_row "$r2" "   Press Enter when finished to enter the treadmill reading."; ((r2++))
+
+            IFS= read -rsn1 -t 1 key 2>/dev/null || key=""
+            if [[ "$key" == $'\x1b' ]]; then
+                exit_ui_mode; return 0
+            fi
+            if [[ "$key" == $'\n' ]] || [[ "$key" == $'\r' ]] || [[ "$key" == "" && ${#key} -eq 0 ]]; then
+                done=true
+            fi
+        done
+        ant_dist_m="$live_dist"
+    fi
 
     # --- Guard: need at least 100m to calibrate meaningfully ----------------
-    local ant_dist_m=$live_dist
-    if (( ant_dist_m < 100 )); then
+    if python3 -c "exit(0 if float('${ant_dist_m:-0}') >= 100 else 1)" 2>/dev/null; then
+        : # ok
+    else
         draw_info_screen "TOO SHORT TO CALIBRATE" \
-            "Only ${ant_dist_m}m recorded. Run at least 100m for a useful calibration.\n\nFor best accuracy use 3km at steady speed." "wait"
+            "Only ${ant_dist_m}m of ANT+ distance recorded.\nRun at least 100m for a useful calibration.\n\nFor best accuracy use 3km at steady speed." "wait"
         exit_ui_mode; return 0
     fi
 
@@ -7355,21 +7438,25 @@ except:
     draw_sealed_row "$r3" "   ANT+ recorded: ${CYAN}${ant_dist_m} m${NC}"; ((r3++))
     draw_sealed_row "$r3" ""; ((r3++))
     draw_sealed_row "$r3" "   Enter the distance shown on the treadmill display (metres):"; ((r3++))
-    draw_sealed_row "$r3" "   e.g. if treadmill showed 3.00 km, enter: 3000"; ((r3++))
+    draw_sealed_row "$r3" "   e.g. if treadmill showed 3.42 km, enter: 3420"; ((r3++))
     draw_sealed_row "$r3" ""; ((r3++))
+    draw_sealed_row "$r3" "   ${GRAY}Note: if ANT+ is higher than treadmill, your treadmill display${NC}"; ((r3++))
+    draw_sealed_row "$r3" "   ${GRAY}may under-read — this is normal for consumer treadmills.${NC}"; ((r3++))
 
     local treadmill_dist_str
-    treadmill_dist_str=$(edit_field_inline $((LOG_TOP + 7)) "   Treadmill distance (m): " "" 6) || true
+    treadmill_dist_str=$(edit_field_inline $((LOG_TOP + 9)) "   Treadmill distance (m): " "" 7) || true
     treadmill_dist_str=$(echo "$treadmill_dist_str" | tr -d '[:space:]')
 
     # Validate input
     if ! [[ "$treadmill_dist_str" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-        draw_info_screen "INVALID INPUT" "\"${treadmill_dist_str}\" is not a valid distance.\nEnter a number in metres, e.g. 3000" "wait"
+        draw_info_screen "INVALID INPUT" "\"${treadmill_dist_str}\" is not a valid distance.\nEnter a number in metres, e.g. 3420" "wait"
         exit_ui_mode; return 0
     fi
 
     local treadmill_dist_m=$treadmill_dist_str
-    if (( $(python3 -c "print(1 if float('$treadmill_dist_m') < 50 else 0)") )); then
+    if python3 -c "exit(0 if float('$treadmill_dist_m') >= 50 else 1)" 2>/dev/null; then
+        : # ok
+    else
         draw_info_screen "INVALID INPUT" "Distance must be at least 50m." "wait"
         exit_ui_mode; return 0
     fi
@@ -7377,16 +7464,17 @@ except:
     # --- Calculate and save scale factor ------------------------------------
     local new_scale
     new_scale=$(python3 -c "
-ant=${ant_dist_m}; tread=float('${treadmill_dist_m}')
+ant=float('${ant_dist_m}'); tread=float('${treadmill_dist_m}')
 scale = tread / ant if ant > 0 else 1.0
-# Clamp to reasonable range
 scale = max(0.5, min(2.0, scale))
 print(f'{scale:.4f}')
 " 2>/dev/null || echo "1.0000")
 
     local new_pct; new_pct=$(python3 -c "print(f'{float(\"$new_scale\")*100:.1f}')" 2>/dev/null || echo "100.0")
 
-    # Write config file
+    # Ensure config dir exists before writing
+    mkdir -p "$(dirname "$cal_file")" 2>/dev/null || true
+
     {
         echo "# ANT+ distance calibration"
         echo "# Generated by setup-dashboard.sh on $(date '+%Y-%m-%d %H:%M')"
@@ -7395,16 +7483,16 @@ print(f'{scale:.4f}')
     } > "$cal_file" 2>/dev/null
 
     # --- Confirm ------------------------------------------------------------
-    local direction="no change"
     local diff_m; diff_m=$(python3 -c "print(f'{abs(float(\"$treadmill_dist_m\")-float(\"$ant_dist_m\")):.0f}')" 2>/dev/null || echo "?")
+    local direction="no change"
     if python3 -c "exit(0 if float('$new_scale') > 1.001 else 1)" 2>/dev/null; then
-        direction="distance increased by ~${diff_m}m per ${ant_dist_m}m"
+        direction="ANT+ will report ~${diff_m}m more per ${ant_dist_m}m (treadmill was lower)"
     elif python3 -c "exit(0 if float('$new_scale') < 0.999 else 1)" 2>/dev/null; then
-        direction="distance reduced by ~${diff_m}m per ${ant_dist_m}m"
+        direction="ANT+ will report ~${diff_m}m less per ${ant_dist_m}m (treadmill was higher)"
     fi
 
     draw_info_screen "CALIBRATION SAVED" \
-        "Scale factor: ${new_scale}  (${new_pct}%)\n${direction}\n\nSaved to: $(basename "$cal_file")\nTakes effect at next QZ start.\n\nTo recalibrate: repeat this wizard.\nTo reset: delete ${cal_file}" "wait"
+        "Scale: ${new_scale}  (${new_pct}%)\n${direction}\n\nSaved to: ant_calibration.conf\nTakes effect at next QZ start.\n\nRecalibrate: repeat this wizard or press C in the monitor." "wait"
 
     exit_ui_mode
 }
