@@ -119,6 +119,7 @@ class horizontreadmill : public treadmill {
     bool TP1 = false;
     bool T01 = false;
     bool TM4800 = false;
+    bool TM4500 = false;
     bool TM6500 = false;
     bool WT_TREADMILL = false;
     bool THERUN_T15 = false;

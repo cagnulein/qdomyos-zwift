@@ -566,6 +566,7 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("DBF", DeviceNameComparison::StartsWithIgnoreCase, 6) // DBF135
         ->acceptDeviceName("KSU", DeviceNameComparison::StartsWithIgnoreCase, 7) // KSU1102
         ->acceptDeviceName("VOLT", DeviceNameComparison::StartsWithIgnoreCase, 4)
+        ->acceptDeviceName("XQ0201118141", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceName("F","ARROW",DeviceNameComparison::IgnoreCase) // FI9110 Arrow, https://www.fitnessdigital.it/bicicletta-smart-bike-ion-fitness-arrow-connect/p/10022863/ IO Fitness Arrow
         ->acceptDeviceName("ICSE", DeviceNameComparison::StartsWithIgnoreCase, 4)
         ->acceptDeviceName("FLX", DeviceNameComparison::StartsWithIgnoreCase, 10)
@@ -580,6 +581,9 @@ void DeviceTestDataIndex::Initialize() {
         ->rejectDeviceName("DT-0123456789", DeviceNameComparison::IgnoreCase) // too short for Sole SB700
         ->rejectDeviceName("DBF13", DeviceNameComparison::IgnoreCase) // too short for DBF135
         ->rejectDeviceName("DBF1355", DeviceNameComparison::IgnoreCase) // too long for DBF135
+        ->rejectDeviceName("XQ020111814", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("XQ02ABC18141", DeviceNameComparison::IgnoreCase)
+        ->rejectDeviceName("XQ02011181411", DeviceNameComparison::IgnoreCase)
 
         ->excluding(ftmsBikeConfigureExclusions);
 
@@ -1515,5 +1519,3 @@ void DeviceTestDataIndex::Initialize() {
 
     }
 }
-
-

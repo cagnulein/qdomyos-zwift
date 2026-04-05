@@ -4698,7 +4698,7 @@
 					"/Users/cagnulein/qdomyos-zwift/src/ios/adb",
 					/Users/cagnulein/Qt/5.15.2/ios/qml/Qt/labs/calendar,
 				);
-				MARKETING_VERSION = 2.20;
+				MARKETING_VERSION = 2.21;
 				OTHER_CFLAGS = (
 					"-pipe",
 					"-g",
@@ -4901,7 +4901,7 @@
 					"/Users/cagnulein/qdomyos-zwift/src/ios/adb",
 					/Users/cagnulein/Qt/5.15.2/ios/qml/Qt/labs/calendar,
 				);
-				MARKETING_VERSION = 2.20;
+				MARKETING_VERSION = 2.21;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-pipe",
@@ -5076,7 +5076,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.20;
+				MARKETING_VERSION = 2.21;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--generate-entitlement-der";
@@ -5168,7 +5168,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.20;
+				MARKETING_VERSION = 2.21;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--generate-entitlement-der";
@@ -5284,7 +5284,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.20;
+				MARKETING_VERSION = 2.21;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--generate-entitlement-der";
@@ -5396,7 +5396,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.20;
+				MARKETING_VERSION = 2.21;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--generate-entitlement-der";
@@ -5495,7 +5495,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 2.20;
+				MARKETING_VERSION = 2.21;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -5582,7 +5582,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 2.20;
+				MARKETING_VERSION = 2.21;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (

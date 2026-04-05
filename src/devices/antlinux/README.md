@@ -590,11 +590,13 @@ sudo ls -la /root/.config/"Roberto Viola"/qDomyos-Zwift.conf
 
 #### Watch Distance Doesn't Match Treadmill
 
-**Symptom:** Watch shows a different distance than the treadmill display after a run — typically a few percent off, with ANT+ reporting more than the treadmill.
+**Symptom:** Watch shows a different distance than the treadmill display after a run.
 
-**Cause:** The ANT+ broadcaster calculates distance from BLE-reported belt speed × elapsed time (labelled **ANT+ dist** in the monitor). Treadmill displays typically derive their distance from a separate internal counter calibrated conservatively — most consumer treadmills under-read actual belt distance by 3–8%. Wheel/roller rounding errors are negligible (under 0.3% over 3km). The calibration aligns your watch to the treadmill display; ANT+ dist is likely the more accurate physical measurement.
+**Cause:** The ANT+ broadcaster calculates distance from BLE-reported belt speed × elapsed time (labelled **ANT+ dist** in the monitor). If your treadmill display reports a different value, the two measurements may diverge — the direction and magnitude of the difference varies by treadmill make, model, and gait. If you want the watch to agree with your treadmill display, use the calibration tool to align them.
 
-**Solution:** Run the built-in calibration wizard:
+> For background on why treadmill and wearable distances can differ, DC Rainmaker's [TreadTracker accuracy analysis](https://www.dcrainmaker.com/2019/01/treadtracker-treadmill-accuracy.html) and [fellrnr's Treadmill Calibration guide](https://fellrnr.com/wiki/Treadmill_Calibration) are useful references.
+
+**Solution:**
 
 ```bash
 sudo ./setup-dashboard.sh
@@ -602,13 +604,11 @@ sudo ./setup-dashboard.sh
 
 Select **ANT+ Tools → Distance Calibration**
 
-**Shortcut:** If QZ is already running, open **ANT+ Tools → ANT+ Broadcast Monitor** and press **C** — the wizard opens pre-populated with the current session's ANT+ distance, skipping the live-run phase.
-
 **How it works:**
-1. Complete a run of at least 100m (3 km at steady speed recommended for accuracy)
-2. Note the distance shown on your treadmill display
-3. Enter that distance in the wizard
-4. A scale factor is calculated and saved — pace is also scaled so it stays consistent with the calibrated distance
+1. Complete a run of at least 50m (longer is more accurate — a few km at steady speed is recommended)
+2. Note the distance shown on your treadmill display at the end of the run
+3. Open the calibration screen and enter both values — the ANT+ distance field is pre-filled from the last Broadcast Monitor session if available
+4. As soon as both values are entered the scale factor is calculated and saved automatically
 
 **What gets scaled:**
 - Distance sent to watch ✓
@@ -618,11 +618,11 @@ Select **ANT+ Tools → Distance Calibration**
 The **ANT+ Broadcast Monitor** shows both distances side by side:
 - **ANT+ dist** — calculated from BLE speed × time (unscaled)
 - **Watch dist** — after calibration factor applied (what the watch receives)
-- **Scale row** — active factor and a note on why the two values differ
+- **Scale row** — active factor
 
 > **Config location:** `ant_calibration.conf` is saved alongside `qDomyos-Zwift.conf` in `~/.config/Roberto Viola/`. Takes effect at the next QZ start.
 
-> **Reset calibration:** delete `ant_calibration.conf` to return to 1.0 (no correction).
+> **Remove calibration:** use **Remove calibration** in the menu, or delete `ant_calibration.conf` to return to 1.0 (no correction).
 
 ---
 

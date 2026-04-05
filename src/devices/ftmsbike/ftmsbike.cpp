@@ -850,7 +850,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if(DU30_bike) {
                 m_watt = wattsFromResistance(Resistance.value());
                 emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
-            } else if (SPORT01) {
+            } else if (SPORT01 && settings.value(QZSettings::toputure_teb1, QZSettings::default_toputure_teb1).toBool()) {
                 // Custom power calculation for SPORT01
                 // Resistance multipliers for levels 1-10
                 const double k[10] = {0.60, 0.75, 0.85, 0.95, 1.00, 1.18, 1.40, 1.70, 2.00, 2.40};
@@ -1454,6 +1454,10 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+        if (!s) {
+            qDebug() << QStringLiteral("stateChanged skipping null service object");
+            continue;
+        }
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
         if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
@@ -1469,6 +1473,10 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+        if (!s) {
+            qDebug() << QStringLiteral("skipping null service object during subscription setup");
+            continue;
+        }
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &ftmsbike::characteristicChanged);
@@ -1788,10 +1796,15 @@ void ftmsbike::serviceScanDone(void) {
     bool JK_fitness_577 = bluetoothDevice.name().toUpper().startsWith("DHZ-");
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         if ((JK_fitness_577 && s == ftmsService) || !JK_fitness_577) {
-            gattCommunicationChannelService.append(m_control->createServiceObject(s));
-            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                    &ftmsbike::stateChanged);
-            gattCommunicationChannelService.constLast()->discoverDetails();
+            QLowEnergyService *service = m_control->createServiceObject(s);
+            if (!service) {
+                qWarning() << QStringLiteral("createServiceObject returned null for service") << s;
+                continue;
+            }
+
+            gattCommunicationChannelService.append(service);
+            connect(service, &QLowEnergyService::stateChanged, this, &ftmsbike::stateChanged);
+            service->discoverDetails();
 
             // watt bikes has the 6 as default gear value
             if(s == QBluetoothUuid(QStringLiteral("b4cc1223-bc02-4cae-adb9-1217ad2860d1")) && SS2K == false) {

@@ -24,6 +24,14 @@ bool isSportsPlusHTVariantName(const QString &name) {
     name.mid(2).toUInt(&ok);
     return ok;
 }
+
+uint16_t decodePackedBcd(const QByteArray &packet, int highIndex, int lowIndex) {
+    const uint8_t high = static_cast<uint8_t>(packet.at(highIndex));
+    const uint8_t low = static_cast<uint8_t>(packet.at(lowIndex));
+
+    return static_cast<uint16_t>(((high & 0xF0) >> 4) * 1000) + static_cast<uint16_t>((high & 0x0F) * 100) +
+           static_cast<uint16_t>(((low & 0xF0) >> 4) * 10) + static_cast<uint16_t>(low & 0x0F);
+}
 } // namespace
 
 sportsplusbike::sportsplusbike(bool noWriteResistance, bool noHeartService) {
@@ -158,7 +166,11 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
             if (!firstCharChanged) {
                 Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
             }
-            cadence = (speed * 10.0) + 12.0;
+            // The visible speed is BCD-encoded, but cadence still tracks the legacy raw-speed mapping.
+            cadence = ((((static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(2))) << 8) |
+                         static_cast<uint8_t>(newValue.at(3))) /
+                        10.0)) +
+                      12.0;
             cadence_eval = true;
             Speed = speed;
             emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
@@ -172,7 +184,13 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
                 m_watt = watt;
             }
         }
-        kcal = GetKcalFromPacket(newValue);
+        kcal = KCal.value();
+        if (m_watt.value() > 0 && lastRefreshCharacteristicChanged.msecsTo(now) > 0) {
+            kcal += ((((0.048 * ((double)watts()) + 1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(now))));
+        }
     } else if (!sp_ht_9600ie && !carefitness_bike) {
         if (newValue.at(1) == 0x20) {
             double speed = GetSpeedFromPacket(newValue);
@@ -321,8 +339,7 @@ double sportsplusbike::GetSpeedFromPacket(const QByteArray &packet) {
     QSettings settings;
     bool sp_ht_9600ie = settings.value(QZSettings::sp_ht_9600ie, QZSettings::default_sp_ht_9600ie).toBool();
     if (ht_variant_bike) {
-        uint16_t convertedData = (packet.at(2) << 8) | ((uint8_t)packet.at(3));
-        return (double)(convertedData) / 100.0f;
+        return static_cast<double>(decodePackedBcd(packet, 2, 3)) / 10.0;
     } else if (sp_ht_9600ie) {
         uint16_t convertedData = (packet.at(2) * 100);
         uint8_t hexint = ((uint8_t)packet.at(3));
@@ -338,8 +355,7 @@ double sportsplusbike::GetSpeedFromPacket(const QByteArray &packet) {
 
 double sportsplusbike::GetKcalFromPacket(const QByteArray &packet) {
     if (ht_variant_bike) {
-        uint16_t convertedData = (packet.at(9) << 8) | ((uint8_t)packet.at(10));
-        return (double)(convertedData);
+        return KCal.value();
     }
     uint16_t convertedData = (packet.at(6) << 8) | ((uint8_t)packet.at(7));
     return (double)(convertedData);
@@ -347,8 +363,7 @@ double sportsplusbike::GetKcalFromPacket(const QByteArray &packet) {
 
 double sportsplusbike::GetWattFromPacket(const QByteArray &packet) {
     if (ht_variant_bike) {
-        uint16_t convertedData = (packet.at(2) << 8) | ((uint8_t)packet.at(3));
-        return (double)(convertedData);
+        return static_cast<double>(decodePackedBcd(packet, 9, 10));
     }
     uint16_t convertedData = (packet.at(2) << 8) | ((uint8_t)packet.at(3));
     double data = ((double)(convertedData));

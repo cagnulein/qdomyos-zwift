@@ -563,6 +563,11 @@ class homeform : public QObject {
     Q_INVOKABLE bool isStravaLoggedIn();
     Q_INVOKABLE bool isPelotonLoggedIn();
     Q_INVOKABLE bool isIntervalsICULoggedIn();
+    Q_INVOKABLE bool isGarminUploadConfigured();
+    Q_INVOKABLE bool isIntervalsICUUploadConfigured();
+    Q_INVOKABLE void uploadHistoricalWorkoutToStrava(const QString &filePath);
+    Q_INVOKABLE void uploadHistoricalWorkoutToGarmin(const QString &filePath);
+    Q_INVOKABLE void uploadHistoricalWorkoutToIntervalsICU(const QString &filePath);
     Q_INVOKABLE void strava_logout();
     Q_INVOKABLE void peloton_logout();
     Q_INVOKABLE void intervalsicu_logout();

@@ -206,15 +206,22 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
         [_virtualbike updateCadenceWithCrankRevolutions:crankRevolutions LastCrankEventTime:lastCrankEventTime];
 }
 
-void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance, double totalKcal, bool useMiles, unsigned char heartRate) {
+void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt,
+                                       unsigned short currentCalories, unsigned long long currentSteps,
+                                       unsigned char deviceType, double currentDistance, double totalKcal,
+                                       bool useMiles, unsigned char heartRate, const char *compactLeadingMetric,
+                                       int compactLeadingValue, const char *compactTrailingMetric,
+                                       int compactTrailingValue) {
     if(workoutTracking != nil && !appleWatchAppInstalled())
         [workoutTracking addMetricsWithPower:watt cadence:cadence*2 speed:speed * 100 kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:totalKcal elevationGain:0];
 
     // Start Live Activity on first update, then keep updating
     if (!ios_liveactivity::isLiveActivityRunning()) {
-        ios_liveactivity::startLiveActivity("QZ", useMiles);
+        ios_liveactivity::startLiveActivity("QZ", useMiles, compactLeadingMetric, compactTrailingMetric);
     }
-    ios_liveactivity::updateLiveActivity(speed, cadence, watt, heartRate, currentDistance, currentCalories, useMiles);
+    ios_liveactivity::updateLiveActivity(speed, cadence, watt, heartRate, currentDistance, currentCalories, useMiles,
+                                         compactLeadingMetric, compactLeadingValue, compactTrailingMetric,
+                                         compactTrailingValue);
 }
 
 void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator, bool watt_bike_emulator)
