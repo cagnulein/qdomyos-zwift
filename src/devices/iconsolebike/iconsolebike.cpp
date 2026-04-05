@@ -404,35 +404,41 @@ double iconsolebike::GetSpeedFromPacket(const QByteArray &packet) {
 }
 
 uint16_t iconsolebike::GetPowerFromPacket(const QByteArray &packet) {
-    if (packet.length() < 10) {
+    if (packet.length() < 19) {
         return 0;
     }
 
-    // Bytes [16-17] form a big-endian uint16 that encodes resistance-adjusted
-    // power.  Unlike bytes [6-7] (which vary only with cadence), [16-17]
-    // increases both with cadence and with resistance, so it correctly
-    // reflects the change in effort when the load is varied at constant rpm.
-    //
-    // Calibration from three independent sessions (Maarten, 2026-03-29):
-    //   res=8, 58 rpm  → [16-17]≈2367, bike display=60 W  → 2367/41=57.7 W  (-3.8%)
-    //   res=8, 79 rpm  → [16-17]≈3906, bike display=90 W  → 3906/41=95.3 W  (+5.9%)  ← average 42.4
-    //   res=8, 97 rpm  → [16-17]≈5338, bike display=130 W → 5338/41=130.2 W (+0.2%)
-    // Cross-check (Kinomap btsnoop 2026-04-01, res 8→11 at ~66 rpm):
-    //   res= 8, 66 rpm → [16-17]≈2648 → 64.6 W   (cadence-only formula gives 70.8 W — unchanged)
-    //   res=11, 66 rpm → [16-17]≈3900 → 95.1 W   (correctly 47% higher at higher resistance)
-    // The divisor 41 is the arithmetic mean of the three calibration points.
-    if (packet.length() < 18) {
-        return 0;
-    }
-
-    uint16_t power_raw = ((uint8_t)packet[16] << 8) | (uint8_t)packet[17];
     uint8_t cadence_raw = (uint8_t)packet[9];
+    uint8_t resistance_raw = (uint8_t)packet[18];
 
-    if (cadence_raw <= 1 || power_raw <= 0x0101) {
+    if (cadence_raw <= 1) {
         return 0;
     }
 
-    return qRound(power_raw / 41.0);
+    // Maarten's latest measurements show that wattage depends on both cadence
+    // and load. We only have stable calibration points for load 2 and load 8,
+    // so we model those two curves and linearly interpolate between them.
+    //
+    // load 2:
+    //   60 rpm -> 40 W
+    //   80 rpm -> 60 W
+    //   100 rpm -> 85 W
+    //
+    // load 8:
+    //   60 rpm -> 60 W
+    //   80 rpm -> 95 W
+    //   100 rpm -> 135 W
+    //
+    // Curves fitted from those points:
+    //   load2(c) = 0.00625*c^2 + 0.125*c + 10
+    //   load8(c) = 0.00625*c^2 + 0.875*c - 15
+    const double cadence = cadence_raw;
+    const double resistance = qBound(2.0, (double)resistance_raw, 8.0);
+    const double load2Watts = (0.00625 * cadence * cadence) + (0.125 * cadence) + 10.0;
+    const double load8Watts = (0.00625 * cadence * cadence) + (0.875 * cadence) - 15.0;
+    const double resistanceRatio = (resistance - 2.0) / 6.0;
+    const double watts = load2Watts + ((load8Watts - load2Watts) * resistanceRatio);
+    return qMax(0, qRound(watts));
 }
 
 uint8_t iconsolebike::GetResistanceFromPacket(const QByteArray &packet) {
