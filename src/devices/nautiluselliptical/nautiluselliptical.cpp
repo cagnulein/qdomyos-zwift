@@ -242,7 +242,7 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
         const bool isM7Device = bluetoothDevice.name().startsWith(QStringLiteral("Nautilus M7"), Qt::CaseInsensitive);
         {
             uint8_t heart = ((uint8_t)newValue.at(16));
-            if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && heart != 0) {
+            if (!isM7Device && heartRateBeltName.startsWith(QStringLiteral("Disabled")) && heart != 0) {
                 Heart = heart;
             }
         }
@@ -251,8 +251,13 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
             const uint8_t packetType = (uint8_t)newValue.at(1);
 
             // Nautilus M7 splits the live data between 2 packet types:
-            // 0x31 carries status/resistance, 0x5e carries speed/cadence/watt.
+            // 0x31 carries status/heart rate/resistance, 0x5e carries speed/cadence/watt.
             if (packetType == 0x31) {
+                const uint8_t heart = (uint8_t)newValue.at(17);
+                if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && heart != 0) {
+                    Heart = heart;
+                }
+
                 Resistance = (uint8_t)newValue.at(19);
                 return;
             }
