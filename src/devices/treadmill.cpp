@@ -96,6 +96,13 @@ void treadmill::changeSpeedAndInclination(double speed, double inclination) {
     changeSpeed(speed);
     changeInclination(inclination, inclination);
 }
+
+void treadmill::onTrainingProgramTransition() {
+    targetWatts = -1;
+    m_followPowerLastSpeedWhenTargetSet = -1;
+    m_followPowerSuppressedUntil = QDateTime::currentDateTime().addMSecs(5000);
+    qDebug() << "Training program transition detected - temporarily suspending power-follow speed adjustments";
+}
 metric treadmill::currentInclination() { return Inclination; }
 bool treadmill::connected() { return false; }
 BLUETOOTH_TYPE treadmill::deviceType() { return TREADMILL; }
@@ -668,28 +675,30 @@ bool treadmill::followPowerBySpeed() {
                    QZSettings::default_treadmill_follow_wattage)
             .toBool();
     double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
-    static double lastInclination = 0;
-    static double lastSpeedWhenTargetSet = -1;
-
     if (treadmill_follow_wattage) {
-
-        // Check if speed was changed externally (from treadmill)
-        if (targetWatts != -1 && lastSpeedWhenTargetSet != -1 &&
-            fabs(currentSpeed().value() - lastSpeedWhenTargetSet) > 0.5) {
-            qDebug() << "External speed change detected - resetting power following mode"
-                     << "current:" << currentSpeed().value() << "expected:" << lastSpeedWhenTargetSet;
-            targetWatts = -1;
-            lastSpeedWhenTargetSet = -1;
+        if (m_followPowerSuppressedUntil.isValid() && QDateTime::currentDateTime() < m_followPowerSuppressedUntil) {
+            m_followPowerLastInclination = currentInclination().value();
+            return false;
         }
 
-        if (currentInclination().value() != lastInclination && wattsMetric().value() != 0) {
+
+        // Check if speed was changed externally (from treadmill)
+        if (targetWatts != -1 && m_followPowerLastSpeedWhenTargetSet != -1 &&
+            fabs(currentSpeed().value() - m_followPowerLastSpeedWhenTargetSet) > 0.5) {
+            qDebug() << "External speed change detected - resetting power following mode"
+                     << "current:" << currentSpeed().value() << "expected:" << m_followPowerLastSpeedWhenTargetSet;
+            targetWatts = -1;
+            m_followPowerLastSpeedWhenTargetSet = -1;
+        }
+
+        if (currentInclination().value() != m_followPowerLastInclination && wattsMetric().value() != 0) {
 
             // If not following power mode, calculate new target from current values
             if (targetWatts == -1) {
-                targetWatts = wattsCalc(w, currentSpeed().value(), lastInclination);
-                lastSpeedWhenTargetSet = currentSpeed().value();
+                targetWatts = wattsCalc(w, currentSpeed().value(), m_followPowerLastInclination);
+                m_followPowerLastSpeedWhenTargetSet = currentSpeed().value();
                 qDebug() << "Starting power following mode with target watts:" << targetWatts
-                         << "speed:" << lastSpeedWhenTargetSet;
+                         << "speed:" << m_followPowerLastSpeedWhenTargetSet;
             }
 
             // Find speed to maintain targetWatts with current inclination
@@ -707,8 +716,8 @@ bool treadmill::followPowerBySpeed() {
             }
 
             newspeed = bestSpeed;
-            lastSpeedWhenTargetSet = newspeed; // Update tracked speed after change
-            qDebug() << "Following power: changing speed to" << newspeed << "to maintain" << targetWatts << "watts (inclination changed" << currentInclination().value() << lastInclination << ")";
+            m_followPowerLastSpeedWhenTargetSet = newspeed; // Update tracked speed after change
+            qDebug() << "Following power: changing speed to" << newspeed << "to maintain" << targetWatts << "watts (inclination changed" << currentInclination().value() << m_followPowerLastInclination << ")";
 
             callingFromFollowPower = true;  // Set flag before calling
             changeSpeedAndInclination(newspeed, currentInclination().value());
@@ -718,7 +727,7 @@ bool treadmill::followPowerBySpeed() {
         }
     }
 
-    lastInclination = currentInclination().value();
+    m_followPowerLastInclination = currentInclination().value();
 
     return r;
 }

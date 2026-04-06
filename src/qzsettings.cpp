@@ -711,6 +711,7 @@ const QString QZSettings::iconcept_elliptical = QStringLiteral("iconcept_ellipti
 const QString QZSettings::gears_gain = QStringLiteral("gears_gain");
 const QString QZSettings::proform_treadmill_8_0 = QStringLiteral("proform_treadmill_8_0");
 const QString QZSettings::zero_zt2500_treadmill = QStringLiteral("zero_zt2500_treadmill");
+const QString QZSettings::umay_s100_treadmill = QStringLiteral("umay_s100_treadmill");
 const QString QZSettings::kingsmith_encrypt_v5 = QStringLiteral("kingsmith_encrypt_v5");
 const QString QZSettings::peloton_rower_level = QStringLiteral("peloton_rower_level");
 const QString QZSettings::tile_target_pace_enabled = QStringLiteral("tile_target_pace_enabled");
@@ -1074,7 +1075,7 @@ const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
 
 
-const uint32_t allSettingsCount = 873;
+const uint32_t allSettingsCount = 874;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1664,6 +1665,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::gears_gain, QZSettings::default_gears_gain},
     {QZSettings::proform_treadmill_8_0, QZSettings::default_proform_treadmill_8_0},
     {QZSettings::zero_zt2500_treadmill, QZSettings::default_zero_zt2500_treadmill},
+    {QZSettings::umay_s100_treadmill, QZSettings::default_umay_s100_treadmill},
     {QZSettings::kingsmith_encrypt_v5, QZSettings::default_kingsmith_encrypt_v5},
     {QZSettings::peloton_rower_level, QZSettings::default_peloton_rower_level},
     {QZSettings::tile_target_pace_enabled, QZSettings::default_tile_target_pace_enabled},

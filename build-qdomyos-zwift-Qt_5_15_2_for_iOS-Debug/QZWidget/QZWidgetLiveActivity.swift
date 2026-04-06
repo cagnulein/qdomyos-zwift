@@ -34,6 +34,8 @@ private func compactMetricStyle(for metric: String) -> CompactMetricStyle {
         return CompactMetricStyle(icon: "map", color: .green)
     case "Resistance", "Peloton Resistance", "Target Resistance", "Target Peloton Resistance", "Peloton Offset":
         return CompactMetricStyle(icon: "dial.low.fill", color: .mint)
+    case "Gear":
+        return CompactMetricStyle(icon: "gearshape.fill", color: .teal)
     case "Lap Elapsed", "Elapsed", "Moving Time", "Date Time":
         return CompactMetricStyle(icon: "timer", color: .primary)
     case "Fan":
