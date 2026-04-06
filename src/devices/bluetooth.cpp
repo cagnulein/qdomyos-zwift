@@ -22,6 +22,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
                      uint32_t pollDeviceTime, bool noConsole, bool testResistance, int8_t bikeResistanceOffset,
                      double bikeResistanceGain, bool startDiscovery) {
     QSettings settings;
+    bool gymMode = settings.value(QZSettings::gym_mode, QZSettings::default_gym_mode).toBool();
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     filterDevice = deviceName;
     this->testResistance = testResistance;
@@ -42,7 +43,8 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     bool fake_treadmill =
     settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
 
-    if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() && !pelotonBike) {
+    if (!gymMode && settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() &&
+        !pelotonBike) {
         pelotonBike = new pelotonbike(noWriteResistance, noHeartService);
         emit deviceConnected(QBluetoothDeviceInfo());
         connect(pelotonBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
@@ -267,6 +269,11 @@ void bluetooth::debug(const QString &text) {
 
         qDebug() << text;
     }
+}
+
+bool bluetooth::gymModeEnabled() const {
+    QSettings settings;
+    return settings.value(QZSettings::gym_mode, QZSettings::default_gym_mode).toBool();
 }
 
 bool bluetooth::cscSensorAvaiable() {
@@ -607,7 +614,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString b =
         settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString();
     qDebug() << "last device name (IC BIKE workaround)" << b;
-    if (!schwinnIC4Bike &&
+    if ((!gymModeEnabled() || !gymModeSessionDevice.isEmpty()) && !schwinnIC4Bike &&
         !b.compare(settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString()) &&
         (b.toUpper().startsWith("IC BIKE") || b.toUpper().startsWith("C7-"))) {
 
@@ -701,6 +708,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if (onlyDiscover)
         return;
 
+    if (gymModeEnabled() && gymModeSessionDevice.isEmpty())
+        return;
+
 #ifdef Q_OS_WIN
     if (this->device()) {
         qDebug() << QStringLiteral("bluetooth::finished but discoveryAgent is not active");
@@ -713,12 +723,14 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                          forceHeartBeltOffForTimeout;
 
     if (searchDevices) {
+        const QString effectiveFilterDevice =
+            !gymModeSessionDevice.isEmpty() ? gymModeSessionDevice : filterDevice;
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
 
             bool filter = true;
-            if (!filterDevice.isEmpty() && !filterDevice.startsWith(QStringLiteral("Disabled"))) {
+            if (!effectiveFilterDevice.isEmpty() && !effectiveFilterDevice.startsWith(QStringLiteral("Disabled"))) {
 
-                filter = (b.name().compare(filterDevice, Qt::CaseInsensitive) == 0);
+                filter = (b.name().compare(effectiveFilterDevice, Qt::CaseInsensitive) == 0);
             }
             const QString deviceName = b.name();
             const QString upperDeviceName = deviceName.toUpper();
@@ -3399,6 +3411,21 @@ void bluetooth::gearFailedDown() {
 }
 
 void bluetooth::heartRate(uint8_t heart) { Q_UNUSED(heart) }
+
+void bluetooth::selectGymModeDevice(const QString &deviceName) {
+    QString normalizedDeviceName = deviceName.trimmed();
+    normalizedDeviceName.remove(QRegularExpression(QStringLiteral(" \\(\\d+%\\)$")));
+
+    if (normalizedDeviceName.isEmpty() ||
+        !normalizedDeviceName.compare(QStringLiteral("Disabled"), Qt::CaseInsensitive) ||
+        !normalizedDeviceName.compare(QStringLiteral("Wifi"), Qt::CaseInsensitive)) {
+        return;
+    }
+
+    gymModeSessionDevice = normalizedDeviceName;
+    onlyDiscover = false;
+    restart();
+}
 
 void bluetooth::restart() {
 
