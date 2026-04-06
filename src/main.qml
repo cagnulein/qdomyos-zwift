@@ -69,7 +69,10 @@ ApplicationWindow {
     }
 
     function maybeOpenGymModePopup() {
-        if (settings.gym_mode && !rootItem.device && !gymModePopupDismissed && !popupGymMode.visible) {
+        if (typeof rootItem === "undefined" || !rootItem) {
+            return
+        }
+        if (settings.gym_mode && !rootItem.hasConnectedDevice() && !gymModePopupDismissed && !popupGymMode.visible) {
             popupGymMode.open()
         }
     }
@@ -180,15 +183,14 @@ ApplicationWindow {
        id: gymModeStartupTimer
        interval: 1500
        running: true
-       repeat: false
-       onTriggered: maybeOpenGymModePopup()
-    }
-
-    Connections {
-        target: rootItem
-        function onChangeOfdevice() {
-            if (rootItem.device && popupGymMode.visible) {
-                popupGymMode.close()
+       repeat: true
+       onTriggered: {
+            if (typeof rootItem === "undefined" || !rootItem) {
+                return
+            }
+            maybeOpenGymModePopup()
+            if (popupGymMode.visible || rootItem.hasConnectedDevice() || gymModePopupDismissed || !settings.gym_mode) {
+                stop()
             }
         }
     }

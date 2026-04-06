@@ -1530,6 +1530,10 @@ void homeform::selectGymModeDevice(const QString &deviceName) {
     bluetoothManager->selectGymModeDevice(deviceName);
 }
 
+bool homeform::hasConnectedDevice() const {
+    return bluetoothManager && bluetoothManager->device();
+}
+
 homeform::~homeform() {
     // Cleanup FIT backup thread
     if (fitBackupThread && fitBackupThread->isRunning()) {
