@@ -235,13 +235,30 @@ void kettlerc12bike::serviceDiscovered(const QBluetoothUuid &gatt) {
 void kettlerc12bike::serviceScanDone(void) {
     qDebug() << QStringLiteral("serviceScanDone");
 
-    // Get custom Kettler service - this is the ONLY service we use
-    if (m_control->services().contains(KETTLER_SERVICE_UUID)) {
-        gattCommunicationChannelService = m_control->createServiceObject(KETTLER_SERVICE_UUID, this);
+    const auto services = m_control->services();
+    activeServiceUuid = QBluetoothUuid();
+
+    if (services.contains(KETTLER_SERVICE_UUID)) {
+        activeServiceUuid = KETTLER_SERVICE_UUID;
+    } else if (services.contains(KETTLER_ALT_SERVICE_UUID)) {
+        activeServiceUuid = KETTLER_ALT_SERVICE_UUID;
+    } else {
+        for (const auto &serviceUuid : services) {
+            const QString serviceString = serviceUuid.toString().toLower();
+            if (!serviceString.endsWith(QStringLiteral("-0000-1000-8000-00805f9b34fb"))) {
+                activeServiceUuid = serviceUuid;
+                qDebug() << QStringLiteral("Using fallback Kettler custom service") << activeServiceUuid.toString();
+                break;
+            }
+        }
+    }
+
+    if (!activeServiceUuid.isNull()) {
+        gattCommunicationChannelService = m_control->createServiceObject(activeServiceUuid, this);
         connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &kettlerc12bike::stateChanged);
         gattCommunicationChannelService->discoverDetails();
     } else {
-        qDebug() << QStringLiteral("Kettler C12 custom service not found!");
+        qDebug() << QStringLiteral("Kettler C12 custom service not found!") << services;
     }
 }
 
@@ -302,27 +319,32 @@ void kettlerc12bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 }
 
 void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
-    QBluetoothUuid _gattCommunicationChannelServiceId = KETTLER_SERVICE_UUID;
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
     if (state == QLowEnergyService::ServiceDiscovered) {
         auto service = qobject_cast<QLowEnergyService *>(sender());
 
-        if (service && service->serviceUuid() == _gattCommunicationChannelServiceId) {
-            // Custom Kettler service - this is the ONLY service we use
-            qDebug() << QStringLiteral("Kettler C12 custom service discovered");
+        if (service && service->serviceUuid() == activeServiceUuid) {
+            qDebug() << QStringLiteral("Kettler C12 custom service discovered") << activeServiceUuid.toString();
 
-            // Find write characteristic (0x2a28 - Software Revision String, repurposed for control)
+            gattWriteCharacteristic = QLowEnergyCharacteristic();
             foreach (QLowEnergyCharacteristic c, service->characteristics()) {
                 qDebug() << QStringLiteral("characteristic") << c.uuid()
                          << "handle:" << QString::number(c.handle(), 16)
                          << "properties:" << c.properties();
 
-                // Write characteristic for sending commands
+                // Prefer the legacy characteristic when present, but accept any writable
+                // characteristic so newer firmware variants can still initialize.
                 if (c.uuid() == QBluetoothUuid((quint16)0x2a28)) {
                     gattWriteCharacteristic = c;
                     qDebug() << QStringLiteral("Found write characteristic (0x2a28)");
+                } else if (!gattWriteCharacteristic.isValid() &&
+                           ((c.properties() & QLowEnergyCharacteristic::Write) ||
+                            (c.properties() & QLowEnergyCharacteristic::WriteNoResponse))) {
+                    gattWriteCharacteristic = c;
+                    qDebug() << QStringLiteral("Using fallback write characteristic") << c.uuid()
+                             << "handle:" << QString::number(c.handle(), 16);
                 }
 
                 // Enable notifications on ALL characteristics with Notify property

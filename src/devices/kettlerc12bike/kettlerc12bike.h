@@ -58,7 +58,7 @@ class kettlerc12bike : public bike {
     // BLE Services and Characteristics
     QLowEnergyService *gattCommunicationChannelService = nullptr;
 
-    QLowEnergyCharacteristic gattWriteCharacteristic;     // Custom service write (0x2a28)
+    QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify0x0034;            // Cadence notifications
     QLowEnergyCharacteristic gattNotify0x003e;            // Power notifications
     QLowEnergyCharacteristic gattNotify0x0048;            // Speed notifications
@@ -77,9 +77,11 @@ class kettlerc12bike : public bike {
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
 
-    // UUIDs for Kettler C12 - Custom Service
+    // UUIDs seen on Kettler C12 variants/firmware revisions.
     const QBluetoothUuid KETTLER_SERVICE_UUID = QBluetoothUuid(QStringLiteral("8ce5cc01-0a4d-11e9-ab14-d663bd873d93"));
-    const QBluetoothUuid KETTLER_WRITE_CHAR_UUID = QBluetoothUuid((quint16)0x2a28); // Software Revision String (repurposed for control)
+    const QBluetoothUuid KETTLER_ALT_SERVICE_UUID = QBluetoothUuid(QStringLiteral("638af000-7bde-3e25-ffc5-9de9b2a0197a"));
+    const QBluetoothUuid KETTLER_WRITE_CHAR_UUID = QBluetoothUuid((quint16)0x2a28);
+    QBluetoothUuid activeServiceUuid;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
