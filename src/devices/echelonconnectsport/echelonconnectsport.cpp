@@ -260,6 +260,8 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 
     qDebug() << " << " + newValue.toHex(' ');
 
+    maybePromptToEnableVirtualEchelon(newValue);
+
     if (newValue == QByteArray::fromHex("f0a5010ea4")) {
         unlockResponseReceived = true;
         maybePromptForClassicBridge();
@@ -592,6 +594,21 @@ void echelonconnectsport::requestClassicBridgePrompt() {
     homeform::singleton()->setEchelonBridgeSwitchPromptRequested(true);
 }
 
+void echelonconnectsport::maybePromptToEnableVirtualEchelon(const QByteArray &newValue) {
+    QSettings settings;
+    const bool virtualEchelonEnabled =
+        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    const bool isLockedFrame = newValue.size() == 8 && static_cast<uint8_t>(newValue.at(0)) == 0xf0 &&
+                               static_cast<uint8_t>(newValue.at(1)) == 0xe0;
+
+    if (virtualEchelonEnabled || lockedBikePromptShown || !isLockedFrame || !homeform::singleton()) {
+        return;
+    }
+
+    lockedBikePromptShown = true;
+    homeform::singleton()->setEchelonEnablePromptRequested(true);
+}
+
 void echelonconnectsport::createVirtualBike(bool forceClassicMode, DirconManager *existingDirconManager) {
     qDebug() << QStringLiteral("creating virtual bike interface...")
              << (forceClassicMode ? QStringLiteral("(classic bridge)") : QStringLiteral("(echelon bridge)"));
@@ -619,6 +636,27 @@ void echelonconnectsport::switchToClassicVirtualBikeBridge() {
     }
 
     createVirtualBike(true, existingDirconManager);
+}
+
+void echelonconnectsport::enableVirtualEchelonBridge() {
+    QSettings settings;
+    settings.setValue(QZSettings::virtual_device_echelon, true);
+
+    classicVirtualBridgeActive = false;
+    classicBridgePromptShown = false;
+    lockedBikePromptShown = true;
+
+    if (homeform::singleton()) {
+        homeform::singleton()->setEchelonEnablePromptRequested(false);
+        homeform::singleton()->setToastRequested(QStringLiteral("Virtual Echelon enabled for this bike"));
+    }
+
+    DirconManager *existingDirconManager = nullptr;
+    if (auto *virtualBike = dynamic_cast<virtualbike *>(VirtualBike())) {
+        existingDirconManager = virtualBike->detachDirconManager();
+    }
+
+    createVirtualBike(false, existingDirconManager);
 }
 
 void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device) {

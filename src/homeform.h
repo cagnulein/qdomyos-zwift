@@ -196,6 +196,7 @@ class homeform : public QObject {
     Q_PROPERTY(QString garminWorkoutPromptName READ garminWorkoutPromptName NOTIFY garminWorkoutPromptNameChanged)
     Q_PROPERTY(QString garminWorkoutPromptDate READ garminWorkoutPromptDate NOTIFY garminWorkoutPromptDateChanged)
     Q_PROPERTY(bool echelonBridgeSwitchPromptRequested READ echelonBridgeSwitchPromptRequested NOTIFY echelonBridgeSwitchPromptRequestedChanged WRITE setEchelonBridgeSwitchPromptRequested)
+    Q_PROPERTY(bool echelonEnablePromptRequested READ echelonEnablePromptRequested NOTIFY echelonEnablePromptRequestedChanged WRITE setEchelonEnablePromptRequested)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -488,6 +489,7 @@ class homeform : public QObject {
     QString garminWorkoutPromptName() { return m_garminWorkoutPromptName; }
     QString garminWorkoutPromptDate() { return m_garminWorkoutPromptDate; }
     bool echelonBridgeSwitchPromptRequested() { return m_echelonBridgeSwitchPromptRequested; }
+    bool echelonEnablePromptRequested() { return m_echelonEnablePromptRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool pelotonPopupVisible();
@@ -563,6 +565,13 @@ class homeform : public QObject {
         m_echelonBridgeSwitchPromptRequested = value;
         emit echelonBridgeSwitchPromptRequestedChanged(value);
     }
+    void setEchelonEnablePromptRequested(bool value) {
+        if (m_echelonEnablePromptRequested == value) {
+            return;
+        }
+        m_echelonEnablePromptRequested = value;
+        emit echelonEnablePromptRequestedChanged(value);
+    }
     Q_INVOKABLE void garmin_connect_login();
     Q_INVOKABLE void garmin_submit_mfa_code(const QString &mfaCode);
     Q_INVOKABLE void garmin_connect_logout();
@@ -570,6 +579,8 @@ class homeform : public QObject {
     Q_INVOKABLE void garmin_dismiss_downloaded_workout_prompt();
     Q_INVOKABLE void echelon_switch_to_classic_bridge();
     Q_INVOKABLE void echelon_dismiss_bridge_switch_prompt();
+    Q_INVOKABLE void echelon_enable_virtual_bridge();
+    Q_INVOKABLE void echelon_dismiss_enable_prompt();
 
     Q_INVOKABLE bool isStravaLoggedIn();
     Q_INVOKABLE bool isPelotonLoggedIn();
@@ -926,6 +937,7 @@ public:
     bool m_garminMfaRequested = false;
     bool m_garminWorkoutPromptRequested = false;
     bool m_echelonBridgeSwitchPromptRequested = false;
+    bool m_echelonEnablePromptRequested = false;
     QString m_garminWorkoutPromptName = QStringLiteral("");
     QString m_garminWorkoutPromptDate = QStringLiteral("");
     QString m_garminWorkoutPromptFile = QStringLiteral("");
@@ -1157,6 +1169,7 @@ public:
     void garminWorkoutPromptNameChanged(QString value);
     void garminWorkoutPromptDateChanged(QString value);
     void echelonBridgeSwitchPromptRequestedChanged(bool value);
+    void echelonEnablePromptRequestedChanged(bool value);
     void generalPopupVisibleChanged(bool value);
     void pelotonPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);

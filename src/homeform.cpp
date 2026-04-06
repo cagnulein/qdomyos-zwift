@@ -9114,6 +9114,26 @@ void homeform::echelon_dismiss_bridge_switch_prompt() {
     setEchelonBridgeSwitchPromptRequested(false);
 }
 
+void homeform::echelon_enable_virtual_bridge() {
+    setEchelonEnablePromptRequested(false);
+
+    if (!bluetoothManager || !bluetoothManager->device()) {
+        setToastRequested(QStringLiteral("No active Echelon device found"));
+        return;
+    }
+
+    if (auto *echelonBike = dynamic_cast<echelonconnectsport *>(bluetoothManager->device())) {
+        echelonBike->enableVirtualEchelonBridge();
+        return;
+    }
+
+    setToastRequested(QStringLiteral("The connected device is not an Echelon Connect Sport"));
+}
+
+void homeform::echelon_dismiss_enable_prompt() {
+    setEchelonEnablePromptRequested(false);
+}
+
 bool homeform::isStravaLoggedIn() {
     QSettings settings;
     return !settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken).toString().isEmpty();
