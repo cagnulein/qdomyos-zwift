@@ -1909,6 +1909,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         QRegularExpression(QStringLiteral("^XQ\\d{10}$"), QRegularExpression::CaseInsensitiveOption)
                             .match(b.name())
                             .hasMatch()) &&
+                        !QRegularExpression(QStringLiteral("^ADIDAS\\d{4,}$"), QRegularExpression::CaseInsensitiveOption)
+                            .match(b.name())
+                            .hasMatch() &&
                         ftms_rower.contains(QZSettings::default_ftms_rower) &&
                        !ftmsBike && !ftmsRower && !snodeBike && !fitPlusBike && !stagesBike && filter) {
                 this->setLastBluetoothDevice(b);
@@ -2651,6 +2654,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         upperDeviceName.startsWith(QStringLiteral("VIRTUFIT")) ||
                         upperDeviceName.startsWith(QStringLiteral("IBIKING+")) ||
                         isRI009R ||
+                        (QRegularExpression(QStringLiteral("^ADIDAS\\d{4,}$"), QRegularExpression::CaseInsensitiveOption)
+                             .match(deviceName)
+                             .hasMatch()) ||
                         ((deviceName.startsWith(QStringLiteral("TOORX")) ||
                           upperDeviceName.startsWith(QStringLiteral("I-CONSOIE+")) ||
                           upperDeviceName.startsWith(QStringLiteral("I-CONSOLE+")) ||
