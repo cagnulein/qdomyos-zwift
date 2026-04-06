@@ -227,6 +227,7 @@ void bike::setGears(double gears) {
         homeform::singleton()->updateGearsValue();
     }
 
+    
     if (MyWhooshLink::instance() && MyWhooshLink::instance()->isEnabled() &&
         !qFuzzyCompare(previousGears + 1.0, m_gears + 1.0)) {
         if (m_gears > previousGears) {
