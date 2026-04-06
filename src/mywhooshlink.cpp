@@ -1,14 +1,21 @@
 #include "mywhooshlink.h"
 #include "devices/bluetoothdevice.h"
 #include "bluetooth.h"
-#include <QJsonObject>
-#include <QJsonDocument>
-#include <QJsonArray>
+
+#include <QDebug>
 #include <QHostAddress>
 #include <QNetworkInterface>
-#include <QDebug>
+#include <QNetworkDatagram>
+#include <QSysInfo>
 
 MyWhooshLink *MyWhooshLink::s_instance = nullptr;
+
+namespace {
+constexpr quint8 MessageTypeButtonState = 0x01;
+constexpr quint8 MessageTypeDeviceStatus = 0x02;
+constexpr quint8 MessageTypeHapticFeedback = 0x03;
+constexpr quint8 MessageTypeAppInfo = 0x04;
+}
 
 MyWhooshLink *MyWhooshLink::instance() {
     return s_instance;
@@ -17,6 +24,7 @@ MyWhooshLink *MyWhooshLink::instance() {
 MyWhooshLink::MyWhooshLink(bluetooth *manager, QObject *parent)
     : QObject(parent)
     , tcpServer(nullptr)
+    , udpSocket(nullptr)
     , statusTimer(nullptr)
     , device(nullptr)
     , bluetoothManager(manager)
@@ -26,22 +34,19 @@ MyWhooshLink::MyWhooshLink(bluetooth *manager, QObject *parent)
     , currentEmote(1)
     , leftPaddlePressed(false)
     , rightPaddlePressed(false)
-{
+    , mdnsServer(nullptr)
+    , mdnsHostname(nullptr)
+    , mdnsProvider(nullptr) {
     s_instance = this;
-    qDebug() << "MyWhooshLink: Constructor called";
+    qDebug() << "MyWhooshLink(OpenBikeControl): constructor";
     loadSettings();
 
     if (enabled) {
-        qDebug() << "MyWhooshLink: Enabled=true, starting server...";
         start();
 
-        // Start status check timer
         statusTimer = new QTimer(this);
         connect(statusTimer, &QTimer::timeout, this, &MyWhooshLink::checkServerStatus);
-        statusTimer->start(10000); // Check every 10 seconds
-        qDebug() << "MyWhooshLink: Status timer started";
-    } else {
-        qDebug() << "MyWhooshLink: Enabled=false, not starting server";
+        statusTimer->start(10000);
     }
 }
 
@@ -58,32 +63,31 @@ void MyWhooshLink::loadSettings() {
     overrideGears = settings.value(QZSettings::mywhoosh_link_override_gears,
                                    QZSettings::default_mywhoosh_link_override_gears).toBool();
 
-    // Load button mappings
     leftUpAction = static_cast<Action>(settings.value(QZSettings::mywhoosh_link_left_up,
-                                                       QZSettings::default_mywhoosh_link_left_up).toInt());
+                                                      QZSettings::default_mywhoosh_link_left_up).toInt());
     leftDownAction = static_cast<Action>(settings.value(QZSettings::mywhoosh_link_left_down,
-                                                         QZSettings::default_mywhoosh_link_left_down).toInt());
+                                                        QZSettings::default_mywhoosh_link_left_down).toInt());
     leftLeftAction = static_cast<Action>(settings.value(QZSettings::mywhoosh_link_left_left,
-                                                         QZSettings::default_mywhoosh_link_left_left).toInt());
+                                                        QZSettings::default_mywhoosh_link_left_left).toInt());
     leftRightAction = static_cast<Action>(settings.value(QZSettings::mywhoosh_link_left_right,
-                                                          QZSettings::default_mywhoosh_link_left_right).toInt());
+                                                         QZSettings::default_mywhoosh_link_left_right).toInt());
     leftShoulderAction = static_cast<Action>(settings.value(QZSettings::mywhoosh_link_left_shoulder,
-                                                             QZSettings::default_mywhoosh_link_left_shoulder).toInt());
+                                                            QZSettings::default_mywhoosh_link_left_shoulder).toInt());
     leftPowerAction = static_cast<Action>(settings.value(QZSettings::mywhoosh_link_left_power,
-                                                          QZSettings::default_mywhoosh_link_left_power).toInt());
+                                                         QZSettings::default_mywhoosh_link_left_power).toInt());
 
     rightYAction = static_cast<Action>(settings.value(QZSettings::mywhoosh_link_right_y,
-                                                       QZSettings::default_mywhoosh_link_right_y).toInt());
+                                                      QZSettings::default_mywhoosh_link_right_y).toInt());
     rightAAction = static_cast<Action>(settings.value(QZSettings::mywhoosh_link_right_a,
-                                                       QZSettings::default_mywhoosh_link_right_a).toInt());
+                                                      QZSettings::default_mywhoosh_link_right_a).toInt());
     rightBAction = static_cast<Action>(settings.value(QZSettings::mywhoosh_link_right_b,
-                                                       QZSettings::default_mywhoosh_link_right_b).toInt());
+                                                      QZSettings::default_mywhoosh_link_right_b).toInt());
     rightZAction = static_cast<Action>(settings.value(QZSettings::mywhoosh_link_right_z,
-                                                       QZSettings::default_mywhoosh_link_right_z).toInt());
+                                                      QZSettings::default_mywhoosh_link_right_z).toInt());
     rightShoulderAction = static_cast<Action>(settings.value(QZSettings::mywhoosh_link_right_shoulder,
-                                                              QZSettings::default_mywhoosh_link_right_shoulder).toInt());
+                                                             QZSettings::default_mywhoosh_link_right_shoulder).toInt());
     rightPowerAction = static_cast<Action>(settings.value(QZSettings::mywhoosh_link_right_power,
-                                                           QZSettings::default_mywhoosh_link_right_power).toInt());
+                                                          QZSettings::default_mywhoosh_link_right_power).toInt());
 
     currentCameraAngle = settings.value(QZSettings::mywhoosh_link_camera_value,
                                         QZSettings::default_mywhoosh_link_camera_value).toInt();
@@ -105,18 +109,17 @@ bool MyWhooshLink::overrideLocalGears() const {
 
 void MyWhooshLink::start() {
     if (isRunning()) {
-        qDebug() << "MyWhooshLink: Already running";
+        qDebug() << "MyWhooshLink(OpenBikeControl): already running";
         return;
     }
 
-    // Print all available network addresses
-    qDebug() << "MyWhooshLink: Available network interfaces:";
+    qDebug() << "MyWhooshLink(OpenBikeControl): network interfaces:";
     foreach (const QNetworkInterface &interface, QNetworkInterface::allInterfaces()) {
         if (interface.flags().testFlag(QNetworkInterface::IsUp) &&
             !interface.flags().testFlag(QNetworkInterface::IsLoopBack)) {
             foreach (const QNetworkAddressEntry &entry, interface.addressEntries()) {
                 if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
-                    qDebug() << "  " << interface.name() << ":" << entry.ip().toString();
+                    qDebug() << " " << interface.name() << ":" << entry.ip().toString();
                 }
             }
         }
@@ -125,45 +128,101 @@ void MyWhooshLink::start() {
     tcpServer = new QTcpServer(this);
     connect(tcpServer, &QTcpServer::newConnection, this, &MyWhooshLink::onNewConnection);
 
-    // Try binding to all IPv4 addresses first
-    bool success = false;
+    bool tcpSuccess = false;
     if (tcpServer->listen(QHostAddress::Any, PORT)) {
-        success = true;
-        qDebug() << "MyWhooshLink: Server started on 0.0.0.0:" << PORT;
-    } else {
-        qDebug() << "MyWhooshLink: Failed to bind to IPv4:" << tcpServer->errorString();
-        // Try IPv6 dual-stack
-        if (tcpServer->listen(QHostAddress::AnyIPv6, PORT)) {
-            success = true;
-            qDebug() << "MyWhooshLink: Server started on [::]:" << PORT << "(dual-stack)";
-        }
+        tcpSuccess = true;
+        qDebug() << "MyWhooshLink(OpenBikeControl): TCP listening on 0.0.0.0:" << PORT;
+    } else if (tcpServer->listen(QHostAddress::AnyIPv6, PORT)) {
+        tcpSuccess = true;
+        qDebug() << "MyWhooshLink(OpenBikeControl): TCP listening on [::]:" << PORT;
     }
 
-    if (success) {
-        tcpServer->setMaxPendingConnections(10);
-        qDebug() << "MyWhooshLink: Server listening on port" << PORT;
-        qDebug() << "MyWhooshLink: MyWhoosh should connect to one of the IPs above";
-    } else {
-        qDebug() << "MyWhooshLink: Failed to start server:" << tcpServer->errorString();
+    if (!tcpSuccess) {
+        qDebug() << "MyWhooshLink(OpenBikeControl): TCP bind failed:" << tcpServer->errorString();
         delete tcpServer;
         tcpServer = nullptr;
+        return;
     }
+
+    tcpServer->setMaxPendingConnections(10);
+
+    udpSocket = new QUdpSocket(this);
+    if (udpSocket->bind(QHostAddress::AnyIPv4, PORT,
+                        QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)) {
+        connect(udpSocket, &QUdpSocket::readyRead, this, &MyWhooshLink::onUdpReadyRead);
+        qDebug() << "MyWhooshLink(OpenBikeControl): UDP listening on 0.0.0.0:" << PORT;
+    } else {
+        qDebug() << "MyWhooshLink(OpenBikeControl): UDP bind failed:" << udpSocket->errorString();
+        udpSocket->deleteLater();
+        udpSocket = nullptr;
+    }
+
+    initMdnsAdvertising();
 }
 
 void MyWhooshLink::stop() {
-    if (tcpServer) {
-        // Disconnect all clients
-        for (QTcpSocket *client : clients) {
-            client->disconnectFromHost();
-            client->deleteLater();
-        }
-        clients.clear();
+    for (QTcpSocket *client : clients) {
+        client->disconnectFromHost();
+        client->deleteLater();
+    }
+    clients.clear();
 
+    if (udpSocket) {
+        udpSocket->close();
+        udpSocket->deleteLater();
+        udpSocket = nullptr;
+    }
+
+    if (tcpServer) {
         tcpServer->close();
         tcpServer->deleteLater();
         tcpServer = nullptr;
-        qDebug() << "MyWhooshLink: Server stopped";
     }
+
+    if (mdnsProvider) {
+        mdnsProvider->deleteLater();
+        mdnsProvider = nullptr;
+    }
+    if (mdnsHostname) {
+        mdnsHostname->deleteLater();
+        mdnsHostname = nullptr;
+    }
+    if (mdnsServer) {
+        mdnsServer->deleteLater();
+        mdnsServer = nullptr;
+    }
+
+    qDebug() << "MyWhooshLink(OpenBikeControl): stopped";
+}
+
+void MyWhooshLink::initMdnsAdvertising() {
+    if (mdnsServer) {
+        return;
+    }
+
+    mdnsServer = new QMdnsEngine::Server(this);
+    mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, QByteArrayLiteral("qdomyos-openbikecontrol"), this);
+    mdnsProvider = new QMdnsEngine::Provider(mdnsServer, mdnsHostname, this);
+
+    QMdnsEngine::Service mdnsService;
+    mdnsService.setType("_openbikecontrol._tcp.local.");
+    mdnsService.setName("QDomyos-Zwift OpenBikeControl");
+    mdnsService.setPort(PORT);
+
+    const QByteArray id = QSysInfo::machineUniqueId().isEmpty()
+                              ? QByteArrayLiteral("qdomyoszwift")
+                              : QSysInfo::machineUniqueId().toHex();
+
+    mdnsService.addAttribute(QByteArrayLiteral("version"), QByteArrayLiteral("1"));
+    mdnsService.addAttribute(QByteArrayLiteral("id"), id);
+    mdnsService.addAttribute(QByteArrayLiteral("name"), QByteArrayLiteral("QDomyos-Zwift OpenBikeControl"));
+    mdnsService.addAttribute(QByteArrayLiteral("service-uuids"),
+                             QByteArrayLiteral("d273f680-d548-419d-b9d1-fa0472345229"));
+    mdnsService.addAttribute(QByteArrayLiteral("manufacturer"), QByteArrayLiteral("QDomyos-Zwift"));
+    mdnsService.addAttribute(QByteArrayLiteral("model"), QByteArrayLiteral("VirtualBike"));
+
+    mdnsProvider->update(mdnsService);
+    qDebug() << "MyWhooshLink(OpenBikeControl): mDNS published _openbikecontrol._tcp.local. on port" << PORT;
 }
 
 void MyWhooshLink::onNewConnection() {
@@ -174,14 +233,22 @@ void MyWhooshLink::onNewConnection() {
         connect(client, &QTcpSocket::disconnected, this, &MyWhooshLink::onClientDisconnected);
         connect(client, &QTcpSocket::readyRead, this, &MyWhooshLink::onReadyRead);
 
-        qDebug() << "MyWhooshLink: Client connected from" << client->peerAddress().toString();
+        qDebug() << "MyWhooshLink(OpenBikeControl): TCP client connected from" << client->peerAddress().toString();
+
+        // Send initial device status (battery unknown, connected/ready).
+        QByteArray status;
+        status.append(static_cast<char>(MessageTypeDeviceStatus));
+        status.append(static_cast<char>(0xFF));
+        status.append(static_cast<char>(0x01));
+        client->write(status);
+        client->flush();
     }
 }
 
 void MyWhooshLink::onClientDisconnected() {
     QTcpSocket *client = qobject_cast<QTcpSocket *>(sender());
     if (client) {
-        qDebug() << "MyWhooshLink: Client disconnected" << client->peerAddress().toString();
+        qDebug() << "MyWhooshLink(OpenBikeControl): TCP client disconnected" << client->peerAddress().toString();
         clients.removeAll(client);
         client->deleteLater();
     }
@@ -189,165 +256,124 @@ void MyWhooshLink::onClientDisconnected() {
 
 void MyWhooshLink::onReadyRead() {
     QTcpSocket *client = qobject_cast<QTcpSocket *>(sender());
-    if (client) {
-        QByteArray data = client->readAll();
-        qDebug() << "MyWhooshLink: Received data from client:" << data;
-        processIncomingData(data);
-    }
-}
-
-void MyWhooshLink::processIncomingData(const QByteArray &data) {
-    receiveBuffer.append(data);
-
-    int newlineIndex = receiveBuffer.indexOf('\n');
-    while (newlineIndex >= 0) {
-        QByteArray line = receiveBuffer.left(newlineIndex).trimmed();
-        receiveBuffer.remove(0, newlineIndex + 1);
-
-        if (!line.isEmpty()) {
-            QJsonParseError error;
-            QJsonDocument doc = QJsonDocument::fromJson(line, &error);
-            if (error.error == QJsonParseError::NoError && !doc.isNull()) {
-                logIncomingJson(doc);
-            } else {
-                qDebug() << "MyWhooshLink: Incoming non-JSON message:" << line;
-            }
-        }
-
-        newlineIndex = receiveBuffer.indexOf('\n');
-    }
-}
-
-void MyWhooshLink::logIncomingJson(const QJsonDocument &doc) const {
-    if (doc.isObject()) {
-        QJsonObject object = doc.object();
-        qDebug() << "MyWhooshLink: Incoming JSON object:" << QJsonDocument(object).toJson(QJsonDocument::Compact);
-        if (object.contains(QStringLiteral("MessageType"))) {
-            qDebug() << "MyWhooshLink: MessageType =" << object.value(QStringLiteral("MessageType")).toVariant().toString();
-        }
-        logInterestingJsonObject(object);
-    } else if (doc.isArray()) {
-        QJsonArray array = doc.array();
-        qDebug() << "MyWhooshLink: Incoming JSON array:" << QJsonDocument(array).toJson(QJsonDocument::Compact);
-        for (int i = 0; i < array.size(); ++i) {
-            logInterestingJsonValue(QStringLiteral("[%1]").arg(i), array.at(i));
-        }
-    }
-}
-
-void MyWhooshLink::logInterestingJsonValue(const QString &path, const QJsonValue &value) const {
-    if (value.isObject()) {
-        logInterestingJsonObject(value.toObject(), path);
+    if (!client) {
         return;
     }
 
-    if (value.isArray()) {
-        QJsonArray array = value.toArray();
-        for (int i = 0; i < array.size(); ++i) {
-            logInterestingJsonValue(path + QStringLiteral("[%1]").arg(i), array.at(i));
-        }
+    const QByteArray data = client->readAll();
+    if (!data.isEmpty()) {
+        processIncomingData(data, QStringLiteral("tcp"));
+    }
+}
+
+void MyWhooshLink::onUdpReadyRead() {
+    if (!udpSocket) {
         return;
     }
 
-    if (!path.isEmpty() && isInterestingField(path.section('.', -1))) {
-        qDebug() << "MyWhooshLink: Interesting incoming field" << path << "=" << value.toVariant();
-    }
-}
-
-void MyWhooshLink::logInterestingJsonObject(const QJsonObject &object, const QString &prefix) const {
-    for (auto it = object.begin(); it != object.end(); ++it) {
-        const QString path = prefix.isEmpty() ? it.key() : prefix + QStringLiteral(".") + it.key();
-        if (isInterestingField(it.key()) && !it.value().isObject() && !it.value().isArray()) {
-            qDebug() << "MyWhooshLink: Interesting incoming field" << path << "=" << it.value().toVariant();
+    while (udpSocket->hasPendingDatagrams()) {
+        const QNetworkDatagram datagram = udpSocket->receiveDatagram();
+        if (!datagram.data().isEmpty()) {
+            processIncomingData(datagram.data(), QStringLiteral("udp"));
         }
-        logInterestingJsonValue(path, it.value());
     }
 }
 
-bool MyWhooshLink::isInterestingField(const QString &fieldName) const {
-    const QString key = fieldName.toLower();
-    return key.contains(QStringLiteral("incl")) ||
-           key.contains(QStringLiteral("grade")) ||
-           key.contains(QStringLiteral("slope")) ||
-           key.contains(QStringLiteral("elev")) ||
-           key.contains(QStringLiteral("erg")) ||
-           key.contains(QStringLiteral("targetpower")) ||
-           key.contains(QStringLiteral("target_power")) ||
-           key == QStringLiteral("power") ||
-           key == QStringLiteral("watts") ||
-           key.contains(QStringLiteral("resistance")) ||
-           key.contains(QStringLiteral("cadence")) ||
-           key.contains(QStringLiteral("heartrate")) ||
-           key.contains(QStringLiteral("heart_rate")) ||
-           key == QStringLiteral("hr");
-}
-
-void MyWhooshLink::sendJsonMessage(const QJsonObject &message) {
-    // Get device from bluetooth manager if not already set
-    if (!device && bluetoothManager && bluetoothManager->device()) {
-        device = bluetoothManager->device();
-        qDebug() << "MyWhooshLink: Device connected";
-    }
-
-    if (!isRunning()) {
+void MyWhooshLink::processIncomingData(const QByteArray &data, const QString &sourceTag) {
+    if (data.isEmpty()) {
         return;
     }
 
-    QJsonDocument doc(message);
-    QByteArray jsonData = doc.toJson(QJsonDocument::Compact);
-    jsonData.append('\n'); // MyWhoosh expects newline-terminated messages
+    const quint8 messageType = static_cast<quint8>(data.at(0));
+    const QByteArray payload = data.mid(1);
+    logIncomingMessage(messageType, payload, sourceTag);
+}
+
+void MyWhooshLink::logIncomingMessage(quint8 messageType, const QByteArray &payload, const QString &sourceTag) const {
+    switch (messageType) {
+        case MessageTypeButtonState:
+            qDebug() << "MyWhooshLink(OpenBikeControl): incoming button-state from" << sourceTag
+                     << payload.toHex(' ');
+            break;
+        case MessageTypeDeviceStatus:
+            qDebug() << "MyWhooshLink(OpenBikeControl): incoming device-status from" << sourceTag
+                     << payload.toHex(' ');
+            break;
+        case MessageTypeHapticFeedback:
+            qDebug() << "MyWhooshLink(OpenBikeControl): incoming haptic-feedback from" << sourceTag
+                     << payload.toHex(' ');
+            break;
+        case MessageTypeAppInfo:
+            qDebug() << "MyWhooshLink(OpenBikeControl): incoming app-info from" << sourceTag
+                     << payload.toHex(' ');
+            break;
+        default:
+            qDebug() << "MyWhooshLink(OpenBikeControl): incoming unknown msg type" << messageType
+                     << "from" << sourceTag << payload.toHex(' ');
+            break;
+    }
+}
+
+quint8 MyWhooshLink::actionToButtonId(Action action) const {
+    switch (action) {
+        case GearUp:
+            return 0x01;
+        case GearDown:
+            return 0x02;
+        case SteerLeft:
+            return 0x18;
+        case SteerRight:
+            return 0x19;
+        case UTurn:
+            return 0x80; // app-specific custom action
+        case CameraAngle:
+            return 0x40;
+        case Emote:
+            return 0x20;
+        case Tuck:
+            return 0x81; // app-specific custom action
+        case Disabled:
+        default:
+            return 0x00;
+    }
+}
+
+quint8 MyWhooshLink::actionToButtonState(Action action, bool keyDown) const {
+    if (!keyDown) {
+        return 0x00;
+    }
+
+    switch (action) {
+        case CameraAngle:
+            return static_cast<quint8>(qBound(1, currentCameraAngle, 255));
+        case Emote:
+            return static_cast<quint8>(qBound(1, currentEmote, 255));
+        default:
+            return 0x01;
+    }
+}
+
+void MyWhooshLink::sendButtonStateMessage(const QList<QPair<quint8, quint8>> &actions) {
+    if (actions.isEmpty() || !isRunning()) {
+        return;
+    }
+
+    QByteArray message;
+    message.append(static_cast<char>(MessageTypeButtonState));
+    for (const auto &action : actions) {
+        message.append(static_cast<char>(action.first));
+        message.append(static_cast<char>(action.second));
+    }
 
     for (QTcpSocket *client : clients) {
         if (client->state() == QAbstractSocket::ConnectedState) {
-            qint64 written = client->write(jsonData);
+            client->write(message);
             client->flush();
-            qDebug() << "MyWhooshLink: Sent to client:" << jsonData << "bytes:" << written;
         }
     }
-}
 
-QString MyWhooshLink::actionToJsonField(Action action) const {
-    switch (action) {
-        case GearUp:
-        case GearDown:
-            return QStringLiteral("GearShifting");
-        case SteerLeft:
-        case SteerRight:
-            return QStringLiteral("Steering");
-        case UTurn:
-            return QStringLiteral("UTurn");
-        case CameraAngle:
-            return QStringLiteral("CameraAngle");
-        case Emote:
-            return QStringLiteral("Emote");
-        case Tuck:
-            return QStringLiteral("Tuck");
-        default:
-            return QString();
-    }
-}
-
-QString MyWhooshLink::actionToJsonValue(Action action, bool keyDown) const {
-    switch (action) {
-        case GearUp:
-            return QStringLiteral("1");
-        case GearDown:
-            return QStringLiteral("-1");
-        case SteerLeft:
-            return keyDown ? QStringLiteral("-1") : QStringLiteral("0");
-        case SteerRight:
-            return keyDown ? QStringLiteral("1") : QStringLiteral("0");
-        case UTurn:
-            return QStringLiteral("true");
-        case CameraAngle:
-            return QString::number(currentCameraAngle);
-        case Emote:
-            return QString::number(currentEmote);
-        case Tuck:
-            return QStringLiteral("true");
-        default:
-            return QString();
-    }
+    qDebug() << "MyWhooshLink(OpenBikeControl): sent button-state" << message.toHex(' ')
+             << "to" << clients.size() << "tcp clients";
 }
 
 void MyWhooshLink::sendAction(Action action, bool keyDown) {
@@ -355,28 +381,13 @@ void MyWhooshLink::sendAction(Action action, bool keyDown) {
         return;
     }
 
-    const bool isContinuousAction = action == SteerLeft || action == SteerRight;
-    if (!keyDown && !isContinuousAction) {
+    const quint8 buttonId = actionToButtonId(action);
+    if (buttonId == 0x00) {
         return;
     }
 
-    QString field = actionToJsonField(action);
-    QString value = actionToJsonValue(action, keyDown);
+    sendButtonStateMessage({qMakePair(buttonId, actionToButtonState(action, keyDown))});
 
-    if (field.isEmpty() || value.isEmpty()) {
-        return;
-    }
-
-    QJsonObject inGameControls;
-    inGameControls[field] = value;
-
-    QJsonObject message;
-    message[QStringLiteral("MessageType")] = QStringLiteral("Controls");
-    message[QStringLiteral("InGameControls")] = inGameControls;
-
-    sendJsonMessage(message);
-
-    // Cycle values for camera and emote
     if (keyDown) {
         if (action == CameraAngle) {
             cycleCameraAngle();
@@ -387,21 +398,10 @@ void MyWhooshLink::sendAction(Action action, bool keyDown) {
 }
 
 void MyWhooshLink::sendSteering(int value) {
-    QJsonObject inGameControls;
-
-    if (value < 0) {
-        inGameControls[QStringLiteral("Steering")] = QStringLiteral("-1");
-    } else if (value > 0) {
-        inGameControls[QStringLiteral("Steering")] = QStringLiteral("1");
-    } else {
-        inGameControls[QStringLiteral("Steering")] = QStringLiteral("0");
-    }
-
-    QJsonObject message;
-    message[QStringLiteral("MessageType")] = QStringLiteral("Controls");
-    message[QStringLiteral("InGameControls")] = inGameControls;
-
-    sendJsonMessage(message);
+    QList<QPair<quint8, quint8>> actions;
+    actions.append(qMakePair(static_cast<quint8>(0x18), static_cast<quint8>(value < 0 ? 0x01 : 0x00)));
+    actions.append(qMakePair(static_cast<quint8>(0x19), static_cast<quint8>(value > 0 ? 0x01 : 0x00)));
+    sendButtonStateMessage(actions);
 }
 
 void MyWhooshLink::cycleCameraAngle() {
@@ -428,7 +428,6 @@ void MyWhooshLink::handleGearDown(bool pressed) {
     sendAction(GearDown, pressed);
 }
 
-// Zwift Play button handlers
 void MyWhooshLink::handleLeftUp(bool pressed) {
     sendAction(leftUpAction, pressed);
 }
@@ -454,13 +453,10 @@ void MyWhooshLink::handleLeftPower(bool pressed) {
 }
 
 void MyWhooshLink::handleLeftPaddle(int value) {
-    // Left paddle is always mapped to steer left (fixed, not configurable)
     if (value < 0 && !leftPaddlePressed) {
-        // Pressed
         leftPaddlePressed = true;
         sendSteering(-1);
     } else if (value >= 0 && leftPaddlePressed) {
-        // Released
         leftPaddlePressed = false;
         sendSteering(0);
     }
@@ -491,13 +487,10 @@ void MyWhooshLink::handleRightPower(bool pressed) {
 }
 
 void MyWhooshLink::handleRightPaddle(int value) {
-    // Right paddle is always mapped to steer right (fixed, not configurable)
     if (value > 0 && !rightPaddlePressed) {
-        // Pressed
         rightPaddlePressed = true;
         sendSteering(1);
     } else if (value <= 0 && rightPaddlePressed) {
-        // Released
         rightPaddlePressed = false;
         sendSteering(0);
     }
@@ -505,9 +498,10 @@ void MyWhooshLink::handleRightPaddle(int value) {
 
 void MyWhooshLink::checkServerStatus() {
     if (tcpServer && tcpServer->isListening()) {
-        qDebug() << "MyWhooshLink: Server is ACTIVE on port" << PORT
-                 << "- Clients connected:" << clients.size();
+        qDebug() << "MyWhooshLink(OpenBikeControl): ACTIVE on port" << PORT
+                 << "TCP clients:" << clients.size()
+                 << "UDP:" << (udpSocket ? "on" : "off");
     } else {
-        qDebug() << "MyWhooshLink: WARNING - Server is NOT listening!";
+        qDebug() << "MyWhooshLink(OpenBikeControl): WARNING - TCP server not listening";
     }
 }

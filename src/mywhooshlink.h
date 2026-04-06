@@ -4,11 +4,13 @@
 #include <QObject>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QUdpSocket>
 #include <QList>
-#include <QJsonObject>
-#include <QJsonDocument>
 #include <QSettings>
 #include <QTimer>
+#include <qmdnsengine/server.h>
+#include <qmdnsengine/hostname.h>
+#include <qmdnsengine/provider.h>
 #include "qzsettings.h"
 
 class bluetoothdevice;
@@ -20,6 +22,7 @@ class MyWhooshLink : public QObject {
 public:
     static MyWhooshLink *instance();
 
+    // Kept for backward compatibility with existing settings.
     enum Action {
         Disabled = 0,
         GearUp = 1,
@@ -66,6 +69,7 @@ private slots:
     void onNewConnection();
     void onClientDisconnected();
     void onReadyRead();
+    void onUdpReadyRead();
     void checkServerStatus();
 
 private:
@@ -73,17 +77,17 @@ private:
 
     void sendAction(Action action, bool keyDown = true);
     void sendSteering(int value);
-    void processIncomingData(const QByteArray &data);
-    void logIncomingJson(const QJsonDocument &doc) const;
-    void logInterestingJsonValue(const QString &path, const QJsonValue &value) const;
-    void logInterestingJsonObject(const QJsonObject &object, const QString &prefix = QString()) const;
-    bool isInterestingField(const QString &fieldName) const;
-    QString actionToJsonField(Action action) const;
-    QString actionToJsonValue(Action action, bool keyDown) const;
+    void sendButtonStateMessage(const QList<QPair<quint8, quint8>> &actions);
+    quint8 actionToButtonId(Action action) const;
+    quint8 actionToButtonState(Action action, bool keyDown) const;
+    void processIncomingData(const QByteArray &data, const QString &sourceTag);
+    void logIncomingMessage(quint8 messageType, const QByteArray &payload, const QString &sourceTag) const;
     void cycleCameraAngle();
     void cycleEmote();
+    void initMdnsAdvertising();
 
     QTcpServer *tcpServer;
+    QUdpSocket *udpSocket;
     QList<QTcpSocket *> clients;
     QTimer *statusTimer;
     bluetoothdevice *device;
@@ -117,9 +121,11 @@ private:
     bool leftPaddlePressed;
     bool rightPaddlePressed;
 
+    QMdnsEngine::Server *mdnsServer;
+    QMdnsEngine::Hostname *mdnsHostname;
+    QMdnsEngine::Provider *mdnsProvider;
+
     void loadSettings();
-    void sendJsonMessage(const QJsonObject &message);
-    QByteArray receiveBuffer;
 };
 
 #endif // MYWHOOSHLINK_H
