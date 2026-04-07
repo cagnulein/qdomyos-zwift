@@ -57,6 +57,7 @@ ColumnLayout {
                 id: fileDialog
                 title: "Please choose a file"
                 folder: shortcuts.home
+                nameFilters: ["Training programs (*.xml *.zwo)", "All files (*)"]
                 visible: true
                 onAccepted: {
                     var chosenFile = fileDialog.fileUrl || fileDialog.file || (fileDialog.fileUrls && fileDialog.fileUrls.length > 0 ? fileDialog.fileUrls[0] : "")

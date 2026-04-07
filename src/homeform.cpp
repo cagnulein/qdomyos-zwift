@@ -8177,7 +8177,7 @@ void homeform::openAndroidDocumentPicker(const QString &kind) {
         destinationDir = getWritableAppDir() + QStringLiteral("profiles/");
     } else if (kind == QStringLiteral("training")) {
         requestCode = AndroidDocumentPickerTrainingRequestCode;
-        mimeType = QStringLiteral("text/*");
+        mimeType = QStringLiteral("*/*");
         destinationDir = getWritableAppDir() + QStringLiteral("training/");
     } else if (kind == QStringLiteral("gpx")) {
         requestCode = AndroidDocumentPickerGpxRequestCode;
