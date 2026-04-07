@@ -233,13 +233,13 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
     lastPacket = newValue;
 
     if (newValue.length() == 20) {
+        const bool isM7Device = bluetoothDevice.name().startsWith(QStringLiteral("Nautilus M7"), Qt::CaseInsensitive);
 
 #ifdef Q_OS_ANDROID
-        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
             Heart = (uint8_t)KeepAwakeHelper::heart();
-        else
+        } else
 #endif
-        const bool isM7Device = bluetoothDevice.name().startsWith(QStringLiteral("Nautilus M7"), Qt::CaseInsensitive);
         {
             uint8_t heart = ((uint8_t)newValue.at(16));
             if (!isM7Device && heartRateBeltName.startsWith(QStringLiteral("Disabled")) && heart != 0) {
