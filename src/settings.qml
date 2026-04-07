@@ -1305,6 +1305,7 @@ import Qt.labs.platform 1.1
 
             property bool umay_s100_treadmill: false
             property bool gym_mode: false
+            property bool lifespan_bike: false
         }
 
 
@@ -3958,6 +3959,20 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.virtufit_etappe = checked; window.settings_restart_to_apply = true; }
+                        }
+                        IndicatorOnlySwitch {
+                            id: lifespanBikeDelegate
+                            text: qsTr("LifeSpan C7000i Bike")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.lifespan_bike
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.lifespan_bike = checked; window.settings_restart_to_apply = true; }
                         }
                         IndicatorOnlySwitch {
                             id: sportstechSx600BikeDelegate
