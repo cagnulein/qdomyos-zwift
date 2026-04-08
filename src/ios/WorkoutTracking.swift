@@ -474,11 +474,13 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
     @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double, steps: Double, deviceType: UInt8, distance: Double, totalKcal: Double, elevationGain: Double = 0, heartRate: Double = 0) {
         SwiftDebug.qtDebug("WorkoutTracking: GET DATA: \(Date())")
 
-        if(WorkoutTracking.workoutInProgress == false && power > 0 && WorkoutTracking.firstWorkout) {
-            WorkoutTracking.firstWorkout = false
-            startWorkOut(deviceType: UInt16(deviceType))
-        } else if(WorkoutTracking.workoutInProgress == false && power == 0) {
-            return;
+        if !WorkoutTracking.workoutInProgress {
+            if power > 0 && WorkoutTracking.firstWorkout {
+                WorkoutTracking.firstWorkout = false
+                startWorkOut(deviceType: UInt16(deviceType))
+            } else {
+                return
+            }
         }
 
         let Speed = speed / 100
