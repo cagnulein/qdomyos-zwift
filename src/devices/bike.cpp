@@ -230,10 +230,19 @@ void bike::setGears(double gears) {
     
     if (MyWhooshLink::instance() && MyWhooshLink::instance()->isEnabled() &&
         !qFuzzyCompare(previousGears + 1.0, m_gears + 1.0)) {
-        if (m_gears > previousGears) {
-            MyWhooshLink::instance()->handleGearUp(true);
-        } else if (m_gears < previousGears) {
-            MyWhooshLink::instance()->handleGearDown(true);
+        const bool uiAligned = settings.value(QZSettings::zwift_gear_ui_aligned,
+                                              QZSettings::default_zwift_gear_ui_aligned).toBool();
+        if (uiAligned) {
+            MyWhooshLink::instance()->syncGearValue(qRound(m_gears));
+        } else {
+            const int steps = qAbs(qRound(m_gears - previousGears));
+            for (int i = 0; i < steps; ++i) {
+                if (m_gears > previousGears) {
+                    MyWhooshLink::instance()->handleGearUp(true);
+                } else if (m_gears < previousGears) {
+                    MyWhooshLink::instance()->handleGearDown(true);
+                }
+            }
         }
     }
 

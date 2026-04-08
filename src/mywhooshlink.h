@@ -46,6 +46,7 @@ public:
     void stop();
     void handleGearUp(bool pressed = true);
     void handleGearDown(bool pressed = true);
+    void syncGearValue(int targetGear);
 
 public slots:
     // Zwift Play button handlers

@@ -428,6 +428,26 @@ void MyWhooshLink::handleGearDown(bool pressed) {
     sendAction(GearDown, pressed);
 }
 
+
+void MyWhooshLink::syncGearValue(int targetGear) {
+    if (!isEnabled() || !isRunning()) {
+        return;
+    }
+
+    const int sanitizedTarget = qMax(0, targetGear);
+    static const int hardResetSteps = 64;
+
+    // Absolute sync strategy: force remote gear to minimum, then climb to target.
+    for (int i = 0; i < hardResetSteps; ++i) {
+        sendAction(GearDown, true);
+    }
+    for (int i = 0; i < sanitizedTarget; ++i) {
+        sendAction(GearUp, true);
+    }
+
+    qDebug() << "MyWhooshLink(OpenBikeControl): synced absolute gear to" << sanitizedTarget;
+}
+
 void MyWhooshLink::handleLeftUp(bool pressed) {
     sendAction(leftUpAction, pressed);
 }
