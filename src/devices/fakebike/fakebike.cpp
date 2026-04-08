@@ -189,6 +189,25 @@ void fakebike::switchToClassicVirtualBikeBridge() {
         homeform::singleton()->setToastRequested(QStringLiteral("Switching to classic Bluetooth bridge"));
     }
 
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    QSettings settings;
+    const bool cadence =
+        settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    const bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    if (ios_peloton_workaround && cadence) {
+        this->setVirtualDevice(nullptr, VIRTUAL_DEVICE_MODE::NONE);
+        if (!h) {
+            qDebug() << "ios_peloton_workaround activated!";
+            h = new lockscreen();
+        }
+        h->virtualbike_ios();
+        return;
+    }
+#endif
+#endif
+
     DirconManager *existingDirconManager = nullptr;
     if (auto *virtualBike = dynamic_cast<virtualbike *>(VirtualBike())) {
         existingDirconManager = virtualBike->detachDirconManager();
