@@ -178,7 +178,8 @@ void lifespanbike::characteristicChanged(const QLowEnergyCharacteristic &charact
             settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled"))) {
-            Cadence = data16(value);
+            // A18A responses carry cadence in the fourth byte (for example 0x43 = 67 rpm).
+            Cadence = (uint8_t)value.at(3);
         }
         break;
     case CommandState::QueryCalories:

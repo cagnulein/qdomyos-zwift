@@ -2181,7 +2181,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(lifespanBike, &lifespanbike::debug, this, &bluetooth::debug);
                 lifespanBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(lifespanBike);
-            } else if ((b.name().toUpper().startsWith(QLatin1String("LIFESPAN"))) && !lifespanTreadmill && filter) {
+            } else if ((b.name().toUpper().startsWith(QLatin1String("LIFESPAN"))) &&
+                       !settings.value(QZSettings::lifespan_bike, QZSettings::default_lifespan_bike).toBool() &&
+                       !lifespanTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 lifespanTreadmill = new lifespantreadmill(this->pollDeviceTime, noConsole, noHeartService);
