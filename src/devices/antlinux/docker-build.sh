@@ -5,8 +5,9 @@
 # Part of QDomyos-Zwift: https://github.com/cagnulein/qdomyos-zwift
 # Contributor: bassai-sho | AI-assisted development | License: GPL-3.0
 #
-# Unified Docker build helper for multi-architecture images (x86-64, arm64).
+# Unified Docker build helper for multi-architecture images (x86-64, arm64/aarch64).
 # Usage (from src/): ./docker-build.sh --arch <arch> [--enable-debug-logs]
+# Architectures: x86-64 | arm64 | aarch64  (arm64 and aarch64 are equivalent)
 # =============================================================================
 
 set -euo pipefail
@@ -41,10 +42,10 @@ warn() {
 }
 
 show_usage() {
-    echo "Usage: $0 --arch <ARCHITECTURE> (arm64 or x86-64)"
+    echo "Usage: $0 --arch <ARCHITECTURE> (arm64, aarch64 or x86-64)"
     echo ""
     echo "Options:"
-    echo "  --arch <arch>          Architecture to build (arm64 or x86-64)"
+    echo "  --arch <arch>          Architecture to build (arm64, aarch64 or x86-64)"
     echo "  --enable-debug-logs    Enable debug logging in the binary"
     echo "  --install-buildx       Install Docker buildx plugin (if missing)"
     echo ""
@@ -261,8 +262,8 @@ setup_and_verify_docker() {
 }
 
 setup_qemu_if_needed() {
-    # Only run if building for arm64 on a non-arm64 machine
-    if [[ "$1" == "arm64" ]] && [[ "$(uname -m)" != "aarch64" ]]; then
+    # Only run if building for arm64/aarch64 on a non-arm64 machine
+    if [[ "$1" == "arm64" || "$1" == "aarch64" ]] && [[ "$(uname -m)" != "aarch64" ]]; then
         
         # Check if the STABLE emulator is already registered.
         # We specifically look for the tonistiigi behavior or just ensure aarch64 exists.
@@ -383,7 +384,7 @@ main() {
     # Architecture is required for build operations
     if [[ -z "$ARCH" ]]; then
         show_usage
-        err "No architecture specified. Use: --arch x86-64 or --arch arm64"
+        err "No architecture specified. Use: --arch x86-64, --arch arm64, or --arch aarch64"
     fi
     
     # Find and change to project root
@@ -413,15 +414,15 @@ main() {
             OUTPUT_DIR="qdomyos-zwift-x86-64-ant"
             ARTIFACT_NAME="linux-binary-x86-64-ant.zip"
             ;;
-        "arm64")
+        "arm64"|"aarch64")
             DOCKERFILE_PATH="docker/rpi-ant/Dockerfile"
             PLATFORM_FLAG="--platform linux/arm64"
-            INTERNAL_APPDIR_PATH="/qdomyos-zwift-arm64-ant"
-            OUTPUT_DIR="qdomyos-zwift-arm64-ant"
-            ARTIFACT_NAME="linux-binary-arm64-ant.zip"
+            INTERNAL_APPDIR_PATH="/qdomyos-zwift-aarch64-ant"
+            OUTPUT_DIR="qdomyos-zwift-aarch64-ant"
+            ARTIFACT_NAME="linux-binary-aarch64-ant.zip"
             ;;
         *)
-            err "Unsupported architecture: '$ARCH'."
+            err "Unsupported architecture: '$ARCH'. Valid options: arm64, aarch64, x86-64"
             ;;
     esac
     
@@ -495,7 +496,7 @@ main() {
         info "Using regular docker build (buildx not available)..."
         
         # Note: ARM64 cross-compilation requires buildx
-        if [[ "$ARCH" == "arm64" ]] && [[ "$(uname -m)" != "aarch64" ]]; then
+        if [[ "$ARCH" == "arm64" || "$ARCH" == "aarch64" ]] && [[ "$(uname -m)" != "aarch64" ]]; then
             err "ARM64 cross-compilation requires docker buildx. Please install buildx or build on an ARM64 machine."
         fi
         

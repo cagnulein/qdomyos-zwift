@@ -324,10 +324,15 @@ show_cancel_feedback() {
 
 configure_service_flags_ui() {
     load_service_config >/dev/null 2>&1
-    
+
     # Work on a local copy of flags
     declare -A _SF
     for k in "${!SERVICE_FLAGS[@]}"; do _SF[$k]="${SERVICE_FLAGS[$k]}"; done
+
+    # treadmill_force_speed lives in qDomyos-Zwift.conf (a QSettings key), not in
+    # SERVICE_FLAGS. Read it separately; default true so the virtual treadmill
+    # forwards speed/incline commands from the QZ app to the real device out of the box.
+    local _tf_speed="${CONFIG_BOOL[treadmill_force_speed]:-true}"
 
     UI_MODAL_ACTIVE=1
     local selected=0
@@ -337,31 +342,34 @@ configure_service_flags_ui() {
         # 1. Build Menu Options
         local options=()
         local help_texts=()
-        
+
         options+=("Logging: ${_SF[logging]:-false}")
         help_texts+=("Enable detailed logging to debug-<date>.log for troubleshooting. Required for ANT+ Verbose mode. Press Enter to toggle on/off.")
-        
+
         options+=("Console: ${_SF[console]:-false}")
         help_texts+=("Enable console output for debugging. Shows real-time QZ messages in the terminal. Useful for development. Press Enter to toggle.")
-        
+
         options+=("ANT+ Footpod: ${_SF[ant_footpod]:-false}")
         help_texts+=("Enable ANT+ footpod sensor support for broadcasting running metrics (speed, cadence, distance) to watches and cycling computers. Press Enter to toggle.")
-        
+
         if [[ "${_SF[ant_footpod]}" == "true" ]]; then
             options+=("ANT+ Device ID: [${_SF[ant_device]:-54321}]")
             help_texts+=("Set the ANT+ device ID for footpod broadcasting. Default is 54321. Valid range: 1-65535. Press Enter to edit.")
-            
+
             if [[ "${_SF[logging]}" == "true" ]]; then
                 options+=("ANT+ Verbose: ${_SF[ant_verbose]:-false}")
                 help_texts+=("Enable verbose ANT+ logging for detailed dongle communication debugging. Requires Logging to be enabled. Press Enter to toggle.")
             fi
         fi
-        
+
         options+=("Bluetooth Relaxed: ${_SF[bluetooth_relaxed]:-false}")
         help_texts+=("Use relaxed Bluetooth pairing mode for devices that don't strictly follow BLE standards. Enable if having connection issues. Press Enter to toggle.")
-        
+
         options+=("Poll Time (ms): [${_SF[poll_time]:-200}]")
         help_texts+=("Set sensor polling interval in milliseconds. Lower = more responsive but higher CPU. Default: 200ms. Valid range: 50-5000ms. Press Enter to edit.")
+
+        options+=("Force Treadmill Speed: ${_tf_speed}")
+        help_texts+=("When enabled, speed and inclination commands sent by the connected QZ app (e.g. training plans via the virtual treadmill) are forwarded to the real treadmill. When disabled, the athlete controls pace manually and app commands are ignored. Default: on.")
 
         # 2. Show Menu with Help Panel
         show_unified_menu options "$selected" "SERVICE CONFIGURATION" "$draw_mode" "false" "" help_texts
@@ -369,9 +377,11 @@ configure_service_flags_ui() {
 
         # 3. Handle Exit
         if [[ $exit_code -eq 255 ]]; then
-            # Save changes to global array and disk
+            # Save SERVICE_FLAGS changes to the service config file
             for k in "${!_SF[@]}"; do SERVICE_FLAGS[$k]="${_SF[$k]}"; done
             save_service_config
+            # Save treadmill_force_speed separately — it belongs in qDomyos-Zwift.conf
+            update_config_key "treadmill_force_speed" "$_tf_speed"
             UI_MODAL_ACTIVE=0
             return 0
         fi
@@ -444,6 +454,10 @@ configure_service_flags_ui() {
                     show_cancel_feedback
                 fi
                 draw_mode="FULL"
+                ;;
+            Force\ Treadmill\ Speed:*)
+                if [[ "$_tf_speed" == "true" ]]; then _tf_speed="false"; else _tf_speed="true"; fi
+                draw_mode="ITEMS"
                 ;;
         esac
     done
@@ -1617,10 +1631,10 @@ draw_status_row() {
             if [[ "$_svc_en" == "pass" ]]; then
                 if systemctl is-enabled --quiet qz-treadmill-monitor.service 2>/dev/null; then
                     _boot_sfx=" ${GRAY}▸ Mon${NC}"
-                    _qz_extra_len=5  # " ▸ Mon" visible
+                    _qz_extra_len=6  # " ▸ Mon" = 6 visible chars
                 else
                     _boot_sfx=" ${GRAY}▸ Boot${NC}"
-                    _qz_extra_len=6  # " ▸ Boot" visible
+                    _qz_extra_len=7  # " ▸ Boot" = 7 visible chars
                 fi
             fi
             case "$svc_status" in
@@ -1630,13 +1644,13 @@ draw_status_row() {
                 "stopped")
                     # Service installed but not running — "(Off)" keeps it short
                     _qz_label="QZ Service ${GRAY}(Off)${NC}${_boot_sfx}"
-                    _qz_extra_len=$(( 5 + _qz_extra_len )) ;;
+                    _qz_extra_len=$(( 6 + _qz_extra_len )) ;;  # " (Off)" = 6 visible chars
                 "failed")
                     _qz_label="QZ Service ${GRAY}(Err)${NC}${_boot_sfx}"
-                    _qz_extra_len=$(( 5 + _qz_extra_len )) ;;
+                    _qz_extra_len=$(( 6 + _qz_extra_len )) ;;  # " (Err)" = 6 visible chars
                 "not-installed")
                     _qz_label="QZ Service ${GRAY}(—)${NC}${_boot_sfx}"
-                    _qz_extra_len=$(( 3 + _qz_extra_len )) ;;
+                    _qz_extra_len=$(( 4 + _qz_extra_len )) ;;  # " (—)" = 4 visible chars
                 *)
                     _qz_label="QZ Service${_boot_sfx}" ;;
             esac
@@ -8264,9 +8278,18 @@ start_service_ui() {
 
 stop_service_ui() {
     exit_ui_mode || true
-    enter_ui_mode || true
+    # If the monitor is installed, pause it first — otherwise it will restart qz.service
+    # within ~30 seconds (its DETECT_INTERVAL). We stop but do not disable it so it
+    # resumes automatically on the next reboot (or when the user starts it manually).
+    if is_monitor_installed && is_monitor_active; then
+        run_as_root_or_sudo systemctl stop qz-treadmill-monitor.service >/dev/null 2>&1 || true
+    fi
     if service_stop_core "STOPPING SERVICE"; then
-        draw_info_screen "SERVICE STOPPED" "Service stopped successfully." 2
+        local _msg="Service stopped successfully."
+        if is_monitor_installed; then
+            _msg="Service stopped.\nSmart Monitor also paused (not disabled).\nUse 'Start Service' to resume, or reboot to restore monitor auto-start."
+        fi
+        draw_info_screen "SERVICE STOPPED" "$_msg" 3
     else
         draw_error_screen "STOP FAILED" "Could not stop the service. Check systemd status." "wait"
     fi
@@ -8289,20 +8312,40 @@ restart_service_ui() {
 
 enable_service_ui() {
     exit_ui_mode || true
-    if run_as_root_or_sudo systemctl enable qz.service; then
-        draw_info_screen "SERVICE ENABLED" "Service enabled for auto-start." "wait"
+    # When the monitor is installed, enabling boot auto-start means enabling the
+    # monitor service (which starts/stops qz.service based on treadmill presence),
+    # not qz.service directly (that would race with the monitor).
+    local _svc _label
+    if is_monitor_installed; then
+        _svc="qz-treadmill-monitor.service"
+        _label="Smart Monitor"
     else
-        draw_error_screen "ERROR" "Failed to enable service." "wait"
+        _svc="qz.service"
+        _label="Service"
+    fi
+    if run_as_root_or_sudo systemctl enable "$_svc"; then
+        draw_info_screen "${_label^^} ENABLED" "$_label enabled for auto-start on boot." "wait"
+    else
+        draw_error_screen "ERROR" "Failed to enable $_label." "wait"
     fi
     enter_ui_mode || true
 }
 
 disable_service_ui() {
     exit_ui_mode || true
-    if run_as_root_or_sudo systemctl disable qz.service; then
-        draw_info_screen "SERVICE DISABLED" "Auto-start disabled." "wait"
+    # Mirror of enable_service_ui: disable whichever service controls boot auto-start.
+    local _svc _label
+    if is_monitor_installed; then
+        _svc="qz-treadmill-monitor.service"
+        _label="Smart Monitor"
     else
-        draw_error_screen "ERROR" "Failed to disable service." "wait"
+        _svc="qz.service"
+        _label="Service"
+    fi
+    if run_as_root_or_sudo systemctl disable "$_svc"; then
+        draw_info_screen "${_label^^} DISABLED" "$_label will not auto-start on next boot." "wait"
+    else
+        draw_error_screen "ERROR" "Failed to disable $_label." "wait"
     fi
     enter_ui_mode || true
 }
@@ -9053,7 +9096,7 @@ service_menu_flow() {
                 *"View Error Details"*) help_texts+=("See detailed error logs to diagnose the service failure.") ;;
                 *"Remove Broken Service"*|*"Remove Service"*) help_texts+=("Delete the service file completely.") ;;
                 *"🔧 FIX NOW: Install Python Packages"*) help_texts+=("Install required Python packages for the service.") ;;
-                *"QZ Runtime Flags"*) help_texts+=("Configure the QZ service flags: logging, console output, ANT+ device ID, and polling interval. These apply whether QZ is started manually or by the Smart Monitor.") ;;
+                *"QZ Runtime Flags"*) help_texts+=("Configure the QZ service flags: logging, console output, ANT+ device ID, polling interval, and force treadmill speed. These apply whether QZ is started manually or by the Smart Monitor.") ;;
                 *"Generate & Install Service"*) help_texts+=("Create and install the qz.service systemd unit file. Once installed, Smart Monitor (auto-detect) also becomes available.") ;;
                 *"Remove Smart Monitor"*) help_texts+=("Stop and remove the auto-detect monitor. QZ service remains installed but stopped — use Start Service or Enable Auto-Start to resume standard mode.") ;;
                 *"Smart Monitor Settings"*) help_texts+=("Smart Monitor is active. Re-run setup to update the treadmill device name or reinstall the monitor with current QZ service flags.") ;;
