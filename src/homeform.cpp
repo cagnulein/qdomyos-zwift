@@ -1525,6 +1525,17 @@ void homeform::refresh_bluetooth_devices_clicked() {
     bluetoothManager->restart();
 }
 
+void homeform::selectGymModeDevice(const QString &deviceName) {
+    if (!bluetoothManager)
+        return;
+
+    bluetoothManager->selectGymModeDevice(deviceName);
+}
+
+bool homeform::hasConnectedDevice() const {
+    return bluetoothManager && bluetoothManager->device();
+}
+
 homeform::~homeform() {
     // Cleanup FIT backup thread
     if (fitBackupThread && fitBackupThread->isRunning()) {
@@ -1591,6 +1602,8 @@ void homeform::trainProgramSignals() {
         disconnect(trainProgram, &trainprogram::changeCadence, ((bike *)bluetoothManager->device()),
                    &bike::changeCadence);
         disconnect(trainProgram, &trainprogram::changePower, ((treadmill *)bluetoothManager->device()), &treadmill::changePower);
+        disconnect(trainProgram, &trainprogram::intervalTransitionApplied, ((treadmill *)bluetoothManager->device()),
+                   &treadmill::onTrainingProgramTransition);
         disconnect(trainProgram, &trainprogram::changePower, ((bike *)bluetoothManager->device()), &bike::changePower);
         disconnect(trainProgram, &trainprogram::changePower, ((rower *)bluetoothManager->device()),
                    &rower::changePower);
@@ -1638,6 +1651,8 @@ void homeform::trainProgramSignals() {
                     &treadmill::changeInclination);
             connect(trainProgram, &trainprogram::changeSpeedAndInclination, ((treadmill *)bluetoothManager->device()),
                     &treadmill::changeSpeedAndInclination);
+            connect(trainProgram, &trainprogram::intervalTransitionApplied, ((treadmill *)bluetoothManager->device()),
+                    &treadmill::onTrainingProgramTransition);
             connect(((treadmill *)bluetoothManager->device()), &treadmill::tapeStarted, trainProgram,
                     &trainprogram::onTapeStarted);
             connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStart, this,
@@ -8485,11 +8500,22 @@ QStringList homeform::bluetoothDevices() {
     QStringList r;
     r.append(QStringLiteral("Disabled"));
     r.append(QStringLiteral("Wifi"));
+
+    // Collect named devices and sort by RSSI descending (strongest signal first)
+    QList<QBluetoothDeviceInfo> sorted;
     for (const QBluetoothDeviceInfo &b : qAsConst(bluetoothManager->devices)) {
         if (!b.name().trimmed().isEmpty()) {
-
-            r.append(b.name());
+            sorted.append(b);
         }
+    }
+    std::sort(sorted.begin(), sorted.end(), [](const QBluetoothDeviceInfo &a, const QBluetoothDeviceInfo &b) {
+        return a.rssi() > b.rssi();
+    });
+
+    for (const QBluetoothDeviceInfo &b : qAsConst(sorted)) {
+        // Convert RSSI to proximity %: -40 dBm = 100%, -100 dBm = 0%
+        int proximity = qBound(0, (int)((b.rssi() + 100) * 100 / 60), 100);
+        r.append(QString("%1 (%2%)").arg(b.name()).arg(proximity));
     }
     return r;
 }
