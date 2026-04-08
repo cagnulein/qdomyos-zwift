@@ -64,6 +64,19 @@ ApplicationWindow {
                AndroidStatusBar.rightInset : 0;
     }
 
+    function stripBluetoothDeviceName(deviceName) {
+        return deviceName.replace(/ \(\d+%\)$/, "")
+    }
+
+    function maybeOpenGymModePopup() {
+        if (typeof rootItem === "undefined" || !rootItem) {
+            return
+        }
+        if (settings.gym_mode && !rootItem.hasConnectedDevice() && !gymModePopupDismissed && !popupGymMode.visible) {
+            popupGymMode.open()
+        }
+    }
+
     signal gpx_open_clicked(url name)
     signal gpxpreview_open_clicked(url name)
     signal profile_open_clicked(url name)
@@ -98,6 +111,7 @@ ApplicationWindow {
 
     property bool lockTiles: false
     property bool settings_restart_to_apply: false
+    property bool gymModePopupDismissed: false
 
     Settings {
         id: settings
@@ -106,6 +120,7 @@ ApplicationWindow {
         property bool volume_change_gears: false
         property string peloton_username: "username"
         property string peloton_password: "password"
+        property bool gym_mode: false
     }
 
 
@@ -161,6 +176,22 @@ ApplicationWindow {
         onTriggered: {
             toast.show(rootItem.toastRequested);
             rootItem.toastRequested = "";
+        }
+    }
+
+    Timer {
+       id: gymModeStartupTimer
+       interval: 1500
+       running: true
+       repeat: true
+       onTriggered: {
+            if (typeof rootItem === "undefined" || !rootItem) {
+                return
+            }
+            maybeOpenGymModePopup()
+            if (popupGymMode.visible || rootItem.hasConnectedDevice() || gymModePopupDismissed || !settings.gym_mode) {
+                stop()
+            }
         }
     }
 
@@ -295,6 +326,84 @@ ApplicationWindow {
              text: qsTr("QZ Classifica is a realtime viewer about the actual\neffort of every QZ users! If you want to join in,\nchoose a nickname in the general settings\nand enable the QZ Classifica setting in the\nexperimental settings section and\nrestart the app.")
             }
          }
+    }
+
+    Popup {
+        id: popupGymMode
+        parent: Overlay.overlay
+        x: Math.round((parent.width - width) / 2)
+        y: Math.round((parent.height - height) / 2)
+        width: Math.min(parent.width - 30, 720)
+        height: Math.min(parent.height - 40, 260)
+        modal: true
+        focus: true
+        closePolicy: Popup.NoAutoClose
+        onOpened: refresh_bluetooth_devices_clicked()
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 18
+            spacing: 14
+
+            Label {
+                width: parent.width
+                text: qsTr("Select Your Gym Device")
+                font.pixelSize: Qt.application.font.pixelSize + 10
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+            }
+
+            Label {
+                width: parent.width
+                text: qsTr("QZ found the nearby Bluetooth trainers. Choose the machine you want to use for this session.")
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
+            }
+
+            ComboBox {
+                id: gymModeDeviceComboBox
+                width: parent.width
+                model: rootItem.bluetoothDevices
+                displayText: currentIndex >= 0 ? currentValue : qsTr("Select a device")
+                currentIndex: -1
+                font.pixelSize: Qt.application.font.pixelSize + 8
+
+                onActivated: {
+                    var selectedDevice = stripBluetoothDeviceName(currentValue)
+                    if (selectedDevice === "Disabled" || selectedDevice === "Wifi" || selectedDevice.length === 0) {
+                        return
+                    }
+                    popupGymMode.close()
+                    rootItem.selectGymModeDevice(selectedDevice)
+                }
+            }
+
+            Label {
+                width: parent.width
+                text: qsTr("The list refreshes automatically every 10 seconds.")
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
+                color: Material.color(Material.Grey)
+            }
+
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("Skip")
+                onClicked: {
+                    gymModePopupDismissed = true
+                    popupGymMode.close()
+                }
+            }
+        }
+    }
+
+    Timer {
+        id: gymModeRefreshTimer
+        interval: 10000
+        repeat: true
+        running: popupGymMode.visible
+        onTriggered: refresh_bluetooth_devices_clicked()
     }
 
     Popup {

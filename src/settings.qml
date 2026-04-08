@@ -25,6 +25,11 @@ import Qt.labs.platform 1.1
             scrollTimer.start()
         }
 
+        // Strip the RSSI proximity suffix (e.g. " (75%)") before saving device names
+        function stripRssi(deviceName) {
+            return deviceName.replace(/ \(\d+%\)$/, "")
+        }
+
         // always add a property at the end of the file to avoid corruption of the settings when loading old versions
         Settings {
             id: settings
@@ -1299,6 +1304,7 @@ import Qt.labs.platform 1.1
             property bool nordictrack_treadmill_commercial_le: false
 
             property bool umay_s100_treadmill: false
+            property bool gym_mode: false
         }
 
 
@@ -2003,7 +2009,7 @@ import Qt.labs.platform 1.1
                             id: okHeartBeltNameButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.heart_rate_belt_name = heartBeltNameTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -3439,7 +3445,7 @@ import Qt.labs.platform 1.1
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_bike = ftmsBikeTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.ftms_bike = stripRssi(ftmsBikeTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -8660,7 +8666,7 @@ import Qt.labs.platform 1.1
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_treadmill = ftmsTreadmillTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.ftms_treadmill = stripRssi(ftmsTreadmillTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -10443,7 +10449,7 @@ import Qt.labs.platform 1.1
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_rower = ftmsRowerTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.ftms_rower = stripRssi(ftmsRowerTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -10637,7 +10643,7 @@ import Qt.labs.platform 1.1
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_elliptical = ftmsEllipticalTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.ftms_elliptical = stripRssi(ftmsEllipticalTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -10870,7 +10876,7 @@ import Qt.labs.platform 1.1
                             id: okFilterDeviceButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.filter_device = filterDeviceTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.filter_device = stripRssi(filterDeviceTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -11899,7 +11905,7 @@ import Qt.labs.platform 1.1
                                     id: okCadenceSensorNameButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cadence_sensor_name = cadenceSensorNameTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.cadence_sensor_name = stripRssi(cadenceSensorNameTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -12242,7 +12248,7 @@ import Qt.labs.platform 1.1
                                     id: okPowerSensorNameButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_name = powerSensorNameTextField.displayText; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.power_sensor_name = stripRssi(powerSensorNameTextField.displayText); settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -12308,7 +12314,7 @@ import Qt.labs.platform 1.1
                                             id: okEliteRizerNameButton
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.elite_rizer_name = eliteRizerNameTextField.displayText;; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            onClicked: { settings.elite_rizer_name = stripRssi(eliteRizerNameTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                         }
                                     }
 
@@ -12376,7 +12382,7 @@ import Qt.labs.platform 1.1
                                             id: okEliteSterzoSmartNameButton
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.elite_sterzo_smart_name = eliteSterzoSmartNameTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            onClicked: { settings.elite_sterzo_smart_name = stripRssi(eliteSterzoSmartNameTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                         }
                                     }
 
@@ -12423,7 +12429,7 @@ import Qt.labs.platform 1.1
                                     id: okFTMSAccessoryNameButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.ftms_accessory_name = ftmsAccessoryNameTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.ftms_accessory_name = stripRssi(ftmsAccessoryNameTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -13408,6 +13414,34 @@ import Qt.labs.platform 1.1
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
+                    IndicatorOnlySwitch {
+                        id: gymModeDelegate
+                        text: qsTr("Gym Mode")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.gym_mode
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.gym_mode = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Useful in gyms with multiple similar machines. When enabled, QZ scans nearby equipment at startup and asks you which trainer to use before opening any Bluetooth connection.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     IndicatorOnlySwitch {
                         id: bluetoothRelaxedDelegate
                         text: qsTr("Relaxed Bluetooth for mad devices")
