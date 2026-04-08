@@ -89,6 +89,8 @@ class proformwifibike : public bike {
     bool noHeartService = false;
 
     bool tdf2 = false;
+    int lastMasterState = -1;
+    QDateTime lastTdf2ActivationCommand;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

@@ -85,6 +85,8 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, in
 void proformwifibike::connectToDevice() {
     QSettings settings;
     // https://github.com/dawsontoth/zwifit/blob/e846501149a6c8fbb03af8d7b9eab20474624883/src/ifit.js
+    lastMasterState = -1;
+    lastTdf2ActivationCommand = QDateTime();
     websocket.open(QUrl("ws://" +
                         settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString() +
                         "/control"));
@@ -437,7 +439,17 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
 
     if (!values[QStringLiteral("Master State")].isUndefined()) {
         tdf2 = true;
+        lastMasterState = values[QStringLiteral("Master State")].toString().toInt();
         qDebug() << QStringLiteral("TDF2 mod enabled!");
+        if (lastMasterState != 4 &&
+            (!lastTdf2ActivationCommand.isValid() ||
+             lastTdf2ActivationCommand.msecsTo(now) > 1000)) {
+            QString send = QStringLiteral("{\"type\":\"set\",\"values\":{\"Master State\":\"4\"}}");
+            emit debug(QStringLiteral("requesting TDF2 active state"));
+            qDebug() << "forceResistance" << send;
+            websocket.sendTextMessage(send);
+            lastTdf2ActivationCommand = now;
+        }
     }
 
     if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
