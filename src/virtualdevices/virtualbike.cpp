@@ -549,9 +549,7 @@ virtualbike::~virtualbike() {
 
     if (leController) {
         leController->disconnect(this);
-#if !defined(QZ_TESTS)
         leController->stopAdvertising();
-#endif
         leController->disconnectFromDevice();
         delete leController;
         leController = nullptr;
