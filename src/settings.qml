@@ -1300,8 +1300,8 @@ import Qt.labs.platform 1.1
 
             property bool umay_s100_treadmill: false
 
-            // MyWhoosh Link settings
-            property bool mywhoosh_link_enabled: false
+            // OpenBikeControl settings
+            property bool mywhoosh_link_enabled: true
             property bool mywhoosh_link_override_gears: false
             property int mywhoosh_link_left_up: 1
             property int mywhoosh_link_left_down: 2
@@ -2681,6 +2681,222 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }                    
+
+                    AccordionElement {
+                        id: openBikeControlAccordion
+                        title: qsTr("OpenBikeControl")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Grey)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Enable OpenBikeControl")
+                                checked: settings.mywhoosh_link_enabled
+                                Layout.fillWidth: true
+                                onClicked: { settings.mywhoosh_link_enabled = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Enable TCP server on port 21587 to send control commands using the OpenBikeControl link protocol")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Override Local Gear Changes")
+                                checked: settings.mywhoosh_link_override_gears
+                                Layout.fillWidth: true
+                                onClicked: settings.mywhoosh_link_override_gears = checked
+                            }
+
+                            Label {
+                                text: qsTr("When enabled, gear shift commands go only to OpenBikeControl clients. When disabled, they go to both OpenBikeControl clients and the local gear system")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            Label {
+                                text: qsTr("Left Controller Buttons")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 2
+                                Layout.fillWidth: true
+                                Layout.topMargin: 20
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Up:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    currentIndex: settings.mywhoosh_link_left_up
+                                    onActivated: settings.mywhoosh_link_left_up = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Down:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    currentIndex: settings.mywhoosh_link_left_down
+                                    onActivated: settings.mywhoosh_link_left_down = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Left:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    currentIndex: settings.mywhoosh_link_left_left
+                                    onActivated: settings.mywhoosh_link_left_left = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Right:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    currentIndex: settings.mywhoosh_link_left_right
+                                    onActivated: settings.mywhoosh_link_left_right = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Shoulder:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    currentIndex: settings.mywhoosh_link_left_shoulder
+                                    onActivated: settings.mywhoosh_link_left_shoulder = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Power:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    currentIndex: settings.mywhoosh_link_left_power
+                                    onActivated: settings.mywhoosh_link_left_power = currentIndex
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Right Controller Buttons")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 2
+                                Layout.fillWidth: true
+                                Layout.topMargin: 20
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Y:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    currentIndex: settings.mywhoosh_link_right_y
+                                    onActivated: settings.mywhoosh_link_right_y = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right A:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    currentIndex: settings.mywhoosh_link_right_a
+                                    onActivated: settings.mywhoosh_link_right_a = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right B:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    currentIndex: settings.mywhoosh_link_right_b
+                                    onActivated: settings.mywhoosh_link_right_b = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Z:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    currentIndex: settings.mywhoosh_link_right_z
+                                    onActivated: settings.mywhoosh_link_right_z = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Shoulder:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    currentIndex: settings.mywhoosh_link_right_shoulder
+                                    onActivated: settings.mywhoosh_link_right_shoulder = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Power:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    currentIndex: settings.mywhoosh_link_right_power
+                                    onActivated: settings.mywhoosh_link_right_power = currentIndex
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Note: Left and Right paddles are fixed to Steer Left/Right and cannot be configured")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                Layout.topMargin: 10
+                                color: Material.color(Material.Orange)
+                            }
+                        }
+                    }
 
                     RowLayout {
                         spacing: 10
@@ -14210,234 +14426,6 @@ import Qt.labs.platform 1.1
                                         }
                                     }
                                 });
-                            }
-                        }
-                    }
-
-                    AccordionElement {
-                        id: mywhooshOptionsAccordion
-                        title: qsTr("MyWhoosh Options")
-                        indicatRectColor: Material.color(Material.Grey)
-                        textColor: Material.color(Material.Grey)
-                        color: Material.backgroundColor
-                        accordionContent: ColumnLayout {
-                            spacing: 0
-
-                            IndicatorOnlySwitch {
-                                text: qsTr("Enable MyWhoosh Link")
-                                checked: settings.mywhoosh_link_enabled
-                                Layout.fillWidth: true
-                                onClicked: { settings.mywhoosh_link_enabled = checked; window.settings_restart_to_apply = true; }
-                            }
-
-                            Label {
-                                text: qsTr("Enable TCP server on port 21587 to send control commands to MyWhoosh app")
-                                font.bold: true
-                                font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
-                                wrapMode: Text.WordWrap
-                                Layout.fillWidth: true
-                                color: Material.color(Material.Lime)
-                            }
-
-                            IndicatorOnlySwitch {
-                                text: qsTr("Override Local Gear Changes")
-                                checked: settings.mywhoosh_link_override_gears
-                                Layout.fillWidth: true
-                                onClicked: settings.mywhoosh_link_override_gears = checked
-                            }
-
-                            Label {
-                                text: qsTr("When enabled, gear shift commands go only to MyWhoosh. When disabled, they go to both MyWhoosh and local gear system")
-                                font.bold: true
-                                font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
-                                wrapMode: Text.WordWrap
-                                Layout.fillWidth: true
-                                color: Material.color(Material.Lime)
-                            }
-
-                            Label {
-                                text: qsTr("Left Controller Buttons")
-                                font.bold: true
-                                font.pixelSize: Qt.application.font.pixelSize + 2
-                                Layout.fillWidth: true
-                                Layout.topMargin: 20
-                            }
-
-                            // Left Up Button
-                            RowLayout {
-                                Label {
-                                    text: qsTr("Left Up:")
-                                    Layout.fillWidth: true
-                                }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
-                                    currentIndex: settings.mywhoosh_link_left_up
-                                    onActivated: settings.mywhoosh_link_left_up = currentIndex
-                                }
-                            }
-
-                            // Left Down Button
-                            RowLayout {
-                                Label {
-                                    text: qsTr("Left Down:")
-                                    Layout.fillWidth: true
-                                }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
-                                    currentIndex: settings.mywhoosh_link_left_down
-                                    onActivated: settings.mywhoosh_link_left_down = currentIndex
-                                }
-                            }
-
-                            // Left Left Button
-                            RowLayout {
-                                Label {
-                                    text: qsTr("Left Left:")
-                                    Layout.fillWidth: true
-                                }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
-                                    currentIndex: settings.mywhoosh_link_left_left
-                                    onActivated: settings.mywhoosh_link_left_left = currentIndex
-                                }
-                            }
-
-                            // Left Right Button
-                            RowLayout {
-                                Label {
-                                    text: qsTr("Left Right:")
-                                    Layout.fillWidth: true
-                                }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
-                                    currentIndex: settings.mywhoosh_link_left_right
-                                    onActivated: settings.mywhoosh_link_left_right = currentIndex
-                                }
-                            }
-
-                            // Left Shoulder Button
-                            RowLayout {
-                                Label {
-                                    text: qsTr("Left Shoulder:")
-                                    Layout.fillWidth: true
-                                }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
-                                    currentIndex: settings.mywhoosh_link_left_shoulder
-                                    onActivated: settings.mywhoosh_link_left_shoulder = currentIndex
-                                }
-                            }
-
-                            // Left Power Button
-                            RowLayout {
-                                Label {
-                                    text: qsTr("Left Power:")
-                                    Layout.fillWidth: true
-                                }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
-                                    currentIndex: settings.mywhoosh_link_left_power
-                                    onActivated: settings.mywhoosh_link_left_power = currentIndex
-                                }
-                            }
-
-                            Label {
-                                text: qsTr("Right Controller Buttons")
-                                font.bold: true
-                                font.pixelSize: Qt.application.font.pixelSize + 2
-                                Layout.fillWidth: true
-                                Layout.topMargin: 20
-                            }
-
-                            // Right Y Button
-                            RowLayout {
-                                Label {
-                                    text: qsTr("Right Y:")
-                                    Layout.fillWidth: true
-                                }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
-                                    currentIndex: settings.mywhoosh_link_right_y
-                                    onActivated: settings.mywhoosh_link_right_y = currentIndex
-                                }
-                            }
-
-                            // Right A Button
-                            RowLayout {
-                                Label {
-                                    text: qsTr("Right A:")
-                                    Layout.fillWidth: true
-                                }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
-                                    currentIndex: settings.mywhoosh_link_right_a
-                                    onActivated: settings.mywhoosh_link_right_a = currentIndex
-                                }
-                            }
-
-                            // Right B Button
-                            RowLayout {
-                                Label {
-                                    text: qsTr("Right B:")
-                                    Layout.fillWidth: true
-                                }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
-                                    currentIndex: settings.mywhoosh_link_right_b
-                                    onActivated: settings.mywhoosh_link_right_b = currentIndex
-                                }
-                            }
-
-                            // Right Z Button
-                            RowLayout {
-                                Label {
-                                    text: qsTr("Right Z:")
-                                    Layout.fillWidth: true
-                                }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
-                                    currentIndex: settings.mywhoosh_link_right_z
-                                    onActivated: settings.mywhoosh_link_right_z = currentIndex
-                                }
-                            }
-
-                            // Right Shoulder Button
-                            RowLayout {
-                                Label {
-                                    text: qsTr("Right Shoulder:")
-                                    Layout.fillWidth: true
-                                }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
-                                    currentIndex: settings.mywhoosh_link_right_shoulder
-                                    onActivated: settings.mywhoosh_link_right_shoulder = currentIndex
-                                }
-                            }
-
-                            // Right Power Button
-                            RowLayout {
-                                Label {
-                                    text: qsTr("Right Power:")
-                                    Layout.fillWidth: true
-                                }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
-                                    currentIndex: settings.mywhoosh_link_right_power
-                                    onActivated: settings.mywhoosh_link_right_power = currentIndex
-                                }
-                            }
-
-                            Label {
-                                text: qsTr("Note: Left and Right paddles are fixed to Steer Left/Right and cannot be configured")
-                                font.bold: true
-                                font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
-                                wrapMode: Text.WordWrap
-                                Layout.fillWidth: true
-                                Layout.topMargin: 10
-                                color: Material.color(Material.Orange)
                             }
                         }
                     }

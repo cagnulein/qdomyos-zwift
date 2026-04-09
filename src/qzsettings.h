@@ -2933,7 +2933,7 @@ class QZSettings {
      * @brief Enable MyWhoosh Link server for sending control commands to MyWhoosh app
      */
     static const QString mywhoosh_link_enabled;
-    static constexpr bool default_mywhoosh_link_enabled = false;
+    static constexpr bool default_mywhoosh_link_enabled = true;
 
     /**
      * @brief Override local gear changes when MyWhoosh Link is enabled (true = only send to MyWhoosh, false = both)
