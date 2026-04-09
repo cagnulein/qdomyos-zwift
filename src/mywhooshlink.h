@@ -72,6 +72,7 @@ private slots:
     void onReadyRead();
     void onUdpReadyRead();
     void checkServerStatus();
+    void processQueuedGearAction();
 
 private:
     static MyWhooshLink *s_instance;
@@ -121,6 +122,9 @@ private:
     // Paddle state tracking for auto-release
     bool leftPaddlePressed;
     bool rightPaddlePressed;
+    QTimer *gearSyncTimer;
+    QList<Action> pendingGearActions;
+    int estimatedRemoteGear;
 
     QMdnsEngine::Server *mdnsServer;
     QMdnsEngine::Hostname *mdnsHostname;

@@ -34,6 +34,8 @@ MyWhooshLink::MyWhooshLink(bluetooth *manager, QObject *parent)
     , currentEmote(1)
     , leftPaddlePressed(false)
     , rightPaddlePressed(false)
+    , gearSyncTimer(nullptr)
+    , estimatedRemoteGear(-1)
     , mdnsServer(nullptr)
     , mdnsHostname(nullptr)
     , mdnsProvider(nullptr) {
@@ -48,6 +50,10 @@ MyWhooshLink::MyWhooshLink(bluetooth *manager, QObject *parent)
         connect(statusTimer, &QTimer::timeout, this, &MyWhooshLink::checkServerStatus);
         statusTimer->start(10000);
     }
+
+    gearSyncTimer = new QTimer(this);
+    gearSyncTimer->setInterval(35);
+    connect(gearSyncTimer, &QTimer::timeout, this, &MyWhooshLink::processQueuedGearAction);
 }
 
 MyWhooshLink::~MyWhooshLink() {
@@ -234,6 +240,11 @@ void MyWhooshLink::onNewConnection() {
         connect(client, &QTcpSocket::readyRead, this, &MyWhooshLink::onReadyRead);
 
         qDebug() << "MyWhooshLink(OpenBikeControl): TCP client connected from" << client->peerAddress().toString();
+        pendingGearActions.clear();
+        estimatedRemoteGear = -1;
+        if (gearSyncTimer) {
+            gearSyncTimer->stop();
+        }
 
         // Send initial device status (battery unknown, connected/ready).
         QByteArray status;
@@ -251,6 +262,14 @@ void MyWhooshLink::onClientDisconnected() {
         qDebug() << "MyWhooshLink(OpenBikeControl): TCP client disconnected" << client->peerAddress().toString();
         clients.removeAll(client);
         client->deleteLater();
+    }
+
+    if (clients.isEmpty()) {
+        pendingGearActions.clear();
+        estimatedRemoteGear = -1;
+        if (gearSyncTimer) {
+            gearSyncTimer->stop();
+        }
     }
 }
 
@@ -436,22 +455,52 @@ void MyWhooshLink::handleGearDown(bool pressed) {
 
 
 void MyWhooshLink::syncGearValue(int targetGear) {
-    if (!isEnabled() || !isRunning()) {
+    if (!isEnabled() || !isRunning() || clients.isEmpty()) {
         return;
     }
 
-    const int sanitizedTarget = qMax(0, targetGear);
-    static const int hardResetSteps = 64;
+    const int sanitizedTarget = qBound(1, targetGear, 255);
+    pendingGearActions.clear();
 
-    // Absolute sync strategy: force remote gear to minimum, then climb to target.
-    for (int i = 0; i < hardResetSteps; ++i) {
-        sendAction(GearDown, true);
+    if (estimatedRemoteGear < 1) {
+        static const int hardResetSteps = 24;
+        for (int i = 0; i < hardResetSteps; ++i) {
+            pendingGearActions.append(GearDown);
+        }
+        for (int i = 1; i < sanitizedTarget; ++i) {
+            pendingGearActions.append(GearUp);
+        }
+    } else {
+        const int delta = sanitizedTarget - estimatedRemoteGear;
+        for (int i = 0; i < qAbs(delta); ++i) {
+            pendingGearActions.append(delta > 0 ? GearUp : GearDown);
+        }
     }
-    for (int i = 0; i < sanitizedTarget; ++i) {
-        sendAction(GearUp, true);
+
+    estimatedRemoteGear = sanitizedTarget;
+
+    if (!pendingGearActions.isEmpty()) {
+        processQueuedGearAction();
+        gearSyncTimer->start();
     }
 
     qDebug() << "MyWhooshLink(OpenBikeControl): synced absolute gear to" << sanitizedTarget;
+}
+
+void MyWhooshLink::processQueuedGearAction() {
+    if (pendingGearActions.isEmpty()) {
+        if (gearSyncTimer) {
+            gearSyncTimer->stop();
+        }
+        return;
+    }
+
+    const Action action = pendingGearActions.takeFirst();
+    sendAction(action, true);
+
+    if (pendingGearActions.isEmpty() && gearSyncTimer) {
+        gearSyncTimer->stop();
+    }
 }
 
 void MyWhooshLink::handleLeftUp(bool pressed) {
