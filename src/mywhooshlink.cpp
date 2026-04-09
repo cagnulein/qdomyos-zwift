@@ -388,6 +388,12 @@ void MyWhooshLink::sendAction(Action action, bool keyDown) {
 
     sendButtonStateMessage({qMakePair(buttonId, actionToButtonState(action, keyDown))});
 
+    // OpenBikeControl gear actions are edge-triggered in apps like MyWhoosh,
+    // so emit an explicit release after each press.
+    if (keyDown && (action == GearUp || action == GearDown)) {
+        sendButtonStateMessage({qMakePair(buttonId, static_cast<quint8>(0x00))});
+    }
+
     if (keyDown) {
         if (action == CameraAngle) {
             cycleCameraAngle();
