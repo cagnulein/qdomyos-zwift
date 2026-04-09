@@ -447,7 +447,7 @@ uint8_t iconsolebike::GetResistanceFromPacket(const QByteArray &packet) {
     }
 
     // Byte 18: Current resistance level (direct value)
-    return (uint8_t)packet[18];
+    return ((uint8_t)packet[18]) - 1;
 }
 
 bool iconsolebike::connected() {
