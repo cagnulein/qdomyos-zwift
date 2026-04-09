@@ -45,7 +45,7 @@ public class BleAdvertiser {
     private static final byte[] SERVICE_DATA_ROWER = {0x01, 0x10, 0x00};
     private static final byte[] SERVICE_DATA_TREADMILL = {0x01, 0x01, 0x00};
 
-    public static void startAdvertisingEchelon(Context context) {
+    public static void startAdvertisingEchelon(Context context, String deviceName) {
         try {
             if (context == null) {
                 QLog.e("BleAdvertiser", "Context is null for Echelon advertising");
@@ -74,7 +74,7 @@ public class BleAdvertiser {
 
                 if (advertiser != null) {
                     try {
-                        adapter.setName(ECHELON_DEVICE_NAME);
+                        adapter.setName(deviceName != null && !deviceName.isEmpty() ? deviceName : ECHELON_DEVICE_NAME);
                     } catch (SecurityException | IllegalArgumentException e) {
                         QLog.e("BleAdvertiser", "Unable to set Echelon device name: " + e.getMessage());
                     }

@@ -33,6 +33,10 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     bool heart_only =
         settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
     bool echelon = isEchelonVirtualEnabled();
+    const bool useRealEchelonName = echelon && dynamic_cast<echelonconnectsport *>(Bike) &&
+                                    !Bike->bluetoothDevice.name().isEmpty();
+    const QString echelonAdvertisingName =
+        useRealEchelonName ? Bike->bluetoothDevice.name() : QStringLiteral("ECHEX-5s-113399");
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
     bool garmin_bluetooth_compatibility = settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool();
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
@@ -84,7 +88,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         } else if (ifit) {
             advertisingData.setLocalName(QStringLiteral("I_EB"));
         } else {
-            advertisingData.setLocalName(QStringLiteral("ECHEX-5s-113399"));
+            advertisingData.setLocalName(echelonAdvertisingName);
         }
         QList<QBluetoothUuid> services;
 
@@ -511,8 +515,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         if (echelon) {
             QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                       "startAdvertisingEchelon",
-                                                      "(Landroid/content/Context;)V",
-                                                      QtAndroid::androidContext().object());
+                                                      "(Landroid/content/Context;Ljava/lang/String;)V",
+                                                      QtAndroid::androidContext().object(),
+                                                      QAndroidJniObject::fromString(echelonAdvertisingName).object<jstring>());
         } else {
             leController->startAdvertising(pars, advertisingData, advertisingData);
         }
@@ -1367,6 +1372,10 @@ void virtualbike::reconnect() {
     bool heart_only =
         settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
     bool echelon = isEchelonVirtualEnabled();
+    const bool useRealEchelonName = echelon && dynamic_cast<echelonconnectsport *>(Bike) &&
+                                    !Bike->bluetoothDevice.name().isEmpty();
+    const QString echelonAdvertisingName =
+        useRealEchelonName ? Bike->bluetoothDevice.name() : QStringLiteral("ECHEX-5s-113399");
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
 
     qDebug() << QStringLiteral("virtualbike::reconnect");
@@ -1417,8 +1426,9 @@ void virtualbike::reconnect() {
     if (echelon) {
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                   "startAdvertisingEchelon",
-                                                  "(Landroid/content/Context;)V",
-                                                  QtAndroid::androidContext().object());
+                                                  "(Landroid/content/Context;Ljava/lang/String;)V",
+                                                  QtAndroid::androidContext().object(),
+                                                  QAndroidJniObject::fromString(echelonAdvertisingName).object<jstring>());
     } else {
         leController->startAdvertising(pars, advertisingData, advertisingData);
     }
