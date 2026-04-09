@@ -50,9 +50,15 @@ class horizontreadmill : public treadmill {
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
                              uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
+    void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic,
+                             const QByteArray &data, QString info, bool disable_log = false,
+                             bool wait_for_response = false);
     void waitForAPacket();
     void startDiscover();
     void btinit();
+    void sendMerachCommand(uint8_t command, const QByteArray &payload, const QString &info,
+                           bool wait_for_response = false);
+    void forceMerachSpeedIncline(double requestSpeed, double requestIncline);
 
     QTimer *refresh;
 
@@ -62,6 +68,7 @@ class horizontreadmill : public treadmill {
     QLowEnergyService *gattFTMSService = nullptr;
     QLowEnergyCharacteristic gattWriteCharCustomService;
     QLowEnergyService *gattCustomService = nullptr;
+    QLowEnergyCharacteristic gattMerachKeepAliveChar;
     volatile int notificationSubscribed = 0;
 
     static inline const QBluetoothUuid DomyosServiceId{QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455")};
@@ -87,6 +94,8 @@ class horizontreadmill : public treadmill {
 
     int32_t customRecv = 0;
     int32_t messageID = 0;
+    QDateTime lastMerachKeepAlive;
+    QDateTime lastMerachPoll;
 
     bool mobvoi_treadmill = false;
     bool mobvoi_tmp_treadmill = false;

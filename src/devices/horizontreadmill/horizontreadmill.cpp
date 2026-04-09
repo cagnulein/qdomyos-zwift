@@ -89,6 +89,13 @@ void horizontreadmill::waitForAPacket() {
 
 void horizontreadmill::btinit() {
     QSettings settings;
+    if (MERACH_TREADMILL) {
+        initDone = true;
+        lastMerachKeepAlive = QDateTime();
+        lastMerachPoll = QDateTime();
+        return;
+    }
+
     QStringList horizon_treadmill_profile_users;
     horizon_treadmill_profile_users.append(
         settings.value(QZSettings::horizon_treadmill_profile_user1, QZSettings::default_horizon_treadmill_profile_user1)
@@ -915,8 +922,6 @@ void horizontreadmill::update() {
                // gattWriteCharacteristic.isValid() &&
                // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        bool speedCommandSent = false;
-
         QSettings settings;
         bool horizon_treadmill_7_8 =
             settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool();
@@ -956,9 +961,47 @@ void horizontreadmill::update() {
             // updateDisplay(elapsed);
         }
 
+        if (MERACH_TREADMILL && gattCustomService) {
+            QDateTime now = QDateTime::currentDateTime();
+
+            if (gattMerachKeepAliveChar.isValid() &&
+                (!lastMerachKeepAlive.isValid() || lastMerachKeepAlive.msecsTo(now) >= 5000)) {
+                QByteArray keepAlive = QByteArray::fromHex("aa01000155");
+                writeCharacteristic(gattCustomService, gattMerachKeepAliveChar, keepAlive,
+                                    QStringLiteral("merach keepalive"), false, false);
+                lastMerachKeepAlive = now;
+            }
+
+            if (!lastMerachPoll.isValid() || lastMerachPoll.msecsTo(now) >= 400) {
+                sendMerachCommand(0x51, QByteArray(), QStringLiteral("merach poll"), false);
+                lastMerachPoll = now;
+            }
+        }
+
         // this treadmill can't go below 1
         if(mobvoi_tmp_treadmill && requestSpeed < 1)
             requestSpeed = -1;
+
+        if (MERACH_TREADMILL && requestSpeed != -1 && requestInclination != -100) {
+            double merachInclination = treadmillInclinationOverrideReverse(requestInclination);
+            if (merachInclination < minInclination) {
+                merachInclination = minInclination;
+            } else {
+                merachInclination = std::llround(merachInclination * 2) / 2.0;
+            }
+
+            if (requestSpeed >= 0 && requestSpeed <= 22 && merachInclination >= minInclination &&
+                merachInclination <= 15 &&
+                (float_one_point_round(requestSpeed) != float_one_point_round(currentSpeed().value()) ||
+                 merachInclination != currentInclination().value())) {
+                emit debug(QStringLiteral("writing merach speed+incline ") + QString::number(requestSpeed) +
+                           QStringLiteral(" ") + QString::number(merachInclination));
+                forceMerachSpeedIncline(float_one_point_round(requestSpeed), merachInclination);
+            }
+
+            requestSpeed = -1;
+            requestInclination = -100;
+        }
         
         if (requestSpeed != -1) {
             bool minSpeed =
@@ -970,20 +1013,6 @@ void horizontreadmill::update() {
                 forceSpeedNeed) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 forceSpeed(float_one_point_round(requestSpeed));
-                speedCommandSent = true;
-
-                if (MERACH_TREADMILL && requestInclination == -100) {
-                    double inclineToRestore = lastRequestedInclination().value();
-                    if (inclineToRestore <= minInclination)
-                        inclineToRestore = lastRawInclinationRequested();
-                    if (inclineToRestore <= minInclination)
-                        inclineToRestore = currentInclination().value();
-
-                    if (inclineToRestore > minInclination) {
-                        emit debug(QStringLiteral("MERACH sync incline ") + QString::number(inclineToRestore));
-                        forceIncline(inclineToRestore);
-                    }
-                }
             }
             requestSpeed = -1;
         }
@@ -1014,20 +1043,6 @@ void horizontreadmill::update() {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
 
-                if (MERACH_TREADMILL && !speedCommandSent) {
-                    double speedToRestore = lastRequestedSpeed().value();
-                    if (speedToRestore <= 0)
-                        speedToRestore = lastRawSpeedRequested();
-                    if (speedToRestore <= 0)
-                        speedToRestore = currentSpeed().value();
-
-                    if (speedToRestore > 0) {
-                        speedToRestore = float_one_point_round(speedToRestore);
-                        emit debug(QStringLiteral("MERACH sync speed ") + QString::number(speedToRestore));
-                        forceSpeed(speedToRestore);
-                    }
-                }
-
                 // this treadmill doesn't send the incline, so i'm forcing it manually
                 if(SW_TREADMILL || mobvoi_treadmill) {
                     Inclination = requestInclination;
@@ -1044,7 +1059,10 @@ void horizontreadmill::update() {
             requestStart = -1;
             emit tapeStarted();
             if (gattCustomService) {
-                if (!horizon_paragon_x) {
+                if (MERACH_TREADMILL) {
+                    sendMerachCommand(0x50, QByteArray(1, char(0x00)), QStringLiteral("merach start"), false);
+                    sendMerachCommand(0x50, QByteArray(1, char(0x03)), QStringLiteral("merach resume"), false);
+                } else if (!horizon_paragon_x) {
                     if (horizon_treadmill_7_8) {
                         messageID++;
                         // start
@@ -1114,7 +1132,14 @@ void horizontreadmill::update() {
             emit debug(QStringLiteral("stopping..."));
 
             if (gattCustomService) {
-                if (!horizon_paragon_x) {
+                if (MERACH_TREADMILL) {
+                    Speed = 0;
+                    if (requestPause != -1) {
+                        requestPause = -1;
+                        horizonPaused = true;
+                    }
+                    sendMerachCommand(0x53, QByteArray(1, char(0x03)), QStringLiteral("merach stop"), true);
+                } else if (!horizon_paragon_x) {
                     /*if (horizon_treadmill_7_8)*/ {
                         // stop
                         if (requestPause == -1) {
@@ -1203,6 +1228,52 @@ void horizontreadmill::update() {
     }
 }
 
+void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic,
+                                           const QByteArray &data, QString info, bool disable_log,
+                                           bool wait_for_response) {
+    if (data.isEmpty()) {
+        emit debug(QStringLiteral("write len 0"));
+        return;
+    }
+
+    writeCharacteristic(service, characteristic, reinterpret_cast<uint8_t *>(const_cast<char *>(data.constData())),
+                        data.length(), info, disable_log, wait_for_response);
+}
+
+void horizontreadmill::sendMerachCommand(uint8_t command, const QByteArray &payload, const QString &info,
+                                         bool wait_for_response) {
+    QByteArray frame;
+    frame.append(char(0x02));
+    frame.append(char(command));
+    frame.append(payload);
+
+    uint8_t checksum = command;
+    for (char byte : payload) {
+        checksum ^= uint8_t(byte);
+    }
+
+    frame.append(char(checksum));
+    frame.append(char(0x03));
+
+    writeCharacteristic(gattCustomService, gattWriteCharCustomService, frame, info, false, wait_for_response);
+}
+
+void horizontreadmill::forceMerachSpeedIncline(double requestSpeed, double requestIncline) {
+    const double roundedSpeed = std::round(requestSpeed * 10.0) / 10.0;
+    const double roundedIncline = std::round(requestIncline);
+    const uint8_t speedByte = uint8_t(qBound(0, int(std::round(roundedSpeed * 10.0)), 220));
+    const uint8_t inclineByte = uint8_t(qBound(0, int(std::round(roundedIncline)), 15));
+
+    QByteArray payload;
+    payload.append(char(0x02));
+    payload.append(char(speedByte));
+    payload.append(char(inclineByte));
+
+    sendMerachCommand(0x53, payload,
+                      QStringLiteral("merach speed+incline %1 %2")
+                          .arg(QString::number(roundedSpeed, 'f', 1), QString::number(roundedIncline, 'f', 0)));
+}
+
 bool horizontreadmill::checkIfForceSpeedNeeding(double requestSpeed) {
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
@@ -1227,6 +1298,18 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
     const double miles_conversion = 0.621371;
     bool horizon_paragon_x =
         settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
+
+    if (MERACH_TREADMILL && gattCustomService) {
+        double requestIncline = lastRequestedInclination().value();
+        if (requestIncline <= minInclination) {
+            requestIncline = lastRawInclinationRequested();
+        }
+        if (requestIncline <= minInclination) {
+            requestIncline = currentInclination().value();
+        }
+        forceMerachSpeedIncline(requestSpeed, qMax(requestIncline, minInclination));
+        return;
+    }
 
     if (gattCustomService) {
         if (!horizon_paragon_x) {
@@ -1313,6 +1396,18 @@ void horizontreadmill::forceIncline(double requestIncline) {
 
     if(tunturi_t60_treadmill)
         Inclination = treadmillInclinationOverride(requestIncline);
+
+    if (MERACH_TREADMILL && gattCustomService) {
+        double requestSpeed = lastRequestedSpeed().value();
+        if (requestSpeed <= 0) {
+            requestSpeed = lastRawSpeedRequested();
+        }
+        if (requestSpeed <= 0) {
+            requestSpeed = currentSpeed().value();
+        }
+        forceMerachSpeedIncline(qMax(requestSpeed, 0.0), requestIncline);
+        return;
+    }
 
     if (gattCustomService) {
         if (!horizon_paragon_x) {
@@ -1574,6 +1669,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
+
+    if (MERACH_TREADMILL && characteristic.uuid() == QBluetoothUuid((quint16)0xFFF1)) {
+        emit packetReceived();
+    }
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4)) {
         if (newValue.at(0) == 0x55 && newValue.length() > 7) {
@@ -2364,6 +2463,10 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
     QBluetoothUuid _gattInclinationSupported((quint16)0x2AD5);
+    QBluetoothUuid _merachVendorServiceId((quint16)0xFFF0);
+    QBluetoothUuid _merachVendorNotifyId((quint16)0xFFF1);
+    QBluetoothUuid _merachVendorWriteId((quint16)0xFFF2);
+    QBluetoothUuid _merachKeepAliveId(QStringLiteral("59554c55-0000-6666-8888-4d4552414348"));
     QBluetoothUuid _YpooMiniProCharId(QStringLiteral("d18d2c10-c44c-11e8-a355-529269fb1459"));
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
@@ -2410,6 +2513,15 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << QStringLiteral("FTMS service and Control Point found");
                     gattWriteCharControlPointId = c;
                     gattFTMSService = s;
+                } else if (MERACH_TREADMILL && s->serviceUuid() == _merachVendorServiceId &&
+                           c.uuid() == _merachVendorWriteId) {
+                    qDebug() << QStringLiteral("MERACH vendor write found");
+                    gattWriteCharCustomService = c;
+                    gattCustomService = s;
+                } else if (MERACH_TREADMILL && s->serviceUuid() == _merachVendorServiceId &&
+                           c.uuid() == _merachKeepAliveId) {
+                    qDebug() << QStringLiteral("MERACH keepalive found");
+                    gattMerachKeepAliveChar = c;
                 } else if (c.uuid() == _gattTreadmillDataId && gattFTMSService == nullptr) {
                     // some treadmills doesn't have the control point so i need anyway to get the FTMS Service at least
                     gattFTMSService = s;
@@ -2426,7 +2538,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }*/
 
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService && !BOWFLEX_T9 && !MX_TM &&
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService && !MERACH_TREADMILL && !BOWFLEX_T9 && !MX_TM &&
                     !settings
                          .value(QZSettings::horizon_treadmill_force_ftms,
                                 QZSettings::default_horizon_treadmill_force_ftms)
@@ -2448,12 +2560,20 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
                 }
 
+                bool merachNotifyCharacteristic =
+                    MERACH_TREADMILL &&
+                    (((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid()) &&
+                      c.uuid() == _gattTreadmillDataId) ||
+                     ((gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()) &&
+                      c.uuid() == _merachVendorNotifyId));
+
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify &&
-                    // if it's a FTMS treadmill and has FTMS and/or RSC service too
-                    ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid())
-                       || (s->serviceUuid() == QBluetoothUuid::RunningSpeedAndCadence))
-                      && !gattCustomService) ||
-                     (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()))) {
+                    (merachNotifyCharacteristic ||
+                     // if it's a FTMS treadmill and has FTMS and/or RSC service too
+                     ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid())
+                        || (s->serviceUuid() == QBluetoothUuid::RunningSpeedAndCadence))
+                       && !gattCustomService) ||
+                      (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid())))) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
@@ -2469,9 +2589,11 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
                 } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate &&
-                                                                                                                      // if it's a FTMS treadmill and has FTMS and/or RSC service too
-                           ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid()))
-                             && !gattCustomService))) {
+                           ((MERACH_TREADMILL &&
+                             (gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid())) ||
+                            // if it's a FTMS treadmill and has FTMS and/or RSC service too
+                            ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid()))
+                              && !gattCustomService)))) {
                     QByteArray descriptor;
                     descriptor.append((char)0x02);
                     descriptor.append((char)0x00);
