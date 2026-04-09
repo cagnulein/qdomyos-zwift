@@ -317,6 +317,7 @@ class bluetooth : public QObject, public SignalHandler {
     sramaxscontroller* sramAXSController = nullptr;
     elitesquarecontroller* eliteSquareController = nullptr;
     QString filterDevice = QLatin1String("");
+    QString gymModeSessionDevice = QLatin1String("");
 
     bool testResistance = false;
     bool noWriteResistance = false;
@@ -353,6 +354,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool sramDeviceAvaiable();
     bool thinkriderDeviceAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
+    bool gymModeEnabled() const;
 
 #ifdef Q_OS_WIN
     QTimer discoveryTimeout;
@@ -378,6 +380,7 @@ class bluetooth : public QObject, public SignalHandler {
     void bluetoothDeviceDisconnected();
   public slots:
     void restart();
+    void selectGymModeDevice(const QString &deviceName);
     void debug(const QString &string);
     void heartRate(uint8_t heart);
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
