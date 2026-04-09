@@ -6,6 +6,22 @@
 #include "ios/lockscreen.h"
 #endif
 #include <QSettings>
+#include <cmath>
+
+static double gradeAdjustedCost(double gradePercent) {
+    const double i = gradePercent / 100.0;
+    return (155.4 * std::pow(i, 5)) - (30.4 * std::pow(i, 4)) - (43.3 * std::pow(i, 3)) +
+           (46.3 * std::pow(i, 2)) + (19.5 * i) + 3.6;
+}
+
+static double gradeAdjustedEquivalentSpeed(double speedKmh, double gradePercent) {
+    static const double flatCost = gradeAdjustedCost(0.0);
+    const double slopeCost = gradeAdjustedCost(gradePercent);
+    if (speedKmh <= 0.0 || slopeCost <= 0.0) {
+        return 0.0;
+    }
+    return speedKmh * (slopeCost / flatCost);
+}
 
 treadmill::treadmill() {}
 
@@ -888,3 +904,6 @@ QTime treadmill::speedToPace(double Speed) {
     }
 }
 
+double treadmill::gradeAdjustedSpeed(double speed, double inclination) {
+    return gradeAdjustedEquivalentSpeed(speed, inclination);
+}

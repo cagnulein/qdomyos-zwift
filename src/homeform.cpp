@@ -303,6 +303,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         new DataObject(QStringLiteral("Avg Pace (m/") + unit + QStringLiteral(")"), QStringLiteral("icons/icons/pace.png"),
                        QStringLiteral("0:00"), false, QStringLiteral("avg_pace"), 48, labelFontSize);
 
+    grade_adjusted_pace =
+        new DataObject(QStringLiteral("GAP (m/") + unit + QStringLiteral(")"),
+                       QStringLiteral("icons/icons/pace.png"), QStringLiteral("0:00"), false,
+                       QStringLiteral("grade_adjusted_pace"), 48, labelFontSize);
+
     target_pace =
         new DataObject(QStringLiteral("T.Pace(m/") + unit + QStringLiteral(")"), QStringLiteral("icons/icons/pace.png"),
                        QStringLiteral("0:00"), false, QStringLiteral("pace"), 48, labelFontSize);
@@ -1734,8 +1739,8 @@ void homeform::onToastRequested(QString message) {
 QStringList homeform::tile_order() {
 
     QStringList r;
-    r.reserve(72);
-    for (int i = 0; i < 73; i++) {
+    r.reserve(100);
+    for (int i = 0; i < 100; i++) {
         r.append(QString::number(i));
     }
     return r;
@@ -1860,6 +1865,16 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_avg_pace_order, QZSettings::default_tile_avg_pace_order).toInt() == i) {
                 avg_pace->setGridId(i);
                 dataList.append(avg_pace);
+            }
+
+            if (settings.value(QZSettings::tile_grade_adjusted_pace_enabled,
+                               QZSettings::default_tile_grade_adjusted_pace_enabled)
+                    .toBool() &&
+                settings.value(QZSettings::tile_grade_adjusted_pace_order,
+                               QZSettings::default_tile_grade_adjusted_pace_order)
+                        .toInt() == i) {
+                grade_adjusted_pace->setGridId(i);
+                dataList.append(grade_adjusted_pace);
             }
 
             if (settings.value(QZSettings::tile_watt_enabled, true).toBool() &&
@@ -5949,6 +5964,17 @@ void homeform::update() {
             this->avg_pace->setSecondLine(
                 QStringLiteral("MAX: ") +
                 ((treadmill *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
+            const double adjustedSpeed =
+                ((treadmill *)bluetoothManager->device())->gradeAdjustedSpeed(
+                    ((treadmill *)bluetoothManager->device())->currentSpeed().value(), inclination);
+            if (((treadmill *)bluetoothManager->device())->currentSpeed().value() > 2 && adjustedSpeed > 0) {
+                this->grade_adjusted_pace->setValue(
+                    ((treadmill *)bluetoothManager->device())->speedToPace(adjustedSpeed).toString(QStringLiteral("m:ss")));
+            } else {
+                this->grade_adjusted_pace->setValue(QStringLiteral("N/A"));
+            }
+            this->grade_adjusted_pace->setSecondLine(QStringLiteral("Incl: ") +
+                                                     QString::number(inclination, 'f', 1) + QStringLiteral("%"));
             this->target_power->setValue(
                 QString::number(((treadmill *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
             this->inclination->setValue(QString::number(inclination, 'f', 1));

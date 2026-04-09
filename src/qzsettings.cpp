@@ -143,6 +143,8 @@ const QString QZSettings::tile_pace_enabled = QStringLiteral("tile_pace_enabled"
 const QString QZSettings::tile_pace_order = QStringLiteral("tile_pace_order");
 const QString QZSettings::tile_avg_pace_enabled = QStringLiteral("tile_avg_pace_enabled");
 const QString QZSettings::tile_avg_pace_order = QStringLiteral("tile_avg_pace_order");
+const QString QZSettings::tile_grade_adjusted_pace_enabled = QStringLiteral("tile_grade_adjusted_pace_enabled");
+const QString QZSettings::tile_grade_adjusted_pace_order = QStringLiteral("tile_grade_adjusted_pace_order");
 const QString QZSettings::tile_resistance_enabled = QStringLiteral("tile_resistance_enabled");
 const QString QZSettings::tile_resistance_order = QStringLiteral("tile_resistance_order");
 const QString QZSettings::tile_watt_enabled = QStringLiteral("tile_watt_enabled");
@@ -1076,7 +1078,7 @@ const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
 
 
-const uint32_t allSettingsCount = 875;
+const uint32_t allSettingsCount = 877;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1175,6 +1177,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_odometer_order, QZSettings::default_tile_odometer_order},
     {QZSettings::tile_pace_enabled, QZSettings::default_tile_pace_enabled},
     {QZSettings::tile_pace_order, QZSettings::default_tile_pace_order},
+    {QZSettings::tile_grade_adjusted_pace_enabled, QZSettings::default_tile_grade_adjusted_pace_enabled},
+    {QZSettings::tile_grade_adjusted_pace_order, QZSettings::default_tile_grade_adjusted_pace_order},
     {QZSettings::tile_resistance_enabled, QZSettings::default_tile_resistance_enabled},
     {QZSettings::tile_resistance_order, QZSettings::default_tile_resistance_order},
     {QZSettings::tile_watt_enabled, QZSettings::default_tile_watt_enabled},
