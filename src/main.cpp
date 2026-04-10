@@ -937,12 +937,46 @@ int main(int argc, char *argv[]) {
                     qInfo() << "[main] Real treadmill detected. Using a 10-second startup delay for ANT+.";
                 }
 
+                // Show countdown toasts during the startup delay so the user knows
+                // why tiles are unresponsive. Each toast lasts ~3 s (the UI default);
+                // successive toasts fire before the previous one fades so the screen
+                // is never blank. Intervals are proportioned to the actual delay so
+                // both real (10 s) and fake (2 s) devices get appropriate feedback.
+                if (homeform::singleton()) {
+                    int delaySec = startupDelayMs / 1000;
+                    homeform::singleton()->setToastRequested(
+                        QString("ANT+ initialising, please wait %1 seconds\u2026").arg(delaySec));
+
+                    // Intermediate countdown toasts — only meaningful for delays > 4 s.
+                    if (startupDelayMs > 4000) {
+                        int mid1Ms = startupDelayMs * 4 / 10;   // ~40 % through
+                        int mid2Ms = startupDelayMs * 7 / 10;   // ~70 % through
+                        int remaining1 = delaySec - (mid1Ms / 1000);
+                        int remaining2 = delaySec - (mid2Ms / 1000);
+
+                        QTimer::singleShot(mid1Ms, [remaining1]() {
+                            if (homeform::singleton())
+                                homeform::singleton()->setToastRequested(
+                                    QString("ANT+ initialising\u2026 %1s remaining").arg(remaining1));
+                        });
+                        QTimer::singleShot(mid2Ms, [remaining2]() {
+                            if (homeform::singleton())
+                                homeform::singleton()->setToastRequested(
+                                    QString("ANT+ initialising\u2026 %1s remaining").arg(remaining2));
+                        });
+                    }
+                }
+
                 QTimer::singleShot(startupDelayMs, [dev = QPointer<bluetoothdevice>(dev)]() {
                     if (dev && dev->connected()) {
                         qInfo() << "[main] Initialization delay complete. Starting ANT+ Manager.";
                         AntManager::instance().startForDevice(dev.data());
+                        if (homeform::singleton())
+                            homeform::singleton()->setToastRequested("ANT+ ready");
                     } else {
                         qWarning() << "[main] Device disconnected during initialization delay - ANT+ not started.";
+                        if (homeform::singleton())
+                            homeform::singleton()->setToastRequested("ANT+ not started \u2014 device disconnected");
                     }
                 });
               }

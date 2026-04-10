@@ -1703,6 +1703,7 @@ draw_status_row() {
     if [[ "$R2_key" == "overlay_fs" ]]; then
         if [[ "$IS_PI" != "true" ]]; then
             R2_label=""   # Not applicable on desktop Linux — cell left blank
+            R2_key=""     # Clear key so the R2 cell is fully suppressed (no symbol rendered)
         else
             local ov_live=false ov_cfg=false boot_cfg=false
             mount 2>/dev/null | grep -q 'overlay on /' && ov_live=true
