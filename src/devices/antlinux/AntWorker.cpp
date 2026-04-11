@@ -180,6 +180,7 @@ void AntWorker::start() {
     }
     
     qInfo() << "[ANT+] ANT+ broadcasting started. Starting polling timer.";
+    emit broadcastingStarted();
     m_connectionTimer.start();
 
     m_timer = new QTimer(this);

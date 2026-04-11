@@ -970,9 +970,16 @@ int main(int argc, char *argv[]) {
                 QTimer::singleShot(startupDelayMs, [dev = QPointer<bluetoothdevice>(dev)]() {
                     if (dev && dev->connected()) {
                         qInfo() << "[main] Initialization delay complete. Starting ANT+ Manager.";
-                        AntManager::instance().startForDevice(dev.data());
                         if (homeform::singleton())
-                            homeform::singleton()->setToastRequested("ANT+ ready");
+                            homeform::singleton()->setToastRequested("ANT+ starting\u2026");
+                        // "ANT+ ready" is shown when AntWorker confirms broadcasting is active
+                        // (after Python init + dongle reset). Connect once, auto-disconnect.
+                        QObject::connect(&AntManager::instance(), &AntManager::broadcastingStarted,
+                                         QCoreApplication::instance(), []() {
+                            if (homeform::singleton())
+                                homeform::singleton()->setToastRequested("ANT+ ready");
+                        }, Qt::SingleShotConnection);
+                        AntManager::instance().startForDevice(dev.data());
                     } else {
                         qWarning() << "[main] Device disconnected during initialization delay - ANT+ not started.";
                         if (homeform::singleton())

@@ -53,6 +53,7 @@ void AntManager::startForDevice(bluetoothdevice* device) {
 
     connect(m_workerThread, &QThread::started, m_worker, &AntWorker::start);
     connect(m_worker, &AntWorker::finished, m_workerThread, &QThread::quit);
+    connect(m_worker, &AntWorker::broadcastingStarted, this, &AntManager::broadcastingStarted);
     connect(m_workerThread, &QThread::finished, this, &AntManager::onWorkerFinished);
     
     // Connect device disconnection to our stop function

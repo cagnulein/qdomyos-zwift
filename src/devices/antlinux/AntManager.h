@@ -28,6 +28,9 @@ public:
     void startForDevice(bluetoothdevice* device);
     void stopForDevice(bluetoothdevice* device);
 
+Q_SIGNALS:
+    void broadcastingStarted();
+
 private slots:
     void onWorkerFinished();
 

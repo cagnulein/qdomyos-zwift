@@ -46,6 +46,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void finished();
+    void broadcastingStarted();
 
 private:
     bool initializePython();
