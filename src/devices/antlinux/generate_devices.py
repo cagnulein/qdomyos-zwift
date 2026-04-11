@@ -46,6 +46,14 @@ DEVICE_TYPE_KEYWORDS = {
     'Rower': ['rower', 'rowing', 'erg', 'ftms', 'csafe']
 }
 
+# Setting IDs that appear as IndicatorOnlySwitch elements inside device
+# sections but are feature flags, not device model selectors.
+EXCLUDED_SETTING_IDS = {
+    'confirm_stop_workout',        # UI preference, not a device
+    'sole_elliptical_inclination', # Feature flag for Sole E55, not a model
+    'domyos_elliptical_inclination', # Feature flag for Domyos elliptical, not a model
+}
+
 BRAND_KEYWORDS = [
     'proform', 'nordic', 'nordictrack', 'concept', 'peloton', 
     'echelon', 'sole', 'hydrow', 'waterrower', 'kettler', 
@@ -204,7 +212,11 @@ def parse_inline_model_array(array_text: str) -> List[str]:
         if (p.startswith('"') and p.endswith('"')) or (p.startswith("'") and p.endswith("'")):
             p = p[1:-1]
         
-        if p and p != 'Other':
+        if p:
+            # Keep "Other" in the list — its index (0) must align with the
+            # 1-based ternary indices in initializeModel(). Filtering it out
+            # shifts every subsequent item by -1, assigning each device the
+            # setting key of the previous model.
             items.append(p)
     
     return items
@@ -239,7 +251,7 @@ def extract_switch_devices(content: str, section_title: str) -> Dict[str, str]:
             display_name = match.group(1)
             device_id = match.group(2)
             
-            if not is_noise_model(display_name):
+            if not is_noise_model(display_name) and device_id not in EXCLUDED_SETTING_IDS:
                 devices[display_name] = device_id
                 logger.debug(f"Found switch device: {display_name} -> {device_id}")
     
