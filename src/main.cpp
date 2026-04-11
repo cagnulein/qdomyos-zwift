@@ -978,7 +978,7 @@ int main(int argc, char *argv[]) {
                                          QCoreApplication::instance(), []() {
                             if (homeform::singleton())
                                 homeform::singleton()->setToastRequested("ANT+ ready");
-                        }, Qt::SingleShotConnection);
+                        }, Qt::QueuedConnection);
                         AntManager::instance().startForDevice(dev.data());
                     } else {
                         qWarning() << "[main] Device disconnected during initialization delay - ANT+ not started.";
