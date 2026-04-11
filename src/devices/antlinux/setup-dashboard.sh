@@ -4057,7 +4057,7 @@ _logic_check_qml_modules() {
         echo "pending"; return 0
     fi
     local script_dir; script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-    "$script_dir/check-qml-deps.sh" --binary "$script_dir/qdomyos-zwift-bin" \
+    "$script_dir/check-qml-deps.sh" \
         >/dev/null 2>&1 && echo "pass" || echo "fail"
 }
 
@@ -5736,6 +5736,8 @@ install_qt5_libs() {
         qml-module-qtmultimedia
         qml-module-qtwebview
         qml-module-qt-labs-platform
+        qml-module-qt-labs-calendar
+        qml-module-qtcharts
         qml-module-qtgraphicaleffects
         libusb-1.0-0
         bluez

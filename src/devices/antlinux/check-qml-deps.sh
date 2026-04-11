@@ -5,27 +5,25 @@
 # Part of QDomyos-Zwift: https://github.com/cagnulein/qdomyos-zwift
 # License: GPL-3.0
 #
-# Extracts QML import statements from the binary, maps each to its system
-# directory and apt package, and reports anything missing.
+# Checks all required QML modules against the system filesystem and reports
+# anything missing, with optional apt install command to fix.
 #
 # Usage:
-#   ./check-qml-deps.sh [--binary <path>] [--fix]
+#   ./check-qml-deps.sh [--fix]
 #
 # Exit codes:
 #   0  All QML dependencies satisfied
 #   1  One or more dependencies missing
-#   2  Binary not found or strings(1) unavailable
 #
 # Options:
-#   --binary <path>   Path to qdomyos-zwift-bin (default: ./qdomyos-zwift-bin)
-#   --fix             Print the apt install command to resolve missing deps
+#   --fix    Print the apt install command to resolve missing deps
 # =============================================================================
 
 set -uo pipefail
 
 # ---------------------------------------------------------------------------
 # Import → "qml_subdir|apt_package" lookup table
-# Key   = module name as it appears in "import X" statements
+# Key   = QML module name
 # Value = pipe-delimited: relative path under qt5/qml/ | apt package name
 #
 # To add a new dependency: one line here is all that's needed.
@@ -44,38 +42,23 @@ declare -A QML_MAP=(
     ["QtWebView"]="QtWebView|qml-module-qtwebview"
     ["Qt.labs.platform"]="Qt/labs/platform|qml-module-qt-labs-platform"
     ["Qt.labs.settings"]="Qt/labs/settings|qml-module-qt-labs-settings"
+    ["Qt.labs.calendar"]="Qt/labs/calendar|qml-module-qt-labs-calendar"
+    ["Qt.labs.folderlistmodel"]="Qt/labs/folderlistmodel|qml-module-qt-labs-folderlistmodel"
+    ["QtCharts"]="QtCharts|qml-module-qtcharts"
 )
 
 # ---------------------------------------------------------------------------
 # Argument parsing
 # ---------------------------------------------------------------------------
-BINARY="${1:-}"
 FIX_MODE=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --binary) BINARY="$2"; shift 2 ;;
+        --binary) shift 2 ;;   # accepted but ignored (no longer used)
         --fix)    FIX_MODE=true; shift ;;
         *)        shift ;;
     esac
 done
-
-# Default binary location: same directory as this script
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BINARY="${BINARY:-$SCRIPT_DIR/qdomyos-zwift-bin}"
-
-# ---------------------------------------------------------------------------
-# Pre-flight
-# ---------------------------------------------------------------------------
-if [[ ! -f "$BINARY" ]]; then
-    echo "ERROR: Binary not found: $BINARY" >&2
-    exit 2
-fi
-
-if ! command -v strings >/dev/null 2>&1; then
-    echo "ERROR: strings(1) not available - install binutils" >&2
-    exit 2
-fi
 
 # ---------------------------------------------------------------------------
 # Detect architecture QML base path (mirrors setup-dashboard.sh logic)
@@ -96,28 +79,41 @@ qml_dir_exists() {
 }
 
 # ---------------------------------------------------------------------------
-# Extract imports from binary and check each one
+# Modules actually used by this build — populated at build time by the
+# Dockerfile scanning the QML source files. When non-empty, only these
+# modules are checked; when empty (script not yet patched), every entry
+# in QML_MAP is checked as a safe fallback.
+#
+# Dockerfile inject command (run after make, before artifact copy):
+#   mods=$(grep -rh "^import Qt" src/*.qml | awk '{print $2}' | sort -u | tr '\n' ' ')
+#   sed -i "s/REQUIRED_MODULES=()/REQUIRED_MODULES=($mods)/" src/devices/antlinux/check-qml-deps.sh
+# ---------------------------------------------------------------------------
+REQUIRED_MODULES=()
+
+# ---------------------------------------------------------------------------
+# Check each required module. Falls back to all QML_MAP entries when
+# REQUIRED_MODULES is empty (i.e. on an unpatched / dev copy of the script).
 # ---------------------------------------------------------------------------
 MISSING_PKGS=()
 MISSING_DIRS=()
 
-# Pull unique module names from the binary
-# "import QtFoo.Bar 1.0" → "QtFoo.Bar"
-while IFS= read -r module; do
-    [[ -z "$module" ]] && continue
-    # Skip bundled C++ plugins — not system packages
-    [[ "$module" == "AndroidStatusBar" ]] && continue
-    [[ "$module" == org.cagnulein.* ]] && continue
+if [[ ${#REQUIRED_MODULES[@]} -gt 0 ]]; then
+    modules_to_check=("${REQUIRED_MODULES[@]}")
+else
+    modules_to_check=("${!QML_MAP[@]}")
+fi
 
-    if [[ -v "QML_MAP[$module]" ]]; then
-        qml_dir="${QML_MAP[$module]%%|*}"
-        apt_pkg="${QML_MAP[$module]##*|}"
-        if ! qml_dir_exists "$qml_dir"; then
-            MISSING_PKGS+=("$apt_pkg")
-            MISSING_DIRS+=("$qml_dir")
-        fi
+for module in "${modules_to_check[@]}"; do
+    if [[ ! -v "QML_MAP[$module]" ]]; then
+        continue   # module used in QML but not yet in the translation map — skip silently
     fi
-done < <(strings "$BINARY" | grep -E "^import Qt" | awk '{print $2}' | sort -u)
+    qml_dir="${QML_MAP[$module]%%|*}"
+    apt_pkg="${QML_MAP[$module]##*|}"
+    if ! qml_dir_exists "$qml_dir"; then
+        MISSING_PKGS+=("$apt_pkg")
+        MISSING_DIRS+=("$qml_dir")
+    fi
+done
 
 # ---------------------------------------------------------------------------
 # Report

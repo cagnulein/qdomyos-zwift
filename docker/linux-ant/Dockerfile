@@ -123,7 +123,10 @@ RUN set -e; \
         strip qdomyos-zwift; \
     fi; \
     mv qdomyos-zwift qdomyos-zwift-bin; \
-    test -f qdomyos-zwift-bin || { echo "ERROR: Binary not created"; exit 1; }
+    test -f qdomyos-zwift-bin || { echo "ERROR: Binary not created"; exit 1; }; \
+    mods=$(grep -rh "^import Qt" /app/src/*.qml 2>/dev/null | awk '{print $2}' | sort -u | tr '\n' ' ' | sed 's/ $//'); \
+    sed -i "s/REQUIRED_MODULES=()/REQUIRED_MODULES=($mods)/" /app/src/devices/antlinux/check-qml-deps.sh; \
+    echo "QML deps injected into check-qml-deps.sh: $mods"
 
 # --- Stage 2: Artifact Container ---
 FROM busybox:latest
