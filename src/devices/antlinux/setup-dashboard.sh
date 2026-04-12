@@ -6250,7 +6250,7 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_venv && check_venv >/dev/null 2>&1
+            install_venv; check_venv >/dev/null 2>&1
             render_status_grid
             action_taken=true
         fi
@@ -6262,7 +6262,7 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_python_packages && check_python_packages >/dev/null 2>&1
+            install_python_packages; check_python_packages >/dev/null 2>&1
             render_status_grid
             action_taken=true
         fi
@@ -6275,7 +6275,11 @@ run_guided_mode() {
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
             # Note: install_qt5_libs no longer installs python3-pip (prevents system leak)
-            install_qt5_libs && check_qt5_libs >/dev/null 2>&1 && check_qml_modules >/dev/null 2>&1
+            # Run checks independently so qml_modules status is always refreshed
+            # regardless of whether qt5_libs install succeeded or was already passing.
+            install_qt5_libs
+            check_qt5_libs >/dev/null 2>&1
+            check_qml_modules >/dev/null 2>&1
             render_status_grid
             action_taken=true
         fi
@@ -6287,7 +6291,7 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_bluetooth && check_bluetooth >/dev/null 2>&1
+            install_bluetooth; check_bluetooth >/dev/null 2>&1
             render_status_grid
             action_taken=true
         fi
@@ -6299,7 +6303,7 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_plugdev && check_plugdev >/dev/null 2>&1
+            install_plugdev; check_plugdev >/dev/null 2>&1
             render_status_grid
             action_taken=true
         fi
@@ -6311,7 +6315,7 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_udev_rules && check_udev_rules >/dev/null 2>&1
+            install_udev_rules; check_udev_rules >/dev/null 2>&1
             render_status_grid
             action_taken=true
         fi
@@ -6323,7 +6327,7 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_lsusb && check_lsusb >/dev/null 2>&1
+            install_lsusb; check_lsusb >/dev/null 2>&1
             render_status_grid
             action_taken=true
         fi
