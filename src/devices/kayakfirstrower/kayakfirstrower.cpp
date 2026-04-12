@@ -308,9 +308,11 @@ void kayakfirstrower::controllerStateChanged(QLowEnergyController::ControllerSta
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::ControllerState>();
     emit debug(QStringLiteral("controllerStateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
-    if (state == QLowEnergyController::DiscoveredState) {
-        emit debug(QStringLiteral("Controller discovered. Search services..."));
-        m_control->discoverServices();
+    if (state == QLowEnergyController::UnconnectedState && m_control) {
+        emit debug(QStringLiteral("trying to connect back again..."));
+        initDone = false;
+        initRequest = false;
+        m_control->connectToDevice();
     }
 }
 
@@ -325,7 +327,14 @@ void kayakfirstrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     connect(m_control, &QLowEnergyController::stateChanged, this, &kayakfirstrower::controllerStateChanged);
     connect(m_control, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
             this, &kayakfirstrower::error);
-    connect(m_control, &QLowEnergyController::connected, this, &kayakfirstrower::connectedAndDiscovered);
+    connect(m_control, &QLowEnergyController::connected, this, [this]() {
+        emit debug(QStringLiteral("Controller connected. Search services..."));
+        m_control->discoverServices();
+    });
+    connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
+        emit debug(QStringLiteral("LowEnergy controller disconnected"));
+        emit disconnected();
+    });
 
     m_control->connectToDevice();
 }
