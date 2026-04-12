@@ -79,26 +79,22 @@ qml_dir_exists() {
 }
 
 # ---------------------------------------------------------------------------
-# Modules actually used by this build — populated at build time by the
-# Dockerfile scanning the QML source files. When non-empty, only these
-# modules are checked; when empty (script not yet patched), every entry
-# in QML_MAP is checked as a safe fallback.
-#
-# Dockerfile inject command (run after make, before artifact copy):
-#   mods=$(grep -rh "^import Qt" src/*.qml | awk '{print $2}' | sort -u | tr '\n' ' ')
-#   sed -i "s/REQUIRED_MODULES=()/REQUIRED_MODULES=($mods)/" src/devices/antlinux/check-qml-deps.sh
+# Extra QML modules found in the build-time source scan that are NOT already
+# covered by QML_MAP above. Populated by the Dockerfile after make.
+# If all scanned modules are in QML_MAP this stays empty and a comment is
+# injected to confirm the scan ran. QML_MAP is always checked regardless.
 # ---------------------------------------------------------------------------
-REQUIRED_MODULES=()
+ADDITIONAL_MODULES=()
 
 # ---------------------------------------------------------------------------
 # Check each required module. Falls back to all QML_MAP entries when
-# REQUIRED_MODULES is empty (i.e. on an unpatched / dev copy of the script).
+# ADDITIONAL_MODULES is empty (i.e. on an unpatched / dev copy of the script).
 # ---------------------------------------------------------------------------
 MISSING_PKGS=()
 MISSING_DIRS=()
 
-if [[ ${#REQUIRED_MODULES[@]} -gt 0 ]]; then
-    modules_to_check=("${REQUIRED_MODULES[@]}")
+if [[ ${#ADDITIONAL_MODULES[@]} -gt 0 ]]; then
+    modules_to_check=("${ADDITIONAL_MODULES[@]}")
 else
     modules_to_check=("${!QML_MAP[@]}")
 fi

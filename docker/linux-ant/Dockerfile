@@ -124,9 +124,27 @@ RUN set -e; \
     fi; \
     mv qdomyos-zwift qdomyos-zwift-bin; \
     test -f qdomyos-zwift-bin || { echo "ERROR: Binary not created"; exit 1; }; \
-    mods=$(grep -rh "^import Qt" /app/src/*.qml 2>/dev/null | awk '{print $2}' | sort -u | tr '\n' ' ' | sed 's/ $//'); \
-    sed -i "s/REQUIRED_MODULES=()/REQUIRED_MODULES=($mods)/" /app/src/devices/antlinux/check-qml-deps.sh; \
-    echo "QML deps injected into check-qml-deps.sh: $mods"
+    echo "=== QML dep injection: scanning /app/src/*.qml ==="; \
+    qml_count=$(find /app/src -maxdepth 1 -name "*.qml" | wc -l); \
+    echo "  QML files found: $qml_count"; \
+    grep -rh "^import Qt" /app/src/*.qml 2>/dev/null | awk '{print $2}' | sort -u > /tmp/all_mods.txt; \
+    echo "  Modules scanned: $(cat /tmp/all_mods.txt | tr '\n' ' ')"; \
+    grep -oP '(?<=\[")[\w.]+(?="\])' /app/src/devices/antlinux/check-qml-deps.sh | sort -u > /tmp/known_mods.txt; \
+    extra=$(comm -23 /tmp/all_mods.txt /tmp/known_mods.txt | tr '\n' ' ' | sed 's/ $//'); \
+    echo "  Extra (not in QML_MAP): ${extra:-<none>}"; \
+    if grep -q "ADDITIONAL_MODULES=()" /app/src/devices/antlinux/check-qml-deps.sh; then \
+        if [ -n "$extra" ]; then \
+            sed -i "s/ADDITIONAL_MODULES=()/ADDITIONAL_MODULES=($extra)/" /app/src/devices/antlinux/check-qml-deps.sh; \
+            echo "  Injection: SUCCESS — extra modules injected"; \
+        else \
+            sed -i "s/ADDITIONAL_MODULES=()/ADDITIONAL_MODULES=() # build scan complete: all modules covered by QML_MAP/" /app/src/devices/antlinux/check-qml-deps.sh; \
+            echo "  Injection: SUCCESS — no extra modules, comment added"; \
+        fi; \
+    else \
+        echo "  Injection: SKIPPED — placeholder not found (already patched or variable renamed)"; \
+        grep "ADDITIONAL_MODULES" /app/src/devices/antlinux/check-qml-deps.sh || echo "  (ADDITIONAL_MODULES not present in script at all)"; \
+    fi; \
+    echo "=== injection complete ==="
 
 # --- Stage 2: Artifact Container ---
 FROM busybox:latest
@@ -137,7 +155,7 @@ COPY --from=builder /app/src/qdomyos-zwift-bin /qdomyos-zwift-x86-64-ant/
 # Copy scripts
 COPY src/devices/antlinux/qdomyos-zwift-wrapper.sh /qdomyos-zwift-x86-64-ant/qdomyos-zwift
 COPY src/devices/antlinux/setup-dashboard.sh /qdomyos-zwift-x86-64-ant/
-COPY src/devices/antlinux/check-qml-deps.sh /qdomyos-zwift-x86-64-ant/
+COPY --from=builder /app/src/devices/antlinux/check-qml-deps.sh /qdomyos-zwift-x86-64-ant/
 
 # Copy Python scripts
 COPY src/devices/antlinux/bt_provider.py /qdomyos-zwift-x86-64-ant/
