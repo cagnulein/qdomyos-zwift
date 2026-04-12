@@ -91,8 +91,8 @@ void kayakfirstrower::btinit() {
     writeCommand(QStringLiteral("5;1;1;1;1;1;1;1;1"), QStringLiteral("display-config"), true);
     QThread::msleep(500);
 
-    // Put device in active workout state (required by KayakFirst protocol)
-    writeCommand(QStringLiteral("4"), QStringLiteral("start"), true);
+    // Put device in active workout state (TrackMyIndoorWorkout descriptor: startCommand = "9;1")
+    writeCommand(QStringLiteral("9;1"), QStringLiteral("start"), true);
     QThread::msleep(200);
 
     initDone = true;
@@ -191,13 +191,13 @@ void kayakfirstrower::update() {
     }
 
     if (requestStart != -1) {
-        writeCommand(QStringLiteral("4"), QStringLiteral("start"), true);
+        writeCommand(QStringLiteral("9;1"), QStringLiteral("start"), true);
         requestStart = -1;
         emit bikeStarted();
     }
 
     if (requestStop != -1) {
-        writeCommand(QStringLiteral("3"), QStringLiteral("stop"), true);
+        writeCommand(QStringLiteral("9;3"), QStringLiteral("stop"), true);
         requestStop = -1;
     }
 
