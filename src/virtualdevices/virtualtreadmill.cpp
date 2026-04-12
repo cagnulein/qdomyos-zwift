@@ -41,6 +41,8 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     writeP2AD9 = new CharacteristicWriteProcessor2AD9(bikeResistanceGain, bikeResistanceOffset, t, notif2AD9, this);
     connect(writeP2AD9, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));
     connect(writeP2AD9, SIGNAL(slopeChanged()), this, SLOT(slopeChanged()));
+    connect(writeP2AD9, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
+            SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT

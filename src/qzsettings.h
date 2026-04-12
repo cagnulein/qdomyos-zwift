@@ -750,6 +750,9 @@ class QZSettings {
     static const QString nordictrack_treadmill_ultra_le;
     static constexpr bool default_nordictrack_treadmill_ultra_le = false;
 
+    static const QString nordictrack_treadmill_commercial_le;
+    static constexpr bool default_nordictrack_treadmill_commercial_le = false;
+
     static const QString proform_treadmill_carbon_tls;
     static constexpr bool default_proform_treadmill_carbon_tls = false;
 
@@ -855,6 +858,9 @@ class QZSettings {
     static const QString technogym_myrun_treadmill_experimental;
     static constexpr bool default_technogym_myrun_treadmill_experimental = false;
 
+    static const QString gym_mode;
+    static constexpr bool default_gym_mode = false;
+
     static const QString technogym_group_cycle;
     static constexpr bool default_technogym_group_cycle = false;
 
@@ -911,6 +917,9 @@ class QZSettings {
 
     static const QString instant_power_on_pause;
     static constexpr bool default_instant_power_on_pause = false;
+
+    static const QString toputure_teb1;
+    static constexpr bool default_toputure_teb1 = false;
 
     /**
      * @brief Adjusts value in a metric object that's configured specifically for measuring SPEED.
@@ -1968,6 +1977,9 @@ class QZSettings {
     static const QString zero_zt2500_treadmill;
     static constexpr bool default_zero_zt2500_treadmill = false;
 
+    static const QString umay_s100_treadmill;
+    static constexpr bool default_umay_s100_treadmill = false;
+
     static const QString kingsmith_encrypt_v5;
     static constexpr bool default_kingsmith_encrypt_v5 = false;
 
@@ -2865,6 +2877,18 @@ class QZSettings {
      */
     static const QString chart_display_mode;
     static constexpr int default_chart_display_mode = 0;
+
+    /**
+     * @brief Metric shown on the leading side of the iOS Dynamic Island compact Live Activity.
+     */
+    static const QString ios_live_activity_compact_leading_metric;
+    static const QString default_ios_live_activity_compact_leading_metric;
+
+    /**
+     * @brief Metric shown on the trailing side of the iOS Dynamic Island compact Live Activity.
+     */
+    static const QString ios_live_activity_compact_trailing_metric;
+    static const QString default_ios_live_activity_compact_trailing_metric;
 
    /**
      * @brief Calculate only active calories (exclude basal metabolic rate)

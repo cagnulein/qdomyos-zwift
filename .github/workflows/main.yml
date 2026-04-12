@@ -987,8 +987,6 @@ jobs:
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
           qmake CONFIG+=debug CONFIG+=iphonesimulator \
-            QMAKE_CC=/tmp/ccache-wrappers/clang \
-            QMAKE_CXX=/tmp/ccache-wrappers/clang++ \
             && make -j4
 
       - name: Show ccache stats
