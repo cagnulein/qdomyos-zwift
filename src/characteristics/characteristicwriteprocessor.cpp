@@ -86,7 +86,7 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
         emit changeInclination(grade, percentage);
     } else if (dt == ELLIPTICAL) {
         bool inclinationAvailableByHardware = ((elliptical *)Bike)->inclinationAvailableByHardware();
-        qDebug() << "inclinationAvailableByHardware" << inclinationAvailableByHardware << "erg_mode" << erg_mode;
+        qDebug() << "inclinationAvailableByHardware" << inclinationAvailableByHardware;
         emit changeInclination(grade, percentage);
 
         if (!inclinationAvailableByHardware) {
