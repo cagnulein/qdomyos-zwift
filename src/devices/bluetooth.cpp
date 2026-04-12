@@ -2042,8 +2042,12 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(concept2Skierg, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 concept2Skierg->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(concept2Skierg);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("KAYAK FIRST")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("KAYAKFIRST"))) &&
+            } else if (deviceHasService(b, QBluetoothUuid(QStringLiteral("0000ffe0-0000-1000-8000-00805f9b34fb"))) &&
+                       (b.name().toUpper().startsWith(QStringLiteral("KAYAK FIRST")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("KAYAKFIRST")) ||
+                        QRegularExpression(QStringLiteral("^[A-F0-9]{8}$"), QRegularExpression::CaseInsensitiveOption)
+                            .match(b.name())
+                            .hasMatch()) &&
                        !kayakFirstRower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
