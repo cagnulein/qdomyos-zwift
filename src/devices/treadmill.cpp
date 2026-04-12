@@ -800,6 +800,7 @@ void treadmill::changePower(int32_t power) {
 
     if (!autoResistanceEnable) {
         qDebug() << QStringLiteral("changePower ignored because auto resistance is disabled");
+        setLastControlRequestMode(ControlRequestPower);
         return;
     }
 
@@ -868,6 +869,7 @@ void treadmill::changePower(int32_t power) {
     }
 
     changeSpeed((lowSpeed + highSpeed) / 2); // Return the best estimate
+    setLastControlRequestMode(ControlRequestPower);
 }
 
 metric treadmill::lastRequestedPower() { return RequestedPower; }
@@ -887,4 +889,3 @@ QTime treadmill::speedToPace(double Speed) {
                      (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
     }
 }
-

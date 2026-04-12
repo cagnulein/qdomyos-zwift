@@ -19,7 +19,6 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
             bool force_resistance =
                 settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
                     .toBool();
-            bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
             char cmd = data.at(0);
             emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(), data);
             if (cmd == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
@@ -27,7 +26,8 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
                 // Set Target Resistance
                 resistance_t uresistance = data.at(1);
                 uresistance = uresistance / 10;
-                if (force_resistance && !erg_mode) {
+                Bike->setLastControlRequestMode(bluetoothdevice::ControlRequestResistance);
+                if (force_resistance) {
                     Bike->changeResistance(uresistance);
                 }
                 qDebug() << QStringLiteral("new requested resistance ") + QString::number(uresistance) +
@@ -38,6 +38,7 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
             } else if (cmd == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) // simulation parameter
 
             {
+                Bike->setLastControlRequestMode(bluetoothdevice::ControlRequestSimulation);
                 qDebug() << QStringLiteral("indoor bike simulation parameters");
                 reply.append((quint8)FTMS_RESPONSE_CODE);
                 reply.append((quint8)FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS);
@@ -50,6 +51,7 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
             } else if (cmd == FTMS_SET_TARGET_POWER) // erg mode
 
             {
+                Bike->setLastControlRequestMode(bluetoothdevice::ControlRequestPower);
                 qDebug() << QStringLiteral("erg mode");
                 reply.append((quint8)FTMS_RESPONSE_CODE);
                 reply.append((quint8)FTMS_SET_TARGET_POWER);

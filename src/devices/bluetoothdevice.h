@@ -54,6 +54,14 @@ class bluetoothdevice : public QObject {
     Q_OBJECT
 
   public:
+    enum ControlRequestMode {
+        ControlRequestNone,
+        ControlRequestResistance,
+        ControlRequestPower,
+        ControlRequestSimulation,
+        ControlRequestInclination
+    };
+
     bluetoothdevice();
 
     ~bluetoothdevice() override;
@@ -542,6 +550,10 @@ class bluetoothdevice : public QObject {
     void groundContactChanged(double groundContact);
     void verticalOscillationChanged(double verticalOscillation);
 
+  public:
+    void setLastControlRequestMode(ControlRequestMode mode) { lastControlRequestMode = mode; }
+    ControlRequestMode currentControlRequestMode() const { return lastControlRequestMode; }
+
   protected:
     /**
      * @brief Mode of operation for the virtual device with the bluetoothdevice object.
@@ -641,6 +653,7 @@ class bluetoothdevice : public QObject {
 
     metric RequestedPower;
     int16_t requestPower = -1;
+    ControlRequestMode lastControlRequestMode = ControlRequestNone;
 
     /**
      * @brief m_difficult The current difficulty gain. Units: device dependent

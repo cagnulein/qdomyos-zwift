@@ -53,6 +53,7 @@ void elliptical::changePower(int32_t power) {
 
     if (!autoResistanceEnable) {
         qDebug() << QStringLiteral("changePower ignored because auto resistance is disabled");
+        setLastControlRequestMode(ControlRequestPower);
         return;
     }
 
@@ -76,6 +77,7 @@ void elliptical::changePower(int32_t power) {
         resistance_t r = (resistance_t)resistanceFromPowerRequest(power);
         changeResistance(r); // resistance start from 1
     }
+    setLastControlRequestMode(ControlRequestPower);
 }
 
 
@@ -116,6 +118,7 @@ double elliptical::speedFromWatts() {
 
 void elliptical::changeResistance(resistance_t resistance) {
     qDebug() << "changeResistance" << resistance;
+    setLastControlRequestMode(ControlRequestResistance);
     lastRawRequestedResistanceValue = resistance;
     requestResistance = resistance + gears();
     RequestedResistance = resistance + gears();
@@ -133,6 +136,7 @@ void elliptical::setGears(double gears) {
 }
 void elliptical::changeInclination(double grade, double inclination) {
     qDebug() << "changeInclination" << grade << inclination;
+    setLastControlRequestMode(ControlRequestInclination);
     if (autoResistanceEnable) {
         requestInclination = inclination;
     }

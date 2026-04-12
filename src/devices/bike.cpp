@@ -55,6 +55,7 @@ void bike::changeResistance(resistance_t resistance) {
 
     qDebug() << QStringLiteral("bike::changeResistance") << autoResistanceEnable << resistance;
 
+    setLastControlRequestMode(ControlRequestResistance);
     lastRawRequestedResistanceValue = resistance;
     if (autoResistanceEnable) {
         double v = (resistance * m_difficult) + gears();
@@ -73,6 +74,7 @@ void bike::changeResistance(resistance_t resistance) {
 
 void bike::changeInclination(double grade, double percentage) {
     qDebug() << QStringLiteral("bike::changeInclination") << autoResistanceEnable << grade << percentage;
+    setLastControlRequestMode(ControlRequestInclination);
     lastRawRequestedInclinationValue = grade;
     if (autoResistanceEnable) {        
         requestInclination = grade;
@@ -97,6 +99,7 @@ void bike::changePower(int32_t power) {
 
     if (!autoResistanceEnable) {
         qDebug() << QStringLiteral("changePower ignored because auto resistance is disabled");
+        setLastControlRequestMode(ControlRequestPower);
         return;
     }
 
@@ -136,6 +139,7 @@ void bike::changePower(int32_t power) {
         resistance_t r = (resistance_t)resistanceFromPowerRequest(power);
         changeResistance(r); // resistance start from 1
     }
+    setLastControlRequestMode(ControlRequestPower);
 }
 
 double bike::gears() {

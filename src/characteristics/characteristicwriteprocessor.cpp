@@ -15,7 +15,6 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
     bool force_resistance =
         settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
             .toBool();
-    bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
     bool zwift_negative_inclination_x2 =
         settings.value(QZSettings::zwift_negative_inclination_x2, QZSettings::default_zwift_negative_inclination_x2)
             .toBool();
@@ -63,6 +62,7 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
     const double CW_offset = ((crr - 40) * 0.05) * CWGain;
 
     qDebug() << "changeSlope CRR = " << fCRR << CRR_offset << "CW = " << fCW;
+    Bike->setLastControlRequestMode(bluetoothdevice::ControlRequestSimulation);
 
     if (dt == BIKE) {
 
@@ -77,7 +77,7 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
 
         emit changeInclination(grade, percentage);
 
-        if (force_resistance && !erg_mode) {
+        if (force_resistance) {
             // same on the training program
             Bike->changeResistance((resistance_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset + 1 +
                                    CRR_offset + CW_offset); // resistance start from 1
@@ -90,7 +90,7 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
         emit changeInclination(grade, percentage);
 
         if (!inclinationAvailableByHardware) {
-            if (force_resistance && !erg_mode) {
+            if (force_resistance) {
                 // same on the training program
                 ((elliptical *)Bike)
                     ->changeResistance((resistance_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset +
@@ -98,5 +98,6 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
             }
         }
     }
+    Bike->setLastControlRequestMode(bluetoothdevice::ControlRequestSimulation);
     emit slopeChanged();
 }

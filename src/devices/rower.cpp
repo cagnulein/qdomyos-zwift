@@ -12,6 +12,7 @@ void rower::changeSpeed(double speed) {
         requestSpeed = speed;
 }
 void rower::changeResistance(resistance_t resistance) {
+    setLastControlRequestMode(ControlRequestResistance);
     lastRawRequestedResistanceValue = resistance;
     if (autoResistanceEnable) {
         requestResistance = (resistance * m_difficult) + gears();;
@@ -35,6 +36,7 @@ void rower::setGears(double gears) {
 void rower::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 void rower::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
 void rower::changePower(int32_t power) {
+    setLastControlRequestMode(ControlRequestPower);
     RequestedPower = power;
     qDebug() << "rower::changePower" << power;
 }

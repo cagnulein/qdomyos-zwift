@@ -1327,7 +1327,7 @@ void virtualbike::bikeProvider() {
     bool echelon =
         settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
-    bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+    bluetoothdevice::ControlRequestMode lastControlMode = Bike->currentControlRequestMode();
 
     double normalizeWattage = Bike->wattsMetricforUI();
     if (normalizeWattage < 0)
@@ -1354,28 +1354,30 @@ void virtualbike::bikeProvider() {
             }
             qDebug() << "last FTMS rcv" << lastFTMSFrameReceived;
             if (lastFTMSFrameReceived > 0) {
-                if (!erg_mode)
-                    writeP2AD9->changeSlope(h->virtualbike_getCurrentSlope(), h->virtualbike_getCurrentCRR(),
-                                            h->virtualbike_getCurrentCW());
-                else {
+                if (lastControlMode == bluetoothdevice::ControlRequestPower) {
                     qDebug() << "ios workaround power changed request" << h->virtualbike_getPowerRequested();
                     writeP2AD9->changePower(h->virtualbike_getPowerRequested());
-                }
+                } else if (lastControlMode == bluetoothdevice::ControlRequestResistance) {
+                    Bike->changeResistance(((bike *)Bike)->lastRequestedResistance().value());
+                } else
+                    writeP2AD9->changeSlope(h->virtualbike_getCurrentSlope(), h->virtualbike_getCurrentCRR(),
+                                            h->virtualbike_getCurrentCW());
             }
         }
         return;
     }
 #endif
 #else
-    Q_UNUSED(erg_mode);
+    Q_UNUSED(lastControlMode);
 #endif
 
     qDebug() << QStringLiteral("bikeProvider") << whenLastFTMSFrameReceived()
-             << (qint64)(whenLastFTMSFrameReceived() + ((qint64)2000)) << erg_mode;
+             << (qint64)(whenLastFTMSFrameReceived() + ((qint64)2000)) << lastControlMode;
     // zwift with the last update, seems to sending power request only when it actually wants to change it
     // so i need to keep this on to the bike
     if (whenLastFTMSFrameReceived() > 0 &&
-        (QDateTime::currentMSecsSinceEpoch() > (qint64)(whenLastFTMSFrameReceived() + ((qint64)2000))) && erg_mode) {
+        (QDateTime::currentMSecsSinceEpoch() > (qint64)(whenLastFTMSFrameReceived() + ((qint64)2000))) &&
+        lastControlMode == bluetoothdevice::ControlRequestPower) {
         qDebug() << QStringLiteral("zwift is not sending the power anymore, let's continue with the last value");
         writeP2AD9->changePower(((bike *)Bike)->lastRequestedPower().value());
     }

@@ -2645,6 +2645,7 @@ import Qt.labs.platform 1.1
                     IndicatorOnlySwitch {
                         id: zwiftErgDelegate
                         text: qsTr("Zwift Workout/Erg Mode")
+                        visible: false
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -2658,6 +2659,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
+                        visible: false
                         text: qsTr("Enable this setting ONLY when using Zwift in ERG (workout) Mode. QZ will communicate the target resistance (or automatically adjust your resistance if your bike has this capability) to match the target watts based on your cadence (RPM). In ERG Mode, the changes in road slope will not affect target resistance, as is the case in Simulation Mode. Default is off.")
                         font.bold: true
                         font.italic: true
