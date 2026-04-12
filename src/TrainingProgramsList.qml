@@ -74,12 +74,12 @@ ColumnLayout {
                     id: filterField
                     onTextChanged: updateFilter()
                 }
-					 Button {
-					     anchors.left: mainRect.right
-						  anchors.leftMargin: 5
-						  text: "←"
-						  onClicked: folderModel.folder = folderModel.parentFolder
-						}
+                     Button {
+                         anchors.left: mainRect.right
+                          anchors.leftMargin: 5
+                          text: "←"
+                          onClicked: folderModel.folder = folderModel.parentFolder
+                        }
             }
 
             ListView {
@@ -95,10 +95,10 @@ ColumnLayout {
                     id: folderModel
                     nameFilters: ["*.xml", "*.zwo"]
                     folder: "file://" + rootItem.getWritableAppDir() + 'training'
-						  showDotAndDotDot: false
+                          showDotAndDotDot: false
                     showDirs: true
-						  sortField: "Name"
-						  showDirsFirst: true
+                          sortField: "Name"
+                          showDirsFirst: true
                 }
                 model: folderModel
                 delegate: Component {
@@ -106,7 +106,7 @@ ColumnLayout {
                         property alias textColor: fileTextBox.color
                         width: parent.width
                         height: 40
-								color: Material.backgroundColor
+                                color: Material.backgroundColor
                         z: 1
                         Item {
                             id: root
@@ -145,12 +145,12 @@ ColumnLayout {
                                 console.log('onclicked ' + index+ " count "+list.count);
                                 if (index == list.currentIndex) {
                                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
-												if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
+                                                if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
                                         trainprogram_open_clicked(fileUrl);
                                         popup.open()
-												} else {
-												    folderModel.folder = fileURL
-												}
+                                                } else {
+                                                    folderModel.folder = fileURL
+                                                }
                                 }
                                 else {
                                     if (list.currentItem)

@@ -248,8 +248,11 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     lastRefreshCharacteristicChanged = now;
 
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-        if (heart == 0.0) {
+        if (heart == 0.0 || disable_hr_frommachinery) {
             update_hr_from_external();
         } else {
             Heart = heart;

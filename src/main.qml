@@ -17,8 +17,8 @@ ApplicationWindow {
     visibility: Qt.WindowFullScreen
     visible: true
 	 objectName: "stack"
-    title: qsTr("qDomyos-Zwift")
-    
+    title: Qt.platform.os === "ios" ? "" : qsTr("qDomyos-Zwift")
+
     // Force update on orientation change
     property int currentOrientation: Screen.orientation
     onCurrentOrientationChanged: {
@@ -31,20 +31,30 @@ ApplicationWindow {
     
     // Helper functions for cleaner padding calculations
     function getTopPadding() {
+        // Add padding for iPadOS multi-window mode (Stage Manager, Split View, Slide Over)
+        // to avoid overlap with window control buttons (red/yellow/green)
+        // Check both the native detection and window size comparison for reactivity
+        if (Qt.platform.os === "ios") {
+            var isMultiWindow = (typeof rootItem !== "undefined" && rootItem && rootItem.iPadMultiWindowMode) ||
+                                (window.width < Screen.width - 10);  // Window smaller than screen = multi-window
+            if (isMultiWindow) {
+                return 15;  // Space for window control buttons
+            }
+        }
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? 
+        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
                AndroidStatusBar.height : AndroidStatusBar.leftInset;
     }
-    
+
     function getBottomPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? 
+        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
                AndroidStatusBar.navigationBarHeight : AndroidStatusBar.rightInset;
     }
-    
+
     function getLeftPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ? 
+        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
                AndroidStatusBar.leftInset : 0;
     }
     
@@ -52,6 +62,19 @@ ApplicationWindow {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ? 
                AndroidStatusBar.rightInset : 0;
+    }
+
+    function stripBluetoothDeviceName(deviceName) {
+        return deviceName.replace(/ \(\d+%\)$/, "")
+    }
+
+    function maybeOpenGymModePopup() {
+        if (typeof rootItem === "undefined" || !rootItem) {
+            return
+        }
+        if (settings.gym_mode && !rootItem.hasConnectedDevice() && !gymModePopupDismissed && !popupGymMode.visible) {
+            popupGymMode.open()
+        }
     }
 
     signal gpx_open_clicked(url name)
@@ -63,12 +86,15 @@ ApplicationWindow {
     signal gpx_open_other_folder(url name)
     signal trainprogram_preview(url name)
     signal trainprogram_zwo_loaded(string s)
+    signal trainprogram_autostart_requested()
     signal fitfile_preview(string s)
     signal gpx_save_clicked()
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
     signal strava_connect_clicked()
     signal peloton_connect_clicked()
+    signal intervalsicu_connect_clicked()
+    signal intervalsicu_download_todays_workout_clicked()
     signal loadSettings(url name)
     signal saveSettings(url name)
     signal deleteSettings(url name)
@@ -85,6 +111,7 @@ ApplicationWindow {
 
     property bool lockTiles: false
     property bool settings_restart_to_apply: false
+    property bool gymModePopupDismissed: false
 
     Settings {
         id: settings
@@ -93,6 +120,7 @@ ApplicationWindow {
         property bool volume_change_gears: false
         property string peloton_username: "username"
         property string peloton_password: "password"
+        property bool gym_mode: false
     }
 
 
@@ -148,6 +176,22 @@ ApplicationWindow {
         onTriggered: {
             toast.show(rootItem.toastRequested);
             rootItem.toastRequested = "";
+        }
+    }
+
+    Timer {
+       id: gymModeStartupTimer
+       interval: 1500
+       running: true
+       repeat: true
+       onTriggered: {
+            if (typeof rootItem === "undefined" || !rootItem) {
+                return
+            }
+            maybeOpenGymModePopup()
+            if (popupGymMode.visible || rootItem.hasConnectedDevice() || gymModePopupDismissed || !settings.gym_mode) {
+                stop()
+            }
         }
     }
 
@@ -282,6 +326,84 @@ ApplicationWindow {
              text: qsTr("QZ Classifica is a realtime viewer about the actual\neffort of every QZ users! If you want to join in,\nchoose a nickname in the general settings\nand enable the QZ Classifica setting in the\nexperimental settings section and\nrestart the app.")
             }
          }
+    }
+
+    Popup {
+        id: popupGymMode
+        parent: Overlay.overlay
+        x: Math.round((parent.width - width) / 2)
+        y: Math.round((parent.height - height) / 2)
+        width: Math.min(parent.width - 30, 720)
+        height: Math.min(parent.height - 40, 260)
+        modal: true
+        focus: true
+        closePolicy: Popup.NoAutoClose
+        onOpened: refresh_bluetooth_devices_clicked()
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 18
+            spacing: 14
+
+            Label {
+                width: parent.width
+                text: qsTr("Select Your Gym Device")
+                font.pixelSize: Qt.application.font.pixelSize + 10
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+            }
+
+            Label {
+                width: parent.width
+                text: qsTr("QZ found the nearby Bluetooth trainers. Choose the machine you want to use for this session.")
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
+            }
+
+            ComboBox {
+                id: gymModeDeviceComboBox
+                width: parent.width
+                model: rootItem.bluetoothDevices
+                displayText: currentIndex >= 0 ? currentValue : qsTr("Select a device")
+                currentIndex: -1
+                font.pixelSize: Qt.application.font.pixelSize + 8
+
+                onActivated: {
+                    var selectedDevice = stripBluetoothDeviceName(currentValue)
+                    if (selectedDevice === "Disabled" || selectedDevice === "Wifi" || selectedDevice.length === 0) {
+                        return
+                    }
+                    popupGymMode.close()
+                    rootItem.selectGymModeDevice(selectedDevice)
+                }
+            }
+
+            Label {
+                width: parent.width
+                text: qsTr("The list refreshes automatically every 10 seconds.")
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
+                color: Material.color(Material.Grey)
+            }
+
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("Skip")
+                onClicked: {
+                    gymModePopupDismissed = true
+                    popupGymMode.close()
+                }
+            }
+        }
+    }
+
+    Timer {
+        id: gymModeRefreshTimer
+        interval: 10000
+        repeat: true
+        running: popupGymMode.visible
+        onTriggered: refresh_bluetooth_devices_clicked()
     }
 
     Popup {
@@ -507,6 +629,47 @@ ApplicationWindow {
         visible: rootItem.stravaUploadRequested
     }
 
+    MessageDialog {
+        text: "Garmin Workout Planned"
+        informativeText: "Workout found:\n" + rootItem.garminWorkoutPromptName +
+                         (rootItem.garminWorkoutPromptDate.length > 0 ? "\nDate: " + rootItem.garminWorkoutPromptDate : "") +
+                         "\n\nDo you want to start it now?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.garmin_start_downloaded_workout(); }
+        onNoClicked: { rootItem.garmin_dismiss_downloaded_workout_prompt(); }
+        visible: rootItem.garminWorkoutPromptRequested
+    }
+
+    MessageDialog {
+        id: stravaLogoutConfirm
+        text: qsTr("Strava")
+        informativeText: qsTr("You are already connected to Strava. Do you want to log out?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.strava_logout(); }
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
+    MessageDialog {
+        id: pelotonLogoutConfirm
+        text: qsTr("Peloton")
+        informativeText: qsTr("You are already connected to Peloton. Do you want to log out?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.peloton_logout(); }
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
+    MessageDialog {
+        id: intervalsICULogoutConfirm
+        text: qsTr("Intervals.icu")
+        informativeText: qsTr("You are already connected to Intervals.icu. Do you want to log out?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.intervalsicu_logout(); }
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
         Material.primary: settings.theme_status_bar_background_color
@@ -726,6 +889,7 @@ ApplicationWindow {
         bottomPadding: getBottomPadding()
         leftPadding: getLeftPadding()
         rightPadding: getRightPadding()
+        Accessible.ignored: !drawer.opened
 
         ScrollView {
             contentWidth: -1
@@ -735,6 +899,7 @@ ApplicationWindow {
 
             Column {
                 anchors.fill: parent
+                spacing: 3
 
                 ItemDelegate {
                     text: qsTr("Profile: ") + settings.profile_name
@@ -753,12 +918,12 @@ ApplicationWindow {
                     width: parent.width
                     onClicked: {
                         toolButtonLoadSettings.visible = true;
-                        toolButtonSaveSettings.visible = true;
+                        toolButtonSaveSettings.visible = true;                        
                         stackView.push("settings.qml")
                         stackView.currentItem.peloton_connect_clicked.connect(function() {
                             peloton_connect_clicked()
                          });
-                        drawer.close()
+                         drawer.close()
                     }
                 }
 
@@ -813,14 +978,35 @@ ApplicationWindow {
                     text: qsTr("Open Train Program")
                     width: parent.width
                     onClicked: {
-                        stackView.push("TrainingProgramsList.qml")
+                        if(CHARTJS)
+                            stackView.push("TrainingProgramsListJS.qml")
+                        else
+                            stackView.push("TrainingProgramsList.qml")
                         stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
                         stackView.currentItem.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
                         stackView.currentItem.trainprogram_preview.connect(trainprogram_preview)
+                        stackView.currentItem.trainprogram_autostart_requested.connect(trainprogram_autostart_requested)
                         stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
                             stackView.pop();
-                            popup.open();
                          });
+                        drawer.close()
+                    }
+                }
+                ItemDelegate {
+                    text: qsTr("Workout Editor")
+                    width: parent.width
+                    onClicked: {
+                        var editorPage = stackView.push("WorkoutEditor.qml")
+                        if (editorPage) {
+                            editorPage.closeRequested.connect(function() {
+                                stackView.pop()
+                            })
+                            // Close editor when workout is started from Save & Start
+                            trainprogram_autostart_requested.connect(function() {
+                                console.log("[main.qml] trainprogram_autostart_requested received, closing editor")
+                                editorPage.closeRequested()
+                            })
+                        }
                         drawer.close()
                     }
                 }
@@ -899,7 +1085,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.20.13"
+                    text: "version 2.21.0"
                     width: parent.width
                 }
 
@@ -915,9 +1101,14 @@ ApplicationWindow {
                     }
                     width: parent.width
                     onClicked: {
-                        stackView.push("WebStravaAuth.qml")
-                        strava_connect_clicked()
-                        drawer.close()
+                        if (rootItem.isStravaLoggedIn()) {
+                            stravaLogoutConfirm.visible = true
+                            drawer.close()
+                        } else {
+                            stackView.push("WebStravaAuth.qml")
+                            strava_connect_clicked()
+                            drawer.close()
+                        }
                     }
                 }
 
@@ -932,12 +1123,68 @@ ApplicationWindow {
                     }
                     width: parent.width
                     onClicked: {
-                        stackView.push("WebPelotonAuth.qml")
-                        stackView.currentItem.goBack.connect(function() {
-                            stackView.pop();
-                        })
-                        peloton_connect_clicked()
+                        if (rootItem.isPelotonLoggedIn()) {
+                            pelotonLogoutConfirm.visible = true
+                            drawer.close()
+                        } else {
+                            stackView.push("WebPelotonAuth.qml")
+                            stackView.currentItem.goBack.connect(function() {
+                                stackView.pop();
+                            })
+                            peloton_connect_clicked()
+                            drawer.close()
+                        }
+                    }
+                }
+
+                ItemDelegate {
+                    Image {
+                        anchors.left: parent.left;
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "icons/icons/garmin-connect-badge.png"
+                        fillMode: Image.PreserveAspectFit
+                        visible: true
+                        width: parent.width
+                        height: 48
+                    }
+                    width: parent.width
+                    onClicked: {
+                        toolButtonLoadSettings.visible = true;
+                        toolButtonSaveSettings.visible = true;
+                        stackView.push("settings.qml")
+                        if (stackView.currentItem) {
+                            if (stackView.currentItem.openGarminSection) {
+                                stackView.currentItem.openGarminSection()
+                            }
+                            if (stackView.currentItem.peloton_connect_clicked) {
+                                stackView.currentItem.peloton_connect_clicked.connect(function() {
+                                    peloton_connect_clicked()
+                                });
+                            }
+                        }
                         drawer.close()
+                    }
+                }
+
+				ItemDelegate {
+                    Image {
+                        anchors.left: parent.left;
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "icons/icons/intervals-logo-with-name.png"
+                        fillMode: Image.PreserveAspectFit
+                        visible: true
+                        width: parent.width
+                    }
+                    width: parent.width
+                    onClicked: {
+                        if (rootItem.isIntervalsICULoggedIn()) {
+                            intervalsICULogoutConfirm.visible = true
+                            drawer.close()
+                        } else {
+                            stackView.push("WebIntervalsICUAuth.qml")
+                            intervalsicu_connect_clicked()
+                            drawer.close()
+                        }
                     }
                 }
 
@@ -958,17 +1205,22 @@ ApplicationWindow {
                         }
             }
         }
-    }    
+    }
 
-    StackView {
-        id: stackView
-        initialItem: "Home.qml"
+    // Wrapper Item to prevent ApplicationWindow from capturing all VoiceOver focus
+    Item {
         anchors.fill: parent
-        anchors.bottomMargin: (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0
-        anchors.rightMargin: getRightPadding()
-        anchors.leftMargin: getLeftPadding()
-        focus: true
-        Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
+        Accessible.ignored: true
+
+        StackView {
+            id: stackView
+            initialItem: "Home.qml"
+            anchors.fill: parent
+            anchors.bottomMargin: (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0
+            anchors.rightMargin: getRightPadding()
+            anchors.leftMargin: getLeftPadding()
+            focus: true
+            Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
         Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
         Keys.onPressed: (event)=> {
             if (event.key === Qt.Key_MediaPrevious)
@@ -981,6 +1233,7 @@ ApplicationWindow {
                 volumeUp();
 
             event.accepted = settings.volume_change_gears;
+        }
         }
     }
 }

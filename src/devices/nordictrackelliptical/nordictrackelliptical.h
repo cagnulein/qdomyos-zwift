@@ -39,7 +39,12 @@ class nordictrackelliptical : public elliptical {
                           double bikeResistanceGain);
     bool connected() override;
     int pelotonToEllipticalResistance(int pelotonResistance) override;
-    bool inclinationAvailableByHardware()  override{ return false; }
+    bool inclinationAvailableByHardware()  override { 
+      if(nordictrack_elliptical_c7_5 || nordictrack_se7i) 
+        return true; 
+      else 
+        return false; 
+    }
 
   private:
     double GetDistanceFromPacket(QByteArray packet);
@@ -78,6 +83,13 @@ class nordictrackelliptical : public elliptical {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool nordictrack_elliptical_c7_5 = false;
+    bool nordictrack_se7i = false;
+
+    // SE7i frame-based initialization state management
+    int se7i_init_state = 0;
+    bool se7i_waiting_for_response = false;
+    void se7i_send_next_frame();
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

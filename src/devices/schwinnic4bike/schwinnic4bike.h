@@ -83,6 +83,7 @@ class schwinnic4bike : public bike {
     void resistanceFromFTMSAccessory(resistance_t res) override;
 
   private slots:
+    double bikeResistanceToPeloton(double bikeResistance);
 
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);

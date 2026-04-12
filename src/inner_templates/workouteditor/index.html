@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Workout Editor</title>
+    <link rel="stylesheet" href="workout-editor.css">
+    <script src="../chartjs/resize-observer.min.js"></script>
+    <script src="../chartjs/chartjs.3.4.1.min.js"></script>
+    <script src="../chartjs/globals.js"></script>
+    <script>
+        // Check if we're running in a browser (offline) or embedded in QZ app
+        // We detect offline mode by checking if we can access the WebSocket
+        window.QZ_OFFLINE = false;
+        try {
+            // If we have qt object (Qt Desktop) or we're loading from localhost, we're online
+            if (typeof window.qt !== 'undefined' ||
+                window.location.hostname === 'localhost' ||
+                window.location.hostname === '127.0.0.1') {
+                window.QZ_OFFLINE = false;
+            }
+        } catch (e) {
+            window.QZ_OFFLINE = true;
+        }
+    </script>
+    <script src="../chartjs/main_ws_manager.js"></script>
+    <script src="workout-editor.js"></script>
+    <script src="workout-editor-app.js" defer></script>
+</head>
+<body>
+    <div id="app">
+        <div class="toolbar">
+            <div class="toolbar-title">Workout Editor</div>
+            <div class="toolbar-controls">
+                <label>
+                    <span>Name</span>
+                    <input type="text" id="workoutName" placeholder="New workout">
+                </label>
+                <label>
+                    <span>Device</span>
+                    <select id="deviceSelect">
+                        <option value="bike">Bike</option>
+                        <option value="treadmill">Treadmill</option>
+                        <option value="elliptical">Elliptical</option>
+                        <option value="rower">Rower</option>
+                    </select>
+                </label>
+                <button id="newWorkout" class="small">New</button>
+                <button id="saveWorkout" class="primary small">Save</button>
+                <button id="saveStartWorkout" class="primary small">Save &amp; Start</button>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="advancedToggle">
+                    <span>Advanced</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="interval-panel">
+                <div class="interval-panel-header">
+                    <div class="interval-panel-actions">
+                        <button id="addInterval" class="primary small">Add Interval</button>
+                        <button id="repeatSelection" class="small">Repeat Selection</button>
+                        <button id="clearIntervals" class="small danger">Clear</button>
+                    </div>
+                    <div class="interval-panel-hint">Select consecutive rows to repeat them quickly.</div>
+                </div>
+                <div id="intervalList" class="interval-list"></div>
+            </div>
+
+            <div class="preview-panel">
+                <div class="chart-card">
+                    <header>
+                        <div class="chart-title" id="chartTitle">Workout Preview</div>
+                        <div class="chart-meta" id="chartMeta"></div>
+                    </header>
+                    <div class="chart-wrapper">
+                        <canvas id="workoutChart"></canvas>
+                    </div>
+                    <div class="legend" id="legend"></div>
+                </div>
+                <div class="status-strip">
+                    <div>Total: <span id="statusDuration">0:00</span></div>
+                    <div>Intervals: <span id="statusIntervals">0</span></div>
+                    <div class="status-message" id="statusMessage"></div>
+                    <div class="status-message error hidden" id="offlineBanner">Offline mode: changes not saved</div>
+                </div>
+                <div class="program-bar">
+                    <select id="programSelect"></select>
+                    <button id="loadProgram" class="small">Load</button>
+                    <button id="deleteProgram" class="small danger">Delete</button>
+                    <button id="refreshPrograms" class="small">Refresh</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom dialogs for iOS WebView compatibility -->
+    <div id="customDialog" class="custom-dialog hidden">
+        <div class="custom-dialog-overlay"></div>
+        <div class="custom-dialog-content">
+            <div class="custom-dialog-header">
+                <h3 id="customDialogTitle"></h3>
+            </div>
+            <div class="custom-dialog-body">
+                <p id="customDialogMessage"></p>
+                <input type="text" id="customDialogInput" class="hidden">
+            </div>
+            <div class="custom-dialog-footer">
+                <button id="customDialogCancel" class="small">Cancel</button>
+                <button id="customDialogConfirm" class="small primary">OK</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -582,7 +582,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
 
-    double normalizeWattage = Bike->wattsMetric().value();
+    double normalizeWattage = Bike->wattsMetricforUI();
     if (normalizeWattage < 0)
         normalizeWattage = 0;
 
@@ -994,9 +994,9 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             if (targetCharacteristic.isValid()) {
                 characteristicChanged(targetCharacteristic, QByteArray::fromHex("116901") + slope + QByteArray::fromHex("3228"));
 
-                QByteArray response = CharacteristicWriteProcessor0003::encodeHubRidingData(Bike->wattsMetric().value(), Bike->currentCadence().value(), 0,
-                                                                      Bike->wattsMetric().value(),
-                                                                      CharacteristicWriteProcessor0003::calculateUnknown1(Bike->wattsMetric().value()),
+                QByteArray response = CharacteristicWriteProcessor0003::encodeHubRidingData(Bike->wattsMetricforUI(), Bike->currentCadence().value(), 0,
+                                                                      Bike->wattsMetricforUI(),
+                                                                      CharacteristicWriteProcessor0003::calculateUnknown1(Bike->wattsMetricforUI()),
                                                                       0);
                 writeCharacteristic(serviceZwiftPlayBike, zwiftPlayIndicate, response);
             } else {
@@ -1049,9 +1049,9 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             if (targetCharacteristic.isValid()) {
                 characteristicChanged(targetCharacteristic, QByteArray::fromHex("05") + power);
 
-                QByteArray response = CharacteristicWriteProcessor0003::encodeHubRidingData(Bike->wattsMetric().value(), Bike->currentCadence().value(), 0,
-                                                                      Bike->wattsMetric().value(),
-                                                                      CharacteristicWriteProcessor0003::calculateUnknown1(Bike->wattsMetric().value()),
+                QByteArray response = CharacteristicWriteProcessor0003::encodeHubRidingData(Bike->wattsMetricforUI(), Bike->currentCadence().value(), 0,
+                                                                      Bike->wattsMetricforUI(),
+                                                                      CharacteristicWriteProcessor0003::calculateUnknown1(Bike->wattsMetricforUI()),
                                                                       0);
                 writeCharacteristic(serviceZwiftPlayBike, zwiftPlayIndicate, response);
             } else {
@@ -1329,7 +1329,7 @@ void virtualbike::bikeProvider() {
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
     bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
 
-    double normalizeWattage = Bike->wattsMetric().value();
+    double normalizeWattage = Bike->wattsMetricforUI();
     if (normalizeWattage < 0)
         normalizeWattage = 0;
 
@@ -1432,9 +1432,9 @@ void virtualbike::bikeProvider() {
                     if(zwift_play_emulator) {
                         QLowEnergyCharacteristic characteristic1 =
                             serviceZwiftPlayBike->characteristic(QBluetoothUuid(QStringLiteral("00000002-19ca-4651-86e5-fa29dcdd09d1")));
-                        QByteArray response = CharacteristicWriteProcessor0003::encodeHubRidingData(Bike->wattsMetric().value(), Bike->currentCadence().value(), 0,
-                                                                              Bike->wattsMetric().value(),
-                                                                              CharacteristicWriteProcessor0003::calculateUnknown1(Bike->wattsMetric().value()),
+                        QByteArray response = CharacteristicWriteProcessor0003::encodeHubRidingData(Bike->wattsMetricforUI(), Bike->currentCadence().value(), 0,
+                                                                              Bike->wattsMetricforUI(),
+                                                                              CharacteristicWriteProcessor0003::calculateUnknown1(Bike->wattsMetricforUI()),
                                                                               0);
                         writeCharacteristic(serviceZwiftPlayBike, characteristic1, response);
                     } else if (watt_bike_emulator) {

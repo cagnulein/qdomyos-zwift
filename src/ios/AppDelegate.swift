@@ -139,6 +139,11 @@ var pedometer = CMPedometer()
         Server.server?.send(createString(sender: sender))
     }
 
+    @objc public func setElevationGain(elevationGain: Double) -> Void
+    {
+        WatchKitConnection.elevationGain = elevationGain;
+    }
+
     @objc public func setHeartRate(heartRate: Int) -> Void
     {
         if #available(iOS 17.0, *) {

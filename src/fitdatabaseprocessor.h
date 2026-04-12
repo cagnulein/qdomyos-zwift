@@ -50,9 +50,15 @@ class FitDatabaseProcessor : public QObject {
                      const QString& pelotonUrl = "",
                      const QString& trainingProgramFile = "");
 
+    // Helper methods for path handling
+    QString makeRelativePath(const QString& absolutePath);
+    QString makeAbsolutePath(const QString& relativePath);
+    bool migrateOldPaths();
+
     QThread workerThread;
     QString dbPath;
     QString currentDirPath;
+    QString basePath;  // Base directory for relative paths
     QAtomicInt stopRequested;
     QMutex mutex;
     QSqlDatabase db;

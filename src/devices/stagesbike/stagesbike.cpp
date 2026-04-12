@@ -410,7 +410,9 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
                                     now)))); //(( (0.048* Output in watts +1.19) * body weight
                                                                       // in kg * 3.5) / 200 ) / 60
             emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
-        }
+
+            lastRefreshCharacteristicChanged = now;
+        }        
     }
 
     if (!noVirtualDevice) {
@@ -423,9 +425,7 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
             if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
                 update_hr_from_external();
         }
-    }
-
-    lastRefreshCharacteristicChanged = now;
+    }    
 
     if (!noVirtualDevice) {
 #ifdef Q_OS_IOS

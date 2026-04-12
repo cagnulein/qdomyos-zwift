@@ -9,6 +9,9 @@ Page {
     title: qsTr("QZ Fitness")
     id: page
 
+    // VoiceOver accessibility - ignore Page itself, only children are accessible
+    Accessible.ignored: true
+
     property alias start: start
     property alias stop: stop
     property alias lap: lap
@@ -39,6 +42,8 @@ Page {
                 width: 50
                 height: row.height
 					 color: settings.theme_background_color
+                Accessible.ignored: true
+
                 Column {
                     id: column
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -47,10 +52,13 @@ Page {
                     height: row.height
                     spacing: 0
                     padding: 0
+                    Accessible.ignored: true
+
                     Rectangle {
                         width: 50
                         height: row.height
                         color: settings.theme_background_color
+                        Accessible.ignored: true
 
                         Image {
                             anchors.verticalCenter: parent.verticalCenter
@@ -60,6 +68,12 @@ Page {
                             source: "icons/icons/bluetooth-icon.png"
                             enabled: rootItem.device
                             smooth: true
+
+                            // VoiceOver accessibility
+                            Accessible.role: Accessible.Indicator
+                            Accessible.name: qsTr("Bluetooth connection")
+                            Accessible.description: rootItem.device ? qsTr("Device connected") : qsTr("Device not connected")
+                            Accessible.focusable: true
                         }
                         ColorOverlay {
                             anchors.fill: treadmill_connection
@@ -74,6 +88,7 @@ Page {
                         height: row.height - 76
                         source: rootItem.signal
                         smooth: true
+                        Accessible.ignored: true
                     }
                 }
             }
@@ -82,6 +97,8 @@ Page {
                 width: 120
                 height: row.height
 					 color: settings.theme_background_color
+                Accessible.ignored: true
+
                 RoundButton {
                     icon.source: rootItem.startIcon
                     icon.height: row.height - 54
@@ -91,6 +108,12 @@ Page {
                     id: start
                     width: 120
                     height: row.height - 4
+
+                    // VoiceOver accessibility
+                    Accessible.role: Accessible.Button
+                    Accessible.name: rootItem.startText
+                    Accessible.description: qsTr("Start workout")
+                    Accessible.focusable: true
                 }
                 ColorOverlay {
                     anchors.fill: start
@@ -104,6 +127,7 @@ Page {
                 width: 120
                 height: row.height
 					 color: settings.theme_background_color
+                Accessible.ignored: true
 
                 RoundButton {
                     icon.source: rootItem.stopIcon
@@ -114,6 +138,12 @@ Page {
                     id: stop
                     width: 120
                     height: row.height - 4
+
+                    // VoiceOver accessibility
+                    Accessible.role: Accessible.Button
+                    Accessible.name: rootItem.stopText
+                    Accessible.description: qsTr("Stop workout")
+                    Accessible.focusable: true
                 }
                 ColorOverlay {
                     anchors.fill: stop
@@ -128,6 +158,8 @@ Page {
                 width: 50
                 height: row.height
 					 color: settings.theme_background_color
+                Accessible.ignored: true
+
                 RoundButton {
                     anchors.verticalCenter: parent.verticalCenter
                     id: lap
@@ -138,6 +170,12 @@ Page {
                     icon.height: 48
                     enabled: rootItem.lap
                     smooth: true
+
+                    // VoiceOver accessibility
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Lap")
+                    Accessible.description: qsTr("Record a new lap")
+                    Accessible.focusable: true
                 }
                 ColorOverlay {
                     anchors.fill: lap

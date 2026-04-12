@@ -30,9 +30,12 @@ protocol WorkoutTrackingProtocol {
     static let shared = WorkoutTracking()
     public static var lastDateMetric = Date()
     public static var distance = Double()
+    public static var previousDistance = Double()
     public static var kcal = Double()
     public static var totalKcal = Double()
     public static var steps = Double()
+    public static var flightsClimbed = Double()
+    public static var elevationGain = Double()
     static var sport: Int = 0
     static let healthStore = HKHealthStore()
     static let configuration = HKWorkoutConfiguration()
@@ -156,7 +159,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 ])
             
             var infoToShare: Set<HKSampleType> = []
-            
+
             if #available(watchOSApplicationExtension 10.0, *) {
                 if #available(iOS 18.0, *) {
                     infoToShare = Set([
@@ -177,6 +180,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                         HKSampleType.quantityType(forIdentifier: .walkingStepLength)!,
                         HKSampleType.quantityType(forIdentifier: .distanceRowing)!,
                         HKSampleType.quantityType(forIdentifier: .rowingSpeed)!,
+                        HKSampleType.quantityType(forIdentifier: .flightsClimbed)!,
                         HKSampleType.workoutType()
                         ])
                 } else {
@@ -195,6 +199,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     HKSampleType.quantityType(forIdentifier: .runningSpeed)!,
                     HKSampleType.quantityType(forIdentifier: .distanceRowing)!,
                     HKSampleType.quantityType(forIdentifier: .rowingSpeed)!,
+                    HKSampleType.quantityType(forIdentifier: .flightsClimbed)!,
                     HKSampleType.workoutType()
                     ])
             }
@@ -221,6 +226,10 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         WorkoutTracking.authorizeHealthKit()
         WorkoutTracking.workoutInProgress = true;
         WorkoutTracking.lastDateMetric = Date()
+        // Reset flights climbed, elevation gain and previous distance for new workout
+        WorkoutTracking.flightsClimbed = 0
+        WorkoutTracking.elevationGain = 0
+        WorkoutTracking.previousDistance = 0
         SwiftDebug.qtDebug("WorkoutTracking: Start workout")
         setSport(Int(deviceType))
         configWorkout()
@@ -294,6 +303,13 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                 }
             }
+            if WorkoutTracking.elevationGain > 0 {
+                WorkoutTracking.workoutBuilder.addMetadata([HKMetadataKeyElevationAscended: HKQuantity(unit: HKUnit.meter(), doubleValue: WorkoutTracking.elevationGain)]) { (_, error) in
+                    if let error = error {
+                        SwiftDebug.qtDebug("WorkoutTracking elevation metadata: " + error.localizedDescription)
+                    }
+                }
+            }
             WorkoutTracking.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
                     if let error = error {
                         SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
@@ -338,14 +354,38 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 start: startDate,
                 end: Date())
 
-            // Add both samples to the workout builder
-            workoutBuilder.add([sampleSteps, sampleDistance]) { (success, error) in
+            // Create flights climbed sample
+            var samplesToAdd: [HKCumulativeQuantitySeriesSample] = [sampleSteps, sampleDistance]
+
+            if WorkoutTracking.flightsClimbed > 0 {
+                if let quantityTypeFlights = HKQuantityType.quantityType(forIdentifier: .flightsClimbed) {
+                    let flightsQuantity = HKQuantity(unit: HKUnit.count(), doubleValue: WorkoutTracking.flightsClimbed)
+                    let sampleFlights = HKCumulativeQuantitySeriesSample(
+                        type: quantityTypeFlights,
+                        quantity: flightsQuantity,
+                        start: startDate,
+                        end: Date())
+                    samplesToAdd.append(sampleFlights)
+                    SwiftDebug.qtDebug("WorkoutTracking: Adding flights climbed to workout: \(WorkoutTracking.flightsClimbed)")
+                }
+            }
+
+            // Add all samples to the workout builder
+            workoutBuilder.add(samplesToAdd) { (success, error) in
                 if let error = error {
                     print(error)
                     SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                     return
                 }
-                
+
+                if WorkoutTracking.elevationGain > 0 {
+                    WorkoutTracking.workoutBuilder.addMetadata([HKMetadataKeyElevationAscended: HKQuantity(unit: HKUnit.meter(), doubleValue: WorkoutTracking.elevationGain)]) { (_, error) in
+                        if let error = error {
+                            SwiftDebug.qtDebug("WorkoutTracking elevation metadata: " + error.localizedDescription)
+                        }
+                    }
+                }
+
                 // End the data collection - only do this once
                 WorkoutTracking.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
                     if let error = error {
@@ -353,7 +393,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                         SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                         return
                     }
-                    
+
                     // Finish the workout - only do this once
                     WorkoutTracking.workoutBuilder.finishWorkout { (workout, error) in
                         if let error = error {
@@ -361,11 +401,15 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                             SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                             return
                         }
-                        
+
                         // Set total energy burned on the workout
                         let totalEnergy = WorkoutTracking.totalKcal > 0 ? WorkoutTracking.totalKcal : activeEnergyBurned
                         let totalEnergyQuantity = HKQuantity(unit: unit, doubleValue: totalEnergy)
                         workout?.setValue(totalEnergyQuantity, forKey: "totalEnergyBurned")
+
+                        // Reset flights climbed and elevation gain for next workout
+                        WorkoutTracking.flightsClimbed = 0
+                        WorkoutTracking.elevationGain = 0
                     }
                 }
             }
@@ -374,9 +418,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         WorkoutTracking.workoutInProgress = false;
     }
     
-    @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double, steps: Double, deviceType: UInt8, distance: Double, totalKcal: Double) {
+    @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double, steps: Double, deviceType: UInt8, distance: Double, totalKcal: Double, elevationGain: Double = 0) {
         SwiftDebug.qtDebug("WorkoutTracking: GET DATA: \(Date())")
-        
+
         if(WorkoutTracking.workoutInProgress == false && power > 0 && WorkoutTracking.firstWorkout) {
             WorkoutTracking.firstWorkout = false
             startWorkOut(deviceType: UInt16(deviceType))
@@ -386,12 +430,24 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
 
         let Speed = speed / 100
         let previousSteps = WorkoutTracking.steps
-        let previousDistance = WorkoutTracking.distance
-        
+
         WorkoutTracking.kcal = kcal
         WorkoutTracking.totalKcal = totalKcal
         WorkoutTracking.steps = steps
         WorkoutTracking.distance = distance
+
+        // Store elevation gain for all sports
+        if elevationGain > 0 {
+            WorkoutTracking.elevationGain = elevationGain
+        }
+
+        // Calculate flights climbed from elevation gain for treadmill (sport == 0 or 1)
+        // elevationGain is already calculated by QZ in meters
+        if (WorkoutTracking.sport == 0 || WorkoutTracking.sport == 1) && elevationGain > 0 {
+            // One flight = 10 feet = 3.048 meters
+            WorkoutTracking.flightsClimbed = elevationGain / 3.048
+            SwiftDebug.qtDebug("WorkoutTracking: Flights climbed: \(WorkoutTracking.flightsClimbed) from elevation: \(elevationGain)m")
+        }
 
         if(WorkoutTracking.sport == 2) {
             if #available(watchOSApplicationExtension 10.0, *) {
@@ -588,7 +644,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     }
                 }
 
-                let distanceDelta = max(0, distance - previousDistance)
+                let distanceDelta = max(0, distance - WorkoutTracking.previousDistance)
                 if distanceDelta > 0,
                    let distanceType = HKQuantityType.quantityType(forIdentifier: .distanceCycling) {
                     let distanceQuantity = HKQuantity(unit: HKUnit.meter(), doubleValue: distanceDelta)
@@ -630,7 +686,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     // Fallback on earlier versions
                 }
                 
-                let distanceDelta = max(0, distance - previousDistance)
+                let distanceDelta = max(0, distance - WorkoutTracking.previousDistance)
                 if #available(iOS 18.0, *) {
                     if distanceDelta > 0,
                        let distanceType = HKQuantityType.quantityType(forIdentifier: .distanceRowing) {
@@ -653,6 +709,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             }
         }
 
+        WorkoutTracking.previousDistance = distance
         WorkoutTracking.lastDateMetric = Date()
     }
 

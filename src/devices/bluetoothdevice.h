@@ -235,9 +235,12 @@ class bluetoothdevice : public QObject {
      */
     double wattsMetricforUI() {
         QSettings settings;
+        bool power3s = settings.value(QZSettings::power_avg_3s, QZSettings::default_power_avg_3s).toBool();
         bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
-        if (power5s)
-            return wattsMetric().average5s();
+        if (power3s)
+            return wattsMetric().average3sHarmonic();
+        else if (power5s)
+            return wattsMetric().average5sHarmonic();
         else
             return wattsMetric().value();
     }
@@ -252,6 +255,11 @@ class bluetoothdevice : public QObject {
      * @brief elevationGain Gets a metric object to get and set the elevation gain. Units: ?
      */
     virtual metric elevationGain();
+
+    /**
+     * @brief negativeElevationGain Gets a metric object to get and set the negative elevation gain (descents). Units: ?
+     */
+    virtual metric negativeElevationGain();
 
     /**
      * @brief clearStats Clear the statistics.
@@ -472,6 +480,11 @@ class bluetoothdevice : public QObject {
     virtual uint8_t metrics_override_heartrate();
 
     /**
+     * @brief metricValueForSetting Returns the current value for a metric selected by name.
+     */
+    virtual int metricValueForSetting(const QString &setting);
+
+    /**
      * @brief Overridden in subclasses to specify the maximum resistance level supported by the device.
      */
     virtual resistance_t maxResistance();
@@ -481,10 +494,26 @@ class bluetoothdevice : public QObject {
     metric SkinTemperature;      // Skin temperature in °C or °F
     metric HeatStrainIndex;      // Heat Strain Index (0-25.4, scaled by 10)
 
+    /**
+     * @brief HRV Heart Rate Variability metric (RMSSD). Unit: milliseconds
+     */
+    metric currentHRV() { return HRV; }
+
+    /**
+     * @brief Get and clear accumulated RR-intervals for FIT file saving
+     * @return List of RR-intervals in milliseconds
+     */
+    QList<double> getRRIntervalsAndClear() {
+        QList<double> intervals = rrIntervalsForFit;
+        rrIntervalsForFit.clear();
+        return intervals;
+    }
+
   public Q_SLOTS:
     virtual void start();
     virtual void stop(bool pause);
     virtual void heartRate(uint8_t heart);
+    virtual void rrIntervalReceived(double rrInterval);
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
     virtual void speedSensor(double speed);
@@ -585,6 +614,21 @@ class bluetoothdevice : public QObject {
      */
     metric Heart;
 
+    /**
+     * @brief HRV Heart Rate Variability (RMSSD). Unit: milliseconds
+     */
+    metric HRV;
+
+    /**
+     * @brief RR-intervals buffer for HRV calculation
+     */
+    QList<double> rrIntervals;
+
+    /**
+     * @brief RR-intervals buffer for FIT file saving (cleared after each SessionLine)
+     */
+    QList<double> rrIntervalsForFit;
+
     int8_t requestStart = -1;
     int8_t requestStop = -1;
     int8_t requestPause = -1;
@@ -627,6 +671,11 @@ class bluetoothdevice : public QObject {
      * @brief elevationAcc The elevation gain. Units: meters
      */
     metric elevationAcc;
+
+    /**
+     * @brief negativeElevationAcc The negative elevation gain (descents). Units: meters
+     */
+    metric negativeElevationAcc;
 
     /**
      * @brief m_watt Metric to get and set the power read from the trainer or from the power sensor Unit: watts
@@ -786,6 +835,11 @@ class bluetoothdevice : public QObject {
      * @brief update_hr_from_external Updates heart rate from Garmin Companion App or Apple Watch
      */
     void update_hr_from_external();
+
+    /**
+     * @brief update_ios_live_activity Updates iOS Live Activity with throttling (max 1 update per second)
+     */
+    void update_ios_live_activity();
 
     /**
      * @brief calculateMETS Calculate the METS (Metabolic Equivalent of Tasks)

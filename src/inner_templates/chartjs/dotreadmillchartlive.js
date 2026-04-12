@@ -24,6 +24,7 @@ window.chartColors = {
 var treadmillChart = null;
 var speed_max = 0;
 var incline_max = 0;
+var miles = 1; // 1 = km, 0.621371 = miles
 
 // Define speed zones
 const speedZones = [6, 8, 10, 12, 14, 16]; // km/h
@@ -43,13 +44,13 @@ function process_arr(arr) {
         maxEl = time;
 
         if (el.speed !== undefined) {
-            speed.push({x: time, y: el.speed});
-            if (speed_max < el.speed) speed_max = el.speed;
+            speed.push({x: time, y: el.speed * miles});
+            if (speed_max < el.speed * miles) speed_max = el.speed * miles;
         }
 
         if (el.target_speed !== undefined && el.target_speed !== -1) {
-            targetSpeed.push({x: time, y: el.target_speed});
-            if (speed_max < el.target_speed) speed_max = el.target_speed;
+            targetSpeed.push({x: time, y: el.target_speed * miles});
+            if (speed_max < el.target_speed * miles) speed_max = el.target_speed * miles;
         }
 
         if (el.inclination !== undefined) {
@@ -83,7 +84,7 @@ function process_arr(arr) {
         plugins: [backgroundFill],
         data: {
             datasets: [{
-                label: 'Speed',
+                label: 'Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
                 data: speed,
@@ -104,7 +105,7 @@ function process_arr(arr) {
                     }
                 }
             }, {
-                label: 'Target Speed',
+                label: 'Target Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
                 backgroundColor: window.chartColors.black,
                 borderColor: window.chartColors.black,
                 data: targetSpeed,
@@ -281,14 +282,14 @@ function refresh() {
     });    
 }
 
-function process_workout(arr) {    
+function process_workout(arr) {
     // Update speed data
     treadmillChart.data.datasets[0].data.push({
         x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600),
-        y: arr.speed
+        y: arr.speed * miles
     });
-    if (speed_max < arr.speed) {
-        speed_max = Math.ceil(arr.speed * 1.1);
+    if (speed_max < arr.speed * miles) {
+        speed_max = Math.ceil(arr.speed * miles * 1.1);
         treadmillChart.options.scales['y-speed'].max = speed_max;
     }
 
@@ -296,10 +297,10 @@ function process_workout(arr) {
     if (arr.target_speed !== undefined && arr.target_speed !== -1) {
         treadmillChart.data.datasets[1].data.push({
             x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600),
-            y: arr.target_speed
+            y: arr.target_speed * miles
         });
-        if (speed_max < arr.target_speed) {
-            speed_max = Math.ceil(arr.target_speed * 1.1);
+        if (speed_max < arr.target_speed * miles) {
+            speed_max = Math.ceil(arr.target_speed * miles * 1.1);
             treadmillChart.options.scales['y-speed'].max = speed_max;
         }
     }
@@ -331,6 +332,26 @@ function process_workout(arr) {
 }
 
 function dochart_init() {
+    // Get miles_unit setting first
+    let el = new MainWSQueueElement({
+        msg: 'getsettings',
+        content: {
+            keys: ['miles_unit']
+        }
+    }, function(msg) {
+        if (msg.msg === 'R_getsettings') {
+            if (msg.content['miles_unit'] === true || msg.content['miles_unit'] === 'true') {
+                miles = 0.621371;
+            }
+            return msg.content;
+        }
+        return null;
+    }, 5000, 3);
+    el.enqueue().catch(function(err) {
+        console.error('Error getting settings: ' + err);
+    });
+
+    // Get session array
     el = new MainWSQueueElement({
         msg: 'getsessionarray'
     }, function(msg) {
