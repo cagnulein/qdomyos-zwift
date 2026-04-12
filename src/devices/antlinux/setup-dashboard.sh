@@ -6577,16 +6577,35 @@ run_uninstall_mode() {
     render_status_grid
 
     # F. Deep Clean Execution (System Runtime Packages)
+    # SAFETY: Never purge Qt5/system packages on a desktop GUI system.
+    # These libraries are shared dependencies of the desktop environment —
+    # purging them (followed by autoremove) removes GNOME/GDM and breaks the GUI.
     if [[ "$deep_clean_available" == "true" ]]; then
-        local pkgs_to_remove="libqt5core5a libqt5qml5 libqt5quick5 libqt5bluetooth5 libusb-1.0-0 bluez usbutils"
-        
-        run_step "Deep Cleaning System Packages" "apt-get purge -y $pkgs_to_remove" || return 1
-        # Update status after removal
-        STATUS_MAP["qt5_libs"]="fail"
+        # QML modules are safe to remove on any system — they are not desktop deps.
+        # Core Qt5 libs (libqt5core5a etc.) are shared with GNOME/GDM on desktop
+        # systems — purging them destroys the GUI. Only remove them on headless systems.
+        local qml_pkgs="qml-module-qtcharts qml-module-qt-labs-calendar qml-module-qt-labs-folderlistmodel \
+            qml-module-qtlocation qml-module-qtpositioning qml-module-qtquick2 \
+            qml-module-qtquick-controls qml-module-qtquick-controls2 qml-module-qtquick-dialogs \
+            qml-module-qtquick-layouts qml-module-qtquick-window2 qml-module-qtmultimedia \
+            qml-module-qtwebview qml-module-qt-labs-platform qml-module-qtgraphicaleffects"
+        local core_pkgs="libqt5core5a libqt5qml5 libqt5quick5 libqt5bluetooth5 libusb-1.0-0 bluez usbutils"
+
+        run_step "Removing QML Modules" "apt-get purge -y $qml_pkgs" || return 1
         STATUS_MAP["qml_modules"]="fail"
-        STATUS_MAP["bluetooth"]="fail"
-        STATUS_MAP["lsusb"]="fail"
         render_status_grid
+
+        if [[ "${HAS_GUI:-false}" != "true" ]]; then
+            run_step "Removing Core Qt5 / System Packages" "apt-get purge -y $core_pkgs" || return 1
+            STATUS_MAP["qt5_libs"]="fail"
+            STATUS_MAP["bluetooth"]="fail"
+            STATUS_MAP["lsusb"]="fail"
+            render_status_grid
+        else
+            draw_sealed_row $((LOG_TOP + 2)) "   ${BOLD_YELLOW}⚠ Core Qt5 libs skipped on desktop — removing them would destroy the GUI.${NC}"
+            draw_sealed_row $((LOG_TOP + 3)) "   QML modules removed. Run on a headless system to also remove core libs."
+            sleep 3
+        fi
         
         if groups "$TARGET_USER" 2>/dev/null | grep -q plugdev; then
             run_step "Removing User from plugdev Group" "gpasswd -d $TARGET_USER plugdev" || return 1
@@ -9389,6 +9408,56 @@ if [[ -f "${BASH_SOURCE[0]%/*}/qdomyos-zwift" ]]; then
         echo ""
     fi
 fi
+
+# 1b. Desktop Recovery Check
+# If a previous --uninstall-force removed Qt5/system libs and broke the GUI,
+# detect the damaged state here (before the TUI starts) and offer to recover.
+# This runs in plain terminal mode so it is usable even without a display.
+_check_desktop_recovery() {
+    # Only relevant on non-Pi desktop systems
+    [[ "${IS_PI:-false}" == "true" ]] && return 0
+    # If we have a working display, desktop is fine
+    [[ -n "${DISPLAY:-}" || -n "${WAYLAND_DISPLAY:-}" ]] && return 0
+    # Check if a display manager exists — absence suggests desktop was wiped
+    local dm_missing=false
+    if ! dpkg -l gdm3 lightdm sddm 2>/dev/null | grep -q "^ii"; then
+        dm_missing=true
+    fi
+    # Check if ubuntu-desktop meta-package is gone
+    local desktop_missing=false
+    if ! dpkg -l ubuntu-desktop 2>/dev/null | grep -q "^ii"; then
+        desktop_missing=true
+    fi
+    if [[ "$dm_missing" == "true" || "$desktop_missing" == "true" ]]; then
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "  ⚠  DESKTOP ENVIRONMENT DAMAGE DETECTED"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo ""
+        echo "  The Ubuntu desktop environment appears to be missing."
+        echo "  This can happen if system Qt5/display packages were removed."
+        echo ""
+        echo "  To restore your desktop, run:"
+        echo "    sudo apt update && sudo apt install --reinstall ubuntu-desktop"
+        echo "    sudo reboot"
+        echo ""
+        read -r -p "  Restore ubuntu-desktop now? [Y/n]: " reply
+        reply="${reply:-Y}"
+        if [[ "$reply" =~ ^[Yy]$ ]]; then
+            echo ""
+            echo "  Running: apt update && apt install --reinstall ubuntu-desktop"
+            echo ""
+            apt-get update && apt-get install -y --reinstall ubuntu-desktop
+            echo ""
+            echo "  Recovery complete. Please reboot to restore the graphical login."
+            read -r -p "  Reboot now? [Y/n]: " rb
+            rb="${rb:-Y}"
+            [[ "$rb" =~ ^[Yy]$ ]] && reboot
+        fi
+        echo ""
+    fi
+}
+_check_desktop_recovery
 
 # 2. Startup Sequence
 if [[ "${QZ_NO_SPLASH:-0}" -eq 0 ]]; then
