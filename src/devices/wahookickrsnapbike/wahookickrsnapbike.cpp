@@ -484,7 +484,24 @@ void wahookickrsnapbike::handleCharacteristicValueChanged(const QBluetoothUuid &
 
     qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << uuid;
 
-    if (uuid == QBluetoothUuid::CyclingPowerMeasurement) {
+    const bool isCyclingPowerMeasurement = (uuid == QBluetoothUuid::CyclingPowerMeasurement);
+    const bool is2ADAFallbackCandidate = (uuid == QBluetoothUuid((quint16)0x2ADA));
+    const bool recentCyclingPowerMeasurement =
+        lastCyclingPowerMeasurement.isValid() && lastCyclingPowerMeasurement.msecsTo(QDateTime::currentDateTime()) < 2000;
+    const bool use2ADAFallback =
+        is2ADAFallbackCandidate && !recentCyclingPowerMeasurement && newValue.length() == 8;
+
+    if (isCyclingPowerMeasurement || use2ADAFallback) {
+        if (newValue.length() < 4) {
+            emit debug(QStringLiteral("Skipping metric packet with invalid length ") + QString::number(newValue.length()) +
+                       (use2ADAFallback ? QStringLiteral(" [0x2ADA fallback]") : QString()));
+            return;
+        }
+
+        if (isCyclingPowerMeasurement) {
+            lastCyclingPowerMeasurement = QDateTime::currentDateTime();
+        }
+
         lastPacket = newValue;
 
         uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
@@ -493,6 +510,11 @@ void wahookickrsnapbike::handleCharacteristicValueChanged(const QBluetoothUuid &
         bool crank_rev_present = false;
         uint16_t time_division = 1024;
         uint8_t index = 4;
+
+        // Some KICKR variants appear to deliver the useful runtime stream on 0x2ADA.
+        // That payload is not guaranteed to be standard Cycling Power Measurement, but
+        // parsing it with the same layout is a practical fallback when 0x2A63 is absent.
+        const bool parseAsCyclingPowerFallback = use2ADAFallback;
 
         if (newValue.length() > 3) {
             m_rawWatt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
@@ -503,7 +525,8 @@ void wahookickrsnapbike::handleCharacteristicValueChanged(const QBluetoothUuid &
         }
 
         emit powerChanged(m_watt.value());
-        emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
+        emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()) +
+                   (parseAsCyclingPowerFallback ? QStringLiteral(" [from 0x2ADA fallback]") : QString()));
 
         if ((flags & 0x1) == 0x01) // Pedal Power Balance Present
         {
