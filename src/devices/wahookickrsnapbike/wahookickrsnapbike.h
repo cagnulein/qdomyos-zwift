@@ -95,6 +95,8 @@ class wahookickrsnapbike : public bike {
     metric ResistanceFromFTMSAccessory;
     void startDiscover();
     uint16_t watts() override;
+    void initializeVirtualBikeIfNeeded();
+    void completeSetupAfterSubscription();
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
@@ -139,6 +141,23 @@ class wahookickrsnapbike : public bike {
     volatile int notificationSubscribed = 0;
 
     resistance_t lastForcedResistance = -1;
+
+#ifdef Q_OS_ANDROID
+    bool androidGattBridgeActive = false;
+    bool androidGattConnected = false;
+    bool androidGattConnecting = false;
+    bool androidGattWriteReady = false;
+    bool androidGattPowerReady = false;
+
+    bool writeCharacteristicWithAndroidBridge(const QByteArray &data, const QString &info, bool disable_log);
+
+  public:
+    void androidGattConnectionStateChanged(bool connected, int status);
+    void androidGattServicesDiscovered(bool hasWriteCharacteristic, bool hasCyclingPowerMeasurement);
+    void androidGattSubscriptionCompleted(bool success, int status);
+    void androidGattCharacteristicChanged(const QString &uuid, const QByteArray &value);
+    void androidGattCharacteristicWriteCompleted(const QString &uuid, const QByteArray &value, int status);
+#endif
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

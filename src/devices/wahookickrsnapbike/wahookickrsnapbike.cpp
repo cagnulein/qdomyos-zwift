@@ -10,12 +10,114 @@
 #include <math.h>
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#include <QAndroidJniEnvironment>
+#include <QAndroidJniObject>
 #include <QLowEnergyConnectionParameters>
+#include <QtAndroid>
 #endif
 
 #include <chrono>
 
 using namespace std::chrono_literals;
+
+#ifdef Q_OS_ANDROID
+static wahookickrsnapbike *g_androidWahooGattTarget = nullptr;
+
+static QByteArray jbyteArrayToQByteArray(JNIEnv *env, jbyteArray array) {
+    if (!array) {
+        return QByteArray();
+    }
+
+    const jsize len = env->GetArrayLength(array);
+    QByteArray out(len, Qt::Uninitialized);
+    env->GetByteArrayRegion(array, 0, len, reinterpret_cast<jbyte *>(out.data()));
+    return out;
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_WahooGattBridge_nativeOnConnectionStateChanged(JNIEnv *, jclass, jboolean connected,
+                                                                               jint status) {
+    if (g_androidWahooGattTarget) {
+        QMetaObject::invokeMethod(
+            g_androidWahooGattTarget,
+            [connected, status]() {
+                if (g_androidWahooGattTarget) {
+                    g_androidWahooGattTarget->androidGattConnectionStateChanged(connected, status);
+                }
+            },
+            Qt::QueuedConnection);
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_WahooGattBridge_nativeOnServicesDiscovered(JNIEnv *, jclass, jboolean hasWriteCharacteristic,
+                                                                          jboolean hasCyclingPowerMeasurement) {
+    if (g_androidWahooGattTarget) {
+        QMetaObject::invokeMethod(
+            g_androidWahooGattTarget,
+            [hasWriteCharacteristic, hasCyclingPowerMeasurement]() {
+                if (g_androidWahooGattTarget) {
+                    g_androidWahooGattTarget->androidGattServicesDiscovered(hasWriteCharacteristic,
+                                                                            hasCyclingPowerMeasurement);
+                }
+            },
+            Qt::QueuedConnection);
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_WahooGattBridge_nativeOnSubscriptionCompleted(JNIEnv *, jclass, jboolean success,
+                                                                             jint status) {
+    if (g_androidWahooGattTarget) {
+        QMetaObject::invokeMethod(
+            g_androidWahooGattTarget,
+            [success, status]() {
+                if (g_androidWahooGattTarget) {
+                    g_androidWahooGattTarget->androidGattSubscriptionCompleted(success, status);
+                }
+            },
+            Qt::QueuedConnection);
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_WahooGattBridge_nativeOnCharacteristicChanged(JNIEnv *env, jclass, jstring uuid,
+                                                                             jbyteArray value) {
+    if (!g_androidWahooGattTarget) {
+        return;
+    }
+
+    const QString uuidString = QAndroidJniObject(uuid).toString();
+    const QByteArray payload = jbyteArrayToQByteArray(env, value);
+    QMetaObject::invokeMethod(
+        g_androidWahooGattTarget,
+        [uuidString, payload]() {
+            if (g_androidWahooGattTarget) {
+                g_androidWahooGattTarget->androidGattCharacteristicChanged(uuidString, payload);
+            }
+        },
+        Qt::QueuedConnection);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_WahooGattBridge_nativeOnCharacteristicWrite(JNIEnv *env, jclass, jstring uuid,
+                                                                           jbyteArray value, jint status) {
+    if (!g_androidWahooGattTarget) {
+        return;
+    }
+
+    const QString uuidString = QAndroidJniObject(uuid).toString();
+    const QByteArray payload = jbyteArrayToQByteArray(env, value);
+    QMetaObject::invokeMethod(
+        g_androidWahooGattTarget,
+        [uuidString, payload, status]() {
+            if (g_androidWahooGattTarget) {
+                g_androidWahooGattTarget->androidGattCharacteristicWriteCompleted(uuidString, payload, status);
+            }
+        },
+        Qt::QueuedConnection);
+}
+#endif
 
 wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                        double bikeResistanceGain) {
@@ -75,11 +177,68 @@ bool wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QS
     return true;
 }
 
+#ifdef Q_OS_ANDROID
+bool wahookickrsnapbike::writeCharacteristicWithAndroidBridge(const QByteArray &data, const QString &info,
+                                                              bool disable_log) {
+    if (!androidGattBridgeActive || !androidGattConnected || !androidGattWriteReady) {
+        qDebug() << QStringLiteral("Android GATT bridge is not ready for writes");
+        return false;
+    }
+
+    QAndroidJniEnvironment env;
+    jbyteArray bytes = env->NewByteArray(data.size());
+    env->SetByteArrayRegion(bytes, 0, data.size(), reinterpret_cast<const jbyte *>(data.constData()));
+
+    const jboolean ok = QAndroidJniObject::callStaticMethod<jboolean>(
+        "org/cagnulen/qdomyoszwift/WahooGattBridge", "writeControl", "([B)Z", bytes);
+
+    env->DeleteLocalRef(bytes);
+
+    if (!disable_log) {
+        debug(" >> " + data.toHex(' ') + " // " + info + QStringLiteral(" [android bridge]"));
+    }
+
+    return ok;
+}
+#endif
+
 void wahookickrsnapbike::processWriteQueue() {
     // If already writing or queue is empty, do nothing
     if (isWriting || writeQueue.isEmpty()) {
         return;
     }
+
+#ifdef Q_OS_ANDROID
+    if (androidGattBridgeActive) {
+        if (!androidGattConnected || !androidGattWriteReady) {
+            qDebug() << QStringLiteral("Android GATT write path not ready, clearing queue");
+            writeQueue.clear();
+            isWriting = false;
+            currentWriteWaitingForResponse = false;
+            return;
+        }
+
+        WriteRequest request = writeQueue.dequeue();
+        isWriting = true;
+        currentWriteWaitingForResponse = false;
+
+        if (writeBuffer) {
+            delete writeBuffer;
+        }
+        writeBuffer = new QByteArray(request.data);
+
+        if (!writeCharacteristicWithAndroidBridge(*writeBuffer, request.info, request.disable_log)) {
+            qDebug() << QStringLiteral("Android GATT write failed to start");
+            isWriting = false;
+            currentWriteWaitingForResponse = false;
+            processWriteQueue();
+            return;
+        }
+
+        writeTimeoutTimer->start(1000);
+        return;
+    }
+#endif
 
     // Check connection state
     if (!gattPowerChannelService) {
@@ -123,6 +282,48 @@ void wahookickrsnapbike::processWriteQueue() {
     // - characteristicWritten (if wait_for_response = false)
     // - characteristicChanged (if wait_for_response = true)
     // which will call processWriteQueue() again to process the next item
+}
+
+void wahookickrsnapbike::initializeVirtualBikeIfNeeded() {
+    if (firstStateChanged || this->hasVirtualDevice()
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        || h
+#endif
+#endif
+    ) {
+        firstStateChanged = 1;
+        return;
+    }
+
+    QSettings settings;
+    bool virtual_device_enabled =
+        settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    if (ios_peloton_workaround && cadence) {
+        qDebug() << "ios_peloton_workaround activated!";
+        h = new lockscreen();
+        h->virtualbike_ios();
+    } else
+#endif
+#endif
+        if (virtual_device_enabled) {
+        emit debug(QStringLiteral("creating virtual bike interface..."));
+        auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+        connect(virtualBike, &virtualbike::changeInclination, this, &wahookickrsnapbike::inclinationChanged);
+        this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+    }
+
+    firstStateChanged = 1;
+}
+
+void wahookickrsnapbike::completeSetupAfterSubscription() {
+    initRequest = true;
+    emit connectedAndDiscovered();
 }
 
 QByteArray wahookickrsnapbike::unlockCommand() {
@@ -227,6 +428,12 @@ QByteArray wahookickrsnapbike::setWheelCircumference(double millimeters) {
 }
 
 void wahookickrsnapbike::update() {
+#ifdef Q_OS_ANDROID
+    if (androidGattBridgeActive && !androidGattConnected && !androidGattConnecting) {
+        emit disconnected();
+        return;
+    }
+#endif
     if (m_control && m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -264,8 +471,12 @@ void wahookickrsnapbike::update() {
         Resistance = 0;
         emit resistanceRead(Resistance.value());
         initRequest = false;
-    } else if (m_control &&
-               (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState)
+    } else if (((m_control &&
+                (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState))
+#ifdef Q_OS_ANDROID
+                || (androidGattBridgeActive && bluetoothDevice.isValid() && androidGattConnected)
+#endif
+                )
                //&&
                                                                            // gattCommunicationChannelService &&
                                                                            // gattWriteCharacteristic.isValid() &&
@@ -798,45 +1009,10 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
 
     if (!notificationSubscribed) {
         qDebug() << QStringLiteral("No CyclingPowerMeasurement subscription established");
-        initRequest = true;
-        emit connectedAndDiscovered();
+        completeSetupAfterSubscription();
     }
 
-    // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !this->hasVirtualDevice()
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        && !h
-#endif
-#endif
-    ) {
-        QSettings settings;
-        bool virtual_device_enabled =
-            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        bool cadence =
-            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround =
-            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence) {
-            qDebug() << "ios_peloton_workaround activated!";
-            h = new lockscreen();
-            h->virtualbike_ios();
-        } else
-#endif
-#endif
-            if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual bike interface..."));
-            auto virtualBike =
-                new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-            // connect(virtualBike,&virtualbike::debug ,this,&wahookickrsnapbike::debug);
-            connect(virtualBike, &virtualbike::changeInclination, this, &wahookickrsnapbike::inclinationChanged);
-            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
-        }
-    }
-    firstStateChanged = 1;
-    // ********************************************************************************************************
+    initializeVirtualBikeIfNeeded();
 }
 
 void wahookickrsnapbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -847,14 +1023,66 @@ void wahookickrsnapbike::descriptorWritten(const QLowEnergyDescriptor &descripto
         notificationSubscribed--;
 
     if (!notificationSubscribed) {
-        initRequest = true;
-        emit connectedAndDiscovered();
+        completeSetupAfterSubscription();
     }
 }
 
 void wahookickrsnapbike::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     qDebug() << QStringLiteral("descriptorRead ") << descriptor.name() << descriptor.uuid() << newValue.toHex(' ');
 }
+
+#ifdef Q_OS_ANDROID
+void wahookickrsnapbike::androidGattConnectionStateChanged(bool connected, int status) {
+    androidGattConnecting = false;
+    androidGattConnected = connected;
+    emit debug(QStringLiteral("androidGattConnectionStateChanged connected=") + (connected ? QStringLiteral("true") : QStringLiteral("false")) +
+               QStringLiteral(" status=") + QString::number(status));
+
+    if (!connected) {
+        androidGattWriteReady = false;
+        androidGattPowerReady = false;
+        notificationSubscribed = 0;
+        writeQueue.clear();
+        isWriting = false;
+        currentWriteWaitingForResponse = false;
+        emit disconnected();
+    }
+}
+
+void wahookickrsnapbike::androidGattServicesDiscovered(bool hasWriteCharacteristic, bool hasCyclingPowerMeasurement) {
+    androidGattWriteReady = hasWriteCharacteristic;
+    androidGattPowerReady = hasCyclingPowerMeasurement;
+    emit debug(QStringLiteral("androidGattServicesDiscovered write=") +
+               (hasWriteCharacteristic ? QStringLiteral("true") : QStringLiteral("false")) +
+               QStringLiteral(" power=") + (hasCyclingPowerMeasurement ? QStringLiteral("true") : QStringLiteral("false")));
+    initializeVirtualBikeIfNeeded();
+}
+
+void wahookickrsnapbike::androidGattSubscriptionCompleted(bool success, int status) {
+    notificationSubscribed = 0;
+    emit debug(QStringLiteral("androidGattSubscriptionCompleted success=") +
+               (success ? QStringLiteral("true") : QStringLiteral("false")) + QStringLiteral(" status=") +
+               QString::number(status));
+    completeSetupAfterSubscription();
+}
+
+void wahookickrsnapbike::androidGattCharacteristicChanged(const QString &uuid, const QByteArray &value) {
+    handleCharacteristicValueChanged(QBluetoothUuid(uuid), value);
+}
+
+void wahookickrsnapbike::androidGattCharacteristicWriteCompleted(const QString &uuid, const QByteArray &value,
+                                                                 int status) {
+    Q_UNUSED(uuid);
+
+    emit debug(QStringLiteral("androidGattCharacteristicWriteCompleted status=") + QString::number(status) +
+               QStringLiteral(" value=") + value.toHex(' '));
+
+    writeTimeoutTimer->stop();
+    isWriting = false;
+    currentWriteWaitingForResponse = false;
+    processWriteQueue();
+}
+#endif
 
 void wahookickrsnapbike::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
                                                const QByteArray &newValue) {
@@ -943,9 +1171,32 @@ void wahookickrsnapbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         qDebug() << "KICKR SNAP workaround activated";
     }
     
-    {
-        bluetoothDevice = device;
+    bluetoothDevice = device;
 
+#ifdef Q_OS_ANDROID
+    androidGattBridgeActive = true;
+    androidGattConnected = false;
+    androidGattConnecting = true;
+    androidGattWriteReady = false;
+    androidGattPowerReady = false;
+    g_androidWahooGattTarget = this;
+
+    QAndroidJniObject address = QAndroidJniObject::fromString(device.address().toString());
+    const jboolean connectStarted = QAndroidJniObject::callStaticMethod<jboolean>(
+        "org/cagnulen/qdomyoszwift/WahooGattBridge", "connect", "(Landroid/content/Context;Ljava/lang/String;)Z",
+        QtAndroid::androidContext().object(), address.object<jstring>());
+
+    emit debug(QStringLiteral("Android WahooGattBridge connect started=") +
+               (connectStarted ? QStringLiteral("true") : QStringLiteral("false")));
+
+    if (!connectStarted) {
+        androidGattConnecting = false;
+        emit disconnected();
+    }
+    return;
+#endif
+
+    {
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &wahookickrsnapbike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &wahookickrsnapbike::serviceScanDone);
@@ -981,6 +1232,11 @@ void wahookickrsnapbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
 // Modified connected method to handle iOS
 bool wahookickrsnapbike::connected() {
+#ifdef Q_OS_ANDROID
+    if (androidGattBridgeActive) {
+        return androidGattConnected;
+    }
+#endif
     if (!m_control) {
         return false;
     }

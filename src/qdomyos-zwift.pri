@@ -901,6 +901,7 @@ DISTFILES += \
     $$PWD/android/src/Shortcuts.java \
     $$PWD/android/src/WearableController.java \
     $$PWD/android/src/WearableMessageListenerService.java \
+    $$PWD/android/src/WahooGattBridge.java \
     $$PWD/android/src/ZapClickLayer.java \
     $$PWD/android/src/ZwiftAPI.java \
     $$PWD/android/src/ZwiftHubBike.java \
