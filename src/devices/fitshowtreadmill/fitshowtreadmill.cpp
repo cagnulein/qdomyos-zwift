@@ -458,23 +458,25 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     incline = 0;
                 }
 
+                const QDateTime now = QDateTime::currentDateTime();
                 if (!firstCharacteristicChanged) {
-                    if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-                        KCal +=
-                            ((((0.048 * ((double)watts(
-                                            settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
-                                1.19) *
-                               settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                              200.0) /
-                             (60000.0 /
-                              ((double)lastTimeCharacteristicChanged.msecsTo(
-                                  QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                    // kg * 3.5) / 200 ) / 60
-                    DistanceCalculated +=
-                        ((speed / 3600.0) /
-                         (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
-                    lastTimeCharacteristicChanged = QDateTime::currentDateTime();
+                    const qint64 elapsedMs = lastTimeCharacteristicChanged.msecsTo(now);
+                    // Ignore long gaps when the treadmill was paused or notifications stalled:
+                    // integrating speed across that whole window creates large fake distance jumps on resume.
+                    if (elapsedMs > 0 && elapsedMs <= 2000) {
+                        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) {
+                            KCal +=
+                                ((((0.048 * ((double)watts(
+                                                settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                                    1.19) *
+                                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                                  200.0) /
+                                 (60000.0 / ((double)elapsedMs)));
+                        }
+                        DistanceCalculated += ((speed / 3600.0) / (1000.0 / ((double)elapsedMs)));
+                    }
                 }
+                lastTimeCharacteristicChanged = now;
 
                 StepCount = step_count;
 
@@ -906,6 +908,8 @@ void fitshowtreadmill::controllerStateChanged(QLowEnergyController::ControllerSt
 }
 
 bool fitshowtreadmill::autoPauseWhenSpeedIsZero() {
+    if (tunturi_t80_connected)
+        return false;
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
         return true;
     else
@@ -913,6 +917,8 @@ bool fitshowtreadmill::autoPauseWhenSpeedIsZero() {
 }
 
 bool fitshowtreadmill::autoStartWhenSpeedIsGreaterThenZero() {
+    if (tunturi_t80_connected)
+        return false;
     if ((lastStop == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStop + 25000)) && requestStop == -1)
         return true;
     else
