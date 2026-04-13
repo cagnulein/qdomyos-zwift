@@ -74,7 +74,7 @@ void kayakfirstrower::btinit() {
     QThread::msleep(500);
 
     writeCommand(QStringLiteral("1"), QStringLiteral("reset-2"), true);
-    QThread::msleep(1000);
+    QThread::msleep(5000);
 
     QSettings settings;
     const int athleteWeight = settings.value(QZSettings::weight, QZSettings::default_weight).toInt();
@@ -82,18 +82,18 @@ void kayakfirstrower::btinit() {
     const qint64 unixEpoch = now.toSecsSinceEpoch();
     const int tzOffsetMinutes = now.offsetFromUtc() / 60;
 
+    // TrackMyIndoorWorkout old-handshake format:
+    // 2;<epochSec>;<timezoneMinutes>;<athleteWeight>;<sportFlag>
+    // sportFlag: 1 = kayaking, 2 = canoe
+    const int sportFlag = 1;
     const QString handshake =
-        QStringLiteral("2;%1;%2;%3;2").arg(unixEpoch).arg(tzOffsetMinutes).arg(athleteWeight);
+        QStringLiteral("2;%1;%2;%3;%4").arg(unixEpoch).arg(tzOffsetMinutes).arg(athleteWeight).arg(sportFlag);
     writeCommand(handshake, QStringLiteral("handshake"), true);
-    QThread::msleep(500);
+    QThread::msleep(5000);
 
     // Basic display configuration (8 slots all to default value 1)
     writeCommand(QStringLiteral("5;1;1;1;1;1;1;1;1"), QStringLiteral("display-config"), true);
-    QThread::msleep(500);
-
-    // Put device in active workout state (TrackMyIndoorWorkout descriptor: startCommand = "9;1")
-    writeCommand(QStringLiteral("9;1"), QStringLiteral("start"), true);
-    QThread::msleep(200);
+    QThread::msleep(5000);
 
     initDone = true;
 }
