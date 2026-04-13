@@ -834,30 +834,30 @@ QByteArray virtualbike::buildTacxAntResponse(quint8 page) const {
     switch (page) {
     case 0x50: // Manufacturer information
         response.append(char(0xFF));
-        response.append(char(0x05)); // hardware revision
-        response.append(char(0xFF)); // generic/private manufacturer id LSB
-        response.append(char(0xFF)); // generic/private manufacturer id MSB
-        response.append(char(0x01)); // generic model id LSB
-        response.append(char(0x00)); // generic model id MSB
+        response.append(char(0xFF));
+        response.append(char(0x01));
+        response.append(char(0x59));
         response.append(char(0x00));
+        response.append(char(0x3B));
+        response.append(char(0x0B));
         break;
     case 0x51: // Product information
-        response.append(char(0x00)); // supplementary software revision
-        response.append(char(0x32)); // main software revision
-        response.append(char(0x00)); // build/revision
-        response.append(char(0x01)); // generic serial LSB
-        response.append(char(0x00));
-        response.append(char(0x00));
+        response.append(char(0xFF));
+        response.append(char(0x02));
+        response.append(char(0x07));
+        response.append(char(0x95));
+        response.append(char(0xC7));
+        response.append(char(0x0D));
         response.append(char(0x00));
         break;
     case 0x36: // FE-C capabilities
-        response.append(char(0x19));
+        response.append(char(0xFF));
+        response.append(char(0xFF));
+        response.append(char(0xFF));
+        response.append(char(0xFF));
+        response.append(char(0xC8));
         response.append(char(0x00));
-        response.append(char(0x32));
-        response.append(char(0x00));
-        response.append(char(0x03));
-        response.append(char(0x00));
-        response.append(char(0x00));
+        response.append(char(0x07));
         break;
     case 0xFA:
     case 0xFB:
@@ -871,14 +871,12 @@ QByteArray virtualbike::buildTacxAntResponse(quint8 page) const {
         response.append(char(0x00));
         break;
     case 0xFC:
-        // Tacx app polls these vendor-specific pages during startup; a stable stub is enough to progress.
         response.append(char(0x00));
         response.append(char(0x00));
-        response.append(char(0x64));
+        response.append(char(0x00));
         response.append(char(0x00));
         response.append(char((tacxLastProprietaryInclineRaw >> 8) & 0xFF));
         response.append(char(tacxLastProprietaryInclineRaw & 0xFF));
-        response.append(char(page));
         response.append(char(0x00));
         break;
     default:
@@ -929,6 +927,21 @@ QByteArray virtualbike::buildTacxAntBroadcast(quint8 page) {
         response.append(char(0x00));
         break;
     }
+    case 0x47: {
+        quint8 mode = 0x33;
+        quint8 state = 0x2C;
+        if (Bike->currentInclination().value() > 0.0) {
+            state = 0x2E;
+        }
+        response.append(char(mode));
+        response.append(char(state));
+        response.append(char(0x00));
+        response.append(char(0xFF));
+        response.append(char(0x20));
+        response.append(char(0x4E));
+        response.append(char(state == 0x2E ? 0x53 : 0x50));
+        break;
+    }
     default:
         return QByteArray();
     }
@@ -954,7 +967,7 @@ void virtualbike::broadcastTacxCustomData() {
     } else if (tacxBroadcastPageToggle == 1) {
         response = buildTacxAntBroadcast(0x19);
     } else {
-        response = buildTacxAntResponse(0xFC);
+        response = buildTacxAntBroadcast(0x47);
     }
     tacxBroadcastPageToggle = (tacxBroadcastPageToggle + 1) % 3;
 
@@ -1004,6 +1017,16 @@ void virtualbike::handleTacxCustomWrite(const QByteArray &newValue) {
         const double requestIncline = (static_cast<int>(rawIncline) - 20000) / 100.0;
         qDebug() << "Tacx track resistance incline request" << requestIncline << newValue.toHex(' ');
         emit changeInclination(requestIncline, requestIncline);
+        return;
+    }
+
+    if (messageId == 0x4F && page == 0x32) {
+        qDebug() << "Tacx track resistance config command" << newValue.toHex(' ');
+        return;
+    }
+
+    if (messageId == 0x4F && page == 0x37) {
+        qDebug() << "Tacx track resistance mode command" << newValue.toHex(' ');
         return;
     }
 
