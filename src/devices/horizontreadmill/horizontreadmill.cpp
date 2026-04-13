@@ -1003,53 +1003,6 @@ void horizontreadmill::update() {
             requestInclination = -100;
         }
         
-        if (requestSpeed != -1) {
-            bool minSpeed =
-                fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= (minStepSpeed() - 0.09);
-            bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
-            qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
-                     << float_one_point_round(currentSpeed().value());
-            if (float_one_point_round(requestSpeed) != float_one_point_round(currentSpeed().value()) && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
-                forceSpeedNeed) {
-                emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                forceSpeed(float_one_point_round(requestSpeed));
-            }
-            requestSpeed = -1;
-        }
-        if (requestInclination != -100) {
-            requestInclination = treadmillInclinationOverrideReverse(requestInclination);
-
-            // this treadmill doesn't send the incline, so i'm forcing it manually
-            if(schwinn_810_treadmill || yesoul_treadmill || FIT_TM) {
-                Inclination = requestInclination;
-            }
-
-            qDebug() << "requestInclination=" << requestInclination;
-            if (requestInclination < minInclination)
-                requestInclination = minInclination;
-            else {
-                // the treadmill accepts only .5 steps
-                requestInclination = std::llround(requestInclination * 2) / 2.0;
-                qDebug() << "requestInclination after rounding=" << requestInclination;
-            }
-
-            // this treadmill doesn't handle the 0.5%
-            if(sole_f85_treadmill && requestInclination == 0.5)
-                requestInclination = 1.0;
-
-            if (requestInclination != currentInclination().value() && requestInclination >= minInclination &&
-                requestInclination <= 15) {
-               
-                emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                forceIncline(requestInclination);
-
-                // this treadmill doesn't send the incline, so i'm forcing it manually
-                if(SW_TREADMILL || mobvoi_treadmill) {
-                    Inclination = requestInclination;
-                }
-            }
-            requestInclination = -100;
-        }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
             if (lastSpeed == 0.0) {
@@ -1127,6 +1080,53 @@ void horizontreadmill::update() {
             }
             horizonPaused = false;
             lastStart = QDateTime::currentMSecsSinceEpoch();
+        }
+        if (requestSpeed != -1) {
+            bool minSpeed =
+                fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= (minStepSpeed() - 0.09);
+            bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
+            qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
+                     << float_one_point_round(currentSpeed().value());
+            if (float_one_point_round(requestSpeed) != float_one_point_round(currentSpeed().value()) && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
+                forceSpeedNeed) {
+                emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                forceSpeed(float_one_point_round(requestSpeed));
+            }
+            requestSpeed = -1;
+        }
+        if (requestInclination != -100) {
+            requestInclination = treadmillInclinationOverrideReverse(requestInclination);
+
+            // this treadmill doesn't send the incline, so i'm forcing it manually
+            if(schwinn_810_treadmill || yesoul_treadmill || FIT_TM) {
+                Inclination = requestInclination;
+            }
+
+            qDebug() << "requestInclination=" << requestInclination;
+            if (requestInclination < minInclination)
+                requestInclination = minInclination;
+            else {
+                // the treadmill accepts only .5 steps
+                requestInclination = std::llround(requestInclination * 2) / 2.0;
+                qDebug() << "requestInclination after rounding=" << requestInclination;
+            }
+
+            // this treadmill doesn't handle the 0.5%
+            if(sole_f85_treadmill && requestInclination == 0.5)
+                requestInclination = 1.0;
+
+            if (requestInclination != currentInclination().value() && requestInclination >= minInclination &&
+                requestInclination <= 15) {
+               
+                emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                forceIncline(requestInclination);
+
+                // this treadmill doesn't send the incline, so i'm forcing it manually
+                if(SW_TREADMILL || mobvoi_treadmill) {
+                    Inclination = requestInclination;
+                }
+            }
+            requestInclination = -100;
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
@@ -1259,7 +1259,11 @@ void horizontreadmill::sendMerachCommand(uint8_t command, const QByteArray &payl
 }
 
 void horizontreadmill::forceMerachSpeedIncline(double requestSpeed, double requestIncline) {
-    const double roundedSpeed = std::round(requestSpeed * 10.0) / 10.0;
+    QSettings settings;
+    const bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    const double miles_conversion = 0.621371;
+    const double commandSpeed = miles ? requestSpeed * miles_conversion : requestSpeed;
+    const double roundedSpeed = std::round(commandSpeed * 10.0) / 10.0;
     const double roundedIncline = std::round(requestIncline);
     const uint8_t speedByte = uint8_t(qBound(0, int(std::round(roundedSpeed * 10.0)), 220));
     const uint8_t inclineByte = uint8_t(qBound(0, int(std::round(roundedIncline)), 15));
@@ -1300,12 +1304,12 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
     if (MERACH_TREADMILL && gattCustomService) {
-        double requestIncline = lastRequestedInclination().value();
+        double requestIncline = currentInclination().value();
         if (requestIncline <= minInclination) {
-            requestIncline = lastRawInclinationRequested();
+            requestIncline = lastRequestedInclination().value();
         }
         if (requestIncline <= minInclination) {
-            requestIncline = currentInclination().value();
+            requestIncline = lastRawInclinationRequested();
         }
         forceMerachSpeedIncline(requestSpeed, qMax(requestIncline, minInclination));
         return;
@@ -1398,12 +1402,12 @@ void horizontreadmill::forceIncline(double requestIncline) {
         Inclination = treadmillInclinationOverride(requestIncline);
 
     if (MERACH_TREADMILL && gattCustomService) {
-        double requestSpeed = lastRequestedSpeed().value();
+        double requestSpeed = currentSpeed().value();
         if (requestSpeed <= 0) {
-            requestSpeed = lastRawSpeedRequested();
+            requestSpeed = lastRequestedSpeed().value();
         }
         if (requestSpeed <= 0) {
-            requestSpeed = currentSpeed().value();
+            requestSpeed = lastRawSpeedRequested();
         }
         forceMerachSpeedIncline(qMax(requestSpeed, 0.0), requestIncline);
         return;
