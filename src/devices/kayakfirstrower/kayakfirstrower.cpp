@@ -9,6 +9,7 @@
 #include "virtualdevices/virtualrower.h"
 
 #include <QBluetoothLocalDevice>
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QEventLoop>
 #include <QMetaEnum>
@@ -68,12 +69,39 @@ bool kayakfirstrower::writeCommand(const QString &command, const QString &info, 
     return true;
 }
 
+bool kayakfirstrower::waitForResponse(const QString &expectedResponse, int timeoutMs, bool checkExact) {
+    const QDateTime start = QDateTime::currentDateTime();
+
+    while (start.msecsTo(QDateTime::currentDateTime()) < timeoutMs) {
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+
+        if (lastControlResponseTime >= start && !lastControlResponse.isEmpty()) {
+            if ((checkExact && lastControlResponse == expectedResponse) ||
+                (!checkExact && lastControlResponse.startsWith(expectedResponse))) {
+                emit debug(QStringLiteral("response ok: ") + lastControlResponse);
+                return true;
+            }
+        }
+
+        QThread::msleep(50);
+    }
+
+    emit debug(QStringLiteral("response timeout for ") + expectedResponse + QStringLiteral(" last=") + lastControlResponse);
+    return false;
+}
+
 void kayakfirstrower::btinit() {
     // Sequence ported from TrackMyIndoorWorkout KayakFirst descriptor
-    writeCommand(QStringLiteral("1"), QStringLiteral("reset-1"), true);
+    if (!writeCommand(QStringLiteral("1"), QStringLiteral("reset-1"), false) ||
+        !waitForResponse(QStringLiteral("1"), 5000, true)) {
+        return;
+    }
     QThread::msleep(500);
 
-    writeCommand(QStringLiteral("1"), QStringLiteral("reset-2"), true);
+    if (!writeCommand(QStringLiteral("1"), QStringLiteral("reset-2"), false) ||
+        !waitForResponse(QStringLiteral("1"), 5000, true)) {
+        return;
+    }
     QThread::msleep(5000);
 
     QSettings settings;
@@ -88,11 +116,17 @@ void kayakfirstrower::btinit() {
     const int sportFlag = 1;
     const QString handshake =
         QStringLiteral("2;%1;%2;%3;%4").arg(unixEpoch).arg(tzOffsetMinutes).arg(athleteWeight).arg(sportFlag);
-    writeCommand(handshake, QStringLiteral("handshake"), true);
+    if (!writeCommand(handshake, QStringLiteral("handshake"), false) ||
+        !waitForResponse(QStringLiteral("2;"), 5000, false)) {
+        return;
+    }
     QThread::msleep(5000);
 
     // Basic display configuration (8 slots all to default value 1)
-    writeCommand(QStringLiteral("5;1;1;1;1;1;1;1;1"), QStringLiteral("display-config"), true);
+    if (!writeCommand(QStringLiteral("5;1;1;1;1;1;1;1;1"), QStringLiteral("display-config"), false) ||
+        !waitForResponse(QStringLiteral("5;"), 5000, false)) {
+        return;
+    }
     QThread::msleep(5000);
 
     initDone = true;
@@ -107,6 +141,8 @@ void kayakfirstrower::parseLine(const QByteArray &line) {
 
     if (!line.startsWith('6')) {
         emit debug(QStringLiteral(" << ctrl ") + line);
+        lastControlResponse = QString::fromUtf8(line).trimmed();
+        lastControlResponseTime = QDateTime::currentDateTime();
         return;
     }
 
@@ -191,18 +227,20 @@ void kayakfirstrower::update() {
     }
 
     if (requestStart != -1) {
-        writeCommand(QStringLiteral("9;1"), QStringLiteral("start"), true);
+        writeCommand(QStringLiteral("9;1"), QStringLiteral("start"), false);
+        waitForResponse(QStringLiteral("9;"), 5000, false);
         requestStart = -1;
         emit bikeStarted();
     }
 
     if (requestStop != -1) {
-        writeCommand(QStringLiteral("9;3"), QStringLiteral("stop"), true);
+        writeCommand(QStringLiteral("9;3"), QStringLiteral("stop"), false);
+        waitForResponse(QStringLiteral("9;"), 5000, false);
         requestStop = -1;
     }
 
     if (sec1Update++ % 2 == 0) {
-        writeCommand(QStringLiteral("6"), QStringLiteral("poll"), true);
+        writeCommand(QStringLiteral("6"), QStringLiteral("poll"), false);
     }
 
     update_metrics(false, m_watt.value());
