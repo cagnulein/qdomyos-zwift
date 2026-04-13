@@ -484,22 +484,10 @@ void wahookickrsnapbike::handleCharacteristicValueChanged(const QBluetoothUuid &
 
     qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << uuid;
 
-    const bool isCyclingPowerMeasurement = (uuid == QBluetoothUuid::CyclingPowerMeasurement);
-    const bool is2ADAFallbackCandidate = (uuid == QBluetoothUuid((quint16)0x2ADA));
-    const bool recentCyclingPowerMeasurement =
-        lastCyclingPowerMeasurement.isValid() && lastCyclingPowerMeasurement.msecsTo(QDateTime::currentDateTime()) < 2000;
-    const bool use2ADAFallback =
-        is2ADAFallbackCandidate && !recentCyclingPowerMeasurement && newValue.length() == 8;
-
-    if (isCyclingPowerMeasurement || use2ADAFallback) {
+    if (uuid == QBluetoothUuid::CyclingPowerMeasurement) {
         if (newValue.length() < 4) {
-            emit debug(QStringLiteral("Skipping metric packet with invalid length ") + QString::number(newValue.length()) +
-                       (use2ADAFallback ? QStringLiteral(" [0x2ADA fallback]") : QString()));
+            emit debug(QStringLiteral("Skipping metric packet with invalid length ") + QString::number(newValue.length()));
             return;
-        }
-
-        if (isCyclingPowerMeasurement) {
-            lastCyclingPowerMeasurement = QDateTime::currentDateTime();
         }
 
         lastPacket = newValue;
@@ -511,11 +499,6 @@ void wahookickrsnapbike::handleCharacteristicValueChanged(const QBluetoothUuid &
         uint16_t time_division = 1024;
         uint8_t index = 4;
 
-        // Some KICKR variants appear to deliver the useful runtime stream on 0x2ADA.
-        // That payload is not guaranteed to be standard Cycling Power Measurement, but
-        // parsing it with the same layout is a practical fallback when 0x2A63 is absent.
-        const bool parseAsCyclingPowerFallback = use2ADAFallback;
-
         if (newValue.length() > 3) {
             m_rawWatt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
@@ -525,8 +508,7 @@ void wahookickrsnapbike::handleCharacteristicValueChanged(const QBluetoothUuid &
         }
 
         emit powerChanged(m_watt.value());
-        emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()) +
-                   (parseAsCyclingPowerFallback ? QStringLiteral(" [from 0x2ADA fallback]") : QString()));
+        emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
 
         if ((flags & 0x1) == 0x01) // Pedal Power Balance Present
         {
@@ -723,6 +705,7 @@ void wahookickrsnapbike::handleCharacteristicValueChanged(const QBluetoothUuid &
 
 void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattWriteCharCustomService(QStringLiteral("A026E005-0A7D-4AB3-97FA-F1500F9FEB8B"));
+    const QBluetoothUuid cyclingPowerMeasurementUuid = QBluetoothUuid::CyclingPowerMeasurement;
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -767,6 +750,13 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
                     gattPowerChannelService = s;
                 }
 
+                const bool isCyclingPowerMeasurement = (c.uuid() == cyclingPowerMeasurementUuid);
+
+                if (!isCyclingPowerMeasurement) {
+                    qDebug() << QStringLiteral("skipping subscription for") << s->serviceUuid() << c.uuid();
+                    continue;
+                }
+
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
@@ -798,12 +788,18 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
                     }
 
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
-                } else if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read) {
-                    // s->readCharacteristic(c);
-                    // qDebug() << s->serviceUuid() << c.uuid() << "reading!";
+                } else {
+                    qDebug() << QStringLiteral("CyclingPowerMeasurement found without notify/indicate") << s->serviceUuid()
+                             << c.uuid();
                 }
             }
         }
+    }
+
+    if (!notificationSubscribed) {
+        qDebug() << QStringLiteral("No CyclingPowerMeasurement subscription established");
+        initRequest = true;
+        emit connectedAndDiscovered();
     }
 
     // ******************************************* virtual bike init *************************************

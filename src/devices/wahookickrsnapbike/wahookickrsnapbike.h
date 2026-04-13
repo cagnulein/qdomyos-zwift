@@ -116,7 +116,6 @@ class wahookickrsnapbike : public bike {
     double lastGrade = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
-    QDateTime lastCyclingPowerMeasurement = QDateTime();
     uint8_t firstStateChanged = 0;
 
     int8_t bikeResistanceOffset = 4;
