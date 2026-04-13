@@ -212,8 +212,9 @@ void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, uns
                                        bool useMiles, unsigned char heartRate, const char *compactLeadingMetric,
                                        int compactLeadingValue, const char *compactTrailingMetric,
                                        int compactTrailingValue) {
+    const double healthCadence = (deviceType == BIKE) ? cadence : cadence * 2.0;
     if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:watt cadence:cadence*2 speed:speed * 100 kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:totalKcal elevationGain:0];
+        [workoutTracking addMetricsWithPower:watt cadence:healthCadence speed:speed * 100 kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:totalKcal elevationGain:0];
 
     // Start Live Activity on first update, then keep updating
     if (!ios_liveactivity::isLiveActivityRunning()) {

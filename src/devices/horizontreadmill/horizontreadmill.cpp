@@ -976,7 +976,7 @@ void horizontreadmill::update() {
             requestInclination = treadmillInclinationOverrideReverse(requestInclination);
 
             // this treadmill doesn't send the incline, so i'm forcing it manually
-            if(schwinn_810_treadmill || yesoul_treadmill || FIT_TM) {
+            if(schwinn_810_treadmill || FIT_TM) {
                 Inclination = requestInclination;
             }
 
@@ -1000,7 +1000,7 @@ void horizontreadmill::update() {
                 forceIncline(requestInclination);
 
                 // this treadmill doesn't send the incline, so i'm forcing it manually
-                if(SW_TREADMILL || mobvoi_treadmill) {
+                if(SW_TREADMILL || mobvoi_treadmill || yesoul_treadmill) {
                     Inclination = requestInclination;
                 }
             }

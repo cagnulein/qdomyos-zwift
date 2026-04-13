@@ -858,6 +858,9 @@ class QZSettings {
     static const QString technogym_myrun_treadmill_experimental;
     static constexpr bool default_technogym_myrun_treadmill_experimental = false;
 
+    static const QString gym_mode;
+    static constexpr bool default_gym_mode = false;
+
     static const QString technogym_group_cycle;
     static constexpr bool default_technogym_group_cycle = false;
 
