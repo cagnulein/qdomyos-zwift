@@ -564,21 +564,6 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     }
                 }
 
-                let distanceDelta = max(0, distance - WorkoutTracking.previousDistance)
-                if distanceDelta > 0,
-                   let distanceType = HKQuantityType.quantityType(forIdentifier: .distanceCycling) {
-                    let distanceQuantity = HKQuantity(unit: HKUnit.meter(), doubleValue: distanceDelta)
-                    let distanceSample = HKQuantitySample(type: distanceType,
-                                                          quantity: distanceQuantity,
-                                                          start: WorkoutTracking.lastDateMetric,
-                                                          end: Date())
-                    WorkoutTracking.workoutBuilder.add([distanceSample]) { (success, error) in
-                        if let error = error {
-                            SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
-                        }
-                    }
-                }
-
             } else {
                 // Fallback on earlier versions
             }
