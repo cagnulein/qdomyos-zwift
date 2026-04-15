@@ -13,23 +13,36 @@ import android.content.Context;
 import android.os.Build;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
 
 public class WahooGattBridge {
     private static final String TAG = "WahooGattBridge";
 
-    private static final UUID WAHOO_SERVICE_UUID = UUID.fromString("a026ee01-0a7d-4ab3-97fa-f1500f9feb8b");
     private static final UUID WAHOO_WRITE_UUID = UUID.fromString("a026e005-0a7d-4ab3-97fa-f1500f9feb8b");
     private static final UUID CYCLING_POWER_MEASUREMENT_UUID =
             UUID.fromString("00002a63-0000-1000-8000-00805f9b34fb");
+    private static final UUID FITNESS_MACHINE_CONTROL_POINT_UUID =
+            UUID.fromString("00002ad9-0000-1000-8000-00805f9b34fb");
+    private static final UUID FITNESS_MACHINE_STATUS_UUID =
+            UUID.fromString("00002ada-0000-1000-8000-00805f9b34fb");
+    private static final UUID INDOOR_BIKE_DATA_UUID =
+            UUID.fromString("00002ad2-0000-1000-8000-00805f9b34fb");
+    private static final UUID WAHOO_EXTRA_NOTIFY_UUID =
+            UUID.fromString("a026e037-0a7d-4ab3-97fa-f1500f9feb8b");
     private static final UUID CCCD_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
     private static BluetoothGatt bluetoothGatt;
     private static BluetoothGattCharacteristic writeCharacteristic;
     private static BluetoothGattCharacteristic cyclingPowerMeasurementCharacteristic;
+    private static final List<SubscriptionTarget> subscriptionTargets = new ArrayList<>();
     private static final Queue<GattOperation> operationQueue = new ArrayDeque<>();
     private static boolean operationInFlight = false;
+    private static int pendingSubscriptionOperations = 0;
+    private static int successfulSubscriptionOperations = 0;
+    private static int firstSubscriptionFailureStatus = BluetoothGatt.GATT_SUCCESS;
 
     public static native void nativeOnConnectionStateChanged(boolean connected, int status);
     public static native void nativeOnServicesDiscovered(boolean hasWriteCharacteristic, boolean hasCyclingPowerMeasurement);
@@ -39,6 +52,16 @@ public class WahooGattBridge {
 
     private interface GattOperation {
         boolean start();
+    }
+
+    private static final class SubscriptionTarget {
+        final BluetoothGattCharacteristic characteristic;
+        final boolean useIndications;
+
+        SubscriptionTarget(BluetoothGattCharacteristic characteristic, boolean useIndications) {
+            this.characteristic = characteristic;
+            this.useIndications = useIndications;
+        }
     }
 
     public static synchronized boolean connect(Context context, String address) {
@@ -84,6 +107,10 @@ public class WahooGattBridge {
         operationInFlight = false;
         writeCharacteristic = null;
         cyclingPowerMeasurementCharacteristic = null;
+        subscriptionTargets.clear();
+        pendingSubscriptionOperations = 0;
+        successfulSubscriptionOperations = 0;
+        firstSubscriptionFailureStatus = BluetoothGatt.GATT_SUCCESS;
 
         if (bluetoothGatt != null) {
             try {
@@ -144,47 +171,104 @@ public class WahooGattBridge {
         processNextOperation();
     }
 
-    private static synchronized void enqueueCyclingPowerSubscription() {
-        if (bluetoothGatt == null || cyclingPowerMeasurementCharacteristic == null) {
-            nativeOnSubscriptionCompleted(false, -1);
+    private static synchronized void finishSubscriptionSequenceIfDone() {
+        if (pendingSubscriptionOperations != 0) {
             return;
         }
 
+        boolean success = successfulSubscriptionOperations > 0;
+        int status = success ? BluetoothGatt.GATT_SUCCESS : firstSubscriptionFailureStatus;
+        QLog.i(TAG, "finishSubscriptionSequenceIfDone: success=" + success
+                + " successful=" + successfulSubscriptionOperations
+                + " status=" + status);
+        nativeOnSubscriptionCompleted(success, status);
+    }
+
+    private static synchronized void recordSubscriptionStartFailure(String uuid, int status) {
+        pendingSubscriptionOperations--;
+        if (firstSubscriptionFailureStatus == BluetoothGatt.GATT_SUCCESS) {
+            firstSubscriptionFailureStatus = status;
+        }
+        QLog.w(TAG, "subscription start failed for " + uuid + " status=" + status);
+        finishSubscriptionSequenceIfDone();
+    }
+
+    private static synchronized void enqueueSubscription(final SubscriptionTarget target) {
         operationQueue.add(new GattOperation() {
             @Override
             public boolean start() {
-                BluetoothGattDescriptor cccd = cyclingPowerMeasurementCharacteristic.getDescriptor(CCCD_UUID);
+                BluetoothGattDescriptor cccd = target.characteristic.getDescriptor(CCCD_UUID);
                 if (cccd == null) {
-                    QLog.w(TAG, "enqueueCyclingPowerSubscription: missing CCCD");
-                    nativeOnSubscriptionCompleted(false, -2);
+                    recordSubscriptionStartFailure(target.characteristic.getUuid().toString(), -2);
                     return false;
                 }
 
                 boolean notificationSet =
-                        bluetoothGatt.setCharacteristicNotification(cyclingPowerMeasurementCharacteristic, true);
+                        bluetoothGatt.setCharacteristicNotification(target.characteristic, true);
                 if (!notificationSet) {
-                    QLog.w(TAG, "enqueueCyclingPowerSubscription: setCharacteristicNotification failed");
-                    nativeOnSubscriptionCompleted(false, -3);
+                    recordSubscriptionStartFailure(target.characteristic.getUuid().toString(), -3);
                     return false;
                 }
 
-                byte[] descriptorValue =
-                        (cyclingPowerMeasurementCharacteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0
-                                ? BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
-                                : BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE;
+                byte[] descriptorValue = target.useIndications
+                        ? BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
+                        : BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE;
                 cccd.setValue(descriptorValue);
                 boolean started = bluetoothGatt.writeDescriptor(cccd);
-                QLog.i(TAG, "enqueueCyclingPowerSubscription: started=" + started);
+                QLog.i(TAG, "enqueueSubscription: started=" + started
+                        + " uuid=" + target.characteristic.getUuid()
+                        + " mode=" + (target.useIndications ? "indicate" : "notify"));
+                if (!started) {
+                    recordSubscriptionStartFailure(target.characteristic.getUuid().toString(), -4);
+                }
                 return started;
             }
         });
+    }
+
+    private static synchronized void enqueueResolvedSubscriptions() {
+        if (bluetoothGatt == null || subscriptionTargets.isEmpty()) {
+            nativeOnSubscriptionCompleted(false, -1);
+            return;
+        }
+
+        pendingSubscriptionOperations = subscriptionTargets.size();
+        successfulSubscriptionOperations = 0;
+        firstSubscriptionFailureStatus = BluetoothGatt.GATT_SUCCESS;
+
+        for (SubscriptionTarget target : subscriptionTargets) {
+            enqueueSubscription(target);
+        }
 
         processNextOperation();
+    }
+
+    private static void maybeAddSubscriptionTarget(BluetoothGattCharacteristic characteristic,
+                                                   UUID uuid,
+                                                   boolean useIndications) {
+        if (characteristic == null) {
+            return;
+        }
+
+        for (SubscriptionTarget target : subscriptionTargets) {
+            if (target.characteristic.getUuid().equals(uuid)) {
+                return;
+            }
+        }
+
+        subscriptionTargets.add(new SubscriptionTarget(characteristic, useIndications));
+        QLog.i(TAG, "resolveServices: scheduling "
+                + (useIndications ? "indication" : "notification")
+                + " for " + uuid);
     }
 
     private static synchronized void resolveServices() {
         writeCharacteristic = null;
         cyclingPowerMeasurementCharacteristic = null;
+        subscriptionTargets.clear();
+        pendingSubscriptionOperations = 0;
+        successfulSubscriptionOperations = 0;
+        firstSubscriptionFailureStatus = BluetoothGatt.GATT_SUCCESS;
 
         if (bluetoothGatt == null) {
             nativeOnServicesDiscovered(false, false);
@@ -192,24 +276,54 @@ public class WahooGattBridge {
             return;
         }
 
+        BluetoothGattCharacteristic fitnessMachineControlPointCharacteristic = null;
+        BluetoothGattCharacteristic fitnessMachineStatusCharacteristic = null;
+        BluetoothGattCharacteristic indoorBikeDataCharacteristic = null;
+        BluetoothGattCharacteristic wahooExtraNotifyCharacteristic = null;
+
         for (BluetoothGattService service : bluetoothGatt.getServices()) {
-            if (WAHOO_SERVICE_UUID.equals(service.getUuid())) {
-                writeCharacteristic = service.getCharacteristic(WAHOO_WRITE_UUID);
+            if (writeCharacteristic == null) {
+                BluetoothGattCharacteristic candidateWrite = service.getCharacteristic(WAHOO_WRITE_UUID);
+                if (candidateWrite != null) {
+                    writeCharacteristic = candidateWrite;
+                }
             }
 
-            BluetoothGattCharacteristic cpm = service.getCharacteristic(CYCLING_POWER_MEASUREMENT_UUID);
-            if (cpm != null) {
-                cyclingPowerMeasurementCharacteristic = cpm;
+            if (cyclingPowerMeasurementCharacteristic == null) {
+                cyclingPowerMeasurementCharacteristic = service.getCharacteristic(CYCLING_POWER_MEASUREMENT_UUID);
+            }
+            if (fitnessMachineControlPointCharacteristic == null) {
+                fitnessMachineControlPointCharacteristic = service.getCharacteristic(FITNESS_MACHINE_CONTROL_POINT_UUID);
+            }
+            if (fitnessMachineStatusCharacteristic == null) {
+                fitnessMachineStatusCharacteristic = service.getCharacteristic(FITNESS_MACHINE_STATUS_UUID);
+            }
+            if (indoorBikeDataCharacteristic == null) {
+                indoorBikeDataCharacteristic = service.getCharacteristic(INDOOR_BIKE_DATA_UUID);
+            }
+            if (wahooExtraNotifyCharacteristic == null) {
+                wahooExtraNotifyCharacteristic = service.getCharacteristic(WAHOO_EXTRA_NOTIFY_UUID);
             }
         }
 
+        maybeAddSubscriptionTarget(cyclingPowerMeasurementCharacteristic, CYCLING_POWER_MEASUREMENT_UUID, false);
+        maybeAddSubscriptionTarget(writeCharacteristic, WAHOO_WRITE_UUID, true);
+        maybeAddSubscriptionTarget(fitnessMachineControlPointCharacteristic, FITNESS_MACHINE_CONTROL_POINT_UUID, true);
+        maybeAddSubscriptionTarget(fitnessMachineStatusCharacteristic, FITNESS_MACHINE_STATUS_UUID, false);
+        maybeAddSubscriptionTarget(indoorBikeDataCharacteristic, INDOOR_BIKE_DATA_UUID, false);
+        maybeAddSubscriptionTarget(wahooExtraNotifyCharacteristic, WAHOO_EXTRA_NOTIFY_UUID, false);
+
         boolean hasWriteCharacteristic = writeCharacteristic != null;
-        boolean hasCyclingPowerMeasurement = cyclingPowerMeasurementCharacteristic != null;
-        QLog.i(TAG, "resolveServices: write=" + hasWriteCharacteristic + " power=" + hasCyclingPowerMeasurement);
+        boolean hasCyclingPowerMeasurement = cyclingPowerMeasurementCharacteristic != null
+                || indoorBikeDataCharacteristic != null
+                || fitnessMachineStatusCharacteristic != null;
+        QLog.i(TAG, "resolveServices: write=" + hasWriteCharacteristic
+                + " power=" + hasCyclingPowerMeasurement
+                + " subscriptions=" + subscriptionTargets.size());
         nativeOnServicesDiscovered(hasWriteCharacteristic, hasCyclingPowerMeasurement);
 
-        if (hasCyclingPowerMeasurement) {
-            enqueueCyclingPowerSubscription();
+        if (!subscriptionTargets.isEmpty()) {
+            enqueueResolvedSubscriptions();
         } else {
             nativeOnSubscriptionCompleted(false, -5);
         }
@@ -230,6 +344,10 @@ public class WahooGattBridge {
                     operationInFlight = false;
                     writeCharacteristic = null;
                     cyclingPowerMeasurementCharacteristic = null;
+                    subscriptionTargets.clear();
+                    pendingSubscriptionOperations = 0;
+                    successfulSubscriptionOperations = 0;
+                    firstSubscriptionFailureStatus = BluetoothGatt.GATT_SUCCESS;
                 }
             }
         }
@@ -267,9 +385,23 @@ public class WahooGattBridge {
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             QLog.i(TAG, "onDescriptorWrite status=" + status + " descriptor=" + descriptor.getUuid());
-            if (CCCD_UUID.equals(descriptor.getUuid()) && cyclingPowerMeasurementCharacteristic != null &&
-                    descriptor.getCharacteristic().getUuid().equals(cyclingPowerMeasurementCharacteristic.getUuid())) {
-                nativeOnSubscriptionCompleted(status == BluetoothGatt.GATT_SUCCESS, status);
+            if (CCCD_UUID.equals(descriptor.getUuid())) {
+                BluetoothGattCharacteristic characteristic = descriptor.getCharacteristic();
+                synchronized (WahooGattBridge.class) {
+                    if (pendingSubscriptionOperations > 0) {
+                        pendingSubscriptionOperations--;
+                        if (status == BluetoothGatt.GATT_SUCCESS) {
+                            successfulSubscriptionOperations++;
+                        } else if (firstSubscriptionFailureStatus == BluetoothGatt.GATT_SUCCESS) {
+                            firstSubscriptionFailureStatus = status;
+                        }
+                        QLog.i(TAG, "subscription result uuid="
+                                + (characteristic != null ? characteristic.getUuid() : null)
+                                + " status=" + status
+                                + " remaining=" + pendingSubscriptionOperations);
+                        finishSubscriptionSequenceIfDone();
+                    }
+                }
             }
             completeCurrentOperation();
         }
