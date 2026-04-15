@@ -4,8 +4,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.MessageClient;
 import com.google.android.gms.wearable.DataClient;
 import com.google.android.gms.wearable.DataEvent;
@@ -17,8 +15,7 @@ import com.google.android.gms.wearable.DataItemBuffer;
 import com.google.android.gms.wearable.DataMap;
 import org.cagnulen.qdomyoszwift.QLog;
 import android.os.Bundle;
-import com.google.android.gms.common.api.Status;
-import java.io.InputStream;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 public class WearableMessageListenerService extends Service implements
         MessageClient.OnMessageReceivedListener, GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener,DataClient.OnDataChangedListener {
@@ -40,7 +37,12 @@ public class WearableMessageListenerService extends Service implements
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // Your service logic here
+        if (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
+                != ConnectionResult.SUCCESS) {
+            QLog.w(TAG, "Google Play Services unavailable, stopping wearable service");
+            stopSelf();
+            return START_NOT_STICKY;
+        }
 
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
@@ -57,8 +59,7 @@ public class WearableMessageListenerService extends Service implements
 
         QLog.v("WearableMessageListenerService","onStartCommand");
 
-        // Return START_STICKY to restart the service if it's killed by the system
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -127,5 +128,26 @@ public class WearableMessageListenerService extends Service implements
     public IBinder onBind(Intent intent) {
         // This service does not support binding
         return null;
+    }
+
+    @Override
+    public void onDestroy() {
+        if (mWearableClient != null) {
+            mWearableClient.removeListener(this);
+        }
+
+        if (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
+                == ConnectionResult.SUCCESS) {
+            Wearable.getDataClient(this).removeListener(this);
+        }
+
+        if (googleApiClient != null) {
+            if (googleApiClient.isConnected() || googleApiClient.isConnecting()) {
+                googleApiClient.disconnect();
+            }
+            googleApiClient = null;
+        }
+
+        super.onDestroy();
     }
 }
