@@ -9906,9 +9906,19 @@ void homeform::saveProfile(QString profilename) {
 }
 
 void homeform::restart() {
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject activity = QtAndroid::androidActivity();
+    if (activity.isValid()) {
+        activity.callMethod<void>("restartAppSafely", "()V");
+    } else {
+        qDebug() << "restartAppSafely unavailable, falling back to standard quit";
+    }
+#endif
     qApp->quit();
 #if !defined(Q_OS_DARWIN) && !defined(Q_OS_IOS) && !defined(Q_OS_WINRT)
+#ifndef Q_OS_ANDROID
     QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+#endif
 #endif
 }
 

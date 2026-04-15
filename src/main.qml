@@ -615,7 +615,10 @@ ApplicationWindow {
         text: "Settings changed"
         informativeText: "In order to apply the changes you need to restart the app.\nDo you want to do it now?"
         buttons: (MessageDialog.Yes | MessageDialog.No)
-        onYesClicked: Qt.callLater(Qt.quit)
+        onYesClicked: {
+            popupRestartApp.visible = false
+            rootItem.restart()
+        }
         onNoClicked: this.visible = false;
         visible: false
     }

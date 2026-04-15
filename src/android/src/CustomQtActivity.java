@@ -13,6 +13,7 @@ import org.qtproject.qt5.android.bindings.QtActivity;
 
 public class CustomQtActivity extends QtActivity {
     private static final String TAG = "CustomQtActivity";
+    private static boolean restartPendingClose = false;
 
     // Declare the native method that will be implemented in C++
     private static native void onInsetsChanged(int top, int bottom, int left, int right);
@@ -37,6 +38,12 @@ public class CustomQtActivity extends QtActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        if (consumePendingRestartClose()) {
+            Log.w(TAG, "onCreate: restart still pending in this process, closing app");
+            finishAffinity();
+            return;
+        }
+
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: CustomQtActivity initialized");
         dispatchOAuthCallback(getIntent());
@@ -110,6 +117,19 @@ public class CustomQtActivity extends QtActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         dispatchOAuthCallback(intent);
+    }
+
+    public void restartAppSafely() {
+        restartPendingClose = true;
+        Log.d(TAG, "restartAppSafely: process guard armed");
+    }
+
+    private static synchronized boolean consumePendingRestartClose() {
+        if (restartPendingClose) {
+            restartPendingClose = false;
+            return true;
+        }
+        return false;
     }
 
     // This method is still needed for the QML check
