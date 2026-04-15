@@ -1157,6 +1157,7 @@ public:
     void videoRateChanged(double value);
     void chartIconVisibleChanged(bool value);
     void chartFooterVisibleChanged(bool value);
+    void manualCscBikeResistanceAdjusted(resistance_t resistance);
     void currentSpeedChanged(double value);
     void mapsVisibleChanged(bool value);
     void autoResistanceChanged(bool value);
@@ -1191,3 +1192,5 @@ public:
 };
 
 #endif // HOMEFORM_H
+
+
