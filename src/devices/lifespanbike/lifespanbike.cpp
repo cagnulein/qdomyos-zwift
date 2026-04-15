@@ -108,7 +108,7 @@ uint16_t lifespanbike::data16(const QByteArray &packet) const {
     return ((uint16_t)((uint8_t)packet.at(2)) << 8) | (uint16_t)((uint8_t)packet.at(3));
 }
 
-uint16_t lifespanbike::adjustedLifespanWatts() const {
+uint16_t lifespanbike::adjustedLifespanWatts() {
     QSettings settings;
     const uint16_t rawWatts = m_rawWatt.value();
 

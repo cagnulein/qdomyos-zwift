@@ -39,7 +39,7 @@ class lifespanbike : public bike {
     };
 
     uint16_t data16(const QByteArray &packet) const;
-    uint16_t adjustedLifespanWatts() const;
+    uint16_t adjustedLifespanWatts();
     double GetSpeedFromPacket(const QByteArray &packet) const;
     void btinit();
     void forceResistance(resistance_t requestResistance);
