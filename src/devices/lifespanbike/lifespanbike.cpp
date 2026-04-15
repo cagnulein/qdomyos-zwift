@@ -10,6 +10,7 @@ using namespace std::chrono_literals;
 lifespanbike::lifespanbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                            double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
+    m_rawWatt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
@@ -107,6 +108,23 @@ uint16_t lifespanbike::data16(const QByteArray &packet) const {
     return ((uint16_t)((uint8_t)packet.at(2)) << 8) | (uint16_t)((uint8_t)packet.at(3));
 }
 
+uint16_t lifespanbike::adjustedLifespanWatts() const {
+    QSettings settings;
+    const uint16_t rawWatts = m_rawWatt.value();
+
+    if (!settings.value(QZSettings::lifespan_bike, QZSettings::default_lifespan_bike).toBool() || rawWatts == 0) {
+        return rawWatts;
+    }
+
+    const double resistance = Resistance.value();
+    const double cadence = Cadence.value();
+    if (resistance <= 0.0 || cadence <= 0.0) {
+        return rawWatts;
+    }
+
+    return qRound(rawWatts * resistance * (cadence / 60.0));
+}
+
 double lifespanbike::GetSpeedFromPacket(const QByteArray &packet) const {
     if (packet.length() < 4) {
         return 0.0;
@@ -192,7 +210,8 @@ void lifespanbike::characteristicChanged(const QLowEnergyCharacteristic &charact
         Speed = GetSpeedFromPacket(value);
         break;
     case CommandState::QueryPower:
-        m_watt = data16(value);
+        m_rawWatt = data16(value);
+        m_watt = adjustedLifespanWatts();
         break;
     default:
         break;
@@ -224,7 +243,7 @@ bool lifespanbike::connected() {
 }
 
 uint16_t lifespanbike::watts() {
-    return m_watt.value();
+    return adjustedLifespanWatts();
 }
 
 void lifespanbike::serviceDiscovered(const QBluetoothUuid &gatt) {
