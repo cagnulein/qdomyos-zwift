@@ -157,6 +157,7 @@
 
 #include "zwift_play/zwiftPlayDevice.h"
 #include "zwift_play/zwiftclickremote.h"
+#include "devices/cycplusbc2controller/cycplusbc2controller.h"
 #include "devices/thinkridercontroller/thinkridercontroller.h"
 
 #ifdef Q_OS_IOS
@@ -313,6 +314,7 @@ class bluetooth : public QObject, public SignalHandler {
     QList<eliteariafan *> eliteAriaFan;
     QList<zwiftclickremote* > zwiftPlayDevice;
     zwiftclickremote* zwiftClickRemote = nullptr;
+    cycplusbc2controller* cycplusBC2Controller = nullptr;
     thinkridercontroller* thinkriderController = nullptr;
     sramaxscontroller* sramAXSController = nullptr;
     elitesquarecontroller* eliteSquareController = nullptr;
@@ -352,6 +354,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool fitmetriaFanfitAvaiable();
     bool zwiftDeviceAvaiable();
     bool sramDeviceAvaiable();
+    bool cycplusBC2DeviceAvaiable();
     bool thinkriderDeviceAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
     bool gymModeEnabled() const;

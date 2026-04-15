@@ -2188,6 +2188,9 @@ class QZSettings {
     static const QString thinkrider_controller;
     static constexpr bool default_thinkrider_controller = false;
 
+    static const QString cycplus_bc2_controller;
+    static constexpr bool default_cycplus_bc2_controller = false;
+
     static const QString proform_treadmill_705_cst;
     static constexpr bool default_proform_treadmill_705_cst = false;
 
