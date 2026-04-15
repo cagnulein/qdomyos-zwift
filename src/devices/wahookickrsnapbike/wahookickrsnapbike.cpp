@@ -993,12 +993,20 @@ void wahookickrsnapbike::controllerStateChanged(QLowEnergyController::Controller
 void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     Q_UNUSED(percentage);
     QSettings settings;
-    
+
+    if (lastCommandErgMode) {
+        lastGrade = grade + 1; // force a refresh after simulation mode is restored
+        initRequest = true;
+        qDebug() << "avoid sending this command, since I have first to restore the setSimGrade";
+        return;
+    }
+
     if (settings.value(QZSettings::wahoo_without_wheel_diameter, QZSettings::default_wahoo_without_wheel_diameter).toBool()) {
         if (lastGrade == grade && lastGearValue == gears()) {
             return;
         }
         lastGrade = grade;
+        Inclination = grade;
         emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
         double g = grade;
         g += gears();
@@ -1006,13 +1014,8 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
         uint8_t b[20];
         memcpy(b, a.constData(), a.length());
         writeCharacteristic(b, a.length(), "setSimGrade", false, false);
+        lastCommandErgMode = false;
     } else {
-        if(lastCommandErgMode) {
-            lastGrade = grade + 1; // to force a refresh
-            initRequest = true;
-            qDebug() << "avoid sending this command, since I have first to restore the setSimGrade";
-            return;
-        }
         if(lastGrade == grade) {
             qDebug() << "grade is already set to " << grade << "skipping";
             return;
