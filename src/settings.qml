@@ -1307,8 +1307,9 @@ import Qt.labs.platform 1.1
             property bool gym_mode: false            
             property bool tile_grade_adjusted_pace_enabled: false
             property int tile_grade_adjusted_pace_order: 79
-            property bool lifespan_bike: false
+   
             property bool cycplus_bc2_controller: false
+						property bool lifespan_bike: false
         }
 
 
