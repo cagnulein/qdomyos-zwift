@@ -775,6 +775,7 @@ public:
     DataObject *odometer;
     DataObject *pace;
     DataObject *avg_pace;
+    DataObject *grade_adjusted_pace;
     DataObject *datetime;
     DataObject *resistance;
     DataObject *watt;
