@@ -1058,7 +1058,7 @@ class QZSettings {
      *@brief Specifies if the debug log file will be written.
      */
     static const QString log_debug;
-    static constexpr bool default_log_debug = false;
+    static constexpr bool default_log_debug = true;
     /**
      *@brief Force QZ to communicate ONLY the Heart Rate metric to third-party apps.
      */

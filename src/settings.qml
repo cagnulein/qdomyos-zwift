@@ -306,7 +306,7 @@ import Qt.labs.platform 1.1
             property bool virtual_device_bluetooth: true
             property bool ios_peloton_workaround: true
             property bool android_wakelock: true
-            property bool log_debug: false
+            property bool log_debug: true
             property bool virtual_device_onlyheart: false
             property bool virtual_device_echelon: false
             property bool virtual_device_ifit: false
