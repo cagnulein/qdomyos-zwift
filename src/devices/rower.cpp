@@ -57,7 +57,17 @@ void rower::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 void rower::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 double rower::requestedSpeed() { return requestSpeed; }
 
-bluetoothdevice::BLUETOOTH_TYPE rower::deviceType() { return bluetoothdevice::ROWING; }
+double rower::calculateWattsFromPace(double paceSeconds) {
+    // Concept2 Rowing Power Formula: Watts = 2.8 / (pace_in_seconds / 500)^3
+    // Which simplifies to: Watts = 2.8 * (500 / pace_in_seconds)^3
+    if (paceSeconds <= 0)
+        return 0;
+
+    double velocity = 500.0 / paceSeconds;  // meters per second for 500m split
+    return 2.8 * velocity * velocity * velocity;
+}
+
+BLUETOOTH_TYPE rower::deviceType() { return ROWING; }
 
 void rower::clearStats() {
 

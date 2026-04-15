@@ -13,8 +13,8 @@ CharacteristicWriteProcessorE005::CharacteristicWriteProcessorE005(double bikeRe
 
 int CharacteristicWriteProcessorE005::writeProcess(quint16 uuid, const QByteArray &data, QByteArray &reply) {
     if (data.size()) {
-        bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
-        if (dt == bluetoothdevice::BIKE) {
+        BLUETOOTH_TYPE dt = Bike->deviceType();
+        if (dt == BIKE) {
             char cmd = data.at(0);
             emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(), data);
             if (cmd == wahookickrsnapbike::_setSimMode && data.count() >= 7) {
@@ -35,7 +35,7 @@ int CharacteristicWriteProcessorE005::writeProcess(quint16 uuid, const QByteArra
                 qDebug() << "erg mode" << watts;
                 changePower(watts);
             }
-        } else if (dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL) {
+        } else if (dt == TREADMILL || dt == ELLIPTICAL) {
         }
         reply.append((quint8)FTMS_RESPONSE_CODE);
         reply.append((quint8)data.at(0));

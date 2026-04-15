@@ -56,6 +56,11 @@ class strydrunpowersensor : public treadmill {
     QDateTime lastRefreshPowerChanged = QDateTime::currentDateTime();
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
+    bool charNotified = false;
+    bool readMethod = false;
+    uint8_t battery_level = 0;
+    QLowEnergyService *cadenceService = nullptr;
+    QLowEnergyCharacteristic cadenceChar;
 
     bool initDone = false;
     bool initRequest = false;
@@ -70,6 +75,8 @@ class strydrunpowersensor : public treadmill {
     double CrankRevs = 0;
 
     bool powerReceived = false;
+
+    bool FORERUNNER = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

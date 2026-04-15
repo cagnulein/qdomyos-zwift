@@ -1,14 +1,9 @@
-///////////////////////////////////////////////////////////////////////////////////
-// The following FIT Protocol software provided may be used with FIT protocol
-// devices only and remains the copyrighted property of Garmin International, Inc.
-// The software is being provided on an "as-is" basis and as an accommodation,
-// and therefore all warranties, representations, or guarantees of any kind
-// (whether express, implied or statutory) including, without limitation,
-// warranties of merchantability, non-infringement, or fitness for a particular
-// purpose, are specifically disclaimed.
-//
-// Copyright 2022 Garmin International, Inc.
-///////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright 2025 Garmin International, Inc.
+// Licensed under the Flexible and Interoperable Data Transfer (FIT) Protocol License; you
+// may not use this file except in compliance with the Flexible and Interoperable Data
+// Transfer (FIT) Protocol License.
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 
 #if !defined(FIT_CONFIG_HPP)

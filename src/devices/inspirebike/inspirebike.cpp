@@ -17,7 +17,7 @@ using namespace std::chrono_literals;
 //#include <QtBluetooth/private/qlowenergyserviceprivate_p.h>
 
 inspirebike::inspirebike(bool noWriteResistance, bool noHeartService) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     t_timeout = new QTimer(this);

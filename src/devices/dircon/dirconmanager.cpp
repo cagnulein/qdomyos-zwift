@@ -1,4 +1,5 @@
 #include "devices/dircon/dirconmanager.h"
+#include "devices/bike.h"
 #include <QNetworkInterface>
 #include <QSettings>
 #include <chrono>
@@ -8,13 +9,17 @@ using namespace std::chrono_literals;
 #define DM_MACHINE_TYPE_BIKE 1
 #define DM_MACHINE_TYPE_TREADMILL 2
 
-#define DM_SERV_OP(OP, P1, P2, P3)                                                                                     \
+#define DM_SERV_OP(OP, P1, P2, P3, ZWIFT_ENABLED)                                                                     \
     OP(FITNESS_MACHINE_CYCLE, 0x1826, WAHOO_KICKR, P1, P2, P3)                                                         \
     OP(FITNESS_MACHINE_TREADMILL, 0x1826, WAHOO_TREADMILL, P1, P2, P3)                                                 \
     OP(CYCLING_POWER, 0x1818, WAHOO_KICKR, P1, P2, P3)                                                                 \
     OP(CYCLING_SPEED_AND_CADENCE, 0x1816, WAHOO_KICKR, P1, P2, P3)                                                     \
     OP(RUNNING_SPEED_AND_CADENCE, 0x1814, WAHOO_TREADMILL, P1, P2, P3)                                                 \
-    OP(HEART_RATE, 0x180D, WAHOO_BLUEHR, P1, P2, P3)
+    OP(HEART_RATE, 0x180D, WAHOO_BLUEHR, P1, P2, P3)                                                                   \
+    ZWIFT_ENABLED(OP, ZWIFT_PLAY_EMULATOR, ZWIFT_PLAY_ENUM_VALUE, WAHOO_KICKR, P1, P2, P3)
+
+#define ZWIFT_ENABLED_OP(OP, DESC, UUID, MACHINE, P1, P2, P3) OP(DESC, UUID, MACHINE, P1, P2, P3)
+#define ZWIFT_DISABLED_OP(OP, DESC, UUID, MACHINE, P1, P2, P3)
 
 #define DM_MACHINE_OP(OP, P1, P2, P3)                                                                                  \
     OP(WAHOO_KICKR, "Wahoo KICKR $uuid_hex$", DM_MACHINE_TYPE_TREADMILL | DM_MACHINE_TYPE_BIKE, P1, P2, P3)            \
@@ -22,6 +27,10 @@ using namespace std::chrono_literals;
     OP(WAHOO_RPM_SPEED, "Wahoo SPEED $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)                                    \
     OP(WAHOO_TREADMILL, "Wahoo TREAD $uuid_hex$", DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)
 
+#define DM_MACHINE_OP_ROUVY(OP, P1, P2, P3)                                                                            \
+    OP(WAHOO_KICKR, "ELITE AVANTI $uuid_hex$ W", DM_MACHINE_TYPE_TREADMILL | DM_MACHINE_TYPE_BIKE, P1, P2, P3)
+
+#define DP_PROCESS_WRITE_0003() (zwift_play_emulator ? writeP0003 : 0)
 #define DP_PROCESS_WRITE_2AD9() writeP2AD9
 #define DP_PROCESS_WRITE_2AD9T() writeP2AD9
 #define DP_PROCESS_WRITE_E005() writePE005
@@ -32,12 +41,12 @@ using namespace std::chrono_literals;
 
 #define DM_BT(A) QByteArrayLiteral(A)
 
-#define DM_CHAR_OP(OP, P1, P2, P3)                                                                                     \
+#define DM_CHAR_OP(OP, P1, P2, P3, ZWIFT_ENABLED)                                                                     \
     OP(FITNESS_MACHINE_CYCLE, 0x2ACC, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x83\x14\x00\x00\x0C\xE0\x00\x00"),             \
        DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                                              \
     OP(FITNESS_MACHINE_CYCLE, 0x2AD6, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x0A\x00\x96\x00\x0A\x00"),                     \
        DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                                              \
-    OP(FITNESS_MACHINE_CYCLE, 0x2AD9, DPKT_CHAR_PROP_FLAG_WRITE, DM_BT("\x00"), DP_PROCESS_WRITE_2AD9, P1, P2, P3)     \
+    OP(FITNESS_MACHINE_CYCLE, 0x2AD9, DPKT_CHAR_PROP_FLAG_WRITE | DPKT_CHAR_PROP_FLAG_INDICATE, DM_BT("\x00"), DP_PROCESS_WRITE_2AD9, P1, P2, P3)     \
     OP(FITNESS_MACHINE_CYCLE, 0xE005, DPKT_CHAR_PROP_FLAG_WRITE, DM_BT("\x00"), DP_PROCESS_WRITE_E005, P1, P2, P3)     \
     OP(FITNESS_MACHINE_CYCLE, 0x2AD2, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)    \
     OP(FITNESS_MACHINE_CYCLE, 0x2AD3, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x00\x01"), DP_PROCESS_WRITE_NULL, P1, P2, P3)  \
@@ -45,7 +54,7 @@ using namespace std::chrono_literals;
        DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                                              \
     OP(FITNESS_MACHINE_TREADMILL, 0x2AD6, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x0A\x00\x96\x00\x0A\x00"),                 \
        DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                                              \
-    OP(FITNESS_MACHINE_TREADMILL, 0x2AD9, DPKT_CHAR_PROP_FLAG_WRITE, DM_BT("\x00"), DP_PROCESS_WRITE_2AD9T, P1, P2,    \
+    OP(FITNESS_MACHINE_TREADMILL, 0x2AD9, DPKT_CHAR_PROP_FLAG_WRITE | DPKT_CHAR_PROP_FLAG_INDICATE, DM_BT("\x00"), DP_PROCESS_WRITE_2AD9T, P1, P2,    \
        P3)                                                                                                             \
     OP(FITNESS_MACHINE_TREADMILL, 0x2ACD, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2,    \
        P3)                                                                                                             \
@@ -71,7 +80,15 @@ using namespace std::chrono_literals;
        P3)                                                                                                             \
     OP(RUNNING_SPEED_AND_CADENCE, 0x2A53, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2,    \
        P3)                                                                                                             \
-    OP(HEART_RATE, 0x2A37, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)
+    OP(HEART_RATE, 0x2A37, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)               \
+    ZWIFT_ENABLED(OP, ZWIFT_PLAY_EMULATOR, 0x0003, DPKT_CHAR_PROP_FLAG_WRITE, DM_BT("\x00"), DP_PROCESS_WRITE_0003, P1, P2, P3) \
+    ZWIFT_ENABLED(OP, ZWIFT_PLAY_EMULATOR, 0x0002, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3) \
+    ZWIFT_ENABLED(OP, ZWIFT_PLAY_EMULATOR, 0x0004, DPKT_CHAR_PROP_FLAG_INDICATE, DM_BT("\x02\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)
+
+#define ZWIFT_CHAR_ENABLED_OP(OP, DESC, UUID, TYPE, READV, WRITEP, P1, P2, P3) \
+    OP(DESC, UUID, TYPE, READV, WRITEP, P1, P2, P3)
+
+#define ZWIFT_CHAR_DISABLED_OP(OP, DESC, UUID, TYPE, READV, WRITEP, P1, P2, P3)
 
 #define DM_MACHINE_ENUM_OP(DESC, NAME, TYPE, P1, P2, P3) DM_MACHINE_##DESC,
 
@@ -79,15 +96,22 @@ enum { DM_MACHINE_OP(DM_MACHINE_ENUM_OP, 0, 0, 0) };
 
 #define DM_SERV_ENUMU_OP(DESC, UUID, MACHINE, P1, P2, P3) DM_SERV_U_##DESC = UUID,
 
-enum { DM_SERV_OP(DM_SERV_ENUMU_OP, 0, 0, 0) };
+enum {
+    DM_SERV_OP(DM_SERV_ENUMU_OP, 0, 0, 0, ZWIFT_ENABLED_OP)
+};
 
 #define DM_SERV_ENUMM_OP(DESC, UUID, MACHINE, P1, P2, P3) DM_SERV_M_##DESC = DM_MACHINE_##MACHINE,
 
-enum { DM_SERV_OP(DM_SERV_ENUMM_OP, 0, 0, 0) };
+enum {
+    DM_SERV_OP(DM_SERV_ENUMM_OP, 0, 0, 0, ZWIFT_ENABLED_OP)
+};
 
 #define DM_SERV_ENUMI_OP(DESC, UUID, MACHINE, P1, P2, P3) DM_SERV_I_##DESC,
 
-enum { DM_SERV_OP(DM_SERV_ENUMI_OP, 0, 0, 0) DM_SERV_I_NUM };
+enum {
+    DM_SERV_OP(DM_SERV_ENUMI_OP, 0, 0, 0, ZWIFT_ENABLED_OP)
+    DM_SERV_I_NUM
+};
 
 #define DM_CHAR_INIT_OP(SDESC, UUID, TYPE, READV, WRITEP, P1, P2, P3)                                                  \
     if (P1.size() <= DM_SERV_I_##SDESC) {                                                                              \
@@ -106,13 +130,17 @@ enum { DM_SERV_OP(DM_SERV_ENUMI_OP, 0, 0, 0) DM_SERV_I_NUM };
             }                                                                                                          \
         }                                                                                                              \
         if (P2.size()) {                                                                                               \
-            QString dircon_id = QString("%1").arg(settings.value(QZSettings::dircon_id,                                \
-            QZSettings::default_dircon_id).toInt(), 4, 10, QChar('0'));                                                \
+            int dircon_id_int = settings.value(QZSettings::dircon_id,                                                  \
+            QZSettings::default_dircon_id).toInt();                                                                    \
+            if (rouvy_compatibility && dircon_id_int == 0) {                                                           \
+                dircon_id_int = 1234;                                                                                  \
+            }                                                                                                          \
+            QString dircon_id = QString("%1").arg(dircon_id_int, rouvy_compatibility ? 5 : 4, 10, QChar('0'));         \
             DirconProcessor *processor = new DirconProcessor(                                                          \
                 P2,                                                                                                    \
                 QString(QStringLiteral(NAME))                                                                          \
                     .replace(QStringLiteral("$uuid_hex$"), dircon_id),                                                 \
-                server_base_port + DM_MACHINE_##DESC, QString(QStringLiteral("%1")).arg(DM_MACHINE_##DESC), mac,       \
+                server_base_port + DM_MACHINE_##DESC, rouvy_compatibility ? dircon_id : QString(QStringLiteral("%1")).arg(DM_MACHINE_##DESC), mac,       \
                 this);                                                                                                 \
             QString servdesc;                                                                                          \
             foreach (DirconProcessorService *s, P2) { servdesc += *s + QStringLiteral(","); }                          \
@@ -125,6 +153,24 @@ enum { DM_SERV_OP(DM_SERV_ENUMI_OP, 0, 0, 0) DM_SERV_I_NUM };
     }
 
 QString DirconManager::getMacAddress() {
+    QSettings settings;
+    bool rouvy_compatibility = settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool();
+    int dircon_id = settings.value(QZSettings::dircon_id, QZSettings::default_dircon_id).toInt();
+
+    // When Rouvy compatibility is enabled and dircon_id is 0, use 1234 instead
+    if (rouvy_compatibility && dircon_id == 0) {
+        dircon_id = 1234;
+    }
+
+    // When Rouvy compatibility is enabled, use a specific MAC address with the last byte set to dircon_id
+    if (rouvy_compatibility) {
+        // Use base MAC address "24:DC:C3:E3:B5:XX" where XX is the dircon_id
+        // Ensure dircon_id is in the valid range 0-255
+        int last_byte = dircon_id & 0xFF;
+        return QString("24:DC:C3:E3:B5:%1").arg(last_byte, 2, 16, QChar('0')).toUpper();
+    }
+
+    // Default behavior: get MAC address from network interfaces
     QString addr;
     foreach (QNetworkInterface netInterface, QNetworkInterface::allInterfaces()) {
         // Return only the first non-loopback MAC Address
@@ -150,41 +196,87 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
     QSettings settings;
     DirconProcessorService *service;
     QList<DirconProcessorService *> services, proc_services;
-    bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();    
-    uint8_t type = dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL ? DM_MACHINE_TYPE_TREADMILL
+    BLUETOOTH_TYPE dt = Bike->deviceType();
+    bt = Bike;
+    uint8_t type = dt == TREADMILL || dt == ELLIPTICAL ? DM_MACHINE_TYPE_TREADMILL
                                                                                          : DM_MACHINE_TYPE_BIKE;
     qDebug() << "Building Dircom Manager";
     uint16_t server_base_port =
         settings.value(QZSettings::dircon_server_base_port, QZSettings::default_dircon_server_base_port).toUInt();
     bool bike_wheel_revs = settings.value(QZSettings::bike_wheel_revs, QZSettings::default_bike_wheel_revs).toBool();
+    bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
+    bool rouvy_compatibility = settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool();
+    
     DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_BUILD_OP, Bike, 0, 0)
+    
     writeP2AD9 = new CharacteristicWriteProcessor2AD9(bikeResistanceGain, bikeResistanceOffset, Bike, notif2AD9, this);
     writePE005 = new CharacteristicWriteProcessorE005(bikeResistanceGain, bikeResistanceOffset, Bike, this);
-    DM_CHAR_OP(DM_CHAR_INIT_OP, services, service, 0)
+    
+    writeP0003 = new CharacteristicWriteProcessor0003(bikeResistanceGain, bikeResistanceOffset, Bike, notif0002, notif0004, this);
+    
+    if (zwift_play_emulator) {
+        DM_CHAR_OP(DM_CHAR_INIT_OP, services, service, 0, ZWIFT_CHAR_ENABLED_OP);
+    } else {
+        DM_CHAR_OP(DM_CHAR_INIT_OP, services, service, 0, ZWIFT_CHAR_DISABLED_OP);
+    }
+    
     connect(writeP2AD9, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));
     connect(writeP2AD9, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
             SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
     connect(writePE005, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));
     connect(writePE005, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
             SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
+    
+    if (zwift_play_emulator && writeP0003) {
+        connect(writeP0003, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));
+        connect(writeP0003, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
+                SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
+    }
+    
     QObject::connect(&bikeTimer, &QTimer::timeout, this, &DirconManager::bikeProvider);
     QString mac = getMacAddress();
-    DM_MACHINE_OP(DM_MACHINE_INIT_OP, services, proc_services, type)
-    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
-        bikeTimer.start(100ms);
+    if (rouvy_compatibility) {
+        DM_MACHINE_OP_ROUVY(DM_MACHINE_INIT_OP, services, proc_services, type)
+    } else {
+        DM_MACHINE_OP(DM_MACHINE_INIT_OP, services, proc_services, type)
+    }
+    
+    if (zwift_play_emulator || settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
+        bikeTimer.start(50ms);
     else
         bikeTimer.start(1s);
 }
 
 #define DM_CHAR_NOTIF_NOTIF1_OP(UUID, P1, P2, P3)                                                                      \
     QByteArray all##UUID;                                                                                              \
-    int rv##UUID = notif##UUID->notify(all##UUID);
+    int rv##UUID = notif##UUID ? notif##UUID->notify(all##UUID) : 0;
 
 #define DM_CHAR_NOTIF_NOTIF2_OP(UUID, P1, P2, P3)                                                                      \
     if (rv##UUID == CN_OK)                                                                                             \
         P1->sendCharacteristicNotification(0x##UUID, all##UUID);
 
 void DirconManager::bikeProvider() {
+    QSettings settings;
+    bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
+
+    // If no hub riding frame has been produced for >=1s, force one on the Zwift Play channel.
+    if (writeP0003 && notif0004 && writeP0003->hubRidingDataIdleMs() >= 100 && zwift_play_emulator) {
+        const QByteArray hubData = writeP0003->buildCurrentHubRidingData();
+        notif0004->addAnswer(hubData);
+        qDebug() << "Dircon 0003 forced push after idle (0004 notify):" << hubData.toHex(' ');
+    }
+
     DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_NOTIF1_OP, 0, 0, 0)
-    foreach (DirconProcessor *processor, processors) { DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_NOTIF2_OP, processor, 0, 0) }
+    foreach (DirconProcessor *processor, processors) {
+        DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_NOTIF2_OP, processor, 0, 0)
+    }
+}
+
+double DirconManager::currentGear() {
+    QSettings settings;
+    if(settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool() && writeP0003)
+        return writeP0003->currentGear();
+    else if(bt && bt->deviceType() == BIKE)
+        return ((bike*)bt)->gears();
+    return 0;
 }

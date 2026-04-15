@@ -17,7 +17,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.os.Looper;
 import android.os.Handler;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,7 +33,7 @@ public class WearableController {
                 _intent = new Intent(context, WearableMessageListenerService.class);
              // FloatingWindowGFG service is started
              context.startService(_intent);
-             Log.v("WearableController", "started");
+             QLog.v("WearableController", "started");
         }
 
         public static int getHeart() {

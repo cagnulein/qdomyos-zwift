@@ -14,7 +14,7 @@ class CharacteristicWriteProcessor : public QObject {
   public:
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
-    bluetoothdevice *Bike;
+    bluetoothdevice *Bike = nullptr;
 
     explicit CharacteristicWriteProcessor(double bikeResistanceGain, int8_t bikeResistanceOffset,
                                           bluetoothdevice *bike, QObject *parent = nullptr);

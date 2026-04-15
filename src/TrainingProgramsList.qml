@@ -11,22 +11,32 @@ ColumnLayout {
     signal trainprogram_open_clicked(url name)
     signal trainprogram_open_other_folder(url name)
     signal trainprogram_preview(url name)
-    FileDialog {
-        id: fileDialogTrainProgram
-        title: "Please choose a file"
-        folder: shortcuts.home
-        onAccepted: {
-            console.log("You chose: " + fileDialogTrainProgram.fileUrl)
-            if(OS_VERSION === "Android") {
-                trainprogram_open_other_folder(fileDialogTrainProgram.fileUrl)
-            } else {
-                trainprogram_open_clicked(fileDialogTrainProgram.fileUrl)
+    Loader {
+        id: fileDialogLoader
+        active: false
+        sourceComponent: Component {
+            FileDialog {
+                title: "Please choose a file"
+                folder: shortcuts.home
+                visible: true
+                onAccepted: {
+                    console.log("You chose: " + fileUrl)
+                    if(OS_VERSION === "Android") {
+                        trainprogram_open_other_folder(fileUrl)
+                    } else {
+                        trainprogram_open_clicked(fileUrl)
+                    }
+                    close()
+                    // Destroy and recreate the dialog for next use
+                    fileDialogLoader.active = false
+                }
+                onRejected: {
+                    console.log("Canceled")
+                    close()
+                    // Destroy the dialog
+                    fileDialogLoader.active = false
+                }
             }
-            fileDialogTrainProgram.close()
-        }
-        onRejected: {
-            console.log("Canceled")
-            fileDialogTrainProgram.close()
         }
     }
 
@@ -64,12 +74,12 @@ ColumnLayout {
                     id: filterField
                     onTextChanged: updateFilter()
                 }
-					 Button {
-					     anchors.left: mainRect.right
-						  anchors.leftMargin: 5
-						  text: "←"
-						  onClicked: folderModel.folder = folderModel.parentFolder
-						}
+                     Button {
+                         anchors.left: mainRect.right
+                          anchors.leftMargin: 5
+                          text: "←"
+                          onClicked: folderModel.folder = folderModel.parentFolder
+                        }
             }
 
             ListView {
@@ -85,10 +95,10 @@ ColumnLayout {
                     id: folderModel
                     nameFilters: ["*.xml", "*.zwo"]
                     folder: "file://" + rootItem.getWritableAppDir() + 'training'
-						  showDotAndDotDot: false
+                          showDotAndDotDot: false
                     showDirs: true
-						  sortField: "Name"
-						  showDirsFirst: true
+                          sortField: "Name"
+                          showDirsFirst: true
                 }
                 model: folderModel
                 delegate: Component {
@@ -96,7 +106,7 @@ ColumnLayout {
                         property alias textColor: fileTextBox.color
                         width: parent.width
                         height: 40
-								color: Material.backgroundColor
+                                color: Material.backgroundColor
                         z: 1
                         Item {
                             id: root
@@ -135,12 +145,12 @@ ColumnLayout {
                                 console.log('onclicked ' + index+ " count "+list.count);
                                 if (index == list.currentIndex) {
                                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
-												if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
+                                                if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
                                         trainprogram_open_clicked(fileUrl);
                                         popup.open()
-												} else {
-												    folderModel.folder = fileURL
-												}
+                                                } else {
+                                                    folderModel.folder = fileURL
+                                                }
                                 }
                                 else {
                                     if (list.currentItem)
@@ -296,7 +306,8 @@ ColumnLayout {
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'training')
-            fileDialogTrainProgram.visible = true
+            // Create a fresh FileDialog instance
+            fileDialogLoader.active = true
         }
         anchors {
             bottom: parent.bottom

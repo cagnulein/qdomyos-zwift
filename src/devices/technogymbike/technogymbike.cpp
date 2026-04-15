@@ -26,7 +26,7 @@ using namespace std::chrono_literals;
 technogymbike::technogymbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain) {
     QSettings settings;
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -104,22 +104,7 @@ uint16_t technogymbike::wattsFromResistance(double resistance) {
 }
 
 resistance_t technogymbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-    if (Cadence.value() == 0)
-        return 1;
-
-    for (resistance_t i = 1; i < max_resistance; i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                     << wattsFromResistance(i + 1) << power;
-            return i;
-        }
-    }
-    if (power < wattsFromResistance(1))
-        return 1;
-    else
-        return max_resistance;
+    return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }
 
 void technogymbike::forceResistance(resistance_t requestResistance) {
@@ -424,7 +409,7 @@ void technogymbike::characteristicChanged(const QLowEnergyCharacteristic &charac
     bool ios_peloton_workaround =
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-        h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
     }
 #endif

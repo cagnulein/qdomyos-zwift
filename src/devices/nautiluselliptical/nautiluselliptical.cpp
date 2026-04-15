@@ -17,7 +17,7 @@ using namespace std::chrono_literals;
 
 nautiluselliptical::nautiluselliptical(bool noWriteResistance, bool noHeartService, bool testResistance,
                                        int8_t bikeResistanceOffset, double bikeResistanceGain) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
 
@@ -233,25 +233,83 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
     lastPacket = newValue;
 
     if (newValue.length() == 20) {
+        const bool isM7Device = bluetoothDevice.name().startsWith(QStringLiteral("Nautilus M7"), Qt::CaseInsensitive);
 
 #ifdef Q_OS_ANDROID
-        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
             Heart = (uint8_t)KeepAwakeHelper::heart();
-        else
+        } else
 #endif
         {
             uint8_t heart = ((uint8_t)newValue.at(16));
-            if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && heart != 0) {
+            if (!isM7Device && heartRateBeltName.startsWith(QStringLiteral("Disabled")) && heart != 0) {
                 Heart = heart;
             }
         }
 
-        Resistance = newValue.at(18);
+        if (bt_variant == 1 && isM7Device) {
+            const uint8_t packetType = (uint8_t)newValue.at(1);
+
+            // Nautilus M7 splits the live data between 2 packet types:
+            // 0x31 carries status/heart rate/resistance, 0x5e carries speed/cadence/watt.
+            if (packetType == 0x31) {
+                const uint8_t heart = (uint8_t)newValue.at(17);
+                if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && heart != 0) {
+                    Heart = heart;
+                }
+
+                Resistance = (uint8_t)newValue.at(19);
+                return;
+            }
+
+            if (packetType != 0x5e) {
+                return;
+            }
+
+            double speed =
+                GetSpeedFromM7Packet(newValue) *
+                settings.value(QZSettings::domyos_elliptical_speed_ratio,
+                               QZSettings::default_domyos_elliptical_speed_ratio)
+                    .toDouble();
+            m_watt = GetWattFromM7Packet(newValue);
+            if (watts()) {
+                KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
+                         (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                        QDateTime::currentDateTime()))));
+            }
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                Cadence = (uint8_t)newValue.at(5);
+            }
+
+            Speed = speed;
+            Distance += ((Speed.value() / 3600000.0) *
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+            lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+
+            emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+            emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
+            emit debug(QStringLiteral("Current inclination: ") + QString::number(Inclination.value()));
+            emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
+            emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+            emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+            emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
+            emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
+            emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+            return;
+        }
+
+        Resistance = (uint8_t)newValue.at(18);
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
         return;
     }
 
-    if ((newValue.length() != 14 && bt_variant == 0) || (newValue.length() != 12 && bt_variant == 1)) {
+    if ((newValue.length() != 14 && (bt_variant == 0 || bt_variant == 2)) || (newValue.length() != 12 && bt_variant == 1)) {
         return;
     }
 
@@ -273,7 +331,11 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
-        Cadence = ((uint8_t)newValue.at(5));
+                if(bt_variant == 2) {
+                    Cadence = ((uint8_t)newValue.at(1));
+                } else {
+                    Cadence = ((uint8_t)newValue.at(5));
+                }
     }
     // m_watt = watt;
     Speed = speed;
@@ -304,15 +366,28 @@ double nautiluselliptical::GetSpeedFromPacket(const QByteArray &packet) {
 
     uint16_t convertedData = 0;
     double data = 0;
-    if (bt_variant == 0) {
-        convertedData = (packet.at(4) << 8) | packet.at(3);
+    if (bt_variant == 0 || bt_variant == 2) {
+        convertedData = (packet.at(4) << 8) | ((uint8_t)packet.at(3));
         data = (double)convertedData / 100.0f;
-    } else {
-        convertedData = (packet.at(8) << 8) | packet.at(7);
+        if(bt_variant == 2) {
+            data = data * 1.60934f;
+        }
+    } else {        
+        convertedData = (packet.at(8) << 8) | ((uint8_t)packet.at(7));
         data = (double)convertedData / 10.0f;
     }
 
     return data;
+}
+
+double nautiluselliptical::GetSpeedFromM7Packet(const QByteArray &packet) {
+    uint16_t convertedData = ((uint8_t)packet.at(2)) | (((uint8_t)packet.at(3)) << 8);
+    return (double)convertedData / 100.0f;
+}
+
+double nautiluselliptical::GetWattFromM7Packet(const QByteArray &packet) {
+    uint16_t convertedData = ((uint8_t)packet.at(7)) | (((uint8_t)packet.at(8)) << 8);
+    return (double)convertedData / 100.0f;
 }
 
 double nautiluselliptical::GetKcalFromPacket(const QByteArray &packet) {
@@ -432,8 +507,17 @@ void nautiluselliptical::serviceScanDone(void) {
 
                 gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
                 if (gattCommunicationChannelService == nullptr) {
-                    qDebug() << QStringLiteral("neither the fallback worked, exiting...");
-                    return;
+                    if (gattCommunicationChannelService == nullptr) {
+                        qDebug() << QStringLiteral("backup UUID not found, trying the 4th fallback...");
+                        bt_variant = 2;
+                        QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("7DF7A3F7-F013-492F-A58E-68A8F078AB96"));
+
+                        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+                        if (gattCommunicationChannelService == nullptr) {
+                            qDebug() << QStringLiteral("neither the fallback worked, exiting...");
+                            return;
+                        }
+                    }
                 }
             }
         }
@@ -514,4 +598,13 @@ void nautiluselliptical::controllerStateChanged(QLowEnergyController::Controller
         initDone = false;
         m_control->connectToDevice();
     }
+}
+
+uint16_t nautiluselliptical::watts() {
+    if (bt_variant == 1 &&
+        bluetoothDevice.name().startsWith(QStringLiteral("Nautilus M7"), Qt::CaseInsensitive)) {
+        return m_watt.value();
+    }
+
+    return elliptical::watts();
 }

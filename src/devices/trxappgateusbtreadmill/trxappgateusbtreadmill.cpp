@@ -15,7 +15,7 @@
 using namespace std::chrono_literals;
 
 trxappgateusbtreadmill::trxappgateusbtreadmill() {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     initDone = false;
@@ -41,7 +41,7 @@ void trxappgateusbtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse && (treadmill_type != TYPE::ADIDAS)) {
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse && (treadmill_type != TYPE::ADIDAS && treadmill_type != TYPE::DKN && treadmill_type != TYPE::DKN_2  && treadmill_type != TYPE::DKN_3)) {
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
                                                              QLowEnergyService::WriteWithoutResponse);
     } else {
@@ -269,13 +269,15 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             update_hr_from_external();
+        } else if (heartRateBeltName == bluetoothDevice.name()) {
+            Heart = GetHeartFromPacket(lastPacket);
         }
     }
     FanSpeed = 0;
 
     QTime now = QTime::currentTime();
     if (!firstCharChanged) {
-        DistanceCalculated += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
+        Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
         if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             kcal =
                 KCal.value() + ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
@@ -298,7 +300,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
     emit debug(QStringLiteral("Current Elapsed from the treadmill (not used): ") +
                QString::number(GetElapsedFromPacket(lastPacket)));
-    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(DistanceCalculated));
+    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
@@ -307,7 +309,6 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     Speed = speed;
     Inclination = incline;
     KCal = kcal;
-    Distance = distance;
 
     firstCharChanged = false;
 
@@ -335,6 +336,10 @@ double trxappgateusbtreadmill::GetDistanceFromPacket(const QByteArray &packet) {
     uint16_t convertedData = ((packet.at(6) - 1) * 100) + (packet.at(7) - 1);
     double data = ((double)(convertedData)) / 100.0f;
     return data;
+}
+
+uint16_t trxappgateusbtreadmill::GetHeartFromPacket(const QByteArray &packet) {
+    return ((uint16_t)((uint8_t)packet.at(10) - 1) * 100) + ((uint16_t)((uint8_t)packet.at(11)) - 1);
 }
 
 double trxappgateusbtreadmill::GetInclinationFromPacket(const QByteArray &packet) {

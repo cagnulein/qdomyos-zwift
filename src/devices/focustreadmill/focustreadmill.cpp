@@ -21,10 +21,10 @@ focustreadmill::focustreadmill(uint32_t pollDeviceTime, bool noConsole, bool noH
                                  double forceInitInclination) {
 
 #ifdef Q_OS_IOS
-    QZ_EnableDiscoveryCharsAndDescripttors = true;
+    QZ_EnableDiscoveryCharsAndDescripttors = false;
 #endif
 
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
     this->noHeartService = noHeartService;

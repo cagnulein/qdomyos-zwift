@@ -30,14 +30,15 @@ class rower : public bluetoothdevice {
     virtual uint16_t watts();
     virtual resistance_t pelotonToBikeResistance(int pelotonResistance);
     virtual resistance_t resistanceFromPowerRequest(uint16_t power);
-    bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
+    BLUETOOTH_TYPE deviceType() override;
     metric pelotonResistance();
     void clearStats() override;
     void setLap() override;
     void setPaused(bool p) override;
     QTime speedToPace(double Speed);
     void setGears(double d);
-    double gears();    
+    double gears();
+    static double calculateWattsFromPace(double paceSeconds);
 
   public slots:
     void changeResistance(resistance_t res) override;

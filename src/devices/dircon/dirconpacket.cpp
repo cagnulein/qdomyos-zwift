@@ -96,11 +96,11 @@ int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
             } else
                 return DPKT_PARSE_ERROR - rembuf;
         } else if (this->Identifier == DPKT_MSGID_ENABLE_CHARACTERISTIC_NOTIFICATIONS) {
-            if (this->Length == 16 || this->Length == 17) {
+            if (this->Length >= 16) {
                 quint16 uuid = ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8;
                 uuid |= ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0)) & 0x00FF;
                 this->uuid = uuid;
-                if (this->Length == 17) {
+                if (this->Length >= 17) {
                     this->isRequest = true;
                     this->additional_data = buf.mid(DPKT_MESSAGE_HEADER_LENGTH + 16, 1);
                 }
@@ -115,6 +115,12 @@ int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
                 this->additional_data =
                     buf.mid(DPKT_MESSAGE_HEADER_LENGTH + 16, rembuf - (DPKT_MESSAGE_HEADER_LENGTH + 16));
                 return rembuf;
+            } else
+                return DPKT_PARSE_ERROR - rembuf;
+        } else if (this->Identifier == DPKT_MSGID_UNKNOWN_0x07) {
+            if (this->Length == 0) {
+                this->isRequest = this->checkIsRequest(last_seq_number);
+                return DPKT_MESSAGE_HEADER_LENGTH;
             } else
                 return DPKT_PARSE_ERROR - rembuf;
         } else
@@ -171,22 +177,44 @@ QByteArray DirconPacket::encode(int last_seq_number) {
             this->Length = this->uuids.size() * 16;
             byteout.append((char)(this->Length >> 8)).append((char)(this->Length));
             foreach (u, this->uuids) {
-                this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
-                this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
-                byteout.append((char *)this->uuid_bytes, 16);
+                if(u >= 1 && u <= 4) {
+                    this->uuid_bytes_zwift_play[DPKT_POS_SH8] = (quint8)(u >> 8);
+                    this->uuid_bytes_zwift_play[DPKT_POS_SH0] = (quint8)(u);
+                    byteout.append((char *)this->uuid_bytes_zwift_play, 16);
+                } else {
+                    this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
+                    this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
+                    byteout.append((char *)this->uuid_bytes, 16);
+                }
             }
         }
+    } else if (this->Identifier == DPKT_MSGID_UNKNOWN_0x07) {
+        // Unknown message 0x07 - always respond with empty payload
+        this->Length = 0;
+        byteout.append(2, 0);
     } else if (this->Identifier == DPKT_MSGID_DISCOVER_CHARACTERISTICS && !this->isRequest) {
         this->Length = 16 + this->uuids.size() * 17;
         byteout.append((char)(this->Length >> 8)).append((char)(this->Length));
         u = this->uuid;
-        this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
-        this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
-        byteout.append((char *)this->uuid_bytes, 16);
-        foreach (u, this->uuids) {
+        if(u >= 1 && u <= 4) {
+            this->uuid_bytes_zwift_play[DPKT_POS_SH8] = (quint8)(u >> 8);
+            this->uuid_bytes_zwift_play[DPKT_POS_SH0] = (quint8)(u);
+            byteout.append((char *)this->uuid_bytes_zwift_play, 16);
+        } else {
             this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
             this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
             byteout.append((char *)this->uuid_bytes, 16);
+        }
+        foreach (u, this->uuids) {
+            if(u >= 1 && u <= 4) {
+                this->uuid_bytes_zwift_play[DPKT_POS_SH8] = (quint8)(u >> 8);
+                this->uuid_bytes_zwift_play[DPKT_POS_SH0] = (quint8)(u);
+                byteout.append((char *)this->uuid_bytes_zwift_play, 16);
+            } else {
+                this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
+                this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
+                byteout.append((char *)this->uuid_bytes, 16);
+            }
             byteout.append(this->additional_data.at(i++));
         }
     } else if (((this->Identifier == DPKT_MSGID_READ_CHARACTERISTIC ||
@@ -196,9 +224,15 @@ QByteArray DirconPacket::encode(int last_seq_number) {
         this->Length = 16;
         byteout.append((char)(this->Length >> 8)).append((char)(this->Length));
         u = this->uuid;
-        this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
-        this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
-        byteout.append((char *)this->uuid_bytes, 16);
+        if(u >= 1 && u <= 4) {
+            this->uuid_bytes_zwift_play[DPKT_POS_SH8] = (quint8)(u >> 8);
+            this->uuid_bytes_zwift_play[DPKT_POS_SH0] = (quint8)(u);
+            byteout.append((char *)this->uuid_bytes_zwift_play, 16);
+        } else {
+            this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
+            this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
+            byteout.append((char *)this->uuid_bytes, 16);
+        }
     } else if (this->Identifier == DPKT_MSGID_WRITE_CHARACTERISTIC ||
                this->Identifier == DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION ||
                (this->Identifier == DPKT_MSGID_READ_CHARACTERISTIC && !this->isRequest) ||
@@ -206,9 +240,15 @@ QByteArray DirconPacket::encode(int last_seq_number) {
         this->Length = 16 + this->additional_data.size();
         byteout.append((char)(this->Length >> 8)).append((char)(this->Length));
         u = this->uuid;
-        this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
-        this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
-        byteout.append((char *)this->uuid_bytes, 16);
+        if(u >= 1 && u <= 4) {
+            this->uuid_bytes_zwift_play[DPKT_POS_SH8] = (quint8)(u >> 8);
+            this->uuid_bytes_zwift_play[DPKT_POS_SH0] = (quint8)(u);
+            byteout.append((char *)this->uuid_bytes_zwift_play, 16);
+        } else {
+            this->uuid_bytes[DPKT_POS_SH8] = (quint8)(u >> 8);
+            this->uuid_bytes[DPKT_POS_SH0] = (quint8)(u);
+            byteout.append((char *)this->uuid_bytes, 16);
+        }
         byteout.append(this->additional_data);
     }
     return byteout;

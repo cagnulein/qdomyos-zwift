@@ -92,7 +92,7 @@ class BluetoothHandler : public QObject
     void onKeyPressed(int keyCode)
     {
         qDebug() << "Key pressed:" << keyCode;
-        if (m_bluetooth && m_bluetooth->device() && m_bluetooth->device()->deviceType() == bluetoothdevice::BIKE) {
+        if (m_bluetooth && m_bluetooth->device() && m_bluetooth->device()->deviceType() == BIKE) {
             if (keyCode == 115) // up
                 ((bike*)m_bluetooth->device())->setGears(((bike*)m_bluetooth->device())->gears() + 1);
             else if (keyCode == 114) // down

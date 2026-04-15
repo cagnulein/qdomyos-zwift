@@ -20,7 +20,7 @@ using namespace std::chrono_literals;
 
 smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService, resistance_t max_resistance, bike *parentDevice) {
     QSettings settings;
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     this->max_resistance = max_resistance;
     this->parentDevice = parentDevice;

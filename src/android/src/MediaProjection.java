@@ -12,7 +12,7 @@ import android.util.DisplayMetrics;
 import android.os.Build;
 import android.provider.Settings;
 import android.app.AppOpsManager;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.annotation.TargetApi;
 
 import com.rvalerio.fgchecker.AppChecker;
@@ -83,11 +83,11 @@ public class MediaProjection  {
 					 @Override
 					 public void onForeground(String packageName) {
                                             _packageName = packageName;
-                                                  /*Log.e("MediaProjection", packageName);
+                                                  /*QLog.e("MediaProjection", packageName);
 						  if(isLandscape())
-						     Log.e("MediaProjection", "Landscape");
+						     QLog.e("MediaProjection", "Landscape");
 						  else
-                                                     Log.e("MediaProjection", "Portrait");*/
+                                                     QLog.e("MediaProjection", "Portrait");*/
 						}
 				})
 				.timeout(1000)

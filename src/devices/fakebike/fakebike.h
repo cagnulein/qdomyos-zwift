@@ -42,6 +42,8 @@ class fakebike : public bike {
     uint16_t watts() override;
     resistance_t maxResistance() override { return 100; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    double maxGears() override;
+    double minGears() override;
     
   private:
     QTimer *refresh;

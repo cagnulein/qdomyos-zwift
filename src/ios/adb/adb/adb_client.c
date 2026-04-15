@@ -12,6 +12,11 @@
 
 #define  TRACE_TAG  TRACE_ADB
 #include "adb_client.h"
+#include "../../swiftDebugBridge.h"
+
+// -- Add static function prototypes here --
+static void adb_log(const char *message);
+static void adb_log_format(const char *format, ...);
 
 static transport_type __adb_transport = kTransportAny;
 static const char* __adb_serial = NULL;
@@ -47,7 +52,7 @@ int  adb_get_emulator_console_port(void)
         char*  tmp = adb_query("host:devices");
         char*  p   = tmp;
         if(!tmp) {
-            printf("no emulator connected\n");
+            adb_log("no emulator connected");
             return -1;
         }
         while (*p) {
@@ -83,6 +88,50 @@ int  adb_get_emulator_console_port(void)
 }
 
 static char __adb_error[256] = { 0 };
+
+static void adb_log(const char *message)
+{
+    SwiftDebugLogCString(message);
+}
+
+static void adb_log_format(const char *format, ...)
+{
+    if (!format)
+    {
+        return;
+    }
+    va_list args;
+    va_start(args, format);
+    SwiftDebugLogFormatV(format, args);
+    va_end(args);
+}
+
+static void adb_set_error(const char *message)
+{
+    if (!message)
+    {
+        __adb_error[0] = '\0';
+        return;
+    }
+    strncpy(__adb_error, message, sizeof(__adb_error) - 1);
+    __adb_error[sizeof(__adb_error) - 1] = '\0';
+    adb_log_format("ADB error: %s", __adb_error);
+}
+
+static void adb_set_error_format(const char *format, ...)
+{
+    if (!format)
+    {
+        __adb_error[0] = '\0';
+        return;
+    }
+    va_list args;
+    va_start(args, format);
+    vsnprintf(__adb_error, sizeof(__adb_error), format, args);
+    va_end(args);
+    __adb_error[sizeof(__adb_error) - 1] = '\0';
+    adb_log_format("ADB error: %s", __adb_error);
+}
 
 const char *adb_error(void)
 {
@@ -122,7 +171,7 @@ static int switch_socket_transport(int fd)
     snprintf(tmp, sizeof tmp, "%04x", len);
 
     if(writex(fd, tmp, 4) || writex(fd, service, len)) {
-        strcpy(__adb_error, "write failure during connection");
+        adb_set_error("write failure during connection");
         adb_close(fd);
         return -1;
     }
@@ -143,7 +192,7 @@ int adb_status(int fd)
     unsigned len;
 
     if(readx(fd, buf, 4)) {
-        strcpy(__adb_error, "protocol fault (no status)");
+        adb_set_error("protocol fault (no status)");
         return -1;
     }
 
@@ -152,24 +201,25 @@ int adb_status(int fd)
     }
 
     if(memcmp(buf, "FAIL", 4)) {
-        sprintf(__adb_error,
+        adb_set_error_format(
                 "protocol fault (status %02x %02x %02x %02x?!)",
                 buf[0], buf[1], buf[2], buf[3]);
         return -1;
     }
 
     if(readx(fd, buf, 4)) {
-        strcpy(__adb_error, "protocol fault (status len)");
+        adb_set_error("protocol fault (status len)");
         return -1;
     }
     buf[4] = 0;
     len = strtoul((char*)buf, 0, 16);
     if(len > 255) len = 255;
     if(readx(fd, __adb_error, len)) {
-        strcpy(__adb_error, "protocol fault (status read)");
+        adb_set_error("protocol fault (status read)");
         return -1;
     }
     __adb_error[len] = 0;
+    adb_log_format("ADB error: %s", __adb_error);
     return -1;
 }
 
@@ -182,7 +232,7 @@ int _adb_connect(const char *service)
     D("_adb_connect: %s\n", service);
     len = strlen(service);
     if((len < 1) || (len > 1024)) {
-        strcpy(__adb_error, "service name too long");
+        adb_set_error("service name too long");
         return -1;
     }
     snprintf(tmp, sizeof tmp, "%04x", len);
@@ -193,7 +243,7 @@ int _adb_connect(const char *service)
     fd = socket_loopback_client(__adb_server_port, SOCK_STREAM);
 
     if(fd < 0) {
-        strcpy(__adb_error, "cannot connect to daemon");
+        adb_set_error("cannot connect to daemon");
         return -2;
     }
 
@@ -202,7 +252,7 @@ int _adb_connect(const char *service)
     }
 
     if(writex(fd, tmp, 4) || writex(fd, service, len)) {
-        strcpy(__adb_error, "write failure during connection");
+        adb_set_error("write failure during connection");
         adb_close(fd);
         return -1;
     }
@@ -223,17 +273,16 @@ int adb_connect(const char *service)
 
     D("adb_connect: service %s\n", service);
     if(fd == -2 && __adb_server_name) {
-        fprintf(stderr,"** Cannot start server on remote host\n");
+        adb_log("** Cannot start server on remote host");
         return fd;
     } else if(fd == -2) {
-        fprintf(stdout,"* daemon not running. starting it now on port %d *\n",
-                __adb_server_port);
+        adb_log_format("* daemon not running. starting it now on port %d *", __adb_server_port);
     start_server:
         if(launch_server(__adb_server_port)) {
-            fprintf(stderr,"* failed to start daemon *\n");
+            adb_log("* failed to start daemon *");
             return -1;
         } else {
-            fprintf(stdout,"* daemon started successfully *\n");
+            adb_log("* daemon started successfully *");
         }
         /* give the server some time to start properly and detect devices */
         adb_sleep_ms(3000);
@@ -263,7 +312,7 @@ int adb_connect(const char *service)
         }
 
         if(version != ADB_SERVER_VERSION) {
-            printf("adb server is out of date.  killing...\n");
+            adb_log("adb server is out of date.  killing...");
             fd = _adb_connect("host:kill");
             adb_close(fd);
 
@@ -281,7 +330,7 @@ int adb_connect(const char *service)
     if(fd == -1) {
         D("_adb_connect error: %s\n", __adb_error);
     } else if(fd == -2) {
-        fprintf(stderr,"** daemon still not running\n");
+        adb_log("** daemon still not running");
     }
     D("adb_connect: return fd %d\n", fd);
 
@@ -296,7 +345,7 @@ int adb_command(const char *service)
 {
     int fd = adb_connect(service);
     if(fd < 0) {
-        fprintf(stderr, "error: %s\n", adb_error());
+        adb_log_format("error: %s", adb_error());
         return -1;
     }
 
@@ -317,7 +366,7 @@ char *adb_query(const char *service)
     D("adb_query: %s\n", service);
     int fd = adb_connect(service);
     if(fd < 0) {
-        fprintf(stderr,"error: %s\n", __adb_error);
+        adb_log_format("error: %s", __adb_error);
         return 0;
     }
 
@@ -326,7 +375,7 @@ char *adb_query(const char *service)
     buf[4] = 0;
     n = strtoul(buf, 0, 16);
     if(n >= 0xffff) {
-        strcpy(__adb_error, "reply is too long (>= 64kB)");
+        adb_set_error("reply is too long (>= 64kB)");
         goto oops;
     }
 
@@ -344,3 +393,4 @@ oops:
     adb_close(fd);
     return 0;
 }
+

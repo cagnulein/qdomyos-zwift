@@ -5,9 +5,15 @@ import Qt.labs.settings 1.0
 
 Page {
     id: wizardPage
+    objectName: "wizardPage"
 
     property int currentStep: 0
     property var selectedOptions: ({})
+
+    // Strip the RSSI proximity suffix (e.g. " (75%)") before saving device names
+    function stripRssi(deviceName) {
+        return deviceName.replace(/ \(\d+%\)$/, "")
+    }
 
     Settings {
         id: settings
@@ -33,6 +39,7 @@ Page {
         property string heart_rate_belt_name: "Disabled"
         property bool garmin_companion: false
         property string filter_device: "Disabled"
+        property bool weight_kg_unit: false
     }
 
     background: Rectangle {
@@ -335,7 +342,7 @@ Page {
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Peloton Login")
+                        text: qsTr("Connect to Peloton")
                         font.pixelSize: 24
                         font.bold: true
                         color: "white"
@@ -343,54 +350,36 @@ Page {
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Username")
+                        text: qsTr("Click the button below to connect your Peloton account")
                         font.pixelSize: 20
-                        font.bold: true
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        width: stackViewLocal.width * 0.8
+                        horizontalAlignment: Text.AlignHCenter
                         color: "white"
                     }
 
-                    TextField {
-                        id: pelotonUsernameTextField
-                        text: settings.peloton_username
-                        horizontalAlignment: Text.AlignHCenter
+                    Image {
                         Layout.alignment: Qt.AlignHCenter
-                        Layout.fillHeight: false
-                        onAccepted: settings.peloton_username = text
-                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                    }
+                        source: "icons/icons/Button_Connect_Rect_DarkMode.png"
+                        fillMode: Image.PreserveAspectFit
+                        width: parent.width * 0.8
 
-                    Text {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Password")
-                        font.pixelSize: 20
-                        font.bold: true
-                        color: "white"
-                    }
-
-                    TextField {
-                        id: pelotonPasswordTextField
-                        text: settings.peloton_password
-                        horizontalAlignment: Text.AlignHCenter
-                        Layout.fillHeight: false
-                        Layout.alignment: Qt.AlignHCenter
-                        inputMethodHints: Qt.ImhHiddenText
-                        echoMode: TextInput.PasswordEchoOnEdit
-                        onAccepted: settings.peloton_password = text
-                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                stackViewLocal.push("WebPelotonAuth.qml")
+                                stackViewLocal.currentItem.goBack.connect(function() {
+                                            stackViewLocal.pop();
+                                            stackViewLocal.push(pelotonDifficultyComponent)
+                                        })
+                                peloton_connect_clicked()
+                            }
+                        }
                     }
 
                     Item {
                         Layout.preferredHeight: 50
-                    }
-
-                    WizardButton {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Next")
-                        onClicked: {
-                            settings.peloton_username = pelotonUsernameTextField.text;
-                            settings.peloton_password = pelotonPasswordTextField.text;
-                            stackViewLocal.push(pelotonDifficultyComponent)
-                        }
                     }
 
                     WizardButton {
@@ -862,7 +851,6 @@ Page {
                         text: qsTr("Finish")
                         onClicked: {
                             settings.tile_gears_enabled = true;
-                            settings.gears_gain = 0.5;
                             stackViewLocal.push(finalStepComponent);
                         }
                     }
@@ -921,7 +909,6 @@ Page {
                         text: qsTr("Finish")
                         onClicked: {
                             settings.tile_gears_enabled = true;
-                            settings.gears_gain = 1;
                             stackViewLocal.push(finalStepComponent);
                         }
                     }
@@ -1094,7 +1081,7 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
                         onClicked: {
-                            settings.filter_device = filterDeviceTextField.displayText;
+                            settings.filter_device = stripRssi(filterDeviceTextField.displayText);
                             stackViewLocal.push(unitSelectionComponent)
                         }
                     }
@@ -1200,7 +1187,7 @@ Page {
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Weight (" + (settings.miles_unit ? "lbs" : "kg") + ")")
+                        text: qsTr("Weight (" + ((settings.miles_unit && !settings.weight_kg_unit) ? "lbs" : "kg") + ")")
                         font.pixelSize: 20
                         color: "white"
                     }
@@ -1208,13 +1195,13 @@ Page {
                     SpinBox {
                         id: weightSpinBox
                         Layout.alignment: Qt.AlignHCenter
-                        from: settings.miles_unit ? 660 : 300  // 66.0 lbs or 30.0 kg
-                        to: settings.miles_unit ? 4400 : 2000  // 440.0 lbs or 200.0 kg
-                        value: settings.miles_unit ? (settings.weight * 2.20462 * 10).toFixed(0) : (settings.weight * 10)
+                        from: (settings.miles_unit && !settings.weight_kg_unit) ? 660 : 300  // 66.0 lbs or 30.0 kg
+                        to: (settings.miles_unit && !settings.weight_kg_unit) ? 4400 : 2000  // 440.0 lbs or 200.0 kg
+                        value: (settings.miles_unit && !settings.weight_kg_unit) ? (settings.weight * 2.20462 * 10).toFixed(0) : (settings.weight * 10)
                         stepSize: 1
                         editable: true
 
-                        property real realValue: settings.miles_unit ? value / 22.0462 : value / 10
+                        property real realValue: (settings.miles_unit && !settings.weight_kg_unit) ? value / 22.0462 : value / 10
 
                         textFromValue: function(value, locale) {
                             return Number(value / 10).toLocaleString(locale, 'f', 1)
@@ -1410,7 +1397,7 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
                         onClicked: {
-                            settings.heart_rate_belt_name = heartBeltNameTextField.displayText;
+                            settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.displayText);
                             settings.garmin_companion = false
                             stackViewLocal.push(step3Component)
                         }

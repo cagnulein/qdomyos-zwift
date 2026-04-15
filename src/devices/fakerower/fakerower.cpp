@@ -18,7 +18,7 @@
 using namespace std::chrono_literals;
 
 fakerower::fakerower(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
-    m_watt.setType(metric::METRIC_WATT);
+    m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -31,14 +31,36 @@ fakerower::fakerower(bool noWriteResistance, bool noHeartService, bool noVirtual
 
 void fakerower::update() {
     QSettings settings;
+    QDateTime now = QDateTime::currentDateTime();
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     update_metrics(false, watts());
 
+    if (RequestedPower.value() != -1) {
+        m_watt = (double)RequestedPower.value() * (1.0 + (((double)rand() / RAND_MAX) * 0.4 - 0.2));
+        if(RequestedPower.value())
+            Cadence = 50 + (static_cast<double>(rand()) / RAND_MAX) * 50;
+        else
+            Cadence = 0;
+        StrokesCount += (Cadence.value()) *
+                        ((double)lastRefreshCharacteristicChanged.msecsTo(now)) / 60000;
+
+        emit debug(QStringLiteral("writing power ") + QString::number(RequestedPower.value()));
+        //requestPower = -1;
+        // bepo70: Disregard the current inclination for calculating speed. When the video
+        //         has a high inclination you have to give many power to get the desired playback speed,
+        //         if inclination is very low little more power gives a quite high speed jump.
+        // Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value(),
+        // Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());
+        Speed = metric::calculateSpeedFromPower(
+            m_watt.value(), 0, Speed.value(), fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), 0);
+    }
+
+
     Distance += ((Speed.value() / (double)3600.0) /
                  ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice() && !noVirtualDevice

@@ -1,6 +1,7 @@
 #ifndef METRIC_H
 #define METRIC_H
 
+#include "bluetoothdevicetype.h"
 #include "qdebugfixup.h"
 #include "sessionline.h"
 #include <QDateTime>
@@ -18,7 +19,7 @@ class metric {
     } _metric_type;
 
     metric();
-    void setType(_metric_type t);
+    void setType(_metric_type t, BLUETOOTH_TYPE bt = UNKNOWN);
     void setValue(double value, bool applyGainAndOffset = true);
     double value();
     double valueRaw();
@@ -26,6 +27,8 @@ class metric {
     QDateTime valueChanged() { return m_valueChanged; }
     double average();
     double average5s();
+    double average5sHarmonic();
+    double average3sHarmonic();
     double average20s();
 
     // rate of the current metric in a second, useful to know how many Kcal i will burn in a
@@ -52,6 +55,8 @@ class metric {
     static double calculateWeightLoss(double kcal);
     static double calculateVO2Max(QList<SessionLine> *session);
     static double calculateKCalfromHR(double HR_AVG, double elapsed);
+    static double calculateBMR();
+    static double calculateActiveKCal(double totalKCal, double elapsed);
 
     static double powerPeak(QList<SessionLine> *session, int seconds);
     
@@ -62,6 +67,7 @@ class metric {
     double m_min = 999999999;
     double m_max = 0;
     double m_offset = 0;
+    QList<double> m_last3;
     QList<double> m_last5;
     QList<double> m_last20;
 
@@ -76,6 +82,7 @@ class metric {
     double m_rateAtSec = 0;
 
     _metric_type m_type = METRIC_OTHER;
+    BLUETOOTH_TYPE m_bluetooth_type = UNKNOWN;
 
     bool paused = false;
 };

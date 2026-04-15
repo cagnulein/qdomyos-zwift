@@ -10,7 +10,7 @@
 jumprope::jumprope() {}
 
 bool jumprope::connected() { return false; }
-bluetoothdevice::BLUETOOTH_TYPE jumprope::deviceType() { return bluetoothdevice::JUMPROPE; }
+BLUETOOTH_TYPE jumprope::deviceType() { return JUMPROPE; }
 
 
 uint16_t jumprope::watts(double weight) {
