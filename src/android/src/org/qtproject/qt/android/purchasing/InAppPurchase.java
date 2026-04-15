@@ -133,7 +133,7 @@ public class InAppPurchase implements PurchasesUpdatedListener
         billingClient.startConnection(new BillingClientStateListener() {
             @Override
             public void onBillingSetupFinished(BillingResult billingResult) {
-					Log.w(TAG, "onBillingSetupFinished");
+					QLog.w(TAG, "onBillingSetupFinished");
                                         return;
 /*                if (billingResult.getResponseCode() == RESULT_OK) {
                     purchasedProductsQueried(m_nativePointer);
