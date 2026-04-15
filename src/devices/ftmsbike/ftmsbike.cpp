@@ -262,9 +262,10 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
             requestResistance = 1;
         }
 
-        if(SL010 || SPORT01)
+        if(SL010 || SPORT01 || FS_YK)
             Resistance = requestResistance;
         
+        // Some devices expect FTMS resistance level as 2-byte value in 0.1 units (x10).
         if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
@@ -273,7 +274,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
                                 QStringLiteral("forceResistance ") + QString::number(requestResistance));
         } else {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
-            if(_3G_Cardio_RB || SL010)
+            if(_3G_Cardio_RB || SL010 || FS_YK)
                 requestResistance = requestResistance * 10;
             write[1] = ((uint8_t)(requestResistance));
             writeCharacteristic(write, sizeof(write),
@@ -1986,7 +1987,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("FS-YK-")) {
             qDebug() << QStringLiteral("FS-YK- found");
             FS_YK = true;
+            resistance_lvl_mode = true;
             ergModeSupported = false; // this bike doesn't have ERG mode natively
+            max_resistance = 21;
         } else if(device.name().toUpper().startsWith("S18")) {
             qDebug() << QStringLiteral("S18 found");
             S18 = true;
