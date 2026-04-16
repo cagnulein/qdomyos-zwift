@@ -577,6 +577,8 @@ class homeform : public QObject {
     Q_INVOKABLE void peloton_logout();
     Q_INVOKABLE void intervalsicu_logout();
     Q_INVOKABLE void handleOAuthCallbackFromQml(const QString &callbackUrl);
+    Q_INVOKABLE void selectGymModeDevice(const QString &deviceName);
+    Q_INVOKABLE bool hasConnectedDevice() const;
 
 private:
     void clearWebViewCache();
@@ -778,6 +780,7 @@ public:
     DataObject *odometer;
     DataObject *pace;
     DataObject *avg_pace;
+    DataObject *grade_adjusted_pace;
     DataObject *datetime;
     DataObject *resistance;
     DataObject *watt;
@@ -1161,6 +1164,7 @@ public:
     void videoRateChanged(double value);
     void chartIconVisibleChanged(bool value);
     void chartFooterVisibleChanged(bool value);
+    void manualCscBikeResistanceAdjusted(resistance_t resistance);
     void currentSpeedChanged(double value);
     void mapsVisibleChanged(bool value);
     void autoResistanceChanged(bool value);
@@ -1195,3 +1199,5 @@ public:
 };
 
 #endif // HOMEFORM_H
+
+

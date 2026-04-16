@@ -418,6 +418,12 @@ class QZSettings {
     static const QString tile_avg_pace_order;
     static constexpr int default_tile_avg_pace_order = 76;
 
+    static const QString tile_grade_adjusted_pace_enabled;
+    static constexpr bool default_tile_grade_adjusted_pace_enabled = false;
+
+    static const QString tile_grade_adjusted_pace_order;
+    static constexpr int default_tile_grade_adjusted_pace_order = 79;
+
     static const QString tile_resistance_enabled;
     static constexpr bool default_tile_resistance_enabled = true;
 
@@ -819,6 +825,9 @@ class QZSettings {
     static const QString fitplus_bike;
     static constexpr bool default_fitplus_bike = false;
 
+    static const QString lifespan_bike;
+    static constexpr bool default_lifespan_bike = false;
+
     static const QString virtufit_etappe;
     static constexpr bool default_virtufit_etappe = false;
 
@@ -857,6 +866,9 @@ class QZSettings {
 
     static const QString technogym_myrun_treadmill_experimental;
     static constexpr bool default_technogym_myrun_treadmill_experimental = false;
+
+    static const QString gym_mode;
+    static constexpr bool default_gym_mode = false;
 
     static const QString technogym_group_cycle;
     static constexpr bool default_technogym_group_cycle = false;
@@ -1974,6 +1986,9 @@ class QZSettings {
     static const QString zero_zt2500_treadmill;
     static constexpr bool default_zero_zt2500_treadmill = false;
 
+    static const QString umay_s100_treadmill;
+    static constexpr bool default_umay_s100_treadmill = false;
+
     static const QString kingsmith_encrypt_v5;
     static constexpr bool default_kingsmith_encrypt_v5 = false;
 
@@ -2172,6 +2187,9 @@ class QZSettings {
 
     static const QString thinkrider_controller;
     static constexpr bool default_thinkrider_controller = false;
+
+    static const QString cycplus_bc2_controller;
+    static constexpr bool default_cycplus_bc2_controller = false;
 
     static const QString proform_treadmill_705_cst;
     static constexpr bool default_proform_treadmill_705_cst = false;

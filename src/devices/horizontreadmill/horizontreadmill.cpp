@@ -979,7 +979,7 @@ void horizontreadmill::update() {
             requestInclination = treadmillInclinationOverrideReverse(requestInclination);
 
             // this treadmill doesn't send the incline, so i'm forcing it manually
-            if(schwinn_810_treadmill || yesoul_treadmill || FIT_TM) {
+            if(schwinn_810_treadmill || FIT_TM) {
                 Inclination = requestInclination;
             }
 
@@ -1003,7 +1003,7 @@ void horizontreadmill::update() {
                 forceIncline(requestInclination);
 
                 // this treadmill doesn't send the incline, so i'm forcing it manually
-                if(SW_TREADMILL || mobvoi_treadmill) {
+                if(SW_TREADMILL || mobvoi_treadmill || yesoul_treadmill) {
                     Inclination = requestInclination;
                 }
             }
@@ -2298,12 +2298,16 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
+    cadenceFromAppleWatch();
+
     // Calculate cadence from speed if not available from FTMS and no external power sensor
     if (!cadenceAvailable && Speed.value() > 0) {
+        bool garminCompanion =
+            settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool();
         bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                                   .toString()
                                   .startsWith(QStringLiteral("Disabled"));
-        if (!hasPowerSensor) {
+        if (!hasPowerSensor && !garminCompanion) {
             double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
             if (calculatedCadence > 0) {
                 evaluateStepCount();
@@ -2312,8 +2316,6 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             }
         }
     }
-
-    cadenceFromAppleWatch();
 
     if (Speed.value() > 0)
         lastStart = 0;

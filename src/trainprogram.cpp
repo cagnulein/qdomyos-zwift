@@ -884,6 +884,7 @@ void trainprogram::scheduler() {
         rows[currentStep].started = QDateTime::currentDateTime();
         currentStepDistance = 0;
         lastOdometer = odometerFromTheDevice;
+        emit intervalTransitionApplied();
         if (bluetoothManager->device()->deviceType() == TREADMILL) {
             if (rows.at(0).forcespeed && rows.at(0).speed) {
                 qDebug() << QStringLiteral("trainprogram change speed") + QString::number(rows.at(0).speed);
@@ -1086,6 +1087,8 @@ void trainprogram::scheduler() {
                 rows[currentStep].started = QDateTime::currentDateTime();
 
                 currentStepDistance = 0;
+                emit intervalTransitionApplied();
+
                 if (bluetoothManager->device()->deviceType() == TREADMILL) {
                     if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
                         qDebug() << QStringLiteral("trainprogram change speed ") +

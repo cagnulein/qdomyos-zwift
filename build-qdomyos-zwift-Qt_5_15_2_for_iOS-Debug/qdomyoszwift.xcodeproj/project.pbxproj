@@ -426,6 +426,8 @@
 		8798C8872733E103003148B3 /* strydrunpowersensor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8798C8862733E103003148B3 /* strydrunpowersensor.cpp */; };
 		8798C8892733E10E003148B3 /* moc_strydrunpowersensor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8798C8882733E10E003148B3 /* moc_strydrunpowersensor.cpp */; };
 		8798FDC52D66075B00CF8EE8 /* OSXBtManagerInternal.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8798FDC32D66075B00CF8EE8 /* OSXBtManagerInternal.mm */; };
+		8798FFA52F857787003E969D /* moc_lifespanbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8798FFA42F857787003E969D /* moc_lifespanbike.cpp */; };
+		8798FFA82F8577B3003E969D /* lifespanbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8798FFA72F8577B3003E969D /* lifespanbike.cpp */; };
 		879A38C8281BD83300F78B2A /* characteristicnotifier2ad9.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 879A38C7281BD83300F78B2A /* characteristicnotifier2ad9.cpp */; };
 		879E5AA8289C057E00FEA38A /* proformwifitreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 879E5AA6289C057E00FEA38A /* proformwifitreadmill.cpp */; };
 		879E5AAA289C05A500FEA38A /* moc_proformwifitreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 879E5AA9289C05A500FEA38A /* moc_proformwifitreadmill.cpp */; };
@@ -1476,6 +1478,9 @@
 		8798FDC22D66075B00CF8EE8 /* osxbtgcdtimer_p.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = osxbtgcdtimer_p.h; path = ../src/ios/BluetoothPatch/osxbtgcdtimer_p.h; sourceTree = SOURCE_ROOT; };
 		8798FDC32D66075B00CF8EE8 /* OSXBtManagerInternal.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = OSXBtManagerInternal.mm; path = ../src/ios/BluetoothPatch/OSXBtManagerInternal.mm; sourceTree = SOURCE_ROOT; };
 		8798FDC42D66075B00CF8EE8 /* osxbtutility_p.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = osxbtutility_p.h; path = ../src/ios/BluetoothPatch/osxbtutility_p.h; sourceTree = SOURCE_ROOT; };
+		8798FFA42F857787003E969D /* moc_lifespanbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_lifespanbike.cpp; sourceTree = "<group>"; };
+		8798FFA62F8577B3003E969D /* lifespanbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lifespanbike.h; path = ../src/devices/lifespanbike/lifespanbike.h; sourceTree = SOURCE_ROOT; };
+		8798FFA72F8577B3003E969D /* lifespanbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = lifespanbike.cpp; path = ../src/devices/lifespanbike/lifespanbike.cpp; sourceTree = SOURCE_ROOT; };
 		879A38C7281BD83300F78B2A /* characteristicnotifier2ad9.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicnotifier2ad9.cpp; path = ../src/characteristics/characteristicnotifier2ad9.cpp; sourceTree = "<group>"; };
 		879E5AA6289C057E00FEA38A /* proformwifitreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformwifitreadmill.cpp; path = ../src/devices/proformwifitreadmill/proformwifitreadmill.cpp; sourceTree = "<group>"; };
 		879E5AA7289C057E00FEA38A /* proformwifitreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformwifitreadmill.h; path = ../src/devices/proformwifitreadmill/proformwifitreadmill.h; sourceTree = "<group>"; };
@@ -2355,6 +2360,9 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				8798FFA62F8577B3003E969D /* lifespanbike.h */,
+				8798FFA72F8577B3003E969D /* lifespanbike.cpp */,
+				8798FFA42F857787003E969D /* moc_lifespanbike.cpp */,
 				87DBD7822F4060A200342F2B /* filesearcher.h */,
 				87DBD7832F4060A200342F2B /* filesearcher.cpp */,
 				87DBD7842F4060A200342F2B /* moc_filesearcher.cpp */,
@@ -3807,6 +3815,7 @@
 				8767CA602DA800590003001F /* ios_zwiftclickremote.mm in Compile Sources */,
 				87917A7328E768D200F8D9AC /* Browser.swift in Compile Sources */,
 				873CD20B27EF8D8A000131BC /* inapptransaction.cpp in Compile Sources */,
+				8798FFA82F8577B3003E969D /* lifespanbike.cpp in Compile Sources */,
 				8727C7D52B3BF1E4005429EB /* moc_proformtelnetbike.cpp in Compile Sources */,
 				8767CA552DA3C1FD0003001F /* elitesquarecontroller.cpp in Compile Sources */,
 				8767CA562DA3C1FD0003001F /* moc_elitesquarecontroller.cpp in Compile Sources */,
@@ -4231,6 +4240,7 @@
 				878531642711A3E1004B153D /* fakebike.cpp in Compile Sources */,
 				87A0C4C0262329B500121A76 /* moc_npecablebike.cpp in Compile Sources */,
 				87DAE16B26E9FF5000B0527E /* moc_solef80treadmill.cpp in Compile Sources */,
+				8798FFA52F857787003E969D /* moc_lifespanbike.cpp in Compile Sources */,
 				8762D50F2601F7EA00F6F049 /* M3iNS.mm in Compile Sources */,
 				87BAFE4B2B8CAA4200065FCD /* focustreadmill.cpp in Compile Sources */,
 				87E1CA802B8DF06100E3C414 /* trxappgateusbelliptical.cpp in Compile Sources */,

@@ -45,6 +45,7 @@ class activiotreadmill : public treadmill {
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);
+    uint8_t GetHeartRateFromPacket(const QByteArray &packet);
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     void btinit(bool startTape);

@@ -293,7 +293,9 @@ ScrollView {
         property int  tile_power_avg_order: 77
         property bool tile_heart_show_as_percent: false
         property bool tile_hrv_enabled: false
-        property int  tile_hrv_order: 78        
+        property int  tile_hrv_order: 78
+        property bool tile_grade_adjusted_pace_enabled: false
+        property int  tile_grade_adjusted_pace_order: 79
     }
 
 
@@ -682,8 +684,53 @@ ScrollView {
             }
         }
 
+        AccordionCheckElement {
+            id: gradeAdjustedPaceEnabledAccordion
+            title: qsTr("Grade Adjusted Pace")
+            linkedBoolSetting: "tile_grade_adjusted_pace_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelgradeAdjustedPaceOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: gradeAdjustedPaceOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_grade_adjusted_pace_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = gradeAdjustedPaceOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okgradeAdjustedPaceOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_grade_adjusted_pace_order = gradeAdjustedPaceOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
         Label {
             text: qsTr("Current pace per mile or kilometer (Treadmill, Elliptical and Rower)")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        Label {
+            text: qsTr("Flat-equivalent pace computed from treadmill incline using the Minetti cost model.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2
