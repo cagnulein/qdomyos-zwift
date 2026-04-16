@@ -70,15 +70,19 @@ bool kayakfirstrower::writeCommand(const QString &command, const QString &info, 
 }
 
 bool kayakfirstrower::waitForResponse(const QString &expectedResponse, int timeoutMs, bool checkExact) {
+    QString lastSeenResponse;
     const QDateTime start = QDateTime::currentDateTime();
 
     while (start.msecsTo(QDateTime::currentDateTime()) < timeoutMs) {
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 
-        if (lastControlResponseTime >= start && !lastControlResponse.isEmpty()) {
-            if ((checkExact && lastControlResponse == expectedResponse) ||
-                (!checkExact && lastControlResponse.startsWith(expectedResponse))) {
-                emit debug(QStringLiteral("response ok: ") + lastControlResponse);
+        while (!controlResponsesQueue.isEmpty()) {
+            const QString response = controlResponsesQueue.dequeue();
+            lastSeenResponse = response;
+
+            if ((checkExact && response == expectedResponse) ||
+                (!checkExact && response.startsWith(expectedResponse))) {
+                emit debug(QStringLiteral("response ok: ") + response);
                 return true;
             }
         }
@@ -86,16 +90,18 @@ bool kayakfirstrower::waitForResponse(const QString &expectedResponse, int timeo
         QThread::msleep(50);
     }
 
-    emit debug(QStringLiteral("response timeout for ") + expectedResponse + QStringLiteral(" last=") + lastControlResponse);
+    emit debug(QStringLiteral("response timeout for ") + expectedResponse + QStringLiteral(" last=") + lastSeenResponse);
     return false;
 }
 
 void kayakfirstrower::btinit() {
     // Sequence ported from TrackMyIndoorWorkout KayakFirst descriptor
+    controlResponsesQueue.clear();
     writeCommand(QStringLiteral("1"), QStringLiteral("reset-1"), false);
     waitForResponse(QStringLiteral("1"), 2000, false);
     QThread::msleep(500);
 
+    controlResponsesQueue.clear();
     writeCommand(QStringLiteral("1"), QStringLiteral("reset-2"), false);
     waitForResponse(QStringLiteral("1"), 2000, false);
     QThread::msleep(1000);
@@ -112,11 +118,13 @@ void kayakfirstrower::btinit() {
     const int sportFlag = 1;
     const QString handshake =
         QStringLiteral("2;%1;%2;%3;%4").arg(unixEpoch).arg(tzOffsetMinutes).arg(athleteWeight).arg(sportFlag);
+    controlResponsesQueue.clear();
     writeCommand(handshake, QStringLiteral("handshake"), false);
     waitForResponse(QStringLiteral("2;"), 3000, false);
     QThread::msleep(1000);
 
     // Basic display configuration (8 slots all to default value 1)
+    controlResponsesQueue.clear();
     writeCommand(QStringLiteral("5;1;1;1;1;1;1;1;1"), QStringLiteral("display-config"), false);
     waitForResponse(QStringLiteral("5;"), 3000, false);
     QThread::msleep(500);
@@ -132,9 +140,21 @@ void kayakfirstrower::parseLine(const QByteArray &line) {
     emit packetReceived();
 
     if (!line.startsWith('6')) {
-        emit debug(QStringLiteral(" << ctrl ") + line);
-        lastControlResponse = QString::fromUtf8(line).trimmed();
+        QString controlResponse = QString::fromUtf8(line).trimmed();
+        if (controlResponse.startsWith(';') && !pendingControlFragment.isEmpty()) {
+            controlResponse = pendingControlFragment + controlResponse;
+            pendingControlFragment.clear();
+        } else if (!controlResponse.startsWith(';')) {
+            pendingControlFragment = controlResponse;
+        }
+
+        emit debug(QStringLiteral(" << ctrl ") + controlResponse);
+        lastControlResponse = controlResponse;
         lastControlResponseTime = QDateTime::currentDateTime();
+        controlResponsesQueue.enqueue(controlResponse);
+        while (controlResponsesQueue.size() > 50) {
+            controlResponsesQueue.dequeue();
+        }
         return;
     }
 
@@ -219,6 +239,7 @@ void kayakfirstrower::update() {
     }
 
     if (requestStart != -1) {
+        controlResponsesQueue.clear();
         writeCommand(QStringLiteral("9;1"), QStringLiteral("start"), false);
         waitForResponse(QStringLiteral("9;"), 5000, false);
         requestStart = -1;
@@ -226,6 +247,7 @@ void kayakfirstrower::update() {
     }
 
     if (requestStop != -1) {
+        controlResponsesQueue.clear();
         writeCommand(QStringLiteral("9;3"), QStringLiteral("stop"), false);
         waitForResponse(QStringLiteral("9;"), 5000, false);
         requestStop = -1;

@@ -8,6 +8,7 @@
 #include <QtBluetooth/qlowenergydescriptor.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtCore/qbytearray.h>
+#include <QtCore/qqueue.h>
 #include <QtCore/qtimer.h>
 
 #include "devices/rower.h"
@@ -39,6 +40,8 @@ class kayakfirstrower : public rower {
     uint8_t sec1Update = 0;
 
     QByteArray streamBuffer;
+    QString pendingControlFragment;
+    QQueue<QString> controlResponsesQueue;
     QString lastControlResponse;
     QDateTime lastControlResponseTime;
     QDateTime lastDataUpdate = QDateTime::currentDateTime();
