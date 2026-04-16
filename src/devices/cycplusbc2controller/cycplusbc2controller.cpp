@@ -7,6 +7,7 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <QThread>
+#include <utility>
 
 using namespace std::chrono_literals;
 
@@ -65,37 +66,37 @@ void cycplusbc2controller::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
-    for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+    for (QLowEnergyService *s : std::as_const(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
-        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+        if (s->state() != QLowEnergyService::RemoteServiceDiscovered &&
+            s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
             return;
         }
     }
 
-    if (state != QLowEnergyService::ServiceState::ServiceDiscovered) {
+    if (state != QLowEnergyService::ServiceState::RemoteServiceDiscovered) {
         qDebug() << QStringLiteral("ignoring this state");
         return;
     }
 
     qDebug() << QStringLiteral("all services discovered!");
 
-    for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() != QLowEnergyService::ServiceDiscovered || s->serviceUuid() != SERVICE_UUID) {
+    for (QLowEnergyService *s : std::as_const(gattCommunicationChannelService)) {
+        if (s->state() != QLowEnergyService::RemoteServiceDiscovered || s->serviceUuid() != SERVICE_UUID) {
             continue;
         }
 
         connect(s, &QLowEnergyService::characteristicChanged, this, &cycplusbc2controller::characteristicChanged);
         connect(s, &QLowEnergyService::characteristicRead, this, &cycplusbc2controller::characteristicChanged);
-        connect(s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
-                this, &cycplusbc2controller::errorService);
+        connect(s, &QLowEnergyService::errorOccurred, this, &cycplusbc2controller::errorService);
         connect(s, &QLowEnergyService::descriptorWritten, this, &cycplusbc2controller::descriptorWritten);
 
         qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
         const auto characteristics_list = s->characteristics();
-        for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-            qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+        for (const QLowEnergyCharacteristic &c : std::as_const(characteristics_list)) {
+            qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("properties") << c.properties();
 
             if (c.uuid() != TX_CHARACTERISTIC_UUID) {
                 continue;
@@ -103,7 +104,7 @@ void cycplusbc2controller::stateChanged(QLowEnergyService::ServiceState state) {
 
             gattNotifyCharacteristic = c;
             if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
-                const auto cccd = c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+                const auto cccd = c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration);
                 if (cccd.isValid()) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
@@ -129,7 +130,7 @@ void cycplusbc2controller::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     const auto services_list = m_control->services();
-    for (const QBluetoothUuid &s : qAsConst(services_list)) {
+    for (const QBluetoothUuid &s : std::as_const(services_list)) {
         if (s != SERVICE_UUID) {
             continue;
         }
@@ -165,14 +166,10 @@ void cycplusbc2controller::deviceDiscovered(const QBluetoothDeviceInfo &device) 
     m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
     connect(m_control, &QLowEnergyController::serviceDiscovered, this, &cycplusbc2controller::serviceDiscovered);
     connect(m_control, &QLowEnergyController::discoveryFinished, this, &cycplusbc2controller::serviceScanDone);
-    connect(m_control,
-            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-            this, &cycplusbc2controller::error);
+    connect(m_control, &QLowEnergyController::errorOccurred, this, &cycplusbc2controller::error);
     connect(m_control, &QLowEnergyController::stateChanged, this, &cycplusbc2controller::controllerStateChanged);
 
-    connect(m_control,
-            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-            this, [this](QLowEnergyController::Error error) {
+    connect(m_control, &QLowEnergyController::errorOccurred, this, [this](QLowEnergyController::Error error) {
                 Q_UNUSED(error);
                 emit debug(QStringLiteral("Cannot connect to remote device."));
                 emit disconnected();
