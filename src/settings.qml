@@ -1304,12 +1304,12 @@ import Qt.labs.platform 1.1
             property bool nordictrack_treadmill_commercial_le: false
 
             property bool umay_s100_treadmill: false
-            property bool gym_mode: false            
+            property bool gym_mode: false
             property bool tile_grade_adjusted_pace_enabled: false
             property int tile_grade_adjusted_pace_order: 79
    
             property bool cycplus_bc2_controller: false
-						property bool lifespan_bike: false
+			property bool lifespan_bike: false
         }
 
 
