@@ -440,6 +440,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     if (cmd == FITSHOW_SYS_STATUS) {
         CURRENT_STATUS = par;
         emit debug(QStringLiteral("STATUS ") + QString::number(par));
+        const bool tunturiPausedStatus = tunturi_t80_connected && par == 8;
         if (par == FITSHOW_STATUS_START) {
             if (len > 2) {
                 COUNTDOWN_VALUE = array[2];
@@ -566,7 +567,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 }
             }
         } else {
-            if (par == FITSHOW_STATUS_NORMAL) {
+            if (par == FITSHOW_STATUS_NORMAL || tunturiPausedStatus) {
                 sendSportData();
                 IS_STATUS_STUDY = false;
                 IS_STATUS_ERRO = false;
