@@ -221,6 +221,8 @@ void fitshowtreadmill::update() {
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
+            clearPendingCommands(QStringLiteral("start requested"));
+            requestStop = -1;
             if (lastSpeed == 0.0) {
                 lastSpeed = 0.5;
             }
@@ -245,6 +247,8 @@ void fitshowtreadmill::update() {
             emit tapeStarted();
         }
         if (requestStop != -1) {
+            clearPendingCommands(QStringLiteral("stop/pause requested"));
+            requestStart = -1;
             if (paused) {
                 lastStop = QDateTime::currentMSecsSinceEpoch();
                 uint8_t pauseTape[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_PAUSE}; // to verify
@@ -287,6 +291,15 @@ void fitshowtreadmill::removeFromBuffer() {
     if (!debugMsgs.isEmpty()) {
         debugMsgs.removeFirst();
     }
+    retrySend = 0;
+}
+
+void fitshowtreadmill::clearPendingCommands(const QString &reason) {
+    if (!reason.isEmpty() && (!bufferWrite.isEmpty() || !debugMsgs.isEmpty())) {
+        emit debug(QStringLiteral("clearing pending commands: ") + reason);
+    }
+    bufferWrite.clear();
+    debugMsgs.clear();
     retrySend = 0;
 }
 

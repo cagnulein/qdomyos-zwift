@@ -97,6 +97,7 @@ class fitshowtreadmill : public treadmill {
     void startDiscover();
     void sendSportData();
     void removeFromBuffer();
+    void clearPendingCommands(const QString &reason = QString());
     QBluetoothUuid serviceId;
     int retrySend = 0;
     bool noHeartService = false;
