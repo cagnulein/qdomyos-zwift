@@ -34,7 +34,8 @@ void cscbike::enableManualResistancePowerAdjustment(resistance_t resistance) {
         return;
     }
 
-    resistance_t clampedResistance = qBound<resistance_t>(1, resistance, 15);
+    resistance_t clampedResistance =
+        qBound<resistance_t>(static_cast<resistance_t>(1), resistance, static_cast<resistance_t>(15));
     manualResistanceTarget = clampedResistance;
     manualResistancePowerAdjustmentActive = true;
     Resistance = clampedResistance;
@@ -663,7 +664,6 @@ void cscbike::controllerStateChanged(QLowEnergyController::ControllerState state
         m_control->connectToDevice();
     }
 }
-
 
 
 
