@@ -92,17 +92,13 @@ bool kayakfirstrower::waitForResponse(const QString &expectedResponse, int timeo
 
 void kayakfirstrower::btinit() {
     // Sequence ported from TrackMyIndoorWorkout KayakFirst descriptor
-    if (!writeCommand(QStringLiteral("1"), QStringLiteral("reset-1"), false) ||
-        !waitForResponse(QStringLiteral("1"), 5000, true)) {
-        return;
-    }
+    writeCommand(QStringLiteral("1"), QStringLiteral("reset-1"), false);
+    waitForResponse(QStringLiteral("1"), 2000, false);
     QThread::msleep(500);
 
-    if (!writeCommand(QStringLiteral("1"), QStringLiteral("reset-2"), false) ||
-        !waitForResponse(QStringLiteral("1"), 5000, true)) {
-        return;
-    }
-    QThread::msleep(5000);
+    writeCommand(QStringLiteral("1"), QStringLiteral("reset-2"), false);
+    waitForResponse(QStringLiteral("1"), 2000, false);
+    QThread::msleep(1000);
 
     QSettings settings;
     const int athleteWeight = settings.value(QZSettings::weight, QZSettings::default_weight).toInt();
@@ -116,18 +112,14 @@ void kayakfirstrower::btinit() {
     const int sportFlag = 1;
     const QString handshake =
         QStringLiteral("2;%1;%2;%3;%4").arg(unixEpoch).arg(tzOffsetMinutes).arg(athleteWeight).arg(sportFlag);
-    if (!writeCommand(handshake, QStringLiteral("handshake"), false) ||
-        !waitForResponse(QStringLiteral("2;"), 5000, false)) {
-        return;
-    }
-    QThread::msleep(5000);
+    writeCommand(handshake, QStringLiteral("handshake"), false);
+    waitForResponse(QStringLiteral("2;"), 3000, false);
+    QThread::msleep(1000);
 
     // Basic display configuration (8 slots all to default value 1)
-    if (!writeCommand(QStringLiteral("5;1;1;1;1;1;1;1;1"), QStringLiteral("display-config"), false) ||
-        !waitForResponse(QStringLiteral("5;"), 5000, false)) {
-        return;
-    }
-    QThread::msleep(5000);
+    writeCommand(QStringLiteral("5;1;1;1;1;1;1;1;1"), QStringLiteral("display-config"), false);
+    waitForResponse(QStringLiteral("5;"), 3000, false);
+    QThread::msleep(500);
 
     initDone = true;
 }
