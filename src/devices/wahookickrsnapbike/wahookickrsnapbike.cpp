@@ -139,6 +139,8 @@ QByteArray wahookickrsnapbike::setResistanceMode(double resistance) {
     r.append(_setResistanceMode);
     r.append((uint8_t)(norm & 0xFF));
     r.append((uint8_t)(norm >> 8 & 0xFF));
+    lastCommandResistanceMode = true;
+    lastCommandErgMode = false;
     return r;
 }
 
@@ -155,6 +157,7 @@ QByteArray wahookickrsnapbike::setErgMode(uint16_t watts) {
     r.append((uint8_t)(watts & 0xFF));
     r.append((uint8_t)(watts >> 8 & 0xFF));
     lastCommandErgMode = true;
+    lastCommandResistanceMode = false;
     return r;
     // response: 0x01 0x42 0x01 0x00 watts1 watts2
 }
@@ -175,6 +178,8 @@ QByteArray wahookickrsnapbike::setSimMode(double weight, double rollingResistanc
     r.append((uint8_t)(rrcN >> 8 & 0xFF));
     r.append((uint8_t)(wrcN & 0xFF));
     r.append((uint8_t)(wrcN >> 8 & 0xFF));
+    lastCommandResistanceMode = false;
+    lastCommandErgMode = false;
     return r;
 }
 
@@ -237,6 +242,7 @@ void wahookickrsnapbike::update() {
 
     if (initRequest) {
         lastCommandErgMode = false;
+        lastCommandResistanceMode = false;
         QByteArray a = unlockCommand();
         uint8_t b[20];
         memcpy(b, a.constData(), a.length());
@@ -994,7 +1000,7 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     Q_UNUSED(percentage);
     QSettings settings;
 
-    if (lastCommandErgMode) {
+    if (lastCommandErgMode || lastCommandResistanceMode) {
         lastGrade = grade + 1; // force a refresh after simulation mode is restored
         initRequest = true;
         qDebug() << "avoid sending this command, since I have first to restore the setSimGrade";
@@ -1014,6 +1020,7 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
         uint8_t b[20];
         memcpy(b, a.constData(), a.length());
         writeCharacteristic(b, a.length(), "setSimGrade", false, false);
+        lastCommandResistanceMode = false;
         lastCommandErgMode = false;
     } else {
         if(lastGrade == grade) {
@@ -1032,6 +1039,7 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
         uint8_t b[20];
         memcpy(b, a.constData(), a.length());
         writeCharacteristic(b, a.length(), "setSimGrade", false, false);
+        lastCommandResistanceMode = false;
         lastCommandErgMode = false;
     }
 }
