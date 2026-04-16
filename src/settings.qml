@@ -3965,20 +3965,6 @@ import Qt.labs.platform 1.1
                             onClicked: { settings.virtufit_etappe = checked; window.settings_restart_to_apply = true; }
                         }
                         IndicatorOnlySwitch {
-                            id: lifespanBikeDelegate
-                            text: qsTr("LifeSpan C7000i Bike")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.lifespan_bike
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.lifespan_bike = checked; window.settings_restart_to_apply = true; }
-                        }
-                        IndicatorOnlySwitch {
                             id: sportstechSx600BikeDelegate
                             text: qsTr("Sportstech SX600 bike")
                             spacing: 0
@@ -4007,6 +3993,30 @@ import Qt.labs.platform 1.1
                             onClicked: { settings.sportstech_esx500 = checked; window.settings_restart_to_apply = true; }
                         }
 										   }
+                    }
+                    AccordionElement {
+                        id: lifespanBikeAccordion
+                        title: qsTr("LifeSpan Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                id: lifespanBikeDelegate
+                                text: qsTr("LifeSpan C7000i Bike")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.lifespan_bike
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.lifespan_bike = checked; window.settings_restart_to_apply = true; }
+                            }
+                        }
                     }
                     AccordionElement {
                         id: flywheelBikeAccordion
