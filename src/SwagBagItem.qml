@@ -50,12 +50,11 @@
 
 import QtQuick 2.7
 import QtQuick.Controls 2.15
-import org.cagnulein.qdomyoszwift 1.0
 
 Rectangle {
     id: storeItem
 
-    property Product product: undefined
+    property var product: undefined
 
     state: "NORMAL"
 
