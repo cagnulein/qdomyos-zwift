@@ -5,6 +5,7 @@ import QtQuick.Dialogs 1.0
 import QtGraphicalEffects 1.12
 import Qt.labs.settings 1.0
 import QtMultimedia 5.15
+import org.cagnulein.qdomyoszwift 1.0
 import QtQuick.Window 2.12
 import Qt.labs.platform 1.1
 import AndroidStatusBar 1.0
@@ -122,11 +123,46 @@ ApplicationWindow {
         property bool gym_mode: false
     }
 
+
+    Store {
+        id: iapStore
+    }
+
     Loader {
       id: googleMapUI
       source:"GoogleMap.qml";
       active: false
       onLoaded: { console.log("googleMapUI loaded"); stackView.push(googleMapUI.item); }
+    }
+
+    // here in order to cache everything for the SwagBagView
+    Product {
+        id: productUnlockVowels
+        type: Product.Unlockable
+        store: iapStore
+        identifier: "org.cagnulein.qdomyoszwift.swagbag"
+
+        onPurchaseSucceeded: {
+            console.log(identifier + " purchase successful");
+            applicationData.vowelsUnlocked = true;
+            transaction.finalize();
+            pageStack.pop();
+        }
+
+        onPurchaseFailed: {
+            console.log(identifier + " purchase failed");
+            console.log("reason: "
+                        + transaction.failureReason === Transaction.CanceledByUser ? "Canceled" : transaction.errorString);
+            transaction.finalize();
+        }
+
+        onPurchaseRestored: {
+            console.log(identifier + " purchase restored");
+            applicationData.vowelsUnlocked = true;
+            console.log("timestamp: " + transaction.timestamp);
+            transaction.finalize();
+            pageStack.pop();
+        }
     }
 
     ToastManager {
