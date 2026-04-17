@@ -181,6 +181,8 @@ void bkoolbike::update() {
         }
 
         postInitResistancePlusPending = true;
+        postInitMetricsSeen = false;
+        postInitResistancePlusNotBefore = QDateTime::currentDateTime().addMSecs(1500);
 
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
@@ -203,7 +205,8 @@ void bkoolbike::update() {
             writeCharacteristic(poll, sizeof(poll), QStringLiteral("poll"), false, false);
         }*/
 
-        if (postInitResistancePlusPending) {
+        if (postInitResistancePlusPending && postInitMetricsSeen &&
+            QDateTime::currentDateTime() >= postInitResistancePlusNotBefore) {
             postInitResistancePlusPending = false;
             emit debug(QStringLiteral("forcing resistance 1 after init"));
             requestResistance = 1;
@@ -284,6 +287,7 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B)) {
+        postInitMetricsSeen = true;
         lastPacket = newValue;
 
         // Only parse and update cadence from internal CSC if no external cadence sensor configured
@@ -395,6 +399,7 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
     } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("f03ee006-4910-473c-be46-960948c2f59c"))) {
+        postInitMetricsSeen = true;
         const double customCadence = parseBkoolCustomCadence(newValue);
         if (!hasExternalCadenceSensor(settings) && customCadence >= 0.0) {
             Cadence = customCadence;
@@ -408,6 +413,7 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
         emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
     } else if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
+        postInitMetricsSeen = true;
         uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
         bool cadence_present = false;
         bool wheel_revs = false;
