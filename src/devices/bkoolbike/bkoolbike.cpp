@@ -180,6 +180,8 @@ void bkoolbike::update() {
             writeCharacteristic(init5, sizeof(init5), QStringLiteral("init5"), false, true);
         }
 
+        postInitResistancePlusPending = true;
+
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
@@ -200,6 +202,12 @@ void bkoolbike::update() {
             uint8_t poll[] = {0x37, 0xc8, 0x19, 0xff, 0xe0, 0x0a, 0x46, 0x21};
             writeCharacteristic(poll, sizeof(poll), QStringLiteral("poll"), false, false);
         }*/
+
+        if (postInitResistancePlusPending) {
+            postInitResistancePlusPending = false;
+            emit debug(QStringLiteral("forcing resistance 1 after init"));
+            requestResistance = 1;
+        }
 
         if (requestResistance != -1) {
             if (requestResistance != currentResistance().value() || lastGearValue != gears()) {

@@ -68,6 +68,7 @@ class bkoolbike : public bike {
 
     bool initDone = false;
     bool initRequest = false;
+    bool postInitResistancePlusPending = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
