@@ -35,15 +35,18 @@ void heartratebelt::update() {
         && !settings.value(QZSettings::ios_cache_heart_device, QZSettings::default_ios_cache_heart_device).toBool()
 #endif
         ) {
-        
+
         emit debug(QStringLiteral("Connection timeout in ConnectingState - disconnecting and retrying..."));
+        reconnectAfterTimeoutPending = true;
         disconnectBluetooth();
         connectingTime = QDateTime();  // Reset the timestamp
-        
+
         // Reconnect after 1 second
         QTimer::singleShot(1000, this, [this]() {
-            if (m_control) {
+            if (m_control && reconnectAfterTimeoutPending &&
+                m_control->state() == QLowEnergyController::UnconnectedState) {
                 emit debug(QStringLiteral("Attempting to reconnect after timeout..."));
+                reconnectAfterTimeoutPending = false;
                 m_control->connectToDevice();
             }
         });
@@ -267,6 +270,7 @@ void heartratebelt::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
+            reconnectAfterTimeoutPending = false;
             emit debug(QStringLiteral("Controller connected. Search services..."));
             m_control->discoverServices();
         });
@@ -291,15 +295,23 @@ bool heartratebelt::connected() {
 
 void heartratebelt::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
-    
+
     if (state == QLowEnergyController::ConnectingState) {
         connectingTime = QDateTime::currentDateTime();
     } else {
         connectingTime = QDateTime();  // Reset timestamp for other states
     }
-    
+
     if (state == QLowEnergyController::UnconnectedState && m_control) {
-        qDebug() << QStringLiteral("trying to connect back again...");
-        m_control->connectToDevice();
+        if (reconnectAfterTimeoutPending) {
+            qDebug() << QStringLiteral("waiting for delayed reconnect after timeout...");
+        } else {
+            qDebug() << QStringLiteral("trying to connect back again...");
+            m_control->connectToDevice();
+        }
+    } else if (state == QLowEnergyController::ConnectedState ||
+               state == QLowEnergyController::DiscoveringState ||
+               state == QLowEnergyController::DiscoveredState) {
+        reconnectAfterTimeoutPending = false;
     }
 }

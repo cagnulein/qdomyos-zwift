@@ -40,7 +40,8 @@ class heartratebelt : public treadmill {
     QLowEnergyService *gattBatteryService = nullptr;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
     QDateTime connectingTime;  // Timestamp when entering connecting state
-    static const int CONNECTION_TIMEOUT = 10000; // 10 seconds in milliseconds
+    static const int CONNECTION_TIMEOUT = 20000; // 20 seconds in milliseconds
+    bool reconnectAfterTimeoutPending = false;
     QTimer* updateTimer;  // Timer for periodic updates
     uint8_t battery_level = 0;
 
