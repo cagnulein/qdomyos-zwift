@@ -17,7 +17,7 @@
 using namespace std::chrono_literals;
 
 namespace {
-constexpr double bkoolCustomCadenceScale = 32.0;
+constexpr double bkoolCustomCadenceScale = 36.0;
 constexpr double bkoolMaxCadence = 255.0;
 
 bool hasExternalCadenceSensor(const QSettings &settings) {
