@@ -545,6 +545,7 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
                      (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                     now)))); //(( (0.048* Output in watts +1.19) * body weight
                                                                       // in kg * 3.5) / 200 ) / 60
+            lastRefreshCharacteristicChanged = now;
             emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
         }
     }
