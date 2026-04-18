@@ -79,8 +79,10 @@ class ftmsbike : public bike {
     double maxGears() override;
     double minGears() override;
 
-    // true because or the bike supports it by hardware or because QZ is emulating this in this module
-    bool ergModeSupportedAvailableBySoftware() override { return true; }
+    // Most FTMS bikes can use QZ's software ERG emulation, but FS-YK devices
+    // should stay on direct resistance control because it doesn't send the current resistance value and it conflicts
+    // with the PID HR method
+    bool ergModeSupportedAvailableBySoftware() override { return !FS_YK; }
     bool inclinationAvailableBySoftware() override { return !resistance_lvl_mode; }
 
   private:
