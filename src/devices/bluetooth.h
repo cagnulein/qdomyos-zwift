@@ -310,7 +310,7 @@ class bluetooth : public QObject, public SignalHandler {
     QList<wahookickrheadwind *> wahookickrHeadWind;
     QList<eliteariafan *> eliteAriaFan;
     QList<zwiftclickremote* > zwiftPlayDevice;
-    zwiftclickremote* zwiftClickRemote = nullptr;
+    QList<zwiftclickremote* > zwiftClickRemotes;
     thinkridercontroller* thinkriderController = nullptr;
     sramaxscontroller* sramAXSController = nullptr;
     elitesquarecontroller* eliteSquareController = nullptr;
