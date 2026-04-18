@@ -1990,7 +1990,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             resistance_lvl_mode = true;
             ergModeSupported = false; // this bike doesn't have ERG mode natively
             max_resistance = 24;
-        } else if(device.name().toUpper().startsWith("S18")) {
+        } else if(device.name().compare(QStringLiteral("S18"), Qt::CaseInsensitive) == 0) {
             qDebug() << QStringLiteral("S18 found");
             S18 = true;
             max_resistance = 24;

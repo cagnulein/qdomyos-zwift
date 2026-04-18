@@ -1868,7 +1868,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("JUSTO")) ||
                         (b.name().toUpper().startsWith("MYCYCLE ")) ||
                         (b.name().toUpper().startsWith("T2 ")) ||                        
-                        (b.name().toUpper().startsWith("S18")) ||
+                        (b.name().compare(QStringLiteral("S18"), Qt::CaseInsensitive) == 0) ||
                         (b.name().toUpper().startsWith("RC-MAX-")) ||
                         (b.name().toUpper().startsWith("TPS-SPBIKE-2.0")) ||
                         (b.name().toUpper().startsWith("NEO BIKE SMART")) ||
@@ -2190,7 +2190,22 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(ziproTreadmill, &ziprotreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
                 ziproTreadmill->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(ziproTreadmill);
-            } else if ((b.name().toUpper().startsWith(QLatin1String("LIFESPAN"))) && !lifespanTreadmill && filter) {
+            } else if ((b.name().toUpper().startsWith(QLatin1String("LIFESPAN"))) &&
+                       settings.value(QZSettings::lifespan_bike, QZSettings::default_lifespan_bike).toBool() &&
+                       !lifespanBike && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                lifespanBike = new lifespanbike(noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(lifespanBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(lifespanBike, &lifespanbike::debug, this, &bluetooth::debug);
+                lifespanBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(lifespanBike);
+            } else if ((b.name().toUpper().startsWith(QLatin1String("LIFESPAN"))) &&
+                       !settings.value(QZSettings::lifespan_bike, QZSettings::default_lifespan_bike).toBool() &&
+                       !lifespanTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 lifespanTreadmill = new lifespantreadmill(this->pollDeviceTime, noConsole, noHeartService);
@@ -3820,6 +3835,10 @@ void bluetooth::restart() {
         delete lifespanTreadmill;
         lifespanTreadmill = nullptr;
     }
+    if (lifespanBike) {
+        delete lifespanBike;
+        lifespanBike = nullptr;
+    }
     if (octaneElliptical) {
 
         delete octaneElliptical;
@@ -4246,6 +4265,8 @@ bluetoothdevice *bluetooth::device() {
         return octaneTreadmill;
     } else if (ziproTreadmill) {
         return ziproTreadmill;
+    } else if (lifespanBike) {
+        return lifespanBike;
     } else if (lifespanTreadmill) {
         return lifespanTreadmill;
     } else if (octaneElliptical) {

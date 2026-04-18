@@ -4367,30 +4367,40 @@ void homeform::LargeButton(const QString &name) {
         } else if (name.contains(QStringLiteral("erg_mode"))) {
             settings.setValue(QZSettings::zwift_erg, !settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool());
         } else if (name.contains(QStringLiteral("preset_resistance_1"))) {
-            bluetoothManager->device()->changeResistance(settings
-                                                             .value(QZSettings::tile_preset_resistance_1_value,
-                                                                    QZSettings::default_tile_preset_resistance_1_value)
-                                                             .toDouble());
+            const resistance_t resistanceValue = settings
+                                                     .value(QZSettings::tile_preset_resistance_1_value,
+                                                            QZSettings::default_tile_preset_resistance_1_value)
+                                                     .toDouble();
+            emit manualCscBikeResistanceAdjusted(resistanceValue);
+            bluetoothManager->device()->changeResistance(resistanceValue);
         } else if (name.contains(QStringLiteral("preset_resistance_2"))) {
-            bluetoothManager->device()->changeResistance(settings
-                                                             .value(QZSettings::tile_preset_resistance_2_value,
-                                                                    QZSettings::default_tile_preset_resistance_2_value)
-                                                             .toDouble());
+            const resistance_t resistanceValue = settings
+                                                     .value(QZSettings::tile_preset_resistance_2_value,
+                                                            QZSettings::default_tile_preset_resistance_2_value)
+                                                     .toDouble();
+            emit manualCscBikeResistanceAdjusted(resistanceValue);
+            bluetoothManager->device()->changeResistance(resistanceValue);
         } else if (name.contains(QStringLiteral("preset_resistance_3"))) {
-            bluetoothManager->device()->changeResistance(settings
-                                                             .value(QZSettings::tile_preset_resistance_3_value,
-                                                                    QZSettings::default_tile_preset_resistance_3_value)
-                                                             .toDouble());
+            const resistance_t resistanceValue = settings
+                                                     .value(QZSettings::tile_preset_resistance_3_value,
+                                                            QZSettings::default_tile_preset_resistance_3_value)
+                                                     .toDouble();
+            emit manualCscBikeResistanceAdjusted(resistanceValue);
+            bluetoothManager->device()->changeResistance(resistanceValue);
         } else if (name.contains(QStringLiteral("preset_resistance_4"))) {
-            bluetoothManager->device()->changeResistance(settings
-                                                             .value(QZSettings::tile_preset_resistance_4_value,
-                                                                    QZSettings::default_tile_preset_resistance_4_value)
-                                                             .toDouble());
+            const resistance_t resistanceValue = settings
+                                                     .value(QZSettings::tile_preset_resistance_4_value,
+                                                            QZSettings::default_tile_preset_resistance_4_value)
+                                                     .toDouble();
+            emit manualCscBikeResistanceAdjusted(resistanceValue);
+            bluetoothManager->device()->changeResistance(resistanceValue);
         } else if (name.contains(QStringLiteral("preset_resistance_5"))) {
-            bluetoothManager->device()->changeResistance(settings
-                                                             .value(QZSettings::tile_preset_resistance_5_value,
-                                                                    QZSettings::default_tile_preset_resistance_5_value)
-                                                             .toDouble());
+            const resistance_t resistanceValue = settings
+                                                     .value(QZSettings::tile_preset_resistance_5_value,
+                                                            QZSettings::default_tile_preset_resistance_5_value)
+                                                     .toDouble();
+            emit manualCscBikeResistanceAdjusted(resistanceValue);
+            bluetoothManager->device()->changeResistance(resistanceValue);
         } else if (name.contains(QStringLiteral("preset_inclination_1"))) {
             ((bike *)bluetoothManager->device())
                 ->changeInclination(settings
@@ -4831,6 +4841,9 @@ void homeform::Plus(const QString &name) {
                 int raw = qRound((target - g) / diff);
                 if (raw < 1) raw = 1;
                 if (raw > maxRes) raw = maxRes;
+                if (!name.contains(QStringLiteral("peloton_resistance"))) {
+                    emit manualCscBikeResistanceAdjusted(raw);
+                }
                 ((bike *)dev)->changeResistance(raw);
             } else if (dev->deviceType() == ROWING) {
                 double g = ((rower *)dev)->gears();
@@ -4929,6 +4942,10 @@ void homeform::bluetoothDeviceConnected(bluetoothdevice *b) {
     // heart rate received from apple watch while QZ is running on a different device via TCP socket (iphone_socket)
     connect(this, SIGNAL(heartRate(uint8_t)), b, SLOT(heartRate(uint8_t)));
 #endif
+    if (auto csc = dynamic_cast<cscbike *>(b)) {
+        connect(this, &homeform::manualCscBikeResistanceAdjusted, csc, &cscbike::onManualResistanceAdjusted,
+                Qt::UniqueConnection);
+    }
 }
 
 void homeform::bluetoothDeviceDisconnected() {
@@ -5129,6 +5146,9 @@ void homeform::Minus(const QString &name) {
                 int raw = qRound((target - g) / diff);
                 if (raw < 1) raw = 1;
                 if (raw > maxRes) raw = maxRes;
+                if (!name.contains(QStringLiteral("peloton_resistance"))) {
+                    emit manualCscBikeResistanceAdjusted(raw);
+                }
                 ((bike *)dev)->changeResistance(raw);
             } else if (dev->deviceType() == ROWING) {
                 double g = ((rower *)dev)->gears();
@@ -10791,3 +10811,5 @@ extern "C" {
 }
 #endif
 // Force rebuild for Q_INVOKABLE changes
+
+

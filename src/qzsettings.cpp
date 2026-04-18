@@ -739,6 +739,7 @@ const QString QZSettings::watt_ignore_builtin = QStringLiteral("watt_ignore_buil
 const QString QZSettings::proform_treadmill_z1300i = QStringLiteral("proform_treadmill_z1300i");
 const QString QZSettings::ftms_bike = QStringLiteral("ftms_bike");
 const QString QZSettings::default_ftms_bike = QStringLiteral("Disabled");
+const QString QZSettings::lifespan_bike = QStringLiteral("lifespan_bike");
 const QString QZSettings::ftms_treadmill = QStringLiteral("ftms_treadmill");
 const QString QZSettings::default_ftms_treadmill = QStringLiteral("Disabled");
 const QString QZSettings::ant_speed_offset = QStringLiteral("ant_speed_offset");
@@ -1079,7 +1080,7 @@ const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
 
 
-const uint32_t allSettingsCount = 878;
+const uint32_t allSettingsCount = 879;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1307,6 +1308,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::m3i_bike_kcal, QZSettings::default_m3i_bike_kcal},
     {QZSettings::snode_bike, QZSettings::default_snode_bike},
     {QZSettings::fitplus_bike, QZSettings::default_fitplus_bike},
+    {QZSettings::lifespan_bike, QZSettings::default_lifespan_bike},
     {QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe},
     {QZSettings::flywheel_filter, QZSettings::default_flywheel_filter},
     {QZSettings::flywheel_life_fitness_ic8, QZSettings::default_flywheel_life_fitness_ic8},

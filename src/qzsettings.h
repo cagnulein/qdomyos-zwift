@@ -825,6 +825,9 @@ class QZSettings {
     static const QString fitplus_bike;
     static constexpr bool default_fitplus_bike = false;
 
+    static const QString lifespan_bike;
+    static constexpr bool default_lifespan_bike = false;
+
     static const QString virtufit_etappe;
     static constexpr bool default_virtufit_etappe = false;
 
