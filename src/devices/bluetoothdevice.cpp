@@ -181,6 +181,7 @@ metric bluetoothdevice::elevationGain() { return elevationAcc; }
 metric bluetoothdevice::negativeElevationGain() { return negativeElevationAcc; }
 void bluetoothdevice::heartRate(uint8_t heart) {
     Heart.setValue(heart);
+    heartRateFromHealthKit = false;
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     // Write heart rate from Bluetooth to Apple Health during workout
@@ -332,11 +333,13 @@ void bluetoothdevice::update_hr_from_external() {
     if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
 #ifdef Q_OS_ANDROID
         Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
+        heartRateFromHealthKit = false;
 #endif
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         lockscreen h;
         Heart = h.getHR();
+        heartRateFromHealthKit = false;
 #endif
 #endif
         qDebug() << "Garmin Companion Heart:" << Heart.value();
@@ -363,12 +366,14 @@ void bluetoothdevice::update_hr_from_external() {
             h.setSteps(StepCount.value());
             h.setElevationGain(elevationGain().value());
             Heart = appleWatchHeartRate;
+            heartRateFromHealthKit = appleWatchHeartRate > 0;
             qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
 #endif
 #endif
 #ifdef Q_OS_ANDROID
     if (!settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/WearableController", "getHeart", "()I");
+        heartRateFromHealthKit = false;
         qDebug() << "WearOS Companion Heart:" << Heart.value();
     }
 #endif
@@ -400,11 +405,13 @@ void bluetoothdevice::update_ios_live_activity() {
                 .toString();
         QByteArray compactLeadingMetricUtf8 = compactLeadingMetric.toUtf8();
         QByteArray compactTrailingMetricUtf8 = compactTrailingMetric.toUtf8();
+        const uint8_t workoutHeartRate = heartRateFromHealthKit ? 0 : (uint8_t)Heart.value();
         h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(),
                                 deviceType(), odometer() * 1000.0, totalCalories().value(), useMiles,
-                                (uint8_t)Heart.value(), compactLeadingMetricUtf8.constData(),
+                                workoutHeartRate, compactLeadingMetricUtf8.constData(),
                                 metricValueForSetting(compactLeadingMetric), compactTrailingMetricUtf8.constData(),
                                 metricValueForSetting(compactTrailingMetric));
+        heartRateFromHealthKit = false;
 
         lastUpdate = current;
     }

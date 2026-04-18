@@ -268,7 +268,7 @@ void MQTTPublisher::handleControlCommand(const QString& command, const QVariant&
         m_device->changeResistance(value.toInt());
     } else if(mainCommand == "power") {
         m_device->changePower(value.toInt());
-    } else if(mainCommand == "fan") {
+    } else if(mainCommand == "fan" || mainCommand == "fan_speed") {
         m_device->changeFanSpeed(value.toInt());
     } else if(mainCommand == "inclination") {
         m_device->changeInclination(value.toDouble(), value.toDouble());
@@ -335,7 +335,7 @@ void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QStrin
         } else if(command == "cadence") {
             ellipticalDevice->changeCadence(value.toInt());
         }
-    } else if(command == "fan") {
+    } else if(command == "fan" || command == "fan_speed") {
         m_device->changeFanSpeed(value.toInt());
     }
 }
@@ -481,6 +481,7 @@ void MQTTPublisher::publishWorkoutData() {
     publishToTopic("device/type", static_cast<int>(m_device->deviceType()));
     publishToTopic("device/connected", m_device->connected());
     publishToTopic("device/paused", m_device->isPaused());
+    publishToTopic("device/fan_speed", m_device->fanSpeed());
 
     // Time Metrics
     QTime elapsedTime = m_device->elapsedTime();
@@ -739,7 +740,7 @@ void MQTTPublisher::publishDiscoveryConfig() {
     }
     
     // Common control entities
-    publishNumberDiscovery("fan_speed", "Fan Speed", statusBaseTopic + "device/fan_speed", controlTopic + "fan", 0, 100, 1, "%", "mdi:fan");
+    publishNumberDiscovery("fan_speed", "Fan Speed", statusBaseTopic + "device/fan_speed", controlTopic + "fan_speed", 0, 100, 1, "%", "mdi:fan");
     
     // Control buttons
     QJsonObject startConfig;

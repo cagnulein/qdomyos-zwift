@@ -739,6 +739,7 @@ const QString QZSettings::watt_ignore_builtin = QStringLiteral("watt_ignore_buil
 const QString QZSettings::proform_treadmill_z1300i = QStringLiteral("proform_treadmill_z1300i");
 const QString QZSettings::ftms_bike = QStringLiteral("ftms_bike");
 const QString QZSettings::default_ftms_bike = QStringLiteral("Disabled");
+const QString QZSettings::lifespan_bike = QStringLiteral("lifespan_bike");
 const QString QZSettings::ftms_treadmill = QStringLiteral("ftms_treadmill");
 const QString QZSettings::default_ftms_treadmill = QStringLiteral("Disabled");
 const QString QZSettings::ant_speed_offset = QStringLiteral("ant_speed_offset");
@@ -790,6 +791,7 @@ const QString QZSettings::nordictrack_treadmill_t8_5s = QStringLiteral("nordictr
 const QString QZSettings::proform_treadmill_705_cst = QStringLiteral("proform_treadmill_705_cst");
 const QString QZSettings::zwift_click = QStringLiteral("zwift_click");
 const QString QZSettings::thinkrider_controller = QStringLiteral("thinkrider_controller");
+const QString QZSettings::cycplus_bc2_controller = QStringLiteral("cycplus_bc2_controller");
 const QString QZSettings::hop_sport_hs_090h_bike = QStringLiteral("hop_sport_hs_090h_bike");
 const QString QZSettings::zwift_play = QStringLiteral("zwift_play");
 const QString QZSettings::zwift_play_vibration = QStringLiteral("zwift_play_vibration");
@@ -1078,7 +1080,7 @@ const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
 
 
-const uint32_t allSettingsCount = 877;
+const uint32_t allSettingsCount = 879;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1306,6 +1308,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::m3i_bike_kcal, QZSettings::default_m3i_bike_kcal},
     {QZSettings::snode_bike, QZSettings::default_snode_bike},
     {QZSettings::fitplus_bike, QZSettings::default_fitplus_bike},
+    {QZSettings::lifespan_bike, QZSettings::default_lifespan_bike},
     {QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe},
     {QZSettings::flywheel_filter, QZSettings::default_flywheel_filter},
     {QZSettings::flywheel_life_fitness_ic8, QZSettings::default_flywheel_life_fitness_ic8},
@@ -1738,6 +1741,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_705_cst, QZSettings::default_proform_treadmill_705_cst},
     {QZSettings::zwift_click, QZSettings::default_zwift_click},
     {QZSettings::thinkrider_controller, QZSettings::default_thinkrider_controller},
+    {QZSettings::cycplus_bc2_controller, QZSettings::default_cycplus_bc2_controller},
     {QZSettings::hop_sport_hs_090h_bike, QZSettings::default_hop_sport_hs_090h_bike},
     {QZSettings::zwift_play, QZSettings::default_zwift_play},
     {QZSettings::zwift_play_vibration, QZSettings::default_zwift_play_vibration},

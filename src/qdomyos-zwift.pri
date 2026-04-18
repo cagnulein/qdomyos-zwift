@@ -94,6 +94,7 @@ SOURCES += \
     $$PWD/devices/jumprope.cpp \
     $$PWD/devices/kineticinroadbike/SmartControl.cpp \
     $$PWD/devices/kineticinroadbike/kineticinroadbike.cpp \
+    $$PWD/devices/lifespanbike/lifespanbike.cpp \
     $$PWD/devices/lifespantreadmill/lifespantreadmill.cpp \
     $$PWD/devices/moxy5sensor/moxy5sensor.cpp \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
@@ -103,6 +104,7 @@ SOURCES += \
     $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
     $$PWD/devices/sportstechrower/sportstechrower.cpp \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
+    $$PWD/devices/cycplusbc2controller/cycplusbc2controller.cpp \
     $$PWD/devices/sramAXSController/sramAXSController.cpp \
     $$PWD/devices/thinkridercontroller/thinkridercontroller.cpp \
     $$PWD/devices/stairclimber.cpp \
@@ -376,6 +378,7 @@ HEADERS += \
     $$PWD/devices/jumprope.h \
     $$PWD/devices/kineticinroadbike/SmartControl.h \
     $$PWD/devices/kineticinroadbike/kineticinroadbike.h \
+    $$PWD/devices/lifespanbike/lifespanbike.h \
     $$PWD/devices/lifespantreadmill/lifespantreadmill.h \
     $$PWD/devices/moxy5sensor/moxy5sensor.h \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h \
@@ -385,6 +388,7 @@ HEADERS += \
     $$PWD/devices/sportsplusrower/sportsplusrower.h \
     $$PWD/devices/sportstechrower/sportstechrower.h \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
+    $$PWD/devices/cycplusbc2controller/cycplusbc2controller.h \
     $$PWD/devices/sramAXSController/sramAXSController.h \
     $$PWD/devices/thinkridercontroller/thinkridercontroller.h \
     $$PWD/devices/stairclimber.h \
