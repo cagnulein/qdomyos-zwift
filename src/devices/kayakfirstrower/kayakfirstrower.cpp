@@ -22,6 +22,8 @@
 using namespace std::chrono_literals;
 
 static constexpr int kKayakFirstMtu = 20;
+static constexpr int kKayakFirstLongDelayMs = 1000;
+static constexpr int kKayakFirstExtraLongDelayMs = 5000;
 
 kayakfirstrower::kayakfirstrower(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                  double bikeResistanceGain) {
@@ -69,42 +71,57 @@ bool kayakfirstrower::writeCommand(const QString &command, const QString &info, 
     return true;
 }
 
-bool kayakfirstrower::waitForResponse(const QString &expectedResponse, int timeoutMs, bool checkExact) {
-    QString lastSeenResponse;
-    const QDateTime start = QDateTime::currentDateTime();
+bool kayakfirstrower::waitForResponse(char expectedResponseByte, int timeoutMs, bool withEcho) {
+    const QString expectedResponseText(QChar::fromLatin1(expectedResponseByte));
 
-    while (start.msecsTo(QDateTime::currentDateTime()) < timeoutMs) {
-        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+    auto waitForByte = [&](int waitMs) {
+        const QDateTime start = QDateTime::currentDateTime();
 
-        while (!controlResponsesQueue.isEmpty()) {
-            const QString response = controlResponsesQueue.dequeue();
-            lastSeenResponse = response;
+        while (start.msecsTo(QDateTime::currentDateTime()) < waitMs) {
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 
-            if ((checkExact && response == expectedResponse) ||
-                (!checkExact && response.startsWith(expectedResponse))) {
-                emit debug(QStringLiteral("response ok: ") + response);
-                return true;
+            while (!controlResponsesQueue.isEmpty()) {
+                const char responseByte = controlResponsesQueue.dequeue();
+                if (responseByte == expectedResponseByte) {
+                    emit debug(QStringLiteral("response ok: ") + expectedResponseText);
+                    return true;
+                }
             }
+
+            QThread::msleep(50);
         }
 
-        QThread::msleep(50);
+        return false;
+    };
+
+    bool seenEcho = !withEcho;
+    if (withEcho) {
+        seenEcho = waitForByte(timeoutMs);
+        controlResponsesQueue.clear();
     }
 
-    emit debug(QStringLiteral("response timeout for ") + expectedResponse + QStringLiteral(" last=") + lastSeenResponse);
-    return false;
+    const bool seenResponse = waitForByte(timeoutMs);
+    if (!seenResponse && !seenEcho) {
+        emit debug(QStringLiteral("response timeout for byte ") + expectedResponseText);
+    }
+    return seenResponse || seenEcho;
 }
 
 void kayakfirstrower::btinit() {
     // Sequence ported from TrackMyIndoorWorkout KayakFirst descriptor
     controlResponsesQueue.clear();
     writeCommand(QStringLiteral("1"), QStringLiteral("reset-1"), false);
-    waitForResponse(QStringLiteral("1"), 2000, false);
-    QThread::msleep(500);
+    if (!waitForResponse('1', kKayakFirstExtraLongDelayMs, true)) {
+        return;
+    }
+    QThread::msleep(kKayakFirstLongDelayMs);
 
     controlResponsesQueue.clear();
     writeCommand(QStringLiteral("1"), QStringLiteral("reset-2"), false);
-    waitForResponse(QStringLiteral("1"), 2000, false);
-    QThread::msleep(1000);
+    if (!waitForResponse('1', kKayakFirstExtraLongDelayMs, true)) {
+        return;
+    }
+    QThread::msleep(kKayakFirstExtraLongDelayMs);
 
     QSettings settings;
     const int athleteWeight = settings.value(QZSettings::weight, QZSettings::default_weight).toInt();
@@ -120,14 +137,18 @@ void kayakfirstrower::btinit() {
         QStringLiteral("2;%1;%2;%3;%4").arg(unixEpoch).arg(tzOffsetMinutes).arg(athleteWeight).arg(sportFlag);
     controlResponsesQueue.clear();
     writeCommand(handshake, QStringLiteral("handshake"), false);
-    waitForResponse(QStringLiteral("2;"), 3000, false);
-    QThread::msleep(1000);
+    if (!waitForResponse('2', kKayakFirstExtraLongDelayMs, true)) {
+        return;
+    }
+    QThread::msleep(kKayakFirstExtraLongDelayMs);
 
     // Basic display configuration (8 slots all to default value 1)
     controlResponsesQueue.clear();
     writeCommand(QStringLiteral("5;1;1;1;1;1;1;1;1"), QStringLiteral("display-config"), false);
-    waitForResponse(QStringLiteral("5;"), 3000, false);
-    QThread::msleep(500);
+    if (!waitForResponse('5', kKayakFirstExtraLongDelayMs, true)) {
+        return;
+    }
+    QThread::msleep(kKayakFirstExtraLongDelayMs);
 
     initDone = true;
 }
@@ -141,17 +162,12 @@ void kayakfirstrower::parseLine(const QByteArray &line) {
 
     if (!line.startsWith('6')) {
         QString controlResponse = QString::fromUtf8(line).trimmed();
-        if (controlResponse.startsWith(';') && !pendingControlFragment.isEmpty()) {
-            controlResponse = pendingControlFragment + controlResponse;
-            pendingControlFragment.clear();
-        } else if (!controlResponse.startsWith(';')) {
-            pendingControlFragment = controlResponse;
-        }
-
         emit debug(QStringLiteral(" << ctrl ") + controlResponse);
         lastControlResponse = controlResponse;
         lastControlResponseTime = QDateTime::currentDateTime();
-        controlResponsesQueue.enqueue(controlResponse);
+        if (!controlResponse.isEmpty()) {
+            controlResponsesQueue.enqueue(controlResponse.at(0).toLatin1());
+        }
         while (controlResponsesQueue.size() > 50) {
             controlResponsesQueue.dequeue();
         }
@@ -241,7 +257,7 @@ void kayakfirstrower::update() {
     if (requestStart != -1) {
         controlResponsesQueue.clear();
         writeCommand(QStringLiteral("9;1"), QStringLiteral("start"), false);
-        waitForResponse(QStringLiteral("9;"), 5000, false);
+        waitForResponse('9', kKayakFirstExtraLongDelayMs, true);
         requestStart = -1;
         emit bikeStarted();
     }
@@ -249,7 +265,7 @@ void kayakfirstrower::update() {
     if (requestStop != -1) {
         controlResponsesQueue.clear();
         writeCommand(QStringLiteral("9;3"), QStringLiteral("stop"), false);
-        waitForResponse(QStringLiteral("9;"), 5000, false);
+        waitForResponse('9', kKayakFirstExtraLongDelayMs, true);
         requestStop = -1;
     }
 
@@ -271,6 +287,12 @@ void kayakfirstrower::characteristicChanged(const QLowEnergyCharacteristic &char
     while ((lineEnd = streamBuffer.indexOf("\r\n")) >= 0) {
         const QByteArray line = streamBuffer.left(lineEnd);
         streamBuffer.remove(0, lineEnd + 2);
+        parseLine(line);
+    }
+
+    if (streamBuffer.size() == 2 && streamBuffer.at(0) == '1' && streamBuffer.at(1) == 0x01) {
+        const QByteArray line = streamBuffer;
+        streamBuffer.clear();
         parseLine(line);
     }
 

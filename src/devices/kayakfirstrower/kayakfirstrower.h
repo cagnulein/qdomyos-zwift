@@ -22,7 +22,7 @@ class kayakfirstrower : public rower {
 
   private:
     bool writeCommand(const QString &command, const QString &info, bool wait_for_response = false);
-    bool waitForResponse(const QString &expectedResponse, int timeoutMs, bool checkExact = false);
+    bool waitForResponse(char expectedResponseByte, int timeoutMs, bool withEcho = false);
     void btinit();
     void parseLine(const QByteArray &line);
     uint16_t watts() override;
@@ -40,8 +40,7 @@ class kayakfirstrower : public rower {
     uint8_t sec1Update = 0;
 
     QByteArray streamBuffer;
-    QString pendingControlFragment;
-    QQueue<QString> controlResponsesQueue;
+    QQueue<char> controlResponsesQueue;
     QString lastControlResponse;
     QDateTime lastControlResponseTime;
     QDateTime lastDataUpdate = QDateTime::currentDateTime();
