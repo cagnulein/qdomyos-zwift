@@ -803,7 +803,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 if(BIKE_)
                     d = d / 10.0;
                 // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
-                if(!SL010 && !TITAN_7000 && !SPORT01)
+                // FS_YK should keep the last commanded resistance; its reported value uses a different scale.
+                if(!SL010 && !TITAN_7000 && !SPORT01 && !FS_YK)
                     Resistance = d;
                 emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
                 emit resistanceRead(Resistance.value());
@@ -838,7 +839,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     m_pelotonResistance = res;
                 }
 
-                if (!resistance_received && !DU30_bike && !SL010) {
+                if (!resistance_received && !DU30_bike && !SL010 && !FS_YK) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
                     emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
@@ -1126,13 +1127,15 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
                 qDebug() << QStringLiteral("Current Peloton Resistance: ") + QString::number(m_pelotonResistance.value());
 
-                if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance)
-                        .toBool())
-                    Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
-                else
-                    Resistance = m_pelotonResistance;
-                emit resistanceRead(Resistance.value());
-                qDebug() << QStringLiteral("Current Resistance Calculated: ") + QString::number(Resistance.value());
+                if (!FS_YK) {
+                    if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance)
+                            .toBool())
+                        Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
+                    else
+                        Resistance = m_pelotonResistance;
+                    emit resistanceRead(Resistance.value());
+                    qDebug() << QStringLiteral("Current Resistance Calculated: ") + QString::number(Resistance.value());
+                }
 
                 if (watts())
                     KCal +=
@@ -1279,7 +1282,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (!ensureBytesAvailable(2, QStringLiteral("resistance")))
                 return;
 
-            if(!TITAN_7000) {
+            if(!TITAN_7000 && !FS_YK) {
                 Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                        (uint16_t)((uint8_t)newValue.at(index))));
                 emit resistanceRead(Resistance.value());
@@ -1316,8 +1319,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     m_pelotonResistance = res;
                 }
 
-                Resistance = m_pelotonResistance;
-                emit resistanceRead(Resistance.value());
+                if (!FS_YK) {
+                    Resistance = m_pelotonResistance;
+                    emit resistanceRead(Resistance.value());
+                }
             }
         }
 
