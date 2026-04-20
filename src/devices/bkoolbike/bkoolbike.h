@@ -64,6 +64,7 @@ class bkoolbike : public bike {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
+    QDateTime postInitMetricsSeenAt;
     QDateTime postInitResistancePlusNotBefore = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
 
