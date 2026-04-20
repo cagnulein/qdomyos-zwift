@@ -195,6 +195,8 @@ class homeform : public QObject {
     Q_PROPERTY(bool garminWorkoutPromptRequested READ garminWorkoutPromptRequested NOTIFY garminWorkoutPromptRequestedChanged WRITE setGarminWorkoutPromptRequested)
     Q_PROPERTY(QString garminWorkoutPromptName READ garminWorkoutPromptName NOTIFY garminWorkoutPromptNameChanged)
     Q_PROPERTY(QString garminWorkoutPromptDate READ garminWorkoutPromptDate NOTIFY garminWorkoutPromptDateChanged)
+    Q_PROPERTY(bool echelonBridgeSwitchPromptRequested READ echelonBridgeSwitchPromptRequested NOTIFY echelonBridgeSwitchPromptRequestedChanged WRITE setEchelonBridgeSwitchPromptRequested)
+    Q_PROPERTY(bool echelonEnablePromptRequested READ echelonEnablePromptRequested NOTIFY echelonEnablePromptRequestedChanged WRITE setEchelonEnablePromptRequested)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -486,6 +488,8 @@ class homeform : public QObject {
     bool garminWorkoutPromptRequested() { return m_garminWorkoutPromptRequested; }
     QString garminWorkoutPromptName() { return m_garminWorkoutPromptName; }
     QString garminWorkoutPromptDate() { return m_garminWorkoutPromptDate; }
+    bool echelonBridgeSwitchPromptRequested() { return m_echelonBridgeSwitchPromptRequested; }
+    bool echelonEnablePromptRequested() { return m_echelonEnablePromptRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool pelotonPopupVisible();
@@ -554,18 +558,44 @@ class homeform : public QObject {
         m_garminWorkoutPromptRequested = value;
         emit garminWorkoutPromptRequestedChanged(value);
     }
+    void setEchelonBridgeSwitchPromptRequested(bool value) {
+        if (m_echelonBridgeSwitchPromptRequested == value) {
+            return;
+        }
+        m_echelonBridgeSwitchPromptRequested = value;
+        emit echelonBridgeSwitchPromptRequestedChanged(value);
+    }
+    void setEchelonEnablePromptRequested(bool value) {
+        if (m_echelonEnablePromptRequested == value) {
+            return;
+        }
+        m_echelonEnablePromptRequested = value;
+        emit echelonEnablePromptRequestedChanged(value);
+    }
     Q_INVOKABLE void garmin_connect_login();
     Q_INVOKABLE void garmin_submit_mfa_code(const QString &mfaCode);
     Q_INVOKABLE void garmin_connect_logout();
     Q_INVOKABLE void garmin_start_downloaded_workout();
     Q_INVOKABLE void garmin_dismiss_downloaded_workout_prompt();
+    Q_INVOKABLE void echelon_switch_to_classic_bridge();
+    Q_INVOKABLE void echelon_dismiss_bridge_switch_prompt();
+    Q_INVOKABLE void echelon_enable_virtual_bridge();
+    Q_INVOKABLE void echelon_dismiss_enable_prompt();
 
     Q_INVOKABLE bool isStravaLoggedIn();
     Q_INVOKABLE bool isPelotonLoggedIn();
     Q_INVOKABLE bool isIntervalsICULoggedIn();
+    Q_INVOKABLE bool isGarminUploadConfigured();
+    Q_INVOKABLE bool isIntervalsICUUploadConfigured();
+    Q_INVOKABLE void uploadHistoricalWorkoutToStrava(const QString &filePath);
+    Q_INVOKABLE void uploadHistoricalWorkoutToGarmin(const QString &filePath);
+    Q_INVOKABLE void uploadHistoricalWorkoutToIntervalsICU(const QString &filePath);
     Q_INVOKABLE void strava_logout();
     Q_INVOKABLE void peloton_logout();
     Q_INVOKABLE void intervalsicu_logout();
+    Q_INVOKABLE void handleOAuthCallbackFromQml(const QString &callbackUrl);
+    Q_INVOKABLE void selectGymModeDevice(const QString &deviceName);
+    Q_INVOKABLE bool hasConnectedDevice() const;
 
 private:
     void clearWebViewCache();
@@ -767,6 +797,7 @@ public:
     DataObject *odometer;
     DataObject *pace;
     DataObject *avg_pace;
+    DataObject *grade_adjusted_pace;
     DataObject *datetime;
     DataObject *resistance;
     DataObject *watt;
@@ -908,6 +939,8 @@ public:
     bool m_stravaUploadRequested = false;
     bool m_garminMfaRequested = false;
     bool m_garminWorkoutPromptRequested = false;
+    bool m_echelonBridgeSwitchPromptRequested = false;
+    bool m_echelonEnablePromptRequested = false;
     QString m_garminWorkoutPromptName = QStringLiteral("");
     QString m_garminWorkoutPromptDate = QStringLiteral("");
     QString m_garminWorkoutPromptFile = QStringLiteral("");
@@ -1024,6 +1057,7 @@ public:
     void Plus(const QString &);
     void trainprogram_open_clicked(const QUrl &fileName);
     void trainprogram_autostart_requested();
+    void handleOAuthCallbackUrl(const QString &callbackUrl);
 
   private slots:
     void Start();
@@ -1137,6 +1171,8 @@ public:
     void garminWorkoutPromptRequestedChanged(bool value);
     void garminWorkoutPromptNameChanged(QString value);
     void garminWorkoutPromptDateChanged(QString value);
+    void echelonBridgeSwitchPromptRequestedChanged(bool value);
+    void echelonEnablePromptRequestedChanged(bool value);
     void generalPopupVisibleChanged(bool value);
     void pelotonPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
@@ -1147,6 +1183,7 @@ public:
     void videoRateChanged(double value);
     void chartIconVisibleChanged(bool value);
     void chartFooterVisibleChanged(bool value);
+    void manualCscBikeResistanceAdjusted(resistance_t resistance);
     void currentSpeedChanged(double value);
     void mapsVisibleChanged(bool value);
     void autoResistanceChanged(bool value);
@@ -1181,3 +1218,5 @@ public:
 };
 
 #endif // HOMEFORM_H
+
+
