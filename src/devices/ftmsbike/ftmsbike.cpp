@@ -140,8 +140,15 @@ void ftmsbike::init() {
     
     uint8_t write[] = {FTMS_REQUEST_CONTROL};
     bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
-    write[0] = {FTMS_START_RESUME};
-    ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+    if (USDC_D700) {
+        // Kinomap keeps this bike streaming by following request-control with STOP/PAUSE(0x01)
+        // instead of the usual START/RESUME opcode.
+        uint8_t usdcStart[] = {FTMS_STOP_PAUSE, 0x01};
+        ret = writeCharacteristic(usdcStart, sizeof(usdcStart), "usdc d700 start workaround", false, true);
+    } else {
+        write[0] = {FTMS_START_RESUME};
+        ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+    }
 
     if(ret) {
         initDone = true;
@@ -416,6 +423,12 @@ void ftmsbike::update() {
                             deferResistanceRequest = true;
                         }
                     }
+                    if (USDC_D700 && usdc_d700_ftms_frames_received < 3) {
+                        qDebug() << "Deferring USDC-D700 resistance write until FTMS stream is stable"
+                                 << "requested:" << rR
+                                 << "framesReceived:" << usdc_d700_ftms_frames_received;
+                        deferResistanceRequest = true;
+                    }
 
                     if (deferResistanceRequest) {
                         requestResistance = rR;
@@ -680,6 +693,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     }
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
+        if (USDC_D700) {
+            ++usdc_d700_ftms_frames_received;
+        }
 
         union flags {
             struct {
@@ -1998,6 +2014,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             ergModeSupported = false;
             max_resistance = 32;
             _ergTable.loadDefaultData(kSpeedRaceXDefaultErgData);
+        } else if (device.name().toUpper().startsWith("USDC-D700-")) {
+            qDebug() << QStringLiteral("USDC-D700 found");
+            USDC_D700 = true;
+            resistance_lvl_mode = true;
         }
 
 
