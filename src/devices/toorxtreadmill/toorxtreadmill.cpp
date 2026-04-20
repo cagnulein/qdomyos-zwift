@@ -18,6 +18,13 @@ toorxtreadmill::toorxtreadmill() {
     refresh->start(1s);
 }
 
+double toorxtreadmill::minStepInclination() {
+    if (BHDualkitTread) {
+        return 1.0;
+    }
+    return treadmill::minStepInclination();
+}
+
 void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
@@ -162,6 +169,11 @@ void toorxtreadmill::update() {
             requestInclination = -100;
         } else if (requestStart != -1 && start_phase == -1) {
             emit debug(QStringLiteral("starting..."));
+            if (BHDualkitTread) {
+                const uint8_t incline[] = {0x55, 0x0a, 0x01, 0x01};
+                send((char *)incline, sizeof(incline));
+                Inclination = 1;
+            }
             //const uint8_t start[] = {0x55, 0x17, 0x01, 0x01, 0x55, 0xb5, 0x01, 0xff};
             //send((char *)start, sizeof(start));
             start_phase = 0;

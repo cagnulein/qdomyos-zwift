@@ -33,6 +33,7 @@ class toorxtreadmill : public treadmill {
     Q_OBJECT
   public:
     explicit toorxtreadmill();
+    double minStepInclination() override;
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
