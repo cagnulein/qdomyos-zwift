@@ -399,7 +399,6 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::FitShowFS)
         ->expectDevice<fitshowtreadmill>()        
         ->acceptDeviceName("FS-", DeviceNameComparison::StartsWith)
-        ->acceptDeviceName("TR510-T", DeviceNameComparison::StartsWithIgnoreCase)
         ->configureSettingsWith(
             [](const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) -> void
             {
@@ -444,6 +443,11 @@ void DeviceTestDataIndex::Initialize() {
                 }
             })
         ->excluding<ftmsbike>();
+
+    // FitShow TR510-T
+    RegisterNewDeviceTestData(DeviceIndex::FitShowTR510T)
+        ->expectDevice<fitshowtreadmill>()
+        ->acceptDeviceName("TR510-T", DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // FitShow SW
