@@ -408,13 +408,39 @@ void DeviceTestDataIndex::Initialize() {
                 if(enable){
                     config.setValue(QZSettings::snode_bike, false);
                     config.setValue(QZSettings::fitplus_bike, false);
+                    config.setValue(QZSettings::hammer_racer_s, false);
+                    config.setValue(QZSettings::iconsole_elliptical, false);
+                    config.setValue(QZSettings::gymstick_gx6_0_elliptical, false);
+                    config.setValue(QZSettings::virtufit_etappe, false);
                     configurations.push_back(config);
                 } else {
-                    for(int i=1; i<4; i++) {
-                        config.setValue(QZSettings::snode_bike, i&1);
-                        config.setValue(QZSettings::fitplus_bike, i&2);
-                        configurations.push_back(config);
-                    }
+                    config.setValue(QZSettings::snode_bike, true);
+                    config.setValue(QZSettings::fitplus_bike, false);
+                    config.setValue(QZSettings::hammer_racer_s, false);
+                    config.setValue(QZSettings::iconsole_elliptical, false);
+                    config.setValue(QZSettings::gymstick_gx6_0_elliptical, false);
+                    config.setValue(QZSettings::virtufit_etappe, false);
+                    configurations.push_back(config);
+
+                    config.setValue(QZSettings::snode_bike, false);
+                    config.setValue(QZSettings::fitplus_bike, true);
+                    configurations.push_back(config);
+
+                    config.setValue(QZSettings::fitplus_bike, false);
+                    config.setValue(QZSettings::virtufit_etappe, true);
+                    configurations.push_back(config);
+
+                    config.setValue(QZSettings::virtufit_etappe, false);
+                    config.setValue(QZSettings::hammer_racer_s, true);
+                    configurations.push_back(config);
+
+                    config.setValue(QZSettings::hammer_racer_s, false);
+                    config.setValue(QZSettings::iconsole_elliptical, true);
+                    configurations.push_back(config);
+
+                    config.setValue(QZSettings::iconsole_elliptical, false);
+                    config.setValue(QZSettings::gymstick_gx6_0_elliptical, true);
+                    configurations.push_back(config);
                 }
             })
         ->excluding<ftmsbike>();
