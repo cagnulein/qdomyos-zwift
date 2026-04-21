@@ -1270,8 +1270,8 @@ import Qt.labs.platform 1.1
 			property int tile_power_avg_order: 77
 			property bool life_fitness_ic5: false
 			property bool technogym_bike: false
-			property double power_sensor_speed_inclination_coeff_a: -0.96
-			property double power_sensor_speed_inclination_coeff_b: 1.33
+			property double power_sensor_speed_inclination_coeff_a: 0.0
+			property double power_sensor_speed_inclination_coeff_b: 0.0
         }
 
 
