@@ -1640,13 +1640,52 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // NOTE: Commented due to #358
                 // connect(horizonTreadmill, SIGNAL(inclinationChanged(double)), this,
                 // SLOT(inclinationChanged(double)));
-                horizonTreadmill->deviceDiscovered(b);
-                // NOTE: Commented due to #358
-                // connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
-                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
-                    emit searchingStop();
+                const QString heartRateBeltName =
+                    settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
+                        .toString();
+                bool prioritizeHeartRateBelt = false;
+
+                if (!heartRateBelt &&
+                    !heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+                    for (const QBluetoothDeviceInfo &hrDevice : qAsConst(devices)) {
+                        if (!hrDevice.name().startsWith(heartRateBeltName)) {
+                            continue;
+                        }
+
+                        settings.setValue(QZSettings::hrm_lastdevice_name, hrDevice.name());
+#ifndef Q_OS_IOS
+                        settings.setValue(QZSettings::hrm_lastdevice_address, hrDevice.address().toString());
+#else
+                        settings.setValue(QZSettings::hrm_lastdevice_address, hrDevice.deviceUuid().toString());
+#endif
+                        heartRateBelt = new heartratebelt();
+                        connect(heartRateBelt, &heartratebelt::debug, this, &bluetooth::debug);
+                        connect(heartRateBelt, &heartratebelt::heartRate, horizonTreadmill,
+                                &bluetoothdevice::heartRate);
+                        connect(heartRateBelt, &heartratebelt::rrIntervalReceived, horizonTreadmill,
+                                &bluetoothdevice::rrIntervalReceived);
+                        heartRateBelt->deviceDiscovered(hrDevice);
+                        debug(QStringLiteral("Prioritizing HR belt connection before treadmill handshake"));
+                        prioritizeHeartRateBelt = true;
+                        break;
+                    }
                 }
-                this->signalBluetoothDeviceConnected(horizonTreadmill);
+
+                auto connectHorizonTreadmill = [this, b]() {
+                    horizonTreadmill->deviceDiscovered(b);
+                    // NOTE: Commented due to #358
+                    // connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
+                    if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                        emit searchingStop();
+                    }
+                    this->signalBluetoothDeviceConnected(horizonTreadmill);
+                };
+
+                if (prioritizeHeartRateBelt) {
+                    QTimer::singleShot(2000, this, connectHorizonTreadmill);
+                } else {
+                    connectHorizonTreadmill();
+                }
             } else if ((b.name().toUpper().startsWith(QStringLiteral("MYRUN ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MERACH-U3")) // FTMS
                         ) &&
