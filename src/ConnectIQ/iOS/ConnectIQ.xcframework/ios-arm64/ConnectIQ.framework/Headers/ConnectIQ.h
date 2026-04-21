@@ -6,9 +6,10 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <ConnectIQ/IQConstants.h>
-#import <ConnectIQ/IQDevice.h>
-#import <ConnectIQ/IQApp.h>
+
+#import "IQConstants.h"
+#import "IQDevice.h"
+#import "IQApp.h"
 
 // --------------------------------------------------------------------------------
 #pragma mark - PUBLIC TYPES
@@ -49,9 +50,22 @@ typedef void (^IQSendMessageCompletion)(IQSendMessageResult result);
 /// @brief  Called by the ConnectIQ SDK when an IQDevice's connection status has
 ///         changed.
 ///
+///         When the device status is updated to ``IQDeviceStatus.IQDeviceStatus_Connected``
+///         it does not mean the device services and characteristics have been discovered yet. To wait
+///         till the services and characteristics to be discovered the client app has to wait on the delegate call
+///         ``deviceCharacteristicsDiscovered:(IQDevice *)``. After that the client
+///         app can start communicating with the device. The method ``deviceCharacteristicsDiscovered:``
+///         was added to keep backwards compatibility for ``IQDeviceStatus``.
+///
 /// @param  device The IQDevice whose status changed.
 /// @param  status The new status of the device.
 - (void)deviceStatusChanged:(IQDevice *)device status:(IQDeviceStatus)status;
+
+/// @brief  Called by the ConnectIQ SDK when an IQDevice's charactersitics are discovered.
+/// When this method is called the device is ready for communication with the client app.
+///
+/// @param  device The IQDevice whose characteristics are discovered.
+- (void)deviceCharacteristicsDiscovered:(IQDevice *)device;
 @end
 
 /// @brief  Conforming to the IQAppMessageDelegate protocol indicates that an
@@ -88,8 +102,11 @@ typedef void (^IQSendMessageCompletion)(IQSendMessageResult result);
 #pragma mark - INITIALIZATION
 // --------------------------------------------------------------------------------
 
-/// @brief  Initializes the ConnectIQ SDK with startup parameters necessary for
-///         its operation.
+/// @brief  Initializes the ConnectIQ SDK for use with a URL Scheme.  See also
+///         - (void)initializeWithUrlScheme:(NSString *)urlScheme
+///         uiOverrideDelegate:(id<IQUIOverrideDelegate>)delegate
+///         stateRestorationIdentifier:(NSString *) restorationIdentifier;
+///         for comparison.
 ///
 /// @param  urlScheme The URL scheme for this companion app. When Garmin Connect
 ///                   Mobile is launched, it will return to the companion app by
@@ -98,6 +115,60 @@ typedef void (^IQSendMessageCompletion)(IQSendMessageResult result);
 ///                   companion app about events that require user input. If this
 ///                   is nil, the SDK's default UI will be used.
 - (void)initializeWithUrlScheme:(NSString *)urlScheme uiOverrideDelegate:(id<IQUIOverrideDelegate>)delegate;
+
+/// @brief  Initializes the ConnectIQ SDK for use with a URL Scheme.
+///
+/// @param  urlScheme The URL scheme for this companion app. When Garmin Connect
+///                   Mobile is launched, it will return to the companion app by
+///                   launching a URL with this scheme.
+/// @param  delegate  The delegate that the SDK will use for notifying the
+///                   companion app about events that require user input. If this
+///                   is nil, the SDK's default UI will be used.
+/// @param  restorationIdentifier The string which will be used as the value for
+///         CBCentralManagerOptionRestoreIdentifierKey for the internal CBCentralManager.
+///         The benefit of adding this identifier is that it allows the app to relaunch in the background
+///         when BLE activity is detected on associated devices after being suspended by iOS.  The SDK
+///         does not currently handle the resulting call to willRestoreState because most CIQ companion apps
+///         will reconnect to devices they are interested in during app launch.
+- (void)initializeWithUrlScheme:(NSString *)urlScheme
+             uiOverrideDelegate:(id<IQUIOverrideDelegate>)delegate
+     stateRestorationIdentifier:(NSString *) restorationIdentifier;
+
+/// @brief  Initializes the ConnectIQ SDK for use with Universal links.  See also
+///         - (void)initializeWithUniversalLinks:(NSString *)urlHost
+///         uiOverrideDelegate:(id<IQUIOverrideDelegate>)delegate
+///         stateRestorationIdentifier:(NSString *) restorationIdentifier;
+///         for comparison.
+///
+/// @param  urlHost The URL host for this companion app. When Garmin Connect
+///                   Mobile is launched, it will return to the companion app by
+///                   launching a URL with this host. The host URL shall be added
+///                   to associated domains list and shall have an entry in apple-app-site-association
+///                   JSON file hosted on the same domain to be able to launch the companion app
+/// @param  delegate  The delegate that the SDK will use for notifying the
+///                   companion app about events that require user input. If this
+///                   is nil, the SDK's default UI will be used.
+- (void)initializeWithUniversalLinks:(NSString *)urlHost uiOverrideDelegate:(id<IQUIOverrideDelegate>)delegate;
+
+/// @brief  Initializes the ConnectIQ SDK for use with Universal links.
+///
+/// @param  urlHost The URL host for this companion app. When Garmin Connect
+///                   Mobile is launched, it will return to the companion app by
+///                   launching a URL with this host. The host URL shall be added
+///                   to associated domains list and shall have an entry in apple-app-site-association
+///                   JSON file hosted on the same domain to be able to launch the companion app
+/// @param  delegate  The delegate that the SDK will use for notifying the
+///                   companion app about events that require user input. If this
+///                   is nil, the SDK's default UI will be used.
+/// @param  restorationIdentifier The string which will be used as the value for
+///         CBCentralManagerOptionRestoreIdentifierKey for the internal CBCentralManager.
+///         The benefit of adding this identifier is that it allows the app to relaunch in the background
+///         when BLE activity is detected on associated devices after being suspended by iOS.  The SDK
+///         does not currently handle the resulting call to willRestoreState because most CIQ companion apps
+///         will reconnect to devices they are interested in during app launch.
+- (void)initializeWithUniversalLinks:(NSString *)urlHost
+                  uiOverrideDelegate:(id<IQUIOverrideDelegate>)delegate
+          stateRestorationIdentifier:(NSString *) restorationIdentifier;
 
 // --------------------------------------------------------------------------------
 #pragma mark - EXTERNAL LAUNCHING
@@ -223,6 +294,21 @@ typedef void (^IQSendMessageCompletion)(IQSendMessageResult result);
 /// @param  completion A completion block that will be triggered when the send
 ///                    message operation is complete.
 - (void)sendMessage:(id)message toApp:(IQApp *)app progress:(IQSendMessageProgress)progress completion:(IQSendMessageCompletion)completion;
+
+/// @brief  Begins sending a message to an app while allowing the message to be marked as transient. This method returns immediately.
+///
+/// @param  message    The message to send to the app. This message must be one of
+///                    the following types: NSString, NSNumber, NSNull, NSArray,
+///                    or NSDictionary. Arrays and dictionaries may be nested.
+/// @param  app        The app to send the message to.
+/// @param  progress   A progress block that will be triggered periodically
+///                    throughout the transfer. This is guaranteed to be triggered
+///                    at least once.
+/// @param  completion A completion block that will be triggered when the send
+///                    message operation is complete.
+/// @param  isTransient Flag to mark the message as transient.
+- (void)sendMessage:(id)message toApp:(IQApp *)app progress:(IQSendMessageProgress)progress
+         completion:(IQSendMessageCompletion)completion isTransient:(BOOL)isTransient;
 
 /// @brief  Sends an open app request message request to the device. This method returns immediately.
 ///
