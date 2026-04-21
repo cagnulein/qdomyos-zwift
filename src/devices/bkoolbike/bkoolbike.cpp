@@ -211,8 +211,8 @@ void bkoolbike::update() {
             postInitMetricsSeenAt.isValid() &&
             QDateTime::currentDateTime() >= postInitMetricsSeenAt.addMSecs(1500)) {
             postInitResistancePlusPending = false;
-            emit debug(QStringLiteral("forcing resistance 1 after init"));
-            requestResistance = 1;
+            emit debug(QStringLiteral("forcing startup inclination -0.5 after init"));
+            requestInclination = -0.5;
         }
 
         if (requestResistance != -1) {
