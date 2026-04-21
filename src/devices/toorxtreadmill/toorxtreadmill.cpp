@@ -173,6 +173,8 @@ void toorxtreadmill::update() {
                 const uint8_t incline[] = {0x55, 0x0a, 0x01, 0x01};
                 send((char *)incline, sizeof(incline));
                 Inclination = 1;
+                const uint8_t start[] = {0x55, 0x07, 0x01, 0xff};
+                send((char *)start, sizeof(start));
             }
             //const uint8_t start[] = {0x55, 0x17, 0x01, 0x01, 0x55, 0xb5, 0x01, 0xff};
             //send((char *)start, sizeof(start));
