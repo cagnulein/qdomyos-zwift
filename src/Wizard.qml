@@ -10,6 +10,11 @@ Page {
     property int currentStep: 0
     property var selectedOptions: ({})
 
+    // Strip the RSSI proximity suffix (e.g. " (75%)") before saving device names
+    function stripRssi(deviceName) {
+        return deviceName.replace(/ \(\d+%\)$/, "")
+    }
+
     Settings {
         id: settings
         property string peloton_username: "username"
@@ -34,6 +39,7 @@ Page {
         property string heart_rate_belt_name: "Disabled"
         property bool garmin_companion: false
         property string filter_device: "Disabled"
+        property bool weight_kg_unit: false
     }
 
     background: Rectangle {
@@ -1075,7 +1081,7 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
                         onClicked: {
-                            settings.filter_device = filterDeviceTextField.displayText;
+                            settings.filter_device = stripRssi(filterDeviceTextField.displayText);
                             stackViewLocal.push(unitSelectionComponent)
                         }
                     }
@@ -1181,7 +1187,7 @@ Page {
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Weight (" + (settings.miles_unit ? "lbs" : "kg") + ")")
+                        text: qsTr("Weight (" + ((settings.miles_unit && !settings.weight_kg_unit) ? "lbs" : "kg") + ")")
                         font.pixelSize: 20
                         color: "white"
                     }
@@ -1189,13 +1195,13 @@ Page {
                     SpinBox {
                         id: weightSpinBox
                         Layout.alignment: Qt.AlignHCenter
-                        from: settings.miles_unit ? 660 : 300  // 66.0 lbs or 30.0 kg
-                        to: settings.miles_unit ? 4400 : 2000  // 440.0 lbs or 200.0 kg
-                        value: settings.miles_unit ? (settings.weight * 2.20462 * 10).toFixed(0) : (settings.weight * 10)
+                        from: (settings.miles_unit && !settings.weight_kg_unit) ? 660 : 300  // 66.0 lbs or 30.0 kg
+                        to: (settings.miles_unit && !settings.weight_kg_unit) ? 4400 : 2000  // 440.0 lbs or 200.0 kg
+                        value: (settings.miles_unit && !settings.weight_kg_unit) ? (settings.weight * 2.20462 * 10).toFixed(0) : (settings.weight * 10)
                         stepSize: 1
                         editable: true
 
-                        property real realValue: settings.miles_unit ? value / 22.0462 : value / 10
+                        property real realValue: (settings.miles_unit && !settings.weight_kg_unit) ? value / 22.0462 : value / 10
 
                         textFromValue: function(value, locale) {
                             return Number(value / 10).toLocaleString(locale, 'f', 1)
@@ -1391,7 +1397,7 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
                         onClicked: {
-                            settings.heart_rate_belt_name = heartBeltNameTextField.displayText;
+                            settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.displayText);
                             settings.garmin_companion = false
                             stackViewLocal.push(step3Component)
                         }

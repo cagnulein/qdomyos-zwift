@@ -265,7 +265,8 @@ bool DirconProcessor::sendCharacteristicNotification(quint16 uuid, const QByteAr
     pkt.uuid = uuid;
     for (QHash<QTcpSocket *, DirconProcessorClient *>::iterator i = clientsMap.begin(); i != clientsMap.end(); ++i) {
         client = i.value();
-        if (client->char_notify.indexOf(uuid) >= 0 || settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool()) {
+        if (!settings.value(QZSettings::wahoo_rgt_dircon, QZSettings::default_wahoo_rgt_dircon).toBool() ||
+            client->char_notify.indexOf(uuid) >= 0) {
             socket = i.key();
             rvs = socket->write(pkt.encode(0)) < 0;
             if (rvs)

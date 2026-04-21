@@ -38,6 +38,7 @@ class WorkoutTracking: NSObject {
     public static var cadence = Double()
     public static var lastDateMetric = Date()
     public static var flightsClimbed = Double()
+    public static var elevationGain = Double()
     var sport: Int = 0
     let healthStore = HKHealthStore()
     let configuration = HKWorkoutConfiguration()
@@ -209,8 +210,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
     
     func startWorkOut() {
         WorkoutTracking.lastDateMetric = Date()
-        // Reset flights climbed for new workout
+        // Reset flights climbed and elevation gain for new workout
         WorkoutTracking.flightsClimbed = 0
+        WorkoutTracking.elevationGain = 0
         print("Start workout")
         configWorkout()
         workoutSession.startActivity(with: Date())
@@ -277,6 +279,13 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 if let error = error {
                     print(error)
                 }
+                if WorkoutTracking.elevationGain > 0 {
+                    self.workoutBuilder.addMetadata([HKMetadataKeyElevationAscended: HKQuantity(unit: HKUnit.meter(), doubleValue: WorkoutTracking.elevationGain)]) { (_, error) in
+                        if let error = error {
+                            print("WatchWorkoutTracking elevation metadata: \(error.localizedDescription)")
+                        }
+                    }
+                }
                 self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
                     if let error = error {
                         print(error)
@@ -341,6 +350,13 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
              workoutBuilder.add([sampleDistance]) {(success, error) in
                  if let error = error {
                      print(error)
+                 }
+                 if WorkoutTracking.elevationGain > 0 {
+                     self.workoutBuilder.addMetadata([HKMetadataKeyElevationAscended: HKQuantity(unit: HKUnit.meter(), doubleValue: WorkoutTracking.elevationGain)]) { (_, error) in
+                         if let error = error {
+                             print("WatchWorkoutTracking elevation metadata: \(error.localizedDescription)")
+                         }
+                     }
                  }
                  self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
                      if let error = error {
@@ -408,6 +424,14 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     print(error)
                 }
 
+                if WorkoutTracking.elevationGain > 0 {
+                    self.workoutBuilder.addMetadata([HKMetadataKeyElevationAscended: HKQuantity(unit: HKUnit.meter(), doubleValue: WorkoutTracking.elevationGain)]) { (_, error) in
+                        if let error = error {
+                            print("WatchWorkoutTracking elevation metadata: \(error.localizedDescription)")
+                        }
+                    }
+                }
+
                 // End the data collection
                 self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
                     if let error = error {
@@ -426,8 +450,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                         let totalEnergyQuantity = HKQuantity(unit: unit, doubleValue: totalEnergy)
                         workout?.setValue(totalEnergyQuantity, forKey: "totalEnergyBurned")
 
-                        // Reset flights climbed for next workout
+                        // Reset flights climbed and elevation gain for next workout
                         WorkoutTracking.flightsClimbed = 0
+                        WorkoutTracking.elevationGain = 0
                     }
                 }
             }
