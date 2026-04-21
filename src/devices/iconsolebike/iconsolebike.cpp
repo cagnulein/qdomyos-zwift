@@ -159,8 +159,7 @@ void iconsolebike::btinit() {
         break;
     }
     case 5: { // Data: f0a60101079f
-        uint8_t frame[] = {0xF0, 0xA6, 0x01, 0x01, 0x07, 0x9F};
-        send(frame, sizeof(frame));
+        forceResistance(1);
         initPhase++;
         break;
     }
@@ -177,8 +176,7 @@ void iconsolebike::btinit() {
         break;
     }
     case 8: { // Data: f0a60101079f
-        uint8_t frame[] = {0xF0, 0xA6, 0x01, 0x01, 0x07, 0x9F};
-        send(frame, sizeof(frame));
+        forceResistance(1);
         initPhase++;
         break;
     }
@@ -195,8 +193,7 @@ void iconsolebike::btinit() {
         break;
     }
     case 11: { // Data: f0a6010108a0
-        uint8_t frame[] = {0xF0, 0xA6, 0x01, 0x01, 0x08, 0xA0};
-        send(frame, sizeof(frame));
+        forceResistance(1);
         initPhase++;
         break;
     }
