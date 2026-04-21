@@ -27,6 +27,7 @@ import com.garmin.android.connectiq.exception.ServiceUnavailableException;
 import android.content.BroadcastReceiver;
 import android.content.ContextWrapper;
 import android.content.IntentFilter;
+import android.os.Handler;
 import android.widget.Toast;
 import androidx.core.content.ContextCompat;
 
@@ -165,18 +166,50 @@ public class Garmin {
         return new ContextWrapper(context) {
             private HashMap<BroadcastReceiver, BroadcastReceiver> receiverToWrapper = new HashMap<>();
 
+            private BroadcastReceiver wrapReceiver(BroadcastReceiver receiver) {
+                if (receiver == null) {
+                    return null;
+                }
+
+                synchronized (receiverToWrapper) {
+                    BroadcastReceiver wrappedRecv = receiverToWrapper.get(receiver);
+                    if (wrappedRecv == null) {
+                        wrappedRecv = new IQMessageReceiverWrapper(receiver);
+                        receiverToWrapper.put(receiver, wrappedRecv);
+                    }
+                    return wrappedRecv;
+                }
+            }
+
             @Override
             public Intent registerReceiver(final BroadcastReceiver receiver, IntentFilter filter) {
-                BroadcastReceiver wrappedRecv = new IQMessageReceiverWrapper(receiver);
-                synchronized (receiverToWrapper) {
-                    receiverToWrapper.put(receiver, wrappedRecv);
-                }
+                BroadcastReceiver wrappedRecv = wrapReceiver(receiver);
                 return ContextCompat.registerReceiver(
                     super.getBaseContext(),
                     wrappedRecv,
                     filter,
                     ContextCompat.RECEIVER_EXPORTED
                 );
+            }
+
+            @Override
+            public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter, int flags) {
+                BroadcastReceiver wrappedRecv = wrapReceiver(receiver);
+                return super.getBaseContext().registerReceiver(wrappedRecv, filter, flags);
+            }
+
+            @Override
+            public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter, String broadcastPermission,
+                                           Handler scheduler) {
+                BroadcastReceiver wrappedRecv = wrapReceiver(receiver);
+                return super.getBaseContext().registerReceiver(wrappedRecv, filter, broadcastPermission, scheduler);
+            }
+
+            @Override
+            public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter, String broadcastPermission,
+                                           Handler scheduler, int flags) {
+                BroadcastReceiver wrappedRecv = wrapReceiver(receiver);
+                return super.getBaseContext().registerReceiver(wrappedRecv, filter, broadcastPermission, scheduler, flags);
             }
 
             @Override
