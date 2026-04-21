@@ -438,9 +438,25 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
     if (cmd == FITSHOW_SYS_STATUS) {
+        const int previousStatus = CURRENT_STATUS;
         CURRENT_STATUS = par;
         emit debug(QStringLiteral("STATUS ") + QString::number(par));
         const bool tunturiPausedStatus = tunturi_t80_connected && par == 8;
+        const bool tunturiWasPausedStatus = tunturi_t80_connected && previousStatus == 8;
+        const bool tunturiRunningStatus =
+            par == FITSHOW_STATUS_RUNNING || par == FITSHOW_STATUS_START;
+
+        if (tunturi_t80_connected) {
+            if (tunturiPausedStatus && !tunturiWasPausedStatus &&
+                (previousStatus == FITSHOW_STATUS_RUNNING || previousStatus == FITSHOW_STATUS_START)) {
+                emit debug(QStringLiteral("T80 pause status detected from device"));
+                emit buttonHWPause();
+            } else if (!tunturiPausedStatus && tunturiWasPausedStatus && tunturiRunningStatus && paused) {
+                emit debug(QStringLiteral("T80 resume status detected from device"));
+                emit buttonHWStart();
+            }
+        }
+
         if (par == FITSHOW_STATUS_START) {
             if (len > 2) {
                 COUNTDOWN_VALUE = array[2];
