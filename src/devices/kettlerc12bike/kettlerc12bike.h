@@ -59,6 +59,7 @@ class kettlerc12bike : public bike {
     QLowEnergyService *gattCommunicationChannelService = nullptr;
 
     QLowEnergyCharacteristic gattWriteCharacteristic;
+    QLowEnergyCharacteristic gattHandshakeCharacteristic;
     QLowEnergyCharacteristic gattNotify0x0034;            // Cadence notifications
     QLowEnergyCharacteristic gattNotify0x003e;            // Power notifications
     QLowEnergyCharacteristic gattNotify0x0048;            // Speed notifications
@@ -80,7 +81,16 @@ class kettlerc12bike : public bike {
     // UUIDs seen on Kettler C12 variants/firmware revisions.
     const QBluetoothUuid KETTLER_SERVICE_UUID = QBluetoothUuid(QStringLiteral("8ce5cc01-0a4d-11e9-ab14-d663bd873d93"));
     const QBluetoothUuid KETTLER_ALT_SERVICE_UUID = QBluetoothUuid(QStringLiteral("638af000-7bde-3e25-ffc5-9de9b2a0197a"));
-    const QBluetoothUuid KETTLER_WRITE_CHAR_UUID = QBluetoothUuid((quint16)0x2a28);
+    const QBluetoothUuid KETTLER_CONTROL_CHAR_UUID =
+        QBluetoothUuid(QStringLiteral("638a100e-7bde-3e25-ffc5-9de9b2a0197a"));
+    const QBluetoothUuid KETTLER_HANDSHAKE_CHAR_UUID =
+        QBluetoothUuid(QStringLiteral("638a1105-7bde-3e25-ffc5-9de9b2a0197a"));
+    const QBluetoothUuid KETTLER_CADENCE_CHAR_UUID =
+        QBluetoothUuid(QStringLiteral("638a1002-7bde-3e25-ffc5-9de9b2a0197a"));
+    const QBluetoothUuid KETTLER_POWER_CHAR_UUID =
+        QBluetoothUuid(QStringLiteral("638a1003-7bde-3e25-ffc5-9de9b2a0197a"));
+    const QBluetoothUuid KETTLER_SPEED_CHAR_UUID =
+        QBluetoothUuid(QStringLiteral("638a1004-7bde-3e25-ffc5-9de9b2a0197a"));
     QBluetoothUuid activeServiceUuid;
 
 #ifdef Q_OS_IOS

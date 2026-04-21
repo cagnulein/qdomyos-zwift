@@ -79,30 +79,6 @@ void kettlerc12bike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
 
 void kettlerc12bike::btinit() {
     qDebug() << QStringLiteral("kettlerc12bike::btinit");
-
-    // Phase 1: Basic initialization
-    uint8_t init1[] = {0x00, 0x05, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    writeCharacteristic(init1, sizeof(init1), QStringLiteral("init1"), false, true);
-
-    uint8_t init2[] = {0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00};
-    writeCharacteristic(init2, sizeof(init2), QStringLiteral("init2"), false, true);
-
-    // Phase 2: Sequential setup (3b00 through 3b04)
-    for (int i = 0; i <= 4; i++) {
-        uint8_t setup[] = {0x3b, (uint8_t)i};
-        writeCharacteristic(setup, sizeof(setup), QStringLiteral("setup") + QString::number(i), false, true);
-    }
-
-    uint8_t setup_final[] = {0x3b, 0x05, 0x02, 0x00};
-    writeCharacteristic(setup_final, sizeof(setup_final), QStringLiteral("setup_final"), false, true);
-
-    // Phase 3: Configuration
-    uint8_t config1[] = {0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02};
-    writeCharacteristic(config1, sizeof(config1), QStringLiteral("config1"), false, true);
-
-    uint8_t config2[] = {0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00};
-    writeCharacteristic(config2, sizeof(config2), QStringLiteral("config2"), false, true);
-
     initDone = true;
 }
 
@@ -147,30 +123,9 @@ void kettlerc12bike::setTargetPower(uint16_t targetWatts) {
 }
 
 void kettlerc12bike::sendPoll() {
-    // Cycle through different poll commands based on counter
-    switch (counterPoll % 4) {
-        case 0: {
-            uint8_t poll1[] = {0xe1, 0x00};
-            writeCharacteristic(poll1, sizeof(poll1), QStringLiteral("poll1"), true, false);
-            break;
-        }
-        case 1: {
-            uint8_t poll2[] = {0xe2, 0x00};
-            writeCharacteristic(poll2, sizeof(poll2), QStringLiteral("poll2"), true, false);
-            break;
-        }
-        case 2: {
-            uint8_t poll3[] = {0xe3, 0x00};
-            writeCharacteristic(poll3, sizeof(poll3), QStringLiteral("poll3"), true, false);
-            break;
-        }
-        case 3: {
-            uint8_t keepalive[] = {0xc0, 0xc0};
-            writeCharacteristic(keepalive, sizeof(keepalive), QStringLiteral("keepalive"), true, false);
-            break;
-        }
-    }
-    counterPoll++;
+    // The working HCI trace already streams live metrics as soon as notifications are
+    // enabled, so avoid sending speculative poll traffic that can move the bike into
+    // a different protocol mode.
 }
 
 void kettlerc12bike::update() {
@@ -271,39 +226,49 @@ void kettlerc12bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     lastPacket = newValue;
     lastRefreshCharacteristicChanged = now;
 
-    // Get the handle value to determine which metric this is
-    // Note: We need to check the characteristic handle, not UUID
-    // Handle 0x0034 = Cadence (value / 10 = RPM)
-    // Handle 0x003e = Power (value = Watts)
-    // Handle 0x0048 = Speed (value / 10 = km/h)
-
-    // For now, log all notifications to help identify them
-    qDebug() << "characteristicChanged" << characteristic.uuid() << "handle:" << QString::number(characteristic.handle(), 16)
+    const quint16 handle = characteristic.handle();
+    qDebug() << "characteristicChanged" << characteristic.uuid() << "handle:" << QString::number(handle, 16)
              << "value:" << newValue.toHex(' ');
 
-    // Parse based on data length and pattern
-    if (newValue.length() == 2) {
-        // 2-byte values: little-endian format (byte0 + byte1*256)
-        uint16_t value = ((uint8_t)newValue.at(1) << 8) | (uint8_t)newValue.at(0);
+    if (newValue.length() >= 2) {
+        const uint16_t value = ((uint8_t)newValue.at(1) << 8) | (uint8_t)newValue.at(0);
 
-        // Heuristic to identify which metric based on value range:
-        // Cadence: 200-800 (raw) → 20-80 RPM after /10
-        // Power: 0-250 W
-        // Speed: 0-400 (raw) → 0-40 km/h after /10
-
-        if (value >= 200 && value <= 900) {
-            // Likely Cadence (handle 0x0034)
-            Cadence = value / 10.0;
-            qDebug() << "Cadence:" << Cadence.value() << "RPM";
-        } else if (value >= 0 && value < 200) {
-            // Likely Power (handle 0x003e)
-            m_watt = value;
-            qDebug() << "Power:" << m_watt.value() << "W";
-        } else if (value >= 0 && value <= 500) {
-            // Likely Speed (handle 0x0048)
-            Speed = value / 10.0;
-            qDebug() << "Speed:" << Speed.value() << "km/h";
+        switch (handle) {
+            case 0x34:
+                Cadence = value / 10.0;
+                break;
+            case 0x3e:
+                m_watt = value;
+                break;
+            case 0x48:
+                Speed = value / 10.0;
+                break;
+            case 0x4c:
+                Resistance = value;
+                break;
+            case 0x63:
+                if (newValue.length() >= 2) {
+                    Resistance = value;
+                }
+                break;
+            default:
+                break;
         }
+    }
+
+    if (handle == 0x5c && newValue.length() >= 4) {
+        const uint32_t distanceRaw = (uint8_t)newValue.at(0) |
+                                     ((uint8_t)newValue.at(1) << 8) |
+                                     ((uint8_t)newValue.at(2) << 16) |
+                                     ((uint8_t)newValue.at(3) << 24);
+        Distance = distanceRaw / 1000.0;
+    }
+
+    if (Cadence.value() > 0 || Speed.value() > 0 || m_watt.value() > 0) {
+        if (currentCrankRevolutions == 0) {
+            currentCrankRevolutions = 1;
+        }
+        lastGoodCadence = now;
     }
 
 #ifdef Q_OS_ANDROID
@@ -329,16 +294,24 @@ void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
             qDebug() << QStringLiteral("Kettler C12 custom service discovered") << activeServiceUuid.toString();
 
             gattWriteCharacteristic = QLowEnergyCharacteristic();
+            gattHandshakeCharacteristic = QLowEnergyCharacteristic();
             foreach (QLowEnergyCharacteristic c, service->characteristics()) {
                 qDebug() << QStringLiteral("characteristic") << c.uuid()
                          << "handle:" << QString::number(c.handle(), 16)
                          << "properties:" << c.properties();
 
-                // Prefer the legacy characteristic when present, but accept any writable
-                // characteristic so newer firmware variants can still initialize.
-                if (c.uuid() == QBluetoothUuid((quint16)0x2a28)) {
+                if (c.uuid() == KETTLER_CONTROL_CHAR_UUID) {
                     gattWriteCharacteristic = c;
-                    qDebug() << QStringLiteral("Found write characteristic (0x2a28)");
+                    qDebug() << QStringLiteral("Found Kettler control characteristic") << c.uuid()
+                             << "handle:" << QString::number(c.handle(), 16);
+                } else if (c.uuid() == KETTLER_HANDSHAKE_CHAR_UUID) {
+                    gattHandshakeCharacteristic = c;
+                } else if (c.uuid() == KETTLER_CADENCE_CHAR_UUID) {
+                    gattNotify0x0034 = c;
+                } else if (c.uuid() == KETTLER_POWER_CHAR_UUID) {
+                    gattNotify0x003e = c;
+                } else if (c.uuid() == KETTLER_SPEED_CHAR_UUID) {
+                    gattNotify0x0048 = c;
                 } else if (!gattWriteCharacteristic.isValid() &&
                            ((c.properties() & QLowEnergyCharacteristic::Write) ||
                             (c.properties() & QLowEnergyCharacteristic::WriteNoResponse))) {
@@ -362,6 +335,16 @@ void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
             }
 
+            connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
+                    &kettlerc12bike::characteristicChanged);
+            connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
+                    &kettlerc12bike::characteristicWritten);
+            connect(gattCommunicationChannelService,
+                    static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                    this, &kettlerc12bike::errorService);
+            connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
+                    &kettlerc12bike::descriptorWritten);
+
             if (gattWriteCharacteristic.isValid()) {
                 qDebug() << QStringLiteral("Starting initialization...");
                 initRequest = true;
@@ -373,7 +356,13 @@ void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
 }
 
 void kettlerc12bike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
-    qDebug() << QStringLiteral("descriptorWritten ") << descriptor.name() << descriptor.uuid().toString();
+    qDebug() << QStringLiteral("descriptorWritten ") << descriptor.name() << descriptor.uuid().toString()
+             << newValue.toHex(' ');
+
+    if (!initDone && !initRequest) {
+        initRequest = true;
+        emit connectedAndDiscovered();
+    }
 }
 
 void kettlerc12bike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
