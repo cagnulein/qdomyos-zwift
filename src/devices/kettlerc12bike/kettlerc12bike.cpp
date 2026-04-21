@@ -49,8 +49,8 @@ void kettlerc12bike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    if (gattCommunicationChannelService &&
-        gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
+    if ((gattCommunicationChannelService &&
+         gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered) ||
         m_control->state() == QLowEnergyController::UnconnectedState) {
         qDebug() << QStringLiteral("writeCharacteristic error because the connection is closed");
         return;
@@ -262,13 +262,6 @@ void kettlerc12bike::characteristicChanged(const QLowEnergyCharacteristic &chara
                                      ((uint8_t)newValue.at(2) << 16) |
                                      ((uint8_t)newValue.at(3) << 24);
         Distance = distanceRaw / 1000.0;
-    }
-
-    if (Cadence.value() > 0 || Speed.value() > 0 || m_watt.value() > 0) {
-        if (currentCrankRevolutions == 0) {
-            currentCrankRevolutions = 1;
-        }
-        lastGoodCadence = now;
     }
 
 #ifdef Q_OS_ANDROID
