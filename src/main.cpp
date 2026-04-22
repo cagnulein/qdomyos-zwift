@@ -88,6 +88,7 @@ class OAuthCallbackEventFilter : public QObject {
 bool ant_footpod_enabled = false;
 bool ant_verbose = false;
 int ant_device_id = 54321;
+bool no_wahoo_service = false;
 
 // This flag ensures we only ever initialize the AntManager once,
 // even if bluetoothDeviceConnected is emitted multiple times.
@@ -233,6 +234,10 @@ void displayHelp() {
     printf("  -ant-footpod                  Enable ANT+ footpod broadcasting\n");
     printf("  -ant-device <id>              Set ANT+ device ID (1-65535, default: 54321)\n");
     printf("  -ant-verbose                  Enable verbose logging for the Python ANT+ module\n");
+    printf("  -no-wahoo-service             Omit Wahoo GATT service from virtual treadmill.\n");
+    printf("                                Fixes 6-second timeout/disconnect with Runna and\n");
+    printf("                                other apps that activate a Wahoo-specific BLE\n");
+    printf("                                driver when the Wahoo service UUID is present.\n");
 #endif
 
     exit(0);
@@ -470,6 +475,9 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
                 }
             }
         }
+        if (!qstrcmp(argv[i], "-no-wahoo-service")) {
+            no_wahoo_service = true;
+        }
 #endif
     }
 
@@ -706,6 +714,14 @@ int main(int argc, char *argv[]) {
         settings.setValue(QZSettings::virtual_device_bluetooth, virtual_device_bluetooth);
         settings.setValue(QZSettings::power_sensor_name, power_sensor_name);
         settings.setValue(QZSettings::power_sensor_as_treadmill, power_sensor_as_treadmill);
+#ifdef ANT_LINUX_ENABLED
+        // -no-wahoo-service omits the Wahoo GATT service (a026ee0e-...) from the virtual
+        // treadmill peripheral. Apps like Runna detect Wahoo devices by this service UUID and
+        // activate a Wahoo-specific BLE driver that skips CP CCCD subscription, causing a
+        // 6-second timeout. Without the Wahoo service they fall back to the standard FTMS
+        // path which correctly subscribes to the CP CCCD. Default: true (service present).
+        settings.setValue(QStringLiteral("virtual_treadmill_wahoo_service"), !no_wahoo_service);
+#endif
         if (mqtt_host.length() > 0) {
             settings.setValue(QZSettings::mqtt_host, mqtt_host);
         }

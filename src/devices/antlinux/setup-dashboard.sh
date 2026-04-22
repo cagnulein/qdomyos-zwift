@@ -371,6 +371,9 @@ configure_service_flags_ui() {
         options+=("Force Treadmill Speed: ${_tf_speed}")
         help_texts+=("When enabled, speed and inclination commands sent by the connected QZ app (e.g. training plans via the virtual treadmill) are forwarded to the real treadmill. When disabled, the athlete controls pace manually and app commands are ignored. Default: on.")
 
+        options+=("Standard FTMS Mode: ${_SF[no_wahoo_service]:-false}")
+        help_texts+=("Advertise as Horizon 7.0 AT (standard FTMS) instead of KICKR RUN (Wahoo). Removes Wahoo GATT service. Use for Kinni or other FTMS apps. Default: off (KICKR RUN / Wahoo mode).")
+
         # 2. Show Menu with Help Panel
         show_unified_menu options "$selected" "SERVICE CONFIGURATION" "$draw_mode" "false" "" help_texts
         local exit_code=$?
@@ -457,6 +460,11 @@ configure_service_flags_ui() {
                 ;;
             Force\ Treadmill\ Speed:*)
                 if [[ "$_tf_speed" == "true" ]]; then _tf_speed="false"; else _tf_speed="true"; fi
+                draw_mode="ITEMS"
+                ;;
+            Standard\ FTMS\ Mode:*)
+                if [[ "${_SF[no_wahoo_service]}" == "true" ]]; then _SF[no_wahoo_service]="false"; else _SF[no_wahoo_service]="true"; fi
+                NEEDS_REGEN=1
                 draw_mode="ITEMS"
                 ;;
         esac
@@ -6381,50 +6389,6 @@ run_uninstall_mode() {
     draw_bottom_border "Verifying system state..." # ADDED: Initial bottom border
     run_all_checks "dashboard"
 
-    # 2. Safety Check (Headless/RPI)
-    local is_rpi=false
-    grep -q "Raspberry Pi" /proc/cpuinfo 2>/dev/null && is_rpi=true
-    local BOOT_WRITABLE=false
-    if touch /boot/firmware/.test_write 2>/dev/null; then
-        rm -f /boot/firmware/.test_write
-        BOOT_WRITABLE=true
-    fi
-
-    # Check if forced uninstall mode is enabled
-    if [[ "${FORCE_UNINSTALL:-0}" -eq 1 ]]; then
-        # Force mode: skip platform checks but require explicit confirmation
-        clear_info_area
-        draw_sealed_row $((LOG_TOP + 2)) "   ${BOLD_RED}FORCE UNINSTALL MODE${NC}"
-        draw_sealed_row $((LOG_TOP + 3)) ""
-        draw_sealed_row $((LOG_TOP + 4)) "   You are running uninstall on a non-Raspberry Pi system."
-        draw_sealed_row $((LOG_TOP + 5)) "   This bypasses safety checks and may affect system stability."
-        draw_sealed_row $((LOG_TOP + 6)) ""
-        draw_sealed_row $((LOG_TOP + 7)) "   ${BOLD_YELLOW}Type YES to confirm forced uninstall:${NC}"
-        
-        exit_ui_mode
-        
-        if ! prompt_input_yes; then
-            enter_ui_mode
-            draw_info_screen "FORCE UNINSTALL CANCELLED" "Uninstall was cancelled by user." 2
-            return 1
-        fi
-        
-        enter_ui_mode
-    else
-        # Normal mode: enforce safety checks
-        if [ "$is_rpi" = false ]; then
-            draw_error_screen "UNINSTALL DENIED" "Uninstall is only permitted on a Raspberry Pi or other verified headless system.\n\nUse --uninstall-force to override (not recommended)." 3
-            return 1
-        fi
-        if [ "${HAS_GUI:-false}" = true ]; then
-            draw_error_screen "UNINSTALL DENIED" "Uninstall is blocked when a GUI environment is detected for safety.\n\nUse --uninstall-force to override (not recommended)." 3
-            return 1
-        fi
-        if [ "$BOOT_WRITABLE" = false ]; then
-            draw_error_screen "UNINSTALL DENIED" "/boot partition is read-only. Cannot proceed with critical system changes." 3
-            return 1
-        fi
-    fi
 
     # 3. Build Dynamic Removal List
     local items=()
@@ -6439,30 +6403,16 @@ run_uninstall_mode() {
         sys_pkgs_cleanable=true
         items+=("Application Python Artifacts")
     fi
-    
-    local deep_clean_available=false
-    if [ "${STATUS_MAP[qt5_libs]:-}" = "pass" ] || [ "${STATUS_MAP[qml_modules]:-}" = "pass" ] || \
-       [ "${STATUS_MAP[bluetooth]:-}" = "pass" ] || [ "${STATUS_MAP[lsusb]:-}" = "pass" ] || \
-       groups "$TARGET_USER" 2>/dev/null | grep -q plugdev; then
-        deep_clean_available=true
-        items+=("Application System Runtime Packages (Deep Clean)")
+
+    local qml_cleanable=false
+    if [ "${STATUS_MAP[qml_modules]:-}" = "pass" ]; then
+        qml_cleanable=true
+        items+=("QML Runtime Modules")
     fi
-    
-    # Detect Python installation type
-    local core_sys_python_present=false
+
     local pyenv_python_present=false
-
-    # FIX: Check if the APT PACKAGE is installed, ignoring Pyenv shims in the PATH.
-    # 'ii' indicates the package is successfully installed.
-    if dpkg -l "${PYTHON_PACKAGE}" 2>/dev/null | grep -q "^ii"; then
-        core_sys_python_present=true
-        items+=("${RED}Core System Python 3.11${NC}")
-    fi
-
-    # Check if pyenv Python 3.11 is installed
     if [[ -d "$TARGET_HOME/${PYENV_VERSION_PATH}" ]]; then
         pyenv_python_present=true
-        # Only add to list if not already added via IS_PYENV_INSTALLED check above
         if [[ "${IS_PYENV_INSTALLED:-false}" != "true" ]]; then
             items+=("Pyenv Python 3.11")
         fi
@@ -6506,11 +6456,6 @@ run_uninstall_mode() {
     done
 
     local prompt_row=$((warning_row))
-    # Only show high-risk warning if removing core system Python
-    if [[ "$core_sys_python_present" == "true" ]]; then
-        update_sealed_row_content "$prompt_row" "   ${YELLOW}WARNING:${NC} Removing Core System Python is HIGH-RISK."
-        ((prompt_row++))
-    fi
     update_sealed_row_content "$prompt_row" "   Proceed with removal of ALL components listed above?"
     ((prompt_row++)) # Move prompt_row down one more time for spacing
     
@@ -6523,90 +6468,47 @@ run_uninstall_mode() {
 
     # 5. EXECUTE CLEANUP STEPS
 
-    # A. Core System Python (EXTREME RISK) - Only if system Python detected
-    if [[ "$core_sys_python_present" == "true" ]]; then
-        draw_bottom_panel_header "CONFIRM HIGH-RISK REMOVAL" "false"
-        clear_info_area
-        draw_sealed_row $((LOG_TOP + 2)) "   ${BOLD_RED}FINAL WARNING:${NC} You are about to remove the OS's core ${PYTHON_PACKAGE}."
-        
-        exit_ui_mode
-        
-        if prompt_input_yes; then
-            enter_ui_mode
-            run_step "Removing Core System Python" "apt-get purge -y ${PYTHON_PACKAGE}" || return 1
-            # Update status after removal
-            STATUS_MAP["python311"]="fail"
-            IS_PYSYS_INSTALLED=false
-            render_status_grid
-        else
-            enter_ui_mode
-            draw_info_screen "HIGH-RISK REMOVAL ABORTED" "Core system Python will be kept." 1
-        fi
-    fi
-
-    # B. App-Specific Python Artifacts
+    # A. App-Specific Python Artifacts (venv support libs — safe on any system)
     if [[ "$sys_pkgs_cleanable" == "true" ]]; then
         local pkgs_to_remove="python3.11-venv python3-pip-whl python3-setuptools-whl ${PYTHON_LIB_NAME}"
         run_step "Removing Python Artifacts" "apt-get purge -y $pkgs_to_remove" || return 1
         render_status_grid
     fi
-    
-    # C. Pyenv Python (The Isolated Build)
+
+    # B. Pyenv Python (isolated build — safe to remove)
     if [[ "${IS_PYENV_INSTALLED:-false}" == "true" ]] || [[ "$pyenv_python_present" == "true" ]]; then
         local p_root="$TARGET_HOME/.pyenv"
         local p_bin="$p_root/bin/pyenv"
         local py_rem_cmd="sudo -u \"$TARGET_USER\" bash -c \"export PYENV_ROOT='$p_root'; export PATH='\$PYENV_ROOT/bin:\$PATH'; if [ -x '$p_bin' ]; then $p_bin uninstall -f ${PYTHON_VERSION_FULL}; fi; rm -rf '$p_root'\""
         run_step "Removing Pyenv Python" "$py_rem_cmd" || return 1
-        # Update status after removal
         STATUS_MAP["python311"]="fail"
         IS_PYENV_INSTALLED=false
         render_status_grid
     fi
-    
-    # D. Virtual Environment
-    if [[ -d "$TARGET_HOME/ant_venv" ]]; then 
+
+    # C. Virtual Environment
+    if [[ -d "$TARGET_HOME/ant_venv" ]]; then
         run_step "Removing Virtual Environment" "rm -rf \"$TARGET_HOME/ant_venv\"" || return 1
-        # Update status after removal
         STATUS_MAP["venv"]="fail"
         render_status_grid
     fi
-    
-    # E. Python Packages
-    # Update PIPs status
+
     STATUS_MAP["pips"]="fail"
     render_status_grid
 
-    # F. Deep Clean Execution (System Runtime Packages)
-    # SAFETY: Never purge Qt5/system packages on a desktop GUI system.
-    # These libraries are shared dependencies of the desktop environment —
-    # purging them (followed by autoremove) removes GNOME/GDM and breaks the GUI.
-    if [[ "$deep_clean_available" == "true" ]]; then
-        # QML modules are safe to remove on any system — they are not desktop deps.
-        # Core Qt5 libs (libqt5core5a etc.) are shared with GNOME/GDM on desktop
-        # systems — purging them destroys the GUI. Only remove them on headless systems.
+    # D. QML Runtime Modules — QZ-specific Qt/QML packages safe to remove on any system.
+    # Core Qt5 libs (libqt5core5a etc.), bluez, and libusb are OS-shared dependencies
+    # and are intentionally NOT removed here.
+    if [[ "$qml_cleanable" == "true" ]]; then
         local qml_pkgs="qml-module-qtcharts qml-module-qt-labs-calendar qml-module-qt-labs-folderlistmodel \
             qml-module-qtlocation qml-module-qtpositioning qml-module-qtquick2 \
             qml-module-qtquick-controls qml-module-qtquick-controls2 qml-module-qtquick-dialogs \
             qml-module-qtquick-layouts qml-module-qtquick-window2 qml-module-qtmultimedia \
             qml-module-qtwebview qml-module-qt-labs-platform qml-module-qtgraphicaleffects"
-        local core_pkgs="libqt5core5a libqt5qml5 libqt5quick5 libqt5bluetooth5 libusb-1.0-0 bluez usbutils"
-
         run_step "Removing QML Modules" "apt-get purge -y $qml_pkgs" || return 1
         STATUS_MAP["qml_modules"]="fail"
         render_status_grid
 
-        if [[ "${HAS_GUI:-false}" != "true" ]]; then
-            run_step "Removing Core Qt5 / System Packages" "apt-get purge -y $core_pkgs" || return 1
-            STATUS_MAP["qt5_libs"]="fail"
-            STATUS_MAP["bluetooth"]="fail"
-            STATUS_MAP["lsusb"]="fail"
-            render_status_grid
-        else
-            draw_sealed_row $((LOG_TOP + 2)) "   ${BOLD_YELLOW}⚠ Core Qt5 libs skipped on desktop — removing them would destroy the GUI.${NC}"
-            draw_sealed_row $((LOG_TOP + 3)) "   QML modules removed. Run on a headless system to also remove core libs."
-            sleep 3
-        fi
-        
         if groups "$TARGET_USER" 2>/dev/null | grep -q plugdev; then
             run_step "Removing User from plugdev Group" "gpasswd -d $TARGET_USER plugdev" || return 1
             STATUS_MAP["plugdev"]="fail"
@@ -7705,6 +7607,7 @@ SERVICE_FLAGS[ant_verbose]=false
 SERVICE_FLAGS[profile]=''
 SERVICE_FLAGS[poll_time]=200
 SERVICE_FLAGS[heart_service]=false
+SERVICE_FLAGS[no_wahoo_service]=false
 
 init_service_config() {
     mkdir -p "$(dirname "$SERVICE_CONF_PATH")" || return 1
@@ -7758,6 +7661,7 @@ load_service_config() {
     [[ -z "${SERVICE_FLAGS[console]:-}" ]] && SERVICE_FLAGS[console]="false"
     [[ -z "${SERVICE_FLAGS[ant_footpod]:-}" ]] && SERVICE_FLAGS[ant_footpod]="false"
     [[ -z "${SERVICE_FLAGS[ant_device]:-}" ]] && SERVICE_FLAGS[ant_device]="54321"
+    [[ -z "${SERVICE_FLAGS[no_wahoo_service]:-}" ]] && SERVICE_FLAGS[no_wahoo_service]="false"
     
     return 0
 }
@@ -7769,7 +7673,7 @@ save_service_config() {
     tmp=$(mktemp "$TEMP_DIR/service.conf.XXXXXX")
     {
         echo "[flags]"
-        for k in console logging bluetooth_relaxed ant_footpod ant_device ant_verbose profile poll_time heart_service; do
+        for k in console logging bluetooth_relaxed ant_footpod ant_device ant_verbose profile poll_time heart_service no_wahoo_service; do
             printf '%s=%s\n' "$k" "${SERVICE_FLAGS[$k]:-}"
         done
     } > "$tmp" || return 1
@@ -7827,6 +7731,10 @@ build_service_flags() {
     
     if [[ "${SERVICE_FLAGS[heart_service]:-false}" =~ ^[Tt][Rr][Uu][Ee]$ ]]; then
         flags+=("-heart-service")
+    fi
+
+    if [[ "${SERVICE_FLAGS[no_wahoo_service]:-false}" =~ ^[Tt][Rr][Uu][Ee]$ ]]; then
+        flags+=("-no-wahoo-service")
     fi
 
     # 6. Bluetooth Device Name
@@ -9298,7 +9206,6 @@ USAGE:
 
     Interactive options:
         --uninstall        Start the uninstall menu immediately and exit
-        --uninstall-force  Allow uninstall on non-Raspberry Pi systems (requires confirmation)
         --pyenv            Force pyenv installation (skip system Python even if available)
 
 REQUIREMENTS:
@@ -9349,10 +9256,6 @@ if [ $# -gt 0 ]; then
                 ;;
             --uninstall)
                 UNINSTALL_MODE=1
-                ;;
-            --uninstall-force)
-                UNINSTALL_MODE=1
-                FORCE_UNINSTALL=1
                 ;;
             --pyenv)
                 FORCE_PYENV=1
@@ -9409,55 +9312,6 @@ if [[ -f "${BASH_SOURCE[0]%/*}/qdomyos-zwift" ]]; then
     fi
 fi
 
-# 1b. Desktop Recovery Check
-# If a previous --uninstall-force removed Qt5/system libs and broke the GUI,
-# detect the damaged state here (before the TUI starts) and offer to recover.
-# This runs in plain terminal mode so it is usable even without a display.
-_check_desktop_recovery() {
-    # Only relevant on non-Pi desktop systems
-    [[ "${IS_PI:-false}" == "true" ]] && return 0
-    # If we have a working display, desktop is fine
-    [[ -n "${DISPLAY:-}" || -n "${WAYLAND_DISPLAY:-}" ]] && return 0
-    # Check if a display manager exists — absence suggests desktop was wiped
-    local dm_missing=false
-    if ! dpkg -l gdm3 lightdm sddm 2>/dev/null | grep -q "^ii"; then
-        dm_missing=true
-    fi
-    # Check if ubuntu-desktop meta-package is gone
-    local desktop_missing=false
-    if ! dpkg -l ubuntu-desktop 2>/dev/null | grep -q "^ii"; then
-        desktop_missing=true
-    fi
-    if [[ "$dm_missing" == "true" || "$desktop_missing" == "true" ]]; then
-        echo ""
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "  ⚠  DESKTOP ENVIRONMENT DAMAGE DETECTED"
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo ""
-        echo "  The Ubuntu desktop environment appears to be missing."
-        echo "  This can happen if system Qt5/display packages were removed."
-        echo ""
-        echo "  To restore your desktop, run:"
-        echo "    sudo apt update && sudo apt install --reinstall ubuntu-desktop"
-        echo "    sudo reboot"
-        echo ""
-        read -r -p "  Restore ubuntu-desktop now? [Y/n]: " reply
-        reply="${reply:-Y}"
-        if [[ "$reply" =~ ^[Yy]$ ]]; then
-            echo ""
-            echo "  Running: apt update && apt install --reinstall ubuntu-desktop"
-            echo ""
-            apt-get update && apt-get install -y --reinstall ubuntu-desktop
-            echo ""
-            echo "  Recovery complete. Please reboot to restore the graphical login."
-            read -r -p "  Reboot now? [Y/n]: " rb
-            rb="${rb:-Y}"
-            [[ "$rb" =~ ^[Yy]$ ]] && reboot
-        fi
-        echo ""
-    fi
-}
-_check_desktop_recovery
 
 # 2. Startup Sequence
 if [[ "${QZ_NO_SPLASH:-0}" -eq 0 ]]; then
