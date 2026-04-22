@@ -571,8 +571,7 @@ function process_arr(arr) {
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
-                        callback: value => [heartZones[0] * 0.8, heartZones[0], heartZones[1], heartZones[2], heartZones[3], heartZones[4]].includes(value) ?
-                            value === heartZones[0] * 0.8 ? 'zone 1' :
+                        callback: value =>  [heartZones[0], heartZones[1], heartZones[2], heartZones[3]].includes(value) ?
                             value === heartZones[0] ? 'zone 2' :
                             value === heartZones[1] ? 'zone 3' :
                             value === heartZones[2] ? 'zone 4' :

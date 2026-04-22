@@ -1282,7 +1282,7 @@ import Qt.labs.platform 1.1
 			property bool treadmill_direct_distance: false
       
 			property bool domyos_treadmill_ts100: false
-			property bool thinkrider_controller: false
+			property bool thinkrider_controller: false			
 			property bool weight_kg_unit: false 
 			property bool virtual_device_rower_pm5: false
 			property bool tile_heart_show_as_percent: false
@@ -1305,6 +1305,13 @@ import Qt.labs.platform 1.1
 
             property bool umay_s100_treadmill: false
             property bool gym_mode: false
+            property bool tile_grade_adjusted_pace_enabled: false
+            property int tile_grade_adjusted_pace_order: 79
+            property bool cycplus_bc2_controller: false
+      		property bool lifespan_bike: false
+      
+            property double power_sensor_speed_inclination_coeff_a: 0.0
+            property double power_sensor_speed_inclination_coeff_b: 0.0
         }
 
 
@@ -3988,6 +3995,30 @@ import Qt.labs.platform 1.1
                             onClicked: { settings.sportstech_esx500 = checked; window.settings_restart_to_apply = true; }
                         }
 										   }
+                    }
+                    AccordionElement {
+                        id: lifespanBikeAccordion
+                        title: qsTr("LifeSpan Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                id: lifespanBikeDelegate
+                                text: qsTr("LifeSpan C7000i Bike")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.lifespan_bike
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.lifespan_bike = checked; window.settings_restart_to_apply = true; }
+                            }
+                        }
                     }
                     AccordionElement {
                         id: flywheelBikeAccordion
@@ -12222,7 +12253,62 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
-                            }                            
+                            }
+
+                            Label {
+                                text: qsTr("Power Sensor Speed/Incline Coefficient A:")
+                                Layout.fillWidth: true
+                            }
+                            RowLayout {
+                                spacing: 10
+                                TextField {
+                                    id: powerSensorSpeedInclinationCoeffATextField
+                                    text: settings.power_sensor_speed_inclination_coeff_a
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.power_sensor_speed_inclination_coeff_a = powerSensorSpeedInclinationCoeffATextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Power Sensor Speed/Incline Coefficient B:")
+                                Layout.fillWidth: true
+                            }
+                            RowLayout {
+                                spacing: 10
+                                TextField {
+                                    id: powerSensorSpeedInclinationCoeffBTextField
+                                    text: settings.power_sensor_speed_inclination_coeff_b
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.power_sensor_speed_inclination_coeff_b = powerSensorSpeedInclinationCoeffBTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Custom coefficients for power sensor inclination calculation using formula: vwatts = (A + B × speed) × inclination.\n\nFor Stryd sensors use: A = -0.96, B = 1.33\n\nExamples with these values:\n• 8 km/h, 10% incline: (-0.96 + 1.33×8) × 10 = 97W added\n• 11 km/h, 10% incline: (-0.96 + 1.33×11) × 10 = 137W added\n\nIf both A and B are 0, QZ will use the default formula: 9.8 × weight × (inclination/100).\n\nDefault: A = -0.96, B = 1.33")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
 
                             Label {
                                 id: labelPowerSensorName
@@ -13078,6 +13164,43 @@ import Qt.labs.platform 1.1
 
                             Label {
                                 text: qsTr("Thinkrider VS200 remote controller. Use it to change gears on QZ!")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }
+
+                AccordionElement {
+                        title: qsTr("CYCPLUS Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            IndicatorOnlySwitch {
+                                text: qsTr("CYCPLUS BC2 Controller")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.cycplus_bc2_controller
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.cycplus_bc2_controller = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("CYCPLUS BC2 virtual shifter. Use it to change gears on QZ!")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2

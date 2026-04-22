@@ -6,6 +6,22 @@
 #include "ios/lockscreen.h"
 #endif
 #include <QSettings>
+#include <cmath>
+
+static double gradeAdjustedCost(double gradePercent) {
+    const double i = gradePercent / 100.0;
+    return (155.4 * std::pow(i, 5)) - (30.4 * std::pow(i, 4)) - (43.3 * std::pow(i, 3)) +
+           (46.3 * std::pow(i, 2)) + (19.5 * i) + 3.6;
+}
+
+static double gradeAdjustedEquivalentSpeed(double speedKmh, double gradePercent) {
+    static const double flatCost = gradeAdjustedCost(0.0);
+    const double slopeCost = gradeAdjustedCost(gradePercent);
+    if (speedKmh <= 0.0 || slopeCost <= 0.0) {
+        return 0.0;
+    }
+    return speedKmh * (slopeCost / flatCost);
+}
 
 treadmill::treadmill() {}
 
@@ -272,21 +288,31 @@ double treadmill::requestedInclination() { return requestInclination; }
 double treadmill::currentTargetSpeed() { return targetSpeed; }
 
 void treadmill::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
-void treadmill::powerSensor(uint16_t power) { 
+void treadmill::powerSensor(uint16_t power) {
     double vwatts = 0;
     if(power > 0) {
         powerReceivedFromPowerSensor = true;
         qDebug() << "powerReceivedFromPowerSensor" << powerReceivedFromPowerSensor << power;
         QSettings settings;
         if(currentInclination().value() != 0 && settings.value(QZSettings::stryd_add_inclination_gain, QZSettings::default_stryd_add_inclination_gain).toBool()) {
-            QSettings settings;
-            double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
-            // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
-            vwatts = ((9.8 * w) * (currentInclination().value() / 100.0));
-            qDebug() << QStringLiteral("overrding power read from the sensor of ") << power << QStringLiteral("with ") << vwatts << QStringLiteral(" for the treadmill inclination");
+            double coeff_a = settings.value(QZSettings::power_sensor_speed_inclination_coeff_a, QZSettings::default_power_sensor_speed_inclination_coeff_a).toDouble();
+            double coeff_b = settings.value(QZSettings::power_sensor_speed_inclination_coeff_b, QZSettings::default_power_sensor_speed_inclination_coeff_b).toDouble();
+
+            if(coeff_a != 0.0 || coeff_b != 0.0) {
+                // Use custom formula: vwatts = (A + B * speed) * inclination
+                double speed = currentSpeed().value(); // km/h
+                vwatts = (coeff_a + coeff_b * speed) * currentInclination().value();
+                qDebug() << QStringLiteral("Using custom speed/inclination formula: (") << coeff_a << QStringLiteral(" + ") << coeff_b << QStringLiteral(" × ") << speed << QStringLiteral(" km/h) × ") << currentInclination().value() << QStringLiteral("% = ") << vwatts << QStringLiteral(" W");
+            } else {
+                // Use default formula
+                double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+                // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
+                vwatts = ((9.8 * w) * (currentInclination().value() / 100.0));
+                qDebug() << QStringLiteral("Using default formula, overriding power read from the sensor of ") << power << QStringLiteral(" with ") << vwatts << QStringLiteral(" W for the treadmill inclination");
+            }
         }
     }
-    m_watt.setValue(power + vwatts, false); 
+    m_watt.setValue(power + vwatts, false);
 }
 
 void treadmill::speedSensor(double speed) {
@@ -570,30 +596,44 @@ bool treadmill::cadenceFromAppleWatch() {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     lockscreen h;
-    if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {        
-        evaluateStepCount();
-        Cadence = h.getFootCad();
-        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
-        return true;
+    if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+        long garminCadence = h.getFootCad();
+        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(garminCadence);
+        // Ignore transient Garmin cadence spikes while the treadmill is not moving yet.
+        if (garminCadence > 0 && Speed.value() > 0.0) {
+            evaluateStepCount();
+            Cadence = garminCadence;
+            return true;
+        }
+        return false;
     } else if (h.appleWatchAppInstalled() && 
                 settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                    .toString()
                    .startsWith(QStringLiteral("Disabled"))) {
-        evaluateStepCount();
         long appleWatchCadence = h.stepCadence();
-        Cadence = appleWatchCadence;
-        qDebug() << QStringLiteral("Current Cadence: ") << QString::number(Cadence.value());
-        return true;
+        qDebug() << QStringLiteral("Current Cadence: ") << QString::number(appleWatchCadence);
+        if (appleWatchCadence > 0) {
+            evaluateStepCount();
+            Cadence = appleWatchCadence;
+            return true;
+        }
+        return false;
     }
 #endif
 #endif
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
-        evaluateStepCount();
-        Cadence = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
-        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
-        return true;
+        jint garminCadence =
+            QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
+        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(garminCadence);
+        // Ignore transient Garmin cadence spikes while the treadmill is not moving yet.
+        if (garminCadence > 0 && Speed.value() > 0.0) {
+            evaluateStepCount();
+            Cadence = garminCadence;
+            return true;
+        }
+        return false;
     }
 #endif    
 
@@ -888,3 +928,6 @@ QTime treadmill::speedToPace(double Speed) {
     }
 }
 
+double treadmill::gradeAdjustedSpeed(double speed, double inclination) {
+    return gradeAdjustedEquivalentSpeed(speed, inclination);
+}

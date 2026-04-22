@@ -1636,7 +1636,7 @@ QString GarminConnect::generateOAuth1AuthorizationHeader(
         consumerSecret,
         oauth_token_secret
     );
-    qDebug() << "GarminConnect: Final signature:" << signature;
+    //qDebug() << "GarminConnect: Final signature:" << signature;
 
     // 6. Build authorization header
     QString authHeader = "OAuth ";
@@ -1669,9 +1669,9 @@ QString GarminConnect::generateOAuth1Signature(
 
     qDebug() << "GarminConnect: ========== SIGNATURE GENERATION ==========";
     qDebug() << "GarminConnect: Signing key (consumer_secret&token_secret):";
-    qDebug() << "  Consumer secret (encoded):" << percentEncode(consumerSecret);
-    qDebug() << "  Token secret (encoded):" << (oauth_token_secret.isEmpty() ? "(empty)" : percentEncode(oauth_token_secret));
-    qDebug() << "  Full key length:" << key.length();
+    //qDebug() << "  Consumer secret (encoded):" << percentEncode(consumerSecret);
+    //qDebug() << "  Token secret (encoded):" << (oauth_token_secret.isEmpty() ? "(empty)" : percentEncode(oauth_token_secret));
+    //qDebug() << "  Full key length:" << key.length();
 
     // Build base string: METHOD&baseUrl&params
     QString baseString = httpMethod.toUpper() + "&" + percentEncode(baseUrl) +

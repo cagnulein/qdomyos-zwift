@@ -137,6 +137,8 @@ class ftmsbike : public bike {
 
     bool resistance_lvl_mode = false;
     bool resistance_received = false;
+    bool native_resistance_received = false;
+    QDateTime calculatedResistanceFallbackSince;
     inclinationResistanceTable _inclinationResistanceTable;
 
     // D500V2 workaround: track if we're awaiting start simulation command after request control
@@ -218,6 +220,7 @@ class ftmsbike : public bike {
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
+    bool shouldUseCalculatedResistanceFallback(const QDateTime &now);
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
