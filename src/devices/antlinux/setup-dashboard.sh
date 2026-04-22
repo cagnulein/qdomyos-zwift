@@ -346,8 +346,11 @@ configure_service_flags_ui() {
         options+=("Logging: ${_SF[logging]:-false}")
         help_texts+=("Enable detailed logging to debug-<date>.log for troubleshooting. Required for ANT+ Verbose mode. Press Enter to toggle on/off.")
 
-        options+=("Console: ${_SF[console]:-false}")
-        help_texts+=("Enable console output for debugging. Shows real-time QZ messages in the terminal. Useful for development. Press Enter to toggle.")
+        options+=("Force Treadmill Speed: ${_tf_speed}")
+        help_texts+=("When enabled, speed and inclination commands sent by the connected QZ app (e.g. training plans via the virtual treadmill) are forwarded to the real treadmill. When disabled, the athlete controls pace manually and app commands are ignored. Default: on.")
+
+        options+=("Standard FTMS Mode: ${_SF[no_wahoo_service]:-false}")
+        help_texts+=("Controls how the virtual treadmill BLE peripheral advertises itself. Enabled: Horizon 7.0 AT (standard FTMS) — use for Runna and standard FTMS apps. Disabled: KICKR RUN (Wahoo mode). Default: off.")
 
         options+=("ANT+ Footpod: ${_SF[ant_footpod]:-false}")
         help_texts+=("Enable ANT+ footpod sensor support for broadcasting running metrics (speed, cadence, distance) to watches and cycling computers. Press Enter to toggle.")
@@ -361,18 +364,6 @@ configure_service_flags_ui() {
                 help_texts+=("Enable verbose ANT+ logging for detailed dongle communication debugging. Requires Logging to be enabled. Press Enter to toggle.")
             fi
         fi
-
-        options+=("Bluetooth Relaxed: ${_SF[bluetooth_relaxed]:-false}")
-        help_texts+=("Use relaxed Bluetooth pairing mode for devices that don't strictly follow BLE standards. Enable if having connection issues. Press Enter to toggle.")
-
-        options+=("Poll Time (ms): [${_SF[poll_time]:-200}]")
-        help_texts+=("Set sensor polling interval in milliseconds. Lower = more responsive but higher CPU. Default: 200ms. Valid range: 50-5000ms. Press Enter to edit.")
-
-        options+=("Force Treadmill Speed: ${_tf_speed}")
-        help_texts+=("When enabled, speed and inclination commands sent by the connected QZ app (e.g. training plans via the virtual treadmill) are forwarded to the real treadmill. When disabled, the athlete controls pace manually and app commands are ignored. Default: on.")
-
-        options+=("Standard FTMS Mode: ${_SF[no_wahoo_service]:-false}")
-        help_texts+=("Advertise as Horizon 7.0 AT (standard FTMS) instead of KICKR RUN (Wahoo). Removes Wahoo GATT service. Use for Kinni or other FTMS apps. Default: off (KICKR RUN / Wahoo mode).")
 
         # 2. Show Menu with Help Panel
         show_unified_menu options "$selected" "SERVICE CONFIGURATION" "$draw_mode" "false" "" help_texts
@@ -409,11 +400,6 @@ configure_service_flags_ui() {
                 NEEDS_REGEN=1
                 draw_mode="FULL" # Redraw needed (list size may change)
                 ;;
-            Console:*)
-                if [[ "${_SF[console]}" == "true" ]]; then _SF[console]="false"; else _SF[console]="true"; fi
-                NEEDS_REGEN=1
-                draw_mode="ITEMS"
-                ;;
             ANT+\ Footpod:*)
                 if [[ "${_SF[ant_footpod]}" == "true" ]]; then
                     _SF[ant_footpod]="false"
@@ -440,23 +426,6 @@ configure_service_flags_ui() {
                 if [[ "${_SF[ant_verbose]}" == "true" ]]; then _SF[ant_verbose]="false"; else _SF[ant_verbose]="true"; fi
                 NEEDS_REGEN=1
                 draw_mode="ITEMS"
-                ;;
-            Bluetooth\ Relaxed:*)
-                if [[ "${_SF[bluetooth_relaxed]}" == "true" ]]; then _SF[bluetooth_relaxed]="false"; else _SF[bluetooth_relaxed]="true"; fi
-                NEEDS_REGEN=1
-                draw_mode="ITEMS"
-                ;;
-            Poll\ Time*)
-                local new_poll
-                if new_poll=$(inline_edit_field "$target_row" "Poll Time" "ms" "${_SF[poll_time]}" 50 5000 "true"); then
-                    if [[ -n "$new_poll" ]]; then
-                        _SF[poll_time]="$new_poll"
-                        NEEDS_REGEN=1
-                    fi
-                else
-                    show_cancel_feedback
-                fi
-                draw_mode="FULL"
                 ;;
             Force\ Treadmill\ Speed:*)
                 if [[ "$_tf_speed" == "true" ]]; then _tf_speed="false"; else _tf_speed="true"; fi
@@ -1629,39 +1598,9 @@ draw_status_row() {
     if [[ "$R_key" == "qz_service" || "$L_key" == "qz_service" ]]; then
         local _qz_label _qz_extra_len=0
         if is_monitor_active 2>/dev/null; then
-            # Monitor is actively running right now
             _qz_label="QZ Monitor"
         else
-            local svc_status; svc_status=$(get_service_status)
-            # Boot-mode suffix — shown when any service is enabled at boot
-            local _boot_sfx=""
-            local _svc_en="${STATUS_MAP[service_enabled]:-pending}"
-            if [[ "$_svc_en" == "pass" ]]; then
-                if systemctl is-enabled --quiet qz-treadmill-monitor.service 2>/dev/null; then
-                    _boot_sfx=" ${GRAY}▸ Mon${NC}"
-                    _qz_extra_len=6  # " ▸ Mon" = 6 visible chars
-                else
-                    _boot_sfx=" ${GRAY}▸ Boot${NC}"
-                    _qz_extra_len=7  # " ▸ Boot" = 7 visible chars
-                fi
-            fi
-            case "$svc_status" in
-                "running")
-                    # Service is up — show full name
-                    _qz_label="QZ Service${_boot_sfx}" ;;
-                "stopped")
-                    # Service installed but not running — "(Off)" keeps it short
-                    _qz_label="QZ Service ${GRAY}(Off)${NC}${_boot_sfx}"
-                    _qz_extra_len=$(( 6 + _qz_extra_len )) ;;  # " (Off)" = 6 visible chars
-                "failed")
-                    _qz_label="QZ Service ${GRAY}(Err)${NC}${_boot_sfx}"
-                    _qz_extra_len=$(( 6 + _qz_extra_len )) ;;  # " (Err)" = 6 visible chars
-                "not-installed")
-                    _qz_label="QZ Service ${GRAY}(—)${NC}${_boot_sfx}"
-                    _qz_extra_len=$(( 4 + _qz_extra_len )) ;;  # " (—)" = 4 visible chars
-                *)
-                    _qz_label="QZ Service${_boot_sfx}" ;;
-            esac
+            _qz_label="QZ Service"
         fi
         if [[ "$R_key" == "qz_service" ]]; then
             R_label="$_qz_label"; qz_service_extra_len=$_qz_extra_len
@@ -1735,7 +1674,7 @@ draw_status_row() {
             elif $boot_cfg; then
                 R2_label="Boot RO (reboot)"      # ◈ grey   — boot only, pending reboot
             else
-                R2_label="SD card wear"       # ◈ grey   — no protection; writes go to SD card
+                R2_label="SD Overlay FS"       # ◈ grey   — no protection; writes go to SD card
             fi
         fi
     fi
@@ -3546,7 +3485,7 @@ run_setup_wizard() {
             local r=$((LOG_TOP + 1))
             draw_sealed_row "$r" ""; ((r++))
             draw_sealed_row "$r" "   Smart Monitor starts QZ when your treadmill is detected over"; ((r++))
-            draw_sealed_row "$r" "   Bluetooth and stops it ~15 minutes after it disappears."; ((r++))
+            draw_sealed_row "$r" "   Bluetooth and stops it ~5 minutes after it disappears."; ((r++))
             draw_sealed_row "$r" ""; ((r++))
             draw_sealed_row "$r" "   Device: ${CYAN}${_bt}${NC}"; ((r++))
             draw_sealed_row "$r" ""; ((r++))
@@ -6158,7 +6097,7 @@ prompt_success_menu() {
     # Pi Tools — Raspberry Pi only
     if [[ "${IS_PI:-false}" == "true" ]]; then
         options+=("Pi System Tools")
-        help_texts+=("Raspberry Pi specific settings: enable or disable SD card protection (Overlay FS) to prevent SD card wear and corruption on power loss.")
+        help_texts+=("Raspberry Pi specific settings: enable or disable SD Overlay FS to protect the SD card from corruption on power loss.")
     fi
 
     options+=("Exit")
@@ -8344,7 +8283,7 @@ generate_smart_service_ui() {
     draw_sealed_row "$r" "   Treadmill: ${BOLD_CYAN}${bt_name}${NC}"; ((r++))
     draw_sealed_row "$r" ""; ((r++))
     draw_sealed_row "$r" "   QZ will start when the treadmill is detected and"; ((r++))
-    draw_sealed_row "$r" "   stop ~15 min after it can no longer be found."; ((r++))
+    draw_sealed_row "$r" "   stop ~5 min after it can no longer be found."; ((r++))
     draw_sealed_row "$r" ""; ((r++))
     draw_sealed_row "$r" "   Install Smart Monitor now?"
     draw_bottom_border "Arrows: Up/Down | Enter: Select | Esc: Cancel"
@@ -8380,15 +8319,15 @@ generate_smart_service_ui() {
 # Regenerate via: setup-dashboard.sh -> QZ Service Control -> Smart Monitor
 #
 # Watches for the treadmill over Bluetooth and starts/stops qz.service accordingly.
-# - When QZ is stopped: scans every DETECT_INTERVAL seconds (fast, to catch power-on)
-# - When QZ is running: checks every CHECK_INTERVAL seconds (slow, to avoid scan conflicts)
-# - QZ is stopped only after MISSING_THRESHOLD consecutive missed scans (prevents false stops)
+# - Scans every DETECT_INTERVAL seconds when QZ is stopped (catches treadmill power-on)
+# - Checks every CHECK_INTERVAL seconds when QZ is running
+# - QZ stops after MISSING_THRESHOLD consecutive missed scans (~5 min)
 
 TARGET_DEVICE="${bt_name}"
-DETECT_INTERVAL=30     # seconds between scans when QZ is stopped
-CHECK_INTERVAL=300     # seconds between checks when QZ is running (5 min)
+DETECT_INTERVAL=20     # seconds between scans when QZ is stopped
+CHECK_INTERVAL=20      # seconds between checks when QZ is running
 SCAN_TIMEOUT=10        # seconds per BLE scan
-MISSING_THRESHOLD=3    # consecutive missed scans before stopping QZ (~15 min)
+MISSING_THRESHOLD=15   # consecutive missed scans before stopping QZ (~5 min)
 SERVICE_NAME="qz"
 
 # Log to RAM disk to prevent SD card wear.
@@ -8490,7 +8429,7 @@ UNIT_EOF
         run_check "qz_service" "_logic_check_qz_service" false >/dev/null 2>&1
         run_check "service_enabled" "_logic_check_service_enabled" false >/dev/null 2>&1
         draw_info_screen "SMART MONITOR ENABLED" \
-            "Auto-detect monitor is now active.\n\nWatching for: ${bt_name}\n\nQZ starts when treadmill is detected.\nQZ stops ~15 min after treadmill disappears.\nAuto-start on boot: enabled.\n\nStatus row shows: QZ Monitor" "wait"
+            "Auto-detect monitor is now active.\n\nWatching for: ${bt_name}\n\nQZ starts when treadmill is detected.\nQZ stops ~5 min after treadmill disappears.\nChecks every 20 seconds.\nAuto-start on boot: enabled.\n\nStatus row shows: QZ Monitor" "wait"
     else
         draw_error_screen "INSTALL FAILED" \
             "Monitor service failed to start.\nCheck: journalctl -u qz-treadmill-monitor -n 20" "wait"
@@ -8967,6 +8906,13 @@ prompt_restart_service() {
 
     # 2. Get status to determine the question text
     local svc_status; svc_status=$(get_service_status)
+
+    # If QZ Monitor is active but the service is not currently running, skip the
+    # restart prompt — the monitor will start QZ automatically when the device is
+    # detected. Only prompt if the service is already running (monitor or not).
+    if is_monitor_active 2>/dev/null && [[ "$svc_status" != "running" ]]; then
+        return 0
+    fi
     local action_func=""
     local prompt_msg=""
 

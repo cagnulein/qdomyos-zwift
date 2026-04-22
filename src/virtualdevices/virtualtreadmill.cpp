@@ -98,6 +98,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         advertisingData.setServices(services);
         //! [Advertising Data]
 
+        // Add Device Information Service
 #ifdef ANT_LINUX_ENABLED
         // [STANDARD-FTMS] wahooMode=false: Horizon Fitness DIS strings, 0x0D feature flags, "Horizon 7.0 AT" name.
         bool wahooMode = true;
@@ -106,7 +107,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         QLowEnergyCharacteristicData manufacturerNameChar;
         manufacturerNameChar.setUuid(QBluetoothUuid::CharacteristicType::ManufacturerNameString);
         manufacturerNameChar.setProperties(QLowEnergyCharacteristic::Read);
-        manufacturerNameChar.setValue(QByteArray("Wahoo Fitness"));
+        manufacturerNameChar.setValue(QByteArray("Wahoo Fitness")); // Changed to Wahoo Fitness
 #ifdef ANT_LINUX_ENABLED
         // [STANDARD-FTMS] DIS manufacturer: "Horizon Fitness" in standard mode.
         if (!wahooMode) manufacturerNameChar.setValue(QByteArray("Horizon Fitness"));
@@ -202,19 +203,9 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 
                QLowEnergyCharacteristicData charData3;
                charData3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
-               // FTMS spec mandates Write | Indicate for the CP characteristic (no Notify).
-               // CCCD 0x02 pre-enables indications for compliant clients that read the
-               // descriptor value before subscribing. Note: Qt5 BLE peripheral on Linux
-               // tracks CCCD state per-connection (initialised 0x0000 at connect time) so
-               // this default only affects clients that never write to the CCCD at all.
-               // Non-compliant clients that skip the CCCD subscription (e.g. Runna) are
-               // handled via the 0x2ADA Fitness Machine Status notification instead.
                charData3.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate);
-               QByteArray cpDescriptor;
-               cpDescriptor.append((char)0x02);
-               cpDescriptor.append((char)0x00);
                const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
-                                                             cpDescriptor);
+                                                             QByteArray(2, 0));
                charData3.addDescriptor(cpClientConfig);
 
                QLowEnergyCharacteristicData charDataFIT5;
@@ -274,8 +265,8 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                serviceDataFTMS.addCharacteristic(charData3);
                serviceDataFTMS.addCharacteristic(charDataFIT5);
                serviceDataFTMS.addCharacteristic(charDataFIT6);
-               // [STANDARD-FTMS] 0x2AD2 (Indoor Bike Data) is a Zwift incline workaround; omit in standard mode to avoid confusing treadmill apps.
 #ifdef ANT_LINUX_ENABLED
+               // [STANDARD-FTMS] 0x2AD2 (Indoor Bike Data) is a Zwift incline workaround; omit in standard mode to avoid confusing treadmill apps.
                if (wahooMode)
 #endif
                    serviceDataFTMS.addCharacteristic(charDataFIT7);
@@ -284,14 +275,24 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
         qDebug() << "Raspberry workaround for sending metrics to the peloton app";
-        QByteArray gapDeviceName("KICKR RUN");
+        QLowEnergyCharacteristicData charDataFIT;
+        charDataFIT.setUuid((QBluetoothUuid::CharacteristicType)0x2A00); 
+        QByteArray valueFIT;
+        valueFIT.append((char)'K'); // average speed, cadence and resistance level supported
+        valueFIT.append((char)'I'); // heart rate and elapsed time
+        valueFIT.append((char)'C');
+        valueFIT.append((char)'K');
+        valueFIT.append((char)'R'); // resistance and power target supported
+        valueFIT.append((char)' '); // indoor simulation, wheel and spin down supported
+        valueFIT.append((char)'R');
+        valueFIT.append((char)'U');
+        valueFIT.append((char)'N');
+        valueFIT.append((char)0x00);
 #ifdef ANT_LINUX_ENABLED
         // [STANDARD-FTMS] 0x2A00 Device Name: must match advertising name so apps recognise the device profile.
-        if (!wahooMode) gapDeviceName = QByteArray("Horizon 7.0 AT");
+        if (!wahooMode) { valueFIT.clear(); valueFIT.append("Horizon 7.0 AT"); valueFIT.append((char)0x00); }
 #endif
-        QLowEnergyCharacteristicData charDataFIT;
-        charDataFIT.setUuid((QBluetoothUuid::CharacteristicType)0x2A00);
-        charDataFIT.setValue(gapDeviceName);
+        charDataFIT.setValue(valueFIT);
         charDataFIT.setProperties(QLowEnergyCharacteristic::Read);
 
         QLowEnergyCharacteristicData charDataFIT2;
@@ -400,7 +401,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             serviceWahoo = leController->addService(serviceDataWahoo);
         QThread::msleep(100);
 
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)        
         genericAccessServer = leController->addService(genericAccessServerData);
         genericAttributeService = leController->addService(genericAttributeServiceData);
 #endif          
