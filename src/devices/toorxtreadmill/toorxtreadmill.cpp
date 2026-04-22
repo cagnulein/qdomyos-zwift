@@ -1,4 +1,5 @@
 #include "toorxtreadmill.h"
+#include "homeform.h"
 #include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -169,13 +170,6 @@ void toorxtreadmill::update() {
             requestInclination = -100;
         } else if (requestStart != -1 && start_phase == -1) {
             emit debug(QStringLiteral("starting..."));
-            if (BHDualkitTread) {
-                const uint8_t incline[] = {0x55, 0x0a, 0x01, 0x01};
-                send((char *)incline, sizeof(incline));
-                Inclination = 1;
-                const uint8_t start[] = {0x55, 0x07, 0x01, 0xff};
-                send((char *)start, sizeof(start));
-            }
             //const uint8_t start[] = {0x55, 0x17, 0x01, 0x01, 0x55, 0xb5, 0x01, 0xff};
             //send((char *)start, sizeof(start));
             start_phase = 0;
@@ -428,7 +422,21 @@ void toorxtreadmill::update() {
                     case 11: {
                         const uint8_t start4[] = {0x55, 0x08, 0x01, 0x01};
                         send((char *)start4, sizeof(start4));
+                        start_phase++;
+                        break;
+                    }
+                    case 12: {
+                        const uint8_t incline[] = {0x55, 0x0a, 0x01, 0x01};
+                        send((char *)incline, sizeof(incline));
+                        Inclination = 1;
+                        start_phase++;
+                        break;
+                    }
+                    case 13: {
+                        const uint8_t start5[] = {0x55, 0x07, 0x01, 0xff};
+                        send((char *)start5, sizeof(start5));
                         start_phase = -1;
+                        homeform::singleton()->setToastRequested("treadmill initialized");
                         break;
                     }
                 }
@@ -526,9 +534,11 @@ void toorxtreadmill::update() {
 
 void toorxtreadmill::rfCommConnected() {
     emit debug(QStringLiteral("connected ") + socket->peerName());
+    homeform::singleton()->setToastRequested("initializing...");
 
     this->initDone = true;
-    this->requestStart = 1;
+    if(BHDualkitTread)
+        this->requestStart = 1;
     
     // Mark discovery as completed for future connections
     QSettings settings;
