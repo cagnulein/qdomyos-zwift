@@ -131,6 +131,13 @@ void ftmsbike::init() {
     if (initDone)
         return;
 
+    if (USDC_D700) {
+        // This bike may emit a few spontaneous FTMS frames before we request control.
+        // Reset the counter here so post-init resistance writes wait for fresh frames
+        // that confirm the stream survived the control-point handshake.
+        usdc_d700_ftms_frames_received = 0;
+    }
+
     if(ICSE || HAMMER) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
@@ -1775,6 +1782,16 @@ void ftmsbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const Q
     static bool connectedAndDiscoveredOk = false;
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
+    if (USDC_D700 && gattWriteCharControlPointId.isValid()) {
+        const auto controlPointCccd =
+            gattWriteCharControlPointId.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+        if (controlPointCccd.isValid() && descriptor.handle() == controlPointCccd.handle() &&
+            newValue == QByteArray::fromHex("0200")) {
+            qDebug() << "USDC-D700 control point indication subscribed, sending early init";
+            init();
+        }
+    }
+
     initRequest = true;
     if(!connectedAndDiscoveredOk) {
         connectedAndDiscoveredOk = true;
@@ -2089,6 +2106,7 @@ void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState stat
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        usdc_d700_ftms_frames_received = 0;
         gearInclinationSent = false;
         m_control->connectToDevice();
     }
