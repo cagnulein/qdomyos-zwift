@@ -693,8 +693,13 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     double speed = GetSpeedFromPacket(value);
     double incline = treadmillInclinationOverride(GetInclinationFromPacket(value));
-    if (domyos_run100e && requestInclination != -100) {
-        incline = requestInclination;
+    if (domyos_run100e) {
+        // RUN100E: keep the current inclination value and update it only when a new
+        // requestInclination is present, ignoring stale device-reported inclination.
+        incline = Inclination.value();
+        if (requestInclination != -100) {
+            incline = requestInclination;
+        }
     }
     double kcal = GetKcalFromPacket(value);
     double distance = GetDistanceFromPacket(value);
