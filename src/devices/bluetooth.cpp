@@ -3240,6 +3240,21 @@ void bluetooth::connectedAndDiscovered() {
     }
 
     if(settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool()) {
+        auto isZwiftClick = [](const QBluetoothDeviceInfo &device) {
+            return device.name().toUpper().startsWith("ZWIFT CLICK");
+        };
+
+        auto isPreferredZwiftClick = [](const QBluetoothDeviceInfo &device) {
+            const QByteArray manufacturerData = device.manufacturerData(2378);
+            return manufacturerData.size() > 0 && static_cast<uint8_t>(manufacturerData.at(0)) == 0x0a;
+        };
+
+        const bool preferManufacturer0a = std::count_if(devices.cbegin(), devices.cend(), isZwiftClick) > 1 &&
+                                          std::any_of(devices.cbegin(), devices.cend(),
+                                                      [&isZwiftClick, &isPreferredZwiftClick](const QBluetoothDeviceInfo &device) {
+                                                          return isZwiftClick(device) && isPreferredZwiftClick(device);
+                                                      });
+
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             const bool alreadyConnected = std::any_of(zwiftClickRemotes.cbegin(), zwiftClickRemotes.cend(),
                                                       [&b](const zwiftclickremote *remote) {
@@ -3251,7 +3266,13 @@ void bluetooth::connectedAndDiscovered() {
 #endif
                                                       });
 
-            if (((b.name().toUpper().startsWith("ZWIFT CLICK"))) && zwiftClickRemotes.size() < 2 &&
+            if (isZwiftClick(b) && preferManufacturer0a && !isPreferredZwiftClick(b)) {
+                qDebug() << "skipping secondary ZWIFT CLICK because manufacturer 0x0a is available"
+                         << b.address().toString() << b.manufacturerData(2378).toHex(' ');
+                continue;
+            }
+
+            if (isZwiftClick(b) && zwiftClickRemotes.size() < 2 &&
                     !alreadyConnected && this->device() && this->device()->deviceType() == BIKE) {
 
                 if(b.manufacturerData(2378).size() > 0) {

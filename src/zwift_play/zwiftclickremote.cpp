@@ -68,7 +68,8 @@ void zwiftclickremote::handleCharacteristicValueChanged(const QBluetoothUuid &uu
     emit packetReceived();
     countRxTimeout = 0;
 
-    qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << QString(newValue) << uuid.toString() << typeZap;
+    qDebug() << QStringLiteral(" << ") << bluetoothDevice.address().toString() << bluetoothDevice.manufacturerData(2378).toHex(' ')
+             << newValue.toHex(' ') << QString(newValue) << uuid.toString() << typeZap;
 
     if(uuid == QBluetoothUuid(QStringLiteral("00000002-19CA-4651-86E5-FA29DCDD09D1"))) {
         playDevice->processCharacteristic("Async", newValue, typeZap);
