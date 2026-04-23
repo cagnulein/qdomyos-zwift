@@ -131,13 +131,6 @@ void ftmsbike::init() {
     if (initDone)
         return;
 
-    if (USDC_D700) {
-        // This bike may emit a few spontaneous FTMS frames before we request control.
-        // Reset the counter here so post-init resistance writes wait for fresh frames
-        // that confirm the stream survived the control-point handshake.
-        usdc_d700_ftms_frames_received = 0;
-    }
-
     if(ICSE || HAMMER) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
@@ -279,7 +272,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         if(SL010 || SPORT01)
             Resistance = requestResistance;
         
-        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28) {
+        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -429,13 +422,7 @@ void ftmsbike::update() {
                                      << "elapsedMs:" << sinceLastDomyosResistance;
                             deferResistanceRequest = true;
                         }
-                    }
-                    if (USDC_D700 && usdc_d700_ftms_frames_received < 3) {
-                        qDebug() << "Deferring USDC-D700 resistance write until FTMS stream is stable"
-                                 << "requested:" << rR
-                                 << "framesReceived:" << usdc_d700_ftms_frames_received;
-                        deferResistanceRequest = true;
-                    }
+                    }                    
 
                     if (deferResistanceRequest) {
                         requestResistance = rR;
@@ -700,10 +687,6 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     }
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
-        if (USDC_D700) {
-            ++usdc_d700_ftms_frames_received;
-        }
-
         union flags {
             struct {
                 uint16_t moreData : 1;
@@ -1524,7 +1507,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
             }
             
-            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK) {
+            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
                     qDebug() << QStringLiteral("hammer racer bike wants to be subscribed only to FTMS service in order "
@@ -1541,6 +1524,12 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                 for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
                 }
+
+                QBluetoothUuid _specificCharacteristic((quint16)0x2AD2); // FTMS Bike Data
+                if (USDC_D700 && c.uuid() != _specificCharacteristic) {
+                    qDebug() << QStringLiteral("USDC_D700: skipping non-0x2AD2 characteristic") << c.uuid();
+                    continue;
+                }              
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
                     QByteArray descriptor;
@@ -1781,16 +1770,6 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 void ftmsbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     static bool connectedAndDiscoveredOk = false;
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
-
-    if (USDC_D700 && gattWriteCharControlPointId.isValid()) {
-        const auto controlPointCccd =
-            gattWriteCharControlPointId.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
-        if (controlPointCccd.isValid() && descriptor.handle() == controlPointCccd.handle() &&
-            newValue == QByteArray::fromHex("0200")) {
-            qDebug() << "USDC-D700 control point indication subscribed, sending early init";
-            init();
-        }
-    }
 
     initRequest = true;
     if(!connectedAndDiscoveredOk) {
@@ -2106,7 +2085,6 @@ void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState stat
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
-        usdc_d700_ftms_frames_received = 0;
         gearInclinationSent = false;
         m_control->connectToDevice();
     }
