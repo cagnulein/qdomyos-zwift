@@ -822,7 +822,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     d = d / 10.0;
                 // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
                 // FS_YK should keep the last commanded resistance; its reported value uses a different scale.
-                if(!SL010 && !TITAN_7000 && !SPORT01 && !FS_YK)
+                if(!SL010 && !TITAN_7000 && !SPORT01 && !FS_YK) {
                     Resistance = d;
                     native_resistance_received = true;
                     calculatedResistanceFallbackSince = QDateTime();
