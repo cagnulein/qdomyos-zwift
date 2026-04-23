@@ -392,7 +392,7 @@ void ftmsbike::update() {
             double gearMultiplier = 5;
             if(REEBOK)
                 gearMultiplier = 1;
-            resistance_t rR = requestResistance + (gears() * gearMultiplier);
+            resistance_t rR = requestResistance + (gearsModifier() * gearMultiplier);
 
             if (rR != currentResistance().value() || lastGearValue != gears()) {
                 bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
@@ -435,12 +435,12 @@ void ftmsbike::update() {
         if(!virtualBike || !virtualBike->ftmsDeviceConnected()) {
             if ((requestInclination != -100 || (lastGearValue != gears() && requestInclination != -100))) {
                 emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-                forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
+                forceInclination(requestInclination + gearsModifier()); // since this bike doesn't have the concept of resistance,
                                                                 // i'm using the gears in the inclination
                 requestInclination = -100;
             } else if(lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
                 // in order to send the new gear value ASAP
-                forceInclination(lastRawRequestedInclinationValue + gears());   // since this bike doesn't have the concept of resistance,
+                forceInclination(lastRawRequestedInclinationValue + gearsModifier());   // since this bike doesn't have the concept of resistance,
                                                                 // i'm using the gears in the inclination
             }
         }
@@ -1451,7 +1451,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         // Apply the same gears modification as in ftmsCharacteristicChanged
         double gears_modified_inclination = Inclination.value();
         if (gears() != 0) {
-            gears_modified_inclination += (gears() * GEARS_SLOPE_MULTIPLIER / 100.0);
+            gears_modified_inclination += (gearsModifier() * GEARS_SLOPE_MULTIPLIER / 100.0);
         }
         _inclinationResistanceTable.collectData(gears_modified_inclination, Resistance.value(), m_watt.value());
     }
@@ -1725,7 +1725,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
 
             if (gears() != 0) {
-                slope += (gears() * GEARS_SLOPE_MULTIPLIER);
+                slope += (gearsModifier() * GEARS_SLOPE_MULTIPLIER);
             }
 
             if(min_inclination > (((double)slope) / 100.0)) {
@@ -2105,8 +2105,11 @@ void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState stat
 double ftmsbike::maxGears() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    bool gears_custom_table_enabled = settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
 
-    if((zwiftPlayService != nullptr) && gears_zwift_ratio) {
+    if(gears_custom_table_enabled) {
+        return 24;
+    } else if((zwiftPlayService != nullptr) && gears_zwift_ratio) {
         wheelCircumference::GearTable g;
         return g.maxGears;
     } else if(WATTBIKE) {
@@ -2119,8 +2122,11 @@ double ftmsbike::maxGears() {
 double ftmsbike::minGears() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    bool gears_custom_table_enabled = settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
 
-    if((zwiftPlayService != nullptr) && gears_zwift_ratio ) {
+    if(gears_custom_table_enabled) {
+        return 1;
+    } else if((zwiftPlayService != nullptr) && gears_zwift_ratio ) {
         return 1;
     } else if(WATTBIKE) {
         return 1;
