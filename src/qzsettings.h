@@ -2176,6 +2176,9 @@ class QZSettings {
     static const QString domyos_treadmill_ts100;
     static constexpr bool default_domyos_treadmill_ts100 = false;
 
+    static const QString domyos_run100e;
+    static constexpr bool default_domyos_run100e = false;
+
     static const QString domyos_treadmill_sync_start;
     static constexpr bool default_domyos_treadmill_sync_start = false;
 

@@ -786,6 +786,7 @@ const QString QZSettings::domyos_treadmill_button_22kmh = QStringLiteral("domyos
 const QString QZSettings::proform_treadmill_sport_8_5 = QStringLiteral("proform_treadmill_sport_8_5");
 const QString QZSettings::domyos_treadmill_t900a = QStringLiteral("domyos_treadmill_t900a");
 const QString QZSettings::domyos_treadmill_ts100 = QStringLiteral("domyos_treadmill_ts100");
+const QString QZSettings::domyos_run100e = QStringLiteral("domyos_run100e");
 const QString QZSettings::domyos_treadmill_sync_start = QStringLiteral("domyos_treadmill_sync_start");
 const QString QZSettings::enerfit_SPX_9500 = QStringLiteral("enerfit_SPX_9500");
 const QString QZSettings::proform_treadmill_505_cst = QStringLiteral("proform_treadmill_505_cst");
@@ -1082,7 +1083,7 @@ const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
 
 
-const uint32_t allSettingsCount = 881;
+const uint32_t allSettingsCount = 882;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1738,6 +1739,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_sport_8_5, QZSettings::default_proform_treadmill_sport_8_5},
     {QZSettings::domyos_treadmill_t900a, QZSettings::default_domyos_treadmill_t900a},
     {QZSettings::domyos_treadmill_ts100, QZSettings::default_domyos_treadmill_ts100},
+    {QZSettings::domyos_run100e, QZSettings::default_domyos_run100e},
     {QZSettings::domyos_treadmill_sync_start, QZSettings::default_domyos_treadmill_sync_start},
     {QZSettings::enerfit_SPX_9500, QZSettings::default_enerfit_SPX_9500},
     {QZSettings::proform_treadmill_505_cst, QZSettings::default_proform_treadmill_505_cst},

@@ -457,6 +457,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     bool domyos_treadmill_buttons =
         settings.value(QZSettings::domyos_treadmill_buttons, QZSettings::default_domyos_treadmill_buttons).toBool();
     bool domyos_treadmill_t900a = settings.value(QZSettings::domyos_treadmill_t900a, QZSettings::default_domyos_treadmill_t900a).toBool();
+    bool domyos_run100e = settings.value(QZSettings::domyos_run100e, QZSettings::default_domyos_run100e).toBool();
     domyos_treadmill_sync_start = settings.value(QZSettings::domyos_treadmill_sync_start, QZSettings::default_domyos_treadmill_sync_start).toBool();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
@@ -692,6 +693,9 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     double speed = GetSpeedFromPacket(value);
     double incline = treadmillInclinationOverride(GetInclinationFromPacket(value));
+    if (domyos_run100e && requestInclination != -100) {
+        incline = requestInclination;
+    }
     double kcal = GetKcalFromPacket(value);
     double distance = GetDistanceFromPacket(value);
     bool disable_hr_frommachinery =
