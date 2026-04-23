@@ -28,6 +28,42 @@ cscbike::cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevi
     connect(refresh, &QTimer::timeout, this, &cscbike::update);
     refresh->start(200ms);
 }
+
+void cscbike::enableManualResistancePowerAdjustment(resistance_t resistance) {
+    if (!jorotoBike) {
+        return;
+    }
+
+    resistance_t clampedResistance = qBound<resistance_t>(1, resistance, 15);
+    manualResistanceTarget = clampedResistance;
+    manualResistancePowerAdjustmentActive = true;
+    Resistance = clampedResistance;
+    emit resistanceRead(Resistance.value());
+
+    if (!manualResistancePowerAdjustmentToastShown && homeform::singleton()) {
+        homeform::singleton()->setToastRequested(
+            QStringLiteral("Manual resistance power adjustment enabled: power now scales with the Resistance tile value."));
+        manualResistancePowerAdjustmentToastShown = true;
+    }
+}
+
+void cscbike::onManualResistanceAdjusted(resistance_t resistance) {
+    enableManualResistancePowerAdjustment(resistance);
+}
+
+uint16_t cscbike::manualResistanceAdjustedWatts() {
+    if (currentCadence().value() == 0) {
+        return 0;
+    }
+
+    const double cadenceOnlyWatts = currentCadence().value() * 1.2;
+    return qRound(cadenceOnlyWatts * manualResistancePowerMultiplier());
+}
+
+double cscbike::manualResistancePowerMultiplier() {
+    const double normalizedResistance = (qBound(1, static_cast<int>(manualResistanceTarget), 15) - 1) / 14.0;
+    return 1.0 + (normalizedResistance * normalizedResistance * 2.0);
+}
 /*
 void cscbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool
 wait_for_response)
@@ -75,7 +111,9 @@ void cscbike::update() {
 
     bool rogue_echo_bike = settings.value(QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike).toBool();
     
-    if (rogue_echo_bike) {
+    if (manualResistancePowerAdjustmentActive) {
+        m_watt = manualResistanceAdjustedWatts();
+    } else if (rogue_echo_bike) {
         double rpm = currentCadence().value();
         m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404;
     } else {
@@ -304,10 +342,14 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
               (2.0 * ar)) *
              settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
             settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
-        Resistance = m_pelotonResistance;
+        if (manualResistancePowerAdjustmentActive) {
+            Resistance = manualResistanceTarget;
+        } else {
+            Resistance = m_pelotonResistance;
+        }
     } else {
         m_pelotonResistance = 0;
-        Resistance = 0;
+        Resistance = manualResistancePowerAdjustmentActive ? manualResistanceTarget : 0;
     }
     emit resistanceRead(Resistance.value());
 
@@ -559,6 +601,7 @@ void cscbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+        jorotoBike = bluetoothDevice.name().toUpper().startsWith(QStringLiteral("JOROTO-BK-"));
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &cscbike::serviceDiscovered);
@@ -616,3 +659,8 @@ void cscbike::controllerStateChanged(QLowEnergyController::ControllerState state
         m_control->connectToDevice();
     }
 }
+
+
+
+
+
