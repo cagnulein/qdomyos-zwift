@@ -266,7 +266,8 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
             Resistance = requestResistance;
         
         // Some devices expect FTMS resistance level as 2-byte value in 0.1 units (x10).
-        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28) {
+        // FS-YK also uses 0.1 units, so it needs 2 bytes to avoid wrapping above 25.5.
+        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || FS_YK) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -274,7 +275,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
                                 QStringLiteral("forceResistance ") + QString::number(requestResistance));
         } else {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
-            if(_3G_Cardio_RB || SL010 || FS_YK)
+            if(_3G_Cardio_RB || SL010)
                 requestResistance = requestResistance * 10;
             write[1] = ((uint8_t)(requestResistance));
             writeCharacteristic(write, sizeof(write),
