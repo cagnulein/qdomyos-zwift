@@ -575,6 +575,21 @@ void ftmsbike::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
+bool ftmsbike::shouldUseCalculatedResistanceFallback(const QDateTime &now) {
+    if (native_resistance_received) {
+        return false;
+    }
+
+    if (!calculatedResistanceFallbackSince.isValid()) {
+        calculatedResistanceFallbackSince = now;
+        return false;
+    }
+
+    // Some FTMS bikes send native resistance on a later packet than cadence/power.
+    // Wait briefly before promoting the calculated Peloton value into Resistance.
+    return calculatedResistanceFallbackSince.msecsTo(now) >= 3000;
+}
+
 void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
@@ -603,6 +618,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
     if (DU30_bike && characteristic.uuid() == QBluetoothUuid(QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb")) && newValue.length() >= 14) {
         resistance_received = true;
+        native_resistance_received = true;
+        calculatedResistanceFallbackSince = QDateTime();
         Resistance = (double)(newValue.at(5));
         emit resistanceRead(Resistance.value());
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
@@ -807,6 +824,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 // FS_YK should keep the last commanded resistance; its reported value uses a different scale.
                 if(!SL010 && !TITAN_7000 && !SPORT01 && !FS_YK)
                     Resistance = d;
+                    native_resistance_received = true;
+                    calculatedResistanceFallbackSince = QDateTime();
+                }
                 emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
                 emit resistanceRead(Resistance.value());
                 resistance_received = true;
@@ -840,10 +860,12 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     m_pelotonResistance = res;
                 }
 
-                if (!resistance_received && !DU30_bike && !SL010 && !FS_YK) {
+                if (!resistance_received && !DU30_bike && !SL010 && !FS_YK &&
+                    shouldUseCalculatedResistanceFallback(now)) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
-                    emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+                    emit debug(QStringLiteral("Current Resistance (calculated fallback): ") +
+                               QString::number(Resistance.value()));
                 }
             }
    
@@ -1288,6 +1310,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                                        (uint16_t)((uint8_t)newValue.at(index))));
                 emit resistanceRead(Resistance.value());
                 resistance_received = true;
+                native_resistance_received = true;
+                calculatedResistanceFallbackSince = QDateTime();
             }
             index += 2;
             emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
@@ -1320,9 +1344,11 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     m_pelotonResistance = res;
                 }
 
-                if (!FS_YK) {
+                if (!FS_YK && shouldUseCalculatedResistanceFallback(now)) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
+                    emit debug(QStringLiteral("Current Resistance (calculated fallback): ") +
+                               QString::number(Resistance.value()));
                 }
             }
         }

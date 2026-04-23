@@ -399,6 +399,7 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::FitShowFS)
         ->expectDevice<fitshowtreadmill>()        
         ->acceptDeviceName("FS-", DeviceNameComparison::StartsWith)
+        ->acceptDeviceName("TR510-T", DeviceNameComparison::StartsWithIgnoreCase)
         ->configureSettingsWith(
             [](const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) -> void
             {

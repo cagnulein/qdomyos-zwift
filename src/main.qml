@@ -641,6 +641,84 @@ ApplicationWindow {
     }
 
     MessageDialog {
+        text: "Echelon Unlock"
+        informativeText: "The bike has been unlocked and cadence is flowing.\n\nDo you want to switch to the classic Bluetooth bridge for this session?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.echelon_switch_to_classic_bridge(); }
+        onNoClicked: { rootItem.echelon_dismiss_bridge_switch_prompt(); }
+        visible: rootItem.echelonBridgeSwitchPromptRequested
+    }
+
+    Popup {
+        id: echelonEnablePopup
+        parent: Overlay.overlay
+        modal: true
+        focus: true
+        closePolicy: Popup.NoAutoClose
+        width: Math.min(window.width - 40, 460)
+        height: Math.min(window.height - 60, 420)
+        x: Math.round((parent.width - width) / 2)
+        y: Math.round((parent.height - height) / 2)
+        visible: rootItem.echelonEnablePromptRequested
+
+        background: Rectangle {
+            radius: 8
+            color: Material.background
+            border.color: Material.accent
+            border.width: 1
+        }
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 16
+            spacing: 12
+
+            Label {
+                width: parent.width
+                text: "Echelon Locked Bike"
+                font.bold: true
+                font.pixelSize: 20
+                wrapMode: Text.WordWrap
+            }
+
+            ScrollView {
+                width: parent.width
+                height: parent.height - buttonsRow.height - 52
+                clip: true
+
+                TextArea {
+                    width: echelonEnablePopup.width - 56
+                    readOnly: true
+                    wrapMode: TextEdit.Wrap
+                    selectByMouse: true
+                    text:
+                        "Your bike is locked by Echelon, but QZ can unlock it.\n\n" +
+                        "Enable Virtual Echelon in the experimental settings and restart qz, then open the official Echelon app on a separate device and connect to the bike once.\n\n" +
+                        "After initialization, return to QZ and everything will work normally.\n\n" +
+                        "You have to repeat this for each session, would you like to enable the Virtual Echelon setting now for this?"
+                }
+            }
+
+            Row {
+                id: buttonsRow
+                width: parent.width
+                spacing: 12
+                layoutDirection: Qt.RightToLeft
+
+                Button {
+                    text: "Yes"
+                    onClicked: rootItem.echelon_enable_virtual_bridge()
+                }
+
+                Button {
+                    text: "No"
+                    onClicked: rootItem.echelon_dismiss_enable_prompt()
+                }
+            }
+        }
+    }
+
+    MessageDialog {
         id: stravaLogoutConfirm
         text: qsTr("Strava")
         informativeText: qsTr("You are already connected to Strava. Do you want to log out?")
