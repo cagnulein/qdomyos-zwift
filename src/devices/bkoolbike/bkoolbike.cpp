@@ -214,9 +214,11 @@ void bkoolbike::update() {
             requestResistance = -1;
         }
 
-        if(lastGearValue != gears() && requestInclination == -100) {
-            // if only gears changed, we need to update the inclination to match the gears
-            requestInclination = lastRawRequestedInclinationValue;
+        if (lastGearValue != gears() && requestInclination == -100) {
+            // If the user only changes gears before ever touching inclination/resistance,
+            // we still need a baseline command; otherwise no packet is sent at all.
+            requestInclination =
+                (lastRawRequestedInclinationValue != -100) ? lastRawRequestedInclinationValue : 0.0;
         }
 
         if (requestInclination != -100) {
