@@ -4,6 +4,7 @@
 #include "keepawakehelper.h"
 #endif
 
+#include "homeform.h"
 #include "qzsettings.h"
 #include "virtualdevices/virtualbike.h"
 #include "virtualdevices/virtualrower.h"
@@ -26,6 +27,12 @@ static constexpr int kKayakFirstCommandRetryCount = 3;
 static constexpr int kKayakFirstInterChunkDelayMs = 50;
 static constexpr int kKayakFirstLongDelayMs = 1000;
 static constexpr int kKayakFirstExtraLongDelayMs = 5000;
+
+static void showToast(const QString &message) {
+    if (homeform::singleton()) {
+        homeform::singleton()->setToastRequested(message);
+    }
+}
 
 kayakfirstrower::kayakfirstrower(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                  double bikeResistanceGain) {
@@ -166,6 +173,7 @@ QString kayakfirstrower::buildStartCommand() const {
 void kayakfirstrower::btinit() {
     // Sequence aligned with a working Kayak First session captured from TrackMyIndoorWorkout.
     emit debug(QStringLiteral("KayakFirst init: reset phase"));
+    showToast(QStringLiteral("KayakFirst connecting, please standby..."));
     if (!sendCommandWithRetries(QStringLiteral("1"), '1', QStringLiteral("reset-1"), kKayakFirstCommandRetryCount,
                                 kKayakFirstLongDelayMs, true)) {
         return;
@@ -214,6 +222,7 @@ void kayakfirstrower::btinit() {
     initDone = true;
     autoStartPending = true;
     emit debug(QStringLiteral("KayakFirst init complete"));
+    showToast(QStringLiteral("KayakFirst ready to go"));
 }
 
 void kayakfirstrower::parseLine(const QByteArray &line) {
@@ -336,6 +345,14 @@ void kayakfirstrower::update() {
         return;
     }
 
+    if (requestStop != -1) {
+        sendCommandWithRetries(QStringLiteral("9;3;1"), '9', QStringLiteral("stop"), kKayakFirstCommandRetryCount, 0,
+                               true);
+        workoutStarted = false;
+        autoStartPending = false;
+        requestStop = -1;
+    }
+
     if ((autoStartPending || requestStart != -1) && !workoutStarted) {
         const QString startCommand = buildStartCommand();
         emit debug(QStringLiteral("KayakFirst workout start requested"));
@@ -347,14 +364,6 @@ void kayakfirstrower::update() {
             workoutStarted = true;
             emit bikeStarted();
         }
-    }
-
-    if (requestStop != -1) {
-        sendCommandWithRetries(QStringLiteral("9;3;1"), '9', QStringLiteral("stop"), kKayakFirstCommandRetryCount, 0,
-                               true);
-        workoutStarted = false;
-        autoStartPending = false;
-        requestStop = -1;
     }
 
     if (sec1Update++ % 2 == 0) {
