@@ -714,14 +714,11 @@ int main(int argc, char *argv[]) {
         settings.setValue(QZSettings::virtual_device_bluetooth, virtual_device_bluetooth);
         settings.setValue(QZSettings::power_sensor_name, power_sensor_name);
         settings.setValue(QZSettings::power_sensor_as_treadmill, power_sensor_as_treadmill);
-#ifdef ANT_LINUX_ENABLED
-        // -no-wahoo-service omits the Wahoo GATT service (a026ee0e-...) from the virtual
-        // treadmill peripheral. Apps like Runna detect Wahoo devices by this service UUID and
-        // activate a Wahoo-specific BLE driver that skips CP CCCD subscription, causing a
-        // 6-second timeout. Without the Wahoo service they fall back to the standard FTMS
-        // path which correctly subscribes to the CP CCCD. Default: true (service present).
-        settings.setValue(QStringLiteral("virtual_treadmill_wahoo_service"), !no_wahoo_service);
-#endif
+        // -no-wahoo-service disables the Wahoo-specific virtual treadmill behavior. Apps like
+        // Runna detect Wahoo devices by the proprietary service UUID and activate a Wahoo BLE
+        // driver that skips CP CCCD subscription, causing a timeout. Disabling Wahoo
+        // emulation forces the standard FTMS path instead.
+        settings.setValue(QZSettings::wahoo_treadmill_emulation, !no_wahoo_service);
         if (mqtt_host.length() > 0) {
             settings.setValue(QZSettings::mqtt_host, mqtt_host);
         }

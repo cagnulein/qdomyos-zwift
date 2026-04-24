@@ -19,6 +19,8 @@ using namespace std::chrono_literals;
 virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     QSettings settings;
     treadMill = t;
+    const bool wahooMode = settings.value(QZSettings::wahoo_treadmill_emulation,
+                                          QZSettings::default_wahoo_treadmill_emulation).toBool();
 
     int bikeResistanceOffset =
         settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
@@ -66,14 +68,11 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         advertisingData.setIncludePowerLevel(true);
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
         advertisingData.setLocalName(QStringLiteral("KICKR RUN"));
-#ifdef ANT_LINUX_ENABLED
-        // [STANDARD-FTMS] Override to "Horizon 7.0 AT" so treadmill apps match the standard FTMS device profile.
-        if (!settings.value(QStringLiteral("virtual_treadmill_wahoo_service"), true).toBool())
-            advertisingData.setLocalName(QStringLiteral("Horizon 7.0 AT"));
-#endif
 #else
         advertisingData.setLocalName(QStringLiteral("DomyosBridge"));
 #endif
+        if (!wahooMode)
+            advertisingData.setLocalName(QStringLiteral("Horizon 7.0 AT"));
         QList<QBluetoothUuid> services;
 
         // Add Wahoo Run Service UUID
@@ -99,28 +98,17 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         //! [Advertising Data]
 
         // Add Device Information Service
-#ifdef ANT_LINUX_ENABLED
-        // [STANDARD-FTMS] wahooMode=false: Horizon Fitness DIS strings, 0x0D feature flags, "Horizon 7.0 AT" name.
-        bool wahooMode = true;
-        wahooMode = settings.value(QStringLiteral("virtual_treadmill_wahoo_service"), true).toBool();
-#endif
         QLowEnergyCharacteristicData manufacturerNameChar;
         manufacturerNameChar.setUuid(QBluetoothUuid::CharacteristicType::ManufacturerNameString);
         manufacturerNameChar.setProperties(QLowEnergyCharacteristic::Read);
         manufacturerNameChar.setValue(QByteArray("Wahoo Fitness")); // Changed to Wahoo Fitness
-#ifdef ANT_LINUX_ENABLED
-        // [STANDARD-FTMS] DIS manufacturer: "Horizon Fitness" in standard mode.
         if (!wahooMode) manufacturerNameChar.setValue(QByteArray("Horizon Fitness"));
-#endif
 
         QLowEnergyCharacteristicData firmwareRevChar;
         firmwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::FirmwareRevisionString);
         firmwareRevChar.setProperties(QLowEnergyCharacteristic::Read);
         firmwareRevChar.setValue(QByteArray("1.0.11"));
-#ifdef ANT_LINUX_ENABLED
-        // [STANDARD-FTMS] DIS firmware: "3.40.0" in standard mode.
         if (!wahooMode) firmwareRevChar.setValue(QByteArray("3.40.0"));
-#endif
 
         QLowEnergyCharacteristicData hardwareRevChar;
         hardwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::HardwareRevisionString);
@@ -166,19 +154,12 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             charData.setUuid((QBluetoothUuid::CharacteristicType)0x2ACC);  // FitnessMachineFeatureCharacteristicUuid
             QByteArray value;
             value.append((char)0x08);
-#ifdef ANT_LINUX_ENABLED
-            // [STANDARD-FTMS] 0x0D = avg-speed+distance+inclination; wahoo path keeps 0x08 (inclination only).
             if (!wahooMode && ftmsTreadmillEnable()) value.back() = (char)0x0D;
-#endif
             value.append((char)0x14);  // heart rate and elapsed time
             value.append((char)0x00);
             value.append((char)0x00);
             value.append((char)0x00);
-#ifdef ANT_LINUX_ENABLED
-            // [STANDARD-FTMS] Target Setting Features (bytes 4-7): bits 0+1 advertise speed+incline targets so
-            // clients send Set Target Speed/Inclination commands; wahoo path keeps 0x00 (no targets declared).
             if (!wahooMode && ftmsTreadmillEnable()) value.back() = (char)0x03;
-#endif
             value.append((char)0x00);
             value.append((char)0x00);
             value.append((char)0x00);
@@ -265,10 +246,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                serviceDataFTMS.addCharacteristic(charData3);
                serviceDataFTMS.addCharacteristic(charDataFIT5);
                serviceDataFTMS.addCharacteristic(charDataFIT6);
-#ifdef ANT_LINUX_ENABLED
-               // [STANDARD-FTMS] 0x2AD2 (Indoor Bike Data) is a Zwift incline workaround; omit in standard mode to avoid confusing treadmill apps.
                if (wahooMode)
-#endif
                    serviceDataFTMS.addCharacteristic(charDataFIT7);
                serviceDataFTMS.addCharacteristic(charDataFIT2);
            }
@@ -288,10 +266,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         valueFIT.append((char)'U');
         valueFIT.append((char)'N');
         valueFIT.append((char)0x00);
-#ifdef ANT_LINUX_ENABLED
-        // [STANDARD-FTMS] 0x2A00 Device Name: must match advertising name so apps recognise the device profile.
         if (!wahooMode) { valueFIT.clear(); valueFIT.append("Horizon 7.0 AT"); valueFIT.append((char)0x00); }
-#endif
         charDataFIT.setValue(valueFIT);
         charDataFIT.setProperties(QLowEnergyCharacteristic::Read);
 
@@ -394,10 +369,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         serviceDIS = leController->addService(serviceDataDIS);
         QThread::msleep(100);
 
-#ifdef ANT_LINUX_ENABLED
-        // [STANDARD-FTMS] Wahoo proprietary service causes Runna to use Wahoo protocol instead of FTMS CP; omit in standard mode.
-        if (settings.value(QStringLiteral("virtual_treadmill_wahoo_service"), true).toBool())
-#endif
+        if (wahooMode)
             serviceWahoo = leController->addService(serviceDataWahoo);
         QThread::msleep(100);
 
@@ -519,6 +491,8 @@ void virtualtreadmill::wahooCharacteristicChanged(const QLowEnergyCharacteristic
 
 void virtualtreadmill::reconnect() {
     QSettings settings;
+    const bool wahooMode = settings.value(QZSettings::wahoo_treadmill_emulation,
+                                          QZSettings::default_wahoo_treadmill_emulation).toBool();
     bool bluetooth_relaxed =
         settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
 
@@ -539,10 +513,7 @@ void virtualtreadmill::reconnect() {
     serviceDIS = leController->addService(serviceDataDIS);
     QThread::msleep(100);
 
-#ifdef ANT_LINUX_ENABLED
-    // [STANDARD-FTMS] Wahoo proprietary service causes Runna to use Wahoo protocol instead of FTMS CP; omit in standard mode.
-    if (settings.value(QStringLiteral("virtual_treadmill_wahoo_service"), true).toBool())
-#endif
+    if (wahooMode)
         serviceWahoo = leController->addService(serviceDataWahoo);
     QThread::msleep(100);
 
@@ -555,12 +526,9 @@ void virtualtreadmill::reconnect() {
         serviceHR = leController->addService(serviceDataHR);
     }
 
-#ifdef ANT_LINUX_ENABLED
-    // [STANDARD-FTMS] Re-connect serviceFTMS signal; addService returns a new instance so the constructor connection is lost.
     if (serviceFTMS)
         QObject::connect(serviceFTMS, &QLowEnergyService::characteristicChanged, this,
                          &virtualtreadmill::characteristicChanged);
-#endif
 
     if (serviceWahoo)
         QObject::connect(serviceWahoo, &QLowEnergyService::characteristicChanged, this,
@@ -585,6 +553,8 @@ void virtualtreadmill::reconnect() {
 void virtualtreadmill::treadmillProvider() {
     const uint64_t slopeTimeoutSecs = 30;
     QSettings settings;
+    const bool wahooMode = settings.value(QZSettings::wahoo_treadmill_emulation,
+                                          QZSettings::default_wahoo_treadmill_emulation).toBool();
     bool bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
 
     if ((uint64_t)QDateTime::currentSecsSinceEpoch() > lastSlopeChanged + slopeTimeoutSecs)
@@ -712,10 +682,7 @@ void virtualtreadmill::treadmillProvider() {
                 }
             }
         }
-#ifdef ANT_LINUX_ENABLED
-        // [STANDARD-FTMS] Skip 0x2AD2 notifications when wahoo_service=false (char not in service).
-        if (settings.value(QStringLiteral("virtual_treadmill_wahoo_service"), true).toBool())
-#endif
+        if (wahooMode)
         {
             value.clear();
             if (notif2AD2->notify(value) == CN_OK) {
