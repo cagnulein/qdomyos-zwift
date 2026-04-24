@@ -181,6 +181,7 @@ metric bluetoothdevice::elevationGain() { return elevationAcc; }
 metric bluetoothdevice::negativeElevationGain() { return negativeElevationAcc; }
 void bluetoothdevice::heartRate(uint8_t heart) {
     Heart.setValue(heart);
+    heartRateFromHealthKit = false;
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     // Write heart rate from Bluetooth to Apple Health during workout
@@ -332,11 +333,13 @@ void bluetoothdevice::update_hr_from_external() {
     if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
 #ifdef Q_OS_ANDROID
         Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
+        heartRateFromHealthKit = false;
 #endif
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         lockscreen h;
         Heart = h.getHR();
+        heartRateFromHealthKit = false;
 #endif
 #endif
         qDebug() << "Garmin Companion Heart:" << Heart.value();
@@ -361,13 +364,16 @@ void bluetoothdevice::update_hr_from_external() {
             h.setPower(m_watt.value());
             h.setCadence(Cadence.value());
             h.setSteps(StepCount.value());
+            h.setElevationGain(elevationGain().value());
             Heart = appleWatchHeartRate;
+            heartRateFromHealthKit = appleWatchHeartRate > 0;
             qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
 #endif
 #endif
 #ifdef Q_OS_ANDROID
     if (!settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/WearableController", "getHeart", "()I");
+        heartRateFromHealthKit = false;
         qDebug() << "WearOS Companion Heart:" << Heart.value();
     }
 #endif
@@ -389,7 +395,23 @@ void bluetoothdevice::update_ios_live_activity() {
         if(kcal < 0)
             kcal = 0;
         bool useMiles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
-        h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(), deviceType(), odometer() * 1000.0, totalCalories().value(), useMiles, (uint8_t)Heart.value());
+        QString compactLeadingMetric =
+            settings.value(QZSettings::ios_live_activity_compact_leading_metric,
+                           QZSettings::default_ios_live_activity_compact_leading_metric)
+                .toString();
+        QString compactTrailingMetric =
+            settings.value(QZSettings::ios_live_activity_compact_trailing_metric,
+                           QZSettings::default_ios_live_activity_compact_trailing_metric)
+                .toString();
+        QByteArray compactLeadingMetricUtf8 = compactLeadingMetric.toUtf8();
+        QByteArray compactTrailingMetricUtf8 = compactTrailingMetric.toUtf8();
+        const uint8_t workoutHeartRate = heartRateFromHealthKit ? 0 : (uint8_t)Heart.value();
+        h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(),
+                                deviceType(), odometer() * 1000.0, totalCalories().value(), useMiles,
+                                workoutHeartRate, compactLeadingMetricUtf8.constData(),
+                                metricValueForSetting(compactLeadingMetric), compactTrailingMetricUtf8.constData(),
+                                metricValueForSetting(compactTrailingMetric));
+        heartRateFromHealthKit = false;
 
         lastUpdate = current;
     }
@@ -503,6 +525,7 @@ QStringList bluetoothdevice::metrics() {
     r.append(QStringLiteral("Target Peloton Resistance"));
     r.append(QStringLiteral("Target Cadence"));
     r.append(QStringLiteral("Target Power"));
+    r.append(QStringLiteral("Gear"));
     r.append(QStringLiteral("Watt/Kg"));
     return r;
 }
@@ -514,82 +537,64 @@ uint8_t bluetoothdevice::metrics_override_heartrate() {
     QSettings settings;
     QString setting =
         settings.value(QZSettings::peloton_heartrate_metric, QZSettings::default_peloton_heartrate_metric).toString();
+    return static_cast<uint8_t>(qBound(0, metricValueForSetting(setting), 255));
+}
+
+int bluetoothdevice::metricValueForSetting(const QString &setting) {
     if (!setting.compare(QStringLiteral("Heart Rate"))) {
-        return currentHeart().value();
+        return qRound(currentHeart().value());
     } else if (!setting.compare(QStringLiteral("Speed"))) {
-
-        return currentSpeed().value();
+        return qRound(currentSpeed().value());
     } else if (!setting.compare(QStringLiteral("Inclination"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Cadence"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Elevation"))) {
-
-        return elevationGain().value();
+        return qRound(elevationGain().value());
     } else if (!setting.compare(QStringLiteral("Calories"))) {
-
-        return calories().value();
+        return qRound(calories().value());
     } else if (!setting.compare(QStringLiteral("Odometer"))) {
-
-        return odometer();
+        return qRound(odometer());
     } else if (!setting.compare(QStringLiteral("Pace"))) {
-
         return currentPace().second();
     } else if (!setting.compare(QStringLiteral("Resistance"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Watt"))) {
-
-        return wattsMetric().value();
+        return qRound(wattsMetric().value());
     } else if (!setting.compare(QStringLiteral("Weight Loss"))) {
-
-        return weightLoss();
+        return qRound(weightLoss());
     } else if (!setting.compare(QLatin1String("Watt/Kg"))) {
-
-        return wattKg().value();
+        return qRound(wattKg().value());
     } else if (!setting.compare(QStringLiteral("AVG Watt"))) {
-
-        return wattsMetric().average();
+        return qRound(wattsMetric().average());
     } else if (!setting.compare(QStringLiteral("FTP"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Fan"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Jouls"))) {
-
-        return jouls().value();
+        return qRound(jouls().value());
     } else if (!setting.compare(QStringLiteral("Lap Elapsed"))) {
-
         return lapElapsedTime().second();
     } else if (!setting.compare(QStringLiteral("Elapsed"))) {
-
-        return elapsed.value();
+        return qRound(elapsed.value());
     } else if (!setting.compare(QStringLiteral("Moving Time"))) {
-
         return movingTime().second();
     } else if (!setting.compare(QStringLiteral("Peloton Offset"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Peloton Resistance"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Date Time"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Target Resistance"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Target Peloton Resistance"))) {
-
         return 0;
     } else if (!setting.compare(QStringLiteral("Target Power"))) {
-
+        return 0;
+    } else if (!setting.compare(QStringLiteral("Target Cadence"))) {
         return 0;
     }
-    return currentHeart().value();
+    return qRound(currentHeart().value());
 }
 
 void bluetoothdevice::changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters) {

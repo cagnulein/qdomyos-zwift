@@ -418,6 +418,12 @@ class QZSettings {
     static const QString tile_avg_pace_order;
     static constexpr int default_tile_avg_pace_order = 76;
 
+    static const QString tile_grade_adjusted_pace_enabled;
+    static constexpr bool default_tile_grade_adjusted_pace_enabled = false;
+
+    static const QString tile_grade_adjusted_pace_order;
+    static constexpr int default_tile_grade_adjusted_pace_order = 79;
+
     static const QString tile_resistance_enabled;
     static constexpr bool default_tile_resistance_enabled = true;
 
@@ -697,6 +703,8 @@ class QZSettings {
     static constexpr bool default_eslinker_cadenza = true;
     static const QString eslinker_ypoo;
     static constexpr bool default_eslinker_ypoo = false;
+    static const QString gymstick_gx6_0_elliptical;
+    static constexpr bool default_gymstick_gx6_0_elliptical = false;
     /**
      *@brief Choose between the standard and MGARCEA watt table.
      */
@@ -747,6 +755,9 @@ class QZSettings {
 
     static const QString nordictrack_treadmill_ultra_le;
     static constexpr bool default_nordictrack_treadmill_ultra_le = false;
+
+    static const QString nordictrack_treadmill_commercial_le;
+    static constexpr bool default_nordictrack_treadmill_commercial_le = false;
 
     static const QString proform_treadmill_carbon_tls;
     static constexpr bool default_proform_treadmill_carbon_tls = false;
@@ -814,6 +825,9 @@ class QZSettings {
     static const QString fitplus_bike;
     static constexpr bool default_fitplus_bike = false;
 
+    static const QString lifespan_bike;
+    static constexpr bool default_lifespan_bike = false;
+
     static const QString virtufit_etappe;
     static constexpr bool default_virtufit_etappe = false;
 
@@ -852,6 +866,9 @@ class QZSettings {
 
     static const QString technogym_myrun_treadmill_experimental;
     static constexpr bool default_technogym_myrun_treadmill_experimental = false;
+
+    static const QString gym_mode;
+    static constexpr bool default_gym_mode = false;
 
     static const QString technogym_group_cycle;
     static constexpr bool default_technogym_group_cycle = false;
@@ -910,6 +927,9 @@ class QZSettings {
     static const QString instant_power_on_pause;
     static constexpr bool default_instant_power_on_pause = false;
 
+    static const QString toputure_teb1;
+    static constexpr bool default_toputure_teb1 = false;
+
     /**
      * @brief Adjusts value in a metric object that's configured specifically for measuring SPEED.
      */
@@ -943,6 +963,9 @@ class QZSettings {
     static const QString cadence_sensor_as_bike;
     static constexpr bool default_cadence_sensor_as_bike = false;
 
+    static const QString cadence_sensor_as_treadmill;
+    static constexpr bool default_cadence_sensor_as_treadmill = false;
+
     static const QString cadence_sensor_speed_ratio;
     static constexpr float default_cadence_sensor_speed_ratio = 0.33;
 
@@ -966,6 +989,12 @@ class QZSettings {
 
     static const QString power_sensor_as_treadmill;
     static constexpr bool default_power_sensor_as_treadmill = false;
+
+    static const QString power_sensor_speed_inclination_coeff_a;
+    static constexpr double default_power_sensor_speed_inclination_coeff_a = 0.0;
+
+    static const QString power_sensor_speed_inclination_coeff_b;
+    static constexpr double default_power_sensor_speed_inclination_coeff_b = 0.0;
 
     static const QString powr_sensor_running_cadence_double;
     static constexpr bool default_powr_sensor_running_cadence_double = false;
@@ -1963,6 +1992,9 @@ class QZSettings {
     static const QString zero_zt2500_treadmill;
     static constexpr bool default_zero_zt2500_treadmill = false;
 
+    static const QString umay_s100_treadmill;
+    static constexpr bool default_umay_s100_treadmill = false;
+
     static const QString kingsmith_encrypt_v5;
     static constexpr bool default_kingsmith_encrypt_v5 = false;
 
@@ -2161,6 +2193,9 @@ class QZSettings {
 
     static const QString thinkrider_controller;
     static constexpr bool default_thinkrider_controller = false;
+
+    static const QString cycplus_bc2_controller;
+    static constexpr bool default_cycplus_bc2_controller = false;
 
     static const QString proform_treadmill_705_cst;
     static constexpr bool default_proform_treadmill_705_cst = false;
@@ -2449,6 +2484,8 @@ class QZSettings {
 
     static const QString proform_trainer_8_0;
     static constexpr bool default_proform_trainer_8_0 = false;
+    static const QString proform_trainer_8_0_pftl59721_int_0;
+    static constexpr bool default_proform_trainer_8_0_pftl59721_int_0 = false;
 
     static const QString tile_biggears_swap;
     static constexpr bool default_tile_biggears_swap = false;
@@ -2859,6 +2896,18 @@ class QZSettings {
     static const QString chart_display_mode;
     static constexpr int default_chart_display_mode = 0;
 
+    /**
+     * @brief Metric shown on the leading side of the iOS Dynamic Island compact Live Activity.
+     */
+    static const QString ios_live_activity_compact_leading_metric;
+    static const QString default_ios_live_activity_compact_leading_metric;
+
+    /**
+     * @brief Metric shown on the trailing side of the iOS Dynamic Island compact Live Activity.
+     */
+    static const QString ios_live_activity_compact_trailing_metric;
+    static const QString default_ios_live_activity_compact_trailing_metric;
+
    /**
      * @brief Calculate only active calories (exclude basal metabolic rate)
      */
@@ -2888,6 +2937,11 @@ class QZSettings {
 
     static const QString proform_csx210;
     static constexpr bool default_proform_csx210 = false;
+    static const QString proform_bike_325_csx_PFEX439210INT_0;
+    static constexpr bool default_proform_bike_325_csx_PFEX439210INT_0 = false;
+
+    static const QString nordictrack_vr21;
+    static constexpr bool default_nordictrack_vr21 = false;
 
     /**
      * @brief Enable X-2000 protocol for Skandika Wiri bike (true for X-2000, false for standard protocol)
@@ -2912,6 +2966,11 @@ class QZSettings {
      */
     static const QString step_gain;
     static constexpr double default_step_gain = 1.0;
+
+    static const QString proform_carbon_tlx_treadmill;
+    static constexpr bool default_proform_carbon_tlx_treadmill = false;
+    static const QString proform_carbon_tl_PFTL59723_6;
+    static constexpr bool default_proform_carbon_tl_PFTL59723_6 = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

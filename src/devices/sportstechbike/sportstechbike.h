@@ -59,6 +59,7 @@ class sportstechbike : public bike {
     bool noHeartService = false;
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
+    bool isAF7019 = false;
 
     uint8_t firstVirtualBike = 0;
     bool firstCharChanged = true;
@@ -73,6 +74,8 @@ class sportstechbike : public bike {
     bool initDone = false;
     bool initRequest = false;
     bool readyToStart = false;
+    qint64 esx500UnderTargetSinceMs = -1;
+    uint16_t esx500LastTargetPower = 0;
 
   signals:
     void disconnected();
