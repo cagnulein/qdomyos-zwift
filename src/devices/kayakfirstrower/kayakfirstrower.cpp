@@ -232,7 +232,9 @@ void kayakfirstrower::parseLine(const QByteArray &line) {
 
     emit packetReceived();
 
-    if (!line.startsWith('6')) {
+    const bool looksLikeDataPacket = line.startsWith("6;") && line.count(';') >= 10;
+
+    if (!looksLikeDataPacket) {
         QString controlResponse = QString::fromUtf8(line).trimmed();
         emit debug(QStringLiteral(" << ctrl ") + controlResponse);
         lastControlResponse = controlResponse;
@@ -258,17 +260,29 @@ void kayakfirstrower::parseLine(const QByteArray &line) {
     emit debug(QStringLiteral(" << data ") + line);
 
     const QString packet = QString::fromUtf8(line);
-    const QStringList parts = packet.split(';');
+    const QStringList parts = packet.split(';', Qt::KeepEmptyParts);
 
-    if (parts.size() < 20) {
+    if (parts.size() < 24) {
         emit debug(QStringLiteral("KayakFirst partial fragment: ") + packet);
         return;
     }
 
     bool ok = false;
 
+    const qint64 packetTimestampMs = parts.value(1).toLongLong(&ok);
+    const bool packetTimestampValid = ok && packetTimestampMs > 0;
+
     const double strokeCount = parts.value(9).toDouble(&ok);
     if (ok) {
+        if (packetTimestampValid && lastPacketTimestampMs > 0 && packetTimestampMs > lastPacketTimestampMs &&
+            strokeCount >= lastStrokeCountValue) {
+            const double elapsedMs = static_cast<double>(packetTimestampMs - lastPacketTimestampMs);
+            const double strokeDelta = strokeCount - lastStrokeCountValue;
+            if (elapsedMs > 0.0 && strokeDelta >= 0.0) {
+                Cadence = (strokeDelta * 60000.0) / elapsedMs;
+            }
+        }
+
         if (strokeCount >= StrokesCount.value()) {
             const uint32_t delta = static_cast<uint32_t>(strokeCount - StrokesCount.value());
             if (delta > 0) {
@@ -276,6 +290,7 @@ void kayakfirstrower::parseLine(const QByteArray &line) {
             }
         }
         StrokesCount = strokeCount;
+        lastStrokeCountValue = strokeCount;
     }
 
     const double distanceKm = parts.value(10).toDouble(&ok);
@@ -288,25 +303,26 @@ void kayakfirstrower::parseLine(const QByteArray &line) {
         Speed = speedMs * 3.6;
     }
 
-    const double strokeRate = parts.value(13).toDouble(&ok);
-    if (ok) {
-        Cadence = strokeRate;
+    double heartRate = parts.size() > 12 ? parts.value(12).toDouble(&ok) : 0.0;
+    if ((!ok || heartRate <= 0) && parts.size() > 13) {
+        heartRate = parts.value(13).toDouble(&ok);
     }
-
-    double heartRate = parts.size() > 20 ? parts.value(20).toDouble(&ok) : 0.0;
-    if ((!ok || heartRate <= 0) && parts.size() > 21) {
-        heartRate = parts.value(21).toDouble(&ok);
+    if ((!ok || heartRate <= 0) && parts.size() > 20) {
+        heartRate = parts.value(20).toDouble(&ok);
     }
     if (ok && heartRate > 0) {
         Heart = heartRate;
     }
 
-    const double calories = parts.size() > 17 ? parts.value(17).toDouble(&ok) : 0.0;
+    const double calories = parts.size() > 16 ? parts.value(16).toDouble(&ok) : 0.0;
     if (ok && calories >= 0) {
         KCal = calories;
     }
 
-    const double power = parts.size() > 19 ? parts.value(19).toDouble(&ok) : 0.0;
+    double power = parts.size() > 14 ? parts.value(14).toDouble(&ok) : 0.0;
+    if ((!ok || power < 0) && parts.size() > 21) {
+        power = parts.value(21).toDouble(&ok);
+    }
     if (ok) {
         m_watt = power;
     }
@@ -319,6 +335,9 @@ void kayakfirstrower::parseLine(const QByteArray &line) {
         LastCrankEventTime += static_cast<uint16_t>(1024.0 / (static_cast<double>(Cadence.value()) / 60.0));
     }
 
+    if (packetTimestampValid) {
+        lastPacketTimestampMs = packetTimestampMs;
+    }
     lastDataUpdate = QDateTime::currentDateTime();
     update_metrics(false, m_watt.value());
 }
@@ -472,6 +491,9 @@ void kayakfirstrower::descriptorWritten(const QLowEnergyDescriptor &descriptor, 
     controlResponsesQueue.clear();
     lastDeviceTimestampSeconds = 0;
     lastDeviceTimestampCapturedAt = QDateTime();
+    lastPacketTimestampMs = 0;
+    lastStrokeCountValue = 0.0;
+    showToast(QStringLiteral("KayakFirst connecting..."));
     initRequest = true;
     emit connectedAndDiscovered();
 }
@@ -493,8 +515,6 @@ void kayakfirstrower::serviceScanDone(void) {
     }
 
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &kayakfirstrower::stateChanged);
-    connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
-            &kayakfirstrower::characteristicChanged);
     gattCommunicationChannelService->discoverDetails();
 }
 
