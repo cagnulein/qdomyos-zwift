@@ -1526,7 +1526,8 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
 
                 QBluetoothUuid _specificCharacteristic((quint16)0x2AD2); // FTMS Bike Data
-                if (USDC_D700 && c.uuid() != _specificCharacteristic) {
+                QBluetoothUuid _specificCharacteristic2((quint16)0x2AD9);
+                if (USDC_D700 && c.uuid() != _specificCharacteristic && c.uuid() != _specificCharacteristic2) {
                     qDebug() << QStringLiteral("USDC_D700: skipping non-0x2AD2 characteristic") << c.uuid();
                     continue;
                 }              
