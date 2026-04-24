@@ -148,8 +148,24 @@ bool kayakfirstrower::waitForResponse(char expectedResponseByte, int timeoutMs, 
     return seenResponse || seenEcho;
 }
 
+QString kayakfirstrower::buildStartCommand() const {
+    qint64 deviceTimestampMs = 0;
+
+    if (lastDeviceTimestampSeconds > 0) {
+        deviceTimestampMs = lastDeviceTimestampSeconds * 1000;
+        if (lastDeviceTimestampCapturedAt.isValid()) {
+            deviceTimestampMs += lastDeviceTimestampCapturedAt.msecsTo(QDateTime::currentDateTime());
+        }
+    } else {
+        deviceTimestampMs = QDateTime(QDate(2000, 1, 1), QTime(0, 0), Qt::UTC).msecsTo(QDateTime::currentDateTimeUtc());
+    }
+
+    return QStringLiteral("9;1;1;%1").arg(deviceTimestampMs);
+}
+
 void kayakfirstrower::btinit() {
     // Sequence aligned with a working Kayak First session captured from TrackMyIndoorWorkout.
+    emit debug(QStringLiteral("KayakFirst init: reset phase"));
     if (!sendCommandWithRetries(QStringLiteral("1"), '1', QStringLiteral("reset-1"), kKayakFirstCommandRetryCount,
                                 kKayakFirstLongDelayMs, true)) {
         return;
@@ -171,6 +187,7 @@ void kayakfirstrower::btinit() {
     const QString handshake = QStringLiteral("2;%1;%2;%3;").arg(unixEpoch).arg(tzOffsetMinutes).arg(athleteWeight);
     // The working app does not appear to receive an explicit ack for command '2',
     // but it still proceeds with the rest of the init sequence.
+    emit debug(QStringLiteral("KayakFirst init: handshake phase"));
     bool handshakeAck = false;
     for (int attempt = 0; attempt < kKayakFirstCommandRetryCount; ++attempt) {
         controlResponsesQueue.clear();
@@ -188,12 +205,15 @@ void kayakfirstrower::btinit() {
     Q_UNUSED(handshakeAck);
     sleepAndDrainEvents(kKayakFirstExtraLongDelayMs);
 
+    emit debug(QStringLiteral("KayakFirst init: display configuration"));
     if (!sendCommandWithRetries(QStringLiteral("5;0;2;5;11;15"), '5', QStringLiteral("display-config"),
                                 kKayakFirstCommandRetryCount, kKayakFirstExtraLongDelayMs, true)) {
         return;
     }
 
     initDone = true;
+    autoStartPending = true;
+    emit debug(QStringLiteral("KayakFirst init complete"));
 }
 
 void kayakfirstrower::parseLine(const QByteArray &line) {
@@ -208,6 +228,15 @@ void kayakfirstrower::parseLine(const QByteArray &line) {
         emit debug(QStringLiteral(" << ctrl ") + controlResponse);
         lastControlResponse = controlResponse;
         lastControlResponseTime = QDateTime::currentDateTime();
+        const QStringList responseParts = controlResponse.split(';');
+        if (responseParts.size() >= 3) {
+            bool ok = false;
+            const qint64 responseTimestamp = responseParts.at(2).toLongLong(&ok);
+            if (ok && responseTimestamp > 0) {
+                lastDeviceTimestampSeconds = responseTimestamp;
+                lastDeviceTimestampCapturedAt = QDateTime::currentDateTime();
+            }
+        }
         if (!controlResponse.isEmpty()) {
             controlResponsesQueue.enqueue(controlResponse.at(0).toLatin1());
         }
@@ -307,16 +336,24 @@ void kayakfirstrower::update() {
         return;
     }
 
-    if (requestStart != -1) {
-        sendCommandWithRetries(QStringLiteral("9;1"), '9', QStringLiteral("start"), kKayakFirstCommandRetryCount, 0,
-                               true);
+    if ((autoStartPending || requestStart != -1) && !workoutStarted) {
+        const QString startCommand = buildStartCommand();
+        emit debug(QStringLiteral("KayakFirst workout start requested"));
+        const bool started = sendCommandWithRetries(startCommand, '9', QStringLiteral("start"),
+                                                    kKayakFirstCommandRetryCount, 0, true);
+        autoStartPending = false;
         requestStart = -1;
-        emit bikeStarted();
+        if (started) {
+            workoutStarted = true;
+            emit bikeStarted();
+        }
     }
 
     if (requestStop != -1) {
-        sendCommandWithRetries(QStringLiteral("9;3"), '9', QStringLiteral("stop"), kKayakFirstCommandRetryCount, 0,
+        sendCommandWithRetries(QStringLiteral("9;3;1"), '9', QStringLiteral("stop"), kKayakFirstCommandRetryCount, 0,
                                true);
+        workoutStarted = false;
+        autoStartPending = false;
         requestStop = -1;
     }
 
@@ -419,6 +456,13 @@ void kayakfirstrower::stateChanged(QLowEnergyService::ServiceState state) {
 
 void kayakfirstrower::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
+    initDone = false;
+    autoStartPending = false;
+    workoutStarted = false;
+    streamBuffer.clear();
+    controlResponsesQueue.clear();
+    lastDeviceTimestampSeconds = 0;
+    lastDeviceTimestampCapturedAt = QDateTime();
     initRequest = true;
     emit connectedAndDiscovered();
 }

@@ -27,6 +27,7 @@ class kayakfirstrower : public rower {
                                 int maxAttempts = 3, int postSuccessDelayMs = 0, bool withEcho = true,
                                 bool append_crlf = true, int max_payload_size = -1);
     bool waitForResponse(char expectedResponseByte, int timeoutMs, bool withEcho = false);
+    QString buildStartCommand() const;
     void btinit();
     void parseLine(const QByteArray &line);
     uint16_t watts() override;
@@ -40,6 +41,8 @@ class kayakfirstrower : public rower {
 
     bool initDone = false;
     bool initRequest = false;
+    bool autoStartPending = false;
+    bool workoutStarted = false;
     uint8_t firstVirtualBike = 0;
     uint8_t sec1Update = 0;
 
@@ -47,6 +50,8 @@ class kayakfirstrower : public rower {
     QQueue<char> controlResponsesQueue;
     QString lastControlResponse;
     QDateTime lastControlResponseTime;
+    qint64 lastDeviceTimestampSeconds = 0;
+    QDateTime lastDeviceTimestampCapturedAt;
     QDateTime lastDataUpdate = QDateTime::currentDateTime();
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
