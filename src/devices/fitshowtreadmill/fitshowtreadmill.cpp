@@ -838,7 +838,8 @@ void fitshowtreadmill::error(QLowEnergyController::Error err) {
 void fitshowtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    if (device.name().toUpper().startsWith(QStringLiteral("FS-"))) {
+    if (device.name().toUpper().startsWith(QStringLiteral("FS-")) ||
+        device.name().toUpper().startsWith(QStringLiteral("TR510-T"))) {
         qDebug() << "FS FIX!";
         fs_connected = true;
     } else if (device.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT"))) {
