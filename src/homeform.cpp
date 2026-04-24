@@ -8546,6 +8546,21 @@ QStringList homeform::bluetoothDevices() {
     r.append(QStringLiteral("Disabled"));
     r.append(QStringLiteral("Wifi"));
 
+    // Add Bluetooth LE devices
+    for (const QBluetoothDeviceInfo &b : qAsConst(bluetoothManager->devices)) {
+        if (!b.name().trimmed().isEmpty()) {
+            r.append(b.name());
+        }
+    }
+
+    // Add DirCon devices found via mDNS
+    if (bluetoothManager) {
+        QList<DirconDeviceInfo> dirconDevs = bluetoothManager->dirconDevices();
+        for (const DirconDeviceInfo &dev : dirconDevs) {
+            r.append(dev.displayName);
+        }
+    }
+
     // Collect named devices and sort by RSSI descending (strongest signal first)
     QList<QBluetoothDeviceInfo> sorted;
     for (const QBluetoothDeviceInfo &b : qAsConst(bluetoothManager->devices)) {

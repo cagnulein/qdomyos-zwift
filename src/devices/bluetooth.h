@@ -151,6 +151,9 @@
 #include "devices/ultrasportbike/ultrasportbike.h"
 #include "devices/wahookickrheadwind/wahookickrheadwind.h"
 #include "devices/wahookickrsnapbike/wahookickrsnapbike.h"
+#include "devices/dircon/wahoodirconbike.h"
+#include "devices/dircon/wahoodircontreadmill.h"
+#include "devices/dircon/dircondiscovery.h"
 #include "devices/yesoulbike/yesoulbike.h"
 #include "devices/ypooelliptical/ypooelliptical.h"
 #include "devices/ziprotreadmill/ziprotreadmill.h"
@@ -178,6 +181,7 @@ class bluetooth : public QObject, public SignalHandler {
     bluetoothdevice *externalInclination() { return eliteRizer; }
     bluetoothdevice *heartRateDevice() { return heartRateBelt; }
     QList<QBluetoothDeviceInfo> devices;
+    QList<DirconDeviceInfo> dirconDevices() const;
     bool onlyDiscover = false;
     volatile bool homeformLoaded = false;
 
@@ -299,6 +303,9 @@ class bluetooth : public QObject, public SignalHandler {
     stagesbike *powerBike = nullptr;
     ultrasportbike *ultraSportBike = nullptr;
     wahookickrsnapbike *wahooKickrSnapBike = nullptr;
+    wahoodirconbike *wahooDirconBike = nullptr;
+    wahoodircontreadmill *wahooDirconTreadmill = nullptr;
+    DirconDiscovery *dirconDiscovery = nullptr;
     ypooelliptical *ypooElliptical = nullptr;
     ziprotreadmill *ziproTreadmill = nullptr;
     kineticinroadbike *kineticInroadBike = nullptr;
@@ -357,6 +364,8 @@ class bluetooth : public QObject, public SignalHandler {
     bool cycplusBC2DeviceAvaiable();
     bool thinkriderDeviceAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
+    bool tryConnectSelectedDirconDevice();
+    void connectDirconDevice(const DirconDeviceInfo &deviceInfo);
     bool gymModeEnabled() const;
 
 #ifdef Q_OS_WIN
@@ -388,6 +397,7 @@ class bluetooth : public QObject, public SignalHandler {
     void heartRate(uint8_t heart);
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
   private slots:
+    void onDirconDeviceDiscovered(const QString &displayName);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
     void deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields);
 #endif
