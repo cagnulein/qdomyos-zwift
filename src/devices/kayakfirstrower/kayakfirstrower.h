@@ -21,7 +21,11 @@ class kayakfirstrower : public rower {
     bool connected() override;
 
   private:
-    bool writeCommand(const QString &command, const QString &info, bool wait_for_response = false);
+    bool writeCommand(const QString &command, const QString &info, bool wait_for_response = false,
+                      bool append_crlf = true, int max_payload_size = -1);
+    bool sendCommandWithRetries(const QString &command, char expectedResponseByte, const QString &info,
+                                int maxAttempts = 3, int postSuccessDelayMs = 0, bool withEcho = true,
+                                bool append_crlf = true, int max_payload_size = -1);
     bool waitForResponse(char expectedResponseByte, int timeoutMs, bool withEcho = false);
     void btinit();
     void parseLine(const QByteArray &line);

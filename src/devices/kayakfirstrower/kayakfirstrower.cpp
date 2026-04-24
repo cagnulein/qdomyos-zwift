@@ -22,6 +22,8 @@
 using namespace std::chrono_literals;
 
 static constexpr int kKayakFirstMtu = 20;
+static constexpr int kKayakFirstCommandRetryCount = 3;
+static constexpr int kKayakFirstInterChunkDelayMs = 50;
 static constexpr int kKayakFirstLongDelayMs = 1000;
 static constexpr int kKayakFirstExtraLongDelayMs = 5000;
 
@@ -40,35 +42,66 @@ kayakfirstrower::kayakfirstrower(bool noWriteResistance, bool noHeartService, in
     refresh->start(500ms);
 }
 
-bool kayakfirstrower::writeCommand(const QString &command, const QString &info, bool wait_for_response) {
+bool kayakfirstrower::writeCommand(const QString &command, const QString &info, bool wait_for_response, bool append_crlf,
+                                   int max_payload_size) {
     if (!gattCommunicationChannelService || !gattWriteCharacteristic.isValid()) {
         return false;
     }
 
-    QString actualCommand = command;
-    if (!actualCommand.endsWith(QStringLiteral("\r\n"))) {
-        actualCommand += QStringLiteral("\r\n");
+    QByteArray payload = command.toUtf8();
+    if (append_crlf && !payload.endsWith("\r\n")) {
+        payload += "\r\n";
+    }
+    if (max_payload_size > 0 && payload.size() > max_payload_size) {
+        payload = payload.left(max_payload_size);
     }
 
-    QByteArray payload = actualCommand.toUtf8();
     QEventLoop loop;
-    QTimer timeout;
-
+    QMetaObject::Connection packetConnection;
     if (wait_for_response) {
-        connect(this, &kayakfirstrower::packetReceived, &loop, &QEventLoop::quit);
-    } else {
-        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+        packetConnection = connect(this, &kayakfirstrower::packetReceived, &loop, &QEventLoop::quit);
     }
-    timeout.singleShot(500ms, &loop, &QEventLoop::quit);
 
     for (int i = 0; i < payload.size(); i += kKayakFirstMtu) {
         QByteArray chunk = payload.mid(i, kKayakFirstMtu);
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, chunk);
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, chunk,
+                                                            QLowEnergyService::WriteWithoutResponse);
         emit debug(QStringLiteral(" >> ") + chunk.toHex(' ') + QStringLiteral(" // ") + info);
-        loop.exec();
+
+        if (wait_for_response) {
+            QTimer::singleShot(500ms, &loop, &QEventLoop::quit);
+            loop.exec();
+        } else {
+            QThread::msleep(kKayakFirstInterChunkDelayMs);
+        }
+    }
+
+    if (packetConnection) {
+        disconnect(packetConnection);
     }
 
     return true;
+}
+
+bool kayakfirstrower::sendCommandWithRetries(const QString &command, char expectedResponseByte, const QString &info,
+                                             int maxAttempts, int postSuccessDelayMs, bool withEcho,
+                                             bool append_crlf, int max_payload_size) {
+    for (int attempt = 0; attempt < maxAttempts; ++attempt) {
+        controlResponsesQueue.clear();
+        writeCommand(command, info, false, append_crlf, max_payload_size);
+        if (waitForResponse(expectedResponseByte, kKayakFirstExtraLongDelayMs, withEcho)) {
+            if (postSuccessDelayMs > 0) {
+                QThread::msleep(postSuccessDelayMs);
+            }
+            return true;
+        }
+
+        if (attempt + 1 < maxAttempts) {
+            QThread::msleep(kKayakFirstLongDelayMs);
+        }
+    }
+
+    return false;
 }
 
 bool kayakfirstrower::waitForResponse(char expectedResponseByte, int timeoutMs, bool withEcho) {
@@ -108,20 +141,16 @@ bool kayakfirstrower::waitForResponse(char expectedResponseByte, int timeoutMs, 
 }
 
 void kayakfirstrower::btinit() {
-    // Sequence ported from TrackMyIndoorWorkout KayakFirst descriptor
-    controlResponsesQueue.clear();
-    writeCommand(QStringLiteral("1"), QStringLiteral("reset-1"), false);
-    if (!waitForResponse('1', kKayakFirstExtraLongDelayMs, true)) {
+    // Sequence aligned with a working Kayak First session captured from TrackMyIndoorWorkout.
+    if (!sendCommandWithRetries(QStringLiteral("1"), '1', QStringLiteral("reset-1"), kKayakFirstCommandRetryCount,
+                                kKayakFirstLongDelayMs, true)) {
         return;
     }
-    QThread::msleep(kKayakFirstLongDelayMs);
 
-    controlResponsesQueue.clear();
-    writeCommand(QStringLiteral("1"), QStringLiteral("reset-2"), false);
-    if (!waitForResponse('1', kKayakFirstExtraLongDelayMs, true)) {
+    if (!sendCommandWithRetries(QStringLiteral("1"), '1', QStringLiteral("reset-2"), kKayakFirstCommandRetryCount,
+                                kKayakFirstExtraLongDelayMs, true)) {
         return;
     }
-    QThread::msleep(kKayakFirstExtraLongDelayMs);
 
     QSettings settings;
     const int athleteWeight = settings.value(QZSettings::weight, QZSettings::default_weight).toInt();
@@ -129,26 +158,18 @@ void kayakfirstrower::btinit() {
     const qint64 unixEpoch = now.toSecsSinceEpoch();
     const int tzOffsetMinutes = now.offsetFromUtc() / 60;
 
-    // TrackMyIndoorWorkout old-handshake format:
-    // 2;<epochSec>;<timezoneMinutes>;<athleteWeight>;<sportFlag>
-    // sportFlag: 1 = kayaking, 2 = canoe
-    const int sportFlag = 1;
-    const QString handshake =
-        QStringLiteral("2;%1;%2;%3;%4").arg(unixEpoch).arg(tzOffsetMinutes).arg(athleteWeight).arg(sportFlag);
-    controlResponsesQueue.clear();
-    writeCommand(handshake, QStringLiteral("handshake"), false);
-    if (!waitForResponse('2', kKayakFirstExtraLongDelayMs, true)) {
+    // The working trace only sends the first 20-byte MTU chunk for the handshake command,
+    // without the trailing sport flag/CRLF. Reproducing that behavior makes the console respond.
+    const QString handshake = QStringLiteral("2;%1;%2;%3;").arg(unixEpoch).arg(tzOffsetMinutes).arg(athleteWeight);
+    if (!sendCommandWithRetries(handshake, '2', QStringLiteral("handshake"), kKayakFirstCommandRetryCount,
+                                kKayakFirstExtraLongDelayMs, true, false, kKayakFirstMtu)) {
         return;
     }
-    QThread::msleep(kKayakFirstExtraLongDelayMs);
 
-    // Basic display configuration (8 slots all to default value 1)
-    controlResponsesQueue.clear();
-    writeCommand(QStringLiteral("5;1;1;1;1;1;1;1;1"), QStringLiteral("display-config"), false);
-    if (!waitForResponse('5', kKayakFirstExtraLongDelayMs, true)) {
+    if (!sendCommandWithRetries(QStringLiteral("5;0;2;5;11;15"), '5', QStringLiteral("display-config"),
+                                kKayakFirstCommandRetryCount, kKayakFirstExtraLongDelayMs, true)) {
         return;
     }
-    QThread::msleep(kKayakFirstExtraLongDelayMs);
 
     initDone = true;
 }
@@ -179,16 +200,27 @@ void kayakfirstrower::parseLine(const QByteArray &line) {
     const QString packet = QString::fromUtf8(line);
     const QStringList parts = packet.split(';');
 
-    if (parts.size() < 24) {
+    if (parts.size() < 20) {
         emit debug(QStringLiteral("KayakFirst partial fragment: ") + packet);
         return;
     }
 
     bool ok = false;
 
-    const double distanceMeters = parts.value(9).toDouble(&ok);
+    const double strokeCount = parts.value(9).toDouble(&ok);
     if (ok) {
-        Distance = distanceMeters / 1000.0;
+        if (strokeCount >= StrokesCount.value()) {
+            const uint32_t delta = static_cast<uint32_t>(strokeCount - StrokesCount.value());
+            if (delta > 0) {
+                CrankRevs += delta;
+            }
+        }
+        StrokesCount = strokeCount;
+    }
+
+    const double distanceKm = parts.value(10).toDouble(&ok);
+    if (ok) {
+        Distance = distanceKm;
     }
 
     const double speedMs = parts.value(11).toDouble(&ok);
@@ -201,31 +233,30 @@ void kayakfirstrower::parseLine(const QByteArray &line) {
         Cadence = strokeRate;
     }
 
-    const double heartRate = parts.value(16).toDouble(&ok);
+    double heartRate = parts.size() > 20 ? parts.value(20).toDouble(&ok) : 0.0;
+    if ((!ok || heartRate <= 0) && parts.size() > 21) {
+        heartRate = parts.value(21).toDouble(&ok);
+    }
     if (ok && heartRate > 0) {
         Heart = heartRate;
     }
 
-    const double calories = parts.value(17).toDouble(&ok);
+    const double calories = parts.size() > 17 ? parts.value(17).toDouble(&ok) : 0.0;
     if (ok && calories >= 0) {
         KCal = calories;
     }
 
-    const double power = parts.value(21).toDouble(&ok);
+    const double power = parts.size() > 19 ? parts.value(19).toDouble(&ok) : 0.0;
     if (ok) {
         m_watt = power;
     }
 
     const double elapsed = parts.value(22).toDouble(&ok);
     if (ok) {
-        // device reports elapsed seconds, use only for telemetry/debug
         Q_UNUSED(elapsed);
     }
-
-    StrokesCount += 1;
     if (Cadence.value() > 0) {
-        CrankRevs++;
-        LastCrankEventTime += (uint16_t)(1024.0 / (((double)Cadence.value()) / 60.0));
+        LastCrankEventTime += static_cast<uint16_t>(1024.0 / (static_cast<double>(Cadence.value()) / 60.0));
     }
 
     lastDataUpdate = QDateTime::currentDateTime();
@@ -255,17 +286,15 @@ void kayakfirstrower::update() {
     }
 
     if (requestStart != -1) {
-        controlResponsesQueue.clear();
-        writeCommand(QStringLiteral("9;1"), QStringLiteral("start"), false);
-        waitForResponse('9', kKayakFirstExtraLongDelayMs, true);
+        sendCommandWithRetries(QStringLiteral("9;1"), '9', QStringLiteral("start"), kKayakFirstCommandRetryCount, 0,
+                               true);
         requestStart = -1;
         emit bikeStarted();
     }
 
     if (requestStop != -1) {
-        controlResponsesQueue.clear();
-        writeCommand(QStringLiteral("9;3"), QStringLiteral("stop"), false);
-        waitForResponse('9', kKayakFirstExtraLongDelayMs, true);
+        sendCommandWithRetries(QStringLiteral("9;3"), '9', QStringLiteral("stop"), kKayakFirstCommandRetryCount, 0,
+                               true);
         requestStop = -1;
     }
 
@@ -290,7 +319,8 @@ void kayakfirstrower::characteristicChanged(const QLowEnergyCharacteristic &char
         parseLine(line);
     }
 
-    if (streamBuffer.size() == 2 && streamBuffer.at(0) == '1' && streamBuffer.at(1) == 0x01) {
+    if (streamBuffer.size() == 3 && streamBuffer.at(0) == '1' && streamBuffer.at(1) == 0x01 &&
+        streamBuffer.at(2) == 0x00) {
         const QByteArray line = streamBuffer;
         streamBuffer.clear();
         parseLine(line);
