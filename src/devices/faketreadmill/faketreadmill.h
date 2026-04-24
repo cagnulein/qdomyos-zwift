@@ -41,6 +41,7 @@ class faketreadmill : public treadmill {
     bool connected() override;
     double minStepSpeed() override { return 0.1; }
     double minStepInclination() override { return 0.1; }
+    void proxyVirtualTreadmillCommand(const QByteArray &value);
 
   private:
     QTimer *refresh;

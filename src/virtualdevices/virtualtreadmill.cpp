@@ -1,5 +1,6 @@
 #include "virtualdevices/virtualtreadmill.h"
 #include "devices/echelonstride/echelonstride.h"
+#include "devices/faketreadmill/faketreadmill.h"
 #include <QThread>
 #include <QSettings>
 #include <QtMath>
@@ -481,6 +482,10 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         serviceEchelon && newValue.length() > 3) {
         if (auto *realEchelon = dynamic_cast<echelonstride *>(treadMill); realEchelon && realEchelon->connected()) {
             realEchelon->proxyVirtualTreadmillCommand(newValue);
+            return;
+        }
+        if (auto *fakeEchelon = dynamic_cast<faketreadmill *>(treadMill); fakeEchelon && fakeEchelon->connected()) {
+            fakeEchelon->proxyVirtualTreadmillCommand(newValue);
             return;
         }
 

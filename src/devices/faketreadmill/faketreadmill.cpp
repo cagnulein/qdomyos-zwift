@@ -137,3 +137,34 @@ void faketreadmill::changeInclinationRequested(double grade, double percentage) 
 }
 
 bool faketreadmill::connected() { return true; }
+
+void faketreadmill::proxyVirtualTreadmillCommand(const QByteArray &value) {
+    auto *virtualTreadmill = dynamic_cast<virtualtreadmill *>(VirtualDevice());
+    if (!virtualTreadmill || value.size() < 2 || static_cast<uint8_t>(value.at(0)) != 0xf0) {
+        return;
+    }
+
+    const uint8_t command = static_cast<uint8_t>(value.at(1));
+    if (command == 0xA1) {
+        virtualTreadmill->relayEchelonPacket(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")),
+                                             QByteArray::fromHex("f0a106000701290704d3"));
+    } else if (command == 0xA3) {
+        virtualTreadmill->relayEchelonPacket(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")),
+                                             QByteArray::fromHex("f0a3022001b6"));
+    } else if (command == 0xA4) {
+        virtualTreadmill->relayEchelonPacket(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")),
+                                             QByteArray::fromHex("f0a4010095"));
+    } else if (command == 0xA5) {
+        virtualTreadmill->relayEchelonPacket(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")),
+                                             QByteArray::fromHex("f0a5010ea4"));
+    } else if (command == 0xB0 && value.size() > 3 && static_cast<uint8_t>(value.at(3)) == 0x00) {
+        virtualTreadmill->relayEchelonPacket(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")),
+                                             QByteArray::fromHex("f0d00100c1"));
+    } else if (command == 0xB0) {
+        virtualTreadmill->relayEchelonPacket(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")),
+                                             QByteArray::fromHex("f0d00101c2"));
+    } else if (command == 0xA0) {
+        virtualTreadmill->relayEchelonPacket(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")),
+                                             value);
+    }
+}

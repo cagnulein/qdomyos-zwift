@@ -1,5 +1,6 @@
 #include "virtualdevices/virtualrower.h"
 #include "devices/echelonrower/echelonrower.h"
+#include "devices/fakerower/fakerower.h"
 #include "qsettings.h"
 #include "qzsettings.h"
 #include "rower.h"
@@ -438,6 +439,10 @@ void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &charact
         serviceEchelon && newValue.length() > 3 && leController->state() == QLowEnergyController::ConnectedState) {
         if (auto *realEchelon = dynamic_cast<echelonrower *>(Rower); realEchelon && realEchelon->connected()) {
             realEchelon->proxyVirtualRowerCommand(newValue);
+            return;
+        }
+        if (auto *fakeEchelon = dynamic_cast<fakerower *>(Rower); fakeEchelon && fakeEchelon->connected()) {
+            fakeEchelon->proxyVirtualRowerCommand(newValue);
             return;
         }
 
