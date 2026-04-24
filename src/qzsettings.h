@@ -990,6 +990,12 @@ class QZSettings {
     static const QString power_sensor_as_treadmill;
     static constexpr bool default_power_sensor_as_treadmill = false;
 
+    static const QString power_sensor_speed_inclination_coeff_a;
+    static constexpr double default_power_sensor_speed_inclination_coeff_a = 0.0;
+
+    static const QString power_sensor_speed_inclination_coeff_b;
+    static constexpr double default_power_sensor_speed_inclination_coeff_b = 0.0;
+
     static const QString powr_sensor_running_cadence_double;
     static constexpr bool default_powr_sensor_running_cadence_double = false;
 
@@ -1979,6 +1985,12 @@ class QZSettings {
 
     static const QString gears_gain;
     static constexpr double default_gears_gain = 1.0;
+
+    static const QString gears_custom_table_enabled;
+    static constexpr bool default_gears_custom_table_enabled = false;
+
+    static const QString gears_custom_table;
+    static const QString default_gears_custom_table;
 
     static const QString proform_treadmill_8_0;
     static constexpr bool default_proform_treadmill_8_0 = false;

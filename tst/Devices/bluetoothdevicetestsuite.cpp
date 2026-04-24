@@ -3,10 +3,16 @@
 #include "bluetooth.h"
 #include "bluetoothsignalreceiver.h"
 #include "devicetestdataindex.h"
+#include "qzsettings.h"
 
 const QString testUUID = QStringLiteral("b8f79bac-32e5-11ed-a261-0242ac120002");
 QBluetoothUuid uuid{testUUID};
 
+void BluetoothDeviceTestSuite::applyCiSafeRuntimeSettings() {
+    this->testSettings.qsettings.setValue(QZSettings::virtual_device_enabled, false);
+    this->testSettings.qsettings.setValue(QZSettings::virtual_device_bluetooth, false);
+    this->testSettings.qsettings.setValue(QZSettings::dircon_yes, false);
+}
 
 void BluetoothDeviceTestSuite::tryDetectDevice(bluetooth &bt,
                                                   const QBluetoothDeviceInfo &deviceInfo) const {
@@ -122,6 +128,7 @@ void BluetoothDeviceTestSuite::SetUp() {
     EXPECT_GT(this->names.size(), 0) << "No bluetooth names configured for test";
 
     this->testSettings.activate();
+    this->applyCiSafeRuntimeSettings();
 }
 
 void BluetoothDeviceTestSuite::test_deviceDetection(const bool validNames, const bool enablingConfigs) {
@@ -142,6 +149,7 @@ void BluetoothDeviceTestSuite::test_deviceDetection(const bool validNames, const
 
             DeviceDiscoveryInfo discoveryInfo = configurations[i];
             this->testSettings.loadFrom(discoveryInfo);
+            this->applyCiSafeRuntimeSettings();
 
             QString failMessage = nullptr;
 
@@ -232,6 +240,7 @@ void BluetoothDeviceTestSuite::test_deviceDetection_exclusions() {
                     GTEST_FAIL() << "There are no enabling configurations for exclusion device \"" << exclusion->Name().toStdString() << "\" using BT name \"" << exclusionDeviceName.toStdString() << "\"";
 
                 this->testSettings.loadFrom(exclusionDiscoveryInfo);
+                this->applyCiSafeRuntimeSettings();
 
                 QString failMessage = QString("Failed to create exclusion device: %1, got a {typeName} instead")
                                           .arg(exclusion->Name());
@@ -240,6 +249,7 @@ void BluetoothDeviceTestSuite::test_deviceDetection_exclusions() {
 
                 // now configure to have the bluetooth object try, but fail to detect the target device
                 this->testSettings.loadFrom(enablingDiscoveryInfo);
+                this->applyCiSafeRuntimeSettings();
 
                 failMessage = QString("Detected the %1 from %2 with valid config %3 in spite of exclusion by %4")
                                   .arg(testData->Name()).arg(deviceName).arg(i).arg(exclusion->Name());

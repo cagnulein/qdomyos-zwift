@@ -500,11 +500,8 @@ double trainprogram::avgAzimuthNext300Meters() {
         while (1) {
             if (c < rows.length()) {
                 if (km > 0.3) {
-                    double averageDirection = atan(sinTotal / cosTotal) * (180 / M_PI);
-
-                    if (cosTotal < 0) {
-                        averageDirection += 180;
-                    } else if (sinTotal < 0) {
+                    double averageDirection = atan2(sinTotal, cosTotal) * (180 / M_PI);
+                    if (averageDirection < 0) {
                         averageDirection += 360;
                     }
                     return averageDirection;
@@ -518,11 +515,8 @@ double trainprogram::avgAzimuthNext300Meters() {
                 km += rows.at(c).distance;
 
             } else {
-                double averageDirection = atan(sinTotal / cosTotal) * (180 / M_PI);
-
-                if (cosTotal < 0) {
-                    averageDirection += 180;
-                } else if (sinTotal < 0) {
+                double averageDirection = atan2(sinTotal, cosTotal) * (180 / M_PI);
+                if (averageDirection < 0) {
                     averageDirection += 360;
                 }
                 return averageDirection;
@@ -1735,6 +1729,8 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
                 int durationStep;
                 double speedStep;
                 int spareSeconds;
+                if(speedDelta == 0)
+                    speedDelta = 1;
                 if(speedDelta <= durationS) {
                     durationStep = durationS / speedDelta;
                     speedStep = 0.1;
@@ -1929,6 +1925,8 @@ QTime trainprogram::currentRowRemainingTime() {
     if (currentStep < rows.length() && rows.at(currentStep).distance > 0 && bluetoothManager &&
         bluetoothManager->device()) {
         double speed = bluetoothManager->device()->currentSpeed().value();
+        if (speed <= 0)
+            return QTime(0, 0, 0);
         double distance = rows.at(currentStep).distance;
         distance -= currentStepDistance;
         int seconds = (distance / speed) * 3600.0;
