@@ -105,7 +105,8 @@ class trainprogram : public QObject {
     int TotalGPXSecs();
     double weightedInclination(int step);
     double medianInclination(int step);
-    bool overridePowerForCurrentRow(double power);
+    bool adjustPowerOffsetForTrainingProgram(int32_t delta);
+    int32_t powerOffsetForTrainingProgram() const { return trainingProgramPowerOffset; }
     bool overrideZoneHRForCurrentRow(uint8_t zone);
     bool powerzoneWorkout() {
         foreach(trainrow r, rows) {
@@ -178,6 +179,7 @@ private slots:
     int lastStepTimestampChanged = 0;
     double lastCurrentStepDistance = 0.0;
     QTime lastCurrentStepTime = QTime(0, 0, 0);
+    int32_t trainingProgramPowerOffset = 0;
     
     int64_t currentTimerJitter = 0;
     QDateTime lastSchedulerCall = QDateTime::currentDateTime();
