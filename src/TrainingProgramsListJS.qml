@@ -5,7 +5,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import QtQuick.Dialogs
 import Qt.labs.settings 1.0
-import Qt.labs.platform 1.1
+import Qt.labs.platform 1.1 as LabsPlatform
 import QtWebView 1.1
 
 ColumnLayout {
@@ -53,13 +53,13 @@ ColumnLayout {
         id: fileDialogLoader
         active: false
         sourceComponent: Component {
-            FileDialog {
+            LabsPlatform.FileDialog {
                 id: fileDialog
                 title: "Please choose a file"
-                currentFolder: StandardPaths.standardLocations(StandardPaths.HomeLocation)[0]
+                folder: StandardPaths.standardLocations(StandardPaths.HomeLocation)[0]
                 visible: true
                 onAccepted: {
-                    var chosenFile = fileDialog.selectedFile
+                    var chosenFile = fileDialog.file
                     console.log("You chose: " + chosenFile)
                     selectedFileUrl = chosenFile
                     if(OS_VERSION === "Android") {

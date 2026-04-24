@@ -977,17 +977,20 @@ ApplicationWindow {
                     text: qsTr("Open Train Program")
                     width: parent.width
                     onClicked: {
+                        var trainingProgramsPage = null
                         if(CHARTJS)
-                            stackView.push("TrainingProgramsListJS.qml")
+                            trainingProgramsPage = stackView.push("TrainingProgramsListJS.qml")
                         else
-                            stackView.push("TrainingProgramsList.qml")
-                        stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
-                        stackView.currentItem.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
-                        stackView.currentItem.trainprogram_preview.connect(trainprogram_preview)
-                        stackView.currentItem.trainprogram_autostart_requested.connect(trainprogram_autostart_requested)
-                        stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
-                            stackView.pop();
-                         });
+                            trainingProgramsPage = stackView.push("TrainingProgramsList.qml")
+                        if (trainingProgramsPage) {
+                            trainingProgramsPage.trainprogram_open_clicked.connect(trainprogram_open_clicked)
+                            trainingProgramsPage.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
+                            trainingProgramsPage.trainprogram_preview.connect(trainprogram_preview)
+                            trainingProgramsPage.trainprogram_autostart_requested.connect(trainprogram_autostart_requested)
+                            trainingProgramsPage.trainprogram_open_clicked.connect(function(url) {
+                                stackView.pop();
+                             });
+                        }
                         drawer.close()
                     }
                 }
