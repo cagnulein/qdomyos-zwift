@@ -104,6 +104,14 @@ bool kayakfirstrower::sendCommandWithRetries(const QString &command, char expect
     return false;
 }
 
+static void sleepAndDrainEvents(int delayMs) {
+    const QDateTime start = QDateTime::currentDateTime();
+    while (start.msecsTo(QDateTime::currentDateTime()) < delayMs) {
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        QThread::msleep(50);
+    }
+}
+
 bool kayakfirstrower::waitForResponse(char expectedResponseByte, int timeoutMs, bool withEcho) {
     const QString expectedResponseText(QChar::fromLatin1(expectedResponseByte));
 
@@ -161,10 +169,24 @@ void kayakfirstrower::btinit() {
     // The working trace only sends the first 20-byte MTU chunk for the handshake command,
     // without the trailing sport flag/CRLF. Reproducing that behavior makes the console respond.
     const QString handshake = QStringLiteral("2;%1;%2;%3;").arg(unixEpoch).arg(tzOffsetMinutes).arg(athleteWeight);
-    if (!sendCommandWithRetries(handshake, '2', QStringLiteral("handshake"), kKayakFirstCommandRetryCount,
-                                kKayakFirstExtraLongDelayMs, true, false, kKayakFirstMtu)) {
-        return;
+    // The working app does not appear to receive an explicit ack for command '2',
+    // but it still proceeds with the rest of the init sequence.
+    bool handshakeAck = false;
+    for (int attempt = 0; attempt < kKayakFirstCommandRetryCount; ++attempt) {
+        controlResponsesQueue.clear();
+        writeCommand(handshake, QStringLiteral("handshake"), false, false, kKayakFirstMtu);
+        if (waitForResponse('2', kKayakFirstExtraLongDelayMs, true)) {
+            handshakeAck = true;
+            break;
+        }
+
+        emit debug(QStringLiteral("handshake ack not received, continuing retry flow"));
+        if (attempt + 1 < kKayakFirstCommandRetryCount) {
+            sleepAndDrainEvents(kKayakFirstLongDelayMs);
+        }
     }
+    Q_UNUSED(handshakeAck);
+    sleepAndDrainEvents(kKayakFirstExtraLongDelayMs);
 
     if (!sendCommandWithRetries(QStringLiteral("5;0;2;5;11;15"), '5', QStringLiteral("display-config"),
                                 kKayakFirstCommandRetryCount, kKayakFirstExtraLongDelayMs, true)) {
