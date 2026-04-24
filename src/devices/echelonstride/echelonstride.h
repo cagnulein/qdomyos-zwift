@@ -39,6 +39,7 @@ class echelonstride : public treadmill {
                   double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
     double minStepInclination() override;
+    void proxyVirtualTreadmillCommand(const QByteArray &value);
 
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;

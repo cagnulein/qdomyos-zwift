@@ -35,6 +35,7 @@ class virtualtreadmill : public virtualdevice {
     virtualtreadmill(bluetoothdevice *t, bool noHeartService);
     bool connected() override;
     bool autoInclinationEnabled() { return m_autoInclinationEnabled; }
+    void relayEchelonPacket(const QBluetoothUuid &sourceUuid, const QByteArray &value);
 
   private:
     QLowEnergyController *leController = nullptr;
@@ -43,6 +44,7 @@ class virtualtreadmill : public virtualdevice {
     QLowEnergyService *serviceHR = nullptr;
     QLowEnergyService *serviceDIS = nullptr;
     QLowEnergyService *serviceWahoo = nullptr;
+    QLowEnergyService *serviceEchelon = nullptr;
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)    
     QLowEnergyService *genericAccessServer = nullptr;
@@ -56,6 +58,7 @@ class virtualtreadmill : public virtualdevice {
     QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataDIS;
     QLowEnergyServiceData serviceDataWahoo;
+    QLowEnergyServiceData serviceDataEchelon;
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)    
     QLowEnergyServiceData genericAccessServerData;

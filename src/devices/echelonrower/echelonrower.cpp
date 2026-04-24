@@ -195,12 +195,15 @@ double echelonrower::bikeResistanceToPeloton(double resistance) {
 
 void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newvalue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
-    Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     qDebug() << QStringLiteral(" << ") + newvalue.toHex(' ');
+
+    if (auto *virtualRower = dynamic_cast<virtualrower *>(VirtualDevice())) {
+        virtualRower->relayEchelonPacket(characteristic.uuid(), newvalue);
+    }
 
     if (lastPacket.count() > 0 && lastPacket.count() + newvalue.count() == 21 && ((unsigned char)lastPacket.at(0)) == 0xf0) {
         lastPacket = lastPacket.append(newvalue);
@@ -506,6 +509,17 @@ bool echelonrower::connected() {
         return false;
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
+}
+
+void echelonrower::proxyVirtualRowerCommand(const QByteArray &value) {
+    if (!gattCommunicationChannelService || !gattWriteCharacteristic.isValid() || !m_control ||
+        m_control->state() == QLowEnergyController::UnconnectedState) {
+        qDebug() << QStringLiteral("proxyVirtualRowerCommand ignored because the Echelon rower is not ready");
+        return;
+    }
+
+    writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(value.constData())), value.size(),
+                        QStringLiteral("virtual echelon rower proxy"));
 }
 
 uint16_t echelonrower::watts() {

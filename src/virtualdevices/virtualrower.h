@@ -34,6 +34,7 @@ class virtualrower : public virtualdevice {
   public:
     virtualrower(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false);
     bool connected() override;
+    void relayEchelonPacket(const QBluetoothUuid &sourceUuid, const QByteArray &value);
 
   private:
     QLowEnergyController *leController = nullptr;
@@ -44,6 +45,7 @@ class virtualrower : public virtualdevice {
     QLowEnergyService *servicePM5DeviceInfo = nullptr;
     QLowEnergyService *servicePM5GAP = nullptr;
     QLowEnergyService *servicePM5Control = nullptr;
+    QLowEnergyService *serviceEchelon = nullptr;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataFIT;
@@ -51,6 +53,7 @@ class virtualrower : public virtualdevice {
     QLowEnergyServiceData serviceDataPM5DeviceInfo;
     QLowEnergyServiceData serviceDataPM5GAP;
     QLowEnergyServiceData serviceDataPM5Control;
+    QLowEnergyServiceData serviceDataEchelon;
     QTimer rowerTimer;
     bluetoothdevice *Rower;
 
