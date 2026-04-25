@@ -383,6 +383,16 @@ The dashboard:
 - Enables auto-start on boot
 - Starts the service immediately
 
+**Configure service behaviour:**
+
+Select **QZ Service Control → QZ Runtime Flags** to adjust how QZ runs:
+
+| Flag | Purpose | Default |
+|------|---------|---------|
+| **Force Treadmill Speed** | Forwards speed/incline commands from the connected app to your real treadmill. Disable if you prefer to control pace manually. | On |
+| **ANT+ Footpod** | Enable ANT+ footpod broadcasting and set the device ID. | Off |
+| **Logging** | Write debug logs to file (required for ANT+ Verbose mode). | Off |
+
 **Check it's running:**
 ```bash
 sudo systemctl status qz
@@ -464,7 +474,7 @@ Select **Pi System Tools → Enable SD Protection**
 The dashboard:
 - Enables Overlay FS and write-protects the boot partition
 - Offers to reboot immediately or later
-- Shows current state in the status panel (`SD Protected`, `Overlay Active`, `Protected (reboot)`, or `SD card wear` when not configured)
+- Shows current state in the status panel (`SD Protected`, `Overlay Active`, `Protected (reboot)`, `Overlay (reboot)`, or `SD Overlay FS` when not configured)
 
 **Check current state:**
 ```bash

@@ -1106,12 +1106,6 @@ class QZSettings {
      */
     static const QString virtual_device_force_treadmill;
     static constexpr bool default_virtual_device_force_treadmill = false;
-    /**
-     *@brief Enables the Wahoo-specific virtual treadmill behavior. Disable for compatibility with apps like Runna.
-     */
-    static const QString wahoo_treadmill_emulation;
-    static constexpr bool default_wahoo_treadmill_emulation = true;
-
     static const QString volume_change_gears;
     static constexpr bool default_volume_change_gears = false;
 

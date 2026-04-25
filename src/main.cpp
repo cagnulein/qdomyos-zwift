@@ -88,7 +88,6 @@ class OAuthCallbackEventFilter : public QObject {
 bool ant_footpod_enabled = false;
 bool ant_verbose = false;
 int ant_device_id = 54321;
-bool no_wahoo_service = false;
 
 // This flag ensures we only ever initialize the AntManager once,
 // even if bluetoothDeviceConnected is emitted multiple times.
@@ -234,10 +233,7 @@ void displayHelp() {
     printf("  -ant-footpod                  Enable ANT+ footpod broadcasting\n");
     printf("  -ant-device <id>              Set ANT+ device ID (1-65535, default: 54321)\n");
     printf("  -ant-verbose                  Enable verbose logging for the Python ANT+ module\n");
-    printf("  -no-wahoo-service             Omit Wahoo GATT service from virtual treadmill.\n");
-    printf("                                Fixes 6-second timeout/disconnect with Runna and\n");
-    printf("                                other apps that activate a Wahoo-specific BLE\n");
-    printf("                                driver when the Wahoo service UUID is present.\n");
+
 #endif
 
     exit(0);
@@ -475,9 +471,7 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
                 }
             }
         }
-        if (!qstrcmp(argv[i], "-no-wahoo-service")) {
-            no_wahoo_service = true;
-        }
+
 #endif
     }
 
@@ -714,11 +708,7 @@ int main(int argc, char *argv[]) {
         settings.setValue(QZSettings::virtual_device_bluetooth, virtual_device_bluetooth);
         settings.setValue(QZSettings::power_sensor_name, power_sensor_name);
         settings.setValue(QZSettings::power_sensor_as_treadmill, power_sensor_as_treadmill);
-        // -no-wahoo-service disables the Wahoo-specific virtual treadmill behavior. Apps like
-        // Runna detect Wahoo devices by the proprietary service UUID and activate a Wahoo BLE
-        // driver that skips CP CCCD subscription, causing a timeout. Disabling Wahoo
-        // emulation forces the standard FTMS path instead.
-        settings.setValue(QZSettings::wahoo_treadmill_emulation, !no_wahoo_service);
+
         if (mqtt_host.length() > 0) {
             settings.setValue(QZSettings::mqtt_host, mqtt_host);
         }

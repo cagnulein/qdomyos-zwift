@@ -1312,7 +1312,6 @@ import Qt.labs.platform 1.1
       
             property double power_sensor_speed_inclination_coeff_a: 0.0
             property double power_sensor_speed_inclination_coeff_b: 0.0
-            property bool wahoo_treadmill_emulation: true
         }
 
 
@@ -8368,34 +8367,6 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-
-                    IndicatorOnlySwitch {
-                        id: wahooTreadmillEmulationDelegate
-                        text: qsTr("Wahoo Treadmill Emulation")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.wahoo_treadmill_emulation
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: { settings.wahoo_treadmill_emulation = checked; window.settings_restart_to_apply = true; }
-                    }
-
-                    Label {
-                        text: qsTr("Keeps the Wahoo-specific virtual treadmill behavior enabled. Disable for compatibility with Runna app. Default is on.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

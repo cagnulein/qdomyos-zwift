@@ -110,14 +110,43 @@ get_service_config_path() {
 ################################################################################
 
 ################################################################################
-# Python Version Configuration (v3.0: Python 3.12 primary, 3.11+ compatible)
+# Python Version Configuration — arch-driven, table-based
+#
+# The pre-built QZ binaries are linked against a specific Python per architecture:
+#   aarch64 (Pi)   → Python 3.11   (Pi OS Bookworm ships 3.11 via apt)
+#   x86_64 (Linux) → Python 3.12   (Ubuntu 24.04 ships 3.12 via apt;
+#                                    older distros fall back to pyenv automatically)
+#
+# To update a version (e.g. when a new stable pyenv build is released), change
+# the python_full value in the matching row below. To add a new architecture,
+# insert a row before the wildcard catch-all.
+#
+# Columns: arch : python_major : python_full
+# Entries matched top-to-bottom; first match wins. "*" matches any arch.
 ################################################################################
-declare -r PYTHON_VERSION_MAJOR="3.12"
-declare -r PYTHON_VERSION_FULL="3.12.3"
-declare -r PYTHON_VERSION_FALLBACK="3.11"  # Debian 12 compatibility
+_PY_ARCH_MAP=(
+    "aarch64:3.11:3.11.9"
+    "x86_64:3.12:3.12.3"
+    "*:3.12:3.12.3"
+)
+
+_arch=$(uname -m); [[ "$_arch" == "arm64" ]] && _arch="aarch64"
+_py_major="3.12"; _py_full="3.12.3"
+for _entry in "${_PY_ARCH_MAP[@]}"; do
+    IFS=: read -r _march _mmaj _mfull <<< "$_entry"
+    if [[ "$_march" == "*" ]] || [[ "$_arch" == "$_march" ]]; then
+        _py_major="$_mmaj"; _py_full="$_mfull"
+        break
+    fi
+done
+unset _PY_ARCH_MAP _entry _march _mmaj _mfull _arch
+
+declare -r PYTHON_VERSION_MAJOR="$_py_major"
+declare -r PYTHON_VERSION_FULL="$_py_full"
 declare -r PYTHON_LIB_NAME="libpython${PYTHON_VERSION_MAJOR}"
 declare -r PYTHON_PACKAGE="python${PYTHON_VERSION_MAJOR}"
 declare -r PYENV_VERSION_PATH=".pyenv/versions/${PYTHON_VERSION_FULL}"
+unset _py_major _py_full
 ################################################################################
 
 ################################################################################
@@ -349,9 +378,6 @@ configure_service_flags_ui() {
         options+=("Force Treadmill Speed: ${_tf_speed}")
         help_texts+=("When enabled, speed and inclination commands sent by the connected QZ app (e.g. training plans via the virtual treadmill) are forwarded to the real treadmill. When disabled, the athlete controls pace manually and app commands are ignored. Default: on.")
 
-        options+=("Standard FTMS Mode: ${_SF[no_wahoo_service]:-false}")
-        help_texts+=("Controls how the virtual treadmill BLE peripheral advertises itself. Enabled: Horizon 7.0 AT (standard FTMS) — use for Runna and standard FTMS apps. Disabled: KICKR RUN (Wahoo mode). Default: off.")
-
         options+=("ANT+ Footpod: ${_SF[ant_footpod]:-false}")
         help_texts+=("Enable ANT+ footpod sensor support for broadcasting running metrics (speed, cadence, distance) to watches and cycling computers. Press Enter to toggle.")
 
@@ -374,7 +400,7 @@ configure_service_flags_ui() {
             # Save SERVICE_FLAGS changes to the service config file
             for k in "${!_SF[@]}"; do SERVICE_FLAGS[$k]="${_SF[$k]}"; done
             save_service_config
-            # Save treadmill_force_speed separately — it belongs in qDomyos-Zwift.conf
+            # Save QSettings keys separately — they belong in qDomyos-Zwift.conf
             update_config_key "treadmill_force_speed" "$_tf_speed"
             UI_MODAL_ACTIVE=0
             return 0
@@ -429,11 +455,6 @@ configure_service_flags_ui() {
                 ;;
             Force\ Treadmill\ Speed:*)
                 if [[ "$_tf_speed" == "true" ]]; then _tf_speed="false"; else _tf_speed="true"; fi
-                draw_mode="ITEMS"
-                ;;
-            Standard\ FTMS\ Mode:*)
-                if [[ "${_SF[no_wahoo_service]}" == "true" ]]; then _SF[no_wahoo_service]="false"; else _SF[no_wahoo_service]="true"; fi
-                NEEDS_REGEN=1
                 draw_mode="ITEMS"
                 ;;
         esac
@@ -840,6 +861,7 @@ if [ -c /dev/tty ]; then :; fi
 
 # GUI / platform hints
 HAS_GUI=false; [[ -n "${DISPLAY:-}" || -n "${WAYLAND_DISPLAY:-}" ]] && HAS_GUI=true
+PROGRESS_HEADER="INSTALLING..."  # overridden to "REMOVING..." in run_uninstall_mode
 # shellcheck disable=SC2034
 IS_PI=false
 grep -q "Raspberry Pi" /proc/cpuinfo 2>/dev/null && IS_PI=true
@@ -1020,7 +1042,7 @@ declare -a STATUS_GRID=(
     "Python Virtual Environment|venv|USB udev Rules|udev_rules|lsusb Command|lsusb"
     "Python PIPs|pkg_pips|Qt5 Runtime Libs|qt5_libs|QML Modules|qml_modules"
     "QZ Config File|config_file|Bluetooth Service|bluetooth|BLE Peripheral|bluez_compat"
-    "QZ Service|qz_service|ANT+ Flag|ant_footpod_flag|Overlay FS|overlay_fs"
+    "QZ Service|qz_service|ANT+ Svc Flag|ant_footpod_flag|Overlay FS|overlay_fs"
 )
 
 # When set to 1, draw_status_row always renders 3 columns with a consistent
@@ -1638,12 +1660,9 @@ draw_status_row() {
     fi
 
     # --- DYNAMIC LABEL LOGIC FOR ANT+ FLAG ---
-    # Show "warn" as informational — service may not be installed yet
+    # Rename to emphasise this is a service-level flag, not a hardware problem
     if [[ "$R_key" == "ant_footpod_flag" ]]; then
-        if [[ "${STATUS_MAP[qz_service]:-pending}" == "pending" || \
-              "${STATUS_MAP[qz_service]:-pending}" == "fail" ]]; then
-            R_label="ANT+ Flag"  # greyed pending - no service to check
-        fi
+        R_label="ANT+ Svc Flag"
     fi
 
     # --- DYNAMIC LABEL LOGIC FOR OVERLAY FS (Pi only, R2 column) ---
@@ -2463,6 +2482,12 @@ update_status_atomic() {
         local right_w=$(( INNER_COLS - 3 - left_w ))
 
         if [[ "$L_key" == "$key" ]]; then
+            # In 3-column mode repaint the full row so right columns stay consistent.
+            if [[ "${STATUS_THREE_COLS:-0}" -eq 1 ]]; then
+                draw_status_row "$target_row" "$L_label" "$L_key" "$R_label" "$R_key" "$R2_label" "$R2_key"
+                return 0
+            fi
+
             # --- DYNAMIC LABEL LOGIC FOR PYTHON (LEFT COLUMN) ---
             if [[ "$L_key" == "python311" ]]; then
                 if [[ "${IS_PYENV_INSTALLED:-false}" == "true" ]]; then
@@ -2474,7 +2499,7 @@ update_status_atomic() {
                 fi
             fi
             # --------------------------------------
-            
+
             local L_sym
             L_sym=$(get_symbol "$L_key")
             local L_content="${L_sym} $(get_status_label_color "$L_key")${L_label}${NC}"
@@ -3571,19 +3596,19 @@ EOF
     chmod +x "$script_file"
     : > "$log_file"
 
-    draw_bottom_panel_header "INSTALLING..." "false"
+    draw_bottom_panel_header "${PROGRESS_HEADER:-INSTALLING...}" "false"
     clear_info_area
     draw_bottom_border
-    
-    draw_sealed_row $((LOG_TOP + 1)) "   ${WHITE}${label}${NC}"
-    draw_sealed_row $((LOG_TOP + 3)) "   ${GRAY}Please wait...${NC}"
+
+    draw_sealed_row $((LOG_TOP + 2)) "   ${WHITE}${label}${NC}"
+    draw_sealed_row $((LOG_TOP + 4)) "   ${GRAY}Please wait...${NC}"
 
     bash "$script_file" > "$log_file" 2>&1 &
     local pid=$!
-    
+
     local bar_width=40 pulse_width=6 pos=0 dir=1
     enter_ui_mode
-    
+
     while kill -0 "$pid" 2>/dev/null; do
         local bar_str=""
         for ((i=0; i<bar_width; i++)); do
@@ -3593,8 +3618,8 @@ EOF
                 bar_str="${bar_str}─"
             fi
         done
-        
-        draw_sealed_row $((LOG_TOP + 5)) "                   ${CYAN}${bar_str}${NC}"
+
+        draw_sealed_row $((LOG_TOP + 6)) "                   ${CYAN}${bar_str}${NC}"
         
         if [ "$dir" -eq 1 ]; then
             ((pos++)); (( pos + pulse_width >= bar_width )) && dir=-1
@@ -3799,6 +3824,11 @@ cache_check_result() {
     touch "$cache_file" 2>/dev/null || true
 }
 
+invalidate_check_cache() {
+    local key="$1"
+    rm -f "${CHECK_CACHE_DIR}/${key}" "${CHECK_CACHE_DIR}/${key}.result" 2>/dev/null || true
+}
+
 get_cached_check() {
     local check_name="$1"
     local cache_file="${CHECK_CACHE_DIR}/${check_name}"
@@ -3868,11 +3898,11 @@ _logic_check_python311() {
         fi
     fi
 
-    # Check if generic python3 matches the primary or fallback supported version
+    # Check if generic python3 matches the required version
     if command -v python3 >/dev/null 2>&1; then
         local py_version
         py_version=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null)
-        if [[ "$py_version" == "$PYTHON_VERSION_MAJOR" || "$py_version" == "$PYTHON_VERSION_FALLBACK" ]]; then
+        if [[ "$py_version" == "$PYTHON_VERSION_MAJOR" ]]; then
             if python3 -c "import _struct" 2>/dev/null; then
                 if ! _verify_python_library_available "libpython${py_version}"; then
                     echo "warn"; return 0
@@ -3911,11 +3941,11 @@ _detect_python_globals() {
         fi
     fi
 
-    # 3. Generic python3 — read the actual version, accept primary or fallback
+    # 3. Generic python3 — read the actual version, accept required version only
     if command -v python3 >/dev/null 2>&1; then
         local py_ver
         py_ver=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null)
-        if [[ "$py_ver" == "$PYTHON_VERSION_MAJOR" || "$py_ver" == "$PYTHON_VERSION_FALLBACK" ]]; then
+        if [[ "$py_ver" == "$PYTHON_VERSION_MAJOR" ]]; then
             if python3 -c "import _struct" 2>/dev/null; then
                 IS_PYSYS_INSTALLED=true
                 DETECTED_PYTHON_VERSION="$py_ver"
@@ -3973,8 +4003,10 @@ _logic_check_equipment() {
 
 _logic_check_pips() {
     local venv_py="${TARGET_HOME}/ant_venv/bin/python3"
-    [[ ! -f "$venv_py" ]] && venv_py=$(command -v python3)
-    
+    if [[ ! -f "$venv_py" ]]; then
+        echo "fail"
+        return 1
+    fi
     for pkg in openant usb pybind11 bleak; do
         sudo -u "$TARGET_USER" "$venv_py" -c "import $pkg" 2>/dev/null || { echo "fail"; return 1; }
     done
@@ -4013,11 +4045,21 @@ _logic_check_bluetooth() {
 }
 
 _logic_check_ant_footpod_flag() {
+    # Guard: if the config directory doesn't exist, don't let load_service_config
+    # recreate it via init_service_config → mkdir -p. This matters after uninstall
+    # removes the config dir — the final run_all_checks must not resurrect it.
+    if [[ ! -d "$(dirname "$SERVICE_CONF_PATH")" ]]; then
+        echo "pending"; return 0
+    fi
     load_service_config >/dev/null 2>&1
     if [[ "${SERVICE_FLAGS[ant_footpod]:-false}" == "true" ]]; then
         echo "pass"
-    else
+    elif [[ -f "$SERVICE_FILE_QZ" ]] || [[ -f "/etc/systemd/system/qz.service" ]]; then
+        # Service is installed but ANT+ footpod flag is not set — worth a warning
         echo "warn"
+    else
+        # No service file — flag is not applicable yet, show as neutral
+        echo "pending"
     fi
 }
 
@@ -4460,6 +4502,13 @@ run_all_checks() {
                 IS_PYSYS_INSTALLED=true
             fi
         fi
+    fi
+
+    # Refresh header rows so QZ Config and QZ Service paths reflect the current
+    # disk state (e.g. after install creates the config file or service file).
+    if [[ "$mode" == "dashboard" ]]; then
+        draw_header_config_line
+        draw_header_service_line
     fi
 }
 
@@ -5506,7 +5555,7 @@ install_python311() {
         local ram_mb
         ram_mb=$(get_total_ram_mb)
         
-        local r=$((LOG_TOP + 1))
+        local r=$((LOG_TOP + 2))
         draw_sealed_row "$r" "   OS: ${CYAN}$current_os${NC}"
         ((r++))
         draw_sealed_row "$r" "   RAM: ${CYAN}${ram_mb}MB${NC}"
@@ -5514,7 +5563,7 @@ install_python311() {
         ((r++))
         draw_sealed_row "$r" "   ${WHITE}Install Python 3.11 using pyenv? ${GRAY}(Compilation will take 10-95 minutes)${NC}"
 
-        if prompt_yes_no 5; then
+        if prompt_yes_no 6; then
             # User confirmed pyenv installation
             install_python311_via_pyenv
             return $?
@@ -5541,9 +5590,9 @@ install_python311() {
     fi
 
     if [ "$py311_available" = true ]; then
-        # Install system Python 3.11 (Bookworm, Ubuntu 22.04, etc.)
-        local sys_pkgs=""${PYTHON_PACKAGE}" python3.11-venv lib"${PYTHON_PACKAGE}" python3-pip-whl python3-setuptools-whl"
-        if run_with_progress "Installing System Python 3.11" "apt-get update && apt-get install -y $sys_pkgs"; then
+        # Install system Python (version determined by PYTHON_PACKAGE, e.g. python3.12 on Ubuntu 24.04)
+        local sys_pkgs="${PYTHON_PACKAGE} ${PYTHON_PACKAGE}-venv lib${PYTHON_PACKAGE} python3-pip-whl python3-setuptools-whl"
+        if run_with_progress "Installing System Python ${PYTHON_VERSION_MAJOR}" "apt-get update && apt-get install -y $sys_pkgs"; then
             IS_PYSYS_INSTALLED=true
             update_status "python311" "pass"
             return 0
@@ -5561,14 +5610,14 @@ install_python311() {
         local ram_mb
         ram_mb=$(get_total_ram_mb)
         
-        local r=$((LOG_TOP + 1))
+        local r=$((LOG_TOP + 2))
         draw_sealed_row "$r" "   Python 3.11 not available via apt on this system"
         ((r++))
         draw_sealed_row "$r" "   OS: ${CYAN}$current_os${NC}"
         ((r++))
         draw_sealed_row "$r" "   RAM: ${CYAN}${ram_mb}MB${NC}"
         ((r++))
-        
+
         if [[ "$newer_py_available" == "true" ]]; then
             draw_sealed_row "$r" "   ${YELLOW}System has Python $system_py_version (QZ needs 3.11)${NC}"
         else
@@ -5577,8 +5626,8 @@ install_python311() {
         ((r++))
         ((r++))
         draw_sealed_row "$r" "   ${WHITE}Install Python 3.11 using pyenv? ${GRAY}(Compilation will take 10-95 minutes)${NC}"
-        
-        if prompt_yes_no 7; then
+
+        if prompt_yes_no 8; then
             # User chose to install via pyenv
             install_python311_via_pyenv
             return $?
@@ -5609,8 +5658,7 @@ install_venv() {
     if [[ "$py_cmd" == "/usr/bin/"* ]]; then
         # Check if ensurepip is missing (the cause of your venv crash)
         if ! "$py_cmd" -c "import ensurepip" >/dev/null 2>&1; then
-            # We must install these 3 specific packages to fix the 'rc' status in your log
-            local repair_pkgs="python3.11-venv python3-pip-whl python3-setuptools-whl"
+            local repair_pkgs="${PYTHON_PACKAGE}-venv python3-pip-whl python3-setuptools-whl"
             run_with_progress "Repairing System Python" "apt-get update && apt-get install -y --reinstall $repair_pkgs"
         fi
     fi
@@ -6172,10 +6220,10 @@ run_guided_mode() {
         local question="$3"
         draw_bottom_panel_header "GUIDED FIX: $title" "false"
         clear_info_area
-        draw_sealed_row $((LOG_TOP + 1)) "   ${WHITE}${problem}${NC}"
-        draw_sealed_row $((LOG_TOP + 2)) "   ${question}"
-        prompt_yes_no 4
-        return $? 
+        draw_sealed_row $((LOG_TOP + 2)) "   ${WHITE}${problem}${NC}"
+        draw_sealed_row $((LOG_TOP + 3)) "   ${question}"
+        prompt_yes_no 5
+        return $?
     }
 
     # 1. PYTHON 3.11 (Handles System vs Pyenv choice internally now)
@@ -6183,6 +6231,7 @@ run_guided_mode() {
         # We don't need a specific request_fix prompt here because 
         # install_python311 has its own internal choice UI now.
         if install_python311; then
+            invalidate_check_cache "python311"
             check_python311 >/dev/null 2>&1
             render_status_grid
             action_taken=true
@@ -6197,7 +6246,9 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_venv; check_venv >/dev/null 2>&1
+            install_venv
+            invalidate_check_cache "venv"
+            check_venv >/dev/null 2>&1
             render_status_grid
             action_taken=true
         fi
@@ -6209,7 +6260,9 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_python_packages; check_python_packages >/dev/null 2>&1
+            install_python_packages
+            invalidate_check_cache "pkg_pips"
+            check_python_packages >/dev/null 2>&1
             render_status_grid
             action_taken=true
         fi
@@ -6225,6 +6278,8 @@ run_guided_mode() {
             # Run checks independently so qml_modules status is always refreshed
             # regardless of whether qt5_libs install succeeded or was already passing.
             install_qt5_libs
+            invalidate_check_cache "qt5_libs"
+            invalidate_check_cache "qml_modules"
             check_qt5_libs >/dev/null 2>&1
             check_qml_modules >/dev/null 2>&1
             render_status_grid
@@ -6238,7 +6293,9 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_bluetooth; check_bluetooth >/dev/null 2>&1
+            install_bluetooth
+            invalidate_check_cache "bluetooth"
+            check_bluetooth >/dev/null 2>&1
             render_status_grid
             action_taken=true
         fi
@@ -6250,7 +6307,9 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_plugdev; check_plugdev >/dev/null 2>&1
+            install_plugdev
+            invalidate_check_cache "plugdev"
+            check_plugdev >/dev/null 2>&1
             render_status_grid
             action_taken=true
         fi
@@ -6262,7 +6321,9 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_udev_rules; check_udev_rules >/dev/null 2>&1
+            install_udev_rules
+            invalidate_check_cache "udev_rules"
+            check_udev_rules >/dev/null 2>&1
             render_status_grid
             action_taken=true
         fi
@@ -6274,7 +6335,9 @@ run_guided_mode() {
         local res=$?
         if [ $res -eq 2 ]; then return 1; fi
         if [ $res -eq 0 ]; then
-            install_lsusb; check_lsusb >/dev/null 2>&1
+            install_lsusb
+            invalidate_check_cache "lsusb"
+            check_lsusb >/dev/null 2>&1
             render_status_grid
             action_taken=true
         fi
@@ -6306,6 +6369,7 @@ run_guided_mode() {
                 fi
             fi
             check_config_file
+            render_status_grid
             action_taken=true
         fi
     fi
@@ -6315,6 +6379,7 @@ run_guided_mode() {
         service_menu_flow
         action_taken=true
         check_qz_service
+        render_status_grid
     fi
 
     [ "$action_taken" = true ] && return 0 || return 1
@@ -6322,39 +6387,56 @@ run_guided_mode() {
 
 # Uninstall QDomyos-Zwift installation with system safety checks
 run_uninstall_mode() {
-    # 1. Set Header and Initial Refresh (Force silent check)
+    PROGRESS_HEADER="REMOVING..."
     draw_bottom_panel_header "UNINSTALL / RESET" "false"
     clear_info_area
-    draw_bottom_border "Verifying system state..." # ADDED: Initial bottom border
-    run_all_checks "dashboard"
+    draw_bottom_border "Verifying..."
 
-
-    # 3. Build Dynamic Removal List
+    # Build Dynamic Removal List — use direct file/package checks so this
+    # works correctly even when skipping the normal splash check sequence.
     local items=()
     if [[ -d "$TARGET_HOME/ant_venv" ]]; then items+=("Virtual Environment"); fi
-    if [[ "${IS_PYENV_INSTALLED:-false}" == "true" ]]; then items+=("Pyenv Python 3.11"); fi
-    if [[ -f "$SERVICE_FILE_QZ" ]] || [[ -f "/etc/systemd/system/qz.service" ]]; then items+=("QZ Service"); fi
-    if [[ -d "$CONFIG_DIR" ]]; then items+=("Config Files"); fi
-    if [[ -f "/etc/udev/rules.d/99-ant-usb.rules" ]]; then items+=("USB udev Rules"); fi
-
-    local sys_pkgs_cleanable=false
-    if dpkg -l | grep -q -E "python3.11-venv|python3-pip-whl|${PYTHON_LIB_NAME}"; then
-        sys_pkgs_cleanable=true
-        items+=("Application Python Artifacts")
-    fi
-
-    local qml_cleanable=false
-    if [ "${STATUS_MAP[qml_modules]:-}" = "pass" ]; then
-        qml_cleanable=true
-        items+=("QML Runtime Modules")
-    fi
 
     local pyenv_python_present=false
     if [[ -d "$TARGET_HOME/${PYENV_VERSION_PATH}" ]]; then
         pyenv_python_present=true
-        if [[ "${IS_PYENV_INSTALLED:-false}" != "true" ]]; then
-            items+=("Pyenv Python 3.11")
-        fi
+        items+=("Pyenv Python ${PYTHON_VERSION_MAJOR}")
+    fi
+
+    if [[ -f "$SERVICE_FILE_QZ" ]] || [[ -f "/etc/systemd/system/qz.service" ]]; then items+=("QZ Service"); fi
+    if [[ -d "$CONFIG_DIR" ]]; then items+=("Config Files"); fi
+    if [[ -f "/etc/udev/rules.d/99-ant-usb.rules" ]]; then items+=("USB udev Rules"); fi
+
+    local plugdev_cleanable=false
+    if groups "$TARGET_USER" 2>/dev/null | grep -q '\bplugdev\b'; then
+        plugdev_cleanable=true
+        items+=("plugdev Group")
+    fi
+
+    # Query dpkg once and reuse the output for all package checks.
+    local dpkg_list
+    dpkg_list=$(dpkg -l 2>/dev/null)
+
+    # lsusb and QML modules are protected on GUI systems (lock symbol in status panel)
+    # — other applications may depend on them, so skip removal there.
+    local lsusb_cleanable=false
+    if [[ "$HAS_GUI" != "true" ]] && echo "$dpkg_list" | grep -q -E "^ii  usbutils "; then
+        lsusb_cleanable=true
+        items+=("USB Utils (lsusb)")
+    fi
+
+    # Only flag packages that the setup script itself installs — not system Python libs.
+    local sys_pkgs_cleanable=false
+    if echo "$dpkg_list" | grep -q -E "^ii  (${PYTHON_PACKAGE}-venv|python3-pip-whl) "; then
+        sys_pkgs_cleanable=true
+        items+=("Application Python Artifacts")
+    fi
+
+    # QML modules are protected on GUI systems — skip removal there.
+    local qml_cleanable=false
+    if [[ "$HAS_GUI" != "true" ]] && echo "$dpkg_list" | grep -q -E "^ii  qml-module-qt"; then
+        qml_cleanable=true
+        items+=("QML Runtime Modules")
     fi
 
     # 4. SHOW MENU PROMPT
@@ -6363,43 +6445,37 @@ run_uninstall_mode() {
         return 0
     fi
     
-    # 1. Condense and Wrap the List
+    # Wrap item list to fit the info panel width
     local list_full
-    list_full=$(IFS=', ' ; echo "${items[*]}")
-    
+    list_full=$(IFS=','; echo "${items[*]}" | sed 's/,/, /g')
+
     local list_lines=()
-    while IFS= read -r line; do list_lines+=("$line"); done < <(printf '%s' "   $list_full" | fold -s -w $((INFO_WIDTH - 6)))
-    
+    mapfile -t list_lines < <(printf '%s\n' "   $list_full" | fold -s -w $((INFO_WIDTH - 6)))
+
     draw_bottom_panel_header "UNINSTALL / RESET" "false"
     clear_info_area
-    
-    local draw_row=$((LOG_TOP + 1))
-    
-    # 2. Draw Wrapped Component List
+
+    local draw_row=$((LOG_TOP + 2))  # row 1 left blank as top spacer
+
+    # Draw Wrapped Component List
     draw_sealed_row "$draw_row" "   The following components can be removed:"
     ((draw_row++))
-    
+
     for line in "${list_lines[@]}"; do
         if [ "$draw_row" -lt "$LOG_BOTTOM" ]; then
             draw_sealed_row "$draw_row" "$line"
             ((draw_row++))
         fi
     done
-    
-    # 3. Draw Warning and Prompt (Positioned dynamically)
-    local warning_row=$draw_row
-    
-    while [ "$warning_row" -lt $((LOG_BOTTOM - 4)) ]; do
-        draw_sealed_row "$warning_row" ""
-        warning_row=$((warning_row + 1))
-    done
 
-    local prompt_row=$((warning_row))
-    update_sealed_row_content "$prompt_row" "   Proceed with removal of ALL components listed above?"
-    ((prompt_row++)) # Move prompt_row down one more time for spacing
-    
-    local prompt_offset=$((prompt_row - LOG_TOP))
-    
+    # One blank row between list and question
+    ((draw_row++))
+
+    draw_sealed_row "$draw_row" "   Proceed with removal of ALL components listed above?"
+    ((draw_row++))
+
+    local prompt_offset=$((draw_row - LOG_TOP))
+
     if ! prompt_yes_no "$prompt_offset"; then
         draw_info_screen "CANCELLED" "Uninstall cancelled. No changes were made." 2
         return 0
@@ -6407,9 +6483,9 @@ run_uninstall_mode() {
 
     # 5. EXECUTE CLEANUP STEPS
 
-    # A. App-Specific Python Artifacts (venv support libs — safe on any system)
+    # A. App-Specific Python Artifacts (only packages the setup script installs)
     if [[ "$sys_pkgs_cleanable" == "true" ]]; then
-        local pkgs_to_remove="python3.11-venv python3-pip-whl python3-setuptools-whl ${PYTHON_LIB_NAME}"
+        local pkgs_to_remove="${PYTHON_PACKAGE}-venv python3-pip-whl python3-setuptools-whl"
         run_step "Removing Python Artifacts" "apt-get purge -y $pkgs_to_remove" || return 1
         render_status_grid
     fi
@@ -6425,15 +6501,13 @@ run_uninstall_mode() {
         render_status_grid
     fi
 
-    # C. Virtual Environment
+    # C. Virtual Environment (pips live inside the venv, so mark both fail together)
     if [[ -d "$TARGET_HOME/ant_venv" ]]; then
         run_step "Removing Virtual Environment" "rm -rf \"$TARGET_HOME/ant_venv\"" || return 1
         STATUS_MAP["venv"]="fail"
+        STATUS_MAP["pkg_pips"]="fail"
         render_status_grid
     fi
-
-    STATUS_MAP["pips"]="fail"
-    render_status_grid
 
     # D. QML Runtime Modules — QZ-specific Qt/QML packages safe to remove on any system.
     # Core Qt5 libs (libqt5core5a etc.), bluez, and libusb are OS-shared dependencies
@@ -6447,12 +6521,20 @@ run_uninstall_mode() {
         run_step "Removing QML Modules" "apt-get purge -y $qml_pkgs" || return 1
         STATUS_MAP["qml_modules"]="fail"
         render_status_grid
+    fi
 
-        if groups "$TARGET_USER" 2>/dev/null | grep -q plugdev; then
-            run_step "Removing User from plugdev Group" "gpasswd -d $TARGET_USER plugdev" || return 1
-            STATUS_MAP["plugdev"]="fail"
-            render_status_grid
-        fi
+    # E. plugdev group membership
+    if [[ "$plugdev_cleanable" == "true" ]]; then
+        run_step "Removing User from plugdev Group" "gpasswd -d $TARGET_USER plugdev" || return 1
+        STATUS_MAP["plugdev"]="fail"
+        render_status_grid
+    fi
+
+    # F. usbutils (lsusb)
+    if [[ "$lsusb_cleanable" == "true" ]]; then
+        run_step "Removing USB Utils" "apt-get purge -y usbutils" || return 1
+        STATUS_MAP["lsusb"]="fail"
+        render_status_grid
     fi
 
     # G. Services and Config
@@ -6460,6 +6542,7 @@ run_uninstall_mode() {
         local svc_cmd="systemctl stop qz.service 2>/dev/null; systemctl disable qz.service 2>/dev/null; rm -f \"$SERVICE_FILE_QZ\" /etc/systemd/system/qz.service; systemctl daemon-reload"
         run_step "Removing QZ Service" "$svc_cmd" || return 1
         STATUS_MAP["qz_service"]="fail"
+        STATUS_MAP["service_enabled"]="pending"
         render_status_grid
     fi
     if [[ -f "/etc/udev/rules.d/99-ant-usb.rules" ]]; then
@@ -6467,20 +6550,28 @@ run_uninstall_mode() {
         STATUS_MAP["udev_rules"]="fail"
         render_status_grid
     fi
-    if [[ -d "$CONFIG_DIR" ]]; then 
+    if [[ -d "$CONFIG_DIR" ]]; then
         run_step "Removing Config Files" "rm -rf \"$CONFIG_DIR\"" || return 1
+        STATUS_MAP["config_file"]="fail"
+        STATUS_MAP["ant_footpod_flag"]="pending"
         render_status_grid
     fi
 
     # H. Final Autoremove
     run_step "Running Final System Autoremove" "apt-get autoremove -y" || return 1
 
-    # 6. FINAL STATUS CHECK AND EXIT (New)
+    # 6. FINAL STATUS CHECK AND EXIT
     draw_bottom_border "Final Status Check"
-    run_all_checks "dashboard" # Force a full status update
+    # Purge ALL cache files (both ${key} and ${key}.result) so run_all_checks
+    # re-runs every check fresh. Only clearing *.result is not enough — the
+    # inner run_check subshells read the un-suffixed ${key} files first and
+    # return stale "pass" results before the actual logic ever runs.
+    rm -f "${CHECK_CACHE_DIR}"/* 2>/dev/null || true
+    run_all_checks "dashboard"
 
     # CRITICAL FIX: Change exit message and pass "wait" to prompt for keypress
     draw_info_screen "UNINSTALL COMPLETE" "All selected components removed.\nPress ENTER to exit." "wait"
+    PROGRESS_HEADER="INSTALLING..."
     return 0
 }
 
@@ -7546,7 +7637,6 @@ SERVICE_FLAGS[ant_verbose]=false
 SERVICE_FLAGS[profile]=''
 SERVICE_FLAGS[poll_time]=200
 SERVICE_FLAGS[heart_service]=false
-SERVICE_FLAGS[no_wahoo_service]=false
 
 init_service_config() {
     mkdir -p "$(dirname "$SERVICE_CONF_PATH")" || return 1
@@ -7600,7 +7690,6 @@ load_service_config() {
     [[ -z "${SERVICE_FLAGS[console]:-}" ]] && SERVICE_FLAGS[console]="false"
     [[ -z "${SERVICE_FLAGS[ant_footpod]:-}" ]] && SERVICE_FLAGS[ant_footpod]="false"
     [[ -z "${SERVICE_FLAGS[ant_device]:-}" ]] && SERVICE_FLAGS[ant_device]="54321"
-    [[ -z "${SERVICE_FLAGS[no_wahoo_service]:-}" ]] && SERVICE_FLAGS[no_wahoo_service]="false"
     
     return 0
 }
@@ -7612,7 +7701,7 @@ save_service_config() {
     tmp=$(mktemp "$TEMP_DIR/service.conf.XXXXXX")
     {
         echo "[flags]"
-        for k in console logging bluetooth_relaxed ant_footpod ant_device ant_verbose profile poll_time heart_service no_wahoo_service; do
+        for k in console logging bluetooth_relaxed ant_footpod ant_device ant_verbose profile poll_time heart_service; do
             printf '%s=%s\n' "$k" "${SERVICE_FLAGS[$k]:-}"
         done
     } > "$tmp" || return 1
@@ -7672,9 +7761,6 @@ build_service_flags() {
         flags+=("-heart-service")
     fi
 
-    if [[ "${SERVICE_FLAGS[no_wahoo_service]:-false}" =~ ^[Tt][Rr][Uu][Ee]$ ]]; then
-        flags+=("-no-wahoo-service")
-    fi
 
     # 6. Bluetooth Device Name
     # FIX: Check if Emulation Mode is active.

@@ -369,7 +369,6 @@ const QString QZSettings::virtual_device_rower = QStringLiteral("virtual_device_
 const QString QZSettings::virtual_device_rower_pm5 = QStringLiteral("virtual_device_rower_pm5");
 const QString QZSettings::virtual_device_force_bike = QStringLiteral("virtual_device_force_bike");
 const QString QZSettings::virtual_device_force_treadmill = QStringLiteral("virtual_device_force_treadmill");
-const QString QZSettings::wahoo_treadmill_emulation = QStringLiteral("wahoo_treadmill_emulation");
 const QString QZSettings::volume_change_gears = QStringLiteral("volume_change_gears");
 const QString QZSettings::applewatch_fakedevice = QStringLiteral("applewatch_fakedevice");
 const QString QZSettings::zwift_erg_resistance_down = QStringLiteral("zwift_erg_resistance_down");
@@ -1083,7 +1082,7 @@ const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
 
 
-const uint32_t allSettingsCount = 882;
+const uint32_t allSettingsCount = 881;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1387,7 +1386,6 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::virtual_device_rower_pm5, QZSettings::default_virtual_device_rower_pm5},
     {QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike},
     {QZSettings::virtual_device_force_treadmill, QZSettings::default_virtual_device_force_treadmill},
-    {QZSettings::wahoo_treadmill_emulation, QZSettings::default_wahoo_treadmill_emulation},
     {QZSettings::volume_change_gears, QZSettings::default_volume_change_gears},
     {QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice},
     {QZSettings::zwift_erg_resistance_down, QZSettings::default_zwift_erg_resistance_down},
