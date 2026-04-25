@@ -778,6 +778,20 @@ sudo ./qdomyos-zwift -no-gui -ant-footpod -ant-device 11111 -ant-verbose
 
 ---
 
+## Known Issues
+
+### Virtual Bluetooth Devices Don't Work on Ubuntu 24.04
+
+**Affected:** Ubuntu 24.04 users running apps that connect to the virtual treadmill over Bluetooth (e.g. Just Fit).
+
+**Cause:** Ubuntu 24.04 ships BlueZ 5.72+, which changed how peripheral role (BLE server) advertisement works. The Qt5 Bluetooth stack used by QZ is not compatible with this version, so virtual Bluetooth devices fail to advertise or accept connections.
+
+**Workaround:** Use a Raspberry Pi running Raspberry Pi OS (Bookworm) instead, or a machine running Ubuntu 22.04. The ANT+ footpod feature is unaffected — only the virtual BLE treadmill peripheral is broken on Ubuntu 24.04.
+
+**Status:** Upstream issue in Qt5/BlueZ. No fix available yet.
+
+---
+
 ## Appendices
 
 ### Appendix A: Manual Installation

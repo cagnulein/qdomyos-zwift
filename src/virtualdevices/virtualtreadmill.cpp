@@ -151,14 +151,6 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             value.append((char)0x14);  // heart rate and elapsed time
             value.append((char)0x00);
             value.append((char)0x00);
-            // Bytes 4-7: Target Setting Features (FTMS spec §4.3.1.2).
-            // The client reads this characteristic before sending any control commands.
-            // Previously all four bytes were 0x00, meaning "no target settings supported".
-            // A conformant FTMS client (e.g. the QZ Android app) will not send Set Target
-            // Speed (0x02) or Set Target Inclination (0x03) unless the corresponding bits
-            // are set here — so speed/incline commands were silently never transmitted even
-            // after the client successfully acquired control and received Start confirmation.
-            // Fix: set bit 0 (Speed Target) + bit 1 (Inclination Target) for treadmill mode.
             value.append(ftmsTreadmillEnable() ? (char)0x03 : (char)0x00); // bits 0+1: speed+incline
             value.append((char)0x00);
             value.append((char)0x00);
@@ -514,8 +506,8 @@ void virtualtreadmill::reconnect() {
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     genericAccessServer = leController->addService(genericAccessServerData);
     genericAttributeService = leController->addService(genericAttributeServiceData);
-#endif
-
+#endif      
+    
     if (noHeartService == false) {
         serviceHR = leController->addService(serviceDataHR);
     }

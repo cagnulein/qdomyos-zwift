@@ -4291,33 +4291,33 @@ view_service_error_details_ui() {
 }
 install_venv_packages_ui() {
     install_venv
-    check_python_packages
+    check_python_packages >/dev/null 2>&1
     STATUS_MAP["pkg_pips"]="pending"
-    draw_popup_dialog "Packages Installed" "Python packages have been installed." 2
+    draw_info_screen "Packages Installed" "Python packages have been installed." 2
 }
 
 # Helper: Install Python packages via venv
 install_venv_packages() {
     install_venv
-    check_python_packages
+    check_python_packages >/dev/null 2>&1
     STATUS_MAP["pkg_pips"]="pending"
 }
 
 # Helper: Show message to install Python from main menu
 show_python_install_message() {
-    draw_popup_dialog "Install Python" "Please return to main menu and select:\\n\\n  Install Python 3.11\\n\\nThen come back to regenerate the service." 4
+    draw_info_screen "Install Python" "Please return to main menu and select:\\n\\n  Install Python 3.11\\n\\nThen come back to regenerate the service." "wait"
 }
 
 # Helper: Enable Bluetooth service
 enable_bluetooth_ui() {
     if systemctl is-active bluetooth >/dev/null 2>&1; then
-        draw_popup_dialog "Bluetooth Active" "Bluetooth service is already running." 2
+        draw_info_screen "Bluetooth Active" "Bluetooth service is already running." 2
     else
         if systemctl start bluetooth 2>/dev/null && systemctl enable bluetooth 2>/dev/null; then
-            draw_popup_dialog "Bluetooth Enabled" "Bluetooth service started and enabled." 2
+            draw_info_screen "Bluetooth Enabled" "Bluetooth service started and enabled." 2
             STATUS_MAP["bluetooth"]="pending"
         else
-            draw_popup_dialog "Bluetooth Failed" "Could not start Bluetooth.\\n\\nInstall with: apt install bluez" 3
+            draw_info_screen "Bluetooth Failed" "Could not start Bluetooth.\\n\\nInstall with: apt install bluez" 3
         fi
     fi
 }
@@ -6368,7 +6368,7 @@ run_guided_mode() {
                     fi
                 fi
             fi
-            check_config_file
+            check_config_file >/dev/null 2>&1
             render_status_grid
             action_taken=true
         fi
@@ -6378,7 +6378,7 @@ run_guided_mode() {
     if [ "${STATUS_MAP[qz_service]:-}" = "fail" ]; then
         service_menu_flow
         action_taken=true
-        check_qz_service
+        check_qz_service >/dev/null 2>&1
         render_status_grid
     fi
 
@@ -8282,7 +8282,7 @@ enable_service_ui() {
         _svc="qz.service"
         _label="Service"
     fi
-    if run_as_root_or_sudo systemctl enable "$_svc"; then
+    if run_as_root_or_sudo systemctl enable "$_svc" >/dev/null 2>&1; then
         draw_info_screen "${_label^^} ENABLED" "$_label enabled for auto-start on boot." "wait"
     else
         draw_error_screen "ERROR" "Failed to enable $_label." "wait"
@@ -8301,7 +8301,7 @@ disable_service_ui() {
         _svc="qz.service"
         _label="Service"
     fi
-    if run_as_root_or_sudo systemctl disable "$_svc"; then
+    if run_as_root_or_sudo systemctl disable "$_svc" >/dev/null 2>&1; then
         draw_info_screen "${_label^^} DISABLED" "$_label will not auto-start on next boot." "wait"
     else
         draw_error_screen "ERROR" "Failed to disable $_label." "wait"
