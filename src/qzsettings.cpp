@@ -337,6 +337,8 @@ const QString QZSettings::power_sensor_name = QStringLiteral("power_sensor_name"
 const QString QZSettings::default_power_sensor_name = QStringLiteral("Disabled");
 const QString QZSettings::power_sensor_as_bike = QStringLiteral("power_sensor_as_bike");
 const QString QZSettings::power_sensor_as_treadmill = QStringLiteral("power_sensor_as_treadmill");
+const QString QZSettings::power_sensor_speed_inclination_coeff_a = QStringLiteral("power_sensor_speed_inclination_coeff_a");
+const QString QZSettings::power_sensor_speed_inclination_coeff_b = QStringLiteral("power_sensor_speed_inclination_coeff_b");
 const QString QZSettings::powr_sensor_running_cadence_double = QStringLiteral("powr_sensor_running_cadence_double");
 const QString QZSettings::elite_rizer_name = QStringLiteral("elite_rizer_name");
 const QString QZSettings::default_elite_rizer_name = QStringLiteral("Disabled");
@@ -1081,7 +1083,7 @@ const QString QZSettings::proform_carbon_tlx_v84_314_treadmill = QStringLiteral(
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
 
 
-const uint32_t allSettingsCount = 880;
+const uint32_t allSettingsCount = 882;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1357,6 +1359,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::power_sensor_name, QZSettings::default_power_sensor_name},
     {QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike},
     {QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill},
+    {QZSettings::power_sensor_speed_inclination_coeff_a, QZSettings::default_power_sensor_speed_inclination_coeff_a},
+    {QZSettings::power_sensor_speed_inclination_coeff_b, QZSettings::default_power_sensor_speed_inclination_coeff_b},
     {QZSettings::powr_sensor_running_cadence_double, QZSettings::default_powr_sensor_running_cadence_double},
     {QZSettings::elite_rizer_name, QZSettings::default_elite_rizer_name},
     {QZSettings::elite_sterzo_smart_name, QZSettings::default_elite_sterzo_smart_name},
