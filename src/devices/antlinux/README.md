@@ -391,6 +391,8 @@ Select **QZ Service Control → QZ Runtime Flags** to adjust how QZ runs:
 |------|---------|---------|
 | **Force Treadmill Speed** | Forwards speed/incline commands from the connected app to your real treadmill. Disable if you prefer to control pace manually. | On |
 | **ANT+ Footpod** | Enable ANT+ footpod broadcasting and set the device ID. | Off |
+
+> ⚠ **Known issue:** The ANT+ footpod flag may reset to Off after a service regeneration. If footpod stops working, re-enable it here. See [ANT+ Footpod Flag Defaults to Off](#ant-footpod-flag-defaults-to-off-after-service-regeneration).
 | **Logging** | Write debug logs to file (required for ANT+ Verbose mode). | Off |
 
 **Check it's running:**
@@ -418,6 +420,8 @@ journalctl -u qz -n 50     # Last 50 lines
 
 QZ starts automatically when your treadmill is detected over Bluetooth, and stops ~15 minutes after it disappears. Ideal if you share the machine or want to save resources.
 
+> ⚠ **Known issue:** The guided setup wizard does not currently offer Smart Monitor — you must set it up manually from this menu after completing the wizard. See [Guided Setup Does Not Offer Smart Monitor](#guided-setup-does-not-offer-smart-monitor).
+
 > **Requires:** Bluetooth Scanning must be completed first so the dashboard knows your treadmill's BLE name. Smart Monitor also requires the standard QZ service to be installed first — use Option 1 to install it, then return here.
 
 **Set up via the dashboard:**
@@ -442,6 +446,8 @@ The dashboard:
 - `QZ Service (Off)` — service stopped, no autostart configured
 - `QZ Service (Err)` — service failed; check **QZ Service Control → View Error Details**
 
+> ⚠ **Known issue:** The device online/offline status does not always reflect the current state accurately. If it looks wrong, restart the service to refresh it. See [Device Online/Offline Status Not Always Accurate](#device-onlineoffline-status-not-always-accurate).
+
 **Manage the monitor:**
 ```bash
 sudo systemctl status qz-treadmill-monitor   # Check monitor status
@@ -458,6 +464,8 @@ journalctl -u qz-treadmill-monitor -f        # Live monitor log
 ---
 
 ### Optional: SD Card Protection (Raspberry Pi only)
+
+> ⚠ **Known issue:** SD card protection is not currently working correctly and needs investigation. Do not rely on it until this is resolved. See [SD Card Protection Not Working](#sd-card-protection-not-working).
 
 If you're running on a Raspberry Pi as a dedicated always-on device, Overlay FS protects your SD card from wear and corruption by redirecting all filesystem writes to RAM. Changes made while protection is active are lost on reboot.
 
@@ -780,15 +788,45 @@ sudo ./qdomyos-zwift -no-gui -ant-footpod -ant-device 11111 -ant-verbose
 
 ## Known Issues
 
-### Virtual Bluetooth Devices Don't Work on Ubuntu 24.04
+### Virtual Bluetooth Devices Don't Work on Ubuntu 24.04 / BlueZ 5.70+
 
-**Affected:** Ubuntu 24.04 users running apps that connect to the virtual treadmill over Bluetooth (e.g. Just Fit).
+**Affected:** Users running apps that connect to the virtual treadmill over Bluetooth (e.g. Just Fit) on Ubuntu 24.04 or any system with BlueZ 5.70+.
 
-**Cause:** Ubuntu 24.04 ships BlueZ 5.72+, which changed how peripheral role (BLE server) advertisement works. The Qt5 Bluetooth stack used by QZ is not compatible with this version, so virtual Bluetooth devices fail to advertise or accept connections.
+**Cause:** BlueZ 5.70+ changed how Bluetooth peripheral (BLE server) mode works. The Qt5 Bluetooth stack used by QZ is not compatible with this version, so virtual Bluetooth devices fail to advertise or accept connections.
 
-**Workaround:** Use a Raspberry Pi running Raspberry Pi OS (Bookworm) instead, or a machine running Ubuntu 22.04. The ANT+ footpod feature is unaffected — only the virtual BLE treadmill peripheral is broken on Ubuntu 24.04.
+**Workaround:** Use a Raspberry Pi running Raspberry Pi OS (Bookworm), which ships BlueZ 5.66. The ANT+ footpod feature is unaffected — only the virtual BLE treadmill is broken on newer BlueZ versions.
 
 **Status:** Upstream issue in Qt5/BlueZ. No fix available yet.
+
+---
+
+### SD Card Protection Not Working
+
+SD card protection (Overlay FS) via the setup dashboard is currently not functioning correctly and needs investigation. Do not rely on it to protect your SD card until this is resolved.
+
+---
+
+### ANT+ Footpod Flag Defaults to Off After Service Regeneration
+
+When regenerating the service file, the ANT+ footpod flag may reset to off. If your ANT+ footpod stops broadcasting after a service update, go to **QZ Service Control → QZ Runtime Flags** and re-enable it.
+
+---
+
+### Device Online/Offline Status Not Always Accurate
+
+The treadmill connection status shown in the dashboard does not always reflect the real current state. If the status looks wrong, restart the service to get an accurate reading.
+
+---
+
+### Guided Setup Does Not Offer Smart Monitor
+
+The guided setup wizard walks you through creating the standard QZ service but does not currently offer to set up the Smart Monitor (auto-detect treadmill). After completing the wizard, go to **QZ Service Control → Smart Monitor** to set it up manually if needed.
+
+---
+
+### Occasional Screen Artefacts in the Dashboard
+
+Stray characters or partial text may appear on screen in some menus. This is a display-only issue and does not affect setup or functionality — if it occurs, pressing any key or navigating the menu will clear it.
 
 ---
 
