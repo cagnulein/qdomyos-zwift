@@ -1779,6 +1779,11 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << power;
         }*/
 
+        if(SPEEDMAGPRO && b.at(0) != FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS && b.at(0) != FTMS_SET_TARGET_POWER) {
+            qDebug() << "SpeedMagPro bike workaround: only allowing simulation params and power commands, discarding the rest";
+            return;
+        }
+
         writeCharacteristic((uint8_t*)b.data(), b.length(), "injectWrite ", false, true);
     }
 }
