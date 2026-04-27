@@ -154,6 +154,17 @@ double bike::gears() {
 }
 
 double bike::gearsModifier() {
+    QSettings settings;
+    const bool gears_custom_table_enabled =
+        settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
+    const bool zwift_gear_ui_aligned =
+        settings.value(QZSettings::zwift_gear_ui_aligned, QZSettings::default_zwift_gear_ui_aligned).toBool();
+    if (gears_custom_table_enabled && zwift_gear_ui_aligned && VirtualBike()) {
+        const double zwiftGear = VirtualBike()->currentGear();
+        if (zwiftGear > 0) {
+            return gearsModifier(zwiftGear);
+        }
+    }
     return gearsModifier(m_gears);
 }
 
