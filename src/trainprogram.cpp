@@ -866,6 +866,10 @@ void trainprogram::scheduler() {
         qDebug() << QStringLiteral("fixing jitter!") << seconds << ticks << currentTimerJitter;
     }
 
+    if (!bluetoothManager || !bluetoothManager->device()) {
+        return;
+    }
+
     double odometerFromTheDevice = bluetoothManager->device()->odometer();
 
     if(ticks < 0) {
