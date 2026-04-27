@@ -39,6 +39,8 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
     bool bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
     bool echelon = settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    const QString echelonAdvertisingName =
+        !t->bluetoothDevice.name().isEmpty() ? t->bluetoothDevice.name() : QStringLiteral("ECHEX-5s-113399");
     this->noHeartService = noHeartService;
     if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
         dirconManager = new DirconManager(t, bikeResistanceOffset, bikeResistanceGain, this);
@@ -78,11 +80,15 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
+        if (echelon) {
+            advertisingData.setLocalName(echelonAdvertisingName);
+        } else {
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
-        advertisingData.setLocalName(QStringLiteral("KICKR RUN"));
+            advertisingData.setLocalName(QStringLiteral("KICKR RUN"));
 #else            
-        advertisingData.setLocalName(QStringLiteral("DomyosBridge"));
+            advertisingData.setLocalName(QStringLiteral("DomyosBridge"));
 #endif
+        }
         QList<QBluetoothUuid> services;
 
         // Add Wahoo Run Service UUID
@@ -402,7 +408,9 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         serviceDIS = leController->addService(serviceDataDIS);
         QThread::msleep(100);
         
-        serviceWahoo = leController->addService(serviceDataWahoo);
+        if (!echelon) {
+            serviceWahoo = leController->addService(serviceDataWahoo);
+        }
 
         if (echelon) {
             serviceEchelon = leController->addService(serviceDataEchelon);
@@ -441,10 +449,17 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         }  
 
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
-                                                 "startAdvertisingTreadmill",
-                                                 "(Landroid/content/Context;)V",
-                                                 QtAndroid::androidContext().object());
+        if (echelon) {
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingEchelon",
+                "(Landroid/content/Context;Ljava/lang/String;)V", QtAndroid::androidContext().object(),
+                QAndroidJniObject::fromString(echelonAdvertisingName).object<jstring>());
+        } else {
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                     "startAdvertisingTreadmill",
+                                                     "(Landroid/content/Context;)V",
+                                                     QtAndroid::androidContext().object());
+        }
 
 #elif defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
         pars.setInterval(30, 50);
@@ -755,8 +770,12 @@ void virtualtreadmill::reconnect() {
     serviceDIS = leController->addService(serviceDataDIS);
     QThread::msleep(100);
     
-    serviceWahoo = leController->addService(serviceDataWahoo);
-    QThread::msleep(100);
+    const bool echelon =
+        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    if (!echelon) {
+        serviceWahoo = leController->addService(serviceDataWahoo);
+        QThread::msleep(100);
+    }
 
     if (!serviceDataEchelon.characteristics().isEmpty()) {
         serviceEchelon = leController->addService(serviceDataEchelon);
@@ -777,10 +796,20 @@ void virtualtreadmill::reconnect() {
 
     if (serviceFTMS || serviceRSC || serviceWahoo || serviceEchelon) {
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
-                                                 "startAdvertisingTreadmill",
-                                                 "(Landroid/content/Context;)V",
-                                                 QtAndroid::androidContext().object());
+        if (echelon) {
+            const QString echelonAdvertisingName =
+                !treadMill->bluetoothDevice.name().isEmpty() ? treadMill->bluetoothDevice.name()
+                                                             : QStringLiteral("ECHEX-5s-113399");
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingEchelon",
+                "(Landroid/content/Context;Ljava/lang/String;)V", QtAndroid::androidContext().object(),
+                QAndroidJniObject::fromString(echelonAdvertisingName).object<jstring>());
+        } else {
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                     "startAdvertisingTreadmill",
+                                                     "(Landroid/content/Context;)V",
+                                                     QtAndroid::androidContext().object());
+        }
 #else
         leController->startAdvertising(pars, advertisingData, advertisingData);
 #endif
@@ -1023,6 +1052,9 @@ bool virtualtreadmill::connected() {
 
 bool virtualtreadmill::ftmsServiceEnable() {
     QSettings settings;
+    if (settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool()) {
+        return false;
+    }
     bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor).toBool();
     if (!cadence)
         return true;
@@ -1033,6 +1065,9 @@ bool virtualtreadmill::ftmsServiceEnable() {
 
 bool virtualtreadmill::ftmsTreadmillEnable() {
     QSettings settings;
+    if (settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool()) {
+        return false;
+    }
     bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor).toBool();
     if (!cadence)
         return true;
