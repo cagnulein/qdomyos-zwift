@@ -387,7 +387,9 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         serviceDIS = leController->addService(serviceDataDIS);
         QThread::msleep(100);
         
-        serviceWahoo = leController->addService(serviceDataWahoo);
+        if (!echelon) {
+            serviceWahoo = leController->addService(serviceDataWahoo);
+        }
 
         if (echelon) {
             serviceEchelon = leController->addService(serviceDataEchelon);
@@ -589,8 +591,12 @@ void virtualtreadmill::reconnect() {
     serviceDIS = leController->addService(serviceDataDIS);
     QThread::msleep(100);
     
-    serviceWahoo = leController->addService(serviceDataWahoo);
-    QThread::msleep(100);
+    const bool echelon =
+        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    if (!echelon) {
+        serviceWahoo = leController->addService(serviceDataWahoo);
+        QThread::msleep(100);
+    }
 
     if (!serviceDataEchelon.characteristics().isEmpty()) {
         serviceEchelon = leController->addService(serviceDataEchelon);
@@ -849,6 +855,9 @@ bool virtualtreadmill::connected() {
 
 bool virtualtreadmill::ftmsServiceEnable() {
     QSettings settings;
+    if (settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool()) {
+        return false;
+    }
     bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor).toBool();
     if (!cadence)
         return true;
@@ -859,6 +868,9 @@ bool virtualtreadmill::ftmsServiceEnable() {
 
 bool virtualtreadmill::ftmsTreadmillEnable() {
     QSettings settings;
+    if (settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool()) {
+        return false;
+    }
     bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor).toBool();
     if (!cadence)
         return true;

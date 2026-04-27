@@ -129,7 +129,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 
         QList<QBluetoothUuid> services;
 
-        if (!heart_only) {
+        if (!heart_only && !echelon) {
             if (pm5Mode) {
                 // PM5 uses Concept2 proprietary services
                 // Only advertise the discovery service UUID (128-bit UUIDs are large)
@@ -143,7 +143,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             services << QBluetoothUuid::HeartRate;
         }
 
-        if (!pm5Mode) {
+        if (!pm5Mode && !echelon) {
             services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
         }
         if (echelon) {
@@ -153,7 +153,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         advertisingData.setServices(services);
         //! [Advertising Data]
 
-        if (!heart_only) {
+        if (!heart_only && !echelon) {
             if (pm5Mode) {
                 // Setup PM5 Concept2 rowing service
                 setupPM5Services();
@@ -283,7 +283,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         leController = QLowEnergyController::createPeripheral();
         Q_ASSERT(leController);
 
-        if (pm5Mode) {
+        if (pm5Mode && !echelon) {
             // Add PM5 services in correct order
             // GAP service first (standard BLE requirement)
             servicePM5GAP = leController->addService(serviceDataPM5GAP);
@@ -299,7 +299,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             QThread::msleep(100);
 
             qDebug() << "PM5 services added: GAP, DeviceInfo, Control, Rowing";
-        } else {
+        } else if (!echelon) {
             serviceFIT = leController->addService(serviceDataFIT);
             QThread::msleep(100); // give time to Android to add the service async.ly
         }
@@ -311,7 +311,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             serviceEchelon = leController->addService(serviceDataEchelon);
         }
 
-        if (!pm5Mode && serviceFIT) {
+        if (!pm5Mode && !echelon && serviceFIT) {
             QObject::connect(serviceFIT, &QLowEnergyService::characteristicChanged, this,
                              &virtualrower::characteristicChanged);
         }
@@ -328,7 +328,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         }
 
 #ifdef Q_OS_ANDROID
-        if (pm5Mode) {
+        if (pm5Mode && !echelon) {
             QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRowerPM5",
                                                       "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
         } else {
@@ -523,7 +523,10 @@ void virtualrower::reconnect() {
     qDebug() << QStringLiteral("virtualrower::reconnect") << "pm5Mode:" << pm5Mode;
     leController->disconnectFromDevice();
 
-    if (pm5Mode) {
+    const bool echelon =
+        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+
+    if (pm5Mode && !echelon) {
         // Add PM5 services in correct order
         servicePM5GAP = leController->addService(serviceDataPM5GAP);
         QThread::msleep(100);
@@ -533,7 +536,7 @@ void virtualrower::reconnect() {
         QThread::msleep(100);
         servicePM5Rowing = leController->addService(serviceDataPM5Rowing);
         QThread::msleep(100);
-    } else {
+    } else if (!echelon) {
         serviceFIT = leController->addService(serviceDataFIT);
         QThread::msleep(100); // give time to Android to add the service async.ly
     }
@@ -548,7 +551,7 @@ void virtualrower::reconnect() {
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
 #ifdef Q_OS_ANDROID
-    if (pm5Mode) {
+    if (pm5Mode && !echelon) {
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRowerPM5",
                                                   "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
     } else {
@@ -566,6 +569,8 @@ void virtualrower::rowerProvider() {
     QSettings settings;
     bool heart_only =
         settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
+    const bool echelon =
+        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
 
     double normalizeWattage = Rower->wattsMetricforUI();
     if (normalizeWattage < 0)
@@ -658,7 +663,7 @@ void virtualrower::rowerProvider() {
 
     QByteArray value;
 
-    if (!heart_only) {
+    if (!heart_only && !echelon) {
         if (pm5Mode) {
             // PM5 Concept2 protocol
             if (!servicePM5Rowing) {
