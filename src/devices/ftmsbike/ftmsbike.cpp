@@ -131,7 +131,7 @@ void ftmsbike::init() {
     if (initDone)
         return;
 
-    if(ICSE || HAMMER) {
+    if(ICSE || HAMMER || SPEEDMAGPRO) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
         write[0] = {FTMS_RESET};
@@ -2026,8 +2026,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             ergModeSupported = false;
             max_resistance = 32;
             _ergTable.loadDefaultData(kSpeedRaceXDefaultErgData);
+        } else if(device.name().toUpper().startsWith("SPEEDMAGPRO")) {
+            qDebug() << QStringLiteral("SPEEDMAGPRO found");
+            SPEEDMAGPRO = true;
         }
-
 
         if(settings.value(QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination).toBool()) {
             resistance_lvl_mode = true;
