@@ -38,6 +38,10 @@ ScrollView {
         return Math.max(-100, Math.min(100, value))
     }
 
+    function parseOffset(value) {
+        return parseFloat(String(value).replace(",", "."))
+    }
+
     function defaultGearRows() {
         var rows = []
         for (var i = 1; i <= 24; i++) {
@@ -66,7 +70,7 @@ ScrollView {
                 continue
             }
             var gear = parseInt(parts[0])
-            var offset = clampOffset(parseFloat(parts[1]))
+            var offset = clampOffset(parseOffset(parts[1]))
             if (gear >= 1 && gear <= 24) {
                 rows[gear - 1] = { gear: gear, offset: offset }
             }
@@ -81,7 +85,7 @@ ScrollView {
 
     function gearRowsToString(rows) {
         return rows.map(function(row) {
-            return row.gear + "|" + clampOffset(parseFloat(row.offset))
+            return row.gear + "|" + clampOffset(parseOffset(row.offset))
         }).join("\n")
     }
 
@@ -234,7 +238,7 @@ ScrollView {
                                 Layout.preferredWidth: 34
                                 Layout.fillHeight: true
                                 onClicked: {
-                                    gearRows[index].offset = clampOffset(parseFloat(gearRows[index].offset) - 0.5)
+                                    gearRows[index].offset = clampOffset(parseOffset(gearRows[index].offset) - 0.5)
                                     offsetTextField.text = gearRows[index].offset
                                     saveGearRows()
                                 }
@@ -249,19 +253,13 @@ ScrollView {
                                 selectedTextColor: "white"
                                 selectionColor: Material.accent
                                 horizontalAlignment: Text.AlignHCenter
-                                validator: DoubleValidator {
-                                    bottom: -100
-                                    top: 100
-                                    decimals: 2
-                                    notation: DoubleValidator.StandardNotation
-                                }
                                 background: Rectangle {
                                     color: "white"
                                     border.color: "#cccccc"
                                     radius: 2
                                 }
                                 function applyOffset() {
-                                    var newOffset = clampOffset(parseFloat(text))
+                                    var newOffset = clampOffset(parseOffset(text))
                                     gearRows[index].offset = newOffset
                                     text = newOffset
                                     saveGearRows()
@@ -275,7 +273,7 @@ ScrollView {
                                 Layout.preferredWidth: 34
                                 Layout.fillHeight: true
                                 onClicked: {
-                                    gearRows[index].offset = clampOffset(parseFloat(gearRows[index].offset) + 0.5)
+                                    gearRows[index].offset = clampOffset(parseOffset(gearRows[index].offset) + 0.5)
                                     offsetTextField.text = gearRows[index].offset
                                     saveGearRows()
                                 }
