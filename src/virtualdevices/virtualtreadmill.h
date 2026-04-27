@@ -81,10 +81,20 @@ class virtualtreadmill : public virtualdevice {
     bool noHeartService = false;
 
     bool m_autoInclinationEnabled = false;
+    bool echelonInitDone = false;
+    bool echelonLastRunning = false;
+    qint32 echelonLastSpeed = -1;
+    int echelonLastInclination = -1;
 
     bool ftmsServiceEnable();
     bool ftmsTreadmillEnable();
     bool RSCEnable();
+    bool isEchelonVirtualEnabled() const;
+    void writeEchelonCharacteristic(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);
+    void echelonWriteStatus();
+    void echelonWriteSpeed();
+    void echelonWriteInclination();
+    void echelonWriteRunningState();
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

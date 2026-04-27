@@ -14,6 +14,21 @@
 
 using namespace std::chrono_literals;
 
+namespace {
+QByteArray echelonPacket(std::initializer_list<uint8_t> bytes) {
+    QByteArray value;
+    uint8_t checksum = 0;
+
+    for (uint8_t byte : bytes) {
+        value.append(static_cast<char>(byte));
+        checksum = static_cast<uint8_t>(checksum + byte);
+    }
+
+    value.append(static_cast<char>(checksum));
+    return value;
+}
+}
+
 virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     QSettings settings;
     treadMill = t;
@@ -497,19 +512,41 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         if (notify1.isValid() && leController->state() == QLowEnergyController::ConnectedState) {
             const uint8_t command = static_cast<uint8_t>(newValue.at(1));
             if (command == 0xA1) {
-                serviceEchelon->writeCharacteristic(notify1, QByteArray::fromHex("f0a106000701290704d3"));
+                writeEchelonCharacteristic(notify1, QByteArray::fromHex("f0a1072064009606ff01b8"));
+                echelonWriteStatus();
+                echelonInitDone = true;
             } else if (command == 0xA3) {
-                serviceEchelon->writeCharacteristic(notify1, QByteArray::fromHex("f0a3022001b6"));
+                writeEchelonCharacteristic(notify1, QByteArray::fromHex("f0a3070c00271001f400d2"));
             } else if (command == 0xA4) {
-                serviceEchelon->writeCharacteristic(notify1, QByteArray::fromHex("f0a4010095"));
+                writeEchelonCharacteristic(notify1, QByteArray::fromHex("f0a4010095"));
             } else if (command == 0xA5) {
-                serviceEchelon->writeCharacteristic(notify1, QByteArray::fromHex("f0a5010ea4"));
+                writeEchelonCharacteristic(notify1, QByteArray::fromHex("f0a5010ea4"));
             } else if (command == 0xB0 && static_cast<uint8_t>(newValue.at(3)) == 0x00) {
-                serviceEchelon->writeCharacteristic(notify1, QByteArray::fromHex("f0d00100c1"));
+                if (auto *treadmillDevice = qobject_cast<treadmill *>(treadMill)) {
+                    treadmillDevice->stop(false);
+                }
+                writeEchelonCharacteristic(notify2, QByteArray::fromHex("f0d00100c1"));
+                echelonWriteRunningState();
             } else if (command == 0xB0 && notify2.isValid()) {
-                serviceEchelon->writeCharacteristic(notify2, QByteArray::fromHex("f0d00101c2"));
+                if (auto *treadmillDevice = qobject_cast<treadmill *>(treadMill)) {
+                    treadmillDevice->start();
+                }
+                writeEchelonCharacteristic(notify2, QByteArray::fromHex("f0d00100c1"));
+                writeEchelonCharacteristic(notify2, QByteArray::fromHex("f0d00111d2"));
+                echelonWriteRunningState();
             } else if (command == 0xA0) {
-                serviceEchelon->writeCharacteristic(notify1, newValue);
+                writeEchelonCharacteristic(notify1, newValue);
+            } else if (command == 0xD2 && newValue.length() >= 5) {
+                if (auto *treadmillDevice = qobject_cast<treadmill *>(treadMill)) {
+                    const double inclination = static_cast<uint8_t>(newValue.at(3));
+                    treadmillDevice->changeInclination(inclination, inclination);
+                }
+            } else if (command == 0xD3 && newValue.length() >= 6) {
+                if (auto *treadmillDevice = qobject_cast<treadmill *>(treadMill)) {
+                    const uint16_t rawSpeed =
+                        (static_cast<uint8_t>(newValue.at(3)) << 8) | static_cast<uint8_t>(newValue.at(4));
+                    treadmillDevice->changeSpeed(static_cast<double>(rawSpeed) / 1000.0);
+                }
             }
         }
     }
@@ -536,7 +573,136 @@ void virtualtreadmill::relayEchelonPacket(const QBluetoothUuid &sourceUuid, cons
         return;
     }
 
-    serviceEchelon->writeCharacteristic(targetCharacteristic, value);
+    writeEchelonCharacteristic(targetCharacteristic, value);
+}
+
+bool virtualtreadmill::isEchelonVirtualEnabled() const {
+    QSettings settings;
+    return settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+}
+
+void virtualtreadmill::writeEchelonCharacteristic(const QLowEnergyCharacteristic &characteristic,
+                                                  const QByteArray &value) {
+    if (!serviceEchelon || !characteristic.isValid() || !leController ||
+        leController->state() != QLowEnergyController::ConnectedState) {
+        return;
+    }
+
+    try {
+        serviceEchelon->writeCharacteristic(characteristic, value);
+    } catch (...) {
+        qDebug() << QStringLiteral("virtualtreadmill echelon error!");
+    }
+}
+
+void virtualtreadmill::echelonWriteStatus() {
+    if (!serviceEchelon) {
+        return;
+    }
+
+    QLowEnergyCharacteristic characteristic =
+        serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+    if (!characteristic.isValid()) {
+        return;
+    }
+
+    const QTime elapsed = treadMill->elapsedTime();
+    const uint16_t elapsedSeconds = static_cast<uint16_t>(
+        (elapsed.hour() * 3600) + (elapsed.minute() * 60) + elapsed.second());
+    const uint32_t distanceMeters = qRound(static_cast<treadmill *>(treadMill)->odometerFromStartup() * 1000.0);
+    const uint16_t calories = static_cast<uint16_t>(static_cast<treadmill *>(treadMill)->calories().value());
+    const uint8_t heartRate = static_cast<uint8_t>(static_cast<treadmill *>(treadMill)->currentHeart().value());
+
+    writeEchelonCharacteristic(characteristic, echelonPacket({
+                                                   0xf0,
+                                                   0xd1,
+                                                   0x09,
+                                                   static_cast<uint8_t>(elapsedSeconds >> 8),
+                                                   static_cast<uint8_t>(elapsedSeconds),
+                                                   static_cast<uint8_t>(distanceMeters >> 24),
+                                                   static_cast<uint8_t>(distanceMeters >> 16),
+                                                   static_cast<uint8_t>(distanceMeters >> 8),
+                                                   static_cast<uint8_t>(distanceMeters),
+                                                   static_cast<uint8_t>(calories >> 8),
+                                                   static_cast<uint8_t>(calories),
+                                                   heartRate,
+                                               }));
+}
+
+void virtualtreadmill::echelonWriteSpeed() {
+    if (!serviceEchelon) {
+        return;
+    }
+
+    const qint32 speedValue = qRound(static_cast<treadmill *>(treadMill)->currentSpeed().value() * 1000.0);
+    if (echelonLastSpeed == speedValue) {
+        return;
+    }
+
+    QLowEnergyCharacteristic characteristic =
+        serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+    if (!characteristic.isValid()) {
+        return;
+    }
+
+    writeEchelonCharacteristic(characteristic, echelonPacket({
+                                                   0xf0,
+                                                   0xd3,
+                                                   0x02,
+                                                   static_cast<uint8_t>((speedValue >> 8) & 0xff),
+                                                   static_cast<uint8_t>(speedValue & 0xff),
+                                               }));
+    echelonLastSpeed = speedValue;
+}
+
+void virtualtreadmill::echelonWriteInclination() {
+    if (!serviceEchelon) {
+        return;
+    }
+
+    const int inclinationValue = qRound(static_cast<treadmill *>(treadMill)->currentInclination().value());
+    if (echelonLastInclination == inclinationValue) {
+        return;
+    }
+
+    QLowEnergyCharacteristic characteristic =
+        serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+    if (!characteristic.isValid()) {
+        return;
+    }
+
+    writeEchelonCharacteristic(characteristic, echelonPacket({
+                                                   0xf0,
+                                                   0xd2,
+                                                   0x01,
+                                                   static_cast<uint8_t>(qBound(0, inclinationValue, 255)),
+                                               }));
+    echelonLastInclination = inclinationValue;
+}
+
+void virtualtreadmill::echelonWriteRunningState() {
+    if (!serviceEchelon) {
+        return;
+    }
+
+    const bool running = static_cast<treadmill *>(treadMill)->currentSpeed().value() > 0.0;
+    if (echelonLastRunning == running) {
+        return;
+    }
+
+    QLowEnergyCharacteristic characteristic =
+        serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+    if (!characteristic.isValid()) {
+        return;
+    }
+
+    writeEchelonCharacteristic(characteristic, echelonPacket({
+                                                   0xf0,
+                                                   0xd5,
+                                                   0x01,
+                                                   static_cast<uint8_t>(running ? 0x02 : 0x01),
+                                               }));
+    echelonLastRunning = running;
 }
 
 void virtualtreadmill::slopeChanged() {
@@ -626,6 +792,7 @@ void virtualtreadmill::treadmillProvider() {
     const uint64_t slopeTimeoutSecs = 30;
     QSettings settings;
     bool bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    const bool echelon = isEchelonVirtualEnabled();
 
     if ((uint64_t)QDateTime::currentSecsSinceEpoch() > lastSlopeChanged + slopeTimeoutSecs)
         m_autoInclinationEnabled = false;
@@ -828,6 +995,13 @@ void virtualtreadmill::treadmillProvider() {
                 qDebug() << QStringLiteral("virtualtreadmill error!");
             }
         }
+    }
+
+    if (echelon && echelonInitDone && serviceEchelon) {
+        echelonWriteStatus();
+        echelonWriteRunningState();
+        echelonWriteInclination();
+        echelonWriteSpeed();
     }
 }
 
