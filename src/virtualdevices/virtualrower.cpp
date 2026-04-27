@@ -89,6 +89,8 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
     bool heart_only =
         settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
     bool echelon = settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    const QString echelonAdvertisingName =
+        !t->bluetoothDevice.name().isEmpty() ? t->bluetoothDevice.name() : QStringLiteral("ECHEX-5s-113399");
 
     // Check if PM5 mode is enabled
     pm5Mode = settings.value(QZSettings::virtual_device_rower_pm5, QZSettings::default_virtual_device_rower_pm5).toBool();
@@ -119,7 +121,9 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
 
-        if (pm5Mode) {
+        if (echelon) {
+            advertisingData.setLocalName(echelonAdvertisingName);
+        } else if (pm5Mode) {
             // PM5 device name format: "PM5 XXXXXX" where XXXXXX is serial number
             advertisingData.setLocalName(QStringLiteral("PM5 430000000"));
             qDebug() << "Advertising as PM5 Concept2 rower";
@@ -328,7 +332,12 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         }
 
 #ifdef Q_OS_ANDROID
-        if (pm5Mode && !echelon) {
+        if (echelon) {
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingEchelon",
+                "(Landroid/content/Context;Ljava/lang/String;)V", QtAndroid::androidContext().object(),
+                QAndroidJniObject::fromString(echelonAdvertisingName).object<jstring>());
+        } else if (pm5Mode) {
             QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRowerPM5",
                                                       "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
         } else {
@@ -551,7 +560,14 @@ void virtualrower::reconnect() {
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
 #ifdef Q_OS_ANDROID
-    if (pm5Mode && !echelon) {
+    if (echelon) {
+        const QString echelonAdvertisingName =
+            !Rower->bluetoothDevice.name().isEmpty() ? Rower->bluetoothDevice.name() : QStringLiteral("ECHEX-5s-113399");
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingEchelon",
+            "(Landroid/content/Context;Ljava/lang/String;)V", QtAndroid::androidContext().object(),
+            QAndroidJniObject::fromString(echelonAdvertisingName).object<jstring>());
+    } else if (pm5Mode) {
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRowerPM5",
                                                   "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
     } else {
