@@ -599,6 +599,8 @@ class homeform : public QObject {
 
 private:
     void clearWebViewCache();
+    double lastInclination = 0;
+    double lastWattage = 0;
 
 public:
     void setGeneralPopupVisible(bool value);

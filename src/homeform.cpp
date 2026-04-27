@@ -1747,6 +1747,9 @@ void homeform::onTrainingProgramSpeedChanged(double speed) {
     // Record the timestamp when the training program changed speed
     // This is used by the HR PID controller to avoid race conditions
     lastTrainingProgramSpeedChange = QDateTime::currentDateTime();
+    lastWattage = 0;
+    qDebug() << QStringLiteral("Training program speed changed to") << speed
+             << QStringLiteral("- resetting inclination compensation wattage baseline");
 }
 
 
@@ -7432,8 +7435,6 @@ void homeform::update() {
             double maxSpeed = 30;
             double minSpeed = 0;
             int8_t maxResistance = 100;
-            static double lastInclination = 0;
-            static double lastWattage = 0;
 
             if (fromTrainProgram) {
                 delta = trainProgram->currentRow().loopTimeHR;
