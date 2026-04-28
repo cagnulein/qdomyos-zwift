@@ -272,10 +272,18 @@ void fitshowtreadmill::update() {
             removeFromBuffer();
         }
         if (!bufferWrite.isEmpty()) {
+            const bool t80PauseWithoutRetry =
+                tunturi_t80_connected && !debugMsgs.isEmpty() && debugMsgs.at(0) == QStringLiteral("pause tape");
+
             retrySend++;
             if (retrySend % 2) { // retry only on odd values: on even values wait some more time for response
                 const uint8_t *write_pld = (const uint8_t *)bufferWrite.constData();
                 writePayload(write_pld + 1, write_pld[0], debugMsgs.at(0));
+
+                if (t80PauseWithoutRetry) {
+                    emit debug(QStringLiteral("T80 pause tape sent once, skipping retries"));
+                    removeFromBuffer();
+                }
             }
         } else {
             uint8_t status = FITSHOW_SYS_STATUS;
