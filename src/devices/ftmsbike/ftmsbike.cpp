@@ -2033,6 +2033,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             _ergTable.loadDefaultData(kSpeedRaceXDefaultErgData);
         } else if(device.name().toUpper().startsWith("SPEEDMAGPRO")) {
             qDebug() << QStringLiteral("SPEEDMAGPRO found");
+            ergModeSupported = false;
             SPEEDMAGPRO = true;
         }
 
