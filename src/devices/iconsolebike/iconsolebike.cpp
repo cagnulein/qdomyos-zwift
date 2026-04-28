@@ -356,7 +356,10 @@ void iconsolebike::forceResistance(resistance_t requestResistance) {
     // Protocol: F0 A6 01 01 <RES> <CHECKSUM>
     uint8_t resistance[] = {0xF0, 0xA6, 0x01, 0x01, 0x00, 0x00};
 
-    resistance[4] = (uint8_t)requestResistance;
+    // The bike acknowledges and reports resistance using a raw 1-based value.
+    // QZ exposes resistance in display-space by subtracting one in
+    // GetResistanceFromPacket(), so writes must add that offset back.
+    resistance[4] = (uint8_t)(requestResistance + 1);
 
     // Calculate checksum
     resistance[5] = 0;
