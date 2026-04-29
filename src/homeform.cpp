@@ -91,17 +91,18 @@ class MailSenderThread : public QThread {
 #ifdef SMTP_SERVER
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
-        SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
+        // Use implicit TLS (SMTPS) to enforce encrypted transport from the first byte.
+        SmtpClient smtp(STRINGIFY(SMTP_SERVER), 465, SmtpClient::SslConnection);
 #else
 #pragma message "stmp server is unset!"
-        SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
+        SmtpClient smtp(QLatin1String(""), 465, SmtpClient::SslConnection);
         delete message;
         return;
 #endif
 
 // We need to set the username (your email address) and the password
 // for smtp authentication.
-#ifdef SMTP_PASSWORD
+#ifdef SMTP_USERNAME
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
         smtp.setUser(STRINGIFY(SMTP_USERNAME));
@@ -124,9 +125,9 @@ class MailSenderThread : public QThread {
         uint8_t i = 0;
         while (!r) {
             qDebug() << "trying to send email #" << i;
-            r = smtp.connectToHost();
-            r = smtp.login();
-            r = smtp.sendMail(*message);
+            const bool connected = smtp.connectToHost();
+            const bool loggedIn = connected && smtp.login();
+            r = loggedIn && smtp.sendMail(*message);
             if (i++ == 3)
                 break;
         }
@@ -10858,5 +10859,4 @@ extern "C" {
 }
 #endif
 // Force rebuild for Q_INVOKABLE changes
-
 
