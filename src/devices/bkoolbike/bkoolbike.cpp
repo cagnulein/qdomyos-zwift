@@ -16,6 +16,35 @@
 
 using namespace std::chrono_literals;
 
+namespace {
+constexpr double bkoolCustomCadenceScale = 36.0;
+constexpr double bkoolMaxCadence = 255.0;
+
+bool hasExternalCadenceSensor(const QSettings &settings) {
+    return !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"));
+}
+
+double parseBkoolCustomCadence(const QByteArray &newValue) {
+    if (newValue.length() != 5) {
+        return -1.0;
+    }
+
+    const uint16_t cadenceRaw =
+        (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
+    if (cadenceRaw == 0) {
+        return 0.0;
+    }
+
+    const double cadence = cadenceRaw / bkoolCustomCadenceScale;
+    if (cadence <= 0.0 || cadence >= bkoolMaxCadence) {
+        return -1.0;
+    }
+    return cadence;
+}
+} // namespace
+
 bkoolbike::bkoolbike(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
     refresh = new QTimer(this);
@@ -185,9 +214,11 @@ void bkoolbike::update() {
             requestResistance = -1;
         }
 
-        if(lastGearValue != gears() && requestInclination == -100) {
-            // if only gears changed, we need to update the inclination to match the gears
-            requestInclination = lastRawRequestedInclinationValue;
+        if (lastGearValue != gears() && requestInclination == -100) {
+            // If the user only changes gears before ever touching inclination/resistance,
+            // we still need a baseline command; otherwise no packet is sent at all.
+            requestInclination =
+                (lastRawRequestedInclinationValue != -100) ? lastRawRequestedInclinationValue : 0.0;
         }
 
         if (requestInclination != -100) {
@@ -250,9 +281,7 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
         lastPacket = newValue;
 
         // Only parse and update cadence from internal CSC if no external cadence sensor configured
-        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                .toString()
-                .startsWith(QStringLiteral("Disabled"))) {
+        if (!hasExternalCadenceSensor(settings)) {
             uint8_t index = 1;
 
             if (newValue.at(0) == 0x02 && newValue.length() < 4) {
@@ -359,6 +388,13 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+    } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("f03ee006-4910-473c-be46-960948c2f59c"))) {
+        const double customCadence = parseBkoolCustomCadence(newValue);
+        if (!hasExternalCadenceSensor(settings) && customCadence >= 0.0) {
+            Cadence = customCadence;
+            lastGoodCadence = now;
+            emit debug(QStringLiteral("Bkool Custom Cadence: ") + QString::number(Cadence.value()));
+        }
     } else if (characteristic.uuid() == QBluetoothUuid::HeartRateMeasurement) {
         if (newValue.length() > 1) {
             Heart = newValue[1];
@@ -424,10 +460,15 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
                 deltaT = LastCrankEventTime + time_division - oldLastCrankEventTime;
             }
 
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled"))) {
-                if (CrankRevs != oldCrankRevs && deltaT) {
+            const bool reportedCrankDataIsEmpty =
+                wheel_revs && (flags & 0x20) == 0x20 && index + 3 < (uint8_t)newValue.length() &&
+                newValue.at(index) == 0x00 && newValue.at(index + 1) == 0x00 &&
+                newValue.at(index + 2) == 0x00 && newValue.at(index + 3) == 0x00;
+
+            if (!hasExternalCadenceSensor(settings)) {
+                if (reportedCrankDataIsEmpty) {
+                    emit debug(QStringLiteral("Bkool Cycling Power crank fields are empty, waiting for custom cadence"));
+                } else if (CrankRevs != oldCrankRevs && deltaT) {
                     double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
                     if (cadence >= 0) {
                         Cadence = cadence;
@@ -506,6 +547,7 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
                      (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                     now)))); //(( (0.048* Output in watts +1.19) * body weight
                                                                       // in kg * 3.5) / 200 ) / 60
+            lastRefreshCharacteristicChanged = now;
             emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
         }
     }

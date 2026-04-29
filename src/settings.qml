@@ -1297,7 +1297,7 @@ import Qt.labs.platform 1.1
             property bool gymstick_gx6_0_elliptical: false
             property bool cadence_sensor_as_treadmill: false
             property bool proform_trainer_8_0_pftl59721_int_0: false
-            property bool proform_carbon_tl_PFTL59723_6: false            
+            property bool proform_carbon_tl_PFTL59723_6: false
             property bool toputure_teb1: false
             property string ios_live_activity_compact_leading_metric: "Heart Rate"
             property string ios_live_activity_compact_trailing_metric: "Watt"
@@ -1312,8 +1312,9 @@ import Qt.labs.platform 1.1
       
             property double power_sensor_speed_inclination_coeff_a: 0.0
             property double power_sensor_speed_inclination_coeff_b: 0.0
+            property bool proform_carbon_tlx_v84_314_treadmill: false
             property bool gears_custom_table_enabled: false
-            property string gears_custom_table: "1|1\n2|2\n3|3\n4|4\n5|5\n6|6\n7|7\n8|8\n9|9\n10|10\n11|11\n12|12\n13|13\n14|14\n15|15\n16|16\n17|17\n18|18\n19|19\n20|20\n21|21\n22|22\n23|23\n24|24"
+            property string gears_custom_table: "1|1\n2|2\n3|3\n4|4\n5|5\n6|6\n7|7\n8|8\n9|9\n10|10\n11|11\n12|12\n13|13\n14|14\n15|15\n16|16\n17|17\n18|18\n19|19\n20|20\n21|21\n22|22\n23|23\n24|24"            
         }
 
 
@@ -8816,6 +8817,7 @@ import Qt.labs.platform 1.1
                                     "ProForm Carbon TLX PFTL90924C.7",
                                     "Proform Trainer 8.0 PFTL59721-INT.0",
                                     "ProForm Carbon TL PFTL59723.6",
+                                    "ProForm Carbon TLX v84.314 PFTL90924C.7",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -8891,7 +8893,8 @@ import Qt.labs.platform 1.1
                                                     settings.proform_treadmill_sport_3_0 ? 56 :
                                                     settings.proform_carbon_tlx_treadmill ? 57 :
                                                     settings.proform_trainer_8_0_pftl59721_int_0 ? 58 :
-                                                    settings.proform_carbon_tl_PFTL59723_6 ? 59 : 0;
+                                                    settings.proform_carbon_tl_PFTL59723_6 ? 59 :
+                                                    settings.proform_carbon_tlx_v84_314_treadmill ? 60 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -8965,6 +8968,7 @@ import Qt.labs.platform 1.1
                                     settings.proform_carbon_tlx_treadmill = false;
                                     settings.proform_trainer_8_0_pftl59721_int_0 = false;
                                     settings.proform_carbon_tl_PFTL59723_6 = false;
+                                    settings.proform_carbon_tlx_v84_314_treadmill = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -9027,6 +9031,7 @@ import Qt.labs.platform 1.1
                                         case 57: settings.proform_carbon_tlx_treadmill = true; break;
                                         case 58: settings.proform_trainer_8_0_pftl59721_int_0 = true; break;
                                         case 59: settings.proform_carbon_tl_PFTL59723_6 = true; break;
+                                        case 60: settings.proform_carbon_tlx_v84_314_treadmill = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;

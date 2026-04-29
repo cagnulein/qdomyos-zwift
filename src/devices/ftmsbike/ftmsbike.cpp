@@ -140,8 +140,15 @@ void ftmsbike::init() {
     
     uint8_t write[] = {FTMS_REQUEST_CONTROL};
     bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
-    write[0] = {FTMS_START_RESUME};
-    ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+    if (USDC_D700) {
+        // Kinomap keeps this bike streaming by following request-control with STOP/PAUSE(0x01)
+        // instead of the usual START/RESUME opcode.
+        uint8_t usdcStart[] = {FTMS_STOP_PAUSE, 0x01};
+        ret = writeCharacteristic(usdcStart, sizeof(usdcStart), "usdc d700 start workaround", false, true);
+    } else {
+        write[0] = {FTMS_START_RESUME};
+        ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+    }
 
     if(ret) {
         initDone = true;
@@ -265,7 +272,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         if(SL010 || SPORT01)
             Resistance = requestResistance;
         
-        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28) {
+        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -415,7 +422,7 @@ void ftmsbike::update() {
                                      << "elapsedMs:" << sinceLastDomyosResistance;
                             deferResistanceRequest = true;
                         }
-                    }
+                    }                    
 
                     if (deferResistanceRequest) {
                         requestResistance = rR;
@@ -697,7 +704,6 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     }
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
-
         union flags {
             struct {
                 uint16_t moreData : 1;
@@ -1529,7 +1535,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
             }
             
-            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK) {
+            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
                     qDebug() << QStringLiteral("hammer racer bike wants to be subscribed only to FTMS service in order "
@@ -2026,6 +2032,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             ergModeSupported = false;
             max_resistance = 32;
             _ergTable.loadDefaultData(kSpeedRaceXDefaultErgData);
+        } else if (device.name().toUpper().startsWith("USDC-D700-")) {
+            qDebug() << QStringLiteral("USDC-D700 found");
+            USDC_D700 = true;
+            resistance_lvl_mode = true;
         }
 
 
