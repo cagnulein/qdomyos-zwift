@@ -612,10 +612,30 @@ bool treadmill::cadenceFromAppleWatch() {
                    .startsWith(QStringLiteral("Disabled"))) {
         long appleWatchCadence = h.stepCadence();
         qDebug() << QStringLiteral("Current Cadence: ") << QString::number(appleWatchCadence);
+        // Slow-jogging mode: derive Speed from Apple Watch cadence when running on Fake
+        // Treadmill. Gated on both toggles so this only runs in the explicit Fake Treadmill
+        // use case and does not affect normal treadmill users by default.
+        const bool appleWatchTreadmillSpeed =
+            settings.value(QZSettings::applewatch_as_treadmill_speed,
+                           QZSettings::default_applewatch_as_treadmill_speed).toBool() &&
+            settings.value(QZSettings::fakedevice_treadmill,
+                           QZSettings::default_fakedevice_treadmill).toBool();
         if (appleWatchCadence > 0) {
             evaluateStepCount();
             Cadence = appleWatchCadence;
+            if (appleWatchTreadmillSpeed) {
+                const double ratio =
+                    settings.value(QZSettings::cadence_sensor_speed_ratio,
+                                   QZSettings::default_cadence_sensor_speed_ratio).toDouble();
+                Speed = appleWatchCadence * (ratio > 0.0 ? ratio : 0.0);
+            }
             return true;
+        }
+        if (appleWatchCadence == 0 && appleWatchTreadmillSpeed) {
+            // Cadence reported as exactly zero (user stopped); zero Speed too so the virtual
+            // treadmill broadcast doesn't ghost the previous value. Negative values are
+            // treated as "no fresh sample" and leave Speed unchanged.
+            Speed = 0;
         }
         return false;
     }

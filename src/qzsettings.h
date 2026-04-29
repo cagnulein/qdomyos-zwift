@@ -2975,6 +2975,15 @@ class QZSettings {
     static constexpr bool default_proform_carbon_tl_PFTL59723_6 = false;
 
     /**
+     * @brief When enabled together with fakedevice_treadmill, derives treadmill Speed from
+     * Apple Watch step cadence using cadence_sensor_speed_ratio. Lets users do indoor walking
+     * or slow jogging without a physical treadmill, broadcasting cadence-driven speed via
+     * the existing virtual treadmill / RSC pipeline. Default off; iOS-only effect.
+     */
+    static const QString applewatch_as_treadmill_speed;
+    static constexpr bool default_applewatch_as_treadmill_speed = false;
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */

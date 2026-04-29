@@ -1081,9 +1081,10 @@ const QString QZSettings::step_gain = QStringLiteral("step_gain");
 const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform_carbon_tlx_treadmill");
 const QString QZSettings::proform_carbon_tlx_v84_314_treadmill = QStringLiteral("proform_carbon_tlx_v84_314_treadmill");
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
+const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applewatch_as_treadmill_speed");
 
 
-const uint32_t allSettingsCount = 882;
+const uint32_t allSettingsCount = 883;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1989,6 +1990,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_carbon_tlx_treadmill, QZSettings::default_proform_carbon_tlx_treadmill},
     {QZSettings::proform_carbon_tlx_v84_314_treadmill, QZSettings::default_proform_carbon_tlx_v84_314_treadmill},
     {QZSettings::proform_carbon_tl_PFTL59723_6, QZSettings::default_proform_carbon_tl_PFTL59723_6},
+    {QZSettings::applewatch_as_treadmill_speed, QZSettings::default_applewatch_as_treadmill_speed},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
