@@ -47,6 +47,7 @@ class fitplusbike : public bike {
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+    bool parseBureverPacket(const QByteArray &newValue, const QDateTime &now);
     void startDiscover();
     void forceResistance(resistance_t requestResistance);
     void sendPoll();
@@ -80,6 +81,7 @@ class fitplusbike : public bike {
 
     bool merach_MRK = false;
     bool H9110_OSAKA = false;
+    bool burever_BE1 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
