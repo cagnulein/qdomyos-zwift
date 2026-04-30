@@ -309,6 +309,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             return;
         }
 
+        int index = 0;
         auto ensurePacketBytes = [&](int needed, const char *field) {
             if (index + needed > lastPacket.length()) {
                 qDebug() << "packet malformed while parsing" << field << "index" << index << "needed" << needed << "len" << lastPacket.length();
@@ -317,7 +318,6 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             return true;
         };
 
-        int index = 0;
         Flags.word_flags = (lastPacket.at(2) << 16) | (lastPacket.at(1) << 8) | lastPacket.at(0);
         index += 3;
 
