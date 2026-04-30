@@ -1054,13 +1054,31 @@ void trainprogram::scheduler() {
 
                 rows[currentStep].ended = QDateTime::currentDateTime();
 
-                // Emit lap for each completed row, but skip intermediate ramp steps
-                // Only emit lap when rampDuration is 0 (standalone row or end of ramp)
+                // Emit lap at segment boundaries while skipping intermediate ramp micro-steps.
+                // This yields laps for: warmup end, interval transitions, cooldown start, cooldown end.
                 if (settings.value(QZSettings::trainprogram_auto_lap_on_segment,
-                                   QZSettings::default_trainprogram_auto_lap_on_segment).toBool() &&
-                    QTime(0, 0, 0).secsTo(rows.at(currentStep).rampDuration) == 0) {
-                    qDebug() << "Emitting lap for completed row" << currentStep;
-                    emit lap();
+                                   QZSettings::default_trainprogram_auto_lap_on_segment).toBool()) {
+                    const bool hasNextRow = (currentStep + 1 < rows.length());
+                    const trainrow &currentRow = rows.at(currentStep);
+
+                    bool emitLapForBoundary = false;
+                    if (!hasNextRow) {
+                        // End of workout (including cooldown end).
+                        emitLapForBoundary = true;
+                    } else {
+                        const trainrow &nextRow = rows.at(currentStep + 1);
+                        const bool inRampNow = QTime(0, 0, 0).secsTo(currentRow.rampDuration) > 0;
+                        const bool nextIsRampContinuation = QTime(0, 0, 0).secsTo(nextRow.rampElapsed) > 0;
+                        const bool sameRampContinuation = inRampNow && nextIsRampContinuation;
+
+                        // Emit lap at every row transition except within the same ramp.
+                        emitLapForBoundary = !sameRampContinuation;
+                    }
+
+                    if (emitLapForBoundary) {
+                        qDebug() << "Emitting lap for completed row" << currentStep;
+                        emit lap();
+                    }
                 }
 
                 if (!distanceStep)
