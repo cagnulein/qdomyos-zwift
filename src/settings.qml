@@ -14651,7 +14651,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("iOS only. For Fake Treadmill mode: when no physical treadmill is connected, derives Speed from Apple Watch step cadence using the Wheel Ratio under Accessories > Cadence Sensor Options. For walking or slow jogging, set Wheel Ratio much lower than the cycling default, usually around 0.025-0.04. Useful with apps like Kinomap or Zwift. Default is off.")
+                        text: qsTr("iOS only. For Fake Treadmill mode: when no physical treadmill is connected, derives Speed from Apple Watch step cadence using the Wheel Ratio under Accessories > Cadence Sensor Options. The cycling default is far too high for running - try 0.04-0.15 depending on pace, from walking to running, and tune to taste. Useful with apps like Kinomap or Zwift. Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
