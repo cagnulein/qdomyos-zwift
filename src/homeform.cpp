@@ -91,11 +91,11 @@ class MailSenderThread : public QThread {
 #ifdef SMTP_SERVER
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
-        // Use implicit TLS (SMTPS) to enforce encrypted transport from the first byte.
-        SmtpClient smtp(STRINGIFY(SMTP_SERVER), 465, SmtpClient::SslConnection);
+        // Use mandatory STARTTLS on submission port: connection fails if TLS upgrade is not available/successful.
+        SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
 #else
 #pragma message "stmp server is unset!"
-        SmtpClient smtp(QLatin1String(""), 465, SmtpClient::SslConnection);
+        SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
         delete message;
         return;
 #endif
@@ -10859,4 +10859,3 @@ extern "C" {
 }
 #endif
 // Force rebuild for Q_INVOKABLE changes
-
