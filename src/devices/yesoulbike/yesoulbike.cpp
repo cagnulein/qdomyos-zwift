@@ -1,4 +1,5 @@
 #include "yesoulbike.h"
+#include "homeform.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -240,8 +241,11 @@ void yesoulbike::stateChanged(QLowEnergyService::ServiceState state) {
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
-        Q_ASSERT(gattWriteCharacteristic.isValid());
-        Q_ASSERT(gattNotify1Characteristic.isValid());
+        if (!gattWriteCharacteristic.isValid() || !gattNotify1Characteristic.isValid()) {
+            emit debug(QStringLiteral("yesoulbike missing required characteristics, disconnecting gracefully"));
+            emit disconnected();
+            return;
+        }
 
         // establish hook into notifications
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
@@ -310,6 +314,28 @@ void yesoulbike::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xFFF0);
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    if (!gattCommunicationChannelService) {
+        emit debug(QStringLiteral("yesoulbike missing 0xFFF0 service"));
+
+        if (!bluetoothDevice.name().compare(QStringLiteral("YESOUL"), Qt::CaseInsensitive)) {
+            QBluetoothUuid ftmsServiceId((quint16)0x1826);
+            QLowEnergyService *ftmsService = m_control->createServiceObject(ftmsServiceId);
+            if (ftmsService) {
+                QSettings settings;
+                settings.setValue(QZSettings::ftms_treadmill, bluetoothDevice.name());
+                qDebug() << "forcing FTMS treadmill for YESOUL device exposing FTMS service";
+                if (homeform::singleton()) {
+                    homeform::singleton()->setToastRequested(
+                        "FTMS treadmill found, restart the app to apply the change");
+                }
+                delete ftmsService;
+            }
+        }
+
+        emit disconnected();
+        return;
+    }
+
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &yesoulbike::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }

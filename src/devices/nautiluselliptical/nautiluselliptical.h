@@ -35,9 +35,12 @@ class nautiluselliptical : public elliptical {
                        int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~nautiluselliptical();
     bool connected() override;
+    uint16_t watts() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
+    double GetSpeedFromM7Packet(const QByteArray &packet);
+    double GetWattFromM7Packet(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);

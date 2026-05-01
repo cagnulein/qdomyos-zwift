@@ -6,6 +6,22 @@
 #include "ios/lockscreen.h"
 #endif
 #include <QSettings>
+#include <cmath>
+
+static double gradeAdjustedCost(double gradePercent) {
+    const double i = gradePercent / 100.0;
+    return (155.4 * std::pow(i, 5)) - (30.4 * std::pow(i, 4)) - (43.3 * std::pow(i, 3)) +
+           (46.3 * std::pow(i, 2)) + (19.5 * i) + 3.6;
+}
+
+static double gradeAdjustedEquivalentSpeed(double speedKmh, double gradePercent) {
+    static const double flatCost = gradeAdjustedCost(0.0);
+    const double slopeCost = gradeAdjustedCost(gradePercent);
+    if (speedKmh <= 0.0 || slopeCost <= 0.0) {
+        return 0.0;
+    }
+    return speedKmh * (slopeCost / flatCost);
+}
 
 treadmill::treadmill() {}
 
@@ -95,6 +111,13 @@ void treadmill::changeInclination(double grade, double inclination) {
 void treadmill::changeSpeedAndInclination(double speed, double inclination) {
     changeSpeed(speed);
     changeInclination(inclination, inclination);
+}
+
+void treadmill::onTrainingProgramTransition() {
+    targetWatts = -1;
+    m_followPowerLastSpeedWhenTargetSet = -1;
+    m_followPowerSuppressedUntil = QDateTime::currentDateTime().addMSecs(5000);
+    qDebug() << "Training program transition detected - temporarily suspending power-follow speed adjustments";
 }
 metric treadmill::currentInclination() { return Inclination; }
 bool treadmill::connected() { return false; }
@@ -265,21 +288,31 @@ double treadmill::requestedInclination() { return requestInclination; }
 double treadmill::currentTargetSpeed() { return targetSpeed; }
 
 void treadmill::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
-void treadmill::powerSensor(uint16_t power) { 
+void treadmill::powerSensor(uint16_t power) {
     double vwatts = 0;
     if(power > 0) {
         powerReceivedFromPowerSensor = true;
         qDebug() << "powerReceivedFromPowerSensor" << powerReceivedFromPowerSensor << power;
         QSettings settings;
         if(currentInclination().value() != 0 && settings.value(QZSettings::stryd_add_inclination_gain, QZSettings::default_stryd_add_inclination_gain).toBool()) {
-            QSettings settings;
-            double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
-            // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
-            vwatts = ((9.8 * w) * (currentInclination().value() / 100.0));
-            qDebug() << QStringLiteral("overrding power read from the sensor of ") << power << QStringLiteral("with ") << vwatts << QStringLiteral(" for the treadmill inclination");
+            double coeff_a = settings.value(QZSettings::power_sensor_speed_inclination_coeff_a, QZSettings::default_power_sensor_speed_inclination_coeff_a).toDouble();
+            double coeff_b = settings.value(QZSettings::power_sensor_speed_inclination_coeff_b, QZSettings::default_power_sensor_speed_inclination_coeff_b).toDouble();
+
+            if(coeff_a != 0.0 || coeff_b != 0.0) {
+                // Use custom formula: vwatts = (A + B * speed) * inclination
+                double speed = currentSpeed().value(); // km/h
+                vwatts = (coeff_a + coeff_b * speed) * currentInclination().value();
+                qDebug() << QStringLiteral("Using custom speed/inclination formula: (") << coeff_a << QStringLiteral(" + ") << coeff_b << QStringLiteral(" × ") << speed << QStringLiteral(" km/h) × ") << currentInclination().value() << QStringLiteral("% = ") << vwatts << QStringLiteral(" W");
+            } else {
+                // Use default formula
+                double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+                // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
+                vwatts = ((9.8 * w) * (currentInclination().value() / 100.0));
+                qDebug() << QStringLiteral("Using default formula, overriding power read from the sensor of ") << power << QStringLiteral(" with ") << vwatts << QStringLiteral(" W for the treadmill inclination");
+            }
         }
     }
-    m_watt.setValue(power + vwatts, false); 
+    m_watt.setValue(power + vwatts, false);
 }
 
 void treadmill::speedSensor(double speed) {
@@ -563,30 +596,64 @@ bool treadmill::cadenceFromAppleWatch() {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     lockscreen h;
-    if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {        
-        evaluateStepCount();
-        Cadence = h.getFootCad();
-        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
-        return true;
+    if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+        long garminCadence = h.getFootCad();
+        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(garminCadence);
+        // Ignore transient Garmin cadence spikes while the treadmill is not moving yet.
+        if (garminCadence > 0 && Speed.value() > 0.0) {
+            evaluateStepCount();
+            Cadence = garminCadence;
+            return true;
+        }
+        return false;
     } else if (h.appleWatchAppInstalled() && 
                 settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                    .toString()
                    .startsWith(QStringLiteral("Disabled"))) {
-        evaluateStepCount();
         long appleWatchCadence = h.stepCadence();
-        Cadence = appleWatchCadence;
-        qDebug() << QStringLiteral("Current Cadence: ") << QString::number(Cadence.value());
-        return true;
+        qDebug() << QStringLiteral("Current Cadence: ") << QString::number(appleWatchCadence);
+        // Slow-jogging mode: derive Speed from Apple Watch cadence when running on Fake
+        // Treadmill. Gated on both toggles so this only runs in the explicit Fake Treadmill
+        // use case and does not affect normal treadmill users by default.
+        const bool appleWatchTreadmillSpeed =
+            settings.value(QZSettings::applewatch_as_treadmill_speed,
+                           QZSettings::default_applewatch_as_treadmill_speed).toBool() &&
+            settings.value(QZSettings::fakedevice_treadmill,
+                           QZSettings::default_fakedevice_treadmill).toBool();
+        if (appleWatchCadence > 0) {
+            evaluateStepCount();
+            Cadence = appleWatchCadence;
+            if (appleWatchTreadmillSpeed) {
+                const double ratio =
+                    settings.value(QZSettings::cadence_sensor_speed_ratio,
+                                   QZSettings::default_cadence_sensor_speed_ratio).toDouble();
+                Speed = appleWatchCadence * (ratio > 0.0 ? ratio : 0.0);
+            }
+            return true;
+        }
+        if (appleWatchCadence == 0 && appleWatchTreadmillSpeed) {
+            // Cadence reported as exactly zero (user stopped); zero Speed too so the virtual
+            // treadmill broadcast doesn't ghost the previous value. Negative values are
+            // treated as "no fresh sample" and leave Speed unchanged.
+            Speed = 0;
+        }
+        return false;
     }
 #endif
 #endif
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
-        evaluateStepCount();
-        Cadence = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
-        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
-        return true;
+        jint garminCadence =
+            QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
+        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(garminCadence);
+        // Ignore transient Garmin cadence spikes while the treadmill is not moving yet.
+        if (garminCadence > 0 && Speed.value() > 0.0) {
+            evaluateStepCount();
+            Cadence = garminCadence;
+            return true;
+        }
+        return false;
     }
 #endif    
 
@@ -668,28 +735,30 @@ bool treadmill::followPowerBySpeed() {
                    QZSettings::default_treadmill_follow_wattage)
             .toBool();
     double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
-    static double lastInclination = 0;
-    static double lastSpeedWhenTargetSet = -1;
-
     if (treadmill_follow_wattage) {
-
-        // Check if speed was changed externally (from treadmill)
-        if (targetWatts != -1 && lastSpeedWhenTargetSet != -1 &&
-            fabs(currentSpeed().value() - lastSpeedWhenTargetSet) > 0.5) {
-            qDebug() << "External speed change detected - resetting power following mode"
-                     << "current:" << currentSpeed().value() << "expected:" << lastSpeedWhenTargetSet;
-            targetWatts = -1;
-            lastSpeedWhenTargetSet = -1;
+        if (m_followPowerSuppressedUntil.isValid() && QDateTime::currentDateTime() < m_followPowerSuppressedUntil) {
+            m_followPowerLastInclination = currentInclination().value();
+            return false;
         }
 
-        if (currentInclination().value() != lastInclination && wattsMetric().value() != 0) {
+
+        // Check if speed was changed externally (from treadmill)
+        if (targetWatts != -1 && m_followPowerLastSpeedWhenTargetSet != -1 &&
+            fabs(currentSpeed().value() - m_followPowerLastSpeedWhenTargetSet) > 0.5) {
+            qDebug() << "External speed change detected - resetting power following mode"
+                     << "current:" << currentSpeed().value() << "expected:" << m_followPowerLastSpeedWhenTargetSet;
+            targetWatts = -1;
+            m_followPowerLastSpeedWhenTargetSet = -1;
+        }
+
+        if (currentInclination().value() != m_followPowerLastInclination && wattsMetric().value() != 0) {
 
             // If not following power mode, calculate new target from current values
             if (targetWatts == -1) {
-                targetWatts = wattsCalc(w, currentSpeed().value(), lastInclination);
-                lastSpeedWhenTargetSet = currentSpeed().value();
+                targetWatts = wattsCalc(w, currentSpeed().value(), m_followPowerLastInclination);
+                m_followPowerLastSpeedWhenTargetSet = currentSpeed().value();
                 qDebug() << "Starting power following mode with target watts:" << targetWatts
-                         << "speed:" << lastSpeedWhenTargetSet;
+                         << "speed:" << m_followPowerLastSpeedWhenTargetSet;
             }
 
             // Find speed to maintain targetWatts with current inclination
@@ -707,8 +776,8 @@ bool treadmill::followPowerBySpeed() {
             }
 
             newspeed = bestSpeed;
-            lastSpeedWhenTargetSet = newspeed; // Update tracked speed after change
-            qDebug() << "Following power: changing speed to" << newspeed << "to maintain" << targetWatts << "watts (inclination changed" << currentInclination().value() << lastInclination << ")";
+            m_followPowerLastSpeedWhenTargetSet = newspeed; // Update tracked speed after change
+            qDebug() << "Following power: changing speed to" << newspeed << "to maintain" << targetWatts << "watts (inclination changed" << currentInclination().value() << m_followPowerLastInclination << ")";
 
             callingFromFollowPower = true;  // Set flag before calling
             changeSpeedAndInclination(newspeed, currentInclination().value());
@@ -718,7 +787,7 @@ bool treadmill::followPowerBySpeed() {
         }
     }
 
-    lastInclination = currentInclination().value();
+    m_followPowerLastInclination = currentInclination().value();
 
     return r;
 }
@@ -879,3 +948,6 @@ QTime treadmill::speedToPace(double Speed) {
     }
 }
 
+double treadmill::gradeAdjustedSpeed(double speed, double inclination) {
+    return gradeAdjustedEquivalentSpeed(speed, inclination);
+}

@@ -95,6 +95,7 @@ class ypooelliptical : public elliptical {
     bool TRUE_ELLIPTICAL = false;
     bool FTMS = false;
     bool SOLE_E25 = false;
+    bool GYMSTICK_GX60 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
