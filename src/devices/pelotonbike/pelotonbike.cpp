@@ -106,7 +106,7 @@ void pelotonbike::update() {
         float power = getPelotonPower();
         float cadence = getPelotonCadence();
         float resistance = getPelotonResistance();
-        float speed = getPelotonSpeed();
+        float speed = getPelotonSpeed() * 1.609344;
         
         // Update metrics with sensor data
         m_watt = power;
