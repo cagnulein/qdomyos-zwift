@@ -2039,6 +2039,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("TOPUTURE TEB5 found");
             TOPUTURE_TEB5 = true;
             max_resistance = 32;
+            ergModeSupported = false;
             Resistance = 1; // Initialize resistance to 1 for SPORT01
         } else if(device.name().toUpper().startsWith("SPORT01")) {
             qDebug() << QStringLiteral("SPORT01 found");
