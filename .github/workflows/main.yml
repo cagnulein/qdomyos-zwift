@@ -590,22 +590,22 @@ jobs:
       - name: Install Qt Android
         uses: jdpurcell/install-qt-action@v5
         with:
-          version: '5.15.0'
+          version: '5.15.2'
           host: 'linux'
           target: 'android'
           arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
+          modules: 'qtcharts qtnetworkauth qtpurchasing'
           dir: '${{ github.workspace }}/output/android/'
           cache: 'false'
 
       - name: Install Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
+          java-version: '17'
           
       - name: patching qt for bluetooth
-        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
+        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.2/android/jar/
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
@@ -617,11 +617,10 @@ jobs:
           path: /usr/local/lib/android/sdk/ndk/21.4.7075529
           key: android-ndk-21.4.7075529-${{ runner.os }}
 
-      - name: Install NDK 21
-        if: steps.cache-ndk.outputs.cache-hit != 'true'
+      - name: Install Android SDK packages
         run: |
           SDKMANAGER="/usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-34" "build-tools;35.0.0"
 
       - name: Setup ccache
         run: |
@@ -696,12 +695,17 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-android-${{ runner.os }}-v1
+          key: gradle-android-${{ runner.os }}-v2
           restore-keys: |
             gradle-android-${{ runner.os }}-
 
-      - name: Build APK (not usable for production due to unpatched QT library)
-        run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+      - name: Build Android package
+        run: |
+          cd src
+          androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aab --no-build
+          sed -i '/^android.bundle.enableUncompressedNativeLibs=false$/d' ${{ github.workspace }}/output/android/gradle.properties
+          cd ${{ github.workspace }}/output/android/
+          ./gradlew assembleDebug bundleDebug
 
       - name: Re-sign APK for stable App Links fingerprint
         run: |
@@ -1849,23 +1853,23 @@ jobs:
       - name: Install Qt Android
         uses: jdpurcell/install-qt-action@v5
         with:
-          version: '5.15.0'
+          version: '5.15.2'
           host: 'linux'
           target: 'android'
           arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
+          modules: 'qtcharts qtnetworkauth qtpurchasing'
           dir: '${{ github.workspace }}/output/android/'
           cache: 'true'
           cache-key-prefix: 'install-qt-action-android'                    
 
       - name: Install Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
+          java-version: '17'
           
       - name: patching qt for bluetooth
-        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
+        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.2/android/jar/
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
@@ -1877,7 +1881,7 @@ jobs:
           ANDROID_ROOT="/usr/local/lib/android"
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-34" "build-tools;35.0.0"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -1911,8 +1915,14 @@ jobs:
           sed -i 's/android-debug\.apk/android-debug-nordictrack-${{ matrix.variant.name }}.apk/g' src/android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json
           cat src/android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json
 
-      - name: Build APK (not usable for production due to unpatched QT library)
-        run: cd src; androiddeployqt --input android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab; mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack-${{ matrix.variant.name }}.apk
+      - name: Build Android package
+        run: |
+          cd src
+          androiddeployqt --input android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aab --no-build
+          sed -i '/^android.bundle.enableUncompressedNativeLibs=false$/d' ${{ github.workspace }}/output/android/gradle.properties
+          cd ${{ github.workspace }}/output/android/
+          ./gradlew assembleDebug bundleDebug
+          mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack-${{ matrix.variant.name }}.apk
 
       - name: Archive nordictrack binary
         uses: actions/upload-artifact@v4
@@ -1950,23 +1960,23 @@ jobs:
       - name: Install Qt Android
         uses: jdpurcell/install-qt-action@v5
         with:
-          version: '5.15.0'
+          version: '5.15.2'
           host: 'linux'
           target: 'android'
           arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
+          modules: 'qtcharts qtnetworkauth qtpurchasing'
           dir: '${{ github.workspace }}/output/android/'
           cache: 'true'
           cache-key-prefix: 'install-qt-action-android'                    
 
       - name: Install Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
+          java-version: '17'
           
       - name: patching qt for bluetooth
-        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
+        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.2/android/jar/
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
@@ -1978,7 +1988,7 @@ jobs:
           ANDROID_ROOT="/usr/local/lib/android"
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-34" "build-tools;35.0.0"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2010,8 +2020,14 @@ jobs:
           sed -i 's/android-debug\.apk/android-debug-peloton-bike-plus.apk/g' src/android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json
           cat src/android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json
 
-      - name: Build APK (not usable for production due to unpatched QT library)
-        run: cd src; androiddeployqt --input android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab; mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike-plus.apk
+      - name: Build Android package
+        run: |
+          cd src
+          androiddeployqt --input android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aab --no-build
+          sed -i '/^android.bundle.enableUncompressedNativeLibs=false$/d' ${{ github.workspace }}/output/android/gradle.properties
+          cd ${{ github.workspace }}/output/android/
+          ./gradlew assembleDebug bundleDebug
+          mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike-plus.apk
 
       - name: Archive peloton-bike-plus binary
         uses: actions/upload-artifact@v4
@@ -2049,23 +2065,23 @@ jobs:
       - name: Install Qt Android
         uses: jdpurcell/install-qt-action@v5
         with:
-          version: '5.15.0'
+          version: '5.15.2'
           host: 'linux'
           target: 'android'
           arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
+          modules: 'qtcharts qtnetworkauth qtpurchasing'
           dir: '${{ github.workspace }}/output/android/'
           cache: 'true'
           cache-key-prefix: 'install-qt-action-android'                    
 
       - name: Install Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
+          java-version: '17'
           
       - name: patching qt for bluetooth
-        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
+        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.2/android/jar/
 
       - name: download 3rd party files for qthttpserver
         run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
@@ -2077,7 +2093,7 @@ jobs:
           ANDROID_ROOT="/usr/local/lib/android"
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-34" "build-tools;35.0.0"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2109,8 +2125,14 @@ jobs:
           sed -i 's/android-debug\.apk/android-debug-peloton-bike.apk/g' src/android-qdomyos-zwift-peloton-bike-deployment-settings.json
           cat src/android-qdomyos-zwift-peloton-bike-deployment-settings.json
 
-      - name: Build APK (not usable for production due to unpatched QT library)
-        run: cd src; androiddeployqt --input android-qdomyos-zwift-peloton-bike-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab; mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike.apk
+      - name: Build Android package
+        run: |
+          cd src
+          androiddeployqt --input android-qdomyos-zwift-peloton-bike-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aab --no-build
+          sed -i '/^android.bundle.enableUncompressedNativeLibs=false$/d' ${{ github.workspace }}/output/android/gradle.properties
+          cd ${{ github.workspace }}/output/android/
+          ./gradlew assembleDebug bundleDebug
+          mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike.apk
 
       - name: Archive peloton-bike binary
         uses: actions/upload-artifact@v4
