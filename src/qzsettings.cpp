@@ -1092,7 +1092,7 @@ const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("profor
 const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applewatch_as_treadmill_speed");
 
 
-const uint32_t allSettingsCount = 889;
+const uint32_t allSettingsCount = 890;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
