@@ -8,6 +8,8 @@ Item {
     property string title: qsTr("Workout Editor")
     property bool pageLoaded: false
 
+    signal closeRequested()
+
     Settings {
         id: settings
     }

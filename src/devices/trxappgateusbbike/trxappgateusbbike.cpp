@@ -10,6 +10,7 @@
 #include <QEventLoop>
 #include <QFile>
 #include <QMetaEnum>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QThread>
 #include <chrono>
@@ -77,6 +78,8 @@ void trxappgateusbbike::forceResistance(resistance_t requestResistance) {
         resistance[2] = 0x02;
     } else if (bike_type == VIRTUFIT || bike_type == VIRTUFIT_2) {
         resistance[2] = 0x1e;
+    } else if (bike_type == ADIDAS_C1) {
+        resistance[2] = 0x5b;
     } else if (bike_type == HOP_SPORT_HS_090H || bike_type == HOP_SPORT_HS_090H_2) {
         resistance[2] = 0x3f;
     } else if (bike_type == TOORX_SRX_500) {
@@ -163,6 +166,10 @@ void trxappgateusbbike::update() {
         } else if (bike_type == TYPE::REEBOK || bike_type == REEBOK_2) {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x32, 0x01, 0xc5};
+            writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+        } else if (bike_type == TYPE::ADIDAS_C1) {
+
+            const uint8_t noOpData[] = {0xf0, 0xa2, 0x5b, 0x01, 0xee};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else if (bike_type == TYPE::HOP_SPORT_HS_090H || bike_type == TYPE::HOP_SPORT_HS_090H_2) {
 
@@ -717,6 +724,23 @@ void trxappgateusbbike::btinit(bool startTape) {
         QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         QThread::msleep(400);
+    } else if (bike_type == TYPE::ADIDAS_C1) {
+        const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
+        const uint8_t initData2[] = {0xf0, 0xa0, 0x5b, 0x01, 0xec};
+        const uint8_t initData3[] = {0xf0, 0xa1, 0x5b, 0x01, 0xed};
+        const uint8_t initData4[] = {0xf0, 0xa3, 0x5b, 0x01, 0x01, 0xf0};
+        const uint8_t initData5[] = {0xf0, 0xa5, 0x5b, 0x01, 0x02, 0xf3};
+
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
     } else if (bike_type == TYPE::TUNTURI || bike_type == TYPE::TUNTURI_2) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x03, 0x01, 0x94};
@@ -1152,6 +1176,10 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     const QString deviceName = device.name();
     const QString upperDeviceName = deviceName.toUpper();
+    const bool isAdidasC1Name =
+        QRegularExpression(QStringLiteral("^ADIDAS\\d{4,}$"), QRegularExpression::CaseInsensitiveOption)
+            .match(deviceName)
+            .hasMatch();
     bool isTrxAppGateTcName = false;
     if (upperDeviceName.startsWith(QStringLiteral("TC")) && deviceName.length() == 5) {
         isTrxAppGateTcName = true;
@@ -1214,6 +1242,9 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
             bike_type = TYPE::TAURUA_IC90;
             qDebug() << QStringLiteral("TAURUA_IC90 bike found");
+        } else if (isAdidasC1Name) {
+            bike_type = TYPE::ADIDAS_C1;
+            qDebug() << QStringLiteral("ADIDAS_C1 bike found");
         } else if (upperDeviceName.startsWith(QStringLiteral("REEBOK"))) {
             bike_type = TYPE::REEBOK;
             qDebug() << QStringLiteral("REEBOK bike found");

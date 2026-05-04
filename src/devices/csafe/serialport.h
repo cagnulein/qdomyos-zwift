@@ -82,7 +82,7 @@ class Serialport : public SerialHandler {
 
     // device port
 #ifdef WIN32
-    HANDLE devicePort;  // file descriptor for reading from com3
+    HANDLE devicePort = INVALID_HANDLE_VALUE;  // file descriptor for reading from com3
     DCB deviceSettings; // serial port settings baud rate et al
 #else
     int devicePort;                // unix!!

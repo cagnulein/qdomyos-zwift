@@ -150,7 +150,7 @@ function process_arr(arr) {
         pelotonreqresistance.push(pelotonreqresistanceel);
 
         speedel.x = time;
-        speedel.y = el.speed;
+        speedel.y = el.speed * miles; // Convert to user's preferred unit (km/h or mph)
         speed.push(speedel);
         inclinationel.x = time;
         inclinationel.y = el.inclination;
@@ -571,8 +571,7 @@ function process_arr(arr) {
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
-                        callback: value => [heartZones[0] * 0.8, heartZones[0], heartZones[1], heartZones[2], heartZones[3], heartZones[4]].includes(value) ?
-                            value === heartZones[0] * 0.8 ? 'zone 1' :
+                        callback: value =>  [heartZones[0], heartZones[1], heartZones[2], heartZones[3]].includes(value) ?
                             value === heartZones[0] ? 'zone 2' :
                             value === heartZones[1] ? 'zone 3' :
                             value === heartZones[2] ? 'zone 4' :
@@ -1029,7 +1028,7 @@ function process_arr(arr) {
                 {
                     backgroundColor: window.chartColors.blue,
                     borderColor: window.chartColors.blue,
-                    label: 'Speed',
+                    label: 'Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
                     //cubicInterpolationMode: 'monotone',
                     data: speed,
                     fill: false,

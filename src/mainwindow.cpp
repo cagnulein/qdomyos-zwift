@@ -176,7 +176,7 @@ void MainWindow::update() {
                       bluetoothManager->device()->odometer(), watts, resistance, peloton_resistance,
                       (uint8_t)bluetoothManager->device()->currentHeart().value(), pace, cadence,
                       bluetoothManager->device()->calories().value(),
-                      bluetoothManager->device()->elevationGain().value(),
+                      bluetoothManager->device()->elevationGain().value(), bluetoothManager->device()->negativeElevationGain().value(),
                       bluetoothManager->device()->elapsedTime().second() +
                           (bluetoothManager->device()->elapsedTime().minute() * 60) +
                           (bluetoothManager->device()->elapsedTime().hour() * 3600),
@@ -186,8 +186,9 @@ void MainWindow::update() {
                       verticalOscillation, stepCount,
                       target_cadence, target_watt, target_resistance, target_inclination, target_speed,
                       bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(),
-                      bluetoothManager->device()->HeatStrainIndex.value() // TODO add lap
-        );
+                      bluetoothManager->device()->HeatStrainIndex.value(),
+                      bluetoothManager->device()->currentHRV().value(),
+                      bluetoothManager->device()->getRRIntervalsAndClear());
 
         Session.append(s);
 
