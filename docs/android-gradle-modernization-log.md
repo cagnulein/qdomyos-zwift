@@ -242,6 +242,24 @@ Status: done
   - keep the generated-project `gradle.properties` cleanup in place
   - run `./gradlew --no-daemon assembleDebug bundleDebug`
 
+### 2026-05-04 13. GitHub Actions wrapper override hardening
+
+Status: done
+
+- A later GitHub Actions Android run showed that the wrapper still downloaded to
+  `/home/runner/.gradle/wrapper/...` despite the exported
+  `GRADLE_USER_HOME=${{ github.workspace }}/.gradle-android`.
+- That means the environment export alone was not enough to force the wrapper
+  off the runner-global location during the workflow execution.
+- Updated Android CI packaging again to:
+  - invoke Gradle as `./gradlew -g "$GRADLE_USER_HOME" --no-daemon ...`
+  - sanitize every generated `gradle.properties` under
+    `${{ github.workspace }}/output/android`, not just the root one
+- Reason for the change:
+  - the CI failure still happens at plugin application time in generated
+    `output/android/build.gradle`, so the safe fix is to force the Gradle user
+    home explicitly on the command line and scrub the whole generated tree
+
 ## Failures / Dead Ends
 
 - One `zwiftplay` build attempt was interrupted manually before completion.

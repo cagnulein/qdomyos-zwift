@@ -706,9 +706,9 @@ jobs:
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
-          sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' ${{ github.workspace }}/output/android/gradle.properties
+          find ${{ github.workspace }}/output/android -name gradle.properties -exec sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' {} +
           cd ${{ github.workspace }}/output/android/
-          ./gradlew --no-daemon assembleDebug bundleDebug
+          ./gradlew -g "$GRADLE_USER_HOME" --no-daemon assembleDebug bundleDebug
 
       - name: Re-sign APK for stable App Links fingerprint
         run: |
@@ -1925,9 +1925,9 @@ jobs:
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
-          sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' ${{ github.workspace }}/output/android/gradle.properties
+          find ${{ github.workspace }}/output/android -name gradle.properties -exec sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' {} +
           cd ${{ github.workspace }}/output/android/
-          ./gradlew --no-daemon assembleDebug bundleDebug
+          ./gradlew -g "$GRADLE_USER_HOME" --no-daemon assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack-${{ matrix.variant.name }}.apk
 
       - name: Archive nordictrack binary
@@ -2033,9 +2033,9 @@ jobs:
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
-          sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' ${{ github.workspace }}/output/android/gradle.properties
+          find ${{ github.workspace }}/output/android -name gradle.properties -exec sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' {} +
           cd ${{ github.workspace }}/output/android/
-          ./gradlew --no-daemon assembleDebug bundleDebug
+          ./gradlew -g "$GRADLE_USER_HOME" --no-daemon assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike-plus.apk
 
       - name: Archive peloton-bike-plus binary
@@ -2141,9 +2141,9 @@ jobs:
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
-          sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' ${{ github.workspace }}/output/android/gradle.properties
+          find ${{ github.workspace }}/output/android -name gradle.properties -exec sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' {} +
           cd ${{ github.workspace }}/output/android/
-          ./gradlew --no-daemon assembleDebug bundleDebug
+          ./gradlew -g "$GRADLE_USER_HOME" --no-daemon assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike.apk
 
       - name: Archive peloton-bike binary
