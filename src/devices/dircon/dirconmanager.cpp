@@ -28,10 +28,7 @@ using namespace std::chrono_literals;
     OP(WAHOO_TREADMILL, "Wahoo TREAD $uuid_hex$", DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)
 
 #define DM_MACHINE_OP_ROUVY(OP, P1, P2, P3)                                                                            \
-    OP(WAHOO_KICKR, "ELITE AVANTI $uuid_hex$ W", DM_MACHINE_TYPE_TREADMILL | DM_MACHINE_TYPE_BIKE, P1, P2, P3)            \
-    OP(WAHOO_BLUEHR, "Wahoo HRM", DM_MACHINE_TYPE_BIKE | DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)                        \
-    OP(WAHOO_RPM_SPEED, "Wahoo SPEED $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)                                    \
-    OP(WAHOO_TREADMILL, "Wahoo TREAD $uuid_hex$", DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)
+    OP(WAHOO_KICKR, "ELITE AVANTI $uuid_hex$ W", DM_MACHINE_TYPE_TREADMILL | DM_MACHINE_TYPE_BIKE, P1, P2, P3)
 
 #define DP_PROCESS_WRITE_0003() (zwift_play_emulator ? writeP0003 : 0)
 #define DP_PROCESS_WRITE_2AD9() writeP2AD9
@@ -133,8 +130,12 @@ enum {
             }                                                                                                          \
         }                                                                                                              \
         if (P2.size()) {                                                                                               \
-            QString dircon_id = QString("%1").arg(settings.value(QZSettings::dircon_id,                                \
-            QZSettings::default_dircon_id).toInt(), rouvy_compatibility ? 5 : 4, 10, QChar('0'));                     \
+            int dircon_id_int = settings.value(QZSettings::dircon_id,                                                  \
+            QZSettings::default_dircon_id).toInt();                                                                    \
+            if (rouvy_compatibility && dircon_id_int == 0) {                                                           \
+                dircon_id_int = 1234;                                                                                  \
+            }                                                                                                          \
+            QString dircon_id = QString("%1").arg(dircon_id_int, rouvy_compatibility ? 5 : 4, 10, QChar('0'));         \
             DirconProcessor *processor = new DirconProcessor(                                                          \
                 P2,                                                                                                    \
                 QString(QStringLiteral(NAME))                                                                          \
@@ -152,6 +153,24 @@ enum {
     }
 
 QString DirconManager::getMacAddress() {
+    QSettings settings;
+    bool rouvy_compatibility = settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool();
+    int dircon_id = settings.value(QZSettings::dircon_id, QZSettings::default_dircon_id).toInt();
+
+    // When Rouvy compatibility is enabled and dircon_id is 0, use 1234 instead
+    if (rouvy_compatibility && dircon_id == 0) {
+        dircon_id = 1234;
+    }
+
+    // When Rouvy compatibility is enabled, use a specific MAC address with the last byte set to dircon_id
+    if (rouvy_compatibility) {
+        // Use base MAC address "24:DC:C3:E3:B5:XX" where XX is the dircon_id
+        // Ensure dircon_id is in the valid range 0-255
+        int last_byte = dircon_id & 0xFF;
+        return QString("24:DC:C3:E3:B5:%1").arg(last_byte, 2, 16, QChar('0')).toUpper();
+    }
+
+    // Default behavior: get MAC address from network interfaces
     QString addr;
     foreach (QNetworkInterface netInterface, QNetworkInterface::allInterfaces()) {
         // Return only the first non-loopback MAC Address
@@ -237,6 +256,16 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
         P1->sendCharacteristicNotification(0x##UUID, all##UUID);
 
 void DirconManager::bikeProvider() {
+    QSettings settings;
+    bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
+
+    // If no hub riding frame has been produced for >=1s, force one on the Zwift Play channel.
+    if (writeP0003 && notif0004 && writeP0003->hubRidingDataIdleMs() >= 100 && zwift_play_emulator) {
+        const QByteArray hubData = writeP0003->buildCurrentHubRidingData();
+        notif0004->addAnswer(hubData);
+        qDebug() << "Dircon 0003 forced push after idle (0004 notify):" << hubData.toHex(' ');
+    }
+
     DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_NOTIF1_OP, 0, 0, 0)
     foreach (DirconProcessor *processor, processors) {
         DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_NOTIF2_OP, processor, 0, 0)

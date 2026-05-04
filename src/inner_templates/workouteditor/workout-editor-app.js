@@ -501,6 +501,11 @@
                         value = value / 1.60934;
                     }
 
+                    // Truncate speed values to 1 decimal place to avoid floating-point precision issues
+                    if (def.unitKey === 'speed' && !isDefaultValue) {
+                        value = Math.round(value * 10) / 10;
+                    }
+
                     if (!isDefaultValue) {
                         out[def.key] = value;
                         // Mark field as enabled if it has a non-default value
@@ -813,7 +818,8 @@
                         if (field.max !== undefined) input.max = field.max;
                         input.value = value !== undefined ? value : '';
                     }
-                    input.addEventListener(field.type === 'duration' || field.type === 'pace' ? 'change' : 'input', handleFieldChange);
+                    // Use 'change' event for duration, pace, and number fields to prevent keyboard from closing during typing
+                    input.addEventListener(field.type === 'duration' || field.type === 'pace' || field.type === 'number' ? 'change' : 'input', handleFieldChange);
 
                     // Add +/- buttons for duration, number, and pace fields
                     if (field.type === 'duration' || field.type === 'number' || field.type === 'pace') {
@@ -916,7 +922,7 @@
                     state.intervals[index][field.syncWith] = speed;
                 }
             }
-            // Re-render to update both fields
+            // Re-render to update speed field (pace uses 'change' event so keyboard is already closed)
             renderIntervals();
             updateChart();
             updateStatus();
@@ -924,7 +930,7 @@
         } else if (type === 'number') {
             const raw = target.value;
             state.intervals[index][key] = raw === '' ? undefined : Number(raw);
-            // If this is a speed field, re-render to update pace
+            // If this is a speed field, re-render to update pace (uses 'change' event so keyboard is already closed)
             if (key === 'speed') {
                 renderIntervals();
             }
@@ -1174,6 +1180,13 @@
             const row = {
                 duration: formatDuration(durationSec)
             };
+            // Add interval name/label as textEvent with timeoffset=0 if present
+            if (interval.name && interval.name.trim() !== '') {
+                row.textEvents = [{
+                    timeoffset: 0,
+                    message: interval.name.trim()
+                }];
+            }
             FIELD_DEFS.forEach(field => {
                 if (field.key === 'name' || field.key === 'duration') {
                     return;

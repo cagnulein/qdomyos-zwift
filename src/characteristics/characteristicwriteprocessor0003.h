@@ -4,6 +4,7 @@
 #include "characteristicnotifier0002.h"
 #include "characteristicnotifier0004.h"
 #include "characteristicwriteprocessor.h"
+#include <QElapsedTimer>
 
 class CharacteristicWriteProcessor0003 : public CharacteristicWriteProcessor {
     Q_OBJECT
@@ -25,6 +26,8 @@ public:
     static uint32_t calculateUnknown1(uint16_t power);
     void handleZwiftGear(const QByteArray &array);
     double currentGear();
+    qint64 hubRidingDataIdleMs() const;
+    QByteArray buildCurrentHubRidingData();
 
 
 private:
@@ -37,6 +40,7 @@ private:
     qint32 decodeSInt(const QByteArray& bytes);    
     int currentZwiftGear = 8;
     bool zwiftGearReceived = false;
+    QElapsedTimer lastHubRidingDataTimer;
 
 signals:
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
