@@ -1,0 +1,25 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/IFitError.proto";
+option java_package = "com.ifit.glassos.console.tdf";
+option java_outer_classname = "TDFRearCassetteConfigProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message TDFRearCassetteConfig {
+    int32 minTeeth = 1;
+    int32 maxTeeth = 2;
+    int32 speeds = 3;
+    repeated int32 teethAtGear = 4;
+}
+
+message TDFRearCassetteConfigList {
+    repeated TDFRearCassetteConfig cassetteConfigs = 1;
+}
+
+message TDFRearCassetteConfigsResult {
+    oneof errorOrCassetteConfigs {
+        IFitError error = 1;
+        TDFRearCassetteConfigList cassetteConfigs = 2;
+    }
+}

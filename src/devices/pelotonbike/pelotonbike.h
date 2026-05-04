@@ -21,6 +21,11 @@
 #include "devices/bike.h"
 #include "virtualdevices/virtualbike.h"
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
+
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
@@ -36,6 +41,16 @@ class pelotonbike : public bike {
     void forceResistance(double resistance);
     uint16_t watts() override;
     double getDouble(QString v);
+    
+    // Peloton sensor integration methods (similar to nordictrackadbbike GRPC)
+    void initializePelotonSensorService();
+    void startPelotonSensorUpdates();
+    void stopPelotonSensorUpdates();
+    float getPelotonPower();
+    float getPelotonCadence();
+    float getPelotonResistance();
+    float getPelotonSpeed();
+    bool isPelotonSensorConnected();
 
     QTimer *refresh;
 
@@ -50,6 +65,7 @@ class pelotonbike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool pelotonSensorInitialized = false;
 
     QUdpSocket* pelotonOCRsocket = nullptr;
 

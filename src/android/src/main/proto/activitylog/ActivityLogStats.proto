@@ -1,0 +1,21 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "activitylog/ActivityLogUtils.proto";
+option java_package = "com.ifit.glassos.activitylog";
+option java_outer_classname = "ActivityLogStatsProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message ActivityLogStats {
+  repeated ActivityOffsetValue bpm = 1;
+  repeated ActivityOffsetValue calories = 2;
+  repeated ActivityOffsetValue elevation = 3;
+  repeated ActivityOffsetValue fiveHundredSplit = 4;
+  repeated ActivityOffsetValue incline = 5;
+  repeated ActivityOffsetValue meters = 6;
+  repeated ActivityOffsetValue mps = 7;
+  repeated ActivityOffsetValue resistance = 8;
+  repeated ActivityOffsetValue rpm = 9;
+  repeated ActivityOffsetValue watts = 10;
+  repeated ActivityOffsetValue cadence = 11;
+}

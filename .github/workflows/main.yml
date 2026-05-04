@@ -18,14 +18,10 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   window-build:
-    runs-on: windows-2022
+    runs-on: windows-latest
     strategy:
       matrix:
         config:
@@ -46,8 +42,10 @@ jobs:
           repository: google/googletest
           path: "tst/googletest/"
           ref: "release-1.12.1"
-      - name: Checkout MSIX-Toolkit
-        uses: actions/checkout@v4
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
         with:
           repository: microsoft/MSIX-Toolkit
           path: "src/MSIX-Toolkit/"
@@ -690,46 +688,14 @@ jobs:
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           cat src/android-qdomyos-zwift-deployment-settings.json
 
-      - name: Cache Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-android-${{ runner.os }}-v1
-          restore-keys: |
-            gradle-android-${{ runner.os }}-
-
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
-
-      - name: Re-sign APK for stable App Links fingerprint
-        run: |
-          APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
-          SIGNED_APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-signed.apk"
-          APKSIGNER=$(find /usr/local/lib/android/sdk/build-tools -name apksigner | sort | tail -n 1)
-          if [ -z "$APKSIGNER" ]; then
-            echo "apksigner not found"
-            exit 1
-          fi
-          "$APKSIGNER" sign \
-            --ks "$CI_ANDROID_SIGNING_KEYSTORE" \
-            --ks-key-alias "${{ secrets.ALIAS }}" \
-            --ks-pass "pass:${{ secrets.KEY_STORE_PASSWORD }}" \
-            --key-pass "pass:${{ secrets.KEY_PASSWORD }}" \
-            --out "$SIGNED_APK_PATH" \
-            "$APK_PATH"
-          mv "$SIGNED_APK_PATH" "$APK_PATH"
-
-      - name: Show ccache stats
-        if: always()
-        run: ccache --show-stats
 
       - name: Archive apk binary
         uses: actions/upload-artifact@v4
         with:
-          name: fdroid-android-trial
-          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk
+          name: peloton-v1-grupetto
+          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
 
   android-emulator-test:
     runs-on: ubuntu-latest
@@ -787,14 +753,13 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-
       # Download the APK from the previous job
       - name: Download APK Artifact
         uses: actions/download-artifact@v4
         with:
-          name: fdroid-android-trial
+          name: peloton-v1-grupetto
           path: apk-debug
-
+          
       - name: Setup Java for Android Emulator
         uses: actions/setup-java@v3
         with:
@@ -851,7 +816,6 @@ jobs:
             echo "Checking if app is running..."
             # Use different ps commands for different Android versions
             adb shell "ps -A 2>/dev/null || ps" > process_list.txt
-
             # Debug: show all processes to understand the format
             echo "=== All running processes ==="
             cat process_list.txt | head -20
@@ -2121,8 +2085,9 @@ jobs:
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-22.04 
-    if: github.event_name == 'schedule'
-    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, raspberry-pi-smoke-test]
+    #if: github.event_name == 'schedule'
+    if: always()
+    needs: [linux-x86-build, window-msvc2019-build, window-msvc2022-build, ios-build, window-build, android-build, raspberry-pi-build]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -2157,14 +2122,8 @@ jobs:
             - **windows**: MinGW build (alternative version)
 
             ## Other Platforms:
-            - **fdroid-android-trial**: Android build
-            - **nordictrack-treadmill-android-trial**: Nordictrack Treadmill build for iFIT2 Tablets
-            - **nordictrack-bike-android-trial**: Nordictrack Bike build for iFIT2 Tablets
-            - **nordictrack-rower-android-trial**: Nordictrack Rower build for iFIT2 Tablets
-            - **peloton-bike-plus-android-trial**: Peloton Bike Plus build with Grupetto backend
-            - **peloton-bike-android-trial**: Peloton Bike build with Grupetto backend
-            - **raspberry-pi-binary-armv6hf**: Raspberry Pi 32-bit (ARMv6 hard-float, Pi Zero W compatible)
-            - **raspberry-pi-binary-aarch64**: Raspberry Pi 64-bit (AArch64, Pi 3/4/5)
+            - **peloton-v1-grupetto**: Android build with Peloton v1 Grupetto callback-based integration
+            - **raspberry-pi-binary**: Raspberry Pi build
 
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
           files: |
@@ -2175,11 +2134,6 @@ jobs:
             windows-msvc2019-ai-server-binary/*            
             windows-binary-no-python/*
             windows-binary/*
-            fdroid-android-trial/android-debug.apk
-            nordictrack-treadmill-android-trial/android-debug-nordictrack-treadmill.apk
-            nordictrack-bike-android-trial/android-debug-nordictrack-bike.apk
-            nordictrack-rower-android-trial/android-debug-nordictrack-rower.apk
-            peloton-bike-plus-android-trial/android-debug-peloton-bike-plus.apk
-            peloton-bike-android-trial/android-debug-peloton-bike.apk
-            raspberry-pi-binary-armv6hf/qdomyos-zwift-armv6hf
-            raspberry-pi-binary-aarch64/qdomyos-zwift-aarch64
+            peloton-v1-grupetto/*
+            raspberry-pi-binary/qdomyos-zwift-32bit
+            raspberry-pi-binary/qdomyos-zwift-64bit

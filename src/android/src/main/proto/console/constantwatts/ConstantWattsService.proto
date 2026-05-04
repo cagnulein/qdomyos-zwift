@@ -1,0 +1,45 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console.constantwatts";
+option java_outer_classname = "ConstantWattsServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+import "util/Util.proto";
+import "util/IFitError.proto";
+
+message ConstantWattsMessage {
+  int32 watts = 1;
+}
+
+enum ConstantWattsState {
+  CONSTANT_WATTS_STATE_DISABLED = 0;
+  CONSTANT_WATTS_STATE_ENABLED = 1;
+  CONSTANT_WATTS_STATE_PAUSED = 2;
+}
+
+message ConstantWattsStateMessage {
+    oneof errorOrState {
+        IFitError error = 1;
+        ConstantWattsState state = 2;
+    }
+}
+
+service ConstantWattsService {
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+  rpc CanWrite(Empty) returns (AvailabilityResponse) {}
+  rpc IsSupported(Empty) returns (AvailabilityResponse) {}
+  rpc GetConstantWatts(Empty) returns (ConstantWattsMessage) {}
+  rpc SetConstantWatts(ConstantWattsMessage) returns (AvailabilityResponse) {}
+  rpc GetState(Empty) returns (ConstantWattsStateMessage){}
+  rpc IsEquipmentSupported(Empty) returns (AvailabilityResponse){}
+  rpc IsWorkoutSupported(Empty) returns (AvailabilityResponse){}
+  rpc IsUserSupported(Empty) returns (AvailabilityResponse){}
+  rpc Pause(Empty) returns (Empty){}
+  rpc Resume(Empty) returns (Empty){}
+  rpc Enable(Empty) returns (Empty){}
+  rpc Disable(Empty) returns (Empty){}
+  rpc Increment(Empty) returns (Empty){}
+  rpc Decrement(Empty) returns (Empty){}
+  rpc OnStateChanged(Empty) returns (stream ConstantWattsStateMessage) {}
+  rpc ConstantWattsSubscription(Empty) returns (stream ConstantWattsMessage) {}
+}

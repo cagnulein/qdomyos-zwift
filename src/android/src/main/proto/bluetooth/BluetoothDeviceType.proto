@@ -1,0 +1,17 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.bluetooth";
+option java_outer_classname = "BluetoothDeviceTypeProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum BluetoothDeviceType {
+    BLE_IFIT_CONSOLE = 0;
+    BLE_HEART_RATE = 1;
+    BLE_HEADPHONE = 2;
+    BLE_OTHER = 3;
+    BLE_IFIT_VIRTUAL_CONSOLE = 4;
+    BLE_SMART_WATCH = 5;
+    ARCX_RING = 6;
+    BLE_PHONE_TABLET = 7;
+}

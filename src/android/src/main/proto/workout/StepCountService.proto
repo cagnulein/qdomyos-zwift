@@ -1,0 +1,31 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "StepCountServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message StepCountMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  double totalSteps = 3;
+}
+
+message StepCountMetricList {
+  repeated StepCountMetric metrics = 1;
+}
+
+service StepCountService {
+  // check whether StepCount is Readable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+
+  // get the current StepCount relative to the current workout
+  rpc GetStepCount(Empty) returns (StepCountMetric) {}
+
+  // subscribe to StepCount updates relative to the current workout
+  rpc StepCountSubscription(Empty) returns (stream StepCountMetric) {}
+
+  // gets a list of all of the StepCount changes for the given workout ID
+  rpc GetStepCountHistory(WorkoutID) returns (StepCountMetricList) {}
+}
