@@ -170,6 +170,59 @@ Status: done
   - `output/android-standard-local/build/outputs/bundle/debug/android-standard-local-debug.aab`
 - Kept `minSdk` unchanged at `21`.
 
+### 2026-05-03 9. Qt Android 5.15.0 rollback and revalidation
+
+Status: done
+
+- Reverted Android packaging target from Qt Android `5.15.2` back to `5.15.0`,
+  as requested.
+- Rebuilt and installed local `qthttpserver` against
+  `/home/cagnulein/Qt/5.15.0/android`, because the initial Qt `5.15.0` toolchain
+  was missing the installed `QtHttpServer` / `QtSslServer` pieces required by the
+  current project configuration.
+- Re-ran the standard Android packaging flow on Qt Android `5.15.0`:
+  - `qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64'`
+  - `make INSTALL_ROOT=/home/cagnulein/qdomyos-zwift/output/android-standard-local-5150 install`
+  - `androiddeployqt --gradle --aab --no-build`
+  - fix generated `local.properties` to the real SDK path
+  - remove `android.bundle.enableUncompressedNativeLibs=false`
+  - `./gradlew assembleDebug bundleDebug`
+- Produced artifacts successfully:
+  - `output/android-standard-local-5150/build/outputs/apk/debug/android-standard-local-5150-debug.apk`
+  - `output/android-standard-local-5150/build/outputs/bundle/debug/android-standard-local-5150-debug.aab`
+- Kept `minSdk` unchanged at `21`.
+
+### 2026-05-03 10. Garmin Android SDK refresh
+
+Status: done
+
+- Updated the Android Garmin dependency in `src/android/build.gradle` from
+  `com.garmin.connectiq:ciq-companion-app-sdk:2.2.0@aar` to `2.3.0@aar`.
+- Validation completed successfully on Qt Android `5.15.0`:
+  - `QT_ANDROID_DIR=/home/cagnulein/Qt/5.15.0/android ./gradlew assembleDebug`
+  - `QT_ANDROID_DIR=/home/cagnulein/Qt/5.15.0/android ./gradlew bundleDebug`
+
+### 2026-05-04 11. Disk pressure cleanup and workflow hardening
+
+Status: done
+
+- Removed the no-longer-needed local Qt Android `5.15.2` installation:
+  - `/home/cagnulein/Qt/5.15.2`
+- Removed stale generated Android outputs to recover disk space before the next
+  validation round.
+- Confirmed the workspace returned to usable free space after cleanup.
+- Hardened Android CI packaging steps in `.github/workflows/main.yml`:
+  - aligned remaining Android jobs from Qt `5.15.2` to `5.15.0`
+  - changed the generated `gradle.properties` cleanup from an exact-match `sed`
+    to a pattern that removes any
+    `android.bundle.enableUncompressedNativeLibs=...` assignment with optional
+    whitespace
+- Reason for the hardening:
+  - a GitHub Actions run still failed in `Build Android package` with
+    `The option 'android.bundle.enableUncompressedNativeLibs' is deprecated`
+    even though a cleanup step was present; the exact-match pattern was too
+    brittle
+
 ## Failures / Dead Ends
 
 - One `zwiftplay` build attempt was interrupted manually before completion.
@@ -182,6 +235,12 @@ Status: done
   - AIDL generated Java not included in compilation
   - `BuildConfig.DEBUG` reference issue in `ChannelService.java`
   - `androiddeployqt` generated `android.bundle.enableUncompressedNativeLibs=false`, which AGP 8.13 rejects
+  - Qt Android `5.15.0` initially missed installed `QtHttpServer` / `QtSslServer`,
+    which caused unresolved link symbols until `qthttpserver` was rebuilt and
+    installed against the `5.15.0` Android tree
+  - one local Gradle verification attempt for Garmin `2.3.0` failed for an
+    environmental reason only: the filesystem was full during dependency
+    download (`No space left on device`)
   - sandbox-local Gradle wrapper failures caused by read-only `~/.gradle` and
     blocked network access during wrapper download; those were environmental,
     not project issues
