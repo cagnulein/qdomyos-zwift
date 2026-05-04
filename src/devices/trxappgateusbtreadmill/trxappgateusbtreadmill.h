@@ -51,8 +51,6 @@ class trxappgateusbtreadmill : public treadmill {
                              bool wait_for_response);
     void waitForAPacket();
     void startDiscover();
-    double DistanceCalculated = 0;
-
     QTimer *refresh;
 
     uint8_t firstVirtualTreadmill = 0;

@@ -30,12 +30,12 @@ using namespace std::chrono_literals;
     item[QStringLiteral("duration_s")] = QTime(0,0,0).secsTo(row.duration);                                 \
     item[QStringLiteral("distance")] = row.distance;                                                        \
     item[QStringLiteral("speed")] = row.speed;                                                              \
-    item[QStringLiteral("minspeed")] = row.minSpeed;                                                        \
-    item[QStringLiteral("maxspeed")] = row.maxSpeed;                                                        \
+    item[QStringLiteral("minSpeed")] = row.minSpeed;                                                        \
+    item[QStringLiteral("maxSpeed")] = row.maxSpeed;                                                        \
     item[QStringLiteral("fanspeed")] = row.fanspeed;                                                        \
     item[QStringLiteral("inclination")] = row.inclination;                                                  \
     item[QStringLiteral("resistance")] = row.resistance;                                                    \
-    item[QStringLiteral("maxresistance")] = row.maxResistance;                                              \
+    item[QStringLiteral("maxResistance")] = row.maxResistance;                                              \
     item[QStringLiteral("mets")] = row.mets;                                                                \
     item[QStringLiteral("pace_intensity")] = row.pace_intensity;                                            \
     item[QStringLiteral("lower_resistance")] = row.lower_resistance;                                        \
@@ -52,7 +52,6 @@ using namespace std::chrono_literals;
     item[QStringLiteral("zoneHR")] = row.zoneHR;                                                            \
     item[QStringLiteral("HRmin")] = row.HRmin;                                                              \
     item[QStringLiteral("HRmax")] = row.HRmax;                                                              \
-    item[QStringLiteral("maxSpeed")] = row.maxSpeed;                                                        \
     item[QStringLiteral("latitude")] = row.latitude;                                                        \
     item[QStringLiteral("longitude")] = row.longitude;                                                      \
     item[QStringLiteral("altitude")] = row.altitude;                                                        \
