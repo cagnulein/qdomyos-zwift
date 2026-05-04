@@ -260,6 +260,23 @@ Status: done
     `output/android/build.gradle`, so the safe fix is to force the Gradle user
     home explicitly on the command line and scrub the whole generated tree
 
+### 2026-05-04 14. GitHub Actions wrapper JVM override and diagnostics
+
+Status: done
+
+- Another GitHub Actions Android rerun still downloaded the wrapper into
+  `/home/runner/.gradle/wrapper/...` even after adding `./gradlew -g ...`.
+- Updated the Android packaging jobs once more to hard-force the wrapper JVM
+  bootstrap path and expose the generated state in logs:
+  - set `GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"`
+  - remove `$HOME/.gradle/gradle.properties` before Gradle runs
+  - print every generated `gradle.properties` file under `output/android`
+    after sanitization
+- Reason for the change:
+  - the remaining failure is still at AGP plugin application time, so the next
+    useful signal is whether the deprecated property is still present anywhere
+    in the generated tree or only injected by the runner-global Gradle state
+
 ## Failures / Dead Ends
 
 - One `zwiftplay` build attempt was interrupted manually before completion.

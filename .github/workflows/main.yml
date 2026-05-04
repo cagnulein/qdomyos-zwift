@@ -704,9 +704,12 @@ jobs:
           cd src
           androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aab --no-build
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
+          export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
+          rm -f "$HOME/.gradle/gradle.properties"
           find ${{ github.workspace }}/output/android -name gradle.properties -exec sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' {} +
+          find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
           cd ${{ github.workspace }}/output/android/
           ./gradlew -g "$GRADLE_USER_HOME" --no-daemon assembleDebug bundleDebug
 
@@ -1923,9 +1926,12 @@ jobs:
           cd src
           androiddeployqt --input android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aab --no-build
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
+          export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
+          rm -f "$HOME/.gradle/gradle.properties"
           find ${{ github.workspace }}/output/android -name gradle.properties -exec sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' {} +
+          find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
           cd ${{ github.workspace }}/output/android/
           ./gradlew -g "$GRADLE_USER_HOME" --no-daemon assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack-${{ matrix.variant.name }}.apk
@@ -2031,9 +2037,12 @@ jobs:
           cd src
           androiddeployqt --input android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aab --no-build
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
+          export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
+          rm -f "$HOME/.gradle/gradle.properties"
           find ${{ github.workspace }}/output/android -name gradle.properties -exec sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' {} +
+          find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
           cd ${{ github.workspace }}/output/android/
           ./gradlew -g "$GRADLE_USER_HOME" --no-daemon assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike-plus.apk
@@ -2139,9 +2148,12 @@ jobs:
           cd src
           androiddeployqt --input android-qdomyos-zwift-peloton-bike-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aab --no-build
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
+          export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
+          rm -f "$HOME/.gradle/gradle.properties"
           find ${{ github.workspace }}/output/android -name gradle.properties -exec sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' {} +
+          find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
           cd ${{ github.workspace }}/output/android/
           ./gradlew -g "$GRADLE_USER_HOME" --no-daemon assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike.apk
