@@ -74,6 +74,43 @@ public:
      * We get back the EXACT same string (Qt doesn't modify encoding)
      */
     void test_fromEncodedToEncoded_roundTrip();
+
+    /**
+     * @brief Test workout JSON parsing for power targets.
+     *
+     * Uses a real Garmin workout details payload where targetType is "power.zone"
+     * but values are watt bounds; expected output is average power in watts.
+     */
+    void test_workoutDetailsJson_powerZoneUsesAverageWatts();
+
+    /**
+     * @brief Test monthly calendar fixture parsing and fallback selection window.
+     *
+     * Uses a real-like calendar-service payload with fbtAdaptiveWorkout items and verifies
+     * that the nearest workout in [today, today+3] is selected.
+     */
+    void test_calendarFallbackJson_selectsNearestUpcomingWorkout();
+
+    /**
+     * @brief Test schedule endpoint fixture with nested "workout" payload.
+     *
+     * Verifies that workout XML generation uses root.workout content from schedule responses.
+     */
+    void test_scheduleJson_nestedWorkoutPayloadParses();
+
+    /**
+     * @brief Test real schedule payload from debug log (2026-02-27 run workout).
+     *
+     * Verifies that distance-based Garmin steps serialize to XML rows with distance only.
+     */
+    void test_scheduleJson_realLogDistanceWorkoutUsesDistanceOnly();
+
+    /**
+     * @brief Test real schedule payload from debug log (2026-02-25 Easy run).
+     *
+     * Verifies that time-based pace.zone targets serialize to speed bounds and forcespeed.
+     */
+    void test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAndForceSpeed();
 };
 
 // Register individual tests with Google Test
@@ -99,6 +136,26 @@ TEST_F(GarminConnectTestSuite, ManualQueryParsingDecodesCorrectly) {
 
 TEST_F(GarminConnectTestSuite, FromEncodedToEncodedRoundTrip) {
     this->test_fromEncodedToEncoded_roundTrip();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonPowerZoneUsesAverageWatts) {
+    this->test_workoutDetailsJson_powerZoneUsesAverageWatts();
+}
+
+TEST_F(GarminConnectTestSuite, CalendarFallbackJsonSelectsNearestUpcomingWorkout) {
+    this->test_calendarFallbackJson_selectsNearestUpcomingWorkout();
+}
+
+TEST_F(GarminConnectTestSuite, ScheduleJsonNestedWorkoutPayloadParses) {
+    this->test_scheduleJson_nestedWorkoutPayloadParses();
+}
+
+TEST_F(GarminConnectTestSuite, ScheduleJsonRealLogDistanceWorkoutUsesDistanceOnly) {
+    this->test_scheduleJson_realLogDistanceWorkoutUsesDistanceOnly();
+}
+
+TEST_F(GarminConnectTestSuite, ScheduleJsonRealLogEasyRunPaceZoneSetsSpeedAndForceSpeed) {
+    this->test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAndForceSpeed();
 }
 
 #endif // GARMINCONNECTTESTSUITE_H

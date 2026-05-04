@@ -1,7 +1,3 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
 QDomyos-Zwift is a Qt-based application that bridges fitness equipment (treadmills, bikes, ellipticals, rowers) with virtual training platforms like Zwift. It acts as a Bluetooth intermediary, connecting physical equipment to fitness apps while providing enhanced features like Peloton integration, power zone training, and workout programs.
@@ -469,7 +465,5 @@ These are typically updated via Xcode IDE rather than manually editing files.
 
 ## Additional Memories
 
-- When adding a new setting in QML (settings.qml), you must:
-  * Add the property at the END of the properties list (before the closing brace)
-  * NEVER add properties in the middle of the properties list
-  * This applies to ALL QML settings properties, not just setting-tiles.qml  
+- When adding a new setting in QML (setting-tiles.qml), you must:
+  * Add the property at the END of the properties list

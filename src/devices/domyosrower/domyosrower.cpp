@@ -387,6 +387,11 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
 
         Speed = speed;
         KCal = kcal;
+        const uint16_t strokeCountRaw =
+            (((uint16_t)((uint8_t)newValue.at(2)) << 8) | (uint16_t)((uint8_t)newValue.at(3)));
+        StrokesCount = strokeCountRaw;
+        emit debug(QStringLiteral("Strokes Count: ") + QString::number(StrokesCount.value()));
+        lastStrokesCount = StrokesCount.value();
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
         lastRefreshCharacteristicChanged = now;
