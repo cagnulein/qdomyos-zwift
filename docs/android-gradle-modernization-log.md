@@ -335,6 +335,24 @@ Status: done
     use `androiddeployqt` only for project generation and let the workflow own
     the Gradle build stage entirely
 
+### 2026-05-04 18. GitHub Actions aux-mode libs.xml preseed
+
+Status: done
+
+- The next Android CI run moved past the old AGP 8 deprecation blocker and hit a
+  new aux-mode-specific failure:
+  - `Cannot find .../output/android/res/values/libs.xml in prepared packaged`
+- `src/android/res/values/libs.xml` already exists in the project and is the Qt
+  resource template that `androiddeployqt` expects to find in the prepared
+  package tree.
+- Updated Android packaging jobs to pre-create:
+  - `${{ github.workspace }}/output/android/res/values/libs.xml`
+  by copying it from:
+  - `src/android/res/values/libs.xml`
+- Reason for the change:
+  - `--aux-mode` avoids the broken internal Gradle path, but it also assumes
+    some prepared-package files already exist in the output tree
+
 ## Failures / Dead Ends
 
 - One `zwiftplay` build attempt was interrupted manually before completion.
