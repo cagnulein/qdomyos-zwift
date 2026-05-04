@@ -140,8 +140,15 @@ void ftmsbike::init() {
     
     uint8_t write[] = {FTMS_REQUEST_CONTROL};
     bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
-    write[0] = {FTMS_START_RESUME};
-    ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+    if (USDC_D700) {
+        // Kinomap keeps this bike streaming by following request-control with STOP/PAUSE(0x01)
+        // instead of the usual START/RESUME opcode.
+        uint8_t usdcStart[] = {FTMS_STOP_PAUSE, 0x01};
+        ret = writeCharacteristic(usdcStart, sizeof(usdcStart), "usdc d700 start workaround", false, true);
+    } else {
+        write[0] = {FTMS_START_RESUME};
+        ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+    }
 
     if(ret) {
         initDone = true;
@@ -262,10 +269,10 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
             requestResistance = 1;
         }
 
-        if(SL010 || SPORT01)
+        if(SL010 || SPORT01 || TOPUTURE_TEB5)
             Resistance = requestResistance;
         
-        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28) {
+        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -392,7 +399,7 @@ void ftmsbike::update() {
             double gearMultiplier = 5;
             if(REEBOK)
                 gearMultiplier = 1;
-            resistance_t rR = requestResistance + (gears() * gearMultiplier);
+            resistance_t rR = requestResistance + (gearsModifier() * gearMultiplier);
 
             if (rR != currentResistance().value() || lastGearValue != gears()) {
                 bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
@@ -415,7 +422,7 @@ void ftmsbike::update() {
                                      << "elapsedMs:" << sinceLastDomyosResistance;
                             deferResistanceRequest = true;
                         }
-                    }
+                    }                    
 
                     if (deferResistanceRequest) {
                         requestResistance = rR;
@@ -435,12 +442,12 @@ void ftmsbike::update() {
         if(!virtualBike || !virtualBike->ftmsDeviceConnected()) {
             if ((requestInclination != -100 || (lastGearValue != gears() && requestInclination != -100))) {
                 emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-                forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
+                forceInclination(requestInclination + gearsModifier()); // since this bike doesn't have the concept of resistance,
                                                                 // i'm using the gears in the inclination
                 requestInclination = -100;
             } else if(lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
                 // in order to send the new gear value ASAP
-                forceInclination(lastRawRequestedInclinationValue + gears());   // since this bike doesn't have the concept of resistance,
+                forceInclination(lastRawRequestedInclinationValue + gearsModifier());   // since this bike doesn't have the concept of resistance,
                                                                 // i'm using the gears in the inclination
             }
         }
@@ -697,7 +704,6 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     }
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
-
         union flags {
             struct {
                 uint16_t moreData : 1;
@@ -819,7 +825,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 if(BIKE_)
                     d = d / 10.0;
                 // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
-                if(!SL010 && !TITAN_7000 && !SPORT01) {
+                if(!SL010 && !TITAN_7000 && !SPORT01 && !TOPUTURE_TEB5) {
                     Resistance = d;
                     native_resistance_received = true;
                     calculatedResistanceFallbackSince = QDateTime();
@@ -897,6 +903,31 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
                 emit debug(QStringLiteral("Current Watt (SPORT01 formula - R%1 x%2): %3")
                     .arg(resistance_level).arg(k[resistance_level - 1]).arg(m_watt.value()));
+            } else if (TOPUTURE_TEB5 && settings.value(QZSettings::toputure_teb1, QZSettings::default_toputure_teb1).toBool()) {
+                // Custom power calculation for TOPUTURE_TEB5
+                // Resistance multipliers for levels 1-32
+                const double k[32] = {0.60, 0.64, 0.68, 0.72, 0.76, 0.80, 0.84, 0.88, 0.92, 0.96, 1.00, 1.05, 1.10, 1.15, 1.20, 1.26, 1.32, 1.39, 1.46, 1.54, 1.62, 1.70, 1.79, 1.88, 1.97, 2.05, 2.12, 2.18, 2.24, 2.30, 2.35, 2.40};
+
+                // Baseline power curve coefficients (MyWhoosh cadence-power at resistance 5)
+                double ac = 0.01243107769;
+                double bc = 1.145964912;
+                double cc = -23.50977444;
+
+                // Calculate baseline power from cadence (resistance level 5 baseline)
+                double baseline_watt = ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc;
+
+                // Get current resistance level (1-32) and apply multiplier
+                int resistance_level = (int)Resistance.value();
+                if(resistance_level < 1) resistance_level = 1;
+                if(resistance_level > 32) resistance_level = 32;
+
+                // Apply resistance multiplier
+                m_watt = baseline_watt * k[resistance_level - 1];
+
+                if(m_watt.value() < 0) m_watt = 0;
+
+                emit debug(QStringLiteral("Current Watt (TOPUTURE_TEB5 formula - R%1 x%2): %3")
+                    .arg(resistance_level).arg(k[resistance_level - 1]).arg(m_watt.value()));                    
             } else if (MRK_S26C) {
                 m_watt = Cadence.value() * (Resistance.value() * 1.16);
                 emit debug(QStringLiteral("Current Watt (MRK-S26C formula): ") + QString::number(m_watt.value()));
@@ -1451,7 +1482,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         // Apply the same gears modification as in ftmsCharacteristicChanged
         double gears_modified_inclination = Inclination.value();
         if (gears() != 0) {
-            gears_modified_inclination += (gears() * GEARS_SLOPE_MULTIPLIER / 100.0);
+            gears_modified_inclination += (gearsModifier() * GEARS_SLOPE_MULTIPLIER / 100.0);
         }
         _inclinationResistanceTable.collectData(gears_modified_inclination, Resistance.value(), m_watt.value());
     }
@@ -1529,7 +1560,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
             }
             
-            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK) {
+            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
                     qDebug() << QStringLiteral("hammer racer bike wants to be subscribed only to FTMS service in order "
@@ -1725,7 +1756,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
 
             if (gears() != 0) {
-                slope += (gears() * GEARS_SLOPE_MULTIPLIER);
+                slope += (gearsModifier() * GEARS_SLOPE_MULTIPLIER);
             }
 
             if(min_inclination > (((double)slope) / 100.0)) {
@@ -2004,6 +2035,12 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             resistance_lvl_mode = true;
             ergModeSupported = false;
             max_resistance = 32;
+        } else if(device.name().toUpper().startsWith("TOPUTURE TEB5")) {
+            qDebug() << QStringLiteral("TOPUTURE TEB5 found");
+            TOPUTURE_TEB5 = true;
+            max_resistance = 32;
+            ergModeSupported = false;
+            Resistance = 1; // Initialize resistance to 1 for SPORT01
         } else if(device.name().toUpper().startsWith("SPORT01")) {
             qDebug() << QStringLiteral("SPORT01 found");
             SPORT01 = true;
@@ -2026,6 +2063,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             ergModeSupported = false;
             max_resistance = 32;
             _ergTable.loadDefaultData(kSpeedRaceXDefaultErgData);
+        } else if (device.name().toUpper().startsWith("USDC-D700-")) {
+            qDebug() << QStringLiteral("USDC-D700 found");
+            USDC_D700 = true;
+            resistance_lvl_mode = true;
         }
 
 
@@ -2105,8 +2146,11 @@ void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState stat
 double ftmsbike::maxGears() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    bool gears_custom_table_enabled = settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
 
-    if((zwiftPlayService != nullptr) && gears_zwift_ratio) {
+    if(gears_custom_table_enabled) {
+        return 24;
+    } else if((zwiftPlayService != nullptr) && gears_zwift_ratio) {
         wheelCircumference::GearTable g;
         return g.maxGears;
     } else if(WATTBIKE) {
@@ -2119,8 +2163,11 @@ double ftmsbike::maxGears() {
 double ftmsbike::minGears() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    bool gears_custom_table_enabled = settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
 
-    if((zwiftPlayService != nullptr) && gears_zwift_ratio ) {
+    if(gears_custom_table_enabled) {
+        return 1;
+    } else if((zwiftPlayService != nullptr) && gears_zwift_ratio ) {
         return 1;
     } else if(WATTBIKE) {
         return 1;

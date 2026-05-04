@@ -210,7 +210,7 @@ void computrainerbike::innerWriteResistance() {
 
     if (requestInclination != -100) {
         emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-        forceResistance(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
+        forceResistance(requestInclination + gearsModifier()); // since this bike doesn't have the concept of resistance,
                                                        // i'm using the gears in the inclination
         requestInclination = -100;
     }

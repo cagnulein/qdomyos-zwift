@@ -83,6 +83,7 @@ public:
     DEFINE_DEVICE(FitPlusF5, "FitPlus F5");
     DEFINE_DEVICE(FitShowBF, "FitShow BF");
     DEFINE_DEVICE(FitShowFS, "FitShow FS");
+    DEFINE_DEVICE(FitShowTR510T, "FitShow TR510-T");
     DEFINE_DEVICE(FitShowSW, "FitShow SW");
     DEFINE_DEVICE(FlywheelBike, "Flywheel Bike");
     DEFINE_DEVICE(FlywheelLifeFitnessIC8, "Flywheel Life Fitness IC8");

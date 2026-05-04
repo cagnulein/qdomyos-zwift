@@ -327,6 +327,7 @@ templateinfosender.cpp \
 templateinfosenderbuilder.cpp \
 devices/stagesbike/stagesbike.cpp \
 devices/toorxtreadmill/toorxtreadmill.cpp \
+devices/iconsolebike/iconsolebike.cpp \
 devices/treadmill.cpp \
 devices/truetreadmill/truetreadmill.cpp \
 devices/trxappgateusbbike/trxappgateusbbike.cpp \
@@ -850,6 +851,7 @@ templateinfosender.h \
 templateinfosenderbuilder.h \
 devices/stagesbike/stagesbike.h \
 devices/toorxtreadmill/toorxtreadmill.h \
+devices/iconsolebike/iconsolebike.h \
 gpx.h \
 devices/treadmill.h \
 mainwindow.h \
@@ -1020,4 +1022,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.21.0
+VERSION = 2.21.1

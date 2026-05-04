@@ -1590,6 +1590,8 @@ void homeform::trainProgramSignals() {
         disconnect(trainProgram, &trainprogram::lap, this, &homeform::Lap);
         disconnect(trainProgram, &trainprogram::changeSpeed, ((treadmill *)bluetoothManager->device()),
                    &treadmill::changeSpeed);
+        disconnect(trainProgram, &trainprogram::changeSpeed, this,
+                   &homeform::onTrainingProgramSpeedChanged);
         disconnect(trainProgram, &trainprogram::changeInclination, ((treadmill *)bluetoothManager->device()),
                    &treadmill::changeInclination);
         disconnect(trainProgram, &trainprogram::changeNextInclination300Meters, bluetoothManager->device(),
@@ -1647,6 +1649,9 @@ void homeform::trainProgramSignals() {
         connect(trainProgram, &trainprogram::stop, this, &homeform::StopFromTrainProgram);
         connect(trainProgram, &trainprogram::lap, this, &homeform::Lap);
         connect(trainProgram, &trainprogram::toastRequest, this, &homeform::onToastRequested);
+        // Connect training program speed changes to reset HR PID timer
+        connect(trainProgram, &trainprogram::changeSpeed, this,
+                &homeform::onTrainingProgramSpeedChanged);
         if (bluetoothManager->device()->deviceType() == TREADMILL) {
             connect(trainProgram, &trainprogram::changeSpeed, ((treadmill *)bluetoothManager->device()),
                     &treadmill::changeSpeed);
@@ -1737,6 +1742,13 @@ void homeform::onToastRequested(QString message) {
         m_speech.say(message);
     }
 }
+
+void homeform::onTrainingProgramSpeedChanged(double speed) {
+    // Record the timestamp when the training program changed speed
+    // This is used by the HR PID controller to avoid race conditions
+    lastTrainingProgramSpeedChange = QDateTime::currentDateTime();
+}
+
 
 QStringList homeform::tile_order() {
 
@@ -4792,9 +4804,7 @@ void homeform::Plus(const QString &name) {
     } else if (name.contains("gears")) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == BIKE) {
-                ((bike *)bluetoothManager->device())
-                    ->setGears(((bike *)bluetoothManager->device())->gears() +
-                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
+                ((bike *)bluetoothManager->device())->gearUp();
             } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
                     ->setGears(((elliptical *)bluetoothManager->device())->gears() +
@@ -5094,9 +5104,7 @@ void homeform::Minus(const QString &name) {
     } else if (name.contains(QStringLiteral("gears"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == BIKE) {
-                ((bike *)bluetoothManager->device())
-                    ->setGears(((bike *)bluetoothManager->device())->gears() -
-                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
+                ((bike *)bluetoothManager->device())->gearDown();
             } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
                     ->setGears(((elliptical *)bluetoothManager->device())->gears() -
@@ -5503,13 +5511,17 @@ QString homeform::startIcon() {
 void homeform::updateGearsValue() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    bool gears_custom_table_enabled = settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
     bool zwift_gear_ui_aligned = settings.value(QZSettings::zwift_gear_ui_aligned, QZSettings::default_zwift_gear_ui_aligned).toBool();
     double gear = ((bike *)bluetoothManager->device())->gears();
     double maxGearDefault = ((bike *)bluetoothManager->device())->defaultMaxGears();
     double maxGear = ((bike *)bluetoothManager->device())->maxGears();
     if(zwift_gear_ui_aligned && bluetoothManager && bluetoothManager->device() && ((bike *)bluetoothManager->device())->VirtualBike())
         gear = ((bike *)bluetoothManager->device())->VirtualBike()->currentGear();
-    if (settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0 || gears_zwift_ratio || maxGear < maxGearDefault) {
+    if (gears_custom_table_enabled) {
+        this->gears->setValue(QString::number(gear));
+        this->gears->setSecondLine(QStringLiteral("offset ") + QString::number(((bike *)bluetoothManager->device())->gearsModifier(), 'f', 1));
+    } else if (settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0 || gears_zwift_ratio || maxGear < maxGearDefault) {
         this->gears->setValue(QString::number(gear));
         this->gears->setSecondLine(wheelCircumference::gearsInfo(gear));
     } else {
@@ -7321,6 +7333,12 @@ void homeform::update() {
 
                 if (!stopped && !paused && bluetoothManager->device()->currentHeart().value() && zone > 0 &&
                     bluetoothManager->device()->currentSpeed().value() > 0.0f) {
+                    // Skip HR PID adjustments for a period after training program changes speed
+                    // This prevents race conditions where HR PID overwrites training program speed changes
+                    qint64 msSinceSpeedChange = lastTrainingProgramSpeedChange.msecsTo(QDateTime::currentDateTime());
+                    bool recentSpeedChange = (msSinceSpeedChange < (delta * 1000));
+                    
+                    if (!recentSpeedChange) {
                     if (bluetoothManager->device()->deviceType() == TREADMILL) {
 
                         const double step = 0.2;
@@ -7432,6 +7450,7 @@ void homeform::update() {
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance + step);
                         }
                     }
+                    }  // Close the if (!recentSpeedChange) block
                 }
             }
         } else if ((settings.value(QZSettings::treadmill_pid_heart_min, QZSettings::default_treadmill_pid_heart_min)
@@ -7489,6 +7508,12 @@ void homeform::update() {
                              << QStringLiteral("HRmin:") << hrmin << QStringLiteral("HRmax:") << hrmax
                              << QStringLiteral("fromTrainProgram:") << fromTrainProgram;
 
+                    // Skip HR PID adjustments for a period after training program changes speed
+                    // This prevents race conditions where HR PID overwrites training program speed changes
+                    qint64 msSinceSpeedChange = lastTrainingProgramSpeedChange.msecsTo(QDateTime::currentDateTime());
+                    bool recentSpeedChange = (msSinceSpeedChange < (delta * 1000));
+                    
+                    if (!recentSpeedChange) {
                     if (bluetoothManager->device()->deviceType() == TREADMILL) {
 
                         const double step = 0.2;
@@ -7610,10 +7635,11 @@ void homeform::update() {
                             qDebug() << QStringLiteral("ROWING PID HR - HR < HRmin, INCREASING resistance from")
                                      << currentResistance << QStringLiteral("to") << (currentResistance + step);
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance + step);
-                        } else {
-                            qDebug() << QStringLiteral("ROWING PID HR - No action taken (in zone or at limits)");
-                        }
-                    }
+                         } else {
+                             qDebug() << QStringLiteral("ROWING PID HR - No action taken (in zone or at limits)");
+                         }
+                     }
+                    }  // Close the if (!recentSpeedChange) block
                 }
             }
         }
