@@ -2880,6 +2880,7 @@ class QZSettings {
      */
     static const QString grupetto_disclaimer_shown;
     static constexpr bool default_grupetto_disclaimer_shown = false;
+    /**
      * @brief Enable power averaging tile
      */
     static const QString tile_power_avg_enabled;
