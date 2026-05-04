@@ -223,6 +223,25 @@ Status: done
     even though a cleanup step was present; the exact-match pattern was too
     brittle
 
+### 2026-05-04 12. GitHub Actions runner Gradle isolation
+
+Status: done
+
+- A subsequent GitHub Actions Android run still failed in `Build Android package`
+  after the generated project cleanup had already switched to a broader `sed`
+  pattern.
+- The decisive clue was the wrapper download location in the CI log:
+  - `/home/runner/.gradle/wrapper/...`
+- That means the job was still using the runner-global Gradle user home rather
+  than an isolated workspace-local one, so the deprecated property could still
+  be injected from runner state outside the generated Android project.
+- Updated Android CI packaging to:
+  - set `GRADLE_USER_HOME=${{ github.workspace }}/.gradle-android`
+  - cache `${{ github.workspace }}/.gradle-android/{caches,wrapper}`
+  - remove any `${GRADLE_USER_HOME}/gradle.properties` before invoking Gradle
+  - keep the generated-project `gradle.properties` cleanup in place
+  - run `./gradlew --no-daemon assembleDebug bundleDebug`
+
 ## Failures / Dead Ends
 
 - One `zwiftplay` build attempt was interrupted manually before completion.

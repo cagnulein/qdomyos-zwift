@@ -693,8 +693,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
+            ${{ github.workspace }}/.gradle-android/caches
+            ${{ github.workspace }}/.gradle-android/wrapper
           key: gradle-android-${{ runner.os }}-v2
           restore-keys: |
             gradle-android-${{ runner.os }}-
@@ -703,9 +703,12 @@ jobs:
         run: |
           cd src
           androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aab --no-build
+          export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
+          mkdir -p "$GRADLE_USER_HOME"
+          rm -f "$GRADLE_USER_HOME/gradle.properties"
           sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' ${{ github.workspace }}/output/android/gradle.properties
           cd ${{ github.workspace }}/output/android/
-          ./gradlew assembleDebug bundleDebug
+          ./gradlew --no-daemon assembleDebug bundleDebug
 
       - name: Re-sign APK for stable App Links fingerprint
         run: |
@@ -1919,9 +1922,12 @@ jobs:
         run: |
           cd src
           androiddeployqt --input android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aab --no-build
+          export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
+          mkdir -p "$GRADLE_USER_HOME"
+          rm -f "$GRADLE_USER_HOME/gradle.properties"
           sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' ${{ github.workspace }}/output/android/gradle.properties
           cd ${{ github.workspace }}/output/android/
-          ./gradlew assembleDebug bundleDebug
+          ./gradlew --no-daemon assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack-${{ matrix.variant.name }}.apk
 
       - name: Archive nordictrack binary
@@ -2024,9 +2030,12 @@ jobs:
         run: |
           cd src
           androiddeployqt --input android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aab --no-build
+          export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
+          mkdir -p "$GRADLE_USER_HOME"
+          rm -f "$GRADLE_USER_HOME/gradle.properties"
           sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' ${{ github.workspace }}/output/android/gradle.properties
           cd ${{ github.workspace }}/output/android/
-          ./gradlew assembleDebug bundleDebug
+          ./gradlew --no-daemon assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike-plus.apk
 
       - name: Archive peloton-bike-plus binary
@@ -2129,9 +2138,12 @@ jobs:
         run: |
           cd src
           androiddeployqt --input android-qdomyos-zwift-peloton-bike-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aab --no-build
+          export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
+          mkdir -p "$GRADLE_USER_HOME"
+          rm -f "$GRADLE_USER_HOME/gradle.properties"
           sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' ${{ github.workspace }}/output/android/gradle.properties
           cd ${{ github.workspace }}/output/android/
-          ./gradlew assembleDebug bundleDebug
+          ./gradlew --no-daemon assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike.apk
 
       - name: Archive peloton-bike binary
