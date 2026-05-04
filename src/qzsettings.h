@@ -969,6 +969,21 @@ class QZSettings {
     static const QString cadence_sensor_speed_ratio;
     static constexpr float default_cadence_sensor_speed_ratio = 0.33;
 
+    static const QString cscbike_custom_resistance_power_table;
+    static constexpr bool default_cscbike_custom_resistance_power_table = false;
+
+    static const QString cscbike_custom_resistance_level_1;
+    static constexpr float default_cscbike_custom_resistance_level_1 = 1;
+
+    static const QString cscbike_custom_watt_1;
+    static constexpr float default_cscbike_custom_watt_1 = 100;
+
+    static const QString cscbike_custom_resistance_level_2;
+    static constexpr float default_cscbike_custom_resistance_level_2 = 15;
+
+    static const QString cscbike_custom_watt_2;
+    static constexpr float default_cscbike_custom_watt_2 = 300;
+
     static const QString power_hr_pwr1;
     static constexpr float default_power_hr_pwr1 = 200;
 
@@ -2979,6 +2994,15 @@ class QZSettings {
     static constexpr bool default_proform_carbon_tlx_v84_314_treadmill = false;
     static const QString proform_carbon_tl_PFTL59723_6;
     static constexpr bool default_proform_carbon_tl_PFTL59723_6 = false;
+
+    /**
+     * @brief When enabled together with fakedevice_treadmill, derives treadmill Speed from
+     * Apple Watch step cadence using cadence_sensor_speed_ratio. Lets users do indoor walking
+     * or slow jogging without a physical treadmill, broadcasting cadence-driven speed via
+     * the existing virtual treadmill / RSC pipeline. Default off; iOS-only effect.
+     */
+    static const QString applewatch_as_treadmill_speed;
+    static constexpr bool default_applewatch_as_treadmill_speed = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

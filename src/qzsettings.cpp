@@ -329,6 +329,11 @@ const QString QZSettings::default_cadence_sensor_name = QStringLiteral("Disabled
 const QString QZSettings::cadence_sensor_as_bike = QStringLiteral("cadence_sensor_as_bike");
 const QString QZSettings::cadence_sensor_as_treadmill = QStringLiteral("cadence_sensor_as_treadmill");
 const QString QZSettings::cadence_sensor_speed_ratio = QStringLiteral("cadence_sensor_speed_ratio");
+const QString QZSettings::cscbike_custom_resistance_power_table = QStringLiteral("cscbike_custom_resistance_power_table");
+const QString QZSettings::cscbike_custom_resistance_level_1 = QStringLiteral("cscbike_custom_resistance_level_1");
+const QString QZSettings::cscbike_custom_watt_1 = QStringLiteral("cscbike_custom_watt_1");
+const QString QZSettings::cscbike_custom_resistance_level_2 = QStringLiteral("cscbike_custom_resistance_level_2");
+const QString QZSettings::cscbike_custom_watt_2 = QStringLiteral("cscbike_custom_watt_2");
 const QString QZSettings::power_hr_pwr1 = QStringLiteral("power_hr_pwr1");
 const QString QZSettings::power_hr_hr1 = QStringLiteral("power_hr_hr1");
 const QString QZSettings::power_hr_pwr2 = QStringLiteral("power_hr_pwr2");
@@ -1086,9 +1091,10 @@ const QString QZSettings::step_gain = QStringLiteral("step_gain");
 const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform_carbon_tlx_treadmill");
 const QString QZSettings::proform_carbon_tlx_v84_314_treadmill = QStringLiteral("proform_carbon_tlx_v84_314_treadmill");
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
+const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applewatch_as_treadmill_speed");
 
 
-const uint32_t allSettingsCount = 884;
+const uint32_t allSettingsCount = 890;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1357,6 +1363,11 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike},
     {QZSettings::cadence_sensor_as_treadmill, QZSettings::default_cadence_sensor_as_treadmill},
     {QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio},
+    {QZSettings::cscbike_custom_resistance_power_table, QZSettings::default_cscbike_custom_resistance_power_table},
+    {QZSettings::cscbike_custom_resistance_level_1, QZSettings::default_cscbike_custom_resistance_level_1},
+    {QZSettings::cscbike_custom_watt_1, QZSettings::default_cscbike_custom_watt_1},
+    {QZSettings::cscbike_custom_resistance_level_2, QZSettings::default_cscbike_custom_resistance_level_2},
+    {QZSettings::cscbike_custom_watt_2, QZSettings::default_cscbike_custom_watt_2},
     {QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1},
     {QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1},
     {QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2},
@@ -1996,6 +2007,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_carbon_tlx_treadmill, QZSettings::default_proform_carbon_tlx_treadmill},
     {QZSettings::proform_carbon_tlx_v84_314_treadmill, QZSettings::default_proform_carbon_tlx_v84_314_treadmill},
     {QZSettings::proform_carbon_tl_PFTL59723_6, QZSettings::default_proform_carbon_tl_PFTL59723_6},
+    {QZSettings::applewatch_as_treadmill_speed, QZSettings::default_applewatch_as_treadmill_speed},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

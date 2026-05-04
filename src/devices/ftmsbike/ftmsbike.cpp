@@ -269,7 +269,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
             requestResistance = 1;
         }
 
-        if(SL010 || SPORT01)
+        if(SL010 || SPORT01 || TOPUTURE_TEB5)
             Resistance = requestResistance;
         
         if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700) {
@@ -825,7 +825,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 if(BIKE_)
                     d = d / 10.0;
                 // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
-                if(!SL010 && !TITAN_7000 && !SPORT01) {
+                if(!SL010 && !TITAN_7000 && !SPORT01 && !TOPUTURE_TEB5) {
                     Resistance = d;
                     native_resistance_received = true;
                     calculatedResistanceFallbackSince = QDateTime();
@@ -903,6 +903,31 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
                 emit debug(QStringLiteral("Current Watt (SPORT01 formula - R%1 x%2): %3")
                     .arg(resistance_level).arg(k[resistance_level - 1]).arg(m_watt.value()));
+            } else if (TOPUTURE_TEB5 && settings.value(QZSettings::toputure_teb1, QZSettings::default_toputure_teb1).toBool()) {
+                // Custom power calculation for TOPUTURE_TEB5
+                // Resistance multipliers for levels 1-32
+                const double k[32] = {0.60, 0.64, 0.68, 0.72, 0.76, 0.80, 0.84, 0.88, 0.92, 0.96, 1.00, 1.05, 1.10, 1.15, 1.20, 1.26, 1.32, 1.39, 1.46, 1.54, 1.62, 1.70, 1.79, 1.88, 1.97, 2.05, 2.12, 2.18, 2.24, 2.30, 2.35, 2.40};
+
+                // Baseline power curve coefficients (MyWhoosh cadence-power at resistance 5)
+                double ac = 0.01243107769;
+                double bc = 1.145964912;
+                double cc = -23.50977444;
+
+                // Calculate baseline power from cadence (resistance level 5 baseline)
+                double baseline_watt = ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc;
+
+                // Get current resistance level (1-32) and apply multiplier
+                int resistance_level = (int)Resistance.value();
+                if(resistance_level < 1) resistance_level = 1;
+                if(resistance_level > 32) resistance_level = 32;
+
+                // Apply resistance multiplier
+                m_watt = baseline_watt * k[resistance_level - 1];
+
+                if(m_watt.value() < 0) m_watt = 0;
+
+                emit debug(QStringLiteral("Current Watt (TOPUTURE_TEB5 formula - R%1 x%2): %3")
+                    .arg(resistance_level).arg(k[resistance_level - 1]).arg(m_watt.value()));                    
             } else if (MRK_S26C) {
                 m_watt = Cadence.value() * (Resistance.value() * 1.16);
                 emit debug(QStringLiteral("Current Watt (MRK-S26C formula): ") + QString::number(m_watt.value()));
@@ -2010,6 +2035,12 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             resistance_lvl_mode = true;
             ergModeSupported = false;
             max_resistance = 32;
+        } else if(device.name().toUpper().startsWith("TOPUTURE TEB5")) {
+            qDebug() << QStringLiteral("TOPUTURE TEB5 found");
+            TOPUTURE_TEB5 = true;
+            max_resistance = 32;
+            ergModeSupported = false;
+            Resistance = 1; // Initialize resistance to 1 for SPORT01
         } else if(device.name().toUpper().startsWith("SPORT01")) {
             qDebug() << QStringLiteral("SPORT01 found");
             SPORT01 = true;

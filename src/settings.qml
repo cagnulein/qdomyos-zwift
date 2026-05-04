@@ -1312,9 +1312,15 @@ import Qt.labs.platform 1.1
       
             property double power_sensor_speed_inclination_coeff_a: 0.0
             property double power_sensor_speed_inclination_coeff_b: 0.0
-            property bool proform_carbon_tlx_v84_314_treadmill: false
+            property bool proform_carbon_tlx_v84_314_treadmill: false            
+            property bool cscbike_custom_resistance_power_table: false
+            property real cscbike_custom_resistance_level_1: 1
+            property real cscbike_custom_watt_1: 100
+            property real cscbike_custom_resistance_level_2: 15
+            property real cscbike_custom_watt_2: 300
+            property bool applewatch_as_treadmill_speed: false
             property bool gears_custom_table_enabled: false
-            property string gears_custom_table: "1|1\n2|2\n3|3\n4|4\n5|5\n6|6\n7|7\n8|8\n9|9\n10|10\n11|11\n12|12\n13|13\n14|14\n15|15\n16|16\n17|17\n18|18\n19|19\n20|20\n21|21\n22|22\n23|23\n24|24"            
+            property string gears_custom_table: "1|1\n2|2\n3|3\n4|4\n5|5\n6|6\n7|7\n8|8\n9|9\n10|10\n11|11\n12|12\n13|13\n14|14\n15|15\n16|16\n17|17\n18|18\n19|19\n20|20\n21|21\n22|22\n23|23\n24|24"                        
         }
 
 
@@ -12039,6 +12045,138 @@ import Qt.labs.platform 1.1
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
                             }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Custom CSC Resistance/Watt Table")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.cscbike_custom_resistance_power_table
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.cscbike_custom_resistance_power_table = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Enable a custom linear resistance/watt table for CSC bikes. Joroto bikes keep using their dedicated resistance power profile. Resistance is clamped using the existing Min. Resistance and Max. Resistance settings.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Resistance Level 1:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: cscBikeCustomResistanceLevel1TextField
+                                    text: settings.cscbike_custom_resistance_level_1
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.cscbike_custom_resistance_level_1 = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.cscbike_custom_resistance_level_1 = cscBikeCustomResistanceLevel1TextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Watt 1:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: cscBikeCustomWatt1TextField
+                                    text: settings.cscbike_custom_watt_1
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.cscbike_custom_watt_1 = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.cscbike_custom_watt_1 = cscBikeCustomWatt1TextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Resistance Level 2:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: cscBikeCustomResistanceLevel2TextField
+                                    text: settings.cscbike_custom_resistance_level_2
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.cscbike_custom_resistance_level_2 = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.cscbike_custom_resistance_level_2 = cscBikeCustomResistanceLevel2TextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Watt 2:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: cscBikeCustomWatt2TextField
+                                    text: settings.cscbike_custom_watt_2
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.cscbike_custom_watt_2 = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.cscbike_custom_watt_2 = cscBikeCustomWatt2TextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("QZ will build a linear equation from the two resistance/watt points and clamp the effective resistance using the existing Min. Resistance and Max. Resistance settings.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
                         }
                     }
 
@@ -14496,6 +14634,34 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Same as Fake Device but instead of simulating a bike it simulates a treadmill.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: appleWatchAsTreadmillSpeedDelegate
+                        text: qsTr("Use Apple Watch Cadence for Fake Treadmill Speed")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.applewatch_as_treadmill_speed
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.applewatch_as_treadmill_speed = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("iOS only. For Fake Treadmill mode: when no physical treadmill is connected, derives Speed from Apple Watch step cadence using the Wheel Ratio under Accessories > Cadence Sensor Options. The cycling default is far too high for running - try 0.04-0.15 depending on pace, from walking to running, and tune to taste. Useful with apps like Kinomap or Zwift. Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
