@@ -705,13 +705,17 @@ jobs:
           androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aab --no-build
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
+          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
           rm -f "$HOME/.gradle/gradle.properties"
           find ${{ github.workspace }}/output/android -name gradle.properties -exec sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' {} +
           find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
-          cd ${{ github.workspace }}/output/android/
-          ./gradlew -g "$GRADLE_USER_HOME" --no-daemon assembleDebug bundleDebug
+          if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
+            curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
+            unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
+          fi
+          "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
 
       - name: Re-sign APK for stable App Links fingerprint
         run: |
@@ -1927,13 +1931,17 @@ jobs:
           androiddeployqt --input android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aab --no-build
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
+          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
           rm -f "$HOME/.gradle/gradle.properties"
           find ${{ github.workspace }}/output/android -name gradle.properties -exec sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' {} +
           find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
-          cd ${{ github.workspace }}/output/android/
-          ./gradlew -g "$GRADLE_USER_HOME" --no-daemon assembleDebug bundleDebug
+          if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
+            curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
+            unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
+          fi
+          "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack-${{ matrix.variant.name }}.apk
 
       - name: Archive nordictrack binary
@@ -2038,13 +2046,17 @@ jobs:
           androiddeployqt --input android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aab --no-build
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
+          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
           rm -f "$HOME/.gradle/gradle.properties"
           find ${{ github.workspace }}/output/android -name gradle.properties -exec sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' {} +
           find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
-          cd ${{ github.workspace }}/output/android/
-          ./gradlew -g "$GRADLE_USER_HOME" --no-daemon assembleDebug bundleDebug
+          if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
+            curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
+            unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
+          fi
+          "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike-plus.apk
 
       - name: Archive peloton-bike-plus binary
@@ -2149,13 +2161,17 @@ jobs:
           androiddeployqt --input android-qdomyos-zwift-peloton-bike-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aab --no-build
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
+          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
           rm -f "$HOME/.gradle/gradle.properties"
           find ${{ github.workspace }}/output/android -name gradle.properties -exec sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' {} +
           find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
-          cd ${{ github.workspace }}/output/android/
-          ./gradlew -g "$GRADLE_USER_HOME" --no-daemon assembleDebug bundleDebug
+          if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
+            curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
+            unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
+          fi
+          "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike.apk
 
       - name: Archive peloton-bike binary

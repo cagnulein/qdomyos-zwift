@@ -277,6 +277,25 @@ Status: done
     useful signal is whether the deprecated property is still present anywhere
     in the generated tree or only injected by the runner-global Gradle state
 
+### 2026-05-04 15. GitHub Actions wrapper bypass
+
+Status: done
+
+- Another Android CI rerun still bootstrapped Gradle from
+  `/home/runner/.gradle/wrapper/...` even after:
+  - `GRADLE_USER_HOME=...`
+  - `GRADLE_OPTS=-Dgradle.user.home=...`
+  - `./gradlew -g ...`
+- At that point the wrapper itself became the unstable piece of the chain.
+- Updated the Android packaging jobs to bypass the generated wrapper entirely:
+  - download `gradle-8.13-bin.zip` into the job workspace if missing
+  - run `${{ github.workspace }}/gradle-8.13/bin/gradle`
+  - keep `-g "$GRADLE_USER_HOME"` on the real Gradle invocation
+  - keep the generated `gradle.properties` sanitization and diagnostics
+- Reason for the change:
+  - this removes the last dependency on runner-global wrapper bootstrap behavior
+    and makes the Android CI Gradle entrypoint deterministic
+
 ## Failures / Dead Ends
 
 - One `zwiftplay` build attempt was interrupted manually before completion.
