@@ -13,6 +13,7 @@ import UIKit
 class Browser {
 
     let browser: NWBrowser
+    let SwiftDebug = swiftDebug()
 
     init() {
         let parameters = NWParameters()
@@ -27,15 +28,17 @@ class Browser {
 
     func start(handler: @escaping (NWBrowser.Result) -> Void) {
         browser.stateUpdateHandler = { newState in
-            print("browser.stateUpdateHandler \(newState)")
+            self.SwiftDebug.qtDebug("browser.stateUpdateHandler \(newState)")
         }
         browser.browseResultsChangedHandler = { results, changes in
+            self.SwiftDebug.qtDebug("browser.statebrowseResultsChangedHandlerUpdateHandler \(results)")
             for result in results {
                 if case NWEndpoint.service = result.endpoint {
                     handler(result)
                 }
             }
         }
+        SwiftDebug.qtDebug("browser.start")
         browser.start(queue: .main)
     }
 }

@@ -104,6 +104,10 @@ extension MainController: WorkoutTrackingDelegate {
             "\(heartRate)" as AnyObject])
         WorkoutTracking.distance = WatchKitConnection.distance
         WorkoutTracking.kcal = WatchKitConnection.kcal
+        WorkoutTracking.speed = WatchKitConnection.speed
+        WorkoutTracking.power = WatchKitConnection.power
+        WorkoutTracking.cadence = WatchKitConnection.cadence
+        WorkoutTracking.steps = WatchKitConnection.steps
                 
 		if Locale.current.measurementSystem != "Metric" {
 			self.distanceLabel.setText("Distance \(String(format:"%.2f", WorkoutTracking.distance))")

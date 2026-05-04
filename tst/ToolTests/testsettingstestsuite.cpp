@@ -1,7 +1,6 @@
 #include "testsettingstestsuite.h"
 
 #include <QCoreApplication>
-#include "qzsettings.h"
 #include "Tools/testsettings.h"
 
 

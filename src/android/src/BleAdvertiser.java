@@ -1,0 +1,199 @@
+package org.cagnulen.qdomyoszwift;
+
+import android.app.ActivityManager;
+import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.provider.Settings;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+import android.os.Looper;
+import android.os.Handler;
+import org.cagnulen.qdomyoszwift.QLog;
+import android.content.BroadcastReceiver;
+import android.content.ContextWrapper;
+import android.content.IntentFilter;
+import android.widget.Toast;
+
+import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.List;
+
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.AdvertiseData;
+import android.bluetooth.le.AdvertiseCallback;
+import android.bluetooth.le.AdvertiseSettings;
+import android.os.ParcelUuid;
+import java.util.UUID;
+
+public class BleAdvertiser {
+    private static final UUID SERVICE_UUID = UUID.fromString("00001826-0000-1000-8000-00805f9b34fb");
+    private static final UUID ECHELON_SERVICE_UUID = UUID.fromString("0bf669f0-45f2-11e7-9598-0800200c9a66");
+    private static final String ECHELON_DEVICE_NAME = "ECHEX-5s-160880";
+    // PM5 Concept2 UUIDs
+    private static final UUID PM5_DISCOVERY_SERVICE_UUID = UUID.fromString("CE060000-43E5-11E4-916C-0800200C9A66");
+    private static final UUID PM5_ROWING_SERVICE_UUID = UUID.fromString("CE060030-43E5-11E4-916C-0800200C9A66");
+    private static final byte[] SERVICE_DATA_ROWER = {0x01, 0x10, 0x00};
+    private static final byte[] SERVICE_DATA_TREADMILL = {0x01, 0x01, 0x00};
+
+    public static void startAdvertisingEchelon(Context context, String deviceName) {
+        try {
+            if (context == null) {
+                QLog.e("BleAdvertiser", "Context is null for Echelon advertising");
+                return;
+            }
+
+            BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+            if (bluetoothManager != null) {
+                android.bluetooth.BluetoothAdapter adapter = bluetoothManager.getAdapter();
+                if (adapter == null) {
+                    QLog.e("BleAdvertiser", "Bluetooth adapter is null for Echelon advertising");
+                    return;
+                }
+
+                android.bluetooth.le.BluetoothLeAdvertiser advertiser = adapter.getBluetoothLeAdvertiser();
+
+                AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                        .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                        .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                        .setConnectable(true)
+                        .build();
+
+                AdvertiseData advertiseData = new AdvertiseData.Builder()
+                        .addServiceUuid(new ParcelUuid(ECHELON_SERVICE_UUID))
+                        .build();
+
+                if (advertiser != null) {
+                    try {
+                        adapter.setName(deviceName != null && !deviceName.isEmpty() ? deviceName : ECHELON_DEVICE_NAME);
+                    } catch (SecurityException | IllegalArgumentException e) {
+                        QLog.e("BleAdvertiser", "Unable to set Echelon device name: " + e.getMessage());
+                    }
+                    advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
+                } else {
+                    QLog.e("BleAdvertiser", "BluetoothLeAdvertiser is null for Echelon advertising");
+                }
+            }
+        } catch (Throwable t) {
+            QLog.e("BleAdvertiser", "Echelon advertising crash: " + t.toString());
+        }
+    }
+
+    public static void stopAdvertising(Context context) {
+        try {
+            if (context == null) {
+                return;
+            }
+
+            BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+            if (bluetoothManager == null || bluetoothManager.getAdapter() == null) {
+                return;
+            }
+
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser =
+                    bluetoothManager.getAdapter().getBluetoothLeAdvertiser();
+            if (advertiser != null) {
+                advertiser.stopAdvertising(advertiseCallback);
+            }
+        } catch (Throwable t) {
+            QLog.e("BleAdvertiser", "stopAdvertising crash: " + t.toString());
+        }
+    }
+
+    public static void startAdvertisingRower(Context context) {
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager != null) {
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser = bluetoothManager.getAdapter().getBluetoothLeAdvertiser();
+
+            AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true)
+                    .build();
+
+            AdvertiseData advertiseData = new AdvertiseData.Builder()
+                    .setIncludeDeviceName(true)
+                    .addServiceUuid(new ParcelUuid(SERVICE_UUID))
+                    .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA_ROWER)
+                    .build();
+
+            if (advertiser != null) {
+                advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
+            }
+        }
+    }
+
+    public static void startAdvertisingRowerPM5(Context context) {
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager != null) {
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser = bluetoothManager.getAdapter().getBluetoothLeAdvertiser();
+
+            AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true)
+                    .build();
+
+            // PM5 advertising data - device name only (to save space)
+            // Full name "PM5 430000000" is set via Bluetooth adapter
+            AdvertiseData advertiseData = new AdvertiseData.Builder()
+                    .setIncludeDeviceName(true)
+                    .build();
+
+            // Scan response contains the PM5 discovery service UUID (CE060000)
+            // This is how real PM5 devices advertise - UUID in scan response
+            AdvertiseData scanResponse = new AdvertiseData.Builder()
+                    .addServiceUuid(new ParcelUuid(PM5_DISCOVERY_SERVICE_UUID))
+                    .build();
+
+            if (advertiser != null) {
+                QLog.d("BleAdvertiser", "Starting PM5 advertising with scan response UUID: " + PM5_DISCOVERY_SERVICE_UUID.toString());
+                advertiser.startAdvertising(settings, advertiseData, scanResponse, advertiseCallback);
+            }
+        }
+    }
+
+    public static void startAdvertisingTreadmill(Context context) {
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager != null) {
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser = bluetoothManager.getAdapter().getBluetoothLeAdvertiser();
+
+            AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true)
+                    .build();
+
+            AdvertiseData advertiseData = new AdvertiseData.Builder()
+                    .setIncludeDeviceName(true)
+                    .addServiceUuid(new ParcelUuid(SERVICE_UUID))
+                    .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA_TREADMILL)
+                    .build();
+
+            if (advertiser != null) {
+                advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
+            }
+        }
+    }
+
+    private static AdvertiseCallback advertiseCallback = new AdvertiseCallback() {
+        @Override
+        public void onStartSuccess(AdvertiseSettings settingsInEffect) {
+          QLog.d("BleAdvertiser", "Advertising started successfully");
+        }
+
+        @Override
+        public void onStartFailure(int errorCode) {
+          QLog.e("BleAdvertiser", "Advertising failed with error code: " + errorCode);
+        }
+    };
+}

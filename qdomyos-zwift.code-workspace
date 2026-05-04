@@ -1,0 +1,37 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"list": "cpp",
+			"chrono": "cpp",
+			"complex": "cpp",
+			"functional": "cpp",
+			"optional": "cpp",
+			"system_error": "cpp",
+			"type_traits": "cpp",
+			"xlocnum": "cpp",
+			"xtr1common": "cpp",
+			"qhttpserver": "cpp",
+			"array": "cpp",
+			"deque": "cpp",
+			"map": "cpp",
+			"unordered_map": "cpp",
+			"vector": "cpp",
+			"xstring": "cpp",
+			"algorithm": "cpp",
+			"xutility": "cpp",
+			"xlocale": "cpp",
+			"filesystem": "cpp",
+			"bitset": "cpp",
+			"iterator": "cpp",
+			"xhash": "cpp",
+			"xtree": "cpp",
+			"ostream": "cpp",
+			"locale": "cpp"
+		}
+	}
+}

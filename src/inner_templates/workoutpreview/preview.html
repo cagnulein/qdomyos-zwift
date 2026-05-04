@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Workout Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1d2330;
+            color: white;
+            padding: 10px;
+        }
+
+        #chart-container {
+            width: 100%;
+            height: 400px;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+    <div id="chart-container">
+        <canvas id="workoutChart"></canvas>
+    </div>
+
+    <script>
+        let chart = null;
+        let miles = 1; // 1 = km, 0.621371 = miles
+
+        // Function to create/update the workout chart
+        function updateWorkoutChart(workoutData, deviceType) {
+            const ctx = document.getElementById('workoutChart').getContext('2d');
+
+            // Destroy existing chart
+            if (chart) {
+                chart.destroy();
+            }
+
+            // Prepare datasets based on device type
+            const datasets = [];
+
+            // Determine primary metric based on device type
+            const primaryMetric = getPrimaryMetric(deviceType, workoutData);
+
+            if (primaryMetric) {
+                datasets.push({
+                    label: primaryMetric.label,
+                    data: primaryMetric.data,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 0,
+                    yAxisID: 'y'
+                });
+            }
+
+            // Add cadence as secondary metric for bikes
+            if (deviceType === 'bike' && workoutData.cadence && workoutData.cadence.length > 0) {
+                datasets.push({
+                    label: 'Cadence (RPM)',
+                    data: workoutData.cadence,
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 0,
+                    yAxisID: 'y1'
+                });
+            }
+
+            // Add inclination as secondary metric for treadmills
+            if (deviceType === 'treadmill' && workoutData.inclination && workoutData.inclination.length > 0) {
+                datasets.push({
+                    label: 'Inclination (%)',
+                    data: workoutData.inclination,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 0,
+                    yAxisID: 'y1'
+                });
+            }
+
+            // Create chart
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            display: datasets.length > 1,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            enabled: true,
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += Math.round(context.parsed.y * 10) / 10;
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Time (seconds)',
+                                color: '#666'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    const minutes = Math.floor(value / 60);
+                                    const seconds = Math.floor(value % 60);
+                                    return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+                                },
+                                color: '#666'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: primaryMetric ? primaryMetric.label : 'Value',
+                                color: '#3b82f6'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                color: '#3b82f6'
+                            }
+                        },
+                        y1: {
+                            beginAtZero: deviceType !== 'treadmill',
+                            position: 'right',
+                            display: (deviceType === 'bike' && workoutData.cadence && workoutData.cadence.length > 0) ||
+                                     (deviceType === 'treadmill' && workoutData.inclination && workoutData.inclination.length > 0),
+                            title: {
+                                display: true,
+                                text: deviceType === 'treadmill' ? 'Inclination (%)' : 'Cadence (RPM)',
+                                color: deviceType === 'treadmill' ? '#10b981' : '#f59e0b'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            },
+                            ticks: {
+                                color: deviceType === 'treadmill' ? '#10b981' : '#f59e0b'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Determine primary metric based on device type
+        function getPrimaryMetric(deviceType, workoutData) {
+            const { watts, speed, inclination, resistance, cadence } = workoutData;
+
+            // For bikes: show watts (power)
+            if (deviceType === 'bike' && watts && watts.length > 0) {
+                return {
+                    label: 'Power (W)',
+                    data: watts
+                };
+            }
+
+            // For treadmills: show speed
+            if (deviceType === 'treadmill' && speed && speed.length > 0) {
+                return {
+                    label: 'Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
+                    data: speed.map(point => ({ x: point.x, y: point.y * miles }))
+                };
+            }
+
+            // For ellipticals/rowers: show watts if available, otherwise resistance
+            if ((deviceType === 'elliptical' || deviceType === 'rower')) {
+                if (watts && watts.length > 0) {
+                    return {
+                        label: 'Power (W)',
+                        data: watts
+                    };
+                }
+                if (resistance && resistance.length > 0) {
+                    return {
+                        label: 'Resistance',
+                        data: resistance
+                    };
+                }
+            }
+
+            // Default: try watts, then speed, then resistance
+            if (watts && watts.length > 0) {
+                return {
+                    label: 'Power (W)',
+                    data: watts
+                };
+            }
+            if (speed && speed.length > 0) {
+                return {
+                    label: 'Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
+                    data: speed.map(point => ({ x: point.x, y: point.y * miles }))
+                };
+            }
+            if (resistance && resistance.length > 0) {
+                return {
+                    label: 'Resistance',
+                    data: resistance
+                };
+            }
+
+            return null;
+        }
+
+        // WebSocket for communication with Qt
+        let ws = null;
+        let requestTimer = null;
+        let lastDataHash = null; // Track last received data to avoid unnecessary redraws
+
+        // Send request for workout preview data
+        function requestWorkoutPreview() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                return;
+            }
+
+            const message = {
+                msg: 'getworkoutpreview',
+                content: {}
+            };
+
+            console.log('Requesting workout preview data');
+            ws.send(JSON.stringify(message));
+        }
+
+        // WebSocket setup
+        function setupWebSocket() {
+            const host = (!location.host || location.host.length == 0) ? 'localhost:6666' : location.host;
+            const wsUrl = `ws://${host}/workoutpreview-ws`;
+
+            console.log('Connecting to WebSocket:', wsUrl);
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = function() {
+                console.log('WebSocket connected');
+
+                // Request initial data
+                requestWorkoutPreview();
+
+                // Set up periodic updates (every 500ms to catch changes)
+                if (requestTimer) {
+                    clearInterval(requestTimer);
+                }
+                requestTimer = setInterval(requestWorkoutPreview, 500);
+            };
+
+            ws.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    handleMessage(data);
+                } catch (e) {
+                    console.error('Error parsing message:', e);
+                }
+            };
+
+            ws.onerror = function(error) {
+                console.error('WebSocket error:', error);
+            };
+
+            ws.onclose = function() {
+                console.log('WebSocket closed, attempting reconnect in 5 seconds');
+                if (requestTimer) {
+                    clearInterval(requestTimer);
+                    requestTimer = null;
+                }
+                setTimeout(setupWebSocket, 5000);
+            };
+        }
+
+        // Handle incoming WebSocket messages
+        function handleMessage(data) {
+            console.log('Received message:', data);
+
+            const msgType = data.type || data.msg;
+
+            if (msgType === 'workoutpreview' || msgType === 'R_workoutpreview') {
+                const content = data.content || data;
+                updateWorkoutFromData(content);
+            }
+        }
+
+        // Update chart from WebSocket data
+        function updateWorkoutFromData(data) {
+            // Create a hash of the data to detect changes
+            const dataHash = JSON.stringify({
+                points: data.points,
+                watts: data.watts,
+                speed: data.speed,
+                inclination: data.inclination,
+                resistance: data.resistance,
+                cadence: data.cadence,
+                deviceType: data.deviceType
+            });
+
+            // Only update if data has changed
+            if (dataHash === lastDataHash) {
+                return;
+            }
+
+            lastDataHash = dataHash;
+
+            const { points, watts, speed, inclination, resistance, cadence, deviceType, miles_unit } = data;
+
+            // Update miles setting if provided
+            if (miles_unit !== undefined) {
+                miles = miles_unit ? 0.621371 : 1;
+            }
+
+            const workoutData = {
+                watts: watts || [],
+                speed: speed || [],
+                inclination: inclination || [],
+                resistance: resistance || [],
+                cadence: cadence || []
+            };
+
+            // The C++ backend always populates watts even for treadmill workouts where
+            // power is unset (sent as y = -1).  Detect the actual device type from data.
+            var hasValidWatts = workoutData.watts.some(function(p) {
+                return (p !== null && typeof p === 'object' && p.y !== undefined) ? p.y >= 0 : Number(p) >= 0;
+            });
+            var actualDeviceType = deviceType || 'bike';
+            if (!hasValidWatts) {
+                if (workoutData.speed.length > 0) {
+                    actualDeviceType = 'treadmill';
+                } else if (workoutData.resistance.length > 0) {
+                    actualDeviceType = 'elliptical';
+                }
+            }
+
+            console.log('Updating chart with new data');
+            updateWorkoutChart(workoutData, actualDeviceType);
+        }
+
+        // External API for backwards compatibility (if needed)
+        window.setWorkoutData = updateWorkoutFromData;
+
+        // Initialize WebSocket connection
+        setupWebSocket();
+
+        // Initialize with empty chart
+        window.addEventListener('load', function() {
+            updateWorkoutChart({
+                watts: [],
+                speed: [],
+                inclination: [],
+                resistance: []
+            }, 'bike');
+        });
+    </script>
+</body>
+</html>

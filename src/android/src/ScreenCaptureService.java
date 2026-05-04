@@ -18,7 +18,7 @@ import android.media.projection.MediaProjectionManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.util.Log;
+import org.cagnulen.qdomyoszwift.QLog;
 import android.view.Display;
 import android.view.OrientationEventListener;
 import android.view.WindowManager;
@@ -43,6 +43,8 @@ import android.graphics.Rect;
 import android.graphics.Point;
 
 import androidx.core.util.Pair;
+import org.cagnulen.qdomyoszwift.QLog;
+import android.os.Build;
 
 public class ScreenCaptureService extends Service {
 
@@ -56,6 +58,9 @@ public class ScreenCaptureService extends Service {
 
     private static int IMAGES_PRODUCED;
 
+    private static final String EXTRA_FOREGROUND_SERVICE_TYPE = "FOREGROUND_SERVICE_TYPE";
+    private static final int FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE = 0x10;
+
     private MediaProjection mMediaProjection;
     private String mStoreDir;
     private ImageReader mImageReader;
@@ -65,16 +70,31 @@ public class ScreenCaptureService extends Service {
     private int mDensity;
     private int mWidth;
     private int mHeight;
+	 private static int mWidthImage;
+	 private static int mHeightImage;
     private int mRotation;
     private OrientationChangeCallback mOrientationChangeCallback;
 
     private TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
 	 private static String lastText = "";
+	 private static String lastTextExtended = "";
 	 private static boolean isRunning = false;
 
 	 public static String getLastText() {
 		 return lastText;
+	 }
+
+    public static String getLastTextExtended() {
+		 return lastTextExtended;
+	 }
+
+    public static int getImageWidth() {
+		 return mWidthImage;
+		}
+
+	 public static int getImageHeight() {
+		 return mHeightImage;
 	 }
 
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
@@ -117,11 +137,13 @@ public class ScreenCaptureService extends Service {
                         int pixelStride = planes[0].getPixelStride();
                         int rowStride = planes[0].getRowStride();
                         int rowPadding = rowStride - pixelStride * mWidth;
-                        //Log.e(TAG, "Image reviewing");
+                        //QLog.e(TAG, "Image reviewing");
 
                           isRunning = true;
 
                           // create bitmap
+								  mWidthImage = mWidth + rowPadding / pixelStride;
+								  mHeightImage = mHeight;
                           final Bitmap bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
                           bitmap.copyPixelsFromBuffer(buffer);
 /*
@@ -130,7 +152,7 @@ public class ScreenCaptureService extends Service {
                           bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
                           IMAGES_PRODUCED++;
-                          Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
+                          QLog.e(TAG, "captured image: " + IMAGES_PRODUCED);
 */
 
                           InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
@@ -147,16 +169,17 @@ public class ScreenCaptureService extends Service {
                                   public void onSuccess(Text result) {
                                           // Task completed successfully
 
-                                          //Log.e(TAG, "Image done!");
+                                          //QLog.e(TAG, "Image done!");
 
                                           String resultText = result.getText();
                                           lastText = resultText;
-                                          /*
+                                          lastTextExtended = "";
                                           for (Text.TextBlock block : result.getTextBlocks()) {
                                                    String blockText = block.getText();
                                                         Point[] blockCornerPoints = block.getCornerPoints();
                                                         Rect blockFrame = block.getBoundingBox();
-                                                        for (Text.Line line : block.getLines()) {
+                                                          lastTextExtended = lastTextExtended + blockText + "$$" + blockFrame.toString() + "§§";
+							  /*for (Text.Line line : block.getLines()) {
                                                                  String lineText = line.getText();
                                                                  Point[] lineCornerPoints = line.getCornerPoints();
                                                                  Rect lineFrame = line.getBoundingBox();
@@ -170,8 +193,8 @@ public class ScreenCaptureService extends Service {
                                                                                         Rect symbolFrame = symbol.getBoundingBox();
                                                                                         }
                                                                  }
-                                                        }
-                                          }*/
+																				}*/
+																	}
                                      bitmap.recycle();
                                      isRunning = false;
                                           }
@@ -181,12 +204,12 @@ public class ScreenCaptureService extends Service {
                                   @Override
                                   public void onFailure(Exception e) {
                                           // Task failed with an exception
-                                          //Log.e(TAG, "Image fail");
+                                          //QLog.e(TAG, "Image fail");
                                           isRunning = false;
                                           }
                                   });
                           } else {
-                            //Log.e(TAG, "Image ignored");
+                            //QLog.e(TAG, "Image ignored");
                           }
                       }
             } catch (Exception e) {
@@ -223,7 +246,7 @@ public class ScreenCaptureService extends Service {
     private class MediaProjectionStopCallback extends MediaProjection.Callback {
         @Override
         public void onStop() {
-            Log.e(TAG, "stopping projection.");
+            QLog.e(TAG, "stopping projection.");
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -253,12 +276,12 @@ public class ScreenCaptureService extends Service {
             if (!storeDirectory.exists()) {
                 boolean success = storeDirectory.mkdirs();
                 if (!success) {
-                    Log.e(TAG, "failed to create file storage directory.");
+                    QLog.e(TAG, "failed to create file storage directory.");
                     stopSelf();
                 }
             }
         } else {
-            Log.e(TAG, "failed to create file storage directory, getExternalFilesDir is null.");
+            QLog.e(TAG, "failed to create file storage directory, getExternalFilesDir is null.");
             stopSelf();
         }
 
@@ -278,7 +301,18 @@ public class ScreenCaptureService extends Service {
         if (isStartCommand(intent)) {
             // create notification
             Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);
-            startForeground(notification.first, notification.second);
+
+            try {
+                int serviceType = intent.getIntExtra(EXTRA_FOREGROUND_SERVICE_TYPE, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    startForeground(notification.first, notification.second, serviceType);
+                } else {
+                    startForeground(notification.first, notification.second);
+                }
+            } catch (Exception e) {
+                QLog.e("ForegroundService", "Failed to start foreground service", e);
+                return START_NOT_STICKY;
+            }
             // start projection
             int resultCode = intent.getIntExtra(RESULT_CODE, Activity.RESULT_CANCELED);
             Intent data = intent.getParcelableExtra(DATA);

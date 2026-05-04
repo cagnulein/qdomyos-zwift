@@ -58,7 +58,7 @@ public class AdbProtocol {
 	 * processed successfully. */
 	public static final int CMD_OKAY = 0x59414b4f;
 	
-	/** CLSE is the close stream message. It it sent to close an
+	/** CLSE is the close stream message. It is sent to close an
 	 * existing stream on the target device. */
 	public static final int CMD_CLSE = 0x45534c43;
 	
