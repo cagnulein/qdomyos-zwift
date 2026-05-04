@@ -404,6 +404,21 @@ Status: done
   - this makes the generated Android project self-contained for the legacy Qt
     Ministro interface that `QtLoader.java` still imports under Qt `5.15.0`
 
+### 2026-05-04 22. Explicit AIDL enablement for AGP 8
+
+Status: done
+
+- The next Android CI run moved past the previous blockers but still failed
+  compiling `QtLoader.java` against missing `org.kde.necessitas.ministro.*`
+  symbols.
+- The key signal in the task graph was the absence of any AIDL compilation task
+  before `compileDebugJavaWithJavac`.
+- Updated `src/android/build.gradle` to enable AIDL explicitly under AGP 8:
+  - `buildFeatures { aidl = true }`
+- Reason for the change:
+  - the Qt Android Java tree still depends on legacy Ministro AIDL-generated
+    interfaces, and relying on AGP defaults here is not stable enough
+
 ## Failures / Dead Ends
 
 - One `zwiftplay` build attempt was interrupted manually before completion.

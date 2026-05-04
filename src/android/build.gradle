@@ -130,6 +130,10 @@ android {
         checkReleaseBuilds = false
     }
 
+    buildFeatures {
+        aidl = true
+    }
+
     // Do not compress Qt binary resources file
     androidResources {
         noCompress += 'rcc'
