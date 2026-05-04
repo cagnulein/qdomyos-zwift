@@ -712,6 +712,8 @@ jobs:
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
           rm -f "$HOME/.gradle/gradle.properties"
+          mkdir -p ${{ github.workspace }}/output/android/src/org/kde/necessitas/ministro
+          cp -R "$QT_ANDROID_DIR/src/android/java/src/org/kde/necessitas/ministro/." ${{ github.workspace }}/output/android/src/org/kde/necessitas/ministro/
           find ${{ github.workspace }}/output/android \( -name '*.properties' -o -name '*.gradle' -o -name '*.gradle.kts' \) -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} +
           printf '\nqt5AndroidDir=%s/src/android/java\n' "$QT_ANDROID_DIR" >> ${{ github.workspace }}/output/android/gradle.properties
           echo "Residual enableUncompressedNativeLibs matches after sanitization:"
@@ -1947,6 +1949,8 @@ jobs:
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
           rm -f "$HOME/.gradle/gradle.properties"
+          mkdir -p ${{ github.workspace }}/output/android/src/org/kde/necessitas/ministro
+          cp -R "$QT_ANDROID_DIR/src/android/java/src/org/kde/necessitas/ministro/." ${{ github.workspace }}/output/android/src/org/kde/necessitas/ministro/
           find ${{ github.workspace }}/output/android \( -name '*.properties' -o -name '*.gradle' -o -name '*.gradle.kts' \) -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} +
           printf '\nqt5AndroidDir=%s/src/android/java\n' "$QT_ANDROID_DIR" >> ${{ github.workspace }}/output/android/gradle.properties
           echo "Residual enableUncompressedNativeLibs matches after sanitization:"
@@ -2071,6 +2075,8 @@ jobs:
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
           rm -f "$HOME/.gradle/gradle.properties"
+          mkdir -p ${{ github.workspace }}/output/android/src/org/kde/necessitas/ministro
+          cp -R "$QT_ANDROID_DIR/src/android/java/src/org/kde/necessitas/ministro/." ${{ github.workspace }}/output/android/src/org/kde/necessitas/ministro/
           find ${{ github.workspace }}/output/android \( -name '*.properties' -o -name '*.gradle' -o -name '*.gradle.kts' \) -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} +
           printf '\nqt5AndroidDir=%s/src/android/java\n' "$QT_ANDROID_DIR" >> ${{ github.workspace }}/output/android/gradle.properties
           echo "Residual enableUncompressedNativeLibs matches after sanitization:"
@@ -2195,6 +2201,8 @@ jobs:
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
           rm -f "$HOME/.gradle/gradle.properties"
+          mkdir -p ${{ github.workspace }}/output/android/src/org/kde/necessitas/ministro
+          cp -R "$QT_ANDROID_DIR/src/android/java/src/org/kde/necessitas/ministro/." ${{ github.workspace }}/output/android/src/org/kde/necessitas/ministro/
           find ${{ github.workspace }}/output/android \( -name '*.properties' -o -name '*.gradle' -o -name '*.gradle.kts' \) -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} +
           printf '\nqt5AndroidDir=%s/src/android/java\n' "$QT_ANDROID_DIR" >> ${{ github.workspace }}/output/android/gradle.properties
           echo "Residual enableUncompressedNativeLibs matches after sanitization:"

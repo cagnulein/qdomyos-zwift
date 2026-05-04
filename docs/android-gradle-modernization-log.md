@@ -387,6 +387,23 @@ Status: done
   - the generated Gradle project now gets far enough that the remaining blocker
     is standard Qt-for-Android path wiring, not AGP modernization itself
 
+### 2026-05-04 21. GitHub Actions Ministro AIDL/package seed
+
+Status: done
+
+- The next Android CI run moved past `qt5AndroidDir` and failed compiling
+  `QtLoader.java` because `org.kde.necessitas.ministro.*` types were missing.
+- The Qt Android Java tree referenced by `QtLoader` still includes Ministro
+  bindings, but relying on those AIDL sources only through the external Qt tree
+  was not proving reliable enough in CI.
+- Updated Android packaging jobs to copy the Ministro package directly into the
+  generated project source tree:
+  - from `$QT_ANDROID_DIR/src/android/java/src/org/kde/necessitas/ministro`
+  - to `output/android/src/org/kde/necessitas/ministro`
+- Reason for the change:
+  - this makes the generated Android project self-contained for the legacy Qt
+    Ministro interface that `QtLoader.java` still imports under Qt `5.15.0`
+
 ## Failures / Dead Ends
 
 - One `zwiftplay` build attempt was interrupted manually before completion.
