@@ -370,6 +370,23 @@ Status: done
   - this avoids continuing to chase one missing prepared-package file at a time
     and matches what aux mode actually expects
 
+### 2026-05-04 20. GitHub Actions qt5AndroidDir and portable diagnostics
+
+Status: done
+
+- The next Android CI run finally reached the explicit Gradle invocation and
+  exposed two new issues:
+  - `rg: command not found` on the runner
+  - `qt5AndroidDir is not set`
+- Updated Android packaging jobs to:
+  - replace `rg` with portable `grep -RInE`
+  - export `QT_ANDROID_DIR=${{ github.workspace }}/output/android/Qt/5.15.0/android`
+  - append `qt5AndroidDir=$QT_ANDROID_DIR/src/android/java` to the generated
+    `output/android/gradle.properties`
+- Reason for the change:
+  - the generated Gradle project now gets far enough that the remaining blocker
+    is standard Qt-for-Android path wiring, not AGP modernization itself
+
 ## Failures / Dead Ends
 
 - One `zwiftplay` build attempt was interrupted manually before completion.
