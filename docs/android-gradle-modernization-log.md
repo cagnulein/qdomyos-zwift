@@ -353,6 +353,23 @@ Status: done
   - `--aux-mode` avoids the broken internal Gradle path, but it also assumes
     some prepared-package files already exist in the output tree
 
+### 2026-05-04 19. GitHub Actions aux-mode full Android package seed
+
+Status: done
+
+- The next Android CI run moved past `libs.xml` and then failed with:
+  - `Cannot open .../output/android/AndroidManifest.xml for reading`
+- That showed the problem was broader than a single missing resource file:
+  `--aux-mode` expects the prepared package tree itself to exist under the
+  output directory.
+- Updated Android packaging jobs to seed the whole `src/android/` package tree
+  into `${{ github.workspace }}/output/android/` before running `androiddeployqt`
+  in aux mode:
+  - `rsync -a --exclude build --exclude .gradle android/ output/android/`
+- Reason for the change:
+  - this avoids continuing to chase one missing prepared-package file at a time
+    and matches what aux mode actually expects
+
 ## Failures / Dead Ends
 
 - One `zwiftplay` build attempt was interrupted manually before completion.

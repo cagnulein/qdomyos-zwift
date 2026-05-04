@@ -702,8 +702,8 @@ jobs:
       - name: Build Android package
         run: |
           cd src
-          mkdir -p ${{ github.workspace }}/output/android/res/values
-          cp android/res/values/libs.xml ${{ github.workspace }}/output/android/res/values/libs.xml
+          mkdir -p ${{ github.workspace }}/output/android
+          rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
           androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aux-mode
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
@@ -1935,8 +1935,8 @@ jobs:
       - name: Build Android package
         run: |
           cd src
-          mkdir -p ${{ github.workspace }}/output/android/res/values
-          cp android/res/values/libs.xml ${{ github.workspace }}/output/android/res/values/libs.xml
+          mkdir -p ${{ github.workspace }}/output/android
+          rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
           androiddeployqt --input android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aux-mode
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
@@ -2057,8 +2057,8 @@ jobs:
       - name: Build Android package
         run: |
           cd src
-          mkdir -p ${{ github.workspace }}/output/android/res/values
-          cp android/res/values/libs.xml ${{ github.workspace }}/output/android/res/values/libs.xml
+          mkdir -p ${{ github.workspace }}/output/android
+          rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
           androiddeployqt --input android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aux-mode
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
@@ -2179,8 +2179,8 @@ jobs:
       - name: Build Android package
         run: |
           cd src
-          mkdir -p ${{ github.workspace }}/output/android/res/values
-          cp android/res/values/libs.xml ${{ github.workspace }}/output/android/res/values/libs.xml
+          mkdir -p ${{ github.workspace }}/output/android
+          rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
           androiddeployqt --input android-qdomyos-zwift-peloton-bike-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aux-mode
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
