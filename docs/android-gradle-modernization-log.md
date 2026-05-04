@@ -296,6 +296,24 @@ Status: done
   - this removes the last dependency on runner-global wrapper bootstrap behavior
     and makes the Android CI Gradle entrypoint deterministic
 
+### 2026-05-04 16. GitHub Actions residual-property guard
+
+Status: done
+
+- Even after bypassing the wrapper, Android CI still failed with the same AGP 8
+  deprecation at plugin application time.
+- That means the deprecated property is still present somewhere in the effective
+  Gradle inputs, but previous reduced logging was not enough to prove where.
+- Updated Android packaging jobs to:
+  - sanitize every generated `*.properties`, `*.gradle`, and `*.gradle.kts`
+    file under `output/android`
+  - scan `output/android`, `$GRADLE_USER_HOME`, and `$HOME/.gradle` for any
+    remaining `enableUncompressedNativeLibs` match
+  - fail immediately with the residual match list if anything remains
+- Reason for the change:
+  - the next rerun will either be green or will expose the exact file still
+    feeding the deprecated property into AGP
+
 ## Failures / Dead Ends
 
 - One `zwiftplay` build attempt was interrupted manually before completion.

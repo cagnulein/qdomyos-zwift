@@ -709,7 +709,12 @@ jobs:
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
           rm -f "$HOME/.gradle/gradle.properties"
-          find ${{ github.workspace }}/output/android -name gradle.properties -exec sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' {} +
+          find ${{ github.workspace }}/output/android \( -name '*.properties' -o -name '*.gradle' -o -name '*.gradle.kts' \) -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} +
+          echo "Residual enableUncompressedNativeLibs matches after sanitization:"
+          if rg -n "android\\.bundle\\.enableUncompressedNativeLibs|enableUncompressedNativeLibs" ${{ github.workspace }}/output/android "$GRADLE_USER_HOME" "$HOME/.gradle" ; then
+            echo "Unexpected residual matches found"
+            exit 1
+          fi
           find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
           if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
             curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
@@ -1935,7 +1940,12 @@ jobs:
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
           rm -f "$HOME/.gradle/gradle.properties"
-          find ${{ github.workspace }}/output/android -name gradle.properties -exec sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' {} +
+          find ${{ github.workspace }}/output/android \( -name '*.properties' -o -name '*.gradle' -o -name '*.gradle.kts' \) -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} +
+          echo "Residual enableUncompressedNativeLibs matches after sanitization:"
+          if rg -n "android\\.bundle\\.enableUncompressedNativeLibs|enableUncompressedNativeLibs" ${{ github.workspace }}/output/android "$GRADLE_USER_HOME" "$HOME/.gradle" ; then
+            echo "Unexpected residual matches found"
+            exit 1
+          fi
           find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
           if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
             curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
@@ -2050,7 +2060,12 @@ jobs:
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
           rm -f "$HOME/.gradle/gradle.properties"
-          find ${{ github.workspace }}/output/android -name gradle.properties -exec sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' {} +
+          find ${{ github.workspace }}/output/android \( -name '*.properties' -o -name '*.gradle' -o -name '*.gradle.kts' \) -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} +
+          echo "Residual enableUncompressedNativeLibs matches after sanitization:"
+          if rg -n "android\\.bundle\\.enableUncompressedNativeLibs|enableUncompressedNativeLibs" ${{ github.workspace }}/output/android "$GRADLE_USER_HOME" "$HOME/.gradle" ; then
+            echo "Unexpected residual matches found"
+            exit 1
+          fi
           find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
           if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
             curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
@@ -2165,7 +2180,12 @@ jobs:
           mkdir -p "$GRADLE_USER_HOME"
           rm -f "$GRADLE_USER_HOME/gradle.properties"
           rm -f "$HOME/.gradle/gradle.properties"
-          find ${{ github.workspace }}/output/android -name gradle.properties -exec sed -i '/^[[:space:]]*android\.bundle\.enableUncompressedNativeLibs[[:space:]]*=.*/d' {} +
+          find ${{ github.workspace }}/output/android \( -name '*.properties' -o -name '*.gradle' -o -name '*.gradle.kts' \) -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} +
+          echo "Residual enableUncompressedNativeLibs matches after sanitization:"
+          if rg -n "android\\.bundle\\.enableUncompressedNativeLibs|enableUncompressedNativeLibs" ${{ github.workspace }}/output/android "$GRADLE_USER_HOME" "$HOME/.gradle" ; then
+            echo "Unexpected residual matches found"
+            exit 1
+          fi
           find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
           if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
             curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
