@@ -314,6 +314,27 @@ Status: done
   - the next rerun will either be green or will expose the exact file still
     feeding the deprecated property into AGP
 
+### 2026-05-04 17. GitHub Actions androiddeployqt early-Gradle bypass
+
+Status: done
+
+- A later debug-enabled Android CI run showed that execution never reached the
+  post-generation diagnostic line:
+  - `Residual enableUncompressedNativeLibs matches after sanitization:`
+- That means the failure was happening inside `androiddeployqt` itself, before
+  the workflow had any chance to sanitize the generated Gradle files.
+- Updated Android packaging jobs to switch from:
+  - `androiddeployqt --gradle --aab --no-build`
+  to:
+  - `androiddeployqt --gradle --aux-mode`
+- The `.aab` is still produced by the explicit Gradle step that follows:
+  - `assembleDebug bundleDebug`
+- Reason for the change:
+  - Qt `5.15.0` + modern AGP is tripping on the generated deprecated property
+    during `androiddeployqt`'s internal Gradle path, so the safe route is to
+    use `androiddeployqt` only for project generation and let the workflow own
+    the Gradle build stage entirely
+
 ## Failures / Dead Ends
 
 - One `zwiftplay` build attempt was interrupted manually before completion.
