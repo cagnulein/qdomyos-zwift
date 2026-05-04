@@ -4804,9 +4804,7 @@ void homeform::Plus(const QString &name) {
     } else if (name.contains("gears")) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == BIKE) {
-                ((bike *)bluetoothManager->device())
-                    ->setGears(((bike *)bluetoothManager->device())->gears() +
-                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
+                ((bike *)bluetoothManager->device())->gearUp();
             } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
                     ->setGears(((elliptical *)bluetoothManager->device())->gears() +
@@ -5109,9 +5107,7 @@ void homeform::Minus(const QString &name) {
     } else if (name.contains(QStringLiteral("gears"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == BIKE) {
-                ((bike *)bluetoothManager->device())
-                    ->setGears(((bike *)bluetoothManager->device())->gears() -
-                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
+                ((bike *)bluetoothManager->device())->gearDown();
             } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
                     ->setGears(((elliptical *)bluetoothManager->device())->gears() -
@@ -5521,13 +5517,17 @@ QString homeform::startIcon() {
 void homeform::updateGearsValue() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    bool gears_custom_table_enabled = settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
     bool zwift_gear_ui_aligned = settings.value(QZSettings::zwift_gear_ui_aligned, QZSettings::default_zwift_gear_ui_aligned).toBool();
     double gear = ((bike *)bluetoothManager->device())->gears();
     double maxGearDefault = ((bike *)bluetoothManager->device())->defaultMaxGears();
     double maxGear = ((bike *)bluetoothManager->device())->maxGears();
     if(zwift_gear_ui_aligned && bluetoothManager && bluetoothManager->device() && ((bike *)bluetoothManager->device())->VirtualBike())
         gear = ((bike *)bluetoothManager->device())->VirtualBike()->currentGear();
-    if (settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0 || gears_zwift_ratio || maxGear < maxGearDefault) {
+    if (gears_custom_table_enabled) {
+        this->gears->setValue(QString::number(gear));
+        this->gears->setSecondLine(QStringLiteral("offset ") + QString::number(((bike *)bluetoothManager->device())->gearsModifier(), 'f', 1));
+    } else if (settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0 || gears_zwift_ratio || maxGear < maxGearDefault) {
         this->gears->setValue(QString::number(gear));
         this->gears->setSecondLine(wheelCircumference::gearsInfo(gear));
     } else {

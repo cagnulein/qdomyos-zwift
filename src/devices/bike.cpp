@@ -3,6 +3,7 @@
 #include "qdebugfixup.h"
 #include "homeform.h"
 #include <QSettings>
+#include <QStringList>
 #include <cmath>
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
@@ -57,7 +58,7 @@ void bike::changeResistance(resistance_t resistance) {
 
     lastRawRequestedResistanceValue = resistance;
     if (autoResistanceEnable) {
-        double v = (resistance * m_difficult) + gears();
+        double v = (resistance * m_difficult) + gearsModifier();
         if ((double)v > zwift_erg_resistance_up) {
             qDebug() << "zwift_erg_resistance_up filter enabled!";
             v = (resistance_t)zwift_erg_resistance_up;
@@ -68,7 +69,7 @@ void bike::changeResistance(resistance_t resistance) {
         requestResistance = v;
         emit resistanceChanged(requestResistance);
     }
-    RequestedResistance = resistance * m_difficult + gears();
+    RequestedResistance = resistance * m_difficult + gearsModifier();
 }
 
 void bike::changeInclination(double grade, double percentage) {
@@ -141,8 +142,9 @@ void bike::changePower(int32_t power) {
 double bike::gears() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    bool gears_custom_table_enabled = settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
     double gears_offset = settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble();
-    if(gears_zwift_ratio) {
+    if(gears_zwift_ratio || gears_custom_table_enabled) {
         if(m_gears < 1)
             return 1.0;
         else if(m_gears > 24)
@@ -151,11 +153,68 @@ double bike::gears() {
     return m_gears + gears_offset;
 }
 
+double bike::gearsModifier() {
+    QSettings settings;
+    const bool gears_custom_table_enabled =
+        settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
+    const bool zwift_gear_ui_aligned =
+        settings.value(QZSettings::zwift_gear_ui_aligned, QZSettings::default_zwift_gear_ui_aligned).toBool();
+    if (gears_custom_table_enabled && zwift_gear_ui_aligned && VirtualBike()) {
+        const double zwiftGear = VirtualBike()->currentGear();
+        if (zwiftGear > 0) {
+            return gearsModifier(zwiftGear);
+        }
+    }
+    return gearsModifier(m_gears);
+}
+
+double bike::gearsModifier(double requestedGear) {
+    QSettings settings;
+    if (!settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool()) {
+        const bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+        if (gears_zwift_ratio) {
+            return qBound(1.0, requestedGear, 24.0);
+        }
+        return requestedGear + settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble();
+    }
+
+    int gear = qRound(requestedGear);
+    if (gear < 1) {
+        gear = 1;
+    } else if (gear > 24) {
+        gear = 24;
+    }
+
+    const QString table = settings.value(QZSettings::gears_custom_table, QZSettings::default_gears_custom_table).toString();
+    const QStringList rows = table.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+    for (const QString &row : rows) {
+        const QStringList parts = row.split(QLatin1Char('|'));
+        if (parts.length() < 2) {
+            continue;
+        }
+        bool gearOk = false;
+        bool valueOk = false;
+        const int rowGear = parts.at(0).trimmed().toInt(&gearOk);
+        const double value = parts.at(1).trimmed().toDouble(&valueOk);
+        if (gearOk && valueOk && rowGear == gear) {
+            return qBound(-100.0, value, 100.0);
+        }
+    }
+
+    return gear;
+}
+
 void bike::setGears(double gears) {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    bool gears_custom_table_enabled = settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
     double gears_offset = settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble();
-    gears -= gears_offset;
+    if (!gears_custom_table_enabled) {
+        gears -= gears_offset;
+    }
+    if (gears_zwift_ratio || gears_custom_table_enabled) {
+        gears = qRound(gears);
+    }
     qDebug() << "setGears" << gears;
 
     // Gear boundary handling with smart clamping logic:
@@ -166,24 +225,24 @@ void bike::setGears(double gears) {
     //   goes to 0.5, should be clamped to 1 to allow the system to reach valid state)
     // This prevents the system from getting stuck below minGears due to fractional gains
     // while preserving normal boundary rejection behavior for users at valid gear positions
-    if(gears_zwift_ratio && (gears > 24 || gears < 1)) {
+    if((gears_zwift_ratio || gears_custom_table_enabled) && (gears > 24 || gears < 1)) {
         if(gears > 24) {
             if(m_gears >= 24) {
-                qDebug() << "new gear value ignored - already at zwift ratio maximum: 24";
+                qDebug() << "new gear value ignored - already at maximum: 24";
                 emit gearFailedUp();
                 return;
             } else {
-                qDebug() << "gear value clamped to zwift ratio maximum: 24";
+                qDebug() << "gear value clamped to maximum: 24";
                 gears = 24;
                 emit gearFailedUp();
             }
         } else {
             if(m_gears >= 1) {
-                qDebug() << "new gear value ignored - already at zwift ratio minimum: 1";
+                qDebug() << "new gear value ignored - already at minimum: 1";
                 emit gearFailedDown();
                 return;
             } else {
-                qDebug() << "gear value clamped to zwift ratio minimum: 1"; 
+                qDebug() << "gear value clamped to minimum: 1";
                 gears = 1;
                 emit gearFailedDown();
             }
@@ -612,7 +671,7 @@ void bike::updateSlopeTargetPower(bool force) {
     }
 
     // Apply gear offset to grade (0.5 scaling factor)
-    double grade = m_currentSlopePercent + (gears() / 2.0);
+    double grade = m_currentSlopePercent + (gearsModifier() / 2.0);
 
     // Get current speed (with fallback to cadence-based estimation)
     double speedKmh = getCurrentSpeedForSlope();
