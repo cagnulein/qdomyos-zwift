@@ -143,56 +143,176 @@ void ftmsrower::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
+void ftmsrower::processPm5ParserState(ParserRegressionState &state, const QString &charUuid,
+                                      const QByteArray &newValue, qint64 nowMs) {
+    if (charUuid == QStringLiteral("{ce060031-43e5-11e4-916c-0800200c9a66}")) {
+        if (!state.hasFtmsService && newValue.length() >= 6) {
+            const uint32_t distance_dm =
+                ((((uint32_t)(uint8_t)newValue.at(5)) << 16) | (((uint32_t)(uint8_t)newValue.at(4)) << 8) |
+                 (uint32_t)(uint8_t)newValue.at(3));
+
+            if (distance_dm > 0 || state.distanceKm == 0.0) {
+                state.distanceKm = distance_dm / 10000.0;
+                state.distanceReceivedFromPm5 = (distance_dm > 0);
+                state.lastPm5DistanceUpdateMs = nowMs;
+            }
+        }
+
+        if (newValue.length() >= 10) {
+            state.rowState = (uint8_t)newValue.at(9);
+            state.rowStateReceived = true;
+        }
+        return;
+    }
+
+    if (charUuid == QStringLiteral("{ce060032-43e5-11e4-916c-0800200c9a66}")) {
+        if (newValue.length() < 7) {
+            return;
+        }
+
+        const uint8_t spm = (uint8_t)newValue.at(5);
+        if (spm > 0 && (!state.rowStateReceived || state.rowState != 0)) {
+            state.cadence = spm;
+        }
+        if (state.rowStateReceived && state.rowState == 0) {
+            state.cadence = 0;
+        }
+
+        const uint16_t speedRaw = ((uint8_t)newValue.at(4) << 8) | (uint8_t)newValue.at(3);
+        if (speedRaw > 0 && (!state.rowStateReceived || state.rowState != 0)) {
+            state.speedKmh = (speedRaw * 0.001) * 3.6;
+        }
+        if (state.rowStateReceived && state.rowState == 0) {
+            state.speedKmh = 0;
+        }
+
+        if (!state.hasFtmsService && !state.distanceReceivedFromPm5 && state.lastPm5DistanceUpdateMs > 0) {
+            state.distanceKm += ((state.speedKmh / 3600000.0) * (nowMs - state.lastPm5DistanceUpdateMs));
+        }
+        if (!state.hasFtmsService) {
+            state.lastPm5DistanceUpdateMs = nowMs;
+        }
+    }
+}
+
+void ftmsrower::processFtmsParserState(ParserRegressionState &state, const QByteArray &newValue, qint64 nowMs,
+                                       bool iconsolePlus, bool fitshow, bool mrkR11s, bool whipr, bool kingsmith,
+                                       bool dfitLR) {
+    Q_UNUSED(dfitLR);
+    union flags {
+        struct {
+            uint16_t moreData : 1;
+            uint16_t avgStroke : 1;
+            uint16_t totDistance : 1;
+            uint16_t instantPace : 1;
+            uint16_t avgPace : 1;
+            uint16_t instantPower : 1;
+            uint16_t avgPower : 1;
+            uint16_t resistanceLvl : 1;
+            uint16_t expEnergy : 1;
+            uint16_t heartRate : 1;
+            uint16_t metabolic : 1;
+            uint16_t elapsedTime : 1;
+            uint16_t remainingTime : 1;
+            uint16_t spare : 3;
+        };
+
+        uint16_t word_flags;
+    };
+
+    flags Flags;
+    int index = 0;
+    Q_UNUSED(whipr);
+    Q_UNUSED(kingsmith);
+
+    Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
+    index += 2;
+
+    if (!Flags.moreData) {
+        index += 3;
+    }
+
+    if (Flags.avgStroke) {
+        index += 1;
+    }
+
+    if (Flags.totDistance) {
+        if (iconsolePlus || fitshow || mrkR11s) {
+            if (state.lastRefreshMs > 0) {
+                state.distanceKm += ((state.speedKmh / 3600000.0) * (nowMs - state.lastRefreshMs));
+            }
+        } else if (newValue.length() >= index + 3) {
+            state.distanceKm = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                          (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                         (uint32_t)((uint8_t)newValue.at(index)))) /
+                               1000.0;
+        }
+        index += 3;
+    } else if (state.lastRefreshMs > 0) {
+        state.distanceKm += ((state.speedKmh / 3600000.0) * (nowMs - state.lastRefreshMs));
+    }
+
+    if (Flags.instantPace && newValue.length() >= index + 2) {
+        const double instantPace =
+            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+        if (instantPace == 0 || instantPace == 65535) {
+            state.speedKmh = 0;
+        } else {
+            state.speedKmh = (60.0 / instantPace) * 30.0;
+        }
+    }
+
+    state.lastRefreshMs = nowMs;
+}
+
 void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
     QSettings settings;
     
     QString charUuid = characteristic.uuid().toString();
+
+    ParserRegressionState parserState;
+    parserState.distanceKm = Distance.value();
+    parserState.speedKmh = Speed.value();
+    parserState.cadence = Cadence.value();
+    parserState.rowState = pm5RowState;
+    parserState.rowStateReceived = pm5RowStateReceived;
+    parserState.hasFtmsService = pm5HasFTMSService;
+    parserState.distanceReceivedFromPm5 = pm5DistanceReceived;
+    parserState.lastRefreshMs = lastRefreshCharacteristicChanged.toMSecsSinceEpoch();
+    parserState.lastPm5DistanceUpdateMs = lastPm5DistanceUpdate.toMSecsSinceEpoch();
+
+    processPm5ParserState(parserState, charUuid, newValue, now.toMSecsSinceEpoch());
+
+    Distance = parserState.distanceKm;
+    Speed = parserState.speedKmh;
+    Cadence = parserState.cadence;
+    pm5RowState = parserState.rowState;
+    pm5RowStateReceived = parserState.rowStateReceived;
+    pm5DistanceReceived = parserState.distanceReceivedFromPm5;
+    if (parserState.lastPm5DistanceUpdateMs > 0) {
+        lastPm5DistanceUpdate = QDateTime::fromMSecsSinceEpoch(parserState.lastPm5DistanceUpdateMs);
+    }
     
     if (charUuid == QStringLiteral("{ce060031-43e5-11e4-916c-0800200c9a66}")) {
         // Parse characteristic CE060031 - Based on go-row implementation
         if (newValue.length() >= 10) {
-            // Extract RowState from byte 9 - this indicates if user is actively rowing
-            pm5RowState = (uint8_t)newValue.at(9);
-            pm5RowStateReceived = true; // Mark that we've received RowState at least once
-
             emit debug(QStringLiteral("PM5 CE060031 RAW: ") + newValue.toHex(' ') +
+                      QStringLiteral(" Distance: ") + QString::number(Distance.value()) +
                       QStringLiteral(" RowState: ") + QString::number(pm5RowState));
         }
     }
     else if (charUuid == QStringLiteral("{ce060032-43e5-11e4-916c-0800200c9a66}")) {
         // Parse characteristic CE060032 - Based on go-row implementation
         if (newValue.length() >= 7) {
-            // Extract cadence (SPM) from byte 5
-            uint8_t spm = (uint8_t)newValue.at(5);
-            if (spm > 0) {
-                // Only check RowState if we've received it at least once
-                if (!pm5RowStateReceived || pm5RowState != 0) {
-                    Cadence = spm;
-                    lastStroke = now;
-                }
-            }
-            // Zero cadence if RowState indicates not rowing (and we've received RowState)
-            if (pm5RowStateReceived && pm5RowState == 0) {
-                Cadence = 0;
-            }
-
-            // Extract speed from bytes 3-4 (little endian) in 0.001m/s
-            uint16_t speedRaw = ((uint8_t)newValue.at(4) << 8) | (uint8_t)newValue.at(3);
-            if (speedRaw > 0) {
-                // Only check RowState if we've received it at least once
-                if (!pm5RowStateReceived || pm5RowState != 0) {
-                    Speed = (speedRaw * 0.001) * 3.6; // Convert m/s to km/h
-                }
-            }
-            // Zero speed if RowState indicates not rowing (and we've received RowState)
-            if (pm5RowStateReceived && pm5RowState == 0) {
-                Speed = 0;
+            if (Cadence.value() > 0) {
+                lastStroke = now;
             }
 
             emit debug(QStringLiteral("PM5 CE060032 RAW: ") + newValue.toHex(' ') +
                       QStringLiteral(" Cadence: ") + QString::number(Cadence.value()) +
                       QStringLiteral(" Speed: ") + QString::number(Speed.value()) +
+                      QStringLiteral(" Distance: ") + QString::number(Distance.value()) +
                       QStringLiteral(" RowState: ") + QString::number(pm5RowState));
         }
     }
@@ -273,6 +393,9 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
         m_watt = 0;
         Cadence = 0;
         Speed = 0;
+        if (!pm5HasFTMSService) {
+            lastPm5DistanceUpdate = now;
+        }
     }
     
     // Update metrics for virtual device
@@ -395,22 +518,25 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         emit debug(QStringLiteral("Current Average Stroke: ") + QString::number(avgStroke));
     }
 
+    ParserRegressionState parserState;
+    parserState.distanceKm = Distance.value();
+    parserState.speedKmh = Speed.value();
+    parserState.cadence = Cadence.value();
+    parserState.rowState = pm5RowState;
+    parserState.rowStateReceived = pm5RowStateReceived;
+    parserState.hasFtmsService = pm5HasFTMSService;
+    parserState.distanceReceivedFromPm5 = pm5DistanceReceived;
+    parserState.lastRefreshMs = lastRefreshCharacteristicChanged.toMSecsSinceEpoch();
+    parserState.lastPm5DistanceUpdateMs = lastPm5DistanceUpdate.toMSecsSinceEpoch();
+
+    processFtmsParserState(parserState, newValue, now.toMSecsSinceEpoch(), ICONSOLE_PLUS, FITSHOW, MRK_R11S, WHIPR,
+                           KINGSMITH, DFIT_L_R);
+
+    Distance = parserState.distanceKm;
+    Speed = parserState.speedKmh;
+
     if (Flags.totDistance) {
-        if (ICONSOLE_PLUS || FITSHOW || MRK_R11S) {
-            // For ICONSOLE+/FITSHOW/MRK_R11S, always calculate distance from speed instead of using characteristic data
-            Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
-        } else {
-            // For other devices, use the distance from characteristic data
-            Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                  (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                 (uint32_t)((uint8_t)newValue.at(index)))) /
-                       1000.0;
-        }
         index += 3;
-    } else {
-        Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     }
 
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -422,14 +548,6 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
-
-        // Always handle invalid pace values to prevent division by zero
-        if(instantPace == 0 || instantPace == 65535) {
-            Speed = 0;
-        } else {
-            if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
-                Speed = (60.0 / instantPace) * 30.0; // translating pace (min/500m) to km/h in order to match the pace function in the rower.cpp
-        }
 
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
@@ -768,6 +886,7 @@ void ftmsrower::serviceScanDone(void) {
             break;
         }
     }
+    pm5HasFTMSService = hasFTMSService;
     
     // If no FTMS service, check for Concept2 PM5 services
     if (!hasFTMSService && PM5) {

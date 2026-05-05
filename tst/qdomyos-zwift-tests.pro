@@ -26,6 +26,7 @@ SOURCES += \
         ToolTests/testtrainingloadtestsuite.cpp \
         Tools/testsettings.cpp \
         Tools/typeidgenerator.cpp \
+        Devices/TestFtmsRowerPm5Regression.cpp \
         Devices/TestSchwinn411510EParser.cpp \
         main.cpp
 
@@ -55,6 +56,7 @@ HEADERS += \
     Devices/deviceindex.h \
     Devices/devicenamepatterngroup.h \
     Devices/devicetestdataindex.h \
+    Devices/TestFtmsRowerPm5Regression.h \
     Devices/TestSchwinn411510EParser.h \
     Devices/TestOctaneTreadmillZR8.h \
     Devices/TestSunnyfitStepper.h \
