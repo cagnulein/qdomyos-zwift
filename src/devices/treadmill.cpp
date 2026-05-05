@@ -622,7 +622,13 @@ bool treadmill::cadenceFromAppleWatch() {
                            QZSettings::default_fakedevice_treadmill).toBool();
         if (appleWatchCadence > 0) {
             evaluateStepCount();
-            Cadence = appleWatchCadence;
+            const double cadence_gain =
+                settings.value(QZSettings::cadence_gain,
+                               QZSettings::default_cadence_gain).toDouble();
+            const double cadence_offset =
+                settings.value(QZSettings::cadence_offset,
+                               QZSettings::default_cadence_offset).toDouble();
+            Cadence = (appleWatchCadence * cadence_gain) + cadence_offset;
             if (appleWatchTreadmillSpeed) {
                 const double ratio =
                     settings.value(QZSettings::cadence_sensor_speed_ratio,
