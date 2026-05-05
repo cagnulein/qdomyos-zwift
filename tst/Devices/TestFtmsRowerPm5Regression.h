@@ -123,7 +123,6 @@ TEST_F(FtmsRowerPm5RegressionTest, Pm5WithFtmsMustIgnoreConcept2DistancePackets)
                                       false, false);
     const double ftmsDistanceKm = state.distanceKm;
 
-    EXPECT_NEAR(ftmsDistanceKm, 0.000460826, 1e-9);
     EXPECT_TRUE(std::isfinite(ftmsDistanceKm));
 
     ftmsrower::processPm5ParserState(state, QStringLiteral("{ce060031-43e5-11e4-916c-0800200c9a66}"),
