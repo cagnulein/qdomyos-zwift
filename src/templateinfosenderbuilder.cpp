@@ -30,12 +30,12 @@ using namespace std::chrono_literals;
     item[QStringLiteral("duration_s")] = QTime(0,0,0).secsTo(row.duration);                                 \
     item[QStringLiteral("distance")] = row.distance;                                                        \
     item[QStringLiteral("speed")] = row.speed;                                                              \
-    item[QStringLiteral("minspeed")] = row.minSpeed;                                                        \
-    item[QStringLiteral("maxspeed")] = row.maxSpeed;                                                        \
+    item[QStringLiteral("minSpeed")] = row.minSpeed;                                                        \
+    item[QStringLiteral("maxSpeed")] = row.maxSpeed;                                                        \
     item[QStringLiteral("fanspeed")] = row.fanspeed;                                                        \
     item[QStringLiteral("inclination")] = row.inclination;                                                  \
     item[QStringLiteral("resistance")] = row.resistance;                                                    \
-    item[QStringLiteral("maxresistance")] = row.maxResistance;                                              \
+    item[QStringLiteral("maxResistance")] = row.maxResistance;                                              \
     item[QStringLiteral("mets")] = row.mets;                                                                \
     item[QStringLiteral("pace_intensity")] = row.pace_intensity;                                            \
     item[QStringLiteral("lower_resistance")] = row.lower_resistance;                                        \
@@ -52,7 +52,6 @@ using namespace std::chrono_literals;
     item[QStringLiteral("zoneHR")] = row.zoneHR;                                                            \
     item[QStringLiteral("HRmin")] = row.HRmin;                                                              \
     item[QStringLiteral("HRmax")] = row.HRmax;                                                              \
-    item[QStringLiteral("maxSpeed")] = row.maxSpeed;                                                        \
     item[QStringLiteral("latitude")] = row.latitude;                                                        \
     item[QStringLiteral("longitude")] = row.longitude;                                                      \
     item[QStringLiteral("altitude")] = row.altitude;                                                        \
@@ -651,6 +650,101 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
     tempSender->send(response.toJson());
 }
 
+void TemplateInfoSenderBuilder::onGetWorkoutPreview(TemplateInfoSender *tempSender) {
+    if (!homeform::singleton()) {
+        return;
+    }
+
+    homeform *hf = homeform::singleton();
+
+    // Build workout preview data from homeform properties
+    QJsonObject main;
+    QJsonObject outObj;
+    QJsonArray watts, speed, inclination, resistance, cadence;
+
+    int points = hf->preview_workout_points();
+
+    if (points > 0) {
+        QList<double> wattsData = hf->preview_workout_watt();
+        QList<double> speedData = hf->preview_workout_speed();
+        QList<double> inclinationData = hf->preview_workout_inclination();
+        QList<double> resistanceData = hf->preview_workout_resistance();
+        QList<double> cadenceData = hf->preview_workout_cadence();
+
+        outObj[QStringLiteral("points")] = points;
+        outObj[QStringLiteral("description")] = hf->previewWorkoutDescription();
+        outObj[QStringLiteral("tags")] = hf->previewWorkoutTags();
+
+        // Build data arrays with x,y points
+        for (int i = 0; i < points; i++) {
+            // Watts
+            if (i < wattsData.size()) {
+                QJsonObject wattPoint;
+                wattPoint[QStringLiteral("x")] = i;
+                wattPoint[QStringLiteral("y")] = wattsData[i];
+                watts.append(wattPoint);
+            }
+
+            // Speed
+            if (i < speedData.size()) {
+                QJsonObject speedPoint;
+                speedPoint[QStringLiteral("x")] = i;
+                speedPoint[QStringLiteral("y")] = speedData[i];
+                speed.append(speedPoint);
+            }
+
+            // Inclination
+            if (i < inclinationData.size()) {
+                QJsonObject incPoint;
+                incPoint[QStringLiteral("x")] = i;
+                incPoint[QStringLiteral("y")] = inclinationData[i];
+                inclination.append(incPoint);
+            }
+
+            // Resistance
+            if (i < resistanceData.size()) {
+                QJsonObject resPoint;
+                resPoint[QStringLiteral("x")] = i;
+                resPoint[QStringLiteral("y")] = resistanceData[i];
+                resistance.append(resPoint);
+            }
+
+            // Cadence
+            if (i < cadenceData.size()) {
+                QJsonObject cadPoint;
+                cadPoint[QStringLiteral("x")] = i;
+                cadPoint[QStringLiteral("y")] = cadenceData[i];
+                cadence.append(cadPoint);
+            }
+        }
+
+        // Determine device type
+        QString deviceType = QStringLiteral("bike");
+        if (speed.size() > 0 && watts.size() == 0) {
+            deviceType = QStringLiteral("treadmill");
+        } else if (watts.size() == 0 && resistance.size() > 0) {
+            deviceType = QStringLiteral("elliptical");
+        }
+
+        outObj[QStringLiteral("watts")] = watts;
+        outObj[QStringLiteral("speed")] = speed;
+        outObj[QStringLiteral("inclination")] = inclination;
+        outObj[QStringLiteral("resistance")] = resistance;
+        outObj[QStringLiteral("cadence")] = cadence;
+        outObj[QStringLiteral("deviceType")] = deviceType;
+
+        // Add miles_unit setting
+        QSettings settings;
+        outObj[QStringLiteral("miles_unit")] = settings.value(QStringLiteral("miles_unit"), false).toBool();
+    }
+
+    main[QStringLiteral("content")] = outObj;
+    main[QStringLiteral("msg")] = QStringLiteral("R_workoutpreview");
+    main[QStringLiteral("type")] = QStringLiteral("workoutpreview");
+    QJsonDocument response(main);
+    tempSender->send(response.toJson());
+}
+
 void TemplateInfoSenderBuilder::onTrainingProgramOpen(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QJsonObject content = msgContent.toObject();
     QString urlString = content.value(QStringLiteral("url")).toString();
@@ -1120,6 +1214,24 @@ void TemplateInfoSenderBuilder::onInclinationMinus(const QJsonValue &msgContent,
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onResistancePlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
+    QJsonObject main, outObj;
+    emit resistance_Plus();
+    main[QStringLiteral("msg")] = QStringLiteral("R_resistance_plus");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onResistanceMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
+    QJsonObject main, outObj;
+    emit resistance_Minus();
+    main[QStringLiteral("msg")] = QStringLiteral("R_resistance_minus");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onPelotonStartWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     Q_UNUSED(msgContent);
     QJsonObject main, outObj;
@@ -1246,6 +1358,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("trainprogram_preview")) {
                     onTrainingProgramPreview(jsonObject[QStringLiteral("content")], sender);
                     return;
+                } else if (msg == QStringLiteral("getworkoutpreview")) {
+                    onGetWorkoutPreview(sender);
+                    return;
                 } else if (msg == QStringLiteral("trainprogram_open_clicked")) {
                     onTrainingProgramOpen(jsonObject[QStringLiteral("content")], sender);
                     return;
@@ -1302,6 +1417,12 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("inclination_minus")) {
                     onInclinationMinus(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("resistance_plus")) {
+                    onResistancePlus(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("resistance_minus")) {
+                    onResistanceMinus(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("peloton_start_workout")) {
                     onPelotonStartWorkout(jsonObject[QStringLiteral("content")], sender);

@@ -42,6 +42,7 @@ class domyostreadmill : public treadmill {
                     double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
     bool changeFanSpeed(uint8_t speed) override;
+    double minStepSpeed() override;
 
   private:
     // Structure for async write queue

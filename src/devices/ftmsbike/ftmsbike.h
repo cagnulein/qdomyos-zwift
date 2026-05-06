@@ -96,6 +96,7 @@ class ftmsbike : public bike {
     void forceResistance(resistance_t requestResistance);
     void forcePower(int16_t requestPower);
     void forceInclination(double requestInclination);
+    void sendZwiftPlayInclination(double inclination);
     uint16_t wattsFromResistance(double resistance);
 
     QTimer *refresh;
@@ -116,6 +117,8 @@ class ftmsbike : public bike {
     QDateTime lastRefreshCharacteristicChangedPower = QDateTime::currentDateTime();
     QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
     QDateTime lastRefreshCharacteristicChanged2ACE = QDateTime::currentDateTime();
+    QDateTime lastDomyosResistanceCommand = QDateTime::currentDateTime().addSecs(-60);
+    QDateTime domyosResistanceRetryAfter = QDateTime::currentDateTime().addSecs(-60);
     bool ftmsFrameReceived = false;
     uint8_t firstStateChanged = 0;
     int8_t bikeResistanceOffset = 4;
@@ -130,13 +133,17 @@ class ftmsbike : public bike {
     bool noHeartService = false;
 
     bool powerForced = false;
+    resistance_t m_lastErgResistance = 0;
 
     bool resistance_lvl_mode = false;
     bool resistance_received = false;
+    bool native_resistance_received = false;
+    QDateTime calculatedResistanceFallbackSince;
     inclinationResistanceTable _inclinationResistanceTable;
 
     // D500V2 workaround: track if we're awaiting start simulation command after request control
     bool awaiting_start_simulation_after_request_control = false;
+    resistance_t lastDomyosRequestedResistance = -1;
 
     bool DU30_bike = false;
     bool ICSE = false;
@@ -168,12 +175,16 @@ class ftmsbike : public bike {
     bool VANRYSEL_HT = false;
     bool MAGNUS = false;
     bool MRK_S26C = false;
+    bool MRK_S28 = false;
     bool HAMMER = false;
     bool YPBM = false;
     bool SPORT01 = false;
     bool FS_YK = false;
     bool S18 = false;
     bool ZIPRO_RAVE = false;
+    bool SPEEDRACEX = false;
+    bool USDC_D700 = false;
+    bool TOPUTURE_TEB5 = false;
 
     uint8_t secondsToResetTimer = 5;
 
@@ -182,6 +193,7 @@ class ftmsbike : public bike {
     uint8_t battery_level = 0;
 
     bool wattReceived = false;
+    bool gearInclinationSent = false;
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;
@@ -210,6 +222,7 @@ class ftmsbike : public bike {
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
+    bool shouldUseCalculatedResistanceFallback(const QDateTime &now);
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);

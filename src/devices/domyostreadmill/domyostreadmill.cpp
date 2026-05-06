@@ -983,3 +983,5 @@ bool domyostreadmill::connected() {
 }
 
 void domyostreadmill::searchingStop() { searchStopped = true; }
+
+double domyostreadmill::minStepSpeed() { return 0.1; }

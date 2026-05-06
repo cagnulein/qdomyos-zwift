@@ -9,12 +9,19 @@
 #endif
 #include "homeform.h"
 #include "peloton.h"
+#include "authutils.h"
 #include <chrono>
+#include <QMetaObject>
+#include <QNetworkCookieJar>
 #include <QTimer>
 
 using namespace std::chrono_literals;
 
 const bool log_request = true;
+static const QString kPelotonRedirectUri = QStringLiteral("https://www.qzfitness.com/peloton/callback");
+#if !defined(Q_OS_ANDROID)
+static constexpr quint16 kPelotonDesktopRelayPort = 18080;
+#endif
 
 #define RAWHEADER request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift/") + QCoreApplication::applicationVersion());request.setRawHeader(QByteArray("Authorization"), QByteArray("Bearer ") + (tempAccessToken.isEmpty() ?  getPelotonTokenForUser(QZSettings::peloton_accesstoken, userId, QZSettings::default_peloton_accesstoken).toString().toUtf8() : tempAccessToken.toUtf8()));
 
@@ -2551,9 +2558,17 @@ void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {
     pelotonAuthUrl = url.toString();
     emit pelotonAuthUrlChanged(pelotonAuthUrl);
 
-    if (strava_auth_external_webbrowser)
+    if (strava_auth_external_webbrowser) {
+#if !defined(Q_OS_ANDROID)
+        if (!ensureDesktopRelayServer()) {
+            if (homeform::singleton()) {
+                homeform::singleton()->setToastRequested("Peloton desktop relay failed!");
+            }
+            return;
+        }
+#endif
         QDesktopServices::openUrl(url);
-    else {
+    } else {
         pelotonAuthWebVisible = true;
         emit pelotonWebVisibleChanged(pelotonAuthWebVisible);
     }
@@ -2648,12 +2663,55 @@ void peloton::networkRequestFinished(QNetworkReply *reply) {
 }
 
 void peloton::callbackReceived(const QVariantMap &values) {
-    qDebug() << QStringLiteral("peloton::callbackReceived") << values;
+    QVariantMap sanitizedValues = values;
+    if (sanitizedValues.contains(QZSettings::peloton_code)) {
+        sanitizedValues.insert(QZSettings::peloton_code, QStringLiteral("XXXX"));
+    }
+    if (sanitizedValues.contains(QStringLiteral("state"))) {
+        sanitizedValues.insert(QStringLiteral("state"), QStringLiteral("XXXX"));
+    }
+    qDebug() << QStringLiteral("peloton::callbackReceived") << sanitizedValues;
     if (!values.value(QZSettings::peloton_code).toString().isEmpty()) {
         peloton_code = values.value(QZSettings::peloton_code).toString();
-
-        qDebug() << peloton_code;
+        qDebug() << "Peloton authorization code received: XXXX";
     }
+}
+
+void peloton::handleOAuthCallbackUrl(const QUrl &url) {
+    if (!url.isValid()) {
+        return;
+    }
+
+    if (!isAcceptedCallbackUrl(url)) {
+        return;
+    }
+
+    QUrlQuery query(url);
+    const QString code = query.queryItemValue(QStringLiteral("code"));
+    const QString state = query.queryItemValue(QStringLiteral("state"));
+    if (code.isEmpty()) {
+        return;
+    }
+
+    if (!pelotonPendingState.isEmpty() && state != pelotonPendingState) {
+        qDebug() << "Peloton OAuth callback state mismatch" << "received=XXXX expected=XXXX";
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+        }
+        return;
+    }
+
+    qDebug() << "Peloton OAuth callback URL received" << sanitizedOAuthCallbackUrl(url);
+
+    QVariantMap values;
+    values.insert(QZSettings::peloton_code, code);
+    callbackReceived(values);
+    if (!exchangeAuthorizationCode(code)) {
+        return;
+    }
+
+    pelotonPendingState.clear();
+    completeOAuthLogin();
 }
 
 QOAuth2AuthorizationCodeFlow *peloton::peloton_connect() {
@@ -2681,18 +2739,47 @@ QOAuth2AuthorizationCodeFlow *peloton::peloton_connect() {
     pelotonOAuth->setAccessTokenUrl(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token")));
     pelotonOAuth->setModifyParametersFunction(
         buildModifyParametersFunction(QUrl(QLatin1String("")), QUrl(QLatin1String(""))));
-    pelotonReplyHandler = new QOAuthHttpServerReplyHandler(QHostAddress(QStringLiteral("127.0.0.1")), 18080, this);
-    connect(pelotonReplyHandler, &QOAuthHttpServerReplyHandler::replyDataReceived, this, &peloton::replyDataReceived);
-    connect(pelotonReplyHandler, &QOAuthHttpServerReplyHandler::callbackReceived, this, &peloton::callbackReceived);
-
-    pelotonOAuth->setReplyHandler(pelotonReplyHandler);
 
     return pelotonOAuth;
 }
 
+void peloton::peloton_logout() {
+    qDebug() << "Peloton logout";
+    QSettings settings;
+    // Clear base token keys
+    settings.setValue(QZSettings::peloton_accesstoken, QStringLiteral(""));
+    settings.setValue(QZSettings::peloton_refreshtoken, QStringLiteral(""));
+    settings.setValue(QZSettings::peloton_lastrefresh, QStringLiteral(""));
+    settings.setValue(QZSettings::peloton_expires, QStringLiteral(""));
+    settings.setValue(QZSettings::peloton_code, QStringLiteral(""));
+    // Clear user-specific tokens
+    QString userId = settings.value(QZSettings::peloton_current_user_id).toString();
+    if (!userId.isEmpty()) {
+        settings.remove(getPelotonSettingKey(QZSettings::peloton_accesstoken, userId));
+        settings.remove(getPelotonSettingKey(QZSettings::peloton_refreshtoken, userId));
+        settings.remove(getPelotonSettingKey(QZSettings::peloton_expires, userId));
+    }
+    settings.setValue(QZSettings::peloton_current_user_id, QStringLiteral(""));
+    // Clear in-memory tokens
+    tempAccessToken.clear();
+    tempRefreshToken.clear();
+    // Reset OAuth cookie jar
+    if (pelotonOAuth) {
+        pelotonOAuth->setToken(QStringLiteral(""));
+        pelotonOAuth->setRefreshToken(QStringLiteral(""));
+    }
+    if (manager) {
+        manager->setCookieJar(new QNetworkCookieJar(manager));
+    }
+#if !defined(Q_OS_ANDROID)
+    stopDesktopRelayServer();
+#endif
+    qDebug() << "Peloton: tokens cleared";
+}
+
 void peloton::peloton_connect_clicked() {
     timer->stop();
-    
+
     QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
 
     peloton_connect();
@@ -2705,15 +2792,20 @@ void peloton::peloton_connect_clicked() {
 }
 
 QAbstractOAuth::ModifyParametersFunction peloton::buildModifyParametersFunction(const QUrl &clientIdentifier, const QUrl &clientIdentifierSharedKey) {
-    return [clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
+    return [this, clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
         if (stage == QAbstractOAuth::Stage::RequestingAuthorization) {
             parameters->insert(QStringLiteral("audience"), QStringLiteral("https://api-3p.onepeloton.com/"));
             parameters->insert(QStringLiteral("responseType"), QStringLiteral("code")); /* Request refresh token*/
             parameters->insert(QStringLiteral("approval_prompt"),
                                QStringLiteral("force")); /* force user check scope again */
+            parameters->insert(QStringLiteral("redirect_uri"), kPelotonRedirectUri);
+            pelotonPendingState = parameters->value(QStringLiteral("state")).toString();
             QByteArray code = parameters->value(QStringLiteral("code")).toByteArray();
             // DON'T TOUCH THIS LINE, THANKS Roberto Viola
             (*parameters)[QStringLiteral("code")] = QUrl::fromPercentEncoding(code); // NOTE: Old code replaced by
+        }
+        if (stage == QAbstractOAuth::Stage::RequestingAccessToken) {
+            parameters->insert(QStringLiteral("redirect_uri"), kPelotonRedirectUri);
         }
         if (stage == QAbstractOAuth::Stage::RefreshingAccessToken) {
             parameters->insert(QStringLiteral("client_id"), clientIdentifier);
@@ -2721,6 +2813,210 @@ QAbstractOAuth::ModifyParametersFunction peloton::buildModifyParametersFunction(
         }
     };
 }
+
+bool peloton::exchangeAuthorizationCode(const QString &code) {
+    QNetworkRequest request(QUrl(QStringLiteral("https://auth.onepeloton.com/oauth/token?")));
+    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    QUrlQuery body;
+    body.addQueryItem(QStringLiteral("client_id"), QStringLiteral(PELOTON_CLIENT_ID_S));
+    body.addQueryItem(QStringLiteral("code"), code);
+    body.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("authorization_code"));
+    body.addQueryItem(QStringLiteral("redirect_uri"), kPelotonRedirectUri);
+
+    if (manager) {
+        delete manager;
+        manager = nullptr;
+    }
+    manager = new QNetworkAccessManager(this);
+    QNetworkReply *reply = manager->post(request, body.toString(QUrl::FullyEncoded).toUtf8());
+
+    QEventLoop loop;
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    if (reply->error() != QNetworkReply::NoError) {
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+        }
+        qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        return false;
+    }
+
+    QJsonParseError parseError;
+    const QJsonDocument document = QJsonDocument::fromJson(reply->readAll(), &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        qDebug() << tr("JSON parser error") << parseError.errorString();
+        return false;
+    }
+
+    tempAccessToken = document[QStringLiteral("access_token")].toString();
+    tempRefreshToken = document[QStringLiteral("refresh_token")].toString();
+    tempExpiresAt = QDateTime::currentDateTime();
+
+    if (tempAccessToken.isEmpty()) {
+        if (homeform::singleton()) {
+            homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+        }
+        return false;
+    }
+
+    return true;
+}
+
+bool peloton::isAcceptedCallbackUrl(const QUrl &url) const {
+    if (!url.path().startsWith(QStringLiteral("/peloton/callback"))) {
+        return false;
+    }
+
+    if (url.host() == QStringLiteral("www.qzfitness.com")) {
+        return true;
+    }
+
+#if !defined(Q_OS_ANDROID)
+    return url.host() == QStringLiteral("127.0.0.1") || url.host() == QStringLiteral("localhost");
+#else
+    return false;
+#endif
+}
+
+void peloton::completeOAuthLogin() {
+#if !defined(Q_OS_ANDROID)
+    stopDesktopRelayServer();
+#endif
+    if(homeform::singleton()) {
+        homeform::singleton()->setPelotonPopupVisible(true);
+        homeform::singleton()->setToastRequested("Peloton Login OK!");
+    }
+
+    if(!timer->isActive()) {
+        peloton_credentials_wrong = false;
+        startEngine();
+    }
+}
+
+#if !defined(Q_OS_ANDROID)
+bool peloton::ensureDesktopRelayServer() {
+    if (!pelotonDesktopRelayServer) {
+        pelotonDesktopRelayServer = new QTcpServer(this);
+        connect(pelotonDesktopRelayServer, &QTcpServer::newConnection, this, &peloton::handleDesktopRelayConnection);
+    }
+
+    if (pelotonDesktopRelayServer->isListening() &&
+        pelotonDesktopRelayServer->serverPort() == kPelotonDesktopRelayPort) {
+        return true;
+    }
+
+    const bool listening =
+        pelotonDesktopRelayServer->listen(QHostAddress(QStringLiteral("127.0.0.1")), kPelotonDesktopRelayPort);
+    if (!listening) {
+        qDebug() << "Peloton desktop relay failed to listen on port" << kPelotonDesktopRelayPort
+                 << pelotonDesktopRelayServer->errorString();
+        return false;
+    }
+
+    qDebug() << "Peloton desktop relay listening on 127.0.0.1:" << pelotonDesktopRelayServer->serverPort();
+    return true;
+}
+
+void peloton::stopDesktopRelayServer() {
+    if (pelotonDesktopRelayServer) {
+        if (pelotonDesktopRelayServer->isListening()) {
+            pelotonDesktopRelayServer->close();
+        }
+        delete pelotonDesktopRelayServer;
+        pelotonDesktopRelayServer = nullptr;
+    }
+}
+
+void peloton::handleDesktopRelayConnection() {
+    while (pelotonDesktopRelayServer && pelotonDesktopRelayServer->hasPendingConnections()) {
+        QTcpSocket *socket = pelotonDesktopRelayServer->nextPendingConnection();
+        if (!socket) {
+            continue;
+        }
+
+        socket->setProperty("pelotonRelayBuffer", QByteArray());
+        connect(socket, &QTcpSocket::readyRead, this, &peloton::handleDesktopRelaySocketReadyRead);
+        connect(socket, &QTcpSocket::disconnected, socket, &QObject::deleteLater);
+    }
+}
+
+void peloton::handleDesktopRelaySocketReadyRead() {
+    QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
+    if (!socket) {
+        return;
+    }
+
+    QByteArray buffer = socket->property("pelotonRelayBuffer").toByteArray();
+    buffer += socket->readAll();
+    socket->setProperty("pelotonRelayBuffer", buffer);
+
+    if (!buffer.contains("\r\n\r\n")) {
+        return;
+    }
+
+    const QList<QByteArray> lines = buffer.split('\n');
+    if (lines.isEmpty()) {
+        socket->disconnectFromHost();
+        return;
+    }
+
+    const QByteArray requestLine = lines.first().trimmed();
+    const QList<QByteArray> parts = requestLine.split(' ');
+    QByteArray method;
+    QByteArray target = "/";
+    if (parts.size() >= 2) {
+        method = parts.at(0).trimmed();
+        target = parts.at(1).trimmed();
+    }
+
+    QByteArray responseBody;
+    QByteArray statusLine;
+
+    if (method == "OPTIONS") {
+        statusLine = "HTTP/1.1 204 No Content\r\n";
+        responseBody.clear();
+    } else if (method == "GET") {
+        const QUrl requestUrl = QUrl(QStringLiteral("http://127.0.0.1:%1%2")
+                                         .arg(kPelotonDesktopRelayPort)
+                                         .arg(QString::fromUtf8(target)));
+        QMetaObject::invokeMethod(this, [this, requestUrl]() {
+            handleOAuthCallbackUrl(requestUrl);
+        }, Qt::QueuedConnection);
+
+        statusLine = "HTTP/1.1 200 OK\r\n";
+        responseBody = QByteArrayLiteral("<html><body><h2>QZ received the Peloton callback.</h2><p>You can close this tab.</p></body></html>");
+    } else {
+        statusLine = "HTTP/1.1 405 Method Not Allowed\r\n";
+        responseBody = QByteArrayLiteral("Method Not Allowed");
+    }
+
+    QByteArray response = statusLine;
+    response += "Access-Control-Allow-Origin: https://www.qzfitness.com\r\n";
+    response += "Access-Control-Allow-Methods: GET, OPTIONS\r\n";
+    response += "Access-Control-Allow-Headers: Content-Type\r\n";
+    response += "Access-Control-Allow-Private-Network: true\r\n";
+    response += "Cache-Control: no-store\r\n";
+    response += "Connection: close\r\n";
+    if (method == "GET") {
+        response += "Content-Type: text/html; charset=utf-8\r\n";
+    } else if (method == "OPTIONS") {
+        response += "Content-Length: 0\r\n";
+    } else {
+        response += "Allow: GET, OPTIONS\r\n";
+        response += "Content-Type: text/plain; charset=utf-8\r\n";
+    }
+    if (method != "OPTIONS") {
+        response += "Content-Length: " + QByteArray::number(responseBody.size()) + "\r\n";
+    }
+    response += "\r\n";
+    response += responseBody;
+
+    socket->write(response);
+    socket->disconnectFromHost();
+}
+#endif
 
 void peloton::peloton_refreshtoken() {
 
@@ -2741,10 +3037,12 @@ void peloton::peloton_refreshtoken() {
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
     
     // set params
-    QString data;
-    data += QStringLiteral("client_id=" PELOTON_CLIENT_ID_S);
-    data += QStringLiteral("&refresh_token=") + (tempRefreshToken.isEmpty() ? getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).toString() : tempRefreshToken);
-    data += QStringLiteral("&grant_type=refresh_token");
+    QUrlQuery body;
+    body.addQueryItem(QStringLiteral("client_id"), QStringLiteral(PELOTON_CLIENT_ID_S));
+    body.addQueryItem(QStringLiteral("refresh_token"),
+                      tempRefreshToken.isEmpty() ? getPelotonTokenForUser(QZSettings::peloton_refreshtoken, userId).toString()
+                                                 : tempRefreshToken);
+    body.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("refresh_token"));
     
     // make request
     if (manager) {
@@ -2753,7 +3051,7 @@ void peloton::peloton_refreshtoken() {
         manager = nullptr;
     }
     manager = new QNetworkAccessManager(this);
-    QNetworkReply *reply = manager->post(request, data.toLatin1());
+    QNetworkReply *reply = manager->post(request, body.toString(QUrl::FullyEncoded).toUtf8());
 
     // blocking request
     QEventLoop loop;
