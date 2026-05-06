@@ -30,6 +30,8 @@ namespace {
 constexpr quint8 kSCommandStart = 0x02;
 constexpr quint8 kSCommandStop = 0x03;
 constexpr quint8 kSCommandEscape = 0x10;
+constexpr quint8 kFtmsSetTargetPower = 0x05;
+constexpr quint8 kFtmsSetIndoorBikeSimulationParams = 0x11;
 constexpr quint8 kSCommandChannelRequest = 0x01;
 constexpr quint8 kSCommandChannelResponse = 0x03;
 constexpr quint16 kSCommandCurrentPowerId = 0x000B;
@@ -292,6 +294,7 @@ void kettlerracersbike::changePower(int32_t power) {
              << "slopeEnabled" << slopeControlEnabled;
     if (!slopePowerChangeInProgress) {
         slopeControlEnabled = false;
+        lastControlMode = ControlMode::Power;
         qDebug() << "Slope control disabled due to external changePower";
     }
     RequestedPower = power;
@@ -311,6 +314,7 @@ void kettlerracersbike::forceInclination(double inclination) {
     Inclination = inclination;
     currentSlopePercent = inclination;
     slopeControlEnabled = true;
+    lastControlMode = ControlMode::Simulation;
     updateSlopeTargetPower();
 }
 
@@ -320,6 +324,7 @@ void kettlerracersbike::changeInclination(double grade, double percentage) {
     Inclination = grade;
     currentSlopePercent = grade;
     slopeControlEnabled = true;
+    lastControlMode = ControlMode::Simulation;
     updateSlopeTargetPower(true);
 }
 
@@ -367,6 +372,25 @@ double kettlerracersbike::computeSlopeTargetPower(double gradePercent, double sp
     return totalPower;
 }
 
+bool kettlerracersbike::gearAffectsErgMode() const {
+    return lastControlMode != ControlMode::Power;
+}
+
+void kettlerracersbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                                  const QByteArray &newValue) {
+    Q_UNUSED(characteristic);
+    if (newValue.isEmpty()) {
+        return;
+    }
+
+    const quint8 command = static_cast<quint8>(newValue.at(0));
+    if (command == kFtmsSetTargetPower) {
+        lastControlMode = ControlMode::Power;
+    } else if (command == kFtmsSetIndoorBikeSimulationParams) {
+        lastControlMode = ControlMode::Simulation;
+    }
+}
+
 void kettlerracersbike::updateSlopeTargetPower(bool force) {
     qDebug() << "updateSlopeTargetPower called" << "force" << force << "autoRes" << autoResistance()
              << "handshake" << handshakeDone << "slopeEnabled" << slopeControlEnabled
@@ -384,7 +408,10 @@ void kettlerracersbike::updateSlopeTargetPower(bool force) {
         return;
     }
 
-    double grade = currentSlopePercent + (gears() / 2.0);
+    double grade = currentSlopePercent;
+    if (gearAffectsErgMode()) {
+        grade += (gearsModifier() / 2.0);
+    }
 
     double speedKmh = Speed.value();
     if (!std::isfinite(speedKmh) || speedKmh < 0.0) {
@@ -619,6 +646,8 @@ void kettlerracersbike::characteristicWritten(const QLowEnergyCharacteristic &ch
                 emit debug(QStringLiteral("creating virtual bike interface..."));
                 auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, 4, 1);
                 connect(virtualBike, &virtualbike::changeInclination, this, &kettlerracersbike::changeInclination);
+                connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this,
+                        &kettlerracersbike::ftmsCharacteristicChanged);
                 this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
@@ -870,6 +899,9 @@ void kettlerracersbike::stateChanged(QLowEnergyService::ServiceState state) {
         slopePowerChangeInProgress = false;
         slopeControlEnabled = false;
         currentSlopePercent = 0.0;
+        lastControlMode = ControlMode::Unknown;
+        lastGearValue = gears();
+        lastGearModifierValue = gearsModifier();
 
         // Request handshake seed FIRST before any other operations
         // CSC service discovery and virtual bike creation will happen AFTER handshake
@@ -1203,6 +1235,7 @@ void kettlerracersbike::update() {
         update_metrics(true, watts());
 
         auto virtualBike = this->VirtualBike();
+        const bool gearModifierChanged = !qFuzzyCompare(lastGearModifierValue + 1.0, gearsModifier() + 1.0);
 
         // Check if we need to send power or grade commands
         if (requestPower != -1) {
@@ -1213,16 +1246,19 @@ void kettlerracersbike::update() {
             emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
             forceInclination(requestInclination); // Apply gears offset to inclination (scaled by 0.5)
             requestInclination = -100;
-        } else if ((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
+        } else if (gearAffectsErgMode() && (virtualBike && virtualBike->ftmsDeviceConnected()) &&
+                   gearModifierChanged && lastRawRequestedInclinationValue != -100) {
             // In order to send the new gear value ASAP when FTMS is connected
             emit debug(QStringLiteral("applying gear change to inclination: ") + QString::number(lastRawRequestedInclinationValue) +
-                      QStringLiteral(" + ") + QString::number(gears() / 2.0));
+                      QStringLiteral(" + ") + QString::number(gearsModifier() / 2.0));
             forceInclination(lastRawRequestedInclinationValue);
-        } else if(lastGearValue != gears() && lastRawRequestedInclinationValue == -100 && requestInclination == -100) {
+        } else if (gearAffectsErgMode() && gearModifierChanged && lastRawRequestedInclinationValue == -100 &&
+                   requestInclination == -100) {
             forceInclination(0); // Apply gears offset to inclination (scaled by 0.5)
         }
 
         lastGearValue = gears();
+        lastGearModifierValue = gearsModifier();
     }
 }
 

@@ -55,9 +55,17 @@ class kettlerracersbike : public bike {
     void changeInclination(double grade, double percentage) override;
     double computeSlopeTargetPower(double gradePercent, double speedKmh) const;
     void updateSlopeTargetPower(bool force = false);
+    bool gearAffectsErgMode() const;
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void sendSCommand(quint16 commandId, const QByteArray &payload = QByteArray());
     void handleSCommandNotification(const QByteArray &data);
     void parseSCommandFrame(const QByteArray &frame);
+
+    enum class ControlMode {
+        Unknown,
+        Power,
+        Simulation
+    };
 
     QTimer *refresh;
 
@@ -95,6 +103,7 @@ class kettlerracersbike : public bike {
     uint16_t CrankRevsRead = 0;
 
     double lastGearValue = -1;
+    double lastGearModifierValue = 0;
     bool resistance_received = false;
     bool primedNotifyStart = false;
     bool handshakeRequested = false;
@@ -109,6 +118,7 @@ class kettlerracersbike : public bike {
     int lastSlopeTargetPower = -1;
     double currentSlopePercent = 0.0;
     bool slopePowerChangeInProgress = false;
+    ControlMode lastControlMode = ControlMode::Unknown;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
