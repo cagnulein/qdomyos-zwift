@@ -2765,6 +2765,12 @@ void homeform::sortTiles() {
                 dataList.append(target_power);
             }
 
+            if (settings.value(QZSettings::tile_target_incline_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_target_incline_order, 29).toInt() == i) {
+                target_incline->setGridId(i);
+                dataList.append(target_incline);
+            }
+
             if (settings.value(QZSettings::tile_target_zone_enabled, false).toBool() &&
                 settings.value(QZSettings::tile_target_zone_order, 24).toInt() == i) {
                 target_zone->setGridId(i);
@@ -6325,6 +6331,9 @@ void homeform::update() {
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedCadence().value(), 'f', 0));
             this->target_power->setValue(
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
+            const double rawInclination = ((bike *)bluetoothManager->device())->lastRequestedInclination();
+            this->target_incline->setValue(rawInclination != -100 ? QString::number(rawInclination, 'f', 1) : QStringLiteral("N/A"));
+            this->target_incline->setSecondLine(QStringLiteral(""));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
             updateGearsValue();
 

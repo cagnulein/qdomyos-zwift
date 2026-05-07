@@ -46,6 +46,7 @@ class bike : public bluetoothdevice {
     double gears();
     double gearsModifier();
     double gearsModifier(double gear);
+    double lastRequestedInclination() const { return lastRawRequestedInclinationValue; }
     double gearsZwiftRatio();
     void setSpeedLimit(double speed) { m_speedLimit = speed; }
     double speedLimit() { return m_speedLimit; }
