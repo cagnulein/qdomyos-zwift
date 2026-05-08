@@ -375,6 +375,10 @@
 		8772A0E825E43AE70080718C /* moc_trxappgateusbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772A0E725E43AE70080718C /* moc_trxappgateusbbike.cpp */; };
 		8772B7F42CB55E80004AB8E9 /* moc_deerruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772B7F32CB55E80004AB8E9 /* moc_deerruntreadmill.cpp */; };
 		877350F72D1C08E60070CBD8 /* SmartControl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 877350F62D1C08E50070CBD8 /* SmartControl.cpp */; };
+		8774865C2F92432600A02AFD /* moc_cycplusbc2controller.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8774865B2F92432600A02AFD /* moc_cycplusbc2controller.cpp */; };
+		8774865F2F92434B00A02AFD /* cycplusbc2controller.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8774865E2F92434B00A02AFD /* cycplusbc2controller.cpp */; };
+		877486E02FA8E78600A02AFD /* moc_iconsolebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 877486DF2FA8E78600A02AFD /* moc_iconsolebike.cpp */; };
+		877486E32FA8E79800A02AFD /* iconsolebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 877486E22FA8E79800A02AFD /* iconsolebike.cpp */; };
 		8775008329E876F8008E48B7 /* iconceptelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8775008129E876F7008E48B7 /* iconceptelliptical.cpp */; };
 		8775008529E87713008E48B7 /* moc_iconceptelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8775008429E87712008E48B7 /* moc_iconceptelliptical.cpp */; };
 		877758B32C98627300BB1697 /* moc_sportstechelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 877758B22C98627300BB1697 /* moc_sportstechelliptical.cpp */; };
@@ -428,6 +432,8 @@
 		8798FDC52D66075B00CF8EE8 /* OSXBtManagerInternal.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8798FDC32D66075B00CF8EE8 /* OSXBtManagerInternal.mm */; };
 		8798FFD52F868DEE003E969D /* moc_mywhooshlink.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8798FFD42F868DEE003E969D /* moc_mywhooshlink.cpp */; };
 		8798FFD82F868E00003E969D /* mywhooshlink.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8798FFD72F868E00003E969D /* mywhooshlink.cpp */; };
+		8798FFA52F857787003E969D /* moc_lifespanbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8798FFA42F857787003E969D /* moc_lifespanbike.cpp */; };
+		8798FFA82F8577B3003E969D /* lifespanbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8798FFA72F8577B3003E969D /* lifespanbike.cpp */; };
 		879A38C8281BD83300F78B2A /* characteristicnotifier2ad9.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 879A38C7281BD83300F78B2A /* characteristicnotifier2ad9.cpp */; };
 		879E5AA8289C057E00FEA38A /* proformwifitreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 879E5AA6289C057E00FEA38A /* proformwifitreadmill.cpp */; };
 		879E5AAA289C05A500FEA38A /* moc_proformwifitreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 879E5AA9289C05A500FEA38A /* moc_proformwifitreadmill.cpp */; };
@@ -1398,6 +1404,12 @@
 		8772B7F92CB5603A004AB8E9 /* deerruntreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = deerruntreadmill.h; path = ../src/devices/deeruntreadmill/deerruntreadmill.h; sourceTree = SOURCE_ROOT; };
 		877350F52D1C08E50070CBD8 /* SmartControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SmartControl.h; path = ../src/devices/kineticinroadbike/SmartControl.h; sourceTree = SOURCE_ROOT; };
 		877350F62D1C08E50070CBD8 /* SmartControl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SmartControl.cpp; path = ../src/devices/kineticinroadbike/SmartControl.cpp; sourceTree = SOURCE_ROOT; };
+		8774865B2F92432600A02AFD /* moc_cycplusbc2controller.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_cycplusbc2controller.cpp; sourceTree = "<group>"; };
+		8774865D2F92434B00A02AFD /* cycplusbc2controller.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cycplusbc2controller.h; path = ../src/devices/cycplusbc2controller/cycplusbc2controller.h; sourceTree = SOURCE_ROOT; };
+		8774865E2F92434B00A02AFD /* cycplusbc2controller.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = cycplusbc2controller.cpp; path = ../src/devices/cycplusbc2controller/cycplusbc2controller.cpp; sourceTree = SOURCE_ROOT; };
+		877486DF2FA8E78600A02AFD /* moc_iconsolebike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_iconsolebike.cpp; sourceTree = "<group>"; };
+		877486E12FA8E79800A02AFD /* iconsolebike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = iconsolebike.h; path = ../src/devices/iconsolebike/iconsolebike.h; sourceTree = SOURCE_ROOT; };
+		877486E22FA8E79800A02AFD /* iconsolebike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = iconsolebike.cpp; path = ../src/devices/iconsolebike/iconsolebike.cpp; sourceTree = SOURCE_ROOT; };
 		8775008129E876F7008E48B7 /* iconceptelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = iconceptelliptical.cpp; path = ../src/devices/iconceptelliptical/iconceptelliptical.cpp; sourceTree = "<group>"; };
 		8775008229E876F7008E48B7 /* iconceptelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iconceptelliptical.h; path = ../src/devices/iconceptelliptical/iconceptelliptical.h; sourceTree = "<group>"; };
 		8775008429E87712008E48B7 /* moc_iconceptelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_iconceptelliptical.cpp; sourceTree = "<group>"; };
@@ -1481,6 +1493,9 @@
 		8798FFD42F868DEE003E969D /* moc_mywhooshlink.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_mywhooshlink.cpp; sourceTree = "<group>"; };
 		8798FFD62F868E00003E969D /* mywhooshlink.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mywhooshlink.h; path = ../src/mywhooshlink.h; sourceTree = SOURCE_ROOT; };
 		8798FFD72F868E00003E969D /* mywhooshlink.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = mywhooshlink.cpp; path = ../src/mywhooshlink.cpp; sourceTree = SOURCE_ROOT; };
+		8798FFA42F857787003E969D /* moc_lifespanbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_lifespanbike.cpp; sourceTree = "<group>"; };
+		8798FFA62F8577B3003E969D /* lifespanbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lifespanbike.h; path = ../src/devices/lifespanbike/lifespanbike.h; sourceTree = SOURCE_ROOT; };
+		8798FFA72F8577B3003E969D /* lifespanbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = lifespanbike.cpp; path = ../src/devices/lifespanbike/lifespanbike.cpp; sourceTree = SOURCE_ROOT; };
 		879A38C7281BD83300F78B2A /* characteristicnotifier2ad9.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicnotifier2ad9.cpp; path = ../src/characteristics/characteristicnotifier2ad9.cpp; sourceTree = "<group>"; };
 		879E5AA6289C057E00FEA38A /* proformwifitreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformwifitreadmill.cpp; path = ../src/devices/proformwifitreadmill/proformwifitreadmill.cpp; sourceTree = "<group>"; };
 		879E5AA7289C057E00FEA38A /* proformwifitreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformwifitreadmill.h; path = ../src/devices/proformwifitreadmill/proformwifitreadmill.h; sourceTree = "<group>"; };
@@ -2363,6 +2378,15 @@
 				8798FFD62F868E00003E969D /* mywhooshlink.h */,
 				8798FFD72F868E00003E969D /* mywhooshlink.cpp */,
 				8798FFD42F868DEE003E969D /* moc_mywhooshlink.cpp */,
+				877486E12FA8E79800A02AFD /* iconsolebike.h */,
+				877486E22FA8E79800A02AFD /* iconsolebike.cpp */,
+				877486DF2FA8E78600A02AFD /* moc_iconsolebike.cpp */,
+				8774865D2F92434B00A02AFD /* cycplusbc2controller.h */,
+				8774865E2F92434B00A02AFD /* cycplusbc2controller.cpp */,
+				8774865B2F92432600A02AFD /* moc_cycplusbc2controller.cpp */,
+				8798FFA62F8577B3003E969D /* lifespanbike.h */,
+				8798FFA72F8577B3003E969D /* lifespanbike.cpp */,
+				8798FFA42F857787003E969D /* moc_lifespanbike.cpp */,
 				87DBD7822F4060A200342F2B /* filesearcher.h */,
 				87DBD7832F4060A200342F2B /* filesearcher.cpp */,
 				87DBD7842F4060A200342F2B /* moc_filesearcher.cpp */,
@@ -3749,6 +3773,7 @@
 				870A5DB52CEF8FD200839641 /* technogymbike.cpp in Compile Sources */,
 				87C5F0BB26285E5F0067A1B5 /* mimetext.cpp in Compile Sources */,
 				8732C17F27353464006DF424 /* iconceptbike.cpp in Compile Sources */,
+				8774865F2F92434B00A02AFD /* cycplusbc2controller.cpp in Compile Sources */,
 				87CF5169293C879800A7CABC /* characteristicwriteprocessore005.cpp in Compile Sources */,
 				873824C027E64707004F1B46 /* moc_dirconmanager.cpp in Compile Sources */,
 				2F0E70F826316F3600E11F3A /* virtualbike_zwift.swift in Compile Sources */,
@@ -3815,10 +3840,12 @@
 				8767CA602DA800590003001F /* ios_zwiftclickremote.mm in Compile Sources */,
 				87917A7328E768D200F8D9AC /* Browser.swift in Compile Sources */,
 				873CD20B27EF8D8A000131BC /* inapptransaction.cpp in Compile Sources */,
+				8798FFA82F8577B3003E969D /* lifespanbike.cpp in Compile Sources */,
 				8727C7D52B3BF1E4005429EB /* moc_proformtelnetbike.cpp in Compile Sources */,
 				8767CA552DA3C1FD0003001F /* elitesquarecontroller.cpp in Compile Sources */,
 				8767CA562DA3C1FD0003001F /* moc_elitesquarecontroller.cpp in Compile Sources */,
 				873824EF27E647A9004F1B46 /* query.cpp in Compile Sources */,
+				877486E02FA8E78600A02AFD /* moc_iconsolebike.cpp in Compile Sources */,
 				876F45FF279350D9003CDA5A /* moc_concept2skierg.cpp in Compile Sources */,
 				BE93C6EF2C2A6BFEEC9EA565 /* fit_buffered_mesg_broadcaster.cpp in Compile Sources */,
 				876E50F42B701C050080FAAF /* moc_abstractZapDevice.cpp in Compile Sources */,
@@ -3967,6 +3994,7 @@
 				872089142CE65451008C2C17 /* qmqtttype.cpp in Compile Sources */,
 				872089152CE65451008C2C17 /* qmqttcontrolpacket.cpp in Compile Sources */,
 				872089162CE65451008C2C17 /* qmqttmessage.cpp in Compile Sources */,
+				8774865C2F92432600A02AFD /* moc_cycplusbc2controller.cpp in Compile Sources */,
 				872089172CE65451008C2C17 /* qmqtttopicname.cpp in Compile Sources */,
 				872089182CE65451008C2C17 /* qmqttpublishproperties.cpp in Compile Sources */,
 				872089192CE65451008C2C17 /* qmqttauthenticationproperties.cpp in Compile Sources */,
@@ -4115,6 +4143,7 @@
 				DF373364C5474D877506CB26 /* FitMesg.mm in Compile Sources */,
 				87FE06812D170D3C00CDAAF6 /* moc_trxappgateusbrower.cpp in Compile Sources */,
 				872261F0289EA887006A6F75 /* moc_nordictrackelliptical.cpp in Compile Sources */,
+				877486E32FA8E79800A02AFD /* iconsolebike.cpp in Compile Sources */,
 				873824E327E647A8004F1B46 /* bitmap.cpp in Compile Sources */,
 				87FE5BB12692F31E0056EFC8 /* moc_tacxneo2.cpp in Compile Sources */,
 				8798FDC52D66075B00CF8EE8 /* OSXBtManagerInternal.mm in Compile Sources */,
@@ -4241,6 +4270,7 @@
 				878531642711A3E1004B153D /* fakebike.cpp in Compile Sources */,
 				87A0C4C0262329B500121A76 /* moc_npecablebike.cpp in Compile Sources */,
 				87DAE16B26E9FF5000B0527E /* moc_solef80treadmill.cpp in Compile Sources */,
+				8798FFA52F857787003E969D /* moc_lifespanbike.cpp in Compile Sources */,
 				8762D50F2601F7EA00F6F049 /* M3iNS.mm in Compile Sources */,
 				87BAFE4B2B8CAA4200065FCD /* focustreadmill.cpp in Compile Sources */,
 				87E1CA802B8DF06100E3C414 /* trxappgateusbelliptical.cpp in Compile Sources */,

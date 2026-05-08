@@ -124,6 +124,7 @@
         <file>inner_templates/chartjs/dochartliveheart.js</file>
         <file>Wizard.qml</file>
         <file>gears.qml</file>
+        <file>customgears.qml</file>
         <file>IndicatorOnlySwitch.qml</file>
         <file>StaticAccordionElement.qml</file>
         <file>inner_templates/chartjs/dotreadmillchartlive.js</file>
