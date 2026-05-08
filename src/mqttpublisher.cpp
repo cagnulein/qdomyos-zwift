@@ -31,6 +31,60 @@ MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QString username
     if (m_manager) {
         connect(m_manager, &bluetooth::bluetoothDeviceConnected, this, &MQTTPublisher::onBluetoothDeviceConnected);
         connect(m_manager, &bluetooth::bluetoothDeviceDisconnected, this, &MQTTPublisher::onBluetoothDeviceDisconnected);
+        connect(m_manager, &bluetooth::zwiftClickPlus, this, [this]() {
+            publishMomentaryButtonPress("bike/zwift_click/plus");
+        });
+        connect(m_manager, &bluetooth::zwiftClickMinus, this, [this]() {
+            publishMomentaryButtonPress("bike/zwift_click/minus");
+        });
+        connect(m_manager, &bluetooth::zwiftPlayPlus, this, [this]() {
+            publishMomentaryButtonPress("bike/zwift_play/plus");
+        });
+        connect(m_manager, &bluetooth::zwiftPlayMinus, this, [this]() {
+            publishMomentaryButtonPress("bike/zwift_play/minus");
+        });
+        connect(m_manager, &bluetooth::zwiftPlayLeftUp, this, [this](bool pressed) {
+            publishToTopic("bike/zwift_play/left/up", pressed);
+        });
+        connect(m_manager, &bluetooth::zwiftPlayLeftDown, this, [this](bool pressed) {
+            publishToTopic("bike/zwift_play/left/down", pressed);
+        });
+        connect(m_manager, &bluetooth::zwiftPlayLeftLeft, this, [this](bool pressed) {
+            publishToTopic("bike/zwift_play/left/left", pressed);
+        });
+        connect(m_manager, &bluetooth::zwiftPlayLeftRight, this, [this](bool pressed) {
+            publishToTopic("bike/zwift_play/left/right", pressed);
+        });
+        connect(m_manager, &bluetooth::zwiftPlayLeftShoulder, this, [this](bool pressed) {
+            publishToTopic("bike/zwift_play/left/shoulder", pressed);
+        });
+        connect(m_manager, &bluetooth::zwiftPlayLeftPower, this, [this](bool pressed) {
+            publishToTopic("bike/zwift_play/left/power", pressed);
+        });
+        connect(m_manager, &bluetooth::zwiftPlayLeftPaddle, this, [this](int value) {
+            publishToTopic("bike/zwift_play/left/paddle", value);
+        });
+        connect(m_manager, &bluetooth::zwiftPlayRightY, this, [this](bool pressed) {
+            publishToTopic("bike/zwift_play/right/y", pressed);
+        });
+        connect(m_manager, &bluetooth::zwiftPlayRightZ, this, [this](bool pressed) {
+            publishToTopic("bike/zwift_play/right/z", pressed);
+        });
+        connect(m_manager, &bluetooth::zwiftPlayRightA, this, [this](bool pressed) {
+            publishToTopic("bike/zwift_play/right/a", pressed);
+        });
+        connect(m_manager, &bluetooth::zwiftPlayRightB, this, [this](bool pressed) {
+            publishToTopic("bike/zwift_play/right/b", pressed);
+        });
+        connect(m_manager, &bluetooth::zwiftPlayRightShoulder, this, [this](bool pressed) {
+            publishToTopic("bike/zwift_play/right/shoulder", pressed);
+        });
+        connect(m_manager, &bluetooth::zwiftPlayRightPower, this, [this](bool pressed) {
+            publishToTopic("bike/zwift_play/right/power", pressed);
+        });
+        connect(m_manager, &bluetooth::zwiftPlayRightPaddle, this, [this](int value) {
+            publishToTopic("bike/zwift_play/right/paddle", value);
+        });
         m_device = m_manager->device();
     }
 
@@ -75,6 +129,7 @@ void MQTTPublisher::onBluetoothDeviceConnected(bluetoothdevice *device) {
 
 void MQTTPublisher::onBluetoothDeviceDisconnected() {
     m_device = nullptr;
+    publishDefaultZwiftControllerStates();
 }
 
 QString MQTTPublisher::getUserNickname() const {
@@ -205,10 +260,39 @@ void MQTTPublisher::publishToTopic(const QString& topic, const QVariant& value) 
     updateLastPublishedValue(fullTopic, value);
 }
 
+void MQTTPublisher::publishMomentaryButtonPress(const QString& topic) {
+    publishToTopic(topic, true);
+    QTimer::singleShot(150, this, [this, topic]() {
+        publishToTopic(topic, false);
+    });
+}
+
+void MQTTPublisher::publishDefaultZwiftControllerStates() {
+    publishToTopic("bike/zwift_click/plus", false);
+    publishToTopic("bike/zwift_click/minus", false);
+    publishToTopic("bike/zwift_play/plus", false);
+    publishToTopic("bike/zwift_play/minus", false);
+    publishToTopic("bike/zwift_play/left/up", false);
+    publishToTopic("bike/zwift_play/left/down", false);
+    publishToTopic("bike/zwift_play/left/left", false);
+    publishToTopic("bike/zwift_play/left/right", false);
+    publishToTopic("bike/zwift_play/left/shoulder", false);
+    publishToTopic("bike/zwift_play/left/power", false);
+    publishToTopic("bike/zwift_play/left/paddle", 0);
+    publishToTopic("bike/zwift_play/right/y", false);
+    publishToTopic("bike/zwift_play/right/z", false);
+    publishToTopic("bike/zwift_play/right/a", false);
+    publishToTopic("bike/zwift_play/right/b", false);
+    publishToTopic("bike/zwift_play/right/shoulder", false);
+    publishToTopic("bike/zwift_play/right/power", false);
+    publishToTopic("bike/zwift_play/right/paddle", 0);
+}
+
 void MQTTPublisher::onConnected() {
     qDebug() << "MQTT Client Connected";
     m_lastPublishedValues.clear();  // Reset stored values
     publishOnlineStatus();
+    publishDefaultZwiftControllerStates();
     subscribeToControlTopics();
     
     // Delay discovery config to allow device initialization
@@ -453,7 +537,12 @@ void MQTTPublisher::removeDiscoveryConfig() {
     QStringList entities = {
         "speed_current", "speed_avg", "distance", "calories", "elapsed_time", "elapsed_total_seconds", "heart_current", "heart_avg",
         "watts_current", "watts_avg", "connected", "paused", "resistance", "cadence", "inclination",
-        "power", "fan_speed", "start", "stop", "pause"
+        "power", "fan_speed", "start", "stop", "pause",
+        "zwift_click_plus", "zwift_click_minus", "zwift_play_plus", "zwift_play_minus",
+        "zwift_play_left_up", "zwift_play_left_down", "zwift_play_left_left", "zwift_play_left_right",
+        "zwift_play_left_shoulder", "zwift_play_left_power", "zwift_play_left_paddle",
+        "zwift_play_right_y", "zwift_play_right_z", "zwift_play_right_a", "zwift_play_right_b",
+        "zwift_play_right_shoulder", "zwift_play_right_power", "zwift_play_right_paddle"
     };
     
     for (const QString& component : components) {
@@ -671,6 +760,24 @@ void MQTTPublisher::publishDiscoveryConfig() {
                 publishSensorDiscovery("bike_cadence", "Cadence", baseTopic + "bike/cadence/current", "rpm", "", "mdi:rotate-right");
                 publishSensorDiscovery("bike_gears", "Gears", baseTopic + "bike/gears", "", "", "mdi:cog");
                 publishSensorDiscovery("bike_power_zone", "Power Zone", baseTopic + "bike/power_zone", "", "", "mdi:target");
+                publishBinarySensorDiscovery("zwift_click_plus", "Zwift Click Plus", baseTopic + "bike/zwift_click/plus", "", "mdi:plus-circle");
+                publishBinarySensorDiscovery("zwift_click_minus", "Zwift Click Minus", baseTopic + "bike/zwift_click/minus", "", "mdi:minus-circle");
+                publishBinarySensorDiscovery("zwift_play_plus", "Zwift Play Plus", baseTopic + "bike/zwift_play/plus", "", "mdi:plus-circle");
+                publishBinarySensorDiscovery("zwift_play_minus", "Zwift Play Minus", baseTopic + "bike/zwift_play/minus", "", "mdi:minus-circle");
+                publishBinarySensorDiscovery("zwift_play_left_up", "Zwift Play Left Up", baseTopic + "bike/zwift_play/left/up", "", "mdi:arrow-up-bold-circle");
+                publishBinarySensorDiscovery("zwift_play_left_down", "Zwift Play Left Down", baseTopic + "bike/zwift_play/left/down", "", "mdi:arrow-down-bold-circle");
+                publishBinarySensorDiscovery("zwift_play_left_left", "Zwift Play Left Left", baseTopic + "bike/zwift_play/left/left", "", "mdi:arrow-left-bold-circle");
+                publishBinarySensorDiscovery("zwift_play_left_right", "Zwift Play Left Right", baseTopic + "bike/zwift_play/left/right", "", "mdi:arrow-right-bold-circle");
+                publishBinarySensorDiscovery("zwift_play_left_shoulder", "Zwift Play Left Shoulder", baseTopic + "bike/zwift_play/left/shoulder", "", "mdi:button-pointer");
+                publishBinarySensorDiscovery("zwift_play_left_power", "Zwift Play Left Power", baseTopic + "bike/zwift_play/left/power", "", "mdi:power");
+                publishSensorDiscovery("zwift_play_left_paddle", "Zwift Play Left Paddle", baseTopic + "bike/zwift_play/left/paddle", "", "", "mdi:gamepad-round");
+                publishBinarySensorDiscovery("zwift_play_right_y", "Zwift Play Right Y", baseTopic + "bike/zwift_play/right/y", "", "mdi:alpha-y-circle");
+                publishBinarySensorDiscovery("zwift_play_right_z", "Zwift Play Right Z", baseTopic + "bike/zwift_play/right/z", "", "mdi:alpha-z-circle");
+                publishBinarySensorDiscovery("zwift_play_right_a", "Zwift Play Right A", baseTopic + "bike/zwift_play/right/a", "", "mdi:alpha-a-circle");
+                publishBinarySensorDiscovery("zwift_play_right_b", "Zwift Play Right B", baseTopic + "bike/zwift_play/right/b", "", "mdi:alpha-b-circle");
+                publishBinarySensorDiscovery("zwift_play_right_shoulder", "Zwift Play Right Shoulder", baseTopic + "bike/zwift_play/right/shoulder", "", "mdi:button-pointer");
+                publishBinarySensorDiscovery("zwift_play_right_power", "Zwift Play Right Power", baseTopic + "bike/zwift_play/right/power", "", "mdi:power");
+                publishSensorDiscovery("zwift_play_right_paddle", "Zwift Play Right Paddle", baseTopic + "bike/zwift_play/right/paddle", "", "", "mdi:gamepad-round");
                 
                 // Bike controls
                 publishNumberDiscovery("bike_resistance", "Bike Resistance", baseTopic + "bike/resistance/current", controlTopic + "bike/resistance", 0, 32, 1, "", "mdi:tune");

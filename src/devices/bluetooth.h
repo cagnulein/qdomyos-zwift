@@ -374,6 +374,24 @@ class bluetooth : public QObject, public SignalHandler {
 
     void bluetoothDeviceConnected(bluetoothdevice *b);
     void bluetoothDeviceDisconnected();
+    void zwiftClickPlus();
+    void zwiftClickMinus();
+    void zwiftPlayPlus();
+    void zwiftPlayMinus();
+    void zwiftPlayLeftUp(bool pressed);
+    void zwiftPlayLeftDown(bool pressed);
+    void zwiftPlayLeftLeft(bool pressed);
+    void zwiftPlayLeftRight(bool pressed);
+    void zwiftPlayLeftShoulder(bool pressed);
+    void zwiftPlayLeftPower(bool pressed);
+    void zwiftPlayLeftPaddle(int value);
+    void zwiftPlayRightY(bool pressed);
+    void zwiftPlayRightZ(bool pressed);
+    void zwiftPlayRightA(bool pressed);
+    void zwiftPlayRightB(bool pressed);
+    void zwiftPlayRightShoulder(bool pressed);
+    void zwiftPlayRightPower(bool pressed);
+    void zwiftPlayRightPaddle(int value);
   public slots:
     void restart();
     void debug(const QString &string);

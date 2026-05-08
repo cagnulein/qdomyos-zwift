@@ -3198,6 +3198,8 @@ void bluetooth::connectedAndDiscovered() {
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
+                connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, this, &bluetooth::zwiftClickPlus);
+                connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, this, &bluetooth::zwiftClickMinus);
                 connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, this, [this]() {
                     auto *myWhoosh = MyWhooshLink::instance();
                     if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
@@ -3278,6 +3280,22 @@ void bluetooth::connectedAndDiscovered() {
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(zwiftPlayDevice.last(), &zwiftclickremote::debug, this, &bluetooth::debug);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, this, &bluetooth::zwiftPlayPlus);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, this, &bluetooth::zwiftPlayMinus);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftUp, this, &bluetooth::zwiftPlayLeftUp);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftDown, this, &bluetooth::zwiftPlayLeftDown);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftLeft, this, &bluetooth::zwiftPlayLeftLeft);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftRight, this, &bluetooth::zwiftPlayLeftRight);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftShoulder, this, &bluetooth::zwiftPlayLeftShoulder);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPower, this, &bluetooth::zwiftPlayLeftPower);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPaddle, this, &bluetooth::zwiftPlayLeftPaddle);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightY, this, &bluetooth::zwiftPlayRightY);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightZ, this, &bluetooth::zwiftPlayRightZ);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightA, this, &bluetooth::zwiftPlayRightA);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightB, this, &bluetooth::zwiftPlayRightB);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightShoulder, this, &bluetooth::zwiftPlayRightShoulder);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPower, this, &bluetooth::zwiftPlayRightPower);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPaddle, this, &bluetooth::zwiftPlayRightPaddle);
                 connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, this, [this]() {
                     auto *myWhoosh = MyWhooshLink::instance();
                     if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
