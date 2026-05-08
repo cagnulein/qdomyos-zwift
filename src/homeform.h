@@ -743,6 +743,76 @@ public:
         return l;
     }
 
+    QList<double> preview_workout_minspeed() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.minSpeed);
+            }
+        }
+        return l;
+    }
+
+    QList<double> preview_workout_maxspeed() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.maxSpeed);
+            }
+        }
+        return l;
+    }
+
+    QList<double> preview_workout_hrmin() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.HRmin);
+            }
+        }
+        return l;
+    }
+
+    QList<double> preview_workout_hrmax() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.HRmax);
+            }
+        }
+        return l;
+    }
+
+    QList<double> preview_workout_zonehr() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.zoneHR);
+            }
+        }
+        return l;
+    }
+
     QString previewWorkoutDescription() {
         if (previewTrainProgram) {
             return previewTrainProgram->description;

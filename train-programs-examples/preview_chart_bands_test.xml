@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test workout for preview chart band rendering -->
+<!-- Tests: speed line, minSpeed/maxSpeed band, zoneHR band, explicit HRmin/HRmax band -->
+<rows>
+    <!-- Warmup: speed line only (no band) -->
+    <row duration="00:03:00" speed="6" forcespeed="1"/>
+
+    <!-- Speed band: minSpeed/maxSpeed with target speed line inside -->
+    <row duration="00:05:00" speed="8" minspeed="7" maxspeed="10" forcespeed="1"/>
+
+    <!-- Speed band only: minSpeed/maxSpeed without explicit speed target -->
+    <row duration="00:03:00" minspeed="9" maxspeed="12" forcespeed="1"/>
+
+    <!-- Zone HR 2 with speed band -->
+    <row duration="00:05:00" minspeed="8" maxspeed="11" zonehr="2" looptimehr="10"/>
+
+    <!-- Zone HR 3 with speed line -->
+    <row duration="00:05:00" speed="10" zonehr="3" looptimehr="10" maxspeed="12"/>
+
+    <!-- Zone HR 4 interval -->
+    <row duration="00:02:00" speed="12" zonehr="4" looptimehr="10" maxspeed="15"/>
+
+    <!-- Explicit HRmin/HRmax (crosses zone boundary 2-3) -->
+    <row duration="00:04:00" speed="9" hrmin="125" hrmax="155" looptimehr="10" maxspeed="11"/>
+
+    <!-- Explicit HRmin/HRmax (within zone 4) -->
+    <row duration="00:03:00" speed="11" hrmin="155" hrmax="170" looptimehr="10"/>
+
+    <!-- Recovery: zone HR 1, speed only -->
+    <row duration="00:05:00" speed="6" zonehr="1" looptimehr="10"/>
+
+    <!-- Cooldown: speed line only -->
+    <row duration="00:03:00" speed="5" forcespeed="1"/>
+</rows>

@@ -43,6 +43,123 @@
         let chart = null;
         let miles = 1; // 1 = km, 0.621371 = miles
 
+        // HR zone colors matching the workout history chart
+        const hrZoneColors = {
+            // Zone 1: light steel blue
+            1: { line: 'rgb(176, 192, 222)', fill: 'rgba(176, 192, 222, 0.25)' },
+            // Zone 2: green
+            2: { line: 'rgb(75, 192, 192)', fill: 'rgba(75, 192, 192, 0.25)' },
+            // Zone 3: yellow
+            3: { line: 'rgb(255, 205, 86)', fill: 'rgba(255, 205, 86, 0.25)' },
+            // Zone 4: orange
+            4: { line: 'rgb(255, 159, 64)', fill: 'rgba(255, 159, 64, 0.25)' },
+            // Zone 5: red
+            5: { line: 'rgb(255, 29, 0)', fill: 'rgba(255, 29, 0, 0.25)' }
+        };
+
+        // HR zone settings (populated from backend)
+        let maxHeartRate = 190;
+        let heartZoneBoundaries = [110, 130, 150, 170]; // BPM boundaries between zones 1-2, 2-3, 3-4, 4-5
+
+        // Determine which HR zone a BPM value falls into
+        function getHRZone(bpm) {
+            if (bpm < heartZoneBoundaries[0]) return 1;
+            if (bpm < heartZoneBoundaries[1]) return 2;
+            if (bpm < heartZoneBoundaries[2]) return 3;
+            if (bpm < heartZoneBoundaries[3]) return 4;
+            return 5;
+        }
+
+        // Convert zone number to BPM range
+        function zoneToBpmRange(zone) {
+            switch (zone) {
+                case 1: return { min: 0, max: heartZoneBoundaries[0] };
+                case 2: return { min: heartZoneBoundaries[0], max: heartZoneBoundaries[1] };
+                case 3: return { min: heartZoneBoundaries[1], max: heartZoneBoundaries[2] };
+                case 4: return { min: heartZoneBoundaries[2], max: heartZoneBoundaries[3] };
+                case 5: return { min: heartZoneBoundaries[3], max: maxHeartRate };
+                default: return null;
+            }
+        }
+
+        // Filter data points to only include valid values (> -1 means "set")
+        function filterValidPoints(data) {
+            return data.filter(function(p) {
+                return p && typeof p === 'object' && p.y > -1;
+            });
+        }
+
+        // Check if data array has any valid (non-negative) y values
+        function hasValidData(data) {
+            if (!data || data.length === 0) return false;
+            return data.some(function(p) {
+                return p && typeof p === 'object' && p.y > -1;
+            });
+        }
+
+        // Create a gradient fill function for HR band based on zone boundaries
+        // This creates a vertical gradient where each zone gets its color
+        function createHRGradientFill(ctx, chartArea, yScale, hrMinData, hrMaxData) {
+            if (!chartArea || !yScale) return 'rgba(255, 29, 0, 0.25)';
+
+            // Find the min and max HR values across the band
+            var allYValues = [];
+            hrMinData.forEach(function(p) { if (p.y > -1) allYValues.push(p.y); });
+            hrMaxData.forEach(function(p) { if (p.y > -1) allYValues.push(p.y); });
+
+            if (allYValues.length === 0) return 'rgba(255, 29, 0, 0.25)';
+
+            var minBpm = Math.min.apply(null, allYValues);
+            var maxBpm = Math.max.apply(null, allYValues);
+
+            // Create a vertical gradient from bottom (minBpm) to top (maxBpm)
+            var topPixel = yScale.getPixelForValue(maxBpm);
+            var bottomPixel = yScale.getPixelForValue(minBpm);
+
+            if (Math.abs(topPixel - bottomPixel) < 1) {
+                // Band is too thin, just use a single zone color
+                var zone = getHRZone((minBpm + maxBpm) / 2);
+                return hrZoneColors[zone].fill;
+            }
+
+            var gradient = ctx.createLinearGradient(0, topPixel, 0, bottomPixel);
+
+            // Add color stops at zone boundaries within the band range
+            var bpmRange = maxBpm - minBpm;
+            var boundaries = [0].concat(heartZoneBoundaries).concat([maxHeartRate]);
+
+            // Build gradient stops
+            for (var i = 0; i < boundaries.length - 1; i++) {
+                var zoneLow = boundaries[i];
+                var zoneHigh = boundaries[i + 1];
+                var zone = i + 1;
+                if (zone > 5) zone = 5;
+
+                // Check if this zone overlaps with our band range
+                var overlapLow = Math.max(zoneLow, minBpm);
+                var overlapHigh = Math.min(zoneHigh, maxBpm);
+
+                if (overlapLow < overlapHigh) {
+                    // This zone is visible in the band
+                    // Gradient stop 0 = topPixel = maxBpm, stop 1 = bottomPixel = minBpm
+                    var stopForHigh = (maxBpm - overlapHigh) / bpmRange; // closer to 0 (top)
+                    var stopForLow = (maxBpm - overlapLow) / bpmRange;   // closer to 1 (bottom)
+
+                    var color = hrZoneColors[zone] ? hrZoneColors[zone].fill : hrZoneColors[5].fill;
+                    gradient.addColorStop(Math.max(0, Math.min(1, stopForHigh)), color);
+                    gradient.addColorStop(Math.max(0, Math.min(1, stopForLow)), color);
+                }
+            }
+
+            return gradient;
+        }
+
+        // Determine HR zone line color for a given BPM value (for segment coloring)
+        function getHRLineColor(bpm) {
+            var zone = getHRZone(bpm);
+            return hrZoneColors[zone] ? hrZoneColors[zone].line : hrZoneColors[5].line;
+        }
+
         // Function to create/update the workout chart
         function updateWorkoutChart(workoutData, deviceType) {
             const ctx = document.getElementById('workoutChart').getContext('2d');
@@ -55,7 +172,102 @@
             // Prepare datasets based on device type
             const datasets = [];
 
-            // Determine primary metric based on device type
+            // --- HR BAND (rendered first = behind everything) ---
+            var hrMinValid = filterValidPoints(workoutData.hrMin || []);
+            var hrMaxValid = filterValidPoints(workoutData.hrMax || []);
+            var hasHRBand = hrMinValid.length > 0 && hrMaxValid.length > 0;
+
+            if (hasHRBand) {
+                // HR Min line (lower boundary of HR band)
+                datasets.push({
+                    label: 'HR Min',
+                    data: hrMinValid,
+                    borderColor: function(context) {
+                        if (!context.p0) return hrZoneColors[2].line;
+                        return getHRLineColor(context.p0.parsed.y);
+                    },
+                    borderWidth: 1.5,
+                    fill: false,
+                    tension: 0,
+                    pointRadius: 0,
+                    yAxisID: 'yHR',
+                    segment: {
+                        borderColor: function(ctx) {
+                            return getHRLineColor(ctx.p0.parsed.y);
+                        }
+                    },
+                    // Hidden from legend
+                    hidden: false
+                });
+
+                // HR Max line (upper boundary of HR band) with fill down to HR Min
+                datasets.push({
+                    label: 'HR Max',
+                    data: hrMaxValid,
+                    borderColor: function(context) {
+                        if (!context.p0) return hrZoneColors[4].line;
+                        return getHRLineColor(context.p0.parsed.y);
+                    },
+                    borderWidth: 1.5,
+                    fill: '-1', // Fill to previous dataset (HR Min)
+                    backgroundColor: 'rgba(255, 29, 0, 0.15)', // Default, overridden by plugin
+                    tension: 0,
+                    pointRadius: 0,
+                    yAxisID: 'yHR',
+                    segment: {
+                        borderColor: function(ctx) {
+                            return getHRLineColor(ctx.p0.parsed.y);
+                        }
+                    },
+                    hidden: false
+                });
+            }
+
+            // --- SPEED BAND (minSpeed/maxSpeed) ---
+            var minSpeedValid = filterValidPoints(workoutData.minSpeed || []);
+            var maxSpeedValid = filterValidPoints(workoutData.maxSpeed || []);
+            var hasSpeedBand = minSpeedValid.length > 0 && maxSpeedValid.length > 0;
+
+            if (hasSpeedBand) {
+                // Apply miles conversion
+                var minSpeedConverted = minSpeedValid.map(function(p) {
+                    return { x: p.x, y: p.y * miles };
+                });
+                var maxSpeedConverted = maxSpeedValid.map(function(p) {
+                    return { x: p.x, y: p.y * miles };
+                });
+
+                // Min Speed line (lower boundary)
+                datasets.push({
+                    label: 'Min Speed',
+                    data: minSpeedConverted,
+                    borderColor: '#3b82f6',
+                    borderWidth: 1,
+                    fill: false,
+                    tension: 0,
+                    pointRadius: 0,
+                    yAxisID: 'y',
+                    borderDash: [4, 2],
+                    hidden: false
+                });
+
+                // Max Speed line (upper boundary) with fill to Min Speed
+                datasets.push({
+                    label: 'Max Speed',
+                    data: maxSpeedConverted,
+                    borderColor: '#3b82f6',
+                    borderWidth: 1,
+                    fill: '-1', // Fill to previous dataset (Min Speed)
+                    backgroundColor: 'rgba(59, 130, 246, 0.4)',
+                    tension: 0,
+                    pointRadius: 0,
+                    yAxisID: 'y',
+                    borderDash: [4, 2],
+                    hidden: false
+                });
+            }
+
+            // --- PRIMARY METRIC (speed/watts/resistance line) ---
             const primaryMetric = getPrimaryMetric(deviceType, workoutData);
 
             if (primaryMetric) {
@@ -65,46 +277,96 @@
                     borderColor: '#3b82f6',
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     borderWidth: 2,
-                    fill: true,
+                    fill: !hasSpeedBand, // Only fill under line if no speed band
                     tension: 0.1,
                     pointRadius: 0,
                     yAxisID: 'y'
                 });
             }
 
+            // --- SECONDARY METRICS ---
             // Add cadence as secondary metric for bikes
             if (deviceType === 'bike' && workoutData.cadence && workoutData.cadence.length > 0) {
-                datasets.push({
-                    label: 'Cadence (RPM)',
-                    data: workoutData.cadence,
-                    borderColor: '#f59e0b',
-                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.1,
-                    pointRadius: 0,
-                    yAxisID: 'y1'
-                });
+                var validCadence = filterValidPoints(workoutData.cadence);
+                if (validCadence.length > 0) {
+                    datasets.push({
+                        label: 'Cadence (RPM)',
+                        data: validCadence,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.1,
+                        pointRadius: 0,
+                        yAxisID: 'y1'
+                    });
+                }
             }
 
             // Add inclination as secondary metric for treadmills
             if (deviceType === 'treadmill' && workoutData.inclination && workoutData.inclination.length > 0) {
-                datasets.push({
-                    label: 'Inclination (%)',
-                    data: workoutData.inclination,
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.1,
-                    pointRadius: 0,
-                    yAxisID: 'y1'
-                });
+                var validInclination = filterValidPoints(workoutData.inclination);
+                if (validInclination.length > 0) {
+                    datasets.push({
+                        label: 'Inclination (%)',
+                        data: validInclination,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.1,
+                        pointRadius: 0,
+                        yAxisID: 'y1'
+                    });
+                }
             }
+
+            // Determine which secondary axis to show
+            var hasSecondaryAxis = (deviceType === 'bike' && hasValidData(workoutData.cadence)) ||
+                                   (deviceType === 'treadmill' && hasValidData(workoutData.inclination));
+
+            // Determine if HR axis is needed
+            var hasHRAxis = hasHRBand;
+
+            // Filter legend to only show meaningful datasets
+            var legendFilter = function(item, data) {
+                // Hide band boundary datasets from legend
+                var hiddenLabels = ['HR Min', 'HR Max', 'Min Speed', 'Max Speed'];
+                return hiddenLabels.indexOf(item.text) === -1;
+            };
+
+            // Custom plugin for HR gradient fill
+            var hrGradientPlugin = {
+                id: 'hrGradientFill',
+                beforeDraw: function(chart) {
+                    if (!hasHRBand) return;
+
+                    // Find the HR Max dataset and apply gradient
+                    var hrMaxDatasetIndex = -1;
+                    for (var i = 0; i < chart.data.datasets.length; i++) {
+                        if (chart.data.datasets[i].label === 'HR Max') {
+                            hrMaxDatasetIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (hrMaxDatasetIndex >= 0 && chart.chartArea && chart.scales.yHR) {
+                        var gradient = createHRGradientFill(
+                            chart.ctx,
+                            chart.chartArea,
+                            chart.scales.yHR,
+                            hrMinValid,
+                            hrMaxValid
+                        );
+                        chart.data.datasets[hrMaxDatasetIndex].backgroundColor = gradient;
+                    }
+                }
+            };
 
             // Create chart
             chart = new Chart(ctx, {
                 type: 'line',
+                plugins: [hrGradientPlugin],
                 data: {
                     datasets: datasets
                 },
@@ -118,7 +380,10 @@
                     plugins: {
                         legend: {
                             display: datasets.length > 1,
-                            position: 'top'
+                            position: 'top',
+                            labels: {
+                                filter: legendFilter
+                            }
                         },
                         tooltip: {
                             enabled: true,
@@ -129,6 +394,11 @@
                             bodyColor: '#fff',
                             borderColor: '#3b82f6',
                             borderWidth: 1,
+                            filter: function(tooltipItem) {
+                                // Hide band boundaries from tooltip
+                                var hiddenLabels = ['HR Min', 'HR Max', 'Min Speed', 'Max Speed'];
+                                return hiddenLabels.indexOf(tooltipItem.dataset.label) === -1;
+                            },
                             callbacks: {
                                 label: function(context) {
                                     let label = context.dataset.label || '';
@@ -146,7 +416,7 @@
                             type: 'linear',
                             title: {
                                 display: true,
-                                text: 'Time (seconds)',
+                                text: 'Time',
                                 color: '#666'
                             },
                             grid: {
@@ -179,8 +449,7 @@
                         y1: {
                             beginAtZero: deviceType !== 'treadmill',
                             position: 'right',
-                            display: (deviceType === 'bike' && workoutData.cadence && workoutData.cadence.length > 0) ||
-                                     (deviceType === 'treadmill' && workoutData.inclination && workoutData.inclination.length > 0),
+                            display: hasSecondaryAxis,
                             title: {
                                 display: true,
                                 text: deviceType === 'treadmill' ? 'Inclination (%)' : 'Cadence (RPM)',
@@ -191,6 +460,22 @@
                             },
                             ticks: {
                                 color: deviceType === 'treadmill' ? '#10b981' : '#f59e0b'
+                            }
+                        },
+                        yHR: {
+                            display: hasHRAxis,
+                            position: 'right',
+                            beginAtZero: false,
+                            title: {
+                                display: hasHRAxis,
+                                text: 'HR (bpm)',
+                                color: 'rgb(255, 29, 0)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            },
+                            ticks: {
+                                color: 'rgb(255, 29, 0)'
                             }
                         }
                     }
@@ -203,58 +488,108 @@
             const { watts, speed, inclination, resistance, cadence } = workoutData;
 
             // For bikes: show watts (power)
-            if (deviceType === 'bike' && watts && watts.length > 0) {
+            if (deviceType === 'bike' && hasValidData(watts)) {
                 return {
                     label: 'Power (W)',
-                    data: watts
+                    data: filterValidPoints(watts)
                 };
             }
 
             // For treadmills: show speed
-            if (deviceType === 'treadmill' && speed && speed.length > 0) {
+            if (deviceType === 'treadmill' && hasValidData(speed)) {
                 return {
                     label: 'Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
-                    data: speed.map(point => ({ x: point.x, y: point.y * miles }))
+                    data: filterValidPoints(speed).map(function(point) {
+                        return { x: point.x, y: point.y * miles };
+                    })
                 };
             }
 
             // For ellipticals/rowers: show watts if available, otherwise resistance
             if ((deviceType === 'elliptical' || deviceType === 'rower')) {
-                if (watts && watts.length > 0) {
+                if (hasValidData(watts)) {
                     return {
                         label: 'Power (W)',
-                        data: watts
+                        data: filterValidPoints(watts)
                     };
                 }
-                if (resistance && resistance.length > 0) {
+                if (hasValidData(resistance)) {
                     return {
                         label: 'Resistance',
-                        data: resistance
+                        data: filterValidPoints(resistance)
                     };
                 }
             }
 
             // Default: try watts, then speed, then resistance
-            if (watts && watts.length > 0) {
+            if (hasValidData(watts)) {
                 return {
                     label: 'Power (W)',
-                    data: watts
+                    data: filterValidPoints(watts)
                 };
             }
-            if (speed && speed.length > 0) {
+            if (hasValidData(speed)) {
                 return {
                     label: 'Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
-                    data: speed.map(point => ({ x: point.x, y: point.y * miles }))
+                    data: filterValidPoints(speed).map(function(point) {
+                        return { x: point.x, y: point.y * miles };
+                    })
                 };
             }
-            if (resistance && resistance.length > 0) {
+            if (hasValidData(resistance)) {
                 return {
                     label: 'Resistance',
-                    data: resistance
+                    data: filterValidPoints(resistance)
                 };
             }
 
             return null;
+        }
+
+        // Resolve HR targets from zoneHR and/or hrMin/hrMax into unified hrMin/hrMax arrays
+        function resolveHRTargets(workoutData) {
+            var zoneHR = workoutData.zoneHR || [];
+            var hrMin = workoutData.hrMin || [];
+            var hrMax = workoutData.hrMax || [];
+
+            // If we have no data at all, return empty
+            if (zoneHR.length === 0 && hrMin.length === 0) {
+                return { hrMin: [], hrMax: [] };
+            }
+
+            var resolvedMin = [];
+            var resolvedMax = [];
+
+            // Process each time point - zoneHR takes precedence over explicit hrMin/hrMax
+            var maxLen = Math.max(zoneHR.length, hrMin.length, hrMax.length);
+            for (var i = 0; i < maxLen; i++) {
+                var x = i;
+                var zoneVal = (i < zoneHR.length && zoneHR[i]) ? zoneHR[i].y : -1;
+                var hrMinVal = (i < hrMin.length && hrMin[i]) ? hrMin[i].y : -1;
+                var hrMaxVal = (i < hrMax.length && hrMax[i]) ? hrMax[i].y : -1;
+
+                if (zoneVal >= 1 && zoneVal <= 5) {
+                    // Zone HR takes precedence
+                    var range = zoneToBpmRange(zoneVal);
+                    if (range) {
+                        resolvedMin.push({ x: x, y: range.min });
+                        resolvedMax.push({ x: x, y: range.max });
+                    } else {
+                        resolvedMin.push({ x: x, y: -1 });
+                        resolvedMax.push({ x: x, y: -1 });
+                    }
+                } else if (hrMinVal > 0 && hrMaxVal > 0) {
+                    // Use explicit HRmin/HRmax
+                    resolvedMin.push({ x: x, y: hrMinVal });
+                    resolvedMax.push({ x: x, y: hrMaxVal });
+                } else {
+                    // No HR target for this second
+                    resolvedMin.push({ x: x, y: -1 });
+                    resolvedMax.push({ x: x, y: -1 });
+                }
+            }
+
+            return { hrMin: resolvedMin, hrMax: resolvedMax };
         }
 
         // WebSocket for communication with Qt
@@ -343,6 +678,11 @@
                 inclination: data.inclination,
                 resistance: data.resistance,
                 cadence: data.cadence,
+                minSpeed: data.minSpeed,
+                maxSpeed: data.maxSpeed,
+                hrMin: data.hrMin,
+                hrMax: data.hrMax,
+                zoneHR: data.zoneHR,
                 deviceType: data.deviceType
             });
 
@@ -353,19 +693,47 @@
 
             lastDataHash = dataHash;
 
-            const { points, watts, speed, inclination, resistance, cadence, deviceType, miles_unit } = data;
+            const { points, watts, speed, inclination, resistance, cadence,
+                    minSpeed, maxSpeed, hrMin, hrMax, zoneHR,
+                    deviceType, miles_unit,
+                    maxHeartRate: mhr, heartRateZone1, heartRateZone2, heartRateZone3, heartRateZone4 } = data;
 
             // Update miles setting if provided
             if (miles_unit !== undefined) {
                 miles = miles_unit ? 0.621371 : 1;
             }
 
+            // Update HR zone settings if provided
+            if (mhr !== undefined && mhr > 0) {
+                maxHeartRate = mhr;
+            }
+            if (heartRateZone1 !== undefined) {
+                // Zone percentages -> absolute BPM boundaries
+                heartZoneBoundaries = [
+                    Math.round(maxHeartRate * (heartRateZone1 / 100)),
+                    Math.round(maxHeartRate * (heartRateZone2 / 100)),
+                    Math.round(maxHeartRate * (heartRateZone3 / 100)),
+                    Math.round(maxHeartRate * (heartRateZone4 / 100))
+                ];
+            }
+
+            // Resolve HR targets (zoneHR takes precedence over hrMin/hrMax)
+            var resolvedHR = resolveHRTargets({
+                zoneHR: zoneHR || [],
+                hrMin: hrMin || [],
+                hrMax: hrMax || []
+            });
+
             const workoutData = {
                 watts: watts || [],
                 speed: speed || [],
                 inclination: inclination || [],
                 resistance: resistance || [],
-                cadence: cadence || []
+                cadence: cadence || [],
+                minSpeed: minSpeed || [],
+                maxSpeed: maxSpeed || [],
+                hrMin: resolvedHR.hrMin,
+                hrMax: resolvedHR.hrMax
             };
 
             // The C++ backend always populates watts even for treadmill workouts where
@@ -398,7 +766,12 @@
                 watts: [],
                 speed: [],
                 inclination: [],
-                resistance: []
+                resistance: [],
+                cadence: [],
+                minSpeed: [],
+                maxSpeed: [],
+                hrMin: [],
+                hrMax: []
             }, 'bike');
         });
     </script>

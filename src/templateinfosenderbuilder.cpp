@@ -661,6 +661,7 @@ void TemplateInfoSenderBuilder::onGetWorkoutPreview(TemplateInfoSender *tempSend
     QJsonObject main;
     QJsonObject outObj;
     QJsonArray watts, speed, inclination, resistance, cadence;
+    QJsonArray minSpeed, maxSpeed, hrMin, hrMax, zoneHR;
 
     int points = hf->preview_workout_points();
 
@@ -670,6 +671,11 @@ void TemplateInfoSenderBuilder::onGetWorkoutPreview(TemplateInfoSender *tempSend
         QList<double> inclinationData = hf->preview_workout_inclination();
         QList<double> resistanceData = hf->preview_workout_resistance();
         QList<double> cadenceData = hf->preview_workout_cadence();
+        QList<double> minSpeedData = hf->preview_workout_minspeed();
+        QList<double> maxSpeedData = hf->preview_workout_maxspeed();
+        QList<double> hrMinData = hf->preview_workout_hrmin();
+        QList<double> hrMaxData = hf->preview_workout_hrmax();
+        QList<double> zoneHRData = hf->preview_workout_zonehr();
 
         outObj[QStringLiteral("points")] = points;
         outObj[QStringLiteral("description")] = hf->previewWorkoutDescription();
@@ -716,6 +722,46 @@ void TemplateInfoSenderBuilder::onGetWorkoutPreview(TemplateInfoSender *tempSend
                 cadPoint[QStringLiteral("y")] = cadenceData[i];
                 cadence.append(cadPoint);
             }
+
+            // Min Speed
+            if (i < minSpeedData.size()) {
+                QJsonObject minSpeedPoint;
+                minSpeedPoint[QStringLiteral("x")] = i;
+                minSpeedPoint[QStringLiteral("y")] = minSpeedData[i];
+                minSpeed.append(minSpeedPoint);
+            }
+
+            // Max Speed
+            if (i < maxSpeedData.size()) {
+                QJsonObject maxSpeedPoint;
+                maxSpeedPoint[QStringLiteral("x")] = i;
+                maxSpeedPoint[QStringLiteral("y")] = maxSpeedData[i];
+                maxSpeed.append(maxSpeedPoint);
+            }
+
+            // HR Min
+            if (i < hrMinData.size()) {
+                QJsonObject hrMinPoint;
+                hrMinPoint[QStringLiteral("x")] = i;
+                hrMinPoint[QStringLiteral("y")] = hrMinData[i];
+                hrMin.append(hrMinPoint);
+            }
+
+            // HR Max
+            if (i < hrMaxData.size()) {
+                QJsonObject hrMaxPoint;
+                hrMaxPoint[QStringLiteral("x")] = i;
+                hrMaxPoint[QStringLiteral("y")] = hrMaxData[i];
+                hrMax.append(hrMaxPoint);
+            }
+
+            // Zone HR
+            if (i < zoneHRData.size()) {
+                QJsonObject zoneHRPoint;
+                zoneHRPoint[QStringLiteral("x")] = i;
+                zoneHRPoint[QStringLiteral("y")] = zoneHRData[i];
+                zoneHR.append(zoneHRPoint);
+            }
         }
 
         // Determine device type
@@ -731,11 +777,28 @@ void TemplateInfoSenderBuilder::onGetWorkoutPreview(TemplateInfoSender *tempSend
         outObj[QStringLiteral("inclination")] = inclination;
         outObj[QStringLiteral("resistance")] = resistance;
         outObj[QStringLiteral("cadence")] = cadence;
+        outObj[QStringLiteral("minSpeed")] = minSpeed;
+        outObj[QStringLiteral("maxSpeed")] = maxSpeed;
+        outObj[QStringLiteral("hrMin")] = hrMin;
+        outObj[QStringLiteral("hrMax")] = hrMax;
+        outObj[QStringLiteral("zoneHR")] = zoneHR;
         outObj[QStringLiteral("deviceType")] = deviceType;
 
         // Add miles_unit setting
         QSettings settings;
         outObj[QStringLiteral("miles_unit")] = settings.value(QStringLiteral("miles_unit"), false).toBool();
+
+        // Add HR zone settings for frontend zone resolution
+        int age = settings.value(QZSettings::age, QZSettings::default_age).toInt();
+        bool heartMaxOverrideEnable = settings.value(QZSettings::heart_max_override_enable, QZSettings::default_heart_max_override_enable).toBool();
+        double heartMaxOverrideValue = settings.value(QZSettings::heart_max_override_value, QZSettings::default_heart_max_override_value).toDouble();
+        double maxHeartRate = heartMaxOverrideEnable ? heartMaxOverrideValue : (220.0 - age);
+
+        outObj[QStringLiteral("maxHeartRate")] = maxHeartRate;
+        outObj[QStringLiteral("heartRateZone1")] = settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble();
+        outObj[QStringLiteral("heartRateZone2")] = settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble();
+        outObj[QStringLiteral("heartRateZone3")] = settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble();
+        outObj[QStringLiteral("heartRateZone4")] = settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble();
     }
 
     main[QStringLiteral("content")] = outObj;
