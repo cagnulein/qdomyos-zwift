@@ -1833,9 +1833,9 @@ jobs:
           git fetch --no-tags origin \
             "+refs/heads/${{ github.base_ref }}:${BASE_REF}" \
             "+refs/pull/${{ github.event.pull_request.number }}/head:${PR_REF}"
-          git diff --binary "${BASE_REF}...${PR_REF}" > pr.patch
+          git diff --binary "${BASE_REF}...${PR_REF}" -- . ':(exclude).github/workflows/**' > pr.patch
           if [ ! -s pr.patch ]; then
-            echo "No PR patch to apply on top of msvc2022."
+            echo "No non-workflow PR patch to apply on top of qt6."
             exit 0
           fi
           git apply --3way --whitespace=nowarn pr.patch
