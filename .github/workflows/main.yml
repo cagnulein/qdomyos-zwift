@@ -1820,7 +1820,7 @@ jobs:
       - name: Checkout MSVC2022 branch
         uses: actions/checkout@v4
         with:
-          ref: msvc2022
+          ref: qt6
           fetch-depth: 0
           submodules: recursive
 
