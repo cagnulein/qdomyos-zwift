@@ -418,6 +418,12 @@ class QZSettings {
     static const QString tile_avg_pace_order;
     static constexpr int default_tile_avg_pace_order = 76;
 
+    static const QString tile_grade_adjusted_pace_enabled;
+    static constexpr bool default_tile_grade_adjusted_pace_enabled = false;
+
+    static const QString tile_grade_adjusted_pace_order;
+    static constexpr int default_tile_grade_adjusted_pace_order = 79;
+
     static const QString tile_resistance_enabled;
     static constexpr bool default_tile_resistance_enabled = true;
 
@@ -819,6 +825,9 @@ class QZSettings {
     static const QString fitplus_bike;
     static constexpr bool default_fitplus_bike = false;
 
+    static const QString lifespan_bike;
+    static constexpr bool default_lifespan_bike = false;
+
     static const QString virtufit_etappe;
     static constexpr bool default_virtufit_etappe = false;
 
@@ -857,6 +866,9 @@ class QZSettings {
 
     static const QString technogym_myrun_treadmill_experimental;
     static constexpr bool default_technogym_myrun_treadmill_experimental = false;
+
+    static const QString gym_mode;
+    static constexpr bool default_gym_mode = false;
 
     static const QString technogym_group_cycle;
     static constexpr bool default_technogym_group_cycle = false;
@@ -957,6 +969,21 @@ class QZSettings {
     static const QString cadence_sensor_speed_ratio;
     static constexpr float default_cadence_sensor_speed_ratio = 0.33;
 
+    static const QString cscbike_custom_resistance_power_table;
+    static constexpr bool default_cscbike_custom_resistance_power_table = false;
+
+    static const QString cscbike_custom_resistance_level_1;
+    static constexpr float default_cscbike_custom_resistance_level_1 = 1;
+
+    static const QString cscbike_custom_watt_1;
+    static constexpr float default_cscbike_custom_watt_1 = 100;
+
+    static const QString cscbike_custom_resistance_level_2;
+    static constexpr float default_cscbike_custom_resistance_level_2 = 15;
+
+    static const QString cscbike_custom_watt_2;
+    static constexpr float default_cscbike_custom_watt_2 = 300;
+
     static const QString power_hr_pwr1;
     static constexpr float default_power_hr_pwr1 = 200;
 
@@ -977,6 +1004,12 @@ class QZSettings {
 
     static const QString power_sensor_as_treadmill;
     static constexpr bool default_power_sensor_as_treadmill = false;
+
+    static const QString power_sensor_speed_inclination_coeff_a;
+    static constexpr double default_power_sensor_speed_inclination_coeff_a = 0.0;
+
+    static const QString power_sensor_speed_inclination_coeff_b;
+    static constexpr double default_power_sensor_speed_inclination_coeff_b = 0.0;
 
     static const QString powr_sensor_running_cadence_double;
     static constexpr bool default_powr_sensor_running_cadence_double = false;
@@ -1968,6 +2001,12 @@ class QZSettings {
     static const QString gears_gain;
     static constexpr double default_gears_gain = 1.0;
 
+    static const QString gears_custom_table_enabled;
+    static constexpr bool default_gears_custom_table_enabled = false;
+
+    static const QString gears_custom_table;
+    static const QString default_gears_custom_table;
+
     static const QString proform_treadmill_8_0;
     static constexpr bool default_proform_treadmill_8_0 = false;
 
@@ -2175,6 +2214,9 @@ class QZSettings {
 
     static const QString thinkrider_controller;
     static constexpr bool default_thinkrider_controller = false;
+
+    static const QString cycplus_bc2_controller;
+    static constexpr bool default_cycplus_bc2_controller = false;
 
     static const QString proform_treadmill_705_cst;
     static constexpr bool default_proform_treadmill_705_cst = false;
@@ -2948,8 +2990,21 @@ class QZSettings {
 
     static const QString proform_carbon_tlx_treadmill;
     static constexpr bool default_proform_carbon_tlx_treadmill = false;
+    static const QString proform_carbon_tlx_v84_314_treadmill;
+    static constexpr bool default_proform_carbon_tlx_v84_314_treadmill = false;
     static const QString proform_carbon_tl_PFTL59723_6;
     static constexpr bool default_proform_carbon_tl_PFTL59723_6 = false;
+    static const QString proform_treadmill_cst_505_pftl59420_0;
+    static constexpr bool default_proform_treadmill_cst_505_pftl59420_0 = false;
+
+    /**
+     * @brief When enabled together with fakedevice_treadmill, derives treadmill Speed from
+     * Apple Watch step cadence using cadence_sensor_speed_ratio. Lets users do indoor walking
+     * or slow jogging without a physical treadmill, broadcasting cadence-driven speed via
+     * the existing virtual treadmill / RSC pipeline. Default off; iOS-only effect.
+     */
+    static const QString applewatch_as_treadmill_speed;
+    static constexpr bool default_applewatch_as_treadmill_speed = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

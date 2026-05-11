@@ -249,11 +249,7 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            if (X2000 || delightechBike) {
-                Heart = newValue.at(8); // X-2000 or delightech app/protocol compatible bike (e.g. Skandika Morpheus)
-            } else {
-                Heart = 0;
-            }
+            Heart = newValue.at(8); // X-2000 or delightech app/protocol compatible bike (e.g. Skandika Morpheus)
         }
     }
 

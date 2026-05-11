@@ -304,11 +304,25 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             lastPacket = newvalue;
         }
 
+        if (lastPacket.length() < 3) {
+            qDebug() << "packet malformed: too short for FTMS flags" << lastPacket.length();
+            return;
+        }
+
         int index = 0;
+        auto ensurePacketBytes = [&](int needed, const char *field) {
+            if (index + needed > lastPacket.length()) {
+                qDebug() << "packet malformed while parsing" << field << "index" << index << "needed" << needed << "len" << lastPacket.length();
+                return false;
+            }
+            return true;
+        };
+
         Flags.word_flags = (lastPacket.at(2) << 16) | (lastPacket.at(1) << 8) | lastPacket.at(0);
         index += 3;
 
         if (!Flags.moreData) {
+            if (!ensurePacketBytes(2, "instantaneousSpeed")) return;
             // For TRUE_ELLIPTICAL, skip instantaneous speed (will use avgSpeed instead)
             if(!TRUE_ELLIPTICAL && (E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS || SOLE_E25)) {
                 Speed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
@@ -321,11 +335,11 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
         // this particular device, seems to send the actual speed here
         if (Flags.avgSpeed) {
-            double avgSpeed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) | (uint16_t)((uint8_t)lastPacket.at(index)))) / 100.0;
-            // double avgSpeed;
-            if(!E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !FTMS && !SOLE_E25) {
-                Speed = avgSpeed;
-                              
+            if (!ensurePacketBytes(2, "avgSpeed")) return;
+            double avgSpeed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                        (uint16_t)((uint8_t)lastPacket.at(index)))) /
+                              100.0;
+
             // For TRUE_ELLIPTICAL, use avgSpeed as the main speed metric (not instantaneous)
             // since ellipticals don't have a true instantaneous forward speed
             if(TRUE_ELLIPTICAL) {
@@ -335,11 +349,14 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                 Speed = avgSpeed;
                 emit debug(QStringLiteral("Current Average Speed: ") + QString::number(Speed.value()));
             }
+
+            // SCH_411_510E does not use avgSpeed as the displayed speed, but the field is still present in the frame.
+            // If we don't consume these 2 bytes, every subsequent field is parsed with the wrong offset.
             index += 2;
-        }
         }
 
         if (Flags.totDistance) {
+            if (!ensurePacketBytes(3, "totDistance")) return;
             if(!E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !TRUE_ELLIPTICAL && !FTMS && !SOLE_E25) {
                 Distance = ((double)((((uint32_t)((uint8_t)lastPacket.at(index + 2)) << 16) |
                                   (uint32_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
@@ -358,6 +375,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.stepCount) {
+            if (!ensurePacketBytes(4, "stepCount")) return;
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
@@ -388,6 +406,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.strideCount) {
+            if (!ensurePacketBytes(2, "strideCount")) return;
             // Read current stride count (cumulative total)
             uint16_t currentStrideCount = ((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                           (uint16_t)((uint8_t)lastPacket.at(index));
@@ -443,6 +462,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.rampAngle) {
+            if (!ensurePacketBytes(4, "rampAngle")) return;
             // Read Inclination (first field)
             Inclination = (((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)lastPacket.at(index))))) / 10.0;
@@ -459,6 +479,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
         
         if (Flags.resistanceLvl) {
+            if (!ensurePacketBytes(2, "resistanceLvl")) return;
             Resistance = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)lastPacket.at(index))));
             
@@ -494,6 +515,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.instantPower) {
+            if (!ensurePacketBytes(2, "instantPower")) return;
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
@@ -514,7 +536,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
         emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
-        if (Flags.avgPower && lastPacket.length() > index + 1 && !E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !FTMS && !SOLE_E25) { // E35 has a bug about this
+        if (Flags.avgPower && ensurePacketBytes(2, "avgPower") && !E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !FTMS && !SOLE_E25) { // E35 has a bug about this
             double avgPower;
             avgPower = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                  (uint16_t)((uint8_t)lastPacket.at(index))));
@@ -522,7 +544,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             index += 2;
         }
 
-        if (Flags.expEnergy && lastPacket.length() > index + 1) {
+        if (Flags.expEnergy && ensurePacketBytes(5, "expEnergy")) {
             /*KCal = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                              (uint16_t)((uint8_t)lastPacket.at(index))));*/
             index += 2;
@@ -554,7 +576,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             if (SCH_411_510E && lastPacket.length() > 23) {
                 heartRate((uint8_t)lastPacket.at(23));
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
-            } else if (Flags.heartRate && !disable_hr_frommachinery && lastPacket.length() > index) {
+            } else if (Flags.heartRate && !disable_hr_frommachinery && ensurePacketBytes(1, "heartRate")) {
                 uint8_t hrValue = (uint8_t)lastPacket.at(index);
                 // 0xFF means heart rate not available/invalid in FTMS
                 if(hrValue != 0xFF) {
@@ -570,6 +592,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.metabolicEq) {
+            if (!ensurePacketBytes(1, "metabolicEq")) return;
             // FTMS metabolic equivalent is uint8 with 0.1 resolution
             if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || TRUE_ELLIPTICAL || FTMS) {
                 uint8_t metabolicValue = (uint8_t)lastPacket.at(index);
