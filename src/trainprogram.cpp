@@ -1422,8 +1422,8 @@ bool trainprogram::advanceLapButtonStep() {
     }
     rows[currentStep].ended = now;
 
-    const int elapsed = qMax(0, rows.at(currentStep).started.secsTo(rows.at(currentStep).ended));
-    rows[currentStep].duration = QTime(0, 0, 0, 0).addSecs(elapsed);
+    const qint64 elapsed = qMax<qint64>(0, rows.at(currentStep).started.secsTo(rows.at(currentStep).ended));
+    rows[currentStep].duration = QTime(0, 0, 0, 0).addSecs(static_cast<int>(elapsed));
 
     qDebug() << "Lap button step completed" << currentStep << "elapsed" << elapsed;
     emit toastRequest(QStringLiteral("Lap received. Continuing workout."));
