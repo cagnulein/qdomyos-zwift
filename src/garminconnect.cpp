@@ -1745,10 +1745,15 @@ static double garminSpeedMpsToKph(double speedMps) {
     return speedMps * 3.6;
 }
 
+static QString garminXmlAttributeEscape(const QString &value) {
+    return value.toHtmlEscaped().replace(QStringLiteral("'"), QStringLiteral("&apos;"));
+}
+
 static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) {
     QString pad(indent * 4, QChar(' '));
     QString condTypeKey = step["endCondition"].toObject()["conditionTypeKey"].toString();
     double endConditionValue = step["endConditionValue"].toDouble();
+    const bool waitForLap = condTypeKey == QStringLiteral("lap.button");
 
     QString targetTypeKey;
     if (step["targetType"].isObject() && !step["targetType"].isNull()) {
@@ -1766,6 +1771,8 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
     } else if (condTypeKey == "distance" && endConditionValue > 0) {
         // Garmin provides distance in meters, QZ XML uses kilometers.
         attrs += QString(" distance=\"%1\"").arg(endConditionValue / 1000.0, 0, 'f', 6);
+    } else if (waitForLap) {
+        attrs += QStringLiteral(" lapbutton=\"1\"");
     }
     if (targetTypeKey == "heart.rate.zone") {
         int hrMin = static_cast<int>(step["targetValueOne"].toDouble());
@@ -1827,7 +1834,18 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
             }
         }
     }
-    xml += pad + "<row" + attrs + "/>\n";
+    if (waitForLap) {
+        QString message = step["description"].toString().trimmed();
+        if (message.isEmpty()) {
+            message = QStringLiteral("Press Lap to continue the workout");
+        }
+        xml += pad + "<row" + attrs + ">\n";
+        xml += pad + QStringLiteral("    <textevent timeoffset=\"0\" message=\"%1\"/>\n")
+                         .arg(garminXmlAttributeEscape(message));
+        xml += pad + "</row>\n";
+    } else {
+        xml += pad + "<row" + attrs + "/>\n";
+    }
 }
 
 QString garminConnectGenerateWorkoutXml(const QJsonObject &workoutJson) {

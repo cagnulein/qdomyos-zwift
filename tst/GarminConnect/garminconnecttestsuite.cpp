@@ -396,3 +396,42 @@ void GarminConnectTestSuite::test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAn
         << "Expected average pace speed converted to 9.664 km/h. XML was:\n"
         << xml.toStdString();
 }
+
+void GarminConnectTestSuite::test_workoutDetailsJson_lapButtonStepWaitsForLap()
+{
+    static const char *kWorkoutJson = R"json({
+        "workoutName": "Breakaways",
+        "sportType": {"sportTypeKey": "cycling"},
+        "workoutSegments": [{
+            "workoutSteps": [{
+                "description": "Press the lap key when you are ready to start.",
+                "endCondition": {"conditionTypeKey": "lap.button"},
+                "endConditionValue": null,
+                "targetType": {"workoutTargetTypeKey": "power.zone"},
+                "targetValueOne": 110,
+                "targetValueTwo": 150,
+                "type": "ExecutableStepDTO"
+            }]
+        }]
+    })json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kWorkoutJson));
+    ASSERT_TRUE(doc.isObject()) << "Workout JSON fixture must be valid";
+
+    const QString xml = garminConnectGenerateWorkoutXml(doc.object());
+
+    EXPECT_EQ(xml.count("<row "), 1) << "Expected exactly 1 row from 1 workout step. XML was:\n"
+                                     << xml.toStdString();
+    EXPECT_TRUE(xml.contains("lapbutton=\"1\""))
+        << "Expected lap-button end condition to be preserved. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("power=\"130\""))
+        << "Expected power target to remain active while waiting for lap. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("<textevent timeoffset=\"0\" message=\"Press the lap key when you are ready to start.\"/>"))
+        << "Expected Garmin lap-button prompt to be serialized as a text event. XML was:\n"
+        << xml.toStdString();
+    EXPECT_FALSE(xml.contains("duration=\""))
+        << "Lap-button rows should not get a fake duration. XML was:\n"
+        << xml.toStdString();
+}

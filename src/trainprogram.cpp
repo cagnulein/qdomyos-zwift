@@ -120,6 +120,7 @@ QString trainrow::toString() const {
     rv += QStringLiteral(" maxResistance = %1").arg(maxResistance);
     rv += QStringLiteral(" power = %1").arg(power);
     rv += QStringLiteral(" mets = %1").arg(mets);
+    rv += QStringLiteral(" waitForLap = %1").arg(waitForLap);
     rv += QStringLiteral(" latitude = %1").arg(latitude);
     rv += QStringLiteral(" longitude = %1").arg(longitude);
     rv += QStringLiteral(" altitude = %1").arg(altitude);
@@ -197,6 +198,14 @@ void trainprogram::applySpeedFilter() {
 uint32_t trainprogram::calculateTimeForRow(int32_t row) {
     if (row >= rows.length())
         return 0;
+
+    if (rows.at(row).waitForLap) {
+        if (rows.at(row).started.isValid() && rows.at(row).ended.isValid())
+            return rows.at(row).started.secsTo(rows.at(row).ended);
+        if (row == currentStep && rows.at(row).started.isValid())
+            return rows.at(row).started.secsTo(QDateTime::currentDateTime());
+        return 0;
+    }
 
     if (rows.at(row).distance == -1)
         return (rows.at(row).duration.second() + (rows.at(row).duration.minute() * 60) +
@@ -999,6 +1008,21 @@ void trainprogram::scheduler() {
         }
     }
 
+    if (currentStep < rows.length() && rows.at(currentStep).waitForLap) {
+        if (lastLapButtonToastStep != currentStep || ticks - lastLapButtonToastTick >= 30) {
+            QString message = QStringLiteral("Press Lap to continue the workout");
+            if (!rows.at(currentStep).textEvents.isEmpty() &&
+                !rows.at(currentStep).textEvents.first().message.trimmed().isEmpty()) {
+                message = rows.at(currentStep).textEvents.first().message.trimmed();
+            }
+            qDebug() << "Waiting for lap button on row" << currentStep;
+            emit toastRequest(message);
+            lastLapButtonToastStep = currentStep;
+            lastLapButtonToastTick = ticks;
+        }
+        return;
+    }
+
     uint32_t currentRowLen = calculateTimeForRow(currentStep);
 
     qDebug() << QStringLiteral("trainprogram elapsed ") + QString::number(ticks) + QStringLiteral("current row len") +
@@ -1385,6 +1409,69 @@ bool trainprogram::overridePowerForCurrentRow(double power) {
     return false;
 }
 
+bool trainprogram::advanceLapButtonStep() {
+    QMutexLocker locker(&this->schedulerMutex);
+
+    if (!started || currentStep >= rows.length() || !rows.at(currentStep).waitForLap) {
+        return false;
+    }
+
+    const QDateTime now = QDateTime::currentDateTime();
+    if (!rows.at(currentStep).started.isValid()) {
+        rows[currentStep].started = now;
+    }
+    rows[currentStep].ended = now;
+
+    const int elapsed = qMax(0, rows.at(currentStep).started.secsTo(rows.at(currentStep).ended));
+    rows[currentStep].duration = QTime(0, 0, 0, 0).addSecs(elapsed);
+
+    qDebug() << "Lap button step completed" << currentStep << "elapsed" << elapsed;
+    emit toastRequest(QStringLiteral("Lap received. Continuing workout."));
+
+    currentStep++;
+    currentStepDistance = 0;
+    lastLapButtonToastStep = -1;
+    lastLapButtonToastTick = ticks;
+
+    if (currentStep >= rows.length()) {
+        end();
+        return true;
+    }
+
+    rows[currentStep].started = now;
+    if (bluetoothManager && bluetoothManager->device()) {
+        lastOdometer = bluetoothManager->device()->odometer();
+
+        if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
+            qDebug() << QStringLiteral("trainprogram change speed ") + QString::number(rows.at(currentStep).speed);
+            emit changeSpeed(rows.at(currentStep).speed);
+        }
+        if (rows.at(currentStep).resistance != -1) {
+            qDebug() << QStringLiteral("trainprogram change resistance ") + QString::number(rows.at(currentStep).resistance);
+            emit changeResistance(rows.at(currentStep).resistance);
+        }
+        if (rows.at(currentStep).cadence != -1) {
+            qDebug() << QStringLiteral("trainprogram change cadence ") + QString::number(rows.at(currentStep).cadence);
+            emit changeCadence(rows.at(currentStep).cadence);
+        }
+        if (rows.at(currentStep).power != -1) {
+            qDebug() << QStringLiteral("trainprogram change power ") + QString::number(rows.at(currentStep).power);
+            emit changePower(rows.at(currentStep).power);
+        }
+        if (rows.at(currentStep).requested_peloton_resistance != -1) {
+            qDebug() << QStringLiteral("trainprogram change requested peloton resistance ") +
+                            QString::number(rows.at(currentStep).requested_peloton_resistance);
+            emit changeRequestedPelotonResistance(rows.at(currentStep).requested_peloton_resistance);
+        }
+        if (rows.at(currentStep).fanspeed != -1) {
+            qDebug() << QStringLiteral("trainprogram change fanspeed ") + QString::number(rows.at(currentStep).fanspeed);
+            emit changeFanSpeed(rows.at(currentStep).fanspeed);
+        }
+    }
+    emit intervalTransitionApplied();
+    return true;
+}
+
 void trainprogram::increaseElapsedTime(int32_t i) {
 
     offset += i;
@@ -1483,6 +1570,9 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
             }
             if (row.power >= 0) {
                 stream.writeAttribute(QStringLiteral("power"), QString::number(row.power));
+            }
+            if (row.waitForLap) {
+                stream.writeAttribute(QStringLiteral("lapbutton"), QStringLiteral("1"));
             }
             stream.writeAttribute(QStringLiteral("forcespeed"),
                                   row.forcespeed ? QStringLiteral("1") : QStringLiteral("0"));
@@ -1685,6 +1775,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
             }
             if (atts.hasAttribute(QStringLiteral("power"))) {
                 row.power = atts.value(QStringLiteral("power")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("lapbutton"))) {
+                row.waitForLap = atts.value(QStringLiteral("lapbutton")).toInt() ? true : false;
             }
             if (atts.hasAttribute(QStringLiteral("maxspeed"))) {
                 row.maxSpeed = atts.value(QStringLiteral("maxspeed")).toDouble();

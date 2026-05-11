@@ -5471,6 +5471,9 @@ void homeform::Lap() {
 
             bluetoothManager->device()->setLap();
             lapTrigger = true;
+            if (trainProgram) {
+                trainProgram->advanceLapButtonStep();
+            }
         }
     }
 }

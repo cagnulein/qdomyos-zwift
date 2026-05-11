@@ -111,6 +111,13 @@ public:
      * Verifies that time-based pace.zone targets serialize to speed bounds and forcespeed.
      */
     void test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAndForceSpeed();
+
+    /**
+     * @brief Test Garmin lap-button steps from training plans.
+     *
+     * Verifies that endCondition "lap.button" is serialized as an explicit wait-for-lap row.
+     */
+    void test_workoutDetailsJson_lapButtonStepWaitsForLap();
 };
 
 // Register individual tests with Google Test
@@ -156,6 +163,10 @@ TEST_F(GarminConnectTestSuite, ScheduleJsonRealLogDistanceWorkoutUsesDistanceOnl
 
 TEST_F(GarminConnectTestSuite, ScheduleJsonRealLogEasyRunPaceZoneSetsSpeedAndForceSpeed) {
     this->test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAndForceSpeed();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonLapButtonStepWaitsForLap) {
+    this->test_workoutDetailsJson_lapButtonStepWaitsForLap();
 }
 
 #endif // GARMINCONNECTTESTSUITE_H

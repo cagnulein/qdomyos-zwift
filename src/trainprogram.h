@@ -57,6 +57,7 @@ class trainrow {
     int8_t maxResistance = -1;
     int32_t power = -1;
     int32_t mets = -1;
+    bool waitForLap = false;
     QTime rampDuration = QTime(0, 0, 0, 0); // QZ split the ramp in 1 second segments. This field will tell you how long
                                             // is the ramp from this very moment
     QTime rampElapsed = QTime(0, 0, 0, 0);
@@ -107,6 +108,7 @@ class trainprogram : public QObject {
     double medianInclination(int step);
     bool overridePowerForCurrentRow(double power);
     bool overrideZoneHRForCurrentRow(uint8_t zone);
+    bool advanceLapButtonStep();
     bool powerzoneWorkout() {
         foreach(trainrow r, rows) {
             if(r.power != -1) return true;
@@ -178,6 +180,8 @@ private slots:
     int lastStepTimestampChanged = 0;
     double lastCurrentStepDistance = 0.0;
     QTime lastCurrentStepTime = QTime(0, 0, 0);
+    int lastLapButtonToastStep = -1;
+    int lastLapButtonToastTick = -30;
     
     int64_t currentTimerJitter = 0;
     QDateTime lastSchedulerCall = QDateTime::currentDateTime();
