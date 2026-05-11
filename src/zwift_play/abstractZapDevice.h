@@ -179,7 +179,7 @@ class AbstractZapDevice: public QObject {
             return 1;
         case 0x23: // zwift ride
             lastFrame = QDateTime::currentDateTime();
-            processPlainControllerNotification(bytes);
+            processRideControllerNotification(bytes);
             if(bytes.length() > 12 &&
                 ((((uint8_t)bytes[12]) == 0xc7 && zapType == RIGHT) ||
                  (((uint8_t)bytes[12]) == 0xc8 && zapType == LEFT))
@@ -302,6 +302,104 @@ class AbstractZapDevice: public QObject {
     virtual int processEncryptedData(const QByteArray& bytes) = 0;
 
   private:
+    struct RideButtonState {
+        bool leftUp = false;
+        bool leftDown = false;
+        bool leftLeft = false;
+        bool leftRight = false;
+        bool leftShoulder = false;
+        bool leftPower = false;
+        bool rightY = false;
+        bool rightZ = false;
+        bool rightA = false;
+        bool rightB = false;
+        bool rightShoulder = false;
+        bool rightPower = false;
+    };
+
+    bool processRideControllerNotification(const QByteArray &bytes) {
+        quint32 buttonMap = 0xffffffff;
+        bool buttonMapFound = false;
+        int index = 1; // Skip the 0x23 command byte.
+
+        while (index < bytes.size()) {
+            quint64 tag = 0;
+            if (!readVarInt(bytes, index, tag)) {
+                break;
+            }
+
+            const int wireType = static_cast<int>(tag & 0x7);
+            const int fieldNumber = static_cast<int>(tag >> 3);
+
+            if (wireType == 0) {
+                quint64 rawValue = 0;
+                if (!readVarInt(bytes, index, rawValue)) {
+                    break;
+                }
+                if (fieldNumber == 1) {
+                    buttonMap = static_cast<quint32>(rawValue);
+                    buttonMapFound = true;
+                }
+            } else if (wireType == 2) {
+                quint64 length = 0;
+                if (!readVarInt(bytes, index, length)) {
+                    break;
+                }
+                index += static_cast<int>(length);
+            } else {
+                break;
+            }
+        }
+
+        if (!buttonMapFound) {
+            return false;
+        }
+
+        const auto isPressed = [buttonMap](quint32 mask) {
+            return (buttonMap & mask) == 0;
+        };
+
+        RideButtonState current;
+        current.leftLeft = isPressed(0x00001);
+        current.leftUp = isPressed(0x00002);
+        current.leftRight = isPressed(0x00004);
+        current.leftDown = isPressed(0x00008);
+        current.rightA = isPressed(0x00010);
+        current.rightB = isPressed(0x00020);
+        current.rightY = isPressed(0x00040);
+        current.rightZ = isPressed(0x00080) || isPressed(0x00100);
+        current.leftShoulder = isPressed(0x00200) || isPressed(0x00400);
+        current.leftPower = isPressed(0x00800) || isPressed(0x01000);
+        current.rightShoulder = isPressed(0x02000) || isPressed(0x04000);
+        current.rightPower = isPressed(0x08000) || isPressed(0x10000) || isPressed(0x20000);
+
+        if (!lastRideButtonStateValid) {
+            qDebug() << rideButtonStateToString(current);
+        } else {
+            const QString diff = rideButtonStateDiff(current, lastRideButtonState);
+            if (!diff.isEmpty()) {
+                qDebug() << diff;
+            }
+        }
+
+        emitIfChanged(current.leftUp, lastRideButtonStateValid ? lastRideButtonState.leftUp : false, &AbstractZapDevice::leftUp);
+        emitIfChanged(current.leftDown, lastRideButtonStateValid ? lastRideButtonState.leftDown : false, &AbstractZapDevice::leftDown);
+        emitIfChanged(current.leftLeft, lastRideButtonStateValid ? lastRideButtonState.leftLeft : false, &AbstractZapDevice::leftLeft);
+        emitIfChanged(current.leftRight, lastRideButtonStateValid ? lastRideButtonState.leftRight : false, &AbstractZapDevice::leftRight);
+        emitIfChanged(current.leftShoulder, lastRideButtonStateValid ? lastRideButtonState.leftShoulder : false, &AbstractZapDevice::leftShoulder);
+        emitIfChanged(current.leftPower, lastRideButtonStateValid ? lastRideButtonState.leftPower : false, &AbstractZapDevice::leftPower);
+        emitIfChanged(current.rightY, lastRideButtonStateValid ? lastRideButtonState.rightY : false, &AbstractZapDevice::rightY);
+        emitIfChanged(current.rightZ, lastRideButtonStateValid ? lastRideButtonState.rightZ : false, &AbstractZapDevice::rightZ);
+        emitIfChanged(current.rightA, lastRideButtonStateValid ? lastRideButtonState.rightA : false, &AbstractZapDevice::rightA);
+        emitIfChanged(current.rightB, lastRideButtonStateValid ? lastRideButtonState.rightB : false, &AbstractZapDevice::rightB);
+        emitIfChanged(current.rightShoulder, lastRideButtonStateValid ? lastRideButtonState.rightShoulder : false, &AbstractZapDevice::rightShoulder);
+        emitIfChanged(current.rightPower, lastRideButtonStateValid ? lastRideButtonState.rightPower : false, &AbstractZapDevice::rightPower);
+
+        lastRideButtonState = current;
+        lastRideButtonStateValid = true;
+        return true;
+    }
+
     bool processPlainControllerNotification(const QByteArray &bytes) {
         ControllerNotification bestCandidate;
         int bestScore = 0;
@@ -324,6 +422,59 @@ class AbstractZapDevice: public QObject {
 
         processButtonNotification(bestCandidate);
         return true;
+    }
+
+    static bool readVarInt(const QByteArray &message, int &index, quint64 &value) {
+        value = 0;
+        int shift = 0;
+        while (index < message.size() && shift < 64) {
+            const quint8 byte = static_cast<quint8>(message.at(index++));
+            value |= static_cast<quint64>(byte & 0x7F) << shift;
+            if ((byte & 0x80) == 0) {
+                return true;
+            }
+            shift += 7;
+        }
+        return false;
+    }
+
+    static QString rideButtonStateToString(const RideButtonState &state) {
+        QString text = QStringLiteral("RideButtonState(");
+        text += state.leftUp ? QStringLiteral("Left Up ") : QString();
+        text += state.leftDown ? QStringLiteral("Left Down ") : QString();
+        text += state.leftLeft ? QStringLiteral("Left Left ") : QString();
+        text += state.leftRight ? QStringLiteral("Left Right ") : QString();
+        text += state.leftShoulder ? QStringLiteral("Left Shoulder ") : QString();
+        text += state.leftPower ? QStringLiteral("Left Power ") : QString();
+        text += state.rightY ? QStringLiteral("Right Y ") : QString();
+        text += state.rightZ ? QStringLiteral("Right Z ") : QString();
+        text += state.rightA ? QStringLiteral("Right A ") : QString();
+        text += state.rightB ? QStringLiteral("Right B ") : QString();
+        text += state.rightShoulder ? QStringLiteral("Right Shoulder ") : QString();
+        text += state.rightPower ? QStringLiteral("Right Power ") : QString();
+        text += QStringLiteral(")");
+        return text;
+    }
+
+    static QString rideButtonStateDiff(const RideButtonState &current, const RideButtonState &previous) {
+        QString diff;
+        diff += diffField(QStringLiteral("Left Up"), current.leftUp, previous.leftUp);
+        diff += diffField(QStringLiteral("Left Down"), current.leftDown, previous.leftDown);
+        diff += diffField(QStringLiteral("Left Left"), current.leftLeft, previous.leftLeft);
+        diff += diffField(QStringLiteral("Left Right"), current.leftRight, previous.leftRight);
+        diff += diffField(QStringLiteral("Left Shoulder"), current.leftShoulder, previous.leftShoulder);
+        diff += diffField(QStringLiteral("Left Power"), current.leftPower, previous.leftPower);
+        diff += diffField(QStringLiteral("Right Y"), current.rightY, previous.rightY);
+        diff += diffField(QStringLiteral("Right Z"), current.rightZ, previous.rightZ);
+        diff += diffField(QStringLiteral("Right A"), current.rightA, previous.rightA);
+        diff += diffField(QStringLiteral("Right B"), current.rightB, previous.rightB);
+        diff += diffField(QStringLiteral("Right Shoulder"), current.rightShoulder, previous.rightShoulder);
+        diff += diffField(QStringLiteral("Right Power"), current.rightPower, previous.rightPower);
+        return diff;
+    }
+
+    static QString diffField(const QString &title, bool current, bool previous) {
+        return current != previous ? title + QStringLiteral("=") + (current ? QStringLiteral("Pressed ") : QStringLiteral("Released ")) : QString();
     }
 
     void processButtonNotification(const ControllerNotification& notification) {
@@ -383,6 +534,8 @@ class AbstractZapDevice: public QObject {
     ControllerNotification lastRightButtonState;
     bool lastLeftButtonStateValid = false;
     bool lastRightButtonStateValid = false;
+    RideButtonState lastRideButtonState;
+    bool lastRideButtonStateValid = false;
 
   private slots:
     void handleAutoRepeat() {
