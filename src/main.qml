@@ -94,6 +94,7 @@ ApplicationWindow {
     signal strava_connect_clicked()
     signal peloton_connect_clicked()
     signal intervalsicu_connect_clicked()
+    signal suunto_connect_clicked()
     signal intervalsicu_download_todays_workout_clicked()
     signal loadSettings(url name)
     signal saveSettings(url name)
@@ -108,6 +109,7 @@ ApplicationWindow {
     signal floatingOpen()
     signal openFloatingWindowBrowser();
     signal strava_upload_file_prepare();
+    signal suunto_upload_file_prepare();
 
     property bool lockTiles: false
     property bool settings_restart_to_apply: false
@@ -748,6 +750,16 @@ ApplicationWindow {
         visible: false
     }
 
+    MessageDialog {
+        id: suuntoLogoutConfirm
+        text: qsTr("Suunto")
+        informativeText: qsTr("You are already connected to Suunto. Do you want to log out?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.suunto_logout(); }
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
         Material.primary: settings.theme_status_bar_background_color
@@ -1244,7 +1256,30 @@ ApplicationWindow {
                     }
                 }
 
-				ItemDelegate {
+                ItemDelegate {
+                    Image {
+                        anchors.left: parent.left;
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "icons/icons/suunto-logo.svg"
+                        fillMode: Image.PreserveAspectFit
+                        visible: true
+                        width: parent.width
+                        height: 48
+                    }
+                    width: parent.width
+                    onClicked: {
+                        if (rootItem.isSuuntoLoggedIn()) {
+                            suuntoLogoutConfirm.visible = true
+                            drawer.close()
+                        } else {
+                            stackView.push("WebSuuntoAuth.qml")
+                            suunto_connect_clicked()
+                            drawer.close()
+                        }
+                    }
+                }
+
+                ItemDelegate {
                     Image {
                         anchors.left: parent.left;
                         anchors.verticalCenter: parent.verticalCenter

@@ -127,6 +127,27 @@ class QZSettings {
     static const QString intervalsicu_athlete_id;
     static const QString default_intervalsicu_athlete_id;
 
+    static const QString suunto_accesstoken;
+    static const QString default_suunto_accesstoken;
+
+    static const QString suunto_refreshtoken;
+    static const QString default_suunto_refreshtoken;
+
+    static const QString suunto_upload_enabled;
+    static constexpr bool default_suunto_upload_enabled = false;
+
+    static const QString suunto_subscription_key;
+    static const QString default_suunto_subscription_key;
+
+    static const QString suunto_privacy;
+    static const QString default_suunto_privacy;
+
+    static const QString suunto_suffix;
+    static const QString default_suunto_suffix;
+
+    static const QString suunto_date_prefix;
+    static constexpr bool default_suunto_date_prefix = false;
+
     static const QString code;
     static const QString default_code;
 

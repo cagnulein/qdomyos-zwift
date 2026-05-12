@@ -1322,6 +1322,13 @@ import Qt.labs.platform 1.1
             property bool gears_custom_table_enabled: false
             property string gears_custom_table: "1|1\n2|2\n3|3\n4|4\n5|5\n6|6\n7|7\n8|8\n9|9\n10|10\n11|11\n12|12\n13|13\n14|14\n15|15\n16|16\n17|17\n18|18\n19|19\n20|20\n21|21\n22|22\n23|23\n24|24"                        
             property bool proform_treadmill_cst_505_pftl59420_0: false
+            property string suunto_accesstoken: ""
+            property string suunto_refreshtoken: ""
+            property bool suunto_upload_enabled: false
+            property string suunto_subscription_key: "YOUR_SUUNTO_SUBSCRIPTION_KEY"
+            property string suunto_privacy: "DEFAULT"
+            property string suunto_suffix: "#QZ"
+            property bool suunto_date_prefix: false
         }
 
 
@@ -7535,6 +7542,168 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("IMPORTANT: You must set your real Garmin device UNIT ID here to see your actual device in Garmin Connect. You can find your device UNIT ID in the Garmin Connect app. The default value (3313379353) is just a placeholder. If you want to see also the Acute load in Garmin Connect leave the default Unit ID here.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Orange)
+                    }
+                }
+            }
+
+
+
+            AccordionElement {
+                id: suuntoOptionsAccordion
+                title: qsTr("Suunto Options") + " ⛰️"
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 0
+
+                    Label {
+                        text: qsTr("Suunto Workout Upload")
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Enable Suunto Upload")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.suunto_upload_enabled
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.suunto_upload_enabled = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("Enable automatic upload of FIT files to Suunto after workouts. You must connect your Suunto account and replace the subscription key placeholder first.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Suunto API Key:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: suuntoSubscriptionKeyTextField
+                            text: settings.suunto_subscription_key
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.suunto_subscription_key = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                settings.suunto_subscription_key = suuntoSubscriptionKeyTextField.text;
+                                toast.show("Setting saved!");
+                            }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Placeholder: YOUR_SUUNTO_SUBSCRIPTION_KEY. Replace it with the Suunto API subscription key from the Suunto developer portal.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Orange)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Suunto Privacy:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: suuntoPrivacyComboBox
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            model: ["DEFAULT", "PRIVATE", "FOLLOWERS", "PUBLIC"]
+                            currentIndex: Math.max(0, model.indexOf(settings.suunto_privacy))
+                            onCurrentIndexChanged: settings.suunto_privacy = currentValue
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Suunto Suffix:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: suuntoSuffixTextField
+                            text: settings.suunto_suffix
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.suunto_suffix = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.suunto_suffix = suuntoSuffixTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Date Prefix on Suunto Workout")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.suunto_date_prefix
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.suunto_date_prefix = checked
+                    }
+
+                    Button {
+                        text: rootItem.isSuuntoLoggedIn() ? qsTr("Logout Suunto") : qsTr("Connect Suunto")
+                        Layout.alignment: Qt.AlignHCenter
+                        onClicked: {
+                            if (rootItem.isSuuntoLoggedIn()) {
+                                rootItem.suunto_logout();
+                            } else {
+                                toast.show("Use the Suunto logo in the main menu to connect.");
+                            }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("OAuth client id/secret placeholders are compiled in until you add the real Suunto app credentials in secret.h. The redirect URI for this implementation is http://127.0.0.1:8495/.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

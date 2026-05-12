@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="160" viewBox="0 0 600 160">
+  <rect x="10" y="10" width="580" height="140" rx="20" fill="#000"/>
+  <g transform="translate(92 80)" fill="none" stroke="#fff" stroke-linejoin="round">
+    <circle r="48" stroke-width="4"/>
+    <circle r="32" stroke-width="3"/>
+    <path d="M0 -58 L12 -12 L0 -22 L-12 -12 Z" fill="#fff" stroke="none"/>
+    <path d="M0 58 L12 12 L0 22 L-12 12 Z" fill="#fff" stroke="none"/>
+    <path d="M-58 0 L-12 -12 L-22 0 L-12 12 Z" fill="#fff" stroke="none"/>
+    <path d="M58 0 L12 -12 L22 0 L12 12 Z" fill="#fff" stroke="none"/>
+  </g>
+  <text x="170" y="103" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="700" fill="#fff">SUUNTO</text>
+</svg>

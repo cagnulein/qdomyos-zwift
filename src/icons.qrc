@@ -36,5 +36,6 @@
         <file>icons/Button_Connect_Rect_DarkMode.png</file>
         <file>icons/garmin-connect-badge.png</file>
         <file>icons/intervals-logo-with-name.png</file>
+        <file>icons/suunto-logo.svg</file>
     </qresource>
 </RCC>

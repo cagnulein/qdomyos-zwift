@@ -48,7 +48,8 @@ Page {
         return rootItem &&
                (rootItem.isStravaLoggedIn() ||
                 rootItem.isGarminUploadConfigured() ||
-                rootItem.isIntervalsICUUploadConfigured())
+                rootItem.isIntervalsICUUploadConfigured() ||
+                rootItem.isSuuntoUploadConfigured())
     }
 
     function openUploadMenu(delegateItem, workoutId, workoutTitle) {
@@ -480,6 +481,12 @@ Page {
             text: "Upload to Intervals.icu"
             visible: rootItem && rootItem.isIntervalsICUUploadConfigured()
             onTriggered: rootItem.uploadHistoricalWorkoutToIntervalsICU(uploadMenu.filePath)
+        }
+
+        MenuItem {
+            text: "Upload to Suunto"
+            visible: rootItem && rootItem.isSuuntoUploadConfigured()
+            onTriggered: rootItem.uploadHistoricalWorkoutToSuunto(uploadMenu.filePath)
         }
     }
 

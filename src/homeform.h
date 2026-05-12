@@ -225,6 +225,10 @@ class homeform : public QObject {
     bool intervalsicuWebVisible() { return intervalsicuAuthWebVisible; }
     Q_PROPERTY(QString getIntervalsICUAuthUrl READ getIntervalsICUAuthUrl NOTIFY intervalsicuAuthUrlChanged)
     Q_PROPERTY(bool intervalsicuWebVisible READ intervalsicuWebVisible NOTIFY intervalsicuWebVisibleChanged)
+    QString getSuuntoAuthUrl() { return suuntoAuthUrl; }
+    bool suuntoWebVisible() { return suuntoAuthWebVisible; }
+    Q_PROPERTY(QString getSuuntoAuthUrl READ getSuuntoAuthUrl NOTIFY suuntoAuthUrlChanged)
+    Q_PROPERTY(bool suuntoWebVisible READ suuntoWebVisible NOTIFY suuntoWebVisibleChanged)
 
   public:
     static homeform *singleton() { return m_singleton; }
@@ -585,14 +589,18 @@ class homeform : public QObject {
     Q_INVOKABLE bool isStravaLoggedIn();
     Q_INVOKABLE bool isPelotonLoggedIn();
     Q_INVOKABLE bool isIntervalsICULoggedIn();
+    Q_INVOKABLE bool isSuuntoLoggedIn();
     Q_INVOKABLE bool isGarminUploadConfigured();
     Q_INVOKABLE bool isIntervalsICUUploadConfigured();
+    Q_INVOKABLE bool isSuuntoUploadConfigured();
     Q_INVOKABLE void uploadHistoricalWorkoutToStrava(const QString &filePath);
     Q_INVOKABLE void uploadHistoricalWorkoutToGarmin(const QString &filePath);
     Q_INVOKABLE void uploadHistoricalWorkoutToIntervalsICU(const QString &filePath);
+    Q_INVOKABLE void uploadHistoricalWorkoutToSuunto(const QString &filePath);
     Q_INVOKABLE void strava_logout();
     Q_INVOKABLE void peloton_logout();
     Q_INVOKABLE void intervalsicu_logout();
+    Q_INVOKABLE void suunto_logout();
     Q_INVOKABLE void handleOAuthCallbackFromQml(const QString &callbackUrl);
     Q_INVOKABLE void selectGymModeDevice(const QString &deviceName);
     Q_INVOKABLE bool hasConnectedDevice() const;
@@ -920,6 +928,13 @@ public:
     QString intervalsicuAthleteId;
     QString intervalsicuAuthCode;
 
+    // Suunto OAuth and upload
+    QOAuth2AuthorizationCodeFlow *suunto = nullptr;
+    QNetworkAccessManager *suuntoManager = nullptr;
+    QOAuthHttpServerReplyHandler *suuntoReplyHandler = nullptr;
+    QNetworkReply *replySuunto = nullptr;
+    QString suuntoAuthCode;
+
     bool paused = false;
     bool stopped = false;
     bool lapTrigger = false;
@@ -999,6 +1014,15 @@ public:
     void intervalsicu_download_workout_completed(QNetworkReply *reply);
     QString intervalsicuAuthUrl;
     bool intervalsicuAuthWebVisible;
+
+    // Suunto methods
+    QOAuth2AuthorizationCodeFlow *suunto_connect();
+    void suunto_refreshtoken();
+    bool suunto_upload_file(const QByteArray &data, const QString &remotename);
+    void suunto_check_upload_status(const QString &uploadId);
+    QString suuntoActivityName(const QString &remotename);
+    QString suuntoAuthUrl;
+    bool suuntoAuthWebVisible;
 
     static quint64 cryptoKeySettingsProfiles();
 
@@ -1104,7 +1128,9 @@ public:
     void errorOccurredUploadStrava(QNetworkReply::NetworkError code);
     // Intervals.icu slots
     void intervalsicu_connect_clicked();
+    void suunto_connect_clicked();
     void intervalsicu_upload_file_prepare();
+    void suunto_upload_file_prepare();
     void intervalsicu_download_todays_workout_clicked();
     void onIntervalsICUGranted();
     void onIntervalsICUAuthorizeWithBrowser(const QUrl &url);
@@ -1112,6 +1138,12 @@ public:
     void callbackReceivedIntervalsICU(const QVariantMap &values);
     void writeFileCompletedIntervalsICU();
     void errorOccurredUploadIntervalsICU(QNetworkReply::NetworkError code);
+    void onSuuntoGranted();
+    void onSuuntoAuthorizeWithBrowser(const QUrl &url);
+    void replyDataReceivedSuunto(const QByteArray &v);
+    void callbackReceivedSuunto(const QVariantMap &values);
+    void writeFileCompletedSuunto();
+    void errorOccurredUploadSuunto(QNetworkReply::NetworkError code);
     void pelotonWorkoutStarted(const QString &name, const QString &instructor);
     void pelotonWorkoutChanged(const QString &name, const QString &instructor);
     void pelotonLoginState(bool ok);
@@ -1213,6 +1245,8 @@ public:
     void pelotonWebVisibleChanged(bool value);
     void intervalsicuAuthUrlChanged(QString value);
     void intervalsicuWebVisibleChanged(bool value);
+    void suuntoAuthUrlChanged(QString value);
+    void suuntoWebVisibleChanged(bool value);
 
     void restoreDefaultWheelDiameter();
 

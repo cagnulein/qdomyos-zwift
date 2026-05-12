@@ -67,6 +67,18 @@ const QString QZSettings::intervalsicu_refreshtoken = QStringLiteral("intervalsi
 const QString QZSettings::default_intervalsicu_refreshtoken = QStringLiteral("");
 const QString QZSettings::intervalsicu_athlete_id = QStringLiteral("intervalsicu_athlete_id");
 const QString QZSettings::default_intervalsicu_athlete_id = QStringLiteral("");
+const QString QZSettings::suunto_accesstoken = QStringLiteral("suunto_accesstoken");
+const QString QZSettings::default_suunto_accesstoken = QStringLiteral("");
+const QString QZSettings::suunto_refreshtoken = QStringLiteral("suunto_refreshtoken");
+const QString QZSettings::default_suunto_refreshtoken = QStringLiteral("");
+const QString QZSettings::suunto_upload_enabled = QStringLiteral("suunto_upload_enabled");
+const QString QZSettings::suunto_subscription_key = QStringLiteral("suunto_subscription_key");
+const QString QZSettings::default_suunto_subscription_key = QStringLiteral("YOUR_SUUNTO_SUBSCRIPTION_KEY");
+const QString QZSettings::suunto_privacy = QStringLiteral("suunto_privacy");
+const QString QZSettings::default_suunto_privacy = QStringLiteral("DEFAULT");
+const QString QZSettings::suunto_suffix = QStringLiteral("suunto_suffix");
+const QString QZSettings::default_suunto_suffix = QStringLiteral("#QZ");
+const QString QZSettings::suunto_date_prefix = QStringLiteral("suunto_date_prefix");
 const QString QZSettings::code = QStringLiteral("code");
 const QString QZSettings::default_code = QStringLiteral("");
 //--------------------------------------------------------------------------------------------
@@ -1094,7 +1106,7 @@ const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("profor
 const QString QZSettings::proform_treadmill_cst_505_pftl59420_0 = QStringLiteral("proform_treadmill_cst_505_pftl59420_0");
 const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applewatch_as_treadmill_speed");
 
-const uint32_t allSettingsCount = 891;
+const uint32_t allSettingsCount = 898;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1131,6 +1143,13 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken},
     {QZSettings::intervalsicu_refreshtoken, QZSettings::default_intervalsicu_refreshtoken},
     {QZSettings::intervalsicu_athlete_id, QZSettings::default_intervalsicu_athlete_id},
+    {QZSettings::suunto_accesstoken, QZSettings::default_suunto_accesstoken},
+    {QZSettings::suunto_refreshtoken, QZSettings::default_suunto_refreshtoken},
+    {QZSettings::suunto_upload_enabled, QZSettings::default_suunto_upload_enabled},
+    {QZSettings::suunto_subscription_key, QZSettings::default_suunto_subscription_key},
+    {QZSettings::suunto_privacy, QZSettings::default_suunto_privacy},
+    {QZSettings::suunto_suffix, QZSettings::default_suunto_suffix},
+    {QZSettings::suunto_date_prefix, QZSettings::default_suunto_date_prefix},
     {QZSettings::intervalsicu_upload_enabled, QZSettings::default_intervalsicu_upload_enabled},
     {QZSettings::intervalsicu_suffix, QZSettings::default_intervalsicu_suffix},
     {QZSettings::intervalsicu_date_prefix, QZSettings::default_intervalsicu_date_prefix},

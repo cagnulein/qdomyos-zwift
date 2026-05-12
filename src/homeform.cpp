@@ -32,6 +32,7 @@
 #include <QHttpMultiPart>
 #include <QImageWriter>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QNetworkAccessManager>
 #include <QNetworkCookieJar>
 #include <QNetworkInterface>
@@ -266,6 +267,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     stravaWebVisibleChanged(stravaAuthWebVisible);
     intervalsicuAuthWebVisible = false;
     intervalsicuWebVisibleChanged(intervalsicuAuthWebVisible);
+    suuntoAuthWebVisible = false;
+    suuntoWebVisibleChanged(suuntoAuthWebVisible);
 
     QString innerId = QStringLiteral("inner");
     QString sKey = QStringLiteral("template_") + innerId + QStringLiteral("_" TEMPLATE_PRIVATE_WEBSERVER_ID "_");
@@ -751,7 +754,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(openFloatingWindowBrowser()), this, SLOT(openFloatingWindowBrowser()));
     QObject::connect(stack, SIGNAL(strava_upload_file_prepare()), this, SLOT(strava_upload_file_prepare()));
     QObject::connect(stack, SIGNAL(intervalsicu_connect_clicked()), this, SLOT(intervalsicu_connect_clicked()));
+    QObject::connect(stack, SIGNAL(suunto_connect_clicked()), this, SLOT(suunto_connect_clicked()));
     QObject::connect(stack, SIGNAL(intervalsicu_upload_file_prepare()), this, SLOT(intervalsicu_upload_file_prepare()));
+    QObject::connect(stack, SIGNAL(suunto_upload_file_prepare()), this, SLOT(suunto_upload_file_prepare()));
     QObject::connect(stack, SIGNAL(intervalsicu_download_todays_workout_clicked()), this, SLOT(intervalsicu_download_todays_workout_clicked()));
 
     qDebug() << "homeform constructor events linked";
@@ -8428,6 +8433,13 @@ void homeform::fit_save_clicked() {
                 intervalsicu_upload_file_prepare();
             }
         }
+
+        // Suunto upload (OAuth + subscription key)
+        bool suunto_enabled = settings.value(QZSettings::suunto_upload_enabled, QZSettings::default_suunto_upload_enabled).toBool();
+        if (suunto_enabled &&
+            !settings.value(QZSettings::suunto_accesstoken, QZSettings::default_suunto_accesstoken).toString().isEmpty()) {
+            suunto_upload_file_prepare();
+        }
     }
 }
 
@@ -9259,11 +9271,25 @@ bool homeform::isIntervalsICULoggedIn() {
     return !settings.value(QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken).toString().isEmpty();
 }
 
+bool homeform::isSuuntoLoggedIn() {
+    QSettings settings;
+    return !settings.value(QZSettings::suunto_accesstoken, QZSettings::default_suunto_accesstoken).toString().isEmpty();
+}
+
 bool homeform::isIntervalsICUUploadConfigured() {
     QSettings settings;
     return settings.value(QZSettings::intervalsicu_upload_enabled, QZSettings::default_intervalsicu_upload_enabled).toBool() &&
            !settings.value(QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken).toString().isEmpty() &&
            !settings.value(QZSettings::intervalsicu_athlete_id, QZSettings::default_intervalsicu_athlete_id).toString().isEmpty();
+}
+
+bool homeform::isSuuntoUploadConfigured() {
+    QSettings settings;
+    const QString subscriptionKey = settings.value(QZSettings::suunto_subscription_key, QZSettings::default_suunto_subscription_key).toString();
+    return settings.value(QZSettings::suunto_upload_enabled, QZSettings::default_suunto_upload_enabled).toBool() &&
+           !settings.value(QZSettings::suunto_accesstoken, QZSettings::default_suunto_accesstoken).toString().isEmpty() &&
+           !subscriptionKey.isEmpty() &&
+           subscriptionKey != QZSettings::default_suunto_subscription_key;
 }
 
 void homeform::uploadHistoricalWorkoutToStrava(const QString &filePath) {
@@ -9312,6 +9338,16 @@ void homeform::uploadHistoricalWorkoutToIntervalsICU(const QString &filePath) {
     intervalsicu_upload_file(f.readAll(), filePath);
 }
 
+void homeform::uploadHistoricalWorkoutToSuunto(const QString &filePath) {
+    QFile f(filePath);
+    if (!f.open(QFile::OpenModeFlag::ReadOnly)) {
+        setToastRequested("Suunto: unable to open FIT file");
+        return;
+    }
+
+    suunto_upload_file(f.readAll(), filePath);
+}
+
 void homeform::strava_logout() {
     qDebug() << "Strava logout requested";
     QSettings settings;
@@ -9353,6 +9389,22 @@ void homeform::intervalsicu_logout() {
     }
     clearWebViewCache();
     qDebug() << "Intervals.icu: tokens cleared";
+}
+
+void homeform::suunto_logout() {
+    qDebug() << "Suunto logout requested";
+    QSettings settings;
+    settings.setValue(QZSettings::suunto_accesstoken, QStringLiteral(""));
+    settings.setValue(QZSettings::suunto_refreshtoken, QStringLiteral(""));
+    if (suunto) {
+        suunto->setToken(QStringLiteral(""));
+        suunto->setRefreshToken(QStringLiteral(""));
+    }
+    if (suuntoManager) {
+        suuntoManager->setCookieJar(new QNetworkCookieJar(suuntoManager));
+    }
+    clearWebViewCache();
+    qDebug() << "Suunto: tokens cleared";
 }
 
 void homeform::clearWebViewCache() {
@@ -10165,12 +10217,429 @@ void homeform::videoSeekPosition(int ms) {
 #endif
 #define INTERVALSICU_CLIENT_SECRET_S STRINGIFY(INTERVALSICU_CLIENT_SECRET)
 
+#ifndef SUUNTO_CLIENT_ID
+#define SUUNTO_CLIENT_ID "YOUR_SUUNTO_CLIENT_ID"
+#pragma message("DEFINE SUUNTO_CLIENT_ID!!!")
+#endif
+#define SUUNTO_CLIENT_ID_S STRINGIFY(SUUNTO_CLIENT_ID)
+
+#ifndef SUUNTO_CLIENT_SECRET
+#define SUUNTO_CLIENT_SECRET "YOUR_SUUNTO_CLIENT_SECRET"
+#pragma message("DEFINE SUUNTO_CLIENT_SECRET!!!")
+#endif
+#define SUUNTO_CLIENT_SECRET_S STRINGIFY(SUUNTO_CLIENT_SECRET)
+
 static QString normalizeOAuthMacroValue(const QString &value) {
     QString normalized = value;
     if (normalized.size() >= 2 && normalized.startsWith('\"') && normalized.endsWith('\"')) {
         normalized = normalized.mid(1, normalized.size() - 2);
     }
     return normalized;
+}
+
+
+
+// ========== Suunto Implementation ==========
+
+void homeform::suunto_connect_clicked() {
+    QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
+
+    QOAuth2AuthorizationCodeFlow *oauth = suunto_connect();
+    if (oauth) {
+        connect(oauth, &QOAuth2AuthorizationCodeFlow::granted,
+                this, &homeform::onSuuntoGranted, Qt::UniqueConnection);
+        connect(oauth, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser,
+                this, &homeform::onSuuntoAuthorizeWithBrowser, Qt::UniqueConnection);
+        oauth->grant();
+    }
+}
+
+QOAuth2AuthorizationCodeFlow *homeform::suunto_connect() {
+    QSettings settings;
+
+    if (!settings.value(QZSettings::suunto_accesstoken).toString().isEmpty()) {
+        qDebug() << "Suunto already authenticated";
+        setGeneralPopupVisible(true);
+        return nullptr;
+    }
+
+    if (!suunto) {
+        if (suuntoManager) {
+            delete suuntoManager;
+            suuntoManager = nullptr;
+        }
+        suuntoManager = new QNetworkAccessManager(this);
+
+        suunto = new QOAuth2AuthorizationCodeFlow(suuntoManager, this);
+        suunto->setAuthorizationUrl(QUrl(QStringLiteral("https://cloudapi-oauth.suunto.com/oauth/authorize")));
+        suunto->setAccessTokenUrl(QUrl(QStringLiteral("https://cloudapi-oauth.suunto.com/oauth/token")));
+        suunto->setClientIdentifier(normalizeOAuthMacroValue(QStringLiteral(SUUNTO_CLIENT_ID_S)));
+        suunto->setClientIdentifierSharedKey(normalizeOAuthMacroValue(QStringLiteral(SUUNTO_CLIENT_SECRET_S)));
+        suunto->setScope(QStringLiteral("workout"));
+        suunto->setModifyParametersFunction(
+            buildModifyParametersFunction(QUrl(QLatin1String("")), QUrl(QLatin1String(""))));
+
+        if (!suuntoReplyHandler) {
+            suuntoReplyHandler = new QOAuthHttpServerReplyHandler(QHostAddress(QStringLiteral("127.0.0.1")), 8495, this);
+            connect(suuntoReplyHandler, &QOAuthHttpServerReplyHandler::replyDataReceived,
+                    this, &homeform::replyDataReceivedSuunto);
+            connect(suuntoReplyHandler, &QOAuthHttpServerReplyHandler::callbackReceived,
+                    this, &homeform::callbackReceivedSuunto);
+        }
+        suunto->setReplyHandler(suuntoReplyHandler);
+    }
+
+    return suunto;
+}
+
+void homeform::onSuuntoGranted() {
+    suuntoAuthWebVisible = false;
+    emit suuntoWebVisibleChanged(suuntoAuthWebVisible);
+
+    QSettings settings;
+    settings.setValue(QZSettings::suunto_accesstoken, suunto->token());
+    settings.setValue(QZSettings::suunto_refreshtoken, suunto->refreshToken());
+
+    qDebug() << "Suunto authenticated successfully";
+    setGeneralPopupVisible(true);
+}
+
+void homeform::onSuuntoAuthorizeWithBrowser(const QUrl &url) {
+    QSettings settings;
+    bool externalBrowser =
+        settings.value(QZSettings::strava_auth_external_webbrowser, QZSettings::default_strava_auth_external_webbrowser)
+            .toBool();
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+    externalBrowser = true;
+#endif
+    suuntoAuthUrl = url.toString();
+    emit suuntoAuthUrlChanged(suuntoAuthUrl);
+
+    if (externalBrowser)
+        QDesktopServices::openUrl(url);
+    else {
+        suuntoAuthWebVisible = true;
+        emit suuntoWebVisibleChanged(suuntoAuthWebVisible);
+    }
+}
+
+void homeform::callbackReceivedSuunto(const QVariantMap &values) {
+    if (values.contains("code")) {
+        suuntoAuthCode = values.value("code").toString();
+        qDebug() << "Suunto: Authorization code received";
+
+        const QString clientId = normalizeOAuthMacroValue(QStringLiteral(SUUNTO_CLIENT_ID_S));
+        const QString clientSecret = normalizeOAuthMacroValue(QStringLiteral(SUUNTO_CLIENT_SECRET_S));
+        qDebug() << "Suunto: OAuth client diagnostics"
+                 << "client_id_is_default=" << (clientId == QStringLiteral("YOUR_SUUNTO_CLIENT_ID"))
+                 << "secret_is_default=" << (clientSecret == QStringLiteral("YOUR_SUUNTO_CLIENT_SECRET"));
+
+        QNetworkRequest request(QUrl(QStringLiteral("https://cloudapi-oauth.suunto.com/oauth/token")));
+        request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
+        request.setRawHeader("Authorization", QByteArray("Basic ") + QStringLiteral("%1:%2").arg(clientId, clientSecret).toUtf8().toBase64());
+
+        QUrl redirectUri(QStringLiteral("http://127.0.0.1:8495/"));
+        QUrlQuery params;
+        params.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("authorization_code"));
+        params.addQueryItem(QStringLiteral("redirect_uri"), redirectUri.toString());
+        params.addQueryItem(QStringLiteral("code"), suuntoAuthCode);
+
+        if (suuntoManager) {
+            delete suuntoManager;
+            suuntoManager = nullptr;
+        }
+        suuntoManager = new QNetworkAccessManager(this);
+        QNetworkReply *reply = suuntoManager->post(request, params.query(QUrl::FullyEncoded).toUtf8());
+        connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+            QByteArray response = reply->readAll();
+            int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+            qDebug() << "Suunto: Token exchange status code:" << statusCode;
+
+            QJsonDocument jsonResponse = QJsonDocument::fromJson(response);
+            QJsonObject obj = jsonResponse.object();
+            if (statusCode >= 200 && statusCode < 300 && obj.contains("access_token")) {
+                QSettings settings;
+                settings.setValue(QZSettings::suunto_accesstoken, obj["access_token"].toString());
+                if (obj.contains("refresh_token")) {
+                    settings.setValue(QZSettings::suunto_refreshtoken, obj["refresh_token"].toString());
+                }
+                suuntoAuthWebVisible = false;
+                emit suuntoWebVisibleChanged(suuntoAuthWebVisible);
+                setGeneralPopupVisible(true);
+                qDebug() << "Suunto: Authentication completed successfully";
+            } else {
+                qDebug() << "Suunto: Token exchange failed" << response;
+                setToastRequested(QString("Suunto: Authentication failed (HTTP %1)").arg(statusCode));
+            }
+            reply->deleteLater();
+        });
+    }
+
+    if (values.contains("error")) {
+        const QString error = values.value("error").toString();
+        qDebug() << "Suunto: OAuth error occurred" << error;
+        setToastRequested("Suunto error: " + error);
+    }
+}
+
+void homeform::replyDataReceivedSuunto(const QByteArray &v) {
+    qDebug() << "Suunto: replyDataReceived";
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(v);
+    QJsonObject obj = jsonResponse.object();
+    if (obj.contains("access_token")) {
+        QSettings settings;
+        settings.setValue(QZSettings::suunto_accesstoken, obj["access_token"].toString());
+        if (obj.contains("refresh_token")) {
+            settings.setValue(QZSettings::suunto_refreshtoken, obj["refresh_token"].toString());
+        }
+    }
+}
+
+void homeform::suunto_refreshtoken() {
+    QSettings settings;
+    const QString refreshToken = settings.value(QZSettings::suunto_refreshtoken).toString();
+    if (refreshToken.isEmpty()) {
+        qDebug() << "No Suunto refresh token available";
+        return;
+    }
+
+    const QString clientId = normalizeOAuthMacroValue(QStringLiteral(SUUNTO_CLIENT_ID_S));
+    const QString clientSecret = normalizeOAuthMacroValue(QStringLiteral(SUUNTO_CLIENT_SECRET_S));
+
+    QNetworkRequest request(QUrl(QStringLiteral("https://cloudapi-oauth.suunto.com/oauth/token")));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
+    request.setRawHeader("Authorization", QByteArray("Basic ") + QStringLiteral("%1:%2").arg(clientId, clientSecret).toUtf8().toBase64());
+
+    QUrlQuery params;
+    params.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("refresh_token"));
+    params.addQueryItem(QStringLiteral("refresh_token"), refreshToken);
+
+    if (suuntoManager) {
+        delete suuntoManager;
+        suuntoManager = nullptr;
+    }
+    suuntoManager = new QNetworkAccessManager(this);
+    QNetworkReply *reply = suuntoManager->post(request, params.query(QUrl::FullyEncoded).toUtf8());
+
+    QEventLoop loop;
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    QByteArray response = reply->readAll();
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(response);
+    QJsonObject obj = jsonResponse.object();
+    if (reply->error() == QNetworkReply::NoError && obj.contains("access_token")) {
+        settings.setValue(QZSettings::suunto_accesstoken, obj["access_token"].toString());
+        if (obj.contains("refresh_token")) {
+            settings.setValue(QZSettings::suunto_refreshtoken, obj["refresh_token"].toString());
+        }
+        qDebug() << "Suunto token refreshed successfully";
+    } else {
+        qDebug() << "Suunto refresh HTTP status:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qDebug() << "Suunto refresh error string:" << reply->errorString();
+        qDebug() << "Suunto refresh response body:" << QString::fromUtf8(response);
+    }
+    reply->deleteLater();
+}
+
+QString homeform::suuntoActivityName(const QString &remotename) {
+    QSettings settings;
+    QString prefix;
+    if (settings.value(QZSettings::suunto_date_prefix, QZSettings::default_suunto_date_prefix).toBool()) {
+        prefix = QDate::currentDate().toString(Qt::TextDate) + " ";
+    }
+
+    QString activityName;
+    if (!stravaPelotonActivityName.isEmpty()) {
+        activityName = stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName;
+    } else if (bluetoothManager && bluetoothManager->device()) {
+        if (bluetoothManager->device()->deviceType() == TREADMILL) {
+            activityName = prefix + QStringLiteral("Run");
+        } else if (bluetoothManager->device()->deviceType() == ROWING) {
+            activityName = prefix + QStringLiteral("Row");
+        } else {
+            activityName = prefix + QStringLiteral("Ride");
+        }
+    } else {
+        activityName = prefix + uploadActivityLabelFromFitFile(remotename);
+    }
+
+    const QString suffix = settings.value(QZSettings::suunto_suffix, QZSettings::default_suunto_suffix).toString();
+    if (!suffix.isEmpty()) {
+        activityName += " " + suffix;
+    }
+    return activityName;
+}
+
+void homeform::suunto_upload_file_prepare() {
+    qDebug() << "Suunto upload file prepare" << lastFitFileSaved;
+    QFile f(lastFitFileSaved);
+    if (!f.open(QFile::OpenModeFlag::ReadOnly)) {
+        setToastRequested("Suunto: unable to open FIT file");
+        return;
+    }
+
+    suunto_upload_file(f.readAll(), lastFitFileSaved);
+}
+
+bool homeform::suunto_upload_file(const QByteArray &data, const QString &remotename) {
+    suunto_refreshtoken();
+
+    QSettings settings;
+    const QString token = settings.value(QZSettings::suunto_accesstoken).toString();
+    const QString subscriptionKey = settings.value(QZSettings::suunto_subscription_key, QZSettings::default_suunto_subscription_key).toString();
+
+    if (token.isEmpty()) {
+        setToastRequested("Suunto: Not authenticated");
+        return false;
+    }
+    if (subscriptionKey.isEmpty() || subscriptionKey == QZSettings::default_suunto_subscription_key) {
+        setToastRequested("Suunto: subscription key placeholder must be replaced in settings");
+        return false;
+    }
+
+    QJsonObject payload;
+    const QString activityName = suuntoActivityName(remotename);
+    if (!activityName.isEmpty()) {
+        payload.insert(QStringLiteral("description"), activityName);
+    }
+    if (!activityDescription.isEmpty()) {
+        payload.insert(QStringLiteral("comment"), activityDescription);
+    }
+    payload.insert(QStringLiteral("privacy"), settings.value(QZSettings::suunto_privacy, QZSettings::default_suunto_privacy).toString());
+
+    QNetworkRequest request(QUrl(QStringLiteral("https://cloudapi.suunto.com/v2/upload")));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
+    request.setRawHeader("Authorization", QStringLiteral("Bearer %1").arg(token).toUtf8());
+    request.setRawHeader("Ocp-Apim-Subscription-Key", subscriptionKey.toUtf8());
+
+    if (suuntoManager) {
+        delete suuntoManager;
+        suuntoManager = nullptr;
+    }
+    suuntoManager = new QNetworkAccessManager(this);
+    QNetworkReply *initReply = suuntoManager->post(request, QJsonDocument(payload).toJson(QJsonDocument::Compact));
+    replySuunto = initReply;
+
+    connect(initReply, &QNetworkReply::finished, this, [this, initReply, data]() {
+        QByteArray response = initReply->readAll();
+        int statusCode = initReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        if (initReply->error() != QNetworkReply::NoError || statusCode < 200 || statusCode >= 300) {
+            qDebug() << "Suunto upload initialization failed" << statusCode << response;
+            setToastRequested(QString("Suunto upload init failed (HTTP %1)").arg(statusCode));
+            initReply->deleteLater();
+            return;
+        }
+
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(response);
+        QJsonObject obj = jsonResponse.object();
+        const QString uploadId = obj[QStringLiteral("id")].toString();
+        const QString uploadUrl = obj[QStringLiteral("url")].toString();
+        const QString method = obj[QStringLiteral("method")].toString(QStringLiteral("PUT"));
+        const QJsonObject headers = obj[QStringLiteral("headers")].toObject();
+
+        if (uploadId.isEmpty() || uploadUrl.isEmpty()) {
+            qDebug() << "Suunto upload initialization response missing id or url" << response;
+            setToastRequested("Suunto upload init failed: missing upload URL");
+            initReply->deleteLater();
+            return;
+        }
+
+        QNetworkRequest uploadRequest(QUrl(uploadUrl));
+        for (auto it = headers.constBegin(); it != headers.constEnd(); ++it) {
+            uploadRequest.setRawHeader(it.key().toUtf8(), it.value().toString().toUtf8());
+        }
+        uploadRequest.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/octet-stream"));
+
+        QNetworkReply *uploadReply = nullptr;
+        if (method.compare(QStringLiteral("PUT"), Qt::CaseInsensitive) == 0) {
+            uploadReply = suuntoManager->put(uploadRequest, data);
+        } else {
+            uploadReply = suuntoManager->sendCustomRequest(uploadRequest, method.toUtf8(), data);
+        }
+        replySuunto = uploadReply;
+
+        connect(uploadReply, &QNetworkReply::uploadProgress,
+                [](qint64 bytesSent, qint64 bytesTotal) {
+                    qDebug() << "Suunto upload progress:" << bytesSent << "/" << bytesTotal;
+                });
+        connect(uploadReply, &QNetworkReply::finished, this, [this, uploadReply, uploadId]() {
+            int uploadStatus = uploadReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+            QByteArray uploadResponse = uploadReply->readAll();
+            if (uploadReply->error() == QNetworkReply::NoError && uploadStatus >= 200 && uploadStatus < 300) {
+                setToastRequested("Suunto: FIT file uploaded, processing...");
+                suunto_check_upload_status(uploadId);
+            } else {
+                qDebug() << "Suunto file upload failed" << uploadStatus << uploadResponse;
+                setToastRequested(QString("Suunto upload failed (HTTP %1)").arg(uploadStatus));
+            }
+            uploadReply->deleteLater();
+        });
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+        connect(uploadReply, &QNetworkReply::errorOccurred,
+                this, &homeform::errorOccurredUploadSuunto);
+#endif
+        initReply->deleteLater();
+    });
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+    connect(initReply, &QNetworkReply::errorOccurred,
+            this, &homeform::errorOccurredUploadSuunto);
+#endif
+
+    qDebug() << "Suunto upload initialization started";
+    return true;
+}
+
+void homeform::suunto_check_upload_status(const QString &uploadId) {
+    QSettings settings;
+    const QString token = settings.value(QZSettings::suunto_accesstoken).toString();
+    const QString subscriptionKey = settings.value(QZSettings::suunto_subscription_key, QZSettings::default_suunto_subscription_key).toString();
+
+    QNetworkRequest request(QUrl(QStringLiteral("https://cloudapi.suunto.com/v2/upload/%1").arg(uploadId)));
+    request.setRawHeader("Authorization", QStringLiteral("Bearer %1").arg(token).toUtf8());
+    request.setRawHeader("Ocp-Apim-Subscription-Key", subscriptionKey.toUtf8());
+
+    QNetworkReply *statusReply = suuntoManager->get(request);
+    replySuunto = statusReply;
+    connect(statusReply, &QNetworkReply::finished, this, &homeform::writeFileCompletedSuunto);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+    connect(statusReply, &QNetworkReply::errorOccurred,
+            this, &homeform::errorOccurredUploadSuunto);
+#endif
+}
+
+void homeform::writeFileCompletedSuunto() {
+    QNetworkReply *reply = static_cast<QNetworkReply *>(QObject::sender());
+    QByteArray response = reply->readAll();
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(response);
+    QJsonObject obj = jsonResponse.object();
+    const QString status = obj[QStringLiteral("status")].toString();
+    if (statusCode >= 200 && statusCode < 300 && (status == QStringLiteral("PROCESSED") || status == QStringLiteral("ACCEPTED") || status == QStringLiteral("NEW"))) {
+        if (status == QStringLiteral("PROCESSED")) {
+            setToastRequested("Suunto upload successful!");
+        } else {
+            setToastRequested("Suunto upload accepted, still processing");
+        }
+    } else {
+        const QString message = obj[QStringLiteral("message")].toString();
+        qDebug() << "Suunto upload status failed" << statusCode << status << message << response;
+        setToastRequested(QString("Suunto upload failed (HTTP %1)").arg(statusCode));
+    }
+    reply->deleteLater();
+}
+
+void homeform::errorOccurredUploadSuunto(QNetworkReply::NetworkError code) {
+    qDebug() << "Suunto upload error details:";
+    qDebug() << "Error code:" << code;
+    if (replySuunto) {
+        qDebug() << "Error string:" << replySuunto->errorString();
+        qDebug() << "HTTP status code:" << replySuunto->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        setToastRequested("Suunto upload failed: " + replySuunto->errorString());
+    } else {
+        setToastRequested("Suunto upload failed");
+    }
 }
 
 void homeform::intervalsicu_connect_clicked() {

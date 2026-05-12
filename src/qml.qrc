@@ -133,5 +133,6 @@
         <file>WebPelotonAuth.qml</file>
         <file>inner_templates/floating/hfloating.htm</file>
         <file>WebIntervalsICUAuth.qml</file>
+        <file>WebSuuntoAuth.qml</file>
     </qresource>
 </RCC>
