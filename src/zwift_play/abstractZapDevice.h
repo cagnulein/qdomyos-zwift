@@ -179,7 +179,18 @@ class AbstractZapDevice: public QObject {
             return 1;
         case 0x23: // zwift ride
             lastFrame = QDateTime::currentDateTime();
-            processRideControllerNotification(bytes);
+            if (processRideControllerNotification(bytes)) {
+                if (processRideGearNotification(zwiftplay_swap, DEBOUNCE)) {
+                    break;
+                }
+
+                risingEdge--;
+                if(risingEdge < 0)
+                    risingEdge = 0;
+                if(risingEdge == 0)
+                    autoRepeatTimer->stop();
+                break;
+            }
             if(bytes.length() > 12 &&
                 ((((uint8_t)bytes[12]) == 0xc7 && zapType == RIGHT) ||
                  (((uint8_t)bytes[12]) == 0xc8 && zapType == LEFT))
@@ -317,6 +328,12 @@ class AbstractZapDevice: public QObject {
         bool rightPower = false;
     };
 
+    enum RideGearAction {
+        RideGearNone,
+        RideGearPlus,
+        RideGearMinus
+    };
+
     bool processRideControllerNotification(const QByteArray &bytes) {
         quint32 buttonMap = 0xffffffff;
         bool buttonMapFound = false;
@@ -397,6 +414,39 @@ class AbstractZapDevice: public QObject {
 
         lastRideButtonState = current;
         lastRideButtonStateValid = true;
+        lastRideButtonMap = buttonMap;
+        lastRideButtonMapValid = true;
+        return true;
+    }
+
+    bool processRideGearNotification(bool zwiftplay_swap, bool debounce) {
+        if (!lastRideButtonMapValid) {
+            return false;
+        }
+
+        RideGearAction action = RideGearNone;
+
+        if ((lastRideButtonMap & 0x00200) == 0 || (lastRideButtonMap & 0x00400) == 0) {
+            action = RideGearMinus;
+        } else if ((lastRideButtonMap & 0x02000) == 0) {
+            action = RideGearPlus;
+        } else if ((lastRideButtonMap & 0x04000) == 0) {
+            action = RideGearMinus;
+        }
+
+        if (action == RideGearNone || !debounce) {
+            return false;
+        }
+
+        risingEdge = 2;
+        if ((action == RideGearPlus && !zwiftplay_swap) || (action == RideGearMinus && zwiftplay_swap)) {
+            emit plus();
+            lastButtonPlus = true;
+        } else {
+            emit minus();
+            lastButtonPlus = false;
+        }
+        autoRepeatTimer->start();
         return true;
     }
 
@@ -536,6 +586,8 @@ class AbstractZapDevice: public QObject {
     bool lastRightButtonStateValid = false;
     RideButtonState lastRideButtonState;
     bool lastRideButtonStateValid = false;
+    quint32 lastRideButtonMap = 0xffffffff;
+    bool lastRideButtonMapValid = false;
 
   private slots:
     void handleAutoRepeat() {

@@ -8,6 +8,8 @@
 namespace {
 
 struct ButtonEvents {
+    int gearPlus = 0;
+    int gearMinus = 0;
     int leftUpPressed = 0;
     int leftUpReleased = 0;
     int leftDownPressed = 0;
@@ -35,6 +37,12 @@ struct ButtonEvents {
 };
 
 void connectButtonEvents(ZwiftPlayDevice &device, ButtonEvents &events) {
+    QObject::connect(&device, &ZwiftPlayDevice::plus, [&events]() {
+        ++events.gearPlus;
+    });
+    QObject::connect(&device, &ZwiftPlayDevice::minus, [&events]() {
+        ++events.gearMinus;
+    });
     QObject::connect(&device, &ZwiftPlayDevice::leftUp, [&events](bool pressed) {
         pressed ? ++events.leftUpPressed : ++events.leftUpReleased;
     });
@@ -105,6 +113,8 @@ TEST(ZwiftRideControllerTest, IdleAnalogGroupDoesNotEmitFalseRightY) {
 
     EXPECT_EQ(events.rightYPressed, 0);
     EXPECT_EQ(events.rightYReleased, 0);
+    EXPECT_EQ(events.gearPlus, 0);
+    EXPECT_EQ(events.gearMinus, 0);
 }
 
 TEST(ZwiftRideControllerTest, ParsesObservedActiveLowButtonMapsFromUpdatedFirmwareLog) {
@@ -172,4 +182,23 @@ TEST(ZwiftRideControllerTest, ParsesObservedActiveLowButtonMapsFromUpdatedFirmwa
     EXPECT_EQ(events.rightShoulderReleased, 2);
     EXPECT_EQ(events.rightPowerPressed, 1);
     EXPECT_EQ(events.rightPowerReleased, 1);
+
+    EXPECT_EQ(events.gearPlus, 1);
+    EXPECT_EQ(events.gearMinus, 3);
+}
+
+TEST(ZwiftRideControllerTest, RightPowerButtonDoesNotTriggerGearDown) {
+    ZwiftPlayDevice device;
+    ButtonEvents events;
+    connectButtonEvents(device, events);
+
+    const quint32 idle = 0xffffffff;
+    processRideFrame(device, idle);
+    processRideFrame(device, 0xffff7fff); // Observed right power button bit in updated firmware log.
+    processRideFrame(device, idle);
+
+    EXPECT_EQ(events.rightPowerPressed, 1);
+    EXPECT_EQ(events.rightPowerReleased, 1);
+    EXPECT_EQ(events.gearPlus, 0);
+    EXPECT_EQ(events.gearMinus, 0);
 }
