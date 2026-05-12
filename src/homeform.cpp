@@ -4939,23 +4939,23 @@ void homeform::Plus(const QString &name) {
             if (bluetoothManager->device()->deviceType() == BIKE) {
                 m_overridePower = true;
                 ((bike *)bluetoothManager->device())
-                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() + powerJog);
                 if (trainProgram) {
-                    trainProgram->adjustPowerOffsetForTrainingProgram(10);
+                    trainProgram->adjustPowerOffsetForTrainingProgram(powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
                 m_overridePower = true;
                 ((treadmill *)bluetoothManager->device())
-                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() + powerJog);
                 if (trainProgram) {
-                    trainProgram->adjustPowerOffsetForTrainingProgram(10);
+                    trainProgram->adjustPowerOffsetForTrainingProgram(powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == ROWING) {
                 m_overridePower = true;
                 ((rower *)bluetoothManager->device())
-                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() + powerJog);
                 if (trainProgram) {
-                    trainProgram->adjustPowerOffsetForTrainingProgram(10);
+                    trainProgram->adjustPowerOffsetForTrainingProgram(powerJog);
                 }
             }
         }
@@ -5239,23 +5239,23 @@ void homeform::Minus(const QString &name) {
             if (bluetoothManager->device()->deviceType() == BIKE) {
                 m_overridePower = true;
                 ((bike *)bluetoothManager->device())
-                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
                 if (trainProgram) {
-                    trainProgram->adjustPowerOffsetForTrainingProgram(-10);
+                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
                 m_overridePower = true;
                 ((treadmill *)bluetoothManager->device())
-                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
                 if (trainProgram) {
-                    trainProgram->adjustPowerOffsetForTrainingProgram(-10);
+                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == ROWING) {
                 m_overridePower = true;
                 ((rower *)bluetoothManager->device())
-                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
                 if (trainProgram) {
-                    trainProgram->adjustPowerOffsetForTrainingProgram(-10);
+                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             }
         }

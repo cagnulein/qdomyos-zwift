@@ -1007,6 +1007,7 @@ public:
     static QString getFileNameFromContentUri(const QString &uriString);
 
     int16_t fanOverride = 0;
+    const float powerJog = 5.0;
 
     void update();
     void ten_hz();
