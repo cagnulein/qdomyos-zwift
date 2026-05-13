@@ -180,10 +180,6 @@ class AbstractZapDevice: public QObject {
         case 0x23: // zwift ride
             lastFrame = QDateTime::currentDateTime();
             if (processRideControllerNotification(bytes)) {
-                if (processRideGearNotification(zwiftplay_swap, DEBOUNCE)) {
-                    break;
-                }
-
                 risingEdge--;
                 if(risingEdge < 0)
                     risingEdge = 0;
@@ -318,20 +314,20 @@ class AbstractZapDevice: public QObject {
         bool leftDown = false;
         bool leftLeft = false;
         bool leftRight = false;
-        bool leftShoulder = false;
-        bool leftPower = false;
         bool rightY = false;
-        bool rightZ = false;
         bool rightA = false;
         bool rightB = false;
-        bool rightShoulder = false;
+        bool rightZAlt = false;
+        bool rightZ = false;
+        bool leftShiftUp = false;
+        bool leftShiftDown = false;
+        bool leftPowerUp = false;
+        bool leftOnOff = false;
+        bool rightShiftUp = false;
+        bool rightShiftDown = false;
         bool rightPower = false;
-    };
-
-    enum RideGearAction {
-        RideGearNone,
-        RideGearPlus,
-        RideGearMinus
+        bool rightPowerUp = false;
+        bool rightOnOff = false;
     };
 
     bool processRideControllerNotification(const QByteArray &bytes) {
@@ -384,11 +380,17 @@ class AbstractZapDevice: public QObject {
         current.rightA = isPressed(0x00010);
         current.rightB = isPressed(0x00020);
         current.rightY = isPressed(0x00040);
-        current.rightZ = isPressed(0x00080) || isPressed(0x00100);
-        current.leftShoulder = isPressed(0x00200) || isPressed(0x00400);
-        current.leftPower = isPressed(0x00800) || isPressed(0x01000);
-        current.rightShoulder = isPressed(0x02000) || isPressed(0x04000);
-        current.rightPower = isPressed(0x08000) || isPressed(0x10000) || isPressed(0x20000);
+        current.rightZAlt = isPressed(0x00080);
+        current.rightZ = isPressed(0x00100);
+        current.leftShiftUp = isPressed(0x00200);
+        current.leftShiftDown = isPressed(0x00400);
+        current.leftPowerUp = isPressed(0x00800);
+        current.leftOnOff = isPressed(0x01000);
+        current.rightShiftUp = isPressed(0x02000);
+        current.rightShiftDown = isPressed(0x04000);
+        current.rightPower = isPressed(0x08000);
+        current.rightPowerUp = isPressed(0x10000);
+        current.rightOnOff = isPressed(0x20000);
 
         if (!lastRideButtonStateValid) {
             qDebug() << rideButtonStateToString(current);
@@ -403,50 +405,31 @@ class AbstractZapDevice: public QObject {
         emitIfChanged(current.leftDown, lastRideButtonStateValid ? lastRideButtonState.leftDown : false, &AbstractZapDevice::leftDown);
         emitIfChanged(current.leftLeft, lastRideButtonStateValid ? lastRideButtonState.leftLeft : false, &AbstractZapDevice::leftLeft);
         emitIfChanged(current.leftRight, lastRideButtonStateValid ? lastRideButtonState.leftRight : false, &AbstractZapDevice::leftRight);
-        emitIfChanged(current.leftShoulder, lastRideButtonStateValid ? lastRideButtonState.leftShoulder : false, &AbstractZapDevice::leftShoulder);
-        emitIfChanged(current.leftPower, lastRideButtonStateValid ? lastRideButtonState.leftPower : false, &AbstractZapDevice::leftPower);
+        emitIfChanged(current.leftShiftUp, lastRideButtonStateValid ? lastRideButtonState.leftShiftUp : false, &AbstractZapDevice::rideLeftShiftUp);
+        emitIfChanged(current.leftShiftDown, lastRideButtonStateValid ? lastRideButtonState.leftShiftDown : false, &AbstractZapDevice::rideLeftShiftDown);
+        emitIfChanged(current.leftPowerUp, lastRideButtonStateValid ? lastRideButtonState.leftPowerUp : false, &AbstractZapDevice::rideLeftPowerUp);
+        emitIfChanged(current.leftOnOff, lastRideButtonStateValid ? lastRideButtonState.leftOnOff : false, &AbstractZapDevice::rideLeftOnOff);
         emitIfChanged(current.rightY, lastRideButtonStateValid ? lastRideButtonState.rightY : false, &AbstractZapDevice::rightY);
+        emitIfChanged(current.rightZAlt, lastRideButtonStateValid ? lastRideButtonState.rightZAlt : false, &AbstractZapDevice::rideRightZAlt);
         emitIfChanged(current.rightZ, lastRideButtonStateValid ? lastRideButtonState.rightZ : false, &AbstractZapDevice::rightZ);
         emitIfChanged(current.rightA, lastRideButtonStateValid ? lastRideButtonState.rightA : false, &AbstractZapDevice::rightA);
         emitIfChanged(current.rightB, lastRideButtonStateValid ? lastRideButtonState.rightB : false, &AbstractZapDevice::rightB);
-        emitIfChanged(current.rightShoulder, lastRideButtonStateValid ? lastRideButtonState.rightShoulder : false, &AbstractZapDevice::rightShoulder);
-        emitIfChanged(current.rightPower, lastRideButtonStateValid ? lastRideButtonState.rightPower : false, &AbstractZapDevice::rightPower);
+        emitIfChanged(current.rightShiftUp, lastRideButtonStateValid ? lastRideButtonState.rightShiftUp : false, &AbstractZapDevice::rideRightShiftUp);
+        emitIfChanged(current.rightShiftDown, lastRideButtonStateValid ? lastRideButtonState.rightShiftDown : false, &AbstractZapDevice::rideRightShiftDown);
+        emitIfChanged(current.rightPower, lastRideButtonStateValid ? lastRideButtonState.rightPower : false, &AbstractZapDevice::rideRightPower);
+        emitIfChanged(current.rightPowerUp, lastRideButtonStateValid ? lastRideButtonState.rightPowerUp : false, &AbstractZapDevice::rideRightPowerUp);
+        emitIfChanged(current.rightOnOff, lastRideButtonStateValid ? lastRideButtonState.rightOnOff : false, &AbstractZapDevice::rideRightOnOff);
+
+        emitIfChanged(current.leftShiftUp, lastRideButtonStateValid ? lastRideButtonState.leftShiftUp : false, &AbstractZapDevice::leftShoulder);
+        emitIfChanged(current.leftOnOff, lastRideButtonStateValid ? lastRideButtonState.leftOnOff : false, &AbstractZapDevice::leftPower);
+        emitIfChanged(current.rightShiftUp, lastRideButtonStateValid ? lastRideButtonState.rightShiftUp : false, &AbstractZapDevice::rightShoulder);
+        emitIfChanged(current.rightPower || current.rightOnOff,
+                      (lastRideButtonStateValid ? lastRideButtonState.rightPower : false) ||
+                      (lastRideButtonStateValid ? lastRideButtonState.rightOnOff : false),
+                      &AbstractZapDevice::rightPower);
 
         lastRideButtonState = current;
         lastRideButtonStateValid = true;
-        lastRideButtonMap = buttonMap;
-        lastRideButtonMapValid = true;
-        return true;
-    }
-
-    bool processRideGearNotification(bool zwiftplay_swap, bool debounce) {
-        if (!lastRideButtonMapValid) {
-            return false;
-        }
-
-        RideGearAction action = RideGearNone;
-
-        if ((lastRideButtonMap & 0x00200) == 0 || (lastRideButtonMap & 0x00400) == 0) {
-            action = RideGearMinus;
-        } else if ((lastRideButtonMap & 0x02000) == 0) {
-            action = RideGearPlus;
-        } else if ((lastRideButtonMap & 0x04000) == 0) {
-            action = RideGearMinus;
-        }
-
-        if (action == RideGearNone || !debounce) {
-            return false;
-        }
-
-        risingEdge = 2;
-        if ((action == RideGearPlus && !zwiftplay_swap) || (action == RideGearMinus && zwiftplay_swap)) {
-            emit plus();
-            lastButtonPlus = true;
-        } else {
-            emit minus();
-            lastButtonPlus = false;
-        }
-        autoRepeatTimer->start();
         return true;
     }
 
@@ -494,14 +477,20 @@ class AbstractZapDevice: public QObject {
         text += state.leftDown ? QStringLiteral("Left Down ") : QString();
         text += state.leftLeft ? QStringLiteral("Left Left ") : QString();
         text += state.leftRight ? QStringLiteral("Left Right ") : QString();
-        text += state.leftShoulder ? QStringLiteral("Left Shoulder ") : QString();
-        text += state.leftPower ? QStringLiteral("Left Power ") : QString();
         text += state.rightY ? QStringLiteral("Right Y ") : QString();
+        text += state.rightZAlt ? QStringLiteral("Right Z Alt ") : QString();
         text += state.rightZ ? QStringLiteral("Right Z ") : QString();
         text += state.rightA ? QStringLiteral("Right A ") : QString();
         text += state.rightB ? QStringLiteral("Right B ") : QString();
-        text += state.rightShoulder ? QStringLiteral("Right Shoulder ") : QString();
+        text += state.leftShiftUp ? QStringLiteral("Left Shift Up ") : QString();
+        text += state.leftShiftDown ? QStringLiteral("Left Shift Down ") : QString();
+        text += state.leftPowerUp ? QStringLiteral("Left Power Up ") : QString();
+        text += state.leftOnOff ? QStringLiteral("Left On/Off ") : QString();
+        text += state.rightShiftUp ? QStringLiteral("Right Shift Up ") : QString();
+        text += state.rightShiftDown ? QStringLiteral("Right Shift Down ") : QString();
         text += state.rightPower ? QStringLiteral("Right Power ") : QString();
+        text += state.rightPowerUp ? QStringLiteral("Right Power Up ") : QString();
+        text += state.rightOnOff ? QStringLiteral("Right On/Off ") : QString();
         text += QStringLiteral(")");
         return text;
     }
@@ -512,14 +501,20 @@ class AbstractZapDevice: public QObject {
         diff += diffField(QStringLiteral("Left Down"), current.leftDown, previous.leftDown);
         diff += diffField(QStringLiteral("Left Left"), current.leftLeft, previous.leftLeft);
         diff += diffField(QStringLiteral("Left Right"), current.leftRight, previous.leftRight);
-        diff += diffField(QStringLiteral("Left Shoulder"), current.leftShoulder, previous.leftShoulder);
-        diff += diffField(QStringLiteral("Left Power"), current.leftPower, previous.leftPower);
         diff += diffField(QStringLiteral("Right Y"), current.rightY, previous.rightY);
+        diff += diffField(QStringLiteral("Right Z Alt"), current.rightZAlt, previous.rightZAlt);
         diff += diffField(QStringLiteral("Right Z"), current.rightZ, previous.rightZ);
         diff += diffField(QStringLiteral("Right A"), current.rightA, previous.rightA);
         diff += diffField(QStringLiteral("Right B"), current.rightB, previous.rightB);
-        diff += diffField(QStringLiteral("Right Shoulder"), current.rightShoulder, previous.rightShoulder);
+        diff += diffField(QStringLiteral("Left Shift Up"), current.leftShiftUp, previous.leftShiftUp);
+        diff += diffField(QStringLiteral("Left Shift Down"), current.leftShiftDown, previous.leftShiftDown);
+        diff += diffField(QStringLiteral("Left Power Up"), current.leftPowerUp, previous.leftPowerUp);
+        diff += diffField(QStringLiteral("Left On/Off"), current.leftOnOff, previous.leftOnOff);
+        diff += diffField(QStringLiteral("Right Shift Up"), current.rightShiftUp, previous.rightShiftUp);
+        diff += diffField(QStringLiteral("Right Shift Down"), current.rightShiftDown, previous.rightShiftDown);
         diff += diffField(QStringLiteral("Right Power"), current.rightPower, previous.rightPower);
+        diff += diffField(QStringLiteral("Right Power Up"), current.rightPowerUp, previous.rightPowerUp);
+        diff += diffField(QStringLiteral("Right On/Off"), current.rightOnOff, previous.rightOnOff);
         return diff;
     }
 
@@ -586,8 +581,6 @@ class AbstractZapDevice: public QObject {
     bool lastRightButtonStateValid = false;
     RideButtonState lastRideButtonState;
     bool lastRideButtonStateValid = false;
-    quint32 lastRideButtonMap = 0xffffffff;
-    bool lastRideButtonMapValid = false;
 
   private slots:
     void handleAutoRepeat() {
@@ -614,6 +607,10 @@ class AbstractZapDevice: public QObject {
     void leftShoulder(bool pressed);
     void leftPower(bool pressed);
     void leftPaddle(int value);
+    void rideLeftShiftUp(bool pressed);
+    void rideLeftShiftDown(bool pressed);
+    void rideLeftPowerUp(bool pressed);
+    void rideLeftOnOff(bool pressed);
     void rightY(bool pressed);
     void rightZ(bool pressed);
     void rightA(bool pressed);
@@ -621,6 +618,12 @@ class AbstractZapDevice: public QObject {
     void rightShoulder(bool pressed);
     void rightPower(bool pressed);
     void rightPaddle(int value);
+    void rideRightZAlt(bool pressed);
+    void rideRightShiftUp(bool pressed);
+    void rideRightShiftDown(bool pressed);
+    void rideRightPower(bool pressed);
+    void rideRightPowerUp(bool pressed);
+    void rideRightOnOff(bool pressed);
 };
 
 #endif // ABSTRACTZAPDEVICE_H

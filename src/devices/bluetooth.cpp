@@ -3377,6 +3377,10 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftShoulder, this, &bluetooth::zwiftPlayLeftShoulder);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPower, this, &bluetooth::zwiftPlayLeftPower);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPaddle, this, &bluetooth::zwiftPlayLeftPaddle);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftShiftUp, this, &bluetooth::zwiftRideLeftShiftUp);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftShiftDown, this, &bluetooth::zwiftRideLeftShiftDown);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftPowerUp, this, &bluetooth::zwiftRideLeftPowerUp);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftOnOff, this, &bluetooth::zwiftRideLeftOnOff);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightY, this, &bluetooth::zwiftPlayRightY);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightZ, this, &bluetooth::zwiftPlayRightZ);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightA, this, &bluetooth::zwiftPlayRightA);
@@ -3384,6 +3388,12 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightShoulder, this, &bluetooth::zwiftPlayRightShoulder);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPower, this, &bluetooth::zwiftPlayRightPower);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPaddle, this, &bluetooth::zwiftPlayRightPaddle);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightZAlt, this, &bluetooth::zwiftRideRightZAlt);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightShiftUp, this, &bluetooth::zwiftRideRightShiftUp);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightShiftDown, this, &bluetooth::zwiftRideRightShiftDown);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightPower, this, &bluetooth::zwiftRideRightPower);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightPowerUp, this, &bluetooth::zwiftRideRightPowerUp);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightOnOff, this, &bluetooth::zwiftRideRightOnOff);
                 connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, this, [this]() {
                     auto *myWhoosh = MyWhooshLink::instance();
                     if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {

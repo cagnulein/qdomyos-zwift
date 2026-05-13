@@ -394,6 +394,10 @@ class bluetooth : public QObject, public SignalHandler {
     void zwiftPlayLeftShoulder(bool pressed);
     void zwiftPlayLeftPower(bool pressed);
     void zwiftPlayLeftPaddle(int value);
+    void zwiftRideLeftShiftUp(bool pressed);
+    void zwiftRideLeftShiftDown(bool pressed);
+    void zwiftRideLeftPowerUp(bool pressed);
+    void zwiftRideLeftOnOff(bool pressed);
     void zwiftPlayRightY(bool pressed);
     void zwiftPlayRightZ(bool pressed);
     void zwiftPlayRightA(bool pressed);
@@ -401,6 +405,12 @@ class bluetooth : public QObject, public SignalHandler {
     void zwiftPlayRightShoulder(bool pressed);
     void zwiftPlayRightPower(bool pressed);
     void zwiftPlayRightPaddle(int value);
+    void zwiftRideRightZAlt(bool pressed);
+    void zwiftRideRightShiftUp(bool pressed);
+    void zwiftRideRightShiftDown(bool pressed);
+    void zwiftRideRightPower(bool pressed);
+    void zwiftRideRightPowerUp(bool pressed);
+    void zwiftRideRightOnOff(bool pressed);
   public slots:
     void restart();
     void selectGymModeDevice(const QString &deviceName);
