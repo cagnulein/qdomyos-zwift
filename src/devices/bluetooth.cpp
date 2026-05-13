@@ -13,6 +13,16 @@
 #include <QAndroidJniObject>
 #endif
 
+namespace {
+QString gymModeDeviceAddress(const QBluetoothDeviceInfo &device) {
+#if defined(Q_OS_IOS)
+    return device.deviceUuid().toString();
+#else
+    return device.address().toString();
+#endif
+}
+}
+
 bluetooth::bluetooth(const discoveryoptions &options)
     : bluetooth(options.logs, options.deviceName, options.noWriteResistance, options.noHeartService,
                 options.pollDeviceTime, options.noConsole, options.testResistance, options.bikeResistanceOffset,
@@ -754,6 +764,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             if (!effectiveFilterDevice.isEmpty() && !effectiveFilterDevice.startsWith(QStringLiteral("Disabled"))) {
 
                 filter = (b.name().compare(effectiveFilterDevice, Qt::CaseInsensitive) == 0);
+                if (filter && !gymModeSessionDeviceAddress.isEmpty()) {
+                    filter = (gymModeDeviceAddress(b).compare(gymModeSessionDeviceAddress, Qt::CaseInsensitive) == 0);
+                }
             }
             const QString deviceName = b.name();
             const QString upperDeviceName = deviceName.toUpper();
@@ -3492,6 +3505,15 @@ void bluetooth::selectGymModeDevice(const QString &deviceName) {
     QString normalizedDeviceName = deviceName.trimmed();
     normalizedDeviceName.remove(QRegularExpression(QStringLiteral(" \\(\\d+%\\)$")));
 
+    QString selectedDeviceAddress;
+    QRegularExpressionMatch addressMatch =
+        QRegularExpression(QStringLiteral(" \\[([^\\]]+)\\]$")).match(normalizedDeviceName);
+    if (addressMatch.hasMatch()) {
+        selectedDeviceAddress = addressMatch.captured(1).trimmed();
+        normalizedDeviceName.remove(addressMatch.capturedStart(0), addressMatch.capturedLength(0));
+        normalizedDeviceName = normalizedDeviceName.trimmed();
+    }
+
     if (normalizedDeviceName.isEmpty() ||
         !normalizedDeviceName.compare(QStringLiteral("Disabled"), Qt::CaseInsensitive) ||
         !normalizedDeviceName.compare(QStringLiteral("Wifi"), Qt::CaseInsensitive)) {
@@ -3499,6 +3521,7 @@ void bluetooth::selectGymModeDevice(const QString &deviceName) {
     }
 
     gymModeSessionDevice = normalizedDeviceName;
+    gymModeSessionDeviceAddress = selectedDeviceAddress;
     onlyDiscover = false;
     restart();
 }

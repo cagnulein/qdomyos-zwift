@@ -58,6 +58,14 @@ homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
 namespace {
+QString gymModeDeviceAddress(const QBluetoothDeviceInfo &device) {
+#if defined(Q_OS_IOS)
+    return device.deviceUuid().toString();
+#else
+    return device.address().toString();
+#endif
+}
+
 QString uploadActivityLabelFromSport(FIT_SPORT sport) {
     switch (sport) {
     case FIT_SPORT_RUNNING:
@@ -8572,6 +8580,9 @@ QStringList homeform::bluetoothDevices() {
     r.append(QStringLiteral("Disabled"));
     r.append(QStringLiteral("Wifi"));
 
+    QSettings settings;
+    const bool gymMode = settings.value(QZSettings::gym_mode, QZSettings::default_gym_mode).toBool();
+
     // Collect named devices and sort by RSSI descending (strongest signal first)
     QList<QBluetoothDeviceInfo> sorted;
     for (const QBluetoothDeviceInfo &b : qAsConst(bluetoothManager->devices)) {
@@ -8586,7 +8597,21 @@ QStringList homeform::bluetoothDevices() {
     for (const QBluetoothDeviceInfo &b : qAsConst(sorted)) {
         // Convert RSSI to proximity %: -40 dBm = 100%, -100 dBm = 0%
         int proximity = qBound(0, (int)((b.rssi() + 100) * 100 / 60), 100);
-        r.append(QString("%1 (%2%)").arg(b.name()).arg(proximity));
+        QString deviceName = b.name();
+        if (gymMode) {
+            bool duplicateName = false;
+            for (const QBluetoothDeviceInfo &other : qAsConst(sorted)) {
+                if (!SAME_BLUETOOTH_DEVICE(b, other) && !deviceName.compare(other.name(), Qt::CaseInsensitive)) {
+                    duplicateName = true;
+                    break;
+                }
+            }
+            const QString deviceAddress = gymModeDeviceAddress(b);
+            if (duplicateName && !deviceAddress.isEmpty()) {
+                deviceName = QStringLiteral("%1 [%2]").arg(deviceName, deviceAddress);
+            }
+        }
+        r.append(QString("%1 (%2%)").arg(deviceName).arg(proximity));
     }
     return r;
 }

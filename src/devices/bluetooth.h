@@ -322,6 +322,7 @@ class bluetooth : public QObject, public SignalHandler {
     elitesquarecontroller* eliteSquareController = nullptr;
     QString filterDevice = QLatin1String("");
     QString gymModeSessionDevice = QLatin1String("");
+    QString gymModeSessionDeviceAddress = QLatin1String("");
 
     bool testResistance = false;
     bool noWriteResistance = false;
