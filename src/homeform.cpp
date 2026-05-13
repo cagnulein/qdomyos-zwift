@@ -1997,7 +1997,7 @@ void homeform::sortTiles() {
             }
 
             if (settings.value(QZSettings::tile_target_incline_enabled, false).toBool() &&
-                settings.value(QZSettings::tile_target_incline_order, 29).toInt() == i) {
+                settings.value(QZSettings::tile_target_incline_order, 28).toInt() == i) {
                 target_incline->setGridId(i);
                 dataList.append(target_incline);
             }
@@ -2392,7 +2392,7 @@ void homeform::sortTiles() {
             }
 
             if (settings.value(QZSettings::tile_target_incline_enabled, false).toBool() &&
-                settings.value(QZSettings::tile_target_incline_order, 29).toInt() == i) {
+                settings.value(QZSettings::tile_target_incline_order, 28).toInt() == i) {
                 target_incline->setGridId(i);
                 dataList.append(target_incline);
             }
@@ -2766,7 +2766,7 @@ void homeform::sortTiles() {
             }
 
             if (settings.value(QZSettings::tile_target_incline_enabled, false).toBool() &&
-                settings.value(QZSettings::tile_target_incline_order, 29).toInt() == i) {
+                settings.value(QZSettings::tile_target_incline_order, 28).toInt() == i) {
                 target_incline->setGridId(i);
                 dataList.append(target_incline);
             }
