@@ -1126,6 +1126,7 @@ void horizontreadmill::update() {
                     // horizon paragon x
                     Speed = 0;
                     if (requestPause == -1) {
+                        horizonPaused = true;
                         uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x14, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
                         writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
                                             QStringLiteral("requestStop"), false, true);
@@ -1536,6 +1537,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     // QZSettings::default_horizon_paragon_x).toBool();
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    bool horizon_paragon_x =
+        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool treadmill_direct_distance =
@@ -1565,6 +1568,16 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && horizon_paragon_x && newValue.length() > 10 &&
+        (uint8_t)newValue.at(0) == 0x55 && (uint8_t)newValue.at(1) == 0xAA && (uint8_t)newValue.at(2) == 0x00 &&
+        (uint8_t)newValue.at(3) == 0x00 && (uint8_t)newValue.at(4) == 0x03 && (uint8_t)newValue.at(5) == 0x03 &&
+        (uint8_t)newValue.at(6) == 0x02 && (uint8_t)newValue.at(7) == 0x00 && (uint8_t)newValue.at(8) == 0x0f &&
+        (uint8_t)newValue.at(9) == 0x1d && (uint8_t)newValue.at(10) == 0x00) {
+        Speed = 0;
+        horizonPaused = true;
+        qDebug() << "stop event from the treadmill (Paragon X)";
+    }
+
     if (isPaused() && settings
                           .value(QZSettings::horizon_treadmill_suspend_stats_pause,
                                  QZSettings::default_horizon_treadmill_suspend_stats_pause)
@@ -1575,10 +1588,12 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && lastPacketComplete.length() > 70 &&
         lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17) {
-        parseSpeed((((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
-                           (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
-                 100.0) *
-                1.60934); // miles/h
+        if (!horizon_paragon_x || !horizonPaused) {
+            parseSpeed((((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
+                               (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
+                     100.0) *
+                    1.60934); // miles/h
+        }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
         parseInclination(treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0));
@@ -1603,8 +1618,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         distanceEval = true;
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() > 70 &&
                newValue.at(0) == 0x55 && newValue.at(5) == 0x12) {
-        parseSpeed((((double)(((uint16_t)((uint8_t)newValue.at(62)) << 8) | (uint16_t)((uint8_t)newValue.at(61)))) / 1000.0) *
-                       1.60934); // miles/h
+        if (!horizon_paragon_x || !horizonPaused) {
+            parseSpeed((((double)(((uint16_t)((uint8_t)newValue.at(62)) << 8) | (uint16_t)((uint8_t)newValue.at(61)))) / 1000.0) *
+                           1.60934); // miles/h
+        }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
         parseInclination(treadmillInclinationOverride((double)((uint8_t)newValue.at(63)) / 10.0));
@@ -1629,7 +1646,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         distanceEval = true;
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() == 29 &&
                newValue.at(0) == 0x55) {
-        parseSpeed(((double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) | (uint16_t)((uint8_t)newValue.at(14)))) / 10.0);
+        if (!horizon_paragon_x || !horizonPaused) {
+            parseSpeed(((double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) | (uint16_t)((uint8_t)newValue.at(14)))) / 10.0);
+        }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
         // Inclination = (double)((uint8_t)newValue.at(3)) / 10.0;
