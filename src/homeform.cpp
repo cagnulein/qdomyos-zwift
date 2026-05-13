@@ -1997,7 +1997,7 @@ void homeform::sortTiles() {
             }
 
             if (settings.value(QZSettings::tile_target_incline_enabled, false).toBool() &&
-                settings.value(QZSettings::tile_target_incline_order, 29).toInt() == i) {
+                settings.value(QZSettings::tile_target_incline_order, 28).toInt() == i) {
                 target_incline->setGridId(i);
                 dataList.append(target_incline);
             }
@@ -2392,7 +2392,7 @@ void homeform::sortTiles() {
             }
 
             if (settings.value(QZSettings::tile_target_incline_enabled, false).toBool() &&
-                settings.value(QZSettings::tile_target_incline_order, 29).toInt() == i) {
+                settings.value(QZSettings::tile_target_incline_order, 28).toInt() == i) {
                 target_incline->setGridId(i);
                 dataList.append(target_incline);
             }
@@ -2763,6 +2763,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_target_power_order, 20).toInt() == i) {
                 target_power->setGridId(i);
                 dataList.append(target_power);
+            }
+
+            if (settings.value(QZSettings::tile_target_incline_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_target_incline_order, 28).toInt() == i) {
+                target_incline->setGridId(i);
+                dataList.append(target_incline);
             }
 
             if (settings.value(QZSettings::tile_target_zone_enabled, false).toBool() &&
@@ -6325,6 +6331,9 @@ void homeform::update() {
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedCadence().value(), 'f', 0));
             this->target_power->setValue(
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
+            const double rawInclination = ((bike *)bluetoothManager->device())->lastRequestedInclination();
+            this->target_incline->setValue(rawInclination != -100 ? QString::number(rawInclination, 'f', 1) : QStringLiteral("N/A"));
+            this->target_incline->setSecondLine(QStringLiteral(""));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
             updateGearsValue();
 
