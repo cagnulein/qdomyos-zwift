@@ -979,6 +979,7 @@ ios {
     ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
     ios/ios_liveactivity.mm \
+    ios/workoutvideorecorder.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
 	 fit-sdk/FitEncode.mm \
@@ -991,7 +992,10 @@ ios {
     SOURCES += ios/M3iNSQT.cpp
 
     OBJECTIVE_HEADERS += ios/M3iNS.h \
-    ios/ios_liveactivity.h
+    ios/ios_liveactivity.h \
+    ios/workoutvideorecorder.h
+
+    HEADERS += ios/workoutvideorecorder.h
 
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
@@ -1000,6 +1004,7 @@ ios {
 
     TARGET = qdomyoszwift
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
+    LIBS += -framework AVFoundation -framework CoreImage -framework Photos
     
     # iOS Code Signing Configuration - handled manually in Xcode project
     

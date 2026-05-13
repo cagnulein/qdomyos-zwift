@@ -45,6 +45,7 @@
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
+#include "ios/workoutvideorecorder.h"
 #endif
 
 #include "osc.h"
@@ -914,6 +915,12 @@ int main(int argc, char *argv[]) {
         engine.rootContext()->setContextProperty("OS_VERSION", QVariant("iOS"));
 #else
         engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Other"));
+#endif
+#ifdef Q_OS_IOS
+        IOSWorkoutVideoRecorder workoutVideoRecorderNative;
+        engine.rootContext()->setContextProperty("workoutVideoRecorderNative", &workoutVideoRecorderNative);
+#else
+        engine.rootContext()->setContextProperty("workoutVideoRecorderNative", QVariant());
 #endif
 #ifdef CHARTJS
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(true));

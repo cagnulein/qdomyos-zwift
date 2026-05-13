@@ -1322,6 +1322,7 @@ import Qt.labs.platform 1.1
             property bool gears_custom_table_enabled: false
             property string gears_custom_table: "1|1\n2|2\n3|3\n4|4\n5|5\n6|6\n7|7\n8|8\n9|9\n10|10\n11|11\n12|12\n13|13\n14|14\n15|15\n16|16\n17|17\n18|18\n19|19\n20|20\n21|21\n22|22\n23|23\n24|24"                        
             property bool proform_treadmill_cst_505_pftl59420_0: false
+            property string ios_workout_video_camera: "back"
         }
 
 
@@ -14589,6 +14590,43 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("If you are experiencing crash on iOS midride, try to turn this on. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        visible: Qt.platform.os === "ios"
+                        Label {
+                            text: qsTr("iOS workout video camera")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: iosWorkoutVideoCameraComboBox
+                            model: ["Back", "Front"]
+                            displayText: settings.ios_workout_video_camera === "front" ? qsTr("Front") : qsTr("Back")
+                            currentIndex: settings.ios_workout_video_camera === "front" ? 1 : 0
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                settings.ios_workout_video_camera = iosWorkoutVideoCameraComboBox.currentIndex === 1 ? "front" : "back";
+                                toast.show("Setting saved!");
+                            }
+                        }
+                    }
+
+                    Label {
+                        visible: Qt.platform.os === "ios"
+                        text: qsTr("Selects which iPhone camera QZ uses for the workout video recording button in the top bar. Videos are saved in the iOS Videos folder with the active tile metrics burned into the camera recording.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

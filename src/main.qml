@@ -4,7 +4,6 @@ import QtQuick.Controls.Material 2.12
 import QtQuick.Dialogs 1.0
 import QtGraphicalEffects 1.12
 import Qt.labs.settings 1.0
-import QtMultimedia 5.15
 import org.cagnulein.qdomyoszwift 1.0
 import QtQuick.Window 2.12
 import Qt.labs.platform 1.1
@@ -121,6 +120,7 @@ ApplicationWindow {
         property string peloton_username: "username"
         property string peloton_password: "password"
         property bool gym_mode: false
+        property string ios_workout_video_camera: "back"
     }
 
 
@@ -167,6 +167,89 @@ ApplicationWindow {
 
     ToastManager {
         id: toast
+    }
+
+
+    Item {
+        id: workoutVideoRecorder
+        visible: false
+
+        property string recordingState: "idle"
+        property string nextOutputUrl: ""
+
+        function pad(value) {
+            return value < 10 ? "0" + value : "" + value
+        }
+
+        function buildOutputUrl() {
+            var now = new Date()
+            var base = StandardPaths.writableLocation(StandardPaths.MoviesLocation)
+            if (base === "") {
+                base = StandardPaths.writableLocation(StandardPaths.DocumentsLocation) + "/Videos"
+            }
+            return base + "/qz_workout_" + now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + "_" + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds()) + ".mov"
+        }
+
+        function collectMetricLines() {
+            var lines = []
+            var model = typeof appModel === "undefined" ? [] : appModel
+            for (var i = 0; i < model.length; i++) {
+                var item = model[i]
+                if (!item.largeButton && item.name !== "" && item.value !== "") {
+                    lines.push(item.name + ": " + item.value)
+                }
+            }
+            return lines
+        }
+
+        function toggleRecording() {
+            if (Qt.platform.os !== "ios") {
+                toast.show(qsTr("Workout video recording is available on iOS only."))
+                return
+            }
+
+            if (!workoutVideoRecorderNative || !workoutVideoRecorderNative.available) {
+                toast.show(qsTr("Native iOS workout video recording is not available."))
+                return
+            }
+
+            if (recordingState === "idle") {
+                nextOutputUrl = buildOutputUrl()
+                recordingState = "recording"
+                Qt.callLater(function() {
+                    workoutVideoRecorderNative.updateMetrics(workoutVideoRecorder.collectMetricLines())
+                    if (workoutVideoRecorderNative.startRecording(workoutVideoRecorder.nextOutputUrl, settings.ios_workout_video_camera)) {
+                        toast.show(qsTr("Workout video recording started."))
+                    } else {
+                        workoutVideoRecorder.recordingState = "idle"
+                    }
+                })
+            } else if (recordingState === "recording") {
+                workoutVideoRecorderNative.pauseRecording()
+                recordingState = "paused"
+                toast.show(qsTr("Workout video recording paused. Press stop to save it."))
+            } else {
+                workoutVideoRecorderNative.stopRecording()
+                recordingState = "idle"
+            }
+        }
+
+        Connections {
+            target: workoutVideoRecorderNative
+            onErrorOccurred: {
+                workoutVideoRecorder.recordingState = "idle"
+                toast.show(message)
+            }
+            onSaved: toast.show(qsTr("Workout video saved in the Videos folder."))
+        }
+
+        Timer {
+            interval: 250
+            running: workoutVideoRecorder.recordingState === "recording"
+            repeat: true
+            onTriggered: workoutVideoRecorderNative.updateMetrics(workoutVideoRecorder.collectMetricLines())
+        }
+
     }
 
     Timer {
@@ -882,7 +965,7 @@ ApplicationWindow {
                 saveSettings("settings");
                 popupSaveFile.open()
             }
-            anchors.right: toolButtonAutoResistance.left/*toolClassifica.left*/
+            anchors.right: (toolButtonWorkoutVideoRecord.visible ? toolButtonWorkoutVideoRecord.left : toolButtonAutoResistance.left)/*toolClassifica.left*/
             visible: false
         }
 
@@ -942,8 +1025,16 @@ ApplicationWindow {
             id: toolButtonLockTiles
             icon.source: ( window.lockTiles ? "icons/icons/unlock.png" : "icons/icons/lock.png")
             onClicked: { window.lockTiles = !window.lockTiles; console.log("lock tiles toggled " + window.lockTiles); popuplockTiles.open(); popuplockTilesAutoClose.running = true; }
-            anchors.right: toolButtonAutoResistance.left
+            anchors.right: toolButtonWorkoutVideoRecord.left
             visible: !toolButtonSaveSettings.visible
+        }
+
+        ToolButton {
+            id: toolButtonWorkoutVideoRecord
+            icon.source: workoutVideoRecorder.recordingState === "idle" ? "icons/icons/video.png" : (workoutVideoRecorder.recordingState === "recording" ? "icons/icons/pause.png" : "icons/icons/stop.png")
+            onClicked: { workoutVideoRecorder.toggleRecording(); }
+            anchors.right: toolButtonAutoResistance.left
+            visible: Qt.platform.os === "ios"
         }
 
         ToolButton {

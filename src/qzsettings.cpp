@@ -1076,6 +1076,8 @@ const QString QZSettings::default_ios_live_activity_compact_leading_metric = QSt
 const QString QZSettings::ios_live_activity_compact_trailing_metric =
     QStringLiteral("ios_live_activity_compact_trailing_metric");
 const QString QZSettings::default_ios_live_activity_compact_trailing_metric = QStringLiteral("Watt");
+const QString QZSettings::ios_workout_video_camera = QStringLiteral("ios_workout_video_camera");
+const QString QZSettings::default_ios_workout_video_camera = QStringLiteral("back");
 const QString QZSettings::calories_active_only = QStringLiteral("calories_active_only");
 const QString QZSettings::calories_from_hr = QStringLiteral("calories_from_hr");
 const QString QZSettings::confirm_stop_workout = QStringLiteral("confirm_stop_workout");
@@ -1094,7 +1096,7 @@ const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("profor
 const QString QZSettings::proform_treadmill_cst_505_pftl59420_0 = QStringLiteral("proform_treadmill_cst_505_pftl59420_0");
 const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applewatch_as_treadmill_speed");
 
-const uint32_t allSettingsCount = 891;
+const uint32_t allSettingsCount = 892;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1988,6 +1990,7 @@ QVariant allSettings[allSettingsCount][2] = {
      QZSettings::default_ios_live_activity_compact_leading_metric},
     {QZSettings::ios_live_activity_compact_trailing_metric,
      QZSettings::default_ios_live_activity_compact_trailing_metric},
+    {QZSettings::ios_workout_video_camera, QZSettings::default_ios_workout_video_camera},
     {QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike},
     {QZSettings::calories_active_only, QZSettings::default_calories_active_only},
     {QZSettings::calories_from_hr, QZSettings::default_calories_from_hr},

@@ -65,7 +65,9 @@
 		<string>_qz_iphone._tcp</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>This app use a QT framework in order to playback workout videos. This permission is required for this reason.</string>
+	<string>QZ uses the camera to record workout videos with workout metrics overlaid.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>QZ saves recorded workout videos to the device video library.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>application needs Documents access in order to save logs and gpx file for the training sessions</string>
 	<key>NSHealthShareUsageDescription</key>

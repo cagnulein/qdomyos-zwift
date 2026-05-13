@@ -2929,6 +2929,12 @@ class QZSettings {
     static const QString ios_live_activity_compact_trailing_metric;
     static const QString default_ios_live_activity_compact_trailing_metric;
 
+    /**
+     * @brief Camera used by the iOS workout video recorder.
+     */
+    static const QString ios_workout_video_camera;
+    static const QString default_ios_workout_video_camera;
+
    /**
      * @brief Calculate only active calories (exclude basal metabolic rate)
      */
