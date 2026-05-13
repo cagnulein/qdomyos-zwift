@@ -7309,6 +7309,8 @@ import Qt.labs.platform 1.1
                             "Venu2 Plus",
                             "Venu3",
                             "Venu3S",
+                            "Venu4",
+                            "Venu4S",
                             "Venu Sq",
                             "Venu Sq2",
                             "Venu Sq2Music",
@@ -7435,19 +7437,21 @@ import Qt.labs.platform 1.1
                             if (settings.fit_file_garmin_device_training_effect_device === 3851) return 108;  // VENU2_PLUS
                             if (settings.fit_file_garmin_device_training_effect_device === 4260) return 109;  // VENU3
                             if (settings.fit_file_garmin_device_training_effect_device === 4261) return 110;  // VENU3S
-                            if (settings.fit_file_garmin_device_training_effect_device === 3600) return 111;  // VENUSQ
-                            if (settings.fit_file_garmin_device_training_effect_device === 4115) return 112;  // VENUSQ2
-                            if (settings.fit_file_garmin_device_training_effect_device === 4116) return 113;  // VENUSQ2MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 3596) return 114;  // VENUSQ_MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 2700) return 115;  // VIVOACTIVE3
-                            if (settings.fit_file_garmin_device_training_effect_device === 3066) return 116;  // VIVOACTIVE3M_L
-                            if (settings.fit_file_garmin_device_training_effect_device === 2988) return 117;  // VIVOACTIVE3M_W
-                            if (settings.fit_file_garmin_device_training_effect_device === 3225) return 118;  // VIVOACTIVE4_LARGE
-                            if (settings.fit_file_garmin_device_training_effect_device === 3224) return 119;  // VIVOACTIVE4_SMALL
-                            if (settings.fit_file_garmin_device_training_effect_device === 4426) return 120;  // VIVOACTIVE5
-                            if (settings.fit_file_garmin_device_training_effect_device === 4625) return 121;  // VIVOACTIVE6
-                            if (settings.fit_file_garmin_device_training_effect_device === 88888) return 122;  // Tacx
-                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 123;  // Zwift
+                            if (settings.fit_file_garmin_device_training_effect_device === 4643) return 111;  // VENU4
+                            if (settings.fit_file_garmin_device_training_effect_device === 4644) return 112;  // VENU4S
+                            if (settings.fit_file_garmin_device_training_effect_device === 3600) return 113;  // VENUSQ
+                            if (settings.fit_file_garmin_device_training_effect_device === 4115) return 114;  // VENUSQ2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4116) return 115;  // VENUSQ2MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 3596) return 116;  // VENUSQ_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 2700) return 117;  // VIVOACTIVE3
+                            if (settings.fit_file_garmin_device_training_effect_device === 3066) return 118;  // VIVOACTIVE3M_L
+                            if (settings.fit_file_garmin_device_training_effect_device === 2988) return 119;  // VIVOACTIVE3M_W
+                            if (settings.fit_file_garmin_device_training_effect_device === 3225) return 120;  // VIVOACTIVE4_LARGE
+                            if (settings.fit_file_garmin_device_training_effect_device === 3224) return 121;  // VIVOACTIVE4_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 4426) return 122;  // VIVOACTIVE5
+                            if (settings.fit_file_garmin_device_training_effect_device === 4625) return 123;  // VIVOACTIVE6
+                            if (settings.fit_file_garmin_device_training_effect_device === 88888) return 124;  // Tacx
+                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 125;  // Zwift
                             return 20;  // Default to Edge 830
                         }
                         onCurrentIndexChanged: {
@@ -7563,19 +7567,21 @@ import Qt.labs.platform 1.1
                                 case 108: settings.fit_file_garmin_device_training_effect_device = 3851; break;  // VENU2_PLUS
                                 case 109: settings.fit_file_garmin_device_training_effect_device = 4260; break;  // VENU3
                                 case 110: settings.fit_file_garmin_device_training_effect_device = 4261; break;  // VENU3S
-                                case 111: settings.fit_file_garmin_device_training_effect_device = 3600; break;  // VENUSQ
-                                case 112: settings.fit_file_garmin_device_training_effect_device = 4115; break;  // VENUSQ2
-                                case 113: settings.fit_file_garmin_device_training_effect_device = 4116; break;  // VENUSQ2MUSIC
-                                case 114: settings.fit_file_garmin_device_training_effect_device = 3596; break;  // VENUSQ_MUSIC
-                                case 115: settings.fit_file_garmin_device_training_effect_device = 2700; break;  // VIVOACTIVE3
-                                case 116: settings.fit_file_garmin_device_training_effect_device = 3066; break;  // VIVOACTIVE3M_L
-                                case 117: settings.fit_file_garmin_device_training_effect_device = 2988; break;  // VIVOACTIVE3M_W
-                                case 118: settings.fit_file_garmin_device_training_effect_device = 3225; break;  // VIVOACTIVE4_LARGE
-                                case 119: settings.fit_file_garmin_device_training_effect_device = 3224; break;  // VIVOACTIVE4_SMALL
-                                case 120: settings.fit_file_garmin_device_training_effect_device = 4426; break;  // VIVOACTIVE5
-                                case 121: settings.fit_file_garmin_device_training_effect_device = 4625; break;  // VIVOACTIVE6
-                                case 122: settings.fit_file_garmin_device_training_effect_device = 88888; break;  // Tacx
-                                case 123: settings.fit_file_garmin_device_training_effect_device = 99999; break;  // Zwift
+                                case 111: settings.fit_file_garmin_device_training_effect_device = 4643; break;  // VENU4
+                                case 112: settings.fit_file_garmin_device_training_effect_device = 4644; break;  // VENU4S
+                                case 113: settings.fit_file_garmin_device_training_effect_device = 3600; break;  // VENUSQ
+                                case 114: settings.fit_file_garmin_device_training_effect_device = 4115; break;  // VENUSQ2
+                                case 115: settings.fit_file_garmin_device_training_effect_device = 4116; break;  // VENUSQ2MUSIC
+                                case 116: settings.fit_file_garmin_device_training_effect_device = 3596; break;  // VENUSQ_MUSIC
+                                case 117: settings.fit_file_garmin_device_training_effect_device = 2700; break;  // VIVOACTIVE3
+                                case 118: settings.fit_file_garmin_device_training_effect_device = 3066; break;  // VIVOACTIVE3M_L
+                                case 119: settings.fit_file_garmin_device_training_effect_device = 2988; break;  // VIVOACTIVE3M_W
+                                case 120: settings.fit_file_garmin_device_training_effect_device = 3225; break;  // VIVOACTIVE4_LARGE
+                                case 121: settings.fit_file_garmin_device_training_effect_device = 3224; break;  // VIVOACTIVE4_SMALL
+                                case 122: settings.fit_file_garmin_device_training_effect_device = 4426; break;  // VIVOACTIVE5
+                                case 123: settings.fit_file_garmin_device_training_effect_device = 4625; break;  // VIVOACTIVE6
+                                case 124: settings.fit_file_garmin_device_training_effect_device = 88888; break;  // Tacx
+                                case 125: settings.fit_file_garmin_device_training_effect_device = 99999; break;  // Zwift
                             }
                         }
                         Layout.fillWidth: true

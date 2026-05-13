@@ -1026,4 +1026,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.21.1
+VERSION = 2.21.2

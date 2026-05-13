@@ -65,6 +65,8 @@ class proformtreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+    double maxSpeed = 22;
+    double cachedSpeedRequest = -1;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
