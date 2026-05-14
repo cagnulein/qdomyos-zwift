@@ -34,6 +34,21 @@ var heartZones = [];
 var miles = 1;
 var heartChart = null;
 
+function ensureHeartZones() {
+    maxHeartRate = Number(maxHeartRate);
+    if (!Number.isFinite(maxHeartRate) || maxHeartRate <= 0) {
+        maxHeartRate = 190;
+    }
+
+    const defaultZoneRatios = [0.70, 0.80, 0.90, 1.00];
+    for (let i = 0; i < defaultZoneRatios.length; i++) {
+        heartZones[i] = Number(heartZones[i]);
+        if (!Number.isFinite(heartZones[i]) || heartZones[i] <= 0) {
+            heartZones[i] = Math.round(maxHeartRate * defaultZoneRatios[i]);
+        }
+    }
+}
+
 function process_trainprogram_heart(arr) {
     let powerWorkout = false;
     let elapsed = 0;
@@ -195,9 +210,11 @@ function process_arr_heart(arr) {
     const maxRecordedHeart = heart.reduce(function(maxValue, point) {
         return Math.max(maxValue, point.y);
     }, 0);
+    ensureHeartZones();
+    const heartChartBottom = 50;
     const heartChartTop = Math.max(heartZones[3] + 10, maxHeartRate + 10, maxRecordedHeart + 5, 200);
     const heartZoneLabelPositions = [
-        Math.round(heartZones[0] / 2),
+        Math.round((heartChartBottom + heartZones[0]) / 2),
         Math.round((heartZones[0] + heartZones[1]) / 2),
         Math.round((heartZones[1] + heartZones[2]) / 2),
         Math.round((heartZones[2] + heartZones[3]) / 2),
@@ -332,8 +349,8 @@ function process_arr_heart(arr) {
                 },
                 y: {
                     display: true,
-                    suggestedMin: 50,
-                    suggestedMax: heartChartTop,
+                    min: heartChartBottom,
+                    max: heartChartTop,
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
@@ -374,16 +391,52 @@ function refresh_heart() {
 }
 
 function process_workout_heart(arr) {    
+    if (!heartChart) {
+        setTimeout(refresh_heart, 1000);
+        return;
+    }
     let elapsed = arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600);
     heartChart.data.datasets[0].data.push({x: elapsed, y: arr.heart});
     if(elapsed > heartChart.options.scales.x.max)
         heartChart.options.scales.x.max = elapsed;
+    if(arr.heart > heartChart.options.scales.y.max)
+        heartChart.options.scales.y.max = arr.heart + 5;
     heartChart.update();
     refresh_heart();
 }
 
+function load_heart_training_program() {
+    let el = new MainWSQueueElement({
+        msg: 'gettrainingprogram'
+    }, function(msg) {
+        if (msg.msg === 'R_gettrainingprogram') {
+            return msg.content;
+        }
+        return null;
+    }, 15000, 3);
+    el.enqueue().then(process_trainprogram_heart).catch(function(err) {
+        console.error('Error is ' + err);
+    });
+}
+
+function load_heart_workout_data() {
+    let el = new MainWSQueueElement({
+        msg: 'getsessionarray'
+    }, function(msg) {
+        if (msg.msg === 'R_getsessionarray') {
+            return msg.content;
+        }
+        return null;
+    }, 15000, 3);
+    el.enqueue().then(function(arr) {
+        process_arr_heart(arr);
+        load_heart_training_program();
+    }).catch(function(err) {
+        console.error('Error is ' + err);
+    });
+}
+
 function dochartheart_init() {
-    onSettingsOK = true;
     keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value']
     let el = new MainWSQueueElement({
             msg: 'getsettings',
@@ -445,33 +498,14 @@ function dochartheart_init() {
             }
             return null;
         }, 5000, 3);
-    el.enqueue().then(onSettingsOK).catch(function(err) {
+    el.enqueue().then(function() {
+        ensureHeartZones();
+        load_heart_workout_data();
+    }).catch(function(err) {
             console.error('Error is ' + err);
+            ensureHeartZones();
+            load_heart_workout_data();
     })
-
-    el = new MainWSQueueElement({
-        msg: 'getsessionarray'
-    }, function(msg) {
-        if (msg.msg === 'R_getsessionarray') {
-            return msg.content;
-        }
-        return null;
-    }, 15000, 3);
-    el.enqueue().then(process_arr_heart).catch(function(err) {
-        console.error('Error is ' + err);
-    });
-
-    el = new MainWSQueueElement({
-        msg: 'gettrainingprogram'
-    }, function(msg) {
-        if (msg.msg === 'R_gettrainingprogram') {
-            return msg.content;
-        }
-        return null;
-    }, 15000, 3);
-    el.enqueue().then(process_trainprogram_heart).catch(function(err) {
-        console.error('Error is ' + err);
-    });
 }
 
 
