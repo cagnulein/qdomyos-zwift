@@ -179,7 +179,7 @@ class AbstractZapDevice: public QObject {
             return 1;
         case 0x23: // zwift ride
             lastFrame = QDateTime::currentDateTime();
-            if (processRideControllerNotification(bytes)) {
+            if (processRideControllerNotification(bytes, zwiftplay_swap, DEBOUNCE)) {
                 risingEdge--;
                 if(risingEdge < 0)
                     risingEdge = 0;
@@ -330,9 +330,15 @@ class AbstractZapDevice: public QObject {
         bool rightOnOff = false;
     };
 
-    bool processRideControllerNotification(const QByteArray &bytes) {
+    struct RideAnalogState {
+        bool leftPaddle = false;
+        bool rightPaddle = false;
+    };
+
+    bool processRideControllerNotification(const QByteArray &bytes, bool zwiftplay_swap, bool debounce) {
         quint32 buttonMap = 0xffffffff;
         bool buttonMapFound = false;
+        RideAnalogState analogState;
         int index = 1; // Skip the 0x23 command byte.
 
         while (index < bytes.size()) {
@@ -358,7 +364,15 @@ class AbstractZapDevice: public QObject {
                 if (!readVarInt(bytes, index, length)) {
                     break;
                 }
-                index += static_cast<int>(length);
+                if (length > static_cast<quint64>(bytes.size() - index)) {
+                    break;
+                }
+                const int groupStart = index;
+                const int groupLength = static_cast<int>(length);
+                if (fieldNumber == 2) {
+                    processRideAnalogKeyGroup(bytes.mid(groupStart, groupLength), analogState);
+                }
+                index += groupLength;
             } else {
                 break;
             }
@@ -380,8 +394,8 @@ class AbstractZapDevice: public QObject {
         current.rightA = isPressed(0x00010);
         current.rightB = isPressed(0x00020);
         current.rightY = isPressed(0x00040);
-        current.rightZAlt = isPressed(0x00080);
-        current.rightZ = isPressed(0x00100);
+        current.rightZ = isPressed(0x00080);
+        current.rightZAlt = isPressed(0x00100);
         current.leftShiftUp = isPressed(0x00200);
         current.leftShiftDown = isPressed(0x00400);
         current.leftPowerUp = isPressed(0x00800);
@@ -420,17 +434,96 @@ class AbstractZapDevice: public QObject {
         emitIfChanged(current.rightPowerUp, lastRideButtonStateValid ? lastRideButtonState.rightPowerUp : false, &AbstractZapDevice::rideRightPowerUp);
         emitIfChanged(current.rightOnOff, lastRideButtonStateValid ? lastRideButtonState.rightOnOff : false, &AbstractZapDevice::rideRightOnOff);
 
-        emitIfChanged(current.leftShiftUp, lastRideButtonStateValid ? lastRideButtonState.leftShiftUp : false, &AbstractZapDevice::leftShoulder);
-        emitIfChanged(current.leftOnOff, lastRideButtonStateValid ? lastRideButtonState.leftOnOff : false, &AbstractZapDevice::leftPower);
-        emitIfChanged(current.rightShiftUp, lastRideButtonStateValid ? lastRideButtonState.rightShiftUp : false, &AbstractZapDevice::rightShoulder);
-        emitIfChanged(current.rightPower || current.rightOnOff,
-                      (lastRideButtonStateValid ? lastRideButtonState.rightPower : false) ||
-                      (lastRideButtonStateValid ? lastRideButtonState.rightOnOff : false),
-                      &AbstractZapDevice::rightPower);
+        processRideAnalogState(analogState, zwiftplay_swap, debounce);
 
         lastRideButtonState = current;
         lastRideButtonStateValid = true;
         return true;
+    }
+
+    void processRideAnalogKeyGroup(const QByteArray &message, RideAnalogState &state) {
+        int index = 0;
+        int location = -1;
+        qint32 analogValue = 0;
+        bool hasLocation = false;
+        bool hasAnalogValue = false;
+
+        while (index < message.size()) {
+            quint64 tag = 0;
+            if (!readVarInt(message, index, tag)) {
+                return;
+            }
+
+            const int wireType = static_cast<int>(tag & 0x7);
+            const int fieldNumber = static_cast<int>(tag >> 3);
+
+            if (wireType == 0) {
+                quint64 rawValue = 0;
+                if (!readVarInt(message, index, rawValue)) {
+                    return;
+                }
+                if (fieldNumber == 1) {
+                    location = static_cast<int>(rawValue);
+                    hasLocation = true;
+                } else if (fieldNumber == 2) {
+                    analogValue = decodeZigZag32(rawValue);
+                    hasAnalogValue = true;
+                }
+            } else if (wireType == 2) {
+                quint64 length = 0;
+                if (!readVarInt(message, index, length) || length > static_cast<quint64>(message.size() - index)) {
+                    return;
+                }
+                index += static_cast<int>(length);
+            } else {
+                return;
+            }
+        }
+
+        if (!hasLocation || !hasAnalogValue) {
+            return;
+        }
+
+        const bool pressed = qAbs(analogValue) >= 90;
+        if (location == 0) {
+            state.leftPaddle = pressed;
+        } else if (location == 1) {
+            state.rightPaddle = pressed;
+        }
+    }
+
+    void processRideAnalogState(const RideAnalogState &state, bool zwiftplay_swap, bool debounce) {
+        const bool previousLeftPaddle = lastRideAnalogStateValid ? lastRideAnalogState.leftPaddle : false;
+        const bool previousRightPaddle = lastRideAnalogStateValid ? lastRideAnalogState.rightPaddle : false;
+
+        if (state.leftPaddle != previousLeftPaddle) {
+            emit leftPaddle(state.leftPaddle ? -100 : 0);
+        }
+        if (state.rightPaddle != previousRightPaddle) {
+            emit rightPaddle(state.rightPaddle ? 100 : 0);
+        }
+
+        if (debounce && state.leftPaddle && !previousLeftPaddle) {
+            emitRidePaddleGear(false, zwiftplay_swap);
+        }
+        if (debounce && state.rightPaddle && !previousRightPaddle) {
+            emitRidePaddleGear(true, zwiftplay_swap);
+        }
+
+        lastRideAnalogState = state;
+        lastRideAnalogStateValid = true;
+    }
+
+    void emitRidePaddleGear(bool plusAction, bool zwiftplay_swap) {
+        risingEdge = 2;
+        const bool emitPlus = zwiftplay_swap ? !plusAction : plusAction;
+        if (emitPlus) {
+            emit plus();
+        } else {
+            emit minus();
+        }
+        lastButtonPlus = emitPlus;
+        autoRepeatTimer->start();
     }
 
     bool processPlainControllerNotification(const QByteArray &bytes) {
@@ -469,6 +562,10 @@ class AbstractZapDevice: public QObject {
             shift += 7;
         }
         return false;
+    }
+
+    static qint32 decodeZigZag32(quint64 value) {
+        return static_cast<qint32>((value >> 1) ^ -static_cast<qint64>(value & 1));
     }
 
     static QString rideButtonStateToString(const RideButtonState &state) {
@@ -581,6 +678,8 @@ class AbstractZapDevice: public QObject {
     bool lastRightButtonStateValid = false;
     RideButtonState lastRideButtonState;
     bool lastRideButtonStateValid = false;
+    RideAnalogState lastRideAnalogState;
+    bool lastRideAnalogStateValid = false;
 
   private slots:
     void handleAutoRepeat() {

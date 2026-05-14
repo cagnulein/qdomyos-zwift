@@ -10,6 +10,10 @@ namespace {
 struct ButtonEvents {
     int gearPlus = 0;
     int gearMinus = 0;
+    int leftPaddlePressed = 0;
+    int leftPaddleReleased = 0;
+    int rightPaddlePressed = 0;
+    int rightPaddleReleased = 0;
 
     int leftUpPressed = 0;
     int leftUpReleased = 0;
@@ -65,6 +69,12 @@ void connectButtonEvents(ZwiftPlayDevice &device, ButtonEvents &events) {
     });
     QObject::connect(&device, &ZwiftPlayDevice::minus, [&events]() {
         ++events.gearMinus;
+    });
+    QObject::connect(&device, &ZwiftPlayDevice::leftPaddle, [&events](int value) {
+        value < 0 ? ++events.leftPaddlePressed : ++events.leftPaddleReleased;
+    });
+    QObject::connect(&device, &ZwiftPlayDevice::rightPaddle, [&events](int value) {
+        value > 0 ? ++events.rightPaddlePressed : ++events.rightPaddleReleased;
     });
 
     QObject::connect(&device, &ZwiftPlayDevice::leftUp, [&events](bool pressed) {
@@ -156,6 +166,10 @@ void processRideFrame(ZwiftPlayDevice &device, quint32 activeLowButtonMap) {
     device.processCharacteristic(QStringLiteral("Async"), rideFrame(activeLowButtonMap), AbstractZapDevice::RIGHT);
 }
 
+void processRideFrame(ZwiftPlayDevice &device, const char *hex) {
+    device.processCharacteristic(QStringLiteral("Async"), QByteArray::fromHex(QByteArray(hex)), AbstractZapDevice::RIGHT);
+}
+
 void pressAndRelease(ZwiftPlayDevice &device, quint32 activeLowButtonMap) {
     const quint32 idle = 0xffffffff;
     processRideFrame(device, activeLowButtonMap);
@@ -172,8 +186,8 @@ const quint32 kMay10ObservedButtons[] = {
     0xffffffef, // A_BTN
     0xffffffdf, // B_BTN
     0xffffffbf, // Y_BTN
-    0xffffff7f, // Firmware-specific right Z alt bit
-    0xfffffeff, // Z_BTN
+    0xffffff7f, // Z_BTN
+    0xfffffeff, // Firmware-specific right Z alt bit
     0xfffffdff, // SHFT_UP_L_BTN
     0xfffffbff, // SHFT_DN_L_BTN
     0xfffff7ff, // POWERUP_L_BTN
@@ -239,8 +253,8 @@ TEST(ZwiftRideControllerTest, May11RightPowerReplayDoesNotTriggerGearDown) {
     pressAndRelease(device, 0xffff7fff);
     pressAndRelease(device, 0xffff7fff);
 
-    EXPECT_EQ(events.rightPowerPressed, 3);
-    EXPECT_EQ(events.rightPowerReleased, 3);
+    EXPECT_EQ(events.rightPowerPressed, 0);
+    EXPECT_EQ(events.rightPowerReleased, 0);
     EXPECT_EQ(events.rideRightPowerPressed, 3);
     EXPECT_EQ(events.rideRightPowerReleased, 3);
     EXPECT_EQ(events.gearPlus, 0);
@@ -274,14 +288,14 @@ TEST(ZwiftRideControllerTest, May10ReplayKeepsRideButtonsDistinctAndGearFree) {
     EXPECT_EQ(events.rideRightZAltPressed, 1);
     EXPECT_EQ(events.rideRightZAltReleased, 1);
 
-    EXPECT_EQ(events.leftShoulderPressed, 1);
-    EXPECT_EQ(events.leftShoulderReleased, 1);
-    EXPECT_EQ(events.leftPowerPressed, 1);
-    EXPECT_EQ(events.leftPowerReleased, 1);
-    EXPECT_EQ(events.rightShoulderPressed, 1);
-    EXPECT_EQ(events.rightShoulderReleased, 1);
-    EXPECT_EQ(events.rightPowerPressed, 1);
-    EXPECT_EQ(events.rightPowerReleased, 1);
+    EXPECT_EQ(events.leftShoulderPressed, 0);
+    EXPECT_EQ(events.leftShoulderReleased, 0);
+    EXPECT_EQ(events.leftPowerPressed, 0);
+    EXPECT_EQ(events.leftPowerReleased, 0);
+    EXPECT_EQ(events.rightShoulderPressed, 0);
+    EXPECT_EQ(events.rightShoulderReleased, 0);
+    EXPECT_EQ(events.rightPowerPressed, 0);
+    EXPECT_EQ(events.rightPowerReleased, 0);
 
     EXPECT_EQ(events.rideLeftShiftUpPressed, 1);
     EXPECT_EQ(events.rideLeftShiftUpReleased, 1);
@@ -313,14 +327,14 @@ TEST(ZwiftRideControllerTest, May12ReplayMatchesLegendOrderWithoutAliasesOrGears
 
     replayObservedButtons(device, kMay12ObservedButtons, int(sizeof(kMay12ObservedButtons) / sizeof(kMay12ObservedButtons[0])));
 
-    EXPECT_EQ(events.leftShoulderPressed, 1);
-    EXPECT_EQ(events.leftShoulderReleased, 1);
-    EXPECT_EQ(events.leftPowerPressed, 1);
-    EXPECT_EQ(events.leftPowerReleased, 1);
-    EXPECT_EQ(events.rightShoulderPressed, 1);
-    EXPECT_EQ(events.rightShoulderReleased, 1);
-    EXPECT_EQ(events.rightPowerPressed, 1);
-    EXPECT_EQ(events.rightPowerReleased, 1);
+    EXPECT_EQ(events.leftShoulderPressed, 0);
+    EXPECT_EQ(events.leftShoulderReleased, 0);
+    EXPECT_EQ(events.leftPowerPressed, 0);
+    EXPECT_EQ(events.leftPowerReleased, 0);
+    EXPECT_EQ(events.rightShoulderPressed, 0);
+    EXPECT_EQ(events.rightShoulderReleased, 0);
+    EXPECT_EQ(events.rightPowerPressed, 0);
+    EXPECT_EQ(events.rightPowerReleased, 0);
 
     EXPECT_EQ(events.rideLeftShiftUpPressed, 1);
     EXPECT_EQ(events.rideLeftShiftUpReleased, 1);
@@ -339,4 +353,61 @@ TEST(ZwiftRideControllerTest, May12ReplayMatchesLegendOrderWithoutAliasesOrGears
 
     EXPECT_EQ(events.gearPlus, 0);
     EXPECT_EQ(events.gearMinus, 0);
+}
+
+TEST(ZwiftRideControllerTest, May14ReplayRestoresPaddleGearsAndAvoidsPlayAliases) {
+    ZwiftPlayDevice device;
+    ButtonEvents events;
+    connectButtonEvents(device, events);
+
+    processRideFrame(device, kIdle);
+    pressAndRelease(device, 0xffffff7f); // Z
+    pressAndRelease(device, 0xffff7fff); // Right Power
+    pressAndRelease(device, 0xfffffeff); // LS1 / alternate Z bit
+    pressAndRelease(device, 0xfffffdff); // LS2
+    pressAndRelease(device, 0xffffefff); // RS1
+    pressAndRelease(device, 0xffffdfff); // RS2
+    pressAndRelease(device, 0xfffffbff); // LB
+    pressAndRelease(device, 0xffffbfff); // RB
+
+    processRideFrame(device, "2308ffffffff0f1a05080010c7011a04080110001a04080210001a0408031000");
+    processRideFrame(device, "2308ffffffff0f1a05080010c7011a04080110001a04080210001a0408031000");
+    processRideFrame(device, kIdle);
+    processRideFrame(device, "2308ffffffff0f1a04080010001a05080110c8011a04080210001a0408031000");
+    processRideFrame(device, "2308ffffffff0f1a04080010001a05080110c8011a04080210001a0408031000");
+    processRideFrame(device, kIdle);
+
+    EXPECT_EQ(events.rightZPressed, 1);
+    EXPECT_EQ(events.rightZReleased, 1);
+    EXPECT_EQ(events.rideRightZAltPressed, 1);
+    EXPECT_EQ(events.rideRightZAltReleased, 1);
+
+    EXPECT_EQ(events.leftShoulderPressed, 0);
+    EXPECT_EQ(events.leftShoulderReleased, 0);
+    EXPECT_EQ(events.leftPowerPressed, 0);
+    EXPECT_EQ(events.leftPowerReleased, 0);
+    EXPECT_EQ(events.rightShoulderPressed, 0);
+    EXPECT_EQ(events.rightShoulderReleased, 0);
+    EXPECT_EQ(events.rightPowerPressed, 0);
+    EXPECT_EQ(events.rightPowerReleased, 0);
+
+    EXPECT_EQ(events.rideLeftShiftUpPressed, 1);
+    EXPECT_EQ(events.rideLeftShiftUpReleased, 1);
+    EXPECT_EQ(events.rideLeftShiftDownPressed, 1);
+    EXPECT_EQ(events.rideLeftShiftDownReleased, 1);
+    EXPECT_EQ(events.rideLeftOnOffPressed, 1);
+    EXPECT_EQ(events.rideLeftOnOffReleased, 1);
+    EXPECT_EQ(events.rideRightShiftUpPressed, 1);
+    EXPECT_EQ(events.rideRightShiftUpReleased, 1);
+    EXPECT_EQ(events.rideRightShiftDownPressed, 1);
+    EXPECT_EQ(events.rideRightShiftDownReleased, 1);
+    EXPECT_EQ(events.rideRightPowerPressed, 1);
+    EXPECT_EQ(events.rideRightPowerReleased, 1);
+
+    EXPECT_EQ(events.leftPaddlePressed, 1);
+    EXPECT_EQ(events.leftPaddleReleased, 1);
+    EXPECT_EQ(events.rightPaddlePressed, 1);
+    EXPECT_EQ(events.rightPaddleReleased, 1);
+    EXPECT_EQ(events.gearMinus, 1);
+    EXPECT_EQ(events.gearPlus, 1);
 }
