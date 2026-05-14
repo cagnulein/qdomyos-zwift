@@ -369,7 +369,7 @@ class AbstractZapDevice: public QObject {
                 }
                 const int groupStart = index;
                 const int groupLength = static_cast<int>(length);
-                if (fieldNumber == 2) {
+                if (fieldNumber == 2 || fieldNumber == 3) {
                     processRideAnalogKeyGroup(bytes.mid(groupStart, groupLength), analogState);
                 }
                 index += groupLength;
