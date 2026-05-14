@@ -70,6 +70,9 @@ MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QString username
         connect(m_manager, &bluetooth::zwiftRideLeftShiftDown, this, [this](bool pressed) {
             publishToTopic("bike/zwift_ride/left/shift_down", pressed);
         });
+        connect(m_manager, &bluetooth::zwiftRideLeftPower, this, [this](bool pressed) {
+            publishToTopic("bike/zwift_ride/left/power", pressed);
+        });
         connect(m_manager, &bluetooth::zwiftRideLeftPowerUp, this, [this](bool pressed) {
             publishToTopic("bike/zwift_ride/left/power_up", pressed);
         });
@@ -814,6 +817,7 @@ void MQTTPublisher::publishDiscoveryConfig() {
                 publishSensorDiscovery("zwift_play_left_paddle", "Zwift Play Left Paddle", baseTopic + "bike/zwift_play/left/paddle", "", "", "mdi:gamepad-round");
                 publishBinarySensorDiscovery("zwift_ride_left_shift_up", "Zwift Ride Left Shift Up", baseTopic + "bike/zwift_ride/left/shift_up", "", "mdi:arrow-up-bold");
                 publishBinarySensorDiscovery("zwift_ride_left_shift_down", "Zwift Ride Left Shift Down", baseTopic + "bike/zwift_ride/left/shift_down", "", "mdi:arrow-down-bold");
+                publishBinarySensorDiscovery("zwift_ride_left_power", "Zwift Ride Left Power", baseTopic + "bike/zwift_ride/left/power", "", "mdi:power");
                 publishBinarySensorDiscovery("zwift_ride_left_power_up", "Zwift Ride Left Power Up", baseTopic + "bike/zwift_ride/left/power_up", "", "mdi:flash");
                 publishBinarySensorDiscovery("zwift_ride_left_on_off", "Zwift Ride Left On/Off", baseTopic + "bike/zwift_ride/left/on_off", "", "mdi:power");
                 publishBinarySensorDiscovery("zwift_play_right_y", "Zwift Play Right Y", baseTopic + "bike/zwift_play/right/y", "", "mdi:alpha-y-circle");

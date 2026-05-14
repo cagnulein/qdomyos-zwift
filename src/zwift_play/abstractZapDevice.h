@@ -321,6 +321,7 @@ class AbstractZapDevice: public QObject {
         bool rightZ = false;
         bool leftShiftUp = false;
         bool leftShiftDown = false;
+        bool leftPower = false;
         bool leftPowerUp = false;
         bool leftOnOff = false;
         bool rightShiftUp = false;
@@ -395,15 +396,14 @@ class AbstractZapDevice: public QObject {
         current.rightB = isPressed(0x00020);
         current.rightY = isPressed(0x00040);
         current.rightZ = isPressed(0x00080);
-        current.rightZAlt = isPressed(0x00100);
-        current.leftShiftUp = isPressed(0x00200);
-        current.leftShiftDown = isPressed(0x00400);
-        current.leftPowerUp = isPressed(0x00800);
-        current.leftOnOff = isPressed(0x01000);
-        current.rightShiftUp = isPressed(0x02000);
-        current.rightShiftDown = isPressed(0x04000);
+        current.leftShiftUp = isPressed(0x00100);
+        current.leftShiftDown = isPressed(0x00200);
+        current.leftPowerUp = isPressed(0x00400);
+        current.leftPower = isPressed(0x00800);
+        current.rightShiftUp = isPressed(0x01000);
+        current.rightShiftDown = isPressed(0x02000);
+        current.rightPowerUp = isPressed(0x04000);
         current.rightPower = isPressed(0x08000);
-        current.rightPowerUp = isPressed(0x10000);
         current.rightOnOff = isPressed(0x20000);
 
         if (!lastRideButtonStateValid) {
@@ -421,6 +421,7 @@ class AbstractZapDevice: public QObject {
         emitIfChanged(current.leftRight, lastRideButtonStateValid ? lastRideButtonState.leftRight : false, &AbstractZapDevice::leftRight);
         emitIfChanged(current.leftShiftUp, lastRideButtonStateValid ? lastRideButtonState.leftShiftUp : false, &AbstractZapDevice::rideLeftShiftUp);
         emitIfChanged(current.leftShiftDown, lastRideButtonStateValid ? lastRideButtonState.leftShiftDown : false, &AbstractZapDevice::rideLeftShiftDown);
+        emitIfChanged(current.leftPower, lastRideButtonStateValid ? lastRideButtonState.leftPower : false, &AbstractZapDevice::rideLeftPower);
         emitIfChanged(current.leftPowerUp, lastRideButtonStateValid ? lastRideButtonState.leftPowerUp : false, &AbstractZapDevice::rideLeftPowerUp);
         emitIfChanged(current.leftOnOff, lastRideButtonStateValid ? lastRideButtonState.leftOnOff : false, &AbstractZapDevice::rideLeftOnOff);
         emitIfChanged(current.rightY, lastRideButtonStateValid ? lastRideButtonState.rightY : false, &AbstractZapDevice::rightY);
@@ -434,6 +435,7 @@ class AbstractZapDevice: public QObject {
         emitIfChanged(current.rightPowerUp, lastRideButtonStateValid ? lastRideButtonState.rightPowerUp : false, &AbstractZapDevice::rideRightPowerUp);
         emitIfChanged(current.rightOnOff, lastRideButtonStateValid ? lastRideButtonState.rightOnOff : false, &AbstractZapDevice::rideRightOnOff);
 
+        processRideShiftGear(current, zwiftplay_swap, debounce);
         processRideAnalogState(analogState, zwiftplay_swap, debounce);
 
         lastRideButtonState = current;
@@ -514,6 +516,24 @@ class AbstractZapDevice: public QObject {
         lastRideAnalogStateValid = true;
     }
 
+    void processRideShiftGear(const RideButtonState &state, bool zwiftplay_swap, bool debounce) {
+        if (!debounce) {
+            return;
+        }
+
+        const bool previousLeftShiftUp = lastRideButtonStateValid ? lastRideButtonState.leftShiftUp : false;
+        const bool previousLeftShiftDown = lastRideButtonStateValid ? lastRideButtonState.leftShiftDown : false;
+        const bool previousRightShiftUp = lastRideButtonStateValid ? lastRideButtonState.rightShiftUp : false;
+        const bool previousRightShiftDown = lastRideButtonStateValid ? lastRideButtonState.rightShiftDown : false;
+
+        if ((state.leftShiftUp && !previousLeftShiftUp) || (state.leftShiftDown && !previousLeftShiftDown)) {
+            emitRidePaddleGear(false, zwiftplay_swap);
+        }
+        if ((state.rightShiftUp && !previousRightShiftUp) || (state.rightShiftDown && !previousRightShiftDown)) {
+            emitRidePaddleGear(true, zwiftplay_swap);
+        }
+    }
+
     void emitRidePaddleGear(bool plusAction, bool zwiftplay_swap) {
         risingEdge = 2;
         const bool emitPlus = zwiftplay_swap ? !plusAction : plusAction;
@@ -581,6 +601,7 @@ class AbstractZapDevice: public QObject {
         text += state.rightB ? QStringLiteral("Right B ") : QString();
         text += state.leftShiftUp ? QStringLiteral("Left Shift Up ") : QString();
         text += state.leftShiftDown ? QStringLiteral("Left Shift Down ") : QString();
+        text += state.leftPower ? QStringLiteral("Left Power ") : QString();
         text += state.leftPowerUp ? QStringLiteral("Left Power Up ") : QString();
         text += state.leftOnOff ? QStringLiteral("Left On/Off ") : QString();
         text += state.rightShiftUp ? QStringLiteral("Right Shift Up ") : QString();
@@ -605,6 +626,7 @@ class AbstractZapDevice: public QObject {
         diff += diffField(QStringLiteral("Right B"), current.rightB, previous.rightB);
         diff += diffField(QStringLiteral("Left Shift Up"), current.leftShiftUp, previous.leftShiftUp);
         diff += diffField(QStringLiteral("Left Shift Down"), current.leftShiftDown, previous.leftShiftDown);
+        diff += diffField(QStringLiteral("Left Power"), current.leftPower, previous.leftPower);
         diff += diffField(QStringLiteral("Left Power Up"), current.leftPowerUp, previous.leftPowerUp);
         diff += diffField(QStringLiteral("Left On/Off"), current.leftOnOff, previous.leftOnOff);
         diff += diffField(QStringLiteral("Right Shift Up"), current.rightShiftUp, previous.rightShiftUp);
@@ -708,6 +730,7 @@ class AbstractZapDevice: public QObject {
     void leftPaddle(int value);
     void rideLeftShiftUp(bool pressed);
     void rideLeftShiftDown(bool pressed);
+    void rideLeftPower(bool pressed);
     void rideLeftPowerUp(bool pressed);
     void rideLeftOnOff(bool pressed);
     void rightY(bool pressed);

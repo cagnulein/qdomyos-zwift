@@ -3379,6 +3379,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPaddle, this, &bluetooth::zwiftPlayLeftPaddle);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftShiftUp, this, &bluetooth::zwiftRideLeftShiftUp);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftShiftDown, this, &bluetooth::zwiftRideLeftShiftDown);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftPower, this, &bluetooth::zwiftRideLeftPower);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftPowerUp, this, &bluetooth::zwiftRideLeftPowerUp);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftOnOff, this, &bluetooth::zwiftRideLeftOnOff);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightY, this, &bluetooth::zwiftPlayRightY);

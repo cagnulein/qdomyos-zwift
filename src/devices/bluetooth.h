@@ -396,6 +396,7 @@ class bluetooth : public QObject, public SignalHandler {
     void zwiftPlayLeftPaddle(int value);
     void zwiftRideLeftShiftUp(bool pressed);
     void zwiftRideLeftShiftDown(bool pressed);
+    void zwiftRideLeftPower(bool pressed);
     void zwiftRideLeftPowerUp(bool pressed);
     void zwiftRideLeftOnOff(bool pressed);
     void zwiftPlayRightY(bool pressed);
