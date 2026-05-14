@@ -107,23 +107,8 @@ static void drawMetrics(NSArray<NSString *> *metrics, CVPixelBufferRef pixelBuff
         return;
     }
 
-    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-    void *baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer);
     const size_t width = CVPixelBufferGetWidth(pixelBuffer);
     const size_t height = CVPixelBufferGetHeight(pixelBuffer);
-    const size_t bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
-
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    CGContextRef context = CGBitmapContextCreate(baseAddress, width, height, 8, bytesPerRow, colorSpace,
-                                                 kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst);
-    CGColorSpaceRelease(colorSpace);
-
-    if (!context) {
-        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
-        return;
-    }
-
-    UIGraphicsPushContext(context);
 
     UIFont *font = [UIFont boldSystemFontOfSize:28.0];
     NSDictionary *attributes = @{
@@ -149,25 +134,50 @@ static void drawMetrics(NSArray<NSString *> *metrics, CVPixelBufferRef pixelBuff
                                        maxWidth + padding * 2.0,
                                        totalHeight + padding * 2.0);
 
-    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:backgroundRect cornerRadius:14.0];
-    [[UIColor colorWithWhite:0.0 alpha:0.62] setFill];
-    [path fill];
+    UIGraphicsImageRendererFormat *format = [UIGraphicsImageRendererFormat defaultFormat];
+    format.opaque = NO;
+    format.scale = 1.0;
+    UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(width, height)
+                                                                               format:format];
+    UIImage *overlay = [renderer imageWithActions:^(UIGraphicsImageRendererContext *rendererContext) {
+        Q_UNUSED(rendererContext);
 
-    CGFloat y = backgroundRect.origin.y + padding;
-    for (NSUInteger i = 0; i < metrics.count; i++) {
-        NSString *line = metrics[i];
-        CGSize lineSize = [lineSizes[i] CGSizeValue];
-        CGRect textRect = CGRectMake(backgroundRect.origin.x + backgroundRect.size.width - padding - lineSize.width,
-                                     y,
-                                     lineSize.width,
-                                     lineSize.height);
-        [line drawInRect:textRect withAttributes:attributes];
-        y += lineSize.height + 8.0;
+        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:backgroundRect cornerRadius:14.0];
+        [[UIColor colorWithWhite:0.0 alpha:0.62] setFill];
+        [path fill];
+
+        CGFloat y = backgroundRect.origin.y + padding;
+        for (NSUInteger i = 0; i < metrics.count; i++) {
+            NSString *line = metrics[i];
+            CGSize lineSize = [lineSizes[i] CGSizeValue];
+            CGRect textRect = CGRectMake(backgroundRect.origin.x + backgroundRect.size.width - padding - lineSize.width,
+                                         y,
+                                         lineSize.width,
+                                         lineSize.height);
+            [line drawInRect:textRect withAttributes:attributes];
+            y += lineSize.height + 8.0;
+        }
+    }];
+
+    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+    void *baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer);
+    const size_t bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
+
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    CGContextRef context = CGBitmapContextCreate(baseAddress, width, height, 8, bytesPerRow, colorSpace,
+                                                 kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst);
+    CGColorSpaceRelease(colorSpace);
+
+    if (!context) {
+        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+        QZObjcRelease(renderer);
+        return;
     }
 
-    UIGraphicsPopContext();
+    CGContextDrawImage(context, CGRectMake(0.0, 0.0, width, height), overlay.CGImage);
     CGContextRelease(context);
     CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+    QZObjcRelease(renderer);
 }
 
 @interface QZWorkoutVideoCaptureDelegate : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
