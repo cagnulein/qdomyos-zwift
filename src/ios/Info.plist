@@ -66,6 +66,8 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>QZ uses the camera to record workout videos with workout metrics overlaid.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>QZ uses the microphone to record audio in workout videos.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>QZ saves recorded workout videos to the device video library.</string>
 	<key>NSDocumentsFolderUsageDescription</key>

@@ -1,3 +1,4 @@
+#import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVFoundation.h>
 #import <CoreImage/CoreImage.h>
 #import <Foundation/Foundation.h>
@@ -43,9 +44,11 @@ class IOSWorkoutVideoRecorderPrivate {
     NSURL *outputUrl = nil;
     AVCaptureSession *captureSession = nil;
     AVCaptureVideoDataOutput *videoOutput = nil;
+    AVCaptureAudioDataOutput *audioOutput = nil;
     dispatch_queue_t captureQueue = nil;
     AVAssetWriter *assetWriter = nil;
     AVAssetWriterInput *videoInput = nil;
+    AVAssetWriterInput *audioInput = nil;
     AVAssetWriterInputPixelBufferAdaptor *pixelBufferAdaptor = nil;
     CIContext *ciContext = nil;
     QZWorkoutVideoCaptureDelegate *captureDelegate = nil;
@@ -53,6 +56,9 @@ class IOSWorkoutVideoRecorderPrivate {
     void clearCaptureObjects() {
         if (videoOutput) {
             [videoOutput setSampleBufferDelegate:nil queue:nil];
+        }
+        if (audioOutput) {
+            [audioOutput setSampleBufferDelegate:nil queue:nil];
         }
         if (captureQueue && dispatch_get_specific(&QZWorkoutVideoCaptureQueueKey) != &QZWorkoutVideoCaptureQueueKey) {
             dispatch_sync(captureQueue, ^{
@@ -62,8 +68,10 @@ class IOSWorkoutVideoRecorderPrivate {
         QZObjcRelease(outputUrl);
         QZObjcRelease(captureSession);
         QZObjcRelease(videoOutput);
+        QZObjcRelease(audioOutput);
         QZObjcRelease(assetWriter);
         QZObjcRelease(videoInput);
+        QZObjcRelease(audioInput);
         QZObjcRelease(pixelBufferAdaptor);
         QZObjcRelease(ciContext);
         QZObjcRelease(captureDelegate);
@@ -71,9 +79,11 @@ class IOSWorkoutVideoRecorderPrivate {
         outputUrl = nil;
         captureSession = nil;
         videoOutput = nil;
+        audioOutput = nil;
         captureQueue = nil;
         assetWriter = nil;
         videoInput = nil;
+        audioInput = nil;
         pixelBufferAdaptor = nil;
         ciContext = nil;
         captureDelegate = nil;
@@ -180,7 +190,7 @@ static void drawMetrics(NSArray<NSString *> *metrics, CVPixelBufferRef pixelBuff
     QZObjcRelease(renderer);
 }
 
-@interface QZWorkoutVideoCaptureDelegate : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
+@interface QZWorkoutVideoCaptureDelegate : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate>
 @property(nonatomic, assign) IOSWorkoutVideoRecorderPrivate *state;
 - (instancetype)initWithState:(IOSWorkoutVideoRecorderPrivate *)state;
 @end
@@ -197,11 +207,21 @@ static void drawMetrics(NSArray<NSString *> *metrics, CVPixelBufferRef pixelBuff
 - (void)captureOutput:(AVCaptureOutput *)output
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
            fromConnection:(AVCaptureConnection *)connection {
-    Q_UNUSED(output)
     Q_UNUSED(connection)
 
     IOSWorkoutVideoRecorderPrivate *state = _state;
     if (!state || !state->recording || state->paused || !CMSampleBufferDataIsReady(sampleBuffer)) {
+        return;
+    }
+
+    AVAssetWriter *assetWriter = state->assetWriter;
+    if (output == state->audioOutput) {
+        AVAssetWriterInput *audioInput = state->audioInput;
+        if (!assetWriter || !audioInput || !state->writingStarted || assetWriter.status != AVAssetWriterStatusWriting ||
+            !audioInput.readyForMoreMediaData) {
+            return;
+        }
+        [audioInput appendSampleBuffer:sampleBuffer];
         return;
     }
 
@@ -210,7 +230,6 @@ static void drawMetrics(NSArray<NSString *> *metrics, CVPixelBufferRef pixelBuff
         return;
     }
 
-    AVAssetWriter *assetWriter = state->assetWriter;
     AVAssetWriterInput *videoInput = state->videoInput;
     AVAssetWriterInputPixelBufferAdaptor *pixelBufferAdaptor = state->pixelBufferAdaptor;
     CIContext *ciContext = state->ciContext;
@@ -303,9 +322,30 @@ bool IOSWorkoutVideoRecorder::startRecording(const QString &outputLocation, cons
         return false;
     }
 
+    AVAuthorizationStatus audioAuthorizationStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
+    if (audioAuthorizationStatus == AVAuthorizationStatusDenied || audioAuthorizationStatus == AVAuthorizationStatusRestricted) {
+        emit errorOccurred(QStringLiteral("Microphone permission is required for workout video recording."));
+        return false;
+    }
+    if (audioAuthorizationStatus == AVAuthorizationStatusNotDetermined) {
+        IOSWorkoutVideoRecorder *self = this;
+        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL granted) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                emit self->errorOccurred(granted ? QStringLiteral("Microphone permission granted. Press record again to start recording.")
+                                                : QStringLiteral("Microphone permission is required for workout video recording."));
+            });
+        }];
+        return false;
+    }
+
     AVCaptureDevice *device = cameraDevice(cameraPosition);
     if (!device) {
         emit errorOccurred(QStringLiteral("No iOS camera is available for workout video recording."));
+        return false;
+    }
+    AVCaptureDevice *audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+    if (!audioDevice) {
+        emit errorOccurred(QStringLiteral("No iOS microphone is available for workout video recording."));
         return false;
     }
 
@@ -331,6 +371,15 @@ bool IOSWorkoutVideoRecorder::startRecording(const QString &outputLocation, cons
     }
     [d->captureSession addInput:input];
 
+    AVCaptureDeviceInput *audioDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:&error];
+    if (!audioDeviceInput || error || ![d->captureSession canAddInput:audioDeviceInput]) {
+        emit errorOccurred(error ? QString::fromNSString(error.localizedDescription)
+                                : QStringLiteral("Unable to access the iOS microphone."));
+        d->clearCaptureObjects();
+        return false;
+    }
+    [d->captureSession addInput:audioDeviceInput];
+
     d->videoOutput = [[AVCaptureVideoDataOutput alloc] init];
     d->videoOutput.videoSettings = @{(__bridge NSString *)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA)};
     d->videoOutput.alwaysDiscardsLateVideoFrames = YES;
@@ -344,6 +393,15 @@ bool IOSWorkoutVideoRecorder::startRecording(const QString &outputLocation, cons
         return false;
     }
     [d->captureSession addOutput:d->videoOutput];
+
+    d->audioOutput = [[AVCaptureAudioDataOutput alloc] init];
+    [d->audioOutput setSampleBufferDelegate:d->captureDelegate queue:d->captureQueue];
+    if (![d->captureSession canAddOutput:d->audioOutput]) {
+        emit errorOccurred(QStringLiteral("Unable to start the iOS microphone audio output."));
+        d->clearCaptureObjects();
+        return false;
+    }
+    [d->captureSession addOutput:d->audioOutput];
 
     AVCaptureConnection *videoConnection = [d->videoOutput connectionWithMediaType:AVMediaTypeVideo];
     if (videoConnection.supportsVideoOrientation) {
@@ -375,6 +433,22 @@ bool IOSWorkoutVideoRecorder::startRecording(const QString &outputLocation, cons
         return false;
     }
     [d->assetWriter addInput:d->videoInput];
+
+    NSDictionary *audioSettings = @{
+        AVFormatIDKey : @(kAudioFormatMPEG4AAC),
+        AVNumberOfChannelsKey : @(1),
+        AVSampleRateKey : @(44100),
+        AVEncoderBitRateKey : @(64000)
+    };
+    d->audioInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeAudio outputSettings:audioSettings];
+    d->audioInput = QZObjcRetain(d->audioInput);
+    d->audioInput.expectsMediaDataInRealTime = YES;
+    if (![d->assetWriter canAddInput:d->audioInput]) {
+        emit errorOccurred(QStringLiteral("Unable to configure the workout audio writer."));
+        d->clearCaptureObjects();
+        return false;
+    }
+    [d->assetWriter addInput:d->audioInput];
 
     d->ciContext = QZObjcRetain([CIContext contextWithOptions:nil]);
     d->writingStarted = false;
@@ -415,13 +489,15 @@ void IOSWorkoutVideoRecorder::stopRecording() {
     [d->captureSession stopRunning];
 
     AVAssetWriter *writer = d->assetWriter;
-    AVAssetWriterInput *input = d->videoInput;
+    AVAssetWriterInput *videoInput = d->videoInput;
+    AVAssetWriterInput *audioInput = d->audioInput;
     NSURL *url = d->outputUrl;
     const QString outputLocation = QString::fromNSString(url.absoluteString);
     const bool hadFrames = d->writingStarted;
 
     QZObjcRetain(writer);
-    QZObjcRetain(input);
+    QZObjcRetain(videoInput);
+    QZObjcRetain(audioInput);
     QZObjcRetain(url);
 
     d->clearCaptureObjects();
@@ -429,12 +505,14 @@ void IOSWorkoutVideoRecorder::stopRecording() {
     if (!hadFrames || writer.status != AVAssetWriterStatusWriting) {
         emit errorOccurred(QStringLiteral("Workout video recording stopped before receiving video frames."));
         QZObjcRelease(writer);
-        QZObjcRelease(input);
+        QZObjcRelease(videoInput);
+        QZObjcRelease(audioInput);
         QZObjcRelease(url);
         return;
     }
 
-    [input markAsFinished];
+    [videoInput markAsFinished];
+    [audioInput markAsFinished];
     IOSWorkoutVideoRecorder *self = this;
     [writer finishWritingWithCompletionHandler:^{
         if (writer.status == AVAssetWriterStatusCompleted) {
@@ -450,7 +528,8 @@ void IOSWorkoutVideoRecorder::stopRecording() {
             });
         }
         QZObjcRelease(writer);
-        QZObjcRelease(input);
+        QZObjcRelease(videoInput);
+        QZObjcRelease(audioInput);
         QZObjcRelease(url);
     }];
 }

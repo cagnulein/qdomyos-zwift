@@ -14611,13 +14611,8 @@ import Qt.labs.platform 1.1
                         ComboBox {
                             id: iosWorkoutVideoCameraComboBox
                             model: ["Back", "Front"]
-                            displayText: settings.ios_workout_video_camera === "front" ? qsTr("Front") : qsTr("Back")
-                            currentIndex: settings.ios_workout_video_camera === "front" ? 1 : 0
-                        }
-                        Button {
-                            text: "OK"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: {
+                            Component.onCompleted: currentIndex = settings.ios_workout_video_camera === "front" ? 1 : 0
+                            onActivated: {
                                 settings.ios_workout_video_camera = iosWorkoutVideoCameraComboBox.currentIndex === 1 ? "front" : "back";
                                 toast.show("Setting saved!");
                             }
