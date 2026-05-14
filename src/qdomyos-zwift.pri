@@ -975,6 +975,8 @@ ios {
 }
 
 ios {
+    LIBS += -framework AVFoundation -framework CoreImage -framework Photos
+
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
     ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
@@ -995,8 +997,6 @@ ios {
     ios/ios_liveactivity.h \
     ios/workoutvideorecorder.h
 
-    HEADERS += ios/workoutvideorecorder.h
-
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
 	 QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
@@ -1004,7 +1004,6 @@ ios {
 
     TARGET = qdomyoszwift
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
-    LIBS += -framework AVFoundation -framework CoreImage -framework Photos
     
     # iOS Code Signing Configuration - handled manually in Xcode project
     
