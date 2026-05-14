@@ -22,7 +22,7 @@ ColumnLayout {
                 id: fileDialog
                 title: "Please choose a file"
                 folder: shortcuts.home
-                nameFilters: ["GPX files (*.gpx)", "All files (*)"]
+                nameFilters: ["GPX files (*.gpx *.GPX)", "All files (*)"]
                 visible: true
                 onAccepted: {
                     var chosenFile = fileDialog.fileUrl || fileDialog.file || (fileDialog.fileUrls && fileDialog.fileUrls.length > 0 ? fileDialog.fileUrls[0] : "")
@@ -76,7 +76,7 @@ ColumnLayout {
                            filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
                         filter+="*"
                         print(filter)
-                        folderModel.nameFilters = [filter + ".gpx"]
+                        folderModel.nameFilters = [filter + ".gpx", filter + ".GPX"]
                     }
                     id: filterField
                     onTextChanged: updateFilter()
@@ -100,7 +100,7 @@ ColumnLayout {
                 id: list
                 FolderListModel {
                     id: folderModel
-                    nameFilters: ["*.gpx"]
+                    nameFilters: ["*.gpx", "*.GPX"]
                     folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
                     showDotAndDotDot: false
                     showDirs: true
