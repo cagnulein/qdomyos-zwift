@@ -8290,7 +8290,7 @@ void homeform::openAndroidDocumentPicker(const QString &kind) {
         destinationDir = getWritableAppDir() + QStringLiteral("training/");
     } else if (kind == QStringLiteral("gpx")) {
         requestCode = AndroidDocumentPickerGpxRequestCode;
-        mimeType = QStringLiteral("text/*");
+        mimeType = QStringLiteral("*/*");
         destinationDir = getWritableAppDir() + QStringLiteral("gpx/");
     } else if (kind == QStringLiteral("settings")) {
         requestCode = AndroidDocumentPickerSettingsRequestCode;
