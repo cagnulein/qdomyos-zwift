@@ -23,6 +23,11 @@ using namespace std::chrono_literals;
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
 
+namespace {
+constexpr uint8_t kParagonStartSpeedTenthsKmh = 0x08;      // 0.8 km/h
+constexpr uint8_t kParagonStartInclineTenthsPercent = 0x00; // 0.0%
+}
+
 horizontreadmill::horizontreadmill(bool noWriteResistance, bool noHeartService) {
 
     testProfileCRC();
@@ -898,7 +903,6 @@ float horizontreadmill::float_one_point_round(float value) { return ((float)((in
 
 void horizontreadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
-
         emit disconnected();
         return;
     }
@@ -1059,11 +1063,8 @@ void horizontreadmill::update() {
                     uint8_t initData02_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x02, 0x0e, 0x00, 0x38,
                                                     0xce, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-                    // TODO: calculate the checksum if you change the speed and incline
-
-                    // uint8_t initData03_paragon[] = {0x01, 0x14 /*2 km/h * 10 */, 0x00, 0x00 /* incline *10 */, 0x00,
-                    // 0x00, 0x0d, 0x0a};
-                    uint8_t initData03_paragon[] = {0x01, 0x38, 0x00, 0x0f, 0x00, 0x00, 0x0d, 0x0a};
+                    uint8_t initData03_paragon[] = {0x01, kParagonStartSpeedTenthsKmh, 0x00,
+                                                    kParagonStartInclineTenthsPercent, 0x00, 0x00, 0x0d, 0x0a};
 
                     writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02_paragon,
                                         sizeof(initData02_paragon), QStringLiteral("starting"), false, false);
@@ -1880,9 +1881,6 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     // this treadmill sends the speed in miles when miles_unit is enabled!
                     speed /= miles_conversion;
                 }
-            } else if(horizon_treadmill_7_8 && miles) {
-                // this treadmill sends the speed in miles!
-                speed /= miles_conversion;
             } else if(THERUN_T15 && miles) {
                 // this treadmill sends the speed in miles when miles_unit is enabled!
                 speed /= miles_conversion;

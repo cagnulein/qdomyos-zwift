@@ -184,6 +184,7 @@ class ftmsbike : public bike {
     bool ZIPRO_RAVE = false;
     bool SPEEDRACEX = false;
     bool USDC_D700 = false;
+    bool TOPUTURE_TEB5 = false;
 
     uint8_t secondsToResetTimer = 5;
 
