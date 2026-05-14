@@ -129,7 +129,7 @@ echo "Fake xcodebuild removed from PATH"
 echo "Caching build results..."
 mkdir -p "$BUILD_CACHE_DIR/objects"
 # Cache compiled object files and MOC files
-find . -name "*.o" -o -name "moc_*.cpp" -o -name "moc_*.h" | while read file; do
+find . -name "*.o" -o -name "moc_*.cpp" -o -name "moc_*.mm" -o -name "moc_*.h" | while read file; do
     cp "$file" "$BUILD_CACHE_DIR/objects/" 2>/dev/null || echo "Could not cache $file"
 done
 
@@ -229,7 +229,7 @@ fi
 cd "$PROJECT_ROOT"
 
 # CRITICAL: Copy ALL generated files from src/ to build directory AFTER git restore
-# qmake/make generates many files (moc_*.cpp, qrc_*.cpp, *.o, *.json, qmltyperegistrations, etc.) in src/
+# qmake/make generates many files (moc_*.cpp, moc_*.mm, qrc_*.cpp, *.o, *.json, qmltyperegistrations, etc.) in src/
 # but Xcode project expects them in build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/
 # This must happen AFTER git checkout to avoid wiping out the copied files
 echo "Copying ALL Qt-generated files from src/ to build directory..."
@@ -237,7 +237,7 @@ cd "$PROJECT_ROOT/src"
 
 # Copy all generated files (cpp, o, json, a) but exclude directories
 echo "Looking for generated files in: $(pwd)"
-find . -maxdepth 1 -type f \( -name "moc_*.cpp" -o -name "moc_*.cpp.json" -o -name "qrc_*.cpp" -o -name "*.o" -o -name "*.a" -o -name "*_qmltyperegistrations.*" -o -name "*.qmltypes" -o -name "*_metatypes.json" -o -name "*_plugin_import.cpp" \) -print -exec cp {} "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/" \;
+find . -maxdepth 1 -type f \( -name "moc_*.cpp" -o -name "moc_*.cpp.json" -o -name "moc_*.mm" -o -name "moc_*.mm.json" -o -name "qrc_*.cpp" -o -name "*.o" -o -name "*.a" -o -name "*_qmltyperegistrations.*" -o -name "*.qmltypes" -o -name "*_metatypes.json" -o -name "*_plugin_import.cpp" \) -print -exec cp {} "$PROJECT_ROOT/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/" \;
 
 echo "Generated files copied to build directory"
 
