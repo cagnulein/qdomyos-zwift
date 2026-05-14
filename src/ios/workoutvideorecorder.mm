@@ -15,6 +15,24 @@
 
 @class QZWorkoutVideoCaptureDelegate;
 
+static inline id QZObjcRetain(id object) {
+#if !__has_feature(objc_arc)
+    return [object retain];
+#else
+    return object;
+#endif
+}
+
+static inline void QZObjcRelease(id object) {
+#if !__has_feature(objc_arc)
+    [object release];
+#else
+    Q_UNUSED(object)
+#endif
+}
+
+static char QZWorkoutVideoCaptureQueueKey;
+
 class IOSWorkoutVideoRecorderPrivate {
   public:
     bool recording = false;
@@ -31,6 +49,36 @@ class IOSWorkoutVideoRecorderPrivate {
     AVAssetWriterInputPixelBufferAdaptor *pixelBufferAdaptor = nil;
     CIContext *ciContext = nil;
     QZWorkoutVideoCaptureDelegate *captureDelegate = nil;
+
+    void clearCaptureObjects() {
+        if (videoOutput) {
+            [videoOutput setSampleBufferDelegate:nil queue:nil];
+        }
+        if (captureQueue && dispatch_get_specific(&QZWorkoutVideoCaptureQueueKey) != &QZWorkoutVideoCaptureQueueKey) {
+            dispatch_sync(captureQueue, ^{
+            });
+        }
+
+        QZObjcRelease(outputUrl);
+        QZObjcRelease(captureSession);
+        QZObjcRelease(videoOutput);
+        QZObjcRelease(assetWriter);
+        QZObjcRelease(videoInput);
+        QZObjcRelease(pixelBufferAdaptor);
+        QZObjcRelease(ciContext);
+        QZObjcRelease(captureDelegate);
+
+        outputUrl = nil;
+        captureSession = nil;
+        videoOutput = nil;
+        captureQueue = nil;
+        assetWriter = nil;
+        videoInput = nil;
+        pixelBufferAdaptor = nil;
+        ciContext = nil;
+        captureDelegate = nil;
+        writingStarted = false;
+    }
 };
 
 static NSURL *urlFromOutputLocation(const QString &outputLocation) {
@@ -152,27 +200,44 @@ static void drawMetrics(NSArray<NSString *> *metrics, CVPixelBufferRef pixelBuff
         return;
     }
 
+    AVAssetWriter *assetWriter = state->assetWriter;
+    AVAssetWriterInput *videoInput = state->videoInput;
+    AVAssetWriterInputPixelBufferAdaptor *pixelBufferAdaptor = state->pixelBufferAdaptor;
+    CIContext *ciContext = state->ciContext;
+    if (!assetWriter || !videoInput || !pixelBufferAdaptor || !ciContext) {
+        return;
+    }
+
     const CMTime presentationTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
     if (!state->writingStarted) {
-        [state->assetWriter startWriting];
-        [state->assetWriter startSessionAtSourceTime:presentationTime];
+        if (![assetWriter startWriting]) {
+            qDebug() << "Workout video writer failed to start"
+                     << (assetWriter.error ? QString::fromNSString(assetWriter.error.localizedDescription) : QString());
+            return;
+        }
+        [assetWriter startSessionAtSourceTime:presentationTime];
         state->writingStarted = true;
     }
 
-    if (!state->videoInput.readyForMoreMediaData) {
+    if (assetWriter.status != AVAssetWriterStatusWriting || !videoInput.readyForMoreMediaData) {
+        return;
+    }
+
+    CVPixelBufferPoolRef pixelBufferPool = pixelBufferAdaptor.pixelBufferPool;
+    if (!pixelBufferPool) {
         return;
     }
 
     CVPixelBufferRef outputBuffer = nil;
     CVReturn result = CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault,
-                                                         state->pixelBufferAdaptor.pixelBufferPool,
+                                                         pixelBufferPool,
                                                          &outputBuffer);
     if (result != kCVReturnSuccess || !outputBuffer) {
         return;
     }
 
     CIImage *sourceImage = [CIImage imageWithCVPixelBuffer:imageBuffer];
-    [state->ciContext render:sourceImage toCVPixelBuffer:outputBuffer];
+    [ciContext render:sourceImage toCVPixelBuffer:outputBuffer];
 
     QStringList metricLines;
     {
@@ -187,7 +252,7 @@ static void drawMetrics(NSArray<NSString *> *metrics, CVPixelBufferRef pixelBuff
     }
     drawMetrics(nativeMetrics, outputBuffer);
 
-    [state->pixelBufferAdaptor appendPixelBuffer:outputBuffer withPresentationTime:presentationTime];
+    [pixelBufferAdaptor appendPixelBuffer:outputBuffer withPresentationTime:presentationTime];
     CVPixelBufferRelease(outputBuffer);
 }
 @end
@@ -234,13 +299,13 @@ bool IOSWorkoutVideoRecorder::startRecording(const QString &outputLocation, cons
         return false;
     }
 
-    d->outputUrl = urlFromOutputLocation(outputLocation);
+    d->outputUrl = QZObjcRetain(urlFromOutputLocation(outputLocation));
     NSError *error = nil;
     d->assetWriter = [[AVAssetWriter alloc] initWithURL:d->outputUrl fileType:AVFileTypeQuickTimeMovie error:&error];
     if (!d->assetWriter || error) {
         emit errorOccurred(error ? QString::fromNSString(error.localizedDescription)
                                 : QStringLiteral("Unable to create the workout video file."));
-        d->outputUrl = nil;
+        d->clearCaptureObjects();
         return false;
     }
 
@@ -251,8 +316,7 @@ bool IOSWorkoutVideoRecorder::startRecording(const QString &outputLocation, cons
     if (!input || error || ![d->captureSession canAddInput:input]) {
         emit errorOccurred(error ? QString::fromNSString(error.localizedDescription)
                                 : QStringLiteral("Unable to access the selected iOS camera."));
-        d->assetWriter = nil;
-        d->captureSession = nil;
+        d->clearCaptureObjects();
         return false;
     }
     [d->captureSession addInput:input];
@@ -261,14 +325,12 @@ bool IOSWorkoutVideoRecorder::startRecording(const QString &outputLocation, cons
     d->videoOutput.videoSettings = @{(__bridge NSString *)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA)};
     d->videoOutput.alwaysDiscardsLateVideoFrames = YES;
     d->captureQueue = dispatch_queue_create("org.cagnulein.qdomyoszwift.workoutVideo", DISPATCH_QUEUE_SERIAL);
+    dispatch_queue_set_specific(d->captureQueue, &QZWorkoutVideoCaptureQueueKey, &QZWorkoutVideoCaptureQueueKey, NULL);
     d->captureDelegate = [[QZWorkoutVideoCaptureDelegate alloc] initWithState:d];
     [d->videoOutput setSampleBufferDelegate:d->captureDelegate queue:d->captureQueue];
     if (![d->captureSession canAddOutput:d->videoOutput]) {
         emit errorOccurred(QStringLiteral("Unable to start the iOS camera video output."));
-        d->assetWriter = nil;
-        d->captureSession = nil;
-        d->videoOutput = nil;
-        d->captureDelegate = nil;
+        d->clearCaptureObjects();
         return false;
     }
     [d->captureSession addOutput:d->videoOutput];
@@ -287,6 +349,7 @@ bool IOSWorkoutVideoRecorder::startRecording(const QString &outputLocation, cons
         AVVideoHeightKey : @(1280)
     };
     d->videoInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:outputSettings];
+    d->videoInput = QZObjcRetain(d->videoInput);
     d->videoInput.expectsMediaDataInRealTime = YES;
     NSDictionary *sourceAttributes = @{
         (__bridge NSString *)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA),
@@ -295,19 +358,15 @@ bool IOSWorkoutVideoRecorder::startRecording(const QString &outputLocation, cons
     };
     d->pixelBufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:d->videoInput
                                                                                              sourcePixelBufferAttributes:sourceAttributes];
+    d->pixelBufferAdaptor = QZObjcRetain(d->pixelBufferAdaptor);
     if (![d->assetWriter canAddInput:d->videoInput]) {
         emit errorOccurred(QStringLiteral("Unable to configure the workout video writer."));
-        d->assetWriter = nil;
-        d->captureSession = nil;
-        d->videoOutput = nil;
-        d->videoInput = nil;
-        d->pixelBufferAdaptor = nil;
-        d->captureDelegate = nil;
+        d->clearCaptureObjects();
         return false;
     }
     [d->assetWriter addInput:d->videoInput];
 
-    d->ciContext = [CIContext contextWithOptions:nil];
+    d->ciContext = QZObjcRetain([CIContext contextWithOptions:nil]);
     d->writingStarted = false;
     d->paused = false;
     d->recording = true;
@@ -344,7 +403,6 @@ void IOSWorkoutVideoRecorder::stopRecording() {
     emit pausedChanged();
 
     [d->captureSession stopRunning];
-    [d->videoOutput setSampleBufferDelegate:nil queue:nil];
 
     AVAssetWriter *writer = d->assetWriter;
     AVAssetWriterInput *input = d->videoInput;
@@ -352,18 +410,17 @@ void IOSWorkoutVideoRecorder::stopRecording() {
     const QString outputLocation = QString::fromNSString(url.absoluteString);
     const bool hadFrames = d->writingStarted;
 
-    d->assetWriter = nil;
-    d->videoInput = nil;
-    d->pixelBufferAdaptor = nil;
-    d->captureSession = nil;
-    d->videoOutput = nil;
-    d->captureDelegate = nil;
-    d->ciContext = nil;
-    d->outputUrl = nil;
-    d->writingStarted = false;
+    QZObjcRetain(writer);
+    QZObjcRetain(input);
+    QZObjcRetain(url);
+
+    d->clearCaptureObjects();
 
     if (!hadFrames || writer.status != AVAssetWriterStatusWriting) {
         emit errorOccurred(QStringLiteral("Workout video recording stopped before receiving video frames."));
+        QZObjcRelease(writer);
+        QZObjcRelease(input);
+        QZObjcRelease(url);
         return;
     }
 
@@ -382,5 +439,8 @@ void IOSWorkoutVideoRecorder::stopRecording() {
                 emit self->errorOccurred(QString::fromNSString(writer.error.localizedDescription));
             });
         }
+        QZObjcRelease(writer);
+        QZObjcRelease(input);
+        QZObjcRelease(url);
     }];
 }
