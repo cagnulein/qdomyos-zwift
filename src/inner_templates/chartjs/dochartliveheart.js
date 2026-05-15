@@ -192,6 +192,18 @@ function process_arr_heart(arr) {
         inclination.push(inclinationel);
     }
 
+    const maxRecordedHeart = heart.reduce(function(maxValue, point) {
+        return Math.max(maxValue, point.y);
+    }, 0);
+    const heartChartTop = Math.max(heartZones[3] + 10, maxHeartRate + 10, maxRecordedHeart + 5, 200);
+    const heartZoneLabelPositions = [
+        Math.round(heartZones[0] / 2),
+        Math.round((heartZones[0] + heartZones[1]) / 2),
+        Math.round((heartZones[1] + heartZones[2]) / 2),
+        Math.round((heartZones[2] + heartZones[3]) / 2),
+        Math.round((heartZones[3] + heartChartTop) / 2)
+    ];
+
     const backgroundFill = {
       id: 'custom_canvas_background_color',
       beforeDraw: (chart) => {
@@ -289,7 +301,7 @@ function process_arr_heart(arr) {
                             xMin: 0,
                             //xMax: maxEl,
                             yMin: heartZones[3],
-                            yMax: maxHeartRate,
+                            yMax: heartChartTop,
                             backgroundColor: window.chartColors.redt,
                             },
                     }
@@ -321,16 +333,16 @@ function process_arr_heart(arr) {
                 y: {
                     display: true,
                     suggestedMin: 50,
-                    suggestedMax: 200,
+                    suggestedMax: heartChartTop,
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
-                        callback: value => [heartZones[0] * 0.8, heartZones[0], heartZones[1], heartZones[2], heartZones[3], heartZones[4]].includes(value) ?
-                            value === heartZones[0] * 0.8 ? 'heart z1' :
-                            value === heartZones[0] ? 'heart z2' :
-                            value === heartZones[1] ? 'heart z3' :
-                            value === heartZones[2] ? 'heart z4' :
-                            value === heartZones[3] ? 'heart z5' : undefined : undefined,
+                        callback: value =>  heartZoneLabelPositions.includes(value) ?
+                            value === heartZoneLabelPositions[0] ? 'heart z1' :
+                            value === heartZoneLabelPositions[1] ? 'heart z2' :
+                            value === heartZoneLabelPositions[2] ? 'heart z3' :
+                            value === heartZoneLabelPositions[3] ? 'heart z4' :
+                            value === heartZoneLabelPositions[4] ? 'heart z5' : undefined : undefined,
                         color: 'black',
                         padding: -70,
                         align: 'end',

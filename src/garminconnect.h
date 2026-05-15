@@ -259,4 +259,7 @@ private:
     QString generateTimestamp();
 };
 
+// Exposed for unit tests and internal reuse: convert Garmin workout JSON payload to QZ XML.
+QString garminConnectGenerateWorkoutXml(const QJsonObject &workoutJson);
+
 #endif // GARMINCONNECT_H
