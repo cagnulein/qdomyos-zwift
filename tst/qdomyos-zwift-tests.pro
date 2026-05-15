@@ -27,6 +27,7 @@ SOURCES += \
         Tools/testsettings.cpp \
         Tools/typeidgenerator.cpp \
         Devices/TestSchwinn411510EParser.cpp \
+        Devices/TestHorizonParagonXParser.cpp \
         main.cpp
 
 # Avoid the "File too big" error building in Windows. This has happened when a template class is used with Google Test / typed tests
@@ -56,6 +57,7 @@ HEADERS += \
     Devices/devicenamepatterngroup.h \
     Devices/devicetestdataindex.h \
     Devices/TestSchwinn411510EParser.h \
+    Devices/TestHorizonParagonXParser.h \
     Devices/TestOctaneTreadmillZR8.h \
     Devices/TestSunnyfitStepper.h \
     Erg/ergtabletestsuite.h \

@@ -47,6 +47,17 @@ class horizontreadmill : public treadmill {
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
 
+    struct ParagonXStatus {
+        bool valid = false;
+        bool beltRunning = false;
+        uint8_t consoleState = 0;
+        uint8_t beltState = 0;
+        double reportedSpeed = 0;
+        double effectiveSpeed = 0;
+    };
+
+    static ParagonXStatus parseParagonXStatusPacket(const QByteArray &packet);
+
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
                              uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);

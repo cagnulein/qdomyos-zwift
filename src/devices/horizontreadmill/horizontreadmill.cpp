@@ -896,6 +896,24 @@ void horizontreadmill::btinit() {
 
 float horizontreadmill::float_one_point_round(float value) { return ((float)((int)(value * 10))) / 10; }
 
+horizontreadmill::ParagonXStatus horizontreadmill::parseParagonXStatusPacket(const QByteArray &packet) {
+    ParagonXStatus status;
+    status.valid = packet.length() > 70 && packet.at(0) == 0x55 && packet.at(5) == 0x17;
+    if (!status.valid) {
+        return status;
+    }
+
+    status.consoleState = (uint8_t)packet.at(14);
+    status.beltState = (uint8_t)packet.at(17);
+    status.beltRunning = status.consoleState == 0x01 && status.beltState == 0x02;
+    status.reportedSpeed =
+        ((((double)(((uint16_t)((uint8_t)packet.at(25)) << 8) | (uint16_t)((uint8_t)packet.at(24)))) / 100.0) *
+         1.60934); // miles/h
+    status.effectiveSpeed = status.beltRunning ? status.reportedSpeed : 0;
+
+    return status;
+}
+
 void horizontreadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
@@ -1531,8 +1549,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     bool distanceEval = false;
     bool cadenceAvailable = false;
     QSettings settings;
-    // bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x,
-    // QZSettings::default_horizon_paragon_x).toBool();
+    bool horizon_paragon_x =
+        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     QString heartRateBeltName =
@@ -1564,6 +1582,24 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
+    const bool isParagonXStatusPacket =
+        horizon_paragon_x && characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) &&
+        lastPacketComplete.length() > 70 && lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17;
+
+    // Horizon Paragon X keeps reporting the last configured speed even while the belt is paused/stopped.
+    // Byte 14 is the console state (0x01 = active, 0x02 = paused/idle, 0x04 = stopped, 0x05 = starting)
+    // and byte 17 becomes 0x02 only when the belt is actually moving.
+    if (isParagonXStatusPacket) {
+        const ParagonXStatus paragonXStatus = parseParagonXStatusPacket(lastPacketComplete);
+        if (paragonXStatus.beltRunning) {
+            parseSpeed(paragonXStatus.reportedSpeed);
+            horizonPaused = false;
+        } else {
+            Speed = 0;
+            horizonPaused = true;
+        }
+    }
+
     if (isPaused() && settings
                           .value(QZSettings::horizon_treadmill_suspend_stats_pause,
                                  QZSettings::default_horizon_treadmill_suspend_stats_pause)
@@ -1574,10 +1610,12 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && lastPacketComplete.length() > 70 &&
         lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17) {
-        parseSpeed((((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
-                           (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
-                 100.0) *
-                1.60934); // miles/h
+        if (!horizon_paragon_x) {
+            parseSpeed((((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
+                               (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
+                     100.0) *
+                    1.60934); // miles/h
+        }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
         parseInclination(treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0));
