@@ -200,6 +200,17 @@ function process_arr(arr) {
         }
     }
 
+    const powerChartTop = (watts_max > ftpZones[3] * 2 ? watts_max + 10 : ftpZones[3] * 2);
+    const powerZoneLabelPositions = [
+        Math.round(ftpZones[0] / 2),
+        Math.round((ftpZones[0] + ftpZones[1]) / 2),
+        Math.round((ftpZones[1] + ftpZones[2]) / 2),
+        Math.round((ftpZones[2] + ftpZones[3]) / 2),
+        Math.round((ftpZones[3] + ftpZones[4]) / 2),
+        Math.round((ftpZones[4] + ftpZones[5]) / 2),
+        Math.round((ftpZones[5] + powerChartTop) / 2)
+    ];
+
     const backgroundFill = {
       id: 'custom_canvas_background_color',
       beforeDraw: (chart) => {
@@ -332,7 +343,7 @@ function process_arr(arr) {
                             xMin: 0,
                             //xMax: maxEl,
                             yMin: ftpZones[5],
-                            yMax: (watts_max > ftpZones[3] * 2 ? watts_max + 10 : ftpZones[3] * 2),
+                            yMax: powerChartTop,
                             backgroundColor: window.chartColors.redt,
                             },
                         }
@@ -372,14 +383,14 @@ function process_arr(arr) {
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
-                        callback: value => [ftpZones[0] * 0.8, ftpZones[0], ftpZones[1], ftpZones[2], ftpZones[3], ftpZones[4], ftpZones[5]].includes(value) ?
-                            value === ftpZones[0] * 0.8 ? 'power z1' :
-                            value === ftpZones[0] ? 'power z2' :
-                            value === ftpZones[1] ? 'power z3' :
-                            value === ftpZones[2] ? 'power z4' :
-                            value === ftpZones[3] ? 'power z5' :
-                            value === ftpZones[4] ? 'power z6' :
-                            value === ftpZones[5] ? 'power z7' : undefined : undefined,
+                        callback: value => powerZoneLabelPositions.includes(value) ?
+                            value === powerZoneLabelPositions[0] ? 'power z1' :
+                            value === powerZoneLabelPositions[1] ? 'power z2' :
+                            value === powerZoneLabelPositions[2] ? 'power z3' :
+                            value === powerZoneLabelPositions[3] ? 'power z4' :
+                            value === powerZoneLabelPositions[4] ? 'power z5' :
+                            value === powerZoneLabelPositions[5] ? 'power z6' :
+                            value === powerZoneLabelPositions[6] ? 'power z7' : undefined : undefined,
                         color: 'black',
                         padding: -70,
                         align: 'end',
