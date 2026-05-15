@@ -12,6 +12,18 @@ ScrollView {
     id: settingsShortcutsPane
     objectName: "settingsShortcutsPane"
 
+    Component.onCompleted: {
+        if (typeof rootItem !== "undefined" && rootItem) {
+            rootItem.setNativeShortcutCaptureSuspended(true)
+        }
+    }
+
+    Component.onDestruction: {
+        if (typeof rootItem !== "undefined" && rootItem) {
+            rootItem.setNativeShortcutCaptureSuspended(false)
+        }
+    }
+
     Settings {
         id: settings
         property bool shortcuts_enabled: false

@@ -633,6 +633,10 @@ public:
     Q_INVOKABLE void keyboardPlus(const QString &name) { Plus(name); }
     Q_INVOKABLE void keyboardMinus(const QString &name) { Minus(name); }
     Q_INVOKABLE void keyboardLargeButton(const QString &name) { LargeButton(name); }
+    Q_INVOKABLE bool handleKeyboardShortcut(const QString &sequence);
+    Q_INVOKABLE void setNativeShortcutCaptureSuspended(bool suspended) {
+        m_nativeShortcutCaptureSuspended = suspended;
+    }
 
     Q_INVOKABLE void sortTiles();
     Q_INVOKABLE void moveTile(QString name, int newIndex, int oldIndex);
@@ -975,6 +979,7 @@ public:
     bool m_stopRequested = false;
     bool m_startRequested = false;
     bool m_overridePower = false;
+    bool m_nativeShortcutCaptureSuspended = false;
 
     QTimer *timer;
     QTimer *backupTimer;

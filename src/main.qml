@@ -82,7 +82,7 @@ ApplicationWindow {
     }
 
     function shortcutReady(sequence) {
-        return settings.shortcuts_enabled && !isConfiguringShortcuts() && String(sequence).length > 0;
+        return Qt.platform.os !== "ios" && settings.shortcuts_enabled && !isConfiguringShortcuts() && String(sequence).length > 0;
     }
     function stripBluetoothDeviceName(deviceName) {
         return deviceName.replace(/ \(\d+%\)$/, "")

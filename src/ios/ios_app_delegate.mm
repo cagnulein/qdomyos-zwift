@@ -43,6 +43,29 @@
     qDebug() << "QZ iOS lifecycle: applicationDidBecomeActive";
 }
 
+- (void)pressesBegan:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event {
+    bool didHandleShortcut = false;
+
+    if (@available(iOS 13.4, *)) {
+        for (UIPress *press in presses) {
+            UIKey *key = press.key;
+            if (key == nil || key.charactersIgnoringModifiers.length == 0) {
+                continue;
+            }
+
+            const QString sequence =
+                QString::fromUtf8(key.charactersIgnoringModifiers.UTF8String).trimmed().toUpper();
+            if (homeform::singleton() && homeform::singleton()->handleKeyboardShortcut(sequence)) {
+                didHandleShortcut = true;
+            }
+        }
+    }
+
+    if (!didHandleShortcut) {
+        [super pressesBegan:presses withEvent:event];
+    }
+}
+
 - (void)setupDynamicQuickActions {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths firstObject];
