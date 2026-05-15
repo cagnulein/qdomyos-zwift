@@ -21,6 +21,7 @@ SOURCES += \
         Devices/devicetestdataindex.cpp \
         Erg/ergtabletestsuite.cpp \
         GarminConnect/garminconnecttestsuite.cpp \
+        TrainingProgram/trainprogramtestsuite.cpp \
         ToolTests/qfittestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
         ToolTests/testtrainingloadtestsuite.cpp \
@@ -60,6 +61,7 @@ HEADERS += \
     Devices/TestSunnyfitStepper.h \
     Erg/ergtabletestsuite.h \
     GarminConnect/garminconnecttestsuite.h \
+    TrainingProgram/trainprogramtestsuite.h \
     ToolTests/qfittestsuite.h \
     ToolTests/testsettingstestsuite.h \
     ToolTests/testtrainingloadtestsuite.h \

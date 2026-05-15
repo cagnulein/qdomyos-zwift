@@ -109,6 +109,7 @@ class trainprogram : public QObject {
     bool overridePowerForCurrentRow(double power);
     bool overrideZoneHRForCurrentRow(uint8_t zone);
     bool advanceLapButtonStep();
+    static int firstBlockingLapButtonRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
     bool powerzoneWorkout() {
         foreach(trainrow r, rows) {
             if(r.power != -1) return true;

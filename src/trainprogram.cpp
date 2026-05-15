@@ -195,6 +195,19 @@ void trainprogram::applySpeedFilter() {
     }
 }
 
+int trainprogram::firstBlockingLapButtonRow(const QList<trainrow> &rows, int currentStep, int candidateStep) {
+    if (rows.isEmpty() || candidateStep <= currentStep)
+        return -1;
+
+    const int lastCandidate = qMin(candidateStep, rows.length() - 1);
+    for (int row = currentStep + 1; row <= lastCandidate; row++) {
+        if (rows.at(row).waitForLap)
+            return row;
+    }
+
+    return -1;
+}
+
 uint32_t trainprogram::calculateTimeForRow(int32_t row) {
     if (row >= rows.length())
         return 0;
@@ -1043,6 +1056,13 @@ void trainprogram::scheduler() {
         }
     }
 
+    const int lapButtonBarrier =
+        firstBlockingLapButtonRow(rows, currentStep, static_cast<int>(calculatedLine));
+    if (lapButtonBarrier >= 0) {
+        qDebug() << "Lap button barrier prevents skipping row" << lapButtonBarrier;
+        calculatedLine = static_cast<uint32_t>(lapButtonBarrier);
+    }
+
     // Check if we've completed all rows
     if (calculatedLine >= rows.length()) {
         qDebug() << "completed all rows" << calculatedLine << rows.length();
@@ -1071,7 +1091,8 @@ void trainprogram::scheduler() {
                  << QStringLiteral("same iteration") << sameIteration;
 
         if ((calculatedLine != currentStep && !distanceStep) || distanceEvaluation) {
-            if (calculateTimeForRow(calculatedLine) || calculateDistanceForRow(calculatedLine) > 0) {
+            if (rows.at(calculatedLine).waitForLap || calculateTimeForRow(calculatedLine) ||
+                calculateDistanceForRow(calculatedLine) > 0) {
 
                 if(rows.at(currentStep).distance != -1)
                     lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
