@@ -1029,7 +1029,7 @@ function dochart_init() {
                         age = msg.content[key];
                         maxHeartRate = 220 - age;
                     } else if (key === 'heart_max_override_enable') {
-                        heart_max_override_enable = msg.content[key];
+                        heart_max_override_enable = (msg.content[key] === true || msg.content[key] === 'true');
                     } else if (key === 'heart_max_override_value') {
                         heart_max_override_value = msg.content[key];
                     } else if (key === 'heart_rate_zone1') {
