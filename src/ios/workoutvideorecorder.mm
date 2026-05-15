@@ -16,6 +16,48 @@
 
 @class QZWorkoutVideoCaptureDelegate;
 
+@interface QZWorkoutVideoPreviewView : UIView
+- (instancetype)initWithFrame:(CGRect)frame;
+@end
+
+@implementation QZWorkoutVideoPreviewView
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = UIColor.blackColor;
+        self.layer.cornerRadius = 12.0;
+        self.layer.borderColor = [UIColor colorWithWhite:1.0 alpha:0.75].CGColor;
+        self.layer.borderWidth = 1.0;
+        self.layer.masksToBounds = YES;
+        UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+        [self addGestureRecognizer:panGesture];
+#if !__has_feature(objc_arc)
+        [panGesture release];
+#endif
+    }
+    return self;
+}
+
+- (void)handlePan:(UIPanGestureRecognizer *)gesture {
+    UIView *superview = self.superview;
+    if (!superview) {
+        return;
+    }
+
+    CGPoint translation = [gesture translationInView:superview];
+    CGPoint center = CGPointMake(self.center.x + translation.x, self.center.y + translation.y);
+    UIEdgeInsets safeAreaInsets = superview.safeAreaInsets;
+    const CGFloat halfWidth = CGRectGetWidth(self.bounds) / 2.0;
+    const CGFloat halfHeight = CGRectGetHeight(self.bounds) / 2.0;
+    center.x = MIN(MAX(center.x, safeAreaInsets.left + halfWidth + 8.0),
+                   CGRectGetWidth(superview.bounds) - safeAreaInsets.right - halfWidth - 8.0);
+    center.y = MIN(MAX(center.y, safeAreaInsets.top + halfHeight + 8.0),
+                   CGRectGetHeight(superview.bounds) - safeAreaInsets.bottom - halfHeight - 8.0);
+    self.center = center;
+    [gesture setTranslation:CGPointZero inView:superview];
+}
+@end
+
 static inline id QZObjcRetain(id object) {
 #if !__has_feature(objc_arc)
     return [object retain];
@@ -34,11 +76,36 @@ static inline void QZObjcRelease(id object) {
 
 static char QZWorkoutVideoCaptureQueueKey;
 
+static UIWindow *activeApplicationWindow() {
+    UIApplication *application = UIApplication.sharedApplication;
+    if (@available(iOS 13.0, *)) {
+        for (UIScene *scene in application.connectedScenes) {
+            if (scene.activationState == UISceneActivationStateForegroundActive &&
+                [scene isKindOfClass:[UIWindowScene class]]) {
+                UIWindowScene *windowScene = (UIWindowScene *)scene;
+                for (UIWindow *window in windowScene.windows) {
+                    if (window.isKeyWindow) {
+                        return window;
+                    }
+                }
+                if (windowScene.windows.count > 0) {
+                    return windowScene.windows.firstObject;
+                }
+            }
+        }
+    }
+    return application.keyWindow;
+}
+
 class IOSWorkoutVideoRecorderPrivate {
   public:
     bool recording = false;
     bool paused = false;
     bool writingStarted = false;
+    bool loggedFirstVideoSample = false;
+    bool loggedFirstAudioSample = false;
+    bool loggedMissingVideoDependencies = false;
+    bool loggedMissingPixelBufferPool = false;
     QStringList metrics;
     QMutex metricsMutex;
     NSURL *outputUrl = nil;
@@ -52,6 +119,61 @@ class IOSWorkoutVideoRecorderPrivate {
     AVAssetWriterInputPixelBufferAdaptor *pixelBufferAdaptor = nil;
     CIContext *ciContext = nil;
     QZWorkoutVideoCaptureDelegate *captureDelegate = nil;
+    QZWorkoutVideoPreviewView *previewView = nil;
+    AVCaptureVideoPreviewLayer *previewLayer = nil;
+
+    void showPreviewOverlay(bool mirrored) {
+        void (^showBlock)(void) = ^{
+            UIWindow *window = activeApplicationWindow();
+            UIView *hostView = window.rootViewController.view ?: window;
+            if (!hostView || !captureSession || previewView) {
+                return;
+            }
+
+            UIEdgeInsets safeAreaInsets = hostView.safeAreaInsets;
+            const CGFloat previewWidth = 128.0;
+            const CGFloat previewHeight = 228.0;
+            const CGFloat margin = 14.0;
+            CGRect frame = CGRectMake(CGRectGetWidth(hostView.bounds) - previewWidth - safeAreaInsets.right - margin,
+                                      CGRectGetHeight(hostView.bounds) - previewHeight - safeAreaInsets.bottom - margin,
+                                      previewWidth,
+                                      previewHeight);
+            previewView = [[QZWorkoutVideoPreviewView alloc] initWithFrame:frame];
+            previewLayer = QZObjcRetain([AVCaptureVideoPreviewLayer layerWithSession:captureSession]);
+            previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+            previewLayer.frame = previewView.bounds;
+            if (previewLayer.connection.supportsVideoOrientation) {
+                previewLayer.connection.videoOrientation = AVCaptureVideoOrientationPortrait;
+            }
+            if (previewLayer.connection.supportsVideoMirroring) {
+                previewLayer.connection.automaticallyAdjustsVideoMirroring = NO;
+                previewLayer.connection.videoMirrored = mirrored;
+            }
+            [previewView.layer addSublayer:previewLayer];
+            [hostView addSubview:previewView];
+        };
+        if (NSThread.isMainThread) {
+            showBlock();
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), showBlock);
+        }
+    }
+
+    void hidePreviewOverlay() {
+        void (^hideBlock)(void) = ^{
+            [previewLayer removeFromSuperlayer];
+            [previewView removeFromSuperview];
+            QZObjcRelease(previewLayer);
+            QZObjcRelease(previewView);
+            previewLayer = nil;
+            previewView = nil;
+        };
+        if (NSThread.isMainThread) {
+            hideBlock();
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), hideBlock);
+        }
+    }
 
     void clearCaptureObjects() {
         if (videoOutput) {
@@ -64,6 +186,7 @@ class IOSWorkoutVideoRecorderPrivate {
             dispatch_sync(captureQueue, ^{
             });
         }
+        hidePreviewOverlay();
 
         QZObjcRelease(outputUrl);
         QZObjcRelease(captureSession);
@@ -88,6 +211,10 @@ class IOSWorkoutVideoRecorderPrivate {
         ciContext = nil;
         captureDelegate = nil;
         writingStarted = false;
+        loggedFirstVideoSample = false;
+        loggedFirstAudioSample = false;
+        loggedMissingVideoDependencies = false;
+        loggedMissingPixelBufferPool = false;
     }
 };
 
@@ -216,6 +343,10 @@ static void drawMetrics(NSArray<NSString *> *metrics, CVPixelBufferRef pixelBuff
 
     AVAssetWriter *assetWriter = state->assetWriter;
     if (output == state->audioOutput) {
+        if (!state->loggedFirstAudioSample) {
+            qDebug() << "Workout video received first audio sample";
+            state->loggedFirstAudioSample = true;
+        }
         AVAssetWriterInput *audioInput = state->audioInput;
         if (!assetWriter || !audioInput || !state->writingStarted || assetWriter.status != AVAssetWriterStatusWriting ||
             !audioInput.readyForMoreMediaData) {
@@ -229,11 +360,23 @@ static void drawMetrics(NSArray<NSString *> *metrics, CVPixelBufferRef pixelBuff
     if (!imageBuffer) {
         return;
     }
+    if (!state->loggedFirstVideoSample) {
+        qDebug() << "Workout video received first video sample";
+        state->loggedFirstVideoSample = true;
+    }
 
     AVAssetWriterInput *videoInput = state->videoInput;
     AVAssetWriterInputPixelBufferAdaptor *pixelBufferAdaptor = state->pixelBufferAdaptor;
     CIContext *ciContext = state->ciContext;
     if (!assetWriter || !videoInput || !pixelBufferAdaptor || !ciContext) {
+        if (!state->loggedMissingVideoDependencies) {
+            qDebug() << "Workout video missing dependencies"
+                     << "assetWriter" << (assetWriter != nil)
+                     << "videoInput" << (videoInput != nil)
+                     << "pixelBufferAdaptor" << (pixelBufferAdaptor != nil)
+                     << "ciContext" << (ciContext != nil);
+            state->loggedMissingVideoDependencies = true;
+        }
         return;
     }
 
@@ -254,6 +397,10 @@ static void drawMetrics(NSArray<NSString *> *metrics, CVPixelBufferRef pixelBuff
 
     CVPixelBufferPoolRef pixelBufferPool = pixelBufferAdaptor.pixelBufferPool;
     if (!pixelBufferPool) {
+        if (!state->loggedMissingPixelBufferPool) {
+            qDebug() << "Workout video pixel buffer pool is not ready";
+            state->loggedMissingPixelBufferPool = true;
+        }
         return;
     }
 
@@ -452,8 +599,13 @@ bool IOSWorkoutVideoRecorder::startRecording(const QString &outputLocation, cons
 
     d->ciContext = QZObjcRetain([CIContext contextWithOptions:nil]);
     d->writingStarted = false;
+    d->loggedFirstVideoSample = false;
+    d->loggedFirstAudioSample = false;
+    d->loggedMissingVideoDependencies = false;
+    d->loggedMissingPixelBufferPool = false;
     d->paused = false;
     d->recording = true;
+    d->showPreviewOverlay(device.position == AVCaptureDevicePositionFront);
     [d->captureSession startRunning];
     emit recordingChanged();
     emit pausedChanged();
@@ -486,50 +638,71 @@ void IOSWorkoutVideoRecorder::stopRecording() {
     emit recordingChanged();
     emit pausedChanged();
 
-    [d->captureSession stopRunning];
-
-    AVAssetWriter *writer = d->assetWriter;
-    AVAssetWriterInput *videoInput = d->videoInput;
-    AVAssetWriterInput *audioInput = d->audioInput;
-    NSURL *url = d->outputUrl;
-    const QString outputLocation = QString::fromNSString(url.absoluteString);
-    const bool hadFrames = d->writingStarted;
-
-    QZObjcRetain(writer);
-    QZObjcRetain(videoInput);
-    QZObjcRetain(audioInput);
-    QZObjcRetain(url);
-
-    d->clearCaptureObjects();
-
-    if (!hadFrames || writer.status != AVAssetWriterStatusWriting) {
-        emit errorOccurred(QStringLiteral("Workout video recording stopped before receiving video frames."));
-        QZObjcRelease(writer);
-        QZObjcRelease(videoInput);
-        QZObjcRelease(audioInput);
-        QZObjcRelease(url);
-        return;
-    }
-
-    [videoInput markAsFinished];
-    [audioInput markAsFinished];
     IOSWorkoutVideoRecorder *self = this;
-    [writer finishWritingWithCompletionHandler:^{
-        if (writer.status == AVAssetWriterStatusCompleted) {
-            if (UIVideoAtPathIsCompatibleWithSavedPhotosAlbum(url.path)) {
-                UISaveVideoAtPathToSavedPhotosAlbum(url.path, nil, nil, nil);
-            }
-            dispatch_async(dispatch_get_main_queue(), ^{
-                emit self->saved(outputLocation);
-            });
-        } else if (writer.error) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                emit self->errorOccurred(QString::fromNSString(writer.error.localizedDescription));
-            });
+    IOSWorkoutVideoRecorderPrivate *state = d;
+    state->hidePreviewOverlay();
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [state->captureSession stopRunning];
+
+        AVAssetWriter *writer = state->assetWriter;
+        AVAssetWriterInput *videoInput = state->videoInput;
+        AVAssetWriterInput *audioInput = state->audioInput;
+        NSURL *url = state->outputUrl;
+        const QString outputLocation = QString::fromNSString(url.absoluteString);
+        const bool hadFrames = state->writingStarted;
+
+        QZObjcRetain(writer);
+        QZObjcRetain(videoInput);
+        QZObjcRetain(audioInput);
+        QZObjcRetain(url);
+
+        qDebug() << "Workout video stop requested"
+                 << "hadFrames" << hadFrames
+                 << "writerStatus" << writer.status
+                 << "writerError"
+                 << (writer.error ? QString::fromNSString(writer.error.localizedDescription) : QString());
+
+        state->clearCaptureObjects();
+
+        if (!hadFrames || writer.status != AVAssetWriterStatusWriting) {
+            emit self->errorOccurred(QStringLiteral("Workout video recording stopped before receiving video frames."));
+            QZObjcRelease(writer);
+            QZObjcRelease(videoInput);
+            QZObjcRelease(audioInput);
+            QZObjcRelease(url);
+            return;
         }
-        QZObjcRelease(writer);
-        QZObjcRelease(videoInput);
-        QZObjcRelease(audioInput);
-        QZObjcRelease(url);
-    }];
+
+        [videoInput markAsFinished];
+        [audioInput markAsFinished];
+        [writer finishWritingWithCompletionHandler:^{
+            qDebug() << "Workout video writer finished"
+                     << "status" << writer.status
+                     << "error"
+                     << (writer.error ? QString::fromNSString(writer.error.localizedDescription) : QString())
+                     << "path" << QString::fromNSString(url.path);
+            if (writer.status == AVAssetWriterStatusCompleted) {
+                const bool compatibleWithPhotos = UIVideoAtPathIsCompatibleWithSavedPhotosAlbum(url.path);
+                qDebug() << "Workout video Photos compatibility" << compatibleWithPhotos;
+                if (compatibleWithPhotos) {
+                    UISaveVideoAtPathToSavedPhotosAlbum(url.path, nil, nil, nil);
+                } else {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        emit self->errorOccurred(QStringLiteral("Workout video was saved locally but is not compatible with the Photos library."));
+                    });
+                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    emit self->saved(outputLocation);
+                });
+            } else if (writer.error) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    emit self->errorOccurred(QString::fromNSString(writer.error.localizedDescription));
+                });
+            }
+            QZObjcRelease(writer);
+            QZObjcRelease(videoInput);
+            QZObjcRelease(audioInput);
+            QZObjcRelease(url);
+        }];
+    });
 }
