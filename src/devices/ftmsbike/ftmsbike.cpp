@@ -131,6 +131,14 @@ void ftmsbike::init() {
     if (initDone)
         return;
 
+    // Rogue Echo Bike V3.0 already streams FTMS data after subscription and does not
+    // accept the usual request-control / start-resume initialization sequence.
+    if (ECHO_BIKE) {
+        initDone = true;
+        initRequest = false;
+        return;
+    }
+
     if(ICSE || HAMMER) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
@@ -1560,11 +1568,10 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
             }
             
-            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700) {
+            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || ECHO_BIKE || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
-                    qDebug() << QStringLiteral("hammer racer bike wants to be subscribed only to FTMS service in order "
-                                               "to send metrics")
+                    qDebug() << QStringLiteral("bike wants to be subscribed only to FTMS service in order to send metrics")
                              << s->serviceUuid();
                     continue;
                 }
@@ -2029,6 +2036,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("HAMMER")) {
             qDebug() << QStringLiteral("HAMMER found");
             HAMMER = true;
+        } else if(device.name().toUpper().startsWith("ECHO_BIKE_")) {
+            qDebug() << QStringLiteral("ECHO_BIKE found");
+            ECHO_BIKE = true;
         } else if(device.name().toUpper().startsWith("YPBM") && device.name().length() == 10) {
             qDebug() << QStringLiteral("YPBM found");
             YPBM = true;
