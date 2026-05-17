@@ -974,6 +974,9 @@ public:
     QTimer *backupTimer;
     QTimer *automaticShiftingTimer;
 
+    // HR PID controller state - tracks when training program changes speed to prevent race conditions
+    QDateTime lastTrainingProgramSpeedChange = QDateTime::fromMSecsSinceEpoch(0);
+
     // FIT backup threading
     QThread *fitBackupThread;
     FitBackupWriter *fitBackupWriter;
@@ -1089,6 +1092,7 @@ public:
     void saveSessionAsTrainingProgram();
     void strava_connect_clicked();
     void trainProgramSignals();
+    void onTrainingProgramSpeedChanged(double speed);
     void refresh_bluetooth_devices_clicked();
     void onStravaGranted();
     void onStravaAuthorizeWithBrowser(const QUrl &url);

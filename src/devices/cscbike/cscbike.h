@@ -45,6 +45,8 @@ class cscbike : public bike {
     //                             bool wait_for_response = false);
     void startDiscover();
     uint16_t watts() override;
+    bool useCustomResistancePowerTable() const;
+    resistance_t clampedCustomResistance(resistance_t resistance) const;
 
     QTimer *refresh;
 
@@ -82,6 +84,7 @@ class cscbike : public bike {
 #endif
 
     uint16_t manualResistanceAdjustedWatts();
+    uint16_t customResistanceAdjustedWatts();
     double manualResistancePowerMultiplier();
 
   signals:

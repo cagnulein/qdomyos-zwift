@@ -113,6 +113,7 @@ class wahookickrsnapbike : public bike {
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     double lastGearValue = -1;
+    double lastGearModifierValue = 0;
     double lastGrade = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     QDateTime lastGoodCadence = QDateTime::currentDateTime();

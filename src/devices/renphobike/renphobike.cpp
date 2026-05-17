@@ -148,7 +148,7 @@ void renphobike::update() {
 
                     requestResistance = -1;
                 } else if (lastRequestResistance != -1) {
-                    int8_t r = lastRequestResistance * m_difficult + gears();
+                    int8_t r = lastRequestResistance * m_difficult + gearsModifier();
                     debug("writing resistance for renpho forever " + QString::number(r));
                     forceResistance(r);
                 }
@@ -576,10 +576,10 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
             qDebug() << QStringLiteral("sending") << lastFTMSPacketReceived.toHex(' ');
         // handling gears
         } else if (lastFTMSPacketReceived.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
-            qDebug() << "applying gears mod" << gears();
+            qDebug() << "applying gears mod" << gears() << gearsModifier();
             int16_t slope = (((uint8_t)lastFTMSPacketReceived.at(3)) + (lastFTMSPacketReceived.at(4) << 8));
-            if (gears() != 0) {
-                slope += (gears() * 50);
+            if (gearsModifier() != 0) {
+                slope += (gearsModifier() * 50);
                 lastFTMSPacketReceived[3] = slope & 0xFF;
                 lastFTMSPacketReceived[4] = slope >> 8;
             }
