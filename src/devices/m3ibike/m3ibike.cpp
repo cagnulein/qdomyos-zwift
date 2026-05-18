@@ -728,6 +728,42 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         }
 
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+        if (h) {
+            bool activeOnly = settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
+            if (activeOnly) {
+                h->setKcal(calories().value());
+                h->setTotalKcal(totalCalories().value());
+            } else {
+                h->setKcal(calories().value());
+            }
+            h->setDistance(Distance.value());
+            h->setSpeed(Speed.value());
+            h->setPower(m_watt.value());
+            h->setCadence(Cadence.value());
+            h->setSteps(StepCount.value());
+            h->setElevationGain(elevationGain().value());
+
+            bool useMiles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+            QString compactLeadingMetric =
+                settings.value(QZSettings::ios_live_activity_compact_leading_metric,
+                               QZSettings::default_ios_live_activity_compact_leading_metric)
+                    .toString();
+            QString compactTrailingMetric =
+                settings.value(QZSettings::ios_live_activity_compact_trailing_metric,
+                               QZSettings::default_ios_live_activity_compact_trailing_metric)
+                    .toString();
+            QByteArray compactLeadingMetricUtf8 = compactLeadingMetric.toUtf8();
+            QByteArray compactTrailingMetricUtf8 = compactTrailingMetric.toUtf8();
+            const uint8_t workoutHeartRate = heartRateFromHealthKit ? 0 : (uint8_t)Heart.value();
+
+            h->workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), calories().value(),
+                                     StepCount.value(), deviceType(), odometer() * 1000.0, totalCalories().value(),
+                                     useMiles, workoutHeartRate, compactLeadingMetricUtf8.constData(),
+                                     metricValueForSetting(compactLeadingMetric), compactTrailingMetricUtf8.constData(),
+                                     metricValueForSetting(compactTrailingMetric));
+            heartRateFromHealthKit = false;
+        }
+
         bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
         bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence && h) {

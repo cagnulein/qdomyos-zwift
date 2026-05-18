@@ -288,21 +288,31 @@ double treadmill::requestedInclination() { return requestInclination; }
 double treadmill::currentTargetSpeed() { return targetSpeed; }
 
 void treadmill::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
-void treadmill::powerSensor(uint16_t power) { 
+void treadmill::powerSensor(uint16_t power) {
     double vwatts = 0;
     if(power > 0) {
         powerReceivedFromPowerSensor = true;
         qDebug() << "powerReceivedFromPowerSensor" << powerReceivedFromPowerSensor << power;
         QSettings settings;
         if(currentInclination().value() != 0 && settings.value(QZSettings::stryd_add_inclination_gain, QZSettings::default_stryd_add_inclination_gain).toBool()) {
-            QSettings settings;
-            double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
-            // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
-            vwatts = ((9.8 * w) * (currentInclination().value() / 100.0));
-            qDebug() << QStringLiteral("overrding power read from the sensor of ") << power << QStringLiteral("with ") << vwatts << QStringLiteral(" for the treadmill inclination");
+            double coeff_a = settings.value(QZSettings::power_sensor_speed_inclination_coeff_a, QZSettings::default_power_sensor_speed_inclination_coeff_a).toDouble();
+            double coeff_b = settings.value(QZSettings::power_sensor_speed_inclination_coeff_b, QZSettings::default_power_sensor_speed_inclination_coeff_b).toDouble();
+
+            if(coeff_a != 0.0 || coeff_b != 0.0) {
+                // Use custom formula: vwatts = (A + B * speed) * inclination
+                double speed = currentSpeed().value(); // km/h
+                vwatts = (coeff_a + coeff_b * speed) * currentInclination().value();
+                qDebug() << QStringLiteral("Using custom speed/inclination formula: (") << coeff_a << QStringLiteral(" + ") << coeff_b << QStringLiteral(" × ") << speed << QStringLiteral(" km/h) × ") << currentInclination().value() << QStringLiteral("% = ") << vwatts << QStringLiteral(" W");
+            } else {
+                // Use default formula
+                double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+                // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
+                vwatts = ((9.8 * w) * (currentInclination().value() / 100.0));
+                qDebug() << QStringLiteral("Using default formula, overriding power read from the sensor of ") << power << QStringLiteral(" with ") << vwatts << QStringLiteral(" W for the treadmill inclination");
+            }
         }
     }
-    m_watt.setValue(power + vwatts, false); 
+    m_watt.setValue(power + vwatts, false);
 }
 
 void treadmill::speedSensor(double speed) {
@@ -602,10 +612,36 @@ bool treadmill::cadenceFromAppleWatch() {
                    .startsWith(QStringLiteral("Disabled"))) {
         long appleWatchCadence = h.stepCadence();
         qDebug() << QStringLiteral("Current Cadence: ") << QString::number(appleWatchCadence);
+        // Slow-jogging mode: derive Speed from Apple Watch cadence when running on Fake
+        // Treadmill. Gated on both toggles so this only runs in the explicit Fake Treadmill
+        // use case and does not affect normal treadmill users by default.
+        const bool appleWatchTreadmillSpeed =
+            settings.value(QZSettings::applewatch_as_treadmill_speed,
+                           QZSettings::default_applewatch_as_treadmill_speed).toBool() &&
+            settings.value(QZSettings::fakedevice_treadmill,
+                           QZSettings::default_fakedevice_treadmill).toBool();
         if (appleWatchCadence > 0) {
             evaluateStepCount();
-            Cadence = appleWatchCadence;
+            const double cadence_gain =
+                settings.value(QZSettings::cadence_gain,
+                               QZSettings::default_cadence_gain).toDouble();
+            const double cadence_offset =
+                settings.value(QZSettings::cadence_offset,
+                               QZSettings::default_cadence_offset).toDouble();
+            Cadence = (appleWatchCadence * cadence_gain) + cadence_offset;
+            if (appleWatchTreadmillSpeed) {
+                const double ratio =
+                    settings.value(QZSettings::cadence_sensor_speed_ratio,
+                                   QZSettings::default_cadence_sensor_speed_ratio).toDouble();
+                Speed = appleWatchCadence * (ratio > 0.0 ? ratio : 0.0);
+            }
             return true;
+        }
+        if (appleWatchCadence == 0 && appleWatchTreadmillSpeed) {
+            // Cadence reported as exactly zero (user stopped); zero Speed too so the virtual
+            // treadmill broadcast doesn't ghost the previous value. Negative values are
+            // treated as "no fresh sample" and leave Speed unchanged.
+            Speed = 0;
         }
         return false;
     }
