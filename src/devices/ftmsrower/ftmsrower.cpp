@@ -6,6 +6,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
+#include <QRegularExpression>
 #include <QSettings>
 
 #include <QThread>
@@ -396,8 +397,9 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 
     if (Flags.totDistance) {
-        if (ICONSOLE_PLUS || FITSHOW || MRK_R11S) {
-            // For ICONSOLE+/FITSHOW/MRK_R11S, always calculate distance from speed instead of using characteristic data
+        if (ICONSOLE_PLUS || FITSHOW || MRK_R11S || ROWTECH_12001) {
+            // Some rowers expose a total-distance field but do not report it in usable FTMS metres.
+            // For those models, calculate distance from the normalized speed instead.
             Distance += ((Speed.value() / 3600000.0) *
                          ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
         } else {
@@ -420,6 +422,10 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     if (Flags.instantPace) {
         instantPace =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+        if (ROWTECH_12001 && instantPace != 0 && instantPace != 65535) {
+            // RowTech 12001 reports pace in tenths of a second per 500m.
+            instantPace /= 10.0;
+        }
         index += 2;
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
 
@@ -439,6 +445,9 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         double avgPace;
         avgPace =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+        if (ROWTECH_12001 && avgPace != 0 && avgPace != 65535) {
+            avgPace /= 10.0;
+        }
         index += 2;
         emit debug(QStringLiteral("Current Average Pace: ") + QString::number(avgPace));
     }
@@ -862,6 +871,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("MRK-R11S-"))) {
             MRK_R11S = true;
             qDebug() << "MRK_R11S found!";
+        } else if (QRegularExpression(QStringLiteral("^\\d{5}$")).match(device.name().trimmed()).hasMatch()) {
+            ROWTECH_12001 = true;
+            qDebug() << "5-digit FTMS rower found!";
         } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
             PM5 = true;
             qDebug() << "PM5 found!";
