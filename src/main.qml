@@ -756,31 +756,43 @@ ApplicationWindow {
         leftPadding: getLeftPadding()
         rightPadding: getRightPadding()
 
+        function activateMainNavigationButton() {
+            if (stackView.depth > 1) {
+                if(window.settings_restart_to_apply === true) {
+                    window.settings_restart_to_apply = false;
+                    popupRestartApp.visible = true;
+                }
+
+                stackView.pop()
+                toolButtonLoadSettings.visible = false;
+                toolButtonSaveSettings.visible = false;
+                rootItem.sortTiles()
+            } else {
+                drawer.open()
+            }
+        }
+
         ToolButton {
             id: toolButton
             icon.source: "icons/icons/icon.png"
             text: stackView.depth > 1 ? "◄" : "◄"
             font.pixelSize: Qt.application.font.pixelSize * 1.6
-            onClicked: {
-                if (stackView.depth > 1) {
-                    if(window.settings_restart_to_apply === true) {
-                        window.settings_restart_to_apply = false;
-                        popupRestartApp.visible = true;
-                    }
-
-                    stackView.pop()
-                    toolButtonLoadSettings.visible = false;
-                    toolButtonSaveSettings.visible = false;
-                    rootItem.sortTiles()
-                } else {
-                    drawer.open()
-                }
-            }
+            Accessible.role: Accessible.Button
+            Accessible.name: stackView.depth > 1 ? qsTr("Back") : qsTr("Main menu")
+            Accessible.description: stackView.depth > 1 ? qsTr("Return to the previous screen") : qsTr("Open the main navigation menu")
+            Accessible.focusable: true
+            Accessible.onPressAction: headerToolbar.activateMainNavigationButton()
+            onClicked: headerToolbar.activateMainNavigationButton()
         }
 
         ToolButton {
             id: toolButtonFloating
             icon.source: "icons/icons/mini-display.png"
+            Accessible.role: Accessible.Button
+            Accessible.name: qsTr("Floating window")
+            Accessible.description: qsTr("Open the floating workout display")
+            Accessible.focusable: true
+            Accessible.onPressAction: { console.log("floating!"); floatingOpen(); }
             onClicked: { console.log("floating!"); floatingOpen(); }
             anchors.left: toolButton.right
             visible: OS_VERSION === "Android" ? true : false
@@ -856,32 +868,46 @@ ApplicationWindow {
             onTriggered: popuplockTiles.close();
         }
 
+        function activateLoadSettingsButton() {
+            stackView.push("SettingsList.qml")
+            stackView.currentItem.loadSettings.connect(loadSettings)
+            stackView.currentItem.loadSettings.connect(function(url) {
+                stackView.pop();
+                if (stackView.depth > 1) {
+                    stackView.pop()
+                }
+                popupLoadSettings.open();
+             });
+            drawer.close()
+        }
+
         ToolButton {
             id: toolButtonLoadSettings
             icon.source: "icons/icons/tray-arrow-up.png"
-            onClicked: {
-                stackView.push("SettingsList.qml")
-                stackView.currentItem.loadSettings.connect(loadSettings)
-                stackView.currentItem.loadSettings.connect(function(url) {
-                    stackView.pop();
-                    if (stackView.depth > 1) {
-                        stackView.pop()
-                    }
-                    popupLoadSettings.open();
-                 });
-                drawer.close()
-            }
+            Accessible.role: Accessible.Button
+            Accessible.name: qsTr("Load settings")
+            Accessible.description: qsTr("Open the saved settings list")
+            Accessible.focusable: true
+            Accessible.onPressAction: headerToolbar.activateLoadSettingsButton()
+            onClicked: headerToolbar.activateLoadSettingsButton()
             anchors.right: toolButtonSaveSettings.left
             visible: false
+        }
+
+        function activateSaveSettingsButton() {
+            saveSettings("settings");
+            popupSaveFile.open()
         }
 
         ToolButton {
             id: toolButtonSaveSettings
             icon.source: "icons/icons/tray-arrow-down.png"
-            onClicked: {
-                saveSettings("settings");
-                popupSaveFile.open()
-            }
+            Accessible.role: Accessible.Button
+            Accessible.name: qsTr("Save settings")
+            Accessible.description: qsTr("Save the current settings profile")
+            Accessible.focusable: true
+            Accessible.onPressAction: headerToolbar.activateSaveSettingsButton()
+            onClicked: headerToolbar.activateSaveSettingsButton()
             anchors.right: toolButtonAutoResistance.left/*toolClassifica.left*/
             visible: false
         }
@@ -908,6 +934,11 @@ ApplicationWindow {
             }
             id: toolButtonMaps
             icon.source: ( "icons/icons/maps-icon-16.png" )
+            Accessible.role: Accessible.Button
+            Accessible.name: qsTr("Map")
+            Accessible.description: qsTr("Open the route map")
+            Accessible.focusable: true
+            Accessible.onPressAction: loadMaps()
             onClicked: { loadMaps(); }
             anchors.right: toolButtonChart.left
             visible: rootItem.mapsVisible
@@ -925,6 +956,11 @@ ApplicationWindow {
             }
             id: toolButtonVideo
             icon.source: ( "icons/icons/video.png" )
+            Accessible.role: Accessible.Button
+            Accessible.name: qsTr("Video")
+            Accessible.description: qsTr("Show or hide the workout video")
+            Accessible.focusable: true
+            Accessible.onPressAction: loadVideo()
             onClicked: { loadVideo(); }
             anchors.right: toolButtonMaps.left
             visible: rootItem.videoIconVisible
@@ -933,23 +969,52 @@ ApplicationWindow {
         ToolButton {
             id: toolButtonChart
             icon.source: ( "icons/icons/chart.png" )
+            Accessible.role: Accessible.Button
+            Accessible.name: qsTr("Chart")
+            Accessible.description: qsTr("Show or hide the workout chart")
+            Accessible.focusable: true
+            Accessible.onPressAction: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
             onClicked: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
             anchors.right: toolButtonLockTiles.left
             visible: rootItem.chartIconVisible
         }
 
+        function activateLockTilesButton() {
+            window.lockTiles = !window.lockTiles;
+            console.log("lock tiles toggled " + window.lockTiles);
+            popuplockTiles.open();
+            popuplockTilesAutoClose.running = true;
+        }
+
         ToolButton {
             id: toolButtonLockTiles
             icon.source: ( window.lockTiles ? "icons/icons/unlock.png" : "icons/icons/lock.png")
-            onClicked: { window.lockTiles = !window.lockTiles; console.log("lock tiles toggled " + window.lockTiles); popuplockTiles.open(); popuplockTilesAutoClose.running = true; }
+            Accessible.role: Accessible.Button
+            Accessible.name: window.lockTiles ? qsTr("Unlock tiles") : qsTr("Lock tiles")
+            Accessible.description: window.lockTiles ? qsTr("Allow workout tiles to be moved") : qsTr("Prevent workout tiles from being moved")
+            Accessible.focusable: true
+            Accessible.onPressAction: headerToolbar.activateLockTilesButton()
+            onClicked: headerToolbar.activateLockTilesButton()
             anchors.right: toolButtonAutoResistance.left
             visible: !toolButtonSaveSettings.visible
+        }
+
+        function activateAutoResistanceButton() {
+            rootItem.autoResistance = !rootItem.autoResistance;
+            console.log("auto resistance toggled " + rootItem.autoResistance);
+            popupAutoResistance.open();
+            popupAutoResistanceAutoClose.running = true;
         }
 
         ToolButton {
             id: toolButtonAutoResistance
             icon.source: ( rootItem.autoResistance ? "icons/icons/resistance.png" : "icons/icons/pause.png")
-            onClicked: { rootItem.autoResistance = !rootItem.autoResistance; console.log("auto resistance toggled " + rootItem.autoResistance); popupAutoResistance.open(); popupAutoResistanceAutoClose.running = true; }
+            Accessible.role: Accessible.Button
+            Accessible.name: rootItem.autoResistance ? qsTr("Disable auto resistance") : qsTr("Enable auto resistance")
+            Accessible.description: qsTr("Toggle automatic resistance control")
+            Accessible.focusable: true
+            Accessible.onPressAction: headerToolbar.activateAutoResistanceButton()
+            onClicked: headerToolbar.activateAutoResistanceButton()
             anchors.right: parent.right
         }
 

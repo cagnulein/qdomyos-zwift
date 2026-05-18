@@ -117,11 +117,16 @@
 
                 // Show dialog
                 this.elements.container.classList.remove('hidden');
+                this.elements.container.setAttribute('aria-hidden', 'false');
 
-                // Focus input if present
-                if (options.input) {
-                    setTimeout(() => this.elements.input.focus(), 100);
-                }
+                // Focus input if present; otherwise focus the confirm button for screen readers.
+                setTimeout(() => {
+                    if (options.input) {
+                        this.elements.input.focus();
+                    } else {
+                        this.elements.confirmBtn.focus();
+                    }
+                }, 100);
 
                 // Handle buttons
                 const handleConfirm = () => {
@@ -152,6 +157,7 @@
                     this.elements.cancelBtn.removeEventListener('click', handleCancel);
                     this.elements.input.removeEventListener('keypress', handleKeyPress);
                     this.elements.container.classList.add('hidden');
+                    this.elements.container.setAttribute('aria-hidden', 'true');
                 };
 
                 this.elements.confirmBtn.addEventListener('click', handleConfirm);
@@ -209,6 +215,7 @@
         selectors.statusIntervals = document.getElementById('statusIntervals');
         selectors.statusMessage = document.getElementById('statusMessage');
         selectors.offlineBanner = document.getElementById('offlineBanner');
+        selectors.workoutChart = document.getElementById('workoutChart');
 
         // Initialize custom dialog system for iOS WebView compatibility
         dialog.init();
@@ -662,6 +669,8 @@
         state.intervals.forEach((row, index) => {
             const card = document.createElement('div');
             card.className = 'interval-card';
+            card.setAttribute('role', 'listitem');
+            card.setAttribute('aria-labelledby', `interval-title-${index}`);
             if (row.__selected) {
                 card.classList.add('selected');
             }
@@ -680,6 +689,7 @@
             selectBox.type = 'checkbox';
             selectBox.checked = !!row.__selected;
             selectBox.title = 'Select interval';
+            selectBox.setAttribute('aria-label', `Select interval ${index + 1}`);
             selectBox.addEventListener('change', event => {
                 row.__selected = event.target.checked;
                 card.classList.toggle('selected', row.__selected);
@@ -690,6 +700,7 @@
 
             const title = document.createElement('div');
             title.className = 'card-header-name';
+            title.id = `interval-title-${index}`;
             title.textContent = row.name ? `${row.name}` : `Interval ${index + 1}`;
             headerLeft.appendChild(title);
 
@@ -697,10 +708,10 @@
 
             const actions = document.createElement('div');
             actions.className = 'card-actions';
-            actions.appendChild(actionButton('↑', () => moveInterval(index, -1), index === 0));
-            actions.appendChild(actionButton('↓', () => moveInterval(index, 1), index === state.intervals.length - 1));
-            actions.appendChild(actionButton('Copy', () => duplicateInterval(index)));
-            actions.appendChild(actionButton('Del', () => removeInterval(index), state.intervals.length === 1));
+            actions.appendChild(actionButton('↑', () => moveInterval(index, -1), index === 0, `Move interval ${index + 1} up`));
+            actions.appendChild(actionButton('↓', () => moveInterval(index, 1), index === state.intervals.length - 1, `Move interval ${index + 1} down`));
+            actions.appendChild(actionButton('Copy', () => duplicateInterval(index), false, `Copy interval ${index + 1}`));
+            actions.appendChild(actionButton('Del', () => removeInterval(index), state.intervals.length === 1, `Delete interval ${index + 1}`));
             header.appendChild(actions);
             card.appendChild(header);
 
@@ -736,6 +747,7 @@
                     enableCheckbox.checked = isEnabled;
                     enableCheckbox.dataset.index = index;
                     enableCheckbox.dataset.key = field.key;
+                    enableCheckbox.setAttribute('aria-label', `Enable ${resolveFieldLabel(field)} for interval ${index + 1}`);
                     enableCheckbox.addEventListener('change', (e) => {
                         const checked = e.target.checked;
                         row['__enabled_' + field.key] = checked;
@@ -777,6 +789,7 @@
                 }
 
                 const labelText = document.createElement('span');
+                labelText.id = `interval-${index}-${field.key}-label`;
                 labelText.textContent = resolveFieldLabel(field);
                 labelWrap.appendChild(labelText);
                 fieldWrap.appendChild(labelWrap);
@@ -788,6 +801,8 @@
                     checkbox.dataset.index = index;
                     checkbox.dataset.key = field.key;
                     checkbox.dataset.type = field.type;
+                    checkbox.setAttribute('aria-labelledby', `interval-${index}-${field.key}-label`);
+                    checkbox.setAttribute('aria-label', `${resolveFieldLabel(field)} for interval ${index + 1}`);
                     checkbox.addEventListener('change', handleFieldChange);
                     fieldWrap.appendChild(checkbox);
                 } else {
@@ -795,9 +810,12 @@
                     inputWrapper.className = 'field-with-buttons';
 
                     const input = document.createElement('input');
+                    input.id = `interval-${index}-${field.key}`;
                     input.dataset.index = index;
                     input.dataset.key = field.key;
                     input.dataset.type = field.type;
+                    input.setAttribute('aria-labelledby', `interval-${index}-${field.key}-label`);
+                    input.setAttribute('aria-label', `${resolveFieldLabel(field)} for interval ${index + 1}`);
                     if (field.type === 'duration') {
                         input.type = 'text';
                         input.value = value || '00:05:00';
@@ -827,12 +845,14 @@
                         decreaseBtn.textContent = '-';
                         decreaseBtn.type = 'button';
                         decreaseBtn.title = 'Decrease';
+                        decreaseBtn.setAttribute('aria-label', `Decrease ${resolveFieldLabel(field)} for interval ${index + 1}`);
                         decreaseBtn.addEventListener('click', () => handleIncrement(input, field, -1));
 
                         const increaseBtn = document.createElement('button');
                         increaseBtn.textContent = '+';
                         increaseBtn.type = 'button';
                         increaseBtn.title = 'Increase';
+                        increaseBtn.setAttribute('aria-label', `Increase ${resolveFieldLabel(field)} for interval ${index + 1}`);
                         increaseBtn.addEventListener('click', () => handleIncrement(input, field, 1));
 
                         inputWrapper.appendChild(decreaseBtn);
@@ -883,10 +903,14 @@
         return field.label;
     }
 
-    function actionButton(text, handler, disabled) {
+    function actionButton(text, handler, disabled, ariaLabel) {
         const btn = document.createElement('button');
         btn.className = 'small';
+        btn.type = 'button';
         btn.textContent = text;
+        if (ariaLabel) {
+            btn.setAttribute('aria-label', ariaLabel);
+        }
         if (disabled) {
             btn.disabled = true;
         }
@@ -1338,8 +1362,12 @@
 
     function updateStatus() {
         const totalSeconds = state.intervals.reduce((acc, interval) => acc + parseDuration(interval.duration), 0);
-        selectors.statusDuration.textContent = formatDuration(totalSeconds);
+        const formattedDuration = formatDuration(totalSeconds);
+        selectors.statusDuration.textContent = formattedDuration;
         selectors.statusIntervals.textContent = String(state.intervals.length);
+        if (selectors.workoutChart) {
+            selectors.workoutChart.setAttribute('aria-label', `${selectors.name.value.trim() || 'Untitled workout'} preview chart. ${state.intervals.length} intervals. Total duration ${formattedDuration}.`);
+        }
     }
 
     function formatDuration(totalSeconds) {

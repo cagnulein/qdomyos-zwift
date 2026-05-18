@@ -55,6 +55,10 @@ Item {
         anchors.centerIn: parent
         visible: !root.pageLoaded
         running: !root.pageLoaded
+        Accessible.role: Accessible.Indicator
+        Accessible.name: qsTr("Loading workout editor")
+        Accessible.description: qsTr("The workout editor is loading")
+        Accessible.focusable: !root.pageLoaded
     }
 
     Component.onCompleted: portPoller.start()
