@@ -170,6 +170,8 @@ void toorxtreadmill::update() {
             requestInclination = -100;
         } else if (requestStart != -1 && start_phase == -1) {
             emit debug(QStringLiteral("starting..."));
+            bhDualkitState2RecoveryRequested = false;
+            bhDualkitState2RecoveryApplied = false;
             if (BHDualkitTread) {
                 const uint8_t incline[] = {0x55, 0x0a, 0x01, 0x01};
                 send((char *)incline, sizeof(incline));
@@ -188,6 +190,12 @@ void toorxtreadmill::update() {
             }
         } else if (start_phase != -1) {
             requestStart = -1;
+            if (BHDualkitTread && bhDualkitState2RecoveryRequested && !bhDualkitState2RecoveryApplied) {
+                emit debug(QStringLiteral("BH DUALKIT TREAD state 2 during init, switching to recovery sequence"));
+                start_phase = 3;
+                bhDualkitState2RecoveryRequested = false;
+                bhDualkitState2RecoveryApplied = true;
+            }
             if(toorx_65s_evo) {
                 switch (start_phase) {
                     case 0: {
@@ -572,7 +580,17 @@ void toorxtreadmill::readSocket() {
         const QByteArray payload = rxBuffer.mid(3, payloadLen);
         rxBuffer.remove(0, frameLen);
 
-        if (command == 0x0d && payloadLen >= 10) {
+        if (command == 0x09 && payloadLen >= 1) {
+            const uint8_t treadmillState = static_cast<uint8_t>(payload.at(0));
+            emit debug(QStringLiteral("Current state: ") + QString::number(treadmillState));
+
+            // In captures from the vendor app, a BH Dualkit treadmill that reports state 0x02 during
+            // startup is recovered by resuming from the 0x0a 0x02 stage rather than replaying the
+            // full preamble. Apply that branch once per start attempt while initialization is active.
+            if (BHDualkitTread && treadmillState == 0x02 && !bhDualkitState2RecoveryApplied) {
+                bhDualkitState2RecoveryRequested = true;
+            }
+        } else if (command == 0x0d && payloadLen >= 10) {
             elapsed = GetElapsedTimeFromPacket(payload);
             Distance = GetDistanceFromPacket(payload);
             KCal = GetCaloriesFromPacket(payload);

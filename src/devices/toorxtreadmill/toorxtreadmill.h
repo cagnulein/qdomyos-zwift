@@ -56,6 +56,8 @@ class toorxtreadmill : public treadmill {
     bool initDone = false;
     bool found = false;
     QByteArray rxBuffer;
+    bool bhDualkitState2RecoveryRequested = false;
+    bool bhDualkitState2RecoveryApplied = false;
 
     void send(char * buffer, int size);
     bool MASTERT409 = false;
