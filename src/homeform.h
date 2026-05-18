@@ -596,6 +596,7 @@ class homeform : public QObject {
     Q_INVOKABLE void handleOAuthCallbackFromQml(const QString &callbackUrl);
     Q_INVOKABLE void selectGymModeDevice(const QString &deviceName);
     Q_INVOKABLE bool hasConnectedDevice() const;
+    Q_INVOKABLE void notifyAccessibilityScreenChanged();
 
 private:
     void clearWebViewCache();

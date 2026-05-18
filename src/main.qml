@@ -1033,6 +1033,11 @@ ApplicationWindow {
         leftPadding: getLeftPadding()
         rightPadding: getRightPadding()
         Accessible.ignored: !drawer.opened
+        onOpened: {
+            if (OS_VERSION === "iOS") {
+                rootItem.notifyAccessibilityScreenChanged()
+            }
+        }
 
         ScrollView {
             contentWidth: -1
@@ -1362,6 +1367,7 @@ ApplicationWindow {
             anchors.bottomMargin: (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0
             anchors.rightMargin: getRightPadding()
             anchors.leftMargin: getLeftPadding()
+            Accessible.ignored: drawer.opened
             focus: true
             Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
         Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }

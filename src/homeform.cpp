@@ -9384,6 +9384,14 @@ void homeform::clearWebViewCache() {
 #endif
 }
 
+void homeform::notifyAccessibilityScreenChanged() {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    lockscreen::postAccessibilityScreenChanged();
+#endif
+#endif
+}
+
 void homeform::garmin_upload_file_prepare() {
     qDebug() << "Garmin upload file prepare" << lastFitFileSaved;
 

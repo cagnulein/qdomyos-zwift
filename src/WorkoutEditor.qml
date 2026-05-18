@@ -35,12 +35,19 @@ Item {
         id: webView
         anchors.fill: parent
         visible: root.pageLoaded
+        focus: root.pageLoaded
         onLoadingChanged: {
             if (loadRequest.status === WebView.LoadSucceededStatus) {
                 root.pageLoaded = true
                 busy.visible = false
                 busy.running = false
                 portPoller.stop()
+                webView.forceActiveFocus()
+                if (OS_VERSION === "iOS") {
+                    Qt.callLater(function() {
+                        rootItem.notifyAccessibilityScreenChanged()
+                    })
+                }
             } else if (loadRequest.status === WebView.LoadFailedStatus) {
                 root.pageLoaded = false
                 busy.visible = true
