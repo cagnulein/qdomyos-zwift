@@ -223,7 +223,7 @@ void bkoolbike::update() {
 
         if (requestInclination != -100) {
             emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-            forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
+            forceInclination(requestInclination + gearsModifier()); // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
             requestInclination = -100;
         }
