@@ -210,6 +210,11 @@ void ftmsbike::zwiftPlayInit() {
 }
 
 void ftmsbike::forcePower(int16_t requestPower) {
+    if (ECHO_BIKE) {
+        qDebug() << QStringLiteral("ECHO_BIKE ignores power writes");
+        return;
+    }
+
     if((resistance_lvl_mode || TITAN_7000) && !MAGNUS && !SS2K) {
         forceResistance(resistanceFromPowerRequest(requestPower));
     } else {
@@ -238,6 +243,11 @@ resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
 }
 
 void ftmsbike::forceResistance(resistance_t requestResistance) {
+    if (ECHO_BIKE) {
+        qDebug() << QStringLiteral("ECHO_BIKE ignores resistance writes");
+        return;
+    }
+
     if (DOMYOS) {
         lastDomyosResistanceCommand = QDateTime::currentDateTime();
         lastDomyosRequestedResistance = requestResistance;
@@ -298,6 +308,11 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
 }
 
 void ftmsbike::forceInclination(double requestInclination) {
+    if (ECHO_BIKE) {
+        qDebug() << QStringLiteral("ECHO_BIKE ignores inclination writes");
+        return;
+    }
+
     // FTMS SET_INDOOR_BIKE_SIMULATION_PARAMS command
     // Byte 0: OpCode
     // Byte 1-2: Wind Speed (sint16, 0.001 m/s)
@@ -1585,6 +1600,11 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
                 }
 
+                if (ECHO_BIKE && c.uuid() != QBluetoothUuid((quint16)0x2AD2)) {
+                    qDebug() << QStringLiteral("ECHO_BIKE subscribes only to Indoor Bike Data") << c.uuid();
+                    continue;
+                }
+
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
@@ -1861,6 +1881,11 @@ void ftmsbike::serviceScanDone(void) {
     QBluetoothUuid ftmsService((quint16)0x1826);
     bool JK_fitness_577 = bluetoothDevice.name().toUpper().startsWith("DHZ-");
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
+        if (ECHO_BIKE && s != ftmsService) {
+            qDebug() << QStringLiteral("ECHO_BIKE skipping non-FTMS service discovery") << s;
+            continue;
+        }
+
         if ((JK_fitness_577 && s == ftmsService) || !JK_fitness_577) {
             QLowEnergyService *service = m_control->createServiceObject(s);
             if (!service) {
@@ -2039,6 +2064,8 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("ECHO_BIKE_")) {
             qDebug() << QStringLiteral("ECHO_BIKE found");
             ECHO_BIKE = true;
+            autoResistanceEnable = false;
+            ergModeSupported = false;
         } else if(device.name().toUpper().startsWith("YPBM") && device.name().length() == 10) {
             qDebug() << QStringLiteral("YPBM found");
             YPBM = true;
