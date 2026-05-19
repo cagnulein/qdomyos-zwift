@@ -57,15 +57,17 @@ class kettlerc12bike : public bike {
 
     // BLE Services and Characteristics
     QLowEnergyService *gattCommunicationChannelService = nullptr;
+    QList<QLowEnergyService *> gattMetricServices;
 
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattHandshakeCharacteristic;
-    QLowEnergyCharacteristic gattNotify0x0034;            // Cadence notifications
+    QLowEnergyCharacteristic gattNotify0x0034;
     QLowEnergyCharacteristic gattNotify0x003e;            // Power notifications
     QLowEnergyCharacteristic gattNotify0x0048;            // Speed notifications
 
     bool initDone = false;
     bool initRequest = false;
+    bool connectedAndDiscoveredEmitted = false;
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool testResistance = false;
@@ -73,10 +75,14 @@ class kettlerc12bike : public bike {
     double bikeResistanceGain = 1.0;
 
     uint8_t sec1Update = 0;
+    uint8_t kettlerCommandSequence = 0x04;
     uint8_t counterPoll = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime lastGoodCadence = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
+    uint16_t oldLastCrankEventTime = 0;
+    double oldCrankRevs = 0;
 
     // UUIDs seen on Kettler C12 variants/firmware revisions.
     const QBluetoothUuid KETTLER_SERVICE_UUID = QBluetoothUuid(QStringLiteral("8ce5cc01-0a4d-11e9-ab14-d663bd873d93"));
@@ -91,6 +97,14 @@ class kettlerc12bike : public bike {
         QBluetoothUuid(QStringLiteral("638a1003-7bde-3e25-ffc5-9de9b2a0197a"));
     const QBluetoothUuid KETTLER_SPEED_CHAR_UUID =
         QBluetoothUuid(QStringLiteral("638a1004-7bde-3e25-ffc5-9de9b2a0197a"));
+    const QBluetoothUuid KETTLER_RESISTANCE_CHAR_UUID =
+        QBluetoothUuid(QStringLiteral("638a1001-7bde-3e25-ffc5-9de9b2a0197a"));
+    const QBluetoothUuid KETTLER_DISTANCE_CHAR_UUID =
+        QBluetoothUuid(QStringLiteral("638a1008-7bde-3e25-ffc5-9de9b2a0197a"));
+    const QBluetoothUuid CYCLING_SPEED_CADENCE_SERVICE_UUID = QBluetoothUuid((quint16)0x1816);
+    const QBluetoothUuid CYCLING_POWER_SERVICE_UUID = QBluetoothUuid((quint16)0x1818);
+    const QBluetoothUuid CSC_MEASUREMENT_CHAR_UUID = QBluetoothUuid((quint16)0x2A5B);
+    const QBluetoothUuid CYCLING_POWER_MEASUREMENT_CHAR_UUID = QBluetoothUuid((quint16)0x2A63);
     QBluetoothUuid activeServiceUuid;
 
 #ifdef Q_OS_IOS
