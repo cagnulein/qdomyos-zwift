@@ -115,7 +115,7 @@ ScrollView {
         }
 
         Label {
-            text: qsTr("Click on a field and press a key to assign a shortcut. Press Backspace to clear.")
+            text: qsTr("Click on a field and press a key to assign a shortcut. Press Backspace to clear. Preset fields follow the same left-to-right order as the preset buttons.")
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2
             wrapMode: Text.WordWrap
@@ -163,6 +163,14 @@ ScrollView {
                 }
                 event.accepted = true
             }
+        }
+
+        component PresetShortcutField : ShortcutField {
+            horizontalAlignment: Text.AlignHCenter
+            Layout.fillWidth: true
+            Layout.minimumWidth: 28
+            Layout.preferredWidth: 56
+            Layout.maximumWidth: 100
         }
 
         GroupBox {
@@ -313,11 +321,11 @@ ScrollView {
             Layout.fillWidth: true
             RowLayout {
                 anchors.fill: parent
-                ShortcutField { text: settings.shortcut_preset_resistance_1; settingName: "shortcut_preset_resistance_1" }
-                ShortcutField { text: settings.shortcut_preset_resistance_2; settingName: "shortcut_preset_resistance_2" }
-                ShortcutField { text: settings.shortcut_preset_resistance_3; settingName: "shortcut_preset_resistance_3" }
-                ShortcutField { text: settings.shortcut_preset_resistance_4; settingName: "shortcut_preset_resistance_4" }
-                ShortcutField { text: settings.shortcut_preset_resistance_5; settingName: "shortcut_preset_resistance_5" }
+                PresetShortcutField { text: settings.shortcut_preset_resistance_1; settingName: "shortcut_preset_resistance_1" }
+                PresetShortcutField { text: settings.shortcut_preset_resistance_2; settingName: "shortcut_preset_resistance_2" }
+                PresetShortcutField { text: settings.shortcut_preset_resistance_3; settingName: "shortcut_preset_resistance_3" }
+                PresetShortcutField { text: settings.shortcut_preset_resistance_4; settingName: "shortcut_preset_resistance_4" }
+                PresetShortcutField { text: settings.shortcut_preset_resistance_5; settingName: "shortcut_preset_resistance_5" }
             }
         }
 
@@ -326,11 +334,11 @@ ScrollView {
             Layout.fillWidth: true
             RowLayout {
                 anchors.fill: parent
-                ShortcutField { text: settings.shortcut_preset_speed_1; settingName: "shortcut_preset_speed_1" }
-                ShortcutField { text: settings.shortcut_preset_speed_2; settingName: "shortcut_preset_speed_2" }
-                ShortcutField { text: settings.shortcut_preset_speed_3; settingName: "shortcut_preset_speed_3" }
-                ShortcutField { text: settings.shortcut_preset_speed_4; settingName: "shortcut_preset_speed_4" }
-                ShortcutField { text: settings.shortcut_preset_speed_5; settingName: "shortcut_preset_speed_5" }
+                PresetShortcutField { text: settings.shortcut_preset_speed_1; settingName: "shortcut_preset_speed_1" }
+                PresetShortcutField { text: settings.shortcut_preset_speed_2; settingName: "shortcut_preset_speed_2" }
+                PresetShortcutField { text: settings.shortcut_preset_speed_3; settingName: "shortcut_preset_speed_3" }
+                PresetShortcutField { text: settings.shortcut_preset_speed_4; settingName: "shortcut_preset_speed_4" }
+                PresetShortcutField { text: settings.shortcut_preset_speed_5; settingName: "shortcut_preset_speed_5" }
             }
         }
 
@@ -339,11 +347,11 @@ ScrollView {
             Layout.fillWidth: true
             RowLayout {
                 anchors.fill: parent
-                ShortcutField { text: settings.shortcut_preset_inclination_1; settingName: "shortcut_preset_inclination_1" }
-                ShortcutField { text: settings.shortcut_preset_inclination_2; settingName: "shortcut_preset_inclination_2" }
-                ShortcutField { text: settings.shortcut_preset_inclination_3; settingName: "shortcut_preset_inclination_3" }
-                ShortcutField { text: settings.shortcut_preset_inclination_4; settingName: "shortcut_preset_inclination_4" }
-                ShortcutField { text: settings.shortcut_preset_inclination_5; settingName: "shortcut_preset_inclination_5" }
+                PresetShortcutField { text: settings.shortcut_preset_inclination_1; settingName: "shortcut_preset_inclination_1" }
+                PresetShortcutField { text: settings.shortcut_preset_inclination_2; settingName: "shortcut_preset_inclination_2" }
+                PresetShortcutField { text: settings.shortcut_preset_inclination_3; settingName: "shortcut_preset_inclination_3" }
+                PresetShortcutField { text: settings.shortcut_preset_inclination_4; settingName: "shortcut_preset_inclination_4" }
+                PresetShortcutField { text: settings.shortcut_preset_inclination_5; settingName: "shortcut_preset_inclination_5" }
             }
         }
 
@@ -352,13 +360,13 @@ ScrollView {
             Layout.fillWidth: true
             RowLayout {
                 anchors.fill: parent
-                ShortcutField { text: settings.shortcut_preset_powerzone_1; settingName: "shortcut_preset_powerzone_1" }
-                ShortcutField { text: settings.shortcut_preset_powerzone_2; settingName: "shortcut_preset_powerzone_2" }
-                ShortcutField { text: settings.shortcut_preset_powerzone_3; settingName: "shortcut_preset_powerzone_3" }
-                ShortcutField { text: settings.shortcut_preset_powerzone_4; settingName: "shortcut_preset_powerzone_4" }
-                ShortcutField { text: settings.shortcut_preset_powerzone_5; settingName: "shortcut_preset_powerzone_5" }
-                ShortcutField { text: settings.shortcut_preset_powerzone_6; settingName: "shortcut_preset_powerzone_6" }
-                ShortcutField { text: settings.shortcut_preset_powerzone_7; settingName: "shortcut_preset_powerzone_7" }
+                PresetShortcutField { text: settings.shortcut_preset_powerzone_1; settingName: "shortcut_preset_powerzone_1" }
+                PresetShortcutField { text: settings.shortcut_preset_powerzone_2; settingName: "shortcut_preset_powerzone_2" }
+                PresetShortcutField { text: settings.shortcut_preset_powerzone_3; settingName: "shortcut_preset_powerzone_3" }
+                PresetShortcutField { text: settings.shortcut_preset_powerzone_4; settingName: "shortcut_preset_powerzone_4" }
+                PresetShortcutField { text: settings.shortcut_preset_powerzone_5; settingName: "shortcut_preset_powerzone_5" }
+                PresetShortcutField { text: settings.shortcut_preset_powerzone_6; settingName: "shortcut_preset_powerzone_6" }
+                PresetShortcutField { text: settings.shortcut_preset_powerzone_7; settingName: "shortcut_preset_powerzone_7" }
             }
         }
     }
