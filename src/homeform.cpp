@@ -8402,9 +8402,7 @@ void homeform::fit_save_clicked() {
         }
 
         QSettings settings;
-        if (!settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken)
-                 .toString()
-                 .isEmpty()) {
+        if (isStravaLoggedIn()) {
 
             QString mode = settings.value(QZSettings::strava_upload_mode, QZSettings::default_strava_upload_mode).toString();
             if(mode.startsWith("Always")) { // always
@@ -9020,9 +9018,17 @@ void homeform::networkRequestFinished(QNetworkReply *reply) {
             access_token = document[QStringLiteral("access_token")].toString();
         }
 
-        settings.setValue(QZSettings::strava_accesstoken, access_token);
-        settings.setValue(QZSettings::strava_refreshtoken, refresh_token);
-        settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
+        QString currentUserId =
+            settings.value(QZSettings::strava_current_user_id, QZSettings::default_strava_current_user_id).toString();
+        if (!currentUserId.isEmpty()) {
+            saveStravaTokenForUser(QZSettings::strava_accesstoken, access_token, currentUserId);
+            saveStravaTokenForUser(QZSettings::strava_refreshtoken, refresh_token, currentUserId);
+            saveStravaTokenForUser(QZSettings::strava_lastrefresh, QDateTime::currentDateTime(), currentUserId);
+        } else {
+            settings.setValue(QZSettings::strava_accesstoken, access_token);
+            settings.setValue(QZSettings::strava_refreshtoken, refresh_token);
+            settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
+        }
 
         qDebug() << "Strava tokens refreshed successfully";
 
@@ -9308,6 +9314,12 @@ void homeform::echelon_dismiss_enable_prompt() {
 
 bool homeform::isStravaLoggedIn() {
     QSettings settings;
+    QString userId = settings.value(QZSettings::strava_current_user_id, QZSettings::default_strava_current_user_id).toString();
+    if (!userId.isEmpty()) {
+        QString key = QStringLiteral("strava_accesstoken_") + userId;
+        if (!settings.value(key).toString().isEmpty())
+            return true;
+    }
     return !settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken).toString().isEmpty();
 }
 
@@ -9390,10 +9402,18 @@ void homeform::uploadHistoricalWorkoutToIntervalsICU(const QString &filePath) {
 void homeform::strava_logout() {
     qDebug() << "Strava logout requested";
     QSettings settings;
+    QString userId = settings.value(QZSettings::strava_current_user_id, QZSettings::default_strava_current_user_id).toString();
     settings.setValue(QZSettings::strava_accesstoken, QStringLiteral(""));
     settings.setValue(QZSettings::strava_refreshtoken, QStringLiteral(""));
     settings.setValue(QZSettings::strava_lastrefresh, QStringLiteral(""));
     settings.setValue(QZSettings::strava_expires, QStringLiteral(""));
+    if (!userId.isEmpty()) {
+        settings.remove(QStringLiteral("strava_accesstoken_") + userId);
+        settings.remove(QStringLiteral("strava_refreshtoken_") + userId);
+        settings.remove(QStringLiteral("strava_lastrefresh_") + userId);
+        settings.remove(QStringLiteral("strava_expires_") + userId);
+    }
+    settings.setValue(QZSettings::strava_current_user_id, QStringLiteral(""));
     if (strava) {
         strava->setToken(QStringLiteral(""));
         strava->setRefreshToken(QStringLiteral(""));

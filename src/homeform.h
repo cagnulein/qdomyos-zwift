@@ -1000,10 +1000,11 @@ public:
     void saveStravaTokenForUser(const QString& baseKey, const QVariant& value, const QString& userId) {
         QSettings settings;
         settings.setValue(getStravaSettingKey(baseKey, userId), value);
+        settings.setValue(baseKey, value);
     }
     QVariant getStravaTokenForUser(const QString& baseKey, const QString& userId, const QVariant& defaultValue = "") {
         QSettings settings;
-        return settings.value(getStravaSettingKey(baseKey, userId), defaultValue).toString();
+        return settings.value(getStravaSettingKey(baseKey, userId), defaultValue);
     }
 
     QString stravaAuthUrl;
