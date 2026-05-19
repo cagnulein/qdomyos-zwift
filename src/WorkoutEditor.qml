@@ -45,6 +45,7 @@ Item {
                 webView.forceActiveFocus()
                 if (OS_VERSION === "iOS") {
                     Qt.callLater(function() {
+                        rootItem.prepareEmbeddedWebViewForVoiceOver()
                         rootItem.notifyAccessibilityScreenChanged()
                     })
                 }

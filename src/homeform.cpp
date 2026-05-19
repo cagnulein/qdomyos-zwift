@@ -4,6 +4,7 @@
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #include "ios/ios_liveactivity.h"
+#include "ios/ios_accessibility_helper.h"
 #endif
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
@@ -9392,6 +9393,12 @@ void homeform::notifyAccessibilityScreenChanged() {
 #endif
 }
 
+void homeform::prepareEmbeddedWebViewForVoiceOver() {
+#ifdef Q_OS_IOS
+    ios_accessibility_helper::prepareEmbeddedWebViewForVoiceOver();
+#endif
+}
+
 void homeform::garmin_upload_file_prepare() {
     qDebug() << "Garmin upload file prepare" << lastFitFileSaved;
 
@@ -10894,5 +10901,3 @@ extern "C" {
 }
 #endif
 // Force rebuild for Q_INVOKABLE changes
-
-

@@ -597,6 +597,7 @@ class homeform : public QObject {
     Q_INVOKABLE void selectGymModeDevice(const QString &deviceName);
     Q_INVOKABLE bool hasConnectedDevice() const;
     Q_INVOKABLE void notifyAccessibilityScreenChanged();
+    Q_INVOKABLE void prepareEmbeddedWebViewForVoiceOver();
 
 private:
     void clearWebViewCache();
@@ -1223,5 +1224,3 @@ public:
 };
 
 #endif // HOMEFORM_H
-
-
