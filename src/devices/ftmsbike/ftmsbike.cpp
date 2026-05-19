@@ -269,10 +269,10 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
             requestResistance = 1;
         }
 
-        if(SL010 || SPORT01 || TOPUTURE_TEB5)
+        if(SL010 || SPORT01 || TOPUTURE_TEB5 || FS_YK)
             Resistance = requestResistance;
         
-        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700) {
+        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -825,7 +825,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 if(BIKE_)
                     d = d / 10.0;
                 // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
-                if(!SL010 && !TITAN_7000 && !SPORT01 && !TOPUTURE_TEB5) {
+                if(!SL010 && !TITAN_7000 && !SPORT01 && !TOPUTURE_TEB5 && !FS_YK) {
                     Resistance = d;
                     native_resistance_received = true;
                     calculatedResistanceFallbackSince = QDateTime();
@@ -863,7 +863,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     m_pelotonResistance = res;
                 }
 
-                if (!resistance_received && !DU30_bike && !SL010 &&
+                if (!resistance_received && !DU30_bike && !SL010 && !FS_YK &&
                     shouldUseCalculatedResistanceFallback(now)) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
@@ -1178,13 +1178,15 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
                 qDebug() << QStringLiteral("Current Peloton Resistance: ") + QString::number(m_pelotonResistance.value());
 
-                if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance)
-                        .toBool())
-                    Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
-                else
-                    Resistance = m_pelotonResistance;
-                emit resistanceRead(Resistance.value());
-                qDebug() << QStringLiteral("Current Resistance Calculated: ") + QString::number(Resistance.value());
+                if (!FS_YK) {
+                    if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance)
+                            .toBool())
+                        Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
+                    else
+                        Resistance = m_pelotonResistance;
+                    emit resistanceRead(Resistance.value());
+                    qDebug() << QStringLiteral("Current Resistance Calculated: ") + QString::number(Resistance.value());
+                }
 
                 if (watts())
                     KCal +=
@@ -1331,7 +1333,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (!ensureBytesAvailable(2, QStringLiteral("resistance")))
                 return;
 
-            if(!TITAN_7000) {
+            if(!TITAN_7000 && !FS_YK) {
                 Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                        (uint16_t)((uint8_t)newValue.at(index))));
                 emit resistanceRead(Resistance.value());
@@ -1370,7 +1372,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     m_pelotonResistance = res;
                 }
 
-                if (shouldUseCalculatedResistanceFallback(now)) {
+                if (!FS_YK && shouldUseCalculatedResistanceFallback(now)) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
                     emit debug(QStringLiteral("Current Resistance (calculated fallback): ") +
@@ -2051,7 +2053,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("FS-YK-")) {
             qDebug() << QStringLiteral("FS-YK- found");
             FS_YK = true;
+            resistance_lvl_mode = true;
             ergModeSupported = false; // this bike doesn't have ERG mode natively
+            max_resistance = 24;
         } else if(device.name().compare(QStringLiteral("S18"), Qt::CaseInsensitive) == 0) {
             qDebug() << QStringLiteral("S18 found");
             S18 = true;
