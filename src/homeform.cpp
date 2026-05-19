@@ -1715,9 +1715,9 @@ void homeform::trainProgramSignals() {
         connect(trainProgram, &trainprogram::zwiftLoginState, this, &homeform::zwiftLoginState);
 
         if (trainProgram) {
-            setChartIconVisible(trainProgram->powerzoneWorkout());
+            setChartIconVisible(trainProgram->chartTargetWorkout());
             if (chartFooterVisible()) {
-                if (trainProgram->powerzoneWorkout()) {
+                if (trainProgram->chartTargetWorkout()) {
                     // reloading
                     setChartFooterVisible(false);
                     setChartFooterVisible(true);

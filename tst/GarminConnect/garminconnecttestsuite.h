@@ -113,6 +113,14 @@ public:
     void test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAndForceSpeed();
 
     /**
+     * @brief Test Garmin zoneNumber-only power/HR targets from training plans.
+     *
+     * Verifies Garmin power.zone/heart.rate.zone payloads that provide zoneNumber
+     * without numeric target bounds still serialize as QZ workout targets.
+     */
+    void test_workoutDetailsJson_zoneNumberTargetsSerialize();
+
+    /**
      * @brief Test Garmin lap-button steps from training plans.
      *
      * Verifies that endCondition "lap.button" is serialized as an explicit wait-for-lap row.
@@ -163,6 +171,10 @@ TEST_F(GarminConnectTestSuite, ScheduleJsonRealLogDistanceWorkoutUsesDistanceOnl
 
 TEST_F(GarminConnectTestSuite, ScheduleJsonRealLogEasyRunPaceZoneSetsSpeedAndForceSpeed) {
     this->test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAndForceSpeed();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonZoneNumberTargetsSerialize) {
+    this->test_workoutDetailsJson_zoneNumberTargetsSerialize();
 }
 
 TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonLapButtonStepWaitsForLap) {

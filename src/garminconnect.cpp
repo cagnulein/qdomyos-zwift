@@ -1777,6 +1777,8 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
     if (targetTypeKey == "heart.rate.zone") {
         int hrMin = static_cast<int>(step["targetValueOne"].toDouble());
         int hrMax = static_cast<int>(step["targetValueTwo"].toDouble());
+        const int zoneNumber = step["zoneNumber"].toInt();
+        if (zoneNumber > 0) attrs += QString(" zonehr=\"%1\"").arg(zoneNumber);
         if (hrMin > 0) attrs += QString(" hrmin=\"%1\"").arg(hrMin);
         if (hrMax > 0) attrs += QString(" hrmax=\"%1\"").arg(hrMax);
         const int loopTimeHr = trainrow().loopTimeHR;
@@ -1804,6 +1806,11 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
             power = qRound(low);
         } else if (high > 0.0) {
             power = qRound(high);
+        } else if (targetTypeKey == "power.zone") {
+            const int zoneNumber = step["zoneNumber"].toInt();
+            if (zoneNumber > 0) {
+                power = garminPowerFromZone(zoneNumber);
+            }
         }
 
         if (power > 0) {

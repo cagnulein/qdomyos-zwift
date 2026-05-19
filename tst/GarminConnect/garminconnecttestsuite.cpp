@@ -397,6 +397,59 @@ void GarminConnectTestSuite::test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAn
         << xml.toStdString();
 }
 
+
+void GarminConnectTestSuite::test_workoutDetailsJson_zoneNumberTargetsSerialize()
+{
+    static const char *kWorkoutJson = R"json({
+        "workoutName": "Zone 2 Aerobic",
+        "sportType": {"sportTypeKey": "cycling"},
+        "workoutSegments": [{
+            "workoutSteps": [{
+                "endCondition": {"conditionTypeKey": "time"},
+                "endConditionValue": 900,
+                "targetType": {"workoutTargetTypeKey": "power.zone"},
+                "targetValueOne": null,
+                "targetValueTwo": null,
+                "zoneNumber": 1,
+                "type": "ExecutableStepDTO"
+            },{
+                "endCondition": {"conditionTypeKey": "lap.button"},
+                "endConditionValue": 1200,
+                "targetType": {"workoutTargetTypeKey": "power.zone"},
+                "targetValueOne": null,
+                "targetValueTwo": null,
+                "zoneNumber": 1,
+                "type": "ExecutableStepDTO"
+            },{
+                "endCondition": {"conditionTypeKey": "time"},
+                "endConditionValue": 13500,
+                "targetType": {"workoutTargetTypeKey": "heart.rate.zone"},
+                "targetValueOne": null,
+                "targetValueTwo": null,
+                "zoneNumber": 2,
+                "type": "ExecutableStepDTO"
+            }]
+        }]
+    })json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kWorkoutJson));
+    ASSERT_TRUE(doc.isObject()) << "Workout JSON fixture must be valid";
+
+    const QString xml = garminConnectGenerateWorkoutXml(doc.object());
+
+    EXPECT_EQ(xml.count("<row "), 3) << "Expected exactly 3 rows from 3 workout steps. XML was:\n"
+                                     << xml.toStdString();
+    EXPECT_GE(xml.count("power=\""), 2)
+        << "Expected Garmin power.zone zoneNumber targets to become QZ power targets. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("lapbutton=\"1\""))
+        << "Expected lap-button row to stay explicit. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("duration=\"03:45:00\" zonehr=\"2\""))
+        << "Expected Garmin heart.rate.zone zoneNumber target to become QZ HR zone target. XML was:\n"
+        << xml.toStdString();
+}
+
 void GarminConnectTestSuite::test_workoutDetailsJson_lapButtonStepWaitsForLap()
 {
     static const char *kWorkoutJson = R"json({

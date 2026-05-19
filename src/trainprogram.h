@@ -116,6 +116,12 @@ class trainprogram : public QObject {
         }
         return false;
     }
+    bool chartTargetWorkout() {
+        foreach(trainrow r, rows) {
+            if(r.power != -1 || r.zoneHR != -1 || r.HRmin != -1 || r.HRmax != -1) return true;
+        }
+        return false;
+    }
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded

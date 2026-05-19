@@ -386,6 +386,15 @@ function process_arr(arr) {
     let ctx = document.getElementById('canvas').getContext('2d');
     var powerChart = new Chart(ctx, config);
 
+    const heartChartBottom = 50;
+    const heartChartTop = Math.max(heartZones[3] + 10, maxHeartRate + 10, heart_max + 5, 200);
+    const heartZoneLabelPositions = [
+        Math.round((heartChartBottom + heartZones[0]) / 2),
+        Math.round((heartZones[0] + heartZones[1]) / 2),
+        Math.round((heartZones[1] + heartZones[2]) / 2),
+        Math.round((heartZones[2] + heartZones[3]) / 2),
+        Math.round((heartZones[3] + heartChartTop) / 2),
+    ];
     config = {
         type: 'line',
         plugins: [backgroundFill],
@@ -438,7 +447,7 @@ function process_arr(arr) {
                             type: 'box',
                             xMin: 0,
                             xMax: maxEl,
-                            yMin: 0,
+                            yMin: heartChartBottom,
                             yMax: heartZones[0],
                             backgroundColor: window.chartColors.lightsteelbluet,
                             },
@@ -475,7 +484,7 @@ function process_arr(arr) {
                             xMin: 0,
                             xMax: maxEl,
                             yMin: heartZones[3],
-                            yMax: maxHeartRate,
+                            yMax: heartChartTop,
                             backgroundColor: window.chartColors.redt,
                             },
                     }
@@ -510,16 +519,17 @@ function process_arr(arr) {
                         display: false,
                         text: 'Heart rate'
                     },
-                    min: 50,
+                    min: heartChartBottom,
+                    max: heartChartTop,
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
-                        callback: value => [heartZones[0] * 0.8, heartZones[0], heartZones[1], heartZones[2], heartZones[3], heartZones[4]].includes(value) ?
-                            value === heartZones[0] * 0.8 ? 'zone 1' :
-                            value === heartZones[0] ? 'zone 2' :
-                            value === heartZones[1] ? 'zone 3' :
-                            value === heartZones[2] ? 'zone 4' :
-                            value === heartZones[3] ? 'zone 5' : undefined : undefined,
+                        callback: value => heartZoneLabelPositions.includes(value) ?
+                            value === heartZoneLabelPositions[0] ? 'zone 1' :
+                            value === heartZoneLabelPositions[1] ? 'zone 2' :
+                            value === heartZoneLabelPositions[2] ? 'zone 3' :
+                            value === heartZoneLabelPositions[3] ? 'zone 4' :
+                            value === heartZoneLabelPositions[4] ? 'zone 5' : undefined : undefined,
                         color: 'black',
                         padding: -50,
                         align: 'end',
