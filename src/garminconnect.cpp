@@ -1443,14 +1443,40 @@ bool GarminConnect::uploadActivity(const QByteArray &fitData, const QString &fil
 void GarminConnect::loadTokensFromSettings()
 {
     QSettings settings;
-    m_oauth2Token.access_token = settings.value(QZSettings::garmin_access_token, QZSettings::default_garmin_access_token).toString();
-    m_oauth2Token.refresh_token = settings.value(QZSettings::garmin_refresh_token, QZSettings::default_garmin_refresh_token).toString();
-    m_oauth2Token.token_type = settings.value(QZSettings::garmin_token_type, QZSettings::default_garmin_token_type).toString();
-    m_oauth2Token.expires_at = settings.value(QZSettings::garmin_expires_at, QZSettings::default_garmin_expires_at).toLongLong();
-    m_oauth2Token.refresh_token_expires_at = settings.value(QZSettings::garmin_refresh_token_expires_at, QZSettings::default_garmin_refresh_token_expires_at).toLongLong();
-    m_oauth1Token.oauth_token = settings.value(QZSettings::garmin_oauth1_token, QZSettings::default_garmin_oauth1_token).toString();
-    m_oauth1Token.oauth_token_secret = settings.value(QZSettings::garmin_oauth1_token_secret, QZSettings::default_garmin_oauth1_token_secret).toString();
     m_domain = settings.value(QZSettings::garmin_domain, QZSettings::default_garmin_domain).toString();
+    const QString userId = currentUserIdFromSettings();
+    bool hasUserGarminTokens = false;
+    if (!userId.isEmpty()) {
+        hasUserGarminTokens =
+            !settings.value(getGarminSettingKey(QZSettings::garmin_access_token, userId)).toString().isEmpty() ||
+            !settings.value(getGarminSettingKey(QZSettings::garmin_refresh_token, userId)).toString().isEmpty() ||
+            !settings.value(getGarminSettingKey(QZSettings::garmin_oauth1_token, userId)).toString().isEmpty();
+    }
+
+    auto valueForUser = [&settings, &userId, hasUserGarminTokens, this](const QString &baseKey, const QVariant &defaultValue) {
+        if (!userId.isEmpty() && hasUserGarminTokens) {
+            return settings.value(getGarminSettingKey(baseKey, userId), defaultValue);
+        }
+        return settings.value(baseKey, defaultValue);
+    };
+
+    m_oauth2Token.access_token = valueForUser(QZSettings::garmin_access_token, QZSettings::default_garmin_access_token).toString();
+    m_oauth2Token.refresh_token = valueForUser(QZSettings::garmin_refresh_token, QZSettings::default_garmin_refresh_token).toString();
+    m_oauth2Token.token_type = valueForUser(QZSettings::garmin_token_type, QZSettings::default_garmin_token_type).toString();
+    m_oauth2Token.expires_at = valueForUser(QZSettings::garmin_expires_at, QZSettings::default_garmin_expires_at).toLongLong();
+    m_oauth2Token.refresh_token_expires_at = valueForUser(QZSettings::garmin_refresh_token_expires_at, QZSettings::default_garmin_refresh_token_expires_at).toLongLong();
+    m_oauth1Token.oauth_token = valueForUser(QZSettings::garmin_oauth1_token, QZSettings::default_garmin_oauth1_token).toString();
+    m_oauth1Token.oauth_token_secret = valueForUser(QZSettings::garmin_oauth1_token_secret, QZSettings::default_garmin_oauth1_token_secret).toString();
+
+    const bool loadedAnyGarminToken = !m_oauth2Token.access_token.isEmpty() ||
+                                      !m_oauth2Token.refresh_token.isEmpty() ||
+                                      !m_oauth1Token.oauth_token.isEmpty();
+    if (!userId.isEmpty() && !hasUserGarminTokens && loadedAnyGarminToken) {
+        saveTokensToSettings();
+    } else if (!userId.isEmpty()) {
+        mirrorTokensToBaseSettings(settings);
+    }
+
     qDebug() << "GarminConnect: Loaded Garmin domain from settings:" << m_domain;
 
     if (!m_oauth2Token.access_token.isEmpty()) {
@@ -1474,13 +1500,18 @@ void GarminConnect::loadTokensFromSettings()
 void GarminConnect::saveTokensToSettings()
 {
     QSettings settings;
-    settings.setValue(QZSettings::garmin_access_token, m_oauth2Token.access_token);
-    settings.setValue(QZSettings::garmin_refresh_token, m_oauth2Token.refresh_token);
-    settings.setValue(QZSettings::garmin_token_type, m_oauth2Token.token_type);
-    settings.setValue(QZSettings::garmin_expires_at, m_oauth2Token.expires_at);
-    settings.setValue(QZSettings::garmin_refresh_token_expires_at, m_oauth2Token.refresh_token_expires_at);
-    settings.setValue(QZSettings::garmin_oauth1_token, m_oauth1Token.oauth_token);
-    settings.setValue(QZSettings::garmin_oauth1_token_secret, m_oauth1Token.oauth_token_secret);
+    const QString userId = currentUserIdFromSettings();
+    if (!userId.isEmpty()) {
+        settings.setValue(getGarminSettingKey(QZSettings::garmin_access_token, userId), m_oauth2Token.access_token);
+        settings.setValue(getGarminSettingKey(QZSettings::garmin_refresh_token, userId), m_oauth2Token.refresh_token);
+        settings.setValue(getGarminSettingKey(QZSettings::garmin_token_type, userId), m_oauth2Token.token_type);
+        settings.setValue(getGarminSettingKey(QZSettings::garmin_expires_at, userId), m_oauth2Token.expires_at);
+        settings.setValue(getGarminSettingKey(QZSettings::garmin_refresh_token_expires_at, userId), m_oauth2Token.refresh_token_expires_at);
+        settings.setValue(getGarminSettingKey(QZSettings::garmin_oauth1_token, userId), m_oauth1Token.oauth_token);
+        settings.setValue(getGarminSettingKey(QZSettings::garmin_oauth1_token_secret, userId), m_oauth1Token.oauth_token_secret);
+        settings.setValue(getGarminSettingKey(QZSettings::garmin_last_refresh, userId), QDateTime::currentDateTime());
+    }
+    mirrorTokensToBaseSettings(settings);
     settings.setValue(QZSettings::garmin_domain, m_domain);
     settings.setValue(QZSettings::garmin_last_refresh, QDateTime::currentDateTime());
 
@@ -1490,12 +1521,25 @@ void GarminConnect::saveTokensToSettings()
 void GarminConnect::clearTokens()
 {
     QSettings settings;
+    const QString userId = currentUserIdFromSettings();
     settings.remove(QZSettings::garmin_access_token);
     settings.remove(QZSettings::garmin_refresh_token);
     settings.remove(QZSettings::garmin_token_type);
     settings.remove(QZSettings::garmin_expires_at);
     settings.remove(QZSettings::garmin_refresh_token_expires_at);
+    settings.remove(QZSettings::garmin_oauth1_token);
+    settings.remove(QZSettings::garmin_oauth1_token_secret);
     settings.remove(QZSettings::garmin_last_refresh);
+    if (!userId.isEmpty()) {
+        settings.remove(getGarminSettingKey(QZSettings::garmin_access_token, userId));
+        settings.remove(getGarminSettingKey(QZSettings::garmin_refresh_token, userId));
+        settings.remove(getGarminSettingKey(QZSettings::garmin_token_type, userId));
+        settings.remove(getGarminSettingKey(QZSettings::garmin_expires_at, userId));
+        settings.remove(getGarminSettingKey(QZSettings::garmin_refresh_token_expires_at, userId));
+        settings.remove(getGarminSettingKey(QZSettings::garmin_oauth1_token, userId));
+        settings.remove(getGarminSettingKey(QZSettings::garmin_oauth1_token_secret, userId));
+        settings.remove(getGarminSettingKey(QZSettings::garmin_last_refresh, userId));
+    }
 
     m_oauth1Token = OAuth1Token();
     m_oauth2Token = OAuth2Token();
@@ -1503,6 +1547,42 @@ void GarminConnect::clearTokens()
     m_csrfToken.clear();
 
     qDebug() << "GarminConnect: Tokens cleared";
+}
+
+QString GarminConnect::currentUserIdFromSettings() const
+{
+    QSettings settings;
+    QString email = settings.value(QZSettings::garmin_email, QZSettings::default_garmin_email).toString().trimmed().toLower();
+    QString domain = settings.value(QZSettings::garmin_domain, QZSettings::default_garmin_domain).toString().trimmed().toLower();
+    if (email.isEmpty()) {
+        return QStringLiteral("");
+    }
+    if (domain.isEmpty()) {
+        domain = QZSettings::default_garmin_domain;
+    }
+    QString userId = domain + QStringLiteral("_") + email;
+    userId.replace(QRegularExpression(QStringLiteral("[^A-Za-z0-9_.@-]")), QStringLiteral("_"));
+    return userId;
+}
+
+QString GarminConnect::getGarminSettingKey(const QString &baseKey, const QString &userId) const
+{
+    if (userId.isEmpty()) {
+        qDebug() << "ERROR: Garmin userid is empty!";
+        return baseKey;
+    }
+    return baseKey + QStringLiteral("_") + userId;
+}
+
+void GarminConnect::mirrorTokensToBaseSettings(QSettings &settings) const
+{
+    settings.setValue(QZSettings::garmin_access_token, m_oauth2Token.access_token);
+    settings.setValue(QZSettings::garmin_refresh_token, m_oauth2Token.refresh_token);
+    settings.setValue(QZSettings::garmin_token_type, m_oauth2Token.token_type);
+    settings.setValue(QZSettings::garmin_expires_at, m_oauth2Token.expires_at);
+    settings.setValue(QZSettings::garmin_refresh_token_expires_at, m_oauth2Token.refresh_token_expires_at);
+    settings.setValue(QZSettings::garmin_oauth1_token, m_oauth1Token.oauth_token);
+    settings.setValue(QZSettings::garmin_oauth1_token_secret, m_oauth1Token.oauth_token_secret);
 }
 
 QJsonObject GarminConnect::extractJsonFromResponse(QNetworkReply *reply)

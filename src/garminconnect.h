@@ -230,6 +230,9 @@ private:
     void loadTokensFromSettings();
     void saveTokensToSettings();
     void clearTokens();
+    QString currentUserIdFromSettings() const;
+    QString getGarminSettingKey(const QString &baseKey, const QString &userId) const;
+    void mirrorTokensToBaseSettings(QSettings &settings) const;
 
     QNetworkReply* makeRequest(const QString &url, const QByteArray &data,
                                const QString &contentType, const QList<QNetworkCookie> &cookies = QList<QNetworkCookie>());
