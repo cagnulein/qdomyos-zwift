@@ -100,12 +100,14 @@ class horizontreadmill : public treadmill {
     bool sole_f85_treadmill = false;
     bool sole_f89_treadmill = false;
     bool schwinn_810_treadmill = false;
+    bool yesoul_treadmill = false;
     bool technogymrun = false;
     bool disableAutoPause = false;
     bool HORIZON_78AT_treadmill = false;
     bool ICONCEPT_FTMS_treadmill = false;
     bool iconcept_ftms_treadmill_inclination_table = false;
     bool DOMYOS = false;
+    bool domyos_treadmill_ts100 = false;
     bool SW_TREADMILL = false;
     bool BOWFLEX_T9 = false;
     bool YPOO_MINI_PRO = false;
@@ -117,7 +119,11 @@ class horizontreadmill : public treadmill {
     bool TP1 = false;
     bool T01 = false;
     bool TM4800 = false;
+    bool TM4500 = false;
     bool TM6500 = false;
+    bool WT_TREADMILL = false;
+    bool THERUN_T15 = false;
+    bool MERACH_TREADMILL = false;
 
     void testProfileCRC();
     void updateProfileCRC();
@@ -214,6 +220,7 @@ class horizontreadmill : public treadmill {
     void errorService(QLowEnergyService::ServiceError);
 
     void changeInclinationRequested(double grade, double percentage);
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };
 
 #endif // HORIZONTREADMILL_H

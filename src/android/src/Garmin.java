@@ -82,10 +82,13 @@ public class Garmin {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-            connectIQ = ConnectIQ.getInstance(c, ConnectIQ.IQConnectType.WIRELESS);
+            // Create wrapped context BEFORE getInstance to ensure all SDK operations use it
+            context = createWrappedContext(c);
+
+            connectIQ = ConnectIQ.getInstance(context, ConnectIQ.IQConnectType.WIRELESS);
 
             // init a wrapped SDK with fix for "Cannot cast to Long" issue viz https://forums.garmin.com/forum/developers/connect-iq/connect-iq-bug-reports/158068-?p=1278464#post1278464
-            context = initializeConnectIQWrapped(c, connectIQ, false, new ConnectIQ.ConnectIQListener() {
+            initializeConnectIQWithContext(connectIQ, false, new ConnectIQ.ConnectIQListener() {
 
                 @Override
                 public void onInitializeError(ConnectIQ.IQSdkErrorStatus errStatus) {
@@ -158,12 +161,8 @@ public class Garmin {
         connectIQ.sendMessage(getDevice(), getApp(), message, listener);
     }
 
-    private static Context initializeConnectIQWrapped(Context context, ConnectIQ connectIQ, boolean autoUI, ConnectIQ.ConnectIQListener listener) {
-        if (connectIQ instanceof ConnectIQAdbStrategy) {
-            connectIQ.initialize(context, autoUI, listener);
-            return context;
-        }
-        Context wrappedContext = new ContextWrapper(context) {
+    private static Context createWrappedContext(Context context) {
+        return new ContextWrapper(context) {
             private HashMap<BroadcastReceiver, BroadcastReceiver> receiverToWrapper = new HashMap<>();
 
             @Override
@@ -190,6 +189,18 @@ public class Garmin {
                 if (wrappedReceiver != null) super.unregisterReceiver(wrappedReceiver);
             }
         };
+    }
+
+    private static void initializeConnectIQWithContext(ConnectIQ connectIQ, boolean autoUI, ConnectIQ.ConnectIQListener listener) {
+        connectIQ.initialize(context, autoUI, listener);
+    }
+
+    private static Context initializeConnectIQWrapped(Context context, ConnectIQ connectIQ, boolean autoUI, ConnectIQ.ConnectIQListener listener) {
+        if (connectIQ instanceof ConnectIQAdbStrategy) {
+            connectIQ.initialize(context, autoUI, listener);
+            return context;
+        }
+        Context wrappedContext = createWrappedContext(context);
         connectIQ.initialize(wrappedContext, autoUI, listener);
         return wrappedContext;
     }
@@ -251,13 +262,17 @@ public class Garmin {
                                 HR = Integer.parseInt(var[0].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
                                 if(var.length > 1) {
                                     FootCad = Integer.parseInt(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
-                                    if(var.length > 2) {
-                                        Power = Integer.parseInt(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
-                                        Speed = Double.parseDouble(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
-                                    }
+                                }
+                                if(var.length > 2) {
+                                    Power = Integer.parseInt(var[2].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
+                                }
+                                if(var.length > 3) {
+                                    Speed = Double.parseDouble(var[3].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
                                 }
                                 QLog.d(TAG, "HR " + HR);
                                 QLog.d(TAG, "FootCad " + FootCad);
+                                QLog.d(TAG, "Power " + Power);
+                                QLog.d(TAG, "Speed " + Speed);
                             } catch (Exception e) {
                                 QLog.e(TAG, "Processing error", e);
                             }

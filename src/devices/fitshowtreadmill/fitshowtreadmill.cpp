@@ -324,6 +324,8 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     Q_UNUSED(characteristic);
+    bool cadenceAvailable = false;
+    bool stepCountAvailable = false;
     QByteArray value = newValue;
 
     emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
@@ -334,7 +336,9 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     lastPacket = value;
 
     if(characteristic.uuid() == QBluetoothUuid((quint16)0x2a53) && value.length() >= 4) {
-        Cadence = value.at(3);
+        evaluateStepCount();
+        parseCadence(value.at(3));
+        cadenceAvailable = true;
         emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
         return;
     }
@@ -476,7 +480,10 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     lastTimeCharacteristicChanged = QDateTime::currentDateTime();
                 }
 
-                StepCount = step_count;
+                if (step_count > 0) {
+                    StepCount = step_count;
+                    stepCountAvailable = true;
+                }
 
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
                 emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
@@ -618,7 +625,10 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 double distance = array[4] | array[5] << 8;
                 uint16_t step_count = array[8] | array[9] << 8;
 
-                StepCount = step_count;
+                if (step_count > 0) {
+                    StepCount = step_count;
+                    stepCountAvailable = true;
+                }
 
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
                 emit debug(QStringLiteral("Current step countl: ") + QString::number(step_count));
@@ -628,6 +638,24 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 if (truetimer)
                     elapsed = seconds_elapsed;
                 // Distance = distance;
+            }
+        }
+    }
+
+    if (!cadenceFromAppleWatch() && !cadenceAvailable && Speed.value() > 0) {
+        bool garminCompanion =
+            settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool();
+        bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                                  .toString()
+                                  .startsWith(QStringLiteral("Disabled"));
+        if (!hasPowerSensor && !garminCompanion) {
+            double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
+            if (calculatedCadence > 0) {
+                if (!stepCountAvailable)
+                    evaluateStepCount();
+                parseCadence(calculatedCadence);
+                emit debug(QStringLiteral("Current Cadence (calculated from speed): ") +
+                           QString::number(Cadence.value()));
             }
         }
     }
@@ -838,7 +866,8 @@ void fitshowtreadmill::error(QLowEnergyController::Error err) {
 void fitshowtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    if (device.name().toUpper().startsWith(QStringLiteral("FS-"))) {
+    if (device.name().toUpper().startsWith(QStringLiteral("FS-")) ||
+        device.name().toUpper().startsWith(QStringLiteral("TR510-T"))) {
         qDebug() << "FS FIX!";
         fs_connected = true;
     } else if (device.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT"))) {
