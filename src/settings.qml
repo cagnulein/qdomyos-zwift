@@ -1325,6 +1325,8 @@ import Qt.labs.platform 1.1
             property bool proform_treadmill_cst_505_pftl59420_0: false
             
             property bool domyos_run100e: false
+
+            property string strava_current_user_id: ""
         }
 
 
