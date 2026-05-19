@@ -329,6 +329,11 @@ const QString QZSettings::default_cadence_sensor_name = QStringLiteral("Disabled
 const QString QZSettings::cadence_sensor_as_bike = QStringLiteral("cadence_sensor_as_bike");
 const QString QZSettings::cadence_sensor_as_treadmill = QStringLiteral("cadence_sensor_as_treadmill");
 const QString QZSettings::cadence_sensor_speed_ratio = QStringLiteral("cadence_sensor_speed_ratio");
+const QString QZSettings::cscbike_custom_resistance_power_table = QStringLiteral("cscbike_custom_resistance_power_table");
+const QString QZSettings::cscbike_custom_resistance_level_1 = QStringLiteral("cscbike_custom_resistance_level_1");
+const QString QZSettings::cscbike_custom_watt_1 = QStringLiteral("cscbike_custom_watt_1");
+const QString QZSettings::cscbike_custom_resistance_level_2 = QStringLiteral("cscbike_custom_resistance_level_2");
+const QString QZSettings::cscbike_custom_watt_2 = QStringLiteral("cscbike_custom_watt_2");
 const QString QZSettings::power_hr_pwr1 = QStringLiteral("power_hr_pwr1");
 const QString QZSettings::power_hr_hr1 = QStringLiteral("power_hr_hr1");
 const QString QZSettings::power_hr_pwr2 = QStringLiteral("power_hr_pwr2");
@@ -714,6 +719,11 @@ const QString QZSettings::treadmill_simulate_inclination_with_speed =
 const QString QZSettings::garmin_companion = QStringLiteral("garmin_companion");
 const QString QZSettings::iconcept_elliptical = QStringLiteral("iconcept_elliptical");
 const QString QZSettings::gears_gain = QStringLiteral("gears_gain");
+const QString QZSettings::gears_custom_table_enabled = QStringLiteral("gears_custom_table_enabled");
+const QString QZSettings::gears_custom_table = QStringLiteral("gears_custom_table");
+const QString QZSettings::default_gears_custom_table = QStringLiteral(
+    "1|1\n2|2\n3|3\n4|4\n5|5\n6|6\n7|7\n8|8\n9|9\n10|10\n11|11\n12|12\n"
+    "13|13\n14|14\n15|15\n16|16\n17|17\n18|18\n19|19\n20|20\n21|21\n22|22\n23|23\n24|24");
 const QString QZSettings::proform_treadmill_8_0 = QStringLiteral("proform_treadmill_8_0");
 const QString QZSettings::zero_zt2500_treadmill = QStringLiteral("zero_zt2500_treadmill");
 const QString QZSettings::umay_s100_treadmill = QStringLiteral("umay_s100_treadmill");
@@ -786,6 +796,7 @@ const QString QZSettings::domyos_treadmill_button_22kmh = QStringLiteral("domyos
 const QString QZSettings::proform_treadmill_sport_8_5 = QStringLiteral("proform_treadmill_sport_8_5");
 const QString QZSettings::domyos_treadmill_t900a = QStringLiteral("domyos_treadmill_t900a");
 const QString QZSettings::domyos_treadmill_ts100 = QStringLiteral("domyos_treadmill_ts100");
+const QString QZSettings::domyos_run100e = QStringLiteral("domyos_run100e");
 const QString QZSettings::domyos_treadmill_sync_start = QStringLiteral("domyos_treadmill_sync_start");
 const QString QZSettings::enerfit_SPX_9500 = QStringLiteral("enerfit_SPX_9500");
 const QString QZSettings::proform_treadmill_505_cst = QStringLiteral("proform_treadmill_505_cst");
@@ -1079,10 +1090,12 @@ const QString QZSettings::trainprogram_auto_lap_on_segment = QStringLiteral("tra
 const QString QZSettings::kingsmith_r2_enable_hw_buttons = QStringLiteral("kingsmith_r2_enable_hw_buttons");
 const QString QZSettings::step_gain = QStringLiteral("step_gain");
 const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform_carbon_tlx_treadmill");
+const QString QZSettings::proform_carbon_tlx_v84_314_treadmill = QStringLiteral("proform_carbon_tlx_v84_314_treadmill");
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
+const QString QZSettings::proform_treadmill_cst_505_pftl59420_0 = QStringLiteral("proform_treadmill_cst_505_pftl59420_0");
+const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applewatch_as_treadmill_speed");
 
-
-const uint32_t allSettingsCount = 881;
+const uint32_t allSettingsCount = 892;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1351,6 +1364,11 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike},
     {QZSettings::cadence_sensor_as_treadmill, QZSettings::default_cadence_sensor_as_treadmill},
     {QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio},
+    {QZSettings::cscbike_custom_resistance_power_table, QZSettings::default_cscbike_custom_resistance_power_table},
+    {QZSettings::cscbike_custom_resistance_level_1, QZSettings::default_cscbike_custom_resistance_level_1},
+    {QZSettings::cscbike_custom_watt_1, QZSettings::default_cscbike_custom_watt_1},
+    {QZSettings::cscbike_custom_resistance_level_2, QZSettings::default_cscbike_custom_resistance_level_2},
+    {QZSettings::cscbike_custom_watt_2, QZSettings::default_cscbike_custom_watt_2},
     {QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1},
     {QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1},
     {QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2},
@@ -1738,6 +1756,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_sport_8_5, QZSettings::default_proform_treadmill_sport_8_5},
     {QZSettings::domyos_treadmill_t900a, QZSettings::default_domyos_treadmill_t900a},
     {QZSettings::domyos_treadmill_ts100, QZSettings::default_domyos_treadmill_ts100},
+    {QZSettings::domyos_run100e, QZSettings::default_domyos_run100e},
     {QZSettings::domyos_treadmill_sync_start, QZSettings::default_domyos_treadmill_sync_start},
     {QZSettings::enerfit_SPX_9500, QZSettings::default_enerfit_SPX_9500},
     {QZSettings::proform_treadmill_505_cst, QZSettings::default_proform_treadmill_505_cst},
@@ -1795,6 +1814,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::domyostreadmill_notfmts, QZSettings::default_domyostreadmill_notfmts},
     {QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap},
     {QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio},
+    {QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled},
+    {QZSettings::gears_custom_table, QZSettings::default_gears_custom_table},
     {QZSettings::domyos_bike_500_profile_v2, QZSettings::default_domyos_bike_500_profile_v2},
     {QZSettings::gears_offset, QZSettings::default_gears_offset},
     {QZSettings::peloton_accesstoken, QZSettings::default_peloton_accesstoken},
@@ -1986,7 +2007,10 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::garmin_oauth1_token_secret, QZSettings::default_garmin_oauth1_token_secret},
     {QZSettings::step_gain, QZSettings::default_step_gain},
     {QZSettings::proform_carbon_tlx_treadmill, QZSettings::default_proform_carbon_tlx_treadmill},
+    {QZSettings::proform_carbon_tlx_v84_314_treadmill, QZSettings::default_proform_carbon_tlx_v84_314_treadmill},
     {QZSettings::proform_carbon_tl_PFTL59723_6, QZSettings::default_proform_carbon_tl_PFTL59723_6},
+    {QZSettings::proform_treadmill_cst_505_pftl59420_0, QZSettings::default_proform_treadmill_cst_505_pftl59420_0},
+    {QZSettings::applewatch_as_treadmill_speed, QZSettings::default_applewatch_as_treadmill_speed},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

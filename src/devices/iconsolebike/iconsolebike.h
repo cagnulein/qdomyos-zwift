@@ -1,5 +1,5 @@
-#ifndef ICONCEPTBIKE_H
-#define ICONCEPTBIKE_H
+#ifndef ICONSOLEBIKE_H
+#define ICONSOLEBIKE_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothServiceDiscoveryAgent>
@@ -29,15 +29,22 @@
 
 #include "devices/bike.h"
 
-class iconceptbike : public bike {
+class iconsolebike : public bike {
     Q_OBJECT
   public:
-    explicit iconceptbike();
+    explicit iconsolebike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
+                          double bikeResistanceGain);
+    ~iconsolebike();
+
+    bool connected() override;
+
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
 
   private slots:
+    void serviceCanceled(void);
     void serviceDiscovered(const QBluetoothServiceInfo &service);
     void serviceFinished();
     void readSocket();
@@ -46,33 +53,46 @@ class iconceptbike : public bike {
     void update();
 
   private:
-    QBluetoothServiceDiscoveryAgent *discoveryAgent;
+    QBluetoothServiceDiscoveryAgent *discoveryAgent = nullptr;
     QBluetoothServiceInfo serialPortService;
     QBluetoothSocket *socket = nullptr;
-    QByteArray socketReadBuffer;
 
-    QTimer *refresh;
+    QTimer *refresh = nullptr;
     bool initDone = false;
-    uint8_t firstStateChanged = 0;
-    bool i_Nexor = false;
+    bool found = false;
 
-    uint16_t GetElapsedTimeFromPacket(const QByteArray &packet);
-    uint16_t GetDistanceFromPacket(const QByteArray &packet);
-    uint16_t GetCaloriesFromPacket(const QByteArray &packet);
+    uint8_t sec1update = 0;
+    int8_t bikeResistanceOffset = 4;
+    double bikeResistanceGain = 1.0;
+
+    // Protocol state
+    bool noWriteResistance = false;
+    bool noHeartService = false;
+    int initPhase = 0;
+
+    // Timing for metric calculations
+    QDateTime lastRefreshCharacteristicChanged;
+    uint64_t CrankRevs = 0;
+    uint16_t LastCrankEventTime = 0;
+
+    void send(const uint8_t *buffer, int size);
+    void btinit();
+    void forceResistance(resistance_t requestResistance);
+
+    // Packet parsing
+    uint16_t GetCadenceFromPacket(const QByteArray &packet);
     double GetSpeedFromPacket(const QByteArray &packet);
-    double GetWattFromPacket(const QByteArray &packet);
+    uint16_t GetPowerFromPacket(const QByteArray &packet);
+    uint8_t GetResistanceFromPacket(const QByteArray &packet);
 
-    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    // Resistance conversions
+    double bikeResistanceToPeloton(double bikeResistance);
 
     uint16_t watts() override;
-    
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   signals:
     void disconnected();
     void debug(QString string);
 };
 
-#endif // ICONCEPTBIKE_H
+#endif // ICONSOLEBIKE_H
