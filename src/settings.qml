@@ -1314,6 +1314,7 @@ import Qt.labs.platform 1.1
       
             property double power_sensor_speed_inclination_coeff_a: 0.0
             property double power_sensor_speed_inclination_coeff_b: 0.0
+            
             property bool proform_carbon_tlx_v84_314_treadmill: false            
             property bool cscbike_custom_resistance_power_table: false
             property real cscbike_custom_resistance_level_1: 1
@@ -1325,7 +1326,9 @@ import Qt.labs.platform 1.1
             property string gears_custom_table: "1|1\n2|2\n3|3\n4|4\n5|5\n6|6\n7|7\n8|8\n9|9\n10|10\n11|11\n12|12\n13|13\n14|14\n15|15\n16|16\n17|17\n18|18\n19|19\n20|20\n21|21\n22|22\n23|23\n24|24"                        
             property bool proform_treadmill_cst_505_pftl59420_0: false
 
-property bool shortcuts_enabled: false
+            property bool domyos_run100e: false
+
+            property bool shortcuts_enabled: false
             property string shortcut_speed_plus: ""
             property string shortcut_speed_minus: ""
             property string shortcut_inclination_plus: ""
@@ -1389,7 +1392,7 @@ property bool shortcuts_enabled: false
             property string shortcut_preset_powerzone_6: ""
             property string shortcut_preset_powerzone_7: ""
             property string shortcut_lap: ""
-            property string shortcut_start_stop: ""                 
+            property string shortcut_start_stop: ""                                         
         }
 
 
@@ -9482,6 +9485,20 @@ property bool shortcuts_enabled: false
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: settings.domyos_treadmill_ts100 = checked
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("RUN100E (Use Requested Inclination)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_run100e
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.domyos_run100e = checked
                             }
 
                             IndicatorOnlySwitch {

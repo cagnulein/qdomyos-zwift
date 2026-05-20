@@ -7503,25 +7503,27 @@ void homeform::update() {
 
                         const double step = 0.2;
                         double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
-                        if (zone < ((uint8_t)currentHRZone) && minSpeed <= currentSpeed + step) {
+                        if (zone < ((uint8_t)currentHRZone) && currentSpeed > minSpeed) {
+                            double newSpeed = std::max(currentSpeed - step, minSpeed);
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
-                                    currentSpeed - step,
+                                    newSpeed,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else if (zone > ((uint8_t)currentHRZone) && maxSpeed >= currentSpeed + step) {
+                        } else if (zone > ((uint8_t)currentHRZone) && currentSpeed < maxSpeed) {
+                            double newSpeed = std::min(currentSpeed + step, maxSpeed);
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
-
-                                    currentSpeed + step,
+                                    newSpeed,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else if (maxSpeed >= currentSpeed + step && trainprogram_pid_pushy) {
+                        } else if (currentSpeed < maxSpeed && trainprogram_pid_pushy) {
                             pid_heart_zone_small_inc_counter++;
                             if (fabs(((float)zone) - currentHRZone) < 0.5 && pid_heart_zone_small_inc_counter > (10 * fabs(((float)zone) - currentHRZone))) {
+                                double newSpeed = std::min(currentSpeed + step, maxSpeed);
                                 ((treadmill *)bluetoothManager->device())
                                     ->changeSpeedAndInclination(
-                                        currentSpeed + step,
+                                        newSpeed,
                                         ((treadmill *)bluetoothManager->device())->currentInclination().value());
                                 pid_heart_zone_small_inc_counter = 0;
                             }

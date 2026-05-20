@@ -796,6 +796,7 @@ const QString QZSettings::domyos_treadmill_button_22kmh = QStringLiteral("domyos
 const QString QZSettings::proform_treadmill_sport_8_5 = QStringLiteral("proform_treadmill_sport_8_5");
 const QString QZSettings::domyos_treadmill_t900a = QStringLiteral("domyos_treadmill_t900a");
 const QString QZSettings::domyos_treadmill_ts100 = QStringLiteral("domyos_treadmill_ts100");
+const QString QZSettings::domyos_run100e = QStringLiteral("domyos_run100e");
 const QString QZSettings::domyos_treadmill_sync_start = QStringLiteral("domyos_treadmill_sync_start");
 const QString QZSettings::enerfit_SPX_9500 = QStringLiteral("enerfit_SPX_9500");
 const QString QZSettings::proform_treadmill_505_cst = QStringLiteral("proform_treadmill_505_cst");
@@ -1224,7 +1225,7 @@ const QString QZSettings::default_shortcut_lap = QStringLiteral("");
 const QString QZSettings::shortcut_start_stop = QStringLiteral("shortcut_start_stop");
 const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 956;
+const uint32_t allSettingsCount = 957;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1885,6 +1886,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_sport_8_5, QZSettings::default_proform_treadmill_sport_8_5},
     {QZSettings::domyos_treadmill_t900a, QZSettings::default_domyos_treadmill_t900a},
     {QZSettings::domyos_treadmill_ts100, QZSettings::default_domyos_treadmill_ts100},
+    {QZSettings::domyos_run100e, QZSettings::default_domyos_run100e},
     {QZSettings::domyos_treadmill_sync_start, QZSettings::default_domyos_treadmill_sync_start},
     {QZSettings::enerfit_SPX_9500, QZSettings::default_enerfit_SPX_9500},
     {QZSettings::proform_treadmill_505_cst, QZSettings::default_proform_treadmill_505_cst},
