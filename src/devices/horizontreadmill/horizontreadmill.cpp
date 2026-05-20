@@ -109,6 +109,8 @@ void horizontreadmill::btinit() {
         settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
     bool miles_unit =
         settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    static const QBluetoothUuid merachUnlockCharId(
+        QStringLiteral("59554c55-0000-6666-8888-4d4552414348"));
 
     uint8_t initData01_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x20, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
 
@@ -880,6 +882,14 @@ void horizontreadmill::btinit() {
         uint8_t write[] = {0x01, 0x00, 0x00, 0x03, 0x08, 0x00, 0x02, 0x09};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointIdYpooMiniPro, write, sizeof(write), "requestControl", false, false);
         QThread::msleep(500);
+    }
+
+    if (MERACH_TREADMILL && gattMerachUnlockService && gattWriteCharMerachUnlock.isValid() &&
+        gattWriteCharMerachUnlock.uuid() == merachUnlockCharId) {
+        uint8_t unlock[] = {0xaa, 0x01, 0x00, 0x01, 0x55};
+        writeCharacteristic(gattMerachUnlockService, gattWriteCharMerachUnlock, unlock, sizeof(unlock),
+                            QStringLiteral("merachUnlock"), false, false);
+        QThread::msleep(200);
     }
 
     if(wellfit_treadmill || SW_TREADMILL || YPOO_MINI_PRO) {
@@ -2311,9 +2321,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
-    if (Speed.value() > 0)
+    if (Speed.value() > 0) {
+        lastNonZeroSpeedTimestamp = QDateTime::currentMSecsSinceEpoch();
         lastStart = 0;
-    else
+    } else
         lastStop = 0;
 
     if (distanceEval) {
@@ -2330,6 +2341,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QSettings settings;
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     QBluetoothUuid _gattWriteCharCustomService((quint16)0xFFF3);
+    QBluetoothUuid _gattWriteCharMerachUnlock(QStringLiteral("59554c55-0000-6666-8888-4d4552414348"));
     QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
@@ -2396,7 +2408,15 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }*/
 
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService && !BOWFLEX_T9 && !MX_TM &&
+                if (MERACH_TREADMILL &&
+                    (c.properties() & QLowEnergyCharacteristic::Write) &&
+                    c.uuid() == _gattWriteCharMerachUnlock) {
+                    qDebug() << QStringLiteral("Merach unlock Control Point found");
+                    gattWriteCharMerachUnlock = c;
+                    gattMerachUnlockService = s;
+                } else if (c.properties() & QLowEnergyCharacteristic::Write &&
+                    c.uuid() == _gattWriteCharCustomService &&
+                    !BOWFLEX_T9 && !MX_TM &&
                     !settings
                          .value(QZSettings::horizon_treadmill_force_ftms,
                                 QZSettings::default_horizon_treadmill_force_ftms)
@@ -2439,9 +2459,12 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
                 } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate &&
-                                                                                                                      // if it's a FTMS treadmill and has FTMS and/or RSC service too
-                           ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid()))
-                             && !gattCustomService))) {
+                           // FTMS indications, plus the Merach unlock indication characteristic.
+                           (((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid() &&
+                              !gattCustomService) ||
+                             (MERACH_TREADMILL && gattMerachUnlockService &&
+                              s->serviceUuid() == gattMerachUnlockService->serviceUuid() &&
+                              c.uuid() == _gattWriteCharMerachUnlock)))) {
                     QByteArray descriptor;
                     descriptor.append((char)0x02);
                     descriptor.append((char)0x00);
@@ -2527,6 +2550,9 @@ void horizontreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor,
         notificationSubscribed--;
 
     if (!notificationSubscribed) {
+        if(homeform::singleton()) {
+            homeform::singleton()->setToastRequested("Treadmill ready");
+        }
         initRequest = true;
         emit connectedAndDiscovered();
     }
@@ -2838,6 +2864,13 @@ int horizontreadmill::GenerateCRC_CCITT(uint8_t *PUPtr8, int PU16_Count, int crc
 bool horizontreadmill::autoPauseWhenSpeedIsZero() {
     if(disableAutoPause == true)
         return false;
+
+    // Merach sometimes emits a single transient FTMS speed=0 frame while the treadmill is still running.
+    // Without a small debounce QZ treats that glitch as a real pause and starts blinking the start button.
+    if (MERACH_TREADMILL && lastNonZeroSpeedTimestamp != 0 &&
+        QDateTime::currentMSecsSinceEpoch() <= (lastNonZeroSpeedTimestamp + 3000))
+        return false;
+
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
         return true;
     else
