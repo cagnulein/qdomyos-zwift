@@ -2459,9 +2459,12 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
                 } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate &&
-                           ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid()) &&
+                           // FTMS indications, plus the Merach unlock indication characteristic.
+                           (((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid() &&
                               !gattCustomService) ||
-                             (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid())))) {
+                             (MERACH_TREADMILL && gattMerachUnlockService &&
+                              s->serviceUuid() == gattMerachUnlockService->serviceUuid() &&
+                              c.uuid() == _gattWriteCharMerachUnlock)))) {
                     QByteArray descriptor;
                     descriptor.append((char)0x02);
                     descriptor.append((char)0x00);
