@@ -424,6 +424,7 @@
 		87917A7728E768D200F8D9AC /* Client.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87917A7228E768D200F8D9AC /* Client.swift */; };
 		8791A8AA25C8603F003B50B2 /* moc_inspirebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8791A8A925C8603F003B50B2 /* moc_inspirebike.cpp */; };
 		8791A8AB25C861BD003B50B2 /* inspirebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8791A8A825C8602A003B50B2 /* inspirebike.cpp */; };
+		87937ED82FBCEA78007DF753 /* ios_accessibility_helper.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87937ED72FBCEA77007DF753 /* ios_accessibility_helper.mm */; };
 		87943AB429E0215D007575F2 /* localipaddress.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87943AB229E0215D007575F2 /* localipaddress.cpp */; };
 		87958F1927628D4500124B24 /* elitesterzosmart.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87958F1827628D4500124B24 /* elitesterzosmart.cpp */; };
 		87958F1B27628D5400124B24 /* moc_elitesterzosmart.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87958F1A27628D5400124B24 /* moc_elitesterzosmart.cpp */; };
@@ -1475,6 +1476,8 @@
 		8791A8A725C8602A003B50B2 /* inspirebike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = inspirebike.h; path = ../src/devices/inspirebike/inspirebike.h; sourceTree = "<group>"; };
 		8791A8A825C8602A003B50B2 /* inspirebike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = inspirebike.cpp; path = ../src/devices/inspirebike/inspirebike.cpp; sourceTree = "<group>"; };
 		8791A8A925C8603F003B50B2 /* moc_inspirebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inspirebike.cpp; sourceTree = "<group>"; };
+		87937ED62FBCEA77007DF753 /* ios_accessibility_helper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_accessibility_helper.h; path = ../src/ios/ios_accessibility_helper.h; sourceTree = SOURCE_ROOT; };
+		87937ED72FBCEA77007DF753 /* ios_accessibility_helper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_accessibility_helper.mm; path = ../src/ios/ios_accessibility_helper.mm; sourceTree = SOURCE_ROOT; };
 		87943AB229E0215D007575F2 /* localipaddress.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = localipaddress.cpp; path = ../src/localipaddress.cpp; sourceTree = "<group>"; };
 		87943AB329E0215D007575F2 /* localipaddress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = localipaddress.h; path = ../src/localipaddress.h; sourceTree = "<group>"; };
 		87958F1727628D4500124B24 /* elitesterzosmart.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = elitesterzosmart.h; path = ../src/devices/elitesterzosmart/elitesterzosmart.h; sourceTree = "<group>"; };
@@ -2370,6 +2373,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87937ED62FBCEA77007DF753 /* ios_accessibility_helper.h */,
+				87937ED72FBCEA77007DF753 /* ios_accessibility_helper.mm */,
 				877486E12FA8E79800A02AFD /* iconsolebike.h */,
 				877486E22FA8E79800A02AFD /* iconsolebike.cpp */,
 				877486DF2FA8E78600A02AFD /* moc_iconsolebike.cpp */,
@@ -3959,6 +3964,7 @@
 				87473A9827ECAA0500C203F5 /* moc_proformrower.cpp in Compile Sources */,
 				8785D5442B3DD105005A2EB7 /* moc_zwift_client_auth.cpp in Compile Sources */,
 				EEC10275DF646075E08DDC9B /* fit_field_definition.cpp in Compile Sources */,
+				87937ED82FBCEA78007DF753 /* ios_accessibility_helper.mm in Compile Sources */,
 				87062645259480AB00D06586 /* LocalNotificationHelper.swift in Compile Sources */,
 				8718CBA4263063BD004BF4EE /* templateinfosenderbuilder.cpp in Compile Sources */,
 				87E6A85B25B5C8B900371D28 /* flywheelbike.cpp in Compile Sources */,
