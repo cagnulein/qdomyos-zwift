@@ -2321,8 +2321,6 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
-    cadenceFromAppleWatch();
-
     if (Speed.value() > 0) {
         lastNonZeroSpeedTimestamp = QDateTime::currentMSecsSinceEpoch();
         lastStart = 0;
