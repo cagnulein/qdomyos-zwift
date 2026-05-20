@@ -884,11 +884,11 @@ void horizontreadmill::btinit() {
         QThread::msleep(500);
     }
 
-    if (MERACH_TREADMILL && gattCustomService && gattWriteCharCustomService.isValid() &&
-        gattWriteCharCustomService.uuid() == merachUnlockCharId) {
+    if (MERACH_TREADMILL && gattMerachUnlockService && gattWriteCharMerachUnlock.isValid() &&
+        gattWriteCharMerachUnlock.uuid() == merachUnlockCharId) {
         uint8_t unlock[] = {0xaa, 0x01, 0x00, 0x01, 0x55};
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, unlock, sizeof(unlock),
-                            QStringLiteral("merachUnlock"), false, true);
+        writeCharacteristic(gattMerachUnlockService, gattWriteCharMerachUnlock, unlock, sizeof(unlock),
+                            QStringLiteral("merachUnlock"), false, false);
         QThread::msleep(200);
     }
 
@@ -2408,9 +2408,14 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }*/
 
-                if (c.properties() & QLowEnergyCharacteristic::Write &&
-                    (c.uuid() == _gattWriteCharCustomService ||
-                     (MERACH_TREADMILL && c.uuid() == _gattWriteCharMerachUnlock)) &&
+                if (MERACH_TREADMILL &&
+                    (c.properties() & QLowEnergyCharacteristic::Write) &&
+                    c.uuid() == _gattWriteCharMerachUnlock) {
+                    qDebug() << QStringLiteral("Merach unlock Control Point found");
+                    gattWriteCharMerachUnlock = c;
+                    gattMerachUnlockService = s;
+                } else if (c.properties() & QLowEnergyCharacteristic::Write &&
+                    c.uuid() == _gattWriteCharCustomService &&
                     !BOWFLEX_T9 && !MX_TM &&
                     !settings
                          .value(QZSettings::horizon_treadmill_force_ftms,

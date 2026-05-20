@@ -62,6 +62,8 @@ class horizontreadmill : public treadmill {
     QLowEnergyService *gattFTMSService = nullptr;
     QLowEnergyCharacteristic gattWriteCharCustomService;
     QLowEnergyService *gattCustomService = nullptr;
+    QLowEnergyCharacteristic gattWriteCharMerachUnlock;
+    QLowEnergyService *gattMerachUnlockService = nullptr;
     volatile int notificationSubscribed = 0;
 
     static inline const QBluetoothUuid DomyosServiceId{QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455")};
