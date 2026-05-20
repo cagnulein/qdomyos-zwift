@@ -1288,11 +1288,13 @@ import Qt.labs.platform 1.1
 			property bool tile_heart_show_as_percent: false
 			property bool tile_hrv_enabled: false
 			property int tile_hrv_order: 78                 
+                             
             property bool nordictrack_gx_4_5_pro: false            
             property double step_gain: 1.0
             property bool sportstech_esx500: false
             property bool proform_bike_325_csx_PFEX439210INT_0: false
             property bool proform_carbon_tlx_treadmill: false
+                    
             property bool nordictrack_vr21: false
             property bool gymstick_gx6_0_elliptical: false
             property bool cadence_sensor_as_treadmill: false
@@ -1323,8 +1325,74 @@ import Qt.labs.platform 1.1
             property bool gears_custom_table_enabled: false
             property string gears_custom_table: "1|1\n2|2\n3|3\n4|4\n5|5\n6|6\n7|7\n8|8\n9|9\n10|10\n11|11\n12|12\n13|13\n14|14\n15|15\n16|16\n17|17\n18|18\n19|19\n20|20\n21|21\n22|22\n23|23\n24|24"                        
             property bool proform_treadmill_cst_505_pftl59420_0: false
-            
+
             property bool domyos_run100e: false
+
+            property bool shortcuts_enabled: false
+            property string shortcut_speed_plus: ""
+            property string shortcut_speed_minus: ""
+            property string shortcut_inclination_plus: ""
+            property string shortcut_inclination_minus: ""
+            property string shortcut_resistance_plus: ""
+            property string shortcut_resistance_minus: ""
+            property string shortcut_peloton_resistance_plus: ""
+            property string shortcut_peloton_resistance_minus: ""
+            property string shortcut_target_resistance_plus: ""
+            property string shortcut_target_resistance_minus: ""
+            property string shortcut_target_power_plus: ""
+            property string shortcut_target_power_minus: ""
+            property string shortcut_target_zone_plus: ""
+            property string shortcut_target_zone_minus: ""
+            property string shortcut_target_speed_plus: ""
+            property string shortcut_target_speed_minus: ""
+            property string shortcut_target_incline_plus: ""
+            property string shortcut_target_incline_minus: ""
+            property string shortcut_fan_plus: ""
+            property string shortcut_fan_minus: ""
+            property string shortcut_peloton_offset_plus: ""
+            property string shortcut_peloton_offset_minus: ""
+            property string shortcut_peloton_remaining_plus: ""
+            property string shortcut_peloton_remaining_minus: ""
+            property string shortcut_remaining_time_plus: ""
+            property string shortcut_remaining_time_minus: ""
+            property string shortcut_gears_plus: ""
+            property string shortcut_gears_minus: ""
+            property string shortcut_pid_hr_plus: ""
+            property string shortcut_pid_hr_minus: ""
+            property string shortcut_ext_incline_plus: ""
+            property string shortcut_ext_incline_minus: ""
+            property string shortcut_biggears_plus: ""
+            property string shortcut_biggears_minus: ""
+            property string shortcut_avs_cruise: ""
+            property string shortcut_avs_climb: ""
+            property string shortcut_avs_sprint: ""
+            property string shortcut_power_avg: ""
+            property string shortcut_erg_mode: ""
+            property string shortcut_auto_resistance: ""
+            property string shortcut_preset_resistance_1: ""
+            property string shortcut_preset_resistance_2: ""
+            property string shortcut_preset_resistance_3: ""
+            property string shortcut_preset_resistance_4: ""
+            property string shortcut_preset_resistance_5: ""
+            property string shortcut_preset_speed_1: ""
+            property string shortcut_preset_speed_2: ""
+            property string shortcut_preset_speed_3: ""
+            property string shortcut_preset_speed_4: ""
+            property string shortcut_preset_speed_5: ""
+            property string shortcut_preset_inclination_1: ""
+            property string shortcut_preset_inclination_2: ""
+            property string shortcut_preset_inclination_3: ""
+            property string shortcut_preset_inclination_4: ""
+            property string shortcut_preset_inclination_5: ""
+            property string shortcut_preset_powerzone_1: ""
+            property string shortcut_preset_powerzone_2: ""
+            property string shortcut_preset_powerzone_3: ""
+            property string shortcut_preset_powerzone_4: ""
+            property string shortcut_preset_powerzone_5: ""
+            property string shortcut_preset_powerzone_6: ""
+            property string shortcut_preset_powerzone_7: ""
+            property string shortcut_lap: ""
+            property string shortcut_start_stop: ""                                         
         }
 
 
