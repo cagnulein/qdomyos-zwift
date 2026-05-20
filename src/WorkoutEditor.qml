@@ -22,10 +22,12 @@ Item {
         onTriggered: {
             var port = settings.value("template_inner_QZWS_port", 0)
             if (!port) {
+                console.log("[WorkoutEditor VO] waiting for template_inner_QZWS_port")
                 return
             }
             var targetUrl = "http://localhost:" + port + "/workouteditor/index.html"
             if (webView.url !== targetUrl) {
+                console.log("[WorkoutEditor VO] loading " + targetUrl)
                 webView.url = targetUrl
             }
         }
@@ -37,19 +39,23 @@ Item {
         visible: root.pageLoaded
         focus: root.pageLoaded
         onLoadingChanged: {
+            console.log("[WorkoutEditor VO] loadingChanged status=" + loadRequest.status + " url=" + loadRequest.url + " error=" + loadRequest.errorString)
             if (loadRequest.status === WebView.LoadSucceededStatus) {
                 root.pageLoaded = true
                 busy.visible = false
                 busy.running = false
                 portPoller.stop()
                 webView.forceActiveFocus()
+                console.log("[WorkoutEditor VO] load succeeded, activeFocus=" + webView.activeFocus + " visible=" + webView.visible + " size=" + webView.width + "x" + webView.height)
                 if (OS_VERSION === "iOS") {
                     Qt.callLater(function() {
+                        console.log("[WorkoutEditor VO] preparing embedded iOS web view accessibility")
                         rootItem.prepareEmbeddedWebViewForVoiceOver()
                         rootItem.notifyAccessibilityScreenChanged()
                     })
                 }
             } else if (loadRequest.status === WebView.LoadFailedStatus) {
+                console.log("[WorkoutEditor VO] load failed, restarting poller")
                 root.pageLoaded = false
                 busy.visible = true
                 busy.running = true

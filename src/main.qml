@@ -1037,11 +1037,15 @@ ApplicationWindow {
         rightPadding: getRightPadding()
         Accessible.ignored: !drawer.opened
         onOpened: {
+            console.log("[VoiceOver drawer] opened; stack enabled before blocker=" + stackView.enabled)
             forceActiveFocus()
             drawerScrollView.forceActiveFocus()
             if (OS_VERSION === "iOS") {
                 rootItem.notifyAccessibilityScreenChanged()
             }
+        }
+        onClosed: {
+            console.log("[VoiceOver drawer] closed; stack enabled=" + stackView.enabled)
         }
 
         ScrollView {
@@ -1390,6 +1394,27 @@ ApplicationWindow {
 
             event.accepted = settings.volume_change_gears;
         }
+        }
+
+        MouseArea {
+            id: drawerInputBlocker
+            anchors.fill: parent
+            visible: drawer.opened
+            enabled: drawer.opened
+            z: 9999
+            acceptedButtons: Qt.AllButtons
+            hoverEnabled: true
+            preventStealing: true
+            propagateComposedEvents: false
+            Accessible.ignored: true
+            onPressed: {
+                mouse.accepted = true
+                console.log("[VoiceOver drawer] blocked press behind drawer at " + mouse.x + "," + mouse.y)
+            }
+            onClicked: {
+                mouse.accepted = true
+                console.log("[VoiceOver drawer] blocked click behind drawer at " + mouse.x + "," + mouse.y)
+            }
         }
     }
 }
