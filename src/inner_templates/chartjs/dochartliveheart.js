@@ -64,8 +64,14 @@ function process_trainprogram_heart(arr) {
     }
 
     if(elapsed > 0) {
-        heartChart.options.scales.x.max = elapsed;
-        heartChart.update();
+        if (typeof setNormalXScale === 'function') {
+            setNormalXScale('heart', undefined, elapsed);
+        }
+        if (typeof isZoomedHeart === 'undefined' || !isZoomedHeart) {
+            heartChart.options.scales.x.min = undefined;
+            heartChart.options.scales.x.max = elapsed;
+            heartChart.update();
+        }
     }
 }
 
@@ -279,8 +285,7 @@ function process_arr_heart(arr) {
                             box1: {
                             // Indicates the type of annotation
                             type: 'box',
-                            xMin: 0,
-                            //xMax: maxEl,
+                            adjustScaleRange: false,
                             yMin: 0,
                             yMax: heartZones[0],
                             backgroundColor: window.chartColors.lightsteelbluet,
@@ -288,8 +293,7 @@ function process_arr_heart(arr) {
                             box2: {
                             // Indicates the type of annotation
                             type: 'box',
-                            xMin: 0,
-                            //xMax: maxEl,
+                            adjustScaleRange: false,
                             yMin: heartZones[0],
                             yMax: heartZones[1],
                             backgroundColor: window.chartColors.greent,
@@ -297,8 +301,7 @@ function process_arr_heart(arr) {
                             box3: {
                             // Indicates the type of annotation
                             type: 'box',
-                            xMin: 0,
-                            //xMax: maxEl,
+                            adjustScaleRange: false,
                             yMin: heartZones[1],
                             yMax: heartZones[2],
                             backgroundColor: window.chartColors.yellowt,
@@ -306,8 +309,7 @@ function process_arr_heart(arr) {
                             box4: {
                             // Indicates the type of annotation
                             type: 'box',
-                            xMin: 0,
-                            //xMax: maxEl,
+                            adjustScaleRange: false,
                             yMin: heartZones[2],
                             yMax: heartZones[3],
                             backgroundColor: window.chartColors.oranget,
@@ -315,8 +317,7 @@ function process_arr_heart(arr) {
                             box5: {
                             // Indicates the type of annotation
                             type: 'box',
-                            xMin: 0,
-                            //xMax: maxEl,
+                            adjustScaleRange: false,
                             yMin: heartZones[3],
                             yMax: heartChartTop,
                             backgroundColor: window.chartColors.redt,
@@ -371,6 +372,9 @@ function process_arr_heart(arr) {
     };
 
     heartChart = new Chart(ctx, config);
+    if (typeof setNormalXScale === 'function') {
+        setNormalXScale('heart', heartChart.options.scales.x.min, heartChart.options.scales.x.max);
+    }
 
     refresh_heart();
 }
@@ -397,10 +401,19 @@ function process_workout_heart(arr) {
     }
     let elapsed = arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600);
     heartChart.data.datasets[0].data.push({x: elapsed, y: arr.heart});
+    if (typeof setNormalXScale === 'function' && typeof normalXScales !== 'undefined' &&
+        normalXScales.heart.max !== undefined && elapsed > normalXScales.heart.max) {
+        setNormalXScale('heart', normalXScales.heart.min, elapsed);
+        if (typeof isZoomedHeart === 'undefined' || !isZoomedHeart) {
+            heartChart.options.scales.x.max = elapsed;
+        }
+    }
     if(elapsed > heartChart.options.scales.x.max)
         heartChart.options.scales.x.max = elapsed;
-    if(arr.heart > heartChart.options.scales.y.max)
+    if(arr.heart > heartChart.options.scales.y.max) {
         heartChart.options.scales.y.max = arr.heart + 5;
+        heartChart.options.plugins.annotation.annotations.box5.yMax = arr.heart + 5;
+    }
     heartChart.update();
     refresh_heart();
 }
