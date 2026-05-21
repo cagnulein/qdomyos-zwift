@@ -21,6 +21,43 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+namespace {
+
+QByteArray headerValue(const QNetworkReply *reply, const char *headerName)
+{
+    return reply->rawHeader(headerName);
+}
+
+void logNetworkReplyDiagnostics(QNetworkReply *reply, const QString &context)
+{
+    const QVariant status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+    const QVariant reason = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
+    const QVariant redirect = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+    const QList<QNetworkCookie> cookies = reply->manager()->cookieJar()->cookiesForUrl(reply->url());
+    const QByteArray body = reply->readAll();
+
+    qDebug() << "GarminConnect:" << context << "network error code:" << static_cast<int>(reply->error())
+             << "error string:" << reply->errorString();
+    qDebug() << "GarminConnect:" << context << "HTTP status:" << status.toInt()
+             << "reason:" << reason.toString();
+    qDebug() << "GarminConnect:" << context << "request URL:" << reply->request().url().toString();
+    qDebug() << "GarminConnect:" << context << "reply URL:" << reply->url().toString();
+    qDebug() << "GarminConnect:" << context << "redirect target:" << redirect.toUrl().toString();
+    qDebug() << "GarminConnect:" << context << "Location header:" << QString::fromUtf8(headerValue(reply, "Location"));
+    qDebug() << "GarminConnect:" << context << "WWW-Authenticate header:" << QString::fromUtf8(headerValue(reply, "WWW-Authenticate"));
+    qDebug() << "GarminConnect:" << context << "Content-Type header:" << QString::fromUtf8(headerValue(reply, "Content-Type"));
+    qDebug() << "GarminConnect:" << context << "Set-Cookie header count:" << reply->rawHeaderList().count("Set-Cookie");
+    qDebug() << "GarminConnect:" << context << "cookie jar count for reply URL:" << cookies.size();
+    for (const QNetworkCookie &cookie : cookies) {
+        qDebug() << "GarminConnect:" << context << "cookie:" << QString::fromUtf8(cookie.name())
+                 << "domain:" << cookie.domain() << "path:" << cookie.path();
+    }
+    qDebug() << "GarminConnect:" << context << "response length:" << body.size();
+    qDebug() << "GarminConnect:" << context << "response snippet:" << QString::fromUtf8(body.left(500));
+}
+
+}
+
 GarminConnect::GarminConnect(QObject *parent)
     : QObject(parent)
     , m_manager(new QNetworkAccessManager(this))
@@ -442,6 +479,11 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
         m_manager->cookieJar()->insertCookie(cookie);
     }
 
+    qDebug() << "GarminConnect: Login POST URL:" << url.toString();
+    qDebug() << "GarminConnect: Login POST payload length:" << data.size()
+             << "CSRF token length:" << m_csrfToken.length()
+             << "cookie count before POST:" << m_cookies.size();
+
     QNetworkReply *reply = m_manager->post(request, data);
     QEventLoop loop;
     connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
@@ -450,10 +492,13 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
     if (reply->error() != QNetworkReply::NoError) {
         m_lastError = "Login failed: " + reply->errorString();
         qDebug() << "GarminConnect:" << m_lastError;
+        logNetworkReplyDiagnostics(reply, QStringLiteral("performLogin"));
         reply->deleteLater();
         return false;
     }
 
+    qDebug() << "GarminConnect: Login HTTP status code:"
+             << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     QString response = QString::fromUtf8(reply->readAll());
 
     // Debug: log response details

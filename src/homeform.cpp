@@ -9219,6 +9219,17 @@ void homeform::garmin_connect_login() {
         return;
     }
 
+    if (m_garminConnectLoginInProgress) {
+        qDebug() << "Garmin Connect: Login already in progress, ignoring duplicate request";
+        return;
+    }
+
+    struct GarminLoginGuard {
+        bool &inProgress;
+        explicit GarminLoginGuard(bool &flag) : inProgress(flag) { inProgress = true; }
+        ~GarminLoginGuard() { inProgress = false; }
+    } loginGuard(m_garminConnectLoginInProgress);
+
     // Initialize GarminConnect if not already done
     if (!garminConnect) {
         garminConnect = new GarminConnect(this);

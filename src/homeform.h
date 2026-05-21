@@ -921,6 +921,7 @@ public:
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
     GarminConnect *garminConnect = nullptr;
+    bool m_garminConnectLoginInProgress = false;
 
     // Intervals.icu OAuth and upload
     QOAuth2AuthorizationCodeFlow *intervalsicu = nullptr;
