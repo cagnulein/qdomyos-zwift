@@ -16,6 +16,7 @@ Top-level fields:
 
 - `schemaVersion`: catalog schema version.
 - `settingCount`: number of unique setting keys.
+- `pages`: visible settings sub-pages opened by `NewPageElement`.
 - `virtualSettings`: non-persistent UI settings that map one visible control to one or more persistent settings.
 - `settings`: one entry per unique setting key.
 
@@ -42,6 +43,8 @@ Each virtual setting contains:
 - `key`: stable, domain-scoped virtual key, not persisted directly.
 - `name`, `description`, `parent`, `type`, `control`, `defaultValue`: same meaning as persistent settings.
 - `options`: ordered options. An option with `sets` enables that persistent setting; an option without `sets` means no backing setting is enabled, such as "Other".
+
+`pages` handles visible navigation entries, such as "Wahoo Options", that do not map directly to a persistent setting but should still be searchable. Each page contains `key`, `name`, `description`, `parent`, `type: "page"`, `control: "page"`, `target`, and `visible`.
 
 ## Updating
 

@@ -10,17 +10,24 @@ ColumnLayout {
     property alias textFont: accordionText.font.family
     property alias textFontSize: accordionText.font.pixelSize
     property alias indicatRectColor: indicatRect.color
+    property color cardBorderColor: Qt.rgba(0.5, 0.5, 0.5, 0.45)
     default property alias accordionContent: contentLoader.sourceComponent
 
     // Signal emitted when content becomes visible
     signal contentBecameVisible()
 
-    spacing: 0
+    spacing: 6
     Layout.fillWidth: true
+    Layout.topMargin: 4
+    Layout.bottomMargin: 4
 
     Rectangle {
         id: accordionHeader
         color: "red"
+        radius: 6
+        border.width: 1
+        border.color: rootElement.cardBorderColor
+        clip: true
         Layout.alignment: Qt.AlignTop
         Layout.fillWidth: true
         height: 48

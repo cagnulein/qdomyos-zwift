@@ -20,7 +20,7 @@ import Qt.labs.platform 1.1
         signal intervalsicu_connect_clicked()
         signal intervalsicu_download_todays_workout_clicked()
 
-        property var settingsCatalog: ({ "settings": [], "virtualSettings": [] })
+        property var settingsCatalog: ({ "settings": [], "virtualSettings": [], "pages": [] })
         property var searchableSettings: []
         property var filteredSettings: []
         property bool settingsCatalogLoaded: false
@@ -66,6 +66,7 @@ import Qt.labs.platform 1.1
             var items = []
             var virtualSettings = settingsCatalog.virtualSettings || []
             var persistentSettings = settingsCatalog.settings || []
+            var pages = settingsCatalog.pages || []
 
             for (var i = 0; i < virtualSettings.length; i++) {
                 virtualSettings[i].catalogKind = "virtual"
@@ -81,6 +82,13 @@ import Qt.labs.platform 1.1
                 items.push(persistentSettings[j])
             }
 
+            for (var k = 0; k < pages.length; k++) {
+                if (!pages[k].visible)
+                    continue
+                pages[k].catalogKind = "page"
+                items.push(pages[k])
+            }
+
             searchableSettings = items
             updateFilteredSettings()
         }
@@ -93,7 +101,8 @@ import Qt.labs.platform 1.1
                 entry.parent,
                 parentDisplayName(entry),
                 entry.type,
-                entry.control
+                entry.control,
+                entry.target
             ]
 
             if (entry.options) {
@@ -1729,6 +1738,12 @@ import Qt.labs.platform 1.1
                                     visible: entry.catalogKind === "setting" && entry.type === "boolean"
                                     checked: visible ? settingsPane.settingValue(entry) : false
                                     onClicked: settingsPane.setSettingValue(entry, checked)
+                                }
+
+                                Button {
+                                    visible: entry.catalogKind === "page"
+                                    text: qsTr("Open")
+                                    onClicked: stackView.push(entry.target)
                                 }
                             }
 

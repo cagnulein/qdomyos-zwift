@@ -3,6 +3,68 @@
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
   "settingCount": 949,
+  "pages": [
+    {
+      "key": "page_custom_gear_table",
+      "name": "Custom Gear Table",
+      "description": null,
+      "parent": "Bike Options",
+      "type": "page",
+      "control": "page",
+      "target": "customgears.qml",
+      "visible": true
+    },
+    {
+      "key": "page_wahoo_options",
+      "name": "Wahoo Options",
+      "description": null,
+      "parent": "Bike Options",
+      "type": "page",
+      "control": "page",
+      "target": "gears.qml",
+      "visible": true
+    },
+    {
+      "key": "page_tiles_options",
+      "name": "Tiles Options",
+      "description": null,
+      "parent": "General",
+      "type": "page",
+      "control": "page",
+      "target": "settings-tiles.qml",
+      "visible": true
+    },
+    {
+      "key": "page_inclination_overrides",
+      "name": "Inclination Overrides",
+      "description": null,
+      "parent": "Treadmill Options",
+      "type": "page",
+      "control": "page",
+      "target": "settings-treadmill-inclination-override.qml",
+      "visible": true
+    },
+    {
+      "key": "page_tts_text_to_speech_settings",
+      "name": "TTS (Text to Speech) Settings 🔊",
+      "description": null,
+      "parent": "General",
+      "type": "page",
+      "control": "page",
+      "target": "settings-tts.qml",
+      "visible": true
+    },
+    {
+      "key": "page_keyboard_shortcuts",
+      "name": "Keyboard Shortcuts ⌨️",
+      "description": null,
+      "parent": "Tiles",
+      "type": "page",
+      "control": "page",
+      "target": "settings-shortcuts.qml",
+      "visible": true
+    }
+  ],
   "virtualSettings": [
     {
       "key": "nordictrack_bike_model",

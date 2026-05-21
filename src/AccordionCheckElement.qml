@@ -10,8 +10,9 @@ ColumnLayout {
     property string linkedBoolSetting: "example_setting"
     property bool isOpen: false
     property string title: ""
+    property color cardBorderColor: Qt.rgba(0.5, 0.5, 0.5, 0.45)
     default property alias accordionContent: contentPlaceholder.data
-    spacing: 0
+    spacing: 6
 
     function convertValue(val) {
         let tpval = typeof(val);
@@ -31,6 +32,8 @@ ColumnLayout {
     }
  
     Layout.fillWidth: true;
+    Layout.topMargin: 4
+    Layout.bottomMargin: 4
  
     /*RowLayout {
         id: accordionHeader
@@ -65,6 +68,12 @@ ColumnLayout {
         id: indicatCbx
         text: rootElement.title
         checked: rootElement.isOpen
+        background: Rectangle {
+            color: "transparent"
+            radius: 6
+            border.width: 1
+            border.color: rootElement.cardBorderColor
+        }
         onClicked: {
             rootElement.isOpen = checked;
             if (typeof(settings[rootElement.linkedBoolSetting])=="undefined") {

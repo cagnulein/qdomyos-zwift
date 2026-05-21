@@ -43,6 +43,7 @@ SETTING_NAME_RE = re.compile(r'\bsettingName\s*:\s*"([A-Za-z_][A-Za-z0-9_]*)"')
 LINKED_BOOL_SETTING_RE = re.compile(r'\blinkedBoolSetting\s*:\s*"([A-Za-z_][A-Za-z0-9_]*)"')
 COMBO_ID_RE = re.compile(r"\bid\s*:\s*([A-Za-z_][A-Za-z0-9_]*)")
 CASE_TRUE_RE = re.compile(r"\bcase\s+(\d+)\s*:\s*settings\.([A-Za-z_][A-Za-z0-9_]*)\s*=\s*true\s*;")
+ACCORDION_CONTENT_RE = re.compile(r'\baccordionContent\s*:\s*"((?:\\.|[^"\\])*)"')
 
 
 def read_lines(path: Path) -> list[str]:
@@ -424,6 +425,65 @@ def virtual_setting_title(lines: list[str], bounds: tuple[int, int]) -> str | No
     return None
 
 
+def page_key(title: str, target: str) -> str:
+    base = camel_to_snake(title) or camel_to_snake(Path(target).stem)
+    return f"page_{base}"
+
+
+def extract_page_target(lines: list[str], bounds: tuple[int, int]) -> str | None:
+    start, end = bounds
+    for cursor in range(start, end + 1):
+        match = ACCORDION_CONTENT_RE.search(lines[cursor])
+        if match:
+            return decode_qml_string(match.group(1))
+    return None
+
+
+def extract_pages() -> list[dict[str, Any]]:
+    pages: list[dict[str, Any]] = []
+    seen_keys: set[str] = set()
+    for source in QML_SOURCES:
+        lines = read_lines(source)
+        new_page_blocks = qml_blocks(lines, r"\bNewPageElement\s*\{")
+        titled_blocks = (
+            [("accordion", start, end) for start, end in qml_blocks(lines, r"\bAccordionElement\s*\{")]
+            + [
+                ("staticAccordion", start, end)
+                for start, end in qml_blocks(lines, r"\bStaticAccordionElement\s*\{")
+            ]
+            + [
+                ("accordionCheck", start, end)
+                for start, end in qml_blocks(lines, r"\bAccordionCheckElement\s*\{")
+            ]
+        )
+        for bounds in new_page_blocks:
+            title = block_title(lines, bounds)
+            target = extract_page_target(lines, bounds)
+            if not title or not target:
+                continue
+
+            key = page_key(title, target)
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+            start, _ = bounds
+            pages.append(
+                {
+                    "key": key,
+                    "name": title,
+                    "description": None,
+                    "parent": parent_for_line(lines, titled_blocks, start, None)
+                    or SOURCE_DEFAULT_PARENTS.get(source.as_posix())
+                    or "General",
+                    "type": "page",
+                    "control": "page",
+                    "target": target,
+                    "visible": True,
+                }
+            )
+    return pages
+
+
 def extract_virtual_settings(
     keys: set[str], declarations: dict[str, list[dict[str, Any]]]
 ) -> tuple[list[dict[str, Any]], dict[str, str]]:
@@ -651,6 +711,7 @@ def build_catalog() -> dict[str, Any]:
         "schemaVersion": 1,
         "format": "qdomyos-zwift-settings-catalog",
         "settingCount": len(settings),
+        "pages": extract_pages(),
         "virtualSettings": virtual_settings,
         "settings": settings,
     }
@@ -758,6 +819,8 @@ def validate_catalog(catalog: dict[str, Any]) -> list[str]:
     expected_virtual_settings = expected_catalog.get("virtualSettings", [])
     if catalog.get("virtualSettings", []) != expected_virtual_settings:
         errors.append("virtualSettings do not match QML-derived catalog")
+    if catalog.get("pages", []) != expected_catalog.get("pages", []):
+        errors.append("pages do not match QML-derived catalog")
     return errors
 
 
