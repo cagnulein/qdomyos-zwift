@@ -213,6 +213,7 @@ tst/Devices/
 - Platform-specific configuration paths
 - Profile system for multiple users/devices
 - Extensive customization options for device behavior
+- `src/settings-catalog.json` is the generated cross-platform catalog of every persistent setting declared in `src/settings.qml` and its settings child QML files. When adding, removing, or renaming any settings QML property, run `python tools/generate_settings_catalog.py` and then `python tools/generate_settings_catalog.py --check`. The check must report exact coverage before the change is complete.
 
 ## External Dependencies
 

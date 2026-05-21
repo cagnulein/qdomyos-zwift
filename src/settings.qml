@@ -20,6 +20,13 @@ import Qt.labs.platform 1.1
         signal intervalsicu_connect_clicked()
         signal intervalsicu_download_todays_workout_clicked()
 
+        property var settingsCatalog: ({ "settings": [], "virtualSettings": [] })
+        property var searchableSettings: []
+        property var filteredSettings: []
+        property bool settingsCatalogLoaded: false
+        property string settingsCatalogError: ""
+        property bool settingsSearchActive: false
+
         function openGarminSection() {
             garminOptionsAccordion.isOpen = true
             scrollTimer.start()
@@ -28,6 +35,213 @@ import Qt.labs.platform 1.1
         // Strip the RSSI proximity suffix (e.g. " (75%)") before saving device names
         function stripRssi(deviceName) {
             return deviceName.replace(/ \(\d+%\)$/, "")
+        }
+
+        function loadSettingsCatalog() {
+            var xhr = new XMLHttpRequest()
+            xhr.open("GET", "qrc:/settings-catalog.json")
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState !== XMLHttpRequest.DONE)
+                    return
+
+                if (xhr.status === 200 || xhr.status === 0) {
+                    try {
+                        settingsCatalog = JSON.parse(xhr.responseText)
+                        settingsCatalogLoaded = true
+                        settingsCatalogError = ""
+                        buildSearchableSettings()
+                    } catch (e) {
+                        settingsCatalogError = "Unable to parse settings catalog"
+                        console.log(settingsCatalogError + ": " + e)
+                    }
+                } else {
+                    settingsCatalogError = "Unable to load settings catalog"
+                    console.log(settingsCatalogError + ": " + xhr.status)
+                }
+            }
+            xhr.send()
+        }
+
+        function buildSearchableSettings() {
+            var items = []
+            var virtualSettings = settingsCatalog.virtualSettings || []
+            var persistentSettings = settingsCatalog.settings || []
+
+            for (var i = 0; i < virtualSettings.length; i++) {
+                virtualSettings[i].catalogKind = "virtual"
+                items.push(virtualSettings[i])
+            }
+
+            for (var j = 0; j < persistentSettings.length; j++) {
+                if (persistentSettings[j].control === "virtualOption")
+                    continue
+                persistentSettings[j].catalogKind = "setting"
+                items.push(persistentSettings[j])
+            }
+
+            searchableSettings = items
+            updateFilteredSettings()
+        }
+
+        function searchableText(entry) {
+            var parts = [
+                entry.key,
+                entry.name,
+                entry.description,
+                entry.parent,
+                parentDisplayName(entry),
+                entry.type,
+                entry.control
+            ]
+
+            if (entry.options) {
+                if (entry.options.values) {
+                    for (var i = 0; i < entry.options.values.length; i++)
+                        parts.push(entry.options.values[i])
+                } else if (entry.options.length !== undefined) {
+                    for (var j = 0; j < entry.options.length; j++) {
+                        parts.push(entry.options[j].label)
+                        parts.push(entry.options[j].sets)
+                    }
+                }
+            }
+
+            return parts.join(" ").toLowerCase()
+        }
+
+        function catalogEntryNameByKey(key) {
+            var persistentSettings = settingsCatalog.settings || []
+            for (var i = 0; i < persistentSettings.length; i++) {
+                if (persistentSettings[i].key === key)
+                    return persistentSettings[i].name || key
+            }
+
+            var virtualSettings = settingsCatalog.virtualSettings || []
+            for (var j = 0; j < virtualSettings.length; j++) {
+                if (virtualSettings[j].key === key)
+                    return virtualSettings[j].name || key
+            }
+
+            return key
+        }
+
+        function parentDisplayName(entry) {
+            if (!entry.parent)
+                return qsTr("General")
+            return catalogEntryNameByKey(entry.parent)
+        }
+
+        function updateFilteredSettings() {
+            if (!settingsCatalogLoaded) {
+                filteredSettings = []
+                return
+            }
+
+            var query = settingsSearchTextField ? settingsSearchTextField.text.trim().toLowerCase() : ""
+            if (query.length === 0) {
+                filteredSettings = []
+                return
+            }
+
+            var tokens = query.split(/\s+/)
+            var results = []
+            for (var i = 0; i < searchableSettings.length; i++) {
+                var haystack = searchableText(searchableSettings[i])
+                var matched = true
+                for (var tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
+                    if (haystack.indexOf(tokens[tokenIndex]) < 0) {
+                        matched = false
+                        break
+                    }
+                }
+
+                if (matched)
+                    results.push(searchableSettings[i])
+
+                if (results.length >= 80)
+                    break
+            }
+            filteredSettings = results
+        }
+
+        function settingValue(entry) {
+            var value = settings[entry.key]
+            return value === undefined ? entry.defaultValue : value
+        }
+
+        function setSettingValue(entry, value) {
+            if (entry.type === "boolean") {
+                settings[entry.key] = !!value
+            } else if (entry.type === "integer") {
+                settings[entry.key] = parseInt(value)
+            } else if (entry.type === "number") {
+                settings[entry.key] = parseFloat(value)
+            } else {
+                settings[entry.key] = value
+            }
+
+            window.settings_restart_to_apply = true
+            toast.show("Setting saved!")
+        }
+
+        function optionValues(entry) {
+            if (!entry.options)
+                return []
+
+            if (entry.options.values)
+                return entry.options.values
+
+            if (entry.options.expression && entry.options.expression.indexOf("rootItem.") === 0) {
+                var propertyName = entry.options.expression.substring("rootItem.".length)
+                if (typeof rootItem !== "undefined" && rootItem && rootItem[propertyName] !== undefined)
+                    return rootItem[propertyName]
+            }
+
+            return []
+        }
+
+        function optionIndex(entry) {
+            var values = optionValues(entry)
+            var value = settingValue(entry)
+            for (var i = 0; i < values.length; i++) {
+                if (values[i] === value)
+                    return i
+            }
+            return 0
+        }
+
+        function virtualOptionLabels(entry) {
+            var labels = []
+            for (var i = 0; entry.options && i < entry.options.length; i++)
+                labels.push(entry.options[i].label)
+            return labels
+        }
+
+        function virtualSelectedIndex(entry) {
+            if (!entry.options)
+                return 0
+
+            for (var i = 0; i < entry.options.length; i++) {
+                if (entry.options[i].sets && settings[entry.options[i].sets])
+                    return i
+            }
+            return 0
+        }
+
+        function setVirtualSelection(entry, index) {
+            if (!entry.options)
+                return
+
+            for (var i = 0; i < entry.options.length; i++) {
+                if (entry.options[i].sets)
+                    settings[entry.options[i].sets] = false
+            }
+
+            if (entry.options[index] && entry.options[index].sets)
+                settings[entry.options[index].sets] = true
+
+            window.settings_restart_to_apply = true
+            toast.show("Setting saved!")
         }
 
         // always add a property at the end of the file to avoid corruption of the settings when loading old versions
@@ -1419,12 +1633,166 @@ import Qt.labs.platform 1.1
           }
         }
 
-        Component.onCompleted: window.settings_restart_to_apply = false;
+        Component.onCompleted: {
+            window.settings_restart_to_apply = false
+            loadSettingsCatalog()
+        }
 
         ColumnLayout {
             id: column1
             spacing: 0
             anchors.fill: parent
+
+            RowLayout {
+                id: settingsSearchBar
+                spacing: 8
+                Layout.fillWidth: true
+
+                TextField {
+                    id: settingsSearchTextField
+                    Layout.fillWidth: true
+                    placeholderText: qsTr("Search settings")
+                    selectByMouse: true
+                    inputMethodHints: Qt.ImhNoPredictiveText
+                    onTextChanged: {
+                        settingsPane.settingsSearchActive = text.trim().length > 0
+                        settingsPane.updateFilteredSettings()
+                    }
+                }
+
+                Button {
+                    text: qsTr("Clear")
+                    visible: settingsSearchTextField.text.length > 0
+                    onClicked: settingsSearchTextField.text = ""
+                }
+            }
+
+            Label {
+                visible: settingsCatalogError.length > 0
+                text: settingsCatalogError
+                color: Material.color(Material.Red)
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+
+            ColumnLayout {
+                id: settingsSearchResults
+                visible: settingsSearchActive
+                spacing: 8
+                Layout.fillWidth: true
+
+                Label {
+                    text: filteredSettings.length === 0 ? qsTr("No settings found") : qsTr("Search results") + " (" + filteredSettings.length + ")"
+                    color: Material.color(Material.Red)
+                    font.bold: true
+                    Layout.fillWidth: true
+                }
+
+                Repeater {
+                    model: filteredSettings
+
+                    delegate: Frame {
+                        property var entry: modelData
+                        Layout.fillWidth: true
+                        padding: 8
+
+                        contentItem: ColumnLayout {
+                            spacing: 6
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 8
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 2
+
+                                    Label {
+                                        text: entry.name || entry.key
+                                        font.bold: true
+                                        wrapMode: Text.WordWrap
+                                        Layout.fillWidth: true
+                                    }
+
+                                    Label {
+                                        text: settingsPane.parentDisplayName(entry) + " - " + entry.key
+                                        color: Material.color(Material.Grey)
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        wrapMode: Text.WordWrap
+                                        Layout.fillWidth: true
+                                    }
+                                }
+
+                                Switch {
+                                    visible: entry.catalogKind === "setting" && entry.type === "boolean"
+                                    checked: visible ? settingsPane.settingValue(entry) : false
+                                    onClicked: settingsPane.setSettingValue(entry, checked)
+                                }
+                            }
+
+                            Label {
+                                visible: entry.description !== null && entry.description !== undefined && entry.description.length > 0
+                                text: entry.description || ""
+                                color: Material.color(Material.Lime)
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+
+                            RowLayout {
+                                visible: entry.catalogKind === "setting" && entry.type !== "boolean" && settingsPane.optionValues(entry).length === 0
+                                Layout.fillWidth: true
+                                spacing: 8
+
+                                TextField {
+                                    id: searchSettingTextField
+                                    Layout.fillWidth: true
+                                    text: visible ? settingsPane.settingValue(entry) : ""
+                                    horizontalAlignment: Text.AlignRight
+                                    inputMethodHints: entry.type === "string" ? Qt.ImhNoPredictiveText : Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settingsPane.setSettingValue(entry, text)
+                                    onActiveFocusChanged: if (this.focus) this.cursorPosition = this.text.length
+                                }
+
+                                Button {
+                                    text: "OK"
+                                    onClicked: settingsPane.setSettingValue(entry, searchSettingTextField.text)
+                                }
+                            }
+
+                            ComboBox {
+                                visible: entry.catalogKind === "setting" && settingsPane.optionValues(entry).length > 0
+                                Layout.fillWidth: true
+                                model: visible ? settingsPane.optionValues(entry) : []
+                                currentIndex: visible ? settingsPane.optionIndex(entry) : 0
+                                onActivated: {
+                                    var selectedValue = currentValue
+                                    if (entry.options && entry.options.expression && entry.options.expression.indexOf("bluetoothDevices") >= 0)
+                                        selectedValue = settingsPane.stripRssi(selectedValue)
+                                    settingsPane.setSettingValue(entry, selectedValue)
+                                }
+                            }
+
+                            ComboBox {
+                                visible: entry.catalogKind === "virtual"
+                                Layout.fillWidth: true
+                                model: visible ? settingsPane.virtualOptionLabels(entry) : []
+                                currentIndex: visible ? settingsPane.virtualSelectedIndex(entry) : 0
+                                onActivated: settingsPane.setVirtualSelection(entry, currentIndex)
+                            }
+                        }
+                    }
+                }
+            }
+
+            ColumnLayout {
+                id: settingsContent
+                visible: !settingsSearchActive
+                spacing: 0
+                Layout.fillWidth: true
 
             AccordionElement {
                 id: generalOptionsAccordion
@@ -14967,6 +15335,7 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
                 }
+            }
             }
         }
 
