@@ -27,6 +27,7 @@ Each setting contains:
 - `parent`: nearest QML group/accordion title, or an inferred group.
 - `type` / `qmlType`: portable JSON type and original QML property type.
 - `control`: inferred UI control (`switch`, `text`, `select`, or `button`).
+- `visible`: whether the setting has a real UI control in the current settings QML.
 - `defaultValue` / `defaultExpression`: parsed literal default when possible and the original QML expression.
 - `options`: fixed ComboBox values or the model expression when available.
 - `virtualParent`: present when this persistent setting is controlled by a virtual setting instead of directly by its own UI control.

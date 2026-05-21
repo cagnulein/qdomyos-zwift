@@ -75,6 +75,8 @@ import Qt.labs.platform 1.1
             for (var j = 0; j < persistentSettings.length; j++) {
                 if (persistentSettings[j].control === "virtualOption")
                     continue
+                if (!persistentSettings[j].visible)
+                    continue
                 persistentSettings[j].catalogKind = "setting"
                 items.push(persistentSettings[j])
             }
@@ -1715,7 +1717,7 @@ import Qt.labs.platform 1.1
                                     }
 
                                     Label {
-                                        text: settingsPane.parentDisplayName(entry) + " - " + entry.key
+                                        text: settingsPane.parentDisplayName(entry)
                                         color: Material.color(Material.Grey)
                                         font.pixelSize: Qt.application.font.pixelSize - 2
                                         wrapMode: Text.WordWrap

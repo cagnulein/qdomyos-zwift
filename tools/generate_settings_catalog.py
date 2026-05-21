@@ -612,6 +612,7 @@ def build_catalog() -> dict[str, Any]:
         group = choose_first(refs, "group") or infer_prefix_group(key)
         options = choose_first(refs, "options")
         control = choose_first(refs, "control")
+        visible = bool(refs)
         if not control:
             control = "switch" if primary["type"] == "boolean" else "text"
 
@@ -626,6 +627,7 @@ def build_catalog() -> dict[str, Any]:
             "type": primary["type"],
             "qmlType": primary["qmlType"],
             "control": "virtualOption" if key in virtual_option_map else control,
+            "visible": visible,
             "defaultValue": primary["defaultValue"],
             "defaultExpression": primary["defaultExpression"],
             "options": None if key in virtual_option_map else options,
@@ -702,6 +704,7 @@ def validate_catalog(catalog: dict[str, Any]) -> list[str]:
         "type",
         "qmlType",
         "control",
+        "visible",
         "defaultValue",
         "defaultExpression",
         "options",
@@ -734,6 +737,7 @@ def validate_catalog(catalog: dict[str, Any]) -> list[str]:
         "type",
         "qmlType",
         "control",
+        "visible",
         "defaultValue",
         "defaultExpression",
         "options",
