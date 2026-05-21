@@ -2013,7 +2013,7 @@ jobs:
   nordictrack-build:
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
     
     strategy:
       matrix:
@@ -2035,12 +2035,38 @@ jobs:
           sudo apt-get install -y xvfb
           Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
 
-      - name: Checkout PR code
-        uses: actions/checkout@v3
+      - name: Checkout code
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v4
         with:
-          ref: refs/pull/3478/head
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
+
+      - name: Checkout base branch for PR
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
+
+      - name: Apply current PR patch to NordicTrack build
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          PR_REF="refs/remotes/origin/pr-${{ github.event.pull_request.number }}"
+          BASE_REF="refs/remotes/origin/${{ github.base_ref }}"
+          git fetch --no-tags origin \
+            "+refs/heads/${{ github.base_ref }}:${BASE_REF}" \
+            "+refs/pull/${{ github.event.pull_request.number }}/head:${PR_REF}"
+          git diff --binary "${BASE_REF}...${PR_REF}" -- . ':(exclude).github/workflows/**' > pr.patch
+          if [ ! -s pr.patch ]; then
+            echo "No non-workflow PR patch to apply for NordicTrack build."
+            exit 0
+          fi
+          git apply --3way --whitespace=nowarn pr.patch
+          git status --short
         
       - name: Checkout submodules with specific branches
         run: |
@@ -2085,14 +2111,25 @@ jobs:
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
-          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
-          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
-          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
+            echo "#define STRAVA_SECRET_KEY dummy_strava_secret" > secret.h
+            echo "#define PELOTON_SECRET_KEY dummy_peloton_secret" >> secret.h
+            echo "#define SMTP_USERNAME dummy_smtp_username" >> secret.h
+            echo "#define SMTP_PASSWORD dummy_smtp_password" >> secret.h
+            echo "#define SMTP_SERVER dummy_smtp_server" >> secret.h
+            echo "#define INTERVALSICU_CLIENT_ID dummy_intervalsicu_client_id" >> secret.h
+            echo "#define INTERVALSICU_CLIENT_SECRET dummy_intervalsicu_client_secret" >> secret.h
+            echo "dummy_cesium_key" >> inner_templates/googlemaps/cesium-key.js
+          else
+            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+            echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
+            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+            echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
+            echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
+            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          fi
           echo "#define LICENSE" >> secret.h
           # Set variant-specific IP setting
           sed -i 's/property string ${{ matrix.variant.setting_key }}: ""/property string ${{ matrix.variant.setting_key }}: "${{ matrix.variant.setting_value }}"/' settings.qml
