@@ -20,6 +20,22 @@ static void updateDiscoveredDevice(QList<QBluetoothDeviceInfo> &devices, const Q
         if (SAME_BLUETOOTH_DEVICE(existing, device)) {
             if (!device.name().isEmpty() || existing.name().isEmpty()) {
                 i.setValue(device);
+            } else {
+                QBluetoothDeviceInfo updated = existing;
+                updated.setCached(device.isCached());
+                updated.setRssi(device.rssi());
+                updated.setCoreConfigurations(device.coreConfigurations());
+                updated.setDeviceUuid(device.deviceUuid());
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                updated.setServiceUuids(device.serviceUuids());
+#else
+                updated.setServiceUuids(device.serviceUuids().toVector());
+#endif
+                const QHash<quint16, QByteArray> manufacturerData = device.manufacturerData();
+                for (auto it = manufacturerData.cbegin(); it != manufacturerData.cend(); ++it) {
+                    updated.setManufacturerData(it.key(), it.value());
+                }
+                i.setValue(updated);
             }
             return;
         }
