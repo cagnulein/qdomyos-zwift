@@ -14,6 +14,37 @@
 #include <QAndroidJniObject>
 #endif
 
+static void updateDiscoveredDevice(QList<QBluetoothDeviceInfo> &devices, const QBluetoothDeviceInfo &device) {
+    QMutableListIterator<QBluetoothDeviceInfo> i(devices);
+    while (i.hasNext()) {
+        const QBluetoothDeviceInfo existing = i.next();
+        if (SAME_BLUETOOTH_DEVICE(existing, device)) {
+            if (!device.name().isEmpty() || existing.name().isEmpty()) {
+                i.setValue(device);
+            } else {
+                QBluetoothDeviceInfo updated = existing;
+                updated.setCached(device.isCached());
+                updated.setRssi(device.rssi());
+                updated.setCoreConfigurations(device.coreConfigurations());
+                updated.setDeviceUuid(device.deviceUuid());
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                updated.setServiceUuids(device.serviceUuids());
+#else
+                updated.setServiceUuids(device.serviceUuids().toVector());
+#endif
+                const QHash<quint16, QByteArray> manufacturerData = device.manufacturerData();
+                for (auto it = manufacturerData.cbegin(); it != manufacturerData.cend(); ++it) {
+                    updated.setManufacturerData(it.key(), it.value());
+                }
+                i.setValue(updated);
+            }
+            return;
+        }
+    }
+
+    devices.append(device);
+}
+
 bluetooth::bluetooth(const discoveryoptions &options)
     : bluetooth(options.logs, options.deviceName, options.noWriteResistance, options.noHeartService,
                 options.pollDeviceTime, options.noConsole, options.testResistance, options.bikeResistanceOffset,
@@ -683,19 +714,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             QBluetoothDeviceInfo manufacturerDevice(device.address(), yesoulbike::bluetoothName,
                                                     device.majorDeviceClass());
 
-            bool found = false;
-            QMutableListIterator<QBluetoothDeviceInfo> i(devices);
-            while (i.hasNext()) {
-                QBluetoothDeviceInfo b = i.next();
-                if (SAME_BLUETOOTH_DEVICE(b, manufacturerDevice) && !b.name().isEmpty()) {
-                    i.setValue(manufacturerDevice); // in order to keep the freshest copy of this struct
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                devices.append(manufacturerDevice);
-            }
+            updateDiscoveredDevice(devices, manufacturerDevice);
             manufacturerDeviceFound = true;
         }
 #endif
@@ -703,20 +722,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     }
 
     if (manufacturerDeviceFound == false) {
-        bool found = false;
-        QMutableListIterator<QBluetoothDeviceInfo> i(devices);
-        while (i.hasNext()) {
-            QBluetoothDeviceInfo b = i.next();
-            if (SAME_BLUETOOTH_DEVICE(b, device) && !b.name().isEmpty()) {
-
-                i.setValue(device); // in order to keep the freshest copy of this struct
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            devices.append(device);
-        }
+        updateDiscoveredDevice(devices, device);
     }
 
     emit deviceFound(device.name());
@@ -1659,6 +1665,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("F89")) && !sole_inclination) ||       // FMTS
                         (b.name().toUpper().startsWith(QStringLiteral("F80")) && !sole_inclination) ||       // FMTS
                         (b.name().toUpper().startsWith(QStringLiteral("ANPLUS-"))) ||                        // FTMS
+						(b.name().toUpper().startsWith(QStringLiteral("RUN BT-"))) ||                        // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("X-T"))) ||                            // FTMS (X-T421)
                         (b.name().toUpper().startsWith(QStringLiteral("TC-"))) ||                            // FTMS (Focus Fitness Jet 7 iPlus)
                         b.name().toUpper().startsWith(QStringLiteral("TM XP_")) ||                           // FTMS
@@ -1906,6 +1913,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("MRK-S26S-")) ||
                         (b.name().toUpper().startsWith("MRK-S26C-")) ||
                         (b.name().toUpper().startsWith("MRK-S28-")) ||
+                        (b.name().toUpper().startsWith("MRK-S38-")) ||
                         (b.name().toUpper().startsWith("ROBX")) ||
                         (b.name().toUpper().startsWith("ORLAUF_ARES")) ||
                         (b.name().toUpper().startsWith("SPEEDMAGPRO")) ||                        
@@ -2083,6 +2091,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MRK-CRYDN-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MRK-R06-")) ||
+						b.name().toUpper().startsWith(QStringLiteral("MRK-R28-")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("MRK-R11S-")) && !iconsole_rower) ||
                         b.name().toUpper().startsWith(QStringLiteral("YOROTO-RW-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SF-RW")) ||

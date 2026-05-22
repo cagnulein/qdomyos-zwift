@@ -162,7 +162,29 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             
             var infoToShare: Set<HKSampleType> = []
             
-            if #available(watchOSApplicationExtension 10.0, *) {
+            if #available(watchOSApplicationExtension 11.0, *) {
+                infoToShare = Set([
+                    HKSampleType.quantityType(forIdentifier: .stepCount)!,
+                    HKSampleType.quantityType(forIdentifier: .heartRate)!,
+                    HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
+                    HKSampleType.quantityType(forIdentifier: .distanceWalkingRunning)!,
+                    HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,
+                    HKSampleType.quantityType(forIdentifier: .basalEnergyBurned)!,
+                    HKSampleType.quantityType(forIdentifier: .cyclingPower)!,
+                    HKSampleType.quantityType(forIdentifier: .cyclingSpeed)!,
+                    HKSampleType.quantityType(forIdentifier: .cyclingCadence)!,
+                    HKSampleType.quantityType(forIdentifier: .runningPower)!,
+                    HKSampleType.quantityType(forIdentifier: .runningSpeed)!,
+                    HKSampleType.quantityType(forIdentifier: .runningStrideLength)!,
+                    HKSampleType.quantityType(forIdentifier: .runningVerticalOscillation)!,
+                    HKSampleType.quantityType(forIdentifier: .walkingSpeed)!,
+                    HKSampleType.quantityType(forIdentifier: .walkingStepLength)!,
+                    HKSampleType.quantityType(forIdentifier: .distanceRowing)!,
+                    HKSampleType.quantityType(forIdentifier: .rowingSpeed)!,
+                    HKSampleType.quantityType(forIdentifier: .flightsClimbed)!,
+                    HKSampleType.workoutType()
+                    ])
+            } else if #available(watchOSApplicationExtension 10.0, *) {
                 infoToShare = Set([
                     HKSampleType.quantityType(forIdentifier: .stepCount)!,
                     HKSampleType.quantityType(forIdentifier: .heartRate)!,
@@ -325,16 +347,10 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                  }
              }
              
-             // Per il rowing, HealthKit utilizza un tipo specifico di distanza
-             // Se non esiste un tipo specifico per il rowing, possiamo usare un tipo generico di distanza
-             var quantityTypeDistance: HKQuantityType?
-             
-             // In watchOS 10 e versioni successive, possiamo usare un tipo specifico se disponibile
-             if #available(watchOSApplicationExtension 10.0, *) {
-                 // Verifica se esiste un tipo specifico per il rowing, altrimenti utilizza un tipo generico
-                 quantityTypeDistance = HKQuantityType.quantityType(forIdentifier: .distanceSwimming)
+             let quantityTypeDistance: HKQuantityType?
+             if #available(watchOSApplicationExtension 11.0, *) {
+                 quantityTypeDistance = HKQuantityType.quantityType(forIdentifier: .distanceRowing)
              } else {
-                 // Nelle versioni precedenti, usa il tipo generico
                  quantityTypeDistance = HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)
              }
              
