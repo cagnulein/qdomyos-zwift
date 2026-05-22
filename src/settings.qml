@@ -93,6 +93,8 @@ import Qt.labs.platform 1.1
                     continue
                 if (!persistentSettings[j].visible)
                     continue
+                if (settingsPane.isTileOrderSetting(persistentSettings[j]))
+                    continue
                 persistentSettings[j].catalogKind = "setting"
                 items.push(persistentSettings[j])
             }
@@ -106,6 +108,10 @@ import Qt.labs.platform 1.1
 
             searchableSettings = items
             updateFilteredSettings()
+        }
+
+        function isTileOrderSetting(entry) {
+            return entry && entry.key && entry.key.indexOf("tile_") === 0 && entry.key.lastIndexOf("_order") === entry.key.length - 6
         }
 
         function searchableText(entry) {
@@ -1719,16 +1725,18 @@ import Qt.labs.platform 1.1
                     model: filteredSettings
 
                     delegate: Frame {
+                        id: searchResultFrame
                         property var entry: modelData
                         Layout.fillWidth: true
                         Layout.minimumWidth: 0
                         Layout.preferredWidth: Math.max(1, settingsSearchResults.width)
                         Layout.maximumWidth: Math.max(1, settingsSearchResults.width)
+                        implicitWidth: 1
                         padding: 8
 
                         contentItem: ColumnLayout {
                             spacing: 6
-                            width: Math.max(1, parent ? parent.width : settingsSearchResults.width)
+                            width: Math.max(1, searchResultFrame.availableWidth)
 
                             RowLayout {
                                 Layout.fillWidth: true
@@ -1777,6 +1785,8 @@ import Qt.labs.platform 1.1
 
                             Label {
                                 visible: entry.description !== null && entry.description !== undefined && entry.description.length > 0
+                                Layout.preferredHeight: visible ? implicitHeight : 0
+                                Layout.maximumHeight: visible ? implicitHeight : 0
                                 text: entry.description || ""
                                 color: Material.color(Material.Lime)
                                 font.bold: true
@@ -1794,6 +1804,8 @@ import Qt.labs.platform 1.1
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
                                 Layout.preferredWidth: 1
+                                Layout.preferredHeight: visible ? implicitHeight : 0
+                                Layout.maximumHeight: visible ? implicitHeight : 0
                                 spacing: 8
 
                                 TextField {
@@ -1820,6 +1832,8 @@ import Qt.labs.platform 1.1
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
                                 Layout.preferredWidth: 1
+                                Layout.preferredHeight: visible ? implicitHeight : 0
+                                Layout.maximumHeight: visible ? implicitHeight : 0
                                 model: visible ? settingsPane.optionValues(entry) : []
                                 currentIndex: visible ? settingsPane.optionIndex(entry) : 0
                                 contentItem: Label {
@@ -1856,6 +1870,8 @@ import Qt.labs.platform 1.1
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
                                 Layout.preferredWidth: 1
+                                Layout.preferredHeight: visible ? implicitHeight : 0
+                                Layout.maximumHeight: visible ? implicitHeight : 0
                                 model: visible ? settingsPane.virtualOptionLabels(entry) : []
                                 currentIndex: visible ? settingsPane.virtualSelectedIndex(entry) : 0
                                 contentItem: Label {
