@@ -1691,6 +1691,7 @@ import Qt.labs.platform 1.1
                 visible: settingsSearchActive
                 spacing: 8
                 Layout.fillWidth: true
+                Layout.preferredWidth: Math.max(1, column1.width)
 
                 Label {
                     text: filteredSettings.length === 0 ? qsTr("No settings found") : qsTr("Search results") + " (" + filteredSettings.length + ")"
@@ -1705,32 +1706,44 @@ import Qt.labs.platform 1.1
                     delegate: Frame {
                         property var entry: modelData
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
+                        Layout.preferredWidth: Math.max(1, settingsSearchResults.width)
+                        Layout.maximumWidth: Math.max(1, settingsSearchResults.width)
                         padding: 8
 
                         contentItem: ColumnLayout {
                             spacing: 6
+                            width: Math.max(1, parent ? parent.width : settingsSearchResults.width)
 
                             RowLayout {
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.preferredWidth: 1
                                 spacing: 8
 
                                 ColumnLayout {
                                     Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
+                                    Layout.preferredWidth: 1
                                     spacing: 2
 
                                     Label {
                                         text: entry.name || entry.key
                                         font.bold: true
-                                        wrapMode: Text.WordWrap
+                                        wrapMode: Text.WrapAnywhere
                                         Layout.fillWidth: true
+                                        Layout.minimumWidth: 0
+                                        Layout.preferredWidth: 1
                                     }
 
                                     Label {
                                         text: settingsPane.parentDisplayName(entry)
                                         color: Material.color(Material.Grey)
                                         font.pixelSize: Qt.application.font.pixelSize - 2
-                                        wrapMode: Text.WordWrap
+                                        wrapMode: Text.WrapAnywhere
                                         Layout.fillWidth: true
+                                        Layout.minimumWidth: 0
+                                        Layout.preferredWidth: 1
                                     }
                                 }
 
@@ -1755,18 +1768,24 @@ import Qt.labs.platform 1.1
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
                                 textFormat: Text.PlainText
-                                wrapMode: Text.WordWrap
+                                wrapMode: Text.WrapAnywhere
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.preferredWidth: 1
                             }
 
                             RowLayout {
                                 visible: entry.catalogKind === "setting" && entry.type !== "boolean" && settingsPane.optionValues(entry).length === 0
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.preferredWidth: 1
                                 spacing: 8
 
                                 TextField {
                                     id: searchSettingTextField
                                     Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
+                                    Layout.preferredWidth: 1
                                     text: visible ? settingsPane.settingValue(entry) : ""
                                     horizontalAlignment: Text.AlignRight
                                     inputMethodHints: entry.type === "string" ? Qt.ImhNoPredictiveText : Qt.ImhFormattedNumbersOnly
@@ -1781,10 +1800,33 @@ import Qt.labs.platform 1.1
                             }
 
                             ComboBox {
+                                id: searchSettingComboBox
                                 visible: entry.catalogKind === "setting" && settingsPane.optionValues(entry).length > 0
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.preferredWidth: 1
                                 model: visible ? settingsPane.optionValues(entry) : []
                                 currentIndex: visible ? settingsPane.optionIndex(entry) : 0
+                                contentItem: Label {
+                                    leftPadding: 12
+                                    rightPadding: 36
+                                    text: searchSettingComboBox.displayText
+                                    font: searchSettingComboBox.font
+                                    color: searchSettingComboBox.palette.text
+                                    verticalAlignment: Text.AlignVCenter
+                                    elide: Text.ElideRight
+                                }
+                                delegate: ItemDelegate {
+                                    width: searchSettingComboBox.width
+                                    text: modelData
+                                    contentItem: Label {
+                                        text: modelData
+                                        font: searchSettingComboBox.font
+                                        color: searchSettingComboBox.palette.text
+                                        verticalAlignment: Text.AlignVCenter
+                                        elide: Text.ElideRight
+                                    }
+                                }
                                 onActivated: {
                                     var selectedValue = currentValue
                                     if (entry.options && entry.options.expression && entry.options.expression.indexOf("bluetoothDevices") >= 0)
@@ -1794,10 +1836,33 @@ import Qt.labs.platform 1.1
                             }
 
                             ComboBox {
+                                id: searchVirtualComboBox
                                 visible: entry.catalogKind === "virtual"
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.preferredWidth: 1
                                 model: visible ? settingsPane.virtualOptionLabels(entry) : []
                                 currentIndex: visible ? settingsPane.virtualSelectedIndex(entry) : 0
+                                contentItem: Label {
+                                    leftPadding: 12
+                                    rightPadding: 36
+                                    text: searchVirtualComboBox.displayText
+                                    font: searchVirtualComboBox.font
+                                    color: searchVirtualComboBox.palette.text
+                                    verticalAlignment: Text.AlignVCenter
+                                    elide: Text.ElideRight
+                                }
+                                delegate: ItemDelegate {
+                                    width: searchVirtualComboBox.width
+                                    text: modelData
+                                    contentItem: Label {
+                                        text: modelData
+                                        font: searchVirtualComboBox.font
+                                        color: searchVirtualComboBox.palette.text
+                                        verticalAlignment: Text.AlignVCenter
+                                        elide: Text.ElideRight
+                                    }
+                                }
                                 onActivated: settingsPane.setVirtualSelection(entry, currentIndex)
                             }
                         }
