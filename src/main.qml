@@ -963,6 +963,20 @@ ApplicationWindow {
         }
 
         ToolButton {
+            id: toolButtonSettingsSearch
+            text: "\uD83D\uDD0D"
+            font.pixelSize: Qt.application.font.pixelSize * 1.25
+            onClicked: {
+                if (stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function")
+                    stackView.currentItem.showSettingsSearch()
+            }
+            anchors.right: toolButtonLoadSettings.left
+            visible: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Search settings")
+        }
+
+        ToolButton {
             id: toolButtonSaveSettings
             icon.source: "icons/icons/tray-arrow-down.png"
             onClicked: {

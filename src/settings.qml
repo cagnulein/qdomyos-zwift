@@ -25,7 +25,22 @@ import Qt.labs.platform 1.1
         property var filteredSettings: []
         property bool settingsCatalogLoaded: false
         property string settingsCatalogError: ""
+        property bool settingsSearchVisible: false
         property bool settingsSearchActive: false
+
+        function showSettingsSearch() {
+            settingsSearchVisible = true
+            Qt.callLater(function() {
+                settingsSearchTextField.forceActiveFocus()
+            })
+        }
+
+        function hideSettingsSearch() {
+            settingsSearchTextField.text = ""
+            settingsSearchVisible = false
+            settingsSearchActive = false
+            updateFilteredSettings()
+        }
 
         function openGarminSection() {
             garminOptionsAccordion.isOpen = true
@@ -1656,6 +1671,7 @@ import Qt.labs.platform 1.1
 
             RowLayout {
                 id: settingsSearchBar
+                visible: settingsSearchVisible
                 spacing: 8
                 Layout.fillWidth: true
 
@@ -1673,8 +1689,7 @@ import Qt.labs.platform 1.1
 
                 Button {
                     text: qsTr("Clear")
-                    visible: settingsSearchTextField.text.length > 0
-                    onClicked: settingsSearchTextField.text = ""
+                    onClicked: settingsPane.hideSettingsSearch()
                 }
             }
 
