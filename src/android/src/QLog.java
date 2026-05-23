@@ -7,147 +7,111 @@ import android.util.Log;
  * Usage: import org.cagnulen.qdomyoszwift.Log;
  */
 public class QLog {
+    private static volatile boolean nativeLoggingAvailable = false;
+    private static volatile boolean nativeLoggingDisabled = false;
+
     public static native void sendToQt(int level, String tag, String message);
 
     static {
         try {
             // Try to load the native library if needed
             System.loadLibrary("qtlogging_native");
+            nativeLoggingAvailable = true;
         } catch (UnsatisfiedLinkError e) {
             // Library might be loaded elsewhere, or will be loaded later
+            nativeLoggingAvailable = false;
+            nativeLoggingDisabled = true;
             Log.w("QLog", "Native library not loaded yet: " + e.getMessage());
+        }
+    }
+
+    private static void forwardToQt(int level, String tag, String message) {
+        if (!nativeLoggingAvailable || nativeLoggingDisabled) {
+            return;
+        }
+
+        try {
+            sendToQt(level, tag, message);
+        } catch (UnsatisfiedLinkError e) {
+            nativeLoggingDisabled = true;
+            nativeLoggingAvailable = false;
+            Log.w("QLog", "Disabling native logging bridge: " + e.getMessage());
         }
     }
 
     // Debug level methods
     public static int d(String tag, String msg) {
-        try {
-            sendToQt(3, tag, msg);
-        } catch (UnsatisfiedLinkError e) {
-            // Native library not available, continue with Android logging only
-        }
+        forwardToQt(3, tag, msg);
         return Log.d(tag, msg);
     }
 
     public static int d(String tag, String msg, Throwable tr) {
-        try {
-            sendToQt(3, tag, msg + '\n' + Log.getStackTraceString(tr));
-        } catch (UnsatisfiedLinkError e) {
-            // Native library not available, continue with Android logging only
-        }
+        forwardToQt(3, tag, msg + '\n' + Log.getStackTraceString(tr));
         return Log.d(tag, msg, tr);
     }
 
     // Error level methods
     public static int e(String tag, String msg) {
-        try {
-            sendToQt(6, tag, msg);
-        } catch (UnsatisfiedLinkError e) {
-            // Native library not available, continue with Android logging only
-        }
+        forwardToQt(6, tag, msg);
         return Log.e(tag, msg);
     }
 
     public static int e(String tag, String msg, Throwable tr) {
-        try {
-            sendToQt(6, tag, msg + '\n' + Log.getStackTraceString(tr));
-        } catch (UnsatisfiedLinkError e) {
-            // Native library not available, continue with Android logging only
-        }
+        forwardToQt(6, tag, msg + '\n' + Log.getStackTraceString(tr));
         return Log.e(tag, msg, tr);
     }
 
     // Info level methods
     public static int i(String tag, String msg) {
-        try {
-            sendToQt(4, tag, msg);
-        } catch (UnsatisfiedLinkError e) {
-            // Native library not available, continue with Android logging only
-        }
+        forwardToQt(4, tag, msg);
         return Log.i(tag, msg);
     }
 
     public static int i(String tag, String msg, Throwable tr) {
-        try {
-            sendToQt(4, tag, msg + '\n' + Log.getStackTraceString(tr));
-        } catch (UnsatisfiedLinkError e) {
-            // Native library not available, continue with Android logging only
-        }
+        forwardToQt(4, tag, msg + '\n' + Log.getStackTraceString(tr));
         return Log.i(tag, msg, tr);
     }
 
     // Verbose level methods
     public static int v(String tag, String msg) {
-        try {
-            sendToQt(2, tag, msg);
-        } catch (UnsatisfiedLinkError e) {
-            // Native library not available, continue with Android logging only
-        }
+        forwardToQt(2, tag, msg);
         return Log.v(tag, msg);
     }
 
     public static int v(String tag, String msg, Throwable tr) {
-        try {
-            sendToQt(2, tag, msg + '\n' + Log.getStackTraceString(tr));
-        } catch (UnsatisfiedLinkError e) {
-            // Native library not available, continue with Android logging only
-        }
+        forwardToQt(2, tag, msg + '\n' + Log.getStackTraceString(tr));
         return Log.v(tag, msg, tr);
     }
 
     // Warning level methods
     public static int w(String tag, String msg) {
-        try {
-            sendToQt(5, tag, msg);
-        } catch (UnsatisfiedLinkError e) {
-            // Native library not available, continue with Android logging only
-        }
+        forwardToQt(5, tag, msg);
         return Log.w(tag, msg);
     }
 
     public static int w(String tag, String msg, Throwable tr) {
-        try {
-            sendToQt(5, tag, msg + '\n' + Log.getStackTraceString(tr));
-        } catch (UnsatisfiedLinkError e) {
-            // Native library not available, continue with Android logging only
-        }
+        forwardToQt(5, tag, msg + '\n' + Log.getStackTraceString(tr));
         return Log.w(tag, msg, tr);
     }
 
     public static int w(String tag, Throwable tr) {
-        try {
-            sendToQt(5, tag, Log.getStackTraceString(tr));
-        } catch (UnsatisfiedLinkError e) {
-            // Native library not available, continue with Android logging only
-        }
+        forwardToQt(5, tag, Log.getStackTraceString(tr));
         return Log.w(tag, tr);
     }
 
     // What a Terrible Failure: Report an exception that should never happen
     public static int wtf(String tag, String msg) {
-        try {
-            sendToQt(7, tag, "WTF: " + msg);
-        } catch (UnsatisfiedLinkError e) {
-            // Native library not available, continue with Android logging only
-        }
+        forwardToQt(7, tag, "WTF: " + msg);
         return Log.wtf(tag, msg);
     }
 
     public static int wtf(String tag, Throwable tr) {
-        try {
-            sendToQt(7, tag, "WTF: " + Log.getStackTraceString(tr));
-        } catch (UnsatisfiedLinkError e) {
-            // Native library not available, continue with Android logging only
-        }
+        forwardToQt(7, tag, "WTF: " + Log.getStackTraceString(tr));
         return Log.wtf(tag, tr);
     }
 
     public static int wtf(String tag, String msg, Throwable tr) {
-        try {
-            sendToQt(7, tag, "WTF: " + msg + '\n' + Log.getStackTraceString(tr));
-        } catch (UnsatisfiedLinkError e) {
-            // Native library not available, continue with Android logging only
-        }
+        forwardToQt(7, tag, "WTF: " + msg + '\n' + Log.getStackTraceString(tr));
         return Log.wtf(tag, msg, tr);
     }
 
@@ -162,11 +126,7 @@ public class QLog {
 
     // Additional utility methods
     public static int println(int priority, String tag, String msg) {
-        try {
-            sendToQt(priority, tag, msg);
-        } catch (UnsatisfiedLinkError e) {
-            // Native library not available, continue with Android logging only
-        }
+        forwardToQt(priority, tag, msg);
         return Log.println(priority, tag, msg);
     }
 

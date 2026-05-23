@@ -5,14 +5,18 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.DisplayCutout;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
 import org.qtproject.qt5.android.bindings.QtActivity;
 
 public class CustomQtActivity extends QtActivity {
     private static final String TAG = "CustomQtActivity";
+    private OnBackInvokedCallback backCallback;
 
     // Declare the native method that will be implemented in C++
     private static native void onInsetsChanged(int top, int bottom, int left, int right);
@@ -40,6 +44,17 @@ public class CustomQtActivity extends QtActivity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: CustomQtActivity initialized");
         dispatchOAuthCallback(getIntent());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            backCallback = new OnBackInvokedCallback() {
+                @Override
+                public void onBackInvoked() {
+                    Log.d(TAG, "onBackInvoked: ignoring Android back gesture/button");
+                }
+            };
+            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                    OnBackInvokedDispatcher.PRIORITY_DEFAULT, backCallback);
+        }
 
         // This tells the OS that we want to handle the display cutout area ourselves
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -110,6 +125,29 @@ public class CustomQtActivity extends QtActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         dispatchOAuthCallback(intent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG, "onBackPressed: ignoring Android back button");
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Log.d(TAG, "onKeyDown: consumed KEYCODE_BACK");
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && backCallback != null) {
+            getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(backCallback);
+            backCallback = null;
+        }
+        super.onDestroy();
     }
 
     // This method is still needed for the QML check

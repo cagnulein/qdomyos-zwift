@@ -18,6 +18,8 @@ import android.widget.Toast;
 import android.os.Looper;
 import android.os.Handler;
 import org.cagnulen.qdomyoszwift.QLog;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +30,12 @@ public class WearableController {
 
         public static void start(Context context) {            
             _context = context;
+
+             if (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)
+                     != ConnectionResult.SUCCESS) {
+                QLog.w("WearableController", "Google Play Services unavailable, wearable service not started");
+                return;
+             }
 
              if(_intent == null)
                 _intent = new Intent(context, WearableMessageListenerService.class);

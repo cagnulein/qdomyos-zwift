@@ -33,6 +33,9 @@
 #include "androidstatusbar.h"
 #include "fontmanager.h"
 #include "filesearcher.h"
+#include "purchasing/inapp/inapptransaction.h"
+#include "purchasing/qmltypes/inappproductqmltype.h"
+#include "purchasing/qmltypes/inappstoreqmltype.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -540,6 +543,19 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
 }
 
+static void registerPurchasingQmlTypes() {
+    static bool registered = false;
+    if (registered) {
+        return;
+    }
+
+    qmlRegisterType<InAppStoreQmlType>("org.cagnulein.qdomyoszwift", 1, 0, "Store");
+    qmlRegisterType<InAppProductQmlType>("org.cagnulein.qdomyoszwift", 1, 0, "Product");
+    qmlRegisterUncreatableType<InAppTransaction>("org.cagnulein.qdomyoszwift", 1, 0, "Transaction",
+                                                 QStringLiteral("Transaction objects are created by the store."));
+    registered = true;
+}
+
 int main(int argc, char *argv[]) {
 #ifdef Q_OS_WIN32
     qputenv("QT_MULTIMEDIA_PREFERRED_PLUGINS", "windowsmediafoundation");
@@ -893,6 +909,7 @@ int main(int argc, char *argv[]) {
 #endif
     {
         AndroidStatusBar::registerQmlType();
+        registerPurchasingQmlTypes();
         
 #ifdef Q_OS_ANDROID
         FontManager fontManager;
