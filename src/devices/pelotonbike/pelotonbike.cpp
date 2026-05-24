@@ -125,6 +125,8 @@ void pelotonbike::update() {
 
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool iosHeartCompanion =
+        settings.value(QZSettings::ios_heart_companion, QZSettings::default_ios_heart_companion).toBool();
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
     if (watts())
@@ -139,7 +141,9 @@ void pelotonbike::update() {
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
-    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+    if (iosHeartCompanion) {
+        qDebug() << "iOS Heart Companion Heart:" << Heart.value();
+    } else if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif

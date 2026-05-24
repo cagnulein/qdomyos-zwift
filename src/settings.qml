@@ -1325,6 +1325,7 @@ import Qt.labs.platform 1.1
             property bool applewatch_as_treadmill_speed: false
 
             property bool grupetto_disclaimer_shown: false
+            property bool ios_heart_companion: false
         }
 
 
@@ -1994,6 +1995,34 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Enable to calculate calories based on heart rate data instead of power. Requires heart rate sensor connection for accurate calorie estimation.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: switchIosHeartCompanionDelegate
+                        text: qsTr("iOS Heart Companion")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ios_heart_companion
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.ios_heart_companion = checked
+                    }
+
+                    Label {
+                        text: qsTr("Use the heart rate received from another QZ instance running on iPhone/Apple Watch through the QZ companion connection. For Peloton Bike Android builds, this keeps the iOS heart rate as the active HR source instead of WearOS/ANT fallbacks.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

@@ -3010,6 +3010,12 @@ class QZSettings {
     static constexpr bool default_applewatch_as_treadmill_speed = false;
 
     /**
+     * @brief Use heart rate received from another QZ instance running on iOS via the QZ iPhone companion socket.
+     */
+    static const QString ios_heart_companion;
+    static constexpr bool default_ios_heart_companion = false;
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */
