@@ -1710,7 +1710,7 @@ import Qt.labs.platform 1.1
             ColumnLayout {
                 id: settingsSearchResults
                 visible: settingsSearchActive
-                spacing: 8
+                spacing: 4
                 Layout.fillWidth: true
                 Layout.preferredWidth: Math.max(1, column1.width)
 
@@ -1731,11 +1731,13 @@ import Qt.labs.platform 1.1
                         Layout.minimumWidth: 0
                         Layout.preferredWidth: Math.max(1, settingsSearchResults.width)
                         Layout.maximumWidth: Math.max(1, settingsSearchResults.width)
+                        Layout.preferredHeight: implicitHeight
+                        Layout.maximumHeight: implicitHeight
                         implicitWidth: 1
-                        padding: 8
+                        padding: 4
 
                         contentItem: ColumnLayout {
-                            spacing: 6
+                            spacing: 2
                             width: Math.max(1, searchResultFrame.availableWidth)
 
                             RowLayout {
@@ -1793,7 +1795,8 @@ import Qt.labs.platform 1.1
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
                                 textFormat: Text.PlainText
-                                wrapMode: Text.WrapAnywhere
+                                wrapMode: Text.NoWrap
+                                elide: Text.ElideRight
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
                                 Layout.preferredWidth: 1
