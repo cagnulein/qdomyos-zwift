@@ -1292,11 +1292,13 @@ import Qt.labs.platform 1.1
 			property bool tile_heart_show_as_percent: false
 			property bool tile_hrv_enabled: false
 			property int tile_hrv_order: 78                 
+                             
             property bool nordictrack_gx_4_5_pro: false            
             property double step_gain: 1.0
             property bool sportstech_esx500: false
             property bool proform_bike_325_csx_PFEX439210INT_0: false
             property bool proform_carbon_tlx_treadmill: false
+                    
             property bool nordictrack_vr21: false
             property bool gymstick_gx6_0_elliptical: false
             property bool cadence_sensor_as_treadmill: false
@@ -1316,6 +1318,7 @@ import Qt.labs.platform 1.1
       
             property double power_sensor_speed_inclination_coeff_a: 0.0
             property double power_sensor_speed_inclination_coeff_b: 0.0
+            
             property bool proform_carbon_tlx_v84_314_treadmill: false            
             property bool cscbike_custom_resistance_power_table: false
             property real cscbike_custom_resistance_level_1: 1
@@ -1326,6 +1329,77 @@ import Qt.labs.platform 1.1
 
             property bool grupetto_disclaimer_shown: false
             property bool ios_heart_companion: false
+            property bool gears_custom_table_enabled: false
+            property string gears_custom_table: "1|1\n2|2\n3|3\n4|4\n5|5\n6|6\n7|7\n8|8\n9|9\n10|10\n11|11\n12|12\n13|13\n14|14\n15|15\n16|16\n17|17\n18|18\n19|19\n20|20\n21|21\n22|22\n23|23\n24|24"                        
+            property bool proform_treadmill_cst_505_pftl59420_0: false
+
+            property bool domyos_run100e: false
+
+            property bool shortcuts_enabled: false
+            property string shortcut_speed_plus: ""
+            property string shortcut_speed_minus: ""
+            property string shortcut_inclination_plus: ""
+            property string shortcut_inclination_minus: ""
+            property string shortcut_resistance_plus: ""
+            property string shortcut_resistance_minus: ""
+            property string shortcut_peloton_resistance_plus: ""
+            property string shortcut_peloton_resistance_minus: ""
+            property string shortcut_target_resistance_plus: ""
+            property string shortcut_target_resistance_minus: ""
+            property string shortcut_target_power_plus: ""
+            property string shortcut_target_power_minus: ""
+            property string shortcut_target_zone_plus: ""
+            property string shortcut_target_zone_minus: ""
+            property string shortcut_target_speed_plus: ""
+            property string shortcut_target_speed_minus: ""
+            property string shortcut_target_incline_plus: ""
+            property string shortcut_target_incline_minus: ""
+            property string shortcut_fan_plus: ""
+            property string shortcut_fan_minus: ""
+            property string shortcut_peloton_offset_plus: ""
+            property string shortcut_peloton_offset_minus: ""
+            property string shortcut_peloton_remaining_plus: ""
+            property string shortcut_peloton_remaining_minus: ""
+            property string shortcut_remaining_time_plus: ""
+            property string shortcut_remaining_time_minus: ""
+            property string shortcut_gears_plus: ""
+            property string shortcut_gears_minus: ""
+            property string shortcut_pid_hr_plus: ""
+            property string shortcut_pid_hr_minus: ""
+            property string shortcut_ext_incline_plus: ""
+            property string shortcut_ext_incline_minus: ""
+            property string shortcut_biggears_plus: ""
+            property string shortcut_biggears_minus: ""
+            property string shortcut_avs_cruise: ""
+            property string shortcut_avs_climb: ""
+            property string shortcut_avs_sprint: ""
+            property string shortcut_power_avg: ""
+            property string shortcut_erg_mode: ""
+            property string shortcut_auto_resistance: ""
+            property string shortcut_preset_resistance_1: ""
+            property string shortcut_preset_resistance_2: ""
+            property string shortcut_preset_resistance_3: ""
+            property string shortcut_preset_resistance_4: ""
+            property string shortcut_preset_resistance_5: ""
+            property string shortcut_preset_speed_1: ""
+            property string shortcut_preset_speed_2: ""
+            property string shortcut_preset_speed_3: ""
+            property string shortcut_preset_speed_4: ""
+            property string shortcut_preset_speed_5: ""
+            property string shortcut_preset_inclination_1: ""
+            property string shortcut_preset_inclination_2: ""
+            property string shortcut_preset_inclination_3: ""
+            property string shortcut_preset_inclination_4: ""
+            property string shortcut_preset_inclination_5: ""
+            property string shortcut_preset_powerzone_1: ""
+            property string shortcut_preset_powerzone_2: ""
+            property string shortcut_preset_powerzone_3: ""
+            property string shortcut_preset_powerzone_4: ""
+            property string shortcut_preset_powerzone_5: ""
+            property string shortcut_preset_powerzone_6: ""
+            property string shortcut_preset_powerzone_7: ""
+            property string shortcut_lap: ""
+            property string shortcut_start_stop: ""                                         
         }
 
 
@@ -3058,6 +3132,14 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    NewPageElement {
+                        title: qsTr("Custom Gear Table")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: "customgears.qml"
                     }
 
                     RowLayout {
@@ -7298,6 +7380,8 @@ import Qt.labs.platform 1.1
                             "Venu2 Plus",
                             "Venu3",
                             "Venu3S",
+                            "Venu4",
+                            "Venu4S",
                             "Venu Sq",
                             "Venu Sq2",
                             "Venu Sq2Music",
@@ -7424,19 +7508,21 @@ import Qt.labs.platform 1.1
                             if (settings.fit_file_garmin_device_training_effect_device === 3851) return 108;  // VENU2_PLUS
                             if (settings.fit_file_garmin_device_training_effect_device === 4260) return 109;  // VENU3
                             if (settings.fit_file_garmin_device_training_effect_device === 4261) return 110;  // VENU3S
-                            if (settings.fit_file_garmin_device_training_effect_device === 3600) return 111;  // VENUSQ
-                            if (settings.fit_file_garmin_device_training_effect_device === 4115) return 112;  // VENUSQ2
-                            if (settings.fit_file_garmin_device_training_effect_device === 4116) return 113;  // VENUSQ2MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 3596) return 114;  // VENUSQ_MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 2700) return 115;  // VIVOACTIVE3
-                            if (settings.fit_file_garmin_device_training_effect_device === 3066) return 116;  // VIVOACTIVE3M_L
-                            if (settings.fit_file_garmin_device_training_effect_device === 2988) return 117;  // VIVOACTIVE3M_W
-                            if (settings.fit_file_garmin_device_training_effect_device === 3225) return 118;  // VIVOACTIVE4_LARGE
-                            if (settings.fit_file_garmin_device_training_effect_device === 3224) return 119;  // VIVOACTIVE4_SMALL
-                            if (settings.fit_file_garmin_device_training_effect_device === 4426) return 120;  // VIVOACTIVE5
-                            if (settings.fit_file_garmin_device_training_effect_device === 4625) return 121;  // VIVOACTIVE6
-                            if (settings.fit_file_garmin_device_training_effect_device === 88888) return 122;  // Tacx
-                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 123;  // Zwift
+                            if (settings.fit_file_garmin_device_training_effect_device === 4643) return 111;  // VENU4
+                            if (settings.fit_file_garmin_device_training_effect_device === 4644) return 112;  // VENU4S
+                            if (settings.fit_file_garmin_device_training_effect_device === 3600) return 113;  // VENUSQ
+                            if (settings.fit_file_garmin_device_training_effect_device === 4115) return 114;  // VENUSQ2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4116) return 115;  // VENUSQ2MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 3596) return 116;  // VENUSQ_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 2700) return 117;  // VIVOACTIVE3
+                            if (settings.fit_file_garmin_device_training_effect_device === 3066) return 118;  // VIVOACTIVE3M_L
+                            if (settings.fit_file_garmin_device_training_effect_device === 2988) return 119;  // VIVOACTIVE3M_W
+                            if (settings.fit_file_garmin_device_training_effect_device === 3225) return 120;  // VIVOACTIVE4_LARGE
+                            if (settings.fit_file_garmin_device_training_effect_device === 3224) return 121;  // VIVOACTIVE4_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 4426) return 122;  // VIVOACTIVE5
+                            if (settings.fit_file_garmin_device_training_effect_device === 4625) return 123;  // VIVOACTIVE6
+                            if (settings.fit_file_garmin_device_training_effect_device === 88888) return 124;  // Tacx
+                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 125;  // Zwift
                             return 20;  // Default to Edge 830
                         }
                         onCurrentIndexChanged: {
@@ -7552,19 +7638,21 @@ import Qt.labs.platform 1.1
                                 case 108: settings.fit_file_garmin_device_training_effect_device = 3851; break;  // VENU2_PLUS
                                 case 109: settings.fit_file_garmin_device_training_effect_device = 4260; break;  // VENU3
                                 case 110: settings.fit_file_garmin_device_training_effect_device = 4261; break;  // VENU3S
-                                case 111: settings.fit_file_garmin_device_training_effect_device = 3600; break;  // VENUSQ
-                                case 112: settings.fit_file_garmin_device_training_effect_device = 4115; break;  // VENUSQ2
-                                case 113: settings.fit_file_garmin_device_training_effect_device = 4116; break;  // VENUSQ2MUSIC
-                                case 114: settings.fit_file_garmin_device_training_effect_device = 3596; break;  // VENUSQ_MUSIC
-                                case 115: settings.fit_file_garmin_device_training_effect_device = 2700; break;  // VIVOACTIVE3
-                                case 116: settings.fit_file_garmin_device_training_effect_device = 3066; break;  // VIVOACTIVE3M_L
-                                case 117: settings.fit_file_garmin_device_training_effect_device = 2988; break;  // VIVOACTIVE3M_W
-                                case 118: settings.fit_file_garmin_device_training_effect_device = 3225; break;  // VIVOACTIVE4_LARGE
-                                case 119: settings.fit_file_garmin_device_training_effect_device = 3224; break;  // VIVOACTIVE4_SMALL
-                                case 120: settings.fit_file_garmin_device_training_effect_device = 4426; break;  // VIVOACTIVE5
-                                case 121: settings.fit_file_garmin_device_training_effect_device = 4625; break;  // VIVOACTIVE6
-                                case 122: settings.fit_file_garmin_device_training_effect_device = 88888; break;  // Tacx
-                                case 123: settings.fit_file_garmin_device_training_effect_device = 99999; break;  // Zwift
+                                case 111: settings.fit_file_garmin_device_training_effect_device = 4643; break;  // VENU4
+                                case 112: settings.fit_file_garmin_device_training_effect_device = 4644; break;  // VENU4S
+                                case 113: settings.fit_file_garmin_device_training_effect_device = 3600; break;  // VENUSQ
+                                case 114: settings.fit_file_garmin_device_training_effect_device = 4115; break;  // VENUSQ2
+                                case 115: settings.fit_file_garmin_device_training_effect_device = 4116; break;  // VENUSQ2MUSIC
+                                case 116: settings.fit_file_garmin_device_training_effect_device = 3596; break;  // VENUSQ_MUSIC
+                                case 117: settings.fit_file_garmin_device_training_effect_device = 2700; break;  // VIVOACTIVE3
+                                case 118: settings.fit_file_garmin_device_training_effect_device = 3066; break;  // VIVOACTIVE3M_L
+                                case 119: settings.fit_file_garmin_device_training_effect_device = 2988; break;  // VIVOACTIVE3M_W
+                                case 120: settings.fit_file_garmin_device_training_effect_device = 3225; break;  // VIVOACTIVE4_LARGE
+                                case 121: settings.fit_file_garmin_device_training_effect_device = 3224; break;  // VIVOACTIVE4_SMALL
+                                case 122: settings.fit_file_garmin_device_training_effect_device = 4426; break;  // VIVOACTIVE5
+                                case 123: settings.fit_file_garmin_device_training_effect_device = 4625; break;  // VIVOACTIVE6
+                                case 124: settings.fit_file_garmin_device_training_effect_device = 88888; break;  // Tacx
+                                case 125: settings.fit_file_garmin_device_training_effect_device = 99999; break;  // Zwift
                             }
                         }
                         Layout.fillWidth: true
@@ -8891,6 +8979,7 @@ import Qt.labs.platform 1.1
                                     "Proform Trainer 8.0 PFTL59721-INT.0",
                                     "ProForm Carbon TL PFTL59723.6",
                                     "ProForm Carbon TLX v84.314 PFTL90924C.7",
+                                    "ProForm CST 505 PFTL59420.0",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -8967,7 +9056,8 @@ import Qt.labs.platform 1.1
                                                     settings.proform_carbon_tlx_treadmill ? 57 :
                                                     settings.proform_trainer_8_0_pftl59721_int_0 ? 58 :
                                                     settings.proform_carbon_tl_PFTL59723_6 ? 59 :
-                                                    settings.proform_carbon_tlx_v84_314_treadmill ? 60 : 0;
+                                                    settings.proform_carbon_tlx_v84_314_treadmill ? 60 :
+                                                    settings.proform_treadmill_cst_505_pftl59420_0 ? 61 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -9042,6 +9132,7 @@ import Qt.labs.platform 1.1
                                     settings.proform_trainer_8_0_pftl59721_int_0 = false;
                                     settings.proform_carbon_tl_PFTL59723_6 = false;
                                     settings.proform_carbon_tlx_v84_314_treadmill = false;
+                                    settings.proform_treadmill_cst_505_pftl59420_0 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -9105,6 +9196,7 @@ import Qt.labs.platform 1.1
                                         case 58: settings.proform_trainer_8_0_pftl59721_int_0 = true; break;
                                         case 59: settings.proform_carbon_tl_PFTL59723_6 = true; break;
                                         case 60: settings.proform_carbon_tlx_v84_314_treadmill = true; break;
+                                        case 61: settings.proform_treadmill_cst_505_pftl59420_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -9476,6 +9568,20 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: settings.domyos_treadmill_ts100 = checked
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("RUN100E (Use Requested Inclination)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_run100e
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.domyos_run100e = checked
                             }
 
                             IndicatorOnlySwitch {

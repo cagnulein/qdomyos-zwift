@@ -4659,6 +4659,187 @@ void homeform::LargeButton(const QString &name) {
     }
 }
 
+bool homeform::handleKeyboardShortcut(const QString &sequence) {
+    const QString normalizedSequence = sequence.trimmed().toUpper();
+    if (normalizedSequence.isEmpty() || m_nativeShortcutCaptureSuspended) {
+        return false;
+    }
+
+    QSettings settings;
+    if (!settings.value(QZSettings::shortcuts_enabled, QZSettings::default_shortcuts_enabled).toBool()) {
+        return false;
+    }
+
+    const auto matches = [&settings, &normalizedSequence](const QString &settingName,
+                                                           const QString &defaultValue) {
+        return normalizedSequence.compare(settings.value(settingName, defaultValue).toString().trimmed(),
+                                          Qt::CaseInsensitive) == 0;
+    };
+
+    if (matches(QZSettings::shortcut_speed_plus, QZSettings::default_shortcut_speed_plus)) {
+        Plus(QStringLiteral("speed"));
+    } else if (matches(QZSettings::shortcut_speed_minus, QZSettings::default_shortcut_speed_minus)) {
+        Minus(QStringLiteral("speed"));
+    } else if (matches(QZSettings::shortcut_inclination_plus, QZSettings::default_shortcut_inclination_plus)) {
+        Plus(QStringLiteral("inclination"));
+    } else if (matches(QZSettings::shortcut_inclination_minus, QZSettings::default_shortcut_inclination_minus)) {
+        Minus(QStringLiteral("inclination"));
+    } else if (matches(QZSettings::shortcut_resistance_plus, QZSettings::default_shortcut_resistance_plus)) {
+        Plus(QStringLiteral("resistance"));
+    } else if (matches(QZSettings::shortcut_resistance_minus, QZSettings::default_shortcut_resistance_minus)) {
+        Minus(QStringLiteral("resistance"));
+    } else if (matches(QZSettings::shortcut_peloton_resistance_plus,
+                       QZSettings::default_shortcut_peloton_resistance_plus)) {
+        Plus(QStringLiteral("peloton_resistance"));
+    } else if (matches(QZSettings::shortcut_peloton_resistance_minus,
+                       QZSettings::default_shortcut_peloton_resistance_minus)) {
+        Minus(QStringLiteral("peloton_resistance"));
+    } else if (matches(QZSettings::shortcut_target_resistance_plus,
+                       QZSettings::default_shortcut_target_resistance_plus)) {
+        Plus(QStringLiteral("target_resistance"));
+    } else if (matches(QZSettings::shortcut_target_resistance_minus,
+                       QZSettings::default_shortcut_target_resistance_minus)) {
+        Minus(QStringLiteral("target_resistance"));
+    } else if (matches(QZSettings::shortcut_target_power_plus, QZSettings::default_shortcut_target_power_plus)) {
+        Plus(QStringLiteral("target_power"));
+    } else if (matches(QZSettings::shortcut_target_power_minus, QZSettings::default_shortcut_target_power_minus)) {
+        Minus(QStringLiteral("target_power"));
+    } else if (matches(QZSettings::shortcut_target_zone_plus, QZSettings::default_shortcut_target_zone_plus)) {
+        Plus(QStringLiteral("target_zone"));
+    } else if (matches(QZSettings::shortcut_target_zone_minus, QZSettings::default_shortcut_target_zone_minus)) {
+        Minus(QStringLiteral("target_zone"));
+    } else if (matches(QZSettings::shortcut_target_speed_plus, QZSettings::default_shortcut_target_speed_plus)) {
+        Plus(QStringLiteral("target_speed"));
+    } else if (matches(QZSettings::shortcut_target_speed_minus, QZSettings::default_shortcut_target_speed_minus)) {
+        Minus(QStringLiteral("target_speed"));
+    } else if (matches(QZSettings::shortcut_target_incline_plus,
+                       QZSettings::default_shortcut_target_incline_plus)) {
+        Plus(QStringLiteral("target_inclination"));
+    } else if (matches(QZSettings::shortcut_target_incline_minus,
+                       QZSettings::default_shortcut_target_incline_minus)) {
+        Minus(QStringLiteral("target_inclination"));
+    } else if (matches(QZSettings::shortcut_fan_plus, QZSettings::default_shortcut_fan_plus)) {
+        Plus(QStringLiteral("fan"));
+    } else if (matches(QZSettings::shortcut_fan_minus, QZSettings::default_shortcut_fan_minus)) {
+        Minus(QStringLiteral("fan"));
+    } else if (matches(QZSettings::shortcut_peloton_offset_plus,
+                       QZSettings::default_shortcut_peloton_offset_plus)) {
+        Plus(QStringLiteral("peloton_offset"));
+    } else if (matches(QZSettings::shortcut_peloton_offset_minus,
+                       QZSettings::default_shortcut_peloton_offset_minus)) {
+        Minus(QStringLiteral("peloton_offset"));
+    } else if (matches(QZSettings::shortcut_peloton_remaining_plus,
+                       QZSettings::default_shortcut_peloton_remaining_plus)) {
+        Plus(QStringLiteral("peloton_remaining"));
+    } else if (matches(QZSettings::shortcut_peloton_remaining_minus,
+                       QZSettings::default_shortcut_peloton_remaining_minus)) {
+        Minus(QStringLiteral("peloton_remaining"));
+    } else if (matches(QZSettings::shortcut_remaining_time_plus,
+                       QZSettings::default_shortcut_remaining_time_plus)) {
+        Plus(QStringLiteral("remainingtimetrainprogramrow"));
+    } else if (matches(QZSettings::shortcut_remaining_time_minus,
+                       QZSettings::default_shortcut_remaining_time_minus)) {
+        Minus(QStringLiteral("remainingtimetrainprogramrow"));
+    } else if (matches(QZSettings::shortcut_gears_plus, QZSettings::default_shortcut_gears_plus)) {
+        Plus(QStringLiteral("gears"));
+    } else if (matches(QZSettings::shortcut_gears_minus, QZSettings::default_shortcut_gears_minus)) {
+        Minus(QStringLiteral("gears"));
+    } else if (matches(QZSettings::shortcut_pid_hr_plus, QZSettings::default_shortcut_pid_hr_plus)) {
+        Plus(QStringLiteral("pid_hr"));
+    } else if (matches(QZSettings::shortcut_pid_hr_minus, QZSettings::default_shortcut_pid_hr_minus)) {
+        Minus(QStringLiteral("pid_hr"));
+    } else if (matches(QZSettings::shortcut_ext_incline_plus, QZSettings::default_shortcut_ext_incline_plus)) {
+        Plus(QStringLiteral("external_inclination"));
+    } else if (matches(QZSettings::shortcut_ext_incline_minus, QZSettings::default_shortcut_ext_incline_minus)) {
+        Minus(QStringLiteral("external_inclination"));
+    } else if (matches(QZSettings::shortcut_biggears_plus, QZSettings::default_shortcut_biggears_plus)) {
+        LargeButton(QStringLiteral("biggearsplus"));
+    } else if (matches(QZSettings::shortcut_biggears_minus, QZSettings::default_shortcut_biggears_minus)) {
+        LargeButton(QStringLiteral("biggearsminus"));
+    } else if (matches(QZSettings::shortcut_avs_cruise, QZSettings::default_shortcut_avs_cruise)) {
+        LargeButton(QStringLiteral("autoVirtualShiftingCruise"));
+    } else if (matches(QZSettings::shortcut_avs_climb, QZSettings::default_shortcut_avs_climb)) {
+        LargeButton(QStringLiteral("autoVirtualShiftingClimb"));
+    } else if (matches(QZSettings::shortcut_avs_sprint, QZSettings::default_shortcut_avs_sprint)) {
+        LargeButton(QStringLiteral("autoVirtualShiftingSprint"));
+    } else if (matches(QZSettings::shortcut_power_avg, QZSettings::default_shortcut_power_avg)) {
+        LargeButton(QStringLiteral("powerAvg"));
+    } else if (matches(QZSettings::shortcut_erg_mode, QZSettings::default_shortcut_erg_mode)) {
+        LargeButton(QStringLiteral("erg_mode"));
+    } else if (matches(QZSettings::shortcut_preset_resistance_1,
+                       QZSettings::default_shortcut_preset_resistance_1)) {
+        LargeButton(QStringLiteral("preset_resistance_1"));
+    } else if (matches(QZSettings::shortcut_preset_resistance_2,
+                       QZSettings::default_shortcut_preset_resistance_2)) {
+        LargeButton(QStringLiteral("preset_resistance_2"));
+    } else if (matches(QZSettings::shortcut_preset_resistance_3,
+                       QZSettings::default_shortcut_preset_resistance_3)) {
+        LargeButton(QStringLiteral("preset_resistance_3"));
+    } else if (matches(QZSettings::shortcut_preset_resistance_4,
+                       QZSettings::default_shortcut_preset_resistance_4)) {
+        LargeButton(QStringLiteral("preset_resistance_4"));
+    } else if (matches(QZSettings::shortcut_preset_resistance_5,
+                       QZSettings::default_shortcut_preset_resistance_5)) {
+        LargeButton(QStringLiteral("preset_resistance_5"));
+    } else if (matches(QZSettings::shortcut_preset_speed_1, QZSettings::default_shortcut_preset_speed_1)) {
+        LargeButton(QStringLiteral("preset_speed_1"));
+    } else if (matches(QZSettings::shortcut_preset_speed_2, QZSettings::default_shortcut_preset_speed_2)) {
+        LargeButton(QStringLiteral("preset_speed_2"));
+    } else if (matches(QZSettings::shortcut_preset_speed_3, QZSettings::default_shortcut_preset_speed_3)) {
+        LargeButton(QStringLiteral("preset_speed_3"));
+    } else if (matches(QZSettings::shortcut_preset_speed_4, QZSettings::default_shortcut_preset_speed_4)) {
+        LargeButton(QStringLiteral("preset_speed_4"));
+    } else if (matches(QZSettings::shortcut_preset_speed_5, QZSettings::default_shortcut_preset_speed_5)) {
+        LargeButton(QStringLiteral("preset_speed_5"));
+    } else if (matches(QZSettings::shortcut_preset_inclination_1,
+                       QZSettings::default_shortcut_preset_inclination_1)) {
+        LargeButton(QStringLiteral("preset_inclination_1"));
+    } else if (matches(QZSettings::shortcut_preset_inclination_2,
+                       QZSettings::default_shortcut_preset_inclination_2)) {
+        LargeButton(QStringLiteral("preset_inclination_2"));
+    } else if (matches(QZSettings::shortcut_preset_inclination_3,
+                       QZSettings::default_shortcut_preset_inclination_3)) {
+        LargeButton(QStringLiteral("preset_inclination_3"));
+    } else if (matches(QZSettings::shortcut_preset_inclination_4,
+                       QZSettings::default_shortcut_preset_inclination_4)) {
+        LargeButton(QStringLiteral("preset_inclination_4"));
+    } else if (matches(QZSettings::shortcut_preset_inclination_5,
+                       QZSettings::default_shortcut_preset_inclination_5)) {
+        LargeButton(QStringLiteral("preset_inclination_5"));
+    } else if (matches(QZSettings::shortcut_preset_powerzone_1,
+                       QZSettings::default_shortcut_preset_powerzone_1)) {
+        LargeButton(QStringLiteral("preset_powerzone_1"));
+    } else if (matches(QZSettings::shortcut_preset_powerzone_2,
+                       QZSettings::default_shortcut_preset_powerzone_2)) {
+        LargeButton(QStringLiteral("preset_powerzone_2"));
+    } else if (matches(QZSettings::shortcut_preset_powerzone_3,
+                       QZSettings::default_shortcut_preset_powerzone_3)) {
+        LargeButton(QStringLiteral("preset_powerzone_3"));
+    } else if (matches(QZSettings::shortcut_preset_powerzone_4,
+                       QZSettings::default_shortcut_preset_powerzone_4)) {
+        LargeButton(QStringLiteral("preset_powerzone_4"));
+    } else if (matches(QZSettings::shortcut_preset_powerzone_5,
+                       QZSettings::default_shortcut_preset_powerzone_5)) {
+        LargeButton(QStringLiteral("preset_powerzone_5"));
+    } else if (matches(QZSettings::shortcut_preset_powerzone_6,
+                       QZSettings::default_shortcut_preset_powerzone_6)) {
+        LargeButton(QStringLiteral("preset_powerzone_6"));
+    } else if (matches(QZSettings::shortcut_preset_powerzone_7,
+                       QZSettings::default_shortcut_preset_powerzone_7)) {
+        LargeButton(QStringLiteral("preset_powerzone_7"));
+    } else if (matches(QZSettings::shortcut_auto_resistance, QZSettings::default_shortcut_auto_resistance)) {
+        toggleAutoResistance();
+    } else if (matches(QZSettings::shortcut_lap, QZSettings::default_shortcut_lap)) {
+        Lap();
+    } else if (matches(QZSettings::shortcut_start_stop, QZSettings::default_shortcut_start_stop)) {
+        StartRequested();
+    } else {
+        return false;
+    }
+
+    return true;
+}
+
  
 
 void homeform::Plus(const QString &name) {
@@ -4807,9 +4988,7 @@ void homeform::Plus(const QString &name) {
     } else if (name.contains("gears")) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == BIKE) {
-                ((bike *)bluetoothManager->device())
-                    ->setGears(((bike *)bluetoothManager->device())->gears() +
-                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
+                ((bike *)bluetoothManager->device())->gearUp();
             } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
                     ->setGears(((elliptical *)bluetoothManager->device())->gears() +
@@ -5112,9 +5291,7 @@ void homeform::Minus(const QString &name) {
     } else if (name.contains(QStringLiteral("gears"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == BIKE) {
-                ((bike *)bluetoothManager->device())
-                    ->setGears(((bike *)bluetoothManager->device())->gears() -
-                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
+                ((bike *)bluetoothManager->device())->gearDown();
             } else if (bluetoothManager->device()->deviceType() == ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
                     ->setGears(((elliptical *)bluetoothManager->device())->gears() -
@@ -5524,13 +5701,17 @@ QString homeform::startIcon() {
 void homeform::updateGearsValue() {
     QSettings settings;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+    bool gears_custom_table_enabled = settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
     bool zwift_gear_ui_aligned = settings.value(QZSettings::zwift_gear_ui_aligned, QZSettings::default_zwift_gear_ui_aligned).toBool();
     double gear = ((bike *)bluetoothManager->device())->gears();
     double maxGearDefault = ((bike *)bluetoothManager->device())->defaultMaxGears();
     double maxGear = ((bike *)bluetoothManager->device())->maxGears();
     if(zwift_gear_ui_aligned && bluetoothManager && bluetoothManager->device() && ((bike *)bluetoothManager->device())->VirtualBike())
         gear = ((bike *)bluetoothManager->device())->VirtualBike()->currentGear();
-    if (settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0 || gears_zwift_ratio || maxGear < maxGearDefault) {
+    if (gears_custom_table_enabled) {
+        this->gears->setValue(QString::number(gear));
+        this->gears->setSecondLine(QStringLiteral("offset ") + QString::number(((bike *)bluetoothManager->device())->gearsModifier(), 'f', 1));
+    } else if (settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0 || gears_zwift_ratio || maxGear < maxGearDefault) {
         this->gears->setValue(QString::number(gear));
         this->gears->setSecondLine(wheelCircumference::gearsInfo(gear));
     } else {
@@ -7325,25 +7506,27 @@ void homeform::update() {
 
                         const double step = 0.2;
                         double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
-                        if (zone < ((uint8_t)currentHRZone) && minSpeed <= currentSpeed + step) {
+                        if (zone < ((uint8_t)currentHRZone) && currentSpeed > minSpeed) {
+                            double newSpeed = std::max(currentSpeed - step, minSpeed);
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
-                                    currentSpeed - step,
+                                    newSpeed,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else if (zone > ((uint8_t)currentHRZone) && maxSpeed >= currentSpeed + step) {
+                        } else if (zone > ((uint8_t)currentHRZone) && currentSpeed < maxSpeed) {
+                            double newSpeed = std::min(currentSpeed + step, maxSpeed);
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
-
-                                    currentSpeed + step,
+                                    newSpeed,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else if (maxSpeed >= currentSpeed + step && trainprogram_pid_pushy) {
+                        } else if (currentSpeed < maxSpeed && trainprogram_pid_pushy) {
                             pid_heart_zone_small_inc_counter++;
                             if (fabs(((float)zone) - currentHRZone) < 0.5 && pid_heart_zone_small_inc_counter > (10 * fabs(((float)zone) - currentHRZone))) {
+                                double newSpeed = std::min(currentSpeed + step, maxSpeed);
                                 ((treadmill *)bluetoothManager->device())
                                     ->changeSpeedAndInclination(
-                                        currentSpeed + step,
+                                        newSpeed,
                                         ((treadmill *)bluetoothManager->device())->currentInclination().value());
                                 pid_heart_zone_small_inc_counter = 0;
                             }

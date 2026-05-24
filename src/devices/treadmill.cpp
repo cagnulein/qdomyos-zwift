@@ -622,7 +622,13 @@ bool treadmill::cadenceFromAppleWatch() {
                            QZSettings::default_fakedevice_treadmill).toBool();
         if (appleWatchCadence > 0) {
             evaluateStepCount();
-            Cadence = appleWatchCadence;
+            const double cadence_gain =
+                settings.value(QZSettings::cadence_gain,
+                               QZSettings::default_cadence_gain).toDouble();
+            const double cadence_offset =
+                settings.value(QZSettings::cadence_offset,
+                               QZSettings::default_cadence_offset).toDouble();
+            Cadence = (appleWatchCadence * cadence_gain) + cadence_offset;
             if (appleWatchTreadmillSpeed) {
                 const double ratio =
                     settings.value(QZSettings::cadence_sensor_speed_ratio,
@@ -693,6 +699,11 @@ double treadmill::calculateCadenceFromSpeed(double speed) {
     // speed is in km/h, convert to m/s
     double speedMs = speed * 1000.0 / 3600.0;  // km/h to m/s
     double calculatedCadence = (speedMs / strideLengthM) * 60.0;
+    const double cadence_gain =
+        settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
+    const double cadence_offset =
+        settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
+    calculatedCadence = (calculatedCadence * cadence_gain) + cadence_offset;
 
     qDebug() << "Calculated Cadence from Speed:" << calculatedCadence
              << "SPM (speed:" << speed << "km/h, stride:" << (strideLengthM * 100) << "cm)";

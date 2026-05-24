@@ -100,6 +100,7 @@
         <file>inner_templates/floating/jquery-3.6.0.min.js</file>
         <file>inner_templates/floating/main_ws_manager.js</file>
         <file>inner_templates/floating/radikalmedium.otf</file>
+        <file>settings-shortcuts.qml</file>
         <file>settings-treadmill-inclination-override.qml</file>
         <file>WebStravaAuth.qml</file>
         <file>Toast.qml</file>
@@ -125,6 +126,7 @@
         <file>inner_templates/chartjs/dochartliveheart.js</file>
         <file>Wizard.qml</file>
         <file>gears.qml</file>
+        <file>customgears.qml</file>
         <file>IndicatorOnlySwitch.qml</file>
         <file>StaticAccordionElement.qml</file>
         <file>inner_templates/chartjs/dotreadmillchartlive.js</file>
