@@ -1744,12 +1744,16 @@ import Qt.labs.platform 1.1
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
                                 Layout.preferredWidth: 1
+                                Layout.preferredHeight: implicitHeight
+                                Layout.maximumHeight: implicitHeight
                                 spacing: 8
 
                                 ColumnLayout {
                                     Layout.fillWidth: true
                                     Layout.minimumWidth: 0
                                     Layout.preferredWidth: 1
+                                    Layout.preferredHeight: implicitHeight
+                                    Layout.maximumHeight: implicitHeight
                                     spacing: 2
 
                                     Label {
