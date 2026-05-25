@@ -332,33 +332,36 @@ class homeform : public QObject {
                     QLinearGradient plotAreaGradient;
                     plotAreaGradient.setStart(QPointF(0, 0));
                     plotAreaGradient.setFinalStop(QPointF(0, 1));
+                    const double heartChartBottom = maxHeartRate * 0.5;
+                    const double heartChartTop = maxHeartRate;
+                    const double heartChartRange = heartChartTop - heartChartBottom;
+                    auto heartGradientStop = [&](double zonePercent) {
+                        double stop = (heartChartTop - ((maxHeartRate * zonePercent) / 100.0)) / heartChartRange;
+                        if (stop < 0.0)
+                            return 0.0;
+                        if (stop > 1.0)
+                            return 1.0;
+                        return stop;
+                    };
                     plotAreaGradient.setColorAt(
-                        (220 - (maxHeartRate *
-                                settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1)
-                                    .toDouble() /
-                                100)) /
-                            160,
+                        heartGradientStop(
+                            settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1)
+                                .toDouble()),
                         QColor(QStringLiteral("lightsteelblue")));
                     plotAreaGradient.setColorAt(
-                        (220 - (maxHeartRate *
-                                settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2)
-                                    .toDouble() /
-                                100)) /
-                            160,
+                        heartGradientStop(
+                            settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2)
+                                .toDouble()),
                         QColor(QStringLiteral("green")));
                     plotAreaGradient.setColorAt(
-                        (220 - (maxHeartRate *
-                                settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3)
-                                    .toDouble() /
-                                100)) /
-                            160,
+                        heartGradientStop(
+                            settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3)
+                                .toDouble()),
                         QColor(QStringLiteral("yellow")));
                     plotAreaGradient.setColorAt(
-                        (220 - (maxHeartRate *
-                                settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4)
-                                    .toDouble() /
-                                100)) /
-                            160,
+                        heartGradientStop(
+                            settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4)
+                                .toDouble()),
                         QColor(QStringLiteral("orange")));
                     plotAreaGradient.setColorAt(0.0, QColor(QStringLiteral("red")));
                     plotAreaGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
@@ -1233,5 +1236,3 @@ public:
 };
 
 #endif // HOMEFORM_H
-
-

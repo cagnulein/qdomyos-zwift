@@ -270,9 +270,20 @@ function process_arr_heart(arr) {
     const maxRecordedHeart = heart.reduce(function(maxValue, point) {
         return Math.max(maxValue, point.y);
     }, 0);
+    const minRecordedHeart = heart.reduce(function(minValue, point) {
+        return point.y > 0 ? Math.min(minValue, point.y) : minValue;
+    }, Number.POSITIVE_INFINITY);
     ensureHeartZones();
-    const heartChartBottom = 50;
-    const heartChartTop = Math.max(heartZones[3] + 10, maxHeartRate + 10, maxRecordedHeart + 5, 200);
+    const heartTrainingFloor = Math.round(maxHeartRate * 0.5);
+    const heartChartBottom = Math.max(
+        0,
+        Math.min(heartTrainingFloor, Number.isFinite(minRecordedHeart) ? minRecordedHeart - 5 : heartTrainingFloor)
+    );
+    const heartChartTop = Math.max(
+        maxHeartRate,
+        maxRecordedHeart > maxHeartRate ? maxRecordedHeart + 5 : maxHeartRate,
+        heartChartBottom + 50
+    );
     const heartZoneLabelPositions = [
         Math.round((heartChartBottom + heartZones[0]) / 2),
         Math.round((heartZones[0] + heartZones[1]) / 2),
@@ -340,7 +351,7 @@ function process_arr_heart(arr) {
                             // Indicates the type of annotation
                             type: 'box',
                             adjustScaleRange: false,
-                            yMin: 0,
+                            yMin: heartChartBottom,
                             yMax: heartZones[0],
                             backgroundColor: window.chartColors.lightsteelbluet,
                             },

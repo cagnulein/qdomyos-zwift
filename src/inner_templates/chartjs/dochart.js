@@ -460,8 +460,19 @@ function process_arr(arr) {
     let ctx = document.getElementById('canvas').getContext('2d');
     var powerChart = new Chart(ctx, config);
 
-    const heartChartBottom = 50;
-    const heartChartTop = Math.max(heartZones[3] + 10, maxHeartRate + 10, heart_max + 5, 200);
+    const minRecordedHeart = heart.reduce(function(minValue, point) {
+        return point.y > 0 ? Math.min(minValue, point.y) : minValue;
+    }, Number.POSITIVE_INFINITY);
+    const heartTrainingFloor = Math.round(maxHeartRate * 0.5);
+    const heartChartBottom = Math.max(
+        0,
+        Math.min(heartTrainingFloor, Number.isFinite(minRecordedHeart) ? minRecordedHeart - 5 : heartTrainingFloor)
+    );
+    const heartChartTop = Math.max(
+        maxHeartRate,
+        heart_max > maxHeartRate ? heart_max + 5 : maxHeartRate,
+        heartChartBottom + 50
+    );
     const heartZoneLabelPositions = [
         Math.round((heartChartBottom + heartZones[0]) / 2),
         Math.round((heartZones[0] + heartZones[1]) / 2),
