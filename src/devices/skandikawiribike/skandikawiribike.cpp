@@ -101,6 +101,9 @@ void skandikawiribike::update() {
             }
 
             writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), true, true);
+
+            // this bike can take a long time to update the resistance, so we are refreshing the UI with this value
+            Resistance = lastRequestedResistance().value();
         }
 
         if (requestResistance != -1) {

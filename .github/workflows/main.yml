@@ -265,7 +265,7 @@ jobs:
       #     asset_content_type: application/zip        
 
 #  window-steam-build:
-#    runs-on: windows-latest
+#    runs-on: windows-2022
 #
 #    steps:
 #      - uses: actions/checkout@v2
@@ -992,7 +992,7 @@ jobs:
         run: ccache --show-stats
 
   window-msvc2019-build:
-    runs-on: windows-latest
+    runs-on: windows-2022
     strategy:
       matrix:
         config:
@@ -1218,7 +1218,7 @@ jobs:
         if:  ${{ ! matrix.config.python }}
 
   window-msvc2019-aiserver-build:
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
       - name: Checkout submodule repo
@@ -1605,7 +1605,7 @@ jobs:
             "
 
   window-msvc2022-build:
-    runs-on: windows-latest
+    runs-on: windows-2022
     if: github.event_name == 'schedule'
     strategy:
       matrix:
@@ -1807,7 +1807,7 @@ jobs:
 
 
   window-msvc2022-pr-build:
-    runs-on: windows-latest
+    runs-on: windows-2022
     if: github.event_name == 'pull_request'
     strategy:
       fail-fast: false
@@ -1883,6 +1883,7 @@ jobs:
           arch: x64
 
       - name: Secrets
+        if: github.ref == 'refs/heads/master'
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h

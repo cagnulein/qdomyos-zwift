@@ -139,6 +139,34 @@ void proformtreadmill::update() {
         QSettings settings;
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
+        if (requestSpeed != -1 && requestSpeed > 0 && requestSpeed <= maxSpeed && currentSpeed().value() <= 0) {
+            cachedSpeedRequest = requestSpeed;
+            requestSpeed = -1;
+            requestStart = 1;
+            emit debug(QStringLiteral("speed request cached while treadmill is stopped: ") +
+                       QString::number(cachedSpeedRequest));
+
+            if (homeform::singleton()) {
+                homeform::singleton()->setToastRequested(
+                    QStringLiteral("Starting treadmill before applying requested speed ") +
+                    QString::number(cachedSpeedRequest, 'f', 1));
+            }
+        }
+
+        if (cachedSpeedRequest != -1 && currentSpeed().value() > 0) {
+            if (cachedSpeedRequest <= maxSpeed) {
+                emit debug(QStringLiteral("writing cached speed ") + QString::number(cachedSpeedRequest));
+                forceSpeed(cachedSpeedRequest);
+
+                if (homeform::singleton()) {
+                    homeform::singleton()->setToastRequested(
+                        QStringLiteral("Applying cached speed request ") +
+                        QString::number(cachedSpeedRequest, 'f', 1));
+                }
+            }
+            cachedSpeedRequest = -1;
+        }
+
         if (proform_treadmill_9_0 || proform_treadmill_z1300i) {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
             uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
@@ -3813,6 +3841,7 @@ void proformtreadmill::btinit() {
             .toBool();
     proform_treadmill_z1300i =
         settings.value(QZSettings::proform_treadmill_z1300i, QZSettings::default_proform_treadmill_z1300i).toBool();
+    maxSpeed = proform_treadmill_z1300i ? 19.3 : 22;
     nordictrack_treadmill_exp_5i = settings.value(QZSettings::nordictrack_treadmill_exp_5i, QZSettings::default_nordictrack_treadmill_exp_5i).toBool();
     proform_pro_1000_treadmill =
         settings.value(QZSettings::proform_pro_1000_treadmill, QZSettings::default_proform_pro_1000_treadmill).toBool();

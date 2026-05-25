@@ -977,8 +977,10 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
     for (const auto &r : qAsConst(rows)) {
         QJsonObject row = r.toObject();
         trainrow tR;
-        if (row.contains(QStringLiteral("duration"))) {
-            tR.duration = QTime::fromString(row[QStringLiteral("duration")].toString(), QStringLiteral("hh:mm:ss"));
+        if (row.contains(QStringLiteral("duration")) || row.contains(QStringLiteral("distance"))) {
+            if (row.contains(QStringLiteral("duration"))) {
+                tR.duration = QTime::fromString(row[QStringLiteral("duration")].toString(), QStringLiteral("hh:mm:ss"));
+            }
             if (row.contains(QStringLiteral("distance"))) {
                 tR.distance = row[QStringLiteral("distance")].toDouble();
             }
