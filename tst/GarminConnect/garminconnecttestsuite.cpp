@@ -488,3 +488,46 @@ void GarminConnectTestSuite::test_workoutDetailsJson_lapButtonStepWaitsForLap()
         << "Lap-button rows should not get a fake duration. XML was:\n"
         << xml.toStdString();
 }
+
+void GarminConnectTestSuite::test_workoutDetailsJson_heartRateThresholdEndConditionsSerialize()
+{
+    static const char *kWorkoutJson = R"json({
+        "workoutName": "HR Threshold Gate",
+        "sportType": {"sportTypeKey": "cycling"},
+        "workoutSegments": [{
+            "workoutSteps": [{
+                "endCondition": {"conditionTypeKey": "heart.rate.above"},
+                "endConditionValue": 155,
+                "targetType": {"workoutTargetTypeKey": "power.zone"},
+                "targetValueOne": 180,
+                "targetValueTwo": 210,
+                "type": "ExecutableStepDTO"
+            },{
+                "endCondition": {"conditionTypeKey": "heart.rate"},
+                "endConditionCompare": "LESS_THAN",
+                "endConditionValue": 122,
+                "targetType": {"workoutTargetTypeKey": "power.zone"},
+                "targetValueOne": 70,
+                "targetValueTwo": 90,
+                "type": "ExecutableStepDTO"
+            }]
+        }]
+    })json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kWorkoutJson));
+    ASSERT_TRUE(doc.isObject()) << "Workout JSON fixture must be valid";
+
+    const QString xml = garminConnectGenerateWorkoutXml(doc.object());
+
+    EXPECT_EQ(xml.count("<row "), 2) << "Expected exactly 2 rows from 2 workout steps. XML was:\n"
+                                     << xml.toStdString();
+    EXPECT_TRUE(xml.contains("hrabove=\"155\""))
+        << "Expected Garmin Above bpm end condition to become a QZ HR-above gate. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("hrbelow=\"122\""))
+        << "Expected Garmin Below bpm end condition to become a QZ HR-below gate. XML was:\n"
+        << xml.toStdString();
+    EXPECT_FALSE(xml.contains("duration=\""))
+        << "Heart-rate threshold rows should not get a fake duration. XML was:\n"
+        << xml.toStdString();
+}

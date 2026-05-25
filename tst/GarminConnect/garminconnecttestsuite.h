@@ -126,6 +126,13 @@ public:
      * Verifies that endCondition "lap.button" is serialized as an explicit wait-for-lap row.
      */
     void test_workoutDetailsJson_lapButtonStepWaitsForLap();
+
+    /**
+     * @brief Test Garmin heart-rate threshold end conditions.
+     *
+     * Verifies Above/Below bpm steps are serialized as blocking QZ workout rows.
+     */
+    void test_workoutDetailsJson_heartRateThresholdEndConditionsSerialize();
 };
 
 // Register individual tests with Google Test
@@ -179,6 +186,10 @@ TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonZoneNumberTargetsSerialize) {
 
 TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonLapButtonStepWaitsForLap) {
     this->test_workoutDetailsJson_lapButtonStepWaitsForLap();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonHeartRateThresholdEndConditionsSerialize) {
+    this->test_workoutDetailsJson_heartRateThresholdEndConditionsSerialize();
 }
 
 #endif // GARMINCONNECTTESTSUITE_H

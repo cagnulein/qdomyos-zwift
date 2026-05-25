@@ -5979,10 +5979,17 @@ void homeform::update() {
             targetMets->setValue(QString::number(trainProgram->currentTargetMets(), 'f', 1));
             trainrow next = trainProgram->getRowFromCurrent(1);
             trainrow next_1 = trainProgram->getRowFromCurrent(2);
-            if (next.duration.second() != 0 || next.duration.minute() != 0 || next.duration.hour() != 0 || next.distance != -1) {
+            if (next.duration.second() != 0 || next.duration.minute() != 0 || next.duration.hour() != 0 ||
+                next.distance != -1 || next.waitForLap || next.HRabove > 0 || next.HRbelow > 0) {
                 QString duration = next.duration.toString(QStringLiteral("mm:ss"));
                 if(next.distance != -1) {
                     duration = QString::number(next.distance, 'f' , 1);
+                } else if (next.waitForLap) {
+                    duration = QStringLiteral("Lap");
+                } else if (next.HRabove > 0) {
+                    duration = QStringLiteral(">") + QString::number(next.HRabove) + QStringLiteral(" bpm");
+                } else if (next.HRbelow > 0) {
+                    duration = QStringLiteral("<") + QString::number(next.HRbelow) + QStringLiteral(" bpm");
                 }
                 if (next.requested_peloton_resistance != -1) {
                     nextRows->setValue(QStringLiteral("PR") + QString::number(next.requested_peloton_resistance));
@@ -11070,5 +11077,4 @@ extern "C" {
 }
 #endif
 // Force rebuild for Q_INVOKABLE changes
-
 

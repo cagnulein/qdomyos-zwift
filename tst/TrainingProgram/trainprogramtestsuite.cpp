@@ -13,6 +13,12 @@ trainrow lapButtonRow() {
     row.waitForLap = true;
     return row;
 }
+
+trainrow heartRateAboveRow(int bpm) {
+    trainrow row;
+    row.HRabove = bpm;
+    return row;
+}
 } // namespace
 
 void TrainProgramTestSuite::test_lapButtonBarrierBlocksSkippedZeroDurationRow() {
@@ -34,4 +40,11 @@ void TrainProgramTestSuite::test_lapButtonBarrierIgnoresRowsOutsideCandidateRang
 
     EXPECT_EQ(trainprogram::firstBlockingLapButtonRow(rows, 0, 1), -1)
         << "Only lap-button rows crossed by the candidate transition should block it.";
+}
+
+void TrainProgramTestSuite::test_heartRateThresholdBarrierBlocksSkippedZeroDurationRow() {
+    const QList<trainrow> rows = {timedRow(120), heartRateAboveRow(155), timedRow(30)};
+
+    EXPECT_EQ(trainprogram::firstBlockingTransitionRow(rows, 0, 2), 1)
+        << "A zero-duration heart-rate threshold row must block the transition to the later timed row.";
 }

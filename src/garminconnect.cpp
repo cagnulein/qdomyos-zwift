@@ -1749,11 +1749,54 @@ static QString garminXmlAttributeEscape(const QString &value) {
     return value.toHtmlEscaped().replace(QStringLiteral("'"), QStringLiteral("&apos;"));
 }
 
+static bool garminStringIndicatesAbove(const QString &value) {
+    const QString normalized = value.toLower();
+    return normalized.contains(QStringLiteral("above")) ||
+           normalized.contains(QStringLiteral("greater")) ||
+           normalized.contains(QStringLiteral("more")) ||
+           normalized.contains(QStringLiteral("over"));
+}
+
+static bool garminStringIndicatesBelow(const QString &value) {
+    const QString normalized = value.toLower();
+    return normalized.contains(QStringLiteral("below")) ||
+           normalized.contains(QStringLiteral("less")) ||
+           normalized.contains(QStringLiteral("under"));
+}
+
+static QString garminEndConditionCompareKey(const QJsonObject &step) {
+    const QJsonValue compare = step.value(QStringLiteral("endConditionCompare"));
+    if (compare.isObject()) {
+        const QJsonObject compareObj = compare.toObject();
+        const QStringList candidateKeys = {
+            QStringLiteral("conditionTypeKey"),
+            QStringLiteral("endConditionCompareKey"),
+            QStringLiteral("compareKey"),
+            QStringLiteral("workoutStepCompareKey")
+        };
+        for (const QString &key : candidateKeys) {
+            const QString value = compareObj.value(key).toString();
+            if (!value.isEmpty())
+                return value;
+        }
+    }
+    return compare.toString();
+}
+
 static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) {
     QString pad(indent * 4, QChar(' '));
     QString condTypeKey = step["endCondition"].toObject()["conditionTypeKey"].toString();
+    const QString condCompareKey = garminEndConditionCompareKey(step);
     double endConditionValue = step["endConditionValue"].toDouble();
     const bool waitForLap = condTypeKey == QStringLiteral("lap.button");
+    const bool heartRateEndCondition = condTypeKey.contains(QStringLiteral("heart"), Qt::CaseInsensitive) ||
+                                       condCompareKey.contains(QStringLiteral("heart"), Qt::CaseInsensitive);
+    const bool heartRateAboveEndCondition =
+        heartRateEndCondition && (garminStringIndicatesAbove(condTypeKey) ||
+                                  garminStringIndicatesAbove(condCompareKey));
+    const bool heartRateBelowEndCondition =
+        heartRateEndCondition && (garminStringIndicatesBelow(condTypeKey) ||
+                                  garminStringIndicatesBelow(condCompareKey));
 
     QString targetTypeKey;
     if (step["targetType"].isObject() && !step["targetType"].isNull()) {
@@ -1773,6 +1816,10 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
         attrs += QString(" distance=\"%1\"").arg(endConditionValue / 1000.0, 0, 'f', 6);
     } else if (waitForLap) {
         attrs += QStringLiteral(" lapbutton=\"1\"");
+    } else if (heartRateAboveEndCondition && endConditionValue > 0) {
+        attrs += QString(" hrabove=\"%1\"").arg(static_cast<int>(endConditionValue));
+    } else if (heartRateBelowEndCondition && endConditionValue > 0) {
+        attrs += QString(" hrbelow=\"%1\"").arg(static_cast<int>(endConditionValue));
     }
     if (targetTypeKey == "heart.rate.zone") {
         int hrMin = static_cast<int>(step["targetValueOne"].toDouble());

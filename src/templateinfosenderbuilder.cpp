@@ -52,6 +52,8 @@ using namespace std::chrono_literals;
     item[QStringLiteral("zoneHR")] = row.zoneHR;                                                            \
     item[QStringLiteral("HRmin")] = row.HRmin;                                                              \
     item[QStringLiteral("HRmax")] = row.HRmax;                                                              \
+    item[QStringLiteral("HRabove")] = row.HRabove;                                                          \
+    item[QStringLiteral("HRbelow")] = row.HRbelow;                                                          \
     item[QStringLiteral("latitude")] = row.latitude;                                                        \
     item[QStringLiteral("longitude")] = row.longitude;                                                      \
     item[QStringLiteral("altitude")] = row.altitude;                                                        \
@@ -1032,6 +1034,12 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             if (row.contains(QStringLiteral("HRmax"))) {
                 tR.HRmax = row[QStringLiteral("HRmax")].toInt();
             }
+            if (row.contains(QStringLiteral("HRabove"))) {
+                tR.HRabove = row[QStringLiteral("HRabove")].toInt();
+            }
+            if (row.contains(QStringLiteral("HRbelow"))) {
+                tR.HRbelow = row[QStringLiteral("HRbelow")].toInt();
+            }
             if (row.contains(QStringLiteral("latitude"))) {
                 tR.latitude = row[QStringLiteral("latitude")].toDouble();
             }
@@ -1572,6 +1580,15 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("heart_lapavg"), dep.lapAverage());
         obj.setProperty(QStringLiteral("heart_max"), dep.max());
         obj.setProperty(QStringLiteral("heart_lapmax"), dep.lapMax());
+        obj.setProperty(QStringLiteral("target_heart_above"), 0);
+        obj.setProperty(QStringLiteral("target_heart_below"), 0);
+        if (homeform::singleton()->trainingProgram()) {
+            const trainrow currentRow = homeform::singleton()->trainingProgram()->getRowFromCurrent(0);
+            if (currentRow.HRabove > 0)
+                obj.setProperty(QStringLiteral("target_heart_above"), currentRow.HRabove);
+            if (currentRow.HRbelow > 0)
+                obj.setProperty(QStringLiteral("target_heart_below"), currentRow.HRbelow);
+        }
         obj.setProperty(QStringLiteral("jouls"), device->jouls().value());
         obj.setProperty(QStringLiteral("elevation"), device->elevationGain().value());
         obj.setProperty(QStringLiteral("difficult"), device->difficult());

@@ -52,6 +52,8 @@ class trainrow {
     int8_t zoneHR = -1;
     int16_t HRmin = -1;
     int16_t HRmax = -1;
+    int16_t HRabove = -1;
+    int16_t HRbelow = -1;
     double maxSpeed = -1;
     double minSpeed = -1;
     int8_t maxResistance = -1;
@@ -110,6 +112,8 @@ class trainprogram : public QObject {
     bool overrideZoneHRForCurrentRow(uint8_t zone);
     bool advanceLapButtonStep();
     static int firstBlockingLapButtonRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
+    static int firstBlockingTransitionRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
+    static bool isBlockingTransitionRow(const trainrow &row);
     bool powerzoneWorkout() {
         foreach(trainrow r, rows) {
             if(r.power != -1) return true;
@@ -118,7 +122,8 @@ class trainprogram : public QObject {
     }
     bool chartTargetWorkout() {
         foreach(trainrow r, rows) {
-            if(r.power != -1 || r.zoneHR != -1 || r.HRmin != -1 || r.HRmax != -1) return true;
+            if(r.power != -1 || r.zoneHR != -1 || r.HRmin != -1 || r.HRmax != -1 ||
+               r.HRabove != -1 || r.HRbelow != -1) return true;
         }
         return false;
     }
@@ -165,6 +170,9 @@ private slots:
 
   private:
     void end();
+    bool advanceBlockingStep(const QString &toastMessage);
+    bool currentHeartRateEndConditionSatisfied() const;
+    QString currentHeartRateEndConditionMessage() const;
     mutable QRecursiveMutex schedulerMutex;
     double avgAzimuthNext300Meters();
     QList<MetersByInclination> inclinationNext300Meters();

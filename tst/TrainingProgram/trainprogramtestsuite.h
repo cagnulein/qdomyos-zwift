@@ -8,6 +8,7 @@ public:
     void test_lapButtonBarrierBlocksSkippedZeroDurationRow();
     void test_lapButtonBarrierFindsRowBeforeWorkoutEnd();
     void test_lapButtonBarrierIgnoresRowsOutsideCandidateRange();
+    void test_heartRateThresholdBarrierBlocksSkippedZeroDurationRow();
 };
 
 TEST_F(TrainProgramTestSuite, LapButtonBarrierBlocksSkippedZeroDurationRow) {
@@ -20,6 +21,10 @@ TEST_F(TrainProgramTestSuite, LapButtonBarrierFindsRowBeforeWorkoutEnd) {
 
 TEST_F(TrainProgramTestSuite, LapButtonBarrierIgnoresRowsOutsideCandidateRange) {
     this->test_lapButtonBarrierIgnoresRowsOutsideCandidateRange();
+}
+
+TEST_F(TrainProgramTestSuite, HeartRateThresholdBarrierBlocksSkippedZeroDurationRow) {
+    this->test_heartRateThresholdBarrierBlocksSkippedZeroDurationRow();
 }
 
 #endif // TRAINPROGRAMTESTSUITE_H

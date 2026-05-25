@@ -33,6 +33,8 @@ var maxHeartRate = 190;
 var heartZones = [];
 var miles = 1;
 var heartChart = null;
+var heartTargetAbove = 0;
+var heartTargetBelow = 0;
 
 function ensureHeartZones() {
     maxHeartRate = Number(maxHeartRate);
@@ -46,6 +48,58 @@ function ensureHeartZones() {
         if (!Number.isFinite(heartZones[i]) || heartZones[i] <= 0) {
             heartZones[i] = Math.round(maxHeartRate * defaultZoneRatios[i]);
         }
+    }
+}
+
+function positiveHeartTarget(value) {
+    const target = Number(value);
+    return Number.isFinite(target) && target > 0 ? target : 0;
+}
+
+function setHeartThresholdAnnotation(id, target, label) {
+    if (!heartChart || !heartChart.options.plugins.annotation) {
+        return;
+    }
+
+    const annotations = heartChart.options.plugins.annotation.annotations;
+    if (target > 0) {
+        annotations[id] = {
+            type: 'line',
+            scaleID: 'y',
+            value: target,
+            borderColor: window.chartColors.black,
+            borderWidth: 2,
+            borderDash: [6, 6],
+            label: {
+                enabled: true,
+                content: label,
+                position: 'end',
+                backgroundColor: window.chartColors.blackt,
+                color: window.chartColors.white,
+                xPadding: 6,
+                yPadding: 4,
+                yAdjust: id === 'heartTargetAbove' ? -10 : 10,
+            },
+        };
+    } else {
+        delete annotations[id];
+    }
+}
+
+function updateHeartThresholdAnnotations(arr) {
+    heartTargetAbove = positiveHeartTarget(arr.target_heart_above);
+    heartTargetBelow = positiveHeartTarget(arr.target_heart_below);
+
+    setHeartThresholdAnnotation('heartTargetAbove', heartTargetAbove, 'HR >' + heartTargetAbove + ' bpm');
+    setHeartThresholdAnnotation('heartTargetBelow', heartTargetBelow, 'HR <' + heartTargetBelow + ' bpm');
+
+    const maxTarget = Math.max(heartTargetAbove, heartTargetBelow);
+    if (maxTarget > heartChart.options.scales.y.max) {
+        heartChart.options.scales.y.max = maxTarget + 5;
+        heartChart.options.plugins.annotation.annotations.box5.yMax = heartChart.options.scales.y.max;
+    }
+    if (maxTarget > 0 && maxTarget < heartChart.options.scales.y.min) {
+        heartChart.options.scales.y.min = Math.max(0, maxTarget - 5);
     }
 }
 
@@ -401,6 +455,7 @@ function process_workout_heart(arr) {
     }
     let elapsed = arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600);
     heartChart.data.datasets[0].data.push({x: elapsed, y: arr.heart});
+    updateHeartThresholdAnnotations(arr);
     if (typeof setNormalXScale === 'function' && typeof normalXScales !== 'undefined' &&
         normalXScales.heart.max !== undefined && elapsed > normalXScales.heart.max) {
         setNormalXScale('heart', normalXScales.heart.min, elapsed);
