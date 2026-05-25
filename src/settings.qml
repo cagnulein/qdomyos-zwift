@@ -1724,21 +1724,33 @@ import Qt.labs.platform 1.1
                 Repeater {
                     model: filteredSettings
 
-                    delegate: Frame {
+                    delegate: Item {
                         id: searchResultFrame
                         property var entry: modelData
                         Layout.fillWidth: true
                         Layout.minimumWidth: 0
                         Layout.preferredWidth: Math.max(1, settingsSearchResults.width)
                         Layout.maximumWidth: Math.max(1, settingsSearchResults.width)
-                        Layout.preferredHeight: implicitHeight
-                        Layout.maximumHeight: implicitHeight
+                        Layout.preferredHeight: searchResultContent.implicitHeight + 8
+                        Layout.maximumHeight: searchResultContent.implicitHeight + 8
                         implicitWidth: 1
-                        padding: 4
+                        implicitHeight: searchResultContent.implicitHeight + 8
 
-                        contentItem: ColumnLayout {
+                        Rectangle {
+                            anchors.fill: parent
+                            color: "transparent"
+                            border.color: Material.color(Material.Grey)
+                            border.width: 1
+                            radius: 2
+                        }
+
+                        ColumnLayout {
+                            id: searchResultContent
                             spacing: 2
-                            width: Math.max(1, searchResultFrame.availableWidth)
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.margins: 4
 
                             RowLayout {
                                 Layout.fillWidth: true
