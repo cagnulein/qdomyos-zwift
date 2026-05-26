@@ -1847,8 +1847,7 @@ import Qt.labs.platform 1.1
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
                                 textFormat: Text.PlainText
-                                wrapMode: Text.NoWrap
-                                elide: Text.ElideRight
+                                wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
                                 Layout.preferredWidth: 1

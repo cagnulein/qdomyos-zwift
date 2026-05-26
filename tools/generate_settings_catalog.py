@@ -26,6 +26,7 @@ QML_SOURCES = [
     Path("src/settings-treadmill-inclination-override.qml"),
 ]
 CATALOG_PATH = Path("src/settings-catalog.json")
+EXCLUDED_SETTING_KEYS = {"service_changed", "watt_bike_emulator", "peloton_bike_ocr", "ant_garmin"}
 SOURCE_DEFAULT_PARENTS = {
     "src/settings-tiles.qml": "Tiles",
     "src/settings-tts.qml": "TTS",
@@ -48,6 +49,31 @@ ACCORDION_CONTENT_RE = re.compile(r'\baccordionContent\s*:\s*"((?:\\.|[^"\\])*)"
 
 def read_lines(path: Path) -> list[str]:
     return (REPO_ROOT / path).read_text(encoding="utf-8", errors="replace").splitlines()
+
+
+def strip_block_comments(lines: list[str]) -> list[str]:
+    stripped_lines: list[str] = []
+    in_comment = False
+    for line in lines:
+        cursor = 0
+        output: list[str] = []
+        while cursor < len(line):
+            if in_comment:
+                end = line.find("*/", cursor)
+                if end < 0:
+                    break
+                cursor = end + 2
+                in_comment = False
+            else:
+                start = line.find("/*", cursor)
+                if start < 0:
+                    output.append(line[cursor:])
+                    break
+                output.append(line[cursor:start])
+                cursor = start + 2
+                in_comment = True
+        stripped_lines.append("".join(output))
+    return stripped_lines
 
 
 def strip_string_literals(line: str) -> str:
@@ -134,7 +160,7 @@ def qml_type_to_catalog_type(type_name: str) -> str:
 def extract_declarations() -> dict[str, list[dict[str, Any]]]:
     declarations: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for source in QML_SOURCES:
-        lines = read_lines(source)
+        lines = strip_block_comments(read_lines(source))
         for start, end in settings_blocks(lines):
             for line_no in range(start, end + 1):
                 line = lines[line_no]
@@ -142,6 +168,8 @@ def extract_declarations() -> dict[str, list[dict[str, Any]]]:
                 if not match or line.lstrip().startswith("//"):
                     continue
                 qml_type, key, default_expr = match.groups()
+                if key in EXCLUDED_SETTING_KEYS:
+                    continue
                 declarations[key].append(
                     {
                         "file": source.as_posix(),
@@ -181,13 +209,13 @@ def clean_title(text: str | None) -> str | None:
     return cleaned
 
 
-def clean_description(text: str | None) -> str | None:
+def clean_description(text: str | None, min_length: int = 35) -> str | None:
     if not text:
         return None
     cleaned = re.sub(r"\s+", " ", text).strip()
-    if len(cleaned) < 35:
+    if len(cleaned) < min_length:
         return None
-    if cleaned in {"Setting saved!"}:
+    if cleaned in {"OK", "Open", "Clear", "Refresh", "Setting saved!"}:
         return None
     return cleaned
 
@@ -219,6 +247,24 @@ def containing_block(blocks: list[tuple[int, int]], line_no: int) -> tuple[int, 
         if start <= line_no <= end and (best is None or start > best[0]):
             best = (start, end)
     return best
+
+
+def primary_setting_for_control(lines: list[str], bounds: tuple[int, int] | None) -> str | None:
+    if not bounds:
+        return None
+    start, end = bounds
+    for cursor in range(start, min(end + 1, start + 35)):
+        for pattern in (
+            r"\bchecked\s*:\s*settings\.([A-Za-z_][A-Za-z0-9_]*)\b",
+            r"\btext\s*:\s*settings\.([A-Za-z_][A-Za-z0-9_]*)\b",
+            r"\bdisplayText\s*:\s*settings\.([A-Za-z_][A-Za-z0-9_]*)\b",
+            r"\blinkedBoolSetting\s*:\s*\"([A-Za-z_][A-Za-z0-9_]*)\"",
+            r"\bsettingName\s*:\s*\"([A-Za-z_][A-Za-z0-9_]*)\"",
+        ):
+            match = re.search(pattern, lines[cursor])
+            if match:
+                return match.group(1)
+    return None
 
 
 def block_title(lines: list[str], bounds: tuple[int, int]) -> str | None:
@@ -443,7 +489,7 @@ def extract_pages() -> list[dict[str, Any]]:
     pages: list[dict[str, Any]] = []
     seen_keys: set[str] = set()
     for source in QML_SOURCES:
-        lines = read_lines(source)
+        lines = strip_block_comments(read_lines(source))
         new_page_blocks = qml_blocks(lines, r"\bNewPageElement\s*\{")
         titled_blocks = (
             [("accordion", start, end) for start, end in qml_blocks(lines, r"\bAccordionElement\s*\{")]
@@ -491,7 +537,7 @@ def extract_virtual_settings(
     option_key_to_virtual_key: dict[str, str] = {}
 
     for source in QML_SOURCES:
-        lines = read_lines(source)
+        lines = strip_block_comments(read_lines(source))
         combo_blocks = qml_blocks(lines, r"\bComboBox\s*\{")
         titled_blocks = (
             [("accordion", start, end) for start, end in qml_blocks(lines, r"\bAccordionElement\s*\{")]
@@ -555,22 +601,52 @@ def extract_virtual_settings(
     return virtual_settings, option_key_to_virtual_key
 
 
-def find_description(lines: list[str], line_no: int) -> str | None:
+def find_description(lines: list[str], line_no: int, min_length: int = 35) -> str | None:
     for cursor in range(line_no + 1, min(len(lines), line_no + 55)):
-        description = clean_description(first_qstr(lines[cursor]))
-        if description:
-            return description
-        if re.search(r"\b(AccordionElement|SwitchDelegate|RowLayout|ComboBox|TextField)\s*\{", lines[cursor]):
+        if re.search(
+            r"\b(AccordionElement|SwitchDelegate|IndicatorOnlySwitch|RowLayout|ComboBox|TextField|Button)\s*\{",
+            lines[cursor],
+        ):
             if cursor > line_no + 4:
                 break
+        description = clean_description(first_qstr(lines[cursor]), min_length)
+        if description:
+            return description
+    return None
+
+
+def find_following_label_description(
+    lines: list[str], bounds: tuple[int, int] | None, min_length: int = 12
+) -> str | None:
+    if not bounds:
+        return None
+    _, end = bounds
+    cursor = end + 1
+    while cursor < len(lines) and not lines[cursor].strip():
+        cursor += 1
+    if cursor >= len(lines) or not re.search(r"\bLabel\s*\{", lines[cursor]):
+        return None
+
+    depth = 0
+    seen_open = False
+    while cursor < len(lines):
+        code = qml_code_for_braces(lines[cursor])
+        depth += code.count("{") - code.count("}")
+        seen_open = seen_open or "{" in code
+        description = clean_description(first_qstr(lines[cursor]), min_length)
+        if description:
+            return description
+        if seen_open and depth == 0:
+            break
+        cursor += 1
     return None
 
 
 def extract_references(keys: set[str], virtual_option_keys: set[str]) -> dict[str, list[dict[str, Any]]]:
     references: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for source in QML_SOURCES:
-        lines = read_lines(source)
-        switch_blocks = qml_blocks(lines, r"\bSwitchDelegate\s*\{")
+        lines = strip_block_comments(read_lines(source))
+        switch_blocks = qml_blocks(lines, r"\b(?:SwitchDelegate|IndicatorOnlySwitch)\s*\{")
         combo_blocks = qml_blocks(lines, r"\bComboBox\s*\{")
         text_blocks = qml_blocks(lines, r"\bTextField\s*\{")
         button_blocks = qml_blocks(lines, r"\bButton\s*\{")
@@ -597,10 +673,16 @@ def extract_references(keys: set[str], virtual_option_keys: set[str]) -> dict[st
                 text_bounds = containing_block(text_blocks, index)
                 button_bounds = containing_block(button_blocks, index)
                 accordion_check_bounds = containing_block(accordion_check_blocks, index)
+                switch_primary_key = primary_setting_for_control(lines, switch_bounds)
+                text_primary_key = primary_setting_for_control(lines, text_bounds)
                 control = None
                 title_bounds = row_bounds
                 group = parent_for_line(lines, titled_blocks, index, key)
                 title = None
+                if switch_bounds and switch_primary_key and switch_primary_key != key:
+                    continue
+                if text_bounds and text_primary_key and text_primary_key != key:
+                    continue
                 if switch_bounds:
                     control = "switch"
                     title_bounds = switch_bounds
@@ -631,7 +713,13 @@ def extract_references(keys: set[str], virtual_option_keys: set[str]) -> dict[st
                     "control": control,
                     "group": group or SOURCE_DEFAULT_PARENTS.get(source.as_posix()),
                     "title": title or find_title(lines, index, title_bounds),
-                    "description": None if key in linked_bool_keys else find_description(lines, index),
+                    "description": None
+                    if key in linked_bool_keys
+                    else (
+                        find_following_label_description(lines, switch_bounds)
+                        if control == "switch"
+                        else find_description(lines, index)
+                    ),
                 }
                 if model:
                     if key not in virtual_option_keys:
@@ -651,6 +739,10 @@ def choose_primary_declaration(declarations: list[dict[str, Any]]) -> dict[str, 
 
 
 def choose_first(references: list[dict[str, Any]], field: str) -> Any:
+    for reference in references:
+        value = reference.get(field)
+        if value and reference.get("control") in {"switch", "select", "text", "virtualOption", "button"}:
+            return value
     for reference in references:
         value = reference.get(field)
         if value:

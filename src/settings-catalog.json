@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 949,
+  "settingCount": 945,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -848,19 +848,6 @@
       "options": null
     },
     {
-      "key": "ant_garmin",
-      "name": "Ant+ Garmin Compatibility",
-      "description": null,
-      "parent": "ANT+",
-      "type": "boolean",
-      "qmlType": "bool",
-      "control": "switch",
-      "visible": true,
-      "defaultValue": false,
-      "defaultExpression": "false",
-      "options": null
-    },
-    {
       "key": "top_bar_enabled",
       "name": "Top Bar Enabled",
       "description": null,
@@ -875,26 +862,26 @@
     },
     {
       "key": "peloton_username",
-      "name": "Username",
-      "description": "Enter the email address you use to login to Peloton (NOT your leaderboard name). Ensure there are no spaces before or after your email. Click OK.",
-      "parent": "Peloton Options",
+      "name": "Peloton Username",
+      "description": null,
+      "parent": "Peloton",
       "type": "string",
       "qmlType": "string",
       "control": "text",
-      "visible": true,
+      "visible": false,
       "defaultValue": "username",
       "defaultExpression": "\"username\"",
       "options": null
     },
     {
       "key": "peloton_password",
-      "name": "Password",
-      "description": "Enter the password you use to login to Peloton. Click OK. If you have entered the correct login credentials and the QZ is able to access your account, you will see a when you reopen QZ. This is a secure login, not accessible by anyone but you.",
-      "parent": "Peloton Options",
+      "name": "Peloton Password",
+      "description": null,
+      "parent": "Peloton",
       "type": "string",
       "qmlType": "string",
       "control": "text",
-      "visible": true,
+      "visible": false,
       "defaultValue": "password",
       "defaultExpression": "\"password\"",
       "options": null
@@ -921,19 +908,16 @@
     },
     {
       "key": "peloton_cadence_metric",
-      "name": "Override Cadence Metric",
+      "name": "Peloton Cadence Metric",
       "description": null,
-      "parent": "Peloton Options",
+      "parent": "Peloton",
       "type": "string",
       "qmlType": "string",
-      "control": "select",
-      "visible": true,
+      "control": "text",
+      "visible": false,
       "defaultValue": "Cadence",
       "defaultExpression": "\"Cadence\"",
-      "options": {
-        "source": "expression",
-        "expression": "rootItem.metrics"
-      }
+      "options": null
     },
     {
       "key": "peloton_heartrate_metric",
@@ -1563,32 +1547,29 @@
     },
     {
       "key": "tile_peloton_difficulty_enabled",
-      "name": "Peloton Difficulty",
+      "name": "Tile Peloton Difficulty Enabled",
       "description": null,
       "parent": "Tiles",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
-      "visible": true,
+      "visible": false,
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null
     },
     {
       "key": "tile_peloton_difficulty_order",
-      "name": "order index",
+      "name": "Tile Peloton Difficulty Order",
       "description": null,
-      "parent": "tile_peloton_difficulty_enabled",
+      "parent": "Tiles",
       "type": "integer",
       "qmlType": "int",
-      "control": "select",
-      "visible": true,
+      "control": "text",
+      "visible": false,
       "defaultValue": 32,
       "defaultExpression": "32",
-      "options": {
-        "source": "expression",
-        "expression": "rootItem.tile_order"
-      }
+      "options": null
     },
     {
       "key": "tile_peloton_resistance_enabled",
@@ -2371,7 +2352,7 @@
     {
       "key": "domyos_treadmill_buttons",
       "name": "Speed/Inclination Buttons",
-      "description": "RUN100E (Use Requested Inclination)",
+      "description": null,
       "parent": "Domyos Treadmill Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -2601,7 +2582,7 @@
     {
       "key": "hammer_racer_s",
       "name": "Enable support",
-      "description": "Saris/Cycleops Hammer trainer Options",
+      "description": null,
       "parent": "Hammer Racer Bike Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -2798,7 +2779,7 @@
     {
       "key": "asviva_bike",
       "name": "Asviva Bike",
-      "description": "Toorx Treadmill Discovery Completed",
+      "description": null,
       "parent": "Toorx/iConsole Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -2811,7 +2792,7 @@
     {
       "key": "hertz_xr_770",
       "name": "Hertz XR 770 Bike",
-      "description": "Toorx Treadmill Discovery Completed",
+      "description": null,
       "parent": "Toorx/iConsole Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -2876,7 +2857,7 @@
     {
       "key": "snode_bike",
       "name": "Snode Bike",
-      "description": "Enable this for Skandika X-2000 bikes. Disable for other Skandika models (e.g., HT211212095)",
+      "description": null,
       "parent": "Snode Bike Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -3292,7 +3273,7 @@
     {
       "key": "cadence_sensor_as_bike",
       "name": "Cadence Sensor as a Bike",
-      "description": "If your equipment doesn’t have Bluetooth, these settings allow you to use a cadence sensor so it will work with QZ as a bike or treadmill. Default is off.",
+      "description": null,
       "parent": "Cadence Sensor Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -3585,19 +3566,6 @@
       "key": "battery_service",
       "name": "Simulate Battery Service",
       "description": "Leave this off unless the Support staff asks you to turn it on. Enables a new Bluetooth service, indicating the battery level of your device. Default is off.",
-      "parent": "Experimental Features",
-      "type": "boolean",
-      "qmlType": "bool",
-      "control": "switch",
-      "visible": true,
-      "defaultValue": false,
-      "defaultExpression": "false",
-      "options": null
-    },
-    {
-      "key": "service_changed",
-      "name": "Service Changed Service",
-      "description": "Forces QZ to communicate ONLY the Heart Rate metric to third-party apps. Default is off.",
       "parent": "Experimental Features",
       "type": "boolean",
       "qmlType": "bool",
@@ -4228,7 +4196,7 @@
     {
       "key": "kingsmith_encrypt_v2",
       "name": "WalkingPad X21",
-      "description": "Enable handling of physical Start/Pause/Stop buttons on the treadmill hardware",
+      "description": null,
       "parent": "KingSmith Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -4607,26 +4575,26 @@
     },
     {
       "key": "tts_avg_ftp",
-      "name": "Average FTP",
+      "name": "Tts Avg Ftp",
       "description": null,
       "parent": "TTS",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
-      "visible": true,
+      "visible": false,
       "defaultValue": true,
       "defaultExpression": "true",
       "options": null
     },
     {
       "key": "tts_max_ftp",
-      "name": "Max FTP",
+      "name": "Tts Max Ftp",
       "description": null,
       "parent": "TTS",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
-      "visible": true,
+      "visible": false,
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null
@@ -5058,8 +5026,8 @@
     },
     {
       "key": "kingsmith_encrypt_v3",
-      "name": "WalkingPad X21",
-      "description": "Enable handling of physical Start/Pause/Stop buttons on the treadmill hardware",
+      "name": "WalkingPad X21 v2",
+      "description": null,
       "parent": "KingSmith Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -5097,13 +5065,13 @@
     },
     {
       "key": "video_playback_window_s",
-      "name": "Window Time (sec.)",
-      "description": "Useful in gyms with multiple similar machines. When enabled, QZ scans nearby equipment at startup and asks you which trainer to use before opening any Bluetooth connection.",
-      "parent": "Video 🎥",
+      "name": "Video Playback Window S",
+      "description": null,
+      "parent": "General",
       "type": "integer",
       "qmlType": "int",
       "control": "text",
-      "visible": true,
+      "visible": false,
       "defaultValue": 12,
       "defaultExpression": "12",
       "options": null
@@ -6383,9 +6351,9 @@
     },
     {
       "key": "android_notification",
-      "name": "Zwift Treadmill Auto Inclination",
-      "description": "Only for PC where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.",
-      "parent": "Zwift Options",
+      "name": "Android Notification",
+      "description": "Android Only: enable this to force Android to don't kill QZ when it's running on background",
+      "parent": "Experimental Features",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
@@ -6396,8 +6364,8 @@
     },
     {
       "key": "kingsmith_encrypt_v4",
-      "name": "WalkingPad X21",
-      "description": "Enable handling of physical Start/Pause/Stop buttons on the treadmill hardware",
+      "name": "WalkingPad X21 v3",
+      "description": null,
       "parent": "KingSmith Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -6423,7 +6391,7 @@
     {
       "key": "domyos_bike_500_profile_v1",
       "name": "Bike 500 wattage profile",
-      "description": "Disable Negative Inclination due to gear",
+      "description": null,
       "parent": "Domyos Bike Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -6781,19 +6749,6 @@
       "key": "peloton_workout_ocr",
       "name": "Peloton Auto Sync (Experimental)",
       "description": "Only for Android where QZ is running on the same Peloton device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Peloton workout screen and will adjust the Peloton offset in order to stay in sync in realtime with your Peloton workout. A popup about screen recording will appear in order to notify this.",
-      "parent": "Peloton Options",
-      "type": "boolean",
-      "qmlType": "bool",
-      "control": "switch",
-      "visible": true,
-      "defaultValue": false,
-      "defaultExpression": "false",
-      "options": null
-    },
-    {
-      "key": "peloton_bike_ocr",
-      "name": "Peloton Bike/Bike+ (Experimental)",
-      "description": "Only if you are on a real Peloton Bike/Bike+! This will allow QZ to collect metrics from your Bike/Bike+ and send it to Zwift. Peloton Free ride must running.",
       "parent": "Peloton Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -7392,7 +7347,7 @@
     {
       "key": "tacx_neo2_peloton",
       "name": "Peloton Configuration",
-      "description": "Disable Negative Inclination due to gear",
+      "description": null,
       "parent": "Tacx Neo Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -7626,8 +7581,8 @@
     },
     {
       "key": "kingsmith_encrypt_v5",
-      "name": "WalkingPad X21",
-      "description": "Enable handling of physical Start/Pause/Stop buttons on the treadmill hardware",
+      "name": "WalkingPad X21 v4",
+      "description": null,
       "parent": "KingSmith Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -7777,8 +7732,8 @@
     },
     {
       "key": "zwift_workout_ocr",
-      "name": "Zwift Treadmill Auto Inclination",
-      "description": "Only for PC where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.",
+      "name": "Zwift Treadmill Auto Workout",
+      "description": "Only for PC where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination and speed from the Zwift app during a workout and will adjust the inclination and the speed on your treadmill. A popup about screen recording will appear in order to notify this.",
       "parent": "Zwift Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -7790,8 +7745,8 @@
     },
     {
       "key": "zwift_ocr_climb_portal",
-      "name": "Zwift Treadmill Auto Inclination",
-      "description": "Only for PC where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.",
+      "name": "Zwift Treadmill Climb Portal",
+      "description": null,
       "parent": "Zwift Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -8023,7 +7978,7 @@
     {
       "key": "iconsole_elliptical",
       "name": "iConsole Elliptical",
-      "description": "Toorx Treadmill Discovery Completed",
+      "description": null,
       "parent": "Toorx/iConsole Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -8090,8 +8045,8 @@
     },
     {
       "key": "kingsmith_encrypt_g1_walking_pad",
-      "name": "WalkingPad X21",
-      "description": "Enable handling of physical Start/Pause/Stop buttons on the treadmill hardware",
+      "name": "WalkingPad G1",
+      "description": null,
       "parent": "KingSmith Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -8344,7 +8299,7 @@
     {
       "key": "domyos_treadmill_t900a",
       "name": "T900",
-      "description": "RUN100E (Use Requested Inclination)",
+      "description": null,
       "parent": "Domyos Treadmill Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -8411,9 +8366,9 @@
     },
     {
       "key": "zwift_click",
-      "name": "Enter the password you use to login to Zwift. Click OK.",
-      "description": "This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure Zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. MUST be disabled for Mywhoosh app. Default: disabled.",
-      "parent": "Zwift Options",
+      "name": "Zwift Click",
+      "description": "Use it to change the gears on QZ!",
+      "parent": "Zwift Devices Options",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
@@ -8437,9 +8392,9 @@
     },
     {
       "key": "zwift_play",
-      "name": "Enter the password you use to login to Zwift. Click OK.",
-      "description": "This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure Zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. MUST be disabled for Mywhoosh app. Default: disabled.",
-      "parent": "Zwift Options",
+      "name": "Zwift Play",
+      "description": "Also for Elite Square. Use it to change the gears on QZ!",
+      "parent": "Zwift Devices Options",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
@@ -9028,8 +8983,8 @@
     },
     {
       "key": "domyos_bike_500_profile_v2",
-      "name": "Bike 500 wattage profile",
-      "description": "Disable Negative Inclination due to gear",
+      "name": "Bike 500 wattage profile v2",
+      "description": null,
       "parent": "Domyos Bike Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -9128,7 +9083,7 @@
     },
     {
       "key": "zwift_play_emulator",
-      "name": "Enter the password you use to login to Zwift. Click OK.",
+      "name": "Get Gears from Zwift",
       "description": "This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure Zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. MUST be disabled for Mywhoosh app. Default: disabled.",
       "parent": "Zwift Options",
       "type": "boolean",
@@ -9202,19 +9157,6 @@
       "visible": false,
       "defaultValue": 2070.0,
       "defaultExpression": "2070",
-      "options": null
-    },
-    {
-      "key": "watt_bike_emulator",
-      "name": "Get Gears from Zwift",
-      "description": "This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure Zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. MUST be disabled for Mywhoosh app. Default: disabled.",
-      "parent": "Zwift Options",
-      "type": "boolean",
-      "qmlType": "bool",
-      "control": "switch",
-      "visible": true,
-      "defaultValue": false,
-      "defaultExpression": "false",
       "options": null
     },
     {
@@ -9299,13 +9241,13 @@
     },
     {
       "key": "sram_axs_controller",
-      "name": "SRAM AXS",
+      "name": "Sram Axs Controller",
       "description": null,
-      "parent": "SRAM Devices Options",
+      "parent": "General",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
-      "visible": true,
+      "visible": false,
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null
@@ -9404,8 +9346,8 @@
     },
     {
       "key": "peloton_auto_start_without_intro",
-      "name": "Auto Start (with intro)",
-      "description": "Turn this on to start a workout automatically when you start a workout on Peloton (waiting the intro). Default is off.",
+      "name": "Auto Start (without intro)",
+      "description": "Turn this on to start a workout automatically when you start a workout on Peloton (skipping the intro). Default is off.",
       "parent": "Peloton Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -9486,7 +9428,7 @@
     {
       "key": "osc_port",
       "name": "OSC Port",
-      "description": "By default QZ sends the info to Zwift or any other 3rd party apps with a 1000ms interval rate. Enabling the Race Mode setting will cause QZ to send them to 100ms (10hz). Of course the bottleneck will be always your bike/treadmill.",
+      "description": null,
       "parent": "OSC Settings",
       "type": "integer",
       "qmlType": "int",
@@ -9512,7 +9454,7 @@
     {
       "key": "iconsole_rower",
       "name": "iConsole Rower",
-      "description": "Toorx Treadmill Discovery Completed",
+      "description": null,
       "parent": "Toorx/iConsole Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -9567,7 +9509,7 @@
     {
       "key": "tile_biggears_swap",
       "name": "Swap Buttons",
-      "description": "It shows 2 big gear buttons on the UI",
+      "description": null,
       "parent": "tile_biggears_enabled",
       "type": "boolean",
       "qmlType": "bool",
@@ -10466,9 +10408,9 @@
     },
     {
       "key": "android_antbike",
-      "name": "Group Cycle",
+      "name": "Ant+ Bike",
       "description": "Use this to connect to your bike using ANT+ instead of Bluetooth. Default: Disabled",
-      "parent": "Technogym Bike Options",
+      "parent": "Ant+ Options (only for some Android)",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
@@ -11378,7 +11320,7 @@
       "parent": "General Options",
       "type": "number",
       "qmlType": "real",
-      "control": "text",
+      "control": "button",
       "visible": true,
       "defaultValue": 175.0,
       "defaultExpression": "175.0",
@@ -11729,7 +11671,7 @@
     {
       "key": "rouvy_compatibility",
       "name": "Rouvy Compatibility",
-      "description": null,
+      "description": "Wifi Compatibility for Rouvy",
       "parent": "Rouvy Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -12128,7 +12070,7 @@
     {
       "key": "domyos_treadmill_ts100",
       "name": "TS100 (Fixed 15° Inclination)",
-      "description": "RUN100E (Use Requested Inclination)",
+      "description": null,
       "parent": "Domyos Treadmill Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -12304,7 +12246,7 @@
     {
       "key": "gymstick_gx6_0_elliptical",
       "name": "Gymstick GX6.0",
-      "description": "Proform/Nordictrack Elliptical Options",
+      "description": null,
       "parent": "Elliptical Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -12316,7 +12258,7 @@
     },
     {
       "key": "cadence_sensor_as_treadmill",
-      "name": "Cadence Sensor as a Bike",
+      "name": "Cadence Sensor as a Treadmill",
       "description": "If your equipment doesn’t have Bluetooth, these settings allow you to use a cadence sensor so it will work with QZ as a bike or treadmill. Default is off.",
       "parent": "Cadence Sensor Options",
       "type": "boolean",
