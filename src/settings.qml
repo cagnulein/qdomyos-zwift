@@ -24,22 +24,27 @@ import Qt.labs.platform 1.1
         property var searchableSettings: []
         property var filteredSettings: []
         property bool settingsCatalogLoaded: false
+        property bool settingsCatalogLoading: false
         property string settingsCatalogError: ""
         property bool settingsSearchVisible: false
         property bool settingsSearchActive: false
+        property bool settingsSearchPending: false
 
         function showSettingsSearch() {
             settingsSearchVisible = true
+            loadSettingsCatalog()
             Qt.callLater(function() {
                 settingsSearchTextField.forceActiveFocus()
             })
         }
 
         function hideSettingsSearch() {
+            settingsSearchDebounceTimer.stop()
             settingsSearchTextField.text = ""
             settingsSearchVisible = false
             settingsSearchActive = false
-            updateFilteredSettings()
+            settingsSearchPending = false
+            filteredSettings = []
         }
 
         function openGarminSection() {
@@ -53,12 +58,19 @@ import Qt.labs.platform 1.1
         }
 
         function loadSettingsCatalog() {
+            if (settingsCatalogLoaded || settingsCatalogLoading)
+                return
+
+            settingsCatalogLoading = true
+            settingsCatalogError = ""
+
             var xhr = new XMLHttpRequest()
             xhr.open("GET", "qrc:/settings-catalog.json")
             xhr.onreadystatechange = function() {
                 if (xhr.readyState !== XMLHttpRequest.DONE)
                     return
 
+                settingsCatalogLoading = false
                 if (xhr.status === 200 || xhr.status === 0) {
                     try {
                         settingsCatalog = JSON.parse(xhr.responseText)
@@ -107,6 +119,9 @@ import Qt.labs.platform 1.1
             }
 
             searchableSettings = items
+            if (settingsSearchActive && settingsSearchPending && settingsSearchDebounceTimer.running)
+                return
+
             updateFilteredSettings()
         }
 
@@ -166,12 +181,14 @@ import Qt.labs.platform 1.1
         function updateFilteredSettings() {
             if (!settingsCatalogLoaded) {
                 filteredSettings = []
+                settingsSearchPending = settingsSearchActive
                 return
             }
 
             var query = settingsSearchTextField ? settingsSearchTextField.text.trim().toLowerCase() : ""
             if (query.length === 0) {
                 filteredSettings = []
+                settingsSearchPending = false
                 return
             }
 
@@ -194,6 +211,7 @@ import Qt.labs.platform 1.1
                     break
             }
             filteredSettings = results
+            settingsSearchPending = false
         }
 
         function settingValue(entry) {
@@ -1667,7 +1685,13 @@ import Qt.labs.platform 1.1
 
         Component.onCompleted: {
             window.settings_restart_to_apply = false
-            loadSettingsCatalog()
+        }
+
+        Timer {
+            id: settingsSearchDebounceTimer
+            interval: 1500
+            repeat: false
+            onTriggered: settingsPane.updateFilteredSettings()
         }
 
         ColumnLayout {
@@ -1689,7 +1713,16 @@ import Qt.labs.platform 1.1
                     inputMethodHints: Qt.ImhNoPredictiveText
                     onTextChanged: {
                         settingsPane.settingsSearchActive = text.trim().length > 0
-                        settingsPane.updateFilteredSettings()
+                        settingsSearchDebounceTimer.stop()
+                        if (settingsPane.settingsSearchActive) {
+                            settingsPane.filteredSettings = []
+                            settingsPane.settingsSearchPending = true
+                            settingsPane.loadSettingsCatalog()
+                            settingsSearchDebounceTimer.restart()
+                        } else {
+                            settingsPane.filteredSettings = []
+                            settingsPane.settingsSearchPending = false
+                        }
                     }
                 }
 
@@ -1715,7 +1748,10 @@ import Qt.labs.platform 1.1
                 Layout.preferredWidth: Math.max(1, column1.width)
 
                 Label {
-                    text: filteredSettings.length === 0 ? qsTr("No settings found") : qsTr("Search results") + " (" + filteredSettings.length + ")"
+                    text: settingsCatalogLoading ? qsTr("Loading settings...") :
+                          settingsSearchPending ? qsTr("Searching...") :
+                          filteredSettings.length === 0 ? qsTr("No settings found") :
+                          qsTr("Search results") + " (" + filteredSettings.length + ")"
                     color: Material.color(Material.Red)
                     font.bold: true
                     Layout.fillWidth: true
