@@ -7,14 +7,6 @@ import QtQuick.Dialogs 1.0
 
 SwitchDelegate {
     id: root
-    Layout.topMargin: 3
-    Layout.bottomMargin: 3
-    background: Rectangle {
-        color: "transparent"
-        radius: 6
-        border.width: 1
-        border.color: Qt.rgba(0.5, 0.5, 0.5, 0.38)
-    }
 
     MouseArea {
         anchors.fill: parent
