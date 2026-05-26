@@ -548,6 +548,10 @@ int main(int argc, char *argv[]) {
 #ifdef Q_CC_MSVC
   _RTC_SetErrorFuncW(CustomRTCErrorHandler);
 #endif
+
+#ifdef CHARTJS
+    QtWebView::initialize();
+#endif
   
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
@@ -563,9 +567,6 @@ int main(int argc, char *argv[]) {
 
     OAuthCallbackEventFilter oauthCallbackEventFilter;
     app->installEventFilter(&oauthCallbackEventFilter);
-#ifdef CHARTJS
-    QtWebView::initialize();
-#endif
 
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
