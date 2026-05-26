@@ -1912,6 +1912,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("XCX-")) ||
                         (b.name().toUpper().startsWith("SMARTBIKE-")) ||
                         (b.name().toUpper().startsWith("D500V2")) ||
+                        (b.name().toUpper().startsWith("FBIKE-HEAVY-PRO")) ||
                         (b.name().toUpper().startsWith("NEO BIKE PLUS ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) && !b.name().toUpper().endsWith(QStringLiteral("SKI")) && !b.name().toUpper().endsWith(QStringLiteral("ROW"))) || 
                         (b.name().toUpper().startsWith("L-") && b.name().length() == 11) ||
