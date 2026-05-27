@@ -168,6 +168,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     int cadence_count = 0;
     uint8_t max_cadence = 0;
 
+    // Variables for core temperature summaries used by Garmin Connect.
+    double core_temp_sum = 0;
+    double core_temp_min = 0;
+    double core_temp_max = 0;
+    int core_temp_count = 0;
+
     for (int i = firstRealIndex; i < session.length(); i++) {
         if (session.at(i).coordinate.isValid()) {
             gps_data = true;
@@ -218,6 +224,18 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             if (session.at(i).cadence > max_cadence) {
                 max_cadence = session.at(i).cadence;
             }
+        }
+
+        if (session.at(i).coreTemp > 0) {
+            double coreTemp = session.at(i).coreTemp;
+            core_temp_sum += coreTemp;
+            if (core_temp_count == 0 || coreTemp < core_temp_min) {
+                core_temp_min = coreTemp;
+            }
+            if (core_temp_count == 0 || coreTemp > core_temp_max) {
+                core_temp_max = coreTemp;
+            }
+            core_temp_count++;
         }
     }
 
@@ -541,6 +559,60 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     heatStrainIndexFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
     heatStrainIndexFieldDesc.SetNativeFieldNum(255); // Use invalid field number to indicate custom field
 
+    fit::FieldDescriptionMesg lapAvgCoreTemperatureFieldDesc;
+    lapAvgCoreTemperatureFieldDesc.SetDeveloperDataIndex(0);
+    lapAvgCoreTemperatureFieldDesc.SetFieldDefinitionNumber(12);
+    lapAvgCoreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
+    lapAvgCoreTemperatureFieldDesc.SetFieldName(0, L"avg_core_temperature");
+    lapAvgCoreTemperatureFieldDesc.SetUnits(0, L"°");
+    lapAvgCoreTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_LAP);
+    lapAvgCoreTemperatureFieldDesc.SetNativeFieldNum(158);
+
+    fit::FieldDescriptionMesg lapMinCoreTemperatureFieldDesc;
+    lapMinCoreTemperatureFieldDesc.SetDeveloperDataIndex(0);
+    lapMinCoreTemperatureFieldDesc.SetFieldDefinitionNumber(13);
+    lapMinCoreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
+    lapMinCoreTemperatureFieldDesc.SetFieldName(0, L"min_core_temperature");
+    lapMinCoreTemperatureFieldDesc.SetUnits(0, L"°");
+    lapMinCoreTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_LAP);
+    lapMinCoreTemperatureFieldDesc.SetNativeFieldNum(159);
+
+    fit::FieldDescriptionMesg lapMaxCoreTemperatureFieldDesc;
+    lapMaxCoreTemperatureFieldDesc.SetDeveloperDataIndex(0);
+    lapMaxCoreTemperatureFieldDesc.SetFieldDefinitionNumber(14);
+    lapMaxCoreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
+    lapMaxCoreTemperatureFieldDesc.SetFieldName(0, L"max_core_temperature");
+    lapMaxCoreTemperatureFieldDesc.SetUnits(0, L"°");
+    lapMaxCoreTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_LAP);
+    lapMaxCoreTemperatureFieldDesc.SetNativeFieldNum(160);
+
+    fit::FieldDescriptionMesg sessionAvgCoreTemperatureFieldDesc;
+    sessionAvgCoreTemperatureFieldDesc.SetDeveloperDataIndex(0);
+    sessionAvgCoreTemperatureFieldDesc.SetFieldDefinitionNumber(15);
+    sessionAvgCoreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
+    sessionAvgCoreTemperatureFieldDesc.SetFieldName(0, L"avg_core_temperature");
+    sessionAvgCoreTemperatureFieldDesc.SetUnits(0, L"°");
+    sessionAvgCoreTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+    sessionAvgCoreTemperatureFieldDesc.SetNativeFieldNum(208);
+
+    fit::FieldDescriptionMesg sessionMinCoreTemperatureFieldDesc;
+    sessionMinCoreTemperatureFieldDesc.SetDeveloperDataIndex(0);
+    sessionMinCoreTemperatureFieldDesc.SetFieldDefinitionNumber(16);
+    sessionMinCoreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
+    sessionMinCoreTemperatureFieldDesc.SetFieldName(0, L"min_core_temperature");
+    sessionMinCoreTemperatureFieldDesc.SetUnits(0, L"°");
+    sessionMinCoreTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+    sessionMinCoreTemperatureFieldDesc.SetNativeFieldNum(209);
+
+    fit::FieldDescriptionMesg sessionMaxCoreTemperatureFieldDesc;
+    sessionMaxCoreTemperatureFieldDesc.SetDeveloperDataIndex(0);
+    sessionMaxCoreTemperatureFieldDesc.SetFieldDefinitionNumber(17);
+    sessionMaxCoreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
+    sessionMaxCoreTemperatureFieldDesc.SetFieldName(0, L"max_core_temperature");
+    sessionMaxCoreTemperatureFieldDesc.SetUnits(0, L"°");
+    sessionMaxCoreTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+    sessionMaxCoreTemperatureFieldDesc.SetNativeFieldNum(210);
+
     fit::DeveloperField ftpSessionField(ftpSessionMesg, devIdMesg);
     ftpSessionField.AddValue(settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble());
 
@@ -572,6 +644,36 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
     // Developer fields are now added to custom message instead of session
     // This improves Garmin Connect compatibility
+
+    auto addCoreTemperatureSummaryFields = [&](fit::Mesg &mesg,
+                                               const fit::FieldDescriptionMesg &avgDesc,
+                                               const fit::FieldDescriptionMesg &minDesc,
+                                               const fit::FieldDescriptionMesg &maxDesc,
+                                               double avgCoreTemp,
+                                               double minCoreTemp,
+                                               double maxCoreTemp) {
+        fit::DeveloperField avgCoreTemperatureField(avgDesc, devIdMesg);
+        avgCoreTemperatureField.SetFLOAT32Value((float)avgCoreTemp);
+        mesg.AddDeveloperField(avgCoreTemperatureField);
+
+        fit::DeveloperField minCoreTemperatureField(minDesc, devIdMesg);
+        minCoreTemperatureField.SetFLOAT32Value((float)minCoreTemp);
+        mesg.AddDeveloperField(minCoreTemperatureField);
+
+        fit::DeveloperField maxCoreTemperatureField(maxDesc, devIdMesg);
+        maxCoreTemperatureField.SetFLOAT32Value((float)maxCoreTemp);
+        mesg.AddDeveloperField(maxCoreTemperatureField);
+    };
+
+    if (core_temp_count > 0) {
+        addCoreTemperatureSummaryFields(sessionMesg,
+                                        sessionAvgCoreTemperatureFieldDesc,
+                                        sessionMinCoreTemperatureFieldDesc,
+                                        sessionMaxCoreTemperatureFieldDesc,
+                                        core_temp_sum / core_temp_count,
+                                        core_temp_min,
+                                        core_temp_max);
+    }
 
     fit::ActivityMesg activityMesg;
     activityMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
@@ -608,6 +710,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     encode.Write(coreTemperatureFieldDesc);
     encode.Write(skinTemperatureFieldDesc);
     encode.Write(heatStrainIndexFieldDesc);
+    encode.Write(lapAvgCoreTemperatureFieldDesc);
+    encode.Write(lapMinCoreTemperatureFieldDesc);
+    encode.Write(lapMaxCoreTemperatureFieldDesc);
+    encode.Write(sessionAvgCoreTemperatureFieldDesc);
+    encode.Write(sessionMinCoreTemperatureFieldDesc);
+    encode.Write(sessionMaxCoreTemperatureFieldDesc);
     encode.Write(deviceInfoMesg);
 
     // Add Timestamp Correlation record
@@ -737,6 +845,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
     uint32_t lastLapTimer = 0;
     double lastLapOdometer = startingDistanceOffset;
+    double lapCoreTempSum = 0;
+    double lapCoreTempMin = 0;
+    double lapCoreTempMax = 0;
+    int lapCoreTempCount = 0;
     for (int i = firstRealIndex; i < session.length(); i++) {
 
         fit::RecordMesg newRecord;
@@ -806,6 +918,19 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
                // strava ignore the elapsed field
                // this workaround could leads an accuracy issue.
         newRecord.SetTimestamp(date.GetTimeStamp() + i);
+
+        if (sl.coreTemp > 0) {
+            double coreTemp = sl.coreTemp;
+            lapCoreTempSum += coreTemp;
+            if (lapCoreTempCount == 0 || coreTemp < lapCoreTempMin) {
+                lapCoreTempMin = coreTemp;
+            }
+            if (lapCoreTempCount == 0 || coreTemp > lapCoreTempMax) {
+                lapCoreTempMax = coreTemp;
+            }
+            lapCoreTempCount++;
+        }
+
         encode.Write(newRecord);
 
         // Write HRV messages with RR-intervals (standard FIT format)
@@ -835,7 +960,22 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             lastLapTimer = sl.elapsedTime;
             lastLapOdometer = sl.distance;
 
-            encode.Write(lapMesg);
+            fit::LapMesg lapMesgToWrite(lapMesg);
+            if (lapCoreTempCount > 0) {
+                addCoreTemperatureSummaryFields(lapMesgToWrite,
+                                                lapAvgCoreTemperatureFieldDesc,
+                                                lapMinCoreTemperatureFieldDesc,
+                                                lapMaxCoreTemperatureFieldDesc,
+                                                lapCoreTempSum / lapCoreTempCount,
+                                                lapCoreTempMin,
+                                                lapCoreTempMax);
+            }
+            encode.Write(lapMesgToWrite);
+
+            lapCoreTempSum = 0;
+            lapCoreTempMin = 0;
+            lapCoreTempMax = 0;
+            lapCoreTempCount = 0;
 
             lapMesg.SetStartTime(date.GetTimeStamp() + i);
             lapMesg.SetTimestamp(date.GetTimeStamp() + i);
@@ -851,7 +991,17 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     lapMesg.SetEventType(FIT_EVENT_TYPE_STOP);
     lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_SESSION_END);
     lapMesg.SetMessageIndex(lap_index++);
-    encode.Write(lapMesg);
+    fit::LapMesg lapMesgToWrite(lapMesg);
+    if (lapCoreTempCount > 0) {
+        addCoreTemperatureSummaryFields(lapMesgToWrite,
+                                        lapAvgCoreTemperatureFieldDesc,
+                                        lapMinCoreTemperatureFieldDesc,
+                                        lapMaxCoreTemperatureFieldDesc,
+                                        lapCoreTempSum / lapCoreTempCount,
+                                        lapCoreTempMin,
+                                        lapCoreTempMax);
+    }
+    encode.Write(lapMesgToWrite);
 
     if (!encode.Close()) {
 
