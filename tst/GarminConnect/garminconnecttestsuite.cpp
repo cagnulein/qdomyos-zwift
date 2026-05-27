@@ -1,9 +1,11 @@
 #include "garminconnecttestsuite.h"
 #include "garminconnect.h"
+#include "qzsettings.h"
 #include <QDate>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QSettings>
 #include <QUrl>
 #include <QUrlQuery>
 #include <QString>
@@ -540,4 +542,48 @@ void GarminConnectTestSuite::test_workoutDetailsJson_heartRateThresholdEndCondit
     EXPECT_FALSE(xml.contains("duration=\""))
         << "Heart-rate threshold rows should not get a fake duration. XML was:\n"
         << xml.toStdString();
+}
+
+void GarminConnectTestSuite::test_workoutDetailsJson_powerCurveTargetsSerialize()
+{
+    static const char *kWorkoutJson = R"json({
+        "workoutName": "Power Curve Gate",
+        "sportType": {"sportTypeKey": "cycling"},
+        "workoutSegments": [{
+            "workoutSteps": [{
+                "endCondition": {"conditionTypeKey": "time"},
+                "endConditionValue": 300,
+                "powerCurveDuration": 1200,
+                "powerCurveScale": 90,
+                "targetType": {"workoutTargetTypeKey": "power.curve"},
+                "type": "ExecutableStepDTO"
+            }]
+        }]
+    })json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kWorkoutJson));
+    ASSERT_TRUE(doc.isObject()) << "Workout JSON fixture must be valid";
+
+    QMap<int, double> powerCurve;
+    powerCurve.insert(1200, 194.4);
+    const QString xml = garminConnectGenerateWorkoutXml(doc.object(), powerCurve);
+    EXPECT_TRUE(xml.contains("<row duration=\"00:05:00\" power=\"175\"/>"))
+        << "Expected 90% of the downloaded 20-minute power curve. XML was:\n"
+        << xml.toStdString();
+
+    QSettings settings;
+    const QVariant oldFtp = settings.value(QZSettings::ftp);
+    const bool hadOldFtp = settings.contains(QZSettings::ftp);
+    settings.setValue(QZSettings::ftp, 200.0);
+
+    const QString fallbackXml = garminConnectGenerateWorkoutXml(doc.object());
+    EXPECT_TRUE(fallbackXml.contains("<row duration=\"00:05:00\" power=\"180\"/>"))
+        << "Expected 90% FTP fallback when the power curve is unavailable. XML was:\n"
+        << fallbackXml.toStdString();
+
+    if (hadOldFtp) {
+        settings.setValue(QZSettings::ftp, oldFtp);
+    } else {
+        settings.remove(QZSettings::ftp);
+    }
 }

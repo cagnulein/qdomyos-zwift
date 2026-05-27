@@ -133,6 +133,13 @@ public:
      * Verifies Above/Below bpm steps are serialized as blocking QZ workout rows.
      */
     void test_workoutDetailsJson_heartRateThresholdEndConditionsSerialize();
+
+    /**
+     * @brief Test Garmin power-curve targets.
+     *
+     * Verifies power.curve steps use downloaded curve data, with FTP as fallback.
+     */
+    void test_workoutDetailsJson_powerCurveTargetsSerialize();
 };
 
 // Register individual tests with Google Test
@@ -190,6 +197,10 @@ TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonLapButtonStepWaitsForLap) {
 
 TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonHeartRateThresholdEndConditionsSerialize) {
     this->test_workoutDetailsJson_heartRateThresholdEndConditionsSerialize();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonPowerCurveTargetsSerialize) {
+    this->test_workoutDetailsJson_powerCurveTargetsSerialize();
 }
 
 #endif // GARMINCONNECTTESTSUITE_H
