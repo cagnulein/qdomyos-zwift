@@ -1912,6 +1912,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("XCX-")) ||
                         (b.name().toUpper().startsWith("SMARTBIKE-")) ||
                         (b.name().toUpper().startsWith("D500V2")) ||
+                        (b.name().toUpper().startsWith("FBIKE-HEAVY-PRO")) ||
                         (b.name().toUpper().startsWith("NEO BIKE PLUS ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) && !b.name().toUpper().endsWith(QStringLiteral("SKI")) && !b.name().toUpper().endsWith(QStringLiteral("ROW"))) || 
                         (b.name().toUpper().startsWith("L-") && b.name().length() == 11) ||
@@ -3259,28 +3260,40 @@ void bluetooth::connectedAndDiscovered() {
         }
     }
 
-    if(settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool()) {
+    if(settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool() && !zwiftClickRemote &&
+            this->device() && this->device()->deviceType() == BIKE) {
+        QBluetoothDeviceInfo zwiftClickDevice;
+        bool zwiftClickDeviceFound = false;
+
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
-            if (((b.name().toUpper().startsWith("ZWIFT CLICK"))) && !zwiftClickRemote && this->device() &&
-                    this->device()->deviceType() == BIKE) {
+            if (b.name().toUpper().startsWith("ZWIFT CLICK")) {
+                if(!zwiftClickDeviceFound) {
+                    zwiftClickDevice = b;
+                    zwiftClickDeviceFound = true;
+                }
 
                 if(b.manufacturerData(2378).size() > 0) {
-                    qDebug() << "this should be 9. is it? " << int(b.manufacturerData(2378).at(0));
+                    qDebug() << "Zwift Click manufacturer type" << int(b.manufacturerData(2378).at(0));
+                    if(int(b.manufacturerData(2378).at(0)) == 11) {
+                        zwiftClickDevice = b;
+                        break;
+                    }
                 } else {
                     qDebug() << "manufacturer not found for ZWIFT CLICK";
                 }
-
-                zwiftClickRemote = new zwiftclickremote(this->device(), AbstractZapDevice::ZWIFT_PLAY_TYPE::NONE);
-                // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
-
-                connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
-                connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
-                connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
-                zwiftClickRemote->deviceDiscovered(b);
-                if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("Zwift Click Connected!");
-                break;
             }
+        }
+
+        if(zwiftClickDeviceFound) {
+            zwiftClickRemote = new zwiftclickremote(this->device(), AbstractZapDevice::ZWIFT_PLAY_TYPE::NONE);
+            // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+            connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
+            connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
+            connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
+            zwiftClickRemote->deviceDiscovered(zwiftClickDevice);
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested("Zwift Click Connected!");
         }
     }
 
