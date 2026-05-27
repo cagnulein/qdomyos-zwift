@@ -673,6 +673,12 @@ class QZSettings {
      */
     static const QString pacef_marathon;
     static constexpr float default_pacef_marathon = 360;
+    static const QString trainprogram_warmup_speed;
+    static constexpr float default_trainprogram_warmup_speed = 420;
+    static const QString trainprogram_cooldown_speed;
+    static constexpr float default_trainprogram_cooldown_speed = 420;
+    static const QString trainprogram_rest_speed;
+    static constexpr float default_trainprogram_rest_speed = 420;
 
     /**
      *@brief default pace to be used when the ZWO file does not indicate a precise pace.
