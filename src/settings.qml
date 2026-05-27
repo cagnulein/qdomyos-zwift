@@ -1661,7 +1661,9 @@ import AndroidStatusBar 1.0
             property string shortcut_preset_powerzone_6: ""
             property string shortcut_preset_powerzone_7: ""
             property string shortcut_lap: ""
-            property string shortcut_start_stop: ""                                         
+            property string shortcut_start_stop: ""
+            property string garmin_last_seen_cycling_ftp_create_time: ""
+            property string garmin_last_seen_running_ftp_create_time: ""
         }
 
 

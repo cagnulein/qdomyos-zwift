@@ -786,6 +786,15 @@ ApplicationWindow {
     }
 
     MessageDialog {
+        text: "Garmin FTP Update"
+        informativeText: rootItem.garminFtpPromptMessage
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.garmin_accept_ftp_update(); }
+        onNoClicked: { rootItem.garmin_dismiss_ftp_update(); }
+        visible: rootItem.garminFtpPromptRequested
+    }
+
+    MessageDialog {
         text: "Echelon Unlock"
         informativeText: "The bike has been unlocked and cadence is flowing.\n\nDo you want to switch to the classic Bluetooth bridge for this session?"
         buttons: (MessageDialog.Yes | MessageDialog.No)
