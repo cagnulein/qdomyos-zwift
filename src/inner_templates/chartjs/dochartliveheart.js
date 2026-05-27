@@ -338,9 +338,8 @@ function process_arr_heart(arr) {
                 zeroLineColor: 'rgba(0,255,0,1)'
             },
             plugins: {
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    enabled: false,
                 },
                 legend: {
                     display: false

@@ -297,9 +297,8 @@ function process_arr(arr) {
                     },
                     text:'Watt'
                 },*/
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    enabled: false,
                 },
                 legend: {
                     display: false

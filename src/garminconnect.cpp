@@ -1751,7 +1751,9 @@ static QString garminXmlAttributeEscape(const QString &value) {
 
 static bool garminStringIndicatesAbove(const QString &value) {
     const QString normalized = value.toLower();
-    return normalized.contains(QStringLiteral("above")) ||
+    return normalized == QStringLiteral("gt") ||
+           normalized == QStringLiteral(">") ||
+           normalized.contains(QStringLiteral("above")) ||
            normalized.contains(QStringLiteral("greater")) ||
            normalized.contains(QStringLiteral("more")) ||
            normalized.contains(QStringLiteral("over"));
@@ -1759,7 +1761,9 @@ static bool garminStringIndicatesAbove(const QString &value) {
 
 static bool garminStringIndicatesBelow(const QString &value) {
     const QString normalized = value.toLower();
-    return normalized.contains(QStringLiteral("below")) ||
+    return normalized == QStringLiteral("lt") ||
+           normalized == QStringLiteral("<") ||
+           normalized.contains(QStringLiteral("below")) ||
            normalized.contains(QStringLiteral("less")) ||
            normalized.contains(QStringLiteral("under"));
 }

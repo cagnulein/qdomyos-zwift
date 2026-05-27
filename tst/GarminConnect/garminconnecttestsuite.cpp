@@ -504,11 +504,18 @@ void GarminConnectTestSuite::test_workoutDetailsJson_heartRateThresholdEndCondit
                 "type": "ExecutableStepDTO"
             },{
                 "endCondition": {"conditionTypeKey": "heart.rate"},
-                "endConditionCompare": "LESS_THAN",
+                "endConditionCompare": "lt",
                 "endConditionValue": 122,
                 "targetType": {"workoutTargetTypeKey": "power.zone"},
                 "targetValueOne": 70,
                 "targetValueTwo": 90,
+                "type": "ExecutableStepDTO"
+            },{
+                "endCondition": {"conditionTypeKey": "heart.rate"},
+                "endConditionCompare": "gt",
+                "endConditionValue": 130,
+                "targetType": {"workoutTargetTypeKey": "power.zone"},
+                "zoneNumber": 1,
                 "type": "ExecutableStepDTO"
             }]
         }]
@@ -519,13 +526,16 @@ void GarminConnectTestSuite::test_workoutDetailsJson_heartRateThresholdEndCondit
 
     const QString xml = garminConnectGenerateWorkoutXml(doc.object());
 
-    EXPECT_EQ(xml.count("<row "), 2) << "Expected exactly 2 rows from 2 workout steps. XML was:\n"
+    EXPECT_EQ(xml.count("<row "), 3) << "Expected exactly 3 rows from 3 workout steps. XML was:\n"
                                      << xml.toStdString();
     EXPECT_TRUE(xml.contains("hrabove=\"155\""))
         << "Expected Garmin Above bpm end condition to become a QZ HR-above gate. XML was:\n"
         << xml.toStdString();
     EXPECT_TRUE(xml.contains("hrbelow=\"122\""))
-        << "Expected Garmin Below bpm end condition to become a QZ HR-below gate. XML was:\n"
+        << "Expected Garmin lt bpm end condition to become a QZ HR-below gate. XML was:\n"
+        << xml.toStdString();
+    EXPECT_TRUE(xml.contains("hrabove=\"130\""))
+        << "Expected Garmin gt bpm end condition to become a QZ HR-above gate. XML was:\n"
         << xml.toStdString();
     EXPECT_FALSE(xml.contains("duration=\""))
         << "Heart-rate threshold rows should not get a fake duration. XML was:\n"
