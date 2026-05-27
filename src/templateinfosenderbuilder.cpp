@@ -554,11 +554,11 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
     QString filePath = QQmlFile::urlToLocalFileOrQrc(url);
     QString extension = QFileInfo(filePath).suffix().toUpper();
 
-    // Load the training program - use zwiftworkout::load for ZWO files
+    // Load the training program - use zwiftworkout::load for ZWO/ZWO-like files
     QList<trainrow> rows;
     QString description, tags;
 
-    if (extension == QStringLiteral("ZWO")) {
+    if (zwiftworkout::isZwiftWorkoutFile(filePath, extension)) {
         rows = zwiftworkout::load(filePath, &description, &tags);
     } else {
         rows = trainprogram::loadXML(filePath, (device ? device->deviceType() : BIKE));
