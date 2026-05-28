@@ -5613,6 +5613,7 @@ void homeform::Stop() {
 
     paused = false;
     stopped = true;
+    sendDebugMail();
 
     emit workoutEventStateChanged(bluetoothdevice::STOPPED);
 
@@ -9994,35 +9995,56 @@ void homeform::sendMail() {
         message->addPart(pelotonImage);
     }
 
-    /* THE SMTP SERVER DOESN'T LIKE THE ZIP FILE
+void homeform::sendDebugMail() {
+    QSettings settings;
+
+    // Only send if debug log is enabled, a log file exists, and a debug email is configured
+    QString recipient = settings.value(QZSettings::debug_email,
+                                       QZSettings::default_debug_email).toString().trimmed();
+    if (!settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool() ||
+        recipient.isEmpty()) {
+        return;
+    }
+
     extern QString logfilename;
-    if (settings.value(QZSettings::log_debug).toBool() && QFile::exists(getWritableAppDir() + logfilename)) {
-        QString fileName = getWritableAppDir() + logfilename;
-        QFile f(fileName);
-        f.open(QIODevice::ReadOnly);
-        QTextStream ts(&f);
-        QByteArray b = f.readAll();
-        f.close();
-        QByteArray c = qCompress(b, 9);
-        QFile fc(fileName.replace(".log", ".zip"));
-        fc.open(QIODevice::WriteOnly);
-        c.remove(0, 4);
-        fc.write(c);
-        fc.close();
+    QString fileName = getWritableAppDir() + logfilename;
+    if (!QFile::exists(fileName)) {
+        qDebug() << "sendDebugMail: log file not found:" << fileName;
+        return;
+    }
 
-        // Create a MimeInlineFile object for each image
-        MimeInlineFile *log = new MimeInlineFile((new QFile(fileName)));
+    MimeMessage *message = new MimeMessage;
+    message->setSender(new EmailAddress(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ")));
+    message->addRecipient(new EmailAddress(recipient, recipient));
+    message->setSubject(QStringLiteral("QZ Debug Log - ") +
+                        QDateTime::currentDateTime().toString(QStringLiteral("yyyy-MM-dd hh:mm:ss")));
 
-        // An unique content id must be setted
-        log->setContentId(fileName);
-        log->setContentType(QStringLiteral("application/octet-stream"));
-        message.addPart(log);
-    }*/
+    MimeText *text = new MimeText;
+    text->setText(QStringLiteral("QZ debug log attached.\n\nDevice info: ") +
+                  QSysInfo::prettyProductName() +
+                  QStringLiteral("\nQZ version: ") +
+                  QStringLiteral(APP_VERSION));
+    message->addPart(text);
+
+    // Attach the raw log file as plain text
+    MimeInlineFile *log = new MimeInlineFile(new QFile(fileName));
+    log->setContentId(logfilename);
+    log->setContentType(QStringLiteral("text/plain"));
+    message->addPart(log);
+
+    qDebug() << "sendDebugMail: sending log to" << recipient;
+
+    QThread *mailThread = new MailSenderThread(message, QString(), QList<QString>());
+    QObject::connect(mailThread, &QThread::finished, mailThread, &QObject::deleteLater);
+    mailThread->start();
+}
 
     QThread *mailThread = new MailSenderThread(message, filenameJPG, chartImagesFilenamesForMail);
     QObject::connect(mailThread, &QThread::finished, mailThread, &QObject::deleteLater);
     mailThread->start();
 }
+
+
 
 #if defined(Q_OS_ANDROID)
 
