@@ -531,87 +531,72 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     devIdMesg.SetDeveloperDataIndex(0);
     devIdMesg.SetApplicationVersion(70);
 
-           // Create developer field descriptions for custom temperature fields
-    fit::FieldDescriptionMesg coreTemperatureFieldDesc;
-    coreTemperatureFieldDesc.SetDeveloperDataIndex(0);
-    coreTemperatureFieldDesc.SetFieldDefinitionNumber(5);
-    coreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
-    coreTemperatureFieldDesc.SetFieldName(0, L"core_temperature");
-    coreTemperatureFieldDesc.SetUnits(0, L"°C");
-        coreTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
-    coreTemperatureFieldDesc.SetNativeFieldNum(139);
+    fit::DeveloperDataIdMesg coreDevIdMesg;
+    // CORE app: 6957fe68-83fe-4ed6-8613-413f70624bb5
+    coreDevIdMesg.SetApplicationId(0, 0x69);
+    coreDevIdMesg.SetApplicationId(1, 0x57);
+    coreDevIdMesg.SetApplicationId(2, 0xfe);
+    coreDevIdMesg.SetApplicationId(3, 0x68);
+    coreDevIdMesg.SetApplicationId(4, 0x83);
+    coreDevIdMesg.SetApplicationId(5, 0xfe);
+    coreDevIdMesg.SetApplicationId(6, 0x4e);
+    coreDevIdMesg.SetApplicationId(7, 0xd6);
+    coreDevIdMesg.SetApplicationId(8, 0x86);
+    coreDevIdMesg.SetApplicationId(9, 0x13);
+    coreDevIdMesg.SetApplicationId(10, 0x41);
+    coreDevIdMesg.SetApplicationId(11, 0x3f);
+    coreDevIdMesg.SetApplicationId(12, 0x70);
+    coreDevIdMesg.SetApplicationId(13, 0x62);
+    coreDevIdMesg.SetApplicationId(14, 0x4b);
+    coreDevIdMesg.SetApplicationId(15, 0xb5);
+    coreDevIdMesg.SetDeveloperDataIndex(1);
+    coreDevIdMesg.SetApplicationVersion(78);
 
-    fit::FieldDescriptionMesg skinTemperatureFieldDesc;
-    skinTemperatureFieldDesc.SetDeveloperDataIndex(0);
-    skinTemperatureFieldDesc.SetFieldDefinitionNumber(6);
-    skinTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
-    skinTemperatureFieldDesc.SetFieldName(0, L"skin_temperature");
-    skinTemperatureFieldDesc.SetUnits(0, L"°C");
-        skinTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
-    skinTemperatureFieldDesc.SetNativeFieldNum(255); // Use invalid field number to indicate custom field
+    auto makeCoreFieldDescription = [](FIT_UINT8 fieldNumber,
+                                       FIT_UINT8 baseType,
+                                       const wchar_t *fieldName,
+                                       const wchar_t *units,
+                                       FIT_MESG_NUM nativeMesgNum,
+                                       FIT_UINT8 nativeFieldNum) {
+        fit::FieldDescriptionMesg desc;
+        desc.SetDeveloperDataIndex(1);
+        desc.SetFieldDefinitionNumber(fieldNumber);
+        desc.SetFitBaseTypeId(baseType);
+        desc.SetFieldName(0, fieldName);
+        desc.SetUnits(0, units);
+        desc.SetNativeMesgNum(nativeMesgNum);
+        desc.SetNativeFieldNum(nativeFieldNum);
+        return desc;
+    };
 
-    fit::FieldDescriptionMesg heatStrainIndexFieldDesc;
-    heatStrainIndexFieldDesc.SetDeveloperDataIndex(0);
-    heatStrainIndexFieldDesc.SetFieldDefinitionNumber(7);
-    heatStrainIndexFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
-    heatStrainIndexFieldDesc.SetFieldName(0, L"heat_strain_index");
-    heatStrainIndexFieldDesc.SetUnits(0, L"a.u.");
-    heatStrainIndexFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
-    heatStrainIndexFieldDesc.SetNativeFieldNum(255); // Use invalid field number to indicate custom field
-
-    fit::FieldDescriptionMesg lapAvgCoreTemperatureFieldDesc;
-    lapAvgCoreTemperatureFieldDesc.SetDeveloperDataIndex(0);
-    lapAvgCoreTemperatureFieldDesc.SetFieldDefinitionNumber(12);
-    lapAvgCoreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
-    lapAvgCoreTemperatureFieldDesc.SetFieldName(0, L"avg_core_temperature");
-    lapAvgCoreTemperatureFieldDesc.SetUnits(0, L"°");
-    lapAvgCoreTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_LAP);
-    lapAvgCoreTemperatureFieldDesc.SetNativeFieldNum(158);
-
-    fit::FieldDescriptionMesg lapMinCoreTemperatureFieldDesc;
-    lapMinCoreTemperatureFieldDesc.SetDeveloperDataIndex(0);
-    lapMinCoreTemperatureFieldDesc.SetFieldDefinitionNumber(13);
-    lapMinCoreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
-    lapMinCoreTemperatureFieldDesc.SetFieldName(0, L"min_core_temperature");
-    lapMinCoreTemperatureFieldDesc.SetUnits(0, L"°");
-    lapMinCoreTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_LAP);
-    lapMinCoreTemperatureFieldDesc.SetNativeFieldNum(159);
-
-    fit::FieldDescriptionMesg lapMaxCoreTemperatureFieldDesc;
-    lapMaxCoreTemperatureFieldDesc.SetDeveloperDataIndex(0);
-    lapMaxCoreTemperatureFieldDesc.SetFieldDefinitionNumber(14);
-    lapMaxCoreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
-    lapMaxCoreTemperatureFieldDesc.SetFieldName(0, L"max_core_temperature");
-    lapMaxCoreTemperatureFieldDesc.SetUnits(0, L"°");
-    lapMaxCoreTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_LAP);
-    lapMaxCoreTemperatureFieldDesc.SetNativeFieldNum(160);
-
-    fit::FieldDescriptionMesg sessionAvgCoreTemperatureFieldDesc;
-    sessionAvgCoreTemperatureFieldDesc.SetDeveloperDataIndex(0);
-    sessionAvgCoreTemperatureFieldDesc.SetFieldDefinitionNumber(15);
-    sessionAvgCoreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
-    sessionAvgCoreTemperatureFieldDesc.SetFieldName(0, L"avg_core_temperature");
-    sessionAvgCoreTemperatureFieldDesc.SetUnits(0, L"°");
-    sessionAvgCoreTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
-    sessionAvgCoreTemperatureFieldDesc.SetNativeFieldNum(208);
-
-    fit::FieldDescriptionMesg sessionMinCoreTemperatureFieldDesc;
-    sessionMinCoreTemperatureFieldDesc.SetDeveloperDataIndex(0);
-    sessionMinCoreTemperatureFieldDesc.SetFieldDefinitionNumber(16);
-    sessionMinCoreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
-    sessionMinCoreTemperatureFieldDesc.SetFieldName(0, L"min_core_temperature");
-    sessionMinCoreTemperatureFieldDesc.SetUnits(0, L"°");
-    sessionMinCoreTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
-    sessionMinCoreTemperatureFieldDesc.SetNativeFieldNum(209);
-
-    fit::FieldDescriptionMesg sessionMaxCoreTemperatureFieldDesc;
-    sessionMaxCoreTemperatureFieldDesc.SetDeveloperDataIndex(0);
-    sessionMaxCoreTemperatureFieldDesc.SetFieldDefinitionNumber(17);
-    sessionMaxCoreTemperatureFieldDesc.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT32);
-    sessionMaxCoreTemperatureFieldDesc.SetFieldName(0, L"max_core_temperature");
-    sessionMaxCoreTemperatureFieldDesc.SetUnits(0, L"°");
-    sessionMaxCoreTemperatureFieldDesc.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
-    sessionMaxCoreTemperatureFieldDesc.SetNativeFieldNum(210);
+    fit::FieldDescriptionMesg coreTemperatureFieldDesc =
+        makeCoreFieldDescription(0, FIT_BASE_TYPE_FLOAT32, L"core_temperature", L"°C", FIT_MESG_NUM_RECORD, 139);
+    fit::FieldDescriptionMesg coreSkinTemperatureFieldDesc =
+        makeCoreFieldDescription(10, FIT_BASE_TYPE_FLOAT32, L"skin_temperature", L"°C", FIT_MESG_NUM_RECORD, 255);
+    fit::FieldDescriptionMesg coreDataQualityFieldDesc =
+        makeCoreFieldDescription(19, FIT_BASE_TYPE_SINT16, L"core_data_quality", L"Q", FIT_MESG_NUM_RECORD, 255);
+    fit::FieldDescriptionMesg coreReservedFieldDesc =
+        makeCoreFieldDescription(20, FIT_BASE_TYPE_SINT16, L"core_reserved", L"kcal", FIT_MESG_NUM_RECORD, 255);
+    fit::FieldDescriptionMesg heatStrainIndexFieldDesc =
+        makeCoreFieldDescription(95, FIT_BASE_TYPE_FLOAT32, L"heat_strain_index", L"a.u.", FIT_MESG_NUM_RECORD, 255);
+    fit::FieldDescriptionMesg ciqCoreTemperatureFieldDesc =
+        makeCoreFieldDescription(81, FIT_BASE_TYPE_FLOAT32, L"CIQ_core_temperature", L"°", FIT_MESG_NUM_RECORD, 255);
+    fit::FieldDescriptionMesg ciqSkinTemperatureFieldDesc =
+        makeCoreFieldDescription(82, FIT_BASE_TYPE_FLOAT32, L"CIQ_skin_temperature", L"°", FIT_MESG_NUM_RECORD, 255);
+    fit::FieldDescriptionMesg lapAvgCoreTemperatureFieldDesc =
+        makeCoreFieldDescription(1, FIT_BASE_TYPE_FLOAT32, L"avg_core_temperature", L"°", FIT_MESG_NUM_LAP, 158);
+    fit::FieldDescriptionMesg lapMaxCoreTemperatureFieldDesc =
+        makeCoreFieldDescription(2, FIT_BASE_TYPE_FLOAT32, L"max_core_temperature", L"°", FIT_MESG_NUM_LAP, 160);
+    fit::FieldDescriptionMesg lapMinCoreTemperatureFieldDesc =
+        makeCoreFieldDescription(3, FIT_BASE_TYPE_FLOAT32, L"min_core_temperature", L"°", FIT_MESG_NUM_LAP, 159);
+    fit::FieldDescriptionMesg sessionAvgCoreTemperatureFieldDesc =
+        makeCoreFieldDescription(5, FIT_BASE_TYPE_FLOAT32, L"avg_core_temperature", L"°", FIT_MESG_NUM_SESSION, 208);
+    fit::FieldDescriptionMesg sessionMaxCoreTemperatureFieldDesc =
+        makeCoreFieldDescription(6, FIT_BASE_TYPE_FLOAT32, L"max_core_temperature", L"°", FIT_MESG_NUM_SESSION, 210);
+    fit::FieldDescriptionMesg sessionMinCoreTemperatureFieldDesc =
+        makeCoreFieldDescription(7, FIT_BASE_TYPE_FLOAT32, L"min_core_temperature", L"°", FIT_MESG_NUM_SESSION, 209);
+    fit::FieldDescriptionMesg ciqDeviceInfoFieldDesc =
+        makeCoreFieldDescription(26, FIT_BASE_TYPE_UINT8, L"CIQ_device_info", L"°", FIT_MESG_NUM_SESSION, 255);
 
     fit::DeveloperField ftpSessionField(ftpSessionMesg, devIdMesg);
     ftpSessionField.AddValue(settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble());
@@ -642,9 +627,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         trainingProgramFileField.SetSTRINGValue(trainingProgramFile.toStdWString());
     }
 
-    // Developer fields are now added to custom message instead of session
-    // This improves Garmin Connect compatibility
-
     auto addCoreTemperatureSummaryFields = [&](fit::Mesg &mesg,
                                                const fit::FieldDescriptionMesg &avgDesc,
                                                const fit::FieldDescriptionMesg &minDesc,
@@ -652,15 +634,15 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
                                                double avgCoreTemp,
                                                double minCoreTemp,
                                                double maxCoreTemp) {
-        fit::DeveloperField avgCoreTemperatureField(avgDesc, devIdMesg);
+        fit::DeveloperField avgCoreTemperatureField(avgDesc, coreDevIdMesg);
         avgCoreTemperatureField.SetFLOAT32Value((float)avgCoreTemp);
         mesg.AddDeveloperField(avgCoreTemperatureField);
 
-        fit::DeveloperField minCoreTemperatureField(minDesc, devIdMesg);
+        fit::DeveloperField minCoreTemperatureField(minDesc, coreDevIdMesg);
         minCoreTemperatureField.SetFLOAT32Value((float)minCoreTemp);
         mesg.AddDeveloperField(minCoreTemperatureField);
 
-        fit::DeveloperField maxCoreTemperatureField(maxDesc, devIdMesg);
+        fit::DeveloperField maxCoreTemperatureField(maxDesc, coreDevIdMesg);
         maxCoreTemperatureField.SetFLOAT32Value((float)maxCoreTemp);
         mesg.AddDeveloperField(maxCoreTemperatureField);
     };
@@ -695,6 +677,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     eventMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     encode.Write(fileCreatorMesg);
     encode.Write(devIdMesg);
+    encode.Write(coreDevIdMesg);
     
     // Write developer field descriptions (declared earlier)
     encode.Write(activityTitle);
@@ -706,16 +689,21 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     encode.Write(pelotonWorkoutIdMesg);
     encode.Write(pelotonUrlMesg);
     encode.Write(trainingProgramFileMesg);
-    
+
     encode.Write(coreTemperatureFieldDesc);
-    encode.Write(skinTemperatureFieldDesc);
+    encode.Write(coreSkinTemperatureFieldDesc);
+    encode.Write(coreDataQualityFieldDesc);
+    encode.Write(coreReservedFieldDesc);
     encode.Write(heatStrainIndexFieldDesc);
+    encode.Write(ciqCoreTemperatureFieldDesc);
+    encode.Write(ciqSkinTemperatureFieldDesc);
     encode.Write(lapAvgCoreTemperatureFieldDesc);
-    encode.Write(lapMinCoreTemperatureFieldDesc);
     encode.Write(lapMaxCoreTemperatureFieldDesc);
+    encode.Write(lapMinCoreTemperatureFieldDesc);
     encode.Write(sessionAvgCoreTemperatureFieldDesc);
-    encode.Write(sessionMinCoreTemperatureFieldDesc);
     encode.Write(sessionMaxCoreTemperatureFieldDesc);
+    encode.Write(sessionMinCoreTemperatureFieldDesc);
+    encode.Write(ciqDeviceInfoFieldDesc);
     encode.Write(deviceInfoMesg);
 
     // Add Timestamp Correlation record
@@ -885,17 +873,33 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
 
                // Add custom developer fields for temperature data
         if (sl.coreTemp) {
-            fit::DeveloperField coreTemperatureField(coreTemperatureFieldDesc, devIdMesg);
+            fit::DeveloperField coreTemperatureField(coreTemperatureFieldDesc, coreDevIdMesg);
             coreTemperatureField.SetFLOAT32Value((float)sl.coreTemp);
             newRecord.AddDeveloperField(coreTemperatureField);
+
+            fit::DeveloperField ciqCoreTemperatureField(ciqCoreTemperatureFieldDesc, coreDevIdMesg);
+            ciqCoreTemperatureField.SetFLOAT32Value((float)sl.coreTemp);
+            newRecord.AddDeveloperField(ciqCoreTemperatureField);
+
+            fit::DeveloperField coreDataQualityField(coreDataQualityFieldDesc, coreDevIdMesg);
+            coreDataQualityField.SetSINT16Value(20);
+            newRecord.AddDeveloperField(coreDataQualityField);
+
+            fit::DeveloperField coreReservedField(coreReservedFieldDesc, coreDevIdMesg);
+            coreReservedField.SetSINT16Value(0x7fff);
+            newRecord.AddDeveloperField(coreReservedField);
         }
         if (sl.bodyTemp) {
-            fit::DeveloperField skinTemperatureField(skinTemperatureFieldDesc, devIdMesg);
+            fit::DeveloperField skinTemperatureField(coreSkinTemperatureFieldDesc, coreDevIdMesg);
             skinTemperatureField.SetFLOAT32Value((float)sl.bodyTemp);
             newRecord.AddDeveloperField(skinTemperatureField);
+
+            fit::DeveloperField ciqSkinTemperatureField(ciqSkinTemperatureFieldDesc, coreDevIdMesg);
+            ciqSkinTemperatureField.SetFLOAT32Value((float)sl.bodyTemp);
+            newRecord.AddDeveloperField(ciqSkinTemperatureField);
         }
         if (sl.heatStrainIndex) {
-            fit::DeveloperField heatStrainIndexField(heatStrainIndexFieldDesc, devIdMesg);
+            fit::DeveloperField heatStrainIndexField(heatStrainIndexFieldDesc, coreDevIdMesg);
             heatStrainIndexField.SetFLOAT32Value((float)sl.heatStrainIndex);
             newRecord.AddDeveloperField(heatStrainIndexField);
         }
@@ -1263,6 +1267,9 @@ class Listener : public fit::FileIdMesgListener,
             s.watt = record.GetPower();
             s.resistance = record.GetResistance();
             s.calories = record.GetCalories();
+            if (record.IsCoreTemperatureValid()) {
+                s.coreTemp = record.GetCoreTemperature();
+            }
             s.instantaneousStrideLengthCM = record.GetStepLength() / 10;
             s.verticalOscillationMM = record.GetVerticalOscillation();
             s.groundContactMS = record.GetStanceTime();

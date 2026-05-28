@@ -9,11 +9,11 @@ class zwiftworkout {
     static QList<trainrow> load(const QByteArray &input, QString *description = nullptr, QString *tags = nullptr);
     static QList<trainrow> loadJSON(const QString &input, QString *description = nullptr, QString *tags = nullptr);
     static bool isZwiftWorkoutFile(const QString &filename, const QString &extension = QString());
+    static double normalizeIncline(double incline);
 
   private:
     static bool durationAsDistance(QString sportType, QString durationType);
     static double speedFromPace(int Pace);
-    static double normalizeIncline(double incline);
     static void convertTag(double thresholdSecPerKm, const QString &sportType, const QString &durationType,
                            QList<trainrow> &list, const char *tag, ...);
 };

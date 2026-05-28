@@ -51,6 +51,46 @@ void ZwiftWorkoutTestSuite::test_xmlWorkoutFileParsesNegativeIncline() {
     EXPECT_DOUBLE_EQ(rows.at(1).inclination, -2.0);
 }
 
+void ZwiftWorkoutTestSuite::test_xmlWorkoutFileParsesDirectSpeed() {
+    static const char *kSpeedInclineWorkoutXml = R"xml(<workout_file>
+        <sportType>run</sportType>
+        <workout>
+            <SteadyState Duration="120" Speed="1.6666667" Incline="2"/>
+            <SteadyState Duration="120" Speed="2.3611111" Incline="5"/>
+        </workout>
+    </workout_file>)xml";
+
+    const QList<trainrow> rows = zwiftworkout::load(QByteArray(kSpeedInclineWorkoutXml));
+
+    ASSERT_EQ(rows.length(), 2);
+    EXPECT_NEAR(rows.at(0).speed, 6.0, 0.001);
+    EXPECT_DOUBLE_EQ(rows.at(0).inclination, 2.0);
+    EXPECT_NEAR(rows.at(1).speed, 8.5, 0.001);
+    EXPECT_DOUBLE_EQ(rows.at(1).inclination, 5.0);
+}
+
+void ZwiftWorkoutTestSuite::test_simpleWorkoutStepFormatParsesSpeedAndIncline() {
+    static const char *kStepWorkoutXml = R"xml(<Workout>
+      <Name>QZ MyRun Precision Test</Name>
+      <Description>Validation of Speed and Incline Auto-Control</Description>
+      <Steps>
+        <Step Duration="120" Speed="6.0" Incline="0.00" />
+        <Step Duration="120" Speed="6.0" Incline="0.02" />
+        <Step Duration="120" Speed="8.5" Incline="-0.05" />
+      </Steps>
+    </Workout>)xml";
+
+    const QList<trainrow> rows = zwiftworkout::load(QByteArray(kStepWorkoutXml));
+
+    ASSERT_EQ(rows.length(), 3);
+    EXPECT_DOUBLE_EQ(rows.at(0).speed, 6.0);
+    EXPECT_DOUBLE_EQ(rows.at(0).inclination, 0.0);
+    EXPECT_DOUBLE_EQ(rows.at(1).speed, 6.0);
+    EXPECT_DOUBLE_EQ(rows.at(1).inclination, 2.0);
+    EXPECT_DOUBLE_EQ(rows.at(2).speed, 8.5);
+    EXPECT_DOUBLE_EQ(rows.at(2).inclination, -5.0);
+}
+
 void ZwiftWorkoutTestSuite::test_xmlExtensionWorkoutFileUsesZwiftParser() {
     QTemporaryFile file(QDir::tempPath() + "/qz-zwo-like-XXXXXX.xml");
     ASSERT_TRUE(file.open());

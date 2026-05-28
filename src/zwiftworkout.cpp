@@ -29,8 +29,11 @@ bool zwiftworkout::isZwiftWorkoutFile(const QString &filename, const QString &ex
     QXmlStreamReader stream(&input);
     while (!stream.atEnd()) {
         stream.readNext();
-        if (stream.isStartElement())
-            return stream.name().compare(QStringLiteral("workout_file"), Qt::CaseInsensitive) == 0;
+        if (stream.isStartElement()) {
+            const QString rootName = stream.name().toString();
+            return rootName.compare(QStringLiteral("workout_file"), Qt::CaseInsensitive) == 0 ||
+                   rootName.compare(QStringLiteral("Workout"), Qt::CaseInsensitive) == 0;
+        }
     }
 
     return false;
@@ -87,6 +90,40 @@ double zwiftworkout::normalizeIncline(double incline) {
         return incline * 100.0;
 
     return incline;
+}
+
+static bool xmlAttributeDouble(const QXmlStreamAttributes &atts, const QString &name, double *value) {
+    for (const QXmlStreamAttribute &attribute : atts) {
+        if (attribute.name().compare(name, Qt::CaseInsensitive) == 0) {
+            bool ok = false;
+            const double parsed = attribute.value().toDouble(&ok);
+            if (ok && value != nullptr)
+                *value = parsed;
+            return ok;
+        }
+    }
+    return false;
+}
+
+static bool xmlAttributeUInt(const QXmlStreamAttributes &atts, const QString &name, uint32_t *value) {
+    double parsed = 0.0;
+    if (!xmlAttributeDouble(atts, name, &parsed))
+        return false;
+    if (value != nullptr)
+        *value = static_cast<uint32_t>(parsed);
+    return true;
+}
+
+static trainrow rowFromDirectRunningStep(uint32_t duration, double speedKph, double incline, int cadence) {
+    trainrow row;
+    row.duration = QTime(0, 0, 0, 0).addSecs(duration);
+    row.forcespeed = 1;
+    row.speed = speedKph;
+    if (incline != -100)
+        row.inclination = zwiftworkout::normalizeIncline(incline);
+    if (cadence != -1)
+        row.cadence = cadence;
+    return row;
 }
 
 void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType, const QString &durationType,
@@ -477,7 +514,25 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
             currentSegmentStartIndex = list.length();
             pendingTextEvents.clear();
 
-            if (name.contains(QStringLiteral("IntervalsT"))) {
+            if (name.compare(QStringLiteral("Step"), Qt::CaseInsensitive) == 0) {
+                uint32_t Duration = 1;
+                double Speed = 0.0;
+                double Incline = -100;
+                int Cadence = -1;
+
+                xmlAttributeUInt(atts, QStringLiteral("Duration"), &Duration);
+                xmlAttributeDouble(atts, QStringLiteral("Speed"), &Speed);
+                xmlAttributeDouble(atts, QStringLiteral("Incline"), &Incline);
+                double cadenceValue = -1.0;
+                if (xmlAttributeDouble(atts, QStringLiteral("Cadence"), &cadenceValue))
+                    Cadence = static_cast<int>(cadenceValue);
+
+                if (Speed > 0.0) {
+                    trainrow row = rowFromDirectRunningStep(Duration, Speed, Incline, Cadence);
+                    qDebug() << "TrainRow" << row.toString();
+                    list.append(row);
+                }
+            } else if (name.contains(QStringLiteral("IntervalsT"))) {
                 uint32_t repeat = 1;
                 uint32_t OnDuration = 1;
                 uint32_t OffDuration = 1;
@@ -560,13 +615,16 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
             } else if (name.contains(QStringLiteral("SteadyState"))) {
                 uint32_t Duration = 1;
                 double Power = 1;
+                double Speed = 0.0;
                 int Pace = -1;
                 double Incline = -100;
                 int Cadence = -1;
+                bool hasSpeed = false;
 
                 if (atts.hasAttribute(QStringLiteral("Duration"))) {
                     Duration = atts.value(QStringLiteral("Duration")).toDouble();
                 }
+                hasSpeed = xmlAttributeDouble(atts, QStringLiteral("Speed"), &Speed);
                 if (atts.hasAttribute(QStringLiteral("pace"))) {
                     Pace = atts.value(QStringLiteral("pace")).toUInt();
                 }
@@ -582,8 +640,14 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
                 if (atts.hasAttribute(QStringLiteral("Cadence"))) {
                     Cadence = atts.value(QStringLiteral("Cadence")).toUInt();
                 }
-                convertTag(thresholdSecPerKm, sportType, durationType, list, name.toUtf8().constData(), Duration, Power,
-                           Pace, Incline, Cadence);
+                if (hasSpeed && (sportType.isEmpty() || sportType.toLower().contains(QStringLiteral("run")))) {
+                    trainrow row = rowFromDirectRunningStep(Duration, Speed * 3.6, Incline, Cadence);
+                    qDebug() << "TrainRow" << row.toString();
+                    list.append(row);
+                } else {
+                    convertTag(thresholdSecPerKm, sportType, durationType, list, name.toUtf8().constData(), Duration, Power,
+                               Pace, Incline, Cadence);
+                }
             }
         }
     }
