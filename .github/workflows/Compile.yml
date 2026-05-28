@@ -1,0 +1,6 @@
+on:
+  workflow_dispatch:   ← manual trigger from Actions tab
+  push:               ← triggers on ANY commit to your fork
+  pull_request:
+  schedule:
+    - cron: "0 0 * * *"   ← this is the nightly one
