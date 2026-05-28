@@ -263,6 +263,13 @@ class QZSettings {
      */
     static const QString default_user_email;
 
+    /**
+     * debug email addition 
+     */
+
+    static const QString debug_email;
+    static const QString default_debug_email;
+
     static const QString user_nickname;
     static const QString default_user_nickname;
 
