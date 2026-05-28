@@ -31,7 +31,9 @@
 #include <QGeoCoordinate>
 #include <QHttpMultiPart>
 #include <QImageWriter>
+#include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QNetworkAccessManager>
 #include <QNetworkCookieJar>
 #include <QNetworkInterface>
@@ -68,6 +70,58 @@ QString uploadActivityLabelFromSport(FIT_SPORT sport) {
     default:
         return QStringLiteral("Ride");
     }
+}
+
+QString workoutFileSuffixFromSportText(const QString &sportText) {
+    const QString sport = sportText.trimmed().toLower();
+    if (sport.contains(QStringLiteral("run")) ||
+        sport.contains(QStringLiteral("tread")) ||
+        sport.contains(QStringLiteral("walk"))) {
+        return QStringLiteral("Run");
+    }
+    if (sport.contains(QStringLiteral("cycl")) ||
+        sport.contains(QStringLiteral("bike")) ||
+        sport.contains(QStringLiteral("ride"))) {
+        return QStringLiteral("Ride");
+    }
+    if (sport.contains(QStringLiteral("row"))) {
+        return QStringLiteral("Row");
+    }
+    if (sport.contains(QStringLiteral("swim"))) {
+        return QStringLiteral("Swim");
+    }
+    return QStringLiteral("Workout");
+}
+
+QString intervalsWorkoutFileSuffix(const QJsonObject &event, const QByteArray &zwoContent) {
+    const QStringList eventSportKeys = {
+        QStringLiteral("type"),
+        QStringLiteral("sport"),
+        QStringLiteral("sportType"),
+        QStringLiteral("sport_type"),
+        QStringLiteral("activityType"),
+        QStringLiteral("activity_type")
+    };
+
+    for (const QString &key : eventSportKeys) {
+        const QString suffix = workoutFileSuffixFromSportText(event.value(key).toString());
+        if (suffix != QStringLiteral("Workout")) {
+            return suffix;
+        }
+    }
+
+    const QString zwoText = QString::fromUtf8(zwoContent);
+    const QRegularExpression sportTypeExpression(QStringLiteral("<sportType>\\s*([^<]+)\\s*</sportType>"),
+                                                 QRegularExpression::CaseInsensitiveOption);
+    const QRegularExpressionMatch match = sportTypeExpression.match(zwoText);
+    if (match.hasMatch()) {
+        const QString suffix = workoutFileSuffixFromSportText(match.captured(1));
+        if (suffix != QStringLiteral("Workout")) {
+            return suffix;
+        }
+    }
+
+    return QStringLiteral("Workout");
 }
 
 QString uploadActivityLabelFromFitFile(const QString &fitFilePath) {
@@ -10935,7 +10989,7 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
         QNetworkAccessManager *downloadManager = new QNetworkAccessManager(this);
         QNetworkReply *downloadReply = downloadManager->get(downloadRequest);
 
-        connect(downloadReply, &QNetworkReply::finished, this, [this, downloadReply, workoutName, eventId]() {
+        connect(downloadReply, &QNetworkReply::finished, this, [this, downloadReply, workoutName, event, eventId]() {
             QByteArray zwoContent = downloadReply->readAll();
             int statusCode = downloadReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
@@ -10956,7 +11010,8 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
 
                 // Add date prefix
                 QString today = QDate::currentDate().toString("yyyy-MM-dd");
-                QString filename = QString("%1/%2_%3.zwo").arg(intervalsDir).arg(today).arg(safeName);
+                const QString sportSuffix = intervalsWorkoutFileSuffix(event, zwoContent);
+                QString filename = QString("%1/%2_%3_%4.zwo").arg(intervalsDir).arg(today).arg(safeName).arg(sportSuffix);
 
                 // Save ZWO file
                 QFile file(filename);
