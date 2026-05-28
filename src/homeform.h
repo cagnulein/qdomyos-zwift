@@ -627,6 +627,7 @@ public:
     }
 
     Q_INVOKABLE void sendMail();
+    Q_INVOKABLE void sendDebugMail();
 
     Q_INVOKABLE void keyboardStartStop() { StartRequested(); }
     Q_INVOKABLE void keyboardLap() { Lap(); }
