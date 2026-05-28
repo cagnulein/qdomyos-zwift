@@ -1285,6 +1285,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::weight, QZSettings::default_weight},
     {QZSettings::ftp, QZSettings::default_ftp},
     {QZSettings::user_email, QZSettings::default_user_email},
+    {QZSettings::debug_email, QZSettings::default_debug_email},
     {QZSettings::user_nickname, QZSettings::default_user_nickname},
     {QZSettings::miles_unit, QZSettings::default_miles_unit},
     {QZSettings::weight_kg_unit, QZSettings::default_weight_kg_unit},
