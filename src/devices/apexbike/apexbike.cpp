@@ -12,6 +12,11 @@
 
 using namespace std::chrono_literals;
 
+const QString &apexbike::bluetoothNamePrefix() {
+    static const QString prefix = QStringLiteral("WLT8266BM");
+    return prefix;
+}
+
 apexbike::apexbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT, deviceType());

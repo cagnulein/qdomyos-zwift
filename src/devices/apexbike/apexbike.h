@@ -35,6 +35,8 @@
 class apexbike : public bike {
     Q_OBJECT
   public:
+    static const QString &bluetoothNamePrefix();
+
     apexbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     bool connected() override;
 

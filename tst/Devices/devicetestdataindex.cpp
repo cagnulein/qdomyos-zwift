@@ -7,7 +7,7 @@
 #include "bluetoothdevicetestdatabuilder.h"
 #include "devicediscoveryinfo.h"
 #include "qzsettings.h"
-
+#include "../../src/devices/apexbike/apexbike.h"
 
 
 
@@ -99,7 +99,7 @@ void DeviceTestDataIndex::Initialize() {
     // Apex Bike
     RegisterNewDeviceTestData(DeviceIndex::ApexBike)
         ->expectDevice<apexbike>()
-        ->acceptDeviceName("WLT8266BM", DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceName(apexbike::bluetoothNamePrefix(), DeviceNameComparison::StartsWithIgnoreCase);
 
     // Ant Bike
     RegisterNewDeviceTestData(DeviceIndex::AntBike)

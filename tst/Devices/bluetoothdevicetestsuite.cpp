@@ -3,6 +3,7 @@
 #include "bluetooth.h"
 #include "bluetoothsignalreceiver.h"
 #include "devicetestdataindex.h"
+#include "../../src/devices/apexbike/apexbike.h"
 #include "qzsettings.h"
 
 const QString testUUID = QStringLiteral("b8f79bac-32e5-11ed-a261-0242ac120002");
@@ -189,6 +190,18 @@ void BluetoothDeviceTestSuite::test_deviceDetection_validNames_disabled() {
 void BluetoothDeviceTestSuite::test_deviceDetection_invalidNames_enabled()
 {
     this->test_deviceDetection(false, true);
+}
+
+TEST(ApexBikeBluetoothNamePrefix, TestDeviceDataUsesSharedPrefix) {
+    DeviceTestDataIndex::Initialize();
+
+    auto testData = DeviceTestDataIndex::GetTestData(DeviceIndex::ApexBike);
+    ASSERT_NE(testData, nullptr);
+
+    auto deviceNames = testData->NamePatternGroup()->DeviceNames();
+    ASSERT_GT(deviceNames.size(), 0);
+
+    EXPECT_EQ(deviceNames.first(), apexbike::bluetoothNamePrefix());
 }
 
 void BluetoothDeviceTestSuite::test_deviceDetection_exclusions() {
