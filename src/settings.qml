@@ -1763,13 +1763,12 @@ import Qt.labs.platform 1.1
                     delegate: Item {
                         id: searchResultFrame
                         property var entry: modelData
+                        width: Math.max(1, settingsSearchResults.width)
                         Layout.fillWidth: true
                         Layout.minimumWidth: 0
-                        Layout.preferredWidth: Math.max(1, settingsSearchResults.width)
-                        Layout.maximumWidth: Math.max(1, settingsSearchResults.width)
+                        Layout.preferredWidth: width
                         Layout.preferredHeight: searchResultContent.implicitHeight + 8
-                        Layout.maximumHeight: searchResultContent.implicitHeight + 8
-                        implicitWidth: 1
+                        implicitWidth: width
                         implicitHeight: searchResultContent.implicitHeight + 8
 
                         Rectangle {
@@ -1791,36 +1790,28 @@ import Qt.labs.platform 1.1
                             RowLayout {
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
-                                Layout.preferredWidth: 1
-                                Layout.preferredHeight: implicitHeight
-                                Layout.maximumHeight: implicitHeight
                                 spacing: 8
 
                                 ColumnLayout {
                                     Layout.fillWidth: true
                                     Layout.minimumWidth: 0
-                                    Layout.preferredWidth: 1
-                                    Layout.preferredHeight: implicitHeight
-                                    Layout.maximumHeight: implicitHeight
                                     spacing: 2
 
                                     Label {
                                         text: entry.name || entry.key
                                         font.bold: true
-                                        wrapMode: Text.WrapAnywhere
+                                        wrapMode: Text.WordWrap
                                         Layout.fillWidth: true
                                         Layout.minimumWidth: 0
-                                        Layout.preferredWidth: 1
                                     }
 
                                     Label {
                                         text: settingsPane.parentDisplayName(entry)
                                         color: Material.color(Material.Grey)
                                         font.pixelSize: Qt.application.font.pixelSize - 2
-                                        wrapMode: Text.WrapAnywhere
+                                        wrapMode: Text.WordWrap
                                         Layout.fillWidth: true
                                         Layout.minimumWidth: 0
-                                        Layout.preferredWidth: 1
                                     }
                                 }
 
@@ -1850,14 +1841,12 @@ import Qt.labs.platform 1.1
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
-                                Layout.preferredWidth: 1
                             }
 
                             RowLayout {
                                 visible: entry.catalogKind === "setting" && entry.type !== "boolean" && settingsPane.optionValues(entry).length === 0
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
-                                Layout.preferredWidth: 1
                                 Layout.preferredHeight: visible ? implicitHeight : 0
                                 Layout.maximumHeight: visible ? implicitHeight : 0
                                 spacing: 8
@@ -1866,7 +1855,6 @@ import Qt.labs.platform 1.1
                                     id: searchSettingTextField
                                     Layout.fillWidth: true
                                     Layout.minimumWidth: 0
-                                    Layout.preferredWidth: 1
                                     text: visible ? settingsPane.settingValue(entry) : ""
                                     horizontalAlignment: Text.AlignRight
                                     inputMethodHints: entry.type === "string" ? Qt.ImhNoPredictiveText : Qt.ImhFormattedNumbersOnly
@@ -1885,7 +1873,6 @@ import Qt.labs.platform 1.1
                                 visible: entry.catalogKind === "setting" && settingsPane.optionValues(entry).length > 0
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
-                                Layout.preferredWidth: 1
                                 Layout.preferredHeight: visible ? implicitHeight : 0
                                 Layout.maximumHeight: visible ? implicitHeight : 0
                                 model: visible ? settingsPane.optionValues(entry) : []
@@ -1923,7 +1910,6 @@ import Qt.labs.platform 1.1
                                 visible: entry.catalogKind === "virtual"
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
-                                Layout.preferredWidth: 1
                                 Layout.preferredHeight: visible ? implicitHeight : 0
                                 Layout.maximumHeight: visible ? implicitHeight : 0
                                 model: visible ? settingsPane.virtualOptionLabels(entry) : []
