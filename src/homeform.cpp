@@ -9998,7 +9998,6 @@ void homeform::sendMail() {
 void homeform::sendDebugMail() {
     QSettings settings;
 
-    // Only send if debug log is enabled, a log file exists, and a debug email is configured
     QString recipient = settings.value(QZSettings::debug_email,
                                        QZSettings::default_debug_email).toString().trimmed();
     if (!settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool() ||
@@ -10020,13 +10019,9 @@ void homeform::sendDebugMail() {
                         QDateTime::currentDateTime().toString(QStringLiteral("yyyy-MM-dd hh:mm:ss")));
 
     MimeText *text = new MimeText;
-    text->setText(QStringLiteral("QZ debug log attached.\n\nDevice info: ") +
-                  QSysInfo::prettyProductName() +
-                  QStringLiteral("\nQZ version: ") +
-                  QStringLiteral(APP_VERSION));
+    text->setText(QStringLiteral("QZ debug log attached from this session."));
     message->addPart(text);
 
-    // Attach the raw log file as plain text
     MimeInlineFile *log = new MimeInlineFile(new QFile(fileName));
     log->setContentId(logfilename);
     log->setContentType(QStringLiteral("text/plain"));
@@ -10038,12 +10033,6 @@ void homeform::sendDebugMail() {
     QObject::connect(mailThread, &QThread::finished, mailThread, &QObject::deleteLater);
     mailThread->start();
 }
-
-    QThread *mailThread = new MailSenderThread(message, filenameJPG, chartImagesFilenamesForMail);
-    QObject::connect(mailThread, &QThread::finished, mailThread, &QObject::deleteLater);
-    mailThread->start();
-}
-
 
 
 #if defined(Q_OS_ANDROID)
