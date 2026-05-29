@@ -571,6 +571,7 @@ import Qt.labs.platform 1.1
             property bool ios_peloton_workaround: true
             property bool android_wakelock: true
             property bool log_debug: false
+            property string debug_email: ""
             property bool virtual_device_onlyheart: false
             property bool virtual_device_echelon: false
             property bool virtual_device_ifit: false
@@ -15459,6 +15460,50 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Turn this on to save a debug log to your device for use when requesting help with a bug.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        visible: settings.log_debug
+                        Layout.fillWidth: true
+                        Label {
+                            id: labelDebugEmail
+                            text: qsTr("Debug Log Email:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: debugEmailTextField
+                            text: settings.debug_email
+                            inputMethodHints: Qt.ImhEmailCharactersOnly
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.debug_email = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okDebugEmailButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                settings.debug_email = debugEmailTextField.text
+                                toast.show("Setting saved!")
+                            }
+                        }
+                    }
+
+                    Label {
+                        visible: settings.log_debug
+                        text: qsTr("When Debug Log is enabled, the log file will be automatically emailed here at the end of each session. Leave blank to disable. This is separate from your workout stats email.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
