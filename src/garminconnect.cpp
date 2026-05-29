@@ -57,8 +57,8 @@ void GarminConnect::checkFtpUpdates()
 
     const QString date = QDate::currentDate().toString(Qt::ISODate);
     const QString urlString =
-        QString("%1/gc-api/biometric-service/biometric/powerToWeight/latest/%2")
-            .arg(connectUrl(), date);
+        QString("%1/biometric-service/biometric/powerToWeight/latest/%2")
+            .arg(connectApiUrl(), date);
     QNetworkRequest request{QUrl(urlString)};
     request.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
     request.setRawHeader("User-Agent", USER_AGENT);
@@ -74,7 +74,8 @@ void GarminConnect::checkFtpUpdates()
         manager->deleteLater();
 
         if (statusCode != 200) {
-            qDebug() << "GarminConnect: FTP check failed (HTTP" << statusCode << ")";
+            qDebug() << "GarminConnect: FTP check failed (HTTP" << statusCode << "):"
+                     << QString::fromUtf8(response).left(300);
             return;
         }
 
@@ -2347,7 +2348,7 @@ void GarminConnect::downloadPowerCurveAndSaveWorkout(const QJsonObject &workoutP
                                                      const QString &sportTypeKey,
                                                      const QString &saveDir) {
     const QString urlString =
-        QString("%1/gc-api/fitnessstats-service/powerCurve?sport=cycling").arg(connectUrl());
+        QString("%1/fitnessstats-service/powerCurve?sport=cycling").arg(connectApiUrl());
     QNetworkRequest request{QUrl(urlString)};
     request.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
     request.setRawHeader("User-Agent", USER_AGENT);
@@ -2371,7 +2372,8 @@ void GarminConnect::downloadPowerCurveAndSaveWorkout(const QJsonObject &workoutP
                      << "entries:" << powerCurve.size();
         } else {
             qDebug() << "GarminConnect: Power curve failed (HTTP" << statusCode
-                     << "), falling back to FTP for power curve targets";
+                     << "), falling back to FTP for power curve targets:"
+                     << QString::fromUtf8(response).left(300);
         }
 
         saveWorkoutXml(workoutPayload, date, workoutName, sportTypeKey, saveDir, powerCurve);
