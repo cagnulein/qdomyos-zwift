@@ -827,6 +827,7 @@ ApplicationWindow {
         contentHeight: toolButton.implicitHeight
         Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
+        property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
         topPadding: getTopPadding()
         leftPadding: getLeftPadding()
         rightPadding: getRightPadding()
@@ -951,6 +952,20 @@ ApplicationWindow {
         }
 
         ToolButton {
+            id: toolButtonSettingsSearch
+            text: "\uD83D\uDD0D"
+            font.pixelSize: Qt.application.font.pixelSize * 1.25
+            onClicked: {
+                if (headerToolbar.settingsPageActive)
+                    stackView.currentItem.showSettingsSearch()
+            }
+            anchors.right: toolButtonLoadSettings.left
+            visible: headerToolbar.settingsPageActive
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Search settings")
+        }
+
+        ToolButton {
             id: toolButtonSaveSettings
             icon.source: "icons/icons/tray-arrow-down.png"
             onClicked: {
@@ -1026,6 +1041,8 @@ ApplicationWindow {
             icon.source: ( rootItem.autoResistance ? "icons/icons/resistance.png" : "icons/icons/pause.png")
             onClicked: { rootItem.autoResistance = !rootItem.autoResistance; console.log("auto resistance toggled " + rootItem.autoResistance); popupAutoResistance.open(); popupAutoResistanceAutoClose.running = true; }
             anchors.right: parent.right
+            visible: !headerToolbar.settingsPageActive
+            width: visible ? implicitWidth : 0
         }
 
         Label {
