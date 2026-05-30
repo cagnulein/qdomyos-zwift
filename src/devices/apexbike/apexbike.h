@@ -38,6 +38,8 @@ class apexbike : public bike {
     static bool usesWlt8266bm025BDistanceCounterMetrics(const QString &deviceName);
     static bool isWlt8266bm025BDistanceCounterMetricsPacket(const QString &deviceName, const QByteArray &newValue);
     static uint16_t wlt8266bm025BDistanceCounterFromPacket(const QByteArray &newValue);
+    static double wlt8266bm025BSpeedFromDistanceCounterDelta(double deltaDistance, qint64 deltaTimeMs);
+    static double wlt8266bm025BCadenceFromSpeed(double speed);
 
     apexbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     bool connected() override;

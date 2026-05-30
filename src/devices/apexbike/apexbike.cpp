@@ -26,6 +26,20 @@ uint16_t apexbike::wlt8266bm025BDistanceCounterFromPacket(const QByteArray &newV
            static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(4)));
 }
 
+double apexbike::wlt8266bm025BSpeedFromDistanceCounterDelta(double deltaDistance, qint64 deltaTimeMs) {
+    if (deltaDistance <= 0 || deltaTimeMs <= 0) {
+        return 0;
+    }
+
+    constexpr double distanceCounterKm = 0.005333;
+    const double timeHours = static_cast<double>(deltaTimeMs) / (1000.0 * 60.0 * 60.0);
+    return (deltaDistance * distanceCounterKm) / timeHours;
+}
+
+double apexbike::wlt8266bm025BCadenceFromSpeed(double speed) {
+    return speed / 0.37497622;
+}
+
 apexbike::apexbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
@@ -203,20 +217,12 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         if (distance != lastDistance) {
             if (lastDistance != 0) {
                 double deltaDistance = distance - lastDistance;
-                double deltaTime = fabs(now.msecsTo(lastTS));
-                double timeHours = deltaTime / (1000.0 * 60.0 * 60.0);
-                double k = 0.005333;
-                if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                    Speed = (deltaDistance * k) / timeHours;
-                } else {
-                    Speed = metric::calculateSpeedFromPower(
-                        watts(), Inclination.value(), Speed.value(),
-                        fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
-                }
+                qint64 deltaTime = qAbs(lastTS.msecsTo(now));
+                Speed = wlt8266bm025BSpeedFromDistanceCounterDelta(deltaDistance, deltaTime);
                 if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                         .toString()
                         .startsWith(QStringLiteral("Disabled"))) {
-                    Cadence = Speed.value() / 0.37497622;
+                    Cadence = wlt8266bm025BCadenceFromSpeed(Speed.value());
                 }
             }
             lastDistance = distance;

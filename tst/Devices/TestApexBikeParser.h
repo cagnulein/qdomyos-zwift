@@ -31,3 +31,15 @@ TEST(ApexBikeWlt8266Bm025BRegressionTest, DistanceCounterComesFromBytesThreeAndF
     EXPECT_EQ(apexbike::wlt8266bm025BDistanceCounterFromPacket(QByteArray::fromHex("ea503000020000000082")), 2);
     EXPECT_EQ(apexbike::wlt8266bm025BDistanceCounterFromPacket(QByteArray::fromHex("ea5030002100000000a1")), 33);
 }
+
+TEST(ApexBikeWlt8266Bm025BRegressionTest, LoggedDistanceCounterDeltaProducesNonZeroMetrics) {
+    const double speed = apexbike::wlt8266bm025BSpeedFromDistanceCounterDelta(1, 1200);
+
+    EXPECT_NEAR(speed, 15.999, 0.001);
+    EXPECT_NEAR(apexbike::wlt8266bm025BCadenceFromSpeed(speed), 42.666, 0.001);
+}
+
+TEST(ApexBikeWlt8266Bm025BRegressionTest, InvalidDistanceCounterDeltaDoesNotProduceMetrics) {
+    EXPECT_EQ(apexbike::wlt8266bm025BSpeedFromDistanceCounterDelta(0, 1200), 0);
+    EXPECT_EQ(apexbike::wlt8266bm025BSpeedFromDistanceCounterDelta(1, 0), 0);
+}
