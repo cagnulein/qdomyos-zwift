@@ -35,6 +35,10 @@
 class apexbike : public bike {
     Q_OBJECT
   public:
+    static bool usesWlt8266bm025BDistanceCounterMetrics(const QString &deviceName);
+    static bool isWlt8266bm025BDistanceCounterMetricsPacket(const QString &deviceName, const QByteArray &newValue);
+    static uint16_t wlt8266bm025BDistanceCounterFromPacket(const QByteArray &newValue);
+
     apexbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     bool connected() override;
 
