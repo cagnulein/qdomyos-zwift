@@ -1004,7 +1004,7 @@ void horizontreadmill::update() {
                 requestInclination = 1.0;
 
             if (requestInclination != currentInclination().value() && requestInclination >= minInclination &&
-                requestInclination <= 15) {
+                requestInclination <= maxInclination) {
                
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
@@ -2759,6 +2759,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("THERUN  T15"))) {
             qDebug() << QStringLiteral("THERUN T15 treadmill found");
             THERUN_T15 = true;
+        } else if (device.name().startsWith(QStringLiteral("FS-"))) {
+            qDebug() << QStringLiteral("FS- treadmill found");
+            maxInclination = 40.0;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
