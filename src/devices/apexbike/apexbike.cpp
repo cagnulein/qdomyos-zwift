@@ -12,21 +12,21 @@
 
 using namespace std::chrono_literals;
 
-bool apexbike::usesWlt8266bm025BDistanceCounterMetrics(const QString &deviceName) {
-    return deviceName.compare(QStringLiteral("WLT8266BM_025B"), Qt::CaseInsensitive) == 0;
+bool apexbike::usesWlt8266bmDistanceCounterMetrics(const QString &deviceName) {
+    return deviceName.startsWith(QStringLiteral("WLT8266BM_"), Qt::CaseInsensitive);
 }
 
-bool apexbike::isWlt8266bm025BDistanceCounterMetricsPacket(const QString &deviceName, const QByteArray &newValue) {
-    return usesWlt8266bm025BDistanceCounterMetrics(deviceName) && newValue.length() == 10 &&
+bool apexbike::isWlt8266bmDistanceCounterMetricsPacket(const QString &deviceName, const QByteArray &newValue) {
+    return usesWlt8266bmDistanceCounterMetrics(deviceName) && newValue.length() == 10 &&
            static_cast<uint8_t>(newValue.at(2)) == 0x30;
 }
 
-uint16_t apexbike::wlt8266bm025BDistanceCounterFromPacket(const QByteArray &newValue) {
+uint16_t apexbike::wlt8266bmDistanceCounterFromPacket(const QByteArray &newValue) {
     return (static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(3))) << 8) |
            static_cast<uint16_t>(static_cast<uint8_t>(newValue.at(4)));
 }
 
-double apexbike::wlt8266bm025BSpeedFromDistanceCounterDelta(double deltaDistance, qint64 deltaTimeMs) {
+double apexbike::wlt8266bmSpeedFromDistanceCounterDelta(double deltaDistance, qint64 deltaTimeMs) {
     if (deltaDistance <= 0 || deltaTimeMs <= 0) {
         return 0;
     }
@@ -36,7 +36,7 @@ double apexbike::wlt8266bm025BSpeedFromDistanceCounterDelta(double deltaDistance
     return (deltaDistance * distanceCounterKm) / timeHours;
 }
 
-double apexbike::wlt8266bm025BCadenceFromSpeed(double speed) {
+double apexbike::wlt8266bmCadenceFromSpeed(double speed) {
     return speed / 0.37497622;
 }
 
@@ -173,8 +173,8 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
     lastPacket = newValue;
 
-    const bool useWlt8266bm025BDistanceCounterMetrics =
-        usesWlt8266bm025BDistanceCounterMetrics(bluetoothDevice.name());
+    const bool useWlt8266bmDistanceCounterMetrics =
+        usesWlt8266bmDistanceCounterMetrics(bluetoothDevice.name());
 
     if (newValue.length() == 10 && static_cast<uint8_t>(newValue.at(2)) == 0x31) {
         // Invert resistance: bike resistance 1-32 maps to app display 32-1
@@ -183,7 +183,7 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         emit resistanceRead(Resistance.value());
         m_pelotonResistance = Resistance.value();
 
-        if (!useWlt8266bm025BDistanceCounterMetrics) {
+        if (!useWlt8266bmDistanceCounterMetrics) {
             // Other Apex-style bikes use this packet for cadence/metrics; keep that behavior unchanged.
             uint8_t rawCadence = newValue.at(4);
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
@@ -198,7 +198,7 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
     }
 
-    if (!useWlt8266bm025BDistanceCounterMetrics) {
+    if (!useWlt8266bmDistanceCounterMetrics) {
         if (newValue.length() != 10 || static_cast<uint8_t>(newValue.at(2)) != 0x31) {
             return;
         }
@@ -211,18 +211,18 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 watts(), Inclination.value(), Speed.value(),
                 fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
-    } else if (isWlt8266bm025BDistanceCounterMetricsPacket(bluetoothDevice.name(), newValue)) {
-        double distance = wlt8266bm025BDistanceCounterFromPacket(newValue);
+    } else if (isWlt8266bmDistanceCounterMetricsPacket(bluetoothDevice.name(), newValue)) {
+        double distance = wlt8266bmDistanceCounterFromPacket(newValue);
 
         if (distance != lastDistance) {
             if (lastDistance != 0) {
                 double deltaDistance = distance - lastDistance;
                 qint64 deltaTime = qAbs(lastTS.msecsTo(now));
-                Speed = wlt8266bm025BSpeedFromDistanceCounterDelta(deltaDistance, deltaTime);
+                Speed = wlt8266bmSpeedFromDistanceCounterDelta(deltaDistance, deltaTime);
                 if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                         .toString()
                         .startsWith(QStringLiteral("Disabled"))) {
-                    Cadence = wlt8266bm025BCadenceFromSpeed(Speed.value());
+                    Cadence = wlt8266bmCadenceFromSpeed(Speed.value());
                 }
             }
             lastDistance = distance;
