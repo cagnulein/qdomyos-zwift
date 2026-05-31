@@ -1708,6 +1708,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
             if (atts.hasAttribute(QStringLiteral("forcespeed"))) {
                 row.forcespeed = atts.value(QStringLiteral("forcespeed")).toInt() ? true : false;
             }
+            if (atts.hasAttribute(QStringLiteral("disablehrpid"))) {
+                row.disableHRPID = atts.value(QStringLiteral("disablehrpid")).toInt() ? true : false;
+            }
             if (atts.hasAttribute(QStringLiteral("powerzone"))) {
                 QSettings settings;
                 if(device_type == TREADMILL) {

@@ -48,6 +48,7 @@ class trainrow {
     int16_t average_cadence = -1; // used for peloton
     int16_t upper_cadence = -1;
     bool forcespeed = false;
+    bool disableHRPID = false;
     int8_t loopTimeHR = 10;
     int8_t zoneHR = -1;
     int16_t HRmin = -1;
