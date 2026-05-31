@@ -983,7 +983,9 @@ void horizontreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            requestInclination = treadmillInclinationOverrideReverse(requestInclination);
+            if (!FS_TREADMILL || !areInclinationSettingsDefault()) {
+                requestInclination = treadmillInclinationOverrideReverse(requestInclination);
+            }
 
             // this treadmill doesn't send the incline, so i'm forcing it manually
             if(schwinn_810_treadmill || FIT_TM) {
@@ -2761,6 +2763,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             THERUN_T15 = true;
         } else if (device.name().startsWith(QStringLiteral("FS-"))) {
             qDebug() << QStringLiteral("FS- treadmill found");
+            FS_TREADMILL = true;
             maxInclination = 40.0;
         }
 
