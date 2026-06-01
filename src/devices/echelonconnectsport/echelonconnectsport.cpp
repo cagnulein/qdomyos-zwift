@@ -7,12 +7,24 @@
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonParseError>
 #include <QMetaEnum>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QSettings>
+#include <QUrl>
 #include <chrono>
 #include <math.h>
 
 using namespace std::chrono_literals;
+
+namespace {
+constexpr int PedalSyncUnlockTimeoutMs = 5000;
+const QUrl PedalSyncUnlockUrl(QStringLiteral("https://www.pedalsync.app/api/unlock"));
+} // namespace
 
 #ifdef Q_OS_IOS
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
@@ -260,7 +272,13 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 
     qDebug() << " << " + newValue.toHex(' ');
 
-    maybePromptToEnableVirtualEchelon(newValue);
+    if (isLockedFrame(newValue)) {
+        if (auto *virtualBike = VirtualBike()) {
+            virtualBike->relayEchelonPacket(characteristic.uuid(), newValue);
+        }
+        requestPedalSyncUnlock(newValue);
+        return;
+    }
 
     if (newValue == QByteArray::fromHex("f0a5010ea4")) {
         unlockResponseReceived = true;
@@ -598,15 +616,138 @@ void echelonconnectsport::maybePromptToEnableVirtualEchelon(const QByteArray &ne
     QSettings settings;
     const bool virtualEchelonEnabled =
         settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
-    const bool isLockedFrame = newValue.size() == 8 && static_cast<uint8_t>(newValue.at(0)) == 0xf0 &&
-                               static_cast<uint8_t>(newValue.at(1)) == 0xe0;
 
-    if (virtualEchelonEnabled || lockedBikePromptShown || !isLockedFrame || !homeform::singleton()) {
+    if (virtualEchelonEnabled || lockedBikePromptShown || !isLockedFrame(newValue) || !homeform::singleton()) {
         return;
     }
 
     lockedBikePromptShown = true;
     homeform::singleton()->setEchelonEnablePromptRequested(true);
+}
+
+bool echelonconnectsport::isLockedFrame(const QByteArray &value) const {
+    return value.size() == 8 && static_cast<uint8_t>(value.at(0)) == 0xf0 &&
+           static_cast<uint8_t>(value.at(1)) == 0xe0;
+}
+
+void echelonconnectsport::requestPedalSyncUnlock(const QByteArray &challenge) {
+    if (pedalSyncUnlockFailed) {
+        fallbackToVirtualEchelonUnlock(challenge);
+        return;
+    }
+
+    if (unlockRequestInFlight) {
+        qDebug() << QStringLiteral("Echelon locked frame received while unlock request is already in flight");
+        return;
+    }
+
+    if (!unlockNetworkManager) {
+        unlockNetworkManager = new QNetworkAccessManager(this);
+    }
+
+    unlockRequestInFlight = true;
+
+    QJsonObject body;
+    body.insert(QStringLiteral("challenge"), QString::fromLatin1(challenge.toBase64()));
+    const QByteArray payload = QJsonDocument(body).toJson(QJsonDocument::Compact);
+
+    QNetworkRequest request(PedalSyncUnlockUrl);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
+
+    QNetworkReply *reply = unlockNetworkManager->post(request, payload);
+    QTimer::singleShot(PedalSyncUnlockTimeoutMs, reply, [reply]() {
+        if (reply && reply->isRunning()) {
+            reply->abort();
+        }
+    });
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply, challenge]() {
+        handlePedalSyncUnlockReply(reply, challenge);
+    });
+}
+
+void echelonconnectsport::handlePedalSyncUnlockReply(QNetworkReply *reply, const QByteArray &challenge) {
+    unlockRequestInFlight = false;
+
+    if (!reply || reply->error() != QNetworkReply::NoError) {
+        qDebug() << QStringLiteral("PedalSync Echelon unlock failed")
+                 << (reply ? reply->errorString() : QStringLiteral("missing reply"));
+        if (reply) {
+            reply->deleteLater();
+        }
+        fallbackToVirtualEchelonUnlock(challenge);
+        return;
+    }
+
+    const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    const QByteArray response = reply->readAll();
+    if (statusCode != 200) {
+        qDebug() << QStringLiteral("PedalSync Echelon unlock failed with HTTP status") << statusCode;
+        reply->deleteLater();
+        fallbackToVirtualEchelonUnlock(challenge);
+        return;
+    }
+
+    QJsonParseError parseError;
+    const QJsonDocument document = QJsonDocument::fromJson(response, &parseError);
+    if (parseError.error != QJsonParseError::NoError || !document.isObject()) {
+        qDebug() << QStringLiteral("PedalSync Echelon unlock returned invalid JSON") << parseError.errorString();
+        reply->deleteLater();
+        fallbackToVirtualEchelonUnlock(challenge);
+        return;
+    }
+
+    const QString key = document.object().value(QStringLiteral("key")).toString();
+    const QByteArray keyBytes = QByteArray::fromBase64(key.toLatin1());
+    if (keyBytes.isEmpty()) {
+        qDebug() << QStringLiteral("PedalSync Echelon unlock returned an empty key");
+        reply->deleteLater();
+        fallbackToVirtualEchelonUnlock(challenge);
+        return;
+    }
+
+    if (!applyPedalSyncUnlockKey(keyBytes)) {
+        reply->deleteLater();
+        fallbackToVirtualEchelonUnlock(challenge);
+        return;
+    }
+
+    unlockResponseReceived = true;
+    qDebug() << QStringLiteral("PedalSync Echelon unlock key applied");
+    reply->deleteLater();
+}
+
+bool echelonconnectsport::applyPedalSyncUnlockKey(const QByteArray &keyBytes) {
+    if (keyBytes.size() == 8) {
+        QByteArray framed(8, 0);
+        framed[0] = static_cast<char>(0xf0);
+        framed[1] = static_cast<char>(0xe0);
+        for (int i = 2; i < 7; ++i) {
+            framed[i] = keyBytes.at(i);
+        }
+
+        uint8_t sum = 0;
+        for (int i = 0; i < 7; ++i) {
+            sum += static_cast<uint8_t>(framed.at(i));
+        }
+        framed[7] = static_cast<char>(sum);
+
+        writeCharacteristic(reinterpret_cast<uint8_t *>(framed.data()), framed.size(),
+                            QStringLiteral("PedalSync Echelon unlock"), true, true);
+    } else {
+        QByteArray key = keyBytes;
+        writeCharacteristic(reinterpret_cast<uint8_t *>(key.data()), key.size(),
+                            QStringLiteral("PedalSync Echelon unlock"), true, true);
+    }
+
+    uint8_t enableData[] = {0xf0, 0xb0, 0x01, 0x01, 0xa2};
+    writeCharacteristic(enableData, sizeof(enableData), QStringLiteral("PedalSync Echelon enable"), false, true);
+    return true;
+}
+
+void echelonconnectsport::fallbackToVirtualEchelonUnlock(const QByteArray &challenge) {
+    pedalSyncUnlockFailed = true;
+    maybePromptToEnableVirtualEchelon(challenge);
 }
 
 void echelonconnectsport::createVirtualBike(bool forceClassicMode, DirconManager *existingDirconManager) {

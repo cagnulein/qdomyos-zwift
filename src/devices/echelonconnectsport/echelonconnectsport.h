@@ -34,6 +34,9 @@
 #include "ios/lockscreen.h"
 #endif
 
+class QNetworkAccessManager;
+class QNetworkReply;
+
 class echelonconnectsport : public bike {
     Q_OBJECT
   public:
@@ -60,8 +63,14 @@ class echelonconnectsport : public bike {
     void forceResistance(resistance_t requestResistance);
     void sendPoll();
     uint16_t watts() override;
+    bool isLockedFrame(const QByteArray &value) const;
+    void requestPedalSyncUnlock(const QByteArray &challenge);
+    void handlePedalSyncUnlockReply(QNetworkReply *reply, const QByteArray &challenge);
+    bool applyPedalSyncUnlockKey(const QByteArray &keyBytes);
+    void fallbackToVirtualEchelonUnlock(const QByteArray &challenge);
 
     QTimer *refresh;
+    QNetworkAccessManager *unlockNetworkManager = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
@@ -80,6 +89,8 @@ class echelonconnectsport : public bike {
     bool initDone = false;
     bool initRequest = false;
     bool unlockResponseReceived = false;
+    bool unlockRequestInFlight = false;
+    bool pedalSyncUnlockFailed = false;
     bool classicBridgePromptShown = false;
     bool classicVirtualBridgeActive = false;
     bool lockedBikePromptShown = false;
