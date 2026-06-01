@@ -29,6 +29,23 @@ TEST(KeepBikeNewProtocolRegressionTest, MetricsComeFromLoggedProtobufPayload) {
     EXPECT_EQ(metrics.status, 3);
 }
 
+TEST(KeepBikeNewProtocolRegressionTest, ResistanceComesFromLoggedStatusFrame) {
+    const QByteArray resistanceFourPacket = QByteArray::fromHex(
+        "a5a5a0421600ef2332165545d88f6500000004b53130362f34ff08048272");
+    const QByteArray resistanceOnePacket = QByteArray::fromHex(
+        "a5a5a0441600ef2332165545d8906500000004b53130362f34ff0801e6be");
+
+    EXPECT_EQ(keepbike::parseNewProtocolResistanceFrame(resistanceFourPacket), 4);
+    EXPECT_EQ(keepbike::parseNewProtocolResistanceFrame(resistanceOnePacket), 1);
+}
+
+TEST(KeepBikeNewProtocolRegressionTest, BuildsResistanceWritePayload) {
+    EXPECT_EQ(keepbike::buildNewProtocolResistancePayload(4),
+              QByteArray::fromHex("02b53130362f34ff0804"));
+    EXPECT_EQ(keepbike::buildNewProtocolResistancePayload(36),
+              QByteArray::fromHex("02b53130362f34ff0824"));
+}
+
 TEST(KeepBikeNewProtocolRegressionTest, RejectsCorruptMetricsFrame) {
     QByteArray packet = QByteArray::fromHex(
         "a5a5a01c2600ef2332165545c2debc04000001b53130362f37ff08e1abf6d006101118032801303a381740033ae1");

@@ -49,7 +49,9 @@ class keepbike : public bike {
     static bool isNewProtocolFrame(const QByteArray &packet);
     static uint16_t newProtocolCrc(const QByteArray &packet);
     static QByteArray buildNewProtocolFrame(uint16_t sequence, quint32 session, const QByteArray &payload);
+    static QByteArray buildNewProtocolResistancePayload(resistance_t resistance);
     static NewProtocolMetrics parseNewProtocolMetricsFrame(const QByteArray &packet);
+    static resistance_t parseNewProtocolResistanceFrame(const QByteArray &packet);
 
     keepbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;

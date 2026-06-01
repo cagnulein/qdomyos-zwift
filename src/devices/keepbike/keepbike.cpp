@@ -32,6 +32,17 @@ bool readVarint(const QByteArray &packet, int &offset, quint32 &value) {
     }
     return false;
 }
+
+void appendVarint(QByteArray &packet, quint32 value) {
+    do {
+        uint8_t byte = value & 0x7f;
+        value >>= 7;
+        if (value != 0) {
+            byte |= 0x80;
+        }
+        packet.append(static_cast<char>(byte));
+    } while (value != 0);
+}
 }
 
 #ifdef Q_OS_IOS
@@ -87,6 +98,13 @@ QByteArray keepbike::buildNewProtocolFrame(uint16_t sequence, quint32 session, c
     frame.append(static_cast<char>(crc & 0xff));
     frame.append(static_cast<char>((crc >> 8) & 0xff));
     return frame;
+}
+
+QByteArray keepbike::buildNewProtocolResistancePayload(resistance_t resistance) {
+    QByteArray payload = QByteArray::fromHex("02b53130362f34ff");
+    appendVarint(payload, 0x08);
+    appendVarint(payload, resistance);
+    return payload;
 }
 
 keepbike::NewProtocolMetrics keepbike::parseNewProtocolMetricsFrame(const QByteArray &packet) {
@@ -153,6 +171,58 @@ keepbike::NewProtocolMetrics keepbike::parseNewProtocolMetricsFrame(const QByteA
     return metrics;
 }
 
+resistance_t keepbike::parseNewProtocolResistanceFrame(const QByteArray &packet) {
+    if (!isNewProtocolFrame(packet)) {
+        return -1;
+    }
+
+    const QByteArray body = packet.mid(6, toUInt16LE(packet, 4));
+    if (body.length() < 20 || body.left(6) != QByteArray::fromHex("ef2332165545")) {
+        return -1;
+    }
+
+    const QByteArray payload = body.mid(12);
+    const QByteArray readPrefix = QByteArray::fromHex("01b53130362f34ff");
+    const QByteArray notifyPrefix = QByteArray::fromHex("04b53130362f34ff");
+    const QByteArray writePrefix = QByteArray::fromHex("02b53130362f34ff");
+
+    QByteArray protobuf;
+    if (payload.startsWith(readPrefix)) {
+        protobuf = payload.mid(readPrefix.length());
+    } else if (payload.startsWith(notifyPrefix)) {
+        protobuf = payload.mid(notifyPrefix.length());
+    } else if (payload.startsWith(writePrefix)) {
+        protobuf = payload.mid(writePrefix.length());
+    } else {
+        return -1;
+    }
+
+    int offset = 0;
+    while (offset < protobuf.length()) {
+        quint32 key = 0;
+        if (!readVarint(protobuf, offset, key)) {
+            return -1;
+        }
+
+        const quint32 field = key >> 3;
+        const quint32 wireType = key & 0x07;
+        if (wireType != 0) {
+            return -1;
+        }
+
+        quint32 value = 0;
+        if (!readVarint(protobuf, offset, value)) {
+            return -1;
+        }
+
+        if (field == 1) {
+            return static_cast<resistance_t>(value);
+        }
+    }
+
+    return -1;
+}
+
 keepbike::keepbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain) {
 #ifdef Q_OS_IOS
@@ -213,7 +283,13 @@ void keepbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
 
 void keepbike::forceResistance(resistance_t requestResistance) {
     if (newProtocol) {
-        qDebug() << QStringLiteral("keepbike new protocol resistance write is not supported yet");
+        if (requestResistance > max_resistance)
+            requestResistance = max_resistance;
+        else if (requestResistance <= 0)
+            requestResistance = 1;
+
+        writeNewProtocolCommand(buildNewProtocolResistancePayload(requestResistance),
+                                QStringLiteral("new protocol resistance"));
         return;
     }
 
@@ -438,6 +514,17 @@ void keepbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 }
 
 bool keepbike::handleNewProtocolFrame(const QByteArray &newValue) {
+    const resistance_t resistance = parseNewProtocolResistanceFrame(newValue);
+    if (resistance != -1) {
+        lastPacket = newValue;
+        Resistance = resistance;
+        emit resistanceRead(Resistance.value());
+        m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
+
+        qDebug() << QStringLiteral("Keep Bike new protocol resistance: ") + QString::number(Resistance.value());
+        return true;
+    }
+
     const NewProtocolMetrics metrics = parseNewProtocolMetricsFrame(newValue);
     if (!metrics.valid) {
         return false;
@@ -449,9 +536,6 @@ bool keepbike::handleNewProtocolFrame(const QByteArray &newValue) {
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     lastPacket = newValue;
-    Resistance = metrics.resistance;
-    emit resistanceRead(Resistance.value());
-    m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
 
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
