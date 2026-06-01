@@ -36,6 +36,21 @@
 class keepbike : public bike {
     Q_OBJECT
   public:
+    struct NewProtocolMetrics {
+        bool valid = false;
+        quint32 timestamp = 0;
+        uint16_t elapsed = 0;
+        uint16_t cadence = 0;
+        uint16_t resistance = 0;
+        uint16_t watt = 0;
+        uint16_t status = 0;
+    };
+
+    static bool isNewProtocolFrame(const QByteArray &packet);
+    static uint16_t newProtocolCrc(const QByteArray &packet);
+    static QByteArray buildNewProtocolFrame(uint16_t sequence, quint32 session, const QByteArray &payload);
+    static NewProtocolMetrics parseNewProtocolMetricsFrame(const QByteArray &packet);
+
     keepbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
@@ -49,11 +64,15 @@ class keepbike : public bike {
     double GetWattFromPacket(const QByteArray &packet);
     QTime GetElapsedFromPacket(const QByteArray &packet);
     void btinit();
+    void btinitNewProtocol();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+    void writeNewProtocolCommand(const QByteArray &payload, const QString &info, bool wait_for_response = true);
     void startDiscover();
     void forceResistance(resistance_t requestResistance);
     void sendPoll();
+    void sendPollNewProtocol();
+    bool handleNewProtocolFrame(const QByteArray &newValue);
     uint16_t watts() override;
 
     QTimer *refresh;
@@ -65,6 +84,8 @@ class keepbike : public bike {
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     uint8_t counterPoll = 1;
+    uint16_t newProtocolSequence = 0x00a0;
+    quint32 newProtocolSession = 0;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
@@ -73,6 +94,7 @@ class keepbike : public bike {
 
     bool initDone = false;
     bool initRequest = false;
+    bool newProtocol = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
