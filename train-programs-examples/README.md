@@ -21,7 +21,7 @@
 | `duration` | `HH:MM:SS` | **Required.** How long the row lasts. |
 | `speed` | km/h | Fixed speed target. |
 | `speedfrom` / `speedto` | km/h | Speed ramp — QZ auto-splits into 0.1 km/h, 1-second increments. |
-| `forcespeed` | `1` | Force the treadmill to the target speed (without this, speed is advisory only). Use either this or (XOR) hrmin/hrmax, don't mix. |
+| `forcespeed` | `1` | Force the treadmill to the target speed (without this, speed is advisory only). Do **not** combine with `zonehr` — use `zonehr="0"` on every `forcespeed="1"` row (see §9 below). If you need HR targeting, use `hrmin`/`hrmax` instead. |
 | `inclination` | % | Treadmill incline. |
 | `zonehr` | 1–5 | Target HR zone (Karvonen). PID controller adjusts speed to reach the zone. Make sure you correctly set your max heart rate (Settings > Heart Rate Options > Heart Rate Zone Options > Heart Rate Max Override > Max Heart Rate).\nDo not use in conjunction with forcespeed=1 |
 | `looptimehr` | seconds | How often the HR PID adjusts speed (default 10). Lower = more responsive. |
@@ -130,6 +130,22 @@ Use `<repeat times="N">` to loop interval sets without duplicating rows:
 ```
 
 Note the `forcespeed` seed rows before each zone row — this is critical in intervals.
+
+### 9. Always Use `zonehr="0"` on Rows with `forcespeed="1"`
+
+`forcespeed="1"` locks the treadmill to a fixed target speed. Adding `zonehr` to the same row is contradictory — the HR PID controller actively adjusts speed to chase a heart rate zone while the treadmill is simultaneously forced to a fixed speed. The two systems fight each other, producing unpredictable and often uncomfortable speed oscillations.
+
+Apply `zonehr="0"` to **every** row with `forcespeed="1"` regardless of row type — warm-up ramps, cool-downs, fixed-speed rows, speed seeds, and ramp-ups. Even for short seed rows (5 seconds) where the PID barely has time to react, setting `zonehr="0"` is cleaner and keeps the programme consistent with no special-case exceptions.
+
+```xml
+<!-- WRONG — HR PID fights the forced speed -->
+<row duration="00:05:00" speedfrom="5.0" speedto="8.0" forcespeed="1" zonehr="2"/>
+<row duration="00:00:05" speed="8.0" inclination="0" forcespeed="1"/>
+
+<!-- RIGHT — disable HR zone on forced-speed rows -->
+<row duration="00:05:00" speedfrom="5.0" speedto="8.0" forcespeed="1" zonehr="0"/>
+<row duration="00:00:05" speed="8.0" inclination="0" forcespeed="1" zonehr="0"/>
+```
 
 ---
 
