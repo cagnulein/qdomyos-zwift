@@ -1411,13 +1411,77 @@ void trainprogram::restart() {
     started = true;
 }
 
-bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows) {
+QString trainprogram::deviceTypeToXmlKey(BLUETOOTH_TYPE type) {
+    switch (type) {
+    case TREADMILL:
+        return QStringLiteral("treadmill");
+    case BIKE:
+        return QStringLiteral("bike");
+    case ROWING:
+        return QStringLiteral("rower");
+    case ELLIPTICAL:
+        return QStringLiteral("elliptical");
+    case JUMPROPE:
+        return QStringLiteral("jumprope");
+    case STAIRCLIMBER:
+        return QStringLiteral("stairclimber");
+    case UNKNOWN:
+    default:
+        return QStringLiteral("unknown");
+    }
+}
+
+BLUETOOTH_TYPE trainprogram::deviceTypeFromXmlKey(const QString &key) {
+    const QString normalized = key.trimmed().toLower();
+    if (normalized == QStringLiteral("treadmill")) {
+        return TREADMILL;
+    }
+    if (normalized == QStringLiteral("bike")) {
+        return BIKE;
+    }
+    if (normalized == QStringLiteral("rower") || normalized == QStringLiteral("rowing")) {
+        return ROWING;
+    }
+    if (normalized == QStringLiteral("elliptical")) {
+        return ELLIPTICAL;
+    }
+    if (normalized == QStringLiteral("jumprope")) {
+        return JUMPROPE;
+    }
+    if (normalized == QStringLiteral("stairclimber")) {
+        return STAIRCLIMBER;
+    }
+    return UNKNOWN;
+}
+
+BLUETOOTH_TYPE trainprogram::xmlDeviceType(const QString &filename, BLUETOOTH_TYPE fallback) {
+    QFile input(filename);
+    if (!input.open(QIODevice::ReadOnly)) {
+        return fallback;
+    }
+
+    QXmlStreamReader stream(&input);
+    while (!stream.atEnd()) {
+        stream.readNext();
+        if (stream.isStartElement() && stream.name() == QStringLiteral("rows")) {
+            const BLUETOOTH_TYPE parsed =
+                deviceTypeFromXmlKey(stream.attributes().value(QStringLiteral("device")).toString());
+            return parsed == UNKNOWN ? fallback : parsed;
+        }
+    }
+    return fallback;
+}
+
+bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows, BLUETOOTH_TYPE device_type) {
     QFile output(filename);
     if (!rows.isEmpty() && output.open(QIODevice::WriteOnly)) {
         QXmlStreamWriter stream(&output);
         stream.setAutoFormatting(true);
         stream.writeStartDocument();
         stream.writeStartElement(QStringLiteral("rows"));
+        if (device_type != UNKNOWN) {
+            stream.writeAttribute(QStringLiteral("device"), deviceTypeToXmlKey(device_type));
+        }
         for (const trainrow &row : qAsConst(rows)) {
             stream.writeStartElement(QStringLiteral("row"));
             if (row.distance >= 0) {
@@ -1563,7 +1627,7 @@ bool trainprogram::hasTargetPower(const QString &filename) {
     return false;
 }
 
-void trainprogram::save(const QString &filename) { saveXML(filename, rows); }
+void trainprogram::save(const QString &filename) { saveXML(filename, rows, loadedDeviceType); }
 
 trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString Extension) {
     if (!Extension.toUpper().compare(QStringLiteral("ZWO"))
@@ -1574,13 +1638,20 @@ trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString 
 
         QString description = "";
         QString tags = "";
-        return new trainprogram(zwiftworkout::load(filename, &description, &tags), b, &description, &tags);
+        trainprogram *program = new trainprogram(zwiftworkout::load(filename, &description, &tags), b, &description, &tags);
+        if (b && b->device()) {
+            program->loadedDeviceType = b->device()->deviceType();
+        }
+        return program;
     } else {
 
         BLUETOOTH_TYPE dtype = BLUETOOTH_TYPE::BIKE;
         if(b && b->device())
             dtype = b->device()->deviceType();
-        return new trainprogram(loadXML(filename, dtype), b);
+        dtype = xmlDeviceType(filename, dtype);
+        trainprogram *program = new trainprogram(loadXML(filename, dtype), b);
+        program->loadedDeviceType = dtype;
+        return program;
     }
 }
 
@@ -1614,6 +1685,10 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
             for (int i = 0; i < repeatTimes; i++) {
                 list.append(repeatRows);
             }
+            continue;
+        }
+
+        if (!stream.isStartElement() || stream.name() != QStringLiteral("row")) {
             continue;
         }
 

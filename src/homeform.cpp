@@ -8531,7 +8531,7 @@ void homeform::saveSessionAsTrainingProgram() {
     }
 
     // Save the XML file
-    if (trainprogram::saveXML(filename, rows)) {
+    if (trainprogram::saveXML(filename, rows, dev ? dev->deviceType() : UNKNOWN)) {
         lastTrainProgramFileSaved = filename;
         qDebug() << "Session saved as training program:" << filename;
     }
@@ -11067,5 +11067,4 @@ extern "C" {
 }
 #endif
 // Force rebuild for Q_INVOKABLE changes
-
 
