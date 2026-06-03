@@ -1761,6 +1761,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("THINK-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("THINK_")) ||
                         b.name().toUpper().startsWith(QStringLiteral("53997-")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("NOZA-ONE ")) || // Xplova Noza One trainer
                         (b.name().toUpper().startsWith("VANRYSEL-HT")) ||
                         b.address() == QBluetoothAddress("C1:14:D9:9C:FB:01") || // specific TACX NEO 2 #1707
                         (b.name().toUpper().startsWith("TACX SMART BIKE"))) &&
