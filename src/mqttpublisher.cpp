@@ -1,5 +1,6 @@
 #include "mqttpublisher.h"
 #include "qzsettings.h"
+#include "homeform.h"
 #include "devices/elliptical.h"
 #include <QDebug>
 #include <QJsonObject>
@@ -12,8 +13,8 @@ MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QString username
     , m_port(port)
     , m_device(nullptr)
 {
-    m_client = new QMqttClient(this);
-    m_timer = new QTimer(this);
+    m_client = new QMqttClient();
+    m_timer = new QTimer();
     m_manager = manager;
     m_username = username;
     m_password = password;
@@ -28,11 +29,6 @@ MQTTPublisher::MQTTPublisher(const QString& host, quint16 port, QString username
     connect(m_client, &QMqttClient::disconnected, this, &MQTTPublisher::onDisconnected);
     connect(m_client, &QMqttClient::errorChanged, this, &MQTTPublisher::onError);
     connect(m_client, &QMqttClient::messageReceived, this, &MQTTPublisher::onMessageReceived);
-    if (m_manager) {
-        connect(m_manager, &bluetooth::bluetoothDeviceConnected, this, &MQTTPublisher::onBluetoothDeviceConnected);
-        connect(m_manager, &bluetooth::bluetoothDeviceDisconnected, this, &MQTTPublisher::onBluetoothDeviceDisconnected);
-        m_device = m_manager->device();
-    }
 
     setupMQTTClient();
     start();
@@ -67,14 +63,6 @@ MQTTPublisher::~MQTTPublisher() {
 
 void MQTTPublisher::setDevice(bluetoothdevice* device) {
     m_device = device;
-}
-
-void MQTTPublisher::onBluetoothDeviceConnected(bluetoothdevice *device) {
-    m_device = device;
-}
-
-void MQTTPublisher::onBluetoothDeviceDisconnected() {
-    m_device = nullptr;
 }
 
 QString MQTTPublisher::getUserNickname() const {
@@ -268,7 +256,7 @@ void MQTTPublisher::handleControlCommand(const QString& command, const QVariant&
         m_device->changeResistance(value.toInt());
     } else if(mainCommand == "power") {
         m_device->changePower(value.toInt());
-    } else if(mainCommand == "fan" || mainCommand == "fan_speed") {
+    } else if(mainCommand == "fan") {
         m_device->changeFanSpeed(value.toInt());
     } else if(mainCommand == "inclination") {
         m_device->changeInclination(value.toDouble(), value.toDouble());
@@ -279,7 +267,7 @@ void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QStrin
     if(!m_device) return;
     
     if(deviceType == "bike" && m_device->deviceType() == BIKE) {
-        bike* bikeDevice = static_cast<bike*>(m_device.data());
+        bike* bikeDevice = static_cast<bike*>(m_device);
         
         if(command == "resistance") {
             bikeDevice->changeResistance(value.toInt());
@@ -298,7 +286,7 @@ void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QStrin
         }
         
     } else if(deviceType == "treadmill" && m_device->deviceType() == TREADMILL) {
-        treadmill* treadDevice = static_cast<treadmill*>(m_device.data());
+        treadmill* treadDevice = static_cast<treadmill*>(m_device);
         
         if(command == "speed") {
             treadDevice->changeSpeed(value.toDouble());
@@ -309,7 +297,7 @@ void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QStrin
         }
         
     } else if(deviceType == "rowing" && m_device->deviceType() == ROWING) {
-        rower* rowDevice = static_cast<rower*>(m_device.data());
+        rower* rowDevice = static_cast<rower*>(m_device);
         
         if(command == "resistance") {
             rowDevice->changeResistance(value.toInt());
@@ -322,7 +310,7 @@ void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QStrin
         }
         
     } else if(deviceType == "elliptical" && m_device->deviceType() == ELLIPTICAL) {
-        elliptical* ellipticalDevice = static_cast<elliptical*>(m_device.data());
+        elliptical* ellipticalDevice = static_cast<elliptical*>(m_device);
         
         if(command == "resistance") {
             ellipticalDevice->changeResistance(value.toInt());
@@ -335,7 +323,7 @@ void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QStrin
         } else if(command == "cadence") {
             ellipticalDevice->changeCadence(value.toInt());
         }
-    } else if(command == "fan" || command == "fan_speed") {
+    } else if(command == "fan") {
         m_device->changeFanSpeed(value.toInt());
     }
 }
@@ -465,11 +453,9 @@ void MQTTPublisher::removeDiscoveryConfig() {
 }
 
 void MQTTPublisher::publishWorkoutData() {
-    if (m_manager) {
-        bluetoothdevice *currentDevice = m_manager->device();
-        if (currentDevice != m_device.data()) {
-            m_device = currentDevice;
-        }
+
+    if(!m_device && m_manager && m_manager->device()) {
+        m_device = m_manager->device();
     }
 
     if (!isConnected() || !m_device) return;
@@ -481,7 +467,6 @@ void MQTTPublisher::publishWorkoutData() {
     publishToTopic("device/type", static_cast<int>(m_device->deviceType()));
     publishToTopic("device/connected", m_device->connected());
     publishToTopic("device/paused", m_device->isPaused());
-    publishToTopic("device/fan_speed", m_device->fanSpeed());
 
     // Time Metrics
     QTime elapsedTime = m_device->elapsedTime();
@@ -558,7 +543,7 @@ void MQTTPublisher::publishWorkoutData() {
     // Device Specific Metrics
     switch (m_device->deviceType()) {
         case BIKE: {
-            bike* bikeDevice = static_cast<bike*>(m_device.data());
+            bike* bikeDevice = static_cast<bike*>(m_device);
             publishToTopic("bike/gears", bikeDevice->gears());
             publishToTopic("bike/target_resistance", bikeDevice->lastRequestedResistance().value());
             publishToTopic("bike/target_peloton_resistance", bikeDevice->lastRequestedPelotonResistance().value());
@@ -593,7 +578,7 @@ void MQTTPublisher::publishWorkoutData() {
             break;
         }
         case TREADMILL: {
-            treadmill* treadDevice = static_cast<treadmill*>(m_device.data());
+            treadmill* treadDevice = static_cast<treadmill*>(m_device);
             publishToTopic("treadmill/target_speed", treadDevice->lastRequestedSpeed().value());
             publishToTopic("treadmill/target_inclination", treadDevice->lastRequestedInclination().value());
 
@@ -615,7 +600,7 @@ void MQTTPublisher::publishWorkoutData() {
             break;
         }
         case ROWING: {
-            rower* rowDevice = static_cast<rower*>(m_device.data());
+            rower* rowDevice = static_cast<rower*>(m_device);
             metric cadence = m_device->currentCadence();
             publishToTopic("rowing/cadence/current", cadence.value());
             publishToTopic("rowing/cadence/avg", cadence.average());
@@ -740,7 +725,7 @@ void MQTTPublisher::publishDiscoveryConfig() {
     }
     
     // Common control entities
-    publishNumberDiscovery("fan_speed", "Fan Speed", statusBaseTopic + "device/fan_speed", controlTopic + "fan_speed", 0, 100, 1, "%", "mdi:fan");
+    publishNumberDiscovery("fan_speed", "Fan Speed", statusBaseTopic + "device/fan_speed", controlTopic + "fan", 0, 100, 1, "%", "mdi:fan");
     
     // Control buttons
     QJsonObject startConfig;
