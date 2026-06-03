@@ -24,8 +24,8 @@
 | `speedfrom` / `speedto` | km/h | Speed ramp — QZ auto-splits into 0.1 km/h, 1-second increments. |
 | `inclination` | % | Treadmill incline. |
 | `forcespeed` | `1` | Force the treadmill to the target speed (without this, speed is advisory only). Do **not** combine with `zonehr` — use `zonehr="0"` on every `forcespeed="1"` row (see §2 below). If you need HR targeting, use `hrmin`/`hrmax` instead. |
-| `zonehr` | 1–5 | Target HR zone (Karvonen). PID controller adjusts speed to reach the zone. Make sure you correctly set your max heart rate (Settings > Heart Rate Options > Heart Rate Zone Options > Heart Rate Max Override > Max Heart Rate). Do **not** use in conjunction with `forcespeed="1"` (see §2). |
-| `hrmin` / `hrmax` | bpm | Custom HR target range (alternative to `zonehr`). PID targets the midpoint. Do not use together with `forcespeed="1"`. |
+| `zonehr` | 1–5 | Target HR zone (Karvonen). PID controller adjusts speed to reach the zone. Make sure you correctly set your max heart rate (Settings > Heart Rate Options > Heart Rate Zone Options > Heart Rate Max Override > Max Heart Rate). Do **not** use in conjunction with `forcespeed="1"` (see §2). Do not use zonehr 1 (see §1). |
+| `hrmin` / `hrmax` | bpm | Custom HR target range (alternative to `zonehr`, more precise). PID targets the midpoint. Do not use together with `forcespeed="1"`. |
 | `looptimehr` | seconds | How often the HR PID adjusts speed (default 10). Lower = more responsive. |
 | `minspeed` / `maxspeed` | km/h | Speed bounds for HR PID adjustments. **Always set these on `zonehr` rows.** |
 | `resistance` | 1–100 | Bike resistance. |
@@ -46,7 +46,7 @@
 
 ---
 
-## Tips
+## Tips when using a heart rate sensor
 
 ### 1. HR Zone 1 Does Not Work with the PID Controller
 
@@ -65,6 +65,8 @@ The PID HR controller adjusts speed **up** when HR is below target and **down** 
 `forcespeed="1"` locks the treadmill to a fixed target speed. Adding `zonehr` to the same row is contradictory — the HR PID controller actively adjusts speed to chase a heart rate zone while the treadmill is simultaneously forced to a fixed speed. The two systems fight each other, producing unpredictable and often uncomfortable speed oscillations.
 
 Apply `zonehr="0"` to **every** row with `forcespeed="1"` regardless of row type — warm-up ramps, cool-downs, fixed-speed rows, speed seeds, and ramp-ups. Even for short seed rows (5 seconds) where the PID barely has time to react, setting `zonehr="0"` is cleaner and keeps the programme consistent with no special-case exceptions.
+
+This is particularly relevant for warm-ups and cooldowns: zonehr 1 does not work well (see §1) ➞ forcespeed="1" required ➞ zonehr="0" required.
 
 ```xml
 <!-- WRONG — HR PID fights the forced speed -->
@@ -106,33 +108,15 @@ Without bounds, the PID can adjust speed from 0 up to the treadmill's maximum. F
 
 Choose bounds that reflect your fitness level. Tight bounds (e.g., ±1 km/h) give more predictable behaviour; wide bounds give the PID more room to chase the HR target.
 
-### 5. Global PID HR Setting vs. Per-Row `zonehr`
-
-QDomyos-Zwift has a **global** "PID on Heart Zone" setting (in **Settings → Training Program Options**) that runs independently of training programmes. If this is set to anything other than "Disabled" while a training programme with `zonehr` rows is running, both controllers compete for speed — causing a saw-tooth oscillation pattern.
-
-**Set "PID on Heart Zone" to "Disabled" when using training programmes with `zonehr` rows.**
-
-### 6. Speed Ramps
+### 5. Speed Ramps
 
 Speed ramps (`speedfrom`/`speedto`) are expanded internally by QZ into 1-second micro-rows with 0.1 km/h increments, each with `forcespeed` set automatically. This means:
 
 - You **must** include `forcespeed="1"` on the original ramp row in your XML — QZ copies this flag to the expanded micro-rows.
 - **Ramp duration affects smoothness.** QZ splits ramps into 0.1 km/h steps. If the duration is long enough, each step gets multiple seconds (smooth). If the duration is short relative to the speed delta, multiple steps are packed per second (still works, just feels more abrupt).
-- **Do not combine ramps with `zonehr`** in the same row — use separate rows.
+- **Do not combine ramps with `zonehr`** in the same row.
 
-### 7. Warm-Up and Cool-Down
-
-Use `forcespeed="1"` for warm-up and cool-down. Do **not** rely on HR zone control — Zone 1 doesn't work (see pitfall #1), and you want predictable speed behaviour. Speed ramps work well for gradual warm-up:
-
-```xml
-<!-- Warm-up: gradual ramp -->
-<row duration="00:05:00" speedfrom="5.0" speedto="8.0" inclination="1" forcespeed="1" zonehr="0"/>
-
-<!-- Cool-down: fixed slow speed -->
-<row duration="00:03:00" speed="5.5" inclination="0" forcespeed="1" zonehr="0"/>
-```
-
-### 8. Repeat Blocks
+### 6. Repeat Blocks
 
 Use `<repeat times="N">` to loop interval sets without duplicating rows:
 
@@ -155,7 +139,6 @@ Before running a training programme, review these PID-related settings in **Sett
 
 | Setting | Recommended | Default | Why |
 |---------|-------------|---------|-----|
-| **PID on Heart Zone** | "Disabled" | "Disabled" | Must be "Disabled" when using `zonehr` rows — otherwise the global PID and per-row PID fight each other (see pitfall #5). Only use this for free-running sessions without a training programme. |
 | **PID on HR min / PID on HR max** | Leave at 0 | 0 | Alternative to "PID on Heart Zone" for specifying a custom HR range globally. Same rule: leave disabled when using training programmes. |
 | **PID 'Pushy'** | ✅ Enabled (default) | ✅ Enabled | When enabled, the PID targets the **midpoint** between lower and upper HR limit of the zone. See "How the PID Targets Heart Rate" below. |
 | **PID Ignore Inclination** | ✅ Enabled | ❌ Disabled | When disabled, the PID factors inclination into its speed adjustments. Training programmes already set inclination explicitly per row, so the PID's inclination compensation creates unexpected speed corrections. **Enable this** so the PID only adjusts speed based on HR, not inclination. |
@@ -181,7 +164,7 @@ If you want the PID to settle to a precise sub-zone of an HR zone, use `hrmin`/`
 ## Recommended Programme Structure
 
 ```
-1. Warm-up ramp         — speedfrom/speedto + forcespeed="1"
+1. Warm-up ramp         — speedfrom/speedto + `forcespeed="1"` + `zonehr="0"`
 2. (Optional) Zone 2    — zonehr="2" with minspeed/maxspeed
 3. Main block           — zones, intervals, or fixed speed
 4. Seed rows            — 5s forcespeed seeds with `zonehr="0"` between intensity changes
@@ -191,5 +174,5 @@ If you want the PID to settle to a precise sub-zone of an HR zone, use `hrmin`/`
 ## File Format
 
 - Extension: `.xml` (native) or `.zwo` (Zwift format, also supported)
-- Location: place files in the `~/training/` folder on the device running QZ
+- Location: place files in the `training` folder on the device running QZ, where the other example trainings are located.
 - Subdirectories are supported for organisation
