@@ -73,16 +73,46 @@ void GarminConnect::checkFtpUpdates()
         reply->deleteLater();
         manager->deleteLater();
 
+        qDebug() << "GarminConnect: FTP check HTTP status:" << statusCode
+                 << "response length:" << response.length();
+
         if (statusCode != 200) {
             qDebug() << "GarminConnect: FTP check failed (HTTP" << statusCode << "):"
                      << QString::fromUtf8(response).left(300);
             return;
         }
 
-        const QJsonDocument doc = QJsonDocument::fromJson(response);
-        if (!doc.isArray()) {
-            qDebug() << "GarminConnect: Invalid FTP check response";
+        QJsonParseError parseError;
+        const QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
+        if (parseError.error != QJsonParseError::NoError) {
+            qDebug() << "GarminConnect: Invalid FTP check JSON:" << parseError.errorString()
+                     << QString::fromUtf8(response).left(300);
             return;
+        }
+
+        QJsonArray entries;
+        if (doc.isArray()) {
+            entries = doc.array();
+        } else if (doc.isObject()) {
+            const QJsonObject obj = doc.object();
+            const QStringList possibleArrays = {
+                QStringLiteral("entries"),
+                QStringLiteral("values"),
+                QStringLiteral("items"),
+                QStringLiteral("data")
+            };
+            for (const QString &key : possibleArrays) {
+                if (obj.value(key).isArray()) {
+                    entries = obj.value(key).toArray();
+                    qDebug() << "GarminConnect: FTP check response array key:" << key;
+                    break;
+                }
+            }
+        }
+
+        if (entries.isEmpty()) {
+            qDebug() << "GarminConnect: FTP check response has no entries:"
+                     << QString::fromUtf8(response).left(500);
         }
 
         int cyclingFtp = 0;
@@ -90,13 +120,14 @@ void GarminConnect::checkFtpUpdates()
         QString cyclingCreateTime;
         QString runningCreateTime;
 
-        const QJsonArray entries = doc.array();
+        qDebug() << "GarminConnect: FTP check entries:" << entries.size();
         for (const QJsonValue &entryVal : entries) {
             const QJsonObject entry = entryVal.toObject();
             if (entry.value(QStringLiteral("isStale")).toBool())
                 continue;
 
-            const int ftp = static_cast<int>(entry.value(QStringLiteral("functionalThresholdPower")).toDouble());
+            const QJsonValue ftpValue = entry.value(QStringLiteral("functionalThresholdPower"));
+            const int ftp = ftpValue.isString() ? ftpValue.toString().toDouble() : static_cast<int>(ftpValue.toDouble());
             const QString createTime = entry.value(QStringLiteral("ftpCreateTime")).toString();
             if (ftp <= 0 || createTime.isEmpty())
                 continue;
@@ -112,7 +143,13 @@ void GarminConnect::checkFtpUpdates()
         }
 
         qDebug() << "GarminConnect: FTP check values cycling:" << cyclingFtp
-                 << "running:" << runningFtp;
+                 << "cyclingCreateTime:" << cyclingCreateTime
+                 << "running:" << runningFtp
+                 << "runningCreateTime:" << runningCreateTime;
+        if (cyclingFtp <= 0 && runningFtp <= 0) {
+            qDebug() << "GarminConnect: FTP check parsed no usable FTP values from:"
+                     << QString::fromUtf8(response).left(500);
+        }
         emit ftpValuesAvailable(cyclingFtp, cyclingCreateTime, runningFtp, runningCreateTime);
     });
 

@@ -214,6 +214,16 @@ bool trainprogram::isBlockingTransitionRow(const trainrow &row) {
     return row.waitForLap || row.HRabove > 0 || row.HRbelow > 0;
 }
 
+QString blockingTransitionRowDescription(const trainrow &row) {
+    if (row.waitForLap)
+        return QStringLiteral("lap button");
+    if (row.HRabove > 0)
+        return QStringLiteral("heart rate above %1 bpm").arg(row.HRabove);
+    if (row.HRbelow > 0)
+        return QStringLiteral("heart rate below %1 bpm").arg(row.HRbelow);
+    return QStringLiteral("unknown");
+}
+
 int trainprogram::firstBlockingTransitionRow(const QList<trainrow> &rows, int currentStep, int candidateStep) {
     if (rows.isEmpty() || candidateStep <= currentStep)
         return -1;
@@ -1040,6 +1050,18 @@ void trainprogram::scheduler() {
         }
     }
 
+    if (currentStep < rows.length() && isBlockingTransitionRow(rows.at(currentStep))) {
+        const trainrow &row = rows.at(currentStep);
+        if (row.power != -1) {
+            if (lastLapButtonToastStep != currentStep || ticks - lastLapButtonToastTick >= 30) {
+                qDebug() << "Keeping blocking row target power" << row.power
+                         << "row" << currentStep
+                         << "condition" << blockingTransitionRowDescription(row);
+            }
+            emit changePower(row.power);
+        }
+    }
+
     if (currentStep < rows.length() && rows.at(currentStep).waitForLap) {
         if (lastLapButtonToastStep != currentStep || ticks - lastLapButtonToastTick >= 30) {
             QString message = QStringLiteral("Press Lap to continue the workout");
@@ -1047,7 +1069,8 @@ void trainprogram::scheduler() {
                 !rows.at(currentStep).textEvents.first().message.trimmed().isEmpty()) {
                 message = rows.at(currentStep).textEvents.first().message.trimmed();
             }
-            qDebug() << "Waiting for lap button on row" << currentStep;
+            qDebug() << "Waiting for lap button on row" << currentStep
+                     << "target power" << rows.at(currentStep).power;
             emit toastRequest(message);
             lastLapButtonToastStep = currentStep;
             lastLapButtonToastTick = ticks;
@@ -1067,6 +1090,9 @@ void trainprogram::scheduler() {
                 const QString message = currentHeartRateEndConditionMessage();
                 qDebug() << "Waiting for heart-rate end condition on row" << currentStep
                          << "current heart" << bluetoothManager->device()->currentHeart().value()
+                         << "target power" << rows.at(currentStep).power
+                         << "above" << rows.at(currentStep).HRabove
+                         << "below" << rows.at(currentStep).HRbelow
                          << "message" << message;
                 emit toastRequest(message);
                 lastLapButtonToastStep = currentStep;

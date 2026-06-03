@@ -43,6 +43,11 @@
         let chart = null;
         let miles = 1; // 1 = km, 0.621371 = miles
 
+        function openEndedSegmentStyle(ctx) {
+            return (ctx.p0.raw && ctx.p0.raw.openEnded) ||
+                   (ctx.p1.raw && ctx.p1.raw.openEnded) ? [6, 5] : undefined;
+        }
+
         // Function to create/update the workout chart
         function updateWorkoutChart(workoutData, deviceType) {
             const ctx = document.getElementById('workoutChart').getContext('2d');
@@ -68,6 +73,9 @@
                     fill: true,
                     tension: 0.1,
                     pointRadius: 0,
+                    segment: {
+                        borderDash: openEndedSegmentStyle
+                    },
                     yAxisID: 'y'
                 });
             }
@@ -83,6 +91,9 @@
                     fill: true,
                     tension: 0.1,
                     pointRadius: 0,
+                    segment: {
+                        borderDash: openEndedSegmentStyle
+                    },
                     yAxisID: 'y1'
                 });
             }
@@ -98,6 +109,9 @@
                     fill: true,
                     tension: 0.1,
                     pointRadius: 0,
+                    segment: {
+                        borderDash: openEndedSegmentStyle
+                    },
                     yAxisID: 'y1'
                 });
             }
@@ -136,6 +150,9 @@
                                         label += ': ';
                                     }
                                     label += Math.round(context.parsed.y * 10) / 10;
+                                    if (context.raw && context.raw.segmentLabel) {
+                                        label += ' (' + context.raw.segmentLabel + ')';
+                                    }
                                     return label;
                                 }
                             }
@@ -343,6 +360,8 @@
                 inclination: data.inclination,
                 resistance: data.resistance,
                 cadence: data.cadence,
+                segments: data.segments,
+                hasOpenEndedSteps: data.hasOpenEndedSteps,
                 deviceType: data.deviceType
             });
 
@@ -353,7 +372,7 @@
 
             lastDataHash = dataHash;
 
-            const { points, watts, speed, inclination, resistance, cadence, deviceType, miles_unit } = data;
+            const { points, watts, speed, inclination, resistance, cadence, segments, hasOpenEndedSteps, deviceType, miles_unit } = data;
 
             // Update miles setting if provided
             if (miles_unit !== undefined) {
@@ -365,7 +384,9 @@
                 speed: speed || [],
                 inclination: inclination || [],
                 resistance: resistance || [],
-                cadence: cadence || []
+                cadence: cadence || [],
+                segments: segments || [],
+                hasOpenEndedSteps: hasOpenEndedSteps || false
             };
 
             // The C++ backend always populates watts even for treadmill workouts where

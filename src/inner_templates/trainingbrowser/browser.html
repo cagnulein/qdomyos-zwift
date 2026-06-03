@@ -370,7 +370,12 @@
             if (!Array.isArray(arr) || arr.length === 0) return [];
             return arr.map(function(val, idx) {
                 if (val !== null && typeof val === 'object' && val.x !== undefined) {
-                    return { x: val.x, y: val.y };
+                    return {
+                        x: val.x,
+                        y: val.y,
+                        openEnded: !!val.openEnded,
+                        segmentLabel: val.segmentLabel || ''
+                    };
                 }
                 return { x: idx, y: val };
             });
@@ -531,6 +536,8 @@
                 inclination: Array.isArray(workout.inclination) ? workout.inclination : [],
                 resistance: Array.isArray(workout.resistance) ? workout.resistance : [],
                 cadence: Array.isArray(workout.cadence) ? workout.cadence : [],
+                segments: Array.isArray(workout.segments) ? workout.segments : [],
+                hasOpenEndedSteps: !!workout.hasOpenEndedSteps,
                 deviceType: workout.deviceType || 'bike'
             };
 
