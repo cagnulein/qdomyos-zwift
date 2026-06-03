@@ -19,20 +19,20 @@
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `duration` | `HH:MM:SS` | **Required.** How long the row lasts. |
+| `distance` | km | Row ends after this distance instead of `duration`. |
 | `speed` | km/h | Fixed speed target. |
 | `speedfrom` / `speedto` | km/h | Speed ramp — QZ auto-splits into 0.1 km/h, 1-second increments. |
-| `forcespeed` | `1` | Force the treadmill to the target speed (without this, speed is advisory only). Do **not** combine with `zonehr` — use `zonehr="0"` on every `forcespeed="1"` row (see §2 below). If you need HR targeting, use `hrmin`/`hrmax` instead. |
 | `inclination` | % | Treadmill incline. |
+| `forcespeed` | `1` | Force the treadmill to the target speed (without this, speed is advisory only). Do **not** combine with `zonehr` — use `zonehr="0"` on every `forcespeed="1"` row (see §2 below). If you need HR targeting, use `hrmin`/`hrmax` instead. |
 | `zonehr` | 1–5 | Target HR zone (Karvonen). PID controller adjusts speed to reach the zone. Make sure you correctly set your max heart rate (Settings > Heart Rate Options > Heart Rate Zone Options > Heart Rate Max Override > Max Heart Rate). Do **not** use in conjunction with `forcespeed="1"` (see §2). |
+| `hrmin` / `hrmax` | bpm | Custom HR target range (alternative to `zonehr`). PID targets the midpoint. Do not use together with `forcespeed="1"`. |
 | `looptimehr` | seconds | How often the HR PID adjusts speed (default 10). Lower = more responsive. |
 | `minspeed` / `maxspeed` | km/h | Speed bounds for HR PID adjustments. **Always set these on `zonehr` rows.** |
-| `fanspeed` | 0–100 | Fan speed percentage. |
 | `resistance` | 1–100 | Bike resistance. |
 | `cadence` | RPM | Target cadence (bike/rower). |
 | `power` | watts | Power target. |
-| `hrmin` / `hrmax` | bpm | Custom HR target range (alternative to `zonehr`). PID targets the midpoint. Do not use together with `forcespeed="1"`. |
-| `distance` | km | Row ends after this distance instead of `duration`. |
 | `maxresistance` | int | Max resistance the HR PID may set. |
+| `fanspeed` | 0–100 | Fan speed percentage. |
 
 ### Text Events (on-screen messages)
 
