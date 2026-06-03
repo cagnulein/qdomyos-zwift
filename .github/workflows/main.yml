@@ -672,9 +672,33 @@ jobs:
           echo "#define LICENSE" >> secret.h
 
       - name: Prepare Android signing key
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_ALIAS: ${{ secrets.ALIAS }}
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          printf '%s' "${{ secrets.SIGNING_KEY }}" | base64 --decode > ${{ github.workspace }}/src/android/ci-signing-key.jks
-          echo "CI_ANDROID_SIGNING_KEYSTORE=${{ github.workspace }}/src/android/ci-signing-key.jks" >> $GITHUB_ENV
+          if [ -z "$SIGNING_KEY" ] || [ -z "$SIGNING_ALIAS" ] || [ -z "$KEY_STORE_PASSWORD" ] || [ -z "$KEY_PASSWORD" ]; then
+            echo "Android signing secrets are not available; APK re-signing will be skipped."
+            echo "CI_ANDROID_RESIGN_APK=false" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          KEYSTORE="${{ github.workspace }}/src/android/ci-signing-key.jks"
+          if ! printf '%s' "$SIGNING_KEY" | base64 --decode > "$KEYSTORE"; then
+            echo "Failed to decode Android signing key."
+            rm -f "$KEYSTORE"
+            exit 1
+          fi
+
+          if [ ! -s "$KEYSTORE" ]; then
+            echo "Decoded Android signing key is empty."
+            rm -f "$KEYSTORE"
+            exit 1
+          fi
+
+          echo "CI_ANDROID_SIGNING_KEYSTORE=$KEYSTORE" >> "$GITHUB_ENV"
+          echo "CI_ANDROID_RESIGN_APK=true" >> "$GITHUB_ENV"
 
       - name: Build qthttpserver for Android
         run: |
@@ -704,8 +728,14 @@ jobs:
 
       - name: Re-sign APK for stable App Links fingerprint
         run: |
+          if [ "$CI_ANDROID_RESIGN_APK" != "true" ]; then
+            echo "Skipping APK re-signing because Android signing secrets are not available."
+            exit 0
+          fi
+
           APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
           SIGNED_APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-signed.apk"
+          trap 'rm -f "$CI_ANDROID_SIGNING_KEYSTORE" "$SIGNED_APK_PATH"' EXIT
           APKSIGNER=$(find /usr/local/lib/android/sdk/build-tools -name apksigner | sort | tail -n 1)
           if [ -z "$APKSIGNER" ]; then
             echo "apksigner not found"
