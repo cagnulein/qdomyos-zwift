@@ -43,6 +43,13 @@ void appendVarint(QByteArray &packet, quint32 value) {
         packet.append(static_cast<char>(byte));
     } while (value != 0);
 }
+
+uint8_t newProtocolMessageType(const QByteArray &payload) {
+    if (payload.startsWith(QByteArray::fromHex("02b53130362f34"))) {
+        return 0x03;
+    }
+    return 0x01;
+}
 }
 
 #ifdef Q_OS_IOS
@@ -76,7 +83,8 @@ bool keepbike::isNewProtocolFrame(const QByteArray &packet) {
 }
 
 QByteArray keepbike::buildNewProtocolFrame(uint16_t sequence, quint32 session, const QByteArray &payload) {
-    QByteArray body = QByteArray::fromHex("3216ef235501");
+    QByteArray body = QByteArray::fromHex("3216ef2355");
+    body.append(static_cast<char>(newProtocolMessageType(payload)));
     body.append(static_cast<char>(session & 0xff));
     body.append(static_cast<char>((session >> 8) & 0xff));
     body.append(static_cast<char>((session >> 16) & 0xff));

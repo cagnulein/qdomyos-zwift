@@ -62,3 +62,12 @@ TEST(KeepBikeNewProtocolRegressionTest, BuildsFramesWithValidNewProtocolCrc) {
     EXPECT_TRUE(keepbike::isNewProtocolFrame(frame));
     EXPECT_TRUE(frame.startsWith(QByteArray::fromHex("a5a5a00013003216ef235501c2c4040000")));
 }
+
+TEST(KeepBikeNewProtocolRegressionTest, ResistanceWriteFrameUsesCommandMessageType) {
+    const QByteArray frame = keepbike::buildNewProtocolFrame(
+        0x36a0, 0x04d7f9c2, keepbike::buildNewProtocolResistancePayload(4));
+
+    EXPECT_TRUE(keepbike::isNewProtocolFrame(frame));
+    EXPECT_TRUE(frame.startsWith(QByteArray::fromHex("a5a5a03616003216ef235503c2f9d7040000")));
+    EXPECT_TRUE(frame.contains(QByteArray::fromHex("02b53130362f34ff0804")));
+}
