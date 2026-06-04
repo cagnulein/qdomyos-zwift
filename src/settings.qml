@@ -1657,6 +1657,7 @@ import Qt.labs.platform 1.1
             property string shortcut_preset_powerzone_7: ""
             property string shortcut_lap: ""
             property string shortcut_start_stop: ""                                         
+            property bool nordictrack_e400: false
         }
 
 
@@ -11409,6 +11410,19 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.nordictrack_se7i = checked; window.settings_restart_to_apply = true; }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("NordicTrack E400")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.nordictrack_e400
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.nordictrack_e400 = checked; window.settings_restart_to_apply = true; }
                             }
                             RowLayout {
                                 spacing: 10

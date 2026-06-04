@@ -31,6 +31,7 @@ nordictrackelliptical::nordictrackelliptical(bool noWriteResistance, bool noHear
     QSettings settings;
     nordictrack_elliptical_c7_5 = settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5).toBool();
     nordictrack_se7i = settings.value(QZSettings::nordictrack_se7i, QZSettings::default_nordictrack_se7i).toBool();
+    nordictrack_e400 = settings.value(QZSettings::nordictrack_e400, QZSettings::default_nordictrack_e400).toBool();
 
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackelliptical::update);
@@ -279,6 +280,13 @@ void nordictrackelliptical::forceIncline(double requestIncline) {
             writeCharacteristic((uint8_t *)inc200, sizeof(inc200), QStringLiteral("inc200"), false, true);
             break;
         }
+    } else if (nordictrack_e400) {
+        uint16_t incValue = (uint16_t)qRound(requestIncline * 100.0);
+        uint8_t incCmd[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                            0x02, (uint8_t)(incValue & 0xFF), (uint8_t)((incValue >> 8) & 0xFF), 0x00,
+                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        incCmd[14] = incCmd[11] + incCmd[12] + 0x14;
+        writeCharacteristic(incCmd, sizeof(incCmd), QStringLiteral("incline_e400"), false, true);
     } else if (nordictrack_se7i) {
         // SE7i uses ff 0d packet with byte[10]=0x02 for incline
         // Incline encoding: value = incline% * 100
@@ -411,6 +419,15 @@ void nordictrackelliptical::forceResistance(resistance_t requestResistance) {
             writeCharacteristic((uint8_t *)res22, sizeof(res22), QStringLiteral("resistance22"), false, true);
             break;
         }
+    } else if (nordictrack_e400) {
+        if (requestResistance < 1)
+            requestResistance = 1;
+        uint16_t resValue = ((uint16_t)requestResistance * 500) - 50;
+        uint8_t resCmd[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                            0x04, (uint8_t)(resValue & 0xFF), (uint8_t)((resValue >> 8) & 0xFF), 0x00,
+                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        resCmd[14] = resCmd[11] + resCmd[12] + 0x16;
+        writeCharacteristic(resCmd, sizeof(resCmd), QStringLiteral("resistance_e400"), false, true);
     } else if (nordictrack_se7i) {
         // SE7i uses ff 0d packet with byte[10]=0x04 for resistance
         // Resistance encoding: value = resistance * 454 - 1
@@ -854,6 +871,16 @@ void nordictrackelliptical::update() {
                         forceResistance(requestResistance);
                     }
                     requestResistance = -1;
+                }
+                if (nordictrack_e400 && requestInclination != -1) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= max_inclination) {
+                        emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -1;
                 }
                 break;
             }
@@ -1491,6 +1518,11 @@ void nordictrackelliptical::btinit() {
             writeCharacteristic(noOpData10b, sizeof(noOpData10b), QStringLiteral("init"), false, false);
             QThread::msleep(400);
         } else {
+            if (nordictrack_e400) {
+                max_resistance = 22;
+                max_inclination = 20;
+            }
+
             writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
             QThread::msleep(400);
             writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);

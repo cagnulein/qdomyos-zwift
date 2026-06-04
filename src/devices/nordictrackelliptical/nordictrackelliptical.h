@@ -40,7 +40,7 @@ class nordictrackelliptical : public elliptical {
     bool connected() override;
     int pelotonToEllipticalResistance(int pelotonResistance) override;
     bool inclinationAvailableByHardware()  override { 
-      if(nordictrack_elliptical_c7_5 || nordictrack_se7i) 
+      if(nordictrack_elliptical_c7_5 || nordictrack_se7i || nordictrack_e400)
         return true; 
       else 
         return false; 
@@ -85,6 +85,7 @@ class nordictrackelliptical : public elliptical {
     bool noHeartService = false;
     bool nordictrack_elliptical_c7_5 = false;
     bool nordictrack_se7i = false;
+    bool nordictrack_e400 = false;
 
     // SE7i frame-based initialization state management
     int se7i_init_state = 0;

@@ -1944,6 +1944,9 @@ class QZSettings {
     static const QString nordictrack_elliptical_c7_5;
     static constexpr bool default_nordictrack_elliptical_c7_5 = false;
 
+    static const QString nordictrack_e400;
+    static constexpr bool default_nordictrack_e400 = false;
+
     static const QString renpho_bike_double_resistance;
     static constexpr bool default_renpho_bike_double_resistance = false;
 

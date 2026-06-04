@@ -699,6 +699,7 @@ const QString QZSettings::treadmill_direct_distance = QStringLiteral("treadmill_
 const QString QZSettings::treadmill_pid_heart_min = QStringLiteral("treadmill_pid_heart_min");
 const QString QZSettings::treadmill_pid_heart_max = QStringLiteral("treadmill_pid_heart_max");
 const QString QZSettings::nordictrack_elliptical_c7_5 = QStringLiteral("nordictrack_elliptical_c7_5");
+const QString QZSettings::nordictrack_e400 = QStringLiteral("nordictrack_e400");
 const QString QZSettings::renpho_bike_double_resistance = QStringLiteral("renpho_bike_double_resistance");
 const QString QZSettings::nordictrack_incline_trainer_x7i = QStringLiteral("nordictrack_incline_trainer_x7i");
 const QString QZSettings::strava_auth_external_webbrowser = QStringLiteral("strava_auth_external_webbrowser");
@@ -1225,7 +1226,7 @@ const QString QZSettings::default_shortcut_lap = QStringLiteral("");
 const QString QZSettings::shortcut_start_stop = QStringLiteral("shortcut_start_stop");
 const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 957;
+const uint32_t allSettingsCount = 958;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1804,6 +1805,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::treadmill_pid_heart_min, QZSettings::default_treadmill_pid_heart_min},
     {QZSettings::treadmill_pid_heart_max, QZSettings::default_treadmill_pid_heart_max},
     {QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5},
+    {QZSettings::nordictrack_e400, QZSettings::default_nordictrack_e400},
     {QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance},
     {QZSettings::nordictrack_incline_trainer_x7i, QZSettings::default_nordictrack_incline_trainer_x7i},
     {QZSettings::strava_auth_external_webbrowser, QZSettings::default_strava_auth_external_webbrowser},
