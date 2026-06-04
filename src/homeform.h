@@ -599,6 +599,7 @@ class homeform : public QObject {
 
 private:
     void clearWebViewCache();
+    void showNextGarminWorkoutPrompt();
 
 public:
     void setGeneralPopupVisible(bool value);
@@ -614,6 +615,7 @@ public:
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
     Q_INVOKABLE bool startTrainingProgramFromFile(const QString &filePath);
+    Q_INVOKABLE bool deleteTrainingProgramFile(const QString &fileUrl);
 
     double wattMaxChart() {
         QSettings settings;
@@ -954,6 +956,9 @@ public:
     QString m_garminWorkoutPromptName = QStringLiteral("");
     QString m_garminWorkoutPromptDate = QStringLiteral("");
     QString m_garminWorkoutPromptFile = QStringLiteral("");
+    QStringList m_pendingGarminWorkoutPromptFiles;
+    QStringList m_pendingGarminWorkoutPromptNames;
+    QStringList m_pendingGarminWorkoutPromptDates;
     FitDatabaseProcessor *fitProcessor = nullptr;
     WorkoutModel *workoutModel = nullptr;
     int m_pelotonLoginState = -1;

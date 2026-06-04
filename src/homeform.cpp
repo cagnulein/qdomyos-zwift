@@ -8377,6 +8377,42 @@ bool homeform::startTrainingProgramFromFile(const QString &filePath) {
     return true;
 }
 
+bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
+    if (fileUrl.isEmpty()) {
+        return false;
+    }
+
+    QUrl url(fileUrl);
+    if (!url.isValid() || (!url.isLocalFile() && url.scheme().isEmpty())) {
+        url = QUrl::fromLocalFile(fileUrl);
+    }
+
+    const QString localPath = QQmlFile::urlToLocalFileOrQrc(url);
+    QFileInfo fileInfo(localPath);
+    if (!fileInfo.exists() || !fileInfo.isFile()) {
+        return false;
+    }
+
+    const QString trainingRoot = QDir(homeform::getWritableAppDir() + QStringLiteral("training")).canonicalPath();
+    const QString canonicalFilePath = fileInfo.canonicalFilePath();
+    if (trainingRoot.isEmpty() || canonicalFilePath.isEmpty() ||
+        !canonicalFilePath.startsWith(trainingRoot + QStringLiteral("/"), Qt::CaseInsensitive)) {
+        qDebug() << "deleteTrainingProgramFile: refusing to delete outside training folder" << localPath;
+        return false;
+    }
+
+    if (!QFile::remove(canonicalFilePath)) {
+        return false;
+    }
+
+    QFile markerFile(fileInfo.absolutePath() + QStringLiteral("/.deleted_") + fileInfo.fileName());
+    if (markerFile.open(QIODevice::WriteOnly)) {
+        markerFile.write("This file was intentionally deleted by the user");
+        markerFile.close();
+    }
+    return true;
+}
+
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
 
@@ -9302,11 +9338,6 @@ void homeform::garmin_connect_login() {
         connect(garminConnect, &GarminConnect::workoutDownloaded, this,
                 [this](const QString &filename, const QString &workoutName) {
                     setToastRequested(QString("Garmin workout saved: %1").arg(workoutName));
-                    m_garminWorkoutPromptFile = filename;
-                    if (m_garminWorkoutPromptName != workoutName) {
-                        m_garminWorkoutPromptName = workoutName;
-                        emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
-                    }
                     QString workoutDate;
                     const QString baseName = QFileInfo(filename).completeBaseName();
                     const int separatorPos = baseName.indexOf(QStringLiteral(" - "));
@@ -9317,11 +9348,11 @@ void homeform::garmin_connect_login() {
                             workoutDate = candidateDate;
                         }
                     }
-                    if (m_garminWorkoutPromptDate != workoutDate) {
-                        m_garminWorkoutPromptDate = workoutDate;
-                        emit garminWorkoutPromptDateChanged(m_garminWorkoutPromptDate);
-                    }
-                    setGarminWorkoutPromptRequested(true);
+
+                    m_pendingGarminWorkoutPromptFiles.append(filename);
+                    m_pendingGarminWorkoutPromptNames.append(workoutName);
+                    m_pendingGarminWorkoutPromptDates.append(workoutDate);
+                    showNextGarminWorkoutPrompt();
                 });
 
         connect(garminConnect, &GarminConnect::workoutDownloadFailed, this,
@@ -9390,6 +9421,24 @@ void homeform::garmin_connect_logout() {
     }
 }
 
+void homeform::showNextGarminWorkoutPrompt() {
+    if (m_garminWorkoutPromptRequested || m_pendingGarminWorkoutPromptFiles.isEmpty()) {
+        return;
+    }
+
+    m_garminWorkoutPromptFile = m_pendingGarminWorkoutPromptFiles.takeFirst();
+    m_garminWorkoutPromptName = m_pendingGarminWorkoutPromptNames.isEmpty()
+                                    ? QStringLiteral("Workout")
+                                    : m_pendingGarminWorkoutPromptNames.takeFirst();
+    m_garminWorkoutPromptDate = m_pendingGarminWorkoutPromptDates.isEmpty()
+                                    ? QString()
+                                    : m_pendingGarminWorkoutPromptDates.takeFirst();
+
+    emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
+    emit garminWorkoutPromptDateChanged(m_garminWorkoutPromptDate);
+    setGarminWorkoutPromptRequested(true);
+}
+
 void homeform::garmin_start_downloaded_workout() {
     const QString workoutFile = m_garminWorkoutPromptFile;
     const QString workoutName = m_garminWorkoutPromptName;
@@ -9399,6 +9448,7 @@ void homeform::garmin_start_downloaded_workout() {
     emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
     emit garminWorkoutPromptDateChanged(m_garminWorkoutPromptDate);
     setGarminWorkoutPromptRequested(false);
+    showNextGarminWorkoutPrompt();
 
     if (workoutFile.isEmpty()) {
         setToastRequested("No Garmin workout file available");
@@ -9421,6 +9471,7 @@ void homeform::garmin_dismiss_downloaded_workout_prompt() {
     emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
     emit garminWorkoutPromptDateChanged(m_garminWorkoutPromptDate);
     setGarminWorkoutPromptRequested(false);
+    showNextGarminWorkoutPrompt();
 }
 
 void homeform::echelon_switch_to_classic_bridge() {

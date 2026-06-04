@@ -15,6 +15,7 @@
 #include <QStandardPaths>
 #include <QTime>
 #include <QQmlFile>
+#include <algorithm>
 #include <limits>
 #ifdef Q_HTTPSERVER
 #include "webserverinfosender.h"
@@ -510,17 +511,31 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgCont
     QString basePath = homeform::getWritableAppDir() + QStringLiteral("training");
     QString fullPath = path.isEmpty() ? basePath : (basePath + QStringLiteral("/") + path);
 
-    // Iterate through directory
-    QDir dir(fullPath);
-    dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
-    dir.setSorting(QDir::DirsFirst | QDir::Name);
-    dir.setNameFilters(QStringList() << "*.xml" << "*.zwo");
+    // The Workout Editor needs to see workouts saved in source/type subfolders
+    // such as ride/Garmin and run/Garmin, not only files in training/.
+    QDirIterator it(fullPath,
+                    QStringList() << QStringLiteral("*.xml") << QStringLiteral("*.zwo"),
+                    QDir::Files | QDir::NoDotAndDotDot,
+                    QDirIterator::Subdirectories);
+    QList<QFileInfo> files;
+    while (it.hasNext()) {
+        it.next();
+        files.append(it.fileInfo());
+    }
+    std::sort(files.begin(), files.end(), [](const QFileInfo &a, const QFileInfo &b) {
+        return a.absoluteFilePath().compare(b.absoluteFilePath(), Qt::CaseInsensitive) < 0;
+    });
 
-    QFileInfoList list = dir.entryInfoList();
-    for (const QFileInfo &fileInfo : list) {
+    QDir baseDir(basePath);
+    for (const QFileInfo &fileInfo : qAsConst(files)) {
+        QString relativePath = baseDir.relativeFilePath(fileInfo.absoluteFilePath());
+        relativePath.replace(QStringLiteral("\\"), QStringLiteral("/"));
+
         QJsonObject item;
-        item[QStringLiteral("name")] = fileInfo.fileName();
-        item[QStringLiteral("isFolder")] = fileInfo.isDir();
+        item[QStringLiteral("name")] = relativePath;
+        item[QStringLiteral("fileName")] = fileInfo.fileName();
+        item[QStringLiteral("relativePath")] = relativePath;
+        item[QStringLiteral("isFolder")] = false;
         item[QStringLiteral("path")] = fileInfo.absoluteFilePath();
         item[QStringLiteral("url")] = QUrl::fromLocalFile(fileInfo.absoluteFilePath()).toString();
         outArr.append(item);

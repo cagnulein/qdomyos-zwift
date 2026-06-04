@@ -79,6 +79,24 @@ ColumnLayout {
         }
     }
 
+    MessageDialog {
+        id: deleteDialog
+        property url fileUrl: ""
+        text: "Delete workout?"
+        informativeText: "This cannot be undone."
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            if (rootItem.deleteTrainingProgramFile(fileUrl)) {
+                pendingWorkoutUrl = ""
+                isSearching = false
+                stackView.clear()
+                stackView.push(masterView)
+            }
+            visible = false
+        }
+        onNoClicked: visible = false
+    }
+
     StackView {
         id: stackView
         Layout.fillWidth: true
@@ -286,6 +304,15 @@ ColumnLayout {
                             trainprogram_open_clicked(pendingWorkoutUrl)
                             trainprogram_autostart_requested()
                             stackView.pop()
+                        }
+                    }
+
+                    Button {
+                        text: "Delete"
+                        Material.background: Material.Red
+                        onClicked: {
+                            deleteDialog.fileUrl = pendingWorkoutUrl
+                            deleteDialog.visible = true
                         }
                     }
                 }
