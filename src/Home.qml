@@ -285,7 +285,11 @@ HomeForm {
                 }
                 text: value
                 horizontalAlignment: Text.AlignHCenter
+                width: Math.max(50, parent.width - (writable ? 100 * settings.ui_zoom / 100 : 12 * settings.ui_zoom / 100))
+                height: 58 * settings.ui_zoom / 100
                 font.pointSize: valueFontSize * settings.ui_zoom / 100
+                fontSizeMode: Text.Fit
+                minimumPointSize: 10
                 font.bold: true
                 visible: !largeButton
 
@@ -303,7 +307,11 @@ HomeForm {
                 }
                 text: secondLine
                 horizontalAlignment: Text.AlignHCenter
+                width: Math.max(50, parent.width - 12 * settings.ui_zoom / 100)
+                height: 24 * settings.ui_zoom / 100
                 font.pointSize: settings.theme_tile_secondline_textsize * settings.ui_zoom / 100
+                fontSizeMode: Text.Fit
+                minimumPointSize: 7
                 font.bold: false
                 visible: !largeButton
 
@@ -316,11 +324,15 @@ HomeForm {
                     top: myIcon.top
                 }
                 font.bold: true
-                     font.pointSize: labelFontSize
+                font.pointSize: labelFontSize
+                fontSizeMode: Text.Fit
+                minimumPointSize: 8
                 color: "white"
                 text: name
                 anchors.left: parent.left
                 anchors.leftMargin: 55 * settings.ui_zoom / 100
+                width: Math.max(40, parent.width - 61 * settings.ui_zoom / 100)
+                height: 40 * settings.ui_zoom / 100
                 anchors.topMargin: 20 * settings.ui_zoom / 100
                 visible: !largeButton
 
