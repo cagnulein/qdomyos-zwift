@@ -30,12 +30,14 @@ using namespace std::chrono_literals;
     item[QStringLiteral("duration_s")] = QTime(0,0,0).secsTo(row.duration);                                 \
     item[QStringLiteral("distance")] = row.distance;                                                        \
     item[QStringLiteral("speed")] = row.speed;                                                              \
-    item[QStringLiteral("minspeed")] = row.minSpeed;                                                        \
-    item[QStringLiteral("maxspeed")] = row.maxSpeed;                                                        \
+    item[QStringLiteral("minSpeed")] = row.minSpeed;                                                        \
+    item[QStringLiteral("maxSpeed")] = row.maxSpeed;                                                        \
     item[QStringLiteral("fanspeed")] = row.fanspeed;                                                        \
-    item[QStringLiteral("inclination")] = row.inclination;                                                  \
+    if (row.inclination >= -50) {\
+        item[QStringLiteral("inclination")] = row.inclination;\
+    }\
     item[QStringLiteral("resistance")] = row.resistance;                                                    \
-    item[QStringLiteral("maxresistance")] = row.maxResistance;                                              \
+    item[QStringLiteral("maxResistance")] = row.maxResistance;                                              \
     item[QStringLiteral("mets")] = row.mets;                                                                \
     item[QStringLiteral("pace_intensity")] = row.pace_intensity;                                            \
     item[QStringLiteral("lower_resistance")] = row.lower_resistance;                                        \
@@ -52,7 +54,6 @@ using namespace std::chrono_literals;
     item[QStringLiteral("zoneHR")] = row.zoneHR;                                                            \
     item[QStringLiteral("HRmin")] = row.HRmin;                                                              \
     item[QStringLiteral("HRmax")] = row.HRmax;                                                              \
-    item[QStringLiteral("maxSpeed")] = row.maxSpeed;                                                        \
     item[QStringLiteral("latitude")] = row.latitude;                                                        \
     item[QStringLiteral("longitude")] = row.longitude;                                                      \
     item[QStringLiteral("altitude")] = row.altitude;                                                        \
@@ -603,7 +604,7 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
                 }
 
                 // Inclination
-                if (r.inclination > -200) {
+                if (r.inclination >= -50) {
                     QJsonObject incPoint;
                     incPoint[QStringLiteral("x")] = currentSecond;
                     incPoint[QStringLiteral("y")] = r.inclination;
@@ -695,7 +696,7 @@ void TemplateInfoSenderBuilder::onGetWorkoutPreview(TemplateInfoSender *tempSend
             }
 
             // Inclination
-            if (i < inclinationData.size()) {
+            if (i < inclinationData.size() && inclinationData[i] >= -50) {
                 QJsonObject incPoint;
                 incPoint[QStringLiteral("x")] = i;
                 incPoint[QStringLiteral("y")] = inclinationData[i];
@@ -978,8 +979,10 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
     for (const auto &r : qAsConst(rows)) {
         QJsonObject row = r.toObject();
         trainrow tR;
-        if (row.contains(QStringLiteral("duration"))) {
-            tR.duration = QTime::fromString(row[QStringLiteral("duration")].toString(), QStringLiteral("hh:mm:ss"));
+        if (row.contains(QStringLiteral("duration")) || row.contains(QStringLiteral("distance"))) {
+            if (row.contains(QStringLiteral("duration"))) {
+                tR.duration = QTime::fromString(row[QStringLiteral("duration")].toString(), QStringLiteral("hh:mm:ss"));
+            }
             if (row.contains(QStringLiteral("distance"))) {
                 tR.distance = row[QStringLiteral("distance")].toDouble();
             }
