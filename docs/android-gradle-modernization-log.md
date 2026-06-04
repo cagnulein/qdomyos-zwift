@@ -419,6 +419,23 @@ Status: done
   - the Qt Android Java tree still depends on legacy Ministro AIDL-generated
     interfaces, and relying on AGP defaults here is not stable enough
 
+### 2026-06-04 23. Remove duplicate Ministro AIDL seed
+
+Status: done
+
+- A later Android CI run failed in `:compileDebugAidl` with duplicate
+  `org.kde.necessitas.ministro.IMinistroCallback` sources from:
+  - `output/android/Qt/5.15.0/android/src/android/java/src/org/kde/necessitas/ministro`
+  - `output/android/src/org/kde/necessitas/ministro`
+- The manual Ministro package seed from step 21 became redundant after step 22
+  enabled AIDL explicitly and `src/android/build.gradle` already included the
+  Qt Android Java source tree in `aidl.srcDirs`.
+- Updated all Android packaging jobs to stop copying the Ministro package into
+  `output/android/src`.
+- Reason for the change:
+  - keep the single authoritative Ministro AIDL source under the Qt Android
+    Java tree while still allowing AGP 8 to generate the interfaces.
+
 ## Failures / Dead Ends
 
 - One `zwiftplay` build attempt was interrupted manually before completion.
