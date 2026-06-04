@@ -34,9 +34,12 @@ TEST(KeepBikeNewProtocolRegressionTest, ResistanceComesFromLoggedStatusFrame) {
         "a5a5a0421600ef2332165545d88f6500000004b53130362f34ff08048272");
     const QByteArray resistanceOnePacket = QByteArray::fromHex(
         "a5a5a0441600ef2332165545d8906500000004b53130362f34ff0801e6be");
+    const QByteArray commandStatusPacket = QByteArray::fromHex(
+        "a5a5a02e2100ef2332165583fd43b48d000002b53130362f34ff080212094e4f20535441545553767f");
 
     EXPECT_EQ(keepbike::parseNewProtocolResistanceFrame(resistanceFourPacket), 4);
     EXPECT_EQ(keepbike::parseNewProtocolResistanceFrame(resistanceOnePacket), 1);
+    EXPECT_EQ(keepbike::parseNewProtocolResistanceFrame(commandStatusPacket), 2);
 }
 
 TEST(KeepBikeNewProtocolRegressionTest, BuildsResistanceWritePayload) {

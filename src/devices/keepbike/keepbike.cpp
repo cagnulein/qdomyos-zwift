@@ -185,7 +185,7 @@ resistance_t keepbike::parseNewProtocolResistanceFrame(const QByteArray &packet)
     }
 
     const QByteArray body = packet.mid(6, toUInt16LE(packet, 4));
-    if (body.length() < 20 || body.left(6) != QByteArray::fromHex("ef2332165545")) {
+    if (body.length() < 19 || body.left(5) != QByteArray::fromHex("ef23321655")) {
         return -1;
     }
 
@@ -544,6 +544,12 @@ bool keepbike::handleNewProtocolFrame(const QByteArray &newValue) {
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     lastPacket = newValue;
+
+    if (metrics.resistance > 0) {
+        Resistance = metrics.resistance;
+        emit resistanceRead(Resistance.value());
+        m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
+    }
 
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
