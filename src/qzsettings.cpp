@@ -1227,7 +1227,7 @@ const QString QZSettings::default_shortcut_lap = QStringLiteral("");
 const QString QZSettings::shortcut_start_stop = QStringLiteral("shortcut_start_stop");
 const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 957;
+const uint32_t allSettingsCount = 958;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1268,6 +1268,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::intervalsicu_suffix, QZSettings::default_intervalsicu_suffix},
     {QZSettings::intervalsicu_date_prefix, QZSettings::default_intervalsicu_date_prefix},
     {QZSettings::ui_zoom, QZSettings::default_ui_zoom},
+    {QZSettings::app_language, QZSettings::default_app_language},
     {QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service},
     {QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset},
     {QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f},

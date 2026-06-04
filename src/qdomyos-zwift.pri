@@ -882,6 +882,9 @@ exists(secret.h): HEADERS += secret.h
 	mainwindow.ui
 
 # Translation files - 30 most used languages worldwide
+CONFIG += lrelease
+LRELEASE_DIR = $$PWD/translations
+
 TRANSLATIONS += \
     $$PWD/translations/qdomyos-zwift_it.ts \
     $$PWD/translations/qdomyos-zwift_de.ts \
@@ -914,8 +917,8 @@ TRANSLATIONS += \
     $$PWD/translations/qdomyos-zwift_he.ts \
     $$PWD/translations/qdomyos-zwift_ca.ts
 
-# Qt will automatically compile .ts to .qm files during build
-# .qm files will be embedded in the application
+# Qt compiles .ts to .qm files before building the resource file.
+# .qm files are ignored by git and embedded through translations.qrc.
 
 RESOURCES += \
    icons.qrc \
