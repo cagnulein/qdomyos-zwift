@@ -21,7 +21,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.protobuf'
 
 def amazon = System.getenv('AMAZON')
-def androidCompileSdk = (project.findProperty('androidCompileSdkVersion') ?: '34').toString()
+def androidCompileSdk = (project.findProperty('androidCompileSdkVersion') ?: '35').toString()
 def qtAndroidDir = project.findProperty('qt5AndroidDir') ?: System.getenv('QT_ANDROID_DIR')
 println(amazon)
 def qtAndroidBaseDir = qtAndroidDir ? qtAndroidDir.toString().replaceAll('/src/android/java/?$', '') : null
