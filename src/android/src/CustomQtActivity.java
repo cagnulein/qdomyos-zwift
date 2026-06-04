@@ -41,6 +41,7 @@ public class CustomQtActivity extends QtActivity {
         Log.d(TAG, "onCreate: CustomQtActivity initialized");
         dispatchOAuthCallback(getIntent());
         AgeSignalsHelper.requestAgeSignals(this);
+        HealthConnectHelper.initialize(this);
 
         // This tells the OS that we want to handle the display cutout area ourselves
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
