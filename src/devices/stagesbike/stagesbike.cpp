@@ -109,11 +109,11 @@ void stagesbike::update() {
                 QByteArray a;
                 if(DR) {
                     // For DR devices, use setBrakeLevel with inclination value (converted from percentage)
-                    double inclinationValue = lastRawRequestedResistanceValue + gears();
+                    double inclinationValue = lastRawRequestedResistanceValue + gearsModifier();
                     a = setBrakeLevel(inclinationValue / 100.0);
                 } else {
                     a = setSimulationMode(
-                        lastRawRequestedInclinationValue + gears(), 0.005, 0.5, 0.0, 1.0); // since this bike doesn't have the concept of resistance,
+                        lastRawRequestedInclinationValue + gearsModifier(), 0.005, 0.5, 0.0, 1.0); // since this bike doesn't have the concept of resistance,
                                                                                            // i'm using the gears in the inclination
                 }
                 uint8_t b[20];
@@ -135,7 +135,7 @@ void stagesbike::update() {
             if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 if(eliteService != nullptr) {
-                    QByteArray a = setBrakeLevel((lastRawRequestedResistanceValue + gears()) / 100.0);
+                    QByteArray a = setBrakeLevel((lastRawRequestedResistanceValue + gearsModifier()) / 100.0);
                     uint8_t b[20];
                     memcpy(b, a.constData(), a.length());
                     writeCharacteristic(eliteService, eliteWriteCharacteristic, b, a.length(), "forceResistance", false, false);

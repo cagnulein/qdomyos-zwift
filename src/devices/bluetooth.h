@@ -358,7 +358,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool sramDeviceAvaiable();
     bool cycplusBC2DeviceAvaiable();
     bool thinkriderDeviceAvaiable();
-    bool fitmetria_fanfit_isconnected(QString name);
+    bool fitmetria_fanfit_isconnected(const QBluetoothDeviceInfo &device);
     bool gymModeEnabled() const;
 
 #ifdef Q_OS_WIN
