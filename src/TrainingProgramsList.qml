@@ -11,7 +11,29 @@ ColumnLayout {
     signal trainprogram_open_clicked(url name)
     signal trainprogram_open_other_folder(url name)
     signal trainprogram_preview(url name)
+    signal trainprogram_autostart_requested()
     property url selectedWorkoutUrl: ""
+    property url initialWorkoutUrl: ""
+
+    function openWorkoutPreview(fileUrl) {
+        if (!fileUrl || fileUrl.toString() === "") {
+            return
+        }
+        selectedWorkoutUrl = fileUrl
+        trainprogram_preview(fileUrl)
+        powerSeries.clear();
+        for(var i=0;i<rootItem.preview_workout_points;i+=10)
+        {
+            powerSeries.append(i * 1000, rootItem.preview_workout_watt[i]);
+        }
+        rootItem.update_chart_power(powerChart);
+    }
+
+    Component.onCompleted: {
+        Qt.callLater(function() {
+            openWorkoutPreview(initialWorkoutUrl)
+        })
+    }
 
     MessageDialog {
         id: deleteDialog
@@ -324,6 +346,16 @@ ColumnLayout {
         height: 50
         width: parent.width
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+
+        Button {
+            Layout.fillWidth: true
+            text: "Start Workout"
+            visible: selectedWorkoutUrl != ""
+            onClicked: {
+                trainprogram_open_clicked(selectedWorkoutUrl)
+                trainprogram_autostart_requested()
+            }
+        }
 
         Button {
             id: deleteButton

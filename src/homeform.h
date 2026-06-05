@@ -588,7 +588,7 @@ class homeform : public QObject {
     Q_INVOKABLE void garmin_connect_logout();
     Q_INVOKABLE void garmin_start_downloaded_workout();
     Q_INVOKABLE void garmin_dismiss_downloaded_workout_prompt();
-    Q_INVOKABLE void clipboard_start_workout();
+    Q_INVOKABLE QUrl clipboard_workout_url() const { return QUrl::fromLocalFile(m_clipboardWorkoutPromptFile); }
     Q_INVOKABLE void clipboard_dismiss_workout_prompt();
     Q_INVOKABLE void echelon_switch_to_classic_bridge();
     Q_INVOKABLE void echelon_dismiss_bridge_switch_prompt();

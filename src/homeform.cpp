@@ -8604,29 +8604,6 @@ void homeform::checkClipboardForWorkout() {
     setClipboardWorkoutPromptRequested(true);
 }
 
-void homeform::clipboard_start_workout() {
-    const QString workoutFile = m_clipboardWorkoutPromptFile;
-    const QString workoutName = m_clipboardWorkoutPromptName;
-
-    m_clipboardWorkoutPromptFile.clear();
-    m_clipboardWorkoutPromptName.clear();
-    emit clipboardWorkoutPromptNameChanged(m_clipboardWorkoutPromptName);
-    setClipboardWorkoutPromptRequested(false);
-
-    if (workoutFile.isEmpty()) {
-        setToastRequested(QStringLiteral("No clipboard workout available"));
-        return;
-    }
-
-    if (!startTrainingProgramFromFile(workoutFile)) {
-        setToastRequested(QStringLiteral("Failed to load clipboard workout"));
-        return;
-    }
-
-    trainprogram_autostart_requested();
-    setToastRequested(QStringLiteral("Starting clipboard workout: ") + workoutName);
-}
-
 void homeform::clipboard_dismiss_workout_prompt() {
     m_clipboardWorkoutPromptFile.clear();
     m_clipboardWorkoutPromptName.clear();

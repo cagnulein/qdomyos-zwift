@@ -15,6 +15,7 @@ ColumnLayout {
     signal trainprogram_autostart_requested()
 
     property url pendingWorkoutUrl: ""
+    property url initialWorkoutUrl: ""
 
     Settings {
         id: settings
@@ -23,6 +24,21 @@ ColumnLayout {
 
     property var selectedFileUrl: ""
     property bool isSearching: false
+
+    function openWorkoutPreview(fileUrl) {
+        if (!fileUrl || fileUrl.toString() === "") {
+            return
+        }
+        pendingWorkoutUrl = fileUrl
+        trainprogram_preview(fileUrl)
+        stackView.push(detailView)
+    }
+
+    Component.onCompleted: {
+        Qt.callLater(function() {
+            openWorkoutPreview(initialWorkoutUrl)
+        })
+    }
 
     // Model for search results
     ListModel {
@@ -270,11 +286,7 @@ ColumnLayout {
                                 }
                             } else if (itemFileUrl) {
                                 // Load preview and show detail view
-                                trainprogram_preview(itemFileUrl)
-                                pendingWorkoutUrl = itemFileUrl
-
-                                // Wait for preview to load then push detail view
-                                detailViewTimer.restart()
+                                openWorkoutPreview(itemFileUrl)
                             }
                         }
                     }
@@ -288,16 +300,6 @@ ColumnLayout {
                     text: "Other folders"
                     onClicked: {
                         fileDialogLoader.active = true
-                    }
-                }
-
-                // Timer to push detail view after preview loads
-                Timer {
-                    id: detailViewTimer
-                    interval: 300
-                    repeat: false
-                    onTriggered: {
-                        stackView.push(detailView)
                     }
                 }
             }
