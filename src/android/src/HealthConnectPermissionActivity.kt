@@ -3,11 +3,11 @@ package org.cagnulen.qdomyoszwift
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.health.connect.client.contracts.HealthPermissionsRequestContract
+import androidx.health.connect.client.PermissionController
 
 class HealthConnectPermissionActivity : ComponentActivity() {
     private val permissionLauncher = registerForActivityResult(
-        HealthPermissionsRequestContract(HEALTH_CONNECT_PROVIDER)
+        PermissionController.createRequestPermissionResultContract()
     ) { grantedPermissions ->
         getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
@@ -45,7 +45,6 @@ class HealthConnectPermissionActivity : ComponentActivity() {
         const val EXTRA_PERMISSIONS = "org.cagnulen.qdomyoszwift.healthconnect.PERMISSIONS"
 
         private const val TAG = "HealthConnectPermissionActivity"
-        private const val HEALTH_CONNECT_PROVIDER = "com.google.android.apps.healthdata"
         private const val PREFS_NAME = "qz_health_connect"
         private const val PREF_PERMISSION_PROMPT_SHOWN = "permission_prompt_shown_v2"
         private const val PREF_PERMISSION_PROMPT_PENDING = "permission_prompt_pending_v2"
