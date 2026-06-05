@@ -7884,7 +7884,8 @@ void homeform::update() {
                             pid_heart_zone_small_inc_counter = 0;
                         } else if (currentSpeed < maxSpeed && trainprogram_pid_pushy) {
                             pid_heart_zone_small_inc_counter++;
-                            if (fabs(((float)zone) - currentHRZone) < 0.5 && pid_heart_zone_small_inc_counter > (10 * fabs(((float)zone) - currentHRZone))) {
+                            double distanceToNextZone = ((double)zone + 1.0) - currentHRZone;
+                            if (distanceToNextZone > 0.0 && pid_heart_zone_small_inc_counter > (10 * distanceToNextZone)) {
                                 double newSpeed = std::min(currentSpeed + step, maxSpeed);
                                 ((treadmill *)bluetoothManager->device())
                                     ->changeSpeedAndInclination(
