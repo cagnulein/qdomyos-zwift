@@ -20,6 +20,33 @@ import Qt.labs.platform 1.1
         signal intervalsicu_connect_clicked()
         signal intervalsicu_download_todays_workout_clicked()
 
+        property var settingsCatalog: ({ "settings": [], "virtualSettings": [], "pages": [] })
+        property var searchableSettings: []
+        property var filteredSettings: []
+        property bool settingsCatalogLoaded: false
+        property bool settingsCatalogLoading: false
+        property string settingsCatalogError: ""
+        property bool settingsSearchVisible: false
+        property bool settingsSearchActive: false
+        property bool settingsSearchPending: false
+
+        function showSettingsSearch() {
+            settingsSearchVisible = true
+            loadSettingsCatalog()
+            Qt.callLater(function() {
+                settingsSearchTextField.forceActiveFocus()
+            })
+        }
+
+        function hideSettingsSearch() {
+            settingsSearchDebounceTimer.stop()
+            settingsSearchTextField.text = ""
+            settingsSearchVisible = false
+            settingsSearchActive = false
+            settingsSearchPending = false
+            filteredSettings = []
+        }
+
         function openGarminSection() {
             garminOptionsAccordion.isOpen = true
             scrollTimer.start()
@@ -28,6 +55,243 @@ import Qt.labs.platform 1.1
         // Strip the RSSI proximity suffix (e.g. " (75%)") before saving device names
         function stripRssi(deviceName) {
             return deviceName.replace(/ \(\d+%\)$/, "")
+        }
+
+        function loadSettingsCatalog() {
+            if (settingsCatalogLoaded || settingsCatalogLoading)
+                return
+
+            settingsCatalogLoading = true
+            settingsCatalogError = ""
+
+            var xhr = new XMLHttpRequest()
+            xhr.open("GET", "qrc:/settings-catalog.json")
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState !== XMLHttpRequest.DONE)
+                    return
+
+                settingsCatalogLoading = false
+                if (xhr.status === 200 || xhr.status === 0) {
+                    try {
+                        settingsCatalog = JSON.parse(xhr.responseText)
+                        settingsCatalogLoaded = true
+                        settingsCatalogError = ""
+                        buildSearchableSettings()
+                    } catch (e) {
+                        settingsCatalogError = "Unable to parse settings catalog"
+                        console.log(settingsCatalogError + ": " + e)
+                    }
+                } else {
+                    settingsCatalogError = "Unable to load settings catalog"
+                    console.log(settingsCatalogError + ": " + xhr.status)
+                }
+            }
+            xhr.send()
+        }
+
+        function buildSearchableSettings() {
+            var items = []
+            var virtualSettings = settingsCatalog.virtualSettings || []
+            var persistentSettings = settingsCatalog.settings || []
+            var pages = settingsCatalog.pages || []
+
+            for (var i = 0; i < virtualSettings.length; i++) {
+                virtualSettings[i].catalogKind = "virtual"
+                items.push(virtualSettings[i])
+            }
+
+            for (var j = 0; j < persistentSettings.length; j++) {
+                if (persistentSettings[j].control === "virtualOption")
+                    continue
+                if (!persistentSettings[j].visible)
+                    continue
+                if (settingsPane.isTileOrderSetting(persistentSettings[j]))
+                    continue
+                persistentSettings[j].catalogKind = "setting"
+                items.push(persistentSettings[j])
+            }
+
+            for (var k = 0; k < pages.length; k++) {
+                if (!pages[k].visible)
+                    continue
+                pages[k].catalogKind = "page"
+                items.push(pages[k])
+            }
+
+            searchableSettings = items
+            if (settingsSearchActive && settingsSearchPending && settingsSearchDebounceTimer.running)
+                return
+
+            updateFilteredSettings()
+        }
+
+        function isTileOrderSetting(entry) {
+            return entry && entry.key && entry.key.indexOf("tile_") === 0 && entry.key.lastIndexOf("_order") === entry.key.length - 6
+        }
+
+        function searchableText(entry) {
+            var parts = [
+                entry.key,
+                entry.name,
+                entry.description,
+                entry.parent,
+                parentDisplayName(entry),
+                entry.type,
+                entry.control,
+                entry.target
+            ]
+
+            if (entry.options) {
+                if (entry.options.values) {
+                    for (var i = 0; i < entry.options.values.length; i++)
+                        parts.push(entry.options.values[i])
+                } else if (entry.options.length !== undefined) {
+                    for (var j = 0; j < entry.options.length; j++) {
+                        parts.push(entry.options[j].label)
+                        parts.push(entry.options[j].sets)
+                    }
+                }
+            }
+
+            return parts.join(" ").toLowerCase()
+        }
+
+        function catalogEntryNameByKey(key) {
+            var persistentSettings = settingsCatalog.settings || []
+            for (var i = 0; i < persistentSettings.length; i++) {
+                if (persistentSettings[i].key === key)
+                    return persistentSettings[i].name || key
+            }
+
+            var virtualSettings = settingsCatalog.virtualSettings || []
+            for (var j = 0; j < virtualSettings.length; j++) {
+                if (virtualSettings[j].key === key)
+                    return virtualSettings[j].name || key
+            }
+
+            return key
+        }
+
+        function parentDisplayName(entry) {
+            if (!entry.parent)
+                return qsTr("General")
+            return catalogEntryNameByKey(entry.parent)
+        }
+
+        function updateFilteredSettings() {
+            if (!settingsCatalogLoaded) {
+                filteredSettings = []
+                settingsSearchPending = settingsSearchActive
+                return
+            }
+
+            var query = settingsSearchTextField ? settingsSearchTextField.text.trim().toLowerCase() : ""
+            if (query.length === 0) {
+                filteredSettings = []
+                settingsSearchPending = false
+                return
+            }
+
+            var tokens = query.split(/\s+/)
+            var results = []
+            for (var i = 0; i < searchableSettings.length; i++) {
+                var haystack = searchableText(searchableSettings[i])
+                var matched = true
+                for (var tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
+                    if (haystack.indexOf(tokens[tokenIndex]) < 0) {
+                        matched = false
+                        break
+                    }
+                }
+
+                if (matched)
+                    results.push(searchableSettings[i])
+
+                if (results.length >= 80)
+                    break
+            }
+            filteredSettings = results
+            settingsSearchPending = false
+        }
+
+        function settingValue(entry) {
+            var value = settings[entry.key]
+            return value === undefined ? entry.defaultValue : value
+        }
+
+        function setSettingValue(entry, value) {
+            if (entry.type === "boolean") {
+                settings[entry.key] = !!value
+            } else if (entry.type === "integer") {
+                settings[entry.key] = parseInt(value)
+            } else if (entry.type === "number") {
+                settings[entry.key] = parseFloat(value)
+            } else {
+                settings[entry.key] = value
+            }
+
+            window.settings_restart_to_apply = true
+            toast.show("Setting saved!")
+        }
+
+        function optionValues(entry) {
+            if (!entry.options)
+                return []
+
+            if (entry.options.values)
+                return entry.options.values
+
+            if (entry.options.expression && entry.options.expression.indexOf("rootItem.") === 0) {
+                var propertyName = entry.options.expression.substring("rootItem.".length)
+                if (typeof rootItem !== "undefined" && rootItem && rootItem[propertyName] !== undefined)
+                    return rootItem[propertyName]
+            }
+
+            return []
+        }
+
+        function optionIndex(entry) {
+            var values = optionValues(entry)
+            var value = settingValue(entry)
+            for (var i = 0; i < values.length; i++) {
+                if (values[i] === value)
+                    return i
+            }
+            return 0
+        }
+
+        function virtualOptionLabels(entry) {
+            var labels = []
+            for (var i = 0; entry.options && i < entry.options.length; i++)
+                labels.push(entry.options[i].label)
+            return labels
+        }
+
+        function virtualSelectedIndex(entry) {
+            if (!entry.options)
+                return 0
+
+            for (var i = 0; i < entry.options.length; i++) {
+                if (entry.options[i].sets && settings[entry.options[i].sets])
+                    return i
+            }
+            return 0
+        }
+
+        function setVirtualSelection(entry, index) {
+            if (!entry.options)
+                return
+
+            for (var i = 0; i < entry.options.length; i++) {
+                if (entry.options[i].sets)
+                    settings[entry.options[i].sets] = false
+            }
+
+            if (entry.options[index] && entry.options[index].sets)
+                settings[entry.options[index].sets] = true
+
+            window.settings_restart_to_apply = true
+            toast.show("Setting saved!")
         }
 
         // always add a property at the end of the file to avoid corruption of the settings when loading old versions
@@ -1288,11 +1552,13 @@ import Qt.labs.platform 1.1
 			property bool tile_heart_show_as_percent: false
 			property bool tile_hrv_enabled: false
 			property int tile_hrv_order: 78                 
+                             
             property bool nordictrack_gx_4_5_pro: false            
             property double step_gain: 1.0
             property bool sportstech_esx500: false
             property bool proform_bike_325_csx_PFEX439210INT_0: false
             property bool proform_carbon_tlx_treadmill: false
+                    
             property bool nordictrack_vr21: false
             property bool gymstick_gx6_0_elliptical: false
             property bool cadence_sensor_as_treadmill: false
@@ -1312,6 +1578,7 @@ import Qt.labs.platform 1.1
       
             property double power_sensor_speed_inclination_coeff_a: 0.0
             property double power_sensor_speed_inclination_coeff_b: 0.0
+            
             property bool proform_carbon_tlx_v84_314_treadmill: false            
             property bool cscbike_custom_resistance_power_table: false
             property real cscbike_custom_resistance_level_1: 1
@@ -1321,6 +1588,75 @@ import Qt.labs.platform 1.1
             property bool applewatch_as_treadmill_speed: false
             property bool gears_custom_table_enabled: false
             property string gears_custom_table: "1|1\n2|2\n3|3\n4|4\n5|5\n6|6\n7|7\n8|8\n9|9\n10|10\n11|11\n12|12\n13|13\n14|14\n15|15\n16|16\n17|17\n18|18\n19|19\n20|20\n21|21\n22|22\n23|23\n24|24"                        
+            property bool proform_treadmill_cst_505_pftl59420_0: false
+
+            property bool domyos_run100e: false
+
+            property bool shortcuts_enabled: false
+            property string shortcut_speed_plus: ""
+            property string shortcut_speed_minus: ""
+            property string shortcut_inclination_plus: ""
+            property string shortcut_inclination_minus: ""
+            property string shortcut_resistance_plus: ""
+            property string shortcut_resistance_minus: ""
+            property string shortcut_peloton_resistance_plus: ""
+            property string shortcut_peloton_resistance_minus: ""
+            property string shortcut_target_resistance_plus: ""
+            property string shortcut_target_resistance_minus: ""
+            property string shortcut_target_power_plus: ""
+            property string shortcut_target_power_minus: ""
+            property string shortcut_target_zone_plus: ""
+            property string shortcut_target_zone_minus: ""
+            property string shortcut_target_speed_plus: ""
+            property string shortcut_target_speed_minus: ""
+            property string shortcut_target_incline_plus: ""
+            property string shortcut_target_incline_minus: ""
+            property string shortcut_fan_plus: ""
+            property string shortcut_fan_minus: ""
+            property string shortcut_peloton_offset_plus: ""
+            property string shortcut_peloton_offset_minus: ""
+            property string shortcut_peloton_remaining_plus: ""
+            property string shortcut_peloton_remaining_minus: ""
+            property string shortcut_remaining_time_plus: ""
+            property string shortcut_remaining_time_minus: ""
+            property string shortcut_gears_plus: ""
+            property string shortcut_gears_minus: ""
+            property string shortcut_pid_hr_plus: ""
+            property string shortcut_pid_hr_minus: ""
+            property string shortcut_ext_incline_plus: ""
+            property string shortcut_ext_incline_minus: ""
+            property string shortcut_biggears_plus: ""
+            property string shortcut_biggears_minus: ""
+            property string shortcut_avs_cruise: ""
+            property string shortcut_avs_climb: ""
+            property string shortcut_avs_sprint: ""
+            property string shortcut_power_avg: ""
+            property string shortcut_erg_mode: ""
+            property string shortcut_auto_resistance: ""
+            property string shortcut_preset_resistance_1: ""
+            property string shortcut_preset_resistance_2: ""
+            property string shortcut_preset_resistance_3: ""
+            property string shortcut_preset_resistance_4: ""
+            property string shortcut_preset_resistance_5: ""
+            property string shortcut_preset_speed_1: ""
+            property string shortcut_preset_speed_2: ""
+            property string shortcut_preset_speed_3: ""
+            property string shortcut_preset_speed_4: ""
+            property string shortcut_preset_speed_5: ""
+            property string shortcut_preset_inclination_1: ""
+            property string shortcut_preset_inclination_2: ""
+            property string shortcut_preset_inclination_3: ""
+            property string shortcut_preset_inclination_4: ""
+            property string shortcut_preset_inclination_5: ""
+            property string shortcut_preset_powerzone_1: ""
+            property string shortcut_preset_powerzone_2: ""
+            property string shortcut_preset_powerzone_3: ""
+            property string shortcut_preset_powerzone_4: ""
+            property string shortcut_preset_powerzone_5: ""
+            property string shortcut_preset_powerzone_6: ""
+            property string shortcut_preset_powerzone_7: ""
+            property string shortcut_lap: ""
+            property string shortcut_start_stop: ""                                         
         }
 
 
@@ -1347,12 +1683,269 @@ import Qt.labs.platform 1.1
           }
         }
 
-        Component.onCompleted: window.settings_restart_to_apply = false;
+        Component.onCompleted: {
+            window.settings_restart_to_apply = false
+        }
+
+        Timer {
+            id: settingsSearchDebounceTimer
+            interval: 1500
+            repeat: false
+            onTriggered: settingsPane.updateFilteredSettings()
+        }
 
         ColumnLayout {
             id: column1
             spacing: 0
             anchors.fill: parent
+
+            RowLayout {
+                id: settingsSearchBar
+                visible: settingsSearchVisible
+                spacing: 8
+                Layout.fillWidth: true
+
+                TextField {
+                    id: settingsSearchTextField
+                    Layout.fillWidth: true
+                    placeholderText: qsTr("Search settings")
+                    selectByMouse: true
+                    inputMethodHints: Qt.ImhNoPredictiveText
+                    onTextChanged: {
+                        settingsPane.settingsSearchActive = text.trim().length > 0
+                        settingsSearchDebounceTimer.stop()
+                        if (settingsPane.settingsSearchActive) {
+                            settingsPane.filteredSettings = []
+                            settingsPane.settingsSearchPending = true
+                            settingsPane.loadSettingsCatalog()
+                            settingsSearchDebounceTimer.restart()
+                        } else {
+                            settingsPane.filteredSettings = []
+                            settingsPane.settingsSearchPending = false
+                        }
+                    }
+                }
+
+                Button {
+                    text: qsTr("Clear")
+                    onClicked: settingsPane.hideSettingsSearch()
+                }
+            }
+
+            Label {
+                visible: settingsCatalogError.length > 0
+                text: settingsCatalogError
+                color: Material.color(Material.Red)
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+
+            ColumnLayout {
+                id: settingsSearchResults
+                visible: settingsSearchActive
+                spacing: 4
+                Layout.fillWidth: true
+                Layout.preferredWidth: Math.max(1, column1.width)
+
+                Label {
+                    text: settingsCatalogLoading ? qsTr("Loading settings...") :
+                          settingsSearchPending ? qsTr("Searching...") :
+                          filteredSettings.length === 0 ? qsTr("No settings found") :
+                          qsTr("Search results") + " (" + filteredSettings.length + ")"
+                    color: Material.color(Material.Red)
+                    font.bold: true
+                    Layout.fillWidth: true
+                }
+
+                Repeater {
+                    model: filteredSettings
+
+                    delegate: Item {
+                        id: searchResultFrame
+                        property var entry: modelData
+                        width: Math.max(1, settingsSearchResults.width)
+                        Layout.fillWidth: true
+                        Layout.minimumWidth: 0
+                        Layout.preferredWidth: width
+                        Layout.preferredHeight: searchResultContent.implicitHeight + 8
+                        implicitWidth: width
+                        implicitHeight: searchResultContent.implicitHeight + 8
+
+                        Rectangle {
+                            anchors.fill: parent
+                            color: "transparent"
+                            border.color: Material.color(Material.Grey)
+                            border.width: 1
+                            radius: 2
+                        }
+
+                        ColumnLayout {
+                            id: searchResultContent
+                            spacing: 2
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.margins: 4
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                spacing: 8
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
+                                    spacing: 2
+
+                                    Label {
+                                        text: entry.name || entry.key
+                                        font.bold: true
+                                        wrapMode: Text.WordWrap
+                                        Layout.fillWidth: true
+                                        Layout.minimumWidth: 0
+                                    }
+
+                                    Label {
+                                        text: settingsPane.parentDisplayName(entry)
+                                        color: Material.color(Material.Grey)
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        wrapMode: Text.WordWrap
+                                        Layout.fillWidth: true
+                                        Layout.minimumWidth: 0
+                                    }
+                                }
+
+                                Switch {
+                                    visible: entry.catalogKind === "setting" && entry.type === "boolean"
+                                    checked: visible ? settingsPane.settingValue(entry) : false
+                                    onClicked: settingsPane.setSettingValue(entry, checked)
+                                }
+
+                                Button {
+                                    visible: entry.catalogKind === "page"
+                                    text: qsTr("Open")
+                                    onClicked: stackView.push(entry.target)
+                                }
+                            }
+
+                            Label {
+                                visible: entry.description !== null && entry.description !== undefined && entry.description.length > 0
+                                Layout.preferredHeight: visible ? implicitHeight : 0
+                                Layout.maximumHeight: visible ? implicitHeight : 0
+                                text: entry.description || ""
+                                color: Material.color(Material.Lime)
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                            }
+
+                            RowLayout {
+                                visible: entry.catalogKind === "setting" && entry.type !== "boolean" && settingsPane.optionValues(entry).length === 0
+                                Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.preferredHeight: visible ? implicitHeight : 0
+                                Layout.maximumHeight: visible ? implicitHeight : 0
+                                spacing: 8
+
+                                TextField {
+                                    id: searchSettingTextField
+                                    Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
+                                    text: visible ? settingsPane.settingValue(entry) : ""
+                                    horizontalAlignment: Text.AlignRight
+                                    inputMethodHints: entry.type === "string" ? Qt.ImhNoPredictiveText : Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settingsPane.setSettingValue(entry, text)
+                                    onActiveFocusChanged: if (this.focus) this.cursorPosition = this.text.length
+                                }
+
+                                Button {
+                                    text: "OK"
+                                    onClicked: settingsPane.setSettingValue(entry, searchSettingTextField.text)
+                                }
+                            }
+
+                            ComboBox {
+                                id: searchSettingComboBox
+                                visible: entry.catalogKind === "setting" && settingsPane.optionValues(entry).length > 0
+                                Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.preferredHeight: visible ? implicitHeight : 0
+                                Layout.maximumHeight: visible ? implicitHeight : 0
+                                model: visible ? settingsPane.optionValues(entry) : []
+                                currentIndex: visible ? settingsPane.optionIndex(entry) : 0
+                                contentItem: Label {
+                                    leftPadding: 12
+                                    rightPadding: 36
+                                    text: searchSettingComboBox.displayText
+                                    font: searchSettingComboBox.font
+                                    color: searchSettingComboBox.palette.text
+                                    verticalAlignment: Text.AlignVCenter
+                                    elide: Text.ElideRight
+                                }
+                                delegate: ItemDelegate {
+                                    width: searchSettingComboBox.width
+                                    text: modelData
+                                    contentItem: Label {
+                                        text: modelData
+                                        font: searchSettingComboBox.font
+                                        color: searchSettingComboBox.palette.text
+                                        verticalAlignment: Text.AlignVCenter
+                                        elide: Text.ElideRight
+                                    }
+                                }
+                                onActivated: {
+                                    var selectedValue = currentValue
+                                    if (entry.options && entry.options.expression && entry.options.expression.indexOf("bluetoothDevices") >= 0)
+                                        selectedValue = settingsPane.stripRssi(selectedValue)
+                                    settingsPane.setSettingValue(entry, selectedValue)
+                                }
+                            }
+
+                            ComboBox {
+                                id: searchVirtualComboBox
+                                visible: entry.catalogKind === "virtual"
+                                Layout.fillWidth: true
+                                Layout.minimumWidth: 0
+                                Layout.preferredHeight: visible ? implicitHeight : 0
+                                Layout.maximumHeight: visible ? implicitHeight : 0
+                                model: visible ? settingsPane.virtualOptionLabels(entry) : []
+                                currentIndex: visible ? settingsPane.virtualSelectedIndex(entry) : 0
+                                contentItem: Label {
+                                    leftPadding: 12
+                                    rightPadding: 36
+                                    text: searchVirtualComboBox.displayText
+                                    font: searchVirtualComboBox.font
+                                    color: searchVirtualComboBox.palette.text
+                                    verticalAlignment: Text.AlignVCenter
+                                    elide: Text.ElideRight
+                                }
+                                delegate: ItemDelegate {
+                                    width: searchVirtualComboBox.width
+                                    text: modelData
+                                    contentItem: Label {
+                                        text: modelData
+                                        font: searchVirtualComboBox.font
+                                        color: searchVirtualComboBox.palette.text
+                                        verticalAlignment: Text.AlignVCenter
+                                        elide: Text.ElideRight
+                                    }
+                                }
+                                onActivated: settingsPane.setVirtualSelection(entry, currentIndex)
+                            }
+                        }
+                    }
+                }
+            }
+
+            ColumnLayout {
+                id: settingsContent
+                visible: !settingsSearchActive
+                spacing: 0
+                Layout.fillWidth: true
 
             AccordionElement {
                 id: generalOptionsAccordion
@@ -7233,6 +7826,8 @@ import Qt.labs.platform 1.1
                             "Venu2 Plus",
                             "Venu3",
                             "Venu3S",
+                            "Venu4",
+                            "Venu4S",
                             "Venu Sq",
                             "Venu Sq2",
                             "Venu Sq2Music",
@@ -7359,19 +7954,21 @@ import Qt.labs.platform 1.1
                             if (settings.fit_file_garmin_device_training_effect_device === 3851) return 108;  // VENU2_PLUS
                             if (settings.fit_file_garmin_device_training_effect_device === 4260) return 109;  // VENU3
                             if (settings.fit_file_garmin_device_training_effect_device === 4261) return 110;  // VENU3S
-                            if (settings.fit_file_garmin_device_training_effect_device === 3600) return 111;  // VENUSQ
-                            if (settings.fit_file_garmin_device_training_effect_device === 4115) return 112;  // VENUSQ2
-                            if (settings.fit_file_garmin_device_training_effect_device === 4116) return 113;  // VENUSQ2MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 3596) return 114;  // VENUSQ_MUSIC
-                            if (settings.fit_file_garmin_device_training_effect_device === 2700) return 115;  // VIVOACTIVE3
-                            if (settings.fit_file_garmin_device_training_effect_device === 3066) return 116;  // VIVOACTIVE3M_L
-                            if (settings.fit_file_garmin_device_training_effect_device === 2988) return 117;  // VIVOACTIVE3M_W
-                            if (settings.fit_file_garmin_device_training_effect_device === 3225) return 118;  // VIVOACTIVE4_LARGE
-                            if (settings.fit_file_garmin_device_training_effect_device === 3224) return 119;  // VIVOACTIVE4_SMALL
-                            if (settings.fit_file_garmin_device_training_effect_device === 4426) return 120;  // VIVOACTIVE5
-                            if (settings.fit_file_garmin_device_training_effect_device === 4625) return 121;  // VIVOACTIVE6
-                            if (settings.fit_file_garmin_device_training_effect_device === 88888) return 122;  // Tacx
-                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 123;  // Zwift
+                            if (settings.fit_file_garmin_device_training_effect_device === 4643) return 111;  // VENU4
+                            if (settings.fit_file_garmin_device_training_effect_device === 4644) return 112;  // VENU4S
+                            if (settings.fit_file_garmin_device_training_effect_device === 3600) return 113;  // VENUSQ
+                            if (settings.fit_file_garmin_device_training_effect_device === 4115) return 114;  // VENUSQ2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4116) return 115;  // VENUSQ2MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 3596) return 116;  // VENUSQ_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 2700) return 117;  // VIVOACTIVE3
+                            if (settings.fit_file_garmin_device_training_effect_device === 3066) return 118;  // VIVOACTIVE3M_L
+                            if (settings.fit_file_garmin_device_training_effect_device === 2988) return 119;  // VIVOACTIVE3M_W
+                            if (settings.fit_file_garmin_device_training_effect_device === 3225) return 120;  // VIVOACTIVE4_LARGE
+                            if (settings.fit_file_garmin_device_training_effect_device === 3224) return 121;  // VIVOACTIVE4_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 4426) return 122;  // VIVOACTIVE5
+                            if (settings.fit_file_garmin_device_training_effect_device === 4625) return 123;  // VIVOACTIVE6
+                            if (settings.fit_file_garmin_device_training_effect_device === 88888) return 124;  // Tacx
+                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 125;  // Zwift
                             return 20;  // Default to Edge 830
                         }
                         onCurrentIndexChanged: {
@@ -7487,19 +8084,21 @@ import Qt.labs.platform 1.1
                                 case 108: settings.fit_file_garmin_device_training_effect_device = 3851; break;  // VENU2_PLUS
                                 case 109: settings.fit_file_garmin_device_training_effect_device = 4260; break;  // VENU3
                                 case 110: settings.fit_file_garmin_device_training_effect_device = 4261; break;  // VENU3S
-                                case 111: settings.fit_file_garmin_device_training_effect_device = 3600; break;  // VENUSQ
-                                case 112: settings.fit_file_garmin_device_training_effect_device = 4115; break;  // VENUSQ2
-                                case 113: settings.fit_file_garmin_device_training_effect_device = 4116; break;  // VENUSQ2MUSIC
-                                case 114: settings.fit_file_garmin_device_training_effect_device = 3596; break;  // VENUSQ_MUSIC
-                                case 115: settings.fit_file_garmin_device_training_effect_device = 2700; break;  // VIVOACTIVE3
-                                case 116: settings.fit_file_garmin_device_training_effect_device = 3066; break;  // VIVOACTIVE3M_L
-                                case 117: settings.fit_file_garmin_device_training_effect_device = 2988; break;  // VIVOACTIVE3M_W
-                                case 118: settings.fit_file_garmin_device_training_effect_device = 3225; break;  // VIVOACTIVE4_LARGE
-                                case 119: settings.fit_file_garmin_device_training_effect_device = 3224; break;  // VIVOACTIVE4_SMALL
-                                case 120: settings.fit_file_garmin_device_training_effect_device = 4426; break;  // VIVOACTIVE5
-                                case 121: settings.fit_file_garmin_device_training_effect_device = 4625; break;  // VIVOACTIVE6
-                                case 122: settings.fit_file_garmin_device_training_effect_device = 88888; break;  // Tacx
-                                case 123: settings.fit_file_garmin_device_training_effect_device = 99999; break;  // Zwift
+                                case 111: settings.fit_file_garmin_device_training_effect_device = 4643; break;  // VENU4
+                                case 112: settings.fit_file_garmin_device_training_effect_device = 4644; break;  // VENU4S
+                                case 113: settings.fit_file_garmin_device_training_effect_device = 3600; break;  // VENUSQ
+                                case 114: settings.fit_file_garmin_device_training_effect_device = 4115; break;  // VENUSQ2
+                                case 115: settings.fit_file_garmin_device_training_effect_device = 4116; break;  // VENUSQ2MUSIC
+                                case 116: settings.fit_file_garmin_device_training_effect_device = 3596; break;  // VENUSQ_MUSIC
+                                case 117: settings.fit_file_garmin_device_training_effect_device = 2700; break;  // VIVOACTIVE3
+                                case 118: settings.fit_file_garmin_device_training_effect_device = 3066; break;  // VIVOACTIVE3M_L
+                                case 119: settings.fit_file_garmin_device_training_effect_device = 2988; break;  // VIVOACTIVE3M_W
+                                case 120: settings.fit_file_garmin_device_training_effect_device = 3225; break;  // VIVOACTIVE4_LARGE
+                                case 121: settings.fit_file_garmin_device_training_effect_device = 3224; break;  // VIVOACTIVE4_SMALL
+                                case 122: settings.fit_file_garmin_device_training_effect_device = 4426; break;  // VIVOACTIVE5
+                                case 123: settings.fit_file_garmin_device_training_effect_device = 4625; break;  // VIVOACTIVE6
+                                case 124: settings.fit_file_garmin_device_training_effect_device = 88888; break;  // Tacx
+                                case 125: settings.fit_file_garmin_device_training_effect_device = 99999; break;  // Zwift
                             }
                         }
                         Layout.fillWidth: true
@@ -8824,6 +9423,7 @@ import Qt.labs.platform 1.1
                                     "Proform Trainer 8.0 PFTL59721-INT.0",
                                     "ProForm Carbon TL PFTL59723.6",
                                     "ProForm Carbon TLX v84.314 PFTL90924C.7",
+                                    "ProForm CST 505 PFTL59420.0",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -8900,7 +9500,8 @@ import Qt.labs.platform 1.1
                                                     settings.proform_carbon_tlx_treadmill ? 57 :
                                                     settings.proform_trainer_8_0_pftl59721_int_0 ? 58 :
                                                     settings.proform_carbon_tl_PFTL59723_6 ? 59 :
-                                                    settings.proform_carbon_tlx_v84_314_treadmill ? 60 : 0;
+                                                    settings.proform_carbon_tlx_v84_314_treadmill ? 60 :
+                                                    settings.proform_treadmill_cst_505_pftl59420_0 ? 61 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -8975,6 +9576,7 @@ import Qt.labs.platform 1.1
                                     settings.proform_trainer_8_0_pftl59721_int_0 = false;
                                     settings.proform_carbon_tl_PFTL59723_6 = false;
                                     settings.proform_carbon_tlx_v84_314_treadmill = false;
+                                    settings.proform_treadmill_cst_505_pftl59420_0 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -9038,6 +9640,7 @@ import Qt.labs.platform 1.1
                                         case 58: settings.proform_trainer_8_0_pftl59721_int_0 = true; break;
                                         case 59: settings.proform_carbon_tl_PFTL59723_6 = true; break;
                                         case 60: settings.proform_carbon_tlx_v84_314_treadmill = true; break;
+                                        case 61: settings.proform_treadmill_cst_505_pftl59420_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -9403,6 +10006,20 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: settings.domyos_treadmill_ts100 = checked
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("RUN100E (Use Requested Inclination)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.domyos_run100e
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.domyos_run100e = checked
                             }
 
                             IndicatorOnlySwitch {
@@ -14871,6 +15488,7 @@ import Qt.labs.platform 1.1
                         color: Material.color(Material.Lime)
                     }
                 }
+            }
             }
         }
 

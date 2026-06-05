@@ -555,6 +555,7 @@
                 out['__enabled_' + def.key] = false;
             }
         });
+        out.__enabled_duration = out.__enabled_distance === true ? false : true;
         out.__selected = false;
         return out;
     }
@@ -770,13 +771,11 @@
                                 row['__enabled_forcespeed'] = true;
                                 row['forcespeed'] = false; // default to false
                             }
-                            // For treadmill: duration and distance are mutually exclusive
-                            if (state.device === 'treadmill') {
-                                if (field.key === 'distance') {
-                                    row['__enabled_duration'] = false;
-                                } else if (field.key === 'duration') {
-                                    row['__enabled_distance'] = false;
-                                }
+                            // Duration and distance are mutually exclusive.
+                            if (field.key === 'distance') {
+                                row['__enabled_duration'] = false;
+                            } else if (field.key === 'duration') {
+                                row['__enabled_distance'] = false;
                             }
                         } else {
                             fieldWrap.classList.add('disabled');
@@ -1189,14 +1188,23 @@
         }
         const list = [];
         for (const interval of state.intervals) {
-            const durationSec = parseDuration(interval.duration);
-            if (!durationSec) {
-                announce('Invalid duration in intervals', true);
-                return null;
+            const durationEnabled = interval.__enabled_duration !== false;
+            const distanceEnabled = interval.__enabled_distance !== false;
+            const row = {};
+            if (durationEnabled) {
+                const durationSec = parseDuration(interval.duration);
+                if (!durationSec) {
+                    announce('Invalid duration in intervals', true);
+                    return null;
+                }
+                row.duration = formatDuration(durationSec);
+            } else {
+                const distance = Number(interval.distance);
+                if (!distanceEnabled || !isFinite(distance) || distance <= 0) {
+                    announce('Enable duration or enter a valid distance', true);
+                    return null;
+                }
             }
-            const row = {
-                duration: formatDuration(durationSec)
-            };
             // Add interval name/label as textEvent with timeoffset=0 if present
             if (interval.name && interval.name.trim() !== '') {
                 row.textEvents = [{
@@ -1232,6 +1240,9 @@
                 // Skip disabled fields
                 const isEnabled = interval['__enabled_' + field.key] !== false;
                 if (!isEnabled) {
+                    return;
+                }
+                if (field.key === 'distance' && durationEnabled) {
                     return;
                 }
                 const value = interval[field.key];

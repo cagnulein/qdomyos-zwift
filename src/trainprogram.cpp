@@ -1434,9 +1434,10 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
         stream.writeStartElement(QStringLiteral("rows"));
         for (const trainrow &row : qAsConst(rows)) {
             stream.writeStartElement(QStringLiteral("row"));
-            stream.writeAttribute(QStringLiteral("duration"), row.duration.toString());
             if (row.distance >= 0) {
                 stream.writeAttribute(QStringLiteral("distance"), QString::number(row.distance));
+            } else {
+                stream.writeAttribute(QStringLiteral("duration"), row.duration.toString());
             }
             if (row.speed >= 0) {
                 stream.writeAttribute(QStringLiteral("speed"), QString::number(row.speed));

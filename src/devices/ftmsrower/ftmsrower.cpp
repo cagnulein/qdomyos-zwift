@@ -478,8 +478,14 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
     }
 
+    const bool ignoreBuiltinKCal =
+        settings.value(QZSettings::kcal_ignore_builtin, QZSettings::default_kcal_ignore_builtin).toBool();
+
+    bool useCalculatedKCal = true;
+
     if (Flags.expEnergy && index + 1 < newValue.length()) {
-        KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+        const double builtinKCal =
+            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
 
         // energy per hour
@@ -487,16 +493,21 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
         // energy per minute
         index += 1;
-    } else {
-        if (watts())
-            KCal +=
-                ((((0.048 * ((double)watts()) + 1.19) *
-                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                  200.0) /
-                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                  // kg * 3.5) / 200 ) / 60
+
+        if (!ignoreBuiltinKCal) {
+            KCal = FITSHOW ? (builtinKCal / 10.0) : builtinKCal;
+            useCalculatedKCal = false;
+        }
     }
+
+    if (useCalculatedKCal && watts())
+        KCal +=
+            ((((0.048 * ((double)watts()) + 1.19) *
+               settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+              200.0) /
+             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                            now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                              // kg * 3.5) / 200 ) / 60
 
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
