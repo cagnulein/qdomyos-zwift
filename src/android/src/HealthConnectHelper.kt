@@ -68,7 +68,6 @@ class HealthConnectHelper {
         }
 
         @JvmStatic
-        @JvmStatic
         fun writeWorkoutJson(context: Context?, title: String?, deviceType: Int, deviceName: String?, samplesJson: String?) {
             if (context == null || samplesJson.isNullOrEmpty()) {
                 return
