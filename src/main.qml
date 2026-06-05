@@ -728,6 +728,16 @@ ApplicationWindow {
     }
 
     MessageDialog {
+        text: "Clipboard Workout"
+        informativeText: "Workout found in clipboard:\n" + rootItem.clipboardWorkoutPromptName +
+                         "\n\nDo you want to start it now?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.clipboard_start_workout(); }
+        onNoClicked: { rootItem.clipboard_dismiss_workout_prompt(); }
+        visible: rootItem.clipboardWorkoutPromptRequested
+    }
+
+    MessageDialog {
         text: "Echelon Unlock"
         informativeText: "The bike has been unlocked and cadence is flowing.\n\nDo you want to switch to the classic Bluetooth bridge for this session?"
         buttons: (MessageDialog.Yes | MessageDialog.No)

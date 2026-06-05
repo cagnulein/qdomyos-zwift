@@ -23,6 +23,8 @@
 #include <QAbstractOAuth2>
 #include <QApplication>
 #include <QByteArray>
+#include <QClipboard>
+#include <QCryptographicHash>
 #include <QDesktopServices>
 #include <QDir>
 #include <QDirIterator>
@@ -53,6 +55,7 @@
 #include <QUuid>
 #include <QUrlQuery>
 #include <QRegularExpression>
+#include <QXmlStreamReader>
 #include <algorithm>
 #include <chrono>
 
@@ -70,6 +73,59 @@ QString uploadActivityLabelFromSport(FIT_SPORT sport) {
     default:
         return QStringLiteral("Ride");
     }
+}
+
+QString sanitizeClipboardWorkoutName(const QString &input) {
+    QString trimmed = input.trimmed();
+    if (trimmed.isEmpty()) {
+        trimmed = QStringLiteral("Clipboard_Workout");
+    }
+    QRegularExpression invalid(QStringLiteral("[^A-Za-z0-9_\\- ]"));
+    trimmed.replace(invalid, QStringLiteral("_"));
+    trimmed.replace(QRegularExpression(QStringLiteral("\\s+")), QStringLiteral("_"));
+    return trimmed;
+}
+
+QString uniqueClipboardWorkoutPath(const QString &extension, QString *displayName) {
+    const QString trainingDir = homeform::getWritableAppDir() + QStringLiteral("training/");
+    QDir dir(trainingDir);
+    if (!dir.exists()) {
+        dir.mkpath(QStringLiteral("."));
+    }
+
+    const QString baseName = sanitizeClipboardWorkoutName(
+        QStringLiteral("Clipboard_Workout_%1")
+            .arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd_HHmmss"))));
+    QString candidate = baseName;
+    int suffix = 2;
+    while (QFile::exists(trainingDir + candidate + QStringLiteral(".") + extension)) {
+        candidate = QStringLiteral("%1_%2").arg(baseName).arg(suffix++);
+    }
+    if (displayName) {
+        *displayName = candidate + QStringLiteral(".") + extension;
+    }
+    return trainingDir + candidate + QStringLiteral(".") + extension;
+}
+
+QString firstXmlElementName(const QString &xml) {
+    QXmlStreamReader reader(xml);
+    while (!reader.atEnd()) {
+        reader.readNext();
+        if (reader.isStartElement()) {
+            return reader.name().toString();
+        }
+    }
+    return QString();
+}
+
+bool writeClipboardWorkoutFile(const QString &path, const QString &content) {
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
+        return false;
+    }
+    file.write(content.toUtf8());
+    file.close();
+    return true;
 }
 
 QString workoutFileSuffixFromSportText(const QString &sportText) {
@@ -759,6 +815,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     if (settings.value(QZSettings::automatic_virtual_shifting_enabled, QZSettings::default_automatic_virtual_shifting_enabled).toBool()) {
         automaticShiftingTimer->start(100); // 100ms = 10Hz
     }
+
+    clipboardWorkoutTimer = new QTimer(this);
+    connect(clipboardWorkoutTimer, &QTimer::timeout, this, &homeform::checkClipboardForWorkout);
+    clipboardWorkoutTimer->start(5s);
 
     // Initialize FIT backup thread
     fitBackupThread = new QThread(this);
@@ -8478,6 +8538,100 @@ void homeform::trainprogram_autostart_requested() {
         // Device is paused/stopped, call Start() once
         QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
     }
+}
+
+void homeform::checkClipboardForWorkout() {
+    QClipboard *clipboard = QApplication::clipboard();
+    const QString clipboardText = clipboard ? clipboard->text().trimmed() : QString();
+    const QByteArray currentHash = QCryptographicHash::hash(clipboardText.toUtf8(), QCryptographicHash::Sha1);
+
+    if (currentHash == m_lastClipboardWorkoutHash) {
+        return;
+    }
+
+    m_lastClipboardWorkoutHash = currentHash;
+    m_clipboardWorkoutPromptFile.clear();
+    m_clipboardWorkoutPromptName.clear();
+    emit clipboardWorkoutPromptNameChanged(m_clipboardWorkoutPromptName);
+    setClipboardWorkoutPromptRequested(false);
+
+    if (clipboardText.isEmpty()) {
+        return;
+    }
+
+    const QString rootName = firstXmlElementName(clipboardText);
+    if (rootName.isEmpty()) {
+        return;
+    }
+
+    QString displayName;
+    QString filePath;
+    QList<trainrow> rows;
+    const bool looksLikeZwo = rootName.compare(QStringLiteral("workout_file"), Qt::CaseInsensitive) == 0 ||
+                              rootName.compare(QStringLiteral("Workout"), Qt::CaseInsensitive) == 0;
+
+    if (looksLikeZwo) {
+        QString description;
+        QString tags;
+        rows = zwiftworkout::load(clipboardText.toUtf8(), &description, &tags);
+        if (rows.isEmpty()) {
+            return;
+        }
+        filePath = uniqueClipboardWorkoutPath(QStringLiteral("zwo"), &displayName);
+        if (!writeClipboardWorkoutFile(filePath, clipboardText)) {
+            return;
+        }
+    } else {
+        filePath = uniqueClipboardWorkoutPath(QStringLiteral("xml"), &displayName);
+        if (!writeClipboardWorkoutFile(filePath, clipboardText)) {
+            return;
+        }
+
+        BLUETOOTH_TYPE dtype = BLUETOOTH_TYPE::BIKE;
+        if (bluetoothManager && bluetoothManager->device()) {
+            dtype = bluetoothManager->device()->deviceType();
+        }
+        rows = trainprogram::loadXML(filePath, dtype);
+        if (rows.isEmpty()) {
+            QFile::remove(filePath);
+            return;
+        }
+    }
+
+    m_clipboardWorkoutPromptFile = filePath;
+    m_clipboardWorkoutPromptName = displayName;
+    emit clipboardWorkoutPromptNameChanged(m_clipboardWorkoutPromptName);
+    setClipboardWorkoutPromptRequested(true);
+}
+
+void homeform::clipboard_start_workout() {
+    const QString workoutFile = m_clipboardWorkoutPromptFile;
+    const QString workoutName = m_clipboardWorkoutPromptName;
+
+    m_clipboardWorkoutPromptFile.clear();
+    m_clipboardWorkoutPromptName.clear();
+    emit clipboardWorkoutPromptNameChanged(m_clipboardWorkoutPromptName);
+    setClipboardWorkoutPromptRequested(false);
+
+    if (workoutFile.isEmpty()) {
+        setToastRequested(QStringLiteral("No clipboard workout available"));
+        return;
+    }
+
+    if (!startTrainingProgramFromFile(workoutFile)) {
+        setToastRequested(QStringLiteral("Failed to load clipboard workout"));
+        return;
+    }
+
+    trainprogram_autostart_requested();
+    setToastRequested(QStringLiteral("Starting clipboard workout: ") + workoutName);
+}
+
+void homeform::clipboard_dismiss_workout_prompt() {
+    m_clipboardWorkoutPromptFile.clear();
+    m_clipboardWorkoutPromptName.clear();
+    emit clipboardWorkoutPromptNameChanged(m_clipboardWorkoutPromptName);
+    setClipboardWorkoutPromptRequested(false);
 }
 
 void homeform::handleOAuthCallbackUrl(const QString &callbackUrl) {
