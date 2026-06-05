@@ -1,5 +1,6 @@
 package org.cagnulen.qdomyoszwift
 
+import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -29,6 +30,9 @@ class HealthConnectHelper {
         private const val TAG = "HealthConnectHelper"
         private const val MIN_SUPPORTED_SDK = 26
         private const val HEALTH_CONNECT_PROVIDER = "com.google.android.apps.healthdata"
+        private const val PREFS_NAME = "qz_health_connect"
+        private const val PREF_PERMISSION_PROMPT_SHOWN = "permission_prompt_shown"
+        private const val PERMISSION_REQUEST_CODE = 38621
 
         private var initialized = false
 
@@ -56,6 +60,7 @@ class HealthConnectHelper {
                 if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
                     HealthConnectClient.getOrCreate(context.applicationContext, HEALTH_CONNECT_PROVIDER)
                     Log.d(TAG, "Health Connect client initialized")
+                    requestPermissionsOnce(context)
                 }
             } catch (t: Throwable) {
                 Log.w(TAG, "Health Connect init was skipped", t)
@@ -119,6 +124,45 @@ class HealthConnectHelper {
                 HealthPermission.getWritePermission(SpeedRecord::class),
                 HealthPermission.getWritePermission(CyclingPedalingCadenceRecord::class)
             )
+        }
+
+        private fun requestPermissionsOnce(context: Context) {
+            val activity = context as? Activity
+            if (activity == null) {
+                Log.d(TAG, "Skipping Health Connect permission request: context is not an Activity")
+                return
+            }
+
+            val prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            if (prefs.getBoolean(PREF_PERMISSION_PROMPT_SHOWN, false)) {
+                return
+            }
+
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val client = HealthConnectClient.getOrCreate(activity.applicationContext, HEALTH_CONNECT_PROVIDER)
+                    val missingPermissions = writePermissions() - client.permissionController.getGrantedPermissions()
+                    if (missingPermissions.isEmpty()) {
+                        return@launch
+                    }
+
+                    prefs.edit().putBoolean(PREF_PERMISSION_PROMPT_SHOWN, true).apply()
+                    val contract = client.permissionController.createRequestPermissionResultContract()
+                    val intent = contract.createIntent(activity, missingPermissions)
+
+                    activity.runOnUiThread {
+                        try {
+                            activity.startActivityForResult(intent, PERMISSION_REQUEST_CODE)
+                            Log.d(TAG, "Health Connect permission request started")
+                        } catch (t: Throwable) {
+                            prefs.edit().putBoolean(PREF_PERMISSION_PROMPT_SHOWN, false).apply()
+                            Log.w(TAG, "Health Connect permission request failed", t)
+                        }
+                    }
+                } catch (t: Throwable) {
+                    Log.w(TAG, "Health Connect permission check failed", t)
+                }
+            }
         }
 
         private fun buildRecords(samples: JSONArray, title: String?, deviceType: Int, deviceName: String?): List<Record> {
