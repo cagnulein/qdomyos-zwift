@@ -203,6 +203,14 @@ ColumnLayout {
                         property string itemRelativePath: isSearching ? model.relativePath : ""
 
                         swipe.enabled: !isItemFolder
+                        swipe.threshold: 0.25
+                        swipe.onCompleted: {
+                            if (swipe.position < 0) {
+                                deleteDialog.fileUrl = itemFileUrl
+                                deleteDialog.visible = true
+                            }
+                            swipe.close()
+                        }
                         swipe.right: Rectangle {
                             width: 96
                             height: workoutDelegate.height
