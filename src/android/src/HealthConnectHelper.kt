@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
@@ -147,7 +148,7 @@ class HealthConnectHelper {
                     }
 
                     prefs.edit().putBoolean(PREF_PERMISSION_PROMPT_SHOWN, true).apply()
-                    val contract = client.permissionController.createRequestPermissionResultContract()
+                    val contract = PermissionController.createRequestPermissionResultContract()
                     val intent = contract.createIntent(activity, missingPermissions)
 
                     activity.runOnUiThread {
