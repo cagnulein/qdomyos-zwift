@@ -219,59 +219,6 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     sed -i '' 's|\(LIBRARY_SEARCH_PATHS = (\)|\1\n\t\t\t\t/tmp/Qt-5.15.2/ios/qml/Qt/labs/calendar,\n\t\t\t\t/tmp/Qt-5.15.2/ios/qml/Qt/labs/platform,\n\t\t\t\t/tmp/Qt-5.15.2/ios/qml/QtCharts,\n\t\t\t\t/tmp/Qt-5.15.2/ios/qml/QtWebView,\n\t\t\t\t/tmp/Qt-5.15.2/ios/qml/QtPositioning,\n\t\t\t\t/tmp/Qt-5.15.2/ios/qml/QtLocation,\n\t\t\t\t/tmp/Qt-5.15.2/ios/qml/QtMultimedia,\n\t\t\t\t/tmp/Qt-5.15.2/ios/plugins/platforms,\n\t\t\t\t/tmp/Qt-5.15.2/ios/plugins/webview,\n\t\t\t\t/tmp/Qt-5.15.2/ios/plugins/texttospeech,\n\t\t\t\t/tmp/Qt-5.15.2/ios/plugins/geoservices,\n\t\t\t\t/tmp/Qt-5.15.2/ios/plugins/sqldrivers,\n\t\t\t\t/tmp/Qt-5.15.2/ios/plugins/mediaservice,\n\t\t\t\t/tmp/Qt-5.15.2/ios/plugins/playlistformats,\n\t\t\t\t/tmp/Qt-5.15.2/ios/plugins/audio,|g' qdomyoszwift.xcodeproj/project.pbxproj
     echo "Added all necessary Qt library search paths"
 
-    # qmake now generates qrc_translations.cpp from translations.qrc, but this
-    # committed Xcode project is restored after make. Add the generated resource
-    # source back into the app target so Xcode Cloud compiles the translations.
-    echo "Ensuring qrc_translations.cpp is included in Xcode project..."
-    python3 - <<'PY'
-from pathlib import Path
-
-project = Path("qdomyoszwift.xcodeproj/project.pbxproj")
-text = project.read_text()
-
-if "qrc_translations.cpp in Compile Sources" in text:
-    print("qrc_translations.cpp already present in Compile Sources")
-else:
-    build_id = "AFC517CD7000000000000001"
-    file_id = "AFC517CD7000000000000002"
-
-    replacements = [
-        (
-            "\t\t7352E0F0EE5366AC809B9D64 /* qrc_qml.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 49789298954386B0E136DA23 /* qrc_qml.cpp */; settings = {ATTRIBUTES = (); }; };\n",
-            "\t\t7352E0F0EE5366AC809B9D64 /* qrc_qml.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 49789298954386B0E136DA23 /* qrc_qml.cpp */; settings = {ATTRIBUTES = (); }; };\n"
-            f"\t\t{build_id} /* qrc_translations.cpp in Compile Sources */ = {{isa = PBXBuildFile; fileRef = {file_id} /* qrc_translations.cpp */; settings = {{ATTRIBUTES = (); }}; }};\n",
-        ),
-        (
-            "\t\t49789298954386B0E136DA23 /* qrc_qml.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qrc_qml.cpp; path = \"/Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qrc_qml.cpp\"; sourceTree = \"<absolute>\"; };\n",
-            "\t\t49789298954386B0E136DA23 /* qrc_qml.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qrc_qml.cpp; path = \"/Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qrc_qml.cpp\"; sourceTree = \"<absolute>\"; };\n"
-            f"\t\t{file_id} /* qrc_translations.cpp */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qrc_translations.cpp; path = \"/Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qrc_translations.cpp\"; sourceTree = \"<absolute>\"; }};\n",
-        ),
-        (
-            "\t\t\t\t49789298954386B0E136DA23 /* qrc_qml.cpp */,\n",
-            f"\t\t\t\t49789298954386B0E136DA23 /* qrc_qml.cpp */,\n\t\t\t\t{file_id} /* qrc_translations.cpp */,\n",
-        ),
-        (
-            "\t\t\t\t7352E0F0EE5366AC809B9D64 /* qrc_qml.cpp in Compile Sources */,\n",
-            f"\t\t\t\t7352E0F0EE5366AC809B9D64 /* qrc_qml.cpp in Compile Sources */,\n\t\t\t\t{build_id} /* qrc_translations.cpp in Compile Sources */,\n",
-        ),
-    ]
-
-    for needle, replacement in replacements:
-        if needle not in text:
-            raise SystemExit(f"Unable to patch Xcode project; anchor not found: {needle.strip()}")
-        text = text.replace(needle, replacement, 1)
-
-    project.write_text(text)
-    print("qrc_translations.cpp added to Xcode project")
-PY
-
-    if grep -q "qrc_translations.cpp in Compile Sources" qdomyoszwift.xcodeproj/project.pbxproj; then
-        echo "SUCCESS: qrc_translations.cpp is included in Compile Sources"
-    else
-        echo "ERROR: qrc_translations.cpp was not added to Compile Sources"
-        exit 1
-    fi
-
     # Verify the fix
     grep -c "libqtlabscalendarplugin.a" qdomyoszwift.xcodeproj/project.pbxproj && echo "qtlabscalendarplugin references found"
     grep -c "labs/calendar" qdomyoszwift.xcodeproj/project.pbxproj && echo "labs/calendar path references found"
