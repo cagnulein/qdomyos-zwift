@@ -14,6 +14,7 @@ import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Length
 import androidx.health.connect.client.units.Power
@@ -193,7 +194,8 @@ class HealthConnectHelper {
                 endZoneOffset = zoneOffset,
                 exerciseType = exerciseType(deviceType),
                 title = if (title.isNullOrBlank()) "QZ workout" else title,
-                notes = deviceName
+                notes = deviceName,
+                metadata = Metadata(recordingMethod = Metadata.RECORDING_METHOD_MANUAL_ENTRY)
             )
 
             val totalDistanceKm = last.optDouble("distance", 0.0)
@@ -263,12 +265,12 @@ class HealthConnectHelper {
 
         private fun exerciseType(deviceType: Int): Int {
             return when (deviceType) {
-                1 -> ExerciseSessionRecord.EXERCISE_TYPE_RUNNING
-                2 -> ExerciseSessionRecord.EXERCISE_TYPE_BIKING
+                1 -> ExerciseSessionRecord.EXERCISE_TYPE_RUNNING_TREADMILL
+                2 -> ExerciseSessionRecord.EXERCISE_TYPE_BIKING_STATIONARY
                 3 -> ExerciseSessionRecord.EXERCISE_TYPE_ROWING_MACHINE
                 4 -> ExerciseSessionRecord.EXERCISE_TYPE_ELLIPTICAL
                 5 -> ExerciseSessionRecord.EXERCISE_TYPE_OTHER_WORKOUT
-                6 -> ExerciseSessionRecord.EXERCISE_TYPE_STAIR_CLIMBING
+                6 -> ExerciseSessionRecord.EXERCISE_TYPE_STAIR_CLIMBING_MACHINE
                 else -> ExerciseSessionRecord.EXERCISE_TYPE_OTHER_WORKOUT
             }
         }
