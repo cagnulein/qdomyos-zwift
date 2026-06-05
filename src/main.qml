@@ -316,7 +316,6 @@ ApplicationWindow {
                 window.lapPromptText = rootItem.toastRequested;
                 window.lapPromptVisible = true;
                 lapPromptAutoClose.restart();
-                toast.show(rootItem.toastRequested, 6000);
             } else {
                 toast.show(rootItem.toastRequested);
             }

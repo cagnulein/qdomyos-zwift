@@ -56,6 +56,11 @@ function ensurePowerZones() {
     }
 }
 
+function openEndedSegmentStyle(ctx) {
+    return (ctx.p0.raw && ctx.p0.raw.openEnded) ||
+           (ctx.p1.raw && ctx.p1.raw.openEnded) ? [6, 5] : undefined;
+}
+
 function process_trainprogram(arr) {
     let powerWorkout = false;
     let elapsed = 0;
@@ -64,8 +69,15 @@ function process_trainprogram(arr) {
         // if the power is ok or it was a power zone workout but this segment is a freeride tag...
         if(el.power !== -1 || powerWorkout) {
             powerWorkout = true;
-            for (i=0; i<el.duration_s; i++) {
-                powerChart.data.datasets[1].data.push({x: elapsed++, y: el.power});
+            const duration = Math.max(0, Number(el.visual_duration_s !== undefined ? el.visual_duration_s : el.duration_s) || 0);
+            const openEnded = isTrueSetting(el.openEnded);
+            for (let i=0; i<duration; i++) {
+                powerChart.data.datasets[1].data.push({
+                    x: elapsed++,
+                    y: el.power,
+                    openEnded: openEnded,
+                    segmentLabel: el.segmentLabel || ''
+                });
                 if(watts_max < el.power)
                     watts_max = el.power;
             }
@@ -277,6 +289,9 @@ function process_arr(arr) {
                 fill: false,
                 pointRadius: 0,
                 borderWidth: 2,
+                segment: {
+                    borderDash: openEndedSegmentStyle
+                },
             },
             ]
         },

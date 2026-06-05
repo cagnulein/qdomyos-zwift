@@ -1067,7 +1067,7 @@ void trainprogram::scheduler() {
             QString message = QStringLiteral("Press Lap to continue the workout");
             if (!rows.at(currentStep).textEvents.isEmpty() &&
                 !rows.at(currentStep).textEvents.first().message.trimmed().isEmpty()) {
-                message = rows.at(currentStep).textEvents.first().message.trimmed();
+                message += QStringLiteral("\n") + rows.at(currentStep).textEvents.first().message.trimmed();
             }
             qDebug() << "Waiting for lap button on row" << currentStep
                      << "target power" << rows.at(currentStep).power;
@@ -1430,7 +1430,9 @@ void trainprogram::scheduler() {
         }
 
         // Check for text events that should be displayed at this time
-        if (currentStep < rows.length() && !rows.at(currentStep).textEvents.isEmpty()) {
+        if (currentStep < rows.length() &&
+            !isBlockingTransitionRow(rows.at(currentStep)) &&
+            !rows.at(currentStep).textEvents.isEmpty()) {
             // Calculate elapsed time in current step
             uint32_t elapsedInCurrentStep = 0;
             if (rows.at(currentStep).started.isValid()) {

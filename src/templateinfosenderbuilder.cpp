@@ -51,6 +51,13 @@ QString openEndedRowLabel(const trainrow &row) {
 #define TRAINPROGRAM_FIELD_TO_STRING()                                                                      \
     item[QStringLiteral("duration")] = row.duration.toString();                                             \
     item[QStringLiteral("duration_s")] = QTime(0,0,0).secsTo(row.duration);                                 \
+    item[QStringLiteral("visual_duration_s")] = rowDurationSecondsForPreview(row);                          \
+    item[QStringLiteral("openEnded")] = trainprogram::isBlockingTransitionRow(row) &&                       \
+                                        QTime(0,0,0).secsTo(row.duration) == 0;                              \
+    item[QStringLiteral("segmentLabel")] = trainprogram::isBlockingTransitionRow(row) &&                    \
+                                           QTime(0,0,0).secsTo(row.duration) == 0 ?                          \
+                                           openEndedRowLabel(row) : QStringLiteral("");                      \
+    item[QStringLiteral("waitForLap")] = row.waitForLap;                                                     \
     item[QStringLiteral("distance")] = row.distance;                                                        \
     item[QStringLiteral("speed")] = row.speed;                                                              \
     item[QStringLiteral("minSpeed")] = row.minSpeed;                                                        \
