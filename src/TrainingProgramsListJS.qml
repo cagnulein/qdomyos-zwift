@@ -175,10 +175,10 @@ ColumnLayout {
 
                     model: isSearching ? searchResultsModel : folderModel
 
-                    delegate: Rectangle {
+                    delegate: SwipeDelegate {
+                        id: workoutDelegate
                         width: ListView.view.width
                         height: 50
-                        color: ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor
 
                         // Determine item properties based on which model is active
                         property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
@@ -186,10 +186,40 @@ ColumnLayout {
                         property string itemFileUrl: isSearching ? model.filePath : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL'))
                         property string itemRelativePath: isSearching ? model.relativePath : ""
 
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.margins: 10
+                        swipe.enabled: !isItemFolder
+                        swipe.right: Rectangle {
+                            width: 96
+                            height: workoutDelegate.height
+                            color: Material.color(Material.Red, Material.Shade700)
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "Delete"
+                                color: "white"
+                                font.bold: true
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    deleteDialog.fileUrl = itemFileUrl
+                                    deleteDialog.visible = true
+                                    workoutDelegate.swipe.close()
+                                }
+                            }
+                        }
+
+                        background: Rectangle {
+                            color: ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor
+                        }
+
+                        contentItem: RowLayout {
                             spacing: 10
+
+                            Item {
+                                width: 10
+                                height: 1
+                            }
 
                             Text {
                                 id: fileIcon
@@ -230,24 +260,21 @@ ColumnLayout {
                             }
                         }
 
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                list.currentIndex = index
+                        onClicked: {
+                            list.currentIndex = index
 
-                                if (isItemFolder) {
-                                    // Navigate to folder (only in browse mode)
-                                    if (!isSearching) {
-                                        folderModel.folder = itemFileUrl
-                                    }
-                                } else if (itemFileUrl) {
-                                    // Load preview and show detail view
-                                    trainprogram_preview(itemFileUrl)
-                                    pendingWorkoutUrl = itemFileUrl
-
-                                    // Wait for preview to load then push detail view
-                                    detailViewTimer.restart()
+                            if (isItemFolder) {
+                                // Navigate to folder (only in browse mode)
+                                if (!isSearching) {
+                                    folderModel.folder = itemFileUrl
                                 }
+                            } else if (itemFileUrl) {
+                                // Load preview and show detail view
+                                trainprogram_preview(itemFileUrl)
+                                pendingWorkoutUrl = itemFileUrl
+
+                                // Wait for preview to load then push detail view
+                                detailViewTimer.restart()
                             }
                         }
                     }
@@ -307,14 +334,6 @@ ColumnLayout {
                         }
                     }
 
-                    Button {
-                        text: "Delete"
-                        Material.background: Material.Red
-                        onClicked: {
-                            deleteDialog.fileUrl = pendingWorkoutUrl
-                            deleteDialog.visible = true
-                        }
-                    }
                 }
 
                 // Descrizione workout
