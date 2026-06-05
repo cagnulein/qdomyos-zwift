@@ -133,6 +133,10 @@
                                     android:value="ocr" />
 
 				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
+                                <activity
+                                    android:name=".HealthConnectPermissionActivity"
+                                    android:exported="false"
+                                    android:theme="@style/Theme.AppCompat" />
 
                                 <receiver android:name=".MediaButtonReceiver" android:exported="true" android:permission="android.permission.MODIFY_AUDIO_SETTINGS">
                                     <intent-filter>

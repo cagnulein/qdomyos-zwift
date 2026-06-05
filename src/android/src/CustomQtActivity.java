@@ -114,12 +114,6 @@ public class CustomQtActivity extends QtActivity {
         dispatchOAuthCallback(intent);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        HealthConnectHelper.onActivityResult(this, requestCode);
-    }
-
     // This method is still needed for the QML check
     public static int getApiLevel() {
         return Build.VERSION.SDK_INT;

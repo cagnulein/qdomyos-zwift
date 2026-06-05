@@ -2,9 +2,9 @@ package org.cagnulen.qdomyoszwift
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
@@ -33,7 +33,6 @@ class HealthConnectHelper {
         private const val PREFS_NAME = "qz_health_connect"
         private const val PREF_PERMISSION_PROMPT_SHOWN = "permission_prompt_shown_v2"
         private const val PREF_PERMISSION_PROMPT_PENDING = "permission_prompt_pending_v2"
-        private const val PERMISSION_REQUEST_CODE = 38621
 
         private var initialized = false
 
@@ -69,19 +68,6 @@ class HealthConnectHelper {
         }
 
         @JvmStatic
-        fun onActivityResult(context: Context?, requestCode: Int) {
-            if (requestCode != PERMISSION_REQUEST_CODE || context == null) {
-                return
-            }
-
-            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            prefs.edit()
-                .putBoolean(PREF_PERMISSION_PROMPT_PENDING, false)
-                .putBoolean(PREF_PERMISSION_PROMPT_SHOWN, true)
-                .apply()
-            QLog.d(TAG, "Health Connect permission request finished")
-        }
-
         @JvmStatic
         fun writeWorkoutJson(context: Context?, title: String?, deviceType: Int, deviceName: String?, samplesJson: String?) {
             if (context == null || samplesJson.isNullOrEmpty()) {
@@ -169,12 +155,15 @@ class HealthConnectHelper {
                     }
 
                     prefs.edit().putBoolean(PREF_PERMISSION_PROMPT_PENDING, true).apply()
-                    val contract = PermissionController.createRequestPermissionResultContract()
-                    val intent = contract.createIntent(activity, missingPermissions)
+                    val intent = Intent(activity, HealthConnectPermissionActivity::class.java)
+                    intent.putStringArrayListExtra(
+                        HealthConnectPermissionActivity.EXTRA_PERMISSIONS,
+                        ArrayList(missingPermissions)
+                    )
 
                     activity.runOnUiThread {
                         try {
-                            activity.startActivityForResult(intent, PERMISSION_REQUEST_CODE)
+                            activity.startActivity(intent)
                             QLog.d(TAG, "Health Connect permission request started")
                         } catch (t: Throwable) {
                             prefs.edit().putBoolean(PREF_PERMISSION_PROMPT_PENDING, false).apply()
