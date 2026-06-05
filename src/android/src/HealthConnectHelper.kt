@@ -3,7 +3,6 @@ package org.cagnulen.qdomyoszwift
 import android.app.Activity
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
@@ -32,7 +31,8 @@ class HealthConnectHelper {
         private const val MIN_SUPPORTED_SDK = 26
         private const val HEALTH_CONNECT_PROVIDER = "com.google.android.apps.healthdata"
         private const val PREFS_NAME = "qz_health_connect"
-        private const val PREF_PERMISSION_PROMPT_SHOWN = "permission_prompt_shown"
+        private const val PREF_PERMISSION_PROMPT_SHOWN = "permission_prompt_shown_v2"
+        private const val PREF_PERMISSION_PROMPT_PENDING = "permission_prompt_pending_v2"
         private const val PERMISSION_REQUEST_CODE = 38621
 
         private var initialized = false
@@ -46,26 +46,40 @@ class HealthConnectHelper {
             initialized = true
 
             if (context == null) {
-                Log.d(TAG, "Skipping Health Connect init: context is null")
+                QLog.d(TAG, "Skipping Health Connect init: context is null")
                 return
             }
 
             if (Build.VERSION.SDK_INT < MIN_SUPPORTED_SDK) {
-                Log.d(TAG, "Skipping Health Connect init: unsupported Android API ${Build.VERSION.SDK_INT}")
+                QLog.d(TAG, "Skipping Health Connect init: unsupported Android API ${Build.VERSION.SDK_INT}")
                 return
             }
 
             try {
                 val sdkStatus = HealthConnectClient.getSdkStatus(context.applicationContext, HEALTH_CONNECT_PROVIDER)
-                Log.d(TAG, "Health Connect SDK status: $sdkStatus")
+                QLog.d(TAG, "Health Connect SDK status: $sdkStatus")
                 if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
                     HealthConnectClient.getOrCreate(context.applicationContext, HEALTH_CONNECT_PROVIDER)
-                    Log.d(TAG, "Health Connect client initialized")
+                    QLog.d(TAG, "Health Connect client initialized")
                     requestPermissionsOnce(context)
                 }
             } catch (t: Throwable) {
-                Log.w(TAG, "Health Connect init was skipped", t)
+                QLog.w(TAG, "Health Connect init was skipped", t)
             }
+        }
+
+        @JvmStatic
+        fun onActivityResult(context: Context?, requestCode: Int) {
+            if (requestCode != PERMISSION_REQUEST_CODE || context == null) {
+                return
+            }
+
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            prefs.edit()
+                .putBoolean(PREF_PERMISSION_PROMPT_PENDING, false)
+                .putBoolean(PREF_PERMISSION_PROMPT_SHOWN, true)
+                .apply()
+            QLog.d(TAG, "Health Connect permission request finished")
         }
 
         @JvmStatic
@@ -75,7 +89,7 @@ class HealthConnectHelper {
             }
 
             if (Build.VERSION.SDK_INT < MIN_SUPPORTED_SDK) {
-                Log.d(TAG, "Skipping Health Connect write: unsupported Android API ${Build.VERSION.SDK_INT}")
+                QLog.d(TAG, "Skipping Health Connect write: unsupported Android API ${Build.VERSION.SDK_INT}")
                 return
             }
 
@@ -83,7 +97,7 @@ class HealthConnectHelper {
                 try {
                     val appContext = context.applicationContext
                     if (HealthConnectClient.getSdkStatus(appContext, HEALTH_CONNECT_PROVIDER) != HealthConnectClient.SDK_AVAILABLE) {
-                        Log.d(TAG, "Skipping Health Connect write: SDK is not available")
+                        QLog.d(TAG, "Skipping Health Connect write: SDK is not available")
                         return@launch
                     }
 
@@ -91,26 +105,26 @@ class HealthConnectHelper {
                     val permissions = writePermissions()
                     val granted = client.permissionController.getGrantedPermissions()
                     if (!granted.containsAll(permissions)) {
-                        Log.d(TAG, "Skipping Health Connect write: missing permissions ${permissions - granted}")
+                        QLog.d(TAG, "Skipping Health Connect write: missing permissions ${permissions - granted}")
                         return@launch
                     }
 
                     val samples = JSONArray(samplesJson)
                     if (samples.length() == 0) {
-                        Log.d(TAG, "Skipping Health Connect write: empty sample list")
+                        QLog.d(TAG, "Skipping Health Connect write: empty sample list")
                         return@launch
                     }
 
                     val records = buildRecords(samples, title, deviceType, deviceName)
                     if (records.isEmpty()) {
-                        Log.d(TAG, "Skipping Health Connect write: no records built")
+                        QLog.d(TAG, "Skipping Health Connect write: no records built")
                         return@launch
                     }
 
                     client.insertRecords(records)
-                    Log.d(TAG, "Health Connect workout written: ${records.size} records")
+                    QLog.d(TAG, "Health Connect workout written: ${records.size} records")
                 } catch (t: Throwable) {
-                    Log.w(TAG, "Health Connect workout write failed", t)
+                    QLog.w(TAG, "Health Connect workout write failed", t)
                 }
             }
         }
@@ -130,12 +144,17 @@ class HealthConnectHelper {
         private fun requestPermissionsOnce(context: Context) {
             val activity = context as? Activity
             if (activity == null) {
-                Log.d(TAG, "Skipping Health Connect permission request: context is not an Activity")
+                QLog.d(TAG, "Skipping Health Connect permission request: context is not an Activity")
                 return
             }
 
             val prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             if (prefs.getBoolean(PREF_PERMISSION_PROMPT_SHOWN, false)) {
+                QLog.d(TAG, "Skipping Health Connect permission request: prompt already shown")
+                return
+            }
+            if (prefs.getBoolean(PREF_PERMISSION_PROMPT_PENDING, false)) {
+                QLog.d(TAG, "Skipping Health Connect permission request: prompt already pending")
                 return
             }
 
@@ -143,25 +162,26 @@ class HealthConnectHelper {
                 try {
                     val client = HealthConnectClient.getOrCreate(activity.applicationContext, HEALTH_CONNECT_PROVIDER)
                     val missingPermissions = writePermissions() - client.permissionController.getGrantedPermissions()
+                    QLog.d(TAG, "Health Connect missing permissions: $missingPermissions")
                     if (missingPermissions.isEmpty()) {
                         return@launch
                     }
 
-                    prefs.edit().putBoolean(PREF_PERMISSION_PROMPT_SHOWN, true).apply()
+                    prefs.edit().putBoolean(PREF_PERMISSION_PROMPT_PENDING, true).apply()
                     val contract = PermissionController.createRequestPermissionResultContract()
                     val intent = contract.createIntent(activity, missingPermissions)
 
                     activity.runOnUiThread {
                         try {
                             activity.startActivityForResult(intent, PERMISSION_REQUEST_CODE)
-                            Log.d(TAG, "Health Connect permission request started")
+                            QLog.d(TAG, "Health Connect permission request started")
                         } catch (t: Throwable) {
-                            prefs.edit().putBoolean(PREF_PERMISSION_PROMPT_SHOWN, false).apply()
-                            Log.w(TAG, "Health Connect permission request failed", t)
+                            prefs.edit().putBoolean(PREF_PERMISSION_PROMPT_PENDING, false).apply()
+                            QLog.w(TAG, "Health Connect permission request failed", t)
                         }
                     }
                 } catch (t: Throwable) {
-                    Log.w(TAG, "Health Connect permission check failed", t)
+                    QLog.w(TAG, "Health Connect permission check failed", t)
                 }
             }
         }
