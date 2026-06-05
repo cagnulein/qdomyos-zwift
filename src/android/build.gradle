@@ -7,6 +7,7 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:8.13.2'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20'
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.5'
     }
 }
@@ -18,6 +19,7 @@ repositories {
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'com.google.protobuf'
 
 def amazon = System.getenv('AMAZON')
@@ -106,6 +108,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -116,6 +122,7 @@ android {
             renderscript.srcDirs = ['src']
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs']
+            kotlin.srcDirs = ['src', 'java']
         }
         debug {
             java.srcDirs += ["$buildDir/generated/aidl_source_output_dir/debug/out"]

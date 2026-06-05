@@ -1,0 +1,222 @@
+package org.cagnulen.qdomyoszwift
+
+import android.content.Context
+import android.os.Build
+import android.util.Log
+import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
+import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.PowerRecord
+import androidx.health.connect.client.records.Record
+import androidx.health.connect.client.records.SpeedRecord
+import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
+import androidx.health.connect.client.units.Energy
+import androidx.health.connect.client.units.Length
+import androidx.health.connect.client.units.Power
+import androidx.health.connect.client.units.Velocity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.json.JSONArray
+import java.time.Instant
+import java.time.ZoneId
+
+class HealthConnectHelper {
+    companion object {
+        private const val TAG = "HealthConnectHelper"
+        private const val MIN_SUPPORTED_SDK = 26
+        private const val HEALTH_CONNECT_PROVIDER = "com.google.android.apps.healthdata"
+
+        private var initialized = false
+
+        @JvmStatic
+        fun initialize(context: Context?) {
+            if (initialized) {
+                return
+            }
+
+            initialized = true
+
+            if (context == null) {
+                Log.d(TAG, "Skipping Health Connect init: context is null")
+                return
+            }
+
+            if (Build.VERSION.SDK_INT < MIN_SUPPORTED_SDK) {
+                Log.d(TAG, "Skipping Health Connect init: unsupported Android API ${Build.VERSION.SDK_INT}")
+                return
+            }
+
+            try {
+                val sdkStatus = HealthConnectClient.getSdkStatus(context.applicationContext, HEALTH_CONNECT_PROVIDER)
+                Log.d(TAG, "Health Connect SDK status: $sdkStatus")
+                if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
+                    HealthConnectClient.getOrCreate(context.applicationContext, HEALTH_CONNECT_PROVIDER)
+                    Log.d(TAG, "Health Connect client initialized")
+                }
+            } catch (t: Throwable) {
+                Log.w(TAG, "Health Connect init was skipped", t)
+            }
+        }
+
+        @JvmStatic
+        fun writeWorkoutJson(context: Context?, title: String?, deviceType: Int, deviceName: String?, samplesJson: String?) {
+            if (context == null || samplesJson.isNullOrEmpty()) {
+                return
+            }
+
+            if (Build.VERSION.SDK_INT < MIN_SUPPORTED_SDK) {
+                Log.d(TAG, "Skipping Health Connect write: unsupported Android API ${Build.VERSION.SDK_INT}")
+                return
+            }
+
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val appContext = context.applicationContext
+                    if (HealthConnectClient.getSdkStatus(appContext, HEALTH_CONNECT_PROVIDER) != HealthConnectClient.SDK_AVAILABLE) {
+                        Log.d(TAG, "Skipping Health Connect write: SDK is not available")
+                        return@launch
+                    }
+
+                    val client = HealthConnectClient.getOrCreate(appContext, HEALTH_CONNECT_PROVIDER)
+                    val permissions = writePermissions()
+                    val granted = client.permissionController.getGrantedPermissions()
+                    if (!granted.containsAll(permissions)) {
+                        Log.d(TAG, "Skipping Health Connect write: missing permissions ${permissions - granted}")
+                        return@launch
+                    }
+
+                    val samples = JSONArray(samplesJson)
+                    if (samples.length() == 0) {
+                        Log.d(TAG, "Skipping Health Connect write: empty sample list")
+                        return@launch
+                    }
+
+                    val records = buildRecords(samples, title, deviceType, deviceName)
+                    if (records.isEmpty()) {
+                        Log.d(TAG, "Skipping Health Connect write: no records built")
+                        return@launch
+                    }
+
+                    client.insertRecords(records)
+                    Log.d(TAG, "Health Connect workout written: ${records.size} records")
+                } catch (t: Throwable) {
+                    Log.w(TAG, "Health Connect workout write failed", t)
+                }
+            }
+        }
+
+        private fun writePermissions(): Set<String> {
+            return setOf(
+                HealthPermission.getWritePermission(ExerciseSessionRecord::class),
+                HealthPermission.getWritePermission(DistanceRecord::class),
+                HealthPermission.getWritePermission(TotalCaloriesBurnedRecord::class),
+                HealthPermission.getWritePermission(HeartRateRecord::class),
+                HealthPermission.getWritePermission(PowerRecord::class),
+                HealthPermission.getWritePermission(SpeedRecord::class),
+                HealthPermission.getWritePermission(CyclingPedalingCadenceRecord::class)
+            )
+        }
+
+        private fun buildRecords(samples: JSONArray, title: String?, deviceType: Int, deviceName: String?): List<Record> {
+            val first = samples.getJSONObject(0)
+            val last = samples.getJSONObject(samples.length() - 1)
+            val start = Instant.ofEpochMilli(first.getLong("time"))
+            var end = Instant.ofEpochMilli(last.getLong("time"))
+            if (!end.isAfter(start)) {
+                end = start.plusSeconds(1)
+            }
+            val zoneOffset = ZoneId.systemDefault().rules.getOffset(start)
+            val records = mutableListOf<Record>()
+
+            records += ExerciseSessionRecord(
+                startTime = start,
+                startZoneOffset = zoneOffset,
+                endTime = end,
+                endZoneOffset = zoneOffset,
+                exerciseType = exerciseType(deviceType),
+                title = if (title.isNullOrBlank()) "QZ workout" else title,
+                notes = deviceName
+            )
+
+            val totalDistanceKm = last.optDouble("distance", 0.0)
+            if (totalDistanceKm > 0.0) {
+                records += DistanceRecord(
+                    startTime = start,
+                    startZoneOffset = zoneOffset,
+                    endTime = end,
+                    endZoneOffset = zoneOffset,
+                    distance = Length.kilometers(totalDistanceKm)
+                )
+            }
+
+            val totalCaloriesKcal = last.optDouble("calories", 0.0)
+            if (totalCaloriesKcal > 0.0) {
+                records += TotalCaloriesBurnedRecord(
+                    startTime = start,
+                    startZoneOffset = zoneOffset,
+                    endTime = end,
+                    endZoneOffset = zoneOffset,
+                    energy = Energy.kilocalories(totalCaloriesKcal)
+                )
+            }
+
+            val heartSamples = mutableListOf<HeartRateRecord.Sample>()
+            val powerSamples = mutableListOf<PowerRecord.Sample>()
+            val speedSamples = mutableListOf<SpeedRecord.Sample>()
+            val cadenceSamples = mutableListOf<CyclingPedalingCadenceRecord.Sample>()
+
+            for (i in 0 until samples.length()) {
+                val sample = samples.getJSONObject(i)
+                val time = Instant.ofEpochMilli(sample.getLong("time"))
+                val heart = sample.optInt("heart", 0)
+                val watts = sample.optDouble("watt", 0.0)
+                val speed = sample.optDouble("speed", 0.0)
+                val cadence = sample.optDouble("cadence", 0.0)
+
+                if (heart > 0) {
+                    heartSamples += HeartRateRecord.Sample(time = time, beatsPerMinute = heart.toLong())
+                }
+                if (watts > 0.0) {
+                    powerSamples += PowerRecord.Sample(time = time, power = Power.watts(watts))
+                }
+                if (speed > 0.0) {
+                    speedSamples += SpeedRecord.Sample(time = time, speed = Velocity.kilometersPerHour(speed))
+                }
+                if (cadence > 0.0) {
+                    cadenceSamples += CyclingPedalingCadenceRecord.Sample(time = time, revolutionsPerMinute = cadence)
+                }
+            }
+
+            if (heartSamples.isNotEmpty()) {
+                records += HeartRateRecord(start, zoneOffset, end, zoneOffset, heartSamples)
+            }
+            if (powerSamples.isNotEmpty()) {
+                records += PowerRecord(start, zoneOffset, end, zoneOffset, powerSamples)
+            }
+            if (speedSamples.isNotEmpty()) {
+                records += SpeedRecord(start, zoneOffset, end, zoneOffset, speedSamples)
+            }
+            if (cadenceSamples.isNotEmpty()) {
+                records += CyclingPedalingCadenceRecord(start, zoneOffset, end, zoneOffset, cadenceSamples)
+            }
+
+            return records
+        }
+
+        private fun exerciseType(deviceType: Int): Int {
+            return when (deviceType) {
+                1 -> ExerciseSessionRecord.EXERCISE_TYPE_RUNNING
+                2 -> ExerciseSessionRecord.EXERCISE_TYPE_BIKING
+                3 -> ExerciseSessionRecord.EXERCISE_TYPE_ROWING_MACHINE
+                4 -> ExerciseSessionRecord.EXERCISE_TYPE_ELLIPTICAL
+                5 -> ExerciseSessionRecord.EXERCISE_TYPE_OTHER_WORKOUT
+                6 -> ExerciseSessionRecord.EXERCISE_TYPE_STAIR_CLIMBING
+                else -> ExerciseSessionRecord.EXERCISE_TYPE_OTHER_WORKOUT
+            }
+        }
+    }
+}
