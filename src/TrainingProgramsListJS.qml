@@ -191,7 +191,7 @@ ColumnLayout {
 
                     model: isSearching ? searchResultsModel : folderModel
 
-                    delegate: SwipeDelegate {
+                    delegate: ItemDelegate {
                         id: workoutDelegate
                         width: ListView.view.width
                         height: 50
@@ -201,37 +201,6 @@ ColumnLayout {
                         property string itemFileName: isSearching ? model.fileName : folderModel.get(index, "fileName")
                         property string itemFileUrl: isSearching ? model.filePath : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL'))
                         property string itemRelativePath: isSearching ? model.relativePath : ""
-
-                        swipe.enabled: !isItemFolder
-                        swipe.threshold: 0.25
-                        swipe.onCompleted: {
-                            if (swipe.position < 0) {
-                                deleteDialog.fileUrl = itemFileUrl
-                                deleteDialog.visible = true
-                            }
-                            swipe.close()
-                        }
-                        swipe.right: Rectangle {
-                            width: 96
-                            height: workoutDelegate.height
-                            color: Material.color(Material.Red, Material.Shade700)
-
-                            Text {
-                                anchors.centerIn: parent
-                                text: "Delete"
-                                color: "white"
-                                font.bold: true
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    deleteDialog.fileUrl = itemFileUrl
-                                    deleteDialog.visible = true
-                                    workoutDelegate.swipe.close()
-                                }
-                            }
-                        }
 
                         background: Rectangle {
                             color: ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor
@@ -332,6 +301,16 @@ ColumnLayout {
                     }
 
                     Item { Layout.fillWidth: true }
+
+                    Button {
+                        text: "Delete"
+                        visible: pendingWorkoutUrl.toString() !== ""
+                        Material.background: Material.Red
+                        onClicked: {
+                            deleteDialog.fileUrl = pendingWorkoutUrl
+                            deleteDialog.visible = true
+                        }
+                    }
 
                     Button {
                         text: "Start Workout"
