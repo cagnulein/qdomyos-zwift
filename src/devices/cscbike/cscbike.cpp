@@ -90,8 +90,9 @@ uint16_t cscbike::customResistanceAdjustedWatts() {
     }
 
     const double slope = (watt2 - watt1) / (resistanceLevel2 - resistanceLevel1);
-    const double watts = watt1 + ((resistance - resistanceLevel1) * slope);
-    return qMax(0, qRound(watts));
+    const double tableWatts = watt1 + ((resistance - resistanceLevel1) * slope);
+    const double cadenceAdjustedWatts = tableWatts * currentCadence().value() / 80.0;
+    return qMax(0, qRound(cadenceAdjustedWatts));
 }
 
 double cscbike::manualResistancePowerMultiplier() {
