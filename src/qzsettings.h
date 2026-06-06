@@ -91,6 +91,9 @@ class QZSettings {
     static const QString garmin_upload_enabled;
     static constexpr bool default_garmin_upload_enabled = false;
 
+    static const QString garmin_download_workouts_on_start;
+    static constexpr bool default_garmin_download_workouts_on_start = true;
+
     static const QString garmin_access_token;
     static const QString default_garmin_access_token;
 
@@ -1748,6 +1751,9 @@ class QZSettings {
 
     static const QString trainprogram_stop_at_end;
     static constexpr bool default_trainprogram_stop_at_end = false;
+
+    static const QString trainprogram_clipboard_workout_enabled;
+    static constexpr bool default_trainprogram_clipboard_workout_enabled = false;
 
     static const QString domyos_elliptical_inclination;
     static constexpr bool default_domyos_elliptical_inclination = true;

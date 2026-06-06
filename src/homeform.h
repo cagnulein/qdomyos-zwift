@@ -1006,7 +1006,7 @@ public:
     QTimer *timer;
     QTimer *backupTimer;
     QTimer *automaticShiftingTimer;
-    QTimer *clipboardWorkoutTimer;
+    QTimer *clipboardWorkoutTimer = nullptr;
 
     // HR PID controller state - tracks when training program changes speed to prevent race conditions
     QDateTime lastTrainingProgramSpeedChange = QDateTime::fromMSecsSinceEpoch(0);
@@ -1259,5 +1259,4 @@ public:
 };
 
 #endif // HOMEFORM_H
-
 

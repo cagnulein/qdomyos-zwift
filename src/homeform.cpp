@@ -816,9 +816,13 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         automaticShiftingTimer->start(100); // 100ms = 10Hz
     }
 
-    clipboardWorkoutTimer = new QTimer(this);
-    connect(clipboardWorkoutTimer, &QTimer::timeout, this, &homeform::checkClipboardForWorkout);
-    clipboardWorkoutTimer->start(5s);
+    if (settings.value(QZSettings::trainprogram_clipboard_workout_enabled,
+                       QZSettings::default_trainprogram_clipboard_workout_enabled)
+            .toBool()) {
+        clipboardWorkoutTimer = new QTimer(this);
+        connect(clipboardWorkoutTimer, &QTimer::timeout, this, &homeform::checkClipboardForWorkout);
+        clipboardWorkoutTimer->start(5s);
+    }
 
     // Initialize FIT backup thread
     fitBackupThread = new QThread(this);
@@ -1144,9 +1148,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QTimer::singleShot(15000, this, [this]() {
         QSettings settings;
         bool garmin_enabled = settings.value(QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled).toBool();
+        bool garmin_download_workouts_on_start = settings.value(QZSettings::garmin_download_workouts_on_start,
+                                                                 QZSettings::default_garmin_download_workouts_on_start)
+                                                     .toBool();
         QString token = settings.value(QZSettings::garmin_access_token).toString();
 
-        if (garmin_enabled && !token.isEmpty()) {
+        if (garmin_enabled && garmin_download_workouts_on_start && !token.isEmpty()) {
             qDebug() << "Garmin Connect: Auto-downloading today's workout...";
             garmin_download_todays_workout();
         } else {
@@ -11304,5 +11311,4 @@ extern "C" {
 }
 #endif
 // Force rebuild for Q_INVOKABLE changes
-
 
