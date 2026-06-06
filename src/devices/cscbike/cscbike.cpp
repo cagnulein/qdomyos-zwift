@@ -65,8 +65,8 @@ uint16_t cscbike::manualResistanceAdjustedWatts() {
     return qRound(cadenceOnlyWatts * manualResistancePowerMultiplier());
 }
 
-uint16_t cscbike::customResistanceAdjustedWatts() {
-    if (currentCadence().value() == 0) {
+uint16_t cscbike::customResistanceAdjustedWatts(double cadence, resistance_t manualResistanceTarget) {
+    if (cadence == 0) {
         return 0;
     }
 
@@ -99,7 +99,7 @@ double cscbike::manualResistancePowerMultiplier() {
     return 1.0 + (normalizedResistance * normalizedResistance * 2.0);
 }
 
-bool cscbike::useCustomResistancePowerTable() const {
+bool cscbike::useCustomResistancePowerTable() {
     QSettings settings;
     return settings
         .value(QZSettings::cscbike_custom_resistance_power_table,
@@ -107,7 +107,7 @@ bool cscbike::useCustomResistancePowerTable() const {
         .toBool();
 }
 
-resistance_t cscbike::clampedCustomResistance(resistance_t resistance) const {
+resistance_t cscbike::clampedCustomResistance(resistance_t resistance) {
     QSettings settings;
     int resistanceMin =
         qRound(settings.value(QZSettings::zwift_erg_resistance_down,
@@ -174,7 +174,7 @@ void cscbike::update() {
     if (manualResistancePowerAdjustmentActive && jorotoBike) {
         m_watt = manualResistanceAdjustedWatts();
     } else if (manualResistancePowerAdjustmentActive && useCustomResistancePowerTable()) {
-        m_watt = customResistanceAdjustedWatts();
+        m_watt = customResistanceAdjustedWatts(currentCadence().value(), manualResistanceTarget);
     } else if (rogue_echo_bike) {
         double rpm = currentCadence().value();
         m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404;
@@ -721,7 +721,6 @@ void cscbike::controllerStateChanged(QLowEnergyController::ControllerState state
         m_control->connectToDevice();
     }
 }
-
 
 
 
