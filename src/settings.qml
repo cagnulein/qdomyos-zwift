@@ -119,6 +119,9 @@ import Qt.labs.platform 1.1
                 items.push(pages[k])
             }
 
+            for (var t = 0; t < items.length; t++)
+                items[t]._translatedName = computeTranslatedName(items[t])
+
             searchableSettings = items
             if (settingsSearchActive && settingsSearchPending && settingsSearchDebounceTimer.running)
                 return
@@ -130,10 +133,32 @@ import Qt.labs.platform 1.1
             return entry && entry.key && entry.key.indexOf("tile_") === 0 && entry.key.lastIndexOf("_order") === entry.key.length - 6
         }
 
+        // Try to find a translation for a catalog entry name by probing common QML contexts.
+        // Returns the translated string if found, or the original name as fallback.
+        function computeTranslatedName(entry) {
+            var name = entry.name || entry.key
+            if (!name) return name
+            var contexts = [
+                "settings", "settings-tiles", "settings-tts",
+                "settings-shortcuts", "settings-treadmill-inclination-override",
+                "homeform"
+            ]
+            for (var i = 0; i < contexts.length; i++) {
+                // Try with trailing colon (common label pattern "Foo:")
+                var withColon = qsTranslate(contexts[i], name + ":")
+                if (withColon !== name + ":") return withColon.replace(/:$/, "").trim()
+                // Try without colon
+                var plain = qsTranslate(contexts[i], name)
+                if (plain !== name) return plain
+            }
+            return name
+        }
+
         function searchableText(entry) {
             var parts = [
                 entry.key,
                 entry.name,
+                entry._translatedName,
                 entry.description,
                 entry.parent,
                 parentDisplayName(entry),
@@ -176,7 +201,8 @@ import Qt.labs.platform 1.1
         function parentDisplayName(entry) {
             if (!entry.parent)
                 return qsTr("General")
-            return catalogEntryNameByKey(entry.parent)
+            var name = catalogEntryNameByKey(entry.parent)
+            return computeTranslatedName({name: name, key: entry.parent}) || name
         }
 
         function updateFilteredSettings() {
@@ -1835,7 +1861,7 @@ import Qt.labs.platform 1.1
                                     spacing: 2
 
                                     Label {
-                                        text: entry.name || entry.key
+                                        text: entry._translatedName || entry.name || entry.key
                                         font.bold: true
                                         wrapMode: Text.WordWrap
                                         Layout.fillWidth: true
