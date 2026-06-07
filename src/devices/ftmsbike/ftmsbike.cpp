@@ -236,7 +236,7 @@ void ftmsbike::forcePower(int16_t requestPower) {
 }
 
 void ftmsbike::enableManualResistancePowerAdjustment(resistance_t resistance) {
-    if (!SMARTBIKE_3DIGIT || !cscbike::useCustomResistancePowerTable()) {
+    if (!SMARTBIKE_3DIGIT) {
         return;
     }
 
@@ -267,6 +267,10 @@ uint16_t ftmsbike::wattsFromResistance(double resistance) {
 
 
 resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
+    if (SMARTBIKE_3DIGIT) {
+        return cscbike::resistanceFromCustomPowerTable(power);
+    }
+
     return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }
 
@@ -922,8 +926,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         if (Flags.instantPower) {
             // power table from an user
-            if (SMARTBIKE_3DIGIT && manualResistancePowerAdjustmentActive &&
-                cscbike::useCustomResistancePowerTable()) {
+            if (SMARTBIKE_3DIGIT && manualResistancePowerAdjustmentActive) {
                 m_watt = cscbike::customResistanceAdjustedWatts(currentCadence().value(), manualResistanceTarget);
                 emit debug(QStringLiteral("Current Watt (custom resistance table): ") + QString::number(m_watt.value()));
             } else if(DU30_bike) {
@@ -2110,6 +2113,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (isSmartBikeThreeDigitName(device.name())) {
             qDebug() << QStringLiteral("SMARTBIKE-### found");
             SMARTBIKE_3DIGIT = true;
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            Resistance = 1;
+            max_resistance = cscbike::customResistanceMax();
         } else if(device.name().toUpper().startsWith("FS-YK-")) {
             qDebug() << QStringLiteral("FS-YK- found");
             FS_YK = true;
@@ -2194,7 +2201,7 @@ uint16_t ftmsbike::watts() {
         return 0;
     }
 
-    if (SMARTBIKE_3DIGIT && manualResistancePowerAdjustmentActive && cscbike::useCustomResistancePowerTable()) {
+    if (SMARTBIKE_3DIGIT && manualResistancePowerAdjustmentActive) {
         return cscbike::customResistanceAdjustedWatts(currentCadence().value(), manualResistanceTarget);
     }
 
