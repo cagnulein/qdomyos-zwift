@@ -1688,9 +1688,6 @@ import Qt.labs.platform 1.1
 
         Component.onCompleted: {
             window.settings_restart_to_apply = false;
-            if (typeof STARTUP_SCREEN !== "undefined" && STARTUP_SCREEN.toString().toLowerCase() === "settings") {
-                generalOptionsAccordion.isOpen = true
-            }
         }
 
         property var appLanguageOptions: [
