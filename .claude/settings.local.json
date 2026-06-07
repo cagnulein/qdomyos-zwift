@@ -17,7 +17,12 @@
       "Bash(gem list *)",
       "Bash(ruby --version)",
       "Bash(plutil -lint /Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj)",
-      "Bash(xcodebuild -project qdomyoszwift.xcodeproj -target QZVoiceOverTests -sdk iphoneos CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build-for-testing)"
+      "Bash(xcodebuild -project qdomyoszwift.xcodeproj -target QZVoiceOverTests -sdk iphoneos CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build-for-testing)",
+      "Bash(xcodebuild -project qdomyoszwift.xcodeproj -scheme qdomyoszwift -sdk iphoneos CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build)",
+      "Bash(xcodebuild -project qdomyoszwift.xcodeproj -scheme QZVoiceOverTests -sdk iphoneos CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build-for-testing)",
+      "Bash(echo \"QRC: $?\")",
+      "Bash(echo \"EXIT: $?\")",
+      "Read(//Users/cagnulein/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/**)"
     ]
   }
 }

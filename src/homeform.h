@@ -600,6 +600,15 @@ class homeform : public QObject {
     Q_INVOKABLE void prepareEmbeddedWebViewForVoiceOver();
     Q_INVOKABLE void setDrawerAccessibilityModal(bool modal);
 
+    // Returns true when VoiceOver is active (used by QML to pick the native editor path).
+    Q_INVOKABLE bool isVoiceOverRunning();
+    // Presents the native full-screen modal WKWebView workout editor (iOS only).
+    Q_INVOKABLE void presentNativeWorkoutEditor();
+    // Dismisses the native modal workout editor if shown (safe no-op otherwise).
+    Q_INVOKABLE void dismissNativeWorkoutEditor();
+    // C-style trampoline invoked by the native editor's Close button.
+    static void onNativeWorkoutEditorClosedStatic();
+
 private:
     void clearWebViewCache();
 
@@ -1156,6 +1165,8 @@ public:
 
   signals:
 
+    // Emitted (main thread) when the user closes the native modal workout editor.
+    void nativeWorkoutEditorClosed();
     void changeOfdevice();
     void changeOflap();
     void signalChanged(QString value);

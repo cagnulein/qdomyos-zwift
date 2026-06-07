@@ -1030,6 +1030,12 @@ ApplicationWindow {
         Label {
             text: stackView.currentItem.title
             anchors.centerIn: parent
+            // Announce the page title to VoiceOver as a heading.
+            // Ignored when the drawer is open (toolbar disappears from a11y tree).
+            Accessible.role: Accessible.StaticText
+            Accessible.name: stackView.currentItem.title
+            Accessible.focusable: stackView.currentItem.title !== "" && !drawer.opened
+            Accessible.ignored: stackView.currentItem.title === "" || drawer.opened
         }
     }
 
@@ -1193,10 +1199,12 @@ ApplicationWindow {
                             editorPage.closeRequested.connect(function() {
                                 stackView.pop()
                             })
-                            // Close editor when workout is started from Save & Start
+                            // Close editor when workout is started from Save & Start.
+                            // Use closeEditor() so the native modal (VoiceOver path) is
+                            // dismissed before the page is popped.
                             trainprogram_autostart_requested.connect(function() {
                                 console.log("[main.qml] trainprogram_autostart_requested received, closing editor")
-                                editorPage.closeRequested()
+                                editorPage.closeEditor()
                             })
                         }
                         drawer.close()

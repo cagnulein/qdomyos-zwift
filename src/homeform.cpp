@@ -9407,6 +9407,44 @@ void homeform::setDrawerAccessibilityModal(bool modal) {
 #endif
 }
 
+bool homeform::isVoiceOverRunning() {
+#ifdef Q_OS_IOS
+    return ios_accessibility_helper::isVoiceOverRunning();
+#else
+    return false;
+#endif
+}
+
+void homeform::onNativeWorkoutEditorClosedStatic() {
+    // Invoked from the iOS main thread by the native editor's Close button.
+    // Re-emit on the Qt object via a queued call so QML can pop the page safely.
+    if (homeform::singleton()) {
+        QMetaObject::invokeMethod(homeform::singleton(), "nativeWorkoutEditorClosed",
+                                  Qt::QueuedConnection);
+    }
+}
+
+void homeform::presentNativeWorkoutEditor() {
+#ifdef Q_OS_IOS
+    QSettings settings;
+    int port = settings.value(QStringLiteral("template_inner_QZWS_port"), 6666).toInt();
+    if (port == 0) {
+        qDebug() << "presentNativeWorkoutEditor: QZWS port not ready";
+        return;
+    }
+    QString url = QStringLiteral("http://localhost:%1/workouteditor/index.html").arg(port);
+    qDebug() << "presentNativeWorkoutEditor:" << url;
+    ios_accessibility_helper::setWorkoutEditorClosedCallback(&homeform::onNativeWorkoutEditorClosedStatic);
+    ios_accessibility_helper::presentNativeWorkoutEditor(url.toUtf8().constData());
+#endif
+}
+
+void homeform::dismissNativeWorkoutEditor() {
+#ifdef Q_OS_IOS
+    ios_accessibility_helper::dismissNativeWorkoutEditor();
+#endif
+}
+
 void homeform::garmin_upload_file_prepare() {
     qDebug() << "Garmin upload file prepare" << lastFitFileSaved;
 
