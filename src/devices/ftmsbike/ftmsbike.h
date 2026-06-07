@@ -76,7 +76,7 @@ class ftmsbike : public bike {
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
-    void changePower(int32_t power) override;
+    void changeResistance(resistance_t resistance) override;
     double maxGears() override;
     double minGears() override;
     void enableManualResistancePowerAdjustment(resistance_t resistance);
@@ -141,6 +141,7 @@ class ftmsbike : public bike {
     bool manualResistancePowerAdjustmentActive = false;
     bool manualResistancePowerAdjustmentToastShown = false;
     resistance_t manualResistanceTarget = 1;
+    bool smartBikePowerTargetResistancePending = false;
 
     bool resistance_lvl_mode = false;
     bool resistance_received = false;

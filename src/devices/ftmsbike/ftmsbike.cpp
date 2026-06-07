@@ -222,7 +222,9 @@ void ftmsbike::zwiftPlayInit() {
 
 void ftmsbike::forcePower(int16_t requestPower) {
     if((resistance_lvl_mode || TITAN_7000) && !MAGNUS && !SS2K) {
-        forceResistance(resistanceFromPowerRequest(requestPower));
+        const resistance_t targetResistance = resistanceFromPowerRequest(requestPower);
+        smartBikePowerTargetResistancePending = false;
+        forceResistance(targetResistance);
     } else {
         uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
 
@@ -268,38 +270,26 @@ uint16_t ftmsbike::wattsFromResistance(double resistance) {
 
 resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
     if (SMARTBIKE_3DIGIT) {
+        smartBikePowerTargetResistancePending = true;
         return cscbike::resistanceFromCustomPowerTable(power);
     }
 
     return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }
 
-void ftmsbike::changePower(int32_t power) {
-    if (!SMARTBIKE_3DIGIT) {
-        bike::changePower(power);
+void ftmsbike::changeResistance(resistance_t resistance) {
+    if (SMARTBIKE_3DIGIT && smartBikePowerTargetResistancePending) {
+        smartBikePowerTargetResistancePending = false;
+        lastRawRequestedResistanceValue = resistance;
+        RequestedResistance = resistance * m_difficult + gearsModifier();
+        requestPower = -1;
+        qDebug() << QStringLiteral("SmartBike target resistance updated without changing manual resistance")
+                 << RequestedResistance.value();
         return;
     }
 
-    RequestedPower = power;
-
-    if (!autoResistanceEnable) {
-        qDebug() << QStringLiteral("SmartBike changePower ignored because auto resistance is disabled");
-        return;
-    }
-
-    QSettings settings;
-    const int bike_power_offset =
-        settings.value(QZSettings::bike_power_offset, QZSettings::default_bike_power_offset).toInt();
-    power += bike_power_offset;
-    qDebug() << QStringLiteral("SmartBike target power with offset applied: ") + QString::number(power) +
-                    QStringLiteral(" (offset: ") + QString::number(bike_power_offset) + QStringLiteral(")");
-
-    requestPower = power;
-    const uint16_t targetPower = qMax<int32_t>(0, power);
-    const resistance_t targetResistance = resistanceFromPowerRequest(targetPower);
-    RequestedResistance = targetResistance * m_difficult + gearsModifier();
-    qDebug() << QStringLiteral("SmartBike target resistance updated without changing manual resistance")
-             << RequestedResistance.value();
+    smartBikePowerTargetResistancePending = false;
+    bike::changeResistance(resistance);
 }
 
 void ftmsbike::forceResistance(resistance_t requestResistance) {
@@ -607,7 +597,7 @@ void ftmsbike::update() {
         // Re-evaluate resistance when cadence changes to maintain target power.
         // Without this, resistance is only set once when Zwift sends a new power target,
         // and cadence changes don't trigger resistance adjustment.
-        if (resistance_lvl_mode && !ergModeSupported &&
+        if (resistance_lvl_mode && !ergModeSupported && !SMARTBIKE_3DIGIT &&
             lastRequestedPower().value() > 0 && autoResistance()) {
             resistance_t newR = resistanceFromPowerRequest(
                 (uint16_t)lastRequestedPower().value());
