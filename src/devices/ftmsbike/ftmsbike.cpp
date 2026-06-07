@@ -274,6 +274,34 @@ resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
     return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }
 
+void ftmsbike::changePower(int32_t power) {
+    if (!SMARTBIKE_3DIGIT) {
+        bike::changePower(power);
+        return;
+    }
+
+    RequestedPower = power;
+
+    if (!autoResistanceEnable) {
+        qDebug() << QStringLiteral("SmartBike changePower ignored because auto resistance is disabled");
+        return;
+    }
+
+    QSettings settings;
+    const int bike_power_offset =
+        settings.value(QZSettings::bike_power_offset, QZSettings::default_bike_power_offset).toInt();
+    power += bike_power_offset;
+    qDebug() << QStringLiteral("SmartBike target power with offset applied: ") + QString::number(power) +
+                    QStringLiteral(" (offset: ") + QString::number(bike_power_offset) + QStringLiteral(")");
+
+    requestPower = power;
+    const uint16_t targetPower = qMax<int32_t>(0, power);
+    const resistance_t targetResistance = resistanceFromPowerRequest(targetPower);
+    RequestedResistance = targetResistance * m_difficult + gearsModifier();
+    qDebug() << QStringLiteral("SmartBike target resistance updated without changing manual resistance")
+             << RequestedResistance.value();
+}
+
 void ftmsbike::forceResistance(resistance_t requestResistance) {
     if (DOMYOS) {
         lastDomyosResistanceCommand = QDateTime::currentDateTime();
