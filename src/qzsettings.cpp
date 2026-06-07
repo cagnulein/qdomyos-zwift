@@ -1096,6 +1096,7 @@ const QString QZSettings::proform_carbon_tlx_v84_314_treadmill = QStringLiteral(
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
 const QString QZSettings::proform_treadmill_cst_505_pftl59420_0 = QStringLiteral("proform_treadmill_cst_505_pftl59420_0");
 const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applewatch_as_treadmill_speed");
+const QString QZSettings::horizon_treadmill_omega_z = QStringLiteral("horizon_treadmill_omega_z");
 
 const QString QZSettings::shortcuts_enabled = QStringLiteral("shortcuts_enabled");
 const QString QZSettings::shortcut_speed_plus = QStringLiteral("shortcut_speed_plus");
@@ -2209,6 +2210,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_carbon_tl_PFTL59723_6, QZSettings::default_proform_carbon_tl_PFTL59723_6},
     {QZSettings::proform_treadmill_cst_505_pftl59420_0, QZSettings::default_proform_treadmill_cst_505_pftl59420_0},
     {QZSettings::applewatch_as_treadmill_speed, QZSettings::default_applewatch_as_treadmill_speed},
+    {QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
