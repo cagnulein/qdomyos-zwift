@@ -1657,6 +1657,7 @@ import Qt.labs.platform 1.1
             property string shortcut_preset_powerzone_7: ""
             property string shortcut_lap: ""
             property string shortcut_start_stop: ""                                         
+            property bool proform_treadmill_105_cst: false
         }
 
 
@@ -9424,6 +9425,7 @@ import Qt.labs.platform 1.1
                                     "ProForm Carbon TL PFTL59723.6",
                                     "ProForm Carbon TLX v84.314 PFTL90924C.7",
                                     "ProForm CST 505 PFTL59420.0",
+                                    "ProForm 105 CST",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -9501,7 +9503,8 @@ import Qt.labs.platform 1.1
                                                     settings.proform_trainer_8_0_pftl59721_int_0 ? 58 :
                                                     settings.proform_carbon_tl_PFTL59723_6 ? 59 :
                                                     settings.proform_carbon_tlx_v84_314_treadmill ? 60 :
-                                                    settings.proform_treadmill_cst_505_pftl59420_0 ? 61 : 0;
+                                                    settings.proform_treadmill_cst_505_pftl59420_0 ? 61 :
+                                                    settings.proform_treadmill_105_cst ? 62 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -9577,6 +9580,7 @@ import Qt.labs.platform 1.1
                                     settings.proform_carbon_tl_PFTL59723_6 = false;
                                     settings.proform_carbon_tlx_v84_314_treadmill = false;
                                     settings.proform_treadmill_cst_505_pftl59420_0 = false;
+                                    settings.proform_treadmill_105_cst = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -9641,6 +9645,7 @@ import Qt.labs.platform 1.1
                                         case 59: settings.proform_carbon_tl_PFTL59723_6 = true; break;
                                         case 60: settings.proform_carbon_tlx_v84_314_treadmill = true; break;
                                         case 61: settings.proform_treadmill_cst_505_pftl59420_0 = true; break;
+                                        case 62: settings.proform_treadmill_105_cst = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
