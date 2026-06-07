@@ -71,6 +71,8 @@ const QString QZSettings::code = QStringLiteral("code");
 const QString QZSettings::default_code = QStringLiteral("");
 //--------------------------------------------------------------------------------------------
 const QString QZSettings::ui_zoom = QStringLiteral("ui_zoom");
+const QString QZSettings::app_language = QStringLiteral("app_language");
+const QString QZSettings::default_app_language = QStringLiteral("auto");
 const QString QZSettings::bike_heartrate_service = QStringLiteral("bike_heartrate_service");
 const QString QZSettings::bike_resistance_offset = QStringLiteral("bike_resistance_offset");
 const QString QZSettings::bike_resistance_gain_f = QStringLiteral("bike_resistance_gain_f");
@@ -1267,6 +1269,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::intervalsicu_suffix, QZSettings::default_intervalsicu_suffix},
     {QZSettings::intervalsicu_date_prefix, QZSettings::default_intervalsicu_date_prefix},
     {QZSettings::ui_zoom, QZSettings::default_ui_zoom},
+    {QZSettings::app_language, QZSettings::default_app_language},
     {QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service},
     {QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset},
     {QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f},

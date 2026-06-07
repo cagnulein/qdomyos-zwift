@@ -280,156 +280,156 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     this->innerTemplateManager =
         TemplateInfoSenderBuilder::getInstance(innerId, QStringList({QStringLiteral(":/inner_templates/")}), this);
 
-    speed = new DataObject(QStringLiteral("Speed (") + unit + QStringLiteral("/h)"),
+    speed = new DataObject(tr("Speed (%1/h)").arg(unit),
                            QStringLiteral("icons/icons/speed.png"), QStringLiteral("0.0"), true,
                            QStringLiteral("speed"), 48, labelFontSize);
-    inclination = new DataObject(QStringLiteral("Inclination (%)"), QStringLiteral("icons/icons/inclination.png"),
+    inclination = new DataObject(tr("Inclination (%)"), QStringLiteral("icons/icons/inclination.png"),
                                  QStringLiteral("0.0"), true, QStringLiteral("inclination"), 48, labelFontSize);
-    negative_inclination = new DataObject(QStringLiteral("Descent (") + meters + QStringLiteral(")"), QStringLiteral("icons/icons/inclination.png"),
+    negative_inclination = new DataObject(tr("Descent (%1)").arg(meters), QStringLiteral("icons/icons/inclination.png"),
                                  QStringLiteral("0.0"), false, QStringLiteral("negative_inclination"), 48, labelFontSize);
-    cadence = new DataObject(QStringLiteral("Cadence (rpm)"), QStringLiteral("icons/icons/cadence.png"),
+    cadence = new DataObject(tr("Cadence (rpm)"), QStringLiteral("icons/icons/cadence.png"),
                              QStringLiteral("0"), false, QStringLiteral("cadence"), 48, labelFontSize);
-    elevation = new DataObject(QStringLiteral("Elev. Gain (") + meters + QStringLiteral(")"),
+    elevation = new DataObject(tr("Elev. Gain (%1)").arg(meters),
                                QStringLiteral("icons/icons/elevationgain.png"), QStringLiteral("0"), false,
                                QStringLiteral("elevation"), 48, labelFontSize);
-    calories = new DataObject(QStringLiteral("Calories (KCal)"), QStringLiteral("icons/icons/kcal.png"),
+    calories = new DataObject(tr("Calories (KCal)"), QStringLiteral("icons/icons/kcal.png"),
                               QStringLiteral("0"), false, QStringLiteral("calories"), 48, labelFontSize);
-    odometer = new DataObject(QStringLiteral("Odometer (") + unit + QStringLiteral(")"),
+    odometer = new DataObject(tr("Odometer (%1)").arg(unit),
                               QStringLiteral("icons/icons/odometer.png"), QStringLiteral("0.0"), false,
                               QStringLiteral("odometer"), 48, labelFontSize);
     pace =
-        new DataObject(QStringLiteral("Pace (m/") + unit + QStringLiteral(")"), QStringLiteral("icons/icons/pace.png"),
+        new DataObject(tr("Pace (m/%1)").arg(unit), QStringLiteral("icons/icons/pace.png"),
                        QStringLiteral("0:00"), false, QStringLiteral("pace"), 48, labelFontSize);
 
     avg_pace =
-        new DataObject(QStringLiteral("Avg Pace (m/") + unit + QStringLiteral(")"), QStringLiteral("icons/icons/pace.png"),
+        new DataObject(tr("Avg Pace (m/%1)").arg(unit), QStringLiteral("icons/icons/pace.png"),
                        QStringLiteral("0:00"), false, QStringLiteral("avg_pace"), 48, labelFontSize);
 
     grade_adjusted_pace =
-        new DataObject(QStringLiteral("GAP (m/") + unit + QStringLiteral(")"),
+        new DataObject(tr("GAP (m/%1)").arg(unit),
                        QStringLiteral("icons/icons/pace.png"), QStringLiteral("0:00"), false,
                        QStringLiteral("grade_adjusted_pace"), 48, labelFontSize);
 
     target_pace =
-        new DataObject(QStringLiteral("T.Pace(m/") + unit + QStringLiteral(")"), QStringLiteral("icons/icons/pace.png"),
+        new DataObject(tr("T.Pace(m/%1)").arg(unit), QStringLiteral("icons/icons/pace.png"),
                        QStringLiteral("0:00"), false, QStringLiteral("pace"), 48, labelFontSize);
 
-    pace_last500m = new DataObject(QStringLiteral("Pace 500m (m/") + unit + QStringLiteral(")"),
+    pace_last500m = new DataObject(tr("Pace 500m (m/%1)").arg(unit),
                                    QStringLiteral("icons/icons/pace.png"), QStringLiteral("0:00"), false,
                                    QStringLiteral("pace"), 48, labelFontSize);
 
-    resistance = new DataObject(QStringLiteral("Resistance"), QStringLiteral("icons/icons/resistance.png"),
+    resistance = new DataObject(tr("Resistance"), QStringLiteral("icons/icons/resistance.png"),
                                 QStringLiteral("0"), true, QStringLiteral("resistance"), 48, labelFontSize);
     peloton_resistance =
-        new DataObject(QStringLiteral("Peloton R(%)"), QStringLiteral("icons/icons/resistance.png"),
+        new DataObject(tr("Peloton R(%)"), QStringLiteral("icons/icons/resistance.png"),
                        QStringLiteral("0"), true, QStringLiteral("peloton_resistance"), 48, labelFontSize);
     target_resistance =
-        new DataObject(QStringLiteral("Target R."), QStringLiteral("icons/icons/resistance.png"), QStringLiteral("0"),
+        new DataObject(tr("Target R."), QStringLiteral("icons/icons/resistance.png"), QStringLiteral("0"),
                        true, QStringLiteral("target_resistance"), 48, labelFontSize);
     target_peloton_resistance =
-        new DataObject(QStringLiteral("T.Peloton R(%)"), QStringLiteral("icons/icons/resistance.png"),
+        new DataObject(tr("T.Peloton R(%)"), QStringLiteral("icons/icons/resistance.png"),
                        QStringLiteral("0"), false, QStringLiteral("target_peloton_resistance"), 48, labelFontSize);
-    target_cadence = new DataObject(QStringLiteral("T.Cadence(rpm)"), QStringLiteral("icons/icons/cadence.png"),
+    target_cadence = new DataObject(tr("T.Cadence(rpm)"), QStringLiteral("icons/icons/cadence.png"),
                                     QStringLiteral("0"), false, QStringLiteral("target_cadence"), 48, labelFontSize);
-    target_power = new DataObject(QStringLiteral("T.Power(W)"), QStringLiteral("icons/icons/watt.png"),
+    target_power = new DataObject(tr("T.Power(W)"), QStringLiteral("icons/icons/watt.png"),
                                   QStringLiteral("0"), true, QStringLiteral("target_power"), 48, labelFontSize);
-    target_zone = new DataObject(QStringLiteral("T.Zone"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("1"),
+    target_zone = new DataObject(tr("T.Zone"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("1"),
                                  true, QStringLiteral("target_zone"), 48, labelFontSize);
-    target_speed = new DataObject(QStringLiteral("T.Speed (") + unit + QStringLiteral("/h)"),
+    target_speed = new DataObject(tr("T.Speed (%1/h)").arg(unit),
                                   QStringLiteral("icons/icons/speed.png"), QStringLiteral("0.0"), true,
                                   QStringLiteral("target_speed"), 48, labelFontSize);
     target_incline =
-        new DataObject(QStringLiteral("T.Incline (%)"), QStringLiteral("icons/icons/inclination.png"),
+        new DataObject(tr("T.Incline (%)"), QStringLiteral("icons/icons/inclination.png"),
                        QStringLiteral("0.0"), true, QStringLiteral("target_inclination"), 48, labelFontSize);
 
-    watt = new DataObject(QStringLiteral("Watt"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
+    watt = new DataObject(tr("Watt"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
                           QStringLiteral("watt"), 48, labelFontSize);
-    weightLoss = new DataObject(QStringLiteral("Weight Loss(") + weightLossUnit + QStringLiteral(")"),
+    weightLoss = new DataObject(tr("Weight Loss(%1)").arg(weightLossUnit),
                                 QStringLiteral("icons/icons/kcal.png"), QStringLiteral("0"), false,
                                 QStringLiteral("weight_loss"), 48, labelFontSize);
-    avgWatt = new DataObject(QStringLiteral("AVG Watt"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
+    avgWatt = new DataObject(tr("AVG Watt"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
                              false, QStringLiteral("avgWatt"), 48, labelFontSize);
-    avgWattLap = new DataObject(QStringLiteral("AVG Watt Lap"), QStringLiteral("icons/icons/watt.png"),
+    avgWattLap = new DataObject(tr("AVG Watt Lap"), QStringLiteral("icons/icons/watt.png"),
                                 QStringLiteral("0"), false, QStringLiteral("avgWattLap"), 48, labelFontSize);
-    wattKg = new DataObject(QStringLiteral("Watt/Kg"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
+    wattKg = new DataObject(tr("Watt/Kg"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
                             false, QStringLiteral("watt_kg"), 48, labelFontSize);
-    ftp = new DataObject(QStringLiteral("FTP Zone"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
+    ftp = new DataObject(tr("FTP Zone"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
                          QStringLiteral("ftp"), 48, labelFontSize);
-    heart = new DataObject(QStringLiteral("Heart (bpm)"), QStringLiteral("icons/icons/heart_red.png"),
+    heart = new DataObject(tr("Heart (bpm)"), QStringLiteral("icons/icons/heart_red.png"),
                            QStringLiteral("0"), false, QStringLiteral("heart"), 48, labelFontSize);
-    fan = new DataObject(QStringLiteral("Fan Speed"), QStringLiteral("icons/icons/fan.png"), QStringLiteral("0"), true,
+    fan = new DataObject(tr("Fan Speed"), QStringLiteral("icons/icons/fan.png"), QStringLiteral("0"), true,
                          QStringLiteral("fan"), 48, labelFontSize);
-    jouls = new DataObject(QStringLiteral("KJouls"), QStringLiteral("icons/icons/joul.png"), QStringLiteral("0"), false,
+    jouls = new DataObject(tr("KJouls"), QStringLiteral("icons/icons/joul.png"), QStringLiteral("0"), false,
                            QStringLiteral("joul"), 48, labelFontSize);
     elapsed =
-        new DataObject(QStringLiteral("Elapsed"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"),
+        new DataObject(tr("Elapsed"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"),
                        false, QStringLiteral("elapsed"), valueElapsedFontSize, labelFontSize);
     moving_time =
-        new DataObject(QStringLiteral("Moving T."), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"),
+        new DataObject(tr("Moving T."), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"),
                        false, QStringLiteral("moving_time"), valueElapsedFontSize, labelFontSize);
-    datetime = new DataObject(QStringLiteral("Clock"), QStringLiteral("icons/icons/clock.png"),
+    datetime = new DataObject(tr("Clock"), QStringLiteral("icons/icons/clock.png"),
                               QTime::currentTime().toString(QStringLiteral("hh:mm:ss")), false,
                               QStringLiteral("datetime"), valueTimeFontSize, labelFontSize);
-    lapElapsed = new DataObject(QStringLiteral("Lap Elapsed"), QStringLiteral("icons/icons/clock.png"),
+    lapElapsed = new DataObject(tr("Lap Elapsed"), QStringLiteral("icons/icons/clock.png"),
                                 QStringLiteral("0:00:00"), false, QStringLiteral("lapElapsed"), valueElapsedFontSize,
                                 labelFontSize);
     remaningTimeTrainingProgramCurrentRow = new DataObject(
-        QStringLiteral("Time to Next"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"), true,
+        tr("Time to Next"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"), true,
         QStringLiteral("remainingtimetrainprogramrow"), valueElapsedFontSize, labelFontSize);
 
     nextRows =
-        new DataObject(QStringLiteral("Next Rows"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("N/A"),
+        new DataObject(tr("Next Rows"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("N/A"),
                        false, QStringLiteral("nextrows"), valueElapsedFontSize, labelFontSize);
 
-    mets = new DataObject(QStringLiteral("METS"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
+    mets = new DataObject(tr("METS"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
                           QStringLiteral("mets"), 48, labelFontSize);
-    targetMets = new DataObject(QStringLiteral("Target METS"), QStringLiteral("icons/icons/watt.png"),
+    targetMets = new DataObject(tr("Target METS"), QStringLiteral("icons/icons/watt.png"),
                                 QStringLiteral("0"), false, QStringLiteral("targetmets"), 48, labelFontSize);
-    rss = new DataObject(QStringLiteral("RSS"), QStringLiteral("icons/icons/watt.png"),
-                                QStringLiteral("0"), false, QStringLiteral("rss"), 48, labelFontSize);                                
-    steeringAngle = new DataObject(QStringLiteral("Steering"), QStringLiteral("icons/icons/cadence.png"),
+    rss = new DataObject(tr("RSS"), QStringLiteral("icons/icons/watt.png"),
+                                QStringLiteral("0"), false, QStringLiteral("rss"), 48, labelFontSize);
+    steeringAngle = new DataObject(tr("Steering"), QStringLiteral("icons/icons/cadence.png"),
                                    QStringLiteral("0"), false, QStringLiteral("steeringangle"), 48, labelFontSize);
     peloton_offset =
-        new DataObject(QStringLiteral("Peloton Offset"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
+        new DataObject(tr("Peloton Offset"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
                        true, QStringLiteral("peloton_offset"), valueElapsedFontSize, labelFontSize);
     peloton_remaining =
-        new DataObject(QStringLiteral("Peloton Rem."), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
+        new DataObject(tr("Peloton Rem."), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
                        true, QStringLiteral("peloton_remaining"), valueElapsedFontSize, labelFontSize);
-    strokesCount = new DataObject(QStringLiteral("Strokes Count"), QStringLiteral("icons/icons/cadence.png"),
+    strokesCount = new DataObject(tr("Strokes Count"), QStringLiteral("icons/icons/cadence.png"),
                                   QStringLiteral("0"), false, QStringLiteral("strokes_count"), 48, labelFontSize);
-    strokesLength = new DataObject(QStringLiteral("Strokes Length"), QStringLiteral("icons/icons/cadence.png"),
+    strokesLength = new DataObject(tr("Strokes Length"), QStringLiteral("icons/icons/cadence.png"),
                                    QStringLiteral("0"), false, QStringLiteral("strokes_length"), 48, labelFontSize);
-    gears = new DataObject(QStringLiteral("Gears"), QStringLiteral("icons/icons/elevationgain.png"),
+    gears = new DataObject(tr("Gears"), QStringLiteral("icons/icons/elevationgain.png"),
                            QStringLiteral("0"), true, QStringLiteral("gears"), 48, labelFontSize);
-    biggearsPlus = new DataObject(QStringLiteral("GearsPlus"), QStringLiteral("icons/icons/elevationgain.png"),
+    biggearsPlus = new DataObject(tr("GearsPlus"), QStringLiteral("icons/icons/elevationgain.png"),
                                   QStringLiteral("0"), true, QStringLiteral("biggearsplus"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Gear +", QStringLiteral("red"));
-    biggearsMinus = new DataObject(QStringLiteral("GearsMinus"), QStringLiteral("icons/icons/elevationgain.png"),
+    biggearsMinus = new DataObject(tr("GearsMinus"), QStringLiteral("icons/icons/elevationgain.png"),
                                   QStringLiteral("0"), true, QStringLiteral("biggearsminus"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Gear -", QStringLiteral("green"));
-    autoVirtualShiftingCruise = new DataObject(QStringLiteral("Cruise"), QStringLiteral("icons/icons/speed.png"),
+    autoVirtualShiftingCruise = new DataObject(tr("Cruise"), QStringLiteral("icons/icons/speed.png"),
                                               QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingCruise"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Cruise", QStringLiteral("red"));
-    autoVirtualShiftingClimb = new DataObject(QStringLiteral("Climb"), QStringLiteral("icons/icons/inclination.png"),
+    autoVirtualShiftingClimb = new DataObject(tr("Climb"), QStringLiteral("icons/icons/inclination.png"),
                                              QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingClimb"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Climb", QStringLiteral("red"));
-    autoVirtualShiftingSprint = new DataObject(QStringLiteral("Sprint"), QStringLiteral("icons/icons/watt.png"),
+    autoVirtualShiftingSprint = new DataObject(tr("Sprint"), QStringLiteral("icons/icons/watt.png"),
                                               QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingSprint"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Sprint", QStringLiteral("red"));
-    powerAvg = new DataObject(QStringLiteral("Power Avg"), QStringLiteral("icons/icons/watt.png"),
+    powerAvg = new DataObject(tr("Power Avg"), QStringLiteral("icons/icons/watt.png"),
                              QStringLiteral("0"), true, QStringLiteral("powerAvg"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Off", QStringLiteral("grey"));
-    hrv = new DataObject(QStringLiteral("HRV (ms)"), QStringLiteral("icons/icons/heart_red.png"),
+    hrv = new DataObject(tr("HRV (ms)"), QStringLiteral("icons/icons/heart_red.png"),
                          QStringLiteral("0"), false, QStringLiteral("hrv"), 48, labelFontSize);
-    pidHR = new DataObject(QStringLiteral("PID Heart"), QStringLiteral("icons/icons/heart_red.png"),
+    pidHR = new DataObject(tr("PID Heart"), QStringLiteral("icons/icons/heart_red.png"),
                            QStringLiteral("0"), true, QStringLiteral("pid_hr"), 48, labelFontSize);
-    extIncline = new DataObject(QStringLiteral("Ext.Inclin.(%)"), QStringLiteral("icons/icons/inclination.png"),
+    extIncline = new DataObject(tr("Ext.Inclin.(%)"), QStringLiteral("icons/icons/inclination.png"),
                                 QStringLiteral("0.0"), true, QStringLiteral("external_inclination"), 48, labelFontSize);
     instantaneousStrideLengthCM =
-        new DataObject(QStringLiteral("Stride L.(") + cm + ")", QStringLiteral("icons/icons/inclination.png"),
+        new DataObject(tr("Stride L.(%1)").arg(cm), QStringLiteral("icons/icons/inclination.png"),
                        QStringLiteral("0"), false, QStringLiteral("stride_length"), 48, labelFontSize);
-    groundContactMS = new DataObject(QStringLiteral("Ground C.(ms)"), QStringLiteral("icons/icons/inclination.png"),
+    groundContactMS = new DataObject(tr("Ground C.(ms)"), QStringLiteral("icons/icons/inclination.png"),
                                      QStringLiteral("0"), false, QStringLiteral("ground_contact"), 48, labelFontSize);
     verticalOscillationMM =
-        new DataObject(QStringLiteral("Vert.Osc.(mm)"), QStringLiteral("icons/icons/inclination.png"),
+        new DataObject(tr("Vert.Osc.(mm)"), QStringLiteral("icons/icons/inclination.png"),
                        QStringLiteral("0"), false, QStringLiteral("vertical_oscillation"), 48, labelFontSize);
 
     stepCount =
-        new DataObject(QStringLiteral("Step Count"), QStringLiteral("icons/icons/pace.png"),
+        new DataObject(tr("Step Count"), QStringLiteral("icons/icons/pace.png"),
                        QStringLiteral("0"), false, QStringLiteral("step_count"), 48, labelFontSize);
 
     ergMode = new DataObject(
