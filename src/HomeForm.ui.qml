@@ -69,11 +69,12 @@ Page {
                             enabled: rootItem.device
                             smooth: true
 
-                            // VoiceOver accessibility
+                            // VoiceOver accessibility — ignored when parent is disabled (drawer open)
                             Accessible.role: Accessible.Indicator
                             Accessible.name: qsTr("Bluetooth connection")
                             Accessible.description: rootItem.device ? qsTr("Device connected") : qsTr("Device not connected")
-                            Accessible.focusable: true
+                            Accessible.focusable: treadmill_connection.enabled
+                            Accessible.ignored: !page.enabled
                         }
                         ColorOverlay {
                             anchors.fill: treadmill_connection
@@ -109,11 +110,12 @@ Page {
                     width: 120
                     height: row.height - 4
 
-                    // VoiceOver accessibility
+                    // VoiceOver accessibility — ignored when parent is disabled (drawer open)
                     Accessible.role: Accessible.Button
                     Accessible.name: rootItem.startText
                     Accessible.description: qsTr("Start workout")
-                    Accessible.focusable: true
+                    Accessible.focusable: page.enabled
+                    Accessible.ignored: !page.enabled
                 }
                 ColorOverlay {
                     anchors.fill: start
@@ -139,11 +141,12 @@ Page {
                     width: 120
                     height: row.height - 4
 
-                    // VoiceOver accessibility
+                    // VoiceOver accessibility — ignored when parent is disabled (drawer open)
                     Accessible.role: Accessible.Button
                     Accessible.name: rootItem.stopText
                     Accessible.description: qsTr("Stop workout")
-                    Accessible.focusable: true
+                    Accessible.focusable: page.enabled
+                    Accessible.ignored: !page.enabled
                 }
                 ColorOverlay {
                     anchors.fill: stop
@@ -171,11 +174,12 @@ Page {
                     enabled: rootItem.lap
                     smooth: true
 
-                    // VoiceOver accessibility
+                    // VoiceOver accessibility — ignored when parent is disabled (drawer open)
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Lap")
                     Accessible.description: qsTr("Record a new lap")
-                    Accessible.focusable: true
+                    Accessible.focusable: page.enabled && rootItem.lap
+                    Accessible.ignored: !page.enabled
                 }
                 ColorOverlay {
                     anchors.fill: lap

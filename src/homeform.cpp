@@ -9399,6 +9399,14 @@ void homeform::prepareEmbeddedWebViewForVoiceOver() {
 #endif
 }
 
+void homeform::setDrawerAccessibilityModal(bool modal) {
+#ifdef Q_OS_IOS
+    ios_accessibility_helper::setDrawerAccessibilityModal(modal);
+#else
+    Q_UNUSED(modal)
+#endif
+}
+
 void homeform::garmin_upload_file_prepare() {
     qDebug() << "Garmin upload file prepare" << lastFitFileSaved;
 

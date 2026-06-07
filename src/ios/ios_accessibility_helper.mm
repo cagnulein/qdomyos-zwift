@@ -142,6 +142,18 @@ static void qzPrepareWebViewAccessibility(WKWebView *webView) {
     }
 }
 
+void ios_accessibility_helper::setDrawerAccessibilityModal(bool modal) {
+    // Qt 5.15 iOS uses virtual UIAccessibilityElement objects (not UIViews) for its
+    // accessibility tree, so UIView-level accessibilityElementsHidden is ineffective.
+    // The real work is done by the QML Accessible.ignored bindings on each element.
+    // This function simply posts UIAccessibilityScreenChangedNotification so VoiceOver
+    // re-reads the tree immediately after those bindings update (150 ms delay in QML).
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSLog(@"[QZ VO] setDrawerAccessibilityModal=%d → posting ScreenChangedNotification", (int)modal);
+        UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
+    });
+}
+
 void ios_accessibility_helper::prepareEmbeddedWebViewForVoiceOver() {
     dispatch_async(dispatch_get_main_queue(), ^{
         UIWindow *window = qzKeyWindow();

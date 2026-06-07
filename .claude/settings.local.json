@@ -4,9 +4,20 @@
       "Bash(grep:*)",
       "Bash(tshark:*)",
       "Bash(find:*)",
-      "Bash(python3:*)",     
+      "Bash(python3:*)",
       "Bash(git log:*)",
-      "Bash(git ls-tree:*)"
+      "Bash(git ls-tree:*)",
+      "Bash(bash build-qrc-qml.sh)",
+      "Bash(xcodebuild -project \"build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj\" -scheme qdomyoszwift -configuration Debug -sdk iphonesimulator ARCHS=x86_64)",
+      "Bash(xcodebuild -project \"build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj\" -target qdomyoszwift -configuration Debug -sdk iphonesimulator ARCHS=x86_64)",
+      "Bash(xcodebuild -project \"build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj\" -target qdomyoszwift -configuration Debug -sdk iphonesimulator ARCHS=x86_64 SKIP_INSTALL=YES)",
+      "Bash(xcodebuild -project \"build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj\" -list)",
+      "Bash(xcodebuild -project \"build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj\" -target qdomyoszwift -configuration Debug -destination 'platform=macOS,variant=Mac Catalyst')",
+      "Bash(grep -n \"error:\\\\|warning:.*deprecated\\\\|BUILD SUCCEEDED\\\\|BUILD FAILED\" \"/Users/cagnulein/Downloads/xcode build.txt\" | head -60)",
+      "Bash(gem list *)",
+      "Bash(ruby --version)",
+      "Bash(plutil -lint /Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj)",
+      "Bash(xcodebuild -project qdomyoszwift.xcodeproj -target QZVoiceOverTests -sdk iphoneos CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build-for-testing)"
     ]
   }
 }

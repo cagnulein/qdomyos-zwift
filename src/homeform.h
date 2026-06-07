@@ -598,6 +598,7 @@ class homeform : public QObject {
     Q_INVOKABLE bool hasConnectedDevice() const;
     Q_INVOKABLE void notifyAccessibilityScreenChanged();
     Q_INVOKABLE void prepareEmbeddedWebViewForVoiceOver();
+    Q_INVOKABLE void setDrawerAccessibilityModal(bool modal);
 
 private:
     void clearWebViewCache();
