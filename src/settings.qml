@@ -1656,8 +1656,9 @@ import Qt.labs.platform 1.1
             property string shortcut_preset_powerzone_6: ""
             property string shortcut_preset_powerzone_7: ""
             property string shortcut_lap: ""
-            property string shortcut_start_stop: ""                                         
+            property string shortcut_start_stop: ""
             property bool proform_treadmill_105_cst: false
+            property bool horizon_treadmill_omega_z: false
         }
 
 
@@ -10508,6 +10509,20 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.horizon_treadmill_7_8 = checked; window.settings_restart_to_apply = true; }
+                            }
+                            IndicatorOnlySwitch {
+                                id: horizonOmegaZTreadmillDelegate
+                                text: qsTr("Omega Z")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.horizon_treadmill_omega_z
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.horizon_treadmill_omega_z = checked; window.settings_restart_to_apply = true; }
                             }
 
                             IndicatorOnlySwitch {
