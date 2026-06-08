@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE TS>
 <TS version="2.1" language="ja_JP">
 <context>
@@ -151,8 +151,8 @@ Would you like to do that now?</source>
     </message>
     <message>
         <location filename="../HomeForm.ui.qml" line="206"/>
-        <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
-        <translation type="unfinished"></translation>
+        <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn't, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the 'virtual device' setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
+        <translation>このアプリは、お使いのバイク/トレッドミル/ローヤーに自動的に接続されるはずです。&lt;b&gt;接続されない場合は、以下を確認してください：&lt;/b&gt;&lt;br&gt;1) qdomyos-zwiftが実行されている間は、Echelon/Domyosアプリを閉じてください。&lt;br&gt;2) BluetoothとBluetoothの権限の両方が有効になっている必要があります&lt;br&gt;3) このアプリを起動する前に、バイク/トレッドミル/ローヤーの電源を入れてください&lt;br&gt;4) デバイスの再起動をお試しください&lt;br&gt;&lt;br&gt;バイク/トレッドミルが30秒ごとに切断される場合は、左側のバーにある「virtual device」設定を無効にしてみてください。&lt;br&gt;&lt;br&gt;問題が発生した場合は、お気軽に roberto.viola83@gmail.com までご連絡ください。&lt;br&gt;&lt;br&gt;&lt;b&gt;良いライドを！&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZは、付随的または結果的な損害について、また、本アプリの使用または誤使用の結果として、いかなる人によって被った損失または損害について、責任を負いません。&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
     </message>
 </context>
 <context>
@@ -347,17 +347,17 @@ Would you like to do that now?</source>
     <message>
         <location filename="../mainwindow.ui" line="1102"/>
         <source>&amp;Reset</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1109"/>
         <source>&amp;Load</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1116"/>
         <source>&amp;Save</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1134"/>
@@ -428,13 +428,13 @@ Would you like to do that now?</source>
     <name>SwagBagView</name>
     <message>
         <location filename="../SwagBagView.qml" line="66"/>
-        <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
+        <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The "Swag Bag" is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
         <translation>こんにちは！QZがオープンソースのインディーアプリであることをご存知ですか？&lt;br&gt;&lt;br&gt;大企業が運営しているわけではありません！&lt;br&gt;「Swag Bag」は、QZ Fitnessの継続的な開発、メンテナンス、サポートを支援する方法です！</translation>
     </message>
     <message>
         <location filename="../SwagBagView.qml" line="92"/>
-        <source>&lt;html&gt;&lt;style type=&apos;text/css&apos;&gt;&lt;/style&gt;Swag bag feature:&lt;br&gt;• an auto-renewable subscription&lt;br&gt;• 1 month ($1.99)&lt;br&gt;• Your subscription will be charged to your iTunes account at confirmation of purchase and will automatically renew (at the duration selected) unless auto-renew is turned off at least 24 hours before the end of the current period.&lt;br&gt;• Current subscription may not be cancelled during the active subscription period; however, you can manage your subscription and/or turn off auto-renewal by visiting your iTunes Account Settings after purchase.&lt;br&gt;• Privacy policy: &lt;a href=&apos;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&apos;&gt;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&lt;/a&gt;&lt;br&gt;• Licensed Application end user license agreement: &lt;a href=&apos;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&apos;&gt;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&lt;/a&gt;&lt;br&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;style type=&apos;text/css&apos;&gt;&lt;/style&gt;Swag bag機能:&lt;br&gt;• 自動更新可能なサブスクリプション&lt;br&gt;• 1か月（$1.99）&lt;br&gt;• サブスクリプションは、購入確認時にiTunesアカウントに請求され、自動的に更新されます（選択された期間）。ただし、現在の期間終了の少なくとも24時間前までに自動更新をオフにしない限り、自動更新されます。&lt;br&gt;• 現在のサブスクリプションは、有効なサブスクリプション期間中はキャンセルできません。ただし、購入後、iTunesアカウント設定にアクセスすることで、サブスクリプションの管理や自動更新のオフにすることができます。&lt;br&gt;• プライバシーポリシー: &lt;a href=&apos;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&apos;&gt;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&lt;/a&gt;&lt;br&gt;• ライセンスアプリケーションエンドユーザーライセンス契約: &lt;a href=&apos;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&apos;&gt;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&lt;/a&gt;&lt;br&gt;&lt;/html&gt;</translation>
+        <source>&lt;html&gt;&lt;style type='text/css'&gt;&lt;/style&gt;Swag bag feature:&lt;br&gt;• an auto-renewable subscription&lt;br&gt;• 1 month ($1.99)&lt;br&gt;• Your subscription will be charged to your iTunes account at confirmation of purchase and will automatically renew (at the duration selected) unless auto-renew is turned off at least 24 hours before the end of the current period.&lt;br&gt;• Current subscription may not be cancelled during the active subscription period; however, you can manage your subscription and/or turn off auto-renewal by visiting your iTunes Account Settings after purchase.&lt;br&gt;• Privacy policy: &lt;a href='https://robertoviola.cloud/privacy-policy-qdomyos-zwift/'&gt;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&lt;/a&gt;&lt;br&gt;• Licensed Application end user license agreement: &lt;a href='https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'&gt;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&lt;/a&gt;&lt;br&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;style type='text/css'&gt;&lt;/style&gt;Swag bag機能:&lt;br&gt;• 自動更新可能なサブスクリプション&lt;br&gt;• 1か月（$1.99）&lt;br&gt;• サブスクリプションは、購入確認時にiTunesアカウントに請求され、自動的に更新されます（選択された期間）。ただし、現在の期間終了の少なくとも24時間前までに自動更新をオフにしない限り、自動更新されます。&lt;br&gt;• 現在のサブスクリプションは、有効なサブスクリプション期間中はキャンセルできません。ただし、購入後、iTunesアカウント設定にアクセスすることで、サブスクリプションの管理や自動更新のオフにすることができます。&lt;br&gt;• プライバシーポリシー: &lt;a href='https://robertoviola.cloud/privacy-policy-qdomyos-zwift/'&gt;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&lt;/a&gt;&lt;br&gt;• ライセンスアプリケーションエンドユーザーライセンス契約: &lt;a href='https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'&gt;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&lt;/a&gt;&lt;br&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -513,12 +513,12 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <location filename="../Wizard.qml" line="181"/>
-        <source>I&apos;m fine, thanks.</source>
+        <source>I'm fine, thanks.</source>
         <translation>大丈夫です、ありがとう。</translation>
     </message>
     <message>
         <location filename="../Wizard.qml" line="211"/>
-        <source>What&apos;s your fitness device?</source>
+        <source>What's your fitness device?</source>
         <translation>どのフィットネスデバイスですか？</translation>
     </message>
     <message>
@@ -648,7 +648,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <location filename="../Wizard.qml" line="690"/>
-        <source>QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn&apos;t work on workout</source>
+        <source>QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn't work on workout</source>
         <translation>QZはZwiftアプリから傾斜をリアルタイムで読み取り、トレッドミル上の傾斜を調整します。ワークアウトでは機能しません</translation>
     </message>
     <message>
@@ -679,7 +679,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <location filename="../Wizard.qml" line="814"/>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../Wizard.qml" line="831"/>
@@ -788,7 +788,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <location filename="../Wizard.qml" line="1378"/>
         <source>Garmin watch</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -888,307 +888,307 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <location filename="../homeform.cpp" line="283"/>
         <source>Speed (%1/h)</source>
-        <translation type="unfinished"></translation>
+        <translation>速度 (%1/h)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="286"/>
         <source>Inclination (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>傾斜度 (%)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="288"/>
         <source>Descent (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>下り (%1)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="290"/>
         <source>Cadence (rpm)</source>
-        <translation type="unfinished"></translation>
+        <translation>ケイデンス (rpm)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="292"/>
         <source>Elev. Gain (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>獲得高度 (%1)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="295"/>
         <source>Calories (KCal)</source>
-        <translation type="unfinished"></translation>
+        <translation>カロリー (KCal)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="297"/>
         <source>Odometer (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>走行距離 (%1)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="301"/>
         <source>Pace (m/%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ペース (m/%1)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="305"/>
         <source>Avg Pace (m/%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>平均ペース (m/%1)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="309"/>
         <source>GAP (m/%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ギャップ (m/%1)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="314"/>
         <source>T.Pace(m/%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ペース(m/%1)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="317"/>
         <source>Pace 500m (m/%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ペース 500m (m/%1)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="321"/>
         <source>Resistance</source>
-        <translation type="unfinished">抵抗</translation>
+        <translation>抵抗</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="324"/>
         <source>Peloton R(%)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../homeform.cpp" line="327"/>
         <source>Target R.</source>
-        <translation type="unfinished"></translation>
+        <translation>目標 R.</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="330"/>
         <source>T.Peloton R(%)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../homeform.cpp" line="332"/>
         <source>T.Cadence(rpm)</source>
-        <translation type="unfinished"></translation>
+        <translation>T.ケイデンス(rpm)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="334"/>
         <source>T.Power(W)</source>
-        <translation type="unfinished"></translation>
+        <translation>パワー(W)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="336"/>
         <source>T.Zone</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../homeform.cpp" line="338"/>
         <source>T.Speed (%1/h)</source>
-        <translation type="unfinished"></translation>
+        <translation>T.速度 (%1/h)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="342"/>
         <source>T.Incline (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>傾斜 (%)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="345"/>
         <source>Watt</source>
-        <translation type="unfinished">Watt</translation>
+        <translation>Watt</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="347"/>
         <source>Weight Loss(%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>減量(%1)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="350"/>
         <source>AVG Watt</source>
-        <translation type="unfinished">平均ワット</translation>
+        <translation>平均ワット</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="352"/>
         <source>AVG Watt Lap</source>
-        <translation type="unfinished">平均ワットラップ</translation>
+        <translation>平均ワットラップ</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="354"/>
         <source>Watt/Kg</source>
-        <translation type="unfinished">ワット/kg</translation>
+        <translation>ワット/kg</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="356"/>
         <source>FTP Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>FTPゾーン</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="358"/>
         <source>Heart (bpm)</source>
-        <translation type="unfinished"></translation>
+        <translation>心拍数 (bpm)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="360"/>
         <source>Fan Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>ファンの速度</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="362"/>
         <source>KJouls</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../homeform.cpp" line="365"/>
         <source>Elapsed</source>
-        <translation type="unfinished">経過時間</translation>
+        <translation>経過時間</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="368"/>
         <source>Moving T.</source>
-        <translation type="unfinished"></translation>
+        <translation>移動 T.</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="370"/>
         <source>Clock</source>
-        <translation type="unfinished"></translation>
+        <translation>時計</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="373"/>
         <source>Lap Elapsed</source>
-        <translation type="unfinished">ラップ経過</translation>
+        <translation>ラップ経過</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="377"/>
         <source>Time to Next</source>
-        <translation type="unfinished"></translation>
+        <translation>次の時間まで</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="381"/>
         <source>Next Rows</source>
-        <translation type="unfinished">次の行</translation>
+        <translation>次の行</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="384"/>
         <source>METS</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../homeform.cpp" line="386"/>
         <source>Target METS</source>
-        <translation type="unfinished">目標METS</translation>
+        <translation>目標METS</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="388"/>
         <source>RSS</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../homeform.cpp" line="390"/>
         <source>Steering</source>
-        <translation type="unfinished"></translation>
+        <translation>操舵</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="393"/>
         <source>Peloton Offset</source>
-        <translation type="unfinished">Peloton オフセット</translation>
+        <translation>Peloton オフセット</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="396"/>
         <source>Peloton Rem.</source>
-        <translation type="unfinished"></translation>
+        <translation>Peloton リモート</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="398"/>
         <source>Strokes Count</source>
-        <translation type="unfinished">ストローク数</translation>
+        <translation>ストローク数</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="400"/>
         <source>Strokes Length</source>
-        <translation type="unfinished">ストローク長</translation>
+        <translation>ストローク長</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="402"/>
         <source>Gears</source>
-        <translation type="unfinished">ギア</translation>
+        <translation>ギア</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="404"/>
         <source>GearsPlus</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../homeform.cpp" line="406"/>
         <source>GearsMinus</source>
-        <translation type="unfinished"></translation>
+        <translation>ギアマイナス</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="408"/>
         <source>Cruise</source>
-        <translation type="unfinished"></translation>
+        <translation>クルーズ</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="410"/>
         <source>Climb</source>
-        <translation type="unfinished"></translation>
+        <translation>登坂</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="412"/>
         <source>Sprint</source>
-        <translation type="unfinished"></translation>
+        <translation>スプリント</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="414"/>
         <source>Power Avg</source>
-        <translation type="unfinished"></translation>
+        <translation>平均パワー</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="416"/>
         <source>HRV (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>HRV（ms）</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="418"/>
         <source>PID Heart</source>
-        <translation type="unfinished"></translation>
+        <translation>PID心拍</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="420"/>
         <source>Ext.Inclin.(%)</source>
-        <translation type="unfinished"></translation>
+        <translation>外部傾斜(%)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="423"/>
         <source>Stride L.(%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ストライド L.（%1）</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="425"/>
         <source>Ground C.(ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>地面接触.(ms)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="428"/>
         <source>Vert.Osc.(mm)</source>
-        <translation type="unfinished"></translation>
+        <translation>垂直振動(mm)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="432"/>
         <source>Step Count</source>
-        <translation type="unfinished">歩数</translation>
+        <translation>歩数</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="5665"/>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>ストップ</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="5677"/>
         <source>Start</source>
-        <translation type="unfinished">開始</translation>
+        <translation>開始</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="5679"/>
         <source>Pause</source>
-        <translation type="unfinished"></translation>
+        <translation>一時停止</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="6279"/>
@@ -1389,7 +1389,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <location filename="../homeform.cpp" line="7980"/>
         <source>, ftp </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../homeform.cpp" line="7982"/>
@@ -1536,7 +1536,7 @@ choose a nickname in the general settings
 and enable the QZ Classifica setting in the
 experimental settings section and
 restart the app.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../main.qml" line="437"/>
@@ -1565,8 +1565,8 @@ restart the app.</source>
     </message>
     <message>
         <location filename="../main.qml" line="529"/>
-        <source>Browse the What&apos;s on Zwift workout library&lt;br&gt;and choose your workout. It will&lt;br&gt; be automatically loaded on QZ when you will&lt;br&gt;press the load button on the top!&lt;br&gt;&lt;br&gt;QZ is not affiliated with Zwift&lt;br&gt;or https://whatsonzwift.com/ website.</source>
-        <translation>What&apos;s on Zwiftのワークアウトライブラリを閲覧し、ワークアウトを選択してください。上部のロードボタンを押すと、QZに自動的に読み込まれます！&lt;br&gt;&lt;br&gt;QZはZwiftまたはhttps://whatsonzwift.com/のウェブサイトとは提携していません。</translation>
+        <source>Browse the What's on Zwift workout library&lt;br&gt;and choose your workout. It will&lt;br&gt; be automatically loaded on QZ when you will&lt;br&gt;press the load button on the top!&lt;br&gt;&lt;br&gt;QZ is not affiliated with Zwift&lt;br&gt;or https://whatsonzwift.com/ website.</source>
+        <translation>What's on Zwiftのワークアウトライブラリを閲覧し、ワークアウトを選択してください。上部のロードボタンを押すと、QZに自動的に読み込まれます！&lt;br&gt;&lt;br&gt;QZはZwiftまたはhttps://whatsonzwift.com/のウェブサイトとは提携していません。</translation>
     </message>
     <message>
         <location filename="../main.qml" line="558"/>
@@ -1576,7 +1576,7 @@ restart the app.</source>
     <message>
         <location filename="../main.qml" line="587"/>
         <source>Saved! Check your private folder (Android)&lt;br&gt;or Files App (iOS)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../main.qml" line="621"/>
@@ -1625,20 +1625,20 @@ Do you want to do it now?</source>
         <location filename="../main.qml" line="721"/>
         <source>Workout found:
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../main.qml" line="722"/>
         <source>
 Date: </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../main.qml" line="723"/>
         <source>
 
 Do you want to start it now?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../main.qml" line="811"/>
@@ -1834,7 +1834,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../profiles.qml" line="98"/>
-        <source>You&apos;re creating a new profile with the default values, would you like to save the current one before?</source>
+        <source>You're creating a new profile with the default values, would you like to save the current one before?</source>
         <translation>新しいプロファイルを作成すると、現在のプロファイルを先に保存しますか？</translation>
     </message>
     <message>
@@ -2280,8 +2280,8 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="2197"/>
-        <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
-        <translation>より正確なBMRと活動カロリーの計算のため、身長を入力してください。メートル法の場合はセンチメートルを、ヤード・ポンド法の場合は「フィート&apos;インチ」形式（例：5&apos;10&quot;）を使用してください。</translation>
+        <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet'inches" format (e.g., 5'10") for imperial units.</source>
+        <translation>より正確なBMRと活動カロリーの計算のため、身長を入力してください。メートル法の場合はセンチメートルを、ヤード・ポンド法の場合は「フィート'インチ」形式（例：5'10"）を使用してください。</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="2213"/>
@@ -2406,7 +2406,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="2643"/>
-        <source>This prevents your bike or treadmill from sending its calories-burned calculation to QZ and defaults to QZ&apos;s more accurate calculation.</source>
+        <source>This prevents your bike or treadmill from sending its calories-burned calculation to QZ and defaults to QZ's more accurate calculation.</source>
         <translation>これにより、バイクまたはトレッドミルが消費カロリー計算をQZに送信するのを防ぎ、QZのより正確な計算が使用されます。</translation>
     </message>
     <message>
@@ -2561,7 +2561,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="3239"/>
-        <source>Specify a particular gear value to be restored at startup. This will override the &apos;Restore Gears on Startup&apos; setting.</source>
+        <source>Specify a particular gear value to be restored at startup. This will override the 'Restore Gears on Startup' setting.</source>
         <translation>起動時に復元する特定のギア値を指定します。これにより、「起動時のギア復元」設定が上書きされます。</translation>
     </message>
     <message>
@@ -2800,7 +2800,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="4184"/>
-        <source>If you have a generic FTMS bike and the tiles don&apos;t appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
+        <source>If you have a generic FTMS bike and the tiles don't appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
         <translation>汎用FTMSバイクをお持ちで、タイルがメインのQZ画面に表示されない場合は、ここでバイクのBluetooth名を選択してください。</translation>
     </message>
     <message>
@@ -2840,7 +2840,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="4291"/>
-        <source>Since this bike doesn&apos;t send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little &apos;jumpy&apos; and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
+        <source>Since this bike doesn't send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little 'jumpy' and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
         <translation>このバイクはBluetooth経由で抵抗を送信しないため、QZはケイデンスとワット数を使用して抵抗を計算します。結果は不安定になる可能性があるため、この設定で抵抗のタイル値をフィルタリングできます。この単位は純粋な抵抗レベルであるため、5を設定すると、抵抗が5レベル変化したときのみ値が変化します。</translation>
     </message>
     <message>
@@ -3399,7 +3399,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="2138"/>
-        <source>Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;.</source>
+        <source>Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable 'Use kg for weight'.</source>
         <translation>体重をキログラムで入力すると、QZが消費カロリーをより正確に計算できます。注意：走行距離の単位としてマイルを選択した場合、「重量にkgを使用」を有効にしない限り、ポンド（lbs）で体重の入力を求められます。</translation>
     </message>
     <message>
@@ -3455,12 +3455,12 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="1730"/>
         <source>Chinese (Simplified)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="1731"/>
         <source>Chinese (Traditional)</source>
-        <translation type="unfinished"></translation>
+        <translation>繁体字中国語</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="1732"/>
@@ -3614,8 +3614,8 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="2186"/>
-        <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
-        <translation>無効な形式です！フィート&apos;インチ（例：6&apos;2&quot;）を使用してください</translation>
+        <source>Invalid format! Use feet'inches (e.g., 6'2")</source>
+        <translation>無効な形式です！フィート'インチ（例：6'2"）を使用してください</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="2466"/>
@@ -3652,7 +3652,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="3308"/>
-        <source>Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will &apos;level the playing field&apos; against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;. Default unit is kilograms (kgs).</source>
+        <source>Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will 'level the playing field' against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable 'Use kg for weight'. Default unit is kilograms (kgs).</source>
         <translation>QZが速度計算に自転車の重量を含めることを可能にします。例えば、VZfitで自分自身と競う場合、自転車の重量を追加することで、仮想の自分に対して「公平な条件」になります。QZをマイルで距離を計算するように設定している場合は、「重量にkgを使用」を有効にしない限り、自転車の重量をポンド（lbs）で入力してください。デフォルトの単位はキログラム（kgs）です。</translation>
     </message>
     <message>
@@ -3663,27 +3663,27 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="4158"/>
         <source>FTMS Bike:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="4564"/>
         <source>SP-HT-9600iE</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="4585"/>
         <source>Yesoul New Peloton Formula</source>
-        <translation type="unfinished"></translation>
+        <translation>Yesoul 新 Peloton フォーミュラ</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="4667"/>
         <source>Fit Plus Bike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="4681"/>
         <source>Virtufit Etappe 2.0 Bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtufit Etappe 2.0 バイク</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="4709"/>
@@ -3698,39 +3698,39 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="4733"/>
         <source>LifeSpan C7000i Bike</source>
-        <translation type="unfinished"></translation>
+        <translation>LifeSpan C7000i 自転車</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="4781"/>
         <source>Life Fitness IC8</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="4795"/>
         <source>Life Fitness IC5</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="5132"/>
         <source>TDF1 IP:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="5156"/>
         <source>TDF4 IP:</source>
-        <translation type="unfinished"></translation>
+        <translation>TDF4 IPアドレス:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5180"/>
         <source>TDF Companion IP:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="5202"/>
         <location filename="../settings.qml" line="9813"/>
         <location filename="../settings.qml" line="11564"/>
         <source>ADB Remote</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="5454"/>
@@ -3745,7 +3745,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="5523"/>
         <source>Toputure TEB1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="5537"/>
@@ -3783,7 +3783,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="6190"/>
         <source>Tiles Shadow</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="6517"/>
@@ -3934,7 +3934,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="7215"/>
-        <source>Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with &apos;Get gears from Zwift&apos; may cause conflicts.</source>
+        <source>Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with 'Get gears from Zwift' may cause conflicts.</source>
         <translation>Zwift PlayとZwift Clickの設定を無効にしますか？これらを「Zwiftからギアを取得」と同時に有効にすると、競合の原因となる場合があります。</translation>
     </message>
     <message>
@@ -3954,7 +3954,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="7305"/>
-        <source>By default QZ is showing the actual gears from the bike. Enabling this, QZ will show the same gears that you see on Zwift. This doesn&apos;t affect the real gear value one the bike. Default: disabled.</source>
+        <source>By default QZ is showing the actual gears from the bike. Enabling this, QZ will show the same gears that you see on Zwift. This doesn't affect the real gear value one the bike. Default: disabled.</source>
         <translation>デフォルトでは、QZは自転車本体の実際のギアを表示します。これを有効にすると、QZはZwiftで表示されるのと同じギアを表示します。これは自転車本体の実際のギア値には影響しません。デフォルト: 無効。</translation>
     </message>
     <message>
@@ -3964,7 +3964,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="7341"/>
-        <source>Define the number of delay seconds between each inclination change from Zwift. This value can&apos;t be less than 5. Default: 5</source>
+        <source>Define the number of delay seconds between each inclination change from Zwift. This value can't be less than 5. Default: 5</source>
         <translation>Zwiftからの傾斜変化ごとの遅延秒数を設定します。この値は5秒未満にできません。初期値: 5</translation>
     </message>
     <message>
@@ -3975,7 +3975,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="7368"/>
-        <source>Only for Android and iOS: QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn&apos;t work on workout</source>
+        <source>Only for Android and iOS: QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn't work on workout</source>
         <translation>AndroidおよびiOSのみ: QZはZwiftアプリから傾斜をリアルタイムで読み取り、トレッドミル上の傾斜を調整します。ワークアウトでは機能しません</translation>
     </message>
     <message>
@@ -4011,7 +4011,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="7473"/>
         <source>Wifi Compatibility for Rouvy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="7489"/>
@@ -4021,7 +4021,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="7497"/>
         <source>Garmin Bluetooth Sensor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="7511"/>
@@ -4051,7 +4051,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="7579"/>
         <source>Garmin Connect</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="7586"/>
@@ -4097,7 +4097,7 @@ Please enter it below:</source>
     </message>
     <message>
         <location filename="../settings.qml" line="7725"/>
-        <source>If you don&apos;t receive the code, please enable 2FA in your Garmin profile privacy settings.</source>
+        <source>If you don't receive the code, please enable 2FA in your Garmin profile privacy settings.</source>
         <translation>コードが届かない場合は、Garminのプロフィールプライバシー設定で2FAを有効にしてください。</translation>
     </message>
     <message>
@@ -4202,13 +4202,13 @@ Please enter it below:</source>
     </message>
     <message>
         <location filename="../settings.qml" line="8438"/>
-        <source>Alternatively to &apos;PID on Heart Zone&apos; setting you can use this couple of settings in order to specify a HR range.</source>
-        <translation>&apos;心拍ゾーンでのPID&apos;設定の代わりに、HR範囲を指定するためにこれらの設定の組み合わせを使用できます。</translation>
+        <source>Alternatively to 'PID on Heart Zone' setting you can use this couple of settings in order to specify a HR range.</source>
+        <translation>'心拍ゾーンでのPID'設定の代わりに、HR範囲を指定するためにこれらの設定の組み合わせを使用できます。</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="8451"/>
-        <source>PID &apos;Pushy&apos;</source>
-        <translation type="unfinished"></translation>
+        <source>PID 'Pushy'</source>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="8465"/>
@@ -4482,7 +4482,7 @@ Please enter it below:</source>
     </message>
     <message>
         <location filename="../settings.qml" line="9435"/>
-        <source>If you have a generic FTMS bike and the tiles doesn&apos;t appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
+        <source>If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
         <translation>一般的なFTMSバイクをお使いで、メインのQZ画面にタイルが表示されない場合は、ここでバイクのBluetooth名を選択してください。</translation>
     </message>
     <message>
@@ -4498,12 +4498,12 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="9767"/>
         <source>Proform IP:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="9791"/>
         <source>Nordictrack 2950 IP:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="9830"/>
@@ -4518,7 +4518,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="9852"/>
         <source>BH IBoxster Plus</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="9868"/>
@@ -4543,27 +4543,27 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="9923"/>
         <source>WalkingPad X21</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="9938"/>
         <source>WalkingPad X21 v2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="9953"/>
         <source>WalkingPad X21 v3</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="9967"/>
         <source>WalkingPad X21 v4</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="9981"/>
         <source>WalkingPad G1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="9995"/>
@@ -4583,17 +4583,17 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10033"/>
         <source>Fitfiu MC-460</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10046"/>
         <source>Zero ZT-2500</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10059"/>
         <source>UMAY S100</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10076"/>
@@ -4608,7 +4608,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10098"/>
         <source>T900</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10112"/>
@@ -4684,17 +4684,17 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10363"/>
         <source>Sole F63</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10377"/>
         <source>Sole F65</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10391"/>
         <source>Sole TT8</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10408"/>
@@ -4714,12 +4714,12 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10440"/>
         <source>AnyRun</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10453"/>
         <source>Atletica Lightspeed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10467"/>
@@ -4759,7 +4759,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10581"/>
         <source>Paragon X</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10595"/>
@@ -4775,7 +4775,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10623"/>
         <source>Omega Z</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10638"/>
@@ -4840,7 +4840,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10858"/>
         <source>TRX 65s EVO</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10873"/>
@@ -4855,27 +4855,27 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10901"/>
         <source>Toorx SRX 500</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10916"/>
         <source>Toorx SRX 3500</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10930"/>
         <source>Enerfit SPX 9500 / Toorx SRX 500</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10944"/>
         <source>HOP-Sport HS-090h</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10958"/>
         <source>Taurua IC90 Bike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="10973"/>
@@ -4900,7 +4900,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11033"/>
         <source>Toorx/iConsole Bike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="11048"/>
@@ -4925,7 +4925,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11107"/>
         <source>Fytter RI08 Bike</source>
-        <translation type="unfinished"></translation>
+        <translation>Fytter RI08 バイク</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11121"/>
@@ -4935,7 +4935,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11135"/>
         <source>Hertz XR 770 Bike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="11148"/>
@@ -4945,7 +4945,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11161"/>
         <source>iConsole Rower</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="11174"/>
@@ -4980,17 +4980,17 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11279"/>
         <source>Proform Sport RL</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="11292"/>
         <source>Proform Rower 750R</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="11313"/>
         <source>ProForm Rower IP:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="11338"/>
@@ -5016,7 +5016,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11391"/>
         <source>Life Fitness 95xi (CSAFE)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="11422"/>
@@ -5031,7 +5031,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11467"/>
         <source>Gymstick GX6.0</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="11482"/>
@@ -5041,22 +5041,22 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11489"/>
         <source>Proform Hybrid Trainer XT</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="11503"/>
         <source>Proform Hybrid Trainer PFEL03815</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="11516"/>
         <source>Nordictrack C7.5</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="11529"/>
         <source>NordicTrack Elliptical SE7i</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="11544"/>
@@ -5081,7 +5081,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11624"/>
         <source>iConcept elliptical</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="11643"/>
@@ -5261,7 +5261,7 @@ IMPORTANT NOTES:
 - No Average/smooth in Hometrainer config for standard home trainers which work at 1hz (No race mode available)
 - Disable Average on 3rd party apps (Rouvy/Zwift/MyWhoosh etc) or select 1sec in the app!
 - Need to use QZ in bridge mode!
-- For Elite home trainers or those who have a race mode (10hz), if it&apos;s not sufficient for some users, using Elite/Hometrainer smoothing in addition to QZ smoothing will improve it.</source>
+- For Elite home trainers or those who have a race mode (10hz), if it's not sufficient for some users, using Elite/Hometrainer smoothing in addition to QZ smoothing will improve it.</source>
         <translation>機器からQZに送信される出力/ワット数が変動しやすい場合、この設定によりPower Zoneグラフがより滑らかになります。これは、パワーメーターペダルを使用する場合にも役立ちます。算術平均よりもパワーの急激なスパイクをより良く平滑化する調和平均を使用します。読み取り値が0の場合、パワーは即座に0になります。初期設定はオフです。
 
 【重要なお知らせ】
@@ -5317,7 +5317,7 @@ IMPORTANT NOTES:
     </message>
     <message>
         <location filename="../settings.qml" line="12391"/>
-        <source>If you don&apos;t want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.</source>
+        <source>If you don't want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.</source>
         <translation>自転車やトレッドミルで特定の傾斜値以下に行きたくない場合は、ここに最小値を設定してください。デフォルト: -999。</translation>
     </message>
     <message>
@@ -5357,7 +5357,7 @@ IMPORTANT NOTES:
     </message>
     <message>
         <location filename="../settings.qml" line="12511"/>
-        <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
+        <source>For the smart trainers, use resistance instead of inclination. This should help if you don't want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>スマートトレーナーの場合、傾斜ではなく抵抗を使用してください。これにより、ギアを変更した際にWahoo Climbや類似の機能が傾斜を変更するのを防ぐことができます。デフォルト: 無効</translation>
     </message>
     <message>
@@ -5387,7 +5387,7 @@ IMPORTANT NOTES:
     </message>
     <message>
         <location filename="../settings.qml" line="12617"/>
-        <source>Don&apos;t touch these settings if your bike works properly!</source>
+        <source>Don't touch these settings if your bike works properly!</source>
         <translation>自転車が正常に動作している場合は、これらの設定は変更しないでください。</translation>
     </message>
     <message>
@@ -5423,7 +5423,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings.qml" line="12768"/>
         <source>Rogue Echo Bike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="12782"/>
@@ -5547,7 +5547,7 @@ IMPORTANT NOTES:
     </message>
     <message>
         <location filename="../settings.qml" line="13144"/>
-        <source>If you have a Bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can&apos;t get the inclination from the treadmill. Enabling this and QZ will add an inclination gain to the power read from the Stryd. Default: disabled.</source>
+        <source>If you have a Bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can't get the inclination from the treadmill. Enabling this and QZ will add an inclination gain to the power read from the Stryd. Default: disabled.</source>
         <translation>BluetoothトレッドミルとStrydデバイスをQZに接続している場合、通常、Strydはトレッドミルから傾斜を取得できません。これを有効にすると、QZがStrydから読み取ったパワーに傾斜ゲインが追加されます。デフォルト: 無効。</translation>
     </message>
     <message>
@@ -5623,7 +5623,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <location filename="../settings.qml" line="13347"/>
         <source>Elite Sterzo Smart:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="13386"/>
@@ -5638,7 +5638,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <location filename="../settings.qml" line="13429"/>
         <source>Peloton Bike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="13446"/>
@@ -5791,7 +5791,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <location filename="../settings.qml" line="14151"/>
         <source>Zwift Play</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="14165"/>
@@ -6001,7 +6001,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <location filename="../settings.qml" line="14807"/>
         <source>Wahoo direct connect</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="14815"/>
@@ -6016,7 +6016,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <location filename="../settings.qml" line="14844"/>
         <source>ID:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="14865"/>
@@ -6081,7 +6081,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <location filename="../settings.qml" line="15108"/>
         <source>OSC IP:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="15131"/>
@@ -6116,7 +6116,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <location filename="../settings.qml" line="15256"/>
         <source>Android WakeLock</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings.qml" line="15270"/>
@@ -6210,7 +6210,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <location filename="../settings.qml" line="15520"/>
-        <source>Android Only: enable this to force Android to don&apos;t kill QZ when it&apos;s running on background</source>
+        <source>Android Only: enable this to force Android to don't kill QZ when it's running on background</source>
         <translation>Android限定: これを有効にすると、QZがバックグラウンドで実行されているときにAndroidに強制終了させないようにできます</translation>
     </message>
     <message>
@@ -6269,7 +6269,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <location filename="../settings-shortcuts.qml" line="128"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings-shortcuts.qml" line="177"/>
@@ -6990,7 +6990,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <location filename="../settings-tiles.qml" line="1039"/>
         <source>FTP %</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="1070"/>
@@ -7215,7 +7215,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <location filename="../settings-tiles.qml" line="2101"/>
         <source>METS</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="2132"/>
