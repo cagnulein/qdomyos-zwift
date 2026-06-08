@@ -9199,6 +9199,19 @@
       "options": null
     },
     {
+      "key": "trainprogram_pid_hr_pushy_zone_limit",
+      "name": "PID Pushy Zone Limit",
+      "description": "Fraction of zone above the target zone where 'Pushy' mode stops pushing. 0.8 means the PID stops pushing at zone+0.8. Default: 0.8.",
+      "parent": "Training Program Options",
+      "type": "number",
+      "qmlType": "real",
+      "control": "textfield",
+      "visible": true,
+      "defaultValue": 0.8,
+      "defaultExpression": "0.8",
+      "options": null
+    },
+    {
       "key": "min_inclination",
       "name": "Minimum Inclination",
       "description": "If you don't want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.",
