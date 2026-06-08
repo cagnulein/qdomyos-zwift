@@ -116,7 +116,8 @@ class HealthConnectHelper {
             }
         }
 
-        private fun writePermissions(): Set<String> {
+        @JvmStatic
+        fun writePermissions(): Set<String> {
             return setOf(
                 HealthPermission.getWritePermission(ExerciseSessionRecord::class),
                 HealthPermission.getWritePermission(DistanceRecord::class),
@@ -176,7 +177,9 @@ class HealthConnectHelper {
             }
         }
 
-        private fun buildRecords(samples: JSONArray, title: String?, deviceType: Int, deviceName: String?): List<Record> {
+        // Visible for testing
+        @JvmStatic
+        fun buildRecords(samples: JSONArray, title: String?, deviceType: Int, deviceName: String?): List<Record> {
             val first = samples.getJSONObject(0)
             val last = samples.getJSONObject(samples.length() - 1)
             val start = Instant.ofEpochMilli(first.getLong("time"))
@@ -263,7 +266,9 @@ class HealthConnectHelper {
             return records
         }
 
-        private fun exerciseType(deviceType: Int): Int {
+        // Visible for testing
+        @JvmStatic
+        fun exerciseType(deviceType: Int): Int {
             return when (deviceType) {
                 1 -> ExerciseSessionRecord.EXERCISE_TYPE_RUNNING_TREADMILL
                 2 -> ExerciseSessionRecord.EXERCISE_TYPE_BIKING_STATIONARY

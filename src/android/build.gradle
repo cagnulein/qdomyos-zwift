@@ -9,6 +9,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:8.13.2'
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20'
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.5'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20'
     }
 }
 
@@ -21,6 +22,7 @@ repositories {
 apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'com.google.protobuf'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 def amazon = System.getenv('AMAZON')
 def androidCompileSdk = (project.findProperty('androidCompileSdkVersion') ?: '35').toString()
@@ -66,6 +68,12 @@ dependencies {
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.60'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.60'
     implementation("com.garmin.connectiq:ciq-companion-app-sdk:2.3.0@aar")
+    implementation "androidx.activity:activity-ktx:1.9.3"
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit:2.1.20'
+    testImplementation 'androidx.health.connect:connect-client:1.1.0-alpha11'
+    testImplementation 'org.json:json:20231013'
 }
 
 import org.apache.tools.ant.taskdefs.condition.Os
@@ -117,6 +125,7 @@ android {
         main {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = [qtAndroidJavaSrcDir, 'src', 'java']
+            kotlin.srcDirs = ['src', 'java']
             aidl.srcDirs = [qtAndroidJavaSrcDir, 'src', 'aidl']
             res.srcDirs = [qtAndroidJavaResDir, 'res']
             resources.srcDirs = ['resources']
@@ -130,6 +139,10 @@ android {
         }
         release {
             java.srcDirs += ["$buildDir/generated/aidl_source_output_dir/release/out"]
+        }
+        test {
+            java.srcDirs = ['tests']
+            kotlin.srcDirs = ['tests']
         }
     }
 
