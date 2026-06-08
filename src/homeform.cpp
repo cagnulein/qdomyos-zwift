@@ -31,7 +31,9 @@
 #include <QGeoCoordinate>
 #include <QHttpMultiPart>
 #include <QImageWriter>
+#include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QNetworkAccessManager>
 #include <QNetworkCookieJar>
 #include <QNetworkInterface>
@@ -8537,6 +8539,54 @@ void homeform::saveSessionAsTrainingProgram() {
     }
 }
 
+#ifdef Q_OS_ANDROID
+static void healthConnectWriteWorkout(const QList<SessionLine> &session, bluetoothdevice *dev, const QString &workoutName) {
+    if (!dev || session.isEmpty()) {
+        return;
+    }
+
+    QJsonArray samples;
+    for (const SessionLine &line : session) {
+        if (!line.time.isValid()) {
+            continue;
+        }
+
+        QJsonObject sample;
+        sample.insert(QStringLiteral("time"), static_cast<double>(line.time.toMSecsSinceEpoch()));
+        sample.insert(QStringLiteral("speed"), line.speed);
+        sample.insert(QStringLiteral("distance"), line.distance);
+        sample.insert(QStringLiteral("watt"), static_cast<int>(line.watt));
+        sample.insert(QStringLiteral("heart"), static_cast<int>(line.heart));
+        sample.insert(QStringLiteral("cadence"), static_cast<int>(line.cadence));
+        sample.insert(QStringLiteral("calories"), line.calories);
+        samples.append(sample);
+    }
+
+    if (samples.isEmpty()) {
+        return;
+    }
+
+    QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod(
+        "org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
+    if (!activity.isValid()) {
+        qDebug() << "Health Connect upload skipped: Android activity is not available";
+        return;
+    }
+
+    const QString title = workoutName.isEmpty() ? QStringLiteral("QZ workout") : workoutName;
+    QAndroidJniObject jTitle = QAndroidJniObject::fromString(title);
+    QAndroidJniObject jDeviceName = QAndroidJniObject::fromString(dev->bluetoothDevice.name());
+    QAndroidJniObject jSamplesJson =
+        QAndroidJniObject::fromString(QString::fromUtf8(QJsonDocument(samples).toJson(QJsonDocument::Compact)));
+
+    QAndroidJniObject::callStaticMethod<void>(
+        "org/cagnulen/qdomyoszwift/HealthConnectHelper", "writeWorkoutJson",
+        "(Landroid/content/Context;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;)V",
+        activity.object<jobject>(), jTitle.object<jstring>(), static_cast<jint>(dev->deviceType()),
+        jDeviceName.object<jstring>(), jSamplesJson.object<jstring>());
+}
+#endif
+
 void homeform::fit_save_clicked() {
 
     QString path = getWritableAppDir();
@@ -8581,6 +8631,10 @@ void homeform::fit_save_clicked() {
             fitProcessor->processFile(filename);
             workoutModel->refresh();
         }
+
+#ifdef Q_OS_ANDROID
+        healthConnectWriteWorkout(Session, dev, workoutName);
+#endif
 
         QSettings settings;
         if (!settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken)
