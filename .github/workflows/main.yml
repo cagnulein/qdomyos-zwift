@@ -143,6 +143,7 @@ jobs:
 
       - name: Build
         run: |
+            lrelease src/qdomyos-zwift.pri
             qmake
             make -j8
             cd src/debug
@@ -165,11 +166,12 @@ jobs:
             cp ../../adb/* adb/
             cd ..
             cd appx
-            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz   
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz
         if: matrix.config.python
-            
+
       - name: Build without python
         run: |
+            lrelease src/qdomyos-zwift.pri
             qmake
             make -j8
             cd src/debug
@@ -555,7 +557,7 @@ jobs:
           git submodule update --init --recursive 
 
       - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
 
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
@@ -619,7 +621,7 @@ jobs:
       - name: Install Android SDK packages
         run: |
           SDKMANAGER="/usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-34" "build-tools;35.0.0"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Setup ccache
         run: |
@@ -708,6 +710,7 @@ jobs:
 
       - name: Build QZ for Android (4 ABIs)
         run: |
+          lrelease src/qdomyos-zwift.pri
           qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           cat src/android-qdomyos-zwift-deployment-settings.json
@@ -727,7 +730,7 @@ jobs:
           cd src
           mkdir -p ${{ github.workspace }}/output/android
           rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
-          androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aux-mode
+          androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aux-mode
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
           export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
@@ -1192,6 +1195,7 @@ jobs:
 
       - name: Build
         run: |
+            lrelease src/qdomyos-zwift.pri
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
@@ -1220,10 +1224,11 @@ jobs:
 
       - name: Build without python
         run: |
+            lrelease src/qdomyos-zwift.pri
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
-            qmake           
+            qmake
             nmake
             cd src/debug
             mkdir output
@@ -1395,6 +1400,7 @@ jobs:
 
       - name: Build
         run: |
+            lrelease src/qdomyos-zwift.pri
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
@@ -1779,10 +1785,11 @@ jobs:
 
       - name: Build
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
         run: |
-            qmake            
+            lrelease src/qdomyos-zwift.pri
+            qmake
             nmake
             cd src/debug
             mkdir output
@@ -1808,10 +1815,11 @@ jobs:
             
       - name: Build without python
 #            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose      
-#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose     
-        run: |          
-            qmake           
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
+        run: |
+            lrelease src/qdomyos-zwift.pri
+            qmake
             nmake
             cd src/debug
             mkdir output
@@ -1988,6 +1996,7 @@ jobs:
 
       - name: Build
         run: |
+          lrelease src/qdomyos-zwift.pri
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
@@ -2016,6 +2025,7 @@ jobs:
 
       - name: Build without python
         run: |
+          lrelease src/qdomyos-zwift.pri
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
@@ -2134,7 +2144,7 @@ jobs:
           ANDROID_ROOT="/usr/local/lib/android"
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-34" "build-tools;35.0.0"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2173,7 +2183,7 @@ jobs:
           cd src
           mkdir -p ${{ github.workspace }}/output/android
           rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
-          androiddeployqt --input android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aux-mode
+          androiddeployqt --input android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aux-mode
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
           export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
@@ -2260,7 +2270,7 @@ jobs:
           ANDROID_ROOT="/usr/local/lib/android"
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-34" "build-tools;35.0.0"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2297,7 +2307,7 @@ jobs:
           cd src
           mkdir -p ${{ github.workspace }}/output/android
           rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
-          androiddeployqt --input android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aux-mode
+          androiddeployqt --input android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aux-mode
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
           export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
@@ -2384,7 +2394,7 @@ jobs:
           ANDROID_ROOT="/usr/local/lib/android"
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-34" "build-tools;35.0.0"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2421,7 +2431,7 @@ jobs:
           cd src
           mkdir -p ${{ github.workspace }}/output/android
           rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
-          androiddeployqt --input android-qdomyos-zwift-peloton-bike-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-34 --gradle --aux-mode
+          androiddeployqt --input android-qdomyos-zwift-peloton-bike-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aux-mode
           export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
           export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
           export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"

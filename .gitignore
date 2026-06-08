@@ -60,4 +60,5 @@ src/qdomyos-zwift.pro.user.49de507
 /.vs
 src/android/.gradle/
 src/android/local.properties
+src/translations/*.qm
 /tools/__pycache__

@@ -124,6 +124,25 @@
                                     android:value="ocr" />
 
 				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
+                                <activity
+                                    android:name=".HealthConnectPermissionActivity"
+                                    android:exported="false"
+                                    android:theme="@style/Theme.AppCompat">
+                                    <intent-filter>
+                                        <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+                                    </intent-filter>
+                                </activity>
+
+                                <activity-alias
+                                    android:name="ViewPermissionUsageActivity"
+                                    android:exported="true"
+                                    android:targetActivity=".HealthConnectPermissionActivity"
+                                    android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+                                    <intent-filter>
+                                        <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+                                        <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+                                    </intent-filter>
+                                </activity-alias>
 
                                 <receiver android:name=".MediaButtonReceiver" android:exported="true" android:permission="android.permission.MODIFY_AUDIO_SETTINGS">
                                     <intent-filter>
@@ -153,4 +172,11 @@
 	 <uses-permission android:name="android.permission.GET_TASKS" />
 	 <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
 	     tools:ignore="ProtectedPermissions" />
+         <uses-permission android:name="android.permission.health.WRITE_EXERCISE" />
+         <uses-permission android:name="android.permission.health.WRITE_DISTANCE" />
+         <uses-permission android:name="android.permission.health.WRITE_TOTAL_CALORIES_BURNED" />
+         <uses-permission android:name="android.permission.health.WRITE_HEART_RATE" />
+         <uses-permission android:name="android.permission.health.WRITE_POWER" />
+         <uses-permission android:name="android.permission.health.WRITE_SPEED" />
+         <uses-permission android:name="android.permission.health.WRITE_CYCLING_PEDALING_CADENCE" />
 </manifest>
