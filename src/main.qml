@@ -728,6 +728,31 @@ ApplicationWindow {
     }
 
     MessageDialog {
+        text: "Clipboard Workout"
+        informativeText: "Workout found in clipboard:\n" + rootItem.clipboardWorkoutPromptName +
+                         "\n\nDo you want to open the workout preview?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            var workoutUrl = rootItem.clipboard_workout_url()
+            rootItem.clipboard_dismiss_workout_prompt()
+            var page = CHARTJS
+                    ? stackView.push("TrainingProgramsListJS.qml", { initialWorkoutUrl: workoutUrl })
+                    : stackView.push("TrainingProgramsList.qml", { initialWorkoutUrl: workoutUrl })
+            page.trainprogram_open_clicked.connect(trainprogram_open_clicked)
+            page.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
+            page.trainprogram_preview.connect(trainprogram_preview)
+            if (page.trainprogram_autostart_requested) {
+                page.trainprogram_autostart_requested.connect(trainprogram_autostart_requested)
+            }
+            page.trainprogram_open_clicked.connect(function(url) {
+                stackView.pop();
+            });
+        }
+        onNoClicked: { rootItem.clipboard_dismiss_workout_prompt(); }
+        visible: rootItem.clipboardWorkoutPromptRequested
+    }
+
+    MessageDialog {
         text: "Echelon Unlock"
         informativeText: "The bike has been unlocked and cadence is flowing.\n\nDo you want to switch to the classic Bluetooth bridge for this session?"
         buttons: (MessageDialog.Yes | MessageDialog.No)

@@ -45,6 +45,7 @@ const QString QZSettings::default_garmin_email = QStringLiteral("");
 const QString QZSettings::garmin_password = QStringLiteral("garmin_password");
 const QString QZSettings::default_garmin_password = QStringLiteral("");
 const QString QZSettings::garmin_upload_enabled = QStringLiteral("garmin_upload_enabled");
+const QString QZSettings::garmin_download_workouts_on_start = QStringLiteral("garmin_download_workouts_on_start");
 const QString QZSettings::garmin_access_token = QStringLiteral("garmin_access_token");
 const QString QZSettings::default_garmin_access_token = QStringLiteral("");
 const QString QZSettings::garmin_refresh_token = QStringLiteral("garmin_refresh_token");
@@ -620,6 +621,8 @@ const QString QZSettings::CRRGain = QStringLiteral("crrGain");
 const QString QZSettings::CWGain = QStringLiteral("cwGain");
 const QString QZSettings::proform_treadmill_cadence_lt = QStringLiteral("proform_treadmill_cadence_lt");
 const QString QZSettings::trainprogram_stop_at_end = QStringLiteral("trainprogram_stop_at_end");
+const QString QZSettings::trainprogram_clipboard_workout_enabled =
+    QStringLiteral("trainprogram_clipboard_workout_enabled");
 const QString QZSettings::domyos_elliptical_inclination = QStringLiteral("domyos_elliptical_inclination");
 const QString QZSettings::gpx_loop = QStringLiteral("gpx_loop");
 const QString QZSettings::android_notification = QStringLiteral("android_notification");
@@ -1255,6 +1258,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::garmin_email, QZSettings::default_garmin_email},
     {QZSettings::garmin_password, QZSettings::default_garmin_password},
     {QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled},
+    {QZSettings::garmin_download_workouts_on_start, QZSettings::default_garmin_download_workouts_on_start},
     {QZSettings::garmin_access_token, QZSettings::default_garmin_access_token},
     {QZSettings::garmin_refresh_token, QZSettings::default_garmin_refresh_token},
     {QZSettings::garmin_token_type, QZSettings::default_garmin_token_type},
@@ -1731,6 +1735,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::CWGain, QZSettings::default_CWGain},
     {QZSettings::proform_treadmill_cadence_lt, QZSettings::default_proform_treadmill_cadence_lt},
     {QZSettings::trainprogram_stop_at_end, QZSettings::default_trainprogram_stop_at_end},
+    {QZSettings::trainprogram_clipboard_workout_enabled,
+     QZSettings::default_trainprogram_clipboard_workout_enabled},
     {QZSettings::domyos_elliptical_inclination, QZSettings::default_domyos_elliptical_inclination},
     {QZSettings::gpx_loop, QZSettings::default_gpx_loop},
     {QZSettings::android_notification, QZSettings::default_android_notification},
