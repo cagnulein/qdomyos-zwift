@@ -37,7 +37,6 @@ class fakerower : public rower {
   public:
     fakerower(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected() override;
-    void proxyVirtualRowerCommand(const QByteArray &value);
 
   private:
     QTimer *refresh;

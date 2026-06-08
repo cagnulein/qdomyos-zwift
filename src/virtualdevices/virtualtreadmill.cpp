@@ -1,6 +1,5 @@
 #include "virtualdevices/virtualtreadmill.h"
 #include "devices/echelonstride/echelonstride.h"
-#include "devices/faketreadmill/faketreadmill.h"
 #include <QThread>
 #include <QSettings>
 #include <QtMath>
@@ -510,15 +509,15 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("0bf669f2-45f2-11e7-9598-0800200c9a66")) &&
         serviceEchelon && newValue.length() > 3) {
+        // When QZ is backed by a real Echelon treadmill, forward the app payload to the treadmill and let
+        // the treadmill's own notifications be mirrored back to the client (firmware unlock passthrough).
         if (auto *realEchelon = dynamic_cast<echelonstride *>(treadMill); realEchelon && realEchelon->connected()) {
             realEchelon->proxyVirtualTreadmillCommand(newValue);
             return;
         }
-        if (auto *fakeEchelon = dynamic_cast<faketreadmill *>(treadMill); fakeEchelon && fakeEchelon->connected()) {
-            fakeEchelon->proxyVirtualTreadmillCommand(newValue);
-            return;
-        }
 
+        // Otherwise (fake treadmill / no real Echelon hardware) answer the handshake synthetically, exactly
+        // like the real Echelon Stride does in the HCI snoop traces.
         QLowEnergyCharacteristic notify1 =
             serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
         QLowEnergyCharacteristic notify2 =
@@ -550,19 +549,11 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 writeEchelonCharacteristic(notify2, QByteArray::fromHex("f0d00111d2"));
                 echelonWriteRunningState();
             } else if (command == 0xA0) {
+                // keep-alive echo
                 writeEchelonCharacteristic(notify1, newValue);
-            } else if (command == 0xD2 && newValue.length() >= 5) {
-                if (auto *treadmillDevice = qobject_cast<treadmill *>(treadMill)) {
-                    const double inclination = static_cast<uint8_t>(newValue.at(3));
-                    treadmillDevice->changeInclination(inclination, inclination);
-                }
-            } else if (command == 0xD3 && newValue.length() >= 6) {
-                if (auto *treadmillDevice = qobject_cast<treadmill *>(treadMill)) {
-                    const uint16_t rawSpeed =
-                        (static_cast<uint8_t>(newValue.at(3)) << 8) | static_cast<uint8_t>(newValue.at(4));
-                    treadmillDevice->changeSpeed(static_cast<double>(rawSpeed) / 1000.0);
-                }
             }
+            // Note: incoming 0xD1/0xD2/0xD3/0xD5 writes are the app's acknowledgement echoes of our own
+            // telemetry notifications (as seen in the snoop), not control commands, so they are ignored.
         }
     }
 }

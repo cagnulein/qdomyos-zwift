@@ -65,8 +65,13 @@ class virtualrower : public virtualdevice {
 
     bool noHeartService = false;
 
+    bool echelonInitDone = false;
+    int echelonLastResistance = -1;
+
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);
+    void echelonWriteStatus();
+    void echelonWriteResistance();
     void setupPM5Services();
     QByteArray buildPM5GeneralStatus();
     QByteArray buildPM5AdditionalStatus();
