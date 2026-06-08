@@ -1687,6 +1687,7 @@ import Qt.labs.platform 1.1
             property bool horizon_treadmill_omega_z: false
 
             property string app_language: "auto"
+            property string shortcut_stop: ""
         }
 
 
