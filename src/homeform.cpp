@@ -5662,7 +5662,7 @@ QString homeform::stopText() {
 
     QSettings settings;
     if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
-        return QStringLiteral("Stop");
+        return tr("Stop");
     }
     return QLatin1String("");
 }
@@ -5674,9 +5674,9 @@ QString homeform::startText() {
     QSettings settings;
     if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
         if (paused || stopped) {
-            return QStringLiteral("Start");
+            return tr("Start");
         } else {
-            return QStringLiteral("Pause");
+            return tr("Pause");
         }
     }
     return QLatin1String("");
