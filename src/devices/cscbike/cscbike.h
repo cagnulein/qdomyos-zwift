@@ -40,7 +40,6 @@ class cscbike : public bike {
     bool isJorotoBike() const { return jorotoBike; }
     void enableManualResistancePowerAdjustment(resistance_t resistance);
     static uint16_t customResistanceAdjustedWatts(double cadence, resistance_t resistance);
-    static resistance_t resistanceFromCustomPowerTable(uint16_t power);
     static resistance_t customResistanceMax();
     static bool useCustomResistancePowerTable();
     static resistance_t clampedCustomResistance(resistance_t resistance);

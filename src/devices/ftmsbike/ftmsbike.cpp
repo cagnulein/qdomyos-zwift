@@ -223,7 +223,6 @@ void ftmsbike::zwiftPlayInit() {
 void ftmsbike::forcePower(int16_t requestPower) {
     if((resistance_lvl_mode || TITAN_7000) && !MAGNUS && !SS2K) {
         const resistance_t targetResistance = resistanceFromPowerRequest(requestPower);
-        smartBikePowerTargetResistancePending = false;
         forceResistance(targetResistance);
     } else {
         uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
@@ -255,10 +254,6 @@ void ftmsbike::enableManualResistancePowerAdjustment(resistance_t resistance) {
     }
 }
 
-void ftmsbike::onManualResistanceAdjusted(resistance_t resistance) {
-    enableManualResistancePowerAdjustment(resistance);
-}
-
 uint16_t ftmsbike::wattsFromResistance(double resistance) {
     if(DU30_bike) {
         double y = 1.46193548 * Cadence.value() + 0.0000887836638 * Cadence.value() * resistance + 0.000625 * resistance * resistance + 0.0580645161 * Cadence.value() + 0.00292986091 * resistance + 6.48448135542904;
@@ -268,28 +263,16 @@ uint16_t ftmsbike::wattsFromResistance(double resistance) {
 }
 
 
-resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
+void ftmsbike::changePower(int32_t power) {
     if (SMARTBIKE_3DIGIT) {
-        smartBikePowerTargetResistancePending = true;
-        return cscbike::resistanceFromCustomPowerTable(power);
-    }
-
-    return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
-}
-
-void ftmsbike::changeResistance(resistance_t resistance) {
-    if (SMARTBIKE_3DIGIT && smartBikePowerTargetResistancePending) {
-        smartBikePowerTargetResistancePending = false;
-        lastRawRequestedResistanceValue = resistance;
-        RequestedResistance = resistance * m_difficult + gearsModifier();
-        requestPower = -1;
-        qDebug() << QStringLiteral("SmartBike target resistance updated without changing manual resistance")
-                 << RequestedResistance.value();
+        RequestedPower = power;
         return;
     }
+    bike::changePower(power);
+}
 
-    smartBikePowerTargetResistancePending = false;
-    bike::changeResistance(resistance);
+resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
+    return _ergTable.resistanceFromPowerRequest(power, Cadence.value(), max_resistance);
 }
 
 void ftmsbike::forceResistance(resistance_t requestResistance) {

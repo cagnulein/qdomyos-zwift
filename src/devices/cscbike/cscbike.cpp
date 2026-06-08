@@ -95,32 +95,6 @@ uint16_t cscbike::customResistanceAdjustedWatts(double cadence, resistance_t man
     return qMax(0, qRound(cadenceAdjustedWatts));
 }
 
-resistance_t cscbike::resistanceFromCustomPowerTable(uint16_t power) {
-    QSettings settings;
-    const double resistanceLevel1 =
-        settings.value(QZSettings::cscbike_custom_resistance_level_1,
-                       QZSettings::default_cscbike_custom_resistance_level_1)
-            .toDouble();
-    const double watt1 =
-        settings.value(QZSettings::cscbike_custom_watt_1, QZSettings::default_cscbike_custom_watt_1).toDouble();
-    const double resistanceLevel2 =
-        settings.value(QZSettings::cscbike_custom_resistance_level_2,
-                       QZSettings::default_cscbike_custom_resistance_level_2)
-            .toDouble();
-    const double watt2 =
-        settings.value(QZSettings::cscbike_custom_watt_2, QZSettings::default_cscbike_custom_watt_2).toDouble();
-
-    if (watt1 == watt2) {
-        return clampedCustomResistance(qRound((resistanceLevel1 + resistanceLevel2) / 2.0));
-    }
-
-    const double slope = (resistanceLevel2 - resistanceLevel1) / (watt2 - watt1);
-    double resistance = resistanceLevel1 + ((power - watt1) * slope);
-    resistance = qBound(qMin(resistanceLevel1, resistanceLevel2), resistance,
-                        qMax(resistanceLevel1, resistanceLevel2));
-    return clampedCustomResistance(qRound(resistance));
-}
-
 resistance_t cscbike::customResistanceMax() {
     QSettings settings;
     const double resistanceLevel1 =
