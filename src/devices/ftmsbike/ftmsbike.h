@@ -23,6 +23,7 @@
 #include <QtCore/qtimer.h>
 
 #include <QDateTime>
+#include <QElapsedTimer>
 #include <QObject>
 #include <QString>
 
@@ -138,6 +139,7 @@ class ftmsbike : public bike {
 
     bool powerForced = false;
     resistance_t m_lastErgResistance = 0;
+    QElapsedTimer m_ergResistanceLastChange;
     bool manualResistancePowerAdjustmentActive = false;
     bool manualResistancePowerAdjustmentToastShown = false;
     resistance_t manualResistanceTarget = 1;

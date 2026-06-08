@@ -128,8 +128,11 @@ void bike::changePower(int32_t power) {
             .toBool();
     // bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool(); //Not used
     // anywhere in code
-    double deltaDown = wattsMetric().value() - ((double)power);
-    double deltaUp = ((double)power) - wattsMetric().value();
+    // Use 5-second average to filter instantaneous power spikes that would otherwise
+    // trigger spurious resistance changes near the target (false oscillation)
+    double smoothedWatts = (m_watt.average5s() > 0) ? m_watt.average5s() : wattsMetric().value();
+    double deltaDown = smoothedWatts - ((double)power);
+    double deltaUp = ((double)power) - smoothedWatts;
     qDebug() << QStringLiteral("filter  ") + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +
                     QString::number(erg_filter_upper) + " " + QString::number(erg_filter_lower);
     if (!ergModeSupported && force_resistance /*&& erg_mode*/ &&
