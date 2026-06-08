@@ -210,7 +210,7 @@ class HealthConnectHelper {
                 exerciseType = exerciseType(deviceType),
                 title = if (title.isNullOrBlank()) "QZ workout" else title,
                 notes = deviceName,
-                metadata = Metadata(recordingMethod = Metadata.RECORDING_METHOD_MANUAL_ENTRY)
+                metadata = Metadata(recordingMethod = Metadata.RECORDING_METHOD_ACTIVELY_RECORDED)
             )
 
             val hasDistance = grantedPermissions.contains(HealthPermission.getWritePermission(DistanceRecord::class))
