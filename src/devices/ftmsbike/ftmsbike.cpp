@@ -316,6 +316,11 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
             requestResistance = 1;
         }
 
+        if(max_resistance > 0 && requestResistance > max_resistance) {
+            qDebug() << "Resistance" << requestResistance << "exceeds max_resistance" << max_resistance << "- clamping";
+            requestResistance = max_resistance;
+        }
+
         if(SL010 || SPORT01 || TOPUTURE_TEB5 || FS_YK)
             Resistance = requestResistance;
         
